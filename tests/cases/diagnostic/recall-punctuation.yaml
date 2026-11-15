@@ -1,10 +1,33 @@
 {
   "feature": "diagnostic-device-recall",
   "live_check": "public",
-  "story": "A device recall firm or product code holding punctuation openFDA refuses is searched as the same words without it, and a device name with an accented letter, infusion pümp, is searched as infusion pump; source_query shows the phrase sent. A source notice names each value sent as other words.",
+  "story": "A plain device recall firm is sent as typed with no rewrite notice. A device recall firm or product code holding punctuation openFDA refuses is searched as the same words without it, and a device name with an accented letter, infusion pümp, is searched as infusion pump; source_query shows the phrase sent. A source notice names each value sent as other words. The same firm typed as --firm is named --firm in the notice, and a ü typed as u and a combining diaeresis, as macOS pastes it, still searches infusion pump.",
   "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/diagnostic/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "diagnostic/openfda-punctuation",
   "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--limit",
+        "1",
+        "--source",
+        "fda-device-recall",
+        "--firm",
+        "Abbott"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/manufacturer": "Abbott",
+        "/page/total": 911,
+        "/result/source_query": "recalling_firm:\"Abbott\"",
+        "/result/items/0/header/recall_number": "Z-0191-2027",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "excludes": "--firm was searched as \"Abbott\": openFDA refuses some punctuation and every character outside ASCII."
+        }
+      }
+    },
     {
       "run": [
         "search",
@@ -72,6 +95,47 @@
         "/sources/0/notices/*/message": {
           "includes": "--name matched the words of openFDA's product_description as one phrase, ignoring case and punctuation, without plural or synonym expansion: the total counts recall records whose description holds the phrase, a different set from a --product-code search. openFDA refuses some punctuation, such as | and ?, and every character outside ASCII, such as ®, so each became a space, or an accented letter its base letter, and the phrase searched was \"infusion pump\"."
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--limit",
+        "1",
+        "--source",
+        "fda-device-recall",
+        "--firm",
+        "Abbott#"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/manufacturer": "Abbott#",
+        "/result/source_query": "recalling_firm:\"Abbott\"",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--firm was searched as \"Abbott\": openFDA refuses some punctuation and every character outside ASCII."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--limit",
+        "1",
+        "--source",
+        "fda-device-recall",
+        "--name",
+        "infusion pümp"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/name": "infusion pümp",
+        "/page/total": 517,
+        "/result/source_query": "product_description:\"infusion pump\"",
+        "/result/items/0/header/recall_number": "Z-2723-2026",
+        "/sources/0/state": "ok"
       }
     }
   ]

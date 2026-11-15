@@ -48,6 +48,7 @@ pub(super) fn fold_firm(v: &mut SearchFields) -> Result<(), QueryInvalid> {
         return Err(QueryInvalid::new(&["firm", "manufacturer"]));
     }
     v.manufacturer = v.firm.take();
+    v.firm_typed = true;
     Ok(())
 }
 

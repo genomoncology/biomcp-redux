@@ -44,7 +44,8 @@ fn openfda_search(cx: &Ctx<'_>, query: &DrugSearch) -> Option<Outcome> {
         _ => return None,
     };
     let name = ("The drug name", query.query());
-    crate::openfda_text::disclose(&mut out, source, std::iter::once(name).chain(values));
+    let values = std::iter::once(name).chain(values);
+    crate::openfda_text::disclose(&mut out, source, values.map(|(o, v)| (o, v, false)));
     Some(out)
 }
 /// Search the selected source directly without consulting another source.
