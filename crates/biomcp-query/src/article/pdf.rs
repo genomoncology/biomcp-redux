@@ -108,7 +108,11 @@ fn open_text(
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Option<ArticleInput> {
     match pdf::publisher::named_id(url.as_str()) {
-        Some(id) => crate::next::checked(id.parse::<ArticleInput>(), Source::SemanticScholar, problems),
+        Some(id) => crate::next::checked(
+            id.parse::<ArticleInput>(),
+            Source::SemanticScholar,
+            problems,
+        ),
         None if matches!(input, ArticleInput::Doi(_)) => None,
         None => Some(input.clone()),
     }
