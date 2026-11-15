@@ -57,11 +57,12 @@ fn finish_bundle(
         ));
     }
 }
-/// The openFDA firm and product code values every device source searches.
-fn firm(q: &DiagnosticSearch) -> [(&'static str, Option<&biodata::Text>); 2] {
+/// The openFDA firm and product code values every device source searches, each named by the
+/// option typed: a device recall takes --firm for --manufacturer (0976).
+fn firm(q: &DiagnosticSearch) -> [(&'static str, Option<&biodata::Text>, bool); 2] {
     [
-        ("--manufacturer", q.manufacturer()),
-        ("--product-code", q.product_code()),
+        (q.manufacturer_option(), q.manufacturer(), false),
+        ("--product-code", q.product_code(), false),
     ]
 }
 /// Search an openFDA device source and name each typed value sent as other words (0841).
@@ -78,9 +79,9 @@ fn openfda_search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Option<Outcome> {
         _ => return None,
     };
     let values = [
-        ("--name", q.name()),
-        ("--intended-use", q.intended_use()),
-        ("--classification-name", q.classification_name()),
+        ("--name", q.name(), false),
+        ("--intended-use", q.intended_use(), false),
+        ("--classification-name", q.classification_name(), false),
     ];
     crate::openfda_text::disclose(&mut out, source, values.into_iter().chain(firm(q)));
     Some(out)
