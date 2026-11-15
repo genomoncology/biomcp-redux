@@ -1,0 +1,48 @@
+{
+  "feature": "cpic-pgx",
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
+  "story": "A plain drug name or a bare ClinPGx accession given to --drug-id is refused with CPIC's drug key form, an example, and the search that lists each drug's key, instead of only the generic identifier description.",
+  "verified": "CPIC API checked live 2026-11-14: /v1/drug?name=ilike.clopidogrel returns drugid RxNorm:32968, and the 324 drug names are unique, but the key is echoed as the reply's checked drug_id and brand names such as Plavix match nothing, so BioMCP refuses rather than resolving. Before 0957 the refusal said only \"Checked prefix:local ontology identifier.\" (bench dx-lab-director 2026-11-14-r3 log.md:84, calls 81, 82 and 89).",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--gene",
+        "CYP2C19",
+        "--source",
+        "cpic",
+        "--drug-id",
+        "clopidogrel"
+      ],
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--drug-id",
+        "/error/message": "--drug-id takes CPIC's drug key, not a drug name, such as --drug-id RxNorm:32968 for clopidogrel; search pgx --gene <SYMBOL> --source cpic lists each drug's drugid"
+      },
+      "max_bytes": 455
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--gene",
+        "CYP2C19",
+        "--source",
+        "cpic",
+        "--drug-id",
+        "PA166104521"
+      ],
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--drug-id",
+        "/error/message": "--drug-id takes CPIC's drug key, not a drug name, such as --drug-id RxNorm:32968 for clopidogrel; search pgx --gene <SYMBOL> --source cpic lists each drug's drugid"
+      },
+      "max_bytes": 455
+    }
+  ]
+}

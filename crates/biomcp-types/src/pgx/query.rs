@@ -141,7 +141,22 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::ClinPgx)))]
     snapshot: Option<Text>,
 }
-crate::query::validation::checked_query!(PgxGet, GetFields);
+impl crate::CheckedQuery for PgxGet {
+    /// A drug name or bare ClinPGx accession is not a CPIC drug key; show the key's form.
+    fn invalid_field(name: &str) -> QueryInvalid {
+        let cause = QueryInvalid::new(&[name]);
+        if name == "drug_id" {
+            cause.with_message(crate::ErrorMessage::PgxDrugId)
+        } else {
+            cause
+        }
+    }
+    fn from_fields<'de, D: serde::Deserializer<'de, Error = QueryInvalid>>(
+        deserializer: D,
+    ) -> Result<Self, QueryInvalid> {
+        Self::try_from(GetFields::deserialize(deserializer)?)
+    }
+}
 impl TryFrom<GetFields> for PgxGet {
     type Error = QueryInvalid;
     fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
