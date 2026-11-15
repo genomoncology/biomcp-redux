@@ -80,13 +80,21 @@ fn start(s: &mut State, tag: &quick_xml::events::BytesStart<'_>) -> Result<(), B
         s.cert = (attr(tag, "Type")?.as_deref() == Some("Certification")).then(Default::default);
     } else if s.under(&["GTRLab", "Organization", "MailingAddress"]) {
         // Only addresses the publisher marks public (Public is required by the XSD).
-        s.address = (attr(tag, "Public")?.as_deref() != Some("false")).then(Default::default);
+        s.address = (xsd_bool(attr(tag, "Public")?) != Some(false)).then(Default::default);
     } else if s.under(&["GTRLabData", "GTRLab", "Personnel"]) {
-        s.director = attr(tag, "IsDirector")?.as_deref() == Some("true");
+        s.director = xsd_bool(attr(tag, "IsDirector")?) == Some(true);
     } else {
         s.leaf = s.leaf().map(|leaf| (leaf, String::new()));
     }
     Ok(())
+}
+/// An XSD boolean: `true` or `1`, `false` or `0`; anything else is unknown.
+fn xsd_bool(value: Option<String>) -> Option<bool> {
+    match value.as_deref() {
+        Some("true" | "1") => Some(true),
+        Some("false" | "0") => Some(false),
+        _ => None,
+    }
 }
 fn attr(tag: &quick_xml::events::BytesStart<'_>, name: &str) -> Result<Option<String>, BadReply> {
     for attr in tag.attributes() {

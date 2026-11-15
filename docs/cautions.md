@@ -107,7 +107,7 @@ Each resolved row carries `gene_count`, the distinct symbols in the test's nativ
 
 ## GTR cards
 
-A card carries, from GTR's XML release, the laboratory's mailing address (`laboratory_address`), its directors by GTR's display name (`laboratory_directors`) and the laboratory's how-to-order and test page links (`order_url`, `test_url`) as published; each is absent when GTR lists none, and the links are the laboratory's own pages, not checked by BioMCP. The address's state, postcode and country can differ from `header.laboratory`, which comes from GTR's test file.
+A card carries, from GTR's XML release, the laboratory's mailing address (`laboratory_address`), its directors by GTR's display name (`laboratory_directors`) and the laboratory's how-to-order and test page links (`order_url`, `test_url`) as published; each is absent when GTR lists none, and the links are the laboratory's own pages, not checked by BioMCP.
 
 The `genes`, `conditions` and `methods` sections page independent native rows with `--section-limit` and `--section-offset`. Relation pages distinguish native row totals from distinct identifier totals. A GTR listing states source membership and laboratory submission facts; it does not establish variant coverage, clinical availability, FDA authorization or NIH endorsement.
 

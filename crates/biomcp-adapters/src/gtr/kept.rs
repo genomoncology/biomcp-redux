@@ -163,15 +163,6 @@ impl State {
         }
     }
 }
-impl Address {
-    fn is_empty(&self) -> bool {
-        self.lines.is_empty()
-            && self.city.is_none()
-            && self.state.is_none()
-            && self.postcode.is_none()
-            && self.country.is_none()
-    }
-}
 /// Close the element on top of the stack, emitting a lab or test that has kept values.
 pub(super) fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) -> Result<(), BadReply> {
     if let Some((leaf, value)) = s.leaf.take() {
@@ -182,13 +173,15 @@ pub(super) fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) -> Result
         return Ok(());
     }
     if s.under(&["GTRLabData", "GTRLab", "LabCertification"]) {
-        if let Some(cert) = s.cert.take()
+        // A certification without a name is skipped alone; the lab keeps its other values.
+        if let Some(cert) = s.cert.take().filter(|c| !c.name.is_empty())
             && let Some((_, lab)) = &mut s.lab
         {
             lab.certifications.push(cert);
         }
     } else if s.under(&["GTRLab", "Organization", "MailingAddress"]) {
-        if let Some(a) = s.address.take().filter(|a| !a.is_empty())
+        // An address with no readable part is dropped when the card is mapped (`map::address`).
+        if let Some(a) = s.address.take()
             && let Some((_, lab)) = &mut s.lab
         {
             lab.address = Some(a);
@@ -201,9 +194,7 @@ pub(super) fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) -> Result
                 || lab.address.is_some()
                 || !lab.directors.is_empty())
         {
-            let named = lab.certifications.iter().all(|c| !c.name.is_empty());
             let row = id
-                .filter(|_| named)
                 .map(|id| serde_json::to_string(&Lab { id, ..lab }))
                 .transpose()
                 .map_err(|_| BadReply)?;

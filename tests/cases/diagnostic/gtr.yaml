@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-gtr",
-  "story": "A complete synthetic GTR pair preserves exact selectors, quoted cells, native relations, conflicts, orphan rows and independent method lists.",
+  "story": "A complete synthetic GTR pair preserves exact selectors, quoted cells, native relations, conflicts, orphan rows and independent method lists; the card skips a mailing address marked Public=\"0\" and a certification without a name, and reads XSD booleans written as 1 or 0.",
   "replay": "diagnostic/gtr-synthetic",
   "steps": [
     {
