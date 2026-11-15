@@ -6,9 +6,15 @@ pub(super) const ARTIFACTS: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), 
 // Only a resolution anchor. The custom retriever never performs external I/O.
 const BASE: &str = "https://schema.invalid/";
 const DIAGNOSTIC_CHARS: usize = 160;
+#[expect(
+    clippy::disallowed_types,
+    reason = "Each embedded validator compiles once, on first use, and is shared across trials"
+)]
+type Compiled = std::sync::OnceLock<Result<Validator, String>>;
 pub(super) struct Registry {
     artifacts: BTreeMap<String, Value>,
-    validators: BTreeMap<String, Validator>,
+    retriever: Memory,
+    validators: BTreeMap<String, Compiled>,
 }
 
 impl Registry {
@@ -31,42 +37,75 @@ impl Registry {
                             })
                     })
                     .collect::<Result<_, _>>()?;
-                Self::new(artifacts).map(Arc::new)
+                Self::lazy(artifacts).map(Arc::new)
             })
             .clone()
     }
 
+    tool_only! {
+    /// Compile every artifact now, so an unresolvable reference fails at construction.
     pub(super) fn new(artifacts: BTreeMap<String, Value>) -> Result<Self, String> {
+        let registry = Self::lazy(artifacts)?;
+        registry.compile_all()?;
+        Ok(registry)
+    }
+    }
+
+    // Compiling every embedded schema took about 4.5 s of each runner start, and the
+    // runner proofs start it once per probe case, so validators compile on first use (0960).
+    fn lazy(artifacts: BTreeMap<String, Value>) -> Result<Self, String> {
+        if let Some(id) = artifacts.iter().find_map(|(id, value)| {
+            (value.get("$id").and_then(Value::as_str) != Some(id)).then_some(id)
+        }) {
+            return Err(format!(
+                "schema validation: artifact identity mismatch {}",
+                bounded(id)
+            ));
+        }
         let retriever = Memory(Arc::new(
             artifacts
                 .iter()
                 .map(|(id, value)| (format!("{BASE}{id}"), value.clone()))
                 .collect(),
         ));
-        let options = jsonschema::options()
-            .with_base_uri(BASE)
-            .with_retriever(retriever);
         let validators = artifacts
-            .iter()
-            .map(|(id, value)| {
-                if value.get("$id").and_then(Value::as_str) != Some(id) {
-                    return Err(format!(
-                        "schema validation: artifact identity mismatch {}",
-                        bounded(id)
-                    ));
-                }
-                options
-                    .build(value)
-                    .map(|validator| (id.clone(), validator))
+            .keys()
+            .map(|id| (id.clone(), Compiled::new()))
+            .collect();
+        Ok(Self {
+            artifacts,
+            retriever,
+            validators,
+        })
+    }
+
+    tool_only! {
+    /// Compile every artifact; the first one that cannot compile is the error.
+    pub(super) fn compile_all(&self) -> Result<(), String> {
+        self.artifacts
+            .keys()
+            .try_for_each(|id| self.validator(id).map(|_| ()))
+    }
+    }
+
+    fn validator(&self, id: &str) -> Result<&Validator, String> {
+        let (artifact, compiled) = self
+            .artifacts
+            .get(id)
+            .zip(self.validators.get(id))
+            .ok_or_else(|| format!("schema validation: unknown identity {}", bounded(id)))?;
+        compiled
+            .get_or_init(|| {
+                jsonschema::options()
+                    .with_base_uri(BASE)
+                    .with_retriever(self.retriever.clone())
+                    .build(artifact)
                     .map_err(|_| {
                         format!("schema validation: cannot compile artifact {}", bounded(id))
                     })
             })
-            .collect::<Result<_, _>>()?;
-        Ok(Self {
-            artifacts,
-            validators,
-        })
+            .as_ref()
+            .map_err(Clone::clone)
     }
 
     pub(super) fn validate(
@@ -95,10 +134,7 @@ impl Registry {
             .ok_or("schema validation: result requires a string schema identity")?;
         reject_empty_lists(value, "", id)?;
         reject_nulls(value, "", id)?;
-        let validator = self
-            .validators
-            .get(id)
-            .ok_or_else(|| format!("schema validation: unknown identity {}", bounded(id)))?;
+        let validator = self.validator(id)?;
         if let Some(error) = validator.iter_errors(value).next() {
             return Err(format!(
                 "schema validation: {} at {} violates {} ({})",
