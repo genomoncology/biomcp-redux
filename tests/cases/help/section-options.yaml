@@ -1,0 +1,155 @@
+{
+  "feature": "schema-discovery",
+  "live_check": "local-only generated help; no source requests",
+  "story": "Section help lists only the options that section takes: help on the drug markets section offers the name alone, with no --source and no approvals options, and leads with an example that reads markets; help on the variant clinvar and population sections offers no CIViC options, which only the civic section (or all) takes.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "get",
+        "drug",
+        "markets"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "drug",
+        "markets"
+      ],
+      "max_bytes": 2083,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/result/commands/*/command": [
+          [
+            "get",
+            "drug"
+          ]
+        ],
+        "/result/commands/0/sections/*/word": [
+          "markets"
+        ],
+        "/result/commands/0/arguments/*/name": [
+          "input",
+          "section"
+        ],
+        "/result/commands/0/examples": [
+          [
+            "get",
+            "drug",
+            "dolutegravir",
+            "markets"
+          ]
+        ],
+        "/result/commands/0/description": "get drug markets. Sources: drugsfda, ema, who-pq.\nListed choices accept any letter case; replies use their listed spelling."
+      }
+    },
+    {
+      "run": [
+        "help",
+        "drug",
+        "markets"
+      ],
+      "max_bytes": 2083,
+      "expect": {
+        "/result/commands/0/arguments/*/name": [
+          "input",
+          "section"
+        ],
+        "/result/commands/0/examples/0": [
+          "get",
+          "drug",
+          "dolutegravir",
+          "markets"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "variant",
+        "clinvar"
+      ],
+      "mcp": [
+        "help",
+        "get",
+        "variant",
+        "clinvar"
+      ],
+      "max_bytes": 3212,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/result/commands/0/sections/*/word": [
+          "clinvar"
+        ],
+        "/result/commands/0/arguments/*/name": [
+          "--build",
+          "input",
+          "--limit",
+          "--offset",
+          "--resolver",
+          "section",
+          "--section-limit",
+          "--section-offset",
+          "--tumor-type"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "variant",
+        "population"
+      ],
+      "max_bytes": 3161,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/result/commands/0/sections/*/word": [
+          "population"
+        ],
+        "/result/commands/0/arguments/*/name": [
+          "--build",
+          "input",
+          "--limit",
+          "--offset",
+          "--resolver",
+          "section",
+          "--section-limit",
+          "--section-offset",
+          "--tumor-type"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "variant",
+        "civic"
+      ],
+      "max_bytes": 5549,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/result/commands/0/sections/*/word": [
+          "civic"
+        ],
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": [
+            "--civic-profile",
+            "--civic-kind",
+            "--civic-cursor",
+            "--disease",
+            "--drug",
+            "--evidence-level",
+            "--evidence-status"
+          ]
+        }
+      }
+    }
+  ]
+}

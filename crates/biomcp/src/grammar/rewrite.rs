@@ -36,7 +36,7 @@ pub(super) fn request(
                     .into_iter()
                     .flat_map(|fields| fields.keys())
                     .map(String::as_str)
-                    .filter(|key| !matches!(*key, "input" | "section"))
+                    .filter(|key| !MARKETS_FIELDS.contains(key))
                     .collect();
                 if !refused.is_empty() {
                     return Err(QueryInvalid::new(&refused));
@@ -88,6 +88,9 @@ pub(super) fn request(
         }
     }
 }
+
+/// The only fields the markets request takes; section help lists no other option for it.
+pub(crate) const MARKETS_FIELDS: &[&str] = &["input", "section"];
 
 /// A drug get whose sections name markets is the markets request, which refuses anything else.
 fn markets(value: &Value) -> bool {
