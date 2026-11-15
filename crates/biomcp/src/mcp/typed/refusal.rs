@@ -37,6 +37,58 @@ pub(super) fn known(input: &Value, values: &Value) -> Value {
     )
 }
 
+/// Every unknown key typed as the option it would be on the command line, `q` as `-q` and
+/// `who_pq` as `--who-pq`: the fix the command line gives those mistakes, if any. No fix
+/// when a key cannot be spelled as an option. A JSON object's keys have no order, and the
+/// command line fixes some pairs only one way round (`--who-pq -q x`, not `-q x --who-pq`), so
+/// the keys are tried in both orders.
+pub(super) fn fix(
+    root: &crate::grammar::Root,
+    args: &[OsString],
+    input: &Value,
+    values: &Value,
+) -> Option<biomcp_types::Step> {
+    let properties = input.get("properties")?.as_object()?;
+    let mut options = Vec::new();
+    for (key, value) in values.as_object()? {
+        if properties.contains_key(key) {
+            continue;
+        }
+        if key.is_empty() || key.contains('=') || key.starts_with('-') {
+            return None;
+        }
+        let spelling = if key.chars().count() == 1 {
+            format!("-{key}")
+        } else {
+            format!("--{}", key.replace('_', "-"))
+        };
+        let mut words = Vec::new();
+        for value in value
+            .as_array()
+            .map_or_else(|| vec![value], |values| values.iter().collect())
+        {
+            match value {
+                Value::Bool(true) => words.push(OsString::from(&spelling)),
+                Value::String(text) if !text.starts_with('-') => {
+                    words.extend([OsString::from(&spelling), text.into()]);
+                }
+                Value::Number(number) => {
+                    words.extend([OsString::from(&spelling), number.to_string().into()]);
+                }
+                _ => return None,
+            }
+        }
+        options.push(words);
+    }
+    let call = |options: Vec<&Vec<OsString>>| {
+        let mut args = args.to_vec();
+        let at = args.len().min(2);
+        args.splice(at..at, options.into_iter().flatten().cloned());
+        crate::grammar::candidate(root, &args)
+    };
+    call(options.iter().collect()).or_else(|| call(options.iter().rev().collect()))
+}
+
 pub(super) fn arguments(
     refused: &super::forms::Refused,
     help: &[&str],

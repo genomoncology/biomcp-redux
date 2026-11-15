@@ -15,6 +15,25 @@ pub fn download(
 pub(crate) fn pdf() -> biomcp_fetch::Read<'static, biomcp_fetch::Bytes> {
     biomcp_fetch::Read::bytes().document_media(biomcp_fetch::DocumentMedia::Pdf)
 }
+/// The HTTP status of a download the source refused (4xx), with its standard name.
+pub fn refused(error: &biomcp_fetch::RequestError) -> Option<(u16, &'static str)> {
+    let biomcp_fetch::RequestError::Source(source) = error else {
+        return None;
+    };
+    let status = source.status.filter(|status| {
+        source.reason == biomcp_types::Reason::Rejected && (400..500).contains(status)
+    })?;
+    let meaning = match status {
+        401 => " Unauthorized",
+        403 => " Forbidden",
+        404 => " Not Found",
+        406 => " Not Acceptable",
+        410 => " Gone",
+        429 => " Too Many Requests",
+        _ => "",
+    };
+    Some((status, meaning))
+}
 pub(super) fn from_source(
     leg: &biomcp_fetch::Leg<'_>,
     spec: &'static biomcp_fetch::SourceSpec,

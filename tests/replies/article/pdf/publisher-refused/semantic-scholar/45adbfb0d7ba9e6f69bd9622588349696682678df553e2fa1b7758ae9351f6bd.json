@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/PMID%3A29625055?fields=openAccessPdf",
+  "exchanges": [
+    {
+      "fetched": 1794759606,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 434,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"paperId": "758db88987fd8bc8811e800fabe8257dbd3a23f5", "openAccessPdf": {"url": "http://www.cell.com/article/S0092867418302290/pdf", "status": "HYBRID", "license": "CCBYNCND"}}
+      }
+    }
+  ]
+}
