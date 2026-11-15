@@ -263,7 +263,8 @@ fn refused(result: Result<(), RequestError>) -> bool {
 /// for JSON and binary replies alike, though 0954 resolves the folder's own symlinked parents
 /// (0963).
 #[cfg(unix)]
-pub(super) fn symlink_inside_record_folder_is_refused() {
+#[test]
+fn symlink_inside_record_folder_is_refused_for_recording_and_replay() {
     use std::os::unix::fs::symlink;
     let root = tempfile::tempdir().unwrap();
     let outside = root.path().join("outside");
