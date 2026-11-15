@@ -2,7 +2,7 @@
   "verified": "GTR test_condition_gene.txt (Last-Modified 2026-11-05) fetched live on 2026-11-14 (job j40930) and cut to its 185 EGFR gene rows and 56 MedGen:C0007131 (non-small cell lung cancer) condition rows, unchanged; 19 tests list both. test_version.gz (Last-Modified 2026-11-05) was cut to those 222 tests' version rows and gtr_ftp.xml.gz (Last-Modified 2026-11-11) to their labs' certifications and tests' specimens, values unchanged.",
   "live_check": "public replies cut to one gene's and one condition's rows; no live provider call",
   "feature": "diagnostic-gtr",
-  "story": "A lab director building a send-out menu asks GTR for EGFR tests that list non-small cell lung cancer and gets the tests that list both, instead of a refusal that calls the gene invalid.",
+  "story": "A lab director building a send-out menu asks GTR for EGFR tests that list non-small cell lung cancer and gets the tests that list both, instead of a refusal that calls the gene invalid; a symbol and a GeneID together are refused with a message that names both options.",
   "replay": "diagnostic/gtr-egfr-nsclc",
   "steps": [
     {
@@ -96,6 +96,26 @@
       "max_bytes": 1616,
       "expect": {
         "/page/total": 185
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--gene-id",
+        "1956"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--gene",
+        "/error/message": "--gene and --gene-id each name one gene, by symbol or by NCBI GeneID; give one of them, not both"
       }
     }
   ]
