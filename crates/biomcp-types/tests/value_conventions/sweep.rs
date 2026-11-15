@@ -228,13 +228,13 @@ fn source_identifiers_preserve_identity() -> Check {
     constructor_contract(biodata::PmaSupplementCell::new, &["", "S001"], &["S000"])?;
     constructor_contract(
         biodata::DeviceRecallNumber::new,
-        &["Z-0001-2024"],
-        &["Z-001-2024"],
+        &["Z-0001-2024", "Z-0001-03"],
+        &["Z-001-2024", "Z-0001-202"],
     )?;
     constructor_contract(
         biodata::DrugRecallNumber::new,
-        &["D-0001-2024"],
-        &["D-001-2024"],
+        &["D-0001-2024", "D-001-2013"],
+        &["D-01-2024", "D-001-013"],
     )?;
     Ok(())
 }
