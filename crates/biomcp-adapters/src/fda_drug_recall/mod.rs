@@ -168,7 +168,9 @@ fn exact(
         .fresh(Freshness::Days(1))
         .bytes(2 * 1024 * 1024)
         .json_absence();
-    let carries = |r: &raw::Record| r.recall_number.as_ref().and_then(Field::as_ref) == Some(id);
+    let carries = |r: &raw::Record| {
+        r.recall_number.as_ref().and_then(Field::as_ref).map(String::as_str) == Some(id.as_str())
+    };
     let identity = |reply: &raw::Response<raw::Record>| !matches!(reply,raw::Response::Page {results,..} if !results.iter().all(carries));
     let reply = leg
         .call(

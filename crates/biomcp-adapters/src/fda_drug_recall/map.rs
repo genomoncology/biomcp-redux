@@ -3,7 +3,7 @@ use crate::{
     mapped::{Mapped, field_text, push_problem, record},
     raw::Field,
 };
-use biodata::{PartialDate, Text};
+use biodata::{DrugRecallNumber, PartialDate, Text};
 use biomcp_types::{DrugRecallCard, DrugRecallHeader, Problem, Source};
 const SOURCE: Source = Source::FdaDrugRecall;
 /// A native openFDA enforcement YYYYMMDD day; another spelling is a field problem.
@@ -30,20 +30,26 @@ pub(crate) fn date(
     date
 }
 /// A record without a well-formed recall number has no identity, so it is declined with a
-/// `record.declined` problem naming its openFDA `event_id` instead of failing its page.
+/// `record.declined` problem naming its raw recall number, or its openFDA `event_id` when the
+/// number is blank or `N/A`, instead of failing its page.
 pub(super) fn mapped(row: raw::Record) -> Mapped<Option<DrugRecallCard>> {
     let mut problems = Vec::new();
-    let Some(recall_number) = row.recall_number.and_then(Field::value) else {
-        return Mapped {
-            refusals: crate::Refusal::Refused,
-            value: None,
-            problems: vec![crate::mapped::declined(
-                SOURCE,
-                "recall_number",
-                "event_id",
-                row.event_id.as_ref(),
-            )],
-        };
+    let number = row.recall_number.as_ref().and_then(Field::as_ref);
+    let recall_number = match number.map(|v| v.parse::<DrugRecallNumber>()) {
+        Some(Ok(recall_number)) => recall_number,
+        _ => {
+            return Mapped {
+                refusals: crate::Refusal::Refused,
+                value: None,
+                problems: vec![crate::mapped::declined(
+                    SOURCE,
+                    "recall_number",
+                    row.recall_number.as_ref(),
+                    "event_id",
+                    row.event_id.as_ref(),
+                )],
+            };
+        }
     };
     let id = record(&recall_number);
     let initiated = date(

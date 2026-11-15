@@ -20,6 +20,7 @@ pub(super) trait Key {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct RecordKey {
+    pub product_res_number: Option<Field<String>>,
     pub cfres_id: Option<Field<String>>,
 }
 impl Key for RecordKey {
@@ -27,6 +28,7 @@ impl Key for RecordKey {
         crate::mapped::declined(
             Source::FdaDeviceRecall,
             "product_res_number",
+            self.product_res_number.as_ref(),
             "cfres_id",
             self.cfres_id.as_ref(),
         )
@@ -34,6 +36,7 @@ impl Key for RecordKey {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct EnforcementKey {
+    pub recall_number: Option<Field<String>>,
     pub event_id: Option<Field<String>>,
 }
 impl Key for EnforcementKey {
@@ -41,6 +44,7 @@ impl Key for EnforcementKey {
         crate::mapped::declined(
             Source::FdaDeviceRecall,
             "recall_number",
+            self.recall_number.as_ref(),
             "event_id",
             self.event_id.as_ref(),
         )
@@ -48,6 +52,8 @@ impl Key for EnforcementKey {
 }
 impl<T: crate::openfda::Item, K: Key + DeserializeOwned> crate::openfda::Item for Row<T, K> {}
 
+// The recall number must stay the only required field of Record and Enforcement: a search
+// page reads any row that fails them as a declined `Row`, whose problem names that field.
 #[derive(Debug, Deserialize)]
 pub(super) struct Record {
     pub product_res_number: DeviceRecallNumber,

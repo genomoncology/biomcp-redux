@@ -1,8 +1,8 @@
 {
   "feature": "diagnostic-device-recall",
   "live_check": "public",
-  "story": "A device recall page holding a record whose recall number is malformed keeps its other rows as a partial page and names the declined record in a record.declined problem: a recall record by its openFDA cfres_id, an enforcement record by its event_id. Its next page starts after every native record on the page.",
-  "verified": "Native openFDA device recall and device enforcement replies recorded 2026-11-15 by biomcp --record in pm job j41441, without a key. On base commit 648240afe the --product-code NPR search failed whole as a bad reply (pm job j41440). Git holds a projection of each body: address, contact, FEI, lot (code_info) and action text are dropped. Requests, recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-declined-numbers/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "story": "A device recall page holding a record whose recall number is malformed keeps its other rows as a partial page and names the declined record in a record.declined problem by the raw number openFDA sent (cfres_id or event_id only when it is blank or N/A). Its next page starts after every native record on the page.",
+  "verified": "Native openFDA device recall and device enforcement replies recorded 2026-11-15 by biomcp --record in pm job j41441, without a key. On base commit 648240afe the --product-code NPR search failed whole as a bad reply (pm job j41440). Git holds a projection of each 200 body: address, contact, FEI, lot (code_info) and action text are dropped; original and committed sizes are both listed. Requests, recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-declined-numbers/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "diagnostic/recall-declined-numbers",
   "steps": [
     {
@@ -24,7 +24,7 @@
           "equals": [
             {
               "source": "fda-device-recall",
-              "record": "cfres_id:86392",
+              "record": "product_res_number:Z1006-2010",
               "field": "product_res_number",
               "code": "record.declined"
             }
@@ -55,7 +55,7 @@
           "equals": [
             {
               "source": "fda-device-recall",
-              "record": "event_id:77500",
+              "record": "recall_number:Z-3011-201",
               "field": "recall_number",
               "code": "record.declined"
             }
