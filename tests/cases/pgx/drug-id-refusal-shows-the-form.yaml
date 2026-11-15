@@ -22,7 +22,7 @@
         "/error/option": "--drug-id",
         "/error/message": "--drug-id takes CPIC's drug key, not a drug name, such as --drug-id RxNorm:32968 for clopidogrel; search pgx --gene <SYMBOL> --source cpic lists each drug's drugid"
       },
-      "max_bytes": 800
+      "max_bytes": 455
     },
     {
       "run": [
@@ -42,7 +42,7 @@
         "/error/option": "--drug-id",
         "/error/message": "--drug-id takes CPIC's drug key, not a drug name, such as --drug-id RxNorm:32968 for clopidogrel; search pgx --gene <SYMBOL> --source cpic lists each drug's drugid"
       },
-      "max_bytes": 800
+      "max_bytes": 455
     }
   ]
 }

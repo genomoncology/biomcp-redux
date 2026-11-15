@@ -31,3 +31,11 @@ dx-lab-director round 3 (bench 0050, 2026-11-14, BioMCP c71f04301): calls 81, 82
 ## Changes
 
 - Changes: pgx query validation or resolution, a pgx case.
+
+## Progress
+
+- CPIC checked live 2026-11-14: `/v1/drug?name=ilike.clopidogrel` returns `RxNorm:32968`, and CPIC's 324 drug names are unique (305 RxNorm keys, the rest ATC, DrugBank, MeSH and MedDRA). The drug table carries `clinpgxid` (clopidogrel PA449053), not the PA166104521 the agent tried, and a brand name (Plavix) matches nothing.
+- Chose the refusal over resolving. `--drug-id` is a checked CURIE that every pgx reply echoes as `query.drug_id`, so resolving a name means a schema change to the request and reply, plus an extra CPIC call that still fails brand names and spellings. The refusal path needs no schema change beyond one new error-message literal (an enum widening).
+- `PgxGet` now names `drug_id` failures with `PgxDrugId`: "--drug-id takes CPIC's drug key, not a drug name, such as --drug-id RxNorm:32968 for clopidogrel; search pgx --gene <SYMBOL> --source cpic lists each drug's drugid". The same pattern as GWAS's `--p-value` message. `--phenotype` and its missing-`--drug-id` refusal are unchanged.
+- Case `tests/cases/pgx/drug-id-refusal-shows-the-form.yaml` runs `--drug-id clopidogrel` and `--drug-id PA166104521`; local-only, no source replies.
+- Measured: the refusal is 396 bytes (job j41026); the case caps it at 455, measured plus 15%. rustfmt changed nothing.
