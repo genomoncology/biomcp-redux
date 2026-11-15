@@ -57,3 +57,4 @@ The JSON reply can't carry the count. TSV carries count and rows in one reply, b
 - `docs/cautions.md` cell-line paragraph says where the total comes from.
 - Cases: `cell-line/search-total.yaml` asserts total 2,355 and source count 2,355 on replies recorded in pm job j41475. `cache-admission/cellosaurus-candidates.yaml` (MOLM13, limit 1) now gets its live count reply (1) from j41475, so it asserts total 1 instead of a page step.
 - Checks: j41469 (first cut) found a too-long function, new `.ok()` drops and the adapter file over 300 lines; j41475 passed `make lint-workspace` and the ratchets after the count moved to its own file and kept its errors.
+- Gate j41480 failed only the 12 cache-admission cases: their fixture loader reads every file in `tests/replies/cache-admission/` as JSON, so the count reply's `.bin` sidecar broke it. The MOLM13 count reply is now stored inline as a `text` body (the same recorded bytes).

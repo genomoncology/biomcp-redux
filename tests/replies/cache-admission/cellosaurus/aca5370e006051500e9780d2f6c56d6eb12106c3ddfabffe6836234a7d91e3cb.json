@@ -10,8 +10,8 @@
       "delay_ms": 119,
       "retry_after_ms": null,
       "body": {
-        "kind": "sidecar",
-        "value": "aca5370e006051500e9780d2f6c56d6eb12106c3ddfabffe6836234a7d91e3cb-0.bin"
+        "kind": "text",
+        "value": "##   query.q: idsy:\"MOLM13\"\n##   query.defType: edismax\n##   query.indent: True\n##   query.qf: ac^16 id^16 sy^8 text\n##   query.fl: ac\n##   query.pf: ac^160 id^160 sy^80 text\n##   query.start: 0\n##   query.q.op: AND\n##   query.sort: score desc\n##   query.rows: 0\n##   query.wt: json\n##   query.fields: ac\n##   query.format: txt\n##   QTime: 0\n##   response.numFound: 1\n\n"
       }
     }
   ]
