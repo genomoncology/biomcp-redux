@@ -341,12 +341,10 @@ fn fetch_using(
         source_data_max_age_days: file
             .and_then(|file| file.source_data_max_age_days)
             .unwrap_or_else(|| FetchConfig::default().source_data_max_age_days),
-        sync_budget: file
-            .and_then(|file| file.sync_timeout_seconds)
-            .map_or_else(
-                || FetchConfig::default().sync_budget,
-                |seconds| Duration::from_secs(seconds.get().into()),
-            ),
+        sync_budget: file.and_then(|file| file.sync_timeout_seconds).map_or_else(
+            || FetchConfig::default().sync_budget,
+            |seconds| Duration::from_secs(seconds.get().into()),
+        ),
         proxy: file.and_then(|file| file.proxy.clone()).map(Secret::new),
         ..FetchConfig::default()
     })

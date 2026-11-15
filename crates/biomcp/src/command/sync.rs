@@ -14,7 +14,14 @@ pub(super) fn run(
                 .ok()
                 .and_then(|mapped| mapped.value.data_date.as_deref())
                 .map(|date| fetch.data_date_notice(date));
-            finish(bundle, result, stale, encoding, date_notice, fetch.sync_budget())
+            finish(
+                bundle,
+                result,
+                stale,
+                encoding,
+                date_notice,
+                fetch.sync_budget(),
+            )
         }
         biomcp_query::sources::BundleReply::WikiPathways(result) => {
             finish(bundle, result, false, encoding, None, fetch.sync_budget())
