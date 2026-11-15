@@ -4,7 +4,7 @@ use super::{
     raw,
 };
 use crate::Mapped;
-use biodata::{Gene, GeneStatus, GeneSymbol, HgncId, Text};
+use biodata::{Gene, GeneStatus, GeneSymbol, HgncId};
 
 pub(super) fn genes(rows: Vec<raw::Gene>) -> Mapped<Vec<Gene>> {
     let mut problems = Vec::new();
@@ -44,7 +44,7 @@ fn gene(row: raw::Gene, f: &mut Fields) -> Option<Gene> {
     } else {
         f.required(
             "name",
-            Text::from_source(raw::cell(row.name.as_deref())).ok(),
+            crate::native_text::admit(raw::cell(row.name.as_deref())).ok(),
         )
     };
     let locus_group = row

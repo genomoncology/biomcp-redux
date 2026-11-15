@@ -74,7 +74,7 @@ fn optional(
     problems: &mut Vec<Problem>,
 ) -> Option<Text> {
     let admit = if matches!(field, "name" | "text") {
-        Text::from_source
+        crate::native_text::admit
     } else {
         Text::new
     };
