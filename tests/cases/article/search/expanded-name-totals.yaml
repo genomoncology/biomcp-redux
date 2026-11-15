@@ -10,8 +10,8 @@
       "expect": {
         "/status": "complete",
         "/page/total": 3,
-        "/sources/0/source": "semantic-scholar",
-        "/sources/0/notices/0/message": "Semantic Scholar was searched once per drug name. Its counts per name (\"Canonical therapy\" 1, \"EX-66\" 2, \"Example brand\" 2) overlap, so BioMCP does not add them; the page total counts the distinct articles read."
+        "/sources/8/source": "semantic-scholar",
+        "/sources/8/notices/0/message": "Semantic Scholar was searched once per drug name. Its counts per name (\"Canonical therapy\" 1, \"EX-66\" 2, \"Example brand\" 2) overlap, so BioMCP does not add them; the page total counts the distinct articles read."
       }
     }
   ]

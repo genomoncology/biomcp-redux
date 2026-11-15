@@ -233,10 +233,12 @@ fn note_overlapping_counts(out: &mut Outcome, results: &[ResultLeg]) {
             .iter()
             .filter_map(|r| {
                 let count = r.outcome.count?;
-                Some(r.outcome.term.as_ref().map_or_else(
-                    || count.to_string(),
-                    |term| format!("\"{term}\" {count}"),
-                ))
+                Some(
+                    r.outcome
+                        .term
+                        .as_ref()
+                        .map_or_else(|| count.to_string(), |term| format!("\"{term}\" {count}")),
+                )
             })
             .collect();
         let counts = if counts.is_empty() {
