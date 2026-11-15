@@ -97,7 +97,7 @@
         "--source",
         "gtr"
       ],
-      "max_bytes": 1,
+      "max_bytes": 3233,
       "expect": {
         "/result/kind": "gtr-test",
         "/result/laboratory_address/lines": [

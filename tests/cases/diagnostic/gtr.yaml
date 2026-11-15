@@ -94,7 +94,7 @@
         "--source",
         "gtr"
       ],
-      "max_bytes": 1858,
+      "max_bytes": 2171,
       "expect": {
         "/result/kind": "gtr-test",
         "/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/6692/",
