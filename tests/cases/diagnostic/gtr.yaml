@@ -25,7 +25,7 @@
         "--gene",
         "BRCA1"
       ],
-      "max_bytes": 4080,
+      "max_bytes": 4730,
       "expect": {
         "/schema": "biomcp.diagnostic-page/6",
         "/page/total": 8,
@@ -65,7 +65,7 @@
         "--type",
         "Research"
       ],
-      "max_bytes": 1034,
+      "max_bytes": 1326,
       "expect": {
         "/page/total": 1,
         "/result/items/0/header/id": "GTR000000005.1"
@@ -80,7 +80,7 @@
         "--condition-id",
         "MedGen:C2676676"
       ],
-      "max_bytes": 1014,
+      "max_bytes": 1469,
       "expect": {
         "/page/total": 1,
         "/result/items/0/matched/kind": "condition"

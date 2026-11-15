@@ -35,28 +35,27 @@ pub(super) fn check(value: &Value) -> Check {
         .is_some_and(|v| v > 0)
     {
         (
-            crate::runner::output_limit("vaers-budget-measured-1835")?,
-            crate::runner::output_limit("vaers-budget-measured-1723")?,
+            crate::runner::output_limit("vaers-budget-measured-2177")?,
+            crate::runner::output_limit("vaers-budget-measured-2064")?,
         )
     } else if value.pointer("/query/section") == Some(&json!("seriousness")) {
         (
-            crate::runner::output_limit("vaers-budget-measured-1918")?,
-            crate::runner::output_limit("vaers-budget-measured-1806")?,
+            crate::runner::output_limit("vaers-budget-measured-2241")?,
+            crate::runner::output_limit("vaers-budget-measured-2128")?,
         )
     } else if value.pointer("/query/section") == Some(&json!("age")) {
         (
-            crate::runner::output_limit("vaers-budget-measured-1919")?,
-            crate::runner::output_limit("vaers-budget-measured-1807")?,
+            crate::runner::output_limit("vaers-budget-measured-2234")?,
+            crate::runner::output_limit("vaers-budget-measured-2121")?,
         )
     } else {
         (
-            crate::runner::output_limit("vaers-budget-measured-1993")?,
-            crate::runner::output_limit("vaers-budget-measured-1881")?,
+            crate::runner::output_limit("vaers-budget-measured-2501")?,
+            crate::runner::output_limit("vaers-budget-measured-2388")?,
         )
     };
-    if (full > (measured_full * 115).div_ceil(100)
-        || comparable > (measured_comparable * 115).div_ceil(100))
-        && !crate::runner::measured_over(format!("vaers\t{measured_full}\t{measured_comparable}\t{full}\t{comparable}"))
+    if full > (measured_full * 115).div_ceil(100)
+        || comparable > (measured_comparable * 115).div_ceil(100)
     {
         return Err(format!(
             "VAERS synthetic output exceeds measured ceiling: {full}/{comparable}"

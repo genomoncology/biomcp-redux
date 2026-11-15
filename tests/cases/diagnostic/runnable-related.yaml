@@ -55,9 +55,11 @@
       },
       "expect": {
         "/page/total": 100,
-        "/next": {
-          "equals": []
-        }
+        "/next/6/kind": "configure",
+        "/next/6/name": "diagnostic",
+        "/next/6/options/decision_from": "<YYYY-MM-DD>",
+        "/next/6/options/intended_use": "<TEXT>",
+        "/next/6/options/product_code": "<TEXT>"
       }
     },
     {

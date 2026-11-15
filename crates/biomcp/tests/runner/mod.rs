@@ -140,17 +140,6 @@ mod variant_population;
 mod wikipathways;
 mod word_order;
 
-/// TEMP 0904 measurement: log an over-budget reading and let the check pass.
-pub(crate) fn measured_over(line: String) -> bool {
-    let Ok(log) = std::env::var("CASE_CEILING_LOG") else {
-        return false;
-    };
-    use std::io::Write;
-    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open(log) {
-        let _ = writeln!(file, "BUDGET\t{line}");
-    }
-    true
-}
 pub(super) fn output_limit(name: &str) -> Result<usize, String> {
     let limits: std::collections::BTreeMap<String, usize> =
         serde_saphyr::from_str(&launch::fixture_text("runner-output-budgets.yaml")?)
@@ -261,7 +250,6 @@ fn run_case_owned(
     let mut previous = None;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
         transcript::case_step(index);
-        assertions::MEASURE_AT.with(|at| *at.borrow_mut() = format!("{}\t{}", path.display(), index));
         previous = Some(
             run_sequence(
                 step,

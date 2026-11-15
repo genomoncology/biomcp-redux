@@ -12,7 +12,7 @@ pub(super) fn check(value: &Value, case: &str, surface: &str) -> Result<(), Stri
     let bytes =
         serde_json::to_vec(value).map_err(|e| e.to_string())?.len() + usize::from(surface == "cli");
     let max_bytes = (measured * 115).div_ceil(100);
-    if bytes > max_bytes && !crate::runner::measured_over(format!("protein-synthetic-budgets.yaml\t{key}\t{bytes}")) {
+    if bytes > max_bytes {
         return Err(format!(
             "protein {key}: {bytes} bytes exceeds max_bytes={max_bytes}"
         ));

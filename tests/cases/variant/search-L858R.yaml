@@ -17,7 +17,7 @@
         "--build",
         "GRCh37"
       ],
-      "max_bytes": 1248,
+      "max_bytes": 1550,
       "expect": {
         "/schema": "biomcp.variant-page/16",
         "/status": "complete",

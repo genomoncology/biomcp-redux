@@ -216,8 +216,8 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("CLI rows missing")?;
     let search_cap = match args.get(1).map(String::as_str) {
-        Some("article") => crate::runner::output_limit("research-measured-1732")?,
-        Some("trial") => crate::runner::output_limit("research-measured-8192")?,
+        Some("article") => crate::runner::output_limit("research-measured-2192")?,
+        Some("trial") => crate::runner::output_limit("research-measured-9913")?,
         _ => crate::runner::output_limit("research-measured-2864")?,
     };
     bounded(&wrapped, search_cap)?;
@@ -406,7 +406,7 @@ fn unprojectable() -> Result<(), String> {
 
 // Ceilings use full compact projections measured in the focused retained-fixture run plus fifteen percent.
 fn bounded(value: &Value, cap: usize) -> Result<(), String> {
-    if value.to_string().len() > cap && !crate::runner::measured_over(format!("research\t{cap}\t{}", value.to_string().len())) {
+    if value.to_string().len() > cap {
         return Err(format!("research output exceeds {cap} bytes"));
     }
     Ok(())

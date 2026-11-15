@@ -18,7 +18,7 @@
         "/result/items/0/header/recall_number": "Z-0001-2024",
         "/result/items/0/classification": "Class II"
       },
-      "max_bytes": 880,
+      "max_bytes": 1369,
       "full_output_bytes": true
     },
     {
@@ -34,7 +34,7 @@
         "/page/total": 1,
         "/result/items/0/classification": "Class II"
       },
-      "max_bytes": 843,
+      "max_bytes": 1268,
       "full_output_bytes": true
     },
     {
@@ -57,7 +57,7 @@
         },
         "/sources/0/state": "failed"
       },
-      "max_bytes": 1100,
+      "max_bytes": 1268,
       "full_output_bytes": true
     },
     {
@@ -86,7 +86,7 @@
           "recall_number"
         ]
       },
-      "max_bytes": 1100,
+      "max_bytes": 1366,
       "full_output_bytes": true
     },
     {

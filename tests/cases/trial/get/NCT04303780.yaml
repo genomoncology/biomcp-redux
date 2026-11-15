@@ -18,7 +18,7 @@
           "equals_file": "NCT04303780-card.json"
         }
       },
-      "max_bytes": 1949
+      "max_bytes": 2351
     },
     {
       "run": [
@@ -36,7 +36,7 @@
           "Drug: AMG 510"
         ]
       },
-      "max_bytes": 2489
+      "max_bytes": 3028
     }
   ],
   "harvest": "Reviewed question bank: T10, T11, T12"

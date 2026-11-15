@@ -18,11 +18,24 @@
       ],
       "expect": {
         "/status": "complete",
-        "/next/*/kind": {
-          "includes": "section"
-        },
-        "/next": {
-          "equals": []
+        "/next/1/kind": "section",
+        "/next/1/args": [
+          "get",
+          "drug",
+          "BLA761445",
+          "approvals",
+          "--source",
+          "drugsfda"
+        ],
+        "/next/1/options": {
+          "equals": {
+            "--decision-from": "<YYYY-MM-DD>",
+            "--decision-to": "<YYYY-MM-DD>",
+            "--document-id": "<TEXT>",
+            "--product-number": "<TEXT>",
+            "--section-limit": "<1-200>",
+            "--section-offset": "<N>"
+          }
         }
       },
       "max_bytes": 4000
@@ -47,8 +60,18 @@
       },
       "expect": {
         "/status": "complete",
-        "/next": {
-          "equals": []
+        "/next/1/kind": "section",
+        "/next/1/name": "drug",
+        "/next/1/arguments/get/section": "approvals",
+        "/next/1/options": {
+          "equals": {
+            "decision_from": "<YYYY-MM-DD>",
+            "decision_to": "<YYYY-MM-DD>",
+            "document_id": "<TEXT>",
+            "product_number": "<TEXT>",
+            "section_limit": "<1-200>",
+            "section_offset": "<N>"
+          }
         }
       }
     },
@@ -63,8 +86,24 @@
       ],
       "expect": {
         "/status": "complete",
-        "/next": {
-          "equals": []
+        "/next/1/kind": "configure",
+        "/next/1/args": [
+          "get",
+          "drug",
+          "BLA761445",
+          "approvals",
+          "--source",
+          "drugsfda"
+        ],
+        "/next/1/options": {
+          "equals": {
+            "--decision-from": "<YYYY-MM-DD>",
+            "--decision-to": "<YYYY-MM-DD>",
+            "--document-id": "<TEXT>",
+            "--product-number": "<TEXT>",
+            "--section-limit": "<1-200>",
+            "--section-offset": "<N>"
+          }
         }
       },
       "max_bytes": 20000
@@ -83,8 +122,17 @@
       },
       "expect": {
         "/status": "complete",
-        "/next": {
-          "equals": []
+        "/next/1/kind": "configure",
+        "/next/1/name": "drug",
+        "/next/1/options": {
+          "equals": {
+            "decision_from": "<YYYY-MM-DD>",
+            "decision_to": "<YYYY-MM-DD>",
+            "document_id": "<TEXT>",
+            "product_number": "<TEXT>",
+            "section_limit": "<1-200>",
+            "section_offset": "<N>"
+          }
         }
       }
     },

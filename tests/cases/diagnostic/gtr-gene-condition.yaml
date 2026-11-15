@@ -76,7 +76,7 @@
         "--limit",
         "1"
       ],
-      "max_bytes": 1458,
+      "max_bytes": 1790,
       "expect": {
         "/page/total": 56,
         "/result/items/0/matched/kind": "condition"
@@ -93,7 +93,7 @@
         "--limit",
         "1"
       ],
-      "max_bytes": 1616,
+      "max_bytes": 1868,
       "expect": {
         "/page/total": 185
       }

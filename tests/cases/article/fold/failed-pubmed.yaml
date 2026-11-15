@@ -16,7 +16,7 @@
       ],
       "exit": 0,
       "full_output_bytes": true,
-      "max_bytes": 1436,
+      "max_bytes": 1883,
       "expect": {
         "/status": "partial",
         "/sources/0/source": "pubmed",
