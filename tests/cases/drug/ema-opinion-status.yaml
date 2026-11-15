@@ -1,0 +1,73 @@
+{
+  "feature": "drug-markets",
+  "story": "EMA's medicines file leaves opinion_status blank for most medicines, Keytruda among them, and fills it with Positive or Negative for others. Pembrolizumab's EMA markets row, Keytruda EMEA/H/C/003820 authorised 2015-07-17, carries no problem, and its regulatory record has no opinion status. Itvisma's record reads Positive and Syfovre's reads Negative, as EMA publishes them.",
+  "live_check": "public",
+  "verified": "EMA medicines and referrals files and Drugs@FDA pembrolizumab replies recorded unchanged 2026-11-15 with biomcp --record in pm job j41168; the EMA medicines file is trimmed to Keytruda, Itvisma and Syfovre and the referrals file to its first record; the WHO PQ export is the synthetic file from tests/replies/drug/markets. Details are in tests/replies/drug/ema-opinion-status/README.md.",
+  "replay": "drug/ema-opinion-status",
+  "steps": [
+    {
+      "run": ["sync", "ema"],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 4
+      }
+    },
+    {
+      "run": ["sync", "who-pq"],
+      "expect": {
+        "/result/rows": 29
+      }
+    },
+    {
+      "run": ["get", "drug", "pembrolizumab", "markets"],
+      "expect": {
+        "/schema": "biomcp.drug-markets/1",
+        "/status": "complete",
+        "/result/markets/1/source": "ema",
+        "/result/markets/1/state": "found",
+        "/result/markets/1/record": "EMEA/H/C/003820",
+        "/result/markets/1/name": "Keytruda",
+        "/result/markets/1/status": ["Authorised"],
+        "/result/markets/1/first_approval/date": "2015-07-17",
+        "": {
+          "omits": ["problems"]
+        }
+      }
+    },
+    {
+      "run": ["get", "drug", "EMEA/H/C/003820", "regulatory", "--source", "ema"],
+      "expect": {
+        "/status": "complete",
+        "/result/regulatory/data/records/0/status": "Authorised",
+        "/result/regulatory/data/records/0": {
+          "omits": ["kind"]
+        },
+        "": {
+          "omits": ["problems"]
+        }
+      }
+    },
+    {
+      "run": ["get", "drug", "EMEA/H/C/006498", "regulatory", "--source", "ema"],
+      "expect": {
+        "/status": "complete",
+        "/result/regulatory/data/records/0/status": "Authorised",
+        "/result/regulatory/data/records/0/kind": "Positive",
+        "": {
+          "omits": ["problems"]
+        }
+      }
+    },
+    {
+      "run": ["get", "drug", "EMEA/H/C/005954", "regulatory", "--source", "ema"],
+      "expect": {
+        "/status": "complete",
+        "/result/regulatory/data/records/0/status": "Refused",
+        "/result/regulatory/data/records/0/kind": "Negative",
+        "/problems/*/field": {
+          "excludes": "opinion_status"
+        }
+      }
+    }
+  ]
+}
