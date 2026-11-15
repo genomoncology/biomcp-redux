@@ -17,3 +17,5 @@ Syfovre also has a blank `revision_number` and `latest_procedure_affecting_produ
 ## WHO PQ rows are synthetic
 
 WHO PQ is a noncommercial source (0695, 0910), so `who-pq/` holds the synthetic 29-row export from `tests/replies/drug/markets/`, unchanged. No synthetic row names pembrolizumab, as no row in WHO's export did on 2026-11-13, so the markets row for WHO says it has no record.
+
+Synthetic: who-pq

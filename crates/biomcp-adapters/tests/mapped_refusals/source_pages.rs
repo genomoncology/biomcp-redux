@@ -148,7 +148,7 @@ fn works() -> Check {
             return Err("ORCID native groups missing".into());
         }
         let leg = fetch.leg(&orcid::SPEC, fetch.deadline(Duration::from_secs(20)));
-        let mapped = orcid::works(&leg, &"0000-0002-4299-3018".parse()?)?;
+        let mapped = orcid::works(&leg, &"0000-0000-0000-0925".parse()?)?;
         let expected = if case == "identity" {
             Refusal::Refused
         } else {

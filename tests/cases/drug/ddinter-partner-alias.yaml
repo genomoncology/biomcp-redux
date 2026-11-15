@@ -19,7 +19,7 @@
       "run": [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "interactions",
         "--source",
         "ddinter",
@@ -30,10 +30,10 @@
         "/status": "complete",
         "/query/partner": "EX-66",
         "/result/interactions/data/total": 1,
-        "/result/interactions/data/records/0/partner/id": "DDInter30",
+        "/result/interactions/data/records/0/partner/id": "DDInter9030",
         "/result/interactions/data/records/0/level": "Moderate",
         "/result/partners/*/id": [
-          "DDInter30"
+          "DDInter9030"
         ],
         "/sources/0/source": "ddinter",
         "/sources/0/notices/0/message": "DDInter's files name no drug \"EX-66\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-N supplies the name \"Canonical therapy\"; the partner is DDInter's drug by that name."
@@ -44,7 +44,7 @@
       "run": [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "interactions",
         "--source",
         "ddinter",

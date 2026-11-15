@@ -94,7 +94,7 @@ fn only_narrows() -> Check {
     let ddinter = [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "interactions",
         "--source",
         "ddinter",

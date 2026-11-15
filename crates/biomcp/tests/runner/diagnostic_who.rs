@@ -60,7 +60,7 @@ fn body(replay: &std::path::Path) -> Result<String, String> {
 pub(super) fn concurrent() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = seed(&env)?;
-    let args = ["get", "diagnostic", "0466-046-00", "--source", "who-ivd"];
+    let args = ["get", "diagnostic", "0999-999-99", "--source", "who-ivd"];
     let original = body(&replay)?;
     let replacement = original.replace("CODE-8", "REPLACED-8");
     let (admitted, receiving) = std::sync::mpsc::channel();

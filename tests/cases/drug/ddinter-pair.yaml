@@ -19,20 +19,20 @@
       "run": [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "interactions",
         "--source",
         "ddinter",
         "--partner",
-        "DDInter5"
+        "DDInter9005"
       ],
       "expect": {
         "/status": "complete",
         "/result/interactions/data/total": 1,
-        "/result/interactions/data/records/0/partner/id": "DDInter5",
+        "/result/interactions/data/records/0/partner/id": "DDInter9005",
         "/result/interactions/data/records/0/level": "Minor",
         "/result/partners/*/id": [
-          "DDInter5"
+          "DDInter9005"
         ],
         "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together."
       },
@@ -42,7 +42,7 @@
       "run": [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "interactions",
         "--source",
         "ddinter",
@@ -52,7 +52,7 @@
       "expect": {
         "/status": "complete",
         "/result/interactions/data/total": 1,
-        "/result/interactions/data/records/0/partner/id": "DDInter20",
+        "/result/interactions/data/records/0/partner/id": "DDInter9020",
         "/result/interactions/data/records/0/level": "Major",
         "/result/interactions/data/records/0/attribution/record": "ddinter_downloads_code_N.csv:2"
       },
@@ -62,12 +62,12 @@
       "run": [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "interactions",
         "--source",
         "ddinter",
         "--partner",
-        "DDInter4"
+        "DDInter9004"
       ],
       "expect": {
         "/status": "complete",
@@ -78,7 +78,7 @@
           ]
         },
         "/result/partners/*/id": [
-          "DDInter4"
+          "DDInter9004"
         ],
         "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together."
       },
@@ -97,9 +97,9 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/identity/id": "DDInter3",
+        "/result/identity/id": "DDInter9003",
         "/result/interactions/data/total": 1,
-        "/result/interactions/data/records/0/partner/id": "DDInter4",
+        "/result/interactions/data/records/0/partner/id": "DDInter9004",
         "/result/interactions/data/records/0/level": "Major"
       },
       "max_bytes": 4000
@@ -108,12 +108,12 @@
       "run": [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "interactions",
         "--source",
         "ddinter",
         "--partner",
-        "DDInter99"
+        "DDInter9099"
       ],
       "expect": {
         "/status": "complete",
@@ -123,11 +123,11 @@
             "partners"
           ]
         },
-        "/result/hint": "DDInter's files name no drug \"DDInter99\", so this reply cannot say whether they list the pair; search drug with --source ddinter shows the names they use. DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
+        "/result/hint": "DDInter's files name no drug \"DDInter9099\", so this reply cannot say whether they list the pair; search drug with --source ddinter shows the names they use. DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
         "/next/0/args": [
           "search",
           "drug",
-          "DDInter99",
+          "DDInter9099",
           "--source",
           "ddinter"
         ]
@@ -138,7 +138,7 @@
       "run": [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "interactions",
         "--source",
         "ddinter"
@@ -158,11 +158,11 @@
       "run": [
         "get",
         "drug",
-        "DDInter1",
+        "DDInter9001",
         "--source",
         "ddinter",
         "--partner",
-        "DDInter5"
+        "DDInter9005"
       ],
       "expect": {
         "/error/code": "usage.arguments"

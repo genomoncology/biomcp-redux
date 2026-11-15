@@ -457,6 +457,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Reject unapproved Git revisions and missing source policy inputs through the dependency guard.",
     ),
     (
+        "crates/biomcp/tests/ratchets/noncommercial_replies.rs",
+        "Prove unmarked noncommercial replies are refused in an isolated tree.",
+    ),
+    (
         "crates/biomcp/tests/ratchets/proof.rs",
         "Enforce repository structure and prove refusal of planted violations in isolated trees.",
     ),

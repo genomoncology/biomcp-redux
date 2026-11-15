@@ -9,3 +9,5 @@ It keeps the edge cases the case relies on:
 - HIV from 2023 on gives nine products, four from 2025, four from 2024 and one from 2023; the 2022, 2019 and 2012 HIV products fall outside the lower bound.
 - 2023 alone holds four products (two HCV, one HIV, one HPV), so `--limit 3` returns three of four.
 - One product's rows are split, with its last row at the end of the file, as in WHO's export.
+
+Synthetic: who-ivd
