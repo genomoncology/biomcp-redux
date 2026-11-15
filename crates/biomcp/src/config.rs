@@ -231,6 +231,7 @@ pub(crate) fn request_defaults(
 #[derive(Clone, Debug)]
 pub(crate) enum StartupError {
     Cache(biomcp_fetch::CacheError),
+    Recording(biomcp_fetch::RecordError),
     Configuration(ConfigError),
     Local,
 }
@@ -350,6 +351,7 @@ fn fetch_using(
     })
     .map_err(|error| match error {
         biomcp_fetch::FetchError::Cache(error) => error.into(),
+        biomcp_fetch::FetchError::Recording(error) => StartupError::Recording(error),
         biomcp_fetch::FetchError::Proxy => ConfigError::field("proxy").into(),
         _ => StartupError::Local,
     })

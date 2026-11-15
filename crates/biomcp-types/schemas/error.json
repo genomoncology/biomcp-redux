@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Reply_CacheProblem": {
-      "description": "A local cache failure that leaves the provider outcome intact.",
+      "description": "A local cache or recording failure, independent of what the provider returned.",
       "enum": [
         "busy",
         "database",
@@ -10,7 +10,14 @@
         "internal",
         "limit",
         "snapshot",
-        "version"
+        "version",
+        "recording-conflict",
+        "recording-io",
+        "recording-missing",
+        "recording-exhausted",
+        "recording-malformed",
+        "recording-limit",
+        "recording-non-utf8"
       ],
       "type": "string"
     },
@@ -175,6 +182,7 @@
         "use: --section-offset",
         "choose --source cpic for search, the gene card, recommendations, guidelines or diplotype; annotations requires --source clinpgx",
         "--phenotype filters one drug's CPIC recommendation table; add --drug-id, such as --drug-id RxNorm:32968",
+        "--drug-id takes CPIC's drug key, not a drug name, such as --drug-id RxNorm:32968 for clopidogrel; search pgx --gene <SYMBOL> --source cpic lists each drug's drugid",
         "unphased variants cannot select a diplotype; --diplotype requires an unchanged declared expression",
         "pharmgkb is retired; use: clinpgx",
         "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
@@ -198,6 +206,7 @@
         "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; openFDA publishes no intended-use text for 510(k) records, so select them with --product-code, whose FDA classification name describes the device type",
         "--intended-use needs ASCII text with a letter or digit, such as e for é, because openFDA refuses any non-ASCII character in a phrase",
         "--classification-name matches FDA's device classification name on 510(k) and De Novo records and needs --source fda-510k",
+        "--gene and --gene-id each name one gene, by symbol or by NCBI GeneID; give one of them, not both",
         "--classification-name needs ASCII text with a letter or digit, such as e for é, because openFDA refuses any non-ASCII character in a phrase",
         "retired; use: --criteria for literal registry eligibility text",
         "retired; use: --variant for explicit discovery text",
@@ -559,7 +568,7 @@
           "type": "null"
         }
       ],
-      "description": "Bounded cache failure when local startup cannot open its store."
+      "description": "Bounded cache or recording failure when local startup cannot open its store or capture."
     },
     "next": {
       "description": "Typed restart when a snapshot cannot answer this query.",

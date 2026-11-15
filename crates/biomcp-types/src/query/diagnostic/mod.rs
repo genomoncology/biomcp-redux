@@ -204,7 +204,8 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
         }
         // A gene and a condition together keep tests that list both (0949).
         if v.gene.is_some() && v.gene_id.is_some() {
-            return Err(QueryInvalid::new(&["gene", "gene_id"]));
+            return Err(QueryInvalid::new(&["gene", "gene_id"])
+                .with_message(crate::ErrorMessage::DiagnosticGeneOrGeneId));
         }
         if v.source == DiagnosticSearchSource::Gtr && (cdx || who) {
             return Err(QueryInvalid::new(&[

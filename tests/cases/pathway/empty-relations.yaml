@@ -1,8 +1,8 @@
 {
   "feature": "pathway-wikipathways-genes",
   "live_check": "public",
-  "story": "A pathway WikiPathways holds but with no gene products comes back complete with an empty gene list, so an agent can tell \"this pathway lists no genes\" from \"this pathway does not exist\"; an ID the catalog does not hold stays absent.",
-  "verified": "Captured live 2026-11-14 in pm jobs j40885 (WikiPathways catalogs) and j40896 (WP5034 GPML). WP5034, Mitochondrial complex inhibition leading to liver injury, is in the human catalog and its GPML has 25 DataNodes, all of type Event or Pathway, so no GeneProduct rows; WP9999999 is not in the catalog.",
+  "story": "A pathway WikiPathways holds but with no gene products comes back complete with an empty gene list, so an agent can tell \"this pathway lists no genes\" from \"this pathway does not exist\"; an ID the source does not hold stays absent, with the source ok, through get pathway, pathway genes and pathway events.",
+  "verified": "Captured live 2026-11-14 in pm jobs j40885 (WikiPathways catalogs) and j40896 (WP5034 GPML). WP5034, Mitochondrial complex inhibition leading to liver injury, is in the human catalog and its GPML has 25 DataNodes, all of type Event or Pathway, so no GeneProduct rows; WP9999999 is not in the catalog. Reactome's /data/query/R-HSA-9999999 answered 404 NOT_FOUND, captured live 2026-11-14 in pm job j41025, where pathway genes WP9999999, pathway genes R-HSA-9999999 and pathway events R-HSA-9999999 answered absent with the source ok.",
   "replay": "pathway/empty-relations",
   "steps": [
     {
@@ -35,6 +35,33 @@
       "expect": {
         "/status": "absent",
         "/sources/0/source": "wikipathways",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    },
+    {
+      "run": ["pathway", "genes", "WP9999999"],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "wikipathways",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    },
+    {
+      "run": ["pathway", "genes", "R-HSA-9999999"],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "reactome",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    },
+    {
+      "run": ["pathway", "events", "R-HSA-9999999"],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "reactome",
         "/sources/0/state": "ok"
       },
       "exit": 1

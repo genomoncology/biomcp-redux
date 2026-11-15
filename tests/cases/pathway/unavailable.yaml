@@ -1,6 +1,6 @@
 {
   "feature": "pathway-failures",
-  "story": "An unavailable pathway source remains a failure and cannot become an empty pathway.",
+  "story": "An unavailable pathway source remains a failure and cannot become an empty or unknown pathway, through the card and its relation pages.",
   "live_check": "authored synthetic pathway outage",
   "replay": "pathway/unavailable",
   "steps": [
@@ -8,6 +8,32 @@
       "run": [
         "get",
         "pathway",
+        "R-HSA-6802952"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "reactome",
+        "/sources/0/reason": "unavailable"
+      }
+    },
+    {
+      "run": [
+        "pathway",
+        "genes",
+        "R-HSA-6802952"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "reactome",
+        "/sources/0/reason": "unavailable"
+      }
+    },
+    {
+      "run": [
+        "pathway",
+        "events",
         "R-HSA-6802952"
       ],
       "exit": 4,

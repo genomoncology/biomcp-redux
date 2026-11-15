@@ -223,6 +223,20 @@ impl From<RecordError> for RequestError {
         Self::Recording(error)
     }
 }
+// A reply names a failed recording's kind, so a sync that fails under --record says why (0954).
+impl From<RecordError> for biomcp_types::CacheProblem {
+    fn from(error: RecordError) -> Self {
+        match error {
+            RecordError::Conflict => Self::RecordingConflict,
+            RecordError::Io(_) => Self::RecordingIo,
+            RecordError::Missing => Self::RecordingMissing,
+            RecordError::Exhausted => Self::RecordingExhausted,
+            RecordError::Malformed => Self::RecordingMalformed,
+            RecordError::Limit => Self::RecordingLimit,
+            RecordError::NonUtf8 => Self::RecordingNonUtf8,
+        }
+    }
+}
 
 /// Input failures retain no caller text or serializer diagnostics.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
