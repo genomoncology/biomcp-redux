@@ -31,3 +31,9 @@ An agent using BioMCP over MCP learns what 0959 tells CLI agents: FDA CDx rows o
 ## Changes
 
 - Changes: the `search_diagnostic` description or MCP help routing, its case, regenerated docs.
+
+## Progress
+
+- 2026-11-15, design read: over MCP the 13 entity tools replace per-command tools. The 2,400 budget (`ACTION_BUDGET`, `crates/biomcp/tests/runner/typed_schemas.rs`) and the 300-character cap apply to each action's own description and schema; the `diagnostic` tool's own description (what it is for, sources, examples, what it is not for) sits outside both, under the 128 KiB catalog cap only. So the sentence goes there, and the `search` action's wording and size stay as they are.
+- Wording: 0959's order-neutral sentence ("carry ... beside FDA's cells"), not 0966's "start with". MCP replies are `serde_json::Value` maps without `preserve_order`, so they list fields alphabetically and `cells` comes before `device` there; "start with" would be false over MCP. The sentence is its own constant in `crates/biomcp/src/mcp/typed/description.rs`, so 0966's help wording change does not reach it, and it is added only while `fda-cdx` is offered.
+- Proof: `mcp-parity/typed-description-contract` now checks that the local and hosted `diagnostic` tool descriptions end with the sentence, and that a server started with `--disable-sources fda-cdx` leaves it out.
