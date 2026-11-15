@@ -1,5 +1,5 @@
-//! GTR test-name matching, ignoring letter case and name hyphens, with optional query spaces and
-//! hyphens, over the whole pinned version report, before counts and paging.
+//! GTR test-name and condition-name matching, ignoring letter case and name hyphens, with optional
+//! query spaces and hyphens, over the whole pinned version report, before counts and paging.
 use super::{bundle, map, raw::Native};
 use biodata::{GtrTestId, GtrTestVersion};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
@@ -64,7 +64,7 @@ fn spans(name: &str, needle: &[(char, bool)]) -> Vec<(usize, usize)> {
     out
 }
 
-/// Whether the query occurs in a native name cell under the folding rule above.
+/// Whether the query occurs in a native name or condition cell under the folding rule above.
 pub(super) fn contains(name: &str, query: &str) -> bool {
     needle(query).is_some_and(|needle| !spans(name, &needle).is_empty())
 }
@@ -83,27 +83,25 @@ fn whole_word(name: &str, needle: &[(char, bool)]) -> bool {
 pub(super) struct Named {
     ids: Vec<GtrTestId>,
     versions: HashMap<GtrTestId, Vec<Version>>,
-    matches: HashMap<GtrTestId, GtrNameMatch>,
+    /// Matched identities; how the name matched when `--name` was given.
+    matches: HashMap<GtrTestId, Option<GtrNameMatch>>,
     pub(super) refusals: crate::Refusal,
     pub(super) problems: Vec<Problem>,
     pub(super) info: BundleInfo,
 }
 impl Named {
-    /// How this exact identity's current or conflicting card matched, if it did.
-    pub(super) fn matched(&self, id: &GtrTestId) -> Option<GtrNameMatch> {
+    /// Whether this exact identity's current or conflicting card matched, and how by name.
+    pub(super) fn matched(&self, id: &GtrTestId) -> Option<Option<GtrNameMatch>> {
         self.matches.get(id).copied()
     }
 }
 
 /// Read every version row, including tests with no gene or condition relation.
-pub(super) fn read(
-    leg: &Leg<'_>,
-    query: &DiagnosticSearch,
-    name: &str,
-) -> Result<Named, RequestError> {
+pub(super) fn read(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Named, RequestError> {
     let (rows, info) = bundle::read(leg, Find::Exact(KeyKind::Band, "versions"))?;
     super::revision(query.bundle_revision(), &info)?;
-    let needle = needle(name);
+    let text = |v: Option<&biodata::Text>| v.map(|v| needle(v.as_str()));
+    let (name, condition) = (text(query.name()), text(query.condition()));
     let mut cx = crate::mapped::Problems {
         source: biomcp_types::Source::Gtr,
         record: None,
@@ -130,11 +128,15 @@ pub(super) fn read(
     }
     let matches: HashMap<_, _> = versions
         .iter()
-        .filter_map(|(id, list)| Some((id.clone(), listed(list, needle.as_deref()?)?)))
+        .filter_map(|(id, list)| {
+            let (name, condition) = (name.as_ref(), condition.as_ref());
+            let found = listed(list, name.map(Option::as_deref), condition.map(Option::as_deref));
+            Some((id.clone(), found?))
+        })
         .collect();
     versions.retain(|id, _| matches.contains_key(id));
     ids.retain(|id| matches.contains_key(id));
-    ids.sort_by_key(|id| matches.get(id) != Some(&GtrNameMatch::WholeWord));
+    ids.sort_by_key(|id| matches.get(id) == Some(&Some(GtrNameMatch::PartialWord)));
     Ok(Named {
         ids,
         versions,
@@ -145,20 +147,33 @@ pub(super) fn read(
     })
 }
 
-/// How a current card, or any row of an accession/version conflict, matches by name.
-fn listed(list: &[Version], needle: &[(char, bool)]) -> Option<GtrNameMatch> {
+/// Asked text, folded; `Some(None)` is asked text that folds to nothing and matches nothing.
+type Asked<'a> = Option<Option<&'a [(char, bool)]>>;
+/// Whether a current card, or any row of an accession/version conflict, matches the asked
+/// name and condition text; how it matched by name when a name was asked.
+fn listed(list: &[Version], name: Asked<'_>, condition: Asked<'_>) -> Option<Option<GtrNameMatch>> {
     if let [only] = list
         && only.now_current.as_ref() != "1"
     {
         return None;
     }
+    if let Some(condition) = condition {
+        let condition = condition?;
+        list.iter()
+            .any(|v| !spans(&v.condition_identifiers, condition).is_empty())
+            .then_some(())?;
+    }
+    let Some(needle) = name else {
+        return Some(None);
+    };
+    let needle = needle?;
     let names = || list.iter().map(|v| &*v.lab_test_name);
     if names().any(|name| whole_word(name, needle)) {
-        Some(GtrNameMatch::WholeWord)
+        Some(Some(GtrNameMatch::WholeWord))
     } else {
         names()
             .any(|name| !spans(name, needle).is_empty())
-            .then_some(GtrNameMatch::PartialWord)
+            .then_some(Some(GtrNameMatch::PartialWord))
     }
 }
 
@@ -190,13 +205,13 @@ pub(super) fn page(
                 [v] => Ok(DiagnosticCandidate::Resolved {
                     header: map::header(v, xml.get(id), &mut problems)?,
                     matched: None,
-                    name_match: matches.get(id).copied(),
+                    name_match: matches.get(id).copied().flatten(),
                 }),
                 [] => Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None)),
                 _ => Ok(DiagnosticCandidate::Conflict {
                     id: id.clone(),
                     problem: super::conflict(id),
-                    name_match: matches.get(id).copied(),
+                    name_match: matches.get(id).copied().flatten(),
                 }),
             },
         )

@@ -22,9 +22,8 @@ pub struct Search {
 }
 /// Match only complete native relation fields, retaining the source relation that matched.
 pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, RequestError> {
-    let named = query
-        .name()
-        .map(|name| super::name::read(leg, query, name.as_str()))
+    let named = (query.name().is_some() || query.condition().is_some())
+        .then(|| super::name::read(leg, query))
         .transpose()?;
     let selected = query.gene().is_some()
         || query.gene_id().is_some()
@@ -35,7 +34,8 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         named => relations(leg, query, named.as_ref()),
     }
 }
-/// Relation-selected tests, narrowed to name matches when a name is given, whole-word matches first.
+/// Relation-selected tests, narrowed to name and condition-name matches when given, whole-word
+/// name matches first.
 fn relations(
     leg: &Leg<'_>,
     query: &DiagnosticSearch,
@@ -79,7 +79,7 @@ fn relations(
             && let Some(relation) = map::relation(&r, &mut cx, &mut refusals)
             && matches(&r, query)
             && listed.as_ref().is_none_or(|ids| ids.contains(&r.id))
-            && let Some(name_match) = named.map_or(Some(None), |n| n.matched(&r.id).map(Some))
+            && let Some(name_match) = named.map_or(Some(None), |n| n.matched(&r.id))
             && seen.insert(r.id.clone())
         {
             matched.push((r, relation, name_match));

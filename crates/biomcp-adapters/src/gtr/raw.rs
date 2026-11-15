@@ -72,6 +72,7 @@ pub(super) struct Refused {
     medgen: Option<crate::raw::Field<Box<str>>>,
     test_type: Option<crate::raw::Field<GtrTestType>>,
     lab_test_name: Option<crate::raw::Field<Box<str>>>,
+    condition_identifiers: Option<crate::raw::Field<Box<str>>>,
 }
 impl Refused {
     pub(super) fn matches(&self, q: &biomcp_types::DiagnosticSearch) -> bool {
@@ -103,15 +104,14 @@ impl Refused {
             })
             && self.named(q)
     }
-    /// A refused row without a readable name cannot be ruled out, so it is disclosed.
+    /// A refused row without a readable name or condition cell cannot be ruled out, so it is disclosed.
     fn named(&self, q: &biomcp_types::DiagnosticSearch) -> bool {
-        let name = self
-            .lab_test_name
-            .as_ref()
-            .and_then(crate::raw::Field::as_ref);
-        q.name()
-            .zip(name)
-            .is_none_or(|(q, name)| super::name::contains(name, q.as_str()))
+        let fits = |text: Option<&biodata::Text>, cell: Option<&crate::raw::Field<Box<str>>>| {
+            text.zip(cell.and_then(crate::raw::Field::as_ref))
+                .is_none_or(|(q, cell)| super::name::contains(cell, q.as_str()))
+        };
+        fits(q.name(), self.lab_test_name.as_ref())
+            && fits(q.condition(), self.condition_identifiers.as_ref())
     }
     pub(super) fn disclose(&self, cx: &mut crate::mapped::Problems) {
         let before = cx.list.len();

@@ -92,6 +92,10 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(regex(pattern = "^MedGen:C[0-9]+$")))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Gtr)))]
     condition_id: Option<Text>,
+    #[doc = "Condition name text.\nText in GTR condition_identifiers, the test's condition names, matched like the GTR --name."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Gtr)))]
+    condition: Option<Text>,
     #[doc = "Native test_type.\nExact native test_type value."]
     #[serde(default, rename = "type", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Gtr)))]
@@ -193,6 +197,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
         let gtr = v.gene_id.is_some()
             || v.gene.is_some()
             || v.condition_id.is_some()
+            || v.condition.is_some()
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
         let who = v.marker.is_some() || v.manufacturer.is_some();
@@ -223,6 +228,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
                 "gene_id",
                 "gene",
                 "condition_id",
+                "condition",
                 "type",
                 "marker",
                 "manufacturer",
@@ -234,6 +240,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
                 "gene_id",
                 "gene",
                 "condition_id",
+                "condition",
                 "type",
                 "device_id",
                 "drug_application",
@@ -255,6 +262,13 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
         {
             return Err(QueryInvalid::new(&["device_id"]));
         }
+        // Text of only spaces, hyphens or punctuation would match nothing under GTR folding.
+        if v.condition
+            .as_ref()
+            .is_some_and(|v| !v.as_str().chars().any(char::is_alphanumeric))
+        {
+            return Err(QueryInvalid::new(&["condition"]));
+        }
         if v.condition_id.as_ref().is_some_and(|id| {
             id.as_str()
                 .strip_prefix("MedGen:C")
@@ -274,6 +288,7 @@ impl DiagnosticSearch {
             gene_id: None,
             gene: None,
             condition_id: None,
+            condition: None,
             test_type: None,
             drug_application: None,
             biomarker: None,
@@ -314,6 +329,10 @@ impl DiagnosticSearch {
     /// Exact source MedGen CUI.
     pub fn condition_id(&self) -> Option<&Text> {
         self.0.condition_id.as_ref()
+    }
+    /// GTR condition name text, matched like the GTR test name.
+    pub fn condition(&self) -> Option<&Text> {
+        self.0.condition.as_ref()
     }
     /// Exact native test type.
     pub fn test_type(&self) -> Option<biodata::GtrTestType> {

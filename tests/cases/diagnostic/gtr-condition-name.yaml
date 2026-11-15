@@ -1,0 +1,79 @@
+{
+  "verified": "Replays the GTR catalog slice recorded for 0935 (tests/replies/diagnostic/gtr-egfr: EGFR's 185 relation rows and those tests' 185 version rows, unchanged; test_version.gz Last-Modified 2026-11-05, still the live file on 2026-11-15). In the full catalog 56 current tests, 19 of them EGFR tests, hold Non-small cell only among the condition names in condition_identifiers, never in lab_test_name.",
+  "live_check": "public replies cut to one gene's rows; no live provider call",
+  "feature": "diagnostic-gtr",
+  "story": "A lab director looking for EGFR tests aimed at non-small cell lung cancer searches the tests' condition names, not their test names, and finds the 19 EGFR tests that list the condition even though no test name says it; the reply says how condition names were matched and that NSCLC is not expanded.",
+  "replay": "diagnostic/gtr-egfr",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gtr"
+      ],
+      "max_bytes": 227,
+      "expect": {
+        "/schema": "biomcp.sync/7",
+        "/result/rows": 563
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--condition",
+        "non-small cell"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--condition",
+        "non-small cell"
+      ],
+      "max_bytes": 100000,
+      "expect": {
+        "/page/total": 19,
+        "/sources/0/notices/*/message": {
+          "includes": "--condition matched the condition names in GTR condition_identifiers by the same rule as --name; no synonym or abbreviation expansion, so NSCLC does not find non-small cell lung cancer."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--condition",
+        "Non-small cell lung cancer"
+      ],
+      "max_bytes": 100000,
+      "expect": {
+        "/page/total": 12
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--condition",
+        "nonsmall cell"
+      ],
+      "max_bytes": 100000,
+      "expect": {
+        "/page/total": 19
+      }
+    }
+  ]
+}
