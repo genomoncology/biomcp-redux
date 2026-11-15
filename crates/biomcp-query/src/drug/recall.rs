@@ -39,7 +39,8 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         let sent = super::widen::retain(cx, q, widened.as_ref(), deadline, true, &mut out);
         let q = &sent;
         {
-            let found = returned != 0;
+            // A page whose matched records were all declined still matched records.
+            let found = returned != 0 || page.refusals == biomcp_adapters::Refusal::Refused;
             crate::status::item(&mut out, found, false, false);
         };
         out.problems = page.problems;
