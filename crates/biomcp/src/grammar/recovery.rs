@@ -21,9 +21,9 @@ pub(super) fn run(request: &biomcp_types::Request) -> Option<Step> {
     Some(step)
 }
 
-/// A corrected call, and whether it is certain: false when it filled a bare command with the
-/// only value that passes or dropped what the caller asked for, which is a guess that keeps
-/// help beside it. When several listed values would each pass, there is no correction.
+/// A corrected call, and whether it is certain: false when it dropped what the caller asked
+/// for, which is a guess that keeps help beside it. A listed value is offered only when it is
+/// certain; a bare command, or several values that would each pass, get no correction.
 pub(super) fn corrected(
     via: Rewrite,
     path: (&str, &str),
@@ -83,16 +83,13 @@ pub(super) fn corrected(
             });
         if let Some((index, step)) = passing.next() {
             // The declared default is certain, and so is the only listed value that passes when
-            // the call already names what it is after. A bare command gets the only passing
-            // value as a guess. When several values pass, the first is only the first declared,
-            // so help alone answers the refusal.
-            if defaulted && index == 0 {
-                return Some((step, true));
-            }
-            if passing.next().is_some() {
-                return None;
-            }
-            return Some((step, super::options::names_something(schema, value)));
+            // the call already names what it is after. Otherwise the value is a guess: on a bare
+            // command the call shows no intent to pick it (bare `search drug` runs only on
+            // recalls), and among several passing values the first is only the first declared.
+            // Help alone answers those refusals.
+            let certain = (defaulted && index == 0)
+                || (passing.next().is_none() && super::options::names_something(schema, value));
+            return certain.then_some((step, true));
         }
     }
     None

@@ -141,10 +141,15 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/option": "source",
         "/next/0/name": "help",
         "/next": {
           "count": 1
+        },
+        "/error/valid_values": {
+          "includes_all_of": [
+            "drugsfda",
+            "fda-drug-recall"
+          ]
         }
       }
     }
