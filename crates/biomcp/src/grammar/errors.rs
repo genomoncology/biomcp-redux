@@ -144,7 +144,7 @@ fn parser_correction(
     path: &[&str],
     error: &clap::Error,
     args: &[std::ffi::OsString],
-) -> Option<(biomcp_types::Step, bool)> {
+) -> Option<biomcp_types::Step> {
     // A stopped value parse can omit later filters; never turn that partial input into a new query.
     if !matches!(
         error.kind(),
@@ -189,13 +189,10 @@ fn parser_correction(
         super::sections::misplaced((verb, entity), &schema, value, spelling?)
     };
     if let Some(step) = value.as_ref().and_then(misplaced) {
-        return Some((step, true));
+        return Some(step);
     }
     let Some(value) = value else {
-        return read(false)
-            .as_ref()
-            .and_then(misplaced)
-            .map(|step| (step, true));
+        return read(false).as_ref().and_then(misplaced);
     };
     let declaration = biomcp_types::COMMANDS
         .iter()
@@ -208,6 +205,7 @@ fn parser_correction(
         &[argument.get_id().as_str()],
         false,
     )
+    .map(|(step, _)| step)
 }
 
 /// Preserve parser-owned identities and command guidance from the first parse.
@@ -237,7 +235,6 @@ pub(super) fn parse_invalid(
                         step
                     })
                 })
-                .map(|step| (step, true))
         };
         super::recovery::next(&mut arguments, corrected);
         return super::ParseInvalid {
@@ -256,7 +253,7 @@ pub(super) fn parse_invalid(
             && let Some(step) = flag_fix(root, &path, spelling, args)
         {
             arguments.argument = Some(spelling.into());
-            super::recovery::next(&mut arguments, Some((step, true)));
+            super::recovery::next(&mut arguments, Some(step));
         }
         return super::ParseInvalid {
             argument: None,
@@ -296,7 +293,6 @@ pub(super) fn checked_invalid(
         .map(|mut arguments| {
             let names: Vec<_> = cause.arguments().iter().map(AsRef::as_ref).collect();
             let corrected = super::recovery::trial_first_page(via, (verb, entity), value, cause)
-                .map(|step| (step, true))
                 .or_else(|| {
                     super::validation::schema(verb, entity).and_then(|schema| {
                         super::recovery::corrected(
@@ -307,6 +303,7 @@ pub(super) fn checked_invalid(
                             &names,
                             false,
                         )
+                        .map(|(step, _)| step)
                     })
                 });
             super::recovery::next(&mut arguments, corrected);

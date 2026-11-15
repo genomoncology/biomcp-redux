@@ -21,9 +21,10 @@ pub(super) fn run(request: &biomcp_types::Request) -> Option<Step> {
     Some(step)
 }
 
-/// A corrected call, and whether it is certain: false when it dropped what the caller asked
-/// for, which is a guess that keeps help beside it. A listed value is offered only when it is
-/// certain; a bare command, or several values that would each pass, get no correction.
+/// A corrected call, and whether it is certain: false only when `allow_omission` let it drop
+/// what the caller asked for, which is a guess that keeps help beside it. A listed value is
+/// offered only when it is certain; a bare command, or several values that would each pass,
+/// get no correction.
 pub(super) fn corrected(
     via: Rewrite,
     path: (&str, &str),
@@ -138,13 +139,10 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
-/// A certain correction replaces help: the refusal's first step is the call to run. A guess
-/// among several passing values goes first but keeps help beside it.
-pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<(Step, bool)>) {
-    if let Some((step, certain)) = corrected {
-        if certain {
-            arguments.next.retain(|step| !is_help(step));
-        }
+/// A certain correction replaces help: the refusal's only step is the call to run.
+pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<Step>) {
+    if let Some(step) = corrected {
+        arguments.next.retain(|step| !is_help(step));
         arguments.next.insert(0, step);
     }
 }
@@ -232,7 +230,7 @@ pub(crate) fn prepared(
         (Some(only), None) => Some(only),
         _ => None,
     };
-    next(arguments, corrected.map(|step| (step, true)));
+    next(arguments, corrected);
     error
 }
 
