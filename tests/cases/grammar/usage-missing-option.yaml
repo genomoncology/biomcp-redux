@@ -20,12 +20,14 @@
             "drugsfda"
           ]
         },
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "drug"
-          ]
+        "/next/0/args": [
+          "search",
+          "drug",
+          "--source",
+          "fda-drug-recall"
+        ],
+        "/next": {
+          "count": 1
         }
       }
     }

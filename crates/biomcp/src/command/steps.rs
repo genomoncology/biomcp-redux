@@ -26,15 +26,16 @@ pub(super) fn next(
     Ok(source_steps(globals, steps))
 }
 
-/// A card or first page also offers its own call with the options it could add, after the
-/// follow-ups and outside their cap.
+/// A first page also offers its own call with the options it could add, after the follow-ups
+/// and outside their cap.
 fn adjust(
     request: &biomcp_types::Request,
     result: &biomcp_query::Outcome,
 ) -> Result<Option<biomcp_types::Step>, serde_json::Error> {
     use biomcp_types::Status::{Complete, Partial};
-    // An identity card's options live on the sections it lists.
+    // Only a first page offers it; an identity card's options live on the sections it lists.
     if !matches!(result.status(), Complete | Partial)
+        || result.page.is_none()
         || !crate::grammar::first_page(request)
         || crate::grammar::identity_card(request)
     {

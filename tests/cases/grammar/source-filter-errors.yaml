@@ -21,13 +21,17 @@
           "faers"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "adverse-event"
-          ]
-        }
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 1
+        },
+        "/next/0/args": [
+          "search",
+          "adverse-event",
+          "pump",
+          "--source",
+          "maude"
+        ]
       }
     },
     {
@@ -48,12 +52,9 @@
           "fda-drug-recall"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "drug"
-          ]
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 1
         }
       }
     },
@@ -103,12 +104,9 @@
           "who-ivd"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "diagnostic"
-          ]
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 1
         }
       }
     },
@@ -129,12 +127,9 @@
           "reactome"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "pathway"
-          ]
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 1
         }
       }
     },
@@ -154,12 +149,9 @@
           "reactome"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "pathway"
-          ]
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 1
         }
       }
     },

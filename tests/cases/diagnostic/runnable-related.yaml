@@ -3,6 +3,10 @@
   "feature": "runnable-related-queries",
   "story": "A diagnostic search's first page offers its own call with the filters its source also takes as fill-in templates, and a filled-in template runs, over the CLI and MCP.",
   "replay": "diagnostic/device-approvals",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
   "steps": [
     {
       "run": [

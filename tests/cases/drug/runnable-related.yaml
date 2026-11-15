@@ -4,6 +4,10 @@
   "story": "A Drugs@FDA card lists its approvals section as a runnable command with that section's options as fill-in templates; the approvals page offers its own call with its date window, letter and page options; a refused unknown option's first next step is the corrected call, not help; and each offered call and filled-in option runs, over the CLI and MCP.",
   "verified": "Reuses the drug/approvals-page recording of openFDA Drugs@FDA BLA761445.",
   "replay": "drug/approvals-page",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
   "steps": [
     {
       "run": [
