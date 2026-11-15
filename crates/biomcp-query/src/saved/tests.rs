@@ -1,5 +1,6 @@
+//! Saved store migrations, round trips and newer-file refusal.
 use super::{MIGRATIONS, NewItem, SavedError, SavedStore, migrations::only_adds};
-use biomcp_types::Text;
+use biodata::Text;
 
 fn text(value: &str) -> Text {
     Text::new(value).unwrap()
@@ -25,9 +26,10 @@ fn migrations_only_add() {
     ] {
         assert!(!only_adds(statement), "accepted: {statement}");
     }
-    assert!(only_adds(
-        "ALTER TABLE saved_list ADD COLUMN color TEXT NOT NULL DEFAULT ''"
-    ));
+    assert!(
+        only_adds("ALTER TABLE saved_list ADD COLUMN color TEXT NOT NULL DEFAULT ''"),
+        "a column with a default is accepted"
+    );
 }
 
 #[test]

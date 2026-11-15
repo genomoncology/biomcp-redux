@@ -433,6 +433,10 @@ const ALLOWED: &[(&str, &str)] = &[
         before retained routes publish continuations.",
     ),
     (
+        "crates/biomcp-query/src/saved/tests.rs",
+        "Check that saved-work migrations only add and a newer file stays unchanged, at the private saved store boundary.",
+    ),
+    (
         "crates/biomcp-query/src/diagnostic/summary_tests.rs",
         "Find every match in synthetic long extracted lines at the private PMA summary passage cut, which a recorded document cannot shape on demand.",
     ),

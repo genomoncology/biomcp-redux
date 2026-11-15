@@ -8,8 +8,9 @@ use crate::exit::Status as Exit;
 use biomcp_query::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
 use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Help, HelpArgument, HelpCommand, HelpQuery,
-    ResponseBody, Saved, Source, Status, Text, UsageArguments, UsageError,
+    ResponseBody, Saved, Source, Status, UsageArguments, UsageError,
 };
+use biodata::Text;
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use std::{ffi::OsString, io, path::Path};
 
@@ -295,7 +296,8 @@ fn list(
     };
     let name = matches
         .get_one::<String>("name")
-        .and_then(|name| checked_name(name));
+        .map(String::as_str)
+        .and_then(checked_name);
     let Some(name) = name else {
         return usage(encoding, UsageError::argument("NAME".into()));
     };
@@ -475,9 +477,7 @@ fn help(
     encoding.encode(
         Envelope::new(
             Status::Complete,
-            HelpQuery {
-                command: std::iter::once("help".to_owned()).chain(path).collect(),
-            },
+            HelpQuery { command: path },
             Some(Help { commands }),
         ),
         Exit::Success,

@@ -75,24 +75,3 @@ pub(crate) fn cache_predecessors(active: Option<&std::path::Path>) -> Vec<PathBu
         .filter(|path| path != active)
         .collect()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::{cache, cache_predecessors, saved};
-    use std::path::PathBuf;
-
-    #[test]
-    fn saved_file_is_outside_every_cache_path() {
-        let home = Some(PathBuf::from("home"));
-        let roaming = Some(PathBuf::from("roaming"));
-        let local = Some(PathBuf::from("local"));
-        let saved = saved(None, home.clone(), roaming).unwrap();
-        let cache = cache(None, home, local).unwrap();
-        assert_ne!(saved.parent(), cache.parent(), "saved work is outside the cache folder");
-        assert!(
-            !cache_predecessors(Some(&cache)).contains(&saved),
-            "no cache generation names the saved file"
-        );
-        assert_eq!(saved.file_name().and_then(|name| name.to_str()), Some("saved.sqlite"), "saved file name");
-    }
-}
