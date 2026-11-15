@@ -502,6 +502,16 @@ fn path(dir: &Path, source: biomcp_types::Source, key: &[u8; 32]) -> PathBuf {
     let key: String = key.iter().map(|byte| format!("{byte:02x}")).collect();
     dir.join(source.to_string()).join(format!("{key}.json"))
 }
+// The record folder is held resolved (0954), so a symlinked source folder or recording file is
+// the only way a recording could reach outside it; refuse both, as binary reply files do (0963).
+fn confined(path: &Path) -> Result<(), RecordError> {
+    for part in [Some(path), path.parent()].into_iter().flatten() {
+        if fs::symlink_metadata(part).is_ok_and(|meta| meta.file_type().is_symlink()) {
+            return Err(RecordError::Malformed);
+        }
+    }
+    Ok(())
+}
 fn read(
     path: &Path,
     source: biomcp_types::Source,
@@ -509,6 +519,7 @@ fn read(
     request: Request<'_>,
     limit: u64,
 ) -> Result<(Recording, u64), RecordError> {
+    confined(path)?;
     let file = fs::File::open(path).map_err(|error| {
         if error.kind() == std::io::ErrorKind::NotFound {
             RecordError::Missing
@@ -545,6 +556,7 @@ fn publish(path: &Path, value: &Recording, limit: u64) -> Result<(), RecordError
     let parent = path
         .parent()
         .ok_or(RecordError::Io(std::io::ErrorKind::InvalidInput))?;
+    confined(path)?;
     fs::create_dir_all(parent).map_err(RecordError::from)?;
     let mut file = tempfile::NamedTempFile::new_in(parent).map_err(RecordError::from)?;
     file.write_all(&bytes).map_err(RecordError::from)?;
