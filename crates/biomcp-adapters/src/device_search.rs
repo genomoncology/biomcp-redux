@@ -22,17 +22,11 @@ pub(crate) fn expression(q: &DiagnosticSearch, name: &str) -> String {
         terms.push(format!("{name}:{}", literal(value)));
     }
     if let Some(value) = q.intended_use() {
-        terms.push(format!(
-            "ao_statement:{}",
-            crate::fda_device_recall::phrase(value)
-        ));
+        terms.push(format!("ao_statement:{}", literal(value)));
     }
     // Validation admits a classification name for 510(k) only.
     if let Some(value) = q.classification_name() {
-        terms.push(format!(
-            "openfda.device_name:{}",
-            crate::fda_device_recall::phrase(value)
-        ));
+        terms.push(format!("openfda.device_name:{}", literal(value)));
     }
     if let Some(value) = q.manufacturer() {
         terms.push(format!("applicant:{}", literal(value)));
