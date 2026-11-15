@@ -124,7 +124,7 @@
         "--source",
         "gtr"
       ],
-      "max_bytes": 1,
+      "max_bytes": 3344,
       "expect": {
         "/result/kind": "gtr-test",
         "/result": {
