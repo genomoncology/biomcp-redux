@@ -231,7 +231,7 @@ fn command_call(
             })
         });
     if let Some(refused) = refused {
-        let error = refusal::arguments(&refused, &["help", verb, entity])?;
+        let mut error = refusal::arguments(&refused, &["help", verb, entity])?;
         let args = arguments::cli(
             root,
             verb,
@@ -239,6 +239,12 @@ fn command_call(
             &schema,
             &refusal::known(&input, &values),
         )?;
+        if let biomcp_types::UsageError::Arguments(usage) = &mut error
+            && refusal::unknown(&input, &values).as_ref() == Some(&refused.argument)
+            && let Some(step) = refusal::fix(root, &args, &refused.argument, &values)
+        {
+            usage.next.insert(0, step);
+        }
         return Some(Err(Rejected {
             error,
             args,

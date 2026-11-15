@@ -37,6 +37,37 @@ pub(super) fn known(input: &Value, values: &Value) -> Value {
     )
 }
 
+/// An unknown key typed as the option it would be on the command line, `q` as `-q` and
+/// `who_pq` as `--who-pq`: the first fix the command line gives that mistake, if any.
+pub(super) fn fix(
+    root: &crate::grammar::Root,
+    args: &[OsString],
+    key: &str,
+    values: &Value,
+) -> Option<biomcp_types::Step> {
+    let value = values.get(key)?;
+    let spelling = if key.chars().count() == 1 {
+        format!("-{key}")
+    } else {
+        format!("--{}", key.replace('_', "-"))
+    };
+    let mut words = Vec::new();
+    for value in value.as_array().map_or_else(|| vec![value], |values| values.iter().collect()) {
+        match value {
+            Value::Bool(true) => words.push(OsString::from(&spelling)),
+            Value::String(text) => words.extend([OsString::from(&spelling), text.into()]),
+            Value::Number(number) => {
+                words.extend([OsString::from(&spelling), number.to_string().into()]);
+            }
+            _ => return None,
+        }
+    }
+    let mut args = args.to_vec();
+    let at = args.len().min(2);
+    args.splice(at..at, words);
+    crate::grammar::candidate(root, &args)
+}
+
 pub(super) fn arguments(
     refused: &super::forms::Refused,
     help: &[&str],

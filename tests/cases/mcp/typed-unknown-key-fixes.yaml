@@ -1,0 +1,188 @@
+{
+  "live_check": "offline parser checks; no source requests",
+  "feature": "mcp-parity",
+  "story": "A typed call refused for an argument its action does not take gets the fix the command line gives the same mistake ahead of the help step: search text under another name, a source typed as its own argument or one the record does not need, a short flag's letter, and a full HGVS name as variant. A key with no command-line fix keeps only the help step.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "source": "fda-pma",
+            "query": "colorectal"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "query",
+        "/next/0/name": "diagnostic",
+        "/next/0/arguments/action": "search",
+        "/next/0/arguments/search/name": "colorectal",
+        "/next/0/arguments/search/source": "fda-pma"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "source": "fda-pma",
+            "q": "colorectal"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "q",
+        "/next/0/name": "diagnostic",
+        "/next/0/arguments/search/name": "colorectal",
+        "/next/0/arguments/search/source": "fda-pma"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "primaquine",
+            "who_pq": true,
+            "limit": 50
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "who_pq",
+        "/next/0/name": "drug",
+        "/next/0/arguments/search/source": "who-pq",
+        "/next/0/arguments/search/limit": 50
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "MSTN",
+            "source": "hgnc"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "source",
+        "/next/0/name": "gene",
+        "/next/0/arguments/get": {
+          "equals": {
+            "id": "MSTN"
+          }
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "c": "melanoma"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "c",
+        "/next/0/name": "trial",
+        "/next/0/arguments/search/condition": "melanoma"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "variant": "NM_007294.4(BRCA1):c.68_69del"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "variant",
+        "/next/0/name": "variant",
+        "/next/0/arguments/search": {
+          "equals": {
+            "gene": "BRCA1",
+            "coding": "c.68_69del"
+          }
+        },
+        "/next/1/name": "help"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "variant": "NM_007294.4:c.68_69del"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "variant",
+        "/next/0/name": "help"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "gene_symbol": "KRAS"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "gene_symbol",
+        "/next/0/name": "help"
+      }
+    }
+  ]
+}
