@@ -90,7 +90,10 @@ fn json_files(path: &Path) -> Result<Vec<PathBuf>, std::io::Error> {
         let path = entry?.path();
         if path.is_dir() {
             files.extend(json_files(&path)?);
-        } else if path.extension().is_some_and(|extension| extension == "json") {
+        } else if path
+            .extension()
+            .is_some_and(|extension| extension == "json")
+        {
             files.push(path);
         }
     }
@@ -124,7 +127,10 @@ fn unmarked_noncommercial_replies_fail() -> Check {
     if error.to_string().contains("(pubmed)") {
         return Err("an open source was reported".into());
     }
-    fs::write(root.path().join("tests/replies/area/README.md"), "Real rows.")?;
+    fs::write(
+        root.path().join("tests/replies/area/README.md"),
+        "Real rows.",
+    )?;
     if check(root.path()).is_ok() {
         return Err("a README that does not say synthetic passed".into());
     }
