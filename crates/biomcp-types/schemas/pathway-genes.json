@@ -399,14 +399,14 @@
           "type": "integer"
         },
         "total": {
-          "description": "Source-reported or observed relation total, as qualified by total_kind.",
+          "description": "Source-reported, observed or read-so-far total, as qualified by total_kind.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "total_kind": {
           "$ref": "#/$defs/Reply_PathwayTotalKind",
-          "description": "Whether the total comes from the source or this retained collection."
+          "description": "Whether the total comes from the source, this retained collection, or the rows read so far (`read`)."
         }
       },
       "required": [
@@ -479,7 +479,7 @@
       "type": "string"
     },
     "Reply_PathwayTotalKind": {
-      "description": "Meaning of the collection total, independent of admitted rows on a page.",
+      "description": "Meaning of the collection total; only `read` grows with the rows handed out.",
       "enum": [
         "source",
         "observed",

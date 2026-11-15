@@ -265,9 +265,7 @@ fn advance(
     }
     let returned = items.len() as u32;
     // Rows handed out before this page, on it, and still queued from either source.
-    let read = handed
-        + u64::from(returned)
-        + saved.1.iter().map(|s| s.0.len() as u64).sum::<u64>();
+    let read = handed + u64::from(returned) + saved.1.iter().map(|s| s.0.len() as u64).sum::<u64>();
     let continuing = saved.1.iter().any(|s| !s.0.is_empty() || s.1.is_some());
     saved.0 = PathwayPage {
         items: items.into(),
