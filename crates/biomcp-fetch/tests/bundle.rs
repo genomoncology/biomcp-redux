@@ -451,3 +451,43 @@ mod shutdown;
 
 #[path = "bundle/streamed.rs"]
 mod streamed;
+
+/// A sync and its own follow-up read run on the configured sync limit, not the source's
+/// request deadline (0951). Replay time is frozen, so the remaining budgets are exact.
+#[test]
+fn sync_leg_follows_the_configured_limit() {
+    let spec = Box::leak(Box::new(biomcp_fetch::SourceSpec {
+        destinations: biomcp_fetch::Destinations::Primary,
+        user_agent: None,
+        terms: biomcp_fetch::Terms {
+            name: "Synthetic test data",
+            url: "https://example.test/terms",
+            usage: biomcp_types::Use::Open,
+        },
+        base: "https://example.test",
+        source: biomcp_types::Source::Gtr,
+        key: KeyUse::None,
+        quota: &QUOTA,
+        deadline: Duration::from_secs(15),
+        command_budget: None,
+    }));
+    let dir = tempfile::tempdir().unwrap();
+    for (limit, expected) in [(600, 600), (1, 1)] {
+        let f = Fetch::open(FetchConfig {
+            mode: biomcp_fetch::Mode::Replay {
+                dir: dir.path().into(),
+            },
+            sync_budget: Duration::from_secs(limit),
+            ..Default::default()
+        })
+        .unwrap();
+        assert_eq!(f.sync_budget(), Duration::from_secs(limit));
+        assert_eq!(f.sync_leg(spec).remaining(), Duration::from_secs(expected));
+        // An ordinary leg stays capped by the source's own 15-second deadline.
+        assert_eq!(
+            f.leg(spec, f.deadline(f.sync_budget())).remaining(),
+            Duration::from_secs(expected.min(15))
+        );
+    }
+    assert_eq!(FetchConfig::default().sync_budget, Duration::from_secs(120));
+}

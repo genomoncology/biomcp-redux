@@ -307,7 +307,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
         ),
         (
             vec!["sync", "[hgnc|clingen|gencc]"],
-            "Synchronize a local source bundle.",
+            "Synchronize a local source bundle. Set sync_timeout_seconds in config.json to change its time limit (default 120).",
         ),
         (
             vec!["help", "[COMMAND...]"],

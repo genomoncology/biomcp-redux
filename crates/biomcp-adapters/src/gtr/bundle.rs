@@ -4,7 +4,7 @@ use biomcp_fetch::{
     RowFormat, SetRow,
 };
 use biomcp_types::SyncResult;
-use std::{collections::BTreeMap, marker::PhantomData, time::Duration};
+use std::{collections::BTreeMap, marker::PhantomData};
 /// GTR's full XML release, the only GTR file with specimens and lab certifications.
 pub(super) const XML_PATH: &str = "/data/gtr_ftp.xml.gz";
 const SET: BundleSet<Native> = BundleSet {
@@ -51,8 +51,7 @@ pub(super) fn read(
 /// Synchronize both native files atomically and count identities before any status filter.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let info = fetch.sync_set(&SET)?;
-    let deadline = fetch.deadline(Duration::from_secs(120));
-    let leg = fetch.leg(&SPEC, deadline);
+    let leg = fetch.sync_leg(&SPEC);
     let (rows, snapshot) = read(&leg, Find::Exact(KeyKind::Band, "versions"))?;
     if info.content_revision != snapshot.content_revision {
         return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));
