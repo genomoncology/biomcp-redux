@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "reactome",
+  "url": "https://reactome.org/ContentService/data/query/R-HSA-9999999",
+  "exchanges": [
+    {
+      "fetched": 1794705620,
+      "status": 404,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 80,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"code":404,"reason":"NOT_FOUND","url":"http://reactome.org/ContentService/data/query/R-HSA-9999999","messages":["Id: R-HSA-9999999 has not been found in the System"],"targets":null}
+      }
+    }
+  ]
+}

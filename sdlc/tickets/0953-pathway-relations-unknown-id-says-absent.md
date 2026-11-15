@@ -31,3 +31,10 @@ Milestone: 7
 ## Changes
 
 - Changes: `crates/biomcp-query/src/pathway/`, pathway cases.
+
+## Progress
+
+- Measured live 2026-11-14 in j41025 (branch with the fix): Reactome `/data/query/R-HSA-9999999` answers 404 NOT_FOUND, which the Reactome card adapter already reads as "not held"; WP9999999 is not in the stored WikiPathways catalog. With the fix, `pathway genes WP9999999`, `pathway genes R-HSA-9999999` and `pathway events R-HSA-9999999` answer `absent`, exit 1, source ok, matching `get pathway R-HSA-9999999`. Before it (0940's run on main) they answered `failed` with reason `not-found`. `pathway events` takes only Reactome IDs (a WP ID is refused as invalid input), so there is no WikiPathways events case.
+- Changed: the relation fetch (`relation.rs` for Reactome, `gpml_relation.rs` for WikiPathways) now returns "not held" instead of a made-up not-found error when the card read says the source lacks the pathway; `relation::read` then marks the item `absent`, leaves the source ok and saves no relation snapshot. Any real error from the card or relation read still fails as before.
+- Cases: `tests/cases/pathway/empty-relations.yaml` gains the three unknown-ID steps, with the Reactome 404 recorded in j41025. `tests/cases/pathway/unavailable.yaml` gains `pathway genes` and `pathway events` on its synthetic Reactome outage, which still answer `failed` with reason `unavailable`. 0940's WP5034 `complete` steps are unchanged.
+- Seen again: `sync wikipathways` failed with no reason in j41025, as 0940 saw; the job used the catalog already stored on the M5.
