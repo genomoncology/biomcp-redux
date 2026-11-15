@@ -79,15 +79,16 @@ pub(super) fn help_command(root: &Command) -> Command {
     }
     for (_, entity, _) in super::command_paths() {
         if help.find_subcommand(entity).is_none() {
-            // `help questions` lists entities by tool name, so `help adverse_event` answers too.
             let mut alias = Command::new(entity);
-            if entity.contains('-') {
-                alias = alias.alias(entity.replace('-', "_"));
-            }
             if sections(entity) {
                 alias = alias.arg(section_word());
             }
             help = help.subcommand(alias);
+        }
+        // `help questions` lists entities by tool name, so `help adverse_event` answers too.
+        let tool = entity.replace('-', "_");
+        if tool != entity && help.find_subcommand(&tool).is_none() {
+            help = help.mut_subcommand(entity, |page| page.alias(tool));
         }
     }
     help.subcommand(
