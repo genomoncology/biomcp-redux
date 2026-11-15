@@ -30,8 +30,13 @@
           "hierarchy"
         ],
         "/next": {
-          "count": 1
-        }
+          "count": 2
+        },
+        "/next/1/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
       "max_bytes": 354
     },
@@ -56,7 +61,7 @@
           "monarch"
         ],
         "/next": {
-          "count": 1
+          "count": 2
         },
         "/next/0/kind": "configure",
         "/next/0/args": [
@@ -64,6 +69,11 @@
           "phenotype",
           "HP:0001250",
           "diseases"
+        ],
+        "/next/1/args": [
+          "help",
+          "get",
+          "phenotype"
         ]
       },
       "max_bytes": 354
@@ -89,7 +99,7 @@
           "monarch"
         ],
         "/next": {
-          "count": 1
+          "count": 2
         },
         "/next/0/kind": "configure",
         "/next/0/args": [
@@ -97,6 +107,11 @@
           "phenotype",
           "HP:0001250",
           "genes"
+        ],
+        "/next/1/args": [
+          "help",
+          "get",
+          "phenotype"
         ]
       },
       "max_bytes": 354

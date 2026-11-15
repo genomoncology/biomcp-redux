@@ -381,8 +381,7 @@ pub(super) fn source_filter(
         } else {
             let sources: Vec<&str> = valid.iter().map(|source| source.as_str()).collect();
             let swapped =
-                super::recovery::source_swap(via, (verb, entity), &schema, value, &sources)
-                    .map(|step| (step, true));
+                super::recovery::source_swap(via, (verb, entity), &schema, value, &sources);
             match swapped.or_else(|| {
                 super::recovery::corrected(via, (verb, entity), &schema, value, &[name], true)
             }) {

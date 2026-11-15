@@ -291,15 +291,17 @@ pub(super) fn dropped(
     }
 }
 
-/// A filter or section the selected source refuses, kept with the one source that accepts it:
-/// certain when exactly one valid source passes and the call names what it is after.
+/// A filter or section the selected source refuses, kept with the one source that accepts it
+/// and passes the check made before any source is read. It is certain only when the caller
+/// named no source, so the default was refused; replacing a source the caller named drops
+/// something they asked for, so that swap is a guess that keeps help beside it.
 pub(super) fn source_swap(
     via: Rewrite,
     path: (&str, &str),
     schema: &Value,
     value: &Value,
     valid: &[&str],
-) -> Option<Step> {
+) -> Option<(Step, bool)> {
     let array = schema
         .pointer("/properties/source")
         .and_then(super::property_type)
@@ -315,8 +317,19 @@ pub(super) fn source_swap(
                 source
             },
         );
-        checked(via, path, candidate)
+        let request = super::rewrite::request(via, path.0, path.1, candidate).ok()?;
+        biomcp_query::Action::Run {
+            request: request.clone(),
+            fresh: false,
+        }
+        .prepare()
+        .ok()?;
+        run(&request)
     });
     let only = passing.next()?;
-    (passing.next().is_none() && super::options::names_something(schema, value)).then_some(only)
+    if passing.next().is_some() || !super::options::names_something(schema, value) {
+        return None;
+    }
+    let named = value.get("source").is_some_and(|source| !source.is_null());
+    Some((only, !named))
 }

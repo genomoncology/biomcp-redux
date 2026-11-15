@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "synthetic",
-  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity. A filter only one source takes keeps the filter with that source; dropping a filter is a guess that keeps help beside it.",
+  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity. Swapping a source the caller named for the one that takes the filter, or dropping the filter, is a guess that keeps help beside it.",
   "steps": [
     {
       "run": [
@@ -23,7 +23,7 @@
         "/error/message": "a selected source does not support the requested filters",
         "/next/0/kind": "configure",
         "/next": {
-          "count": 1
+          "count": 2
         },
         "/next/0/args": [
           "search",
@@ -31,6 +31,11 @@
           "pump",
           "--reaction",
           "Headache"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "adverse-event"
         ]
       }
     },
@@ -54,7 +59,7 @@
         "/error/message": "a selected source does not support the requested filters",
         "/next/0/kind": "configure",
         "/next": {
-          "count": 1
+          "count": 2
         },
         "/next/0/args": [
           "search",
@@ -64,6 +69,11 @@
           "2026-01-01",
           "--source",
           "fda-drug-recall"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "drug"
         ]
       }
     },
@@ -151,13 +161,18 @@
         "/error/message": "a selected source does not support the requested filters",
         "/next/0/kind": "configure",
         "/next": {
-          "count": 1
+          "count": 2
         },
         "/next/0/args": [
           "search",
           "pathway",
           "--gene",
           "BRAF"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "pathway"
         ]
       }
     },

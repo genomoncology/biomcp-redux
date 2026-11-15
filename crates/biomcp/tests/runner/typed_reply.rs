@@ -112,19 +112,19 @@ fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
     if index == 0 && value.get("status") != Some(&json!("complete")) {
         return Err(format!("recorded search did not succeed: {value}"));
     }
-    // The one source that reads both sections keeps them, in place of help; its options
-    // are checked by the cases.
-    let first = value
-        .get("next")
-        .and_then(Value::as_array)
-        .filter(|next| next.len() == 1)
-        .and_then(|next| next.first())
-        .map(|step| json!({"kind":step["kind"],"name":step["name"],"arguments":step["arguments"]}));
+    // The source that reads both sections keeps them; it replaces the source the caller
+    // named, so help stays beside it. The call's options are checked by the cases.
+    let next = value.get("next").and_then(Value::as_array).map(|next| {
+        next.iter()
+            .map(|step| json!({"kind":step["kind"],"name":step["name"],"arguments":step["arguments"]}))
+            .collect::<Vec<_>>()
+    });
     if index == 2
-        && first
-            != Some(json!(
-                {"kind":"configure","name":"trial","arguments":{"action":"get","get":{"id":["NCT07491445"],"section":["summary","eligibility"],"source":"nci"}}}
-            ))
+        && next
+            != Some(vec![
+                json!({"kind":"configure","name":"trial","arguments":{"action":"get","get":{"id":["NCT07491445"],"section":["summary","eligibility"],"source":"nci"}}}),
+                json!({"kind":"configure","name":"help","arguments":{"command":"get trial"}}),
+            ])
     {
         return Err(format!("typed reply lost ordered recovery steps: {value}"));
     }
