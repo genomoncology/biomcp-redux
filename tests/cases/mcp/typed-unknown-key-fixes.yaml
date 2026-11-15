@@ -95,7 +95,9 @@
         "/next/0/name": "gene",
         "/next/0/arguments/get": {
           "equals": {
-            "id": "MSTN"
+            "id": [
+              "MSTN"
+            ]
           }
         }
       }
