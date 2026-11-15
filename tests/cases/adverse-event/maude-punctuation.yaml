@@ -1,8 +1,8 @@
 {
   "feature": "maude-reports",
   "live_check": "public",
-  "story": "A MAUDE device phrase, manufacturer, product code or product problem holding punctuation or a symbol openFDA refuses is searched as the same words without it; source_query shows the phrase sent.",
-  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41373, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/adverse-event/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "story": "A MAUDE device phrase, manufacturer, product code or product problem holding punctuation or a symbol openFDA refuses is searched as the same words without it; source_query shows the phrase sent. A source notice names each value sent as other words.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/adverse-event/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "adverse-event/openfda-punctuation",
   "steps": [
     {
@@ -21,7 +21,10 @@
         "/page/total": 2117766,
         "/result/source_query": "device.generic_name:\"infusion pump\"",
         "/result/items/0/id": "51243983",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "The search text was searched as \"infusion pump\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     },
     {
@@ -41,7 +44,10 @@
         "/page/total": 3393840,
         "/result/source_query": "device.manufacturer_d_name:\"Medtronic\"",
         "/result/items/0/id": "51243986",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--manufacturer was searched as \"Medtronic\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     },
     {
@@ -63,7 +69,10 @@
         "/page/total": 1840474,
         "/result/source_query": "device.device_report_product_code.exact:\"FRN\"",
         "/result/items/0/id": "51243978",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--product-code was searched as \"FRN\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     },
     {
@@ -83,7 +92,10 @@
         "/page/total": 691529,
         "/result/source_query": "product_problems:\"leak\"",
         "/result/items/0/id": "51244072",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--problem was searched as \"leak\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     }
   ]

@@ -1,8 +1,8 @@
 {
   "feature": "drug-approvals",
   "live_check": "public",
-  "story": "A Drugs@FDA name or applicant holding punctuation or a letter outside ASCII, which openFDA refuses, is searched as the words openFDA accepts: Keytruda® finds Keytruda's applications, an applicant's refused punctuation is dropped from the sponsor prefix, Nestlé is sent as NESTLE and answers empty because no Drugs@FDA sponsor starts with it, and an applicant of refused characters alone answers empty rather than selecting every sponsor.",
-  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41373, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/drug/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "story": "A Drugs@FDA name or applicant holding punctuation or a letter outside ASCII, which openFDA refuses, is searched as the words openFDA accepts: Keytruda® finds Keytruda's applications, an applicant's refused punctuation is dropped from the sponsor prefix, Nestlé is sent as NESTLE and answers empty because no Drugs@FDA sponsor starts with it, and an applicant of refused characters alone answers empty rather than selecting every sponsor. A source notice names each value sent as other words.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/drug/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "drug/openfda-punctuation",
   "steps": [
     {
@@ -21,7 +21,10 @@
         "/query/query": "Keytruda®",
         "/page/total": 2,
         "/result/items/0/id": "BLA125514",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "The drug name was searched as \"Keytruda\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     },
     {

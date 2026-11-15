@@ -46,8 +46,12 @@ fn disclose(mut out: Outcome, query: &AdverseEventSearch) -> Outcome {
         ("--problem", query.problem()),
         ("--reaction", query.reaction()),
     ];
-    let listed = (query.drug().iter().map(|v| ("--drug", Some(v))))
-        .chain(query.product_code().iter().map(|v| ("--product-code", Some(v))));
+    let listed = (query.drug().iter().map(|v| ("--drug", Some(v)))).chain(
+        query
+            .product_code()
+            .iter()
+            .map(|v| ("--product-code", Some(v))),
+    );
     crate::openfda_text::disclose(&mut out, source, named.into_iter().chain(listed));
     out
 }

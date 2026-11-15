@@ -1,8 +1,8 @@
 {
   "feature": "drug-recall",
   "live_check": "public",
-  "story": "A drug recall name, firm, status or reason holding punctuation openFDA refuses is searched as the same words without it, with the plain value's recall records and total.",
-  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41373, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/drug/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "story": "A drug recall name, firm, status or reason holding punctuation openFDA refuses is searched as the same words without it, with the plain value's recall records and total. A source notice names each value sent as other words.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/drug/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "drug/openfda-punctuation",
   "steps": [
     {
@@ -21,7 +21,10 @@
         "/query/query": "valsartan|",
         "/page/total": 138,
         "/result/items/0/recall_number": "D-0746-2026",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "The drug name was searched as \"valsartan\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     },
     {
@@ -40,7 +43,10 @@
         "/query/firm": "Pfizer~",
         "/page/total": 158,
         "/result/items/0/recall_number": "D-0052-2027",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--firm was searched as \"Pfizer\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     },
     {
@@ -59,7 +65,10 @@
         "/query/status": "Ongoing^",
         "/page/total": 2857,
         "/result/items/0/recall_number": "D-0104-2027",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--status was searched as \"Ongoing\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     },
     {
@@ -78,7 +87,10 @@
         "/query/reason": "Salmonella#",
         "/page/total": 28,
         "/result/items/0/recall_number": "D-0988-2019",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--reason was searched as \"Salmonella\": openFDA refuses some punctuation and every character outside ASCII."
+        }
       }
     }
   ]

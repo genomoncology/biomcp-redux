@@ -35,7 +35,11 @@ pub(crate) fn disclose<'a>(
     if notices.is_empty() {
         return;
     }
-    if let Some(report) = out.sources.iter_mut().find(|report| report.source == source) {
+    if let Some(report) = out
+        .sources
+        .iter_mut()
+        .find(|report| report.source == source)
+    {
         report.notices.extend(notices);
     }
 }

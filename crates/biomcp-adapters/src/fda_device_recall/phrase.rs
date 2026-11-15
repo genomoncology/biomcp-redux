@@ -4,7 +4,13 @@ use biomcp_types::{DiagnosticSearch, openfda_phrase, openfda_words};
 /// One quoted openFDA phrase with repeated spaces squeezed, as these three phrases have always
 /// been sent (0901), so their requests stay the same.
 pub(crate) fn phrase(value: &Text) -> String {
-    openfda_phrase(&value.as_str().split_whitespace().collect::<Vec<_>>().join(" "))
+    openfda_phrase(
+        &value
+            .as_str()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" "),
+    )
 }
 /// The phrase searched for a device recall name whose refused characters became spaces:
 /// "Alaris® pump" counts the same 49 recall records as "Alaris pump" (live, 2026-11-15).
