@@ -529,10 +529,10 @@ pub struct CompanionShared {
     /// Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub row_date: Option<PartialDate>,
-    /// Diagnostic name and manufacturer cell text.
+    /// Diagnostic name and manufacturer cell text, as one line: line breaks and runs of spaces read as one space, so both tables name a test alike.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub diagnostic: Option<Box<str>>,
-    /// Indication and sample type cell text.
+    /// Indication and sample type cell text, as one line.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub indication: Option<Box<str>>,
     /// FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.

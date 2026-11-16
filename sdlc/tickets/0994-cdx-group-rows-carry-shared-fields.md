@@ -1,6 +1,7 @@
 # 0994 — cdx-group-rows-carry-shared-fields
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: aba899e36fb66fbf2630bd2ea59d0b85e1e5b8b0
 
 Milestone: 7
 
@@ -33,3 +34,13 @@ In dx-lab-director round 4 (bench, `personas/dx-lab-director/runs/2026-11-15-r4/
 ## Changes
 
 - Changes: the fda-cdx rows, their case, possibly the help line 0959 added, the notes.
+
+## Progress
+
+- 2026-11-16, evidence (round 4 call records, j41109, BioMCP 95a74e246): the agent read FDA's per-table cell headers, never BioMCP's shared fields. Call 46 (`--drug-application NDA208065`, 15 rows) projected `.cells["Diagnostic Name (Manufacturer)"]`, which is null on the 5 group rows, because the group table spells that header `"Diagnostic Name\n(Manufacturer)"` and its other headers differently (`"Indication(s) - Sample Type"`, `"PMA (Approval Date)"`, and a drug-group cell instead of `"Drug Trade Name (Generic) NDA / BLA"`). Call 47 opened one group row: it printed `kind`, `snapshot`, `index`, then `cells`, so the shared `diagnostic`, `indication`, `device`, `drug` and `row_date` sat after a 2 KB drug-group cell and the agent stopped reading at `head -50`. Calls 37-41 hit the same nulls over all 244 rows (call 41 failed on them).
+- Already fixed on main by 0966 (landed after round 4, before this ticket was filed): rows now print `kind`, then `row_date`, `diagnostic`, `indication`, `device`, `drug`, then FDA's cells, and `fda-companion-shared-first` checks all 15 TAGRISSO rows carry those fields.
+- Gap left, measured on the recorded FDA page (`tests/replies/diagnostic/cdx-group-join`): the shared `diagnostic` copies FDA's cell text, and the group table breaks names across lines (`"cobas EGFR Mutation Test v2\n(Roche Molecular Systems, Inc.)"`) while the individual table also pads with no-break spaces. TAGRISSO's 15 rows spell its 7 tests 10 ways; over all 244 rows, 88 spellings for 83 names. A script grouping on `.diagnostic` counts cobas, FoundationOne CDx and FoundationOne Liquid CDx twice.
+- Decision: `diagnostic` and `indication` read as one line (whitespace runs, line breaks and no-break spaces become one space). FDA's `cells` keep their original text; `device` (number and date) and `drug` (the group cell is a list, one drug per line) are unchanged. No field added or removed: only the two fields' descriptions change, which the 1.0 rules allow. Reply size can only shrink. Release notes say it.
+- Proof: `fda-companion-shared-first` now expects TAGRISSO's 15 `diagnostic` values exactly, naming the 7 tests (Guardant360 Liquid CDx, cobas, FoundationOne CDx, FoundationOne Liquid CDx, Guardant360 CDx, ONCO/Reveal, MI Cancer Seek) in one spelling each; on main the group rows' line breaks fail it.
+- j41625 (cheap job on cf69773c0): schemas regenerated (two description lines, committed), docs had no diff; diagnostic cases (48), mcp-parity (65) and schema-release-check passed; the case failed with ee909e969's crates on exactly the three group-row line breaks. check-cheap failed only on the 300-line limit for adapter files; the normalization moved into a four-line helper, leaving `search.rs` at 300 lines.
+- Gate: j41633 passed `make --keep-going landing-gate docs-check schema-release-check` on 5e643cbeb (the branch, whose base is current origin/main ee909e969).
