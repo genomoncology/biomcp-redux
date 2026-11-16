@@ -12,3 +12,5 @@ Most BioMCP users are academic researchers, so every source and every field is o
 - Keys keep their own rules: a source whose terms require the user's key, such as OncoKB, runs only with it (`2026-10-24-keyed-sources-run-only-with-the-user-s-key.md`); a source whose key only raises the rate runs at its public rate without one and at the higher rate with one.
 
 This replaces the PM's interim exclusion of dbNSFP's academic-branch components in 0092 (m4589).
+
+Amended 2026-11-15 by Ian: each reply names the source and its `Use`; the terms name and publisher page live in `biomcp help sources` and `biomcp health` (`2026-11-15-source-terms-live-in-help-sources.md`).
