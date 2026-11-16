@@ -33,7 +33,7 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
             .flatten()
         {
             if source.get("state").and_then(Value::as_str) == Some("ok") {
-                no_data(&source["source"], &mut out);
+                no_data(&source["source"], None, &mut out);
             }
         }
     }
