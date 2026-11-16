@@ -179,7 +179,10 @@ fn stored_rechecks(server: &Server, folder: &std::path::Path) -> Result<(), Stri
         db.execute(
             "INSERT INTO saved_search(id,project,name,args,schema,request_key,created) \
              SELECT ?1,project,?1,?2,schema,request_key,created FROM saved_search LIMIT 1",
-            rusqlite::params![name, serde_json::to_string(&words).map_err(|e| e.to_string())?],
+            rusqlite::params![
+                name,
+                serde_json::to_string(&words).map_err(|e| e.to_string())?
+            ],
         )
         .map_err(|error| error.to_string())?;
         let changed = json!({"action":"changed","changed":{"name":name}});
@@ -189,7 +192,9 @@ fn stored_rechecks(server: &Server, folder: &std::path::Path) -> Result<(), Stri
             .and_then(Value::as_str)
             .is_some_and(|found| found.starts_with(code));
         if !refused {
-            return Err(format!("a stored {name} re-check is refused with {code}: {reply}"));
+            return Err(format!(
+                "a stored {name} re-check is refused with {code}: {reply}"
+            ));
         }
         let kept: i64 = db
             .query_row(
