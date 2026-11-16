@@ -1,6 +1,7 @@
 //! Replies from noncommercial sources are synthetic, and a README beside them says so (0695, 0920).
 //! The marker is a line `Synthetic: <source>` in README.md in the source folder or its case folder.
 //! Outside the replies, real ORCID, DDInter and Semantic Scholar author IDs are invented too (0973).
+//! Orphadata's replies are synthetic too, and each Orphadata file body says so (0990).
 use super::Check;
 use biomcp_types::{Source, Use};
 use serde_json::Value;
@@ -9,6 +10,12 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
+
+/// Ian, 2026-11-16 (`sdlc/decisions/2026-11-16-review-follow-ups.md`, item 1): the public
+/// Orphadata captures are replaced by synthetic ones, though its terms are not noncommercial.
+const SYNTHETIC_ONLY: &[Source] = &[Source::Orphadata];
+/// Real Orphadata files name Orphanet's database server; authored ones state this instead.
+const ORPHADATA_AUTHORED: &str = "dbserver=\"synthetic\"";
 
 pub(super) fn check(root: &Path) -> Check {
     let replies = root.join("tests/replies");
@@ -19,8 +26,9 @@ pub(super) fn check(root: &Path) -> Check {
     let sources: BTreeSet<String> = Source::ALL
         .iter()
         .filter(|&&source| {
-            biomcp_adapters::registry::terms(source)
-                .is_some_and(|terms| terms.usage == Use::Noncommercial)
+            SYNTHETIC_ONLY.contains(&source)
+                || biomcp_adapters::registry::terms(source)
+                    .is_some_and(|terms| terms.usage == Use::Noncommercial)
         })
         .map(ToString::to_string)
         .collect();
@@ -43,18 +51,19 @@ pub(super) fn check(root: &Path) -> Check {
                     .get("exchanges")
                     .is_some_and(|value| has_key(value, name))
         });
+        let relative = path.strip_prefix(root)?.to_string_lossy().into_owned();
         if (sources.contains(source) || carried) && !marked(&path, source)? {
-            unmarked.push(format!(
-                "{} ({source})",
-                path.strip_prefix(root)?.to_string_lossy()
-            ));
+            unmarked.push(format!("{relative} ({source})"));
+        }
+        if source == <&str>::from(Source::Orphadata) && real_orphadata(&record) {
+            unmarked.push(format!("{relative} ({source}: body lacks {ORPHADATA_AUTHORED})"));
         }
     }
     if unmarked.is_empty() {
         Ok(())
     } else {
         Err(format!(
-            "replies from noncommercial sources need `Synthetic: <source>` in README.md in their source or case folder:\n{}",
+            "replies from noncommercial sources and Orphadata need `Synthetic: <source>` in README.md in their source or case folder, and Orphadata file bodies need {ORPHADATA_AUTHORED}:\n{}",
             unmarked.join("\n")
         )
         .into())
@@ -74,6 +83,17 @@ fn marked(path: &Path, source: &str) -> Result<bool, std::io::Error> {
         }
     }
     Ok(false)
+}
+
+/// An Orphadata file body (a `JDBOR` document) that does not say it was authored.
+fn real_orphadata(record: &Value) -> bool {
+    record
+        .get("exchanges")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|exchange| exchange.pointer("/body/value").and_then(Value::as_str))
+        .any(|body| body.contains("<JDBOR") && !body.contains(ORPHADATA_AUTHORED))
 }
 
 fn has_key(value: &Value, name: &str) -> bool {
@@ -303,6 +323,38 @@ fn unmarked_noncommercial_replies_fail() -> Check {
         "Synthetic: myvariant\n",
     )?;
     check(root.path())
+}
+
+#[test]
+fn real_orphadata_replies_fail() -> Check {
+    let root = tempfile::tempdir()?;
+    let case = root.path().join("tests/replies/disease/case");
+    fs::create_dir_all(case.join("orphadata"))?;
+    let record = |server: &str| {
+        serde_json::json!({
+            "source": "orphadata",
+            "exchanges": [{"body": {"kind": "text", "value": format!("<JDBOR dbserver=\"{server}\">")}}]
+        })
+        .to_string()
+    };
+    let file = case.join("orphadata").join("a.json");
+    fs::write(&file, record("synthetic"))?;
+    let error = check(root.path())
+        .err()
+        .ok_or("an unmarked Orphadata reply passed")?;
+    if !error.to_string().contains("(orphadata)") {
+        return Err(format!("the unmarked Orphadata reply was not reported: {error}").into());
+    }
+    fs::write(case.join("README.md"), "Synthetic: orphadata\n")?;
+    check(root.path())?;
+    fs::write(&file, record("jdbc:sybase:Tds:example"))?;
+    let error = check(root.path())
+        .err()
+        .ok_or("a real Orphadata body passed under the marker")?;
+    if !error.to_string().contains("body lacks") {
+        return Err(format!("the real Orphadata body was not reported: {error}").into());
+    }
+    Ok(())
 }
 
 #[test]

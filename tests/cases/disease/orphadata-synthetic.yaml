@@ -1,14 +1,16 @@
 {
-  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "live_check": "synthetic authored Orphadata replies and live public MyDisease replies; no live Orphadata observation",
   "feature": "disease-orphadata",
-  "story": "A synthetic Orphadata pair shows a class-only estimate without its 0.0 placeholder, and PubMed IDs kept when the source text spaces or labels them.",
+  "story": "A counselor reads a disorder's cited Orphanet prevalence, onset and inheritance through MONDO's Orphanet link, and a concept without an Orphanet link says so. A class-only estimate drops its 0.0 placeholder, and PubMed IDs are kept when the source text spaces or labels them.",
+  "verified": "Orphadata files authored as synthetic; MyDisease replies for MONDO:0016512 and MONDO:0007254 recorded live on 2026-11-13. See tests/replies/disease/orphadata-synthetic/README.md.",
   "replay": "disease/orphadata-synthetic",
   "steps": [
     {
       "run": ["sync", "orphadata"],
       "expect": {
         "/status": "complete",
-        "/result/rows": 2
+        "/query/source": "orphadata",
+        "/result/rows": 4
       }
     },
     {
@@ -23,6 +25,55 @@
         "/result/items/0/prevalence/1/pmids": ["18442953"],
         "/result/items/0/prevalence/2/pmids": ["33080481"],
         "/result/items/0/inheritance": ["Autosomal dominant"]
+      }
+    },
+    {
+      "run": ["get", "disease", "MONDO:0016512", "prevalence", "--source", "orphadata"],
+      "expect": {
+        "/status": "complete",
+        "/result/links/0/object/id": "ORPHANET:2322",
+        "/result/items/0/id": "Orphanet:2322",
+        "/result/items/0/label": "Synthetic disorder at a MONDO-linked code",
+        "/result/items/0/prevalence/*/kind": ["Prevalence at birth", "Prevalence at birth", "Point prevalence", "Prevalence at birth"],
+        "/result/items/0/prevalence/*/value": ["2.2", "2.2", "4.4", "4.4"],
+        "/result/items/0/prevalence/*/class": ["1-9 / 100 000", "1-9 / 100 000", "1-9 / 100 000", "1-9 / 100 000"],
+        "/result/items/0/prevalence/*/geography": ["Europe", "Japan", "Europe", "Australia"],
+        "/result/items/0/prevalence/*/source": ["90000001[PMID]", "90000001[PMID]", "[EXPERT]_90000002[PMID]", "90000003[PMID]"],
+        "/result/items/0/prevalence/2/pmids": ["90000002"],
+        "/result/items/0/prevalence/*/validation": ["Validated", "Validated", "Validated", "Validated"],
+        "/result/items/0/onset": ["Antenatal", "Infancy", "Neonatal"],
+        "/result/items/0/inheritance": ["Autosomal dominant", "Not applicable"],
+        "/result/items/0/attribution/release": "2026-06-23 07:57:58",
+        "/sources/*/source": ["mydisease", "orphadata"],
+        "/result/items/0/notice": "BioMCP uses Orphanet/Orphadata data; its results may not truly reflect that data, and Orphanet is not responsible for their quality",
+        "/sources/*/state": ["ok", "ok"],
+        "/sources/1": {"omits": ["terms", "terms_url"]}
+      }
+    },
+    {
+      "run": ["get", "disease", "MONDO:0007254", "prevalence", "--source", "orphadata"],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/page/total": 0,
+        "/sources/1/source": "orphadata",
+        "/sources/1/state": "skipped",
+        "/sources/1/reason": "no-join-id"
+      }
+    },
+    {
+      "run": ["get", "disease", "Orphanet:2322", "prevalence", "--source", "orphadata"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/prevalence/*/value": ["2.2", "2.2", "4.4", "4.4"],
+        "/sources/*/source": ["orphadata"]
+      }
+    },
+    {
+      "run": ["get", "disease", "MONDO:0016512"],
+      "expect": {
+        "/status": "complete",
+        "/next/3/args": ["get", "disease", "MONDO:0016512", "prevalence", "--section-limit", "5", "--source", "orphadata"]
       }
     }
   ]
