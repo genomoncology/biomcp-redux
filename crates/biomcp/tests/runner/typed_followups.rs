@@ -162,12 +162,17 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
         .and_then(Value::as_array)
         .ok_or("tools")?;
     for (index, frame) in frames.iter().enumerate().skip(1) {
-        let http = http_wire(&server, frame, "")?;
-        let stdio = replies
+        let first = replies
             .iter()
             .find(|v| v["id"] == frame["id"])
-            .ok_or("stdio reply")?;
-        for reply in [stdio, &http] {
+            .ok_or("first reply")?;
+        // A hosted first reply is already HTTP; only local mode pairs stdio with HTTP.
+        let http = if hosted {
+            None
+        } else {
+            Some(http_wire(&server, frame, "")?)
+        };
+        for reply in std::iter::once(first).chain(http.as_ref()) {
             check_reply(reply, form, tools, (index == 1 && !restricted, restricted))?;
         }
     }

@@ -11,7 +11,8 @@ pub(super) fn trials() -> Vec<Trial> {
         .into_iter()
         .flat_map(|http| {
             cases().into_iter().map(move |(name, words, schema)| {
-                let transport = if http { "http" } else { "stdio" };
+                // Hosted mode serves only HTTP; the stdio leg checks ordinary local replies.
+                let transport = if http { "http" } else { "local-stdio" };
                 let trial_name = if http && name == "health" {
                     crate::runner::pool_contract::HOSTED_MODE.0.to_owned()
                 } else {
