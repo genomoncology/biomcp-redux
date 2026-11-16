@@ -6,7 +6,7 @@ BioMCP 1.0 retrieves source records for cancer care and human health research th
 
 JSON replaces Markdown as the default CLI output. Select `--format md` or set `"format": "md"` in configuration for Markdown. MCP always returns JSON. Scripts must read the new response envelopes and entity schemas instead of parsing 0.9 output.
 
-MCP uses `single` mode by default: the `biomcp` tool accepts a CLI argument array, alongside the research `search` and `fetch` tools. Opt into typed tools with `"mcp_tool_mode": "typed"` in configuration or `biomcp serve --tool-mode typed`. The command-line setting overrides configuration. Typed mode offers 17 tools: 13 entity tools (`gene`, `variant`, `disease`, `drug`, `trial`, `article`, `protein`, `pathway`, `phenotype`, `adverse_event`, `diagnostic`, `cell_line` and `study`) plus `biomcp`, `help`, `search` and `fetch`. An entity tool takes `action` and one object named after the action, for example `gene` with `{"action":"get","get":{"input":["BRAF"]}}`. Every registry command is reachable through a typed schema, and nothing takes a free-form object. Available tools and source choices follow the server's policy; use its `tools/list` response for the current catalog.
+MCP uses `single` mode by default: the `biomcp` tool accepts a CLI argument array, alongside the research `search` and `fetch` tools. Opt into typed tools with `"mcp_tool_mode": "typed"` in configuration or `biomcp serve --tool-mode typed`. The command-line setting overrides configuration. Typed mode offers 18 tools: 13 entity tools (`gene`, `variant`, `disease`, `drug`, `trial`, `article`, `protein`, `pathway`, `phenotype`, `adverse_event`, `diagnostic`, `cell_line` and `study`) plus `biomcp`, `help`, `search`, `fetch` and `saved`. A hosted server offers `saved` only when started with `--saved-folder`. An entity tool takes `action` and one object named after the action, for example `gene` with `{"action":"get","get":{"id":"BRAF"}}`. Every search takes its text as `query`, every get takes its record ID as `id`, and sections go in `section`; an ID, a section or any list argument may be one string or a list. Every registry command is reachable through a typed schema. Available tools and source choices follow the server's policy; use its `tools/list` response for the current catalog.
 
 Command help now includes summaries from shared command metadata, and typed tool descriptions use those summaries. `help` accepts a command path and returns the existing command help. For `get` errors, follow the returned `next` action: an identifier with the accepted shape but no source record keeps its existing help advice.
 
@@ -33,6 +33,20 @@ Gene search matches words in HGNC current names, previous names and alias names,
 
 Variant population replies add source-published `homozygote_count` for exome and genome totals and `joint` AC, AN and homozygote totals. A joint section with `state: empty` means gnomAD supplied no joint data; BioMCP never adds exome and genome counts. `dataset_version` names a release only when matching same-response exome and genome totals independently report the same version. Joint counts have no invented independent release or frequency. Existing counts, filters and ancestry pagination retain their meanings.
 
+## Saved work
+
+BioMCP keeps saved searches, lists of records and notes in `saved.sqlite` in the data folder. A cache clean or an upgrade keeps them.
+
+- Add `--save-as NAME` to a search to save it. `saved list add NAME --entity ENTITY ID...` keeps IDs that `get ENTITY` accepts in a named list, and `saved list remove NAME ID...` takes them out.
+- `saved note TARGET TEXT` attaches a note to a saved search or list, to a list item with `--item ID`, or to the project with `--project`. Notes come back labelled as user data, never as instructions. A name holds up to 80 characters and a note up to 2,000.
+- `saved show [NAME]` lists what is saved, `saved export` returns all of it as typed JSON, and `saved delete NAME` removes a search or list with its notes; `--note ID` removes one note and `--all` removes everything.
+- `saved changed [NAME]` reads each saved search again, at most once an hour, and reports the IDs it gained, lost or changed since its last check. Each search's state is `first`, `unchanged`, `changed`, `not_due`, `rebaselined` or `incomplete`.
+- In typed MCP mode the `saved` tool offers the actions `show`, `save_search`, `changed`, `list_add`, `list_remove`, `note`, `export` and `delete`, and a first search page with results offers a `save` next step.
+
+## Drug names and variant spellings widen by default
+
+Every search that takes a drug name also searches the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search also widens a protein change to its other spellings, such as V600E, Val600Glu and p.V600E, and to the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. MAUDE and VAERS always search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads a stored copy of ChEMBL records instead of waiting on ChEMBL's live service.
+
 ## Hosted use and source terms
 
 See [hosted server configuration](../docs/configuration.md#hosted-servers) for source modes, caller credentials and deployment limits.
@@ -44,7 +58,13 @@ The published `restricted` source label is replaced by the actual `open`, `attri
 - The `licensed` label applies to `alphagenome`, `oncokb`, the MyVariant `cosmic` component and the MyDisease `omim` component.
 - The `per-record` label applies to PMC OA and Europe PMC full text. Publisher PDFs obtained through Semantic Scholar also retain their own record licenses, separately from the API's noncommercial terms.
 
-ClinicalTrials.gov, cBioPortal, Cancer Hotspots, VAERS, FAERS MedDRA terms and MAUDE GMDN terms carry attribution labels and remain available in restricted use. CPIC has its own terms independently of ClinPGx. CADD and COSMIC terms links are corrected, and SnpEff is identified by its MIT license. NCBI and openFDA keys continue to raise the limits of free sources. Previously stored continuations resolve old labels through the current source registry when read.
+ClinicalTrials.gov, cBioPortal, Cancer Hotspots, VAERS, FAERS MedDRA terms and MAUDE GMDN terms carry attribution labels and remain available in restricted use. CPIC has its own terms independently of ClinPGx. CADD and COSMIC terms links are corrected, and SnpEff is identified by its MIT license. NCBI and openFDA keys continue to raise the limits of free sources. Previously stored continuations resolve old labels through the current source registry when read. The new `orphadata` source, Orphanet's prevalence, onset and inheritance files read through `sync orphadata`, carries the `attribution` label.
+
+Hosted servers gain these settings and limits:
+
+- Set the same `BIOMCP_TRIAL_CONTINUATION_KEY` in every process of a multi-task deployment, so a ClinicalTrials.gov continuation from one task works on another. Without it, continuations stay with the task that issued them.
+- A call to a slow source, a VAERS table or a Monarch similarity ranking, gets that source's longer budget instead of ending at `command_timeout_seconds`.
+- Saved work needs `serve --saved-folder DIR` and an `x-biomcp-account` header that the front end sets from the verified user. The [hosted server configuration](../docs/configuration.md#hosted-servers) gives the front end's whole contract.
 
 ## Configuration migration
 
@@ -61,6 +81,14 @@ Create a JSON configuration file at the platform path described in the [upgrade 
 - `RUST_LOG`: the 0.9 tracing filter has no 1.0 logging configuration equivalent.
 
 The source credential names `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_API_KEY`, `OPENFDA_API_KEY`, `ORCID_ACCESS_TOKEN` and `ALPHAGENOME_API_KEY` remain recognized. Use `biomcp key set SOURCE` to keep values out of shell history. Stored keys override environment values. Use JSON `format`, `disable_sources`, `keys`, `ncbi_email`, `ca_bundle`, `proxy` and `http.allowed_hosts` for the corresponding settings. Proxy environment variables remain supported. Every source starts enabled; commercial users must disable the `noncommercial` and `licensed` groups and review publisher terms.
+
+[Configuration](../docs/configuration.md) also takes these keys:
+
+- `sync_timeout_seconds`: how long one `sync` may take, 120 seconds by default. A sync that runs out of time names the limit and this key.
+- `drug_label_bytes`: how much label text one `--label-section` reply returns, from 6144 through 32768 bytes.
+- `transcript_fit_seconds`: how long `variant normalize` waits for each check of which transcript a mismatched reference base fits.
+- `mcp_queue_wait_seconds` and `mcp_queue_max_calls`: how long, and on stdio how many, MCP calls over the call limit wait for a turn. `0` turns waiting off.
+- `mcp_reply_form` accepts `once`, the new default for local servers: each reply carries its JSON one time. Hosted servers keep `both`.
 
 ## Output migration
 
@@ -123,7 +151,7 @@ Posted trial results are an explicit exception to the 1.0 command freeze. `get t
 
 ## Typed tool names for 0.x and hosted users
 
-The typed tools of earlier builds, including the hosted server's tools, are gone. The reference tool is removed, the help tool is now `help`, and every other typed tool name is replaced by an entity tool and an action. Move a call's arguments into the object named after the action. A reference call that named the protein-get command with its arguments now calls `protein` with `{"action":"get","get":{"input":["P04637"]}}`. A `biomcp`, `search` or `fetch` call is unchanged. Agents that cache tool names must refresh their tool list. This table maps each old name to its new tool and action. Where one old command appears twice, both tools carry it.
+The typed tools of earlier builds, including the hosted server's tools, are gone. The reference tool is removed, the help tool is now `help`, and every other typed tool name is replaced by an entity tool and an action. Move a call's arguments into the object named after the action. A reference call that named the protein-get command with its arguments now calls `protein` with `{"action":"get","get":{"id":"P04637"}}`. A `biomcp`, `search` or `fetch` call is unchanged. Agents that cache tool names must refresh their tool list. This table maps each old name to its new tool and action. Where one old command appears twice, both tools carry it.
 
 <!-- retired-tools:start -->
 | Old tool or reference command | New tool | Action |
