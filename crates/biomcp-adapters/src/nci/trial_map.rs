@@ -1,6 +1,8 @@
 //! Preserve native trial records while disclosing rejected fields.
 use super::{Trial, trial_raw as raw};
-use crate::mapped::Problems;
+use crate::mapped::{Problems, push_problem};
+use biomcp_fetch::Reply;
+use biomcp_types::Source;
 impl From<raw::Trial> for Trial {
     fn from(row: raw::Trial) -> Self {
         let mut p = Problems {
@@ -118,18 +120,33 @@ fn arms(
 #[derive(serde::Deserialize)]
 pub(super) struct Page {
     total: u64,
-    data: Vec<Trial>,
+    data: Vec<crate::raw::Field<Trial>>,
 }
+// A malformed trial identity refuses that row, not the page; paging counts it as received.
 impl From<Page> for super::Page {
     fn from(raw: Page) -> Self {
+        let received = raw.data.len() as u32;
         let mut refusals = crate::Refusal::None;
-        for row in &raw.data {
-            refusals.include(row.refusals);
+        let mut problems = Vec::new();
+        let mut data = Vec::new();
+        for row in raw.data {
+            match row.value().filter(|row| row.check().is_ok()) {
+                Some(row) => {
+                    refusals.include(row.refusals);
+                    data.push(row);
+                }
+                None => {
+                    refusals = crate::Refusal::Refused;
+                    push_problem(&mut problems, Source::Nci, None, "identity");
+                }
+            }
         }
         Self {
             total: raw.total,
-            data: raw.data,
+            received,
+            data,
             refusals,
+            problems,
         }
     }
 }

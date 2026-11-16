@@ -55,17 +55,21 @@ const DETAIL: Endpoint = SPEC.get("/trials").fresh(Freshness::Days(1));
 pub struct Page {
     /// Actual refused native records in this collection.
     pub refusals: crate::Refusal,
+    /// Native trial rows received before refused identities are filtered.
+    pub received: u32,
     /// Publisher total, never a local count.
     pub total: u64,
     /// Checked publisher trial rows.
     pub data: Vec<Trial>,
+    /// One identity problem when the page refused a trial row.
+    pub problems: Vec<biomcp_types::Problem>,
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        if self.data.len() > PAGE_LIMIT as usize || self.data.len() as u64 > self.total {
+        if self.received > PAGE_LIMIT || u64::from(self.received) > self.total {
             return Err(BadReply);
         }
-        self.data.iter().try_for_each(Reply::check)
+        Ok(())
     }
 }
 /// Source-native identity and card fields. Extra source fields remain adapter-owned.
@@ -256,7 +260,7 @@ pub fn search(leg: &Leg<'_>, params: &[(String, String)]) -> Result<Page, Reques
         &SEARCH,
         Input::Params(&args),
         Read::<Page>::json().check(&|page| {
-            if page.data.len() <= limit {
+            if page.received as usize <= limit {
                 Ok(())
             } else {
                 Err(BadReply)
