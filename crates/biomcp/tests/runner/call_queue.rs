@@ -97,7 +97,7 @@ fn burst() -> Result<(), String> {
 }
 
 #[cfg(unix)]
-fn send(address: std::net::SocketAddr, body: &str) -> Result<std::net::TcpStream, String> {
+pub(super) fn send(address: std::net::SocketAddr, body: &str) -> Result<std::net::TcpStream, String> {
     use std::io::Write;
     let mut stream = std::net::TcpStream::connect(address).map_err(|e| e.to_string())?;
     let frame = format!(

@@ -61,6 +61,7 @@ mod evidence;
 mod faers_get;
 mod gene_names;
 mod held_proxy;
+mod hosted_cancel;
 mod help_contract;
 mod hgnc_sync;
 mod hosted_deadline;
@@ -304,6 +305,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(declared_use::trials());
     trials.extend(hosted_pacing::trials());
     trials.extend(hosted_deadline::trials());
+    trials.extend(hosted_cancel::trials());
     trials.extend(licensed_cache::trials());
     trials.extend(alphagenome_tls::trials());
     trials.extend(housekeeping::trials());
