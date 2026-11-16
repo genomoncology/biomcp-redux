@@ -88,7 +88,9 @@ impl SavedStore {
     }
 
     /// Keep a new snapshot, drop all but the two newest, mark the search checked, and
-    /// report what changed since the snapshot before it.
+    /// report what changed since the snapshot before it. The floor is checked again inside
+    /// the write: when a parallel check of the same search was kept first, this one keeps
+    /// nothing and answers not due, so the earlier snapshot is not dropped.
     pub fn record_check(
         &mut self,
         search: &SavedSearch,
@@ -101,6 +103,21 @@ impl SavedStore {
                 // `saved changed` reports the previous snapshot's skips when it reads it.
                 .map(|previous| snapshot(tx, previous, &mut Vec::new()))
                 .transpose()?;
+            let checked: Option<i64> = tx
+                .query_row(
+                    "SELECT checked FROM saved_search WHERE id=?1",
+                    [id],
+                    |row| row.get(0),
+                )
+                .optional()?
+                .ok_or(SavedError::Unknown)?;
+            let stored = SavedSearch {
+                checked: checked.map(unsigned).transpose()?,
+                ..search.clone()
+            };
+            if let Some(report) = not_due(&stored, previous.as_ref(), now) {
+                return Ok(report);
+            }
             let sources = serde_json::to_string(&new.sources).map_err(|_| SavedError::Database)?;
             tx.execute(
                 "INSERT INTO saved_snapshot(id,search,taken,total,complete,row_schema,sources) \

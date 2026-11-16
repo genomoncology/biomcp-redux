@@ -7,7 +7,7 @@ use super::{Encoding, Outcome};
 use biodata::Text;
 use biomcp_query::Action;
 use biomcp_query::store::saved::{NewSnapshot, SNAPSHOT_ROWS, SnapshotRow};
-use biomcp_types::{SavedSnapshotSource, Source, SourceTimestamp, StepKind};
+use biomcp_types::{SavedSnapshotSource, Source, SourceTimestamp, StepKind, UsageError};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeSet, ffi::OsString, io};
@@ -28,15 +28,40 @@ pub(crate) fn recheck(
         Ok(parsed) => parsed,
         Err(outcome) => return Ok(Err(outcome)),
     };
+    if parsed.globals.inherit(process).is_err() {
+        return Ok(Err(super::usage(root, &args, encoding)?));
+    }
+    // The core stores only words that passed this policy, but the file is not trusted: an
+    // MCP re-check, hosted ones included, runs under the policy of any MCP call.
+    if context.is_some()
+        && let Some(error) = super::mcp_policy::refusal(&parsed, false)
+    {
+        return Ok(Err(super::usage_envelope(error, encoding)?));
+    }
+    // Only a first search page is ever saved, so only one is re-read.
     let request = match parsed.action.take().map(super::prepare) {
-        Some(Ok(Action::Run { request, .. })) if parsed.help.is_none() => request,
+        Some(Ok(Action::Run { request, .. }))
+            if parsed.help.is_none()
+                && request.path().0 == "search"
+                && crate::grammar::first_page(&request) =>
+        {
+            request
+        }
         Some(Err(error)) => return Ok(Err(super::usage_envelope(error, encoding)?)),
         _ => return Ok(Err(super::usage(root, &args, encoding)?)),
     };
-    let mut globals = parsed.globals;
-    if globals.inherit(process).is_err() {
-        return Ok(Err(super::usage(root, &args, encoding)?));
+    // A source the call leaves out, or its use policy keeps off, refuses the re-check as the
+    // live call's arguments are refused; running the rest would report false gone rows.
+    if let Some(context) = context {
+        let excluded = crate::mcp::typed::catalog::excluded(context)?;
+        if !crate::mcp::typed::catalog::request_allowed(&request, &excluded)? {
+            return Ok(Err(super::usage_envelope(
+                UsageError::arguments(),
+                encoding,
+            )?));
+        }
     }
+    let mut globals = parsed.globals;
     // Every page reads the source, and whole rows are fingerprinted.
     globals.fresh = true;
     globals.fields.clear();

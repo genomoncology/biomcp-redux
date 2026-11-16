@@ -29,7 +29,8 @@ const FIELDS: [(&str, &str); 10] = [
 ];
 
 /// An account the header may carry: an opaque key of letters, digits, `-` and `_`, so it
-/// names one folder and can never climb out of the saved-work folder.
+/// names one folder and can never climb out of the saved-work folder. Accounts compare exactly,
+/// so the folder must be on a case-sensitive filesystem (docs/configuration.md).
 pub(crate) fn account(value: &str) -> Option<&str> {
     ((1..=ACCOUNT_BYTES).contains(&value.len())
         && value

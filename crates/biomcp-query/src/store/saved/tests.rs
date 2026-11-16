@@ -250,6 +250,51 @@ pub(super) fn melanoma(store: &mut SavedStore) -> biomcp_types::SavedSearch {
         .unwrap()
 }
 
+/// Make a checked search due again, as an hour passing would.
+pub(super) fn due(store: &SavedStore, search: &biomcp_types::SavedSearch) {
+    store
+        .connection
+        .execute(
+            "UPDATE saved_search SET checked=NULL WHERE id=?1",
+            [search.id.as_str()],
+        )
+        .unwrap();
+}
+
+#[test]
+fn a_second_check_inside_the_floor_keeps_nothing() {
+    use biomcp_types::ChangeState;
+    let folder = tempfile::tempdir().unwrap();
+    let mut store = SavedStore::open(&folder.path().join("saved.sqlite")).unwrap();
+    let search = melanoma(&mut store);
+    // Two parallel `saved changed` calls both saw the search due before reading the source.
+    let first = store
+        .record_check(&search, &check(&[("A", "1")], "s/1", true))
+        .unwrap();
+    let second = store
+        .record_check(&search, &check(&[("B", "1")], "s/1", true))
+        .unwrap();
+    assert_eq!(
+        (first.state, second.state),
+        (ChangeState::First, ChangeState::NotDue),
+        "the second check answers not due"
+    );
+    assert_eq!(second.to, first.to, "and points at the kept snapshot");
+    let kept = store
+        .snapshots(search.id.as_str(), &mut Vec::new())
+        .unwrap();
+    assert_eq!(kept.len(), 1, "one snapshot is stored");
+    assert_eq!(ids_of(&kept[0]), vec!["A"], "the first check's");
+}
+
+fn ids_of(snapshot: &biomcp_types::SavedSnapshot) -> Vec<&str> {
+    snapshot
+        .rows
+        .iter()
+        .map(|row| row.reference.id.as_str())
+        .collect()
+}
+
 #[test]
 fn snapshots_compare_and_keep_two() {
     use biomcp_types::ChangeState;
@@ -265,10 +310,12 @@ fn snapshots_compare_and_keep_two() {
         first.to.map(|to| to.taken + super::FLOOR_SECONDS),
         "due an hour after the check"
     );
+    due(&store, &search);
     let same = store
         .record_check(&search, &check(&[("A", "1"), ("B", "1")], "s/1", true))
         .unwrap();
     assert_eq!(same.state, ChangeState::Unchanged, "same IDs and rows");
+    due(&store, &search);
     let changed = store
         .record_check(&search, &check(&[("B", "2"), ("C", "1")], "s/1", true))
         .unwrap();
@@ -286,9 +333,11 @@ fn snapshots_compare_and_keep_two() {
         2,
         "two newest kept"
     );
+    due(&store, &search);
     let renamed = store
         .record_check(&search, &check(&[("B", "2"), ("C", "3")], "s/2#rows", true))
         .unwrap();
+    due(&store, &search);
     let again = store
         .record_check(&search, &check(&[("B", "2"), ("C", "4")], "s/3#rows", true))
         .unwrap();
@@ -297,6 +346,7 @@ fn snapshots_compare_and_keep_two() {
         (ChangeState::Rebaselined, ChangeState::Changed, vec!["C"]),
         "a new schema ID with the same row digest compares rows instead of rebaselining"
     );
+    due(&store, &search);
     let rebaselined = store
         .record_check(&search, &check(&[("X", "9")], "s/2", true))
         .unwrap();
@@ -314,6 +364,7 @@ fn snapshots_compare_and_keep_two() {
         (vec!["X"], vec!["B", "C"], Vec::<&str>::new()),
         "a rebaseline lists new and gone by ID but no changed rows"
     );
+    due(&store, &search);
     let incomplete = store
         .record_check(&search, &check(&[("Y", "9")], "s/2", false))
         .unwrap();

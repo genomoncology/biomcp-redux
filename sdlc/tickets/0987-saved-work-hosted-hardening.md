@@ -1,6 +1,7 @@
 # 0987 — saved-work-hosted-hardening
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 57bd9a929baa446c3b022d8d70aa80e03422d281
 
 Milestone: 7
 
@@ -38,3 +39,18 @@ The 0984 review (2026-11-16, accepted at 76ef8d4e8) found four gaps. None blocke
 ## Changes
 
 - Changes: saved store check recording, recheck policy, configuration docs, tests.
+
+## Progress
+
+- Floor (finding 2): `record_check` now reads `checked` inside its write transaction and, inside the floor, keeps nothing and returns the `not_due` report pointing at the kept snapshot. Parallel calls that both saw the search due may each still read the source once, but only the first snapshot is kept and the earlier one is never dropped; the documented per-account lock in the front end stops the parallel reads in hosted mode. Store test `a_second_check_inside_the_floor_keeps_nothing`; existing store tests make the search due again between checks with a `due` helper.
+- Re-check policy (finding 4): `recheck` applies `mcp_policy::refusal` to the stored words on any MCP call (hosted included) before setting its own `fresh`, and runs only a first search page, as `--save-as` accepts. Proof in the hosted runner (`saved_hosted.rs`, `stored_rechecks`): a row written straight into the file with `--fresh` answers `usage.mcp_unavailable`, a stored `get trial` answers a usage error, and neither keeps a snapshot.
+- Case folding (finding 3): chose the docs line, "DIR must be on a case-sensitive filesystem". It keeps the header format agreed in 0984 and the planned deployment (ECS on Linux) already meets it; lowercase-only would change the header contract for every front end.
+- Docs (finding 1): `docs/configuration.md` hosted saved paragraph now names the per-account lock, the conditional fetch and write-back with replay up to three times, the `saved.sqlite-journal` delete, the 0700 account folder, and the case-sensitive DIR.
+- Cheap job j41577 (aa069b1d5): fmt, docs and schema regeneration, `make check-cheap`, `biomcp-query` saved store tests (13 passed, new floor test included) and the `saved` cases (9 passed, `saved-work/hosted-account-folder` included). Regeneration changed nothing; fmt reflowed the new runner test, committed. Base-commit failure of both proofs is by construction, not run: on 2a705db95 `record_check` keeps a second snapshot, and `recheck` runs the stored `--fresh` search and keeps a snapshot.
+- Full gate j41578 passed on f83f06f2f (`make --keep-going landing-gate docs-check schema-release-check`; origin/main was still 2a705db95, so the branch already contained it).
+- Review of 9b6704804 (three fixes):
+  - a. Docs: the front end must run as the same user as BioMCP, or create `DIR/<account>/` itself before the call, or it cannot write back a new account's first save (the core creates the folder 0700).
+  - b. With an MCP context, `recheck` now also runs the account's source-exclusion check (`catalog::excluded` and `request_allowed`, as follow-up steps use) and refuses with `usage.arguments`, the code a live typed call gets for a left-out source. New step in `saved_hosted.rs`: a live `trial` search with `source: nci` under `x-biomcp-exclude-sources: nci` is refused, and a stored `--source nci` search re-checked with that header gets the same code and keeps no snapshot.
+  - c. The stored `get trial` row now asserts exactly `usage.arguments`.
+- Cheap job j41579 (366c706c8): fmt, regeneration (no changes beyond fmt, committed), `make check-cheap`, `saved` cases with `saved-work/hosted-account-folder` passing.
+- Full gate j41580 passed on 345b80c91 (`make --keep-going landing-gate docs-check schema-release-check`; origin/main still 2a705db95).
