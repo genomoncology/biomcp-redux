@@ -3697,7 +3697,7 @@ Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
 - `--evidence-significance`: Significance
 Source CIViC evidence significance, such as resistance or sensitivityresponse.
-Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance sensitivityresponse.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
