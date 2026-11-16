@@ -89,8 +89,121 @@ pub struct Saved {
     /// IDs a list remove named that the list did not hold.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub missing: Vec<crate::Text>,
+    /// Kept snapshots of saved searches; only an export lists them.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub snapshots: Vec<SavedSnapshot>,
+    /// What each checked saved search gained, lost or changed.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub changes: Vec<ChangeReport>,
 }
 impl crate::ResponseBody for Saved {
     const SCHEMA: &'static str = "biomcp.saved/1";
     type Query = crate::EmptyQuery;
+}
+
+/// One source a snapshot read.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct SavedSnapshotSource {
+    /// The source.
+    pub source: crate::Source,
+    /// Source data date of the read, when the source states one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_date: Option<crate::SourceTimestamp>,
+    /// The source's matching count, when it states one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub count: Option<u64>,
+}
+
+/// One matching record in a snapshot: its identifier and a fingerprint of its row.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct SavedSnapshotRow {
+    /// The matching record.
+    #[serde(rename = "ref")]
+    pub reference: SavedRef,
+    /// SHA-256 of the record's search row under the snapshot's row schema, in hex.
+    pub fingerprint: crate::Text,
+}
+
+/// The identifiers a saved search matched when it was checked; never source content.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct SavedSnapshot {
+    /// Random 16-byte identifier in hex.
+    pub id: crate::Text,
+    /// Identifier of the saved search.
+    pub search: crate::Text,
+    /// Unix seconds when the snapshot was taken.
+    pub taken: u64,
+    /// Matching count the provider stated, or the rows held when it stated none.
+    pub total: u64,
+    /// Whether the rows hold every matching record.
+    pub complete: bool,
+    /// Reply schema the fingerprints were computed under, with a digest of its definition.
+    pub row_schema: crate::Text,
+    /// Sources read.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sources: Vec<SavedSnapshotSource>,
+    /// Matching records in source order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub rows: Vec<SavedSnapshotRow>,
+}
+
+/// A snapshot a change report compares.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ChangeSnapshot {
+    /// Snapshot identifier.
+    pub id: crate::Text,
+    /// Unix seconds when the snapshot was taken.
+    pub taken: u64,
+    /// The snapshot's matching count.
+    pub total: u64,
+}
+
+biodata::wire_enum! {
+    described
+    /// What a check of a saved search found.
+    ChangeState {
+        /// The first check; there is nothing to compare yet.
+        First => "first",
+        /// The same records with the same rows as the last check.
+        Unchanged => "unchanged",
+        /// Records were gained, lost or changed; new, gone and changed list them.
+        Changed => "changed",
+        /// Checked less than an hour ago; nothing ran. Ask again at next_due.
+        NotDue => "not_due",
+        /// The row format changed since the last check, so rows were not compared; the next check compares.
+        Rebaselined => "rebaselined",
+        /// A check matched more records than a snapshot holds; only totals compare.
+        Incomplete => "incomplete",
+    }
+}
+
+/// What a saved search gained, lost or changed between two snapshots; derived, never stored.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ChangeReport {
+    /// Name of the saved search.
+    pub search: crate::Text,
+    /// The earlier snapshot, absent on a first check.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub from: Option<ChangeSnapshot>,
+    /// The later snapshot, absent when a search not yet checked is not due.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub to: Option<ChangeSnapshot>,
+    /// What the check found.
+    pub state: ChangeState,
+    /// Records the later snapshot holds and the earlier one does not.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub new: Vec<SavedRef>,
+    /// Records the earlier snapshot holds and the later one does not.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub gone: Vec<SavedRef>,
+    /// Records in both whose rows differ.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub changed: Vec<SavedRef>,
+    /// Unix seconds from which the next check reads the source.
+    pub next_due: u64,
 }

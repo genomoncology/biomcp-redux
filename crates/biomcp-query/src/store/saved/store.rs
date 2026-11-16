@@ -58,7 +58,7 @@ pub struct NewItem {
 /// An open saved-work file.
 #[derive(Debug)]
 pub struct SavedStore {
-    connection: Connection,
+    pub(super) connection: Connection,
 }
 
 /// Highest file compatibility this build reads. Raise it only for a change older 1.x builds
@@ -122,7 +122,7 @@ impl SavedStore {
         Ok(Self { connection })
     }
 
-    fn write<T>(
+    pub(super) fn write<T>(
         &mut self,
         operation: impl FnOnce(&Transaction<'_>, u64) -> Result<T, SavedError>,
     ) -> Result<T, SavedError> {
@@ -250,6 +250,7 @@ impl SavedStore {
         self.write(|tx, _| {
             let deleted = select(tx, name)?;
             for search in &deleted.searches {
+                super::snapshot::delete_snapshots(tx, search.id.as_str())?;
                 tx.execute("DELETE FROM saved_search WHERE id=?1", [search.id.as_str()])?;
             }
             for list in &deleted.lists {
@@ -264,7 +265,7 @@ impl SavedStore {
     }
 }
 
-fn seconds(now: u64) -> Result<i64, SavedError> {
+pub(super) fn seconds(now: u64) -> Result<i64, SavedError> {
     i64::try_from(now).map_err(|_| SavedError::Database)
 }
 
@@ -294,7 +295,7 @@ fn search_name_free(
     }
 }
 
-fn search_id(connection: &Connection, name: &str) -> Result<Option<String>, SavedError> {
+pub(super) fn search_id(connection: &Connection, name: &str) -> Result<Option<String>, SavedError> {
     Ok(connection
         .query_row(
             "SELECT id FROM saved_search WHERE project=?1 AND name=?2 COLLATE NOCASE",
@@ -340,10 +341,10 @@ fn select(connection: &Connection, name: Option<&str>) -> Result<Saved, SavedErr
     Ok(saved)
 }
 
-fn text(value: &str) -> Result<Text, SavedError> {
+pub(super) fn text(value: &str) -> Result<Text, SavedError> {
     Text::new(value).map_err(|_| SavedError::Database)
 }
-fn unsigned(value: i64) -> Result<u64, SavedError> {
+pub(super) fn unsigned(value: i64) -> Result<u64, SavedError> {
     u64::try_from(value).map_err(|_| SavedError::Database)
 }
 
@@ -358,7 +359,7 @@ type SearchRow = (
     Option<i64>,
 );
 
-fn search(connection: &Connection, id: &str) -> Result<SavedSearch, SavedError> {
+pub(super) fn search(connection: &Connection, id: &str) -> Result<SavedSearch, SavedError> {
     let row: SearchRow = connection.query_row(
         "SELECT id,name,project,args,schema,request_key,created,checked FROM saved_search WHERE id=?1",
         [id],

@@ -23,7 +23,7 @@ fn hit(args: Vec<String>, title: &str, url: &str) -> Option<ResearchHit> {
         url: Text::new(url).ok()?,
     })
 }
-pub(super) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
+pub(crate) fn search(entity: &str, row: &Value, envelope: &Value) -> Option<ResearchHit> {
     match entity {
         "protein" => {
             let id = text(row, &["/protein/accession"])?;

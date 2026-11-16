@@ -1,5 +1,5 @@
 //! Read-only research projections over the same parsed CLI commands.
-mod records;
+pub(crate) mod records;
 mod text;
 use biomcp_types::ResearchHit;
 use serde_json::{Value, json};
