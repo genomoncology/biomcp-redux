@@ -106,8 +106,8 @@ fn check(http: bool, words: &[&str], schema: &str) -> Check {
                 "{value}"
             );
             assert!(!path.exists(), "hosted calls must not create a saved file");
-        } else if http && matches!(words.first(), Some(&"article" | &"trial")) {
-            // Plain HTTP writes no file, so it refuses the save before any source request.
+        } else if http && matches!(words, ["article", "pdf", ..] | ["trial", "document", ..]) {
+            // Plain HTTP writes no file, so it refuses a required save before any source request.
             assert_eq!(
                 value.pointer("/error/code"),
                 Some(&json!("usage.arguments")),
