@@ -60,7 +60,7 @@ Create a JSON configuration file at the platform path described in the [upgrade 
 - `DISGENET_API_KEY`: the DisGeNET gene section retires.
 - `RUST_LOG`: the 0.9 tracing filter has no 1.0 logging configuration equivalent.
 
-The source credential names `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_API_KEY`, `OPENFDA_API_KEY`, `ORCID_ACCESS_TOKEN`, `UMLS_API_KEY` and `ALPHAGENOME_API_KEY` remain recognized. Use `biomcp key set SOURCE` to keep values out of shell history. Stored keys override environment values. Use JSON `format`, `disable_sources`, `keys`, `ncbi_email`, `ca_bundle`, `proxy` and `http.allowed_hosts` for the corresponding settings. Proxy environment variables remain supported. Every source starts enabled; commercial users must disable the `noncommercial` and `licensed` groups and review publisher terms.
+The source credential names `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_API_KEY`, `OPENFDA_API_KEY`, `ORCID_ACCESS_TOKEN` and `ALPHAGENOME_API_KEY` remain recognized. Use `biomcp key set SOURCE` to keep values out of shell history. Stored keys override environment values. Use JSON `format`, `disable_sources`, `keys`, `ncbi_email`, `ca_bundle`, `proxy` and `http.allowed_hosts` for the corresponding settings. Proxy environment variables remain supported. Every source starts enabled; commercial users must disable the `noncommercial` and `licensed` groups and review publisher terms.
 
 ## Output migration
 
