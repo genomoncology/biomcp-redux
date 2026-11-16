@@ -2226,7 +2226,7 @@
         "choose --source cpic for search, the gene card, recommendations, guidelines or diplotype; annotations requires --source clinpgx",
         "unphased variants cannot select a diplotype; --diplotype requires an unchanged declared expression",
         "pharmgkb is retired; use: clinpgx",
-        "NCI disease filters require an NCIt identifier such as C3224 (melanoma); use --keyword for free text",
+        "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
         "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome notation needs --build; use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand",
         "renamed; use: --build",
         "renamed; use: --protein with --gene",
@@ -2362,7 +2362,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 0846, 2026-11-12: one get now reads several drug sections in one reply, so the one-section-per-call refusal message is retired. Ticket 1007, 2026-11-16: the NCI disease refusal names its example code's disease, C3224 (melanoma), because a run took C3224 for pancreatic cancer; the error code and meaning are unchanged."
+      "review": "Ticket 0846, 2026-11-12: one get now reads several drug sections in one reply, so the one-section-per-call refusal message is retired."
     },
     {
       "schemas": [
