@@ -12,3 +12,5 @@ BioMCP is an open-source tool for academic and commercial users, and its default
 - Development captures may inherit the machine's 0.9 keys by name. The agent never prints, copies or records a key value.
 
 This replaces the PM's 2026-10-26 pause on new Semantic Scholar, ORCID and AlphaGenome captures and the blocked line on 0198.
+
+Amended 2026-11-15 by Ian: each reply names the source and its `Use`; the terms name and publisher page live in `biomcp help sources` and `biomcp health` (`2026-11-15-source-terms-live-in-help-sources.md`).
