@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "bb00262749c5470eb6ba9ac6be575759d37b08d42c2f1dd8bfa597adf4a4736c"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794871197,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 299,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"7272","HGNC":"12401","_id":"7272","_version":1,"entrezgene":"7272","genomic_pos":{"chr":"6","end":80043580,"ensemblgene":"ENSG00000112742","start":80003887,"strand":1},"genomic_pos_hg19":{"chr":"6","end":80752244,"start":80713604,"strand":1},"summary":"This gene encodes a dual specificity protein kinase with the ability to phosphorylate tyrosine, serine and threonine. Associated with cell proliferation, this protein is essential for chromosome alignment at the centromere during mitosis and is required for centrosome duplication. It has been found to be a critical mitotic checkpoint protein for accurate segregation of chromosomes during mitosis. Tumorigenesis may occur when this protein fails to degrade and produces excess centrosomes resulting in aberrant mitotic spindles. Alternative splicing results in multiple transcript variants. [provided by RefSeq, Nov 2009]."}]
+      }
+    }
+  ]
+}

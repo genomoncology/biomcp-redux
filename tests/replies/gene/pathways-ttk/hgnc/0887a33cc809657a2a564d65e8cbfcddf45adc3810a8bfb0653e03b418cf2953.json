@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "fetched": 1794871194,
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 4597,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_group\tgene_group_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene.org\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit-trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_id\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc\nHGNC:12401\tTTK\tTTK protein kinase\tprotein-coding gene\tgene with protein product\tApproved\t6q14.1\t\"PYT|MPS1|MPS1L1|CT96|MPH1\"\t\"phosphotyrosine picked threonine kinase|cancer/testis antigen 96|monopolar spindle 1 kinase|threonine and tyrosine kinase\"\t\t\tTTK protein kinase family\t3706\t1995-07-11\t\t\t2026-02-18\t7272\tENSG00000112742\tOTTHUMG00000015088\tuc003pjb.5\t\tNM_001166691\t\"CCDS4993|CCDS55040\"\tP33981\t1639825\tMGI:1194921\tRGD:1305558\t\t\t604092\t\t\t\t\t\t\t\t\t\tHGNC:12401\t\t\t\t\t\t\t\t\t\tHGNC:12401\t\"ENST00000369798.7|NM_003318.5\"\t\n"
+      }
+    }
+  ]
+}
