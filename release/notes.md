@@ -135,6 +135,7 @@ Hosted servers gain these settings and limits:
 - Set the same `BIOMCP_TRIAL_CONTINUATION_KEY` in every process of a multi-task deployment, so a ClinicalTrials.gov continuation from one task works on another. Without it, continuations stay with the task that issued them.
 - A call to a slow source, a VAERS table, a Monarch similarity ranking or ClinVar gene counts, gets that source's longer budget instead of ending at `command_timeout_seconds`.
 - Saved work needs `serve --saved-folder DIR` and an `x-biomcp-account` header that the front end sets from the verified user. The [hosted server configuration](../docs/configuration.md#hosted-servers) gives the front end's whole contract.
+- A running hosted call stops when its client closes the connection: its source requests close and its slot frees at once, not at the call's deadline. Over HTTP a client cancels by closing the connection; `notifications/cancelled` is ignored. The [hosted server configuration](../docs/configuration.md#hosted-servers) states the timeout and cancellation contract.
 
 ## Configuration migration
 
