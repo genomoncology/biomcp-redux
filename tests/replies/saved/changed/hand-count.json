@@ -1,0 +1,8 @@
+{
+  "args": ["search", "trial", "--condition", "uveal melanoma", "--phase", "3"],
+  "day1_total": 22,
+  "day2_total": 21,
+  "new": ["NCT06626516"],
+  "gone": ["NCT00036816", "NCT00811200"],
+  "changed": ["NCT05502900", "NCT07804186"]
+}
