@@ -46,8 +46,7 @@ pub(super) fn check_reviewed(
 ) -> Check<()> {
     // Saved work is stored and read back by any 1.x build, so only optional fields may be added.
     let saved = identity(old)?.0.starts_with("biomcp.saved-");
-    let unreviewed = Reviews::default();
-    let reviews = if saved { &unreviewed } else { reviews };
+    let reviews = if saved { &Reviews::default() } else { reviews };
     let baseline = reviews.enum_baseline(old, new);
     let old = &baseline;
     let old_shapes = shapes(old)?;
@@ -55,15 +54,13 @@ pub(super) fn check_reviewed(
     let (old_name, old_major) = identity(old)?;
     let (new_name, new_major) = identity(new)?;
     if new_major < old_major
+        || saved && new_major != old_major
         || old_name != new_name
             && !(new_major > old_major
                 && matches!(kind, ContractKind::Reply)
                 && reviews.successor(old, new))
     {
         return Err("schema identity changed or major version decreased".into());
-    }
-    if saved && new_major != old_major {
-        return Err("saved schemas are additive-only and keep their major".into());
     }
     if new_major > old_major {
         return Ok(());
@@ -81,9 +78,7 @@ pub(super) fn check_reviewed(
             .ok_or("missing new structural path")?;
         let context = (old_name, old_major, path.as_str());
         if !compatible(old, new, kind, reviews, context)
-            || saved
-                && (old.required != new.required
-                    || !compatible(new, old, ContractKind::Reply, reviews, context))
+            || saved && !compatible(new, old, ContractKind::Reply, reviews, context)
         {
             return Err(format!("incompatible contract at {path}"));
         }

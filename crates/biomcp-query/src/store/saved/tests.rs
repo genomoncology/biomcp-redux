@@ -509,7 +509,10 @@ fn source_picks_an_item_and_unknown_stored_values_are_skipped() {
         note: None,
     };
     store
-        .list_add(&text("genes"), &[item(Source::Civic), item(Source::UniProt)])
+        .list_add(
+            &text("genes"),
+            &[item(Source::Civic), item(Source::UniProt)],
+        )
         .unwrap();
     let on = |source| NoteTarget::Item {
         list: "genes",
@@ -548,10 +551,17 @@ fn source_picks_an_item_and_unknown_stored_values_are_skipped() {
         field: field.into(),
         value: text(value),
     };
-    for shown in [store.show(None).unwrap(), store.show(Some("genes")).unwrap()] {
+    for shown in [
+        store.show(None).unwrap(),
+        store.show(Some("genes")).unwrap(),
+    ] {
         assert_eq!(shown.lists[0].items.len(), 1, "the readable item stays");
         assert_eq!(shown.user_notes.len(), 1, "the readable note stays");
-        assert!(shown.skipped.contains(&skipped("source", "BRAF", "future-source")));
+        assert!(
+            shown
+                .skipped
+                .contains(&skipped("source", "BRAF", "future-source"))
+        );
     }
     assert_eq!(
         store.show(None).unwrap().skipped,

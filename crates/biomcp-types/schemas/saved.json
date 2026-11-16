@@ -366,6 +366,13 @@
           },
           "type": "array"
         },
+        "skipped": {
+          "description": "Stored notes and list items this build cannot read, left in the file untouched.",
+          "items": {
+            "$ref": "#/$defs/Reply_SavedSkipped"
+          },
+          "type": "array"
+        },
         "snapshots": {
           "description": "Kept snapshots of saved searches; only an export lists them.",
           "items": {
@@ -629,6 +636,29 @@
         "schema",
         "request_key",
         "created"
+      ],
+      "type": "object"
+    },
+    "Reply_SavedSkipped": {
+      "description": "A stored note or list item skipped because a newer build wrote a value this build does not know.",
+      "properties": {
+        "field": {
+          "description": "The stored field this build does not know: `kind` for a note, `source` for an item.",
+          "type": "string"
+        },
+        "record": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "The note's ID, or the list item's ID."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "The stored value."
+        }
+      },
+      "required": [
+        "record",
+        "field",
+        "value"
       ],
       "type": "object"
     },

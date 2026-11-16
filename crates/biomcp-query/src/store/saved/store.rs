@@ -457,16 +457,17 @@ fn list(
     for row in rows {
         let (entity, item, source, note, added): ItemRow = row?;
         let added = unsigned(added)?;
-        let Ok(known) = (!source.is_empty())
-            .then(|| source.parse::<Source>())
-            .transpose()
-        else {
-            skipped.push(SavedSkipped {
-                record: text(&item)?,
-                field: "source".into(),
-                value: text(&source)?,
-            });
-            continue;
+        let known = match (!source.is_empty()).then(|| source.parse::<Source>()) {
+            None => None,
+            Some(Ok(known)) => Some(known),
+            Some(Err(_)) => {
+                skipped.push(SavedSkipped {
+                    record: text(&item)?,
+                    field: "source".into(),
+                    value: text(&source)?,
+                });
+                continue;
+            }
         };
         items.push(SavedListItem {
             reference: SavedRef {

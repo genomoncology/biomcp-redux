@@ -235,8 +235,9 @@ pub(super) fn read(
             value: text(value)?,
         }))
     };
-    let Ok(kind) = kind.parse::<NoteTargetKind>() else {
-        return skip("kind", &kind);
+    let kind = match kind.parse::<NoteTargetKind>() {
+        Ok(kind) => kind,
+        Err(_) => return skip("kind", &kind),
     };
     let table = match kind {
         NoteTargetKind::Search => "saved_search",
@@ -262,11 +263,10 @@ pub(super) fn read(
                 |row| row.get(0),
             )
             .optional()?;
-        let Ok(source) = (!source.is_empty())
-            .then(|| source.parse::<Source>())
-            .transpose()
-        else {
-            return skip("source", &source);
+        let source = match (!source.is_empty()).then(|| source.parse::<Source>()) {
+            None => None,
+            Some(Ok(known)) => Some(known),
+            Some(Err(_)) => return skip("source", &source),
         };
         Some(SavedRef {
             entity: text(&entity)?,

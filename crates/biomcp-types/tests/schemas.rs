@@ -8,6 +8,8 @@ mod compatibility;
 mod compatibility_cases;
 #[path = "schemas/compatibility_recursive_cases.rs"]
 mod compatibility_recursive_cases;
+#[path = "schemas/compatibility_saved_cases.rs"]
+mod compatibility_saved_cases;
 #[path = "schemas/drug.rs"]
 mod drug;
 #[path = "schemas/generation.rs"]

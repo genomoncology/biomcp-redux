@@ -12353,6 +12353,9 @@ Options:
       --entity <entity>
           Entity word of the item, when the list holds its ID under more than one.
 
+      --source <source>
+          Source of the item, when the list holds its ID under more than one.
+
       --project <PROJECT>
           Project to note when no TARGET is given; the one project is default.
 

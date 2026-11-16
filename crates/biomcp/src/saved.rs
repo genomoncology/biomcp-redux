@@ -109,7 +109,7 @@ pub(crate) fn cli(
     let words: Vec<&str> = crate::grammar::command_words(root, args).collect();
     let saves = save_as_position(args).is_some();
     match words.as_slice() {
-        ["saved", rest @ ..] if asks_help(args) => Some(crate::saved_help::help(
+        ["saved", rest @ ..] if crate::saved_help::asks_help(args) => Some(crate::saved_help::help(
             root,
             settings,
             args,
@@ -134,33 +134,6 @@ fn command_path<'a>(words: &[&'a str]) -> Vec<&'a str> {
         .copied()
         .take_while(|word| !word.starts_with('-'))
         .collect()
-}
-
-/// `-h` or `--help` under `saved` answers as `help saved ...` does, unless it is an option's value.
-fn asks_help(args: &[OsString]) -> bool {
-    let parser = crate::grammar::saved_parser();
-    let mut node = &parser;
-    let mut words = args.iter().take_while(|arg| *arg != "--");
-    while let Some(word) = words.next() {
-        let Some(word) = word.to_str() else {
-            continue;
-        };
-        if word == "-h" || word == "--help" {
-            return true;
-        }
-        if let Some(command) = node.find_subcommand(word) {
-            node = command;
-        } else if let Some(long) = word.strip_prefix("--").filter(|word| !word.contains('='))
-            && parser
-                .get_arguments()
-                .chain(node.get_arguments())
-                .find(|arg| arg.get_long() == Some(long))
-                .is_some_and(|arg| matches!(arg.get_action(), ArgAction::Set | ArgAction::Append))
-        {
-            words.next();
-        }
-    }
-    false
 }
 
 fn save_as_position(args: &[OsString]) -> Option<usize> {
