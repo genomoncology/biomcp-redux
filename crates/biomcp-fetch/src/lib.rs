@@ -16,9 +16,9 @@ mod cache_access;
 mod trial_cursor;
 pub use trial_cursor::TrialCursorKey;
 mod cleanup;
+mod config_default;
 mod sqlite_diagnostic;
 mod store_size;
-mod config_default;
 pub use cache_access::CacheAccess;
 #[doc(hidden)]
 pub use observe::record_sqlite_error;
