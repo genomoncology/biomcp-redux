@@ -1,5 +1,5 @@
 //! Saved items picked by source, and stored values a newer build wrote that this build skips.
-use super::tests::{check, melanoma, text};
+use super::tests::{check, due, melanoma, text};
 use biomcp_types::Source;
 
 /// A list holding BRAF as a gene under CIViC and UniProt.
@@ -142,6 +142,7 @@ fn unknown_snapshot_row_sources_are_skipped() {
     );
     // A rolling deploy runs mixed builds: the unreadable row is not reported as gone, nor
     // as new when the next check reads it again.
+    due(&store, &search);
     let report = store
         .record_check(&search, &check(&[("A", "1"), ("B", "1")], "s/1", true))
         .unwrap();
