@@ -49,7 +49,7 @@ pub fn search_names(leg: &Leg<'_>, name: &Text) -> Result<Vec<Page>, RequestErro
         let name = literal(name.as_str());
         format!("openfda.brand_name:{name} OR openfda.generic_name:{name}")
     };
-    let first = page(leg, &selector, NAME_PAGE, 0, None)?;
+    let first = choice_fields(page(leg, &selector, NAME_PAGE, 0, None)?);
     let Some(next) = first.window.next_offset() else {
         return Ok(vec![first]);
     };
@@ -60,11 +60,26 @@ pub fn search_names(leg: &Leg<'_>, name: &Text) -> Result<Vec<Page>, RequestErro
         .collect();
     let mut pages = vec![first];
     for found in leg.batch(&offsets, |child, offset| {
-        page(child, &selector, NAME_PAGE, *offset, None)
+        page(child, &selector, NAME_PAGE, *offset, None).map(choice_fields)
     }) {
         pages.push(found?);
     }
     Ok(pages)
+}
+/// A name lookup holds every page until it chooses a label, and a live page carries whole labels
+/// of up to 32 MiB. Choosing reads names and identity, plus the indications it counts, so the
+/// other sections go as each page arrives. Eight lookups at once over live-sized metformin pages
+/// (52 MiB each) held 1.3 GiB before this (ticket 1002).
+fn choice_fields(mut page: Page) -> Page {
+    choice_sections(&mut page.window.rows);
+    page
+}
+fn choice_sections(rows: &mut [super::Record]) {
+    for row in rows {
+        row.0
+            .sections
+            .retain(|heading, _| heading == "indications_and_usage");
+    }
 }
 fn discover(
     leg: &Leg<'_>,
@@ -142,4 +157,34 @@ fn candidates(
     offset: u32,
 ) -> Result<Page, RequestError> {
     page(leg, selector, limit, offset, None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::{Record, raw};
+
+    #[test]
+    fn name_pages_keep_only_what_the_label_choice_reads() {
+        let label = serde_json::json!({
+            "id": "0f3b2a3e-37a6-4a7c-9c43-6a4a7b0e2c11",
+            "set_id": "fb832474-88d9-4e29-95cd-fbc446944cc4",
+            "version": "12",
+            "effective_time": "20240101",
+            "openfda": {"brand_name": ["Glumetza"], "generic_name": ["METFORMIN HYDROCHLORIDE"],
+                "application_number": ["NDA021748"], "spl_set_id": ["fb832474-88d9-4e29-95cd-fbc446944cc4"]},
+            "indications_and_usage": ["1 INDICATIONS AND USAGE 1.1 Type 2 diabetes"],
+            "adverse_reactions": ["6 ADVERSE REACTIONS ..."],
+            "clinical_studies_table": ["<table>...</table>"]
+        });
+        let mut rows = vec![Record(
+            serde_json::from_value::<raw::Record>(label).expect("label decodes"),
+        )];
+        let chosen = |row: &Record| format!("{:?} {:?}", row.header().ok(), row.choice());
+        let before = chosen(&rows[0]);
+        super::choice_sections(&mut rows);
+        assert!(!rows[0].has_heading("adverse_reactions"));
+        assert!(!rows[0].has_heading("clinical_studies_table"));
+        assert!(rows[0].has_heading("indications_and_usage"));
+        assert_eq!(chosen(&rows[0]), before);
+    }
 }
