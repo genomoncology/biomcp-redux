@@ -46,7 +46,7 @@
               "type": "array"
             },
             "diagnostic": {
-              "description": "Diagnostic name and manufacturer cell text.",
+              "description": "Diagnostic name and manufacturer cell text, as one line: line breaks and runs of spaces read as one space, so both tables name a test alike.",
               "type": [
                 "string",
                 "null"
@@ -73,7 +73,7 @@
               "type": "integer"
             },
             "indication": {
-              "description": "Indication and sample type cell text.",
+              "description": "Indication and sample type cell text, as one line.",
               "type": [
                 "string",
                 "null"
@@ -129,7 +129,7 @@
               "type": "array"
             },
             "diagnostic": {
-              "description": "Diagnostic name and manufacturer cell text.",
+              "description": "Diagnostic name and manufacturer cell text, as one line: line breaks and runs of spaces read as one space, so both tables name a test alike.",
               "type": [
                 "string",
                 "null"
@@ -156,7 +156,7 @@
               "type": "integer"
             },
             "indication": {
-              "description": "Indication and sample type cell text.",
+              "description": "Indication and sample type cell text, as one line.",
               "type": [
                 "string",
                 "null"
