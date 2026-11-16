@@ -24,8 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 RECORDED = ROOT / "tests/replies/drug/label-many-names/openfda-label"
 ARGS = ["get", "drug", "metformin", "label", "--label-section", "indications_and_usage"]
 SLOTS = 8  # DEFAULT_HTTP_CAPACITY in crates/biomcp/src/config.rs
-HOSTED_SLOTS = 32  # the call limit the docs example and a hosted deployment set
-PER_USER = 4  # calls one hosted user may run at once behind the front end
+HOSTED_SLOTS = 32  # the call limit in the HTTP capacity example of docs/configuration.md
+PER_USER = 4  # calls that share one caller key in the 32-call scenarios
 PAGE_BYTES = 32 * 1024 * 1024  # openfda_label PAGE_BYTES
 NEAR_BOUND = 30 * 1024 * 1024
 KEY_HEADER = "x-biomcp-key-openfda-api-key"
@@ -73,7 +73,7 @@ def post(address, index, users):
     headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream",
                "MCP-Protocol-Version": "2025-11-25"}
     if users:
-        # Each caller key has its own openFDA bucket, as separate hosted users have.
+        # Each caller key has its own openFDA bucket, as separate callers have.
         headers[KEY_HEADER] = f"synthetic-measurement-key-{index % users}"
     request = urllib.request.Request(f"http://{address}/mcp", data=body, headers=headers)
     with urllib.request.urlopen(request, timeout=120) as response:
