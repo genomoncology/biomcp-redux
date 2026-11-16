@@ -38,7 +38,7 @@ Variant population replies add source-published `homozygote_count` for exome and
 BioMCP keeps saved searches, lists of records and notes in `saved.sqlite` in the data folder. A cache clean or an upgrade keeps them.
 
 - Add `--save-as NAME` to a first-page search to save it. `saved list add NAME --entity ENTITY ID...` keeps IDs that `get ENTITY` accepts in a named list, and `saved list remove NAME ID...` takes them out.
-- `saved note TARGET TEXT` attaches a note to a saved search or list, to a list item with `--item ID`, or to the project with `--project default`. Notes come back labelled as user data, never as instructions. A name holds up to 80 characters and a note up to 2,000.
+- `saved note TARGET TEXT` attaches a note to a saved search or list, to a list item with `--item ID`, or, with `saved note --project default TEXT`, to the project. Notes come back labelled as user data, never as instructions. A name holds up to 80 characters and a note up to 2,000.
 - `saved show [NAME]` lists what is saved, `saved export` returns all of it as typed JSON, and `saved delete NAME` removes a search or list with its notes; `--note ID` removes one note and `--all` removes everything.
 - `saved changed [NAME]` reads each saved search again, at most once an hour, and reports the IDs it gained, lost or changed since its last check. Each search's state is `first`, `unchanged`, `changed`, `not_due`, `rebaselined`, `incomplete` or `failed`. On a hosted server a re-check follows the same source policy as any hosted call.
 - In typed MCP mode the `saved` tool offers the actions `show`, `save_search`, `changed`, `list_add`, `list_remove`, `note`, `export` and `delete`, and a first search page with results offers a `save` next step.
