@@ -102,7 +102,8 @@ fn complete_examples(commands: &mut [HelpCommand]) {
     }
 }
 
-pub(super) fn plain(text: &str) -> String {
+/// The plain words every help surface uses: "source" for native or provider, "exact" for literal.
+pub(crate) fn plain(text: &str) -> String {
     let mut out = String::new();
     for token in text.split_inclusive(|c: char| !c.is_alphanumeric() && c != '_') {
         let word = token.trim_end_matches(|c: char| !c.is_alphanumeric() && c != '_');
@@ -115,6 +116,25 @@ pub(super) fn plain(text: &str) -> String {
         });
         out.push_str(&token[word.len()..]);
     }
-    out.replace("source source", "source")
-        .replace("source-source", "source")
+    undouble(&out)
+}
+
+/// Fold a doubled "source source" or "source-source" into its first word, in any letter case.
+fn undouble(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(at) = doubled(rest) {
+        out.push_str(&rest[..at + "source".len()]);
+        rest = &rest[at + "source source".len()..];
+    }
+    out.push_str(rest);
+    out
+}
+
+fn doubled(text: &str) -> Option<usize> {
+    let lower = text.to_ascii_lowercase();
+    [lower.find("source source"), lower.find("source-source")]
+        .into_iter()
+        .flatten()
+        .min()
 }

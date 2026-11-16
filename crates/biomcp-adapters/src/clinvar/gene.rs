@@ -7,7 +7,7 @@
 //! still reach it. Other clients on the same address share that limit, so a throttled
 //! request waits the retry time NCBI names and asks again while the budget lasts.
 //! <https://www.ncbi.nlm.nih.gov/clinvar/docs/help/>
-use super::SPEC;
+use super::GENE_COUNTS as SPEC;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Input, Leg, Read, RequestError, bad_reply};
 use biomcp_types::{ClinVarGeneCounts, ClinVarGermlineCounts, Source};
 const INFO: Endpoint = SPEC

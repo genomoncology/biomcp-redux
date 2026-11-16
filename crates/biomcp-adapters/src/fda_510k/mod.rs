@@ -1,8 +1,8 @@
 //! Exact native 510(k) identity is checked before ordinary cache admission.
 use biomcp_fetch::{Input, Read};
 mod raw;
-use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError, SourceSpec, Terms};
-use biomcp_types::{DiagnosticClearance, DiagnosticGet, Source, Use};
+use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError, SourceSpec};
+use biomcp_types::{DiagnosticClearance, DiagnosticGet, Source};
 use std::time::Duration;
 /// One source declaration for policy, quota and dispatch.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -10,11 +10,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     user_agent: None,
     source: Source::Fda510k,
     base: "https://api.fda.gov/device/510k.json",
-    terms: Terms {
-        name: "openFDA terms and license; third-party exceptions",
-        url: "https://open.fda.gov/terms/",
-        usage: Use::Open,
-    },
+    terms: crate::openfda::TERMS,
     quota: &crate::quotas::OPENFDA,
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),

@@ -227,8 +227,11 @@ fn run_case_owned(
             {
                 return Err("named MCP call requires its own step".into());
             }
-            if step.hosted && step.mcp.is_none() {
-                return Err("a hosted step requires mcp".into());
+            if (step.hosted || step.http) && step.mcp.is_none() {
+                return Err("a hosted or HTTP step requires mcp".into());
+            }
+            if step.hosted && step.http {
+                return Err("a step is hosted or plain HTTP, not both".into());
             }
             if step.run.is_none()
                 && step.mcp.is_none()

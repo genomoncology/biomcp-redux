@@ -9,8 +9,4 @@ pub use crate::faers::SPEC as FAERS;
 pub use crate::maude::SPEC as MAUDE;
 
 // Both report services share the publisher's exceptions, without granting component rights.
-pub(crate) const FDA_TERMS: biomcp_fetch::Terms = biomcp_fetch::Terms {
-    name: "openFDA terms and license; third-party exceptions",
-    url: "https://open.fda.gov/terms/",
-    usage: biomcp_types::Use::Open,
-};
+pub(crate) const FDA_TERMS: biomcp_fetch::Terms = crate::openfda::TERMS;

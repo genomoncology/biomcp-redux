@@ -45,7 +45,7 @@ struct SearchFields {
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Native source offset.
+    /// Source offset.
     #[serde(default)]
     offset: u32,
 }

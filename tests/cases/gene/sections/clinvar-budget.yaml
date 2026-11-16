@@ -1,0 +1,19 @@
+{
+  "live_check": "public",
+  "feature": "gene-clinvar",
+  "story": "ClinVar gene counts declare their own 30-second budget, so BRCA1's seventeen recorded ClinVar requests, 2 seconds of recorded source time, still finish when the command budget is set to 1 second.",
+  "verified": "Replays the j40643 BRCA1 recording that clinvar.yaml uses; its 17 ClinVar exchanges carry their recorded delays, 2,032 ms in all. Without the declared budget the whole read shares the 1-second command budget: on the base commit 82360be61 (job j41716) HGNC already ended deadline-exceeded and the read failed.",
+  "replay": "gene/clinvar",
+  "config": {"command_timeout_seconds": 1},
+  "steps": [
+    {
+      "run": ["get", "gene", "BRCA1", "clinvar"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/clinvar/state": "data",
+        "/result/items/0/sections/clinvar/data/records": 16172
+      },
+      "max_bytes": 3600
+    }
+  ]
+}

@@ -26,6 +26,13 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
         if globals.fresh {
             return Some(UsageError::argument("--fresh".into()));
         }
+        // Plain HTTP writes no file, so a command that must save is refused before any source
+        // request. An optional save still reads its source and refuses with the source link.
+        if let Action::Run { request, .. } = action
+            && must_save(request)
+        {
+            return Some(UsageError::argument("--save".into()));
+        }
     }
     match action {
         Action::Run { request, .. } if replaces(request) => {
@@ -54,15 +61,18 @@ fn replaces(request: &Request) -> bool {
 }
 
 fn saves(request: &Request) -> bool {
-    let mandatory = crate::schema::find(request.schema())
-        .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())
-        .is_some_and(|schema| always_refused(&schema, true));
-    mandatory
+    must_save(request)
         || match request {
             Request::ArticleText(query) => query.save().is_some(),
             Request::ArticleSupplement(query) => query.save().is_some(),
             _ => false,
         }
+}
+
+fn must_save(request: &Request) -> bool {
+    crate::schema::find(request.schema())
+        .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())
+        .is_some_and(|schema| always_refused(&schema, true))
 }
 
 fn hidden_save(request: &Request) -> bool {

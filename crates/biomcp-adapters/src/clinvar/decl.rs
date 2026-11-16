@@ -11,7 +11,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
         &[("db", Arg::Text("clinvar")), ("retmode", Arg::Text("json"))],
     ),
     components: &[],
-    auxiliary: &[],
+    auxiliary: &[&super::GENE_COUNTS],
     bundles: &[],
     guidance: Guidance {
         deadline: None,

@@ -376,6 +376,10 @@ pub struct DiagnosticPmaHeader {
     /// Native applicant when supplied, including explicit empty.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub applicant: Option<Box<str>>,
+    // PMA and 510(k) dates stay openFDA's raw text on purpose: these rows copy openFDA's cells,
+    // and an explicit empty cell must stay distinct from a missing one, which a parsed date
+    // cannot hold. Recall dates are parsed (`PartialDate`) because recall cards carry no such
+    // empty-cell promise. Whether to unify them is a schema decision for the next schema cut.
     /// Native decision_date when supplied, including explicit empty.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_date: Option<Box<str>>,
@@ -446,6 +450,7 @@ pub struct DiagnosticClearance {
     /// Native decision_description; missing and empty remain distinct. Left out when openFDA's value is "Unknown" and decision_reading is present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_description: Option<Box<str>>,
+    // Raw text on purpose, as the PMA header's dates above say.
     /// Native decision_date; missing and empty remain distinct.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_date: Option<Box<str>>,
