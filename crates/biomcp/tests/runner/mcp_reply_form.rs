@@ -67,14 +67,15 @@ pub(super) fn check() -> Result<(), String> {
             )?;
             let replies = first_replies(hosted, &server, &environment, &calls, &globals)?;
             for (index, call) in calls.iter().enumerate() {
-                let stdio = replies
+                let first = replies
                     .iter()
                     .find(|reply| reply.get("id") == call.get("id"))
                     .and_then(|reply| reply.get("result"))
-                    .ok_or("stdio result missing")?;
-                let http = http_reply(&server, call, hosted)?;
+                    .ok_or("first result missing")?;
+                // A hosted first reply is already HTTP; only local mode pairs stdio with HTTP.
+                let http = (!hosted).then(|| http_reply(&server, call)).transpose()?;
                 let default = if hosted { "both" } else { "once" };
-                let value = check_pair(stdio, &http, form.unwrap_or(default), index)
+                let value = check_pair(first, http.as_ref(), form.unwrap_or(default), index)
                     .map_err(|error| format!("hosted={hosted}: {error}"))?;
                 if form.is_none() {
                     reference.push(value);
@@ -85,8 +86,8 @@ pub(super) fn check() -> Result<(), String> {
                     std::io::stdout(),
                     "MCP_REPLY hosted={hosted} form={} call={index} bytes={} chars={}",
                     form.unwrap_or("default"),
-                    stdio.to_string().len(),
-                    stdio.to_string().chars().count()
+                    first.to_string().len(),
+                    first.to_string().chars().count()
                 )
                 .map_err(|e| e.to_string())?;
             }
@@ -113,24 +114,29 @@ fn first_replies(
     }
 }
 
-fn http_reply(server: &Server, call: &Value, hosted: bool) -> Result<Value, String> {
-    let extra = if hosted {
-        "x-biomcp-use: academic\r\n"
-    } else {
-        ""
-    };
-    http_wire(server, call, extra)?
+fn http_reply(server: &Server, call: &Value) -> Result<Value, String> {
+    http_wire(server, call, "")?
         .get("result")
         .cloned()
         .ok_or("HTTP result missing".into())
 }
 
-fn check_pair(stdio: &Value, http: &Value, form: &str, index: usize) -> Result<Value, String> {
-    let value = check_content(stdio, form)?;
+fn check_pair(
+    first: &Value,
+    http: Option<&Value>,
+    form: &str,
+    index: usize,
+) -> Result<Value, String> {
+    let value = check_content(first, form)?;
     let failed = json!(index != 0);
-    if stdio.get("isError") != Some(&failed) || http.get("isError") != Some(&failed) {
+    if first.get("isError") != Some(&failed)
+        || http.is_some_and(|http| http.get("isError") != Some(&failed))
+    {
         return Err("reply form lost tool error status".into());
     }
+    let Some(http) = http else {
+        return Ok(value);
+    };
     let http_value = check_content(http, form)?;
     if let Some(difference) = super::super::assertions::difference(&value, &http_value, "") {
         if let Some(context) = super::super::transcript::current() {

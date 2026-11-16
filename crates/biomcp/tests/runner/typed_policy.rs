@@ -14,7 +14,8 @@ pub(super) fn check_descriptions(env: &Environment) -> Result<(), String> {
 
 pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    env.config(&json!({"mcp_tool_mode":"typed","hosted_max_use":"commercial"}))
+    // The default hosted ceiling admits the academic tier that the description check sends.
+    env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
     check_descriptions(&env)?;
     hosted(&env)?;

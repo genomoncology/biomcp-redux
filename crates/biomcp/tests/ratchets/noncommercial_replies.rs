@@ -1,7 +1,8 @@
 //! Replies from noncommercial sources are synthetic, and a README beside them says so (0695, 0920).
 //! The marker is a line `Synthetic: <source>` in README.md in the source folder or its case folder.
 //! Outside the replies, real ORCID, DDInter and Semantic Scholar author IDs are invented too (0973).
-//! Orphadata's replies are synthetic too, and each Orphadata file body says so (0990).
+//! Orphadata's replies are synthetic too, and each Orphadata file body, inline or in a sidecar,
+//! says so and names only "Synthetic" disorders (0990, 0996).
 use super::Check;
 use biomcp_types::{Source, Use};
 use serde_json::Value;
@@ -55,10 +56,10 @@ pub(super) fn check(root: &Path) -> Check {
         if (sources.contains(source) || carried) && !marked(&path, source)? {
             unmarked.push(format!("{relative} ({source})"));
         }
-        if source == <&str>::from(Source::Orphadata) && real_orphadata(&record) {
-            unmarked.push(format!(
-                "{relative} ({source}: body lacks {ORPHADATA_AUTHORED})"
-            ));
+        if source == <&str>::from(Source::Orphadata)
+            && let Some(problem) = real_orphadata(&path, &record)
+        {
+            unmarked.push(format!("{relative} ({source}: {problem})"));
         }
     }
     if unmarked.is_empty() {
@@ -67,7 +68,7 @@ pub(super) fn check(root: &Path) -> Check {
         Err(format!(
             "replies from noncommercial sources and Orphadata need `Synthetic: <source>` in \
              README.md in their source or case folder, and Orphadata bodies need \
-             {ORPHADATA_AUTHORED}:\n{}",
+             {ORPHADATA_AUTHORED} and \"Synthetic\" disorder names:\n{}",
             unmarked.join("\n")
         )
         .into())
@@ -89,15 +90,48 @@ fn marked(path: &Path, source: &str) -> Result<bool, std::io::Error> {
     Ok(false)
 }
 
-/// An Orphadata file body (a `JDBOR` document) that does not say it was authored.
-fn real_orphadata(record: &Value) -> bool {
-    record
+/// A real-looking Orphadata file body, read inline or from its sidecar `.bin` file (0906).
+/// Real files name Orphanet's database server; an authored one says `dbserver="synthetic"` and
+/// names every disorder "Synthetic ...", so a real file with only its server changed still fails.
+fn real_orphadata(path: &Path, record: &Value) -> Option<String> {
+    let exchanges = record
         .get("exchanges")
         .and_then(Value::as_array)
         .into_iter()
-        .flatten()
-        .filter_map(|exchange| exchange.pointer("/body/value").and_then(Value::as_str))
-        .any(|body| body.contains("<JDBOR") && !body.contains(ORPHADATA_AUTHORED))
+        .flatten();
+    for body in exchanges.filter_map(|exchange| exchange.get("body")) {
+        let value = body
+            .get("value")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let text = match body.get("kind").and_then(Value::as_str) {
+            Some("sidecar") => match fs::read(path.with_file_name(value)) {
+                Ok(bytes) => String::from_utf8_lossy(&bytes).into_owned(),
+                Err(error) => return Some(format!("sidecar {value}: {error}")),
+            },
+            _ => value.to_owned(),
+        };
+        if !text.contains("<JDBOR") {
+            continue;
+        }
+        if !text.contains(ORPHADATA_AUTHORED) {
+            return Some(format!("body lacks {ORPHADATA_AUTHORED}"));
+        }
+        if let Some(name) = disorder_names(&text).find(|name| !name.starts_with("Synthetic")) {
+            return Some(format!(
+                "disorder name {name:?} does not start with \"Synthetic\""
+            ));
+        }
+    }
+    None
+}
+
+/// Each disorder's own name, the first `Name` after its `OrphaCode`.
+fn disorder_names(text: &str) -> impl Iterator<Item = &str> {
+    text.split("<OrphaCode>").skip(1).filter_map(|disorder| {
+        let (_, rest) = disorder.split_once("<Name lang=\"en\">")?;
+        rest.split_once("</Name>").map(|(name, _)| name)
+    })
 }
 
 fn has_key(value: &Value, name: &str) -> bool {
@@ -357,6 +391,45 @@ fn real_orphadata_replies_fail() -> Check {
         .ok_or("a real Orphadata body passed under the marker")?;
     if !error.to_string().contains("body lacks") {
         return Err(format!("the real Orphadata body was not reported: {error}").into());
+    }
+    // A hand-cut real file with only its server changed keeps a real disorder name.
+    let named = |name: &str| {
+        format!(
+            "<JDBOR dbserver=\"synthetic\"><Disorder><OrphaCode>1</OrphaCode>\
+             <Name lang=\"en\">{name}</Name></Disorder></JDBOR>"
+        )
+    };
+    let text = |body: &str| {
+        serde_json::json!({
+            "source": "orphadata",
+            "exchanges": [{"body": {"kind": "text", "value": body}}]
+        })
+        .to_string()
+    };
+    fs::write(&file, text(&named("Synthetic disorder")))?;
+    check(root.path())?;
+    fs::write(&file, text(&named("Kabuki syndrome")))?;
+    let error = check(root.path())
+        .err()
+        .ok_or("a hand-cut real Orphadata file passed")?;
+    if !error.to_string().contains("\"Kabuki syndrome\"") {
+        return Err(format!("the real disorder name was not reported: {error}").into());
+    }
+    // A recorded multi-file sync stores each file as a sidecar `.bin` beside its record (0906).
+    let sidecar = serde_json::json!({
+        "source": "orphadata",
+        "exchanges": [{"body": {"kind": "sidecar", "value": "a-0.bin"}}]
+    });
+    fs::write(&file, sidecar.to_string())?;
+    let bin = case.join("orphadata").join("a-0.bin");
+    fs::write(&bin, named("Synthetic disorder"))?;
+    check(root.path())?;
+    fs::write(&bin, "<JDBOR dbserver=\"jdbc:sybase:Tds:example\">")?;
+    let error = check(root.path())
+        .err()
+        .ok_or("a real Orphadata sidecar passed")?;
+    if !error.to_string().contains("body lacks") {
+        return Err(format!("the real Orphadata sidecar was not reported: {error}").into());
     }
     Ok(())
 }

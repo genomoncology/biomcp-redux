@@ -334,7 +334,8 @@ fn catalog(env: &Environment, hosted: bool) -> Result<Vec<Value>, String> {
         json!({}),
     )];
     let replies = if hosted {
-        exchange_hosted(env, &list, &globals, "x-biomcp-use: commercial\r\n")?
+        // The widest use tier, so hosted descriptions of academic-only sources are checked too.
+        exchange_hosted(env, &list, &globals, "x-biomcp-use: academic\r\n")?
     } else {
         exchange_with_globals(env, &list, &globals)?
     };
