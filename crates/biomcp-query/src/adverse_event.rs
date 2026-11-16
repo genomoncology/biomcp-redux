@@ -66,13 +66,20 @@ fn death_flag(out: &mut Outcome, query: &AdverseEventSearch) {
     {
         return;
     }
-    if let Some(report) = out.sources.iter_mut().find(|report| report.source == Source::Faers) {
-        report.notices.push(biomcp_types::SourceNotice::RequestGuidance {
-            data_date: None,
-            message: "Counts reports flagged death that list this reaction, not deaths caused by it."
-                .into(),
-            retry_after_seconds: None,
-        });
+    if let Some(report) = out
+        .sources
+        .iter_mut()
+        .find(|report| report.source == Source::Faers)
+    {
+        report
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message:
+                    "Counts reports flagged death that list this reaction, not deaths caused by it."
+                        .into(),
+                retry_after_seconds: None,
+            });
     }
 }
 
