@@ -7,6 +7,9 @@ use biomcp_types::{
 };
 use serde::{Deserialize, Serialize};
 
+/// How every FAERS name search is sent and counted (1012).
+pub(super) const COUNTS_ONCE: &str = "one FAERS query, so a report naming several counts once";
+
 #[derive(Serialize, Deserialize)]
 struct Saved {
     names: Vec<Text>,
@@ -167,7 +170,7 @@ fn disclose(query: &AdverseEventSearch, saved: &Saved, out: &mut Outcome) {
     };
     let widened = saved.names.len() > typed(query).len();
     let message = search_names::compact(
-        "one FAERS query, so a report naming several counts once",
+        COUNTS_ONCE,
         (widened, saved.rejected),
         &saved.unsettled,
         &saved.left_out,

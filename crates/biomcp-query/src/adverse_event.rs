@@ -53,34 +53,50 @@ fn disclose(mut out: Outcome, query: &AdverseEventSearch) -> Outcome {
             .map(|v| ("--product-code", Some(v), codes)),
     );
     crate::openfda_text::disclose(&mut out, source, named.into_iter().chain(listed));
-    death_flag(&mut out, query);
+    counts_notes(&mut out, query, names);
     out
 }
 
-/// FAERS seriousnessdeath marks the report, not a reaction, so a death count with --reaction is
-/// reports flagged death that list that reaction (1012).
-fn death_flag(out: &mut Outcome, query: &AdverseEventSearch) {
-    if query.source() != biomcp_types::AdverseEventSource::Faers
-        || query.serious() != Some(biomcp_types::AdverseEventSerious::Death)
-        || query.reaction().is_none()
-    {
+/// What a FAERS count counts (1012): every name goes in one query, so a report naming several
+/// counts once; seriousnessdeath marks the report, not a reaction, so a death count with
+/// --reaction is reports flagged death that list that reaction. Said only when FAERS answered.
+fn counts_notes(out: &mut Outcome, query: &AdverseEventSearch, typed: usize) {
+    if query.source() != biomcp_types::AdverseEventSource::Faers {
         return;
     }
-    if let Some(report) = out
-        .sources
-        .iter_mut()
-        .find(|report| report.source == Source::Faers)
-    {
-        report
-            .notices
-            .push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message:
-                    "Counts reports flagged death that list this reaction, not deaths caused by it."
-                        .into(),
-                retry_after_seconds: None,
-            });
+    let Some(report) = out.sources.iter_mut().find(|report| {
+        report.source == Source::Faers
+            && matches!(
+                report.state,
+                biomcp_types::SourceState::Ok | biomcp_types::SourceState::Stale
+            )
+    }) else {
+        return;
+    };
+    let said = report.notices.iter().any(|notice| {
+        matches!(notice, biomcp_types::SourceNotice::DrugNameSearch { message, .. }
+            if message.contains(names::COUNTS_ONCE))
+    });
+    let mut notes = Vec::new();
+    if typed > 1 && !said {
+        notes.push(format!("The {typed} names went in {}.", names::COUNTS_ONCE));
     }
+    if query.serious() == Some(biomcp_types::AdverseEventSerious::Death)
+        && query.reaction().is_some()
+    {
+        notes.push(
+            "Counts reports flagged death that list this reaction, not deaths caused by it.".into(),
+        );
+    }
+    report.notices.extend(
+        notes
+            .into_iter()
+            .map(|message| biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: message.into(),
+                retry_after_seconds: None,
+            }),
+    );
 }
 
 fn search<'a>(
