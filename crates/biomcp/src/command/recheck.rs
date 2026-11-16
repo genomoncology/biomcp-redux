@@ -28,15 +28,29 @@ pub(crate) fn recheck(
         Ok(parsed) => parsed,
         Err(outcome) => return Ok(Err(outcome)),
     };
+    if parsed.globals.inherit(process).is_err() {
+        return Ok(Err(super::usage(root, &args, encoding)?));
+    }
+    // The core stores only words that passed this policy, but the file is not trusted: an
+    // MCP re-check, hosted ones included, runs under the policy of any MCP call.
+    if context.is_some()
+        && let Some(error) = super::mcp_policy::refusal(&parsed, false)
+    {
+        return Ok(Err(super::usage_envelope(error, encoding)?));
+    }
+    // Only a first search page is ever saved, so only one is re-read.
     let request = match parsed.action.take().map(super::prepare) {
-        Some(Ok(Action::Run { request, .. })) if parsed.help.is_none() => request,
+        Some(Ok(Action::Run { request, .. }))
+            if parsed.help.is_none()
+                && request.path().0 == "search"
+                && crate::grammar::first_page(&request) =>
+        {
+            request
+        }
         Some(Err(error)) => return Ok(Err(super::usage_envelope(error, encoding)?)),
         _ => return Ok(Err(super::usage(root, &args, encoding)?)),
     };
     let mut globals = parsed.globals;
-    if globals.inherit(process).is_err() {
-        return Ok(Err(super::usage(root, &args, encoding)?));
-    }
     // Every page reads the source, and whole rows are fingerprinted.
     globals.fresh = true;
     globals.fields.clear();

@@ -3,6 +3,7 @@
 //! by the account header alone. A call without the header is refused, a header that could
 //! name a path gets HTTP 400, no tool argument names a path, and one account never sees
 //! another's names. A first search page offers a save step only to a call with an account.
+//! A re-check runs a stored row's words under hosted policy, and only a first search page.
 //! live_check: replayed trial search; no network.
 use super::{http::Server, launch::fixtures};
 use crate::runner::transcript::trial as transcript_trial;
@@ -119,7 +120,8 @@ fn hosted() -> Result<(), String> {
     if pathed.pointer("/error/option") != Some(&json!("path")) {
         return Err(format!("no saved argument names a path: {pathed}"));
     }
-    save_step(&server)
+    save_step(&server)?;
+    stored_rechecks(&server, folder.path())
 }
 
 /// The save step reaches a caller with an account, and runs as written.
@@ -153,4 +155,52 @@ fn steps(reply: &Value) -> Vec<Value> {
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default()
+}
+
+/// Rows written straight into the file, as a tampered or foreign file could hold, are refused
+/// by `changed` before any source read: a search hosted policy refuses, and a non-search.
+fn stored_rechecks(server: &Server, folder: &std::path::Path) -> Result<(), String> {
+    let db = rusqlite::Connection::open(folder.join("carol/saved.sqlite"))
+        .map_err(|error| error.to_string())?;
+    let args: String = db
+        .query_row("SELECT args FROM saved_search", [], |row| row.get(0))
+        .map_err(|error| error.to_string())?;
+    let mut fresh: Vec<String> = serde_json::from_str(&args).map_err(|e| e.to_string())?;
+    fresh.push("--fresh".into());
+    let rows = [
+        ("fresh-trials", fresh, "usage.mcp_unavailable"),
+        (
+            "one-trial",
+            vec!["get".into(), "trial".into(), "NCT02576665".into()],
+            "usage.",
+        ),
+    ];
+    for (name, words, code) in rows {
+        db.execute(
+            "INSERT INTO saved_search(id,project,name,args,schema,request_key,created) \
+             SELECT ?1,project,?1,?2,schema,request_key,created FROM saved_search LIMIT 1",
+            rusqlite::params![name, serde_json::to_string(&words).map_err(|e| e.to_string())?],
+        )
+        .map_err(|error| error.to_string())?;
+        let changed = json!({"action":"changed","changed":{"name":name}});
+        let (_, reply) = call(server, "saved", changed, &account("carol"))?;
+        let refused = reply
+            .pointer("/error/code")
+            .and_then(Value::as_str)
+            .is_some_and(|found| found.starts_with(code));
+        if !refused {
+            return Err(format!("a stored {name} re-check is refused with {code}: {reply}"));
+        }
+        let kept: i64 = db
+            .query_row(
+                "SELECT count(*) FROM saved_snapshot WHERE search=?1",
+                [name],
+                |row| row.get(0),
+            )
+            .map_err(|error| error.to_string())?;
+        if kept != 0 {
+            return Err(format!("a refused {name} re-check keeps no snapshot"));
+        }
+    }
+    Ok(())
 }
