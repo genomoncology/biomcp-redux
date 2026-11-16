@@ -232,6 +232,7 @@ impl RawApplication {
             identity_level: DrugIdentityLevel::FdaApplication,
             r#type: None,
             version: None,
+            effective_date: None,
             url: None,
         }
     }

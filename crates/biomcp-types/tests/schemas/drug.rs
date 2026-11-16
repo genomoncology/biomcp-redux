@@ -38,6 +38,7 @@ fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
     assert_eq!(
         keys,
         [
+            "effective_date",
             "id",
             "identity_level",
             "matched_name",

@@ -54,6 +54,7 @@ impl Therapy {
             id: cx.optional("id", Some(id.to_string().parse()))?,
             source: DrugSource::Civic,
             version: None,
+            effective_date: None,
             name,
             identity_level: DrugIdentityLevel::Unknown,
             r#type: cx.optional("type", Some(Text::new("Therapy"))),

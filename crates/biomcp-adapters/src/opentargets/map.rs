@@ -30,6 +30,7 @@ fn native_header(
         source: DrugSource::Opentargets,
         name: field_text(&mut p.list, p.source, p.record.clone(), "name", name),
         version: None,
+        effective_date: None,
         identity_level: biodata::DrugIdentityLevel::Unknown,
         r#type: Some("drug".parse()?),
         url: Some(format!("https://platform.opentargets.org/drug/{id}").parse()?),

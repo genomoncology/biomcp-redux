@@ -47,6 +47,7 @@ pub(super) fn therapies(
                 matched_name: None,
                 r#type: None,
                 version: None,
+                effective_date: None,
                 url: None,
             });
         }

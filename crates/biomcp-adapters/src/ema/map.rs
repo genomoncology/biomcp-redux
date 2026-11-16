@@ -87,6 +87,7 @@ pub(super) fn header(row: &raw::Medicine, problems: &mut crate::mapped::Problems
             problems.required("name_of_medicine", name)
         },
         version: None,
+        effective_date: None,
         // The feed's category describes Human/Veterinary, not identity granularity.
         identity_level: DrugIdentityLevel::Unknown,
         r#type: {

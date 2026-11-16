@@ -52,5 +52,6 @@ pub(super) fn header(identity: DrugIdentity) -> DrugHeader {
         r#type: identity.r#type,
         url: identity.url,
         version: None,
+        effective_date: None,
     }
 }
