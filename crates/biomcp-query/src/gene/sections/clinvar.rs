@@ -6,7 +6,10 @@ use biomcp_adapters::clinvar;
 use biomcp_fetch::Deadline;
 use biomcp_types::{GeneSection, Reason, Section};
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
-    let leg = cx.fetch.leg(&clinvar::GENE_COUNTS, deadline).fresh(cx.fresh);
+    let leg = cx
+        .fetch
+        .leg(&clinvar::GENE_COUNTS, deadline)
+        .fresh(cx.fresh);
     let mut error = None;
     let mut local = None;
     let values: Vec<_> = genes

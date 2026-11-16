@@ -106,6 +106,18 @@ fn check(http: bool, words: &[&str], schema: &str) -> Check {
                 "{value}"
             );
             assert!(!path.exists(), "hosted calls must not create a saved file");
+        } else if http && matches!(words.first(), Some(&"article" | &"trial")) {
+            // Plain HTTP writes no file, so it refuses the save before any source request.
+            assert_eq!(
+                value.pointer("/error/code"),
+                Some(&json!("usage.arguments")),
+                "{value}"
+            );
+            assert_eq!(
+                value.pointer("/error/option"),
+                Some(&json!("--save")),
+                "{value}"
+            );
         } else if words.first() == Some(&"key")
             || (http && matches!(words.first(), Some(&"sync" | &"store" | &"get")))
         {

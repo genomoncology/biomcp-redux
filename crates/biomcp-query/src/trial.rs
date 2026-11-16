@@ -7,6 +7,8 @@ mod drug_names;
 mod gene_notice;
 pub(crate) mod get;
 mod nci;
+#[cfg(test)]
+mod page_tests;
 mod portable_continuation;
 mod variant_spellings;
 use crate::{Action, Ctx, Outcome, status};
@@ -337,30 +339,3 @@ fn gene<'a>(
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn earlier_refusal_survives_a_clean_page() {
-        let query: TrialSearch = serde_json::from_str(r#"{"query":"melanoma"}"#).unwrap();
-        let mut outcome = empty(&query);
-        outcome.dropped = true;
-        let page = ctgov::SearchPage {
-            refusals: biomcp_adapters::Refusal::None,
-            received: 0,
-            items: Vec::new(),
-            problems: Vec::new(),
-            condition_word_mismatch: false,
-            gene_contexts: Vec::new(),
-            codon_only: Vec::new(),
-            codon_error: None,
-            total: Some(0),
-            count_error: None,
-            count_request: None,
-            next: None,
-        };
-        apply_page(&query, &query, false, None, &mut outcome, page);
-        assert!(outcome.dropped);
-    }
-}

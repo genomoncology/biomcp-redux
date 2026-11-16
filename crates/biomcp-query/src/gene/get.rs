@@ -10,12 +10,14 @@ use biomcp_types::{
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     // ClinVar gene counts declare a longer budget than the default; other legs keep their caps.
-    let deadline = if sections::requested(query).contains(&biomcp_types::GeneSection::ClinVar) {
-        cx.fetch
-            .source_deadline(&biomcp_adapters::clinvar::GENE_COUNTS, cx.budget)
+    let requested = sections::requested(query);
+    let clinvar = &biomcp_adapters::clinvar::GENE_COUNTS;
+    let budget = if requested.contains(&biomcp_types::GeneSection::ClinVar) {
+        cx.fetch.source_budget(clinvar, cx.budget)
     } else {
-        cx.fetch.deadline(cx.budget)
+        cx.budget
     };
+    let deadline = cx.fetch.deadline(budget);
     let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
     let mut hgnc_error = None;
