@@ -210,3 +210,25 @@ fn a_version_five_cache_gains_its_running_total_on_open() {
     cx.execute("DELETE FROM reply WHERE key=x'01'", []).unwrap();
     assert_eq!(totals(&cx), (ROW, ROW));
 }
+
+#[test]
+fn an_eviction_resets_a_drifted_total_from_the_rows() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let server = Server::new();
+    let spec = spec(&server, KeyUse::None);
+    let fetch = ceiling(&path, 3400);
+    let cx = Connection::open(&path).unwrap();
+    let now = now();
+    insert(&cx, &[(1, now - 300, i64::MAX), (2, now - 200, i64::MAX)]);
+    // The rows fit, but a total drifted high says they do not.
+    cx.execute("UPDATE reply_bytes SET total=total+100000", [])
+        .unwrap();
+    let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
+    exchange(&server, 200, REPLY, || get(&fetch, spec, &endpoint, &[])).unwrap();
+    // One eviction runs and leaves the total equal to the stored rows.
+    assert_eq!(served(&cx), 1);
+    let (total, actual) = totals(&cx);
+    assert_eq!(total, actual);
+    assert!(total <= 3060, "{total}");
+}

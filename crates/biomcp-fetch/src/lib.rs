@@ -18,6 +18,7 @@ pub use trial_cursor::TrialCursorKey;
 mod cleanup;
 mod sqlite_diagnostic;
 mod store_size;
+mod config_default;
 pub use cache_access::CacheAccess;
 #[doc(hidden)]
 pub use observe::record_sqlite_error;
@@ -60,7 +61,6 @@ pub use bundle::{
     KeyKind, Keys, MAX_BUNDLE_BYTES, Row, RowFormat, SetRow, bundle_sha256, decode_bundle_document,
     encode_bundle_row,
 };
-pub use cache::REPLY_CACHE_MAX_BYTES;
 pub use cache::sql_deadline as configure_sqlite_deadline;
 pub use cache::{CACHE_NAMESPACE_VERSION, STALE_GRACE_SECONDS, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
@@ -151,33 +151,6 @@ pub struct FetchConfig {
     pub source_data_max_age_days: u32,
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biomcp_types::Source, Duration>,
-}
-
-impl Default for FetchConfig {
-    fn default() -> Self {
-        Self {
-            rate_share: RateShare::default(),
-            source_pacing: SourcePacing::default(),
-            grpc_limits: grpc::Limits::default(),
-            observations: None,
-            cache_owners: Vec::new(),
-            disabled_sources: Default::default(),
-            disabled_uses: Default::default(),
-            secrets: Secrets::default(),
-            cache: None,
-            cache_predecessors: Vec::new(),
-            mode: Mode::default(),
-            replay_cache: None,
-            proxy: None,
-            network: Network::default(),
-            max_body: 8 * 1024 * 1024,
-            source_deadlines: BTreeMap::new(),
-            sync_budget: Duration::from_secs(120),
-            auto_sync_max_bytes: 32 * 1024 * 1024,
-            reply_cache_max_bytes: REPLY_CACHE_MAX_BYTES,
-            source_data_max_age_days: 365,
-        }
-    }
 }
 
 /// One blocking client shared across source legs.

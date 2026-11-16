@@ -208,7 +208,9 @@ fn create_reply_schema(tx: &Transaction<'_>, version: Option<u32>) -> Result<(),
             .map_err(|error| db_error(error))?;
     }
     // Version 6 keeps the stored reply bytes in one row for the cache ceiling (1001).
-    // Each row counts length(body)+length(url)+64, matching ROW_OVERHEAD.
+    // Each row counts length(body)+length(url)+64, matching ROW_OVERHEAD. Writes to reply must
+    // use insert-or-update or delete, never INSERT OR REPLACE: with recursive triggers off,
+    // the rows it replaces fire no delete trigger.
     tx.execute_batch(
         "CREATE TABLE IF NOT EXISTS reply_bytes (id INTEGER PRIMARY KEY CHECK (id=0), total INTEGER NOT NULL);
         INSERT OR IGNORE INTO reply_bytes VALUES (0, (SELECT coalesce(sum(length(body)+length(url)+64),0) FROM reply));

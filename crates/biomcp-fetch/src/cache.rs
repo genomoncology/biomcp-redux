@@ -26,7 +26,7 @@ const OWNER: &str = "biomcp-fetch";
 pub const STALE_GRACE_SECONDS: i64 = 30 * 24 * 60 * 60;
 /// Default reply cache ceiling (1001). 2 GiB: about 560 typical 3.6 MiB openFDA label pages
 /// (median of twelve common names, 2026-11-16; 0.3 to 8.5 MiB), a tenth of a 20 GiB container disk.
-pub const REPLY_CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+pub(crate) const REPLY_CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 /// Bytes each stored reply counts beyond its body and URL, so empty rows count too.
 const ROW_OVERHEAD: usize = 64;
 const OPEN_WAIT: Duration = Duration::from_secs(5);
@@ -314,7 +314,9 @@ impl Cache {
             let at = now();
             tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [at.saturating_sub(STALE_GRACE_SECONDS)]).map_err(|error| db_error(error))?;
             // A row counts its body, its URL and 64 bytes of overhead, as the reply_bytes
-            // triggers do. A reply larger than the whole ceiling is served but never stored.
+            // triggers do. Rust counts URL bytes and SQLite length() counts characters, so the
+            // stored total may be a few bytes under for non-ASCII URLs. A reply larger than the
+            // whole ceiling is served but never stored.
             let ceiling = i64::try_from(self.5).unwrap_or(i64::MAX);
             let size = entry.body.len().saturating_add(url.len()).saturating_add(ROW_OVERHEAD);
             if i64::try_from(size).unwrap_or(i64::MAX) > ceiling {
@@ -360,6 +362,12 @@ impl Cache {
                     ROWS UNBOUNDED PRECEDING) - (length(body)+length(url)+64) AS before \
                     FROM reply WHERE key<>?1) WHERE before < ?3)",
                     params![key, at, excess],
+                )
+                .map_err(|error| db_error(error))?;
+                // This path already scans, so reset the total from the rows to heal any drift.
+                tx.execute(
+                    "UPDATE reply_bytes SET total=(SELECT coalesce(sum(length(body)+length(url)+64),0) FROM reply)",
+                    [],
                 )
                 .map_err(|error| db_error(error))?;
             }
