@@ -207,6 +207,11 @@ fn newest_first(
 /// FDA's original row with its date and the names both tables share.
 fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> CompanionDiagnosticRow {
     let text = |cell: &biodata::DiagnosticCell| Some(cell.text.clone());
+    // FDA's two tables break and pad the same name differently, so one test
+    // would read as two; the name fields read as one line (0994).
+    let line = |cell: &biodata::DiagnosticCell| {
+        Some(cell.text.split_whitespace().collect::<Vec<_>>().join(" ").into())
+    };
     match native.relation {
         CompanionDiagnosticRelation::Individual {
             snapshot,
@@ -217,8 +222,8 @@ fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> Comp
         } => CompanionDiagnosticRow::Individual {
             shared: CompanionShared {
                 row_date: date,
-                diagnostic: text(&cells.diagnostic),
-                indication: text(&cells.indication),
+                diagnostic: line(&cells.diagnostic),
+                indication: line(&cells.indication),
                 device: text(&cells.device),
                 drug: text(&cells.drug),
             },
@@ -237,8 +242,8 @@ fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> Comp
         } => CompanionDiagnosticRow::Group {
             shared: CompanionShared {
                 row_date: date,
-                diagnostic: text(&cells.diagnostic),
-                indication: text(&cells.indication),
+                diagnostic: line(&cells.diagnostic),
+                indication: line(&cells.indication),
                 device: text(&cells.device),
                 drug: text(&cells.drug_group),
             },

@@ -1,8 +1,8 @@
 {
   "feature": "diagnostic-cdx",
   "live_check": "public",
-  "story": "A lab director scripts over FDA companion diagnostic rows for one drug: each row opens with the date, diagnostic, indication, device and drug that both FDA tables share, ahead of FDA's own cells whose headers differ by table, so one key per field reads every row of both tables.",
-  "verified": "Replays the FDA companion diagnostic page recorded for diagnostic/cdx-group-join on 2026-11-13 (see diagnostic/fda-companion-dates for its live check). TAGRISSO's NDA208065 has 15 rows, 10 from the individual table and 5 from the group table; July 2026 holds individual row 30 and group row 0. dx-lab-director round 4 (2026-11-15) keyed on the individual table's cell header and lost the 5 group rows. The July byte limits are where each row's cells start (701 and 2,918, j41158), so drug, the last shared field, must come before them. The same limits hold over MCP: the local step reads structured content, the hosted step the text copy (0972).",
+  "story": "A lab director scripts over FDA companion diagnostic rows for one drug: each row opens with the date, diagnostic, indication, device and drug that both FDA tables share, ahead of FDA's own cells whose headers differ by table, so one key per field reads every row of both tables, and a test FDA lists in both tables reads as one name.",
+  "verified": "Replays the FDA companion diagnostic page recorded for diagnostic/cdx-group-join on 2026-11-13 (see diagnostic/fda-companion-dates for its live check). TAGRISSO's NDA208065 has 15 rows, 10 from the individual table and 5 from the group table; July 2026 holds individual row 30 and group row 0. dx-lab-director round 4 (2026-11-15) keyed on the individual table's cell header and lost the 5 group rows. The July byte limits are where each row's cells start (701 and 2,918, j41158), so drug, the last shared field, must come before them. FDA breaks the group table's names across lines (cobas, FoundationOne CDx, FoundationOne Liquid CDx), so before 0994 TAGRISSO's 15 rows spelled its 7 tests 10 ways; `diagnostic` and `indication` now read as one line, so the 15 names are exactly the 7 tests. The same limits hold over MCP: the local step reads structured content, the hosted step the text copy (0972).",
   "replay": "diagnostic/cdx-group-join",
   "steps": [
     {
@@ -35,7 +35,23 @@
       "expect": {
         "/page/total": 15,
         "/result/items/*/kind": {"includes": "group"},
-        "/result/items/*/diagnostic": {"count": 15},
+        "/result/items/*/diagnostic": [
+          "Guardant360® Liquid CDx (Guardant Health, Inc.)",
+          "cobas EGFR Mutation Test v2 (Roche Molecular Systems, Inc.)",
+          "cobas EGFR Mutation Test v2 (Roche Molecular Systems, Inc.)",
+          "cobas EGFR Mutation Test v2 (Roche Molecular Systems, Inc.)",
+          "cobas EGFR Mutation Test v2 (Roche Molecular Systems, Inc.)",
+          "cobas EGFR Mutation Test v2 (Roche Molecular Systems, Inc.)",
+          "FoundationOne CDx (Foundation Medicine, Inc.)",
+          "FoundationOne CDx (Foundation Medicine, Inc.)",
+          "FoundationOne Liquid CDx (Foundation Medicine, Inc.)",
+          "Guardant360 CDx (Guardant Health, Inc.)",
+          "cobas EGFR Mutation Test v2 (Roche Molecular Systems, Inc.)",
+          "FoundationOne CDx (Foundation Medicine, Inc.)",
+          "FoundationOne Liquid CDx (Foundation Medicine, Inc.)",
+          "ONCO/Reveal Dx Lung & Colon Cancer Assay (O/RDx-LCCA) (Pillar Biosciences, Inc.)",
+          "MI Cancer Seek (Caris Life Sciences)"
+        ],
         "/result/items/*/drug": {"count": 15},
         "/result/items/*/device": {"count": 15},
         "/result/items/*/row_date": {"count": 15}
