@@ -201,7 +201,10 @@ pub use drug::{
 pub use query::{CheckedQuery, QueryInvalid};
 
 mod saved;
-pub use saved::{Saved, SavedList, SavedListItem, SavedRef, SavedSearch};
+pub use saved::{
+    ChangeReport, ChangeSnapshot, ChangeState, Saved, SavedList, SavedListItem, SavedRef,
+    SavedSearch, SavedSnapshot, SavedSnapshotRow, SavedSnapshotSource,
+};
 
 mod adverse_event;
 pub use adverse_event::{

@@ -16,6 +16,7 @@ The schema release check holds `biomcp.saved-*` schemas to additive-only changes
 
 - Proof: a schema-release-check test shows a non-additive change to a `biomcp.saved-*` schema fails and an added optional field passes.
 - Proof: the three case steps above fail on the base commit.
+- Proof (from 0982's review, 2026-11-15): `saved changed` compares only the row-format digest, not the reply schema ID, so an envelope-only major (such as 0849's 137-schema bump) does not rebaseline every saved search (`crates/biomcp/src/command/recheck.rs:177-194`); a trial shows a schema-ID-only change reports `changed`, not `rebaselined`.
 
 ## Starts from
 

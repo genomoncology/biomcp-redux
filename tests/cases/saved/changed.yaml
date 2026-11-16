@@ -1,0 +1,93 @@
+{
+  "live_check": "public",
+  "feature": "saved-work",
+  "story": "A caller saves a uveal melanoma phase 3 trial search, checks it once and learns its 22 matching trials walked across three pages, asks again inside the hour and is told it is not due, sees the kept snapshot in the export, and is refused a check of a name no search holds.",
+  "replay": "saved/changed/day1",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--phase",
+        "3",
+        "--save-as",
+        "uveal-phase3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 22
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "changed",
+        "uveal-phase3"
+      ],
+      "expect": {
+        "/schema": "biomcp.saved/1",
+        "/result/changes/0/search": "uveal-phase3",
+        "/result/changes/0/state": "first",
+        "/result/changes/0/to/total": 22,
+        "/result/changes/0": {
+          "omits": [
+            "from",
+            "new",
+            "gone",
+            "changed"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "changed"
+      ],
+      "expect": {
+        "/result/changes/0/state": "not_due",
+        "/result/changes/0/to/total": 22
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "show",
+        "uveal-phase3"
+      ],
+      "expect": {
+        "/result": {
+          "omits": [
+            "snapshots"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "export"
+      ],
+      "expect": {
+        "/result/snapshots/0/total": 22,
+        "/result/snapshots/0/complete": true,
+        "/result/snapshots/0/rows/0/ref/id": "NCT07804186",
+        "/result/snapshots/0/rows/21/ref/id": "NCT01974752"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "changed",
+        "no-such-search"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "NAME"
+      }
+    }
+  ]
+}

@@ -17,6 +17,13 @@ pub const MIGRATIONS: &[&str] = &[
     "CREATE TABLE saved_list_item(list TEXT NOT NULL, entity TEXT NOT NULL, id TEXT NOT NULL, \
      source TEXT NOT NULL DEFAULT '', note TEXT, added INTEGER NOT NULL, \
      PRIMARY KEY(list, entity, id, source))",
+    "CREATE TABLE saved_snapshot(id TEXT PRIMARY KEY, search TEXT NOT NULL, taken INTEGER NOT NULL, \
+     total INTEGER NOT NULL, complete INTEGER NOT NULL, row_schema TEXT NOT NULL, \
+     sources TEXT NOT NULL DEFAULT '[]')",
+    "CREATE INDEX saved_snapshot_search ON saved_snapshot(search, taken)",
+    "CREATE TABLE saved_snapshot_row(snapshot TEXT NOT NULL, position INTEGER NOT NULL, \
+     entity TEXT NOT NULL, id TEXT NOT NULL, source TEXT NOT NULL DEFAULT '', \
+     fingerprint TEXT NOT NULL, PRIMARY KEY(snapshot, position))",
 ];
 
 /// Whether one migration statement only adds: a table, an index, or a column with a default.

@@ -1,11 +1,13 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod context;
 mod encoding;
+mod recheck;
 mod reply;
 mod saved;
 mod sections;
 pub(crate) use context::Context;
 pub(crate) use encoding::{Encoding, Outcome};
+pub(crate) use recheck::recheck;
 mod hosted_keys;
 pub(crate) mod hosted_use;
 pub(crate) use hosted_use::{DeclaredUse, EXCLUDE_HEADER};
