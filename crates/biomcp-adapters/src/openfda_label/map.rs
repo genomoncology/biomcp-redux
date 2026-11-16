@@ -165,15 +165,10 @@ impl Record {
     pub fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
         self.0.card(retrieved)
     }
-    /// The label's recent major changes section, each native element as admitted text.
-    pub fn recent_major_changes(&self) -> Box<[Text]> {
-        self.0
-            .parts("recent_major_changes")
-            .iter()
-            .copied()
-            .flatten()
-            .filter_map(|part| crate::native_text::admit(part).ok())
-            .collect()
+    /// The label's recent major changes section, each native element as admitted text, with a
+    /// problem for each element that cannot be admitted.
+    pub fn recent_major_changes(&self) -> (Box<[Text]>, Vec<biomcp_types::Problem>) {
+        self.0.recent_major_changes()
     }
     /// Whether a supported heading has native text.
     pub fn has_heading(&self, heading: &str) -> bool {

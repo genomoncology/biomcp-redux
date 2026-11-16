@@ -3339,7 +3339,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `targets`: Source target and mechanism relations.
 - `indications`: Source indication wording.
 - `civic`: Source CIViC therapy evidence and profile context.
-- `label`: One exact source label heading.
+- `label`: One exact source label heading; label replies also name the application numbers and recent major changes.
 - `approvals`: Source application and product history rows.
 - `regulatory`: Source-scoped regulator events.
 - `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.

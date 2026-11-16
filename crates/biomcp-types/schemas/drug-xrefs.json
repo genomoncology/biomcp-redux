@@ -318,6 +318,13 @@
     "Reply_DrugHeader": {
       "description": "One source candidate, without authorization, targets, label text or interactions.",
       "properties": {
+        "application_numbers": {
+          "description": "The label's FDA application numbers, such as NDA216340, as openFDA states them; openFDA labels only.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
         "effective_date": {
           "anyOf": [
             {
@@ -652,7 +659,7 @@
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
-        " One exact native label heading.",
+        " One exact native label heading; label replies also name the application numbers and recent major changes.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
         " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.",
