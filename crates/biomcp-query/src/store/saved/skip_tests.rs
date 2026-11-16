@@ -35,7 +35,10 @@ fn source_picks_an_item() {
         Some(super::SavedError::Ambiguous),
         "one ID and entity under two sources needs a source"
     );
-    let civic = store.note(on(Some("civic")), &text("v600e")).unwrap();
+    let civic = store
+        .note(on(Some("civic")), &text("v600e"))
+        .unwrap()
+        .unwrap();
     assert_eq!(
         civic.target.item.and_then(|item| item.source),
         Some(Source::Civic)
@@ -53,7 +56,7 @@ fn unknown_stored_values_are_skipped() {
         entity: None,
         source: Some("civic"),
     };
-    store.note(civic, &text("v600e")).unwrap();
+    store.note(civic, &text("v600e")).unwrap().unwrap();
     // A newer 1.x build may store a note kind or item source this build does not know.
     store
         .connection
@@ -133,4 +136,55 @@ fn unknown_snapshot_row_sources_are_skipped() {
         }],
         "a snapshot row from a newer build is skipped"
     );
+    assert!(
+        !kept[0].complete,
+        "a snapshot missing a row it cannot read is incomplete"
+    );
+    // A rolling deploy runs mixed builds: the unreadable row is not reported as gone, nor
+    // as new when the next check reads it again.
+    let report = store
+        .record_check(&search, &check(&[("A", "1"), ("B", "1")], "s/1", true))
+        .unwrap();
+    assert_eq!(report.state, biomcp_types::ChangeState::Incomplete);
+    assert!(report.new.is_empty() && report.gone.is_empty());
+    store
+        .connection
+        .execute(
+            "UPDATE saved_snapshot SET sources='[{\"source\":\"future-source\"}]'",
+            [],
+        )
+        .unwrap();
+    let mut skipped = Vec::new();
+    let kept = store.snapshots(search.id.as_str(), &mut skipped).unwrap();
+    assert!(
+        kept.iter().all(|snapshot| !snapshot.complete) && skipped.len() == 3,
+        "a snapshot missing a source it cannot read is incomplete: {skipped:?}"
+    );
+}
+
+#[test]
+fn a_note_on_an_unreadable_item_answers_its_skip() {
+    let folder = tempfile::tempdir().unwrap();
+    let mut store = sourced(&folder.path().join("saved.sqlite"));
+    store
+        .connection
+        .execute(
+            "UPDATE saved_list_item SET source='future-source' WHERE source='uniprot'",
+            [],
+        )
+        .unwrap();
+    let on = |source| super::NoteTarget::Item {
+        list: "genes",
+        id: "BRAF",
+        entity: None,
+        source,
+    };
+    let written = store.note(on(Some("future-source")), &text("x")).unwrap();
+    let skip = written.expect_err("the item's stored source is unreadable");
+    assert_eq!(
+        (skip.name, &*skip.field, skip.value),
+        (Some(text("genes")), "source", text("future-source")),
+        "the note is kept and its reply names what this build cannot read"
+    );
+    assert!(store.note(on(Some("civic")), &text("x")).unwrap().is_ok());
 }

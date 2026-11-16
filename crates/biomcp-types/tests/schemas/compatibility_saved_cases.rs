@@ -117,3 +117,28 @@ fn saved_schemas_take_open_list_growth_and_reviewed_pattern_widenings() {
         "saved schemas take no other reviewed exception"
     );
 }
+
+#[test]
+fn saved_schemas_take_reviewed_text_length_raises() {
+    let schema = |limit: u64| {
+        json!({"$id":"biomcp.saved-example/1", "type":"object", "properties":{
+            "text":{"type":"string", "maxLength":limit}
+        }})
+    };
+    let old = schema(2000);
+    let raised = schema(4000);
+    let reply = |reviews: Value| {
+        let reviews: Reviews = serde_json::from_value(reviews).unwrap_or_default();
+        check_reviewed(&old, &raised, ContractKind::Reply, &reviews).is_ok()
+    };
+    let review = |path: &str, to: u64| {
+        json!({"length_raises":[{"schema":"biomcp.saved-example/1", "path":path,
+            "from":2000, "to":to, "review":"BioData raised the shared note text limit."}]})
+    };
+    assert!(!reply(json!({})), "an unreviewed raise is not additive");
+    assert!(reply(review("/text", 4000)), "a reviewed raise passes");
+    assert!(!reply(review("/other", 4000)), "the review binds its path");
+    assert!(!reply(review("/text", 3000)), "the review binds its limits");
+    let lowered = check_reviewed(&raised, &old, ContractKind::Reply, &Reviews::default());
+    assert!(lowered.is_err(), "a lowered limit still fails");
+}

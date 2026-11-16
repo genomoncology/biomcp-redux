@@ -48,6 +48,8 @@ pub(super) struct ToolCall {
     /// The hosted whole-call deadline, which a slow source's declared budget may lengthen;
     /// plain HTTP has none, and its wait ends at the command budget.
     pub(super) scope: Option<Cancellation>,
+    /// Hosted mode's checked account header.
+    pub(super) account: Option<String>,
 }
 
 impl Calls {
@@ -64,6 +66,7 @@ impl Calls {
             excluded,
             declared_use,
             scope,
+            account,
         } = work;
         let budget = crate::config::budget(&service.settings);
         let patience = service
@@ -105,6 +108,7 @@ impl Calls {
                     excluded: Some(&excluded),
                     declared_use,
                     scope: worker_scope.as_ref(),
+                    account: account.as_deref(),
                 };
                 let outcome = worker::execute(|| {
                     research::execute(&call, context, true).map(|outcome| {
@@ -384,7 +388,8 @@ mod tests {
             &service.settings,
         );
         let tools = crate::mcp::typed::tools(context, false).unwrap();
-        assert_eq!(tools.len(), 17);
+        // The 13 entity tools, saved, help, biomcp, search and fetch.
+        assert_eq!(tools.len(), 18);
         let log = |name: &serde_json::Value| {
             super::super::logging::line(&json!({"name":name}), Duration::ZERO, 200, None)
         };
@@ -446,6 +451,7 @@ mod tests {
                 excluded: Default::default(),
                 declared_use: Some(crate::command::DeclaredUse::Academic),
                 scope: Some(Cancellation::with_budget(DEADLOCK_GUARD)),
+                account: None,
             },
             None,
         );

@@ -318,6 +318,8 @@ fn snapshot(
             },
         )?;
     let taken = unsigned(taken)?;
+    // A snapshot missing a row or source this build cannot read no longer holds every match.
+    let readable = skipped.len();
     let name: Option<String> = connection
         .query_row(
             "SELECT name FROM saved_search WHERE id=?1",
@@ -363,6 +365,7 @@ fn snapshot(
         });
     }
     let sources = read_sources(&sources, |value| skip(&id, value))?;
+    let complete = complete && skipped.len() == readable;
     Ok(SavedSnapshot {
         id: text(&id)?,
         search: text(&search)?,

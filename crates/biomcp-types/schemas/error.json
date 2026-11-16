@@ -128,6 +128,7 @@
         "a saved search or list already has this name; choose another name or delete it with biomcp saved delete NAME",
         "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",
         "no saved note has this ID; biomcp saved show lists the notes",
+        "saved work in hosted mode needs a signed-in account; sign in to save searches, lists and notes",
         "add the source key in your account settings",
         "unknown command; use the suggested help command",
         "local configuration, cache or recording failed",

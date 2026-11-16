@@ -82,7 +82,7 @@ search_pgx search_phenotype search_protein search_study search_trial search_vari
 variant_assertions variant_normalize variant_population variant_recurrence
 """.split())
 REUSED_AS_ACTION = {"author_papers"}  # an old command name that is also a new action name
-SHARED_TOOLS = {"biomcp", "help", "search", "fetch"}
+SHARED_TOOLS = {"biomcp", "help", "search", "fetch", "saved"}
 ENTITY_TOOLS = {"gene", "variant", "disease", "drug", "trial", "article", "protein", "pathway", "phenotype",
                 "adverse_event", "diagnostic", "cell_line", "study"}
 TABLE = re.compile(r"<!-- retired-tools:start -->\n(.*?)<!-- retired-tools:end -->\n", re.S)
@@ -232,7 +232,7 @@ def validate_examples(root, executable):
     """Each example must pass its tool's input schema, as 0758 requires of tool descriptions."""
     tools = catalog(executable)
     if set(tools) != ENTITY_TOOLS | SHARED_TOOLS:
-        raise ValueError(f"typed server offers {sorted(tools)}, not the 17 entity and shared tools")
+        raise ValueError(f"typed server offers {sorted(tools)}, not the 13 entity tools and the shared tools")
     seen = set()
     for where, tool, call in example_calls(root):
         schema = tools[tool]["inputSchema"]

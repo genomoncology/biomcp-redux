@@ -1,7 +1,8 @@
 //! The one reviewed path that re-reads a saved search from its source for `saved changed`
 //! (sdlc/planning/saved-work.md, Change detection). It never reads the reply cache: every
-//! page runs fresh. The once-an-hour floor in the saved file decides whether it runs at all,
-//! and only the command line reaches it, so hosted mode's `--fresh` refusal is unchanged.
+//! page runs fresh. The once-an-hour floor in the saved file decides whether it runs at all.
+//! The command line and the typed `saved` tool reach it; a caller's own `--fresh` stays
+//! refused in hosted mode, since only this floor-bound path reads fresh.
 use super::{Encoding, Outcome};
 use biodata::Text;
 use biomcp_query::Action;
@@ -20,6 +21,7 @@ pub(crate) fn recheck(
     process: &crate::grammar::Globals,
     words: &[Box<str>],
     encoding: Encoding,
+    context: Option<super::Context<'_>>,
 ) -> io::Result<Result<NewSnapshot, Outcome>> {
     let args: Vec<OsString> = words.iter().map(|word| OsString::from(&**word)).collect();
     let mut parsed = match super::parse_arguments(root, &args, encoding)? {
@@ -38,7 +40,8 @@ pub(crate) fn recheck(
     // Every page reads the source, and whole rows are fingerprinted.
     globals.fresh = true;
     globals.fields.clear();
-    let transport = match super::transport::fetch(&globals, settings, None)? {
+    // An MCP call re-reads through its own transport: its keys, left-out sources and deadline.
+    let transport = match super::transport::fetch(&globals, settings, context)? {
         Ok(transport) => transport,
         Err(error) => return Ok(Err(super::local::startup(error, encoding)?)),
     };

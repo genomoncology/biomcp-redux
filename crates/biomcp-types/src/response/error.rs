@@ -92,6 +92,7 @@ singleton! {
  delete NAME",
  SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",
  SavedNoteUnknown => "no saved note has this ID; biomcp saved show lists the notes",
+ SavedAccount => "saved work in hosted mode needs a signed-in account; sign in to save searches, lists and notes",
  HostedKey => "add the source key in your account settings",
  UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",

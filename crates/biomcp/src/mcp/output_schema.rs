@@ -23,6 +23,24 @@ pub(super) fn for_commands(paths: &[(&str, &str, &str)]) -> io::Result<Value> {
     }
     Ok(json!({"$schema":super::protocol::SCHEMA_DIALECT,"type":"object","anyOf":branches}))
 }
+/// The `saved` tool's reply: saved work, or the reply of a search it ran that failed.
+pub(super) fn for_saved() -> io::Result<Value> {
+    let searches = crate::grammar::command_paths()
+        .into_iter()
+        .filter(|(verb, ..)| *verb == "search")
+        .collect::<Vec<_>>();
+    let mut schema = for_commands(&searches)?;
+    if let Some(ids) = schema
+        .pointer_mut("/anyOf/0/properties/schema/enum")
+        .and_then(Value::as_array_mut)
+    {
+        ids.insert(
+            0,
+            json!(<biomcp_types::Saved as biomcp_types::ResponseBody>::SCHEMA),
+        );
+    }
+    Ok(schema)
+}
 fn envelope(ids: BTreeSet<String>) -> io::Result<Value> {
     let health = canonical(<biomcp_types::Health as biomcp_types::ResponseBody>::SCHEMA)?;
     let mut envelope = shape(&health)?;

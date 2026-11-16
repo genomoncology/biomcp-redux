@@ -7,14 +7,31 @@
 use crate::command::{Encoding, Outcome};
 use crate::exit::Status as Exit;
 use biodata::Text;
-use biomcp_query::store::saved::{
-    self as saved_store, NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore,
-};
+use biomcp_query::store::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
 use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Saved, Source, Status, UsageArguments, UsageError,
 };
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use std::{ffi::OsString, io, path::Path};
+
+/// Where a saved command reads and writes, and how it answers.
+#[derive(Clone, Copy)]
+pub(crate) struct At<'a> {
+    pub(crate) encoding: Encoding,
+    /// The saved file; none is the data folder's, which the command line and local MCP use.
+    pub(crate) file: Option<&'a Path>,
+    /// The MCP call whose transport a saved search and a re-check run through.
+    pub(crate) context: Option<crate::command::Context<'a>>,
+}
+impl At<'_> {
+    pub(crate) fn cli(encoding: Encoding) -> Self {
+        Self {
+            encoding,
+            file: None,
+            context: None,
+        }
+    }
+}
 
 pub(crate) const SAVE_AS: &str = "--save-as";
 /// Process options that say how to run, not what to search; a saved search keeps none.
@@ -119,7 +136,7 @@ pub(crate) fn cli(
             args,
             &command_path(rest),
         )),
-        _ if saves => Some(save_search(root, settings, args)),
+        _ if saves => Some(save_search(root, settings, args, None)),
         _ => None,
     }
 }
@@ -185,16 +202,20 @@ fn kept_words(root: &clap::Command, args: &[OsString]) -> Option<Vec<String>> {
     Some(kept)
 }
 
-fn save_search(
+/// Run a search and save it under `--save-as NAME` when it succeeds. The command line answers
+/// with the search's reply; MCP, which has just read that page, with the saved search.
+pub(crate) fn save_search(
     root: &crate::grammar::Root,
     settings: &crate::config::Settings,
     args: &[OsString],
+    mcp: Option<At<'_>>,
 ) -> io::Result<Outcome> {
-    let fallback = Encoding::cli(root, settings, args);
+    let fallback = mcp.map_or_else(|| Encoding::cli(root, settings, args), |at| at.encoding);
     let Some((name, rest)) = split_save_as(args) else {
         return usage(fallback, UsageError::argument(SAVE_AS.into()));
     };
-    let encoding = Encoding::cli(root, settings, &rest);
+    let encoding = mcp.map_or_else(|| Encoding::cli(root, settings, &rest), |at| at.encoding);
+    let at = mcp.unwrap_or_else(|| At::cli(encoding));
     let Some(name) = checked_name(&name) else {
         return usage(encoding, UsageError::argument(SAVE_AS.into()));
     };
@@ -211,7 +232,7 @@ fn save_search(
     let Some(words) = kept_words(root, &rest) else {
         return usage(encoding, UsageError::arguments());
     };
-    let mut store = match open(encoding, true)? {
+    let mut store = match open(at, true)? {
         Ok(Some(store)) => store,
         Ok(None) => return failure(encoding, SavedError::Database, "--save-as"),
         Err(outcome) => return Ok(outcome),
@@ -219,7 +240,10 @@ fn save_search(
     if let Err(error) = store.check_search_name(name.as_str(), &words) {
         return failure(encoding, error, "--save-as");
     }
-    let outcome = crate::command::dispatch(root, settings, &rest)?;
+    let outcome = match at.context {
+        Some(context) => crate::command::tool(&rest, context)?,
+        None => crate::command::dispatch(root, settings, &rest)?,
+    };
     if !matches!(outcome.status, Exit::Success) {
         return Ok(outcome);
     }
@@ -229,6 +253,14 @@ fn save_search(
         request.schema(),
         &biomcp_query::store::saved::request_key(&request),
     ) {
+        Ok(search) if at.context.is_some() => reply(
+            encoding,
+            Ok(Saved {
+                searches: vec![search],
+                ..Saved::default()
+            }),
+            "--save-as",
+        ),
         Ok(_) => Ok(outcome),
         Err(error) => failure(encoding, error, "--save-as"),
     }
@@ -241,11 +273,13 @@ pub(crate) fn checked_name(name: &str) -> Option<Text> {
 }
 
 /// Open the saved file; a read of a missing file opens nothing and creates nothing.
-pub(crate) fn open(
-    encoding: Encoding,
-    create: bool,
-) -> io::Result<Result<Option<SavedStore>, Outcome>> {
-    let path = match crate::config::saved_path() {
+pub(crate) fn open(at: At<'_>, create: bool) -> io::Result<Result<Option<SavedStore>, Outcome>> {
+    let encoding = at.encoding;
+    let path = match at
+        .file
+        .map(Path::to_path_buf)
+        .map_or_else(crate::config::saved_path, |path| Ok(Some(path)))
+    {
         Ok(Some(path)) => path,
         Ok(None) => return failure(encoding, SavedError::Database, "").map(Err),
         Err(error) => {
@@ -287,6 +321,18 @@ fn run(
         Some(crate::grammar::Format::Md) => Encoding::Markdown,
         _ => Encoding::Json,
     };
+    verbs(root, settings, &globals, At::cli(encoding), &matches)
+}
+
+/// Run one parsed saved command where `at` says.
+pub(crate) fn verbs(
+    root: &crate::grammar::Root,
+    settings: &crate::config::Settings,
+    globals: &crate::grammar::Globals,
+    at: At<'_>,
+    matches: &ArgMatches,
+) -> io::Result<Outcome> {
+    let encoding = at.encoding;
     let Some((verb, matches)) = matches.subcommand() else {
         return usage(encoding, help_usage(UsageError::arguments()));
     };
@@ -296,13 +342,13 @@ fn run(
         .flatten()
         .map(String::as_str);
     let result = match verb {
-        "show" => match open(encoding, false)? {
+        "show" => match open(at, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) if name.is_some() => Err(SavedError::Unknown),
             Ok(None) => Ok(Saved::default()),
             Ok(Some(store)) => store.show(name),
         },
-        "export" => match open(encoding, false)? {
+        "export" => match open(at, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) => Ok(Saved::default()),
             Ok(Some(store)) => store.show(None).and_then(|mut saved| {
@@ -310,28 +356,25 @@ fn run(
                 Ok(saved)
             }),
         },
-        "changed" => return changed(root, settings, &globals, encoding, name),
+        "changed" => return crate::saved_changed::changed(root, settings, globals, at, name),
         "delete" if crate::saved_note::note_id(matches).is_some() => {
-            return crate::saved_note::delete(encoding, matches);
+            return crate::saved_note::delete(at, matches);
         }
-        "note" => return crate::saved_note::note(encoding, matches),
-        "delete" => match open(encoding, false)? {
+        "note" => return crate::saved_note::note(at, matches),
+        "delete" => match open(at, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) if name.is_some() => Err(SavedError::Unknown),
             Ok(None) => Ok(Saved::default()),
             Ok(Some(mut store)) => store.delete(name),
         },
-        "list" => return list(root, encoding, matches),
+        "list" => return list(root, at, matches),
         _ => return usage(encoding, help_usage(UsageError::arguments())),
     };
     reply(encoding, result, "NAME")
 }
 
-fn list(
-    root: &crate::grammar::Root,
-    encoding: Encoding,
-    matches: &ArgMatches,
-) -> io::Result<Outcome> {
+fn list(root: &crate::grammar::Root, at: At<'_>, matches: &ArgMatches) -> io::Result<Outcome> {
+    let encoding = at.encoding;
     let Some((verb, matches)) = matches.subcommand() else {
         return usage(encoding, help_usage(UsageError::arguments()));
     };
@@ -355,7 +398,7 @@ fn list(
         else {
             return usage(encoding, UsageError::argument("ID".into()));
         };
-        let result = match open(encoding, false)? {
+        let result = match open(at, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) => Err(SavedError::Unknown),
             Ok(Some(mut store)) => store.list_remove(name.as_str(), &ids),
@@ -366,79 +409,12 @@ fn list(
         Ok(items) => items,
         Err(error) => return usage(encoding, error),
     };
-    let result = match open(encoding, true)? {
+    let result = match open(at, true)? {
         Err(outcome) => return Ok(outcome),
         Ok(None) => Err(SavedError::Database),
         Ok(Some(mut store)) => store.list_add(&name, &items),
     };
     reply(encoding, result, "NAME")
-}
-
-/// Check saved searches for changes. A search checked within the hour answers `not_due`
-/// and runs nothing; a due one re-reads its source through the reviewed fresh path, keeps
-/// the new snapshot and reports against the one before it.
-fn changed(
-    root: &crate::grammar::Root,
-    settings: &crate::config::Settings,
-    globals: &crate::grammar::Globals,
-    encoding: Encoding,
-    name: Option<&str>,
-) -> io::Result<Outcome> {
-    let mut store = match open(encoding, false)? {
-        Err(outcome) => return Ok(outcome),
-        Ok(None) if name.is_some() => return failure(encoding, SavedError::Unknown, "NAME"),
-        Ok(None) => return reply(encoding, Ok(Saved::default()), "NAME"),
-        Ok(Some(store)) => store,
-    };
-    let searches = match store.searches(name) {
-        Ok(searches) => searches,
-        Err(error) => return failure(encoding, error, "NAME"),
-    };
-    let now = saved_store::now();
-    let mut due = Vec::new();
-    let mut changes = Vec::new();
-    let mut skipped = Vec::new();
-    for search in &searches {
-        let kept = match store.snapshots(search.id.as_str(), &mut skipped) {
-            Ok(kept) => kept,
-            Err(error) => return failure(encoding, error, "NAME"),
-        };
-        match saved_store::not_due(search, kept.first(), now) {
-            Some(report) => changes.push(report),
-            None => due.push((search, kept.into_iter().next())),
-        }
-    }
-    // A re-check reads the source; offline would read only the cache. Refuse before any runs.
-    if globals.offline && !due.is_empty() {
-        return usage(encoding, UsageError::argument("--offline".into()));
-    }
-    for (search, newest) in due {
-        let snapshot =
-            match crate::command::recheck(root, settings, globals, &search.args, encoding)? {
-                Ok(snapshot) => snapshot,
-                // One named search answers its own reply; among several, its failure is
-                // its report, so the others' changes are still shown.
-                Err(outcome) if name.is_some() => return Ok(outcome),
-                Err(_) => {
-                    changes.push(saved_store::failed(search, newest.as_ref(), now));
-                    continue;
-                }
-            };
-        match store.record_check(search, &snapshot) {
-            Ok(report) => changes.push(report),
-            Err(error) => return failure(encoding, error, "NAME"),
-        }
-    }
-    changes.sort_by_key(|report| report.search.as_str().to_lowercase());
-    reply(
-        encoding,
-        Ok(Saved {
-            changes,
-            skipped,
-            ..Saved::default()
-        }),
-        "NAME",
-    )
 }
 
 /// Check each ID the way `get ENTITY ID` would read it, before anything is written.

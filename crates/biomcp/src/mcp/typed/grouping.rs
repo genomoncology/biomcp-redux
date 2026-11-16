@@ -66,6 +66,9 @@ pub(super) fn catalog(
         .iter()
         .filter_map(|tool| entity(tool, &commands, output_schema, &excluded).transpose())
         .collect::<io::Result<Vec<_>>>()?;
+    if super::saved::offered(context.globals) {
+        tools.push(super::saved::tool(output_schema)?);
+    }
     tools.push(super::help::tool());
     tools.extend(super::super::protocol::tools(context.root, read_only)?);
     let (tool_limit, byte_limit) = crate::config::mcp_typed_budget(context.settings);

@@ -28,6 +28,9 @@ pub(crate) enum StartError {
 struct Caller {
     declared_use: Option<crate::command::DeclaredUse>,
     excluded: std::collections::BTreeSet<biomcp_types::Source>,
+    /// The account header the hosting service sets from its verified user; it names the
+    /// saved-work file and is never a path.
+    account: Option<String>,
 }
 struct Service {
     calls: Calls,
@@ -270,9 +273,23 @@ impl Service {
                 crate::command::EXCLUDE_HEADER
             )})
         })?;
+        let invalid =
+            || json!({"error":format!("Invalid {} header", crate::saved_mcp::ACCOUNT_HEADER)});
+        let account = match request
+            .one(crate::saved_mcp::ACCOUNT_HEADER)
+            .map_err(|_| invalid())?
+        {
+            None => None,
+            Some(value) => Some(
+                crate::saved_mcp::account(value)
+                    .ok_or_else(invalid)?
+                    .to_owned(),
+            ),
+        };
         Ok(Caller {
             declared_use: Some(declared_use),
             excluded,
+            account,
         })
     }
     fn catalog_keys(
@@ -329,6 +346,7 @@ impl Service {
             excluded: Some(&caller.excluded),
             declared_use: caller.declared_use,
             scope: scope.as_ref(),
+            account: caller.account.as_deref(),
         };
         let call = match self.parse_tool(&id, params, modern, context) {
             Ok(call) => call,
@@ -349,6 +367,7 @@ impl Service {
                 declared_use,
                 excluded: caller.excluded,
                 scope,
+                account: caller.account,
             },
             peer,
         );

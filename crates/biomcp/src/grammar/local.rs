@@ -21,6 +21,14 @@ pub(super) fn serve_command() -> Command {
                 .requires("hosted"),
         )
         .arg(
+            Arg::new("saved-folder")
+                .long("saved-folder")
+                .value_name("DIR")
+                .help("Keep each account's saved work in hosted mode under DIR, in the folder its account header names.")
+                .value_parser(clap::value_parser!(std::path::PathBuf))
+                .requires("hosted"),
+        )
+        .arg(
             Arg::new("http")
                 .long("http")
                 .help("Listen on an HTTP address; omit its value for the loopback default.")
@@ -216,6 +224,9 @@ pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> 
         .get_one::<crate::config::ToolMode>("tool-mode")
         .copied();
     globals.hosted = matches.get_flag("hosted");
+    globals.saved_folder = matches
+        .get_one::<std::path::PathBuf>("saved-folder")
+        .cloned();
     globals.http_max_calls = matches
         .get_one::<std::num::NonZeroUsize>("http_max_calls")
         .copied();

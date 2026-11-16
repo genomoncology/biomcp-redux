@@ -408,15 +408,18 @@ fn notes_are_content_addressed_and_limited() {
     let mut store = noted(&folder.path().join("saved.sqlite"));
     let first = store
         .note(NoteTarget::Named("GENES"), &text("watch"))
+        .unwrap()
         .unwrap();
     let again = store
         .note(NoteTarget::Named("genes"), &text("watch"))
+        .unwrap()
         .unwrap();
     assert_eq!(first, again, "the same note again changes nothing");
     assert_eq!(first.id.as_str().len(), 32, "16 bytes of the hash in hex");
     assert_eq!(first.target.kind, NoteTargetKind::List);
     let other = store
         .note(NoteTarget::Named("trials"), &text("watch"))
+        .unwrap()
         .unwrap();
     assert_ne!(other.id, first.id, "the target is part of the ID");
     assert_eq!(other.target.kind, NoteTargetKind::Search);
@@ -427,6 +430,7 @@ fn notes_are_content_addressed_and_limited() {
     );
     let gene = store
         .note(on_item("BRAF", Some("gene")), &text("v600e"))
+        .unwrap()
         .unwrap();
     assert_eq!(
         gene.target.item.as_ref().map(|r| r.entity.as_str()),
@@ -442,12 +446,14 @@ fn notes_are_content_addressed_and_limited() {
     );
     let project = store
         .note(NoteTarget::Project, &text("tumor board"))
+        .unwrap()
         .unwrap();
     assert_eq!(project.target.name, None);
     let longest = "n".repeat(NOTE_CHARS);
     store
         .note(NoteTarget::Project, &text(&longest))
-        .expect("a note at the limit is kept");
+        .expect("a note at the limit is kept")
+        .unwrap();
     assert_eq!(
         store
             .note(NoteTarget::Project, &text(&format!("{longest}n")))
@@ -468,15 +474,24 @@ fn notes_follow_their_targets() {
     let mut store = noted(&folder.path().join("saved.sqlite"));
     store
         .note(NoteTarget::Named("genes"), &text("watch"))
+        .unwrap()
         .unwrap();
     let search = store
         .note(NoteTarget::Named("trials"), &text("watch"))
+        .unwrap()
         .unwrap();
     let gene = store
         .note(on_item("BRAF", Some("gene")), &text("v600e"))
+        .unwrap()
         .unwrap();
-    store.note(on_item("KIT", None), &text("gist")).unwrap();
-    store.note(NoteTarget::Project, &text("board")).unwrap();
+    store
+        .note(on_item("KIT", None), &text("gist"))
+        .unwrap()
+        .unwrap();
+    store
+        .note(NoteTarget::Project, &text("board"))
+        .unwrap()
+        .unwrap();
     assert_eq!(store.show(None).unwrap().user_notes.len(), 5);
     assert_eq!(
         store.show(Some("genes")).unwrap().user_notes.len(),

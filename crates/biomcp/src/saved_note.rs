@@ -1,7 +1,7 @@
 //! `saved note` and `saved delete` on the command line (sdlc/planning/saved-work.md,
 //! Records: `biomcp.saved-note/1`). A note is user data, never instructions.
-use crate::command::{Encoding, Outcome};
-use crate::saved::{checked_name, help_usage, open, reply, usage};
+use crate::command::Outcome;
+use crate::saved::{At, checked_name, help_usage, open, reply, usage};
 use biodata::Text;
 use biomcp_query::store::saved::{NOTE_CHARS, NoteTarget, PROJECT, SavedError};
 use biomcp_types::{Saved, Source, UsageError};
@@ -81,18 +81,13 @@ pub(crate) fn delete_grammar(node: Command) -> Command {
 }
 
 /// Delete the note `--note ID` names and reply with it.
-pub(crate) fn delete(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outcome> {
+pub(crate) fn delete(at: At<'_>, matches: &ArgMatches) -> io::Result<Outcome> {
+    let encoding = at.encoding;
     let id = note_id(matches).unwrap_or_default();
-    let result = match open(encoding, false)? {
+    let result = match open(at, false)? {
         Err(outcome) => return Ok(outcome),
         Ok(None) => Err(SavedError::Unknown),
-        Ok(Some(mut store)) => store.delete_note(id).map(|note| match note {
-            Ok(note) => one_note(note),
-            Err(skip) => Saved {
-                skipped: vec![skip],
-                ..Saved::default()
-            },
-        }),
+        Ok(Some(mut store)) => store.delete_note(id).map(note_or_skip),
     };
     reply(encoding, result, "--note")
 }
@@ -113,7 +108,8 @@ fn one_note(note: biomcp_types::SavedNote) -> Saved {
 }
 
 /// Attach a note to a saved search or list, a list item, or the project.
-pub(crate) fn note(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outcome> {
+pub(crate) fn note(at: At<'_>, matches: &ArgMatches) -> io::Result<Outcome> {
+    let encoding = at.encoding;
     let words: Vec<&str> = ["target", "text"]
         .into_iter()
         .filter_map(|id| matches.get_one::<String>(id).map(String::as_str))
@@ -165,7 +161,7 @@ pub(crate) fn note(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outco
             None => NoteTarget::Named(name),
         },
     };
-    let result = match open(encoding, target_needs_file(target))? {
+    let result = match open(at, target_needs_file(target))? {
         Err(outcome) => return Ok(outcome),
         Ok(None) => Err(SavedError::Unknown),
         Ok(Some(mut store)) => store.note(target, &text),
@@ -177,7 +173,18 @@ pub(crate) fn note(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outco
         Err(SavedError::TooLong) => "TEXT",
         _ => "TARGET",
     };
-    reply(encoding, result.map(one_note), argument)
+    reply(encoding, result.map(note_or_skip), argument)
+}
+
+/// A written note, or its skip when this build cannot read its item's stored source.
+fn note_or_skip(note: Result<biomcp_types::SavedNote, biomcp_types::SavedSkipped>) -> Saved {
+    match note {
+        Ok(note) => one_note(note),
+        Err(skip) => Saved {
+            skipped: vec![skip],
+            ..Saved::default()
+        },
+    }
 }
 
 /// Only a note on the project may create the file; a named target must already exist.
