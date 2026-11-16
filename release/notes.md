@@ -37,15 +37,41 @@ Variant population replies add source-published `homozygote_count` for exome and
 
 BioMCP keeps saved searches, lists of records and notes in `saved.sqlite` in the data folder. A cache clean or an upgrade keeps them.
 
-- Add `--save-as NAME` to a search to save it. `saved list add NAME --entity ENTITY ID...` keeps IDs that `get ENTITY` accepts in a named list, and `saved list remove NAME ID...` takes them out.
-- `saved note TARGET TEXT` attaches a note to a saved search or list, to a list item with `--item ID`, or to the project with `--project`. Notes come back labelled as user data, never as instructions. A name holds up to 80 characters and a note up to 2,000.
+- Add `--save-as NAME` to a first-page search to save it. `saved list add NAME --entity ENTITY ID...` keeps IDs that `get ENTITY` accepts in a named list, and `saved list remove NAME ID...` takes them out.
+- `saved note TARGET TEXT` attaches a note to a saved search or list, to a list item with `--item ID`, or to the project with `--project default`. Notes come back labelled as user data, never as instructions. A name holds up to 80 characters and a note up to 2,000.
 - `saved show [NAME]` lists what is saved, `saved export` returns all of it as typed JSON, and `saved delete NAME` removes a search or list with its notes; `--note ID` removes one note and `--all` removes everything.
-- `saved changed [NAME]` reads each saved search again, at most once an hour, and reports the IDs it gained, lost or changed since its last check. Each search's state is `first`, `unchanged`, `changed`, `not_due`, `rebaselined` or `incomplete`.
+- `saved changed [NAME]` reads each saved search again, at most once an hour, and reports the IDs it gained, lost or changed since its last check. Each search's state is `first`, `unchanged`, `changed`, `not_due`, `rebaselined`, `incomplete` or `failed`. On a hosted server a re-check follows the same source policy as any hosted call.
 - In typed MCP mode the `saved` tool offers the actions `show`, `save_search`, `changed`, `list_add`, `list_remove`, `note`, `export` and `delete`, and a first search page with results offers a `save` next step.
 
 ## Drug names and variant spellings widen by default
 
-Every search that takes a drug name also searches the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search also widens a protein change to its other spellings, such as V600E, Val600Glu and p.V600E, and to the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. MAUDE and VAERS always search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads a stored copy of ChEMBL records instead of waiting on ChEMBL's live service.
+Every search that takes a drug name also searches the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search also widens a protein change to its other spellings, such as V600E, Val600Glu and p.V600E, and to the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. MAUDE and VAERS always search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads ChEMBL records from MyChem instead of waiting on ChEMBL's own service, and a slow lookup no longer makes a search partial.
+
+## Added commands, filters and sections
+
+Drugs and regulators:
+
+- PLACEHOLDER
+
+Devices and diagnostics:
+
+- PLACEHOLDER
+
+Adverse events:
+
+- PLACEHOLDER
+
+Trials:
+
+- PLACEHOLDER
+
+Genes, variants, diseases and phenotypes:
+
+- PLACEHOLDER
+
+Articles:
+
+- PLACEHOLDER
 
 ## Hosted use and source terms
 
