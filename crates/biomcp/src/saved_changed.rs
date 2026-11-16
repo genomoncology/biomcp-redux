@@ -46,17 +46,23 @@ pub(crate) fn changed(
         return usage(encoding, UsageError::argument("--offline".into()));
     }
     for (search, newest) in due {
-        let snapshot =
-            match crate::command::recheck(root, settings, globals, &search.args, encoding, at.context)? {
-                Ok(snapshot) => snapshot,
-                // One named search answers its own reply; among several, its failure is
-                // its report, so the others' changes are still shown.
-                Err(outcome) if name.is_some() => return Ok(outcome),
-                Err(_) => {
-                    changes.push(saved_store::failed(search, newest.as_ref(), now));
-                    continue;
-                }
-            };
+        let snapshot = match crate::command::recheck(
+            root,
+            settings,
+            globals,
+            &search.args,
+            encoding,
+            at.context,
+        )? {
+            Ok(snapshot) => snapshot,
+            // One named search answers its own reply; among several, its failure is
+            // its report, so the others' changes are still shown.
+            Err(outcome) if name.is_some() => return Ok(outcome),
+            Err(_) => {
+                changes.push(saved_store::failed(search, newest.as_ref(), now));
+                continue;
+            }
+        };
         match store.record_check(search, &snapshot) {
             Ok(report) => changes.push(report),
             Err(error) => return failure(encoding, error, "NAME"),
@@ -73,4 +79,3 @@ pub(crate) fn changed(
         "NAME",
     )
 }
-

@@ -35,7 +35,10 @@ fn source_picks_an_item() {
         Some(super::SavedError::Ambiguous),
         "one ID and entity under two sources needs a source"
     );
-    let civic = store.note(on(Some("civic")), &text("v600e")).unwrap().unwrap();
+    let civic = store
+        .note(on(Some("civic")), &text("v600e"))
+        .unwrap()
+        .unwrap();
     assert_eq!(
         civic.target.item.and_then(|item| item.source),
         Some(Source::Civic)

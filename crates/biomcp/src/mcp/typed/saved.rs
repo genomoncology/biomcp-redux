@@ -71,7 +71,10 @@ pub(super) fn tool(output_schema: bool) -> std::io::Result<Value> {
             "required":["action"]},
         "annotations":{"readOnlyHint":false,"destructiveHint":true,"openWorldHint":true}});
     if output_schema && let Some(fields) = tool.as_object_mut() {
-        fields.insert("outputSchema".into(), super::super::output_schema::for_saved()?);
+        fields.insert(
+            "outputSchema".into(),
+            super::super::output_schema::for_saved()?,
+        );
     }
     Ok(tool)
 }
@@ -92,7 +95,10 @@ pub(super) fn parse(
         Some(_) => return None,
     };
     let refuse = |argument: &str, valid: &[&str], catalog| {
-        let valid = valid.iter().map(|word| (*word).to_owned()).collect::<Vec<_>>();
+        let valid = valid
+            .iter()
+            .map(|word| (*word).to_owned())
+            .collect::<Vec<_>>();
         Some(Err(super::rejected(argument, &valid, None, catalog)))
     };
     let chosen = fields.get("action").and_then(Value::as_str);
@@ -152,8 +158,13 @@ fn search(
     {
         return Ok(None);
     }
-    let mut args = match super::parse(context, call, crate::config::ToolMode::Typed, false, read_only)
-    {
+    let mut args = match super::parse(
+        context,
+        call,
+        crate::config::ToolMode::Typed,
+        false,
+        read_only,
+    ) {
         Some(Ok(parsed)) => parsed.args,
         Some(Err(rejected)) => return Err(Box::new(rejected)),
         None => return Ok(None),
@@ -281,7 +292,10 @@ pub(super) fn step(
 ) -> Option<Value> {
     if !catalog.tools.iter().any(|tool| tool["name"] == NAME)
         || (context.globals.hosted
-            && context.account.and_then(crate::saved_mcp::account).is_none())
+            && context
+                .account
+                .and_then(crate::saved_mcp::account)
+                .is_none())
         || value.get("status") != Some(&json!("complete"))
     {
         return None;
@@ -316,6 +330,8 @@ pub(super) fn step(
         .take(biomcp_query::store::saved::NAME_CHARS)
         .collect::<String>();
     let name = name.trim();
-    Some(json!({"kind":"save","name":NAME,"arguments":{"action":"save_search",
-        "save_search":{"name":name,"call":call}}}))
+    Some(
+        json!({"kind":"save","name":NAME,"arguments":{"action":"save_search",
+        "save_search":{"name":name,"call":call}}}),
+    )
 }

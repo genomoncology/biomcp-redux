@@ -6358,14 +6358,17 @@ Options:
 
           [default: 1]
 
-      --http [<http>]
-          Listen on an HTTP address; omit its value for the loopback default.
+      --saved-folder <DIR>
+          Keep each account's saved work in hosted mode under DIR, in the folder its account header names.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --http [<http>]
+          Listen on an HTTP address; omit its value for the loopback default.
 
       --http_max_calls <http_max_calls>
           Limit tool calls in flight. Example: --http_max_calls 8.
@@ -6400,6 +6403,7 @@ Options are local to the command and independent of source selection.
 - `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single. Value form: string; example: --tool-mode single.
 - `--hosted`: Refuse host file saves, health details and store or key changes over MCP. Value form: boolean; example: --hosted.
 - `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string; example: --rate-share 1.
+- `--saved-folder`: Keep each account's saved work in hosted mode under DIR, in the folder its account header names. Value form: string; example: --saved-folder <saved-folder> (syntax; replace the placeholder with your retained value).
 - `--http`: Listen on an HTTP address; omit its value for the loopback default. Value form: string; example: --http 127.0.0.1:8080.
 - `--http_max_calls`: Limit tool calls in flight. Value form: string; example: --http_max_calls 8.
 - `--http_max_connections`: Limit open HTTP connections; must cover http_max_calls. Value form: string; example: --http_max_connections 64.

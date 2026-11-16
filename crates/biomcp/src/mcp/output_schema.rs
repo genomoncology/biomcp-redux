@@ -34,7 +34,10 @@ pub(super) fn for_saved() -> io::Result<Value> {
         .pointer_mut("/anyOf/0/properties/schema/enum")
         .and_then(Value::as_array_mut)
     {
-        ids.insert(0, json!(<biomcp_types::Saved as biomcp_types::ResponseBody>::SCHEMA));
+        ids.insert(
+            0,
+            json!(<biomcp_types::Saved as biomcp_types::ResponseBody>::SCHEMA),
+        );
     }
     Ok(schema)
 }

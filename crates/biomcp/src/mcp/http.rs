@@ -273,13 +273,18 @@ impl Service {
                 crate::command::EXCLUDE_HEADER
             )})
         })?;
-        let invalid = || json!({"error":format!("Invalid {} header", crate::saved_mcp::ACCOUNT_HEADER)});
+        let invalid =
+            || json!({"error":format!("Invalid {} header", crate::saved_mcp::ACCOUNT_HEADER)});
         let account = match request
             .one(crate::saved_mcp::ACCOUNT_HEADER)
             .map_err(|_| invalid())?
         {
             None => None,
-            Some(value) => Some(crate::saved_mcp::account(value).ok_or_else(invalid)?.to_owned()),
+            Some(value) => Some(
+                crate::saved_mcp::account(value)
+                    .ok_or_else(invalid)?
+                    .to_owned(),
+            ),
         };
         Ok(Caller {
             declared_use: Some(declared_use),

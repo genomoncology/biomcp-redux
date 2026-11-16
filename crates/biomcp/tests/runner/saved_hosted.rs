@@ -10,18 +10,28 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(super::pool_contract::SAVED_FOLDER.0, || {
-        hosted().map_err(Into::into)
-    })]
+    vec![transcript_trial(
+        super::pool_contract::SAVED_FOLDER.0,
+        || hosted().map_err(Into::into),
+    )]
 }
 
 const HEADER: &str = "x-biomcp-account";
 
 /// One tools/call, with these extra header lines; the HTTP status and the tool's JSON reply.
-fn call(server: &Server, name: &str, arguments: Value, headers: &str) -> Result<(u16, Value), String> {
-    let body = json!({"jsonrpc":"2.0","id":1,"method":"tools/call",
-        "params":{"name":name,"arguments":arguments}});
-    let (status, reply) = server.request_with_headers("POST", "/mcp", &body.to_string(), headers)?;
+fn call(
+    server: &Server,
+    name: &str,
+    arguments: Value,
+    headers: &str,
+) -> Result<(u16, Value), String> {
+    let body = super::mcp::request(
+        json!(1),
+        "tools/call",
+        json!({"name":name,"arguments":arguments}),
+    );
+    let (status, reply) =
+        server.request_with_headers("POST", "/mcp", &body.to_string(), headers)?;
     let value = reply
         .pointer("/result/structuredContent")
         .cloned()
@@ -53,21 +63,33 @@ fn hosted() -> Result<(), String> {
             folder.path().to_string_lossy().into_owned(),
         ],
     )?;
-    let list = json!({"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}});
+    let list = super::mcp::request(json!(1), "tools/list", json!({}));
     let (_, tools) = server.request("POST", "/mcp", &list.to_string())?;
     let offered = tools
         .pointer("/result/tools")
         .and_then(Value::as_array)
-        .is_some_and(|tools| tools.iter().any(|tool| tool.get("name") == Some(&json!("saved"))));
+        .is_some_and(|tools| {
+            tools
+                .iter()
+                .any(|tool| tool.get("name") == Some(&json!("saved")))
+        });
     if !offered {
-        return Err(format!("a hosted server with a saved-work folder offers saved: {tools}"));
+        return Err(format!(
+            "a hosted server with a saved-work folder offers saved: {tools}"
+        ));
     }
     let add = json!({"action":"list_add","list_add":{"name":"braf-genes","entity":"gene","ids":["BRAF"]}});
     let (_, refused) = call(&server, "saved", add.clone(), "")?;
     if refused.pointer("/error/code") != Some(&json!("usage.mcp_unavailable")) {
-        return Err(format!("without the account header saved is refused: {refused}"));
+        return Err(format!(
+            "without the account header saved is refused: {refused}"
+        ));
     }
-    if std::fs::read_dir(folder.path()).map_err(|e| e.to_string())?.next().is_some() {
+    if std::fs::read_dir(folder.path())
+        .map_err(|e| e.to_string())?
+        .next()
+        .is_some()
+    {
         return Err("a refused call writes nothing".into());
     }
     let (_, added) = call(&server, "saved", add, &account("alice"))?;

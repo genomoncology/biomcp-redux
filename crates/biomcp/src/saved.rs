@@ -7,9 +7,7 @@
 use crate::command::{Encoding, Outcome};
 use crate::exit::Status as Exit;
 use biodata::Text;
-use biomcp_query::store::saved::{
-    NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore,
-};
+use biomcp_query::store::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
 use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Saved, Source, Status, UsageArguments, UsageError,
 };
@@ -277,7 +275,11 @@ pub(crate) fn checked_name(name: &str) -> Option<Text> {
 /// Open the saved file; a read of a missing file opens nothing and creates nothing.
 pub(crate) fn open(at: At<'_>, create: bool) -> io::Result<Result<Option<SavedStore>, Outcome>> {
     let encoding = at.encoding;
-    let path = match at.file.map(Path::to_path_buf).map_or_else(crate::config::saved_path, |path| Ok(Some(path))) {
+    let path = match at
+        .file
+        .map(Path::to_path_buf)
+        .map_or_else(crate::config::saved_path, |path| Ok(Some(path)))
+    {
         Ok(Some(path)) => path,
         Ok(None) => return failure(encoding, SavedError::Database, "").map(Err),
         Err(error) => {
