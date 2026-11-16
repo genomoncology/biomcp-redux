@@ -205,11 +205,16 @@ fn table_notes(value: &Value, out: &mut String) {
 fn no_data(source: &Value, record: Option<&Value>, out: &mut String) {
     let asked = record
         .and_then(|record| record.get("id"))
-        .map(|id| match record.and_then(|r| r.get("namespace")).and_then(Value::as_str) {
-            Some(namespace) if namespace != "unknown" => {
-                format!(" for {}:{}", escape(namespace), scalar(id))
+        .map(|id| {
+            match record
+                .and_then(|r| r.get("namespace"))
+                .and_then(Value::as_str)
+            {
+                Some(namespace) if namespace != "unknown" => {
+                    format!(" for {}:{}", escape(namespace), scalar(id))
+                }
+                _ => format!(" for {}", scalar(id)),
             }
-            _ => format!(" for {}", scalar(id)),
         })
         .unwrap_or_default();
     out.push_str(&format!("{} returned no data{asked}.\n\n", scalar(source)));
