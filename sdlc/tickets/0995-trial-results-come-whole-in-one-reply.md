@@ -49,3 +49,13 @@ This is that round's biggest BioMCP finding, and it got worse since 2026-11-12.
 - `tests/cases/trial/results-flow.yaml` (NCT02987543) now finds outcomes, flow and baseline in one `--limit 20` page with continuation at 20; its ceiling is the measured 18,691 bytes plus 15 percent (j41651). The CheckMate 067 paging runner still pages its hundreds of records whole and passed unchanged.
 - j41651 (136166ad4): schema and docs regenerate with no diff, `make check-cheap` passes, trial cases pass except the old results-flow expectations, fixed above.
 - Gate j41654 passed on e234bf393 (branch merged with origin/main 0bffbf7ba): `make --keep-going landing-gate docs-check schema-release-check`.
+- Measured, j41662 (a34e08488), through the case runner's own output sizes (the bytes the other cases' ceilings use, source-terms text excluded), all at `--limit 100`. The MCP reply cap is 150,000 characters of the JSON value (`crates/biomcp/src/mcp/protocol.rs`); characters never exceed bytes.
+
+  | Trial (recorded results size) | `all` plain JSON | `all` MCP single tool | `all` typed `trial` tool | `results flow baseline` JSON / typed |
+  | --- | --- | --- | --- | --- |
+  | NCT01844505 (301 KB results, 150 sites) | 69,384 | 69,384 | 69,533 | 41,212 / 41,425 |
+  | NCT02578680 (217 KB, 0 sites) | 61,564 | 61,564 | 61,637 | 52,624 / 52,837 |
+  | NCT02296125 (202 KB, 170 sites) | 76,885 | 76,885 | 77,072 | 54,713 / 54,926 |
+  | NCT03734029 (92 KB, 208 sites) | 78,424 | 78,424 | 78,573 | 50,445 / 50,658 |
+
+  The largest is 78,573, about half the cap, so 40,000 stays. `results-outcomes-together` measured 23,965 bytes in CLI and MCP; its ceiling is now 27,560 (plus 15 percent).

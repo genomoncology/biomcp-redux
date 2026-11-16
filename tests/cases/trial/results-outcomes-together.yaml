@@ -3,11 +3,21 @@
   "feature": "trial-results",
   "story": "Asked for a trial's posted results, the agent gets every posted outcome measure in the first reply, each whole, instead of one 5 KB outcome a page.",
   "replay": "trial/results/NCT04853017",
-  "verified": "tests/replies/trial/results/README.md identifies the unchanged public NCT04853017 reply, recorded live in j41645. Its resultsSection.outcomeMeasuresModule has 5 outcome measures (1 primary, 4 secondary); the first three are each about 5 KB, so the old 8,000-byte page held one. Titles are copied from that reply.",
+  "verified": "tests/replies/trial/results/README.md identifies the unchanged public NCT04853017 reply, recorded live in j41645. Its resultsSection.outcomeMeasuresModule has 5 outcome measures (1 primary, 4 secondary); the first three are each about 5 KB, so the old 8,000-byte page held one. Titles are copied from that reply. The ceiling is the measured reply (23,965 bytes in CLI and MCP, j41662) plus 15 percent.",
   "steps": [
     {
-      "run": ["get", "trial", "NCT04853017", "results"],
-      "mcp": ["get", "trial", "NCT04853017", "results"],
+      "run": [
+        "get",
+        "trial",
+        "NCT04853017",
+        "results"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT04853017",
+        "results"
+      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/results/data/offset": 0,
@@ -20,7 +30,8 @@
         "/result/items/0/sections/results/data/items/4/record": "outcome",
         "/result/items/0/sections/results/data/items/4/data/title": "The Proportion of Participants With Biomarker Clearance by Biomarker Type",
         "/result/items/0/sections/results/data/items/5/record": "flow-group"
-      }
+      },
+      "max_bytes": 27560
     }
   ],
   "harvest": "biomed-agent-bench 0052 patient-navigator run 2026-11-16 (personas/patient-navigator/runs/2026-11-16/analysis.md:19,31): the agent paged ELI-002's posted results one outcome a page"
