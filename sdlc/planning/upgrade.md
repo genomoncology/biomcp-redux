@@ -121,6 +121,8 @@ The generated table below lists decided leaf commands and their dropped options 
 | `gene cspec document` | Deferred by ruling | — | — | [Variant ruling 8 defers variant cspec until a harvested question needs it. The 2026-10-26 PM ruling in ticket 0275 transfers this released document leaf from gene accounting.](slices/variant.md) |
 <!-- /upgrade-commands -->
 
+1.0 reuses the name `search gene --region` (ticket 0888) for a different option: it takes a GRCh38 interval and returns the ClinGen dosage regions that overlap it, never gene rows. The 0.9 gene-row filter of that name stays dropped.
+
 ## Configuration and keys
 
 Create `biomcp/config.json` under `$XDG_CONFIG_HOME`, or under `$HOME/.config` when that variable is absent. On Windows use `%APPDATA%/biomcp/config.json`. The configuration is JSON and rejects unknown fields. Move settings deliberately; do not copy a 0.9 configuration wholesale.
