@@ -377,13 +377,21 @@ impl Fetch {
         spec: &SourceSpec,
         caller: Duration,
     ) -> CommandDeadline<'_> {
+        self.command_deadline(self.source_budget(spec, caller))
+    }
+    /// Start independent legs that may call `spec`, with its declared budget as for
+    /// [`Self::source_command_deadline`].
+    pub fn source_deadline(&self, spec: &SourceSpec, caller: Duration) -> Deadline<'_> {
+        self.deadline(self.source_budget(spec, caller))
+    }
+    fn source_budget(&self, spec: &SourceSpec, caller: Duration) -> Duration {
         let budget = spec.budget_for(caller);
         if spec.command_budget.is_some()
             && let Some(end) = &self.call_end
         {
             end.lengthen(budget);
         }
-        self.command_deadline(budget)
+        budget
     }
     fn bounded_budget(&self, budget: Duration) -> Duration {
         self.call_end

@@ -102,7 +102,8 @@ fn complete_examples(commands: &mut [HelpCommand]) {
     }
 }
 
-pub(super) fn plain(text: &str) -> String {
+/// The plain words every help surface uses: "source" for native or provider, "exact" for literal.
+pub(crate) fn plain(text: &str) -> String {
     let mut out = String::new();
     for token in text.split_inclusive(|c: char| !c.is_alphanumeric() && c != '_') {
         let word = token.trim_end_matches(|c: char| !c.is_alphanumeric() && c != '_');

@@ -337,7 +337,7 @@ pub struct DrugNameResolution {
     /// Applied ambiguity ordering, emitted only from fixed nonempty rule text.
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub ranking: Box<str>,
-    /// Total exact source records, including the selected record.
+    /// Distinct exact-name source records found among the rows read, including the selected record; MyChem reads at most 250 rows.
     pub total: u64,
     /// Which record was chosen and why, with counts of the others by kind; label names only.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -9,13 +9,12 @@ pub(super) fn command_for(
     schema: &Value,
 ) -> Result<Command, super::ParseInvalid> {
     let mut command = Command::new(name)
-        .about(
+        .about(crate::help::plain(
             schema
                 .get("description")
                 .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_owned(),
-        )
+                .unwrap_or_default(),
+        ))
         .disable_help_flag(true)
         .disable_help_subcommand(true);
     for (name, property) in properties(schema)? {
@@ -30,13 +29,13 @@ pub(super) fn command_for(
             }
             continue;
         }
-        let mut argument = Arg::new(name.clone()).help(
+        // Terminal help speaks the same plain words as the reference details list.
+        let mut argument = Arg::new(name.clone()).help(crate::help::plain(
             property
                 .get("description")
                 .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_owned(),
-        );
+                .unwrap_or_default(),
+        ));
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
             argument = argument.index(position as usize + 1);
         } else {

@@ -2,6 +2,13 @@
 use biodata::PartialDate;
 use biomcp_fetch::{BadReply, Reply};
 use serde::{Deserialize, de::DeserializeOwned};
+/// openFDA's terms for its device, recall and report services, which grant no rights the
+/// publisher's third-party exceptions withhold.
+pub(crate) const TERMS: biomcp_fetch::Terms = biomcp_fetch::Terms {
+    name: "openFDA terms and license; third-party exceptions",
+    url: "https://open.fda.gov/terms/",
+    usage: biomcp_types::Use::Open,
+};
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub(crate) enum Envelope<T> {

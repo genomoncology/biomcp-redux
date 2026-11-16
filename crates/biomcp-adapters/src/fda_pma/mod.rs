@@ -1,7 +1,7 @@
 //! Canonical diagnostic publisher declaration; runtime dispatch belongs to later slices.
 use biomcp_fetch::{Input, Read};
-use biomcp_fetch::{SourceSpec, Terms};
-use biomcp_types::{Source, Use};
+use biomcp_fetch::SourceSpec;
+use biomcp_types::Source;
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -9,11 +9,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     user_agent: None,
     source: Source::FdaPma,
     base: "https://api.fda.gov/device/pma.json",
-    terms: Terms {
-        name: "openFDA terms and license; third-party exceptions",
-        url: "https://open.fda.gov/terms/",
-        usage: Use::Open,
-    },
+    terms: crate::openfda::TERMS,
     quota: &crate::quotas::OPENFDA,
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),

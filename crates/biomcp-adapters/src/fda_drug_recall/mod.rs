@@ -4,8 +4,8 @@ mod map;
 mod raw;
 use crate::raw::Field;
 use biodata::{DrugRecallNumber, Text};
-use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError, SourceSpec, Terms};
-use biomcp_types::{DrugRecallCard, DrugRecallHeader, DrugSearch, Problem, Source, Use};
+use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError, SourceSpec};
+use biomcp_types::{DrugRecallCard, DrugRecallHeader, DrugSearch, Problem, Source};
 pub(crate) use map::date;
 use std::time::Duration;
 /// Shared openFDA admission policy for recall and its exact enforcement lookup.
@@ -14,11 +14,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     user_agent: None,
     source: Source::FdaDrugRecall,
     base: "https://api.fda.gov",
-    terms: Terms {
-        name: "openFDA terms and license; third-party exceptions",
-        url: "https://open.fda.gov/terms/",
-        usage: Use::Open,
-    },
+    terms: crate::openfda::TERMS,
     quota: &crate::quotas::OPENFDA,
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
