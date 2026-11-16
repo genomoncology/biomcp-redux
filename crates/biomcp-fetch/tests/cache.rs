@@ -83,6 +83,8 @@ fn source(error: RequestError) -> biomcp_fetch::SourceError {
     error
 }
 
+#[path = "cache/ceiling.rs"]
+mod ceiling;
 #[path = "cache/credentials.rs"]
 mod credentials;
 #[path = "cache/freshness.rs"]

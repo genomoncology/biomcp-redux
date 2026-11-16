@@ -20,6 +20,8 @@ Open Targets indication replies also show bounded FDA application events found b
 
 On Unix, BioMCP keeps its cache and stored collections in `$XDG_CACHE_HOME/biomcp`, or `~/.cache/biomcp` when `XDG_CACHE_HOME` is unset. On Windows, it uses `%LOCALAPPDATA%/biomcp`. Choose a local disk for these folders. Sharing one cache between several processes through a Docker Desktop host bind mount or a network filesystem is unsupported. BioMCP uses SQLite's write-ahead log (WAL), which needs shared memory between processes on the same host; see the [storage caution](cautions.md#cache-and-store-storage).
 
+`reply_cache_max_bytes` caps the bytes of stored source replies, as a whole number of bytes; the default is [2 GiB](../crates/biomcp-fetch/src/lib.rs). The cap is checked each time a reply is stored: expired replies are removed first, then the oldest, and the reply just stored stays. A reply larger than the whole cap is answered but not stored. The default is a tenth of the 20 GiB disk an ECS Fargate task gets by default, which holds about 560 openFDA label name pages at the measured typical 3.6 MiB. Stored collections from `sync` are not counted.
+
 Set `BIOMCP_SQLITE_DIAGNOSTICS` to an existing file to opt into bounded SQLite operation and numeric error-code diagnostics (up to 4096 bytes); it does not include queries or patient data.
 
 ### Docker

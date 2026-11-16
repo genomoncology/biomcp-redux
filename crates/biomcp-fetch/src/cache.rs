@@ -39,6 +39,7 @@ pub(crate) struct Cache(
     pub(crate) std::path::PathBuf,
     Mutex<()>,
     RwLock<()>,
+    u64,
 );
 
 #[derive(Debug, serde::Serialize)]
@@ -126,7 +127,14 @@ impl Cache {
             path.to_owned(),
             Mutex::new(()),
             RwLock::new(()),
+            u64::MAX,
         ))
+    }
+
+    /// Keep stored reply bodies at or under `bytes`, enforced when a reply is written.
+    pub(crate) fn with_ceiling(mut self, bytes: u64) -> Self {
+        self.5 = bytes;
+        self
     }
 
     // try_lock avoids an unbounded Rust mutex wait. SQLite's own busy handler
@@ -298,7 +306,14 @@ impl Cache {
     ) -> Result<(), CacheError> {
         self.write_sql(deadline, |connection| {
             let tx = connection.unchecked_transaction().map_err(|error| db_error(error))?;
-            tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [now().saturating_sub(STALE_GRACE_SECONDS)]).map_err(|error| db_error(error))?;
+            let at = now();
+            tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [at.saturating_sub(STALE_GRACE_SECONDS)]).map_err(|error| db_error(error))?;
+            let ceiling = i64::try_from(self.5).unwrap_or(i64::MAX);
+            // A reply larger than the whole ceiling is served but never stored (1001).
+            if u64::try_from(entry.body.len()).unwrap_or(u64::MAX) > self.5 {
+                tx.execute("DELETE FROM reply WHERE key=?1", [key]).map_err(|error| db_error(error))?;
+                return tx.commit().map_err(|error| db_error(error));
+            }
             tx.execute(
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) \
         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
@@ -322,6 +337,16 @@ impl Cache {
                         .transpose()
                         .map_err(|_| CacheError::Encoding)?
                 ],
+            )
+            .map_err(|error| db_error(error))?;
+            // Past the ceiling, remove expired rows first, then the oldest, until the bodies fit.
+            // The row this write serves is never removed.
+            tx.execute(
+                "DELETE FROM reply WHERE key IN (SELECT key FROM (SELECT key, \
+                sum(length(body)) OVER (ORDER BY fresh_until>?2, fetched_at, key ROWS UNBOUNDED PRECEDING) \
+                - length(body) AS before FROM reply WHERE key<>?1) \
+                WHERE before < (SELECT sum(length(body)) FROM reply) - ?3)",
+                params![key, at, ceiling],
             )
             .map_err(|error| db_error(error))?;
             tx.commit().map_err(|error| db_error(error))
