@@ -18,12 +18,17 @@ use std::{
 };
 
 /// Transport SQLite schema version checked by other owners of the shared database.
-pub const VERSION: u32 = 5;
+pub const VERSION: u32 = 6;
 /// Compatible cache namespace used by callers when naming shared cache files.
 pub const CACHE_NAMESPACE_VERSION: u32 = 1;
 const OWNER: &str = "biomcp-fetch";
 /// Retain expired replies for stale and offline fallback before automatic pruning.
 pub const STALE_GRACE_SECONDS: i64 = 30 * 24 * 60 * 60;
+/// Default reply cache ceiling (1001). 2 GiB: about 560 typical 3.6 MiB openFDA label pages
+/// (median of twelve common names, 2026-11-16; 0.3 to 8.5 MiB), a tenth of a 20 GiB container disk.
+pub(crate) const REPLY_CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+/// Bytes each stored reply counts beyond its body and URL, so empty rows count too.
+const ROW_OVERHEAD: usize = 64;
 const OPEN_WAIT: Duration = Duration::from_secs(5);
 
 // One connection is shared by source legs. Its lock covers only SQLite work;
@@ -39,6 +44,7 @@ pub(crate) struct Cache(
     pub(crate) std::path::PathBuf,
     Mutex<()>,
     RwLock<()>,
+    u64,
 );
 
 #[derive(Debug, serde::Serialize)]
@@ -126,7 +132,14 @@ impl Cache {
             path.to_owned(),
             Mutex::new(()),
             RwLock::new(()),
+            u64::MAX,
         ))
+    }
+
+    /// Keep stored reply bodies at or under `bytes`, enforced when a reply is written.
+    pub(crate) fn with_ceiling(mut self, bytes: u64) -> Self {
+        self.5 = bytes;
+        self
     }
 
     // try_lock avoids an unbounded Rust mutex wait. SQLite's own busy handler
@@ -298,7 +311,18 @@ impl Cache {
     ) -> Result<(), CacheError> {
         self.write_sql(deadline, |connection| {
             let tx = connection.unchecked_transaction().map_err(|error| db_error(error))?;
-            tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [now().saturating_sub(STALE_GRACE_SECONDS)]).map_err(|error| db_error(error))?;
+            let at = now();
+            tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [at.saturating_sub(STALE_GRACE_SECONDS)]).map_err(|error| db_error(error))?;
+            // A row counts its body, its URL and 64 bytes of overhead, as the reply_bytes
+            // triggers do. Rust counts URL bytes and SQLite length() counts characters, so the
+            // stored total may be a few bytes under for non-ASCII URLs. A reply larger than the
+            // whole ceiling is served but never stored.
+            let ceiling = i64::try_from(self.5).unwrap_or(i64::MAX);
+            let size = entry.body.len().saturating_add(url.len()).saturating_add(ROW_OVERHEAD);
+            if i64::try_from(size).unwrap_or(i64::MAX) > ceiling {
+                tx.execute("DELETE FROM reply WHERE key=?1", [key]).map_err(|error| db_error(error))?;
+                return tx.commit().map_err(|error| db_error(error));
+            }
             tx.execute(
                 "INSERT INTO reply(key,source,url,status,content_type,body,fetched_at,fresh_until,content_range,pagination) \
         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)
@@ -324,6 +348,29 @@ impl Cache {
                 ],
             )
             .map_err(|error| db_error(error))?;
+            // The triggers keep the running total, so a write under the ceiling scans nothing.
+            let total: i64 = tx
+                .query_row("SELECT total FROM reply_bytes", [], |row| row.get(0))
+                .map_err(|error| db_error(error))?;
+            if total > ceiling {
+                // Remove expired rows first, then the oldest, down to nine tenths of the
+                // ceiling, so the next writes need no removal. The row just written stays.
+                let excess = total.saturating_sub(ceiling.saturating_sub(ceiling / 10));
+                tx.execute(
+                    "DELETE FROM reply WHERE key IN (SELECT key FROM (SELECT key, \
+                    sum(length(body)+length(url)+64) OVER (ORDER BY fresh_until>?2, fetched_at, key \
+                    ROWS UNBOUNDED PRECEDING) - (length(body)+length(url)+64) AS before \
+                    FROM reply WHERE key<>?1) WHERE before < ?3)",
+                    params![key, at, excess],
+                )
+                .map_err(|error| db_error(error))?;
+                // This path already scans, so reset the total from the rows to heal any drift.
+                tx.execute(
+                    "UPDATE reply_bytes SET total=(SELECT coalesce(sum(length(body)+length(url)+64),0) FROM reply)",
+                    [],
+                )
+                .map_err(|error| db_error(error))?;
+            }
             tx.commit().map_err(|error| db_error(error))
         })
     }

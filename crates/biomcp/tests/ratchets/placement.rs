@@ -328,6 +328,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
     (
+        "crates/biomcp-fetch/tests/cache/ceiling.rs",
+        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/cache/credentials.rs",
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),

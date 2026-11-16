@@ -16,6 +16,7 @@ mod cache_access;
 mod trial_cursor;
 pub use trial_cursor::TrialCursorKey;
 mod cleanup;
+mod config_default;
 mod sqlite_diagnostic;
 mod store_size;
 pub use cache_access::CacheAccess;
@@ -144,36 +145,12 @@ pub struct FetchConfig {
     pub sync_budget: Duration,
     /// Maximum automatically downloaded bundle bytes.
     pub auto_sync_max_bytes: u64,
+    /// Maximum stored reply body bytes, enforced when a reply is written.
+    pub reply_cache_max_bytes: u64,
     /// Days after a publisher dataset date before replies flag old data.
     pub source_data_max_age_days: u32,
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biomcp_types::Source, Duration>,
-}
-
-impl Default for FetchConfig {
-    fn default() -> Self {
-        Self {
-            rate_share: RateShare::default(),
-            source_pacing: SourcePacing::default(),
-            grpc_limits: grpc::Limits::default(),
-            observations: None,
-            cache_owners: Vec::new(),
-            disabled_sources: Default::default(),
-            disabled_uses: Default::default(),
-            secrets: Secrets::default(),
-            cache: None,
-            cache_predecessors: Vec::new(),
-            mode: Mode::default(),
-            replay_cache: None,
-            proxy: None,
-            network: Network::default(),
-            max_body: 8 * 1024 * 1024,
-            source_deadlines: BTreeMap::new(),
-            sync_budget: Duration::from_secs(120),
-            auto_sync_max_bytes: 32 * 1024 * 1024,
-            source_data_max_age_days: 365,
-        }
-    }
 }
 
 /// One blocking client shared across source legs.
@@ -269,6 +246,7 @@ impl Fetch {
                 .map(|path| cache::Cache::open_with_owners(path, &config.cache_owners))
                 .transpose()
                 .map_err(FetchError::Cache)?
+                .map(|cache| cache.with_ceiling(config.reply_cache_max_bytes))
                 .map(std::sync::Arc::new)
         };
         let clock =

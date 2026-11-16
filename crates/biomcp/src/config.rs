@@ -339,6 +339,9 @@ fn fetch_using(
             .as_ref()
             .and_then(|file| file.auto_sync_max_bytes)
             .unwrap_or_else(|| FetchConfig::default().auto_sync_max_bytes),
+        reply_cache_max_bytes: file
+            .and_then(|file| file.reply_cache_max_bytes)
+            .unwrap_or_else(|| FetchConfig::default().reply_cache_max_bytes),
         source_data_max_age_days: file
             .and_then(|file| file.source_data_max_age_days)
             .unwrap_or_else(|| FetchConfig::default().source_data_max_age_days),

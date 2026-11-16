@@ -99,10 +99,11 @@ fn version_error(error: rusqlite::Error) -> CacheError {
 const TRANSPORT_OWNER: SchemaOwner = SchemaOwner {
     name: OWNER,
     version: VERSION,
-    migratable_versions: &[1, 2, 3, 4],
+    migratable_versions: &[1, 2, 3, 4, 5],
     tables: &[
         "reply",
         "reply_fresh",
+        "reply_bytes",
         "bundle",
         "bundle_sync",
         "bundle_row",
@@ -206,6 +207,21 @@ fn create_reply_schema(tx: &Transaction<'_>, version: Option<u32>) -> Result<(),
         tx.execute("ALTER TABLE reply ADD COLUMN pagination TEXT", [])
             .map_err(|error| db_error(error))?;
     }
+    // Version 6 keeps the stored reply bytes in one row for the cache ceiling (1001).
+    // Each row counts length(body)+length(url)+64, matching ROW_OVERHEAD. Writes to reply must
+    // use insert-or-update or delete, never INSERT OR REPLACE: with recursive triggers off,
+    // the rows it replaces fire no delete trigger.
+    tx.execute_batch(
+        "CREATE TABLE IF NOT EXISTS reply_bytes (id INTEGER PRIMARY KEY CHECK (id=0), total INTEGER NOT NULL);
+        INSERT OR IGNORE INTO reply_bytes VALUES (0, (SELECT coalesce(sum(length(body)+length(url)+64),0) FROM reply));
+        CREATE TRIGGER IF NOT EXISTS reply_bytes_insert AFTER INSERT ON reply BEGIN
+            UPDATE reply_bytes SET total=total+length(NEW.body)+length(NEW.url)+64; END;
+        CREATE TRIGGER IF NOT EXISTS reply_bytes_delete AFTER DELETE ON reply BEGIN
+            UPDATE reply_bytes SET total=total-length(OLD.body)-length(OLD.url)-64; END;
+        CREATE TRIGGER IF NOT EXISTS reply_bytes_update AFTER UPDATE OF body,url ON reply BEGIN
+            UPDATE reply_bytes SET total=total-length(OLD.body)-length(OLD.url)+length(NEW.body)+length(NEW.url); END;",
+    )
+    .map_err(|error| db_error(error))?;
     Ok(())
 }
 

@@ -1,6 +1,7 @@
 # 1001 — hosted-reply-cache-has-a-byte-ceiling
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f83cdab79dc5c4cf303d3eb78d38983728b5a4ea
 
 Milestone: 7
 
@@ -40,3 +41,13 @@ So each distinct drug-name search can pin about 30 MiB for a day.
 ## Changes
 
 - Changes: the reply cache, a config key, docs and notes, tests.
+
+## Progress
+
+- 2026-11-16: measured live openFDA label name pages (`openfda.brand_name:"X" OR openfda.generic_name:"X"`, limit 50, the request `search_names` sends) for twelve common names: metformin 6.7 MB, atorvastatin 8.5, lisinopril 4.0, amoxicillin 3.6, ibuprofen 1.0, sertraline 8.4, warfarin 5.8, imatinib 8.1, pembrolizumab 2.1, osimertinib 0.3, trastuzumab 2.1, olaparib 0.3. Median 3.8 MB (3.6 MiB). A name with hundreds of labels reads several pages (metformin: 397 labels, 8 pages).
+- Default `reply_cache_max_bytes` = 2 GiB: a tenth of a 20 GiB container disk. It holds about 560 typical label pages, or 64 pages at the 32 MiB page bound. Recorded beside `REPLY_CACHE_MAX_BYTES` in `crates/biomcp-fetch/src/cache.rs` and in `docs/configuration.md`.
+- `Cache::write` now, after the existing 30-day prune and the insert, removes rows other than the one just written, expired first and then oldest by `fetched_at`, until the stored bodies fit. A reply larger than the whole ceiling is answered but not stored, and its older copy is removed. The limit counts reply bodies only, not `sync` collections. Applies to every server, not only hosted. Cache keys, credential scoping, rights checks and `store clean` are unchanged.
+- Tests: `crates/biomcp-fetch/tests/cache/ceiling.rs`.
+- Review fix (2026-11-16): the eviction scanned the reply table twice on every write. Transport schema version 6 adds `reply_bytes`, one row with the running total that insert, update and delete triggers keep; upgrading from 1-5 seeds it from one scan. A write reads the total and skips eviction under the cap; past it, eviction runs down to nine tenths of the cap so the next writes need no scan. Each row counts `length(body)+length(url)+64`, so not-found rows count and a cap of 0 stores nothing. `store clean` recognizes the new table as transport-owned.
+- Re-review (2026-11-16): an eviction now resets the running total from the rows, healing drift either way. Writes to `reply` must use insert-or-update or delete, never INSERT OR REPLACE, since the delete trigger doesn't fire for replaced rows with recursive triggers off. Rust counts URL bytes and SQLite `length()` counts characters, so the total may be a few bytes under for non-ASCII URLs. Moved `impl Default for FetchConfig` into `crates/biomcp-fetch/src/config_default.rs` to keep `lib.rs` under its 600-line limit after main grew it.
+- Known, not fixed: an offline rights rewrite goes through the normal write, so a cap lowered below the stored total can evict rows while offline.

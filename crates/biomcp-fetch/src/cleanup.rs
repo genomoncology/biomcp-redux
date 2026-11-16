@@ -116,6 +116,7 @@ fn transport_table(name: &str) -> bool {
     matches!(
         name,
         "reply"
+            | "reply_bytes"
             | "bundle"
             | "bundle_sync"
             | "bundle_row"
