@@ -36,3 +36,10 @@ The 0984 review (2026-11-16, accepted at 76ef8d4e8) found four gaps. None blocke
 ## Changes
 
 - Changes: saved store check recording, recheck policy, configuration docs, tests.
+
+## Progress
+
+- Floor (finding 2): `record_check` now reads `checked` inside its write transaction and, inside the floor, keeps nothing and returns the `not_due` report pointing at the kept snapshot. Parallel calls that both saw the search due may each still read the source once, but only the first snapshot is kept and the earlier one is never dropped; the documented per-account lock in the front end stops the parallel reads in hosted mode. Store test `a_second_check_inside_the_floor_keeps_nothing`; existing store tests make the search due again between checks with a `due` helper.
+- Re-check policy (finding 4): `recheck` applies `mcp_policy::refusal` to the stored words on any MCP call (hosted included) before setting its own `fresh`, and runs only a first search page, as `--save-as` accepts. Proof in the hosted runner (`saved_hosted.rs`, `stored_rechecks`): a row written straight into the file with `--fresh` answers `usage.mcp_unavailable`, a stored `get trial` answers a usage error, and neither keeps a snapshot.
+- Case folding (finding 3): chose the docs line, "DIR must be on a case-sensitive filesystem". It keeps the header format agreed in 0984 and the planned deployment (ECS on Linux) already meets it; lowercase-only would change the header contract for every front end.
+- Docs (finding 1): `docs/configuration.md` hosted saved paragraph now names the per-account lock, the conditional fetch and write-back with replay up to three times, the `saved.sqlite-journal` delete, the 0700 account folder, and the case-sensitive DIR.
