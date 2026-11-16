@@ -16,7 +16,9 @@
       "exit": 0,
       "expect": {
         "/status": "complete",
-        "/result/items/0/sections/expression/state": "empty"
+        "/result/items/0/sections/expression/state": "empty",
+        "/result/items/0/sections/expression/record/namespace": "Ensembl",
+        "/result/items/0/sections/expression/record/id": "ENSG00000284190"
       }
     },
     {
@@ -31,7 +33,7 @@
       "exit": 0,
       "expect": {
         "": {
-          "includes": "hpa returned no data."
+          "includes": "hpa returned no data for Ensembl:ENSG00000284190."
         }
       }
     }

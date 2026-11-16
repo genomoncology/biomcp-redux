@@ -4,7 +4,7 @@ use biodata::{Gene, HgncId};
 
 use biomcp_adapters::hpa;
 use biomcp_fetch::Deadline;
-use biomcp_types::{GeneSection, Section};
+use biomcp_types::{GeneSection, Section, SourceRecord};
 pub(super) fn applicable(gene: &Gene) -> bool {
     gene.ensembl_id.is_some()
 }
@@ -22,7 +22,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     let values = genes
         .into_iter()
         .zip(results)
-        .map(|((id, _), result)| {
+        .map(|((id, ensembl), result)| {
             let section = match result {
                 Ok(Some(mapped)) => {
                     dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
@@ -34,7 +34,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 }
                 Ok(None) => Section::Empty {
                     source: GeneSection::Expression.source(),
-                    record: None,
+                    record: SourceRecord::asked(Some("Ensembl"), ensembl),
                 },
                 Err(failure) => {
                     error = Some(failure);

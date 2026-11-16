@@ -3,7 +3,7 @@ use biodata::ProteinSequence;
 use biomcp_adapters::uniprot::Entry;
 use biomcp_types::{
     ProteinFunctionResult, ProteinGet, ProteinSection, ProteinSectionPage, ProteinSections,
-    ProteinSequenceResult, Reason, Section, Source,
+    ProteinSequenceResult, Reason, Section, Source, SourceRecord,
 };
 pub(super) const NAMES: [ProteinSection; 7] = [
     ProteinSection::Domains,
@@ -17,11 +17,11 @@ pub(super) const NAMES: [ProteinSection; 7] = [
 pub(super) fn wants(q: &ProteinGet, section: ProteinSection) -> bool {
     q.sections().contains(&section) || q.sections().contains(&ProteinSection::All)
 }
-fn rows<T, B>(items: Vec<T>, wrap: impl FnOnce(Box<[T]>) -> B) -> Section<B> {
+fn rows<T, B>(entry: &Entry, items: Vec<T>, wrap: impl FnOnce(Box<[T]>) -> B) -> Section<B> {
     if items.is_empty() {
         Section::Empty {
             source: Source::UniProt,
-            record: None,
+            record: SourceRecord::asked(Some("UniProt"), &entry.header.protein.accession),
         }
     } else {
         Section::Data {
@@ -33,11 +33,12 @@ fn rows<T, B>(items: Vec<T>, wrap: impl FnOnce(Box<[T]>) -> B) -> Section<B> {
 pub(super) fn first(q: &ProteinGet, entry: &Entry) -> ProteinSections {
     let n = q.section_limit() as usize;
     ProteinSections {
-        features: wants(q, ProteinSection::Features).then(|| bounded(&entry.features, n)),
-        isoforms: wants(q, ProteinSection::Isoforms).then(|| bounded(&entry.isoforms, n)),
-        structures: wants(q, ProteinSection::Structures).then(|| bounded(&entry.structures, n)),
+        features: wants(q, ProteinSection::Features).then(|| bounded(entry, &entry.features, n)),
+        isoforms: wants(q, ProteinSection::Isoforms).then(|| bounded(entry, &entry.isoforms, n)),
+        structures: wants(q, ProteinSection::Structures)
+            .then(|| bounded(entry, &entry.structures, n)),
         function: wants(q, ProteinSection::Function).then(|| {
-            rows(entry.function.clone(), |items| ProteinFunctionResult {
+            rows(entry, entry.function.clone(), |items| ProteinFunctionResult {
                 items,
             })
         }),
@@ -46,8 +47,8 @@ pub(super) fn first(q: &ProteinGet, entry: &Entry) -> ProteinSections {
         complexes: None,
     }
 }
-fn bounded<T: Clone>(items: &[T], limit: usize) -> Section<ProteinSectionPage<T>> {
-    rows(items.iter().take(limit).cloned().collect(), |rows| {
+fn bounded<T: Clone>(entry: &Entry, items: &[T], limit: usize) -> Section<ProteinSectionPage<T>> {
+    rows(entry, items.iter().take(limit).cloned().collect(), |rows| {
         ProteinSectionPage {
             items: rows,
             total: items.len() as u64,
