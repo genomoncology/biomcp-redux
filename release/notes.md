@@ -79,6 +79,7 @@ Trials:
 
 - `get trial NCT...` shows `enrollment`, its count with `ACTUAL` or `ESTIMATED`, and a stopped trial's `why_stopped` text.
 - `get trial ID flow` and `get trial ID baseline` return participant flow and baseline characteristics without the posted outcomes.
+- `results` pages hold up to 40,000 bytes of whole posted records, so a trial's outcome measures usually come in one call instead of one record a page.
 - `locations` pages hold up to 100 sites, state the site total and offer the next page. Search rows carry `has_results`. A batched trial get names each trial it could not read.
 - `search trial --fields` refuses a field the source's rows lack and names that source's fields.
 - A ClinicalTrials.gov continuation is tied to its offset, filters and matching mode. Changing any of them is refused before the registry is asked, with a fresh first page offered, and a registry rejection of `--next-page` says so.

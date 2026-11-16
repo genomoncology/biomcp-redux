@@ -4,6 +4,11 @@ use crate::Outcome;
 use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::{TrialGet, TrialResultRecord, TrialSection, TrialSections};
+/// Bytes for one posted-results page. One outcome measure often runs 5 KB, so the
+/// old 8,000 bytes held one record a page (0995). 40,000 holds a trial's outcomes
+/// together and keeps `all` under the 150,000-character MCP reply cap beside the
+/// other sections' budgets (91,000 bytes, locations 60,000 of them).
+const RESULTS_BUDGET: usize = 40_000;
 
 /// The posted result records a section shows: all of them for results, or only
 /// the participant-flow or baseline records, so those answer without paging past outcomes.
@@ -47,7 +52,7 @@ pub(super) fn render(
         }
         let id = snapshot.detail.card.nct_id;
         let part_rows = rows(part, &snapshot.detail.results);
-        let mut page = records(query, &part_rows, 8000, serde_json::to_vec)?;
+        let mut page = records(query, &part_rows, RESULTS_BUDGET, serde_json::to_vec)?;
         continue_records(&mut page, query, id, part, pool);
         advance(
             query,
