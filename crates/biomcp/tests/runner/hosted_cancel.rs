@@ -30,10 +30,11 @@ fn client_left() -> Result<(), String> {
     let pem = certs.root().join("source.pem");
     std::fs::write(&pem, certificate).map_err(|e| e.to_string())?;
     // The deadline and the queue wait outlast every check here: only a client leaving frees the slot.
+    let config = json!({"proxy":format!("http://{proxy}"), "ca_bundle":pem, "http_max_calls":1,
+        "mcp_queue_wait_seconds":60, "command_timeout_seconds":120});
     let server = super::http::Server::configured_globals(
         "127.0.0.1:0",
-        Some(json!({"proxy":format!("http://{proxy}"), "ca_bundle":pem, "http_max_calls":1,
-            "mcp_queue_wait_seconds":60, "command_timeout_seconds":120})),
+        Some(config),
         None,
         None,
         None,
@@ -74,7 +75,9 @@ fn client_left() -> Result<(), String> {
         || reply.get("id") != Some(&json!(2))
         || reply.pointer("/result/isError") != Some(&json!(false))
     {
-        return Err(format!("the slot stayed held after its client left: {reply}"));
+        return Err(format!(
+            "the slot stayed held after its client left: {reply}"
+        ));
     }
     Ok(())
 }
