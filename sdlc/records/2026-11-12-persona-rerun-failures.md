@@ -6,7 +6,7 @@ November 12, 2026. The bench 0040 persona rerun (biomed-agent-bench `personas/ro
 - df79ecb50 (the build the personas ran),
 - 58d83b6da (the 0037 build), to check the four suspected regressions.
 
-Evidence: pm job j38804 (ticket key 0866, M5; builds and all cases on the three commits plus the source API checks, cancelled once the three runs were done because the per-commit probe stage could add nothing) and j38812 (follow-up: FDA SSED downloads and a few extra probes). Case labels below ("case 2b") are the `###` blocks in those job logs (`pm job log j38804 --all`, `pm job log j38812 --all`); a bare case label means j38804. Where the persona's own reply was in doubt, the run's full call record was read on the M5 in `~/workspace/data/biomed-agent-bench/0040-persona-<slug>/biomcp-cli/calls.md`.
+Evidence: pm job j38804 (ticket key 0866, M5; builds and all cases on the three commits plus the source API checks, cancelled once the three runs were done because the per-commit probe stage could add nothing) and j38812 (follow-up: FDA SSED downloads and a few extra probes). Case labels below ("case 2b") are the `###` blocks in those job logs (`pm job log j38804 --all`, `pm job log j38812 --all`); a bare case label means j38804. Where the persona's own reply was in doubt, the run's full call record was read on the M5 in `{workspace}/data/biomed-agent-bench/0040-persona-<slug>/biomcp-cli/calls.md`.
 
 ## Regressions asked about
 

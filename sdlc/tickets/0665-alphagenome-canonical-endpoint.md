@@ -19,7 +19,7 @@ The superseded release's staged artifact scan found one benign compiled-text adj
 
 ## Starts from
 
-- Starts from: `crates/biomcp-adapters/src/alphagenome/mod.rs`, `crates/biomcp-adapters/src/strict_input.rs`, `crates/biomcp-adapters/tests/alphagenome_registration.rs`, and `crates/biomcp-fetch/src/grpc/connect.rs`. Both direct and proxy connections already default HTTPS to port 443. The original stage log and twelve safe finding coordinates are retained under `data/biomcp-redux-evidence/0293/tooling-R-c9bd901d50a5/terminal-superseded/` on Yellow.
+- Starts from: `crates/biomcp-adapters/src/alphagenome/mod.rs`, `crates/biomcp-adapters/src/strict_input.rs`, `crates/biomcp-adapters/tests/alphagenome_registration.rs`, and `crates/biomcp-fetch/src/grpc/connect.rs`. Both direct and proxy connections already default HTTPS to port 443. The original stage log and twelve safe finding coordinates are retained under `data/{repo}-evidence/0293/tooling-R-c9bd901d50a5/terminal-superseded/` on Yellow.
 
 ## Keeps
 

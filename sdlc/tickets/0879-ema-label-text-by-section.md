@@ -11,7 +11,7 @@ An EMA product's label text can be read by section (therapeutic indications, 4.1
 
 ## Why
 
-From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `~/workspace/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:192-210: the EMA record gives one flat 8,884-character `indication` string with no section heading or product-information text, while the US label is numbered 1.1 to 1.10.
+From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `{workspace}/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:192-210: the EMA record gives one flat 8,884-character `indication` string with no section heading or product-information text, while the US label is numbered 1.1 to 1.10.
 
 ## Proof
 
@@ -37,7 +37,7 @@ From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `pers
 
 ### 2026-11-13: live check of what EMA publishes for product information
 
-Checked from the Beelink with curl. EMA's legal notice and robots.txt allow every fetch below.
+Checked from the PM's machine with curl. EMA's legal notice and robots.txt allow every fetch below.
 
 - **Medicines JSON** (`/en/documents/report/medicines-output-medicines_json-report_en.json`, 6.8 MB, already synced by the adapter). The Keytruda row (EMEA/H/C/003820, `revision_number` 73, `latest_procedure_affecting_product_information` VR/0000336194) has one flat `therapeutic_indication` string of 8,994 characters, with `&nbsp;` entities and no section heading. It is not the SmPC 4.1 text word for word. EMA's web text says "Stage IIB, IIC, or with Stage III melanoma and lymph node involvement who have undergone complete resection". SmPC 4.1 says "Stage IIB, IIC or III melanoma and who have undergone complete resection (see section 5.1)".
 - **EPAR documents JSON** (`/en/documents/report/documents-output-epar_documents_json-report_en.json`, 29.3 MB, 20,378 rows, timestamp 2026-11-13T05:50:07Z). It is metadata only: name, type `product-information`, `ema_product_number`, first published and last updated dates, a `document_url` and translation URLs. For Keytruda the entry is id 63196, last updated 2026-10-30T16:10:00Z, at `https://www.ema.europa.eu/en/documents/product-information/keytruda-epar-product-information_en.pdf`. The file holds no text.

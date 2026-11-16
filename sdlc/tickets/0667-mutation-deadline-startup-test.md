@@ -19,7 +19,7 @@ The batch gate failed twice on this class. First the version check's two-second 
 
 ## Starts from
 
-- Starts from: `release/test_mutations.py::test_version_check_obeys_the_shared_deadline`, the partial native outcomes and owned-child deadline tests, and `release/mutations.py::tool_version`/`execute`. Second failure: candidate abbbfd9d8, raw j30773, on Yellow. The current-main test bytes match the failed candidate. Raw proof is on Yellow under `data/biomcp-redux-evidence/batch-0663-0665/11650a9aa5c72860335e1710e97ec68fa219e41f/failed-j30742/`.
+- Starts from: `release/test_mutations.py::test_version_check_obeys_the_shared_deadline`, the partial native outcomes and owned-child deadline tests, and `release/mutations.py::tool_version`/`execute`. Second failure: candidate abbbfd9d8, raw j30773, on Yellow. The current-main test bytes match the failed candidate. Raw proof is on Yellow under `data/{repo}-evidence/batch-0663-0665/11650a9aa5c72860335e1710e97ec68fa219e41f/failed-j30742/`.
 
 ## Keeps
 

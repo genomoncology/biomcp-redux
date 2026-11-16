@@ -14,3 +14,5 @@ The plan, decisions and tickets for BioMCP 1.0. pm reads and changes ticket stat
 | [tickets/](tickets/) | One file per ticket, numbered from 0001 |
 
 Each slice adds its own design file, `planning/slices/<entity>.md`, when its investigation lands.
+
+Records name internal machines by role, such as the build machine or the PM's machine. In evidence paths, `{workspace}` is the workspace root on the named machine, `{home}` its home folder, and `{repo}` this repository's working name, so `data/{repo}-evidence/0640/` is the ticket evidence folder. `scripts/check_docs.py` fails on internal names here as in every public file, except in `data/`, the machine-readable registry `pm disk` reads.

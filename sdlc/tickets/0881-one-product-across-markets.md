@@ -11,7 +11,7 @@ One call gives a product's registration row across FDA, EMA and WHO prequalifica
 
 ## Why
 
-From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `~/workspace/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:222-238: dolutegravir's tracker row took three calls with three differently shaped replies, and the persona's question asks for 'as few calls as possible'.
+From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `{workspace}/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:222-238: dolutegravir's tracker row took three calls with three differently shaped replies, and the persona's question asks for 'as few calls as possible'.
 
 ## Proof
 

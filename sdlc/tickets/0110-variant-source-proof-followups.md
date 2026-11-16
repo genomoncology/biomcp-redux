@@ -38,14 +38,14 @@ The four jobs built published main `60daa16ecbc1c824a0292c578dc61ed435640726`. E
 
 ### External evidence and request identity
 
-All cited paths below are relative to Yellow's `/home/ian/workspace/data/biomcp-redux/0110-source-proofs/`. Raw bodies, actual recordings, output and replay stay outside Git. Every size and SHA-256 in each original manifest was checked after transfer and archive extraction on Yellow.
+All cited paths below are relative to Yellow's `{workspace}/data/{repo}/0110-source-proofs/`. Raw bodies, actual recordings, output and replay stay outside Git. Every size and SHA-256 in each original manifest was checked after transfer and archive extraction on Yellow.
 
 | Source | Evidence directory | Manifest SHA-256 | Files verified |
 | --- | --- | --- | --- |
-| CIViC | `biomcp-redux-0110-civic-gd6kih3m` | `2ab45e40ebd1ab454c0241abd9538482c652159eb94d75d83c33062e94d9c26a` | 7 |
-| Hotspots | `biomcp-redux-0110-hotspots-yliwksky` | `378dad5e888bebbca5afa320a7b70883c70a2111e741d19efec91ae1cbd0f589` | 11 |
-| gnomAD | `biomcp-redux-0110-gnomad-0ol5xk89` | `41a623573be1e9f40dd594ebbaca4e54d18b87fa70c20ed2f176492fb31fa1ef` | 10 |
-| ClinVar | `biomcp-redux-0110-clinvar-0tmxuwon` | `161360b3a18e2a8f73a6f4286ec6e806533b0e6190a124e4fd13fe0f7490f962` | 9 |
+| CIViC | `{repo}-0110-civic-gd6kih3m` | `2ab45e40ebd1ab454c0241abd9538482c652159eb94d75d83c33062e94d9c26a` | 7 |
+| Hotspots | `{repo}-0110-hotspots-yliwksky` | `378dad5e888bebbca5afa320a7b70883c70a2111e741d19efec91ae1cbd0f589` | 11 |
+| gnomAD | `{repo}-0110-gnomad-0ol5xk89` | `41a623573be1e9f40dd594ebbaca4e54d18b87fa70c20ed2f176492fb31fa1ef` | 10 |
+| ClinVar | `{repo}-0110-clinvar-0tmxuwon` | `161360b3a18e2a8f73a6f4286ec6e806533b0e6190a124e4fd13fe0f7490f962` | 9 |
 
 Each directory has `live-output.json`, `live-stderr.txt`, `summary.json`, `proof-recipe.py`, `manifest.json` and nested `record/<source>/` files. The successful gnomAD and ClinVar directories also contain `replay-output.json` and `replay-stderr.txt`. Their live and replay output bytes match, with CLI exit zero for each execution.
 

@@ -48,13 +48,13 @@ All paths below are on Yellow under `data/` and were receiver-verified.
 
 | Evidence | Location | Manifest SHA-256 |
 | --- | --- | --- |
-| Core ending receipt, six payloads | `biomcp-redux-evidence/0785-0798/core-batch-20261110/final-receipt` | `49e59645c0f54415265e2f5af460f0059df9b2665a40f324cd7c7b14c520bfe7` |
-| Genuine ending CLI | `biomcp-redux-evidence/0785-0798/core-batch-20261110/gate-j36792-artifact` | Executable SHA `0fa14f7fc0aba554d9b2b759b482732a8d476eae555a6ff66d495dfccf966fa8` |
+| Core ending receipt, six payloads | `{repo}-evidence/0785-0798/core-batch-20261110/final-receipt` | `49e59645c0f54415265e2f5af460f0059df9b2665a40f324cd7c7b14c520bfe7` |
+| Genuine ending CLI | `{repo}-evidence/0785-0798/core-batch-20261110/gate-j36792-artifact` | Executable SHA `0fa14f7fc0aba554d9b2b759b482732a8d476eae555a6ff66d495dfccf966fa8` |
 | Hosting ending receipt, 15 payloads | `biomcp-hosting/evidence/0091/landed-ca62d2de4` | `614bd3b22bd68a6e85ba478ac555f54a8a08421b22ebb599ca9a42afc45b3cad` |
-| Observed article call, four payloads | `biomcp-redux-evidence/0788/article-observe-20261110` | `fe970ec9a0d4ddcd2a0169e28a0f5c76633f402e8e996cf111f9df8e7ea0b872` |
-| Prepared docs, nine payloads | `biomcp-redux-evidence/0401/docs-972c98e98-021736834` | `27c3f997a7642b7a5540a62fe48b6ac517dad92efc7eae0664d932b906ec43e9` |
+| Observed article call, four payloads | `{repo}-evidence/0788/article-observe-20261110` | `fe970ec9a0d4ddcd2a0169e28a0f5c76633f402e8e996cf111f9df8e7ea0b872` |
+| Prepared docs, nine payloads | `{repo}-evidence/0401/docs-972c98e98-021736834` | `27c3f997a7642b7a5540a62fe48b6ac517dad92efc7eae0664d932b906ec43e9` |
 
-Post-test raw logs are separately retained at `biomcp-redux-evidence/0788/postlanding-j36803`, `postlanding-j36812` and `postlanding-j36822`; the cancelled run stays labelled cancelled. Product, docs-driver and investigation-driver identities are distinct. Failed-candidate executables are not relabelled as the ending source.
+Post-test raw logs are separately retained at `{repo}-evidence/0788/postlanding-j36803`, `postlanding-j36812` and `postlanding-j36822`; the cancelled run stays labelled cancelled. Product, docs-driver and investigation-driver identities are distinct. Failed-candidate executables are not relabelled as the ending source.
 
 ## Remaining release work
 

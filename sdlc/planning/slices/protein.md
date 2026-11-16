@@ -258,7 +258,7 @@ Source policy and terms come from the existing source owner. Shared types define
 
 ## Verified evidence and identity follow-up
 
-The evidence store holds these immutable archives under `data/biomcp-redux/0190-protein-investigation/`. Each archive passed a full archive SHA-256 check, exact member inventory and each content SHA-256 check independently on the coordination host and on Yellow. These are bounded investigation results, not product acceptance.
+The evidence store holds these immutable archives under `data/{repo}/0190-protein-investigation/`. Each archive passed a full archive SHA-256 check, exact member inventory and each content SHA-256 check independently on the coordination host and on Yellow. These are bounded investigation results, not product acceptance.
 
 | Archive | Bound revision and job | SHA-256 and contents |
 | --- | --- | --- |
@@ -320,7 +320,7 @@ Each missing witness retains the ticket's fallback: search ceilings return to th
 
 Job j14362 ran the declared recipe from landed revision `6e20aa069bbb981f9c9c6f0da3fd4ba31e556ceb`. It sent exactly eleven physical requests, without keys, retries, redirects, alternate queries or extra pages. Recorded start times are at least one second apart. Ten requests returned HTTP200. The last InterPro request retained a status0, `truncated` outcome, zero body bytes and zero header bytes; no HTTP absence status was observed. Job success means the bounded recipe and archive completed, not that every witness succeeded.
 
-Every row below cites the same immutable evidence archive: Yellow `data/biomcp-redux/0229-protein-admission/j14362-native-witnesses.tar.gz`, SHA-256 `2808c280a38e69e533562269c2376590fff28e4661fbb4a61dc5705bf46a3047`. It contains the predeclared recipe, runner, eleven one-request plans and logs, ledger, eleven helper archives and an outer manifest. Both the coordination host and Yellow independently verified the exact38 outer members, all37 outer content hashes, all66 inner members and all55 inner content hashes. Outer and inner packaging suppress AppleDouble files. No raw source reply enters Git.
+Every row below cites the same immutable evidence archive: Yellow `data/{repo}/0229-protein-admission/j14362-native-witnesses.tar.gz`, SHA-256 `2808c280a38e69e533562269c2376590fff28e4661fbb4a61dc5705bf46a3047`. It contains the predeclared recipe, runner, eleven one-request plans and logs, ledger, eleven helper archives and an outer manifest. Both the coordination host and Yellow independently verified the exact38 outer members, all37 outer content hashes, all66 inner members and all55 inner content hashes. Outer and inner packaging suppress AppleDouble files. No raw source reply enters Git.
 
 | Witness and ledger rows | Native result | Capability unlocked or deferred |
 | --- | --- | --- |
@@ -370,7 +370,7 @@ An alternative sequence uses the exact FASTA request. The returned accession, re
 
 The retained native CLI and MCP proof covers every UniProt section command. The changed composite `all` proof and allocation belong to the protein relation measurements below. It reuses the accepted source archives without provider requests. Both isoform continuations preserve source order and make every captured TP53 and MUTYH alternative reachable. Native EGFR function paragraphs preserve the presence and absence of the molecule qualifier independently. Sequence proof checks complete residues and the native MUTYH positions without historical-label conversion.
 
-The evidence store holds the combined proof at `data/biomcp-redux/0239-uniprot-sections/biomcp-redux-0239-native.mXeaPJ.tar.gz`, SHA-256 `47b39aa4ef15ddc8453e8addf2bed30b29c7f370ab67eb3d36ab89fd1b9a7513`. The archive passed exact member and content-hash verification on the build host and Yellow. The retained phase logs and revisions identify reused successful measurements.
+The evidence store holds the combined proof at `data/{repo}/0239-uniprot-sections/{repo}-0239-native.mXeaPJ.tar.gz`, SHA-256 `47b39aa4ef15ddc8453e8addf2bed30b29c7f370ab67eb3d36ab89fd1b9a7513`. The archive passed exact member and content-hash verification on the build host and Yellow. The retained phase logs and revisions identify reused successful measurements.
 
 `tests/protein-section-budgets.yaml` owns each case's measured whole CLI bytes and comparable bytes. The native runner enforces measured plus 15% against both, and generated command cases use the same comparable ceiling. A CLI newline accounts for its one-byte difference from MCP. The table shows the largest observed case in each command shape.
 
@@ -399,7 +399,7 @@ The native proof uses the exact retained 25-row requests from the investigation 
 
 ### Implemented protein relation measurements
 
-The retained CLI/MCP proof passed without provider requests. Yellow holds `data/biomcp-redux/0241-protein-domains-complexes/native.E8zfiz.tar.gz`, SHA-256 `28d6a1d13d3834427122406946f4bab2f770732303581b13c2a4746991b37050`. Its exact member list and every content hash passed verification on both machines. The archive preserves the first successful complex walk and its continuation proof from the resumed run.
+The retained CLI/MCP proof passed without provider requests. Yellow holds `data/{repo}/0241-protein-domains-complexes/native.E8zfiz.tar.gz`, SHA-256 `28d6a1d13d3834427122406946f4bab2f770732303581b13c2a4746991b37050`. Its exact member list and every content hash passed verification on both machines. The archive preserves the first successful complex walk and its continuation proof from the resumed run.
 
 `tests/protein-domain-budgets.yaml` owns the whole CLI bytes and comparable bytes for each measured shape. The native runner enforces measured size plus 15 percent; approximate token ceilings use the existing four-bytes-per-token convention. Comparable size subtracts only the three required publisher-terms fields. CLI includes its final newline, and MCP omits that one byte.
 

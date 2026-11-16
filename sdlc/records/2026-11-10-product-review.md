@@ -59,7 +59,7 @@ The old build-plan contained completed-lane instructions, stale machine allocati
 
 Artifact custody for the M5 probe: rehearsal repository `genomoncology/biomcp-release-rehearsal`, run `42743058468`, artifact `13734520019`; ZIP SHA-256 `ceb121410cd045c813a27d3b1fe0d4a3b526a9d1190a6275747bfa6521d02099` matched the API digest. `release.json` named a84; executable SHA-256 `bd6bcbcc8b9648114e745bac075b51a1c70955d8344eaa94d75cbb270dd138ad` matched locally and on M5. No new product build was needed for the successful probe.
 
-The three raw job logs, scripts and artifact metadata are retained on Yellow at `data/biomcp-redux-evidence/0792/2026-11-10-a84ee9721`. The nine payloads were receiver-verified; manifest SHA-256 `cf85b5a0a12c7cc46b5b61a9611f9c870b22b4921de4864e2635c2f8e2776b05`. The scripts are investigation evidence, not a new product test framework. The first probe was queued as an inline temporary script; its exact command is preserved in pm and the evidence packet. Reusable regressions belong in the existing test owners.
+The three raw job logs, scripts and artifact metadata are retained on Yellow at `data/{repo}-evidence/0792/2026-11-10-a84ee9721`. The nine payloads were receiver-verified; manifest SHA-256 `cf85b5a0a12c7cc46b5b61a9611f9c870b22b4921de4864e2635c2f8e2776b05`. The scripts are investigation evidence, not a new product test framework. The first probe was queued as an inline temporary script; its exact command is preserved in pm and the evidence packet. Reusable regressions belong in the existing test owners.
 
 ## Coverage and remaining uncertainty
 

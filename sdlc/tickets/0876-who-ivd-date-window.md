@@ -11,7 +11,7 @@ The WHO IVD list takes a prequalification date window, as the WHO medicines list
 
 ## Why
 
-From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `~/workspace/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:150-165: `search diagnostic --source who-ivd --marker HIV --prequalified-from 2023` is refused, so finding tests prequalified since 2023 means paging all 62 rows and filtering by hand, while `search drug --source who-pq --prequalified-from 2023` works.
+From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `{workspace}/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:150-165: `search diagnostic --source who-ivd --marker HIV --prequalified-from 2023` is refused, so finding tests prequalified since 2023 means paging all 62 rows and filtering by hand, while `search drug --source who-pq --prequalified-from 2023` works.
 
 ## Proof
 

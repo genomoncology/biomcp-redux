@@ -22,7 +22,7 @@ The completed mutation sample passed both shutdown tests after deleting the enti
 
 ## Starts from
 
-- `crates/biomcp-fetch/tests/bundle/shutdown.rs`, its existing server fixture, and the retained patches/logs under Yellow `biomcp-redux-evidence/0788/0adbae81319c/mutations`. Mandatory survivors are refresh.rs line 22 delete-not, line 86 no-op join and line 92 no-op Drop. The original guard/cancellation/join code is correct; the assertions are incomplete.
+- `crates/biomcp-fetch/tests/bundle/shutdown.rs`, its existing server fixture, and the retained patches/logs under Yellow `{repo}-evidence/0788/0adbae81319c/mutations`. Mandatory survivors are refresh.rs line 22 delete-not, line 86 no-op join and line 92 no-op Drop. The original guard/cancellation/join code is correct; the assertions are incomplete.
 
 ## Keeps
 
