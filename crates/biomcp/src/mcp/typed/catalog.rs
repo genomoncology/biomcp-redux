@@ -29,7 +29,7 @@ pub(in crate::mcp) fn available(
         })
 }
 
-pub(in crate::mcp) fn excluded(
+pub(crate) fn excluded(
     context: crate::command::Context<'_>,
 ) -> io::Result<BTreeSet<Source>> {
     let mut sources = crate::config::excluded_sources(context.globals, context.settings)
@@ -185,7 +185,7 @@ pub(crate) fn argument_sources(schema: &Value, name: &str) -> Vec<Source> {
         .collect()
 }
 
-pub(in crate::mcp) fn request_allowed(
+pub(crate) fn request_allowed(
     request: &biomcp_types::Request,
     excluded: &BTreeSet<Source>,
 ) -> io::Result<bool> {

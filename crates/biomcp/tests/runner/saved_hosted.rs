@@ -158,24 +158,47 @@ fn steps(reply: &Value) -> Vec<Value> {
 }
 
 /// Rows written straight into the file, as a tampered or foreign file could hold, are refused
-/// by `changed` before any source read: a search hosted policy refuses, and a non-search.
+/// by `changed` before any source read: a search hosted policy refuses, a non-search, and a
+/// search on a source the call leaves out, which is refused as the live call is.
 fn stored_rechecks(server: &Server, folder: &std::path::Path) -> Result<(), String> {
     let db = rusqlite::Connection::open(folder.join("carol/saved.sqlite"))
         .map_err(|error| error.to_string())?;
     let args: String = db
         .query_row("SELECT args FROM saved_search", [], |row| row.get(0))
         .map_err(|error| error.to_string())?;
-    let mut fresh: Vec<String> = serde_json::from_str(&args).map_err(|e| e.to_string())?;
-    fresh.push("--fresh".into());
+    let saved: Vec<String> = serde_json::from_str(&args).map_err(|e| e.to_string())?;
+    let with = |extra: &[&str]| -> Vec<String> {
+        saved
+            .iter()
+            .cloned()
+            .chain(extra.iter().map(|word| (*word).to_owned()))
+            .collect()
+    };
+    let carol = account("carol");
+    let leaving_nci = format!("{carol}x-biomcp-exclude-sources: nci\r\n");
+    let live = json!({"action":"search","search":{"condition":"melanoma","source":"nci"}});
+    let (_, live) = call(server, "trial", live, &leaving_nci)?;
+    let live_code = live
+        .pointer("/error/code")
+        .and_then(Value::as_str)
+        .ok_or_else(|| format!("a live search on a left-out source is refused: {live}"))?
+        .to_owned();
     let rows = [
-        ("fresh-trials", fresh, "usage.mcp_unavailable"),
+        ("fresh-trials", with(&["--fresh"]), &carol, "usage.mcp_unavailable"),
         (
             "one-trial",
             vec!["get".into(), "trial".into(), "NCT02576665".into()],
-            "usage.",
+            &carol,
+            "usage.arguments",
+        ),
+        (
+            "nci-trials",
+            with(&["--source", "nci"]),
+            &leaving_nci,
+            live_code.as_str(),
         ),
     ];
-    for (name, words, code) in rows {
+    for (name, words, headers, code) in rows {
         db.execute(
             "INSERT INTO saved_search(id,project,name,args,schema,request_key,created) \
              SELECT ?1,project,?1,?2,schema,request_key,created FROM saved_search LIMIT 1",
@@ -186,12 +209,8 @@ fn stored_rechecks(server: &Server, folder: &std::path::Path) -> Result<(), Stri
         )
         .map_err(|error| error.to_string())?;
         let changed = json!({"action":"changed","changed":{"name":name}});
-        let (_, reply) = call(server, "saved", changed, &account("carol"))?;
-        let refused = reply
-            .pointer("/error/code")
-            .and_then(Value::as_str)
-            .is_some_and(|found| found.starts_with(code));
-        if !refused {
+        let (_, reply) = call(server, "saved", changed, headers)?;
+        if reply.pointer("/error/code") != Some(&json!(code)) {
             return Err(format!(
                 "a stored {name} re-check is refused with {code}: {reply}"
             ));
