@@ -1,0 +1,266 @@
+{
+  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
+  "feature": "saved-work",
+  "story": "A caller keeps gene IDs in a named list, adds and removes items, keeps the list across store clean, exports it and deletes it; MCP still has no saved command.",
+  "steps": [
+    {
+      "run": [
+        "saved",
+        "show"
+      ],
+      "expect": {
+        "/schema": "biomcp.saved/1",
+        "/status": "complete",
+        "/result": {
+          "equals": {}
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "--help"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "search",
+          "<entity>",
+          "--save-as",
+          "NAME"
+        ]
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "list",
+        "add",
+        "--help"
+      ],
+      "expect": {
+        "/result/commands": {
+          "count": 1
+        },
+        "/result/commands/0/command": [
+          "saved",
+          "list",
+          "add"
+        ]
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "delete",
+        "--all"
+      ],
+      "expect": {
+        "/result": {
+          "equals": {}
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "list",
+        "add",
+        "braf-genes",
+        "--entity",
+        "gene",
+        "BRAF",
+        "NRAS"
+      ],
+      "expect": {
+        "/schema": "biomcp.saved/1",
+        "/result/lists/0/name": "braf-genes",
+        "/result/lists/0/project": "default",
+        "/result/lists/0/items/*/ref/id": {
+          "equals": [
+            "BRAF",
+            "NRAS"
+          ]
+        },
+        "/result/lists/0/items/0/ref/entity": "gene"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "list",
+        "add",
+        "BRAF-Genes",
+        "--entity",
+        "gene",
+        "--note",
+        "melanoma drivers",
+        "BRAF",
+        "KIT"
+      ],
+      "expect": {
+        "/result/lists/0/name": "braf-genes",
+        "/result/lists/0/items/*/ref/id": {
+          "equals": [
+            "BRAF",
+            "NRAS",
+            "KIT"
+          ]
+        },
+        "/result/lists/0/items/2/note": "melanoma drivers",
+        "/result/lists/0/items/0": {
+          "omits": [
+            "note"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "list",
+        "add",
+        "braf-genes",
+        "--entity",
+        "genes",
+        "BRAF"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--entity"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "list",
+        "remove",
+        "braf-genes",
+        "NRAS",
+        "TP53"
+      ],
+      "expect": {
+        "/result/lists/0/items/*/ref/id": {
+          "equals": [
+            "BRAF",
+            "KIT"
+          ]
+        },
+        "/result/missing": [
+          "TP53"
+        ]
+      }
+    },
+    {
+      "run": [
+        "store",
+        "clean"
+      ],
+      "expect": {
+        "/schema": "biomcp.store-clean/4",
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "show",
+        "braf-genes"
+      ],
+      "expect": {
+        "/result/lists": {
+          "count": 1
+        },
+        "/result/lists/0/items": {
+          "count": 2
+        },
+        "/result": {
+          "omits": [
+            "searches"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "show",
+        "no-such-list"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "NAME",
+        "/error/message": "no saved search or list has this name; biomcp saved show lists the names"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "export"
+      ],
+      "expect": {
+        "/schema": "biomcp.saved/1",
+        "/result/lists/*/name": {
+          "equals": [
+            "braf-genes"
+          ]
+        }
+      }
+    },
+    {
+      "mcp": [
+        "saved",
+        "show"
+      ],
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.unknown_command"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "delete",
+        "braf-genes"
+      ],
+      "expect": {
+        "/result/lists/0/name": "braf-genes"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "show"
+      ],
+      "expect": {
+        "/result": {
+          "equals": {}
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "delete",
+        "no-such-list"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "NAME"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "export",
+        "--unrecognized-argument"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

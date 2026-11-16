@@ -1,0 +1,165 @@
+{
+  "live_check": "public",
+  "feature": "saved-work",
+  "story": "A caller saves a melanoma trial search by name, sees its words without run options, cannot reuse the name for other words or a list, refuses a continued page, saves an entity-first search, and deletes everything.",
+  "replay": "trial/condition",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--save-as",
+        "melanoma-trials"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3780
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "show",
+        "MELANOMA-TRIALS"
+      ],
+      "expect": {
+        "/schema": "biomcp.saved/1",
+        "/result/searches/0/name": "melanoma-trials",
+        "/result/searches/0/args": {
+          "equals": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma"
+          ]
+        },
+        "/result/searches/0": {
+          "omits": [
+            "checked"
+          ]
+        },
+        "/result": {
+          "omits": [
+            "lists"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "lung cancer",
+        "--save-as",
+        "melanoma-trials"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/option": "--save-as",
+        "/error/message": "a saved search or list already has this name; choose another name or delete it with biomcp saved delete NAME"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "list",
+        "add",
+        "melanoma-trials",
+        "--entity",
+        "trial",
+        "NCT04631731"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/option": "NAME"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04631731",
+        "--save-as",
+        "one-trial"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/option": "--save-as"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "AKT1 E17K",
+        "--pool",
+        "00000000000000000000000000000000",
+        "--save-as",
+        "pooled"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/option": "--save-as"
+      }
+    },
+    {
+      "run": [
+        "trial",
+        "search",
+        "--condition",
+        "melanoma",
+        "--save-as",
+        "entity-first"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "help",
+        "saved"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "search",
+          "<entity>",
+          "--save-as",
+          "NAME"
+        ],
+        "/result/commands/*/command/1": {
+          "includes": "delete"
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "delete",
+        "--all"
+      ],
+      "expect": {
+        "/result/searches/*/name": {
+          "equals": [
+            "entity-first",
+            "melanoma-trials"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "export"
+      ],
+      "expect": {
+        "/result": {
+          "equals": {}
+        }
+      }
+    }
+  ]
+}

@@ -200,6 +200,9 @@ pub use drug::{
 
 pub use query::{CheckedQuery, QueryInvalid};
 
+mod saved;
+pub use saved::{Saved, SavedList, SavedListItem, SavedRef, SavedSearch};
+
 mod adverse_event;
 pub use adverse_event::{
     AdverseEventAggregate, AdverseEventDevice, AdverseEventDevices, AdverseEventDrug,

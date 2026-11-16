@@ -17,7 +17,7 @@ Six `biomcp.saved-*` and `biomcp.change-report` schemas in `crates/biomcp-types`
 - **`biomcp.saved-ref/1`**: `entity` (the registry's entity word), `id` (the exact ID `get <entity>` accepts), `source` (optional; drug and variant IDs are source-specific), `as_of`, `source_date` (optional `SourceTimestamp`).
 - **`biomcp.saved-search/1`**: `id`, `name` (80 characters, unique per project, case-insensitive), `project` (default `default`), `args` (the CLI words as given; this is what re-runs), `schema` (the request schema ID at save time), `request_key`, `created`, `checked` (optional).
 - **`biomcp.saved-snapshot/1`**: `id`, `search`, `taken`, `total` (provider count), `complete` (holds every matching ID), `row_schema` (the reply schema the fingerprints were computed under), `sources` (`source`, `source_date`, `count`), `rows` (`ref`, 32-byte `fingerprint`).
-- **`biomcp.saved-list/1`**: `id`, `name`, `project`, `created`, `updated`, `items` (`ref`, optional `note`, `added`).
+- **`biomcp.saved-list/1`**: `id`, `name`, `project`, `created`, `modified`, `items` (`ref`, optional `note`, `added`).
 - **`biomcp.change-report/1`**: a reply body derived from two snapshots, never stored. `search`, `from` and `to` (`id`, `taken`), `state` (`first`, `unchanged`, `changed`, `not_due`, `rebaselined`, `incomplete`), `new`, `gone`, `changed` (lists of refs), `next_due`.
 - **`biomcp.saved-note/1`**: `id` (hash of target and text, so a repeated write changes nothing), `target` (project, list, search or item), `text` (2,000 characters), `created`.
 

@@ -12,6 +12,7 @@ mod ownership;
 pub(crate) use ownership::snapshot_scope;
 pub(crate) use trial::SNAPSHOT_VALIDITY_SECONDS;
 mod pool;
+pub mod saved;
 use biomcp_fetch::{CacheAccess, CacheError, Deadline, SchemaOwner};
 pub(crate) use pool::{Pool, StoredItem};
 use rusqlite::{Connection, OptionalExtension, params};

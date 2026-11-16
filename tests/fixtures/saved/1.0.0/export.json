@@ -1,0 +1,77 @@
+{
+  "schema": "biomcp.saved/1",
+  "status": "complete",
+  "query": {},
+  "result": {
+    "searches": [
+      {
+        "id": "30ce40370222dffffc72495408bc01b8",
+        "name": "melanoma-trials",
+        "project": "default",
+        "args": [
+          "search",
+          "trial",
+          "--condition",
+          "melanoma"
+        ],
+        "schema": "biomcp.trial-search/6",
+        "request_key": "7afb01503cdc6641defbf9f1c1e689a036ef1b8a18974768d21f01822939c9df",
+        "created": 1794784648
+      }
+    ],
+    "lists": [
+      {
+        "id": "897b8f2e7f4f477b86aee73ad6800b31",
+        "name": "braf-genes",
+        "project": "default",
+        "created": 1794784648,
+        "modified": 1794784648,
+        "items": [
+          {
+            "ref": {
+              "entity": "gene",
+              "id": "BRAF",
+              "as_of": 1794784648
+            },
+            "added": 1794784648
+          },
+          {
+            "ref": {
+              "entity": "gene",
+              "id": "NRAS",
+              "as_of": 1794784648
+            },
+            "added": 1794784648
+          }
+        ]
+      },
+      {
+        "id": "7964e51f8313b8cfa69f34de0a9a1060",
+        "name": "melanoma-picks",
+        "project": "default",
+        "created": 1794784648,
+        "modified": 1794784648,
+        "items": [
+          {
+            "ref": {
+              "entity": "trial",
+              "id": "NCT04631731",
+              "as_of": 1794784648
+            },
+            "note": "Recruiting in the US",
+            "added": 1794784648
+          },
+          {
+            "ref": {
+              "entity": "trial",
+              "id": "NCT05355701",
+              "as_of": 1794784648
+            },
+            "note": "Recruiting in the US",
+            "added": 1794784648
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -313,7 +313,7 @@ fn fetch_using(
         && replay_cache.is_none()
         && let Some(parent) = cache.as_ref().and_then(|path| path.parent())
     {
-        create_cache_directory(parent).map_err(|_| StartupError::Local)?;
+        create_private_directory(parent).map_err(|_| StartupError::Local)?;
     }
     let secrets = secrets_from(file);
     let network = network(file)?;
@@ -357,7 +357,7 @@ fn fetch_using(
     })
 }
 
-fn create_cache_directory(path: &std::path::Path) -> std::io::Result<()> {
+pub(crate) fn create_private_directory(path: &std::path::Path) -> std::io::Result<()> {
     let mut directory = fs::DirBuilder::new();
     directory.recursive(true);
     #[cfg(unix)]
@@ -537,6 +537,13 @@ pub(crate) fn restrict(fetch: Fetch, globals: &Globals) -> std::io::Result<Fetch
         )))
 }
 
+pub(crate) fn saved_path() -> Result<Option<PathBuf>, ConfigError> {
+    Ok(crate::paths::saved(
+        variable("XDG_DATA_HOME")?,
+        variable("HOME")?,
+        variable("APPDATA")?,
+    ))
+}
 pub(crate) fn cache_path() -> Result<Option<PathBuf>, ConfigError> {
     cache_path_using(variable("HOME")?)
 }

@@ -16,6 +16,14 @@ fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>
     writeln!(reference, "{}\n", super::ENUM_CASE_GUIDANCE)?;
     let mut printed = BTreeSet::new();
     command(&mut reference, &parser, &[], &help, &mut printed)?;
+    // Saved work is command-line only, outside the shared tree MCP discovery reads.
+    command(
+        &mut reference,
+        &crate::saved::grammar(),
+        &["biomcp"],
+        &help,
+        &mut printed,
+    )?;
     for entry in &help.commands {
         if !printed.contains(&entry.command.join(" ")) {
             writeln!(reference, "## biomcp {}\n", entry.command.join(" "))?;

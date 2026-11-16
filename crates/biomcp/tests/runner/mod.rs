@@ -118,6 +118,7 @@ tool_only! { mod schema_evolution; }
 mod schema_proof;
 tool_only! { mod semantic_tables; }
 mod cache_errors;
+mod saved_files;
 mod snapshot_errors;
 mod source_queries;
 mod source_terms;

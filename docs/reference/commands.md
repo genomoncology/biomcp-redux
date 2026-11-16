@@ -12274,3 +12274,125 @@ Options:
 Map entities through sections and search filters.
 
 
+## biomcp saved
+
+```text
+Keep searches and lists of records in saved.sqlite in the data folder; a cache clean or upgrade keeps them.
+
+Usage: biomcp saved <COMMAND>
+
+Commands:
+  show    Show every saved search and list, or the one with this name.
+  export  Export every saved search and list as typed JSON.
+  delete  Delete the saved search or list with this name, or everything with --all; reply with what was deleted.
+  list    Add records to a named list or remove them.
+
+```
+
+## biomcp saved show
+
+```text
+Show every saved search and list, or the one with this name.
+
+Usage: biomcp saved show [NAME]
+
+Arguments:
+  [NAME]
+          Saved search or list name, without regard to case.
+
+Example: biomcp saved show
+
+```
+
+## biomcp saved export
+
+```text
+Export every saved search and list as typed JSON.
+
+Usage: biomcp saved export
+
+Example: biomcp saved export
+
+```
+
+## biomcp saved delete
+
+```text
+Delete the saved search or list with this name, or everything with --all; reply with what was deleted.
+
+Usage: biomcp saved delete [OPTIONS] [NAME]
+
+Arguments:
+  [NAME]
+          Saved search or list name.
+
+Options:
+      --all[=<all>]
+          Delete every saved search and list.
+
+          [default: false]
+          [possible values: true, false]
+
+Example: biomcp saved delete braf-genes
+
+```
+
+## biomcp saved list
+
+```text
+Add records to a named list or remove them.
+
+Usage: biomcp saved list <COMMAND>
+
+Commands:
+  add     Add record IDs that get ENTITY accepts to a list, making the list when it is new.
+  remove  Remove items with these IDs from a list.
+
+```
+
+## biomcp saved list add
+
+```text
+Add record IDs that get ENTITY accepts to a list, making the list when it is new.
+
+Usage: biomcp saved list add [OPTIONS] --entity <entity> <NAME> <ID>...
+
+Arguments:
+  <NAME>
+          List name, up to 80 characters.
+
+  <ID>...
+          Exact IDs the get command accepts.
+
+Options:
+      --entity <entity>
+          Entity word of the get command, such as gene or trial.
+
+      --source <source>
+          Source the IDs belong to, when the get command's IDs are source-specific.
+
+      --note <note>
+          A note kept with each added item, up to 2,000 characters.
+
+Example: biomcp saved list add braf-genes --entity gene BRAF
+
+```
+
+## biomcp saved list remove
+
+```text
+Remove items with these IDs from a list.
+
+Usage: biomcp saved list remove <NAME> <ID>...
+
+Arguments:
+  <NAME>
+          List name.
+
+  <ID>...
+          IDs to remove.
+
+Example: biomcp saved list remove braf-genes BRAF
+
+```
+
