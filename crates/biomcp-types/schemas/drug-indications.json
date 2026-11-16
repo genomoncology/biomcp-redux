@@ -847,6 +847,17 @@
     "Reply_DrugHeader": {
       "description": "One source candidate, without authorization, targets, label text or interactions.",
       "properties": {
+        "effective_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The label's effective date, as openFDA's `effective_time` states it; openFDA labels only."
+        },
         "id": {
           "$ref": "#/$defs/Reply_DrugId",
           "description": "Published native identifier."

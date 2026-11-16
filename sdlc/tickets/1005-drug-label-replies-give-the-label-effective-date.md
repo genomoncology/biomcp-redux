@@ -31,3 +31,11 @@ The msl persona on 3521c503a (bench ticket 0058, job j41885, records `0058-perso
 ## Changes
 
 - Changes: the label adapter and reply, the schema (one added field), a case and its recording, and one release-notes line.
+
+## Progress
+
+- Cause: the openFDA label adapter already read `effective_time` and put it in the card's `updated` and in a section's nested `label.revised`, but the reply's `identity`, where the SPL set ID and `version` sit, had no date, and the bare `get drug NAME label` reply (section names only) carried no date at all.
+- Change: `DrugHeader` gains the optional `effective_date`, serialized right after `version`. The openFDA label header fills it from `effective_time`; every other drug source leaves it out. Because the header is shared, openFDA label search rows and cards also carry it, which keeps a label's identity the same in every reply (a several-sections reply compares identities). Label choice, sections, hints and text are unchanged. Thirteen drug reply schemas gain the one optional field; the 1.0 baseline allows added optional fields.
+- Measured live in pm job j41933 (2026-11-16): KRAZATI matches one openFDA label, SPL set 0b8bf078-34c2-4f45-9012-38a8ac082b01, version 14, `effective_time` 20260831, so the label the msl persona read was current as of 2026-08-31. Both replies are kept whole in `tests/replies/drug/label-effective-date/`.
+- Proof: `tests/cases/drug/label-effective-date.yaml` reads `get drug KRAZATI label` and `--label-section indications_and_usage` and expects `/result/identity/effective_date` 2026-08-31 beside id and version 14. Cheap job j41936: schemas regenerated, `make check-cheap` and all 84 drug cases pass; with base 41ac1325f's crates the new case fails at step 1 (`effective_date` missing). No drug case's `max_bytes` needed raising.
+- Recording jobs j41926 and j41930 failed on recording setup (one recording directory reused, then a missing parent directory); j41933 recorded.
