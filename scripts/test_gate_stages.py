@@ -75,9 +75,9 @@ class GateStages(unittest.TestCase):
 
     def test_gate_runs_its_stages_in_order_and_stops_on_a_failing_stage(self):
         landing = ['rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases',
-                   'changed-tool-proofs', 'changed-library-tests']
+                   'changed-tool-proofs', 'changed-library-tests', 'changed-schema-release-check']
         full = ['audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
-                'tensor-proto-check', 'library-tests', 'tool-proofs', 'coverage']
+                'tensor-proto-check', 'library-tests', 'schema-release-check', 'tool-proofs', 'coverage']
         with tempfile.TemporaryDirectory() as temporary:
             tools = Path(temporary)
             make = tools / 'make'

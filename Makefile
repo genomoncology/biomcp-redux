@@ -183,12 +183,16 @@ source-capture:
 .PHONY: docs-generate
 docs-generate:
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::write_reference $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_THREADS) --ignored,-- --ignored)
-.PHONY: schema-generate schema-release-check
+.PHONY: schema-generate schema-release-check changed-schema-release-check
 schema-generate:
 	$(PYTHON) scripts/schema_release.py --generate
 
 schema-release-check:
 	$(PYTHON) scripts/schema_release.py
+
+# The landing gate's share: the comparison runs only when the branch changed its inputs (0997).
+changed-schema-release-check:
+	$(PYTHON) scripts/schema_release.py --changed
 
 .PHONY: tensor-proto-check
 tensor-proto-check:

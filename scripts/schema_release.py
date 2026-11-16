@@ -2,6 +2,11 @@
 
 Print a baseline summary and the selected Rust contract test result.
 Generation checks compatibility before writing. No baseline update occurs.
+
+With --changed, as the landing gate runs it (0997), compare only when the branch changed
+the comparison's inputs since it left main: the reply types and their checked-in schemas
+(crates/biomcp-types/), the baseline and reviews (release/schema-*), this script, or the
+workspace manifest, lock file, toolchain or Makefile. When no base can be found it compares.
 """
 import argparse
 import hashlib
@@ -17,6 +22,28 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BASELINE = ROOT / "release/schema-baseline.json"
 GENERATION_TEST = "checked_in_schemas_match_types"
+BASE_REF = os.environ.get("SCHEMA_RELEASE_BASE", "origin/main")
+INPUTS = ("crates/biomcp-types/", "release/schema-", "scripts/schema_release.py", ".cargo/")
+WORKSPACE_FILES = ("Cargo.toml", "Cargo.lock", "rust-toolchain", "rust-toolchain.toml", "Makefile")
+
+
+def changed():
+    """Whether the branch changed an input of the comparison since it left main."""
+    try:
+        base = subprocess.run(["git", "merge-base", "HEAD", BASE_REF], check=True,
+                              capture_output=True, text=True).stdout.strip()
+        # Names only, without rename detection, so a partial clone fetches no file contents.
+        listed = subprocess.run(["git", "diff", "-z", "--name-only", "--no-renames", base, "HEAD"],
+                                check=True, capture_output=True).stdout
+    except subprocess.CalledProcessError as error:
+        detail = os.fsdecode(error.stderr or b"").strip()
+        print(f"schema-release: no base from {BASE_REF} ({detail}); comparing", flush=True)
+        return True
+    paths = [os.fsdecode(path) for path in listed.split(b"\0") if path]
+    inputs = [path for path in paths if path in WORKSPACE_FILES or path.startswith(INPUTS)]
+    print(f"schema-release base={base} inputs={','.join(inputs[:5]) or 'none'}"
+          f"{',...' if len(inputs) > 5 else ''}", flush=True)
+    return bool(inputs)
 
 
 def run_schema_test(name, environment, nocapture=False):
@@ -109,11 +136,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
     parser.add_argument("--generate", action="store_true", help="regenerate checked-in schemas")
+    parser.add_argument("--changed", action="store_true",
+                        help="compare only when the branch changed the comparison's inputs")
     args = parser.parse_args()
     try:
         if args.generate:
             generate()
-        else:
+        elif not args.changed or changed():
             check(args.baseline)
     except (OSError, ValueError, tarfile.TarError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"schema release gate: {error}\n")
