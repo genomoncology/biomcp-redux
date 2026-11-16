@@ -198,6 +198,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-types/tests/schemas/compatibility_cases.rs` | Exercise checked values and schema contracts through the public library API. |
 | `crates/biomcp-types/tests/schemas/policy.rs` | Test reviewed schema pattern changes at exact paths and reject near misses. |
 | `crates/biomcp-types/tests/schemas/compatibility_recursive_cases.rs` | Exercise recursive public schema graphs and their compatibility constraints. |
+| `crates/biomcp-types/tests/schemas/compatibility_saved_cases.rs` | Hold saved-work schemas to added optional fields only. |
 | `crates/biomcp-types/tests/schemas/temporal.rs` | Exercise native timestamp schema spelling and temporal property consistency. |
 | `crates/biomcp-types/tests/schemas/drug.rs` | Exercise public drug header and card disclosure boundaries through their serialized values and schemas. |
 | `crates/biomcp-types/tests/schemas/registry.rs` | Register public value and research query schema contracts for schema drift checks. |
