@@ -50,3 +50,4 @@ From the review of 0990 and 0991 (2026-11-16), which accepted both:
 - `mcp_reply_form.rs` and `typed_followups.rs` send the second (HTTP) request only in local mode; in hosted mode the one HTTP reply is checked alone. The unhosted stdio legs in `mcp_hosted.rs` are renamed `mcp-hosted/local-stdio/*`, since they check ordinary stdio replies as the contrast to hosted refusals.
 - `docs/configuration.md` names `serve --hosted --http` for the hosted reply-form default.
 - Cheap job j41676 at 3efa3ecad: no docs or schemas regenerated; every `mcp-parity` (65) and `mcp-hosted` (54) trial and all 50 ratchet tests passed; `check-cheap` failed only on `cargo fmt` and `too_many_lines` in the two hosted test functions, both fixed.
+- Gate `make --keep-going landing-gate docs-check schema-release-check` passed in pm job j41686 at d82df6e90 (branch merged with origin/main 616e68d22).
