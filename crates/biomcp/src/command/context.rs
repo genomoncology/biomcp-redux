@@ -15,6 +15,8 @@ pub(crate) struct Context<'a> {
     pub(crate) excluded: Option<&'a BTreeSet<Source>>,
     pub(crate) declared_use: Option<super::DeclaredUse>,
     pub(crate) scope: Option<&'a Cancellation>,
+    /// Hosted mode's account header, which names the saved-work file; never a path.
+    pub(crate) account: Option<&'a str>,
 }
 impl<'a> Context<'a> {
     pub(crate) fn new(
@@ -33,6 +35,7 @@ impl<'a> Context<'a> {
             excluded: None,
             declared_use: None,
             scope: None,
+            account: None,
         }
     }
 }

@@ -70,7 +70,7 @@ pub(in crate::runner) const MAP: &[(&str, &str, &str)] = &[
     ("study", "gwas_get", "get_gwas"),
 ];
 
-pub(in crate::runner) const TOOLS: [&str; 17] = [
+pub(in crate::runner) const TOOLS: [&str; 18] = [
     "gene",
     "variant",
     "disease",
@@ -84,6 +84,7 @@ pub(in crate::runner) const TOOLS: [&str; 17] = [
     "diagnostic",
     "cell_line",
     "study",
+    "saved",
     "help",
     "biomcp",
     "search",
@@ -93,6 +94,10 @@ pub(in crate::runner) const TOOLS: [&str; 17] = [
 /// An entity tool's advertised actions, in map order: the map's actions that have an object
 /// in its schema. A shared tool, which takes no action, has none.
 pub(in crate::runner) fn actions(tool: &Value) -> Option<Vec<Value>> {
+    // The saved-work tool has actions of its own, not registry commands; it is a shared tool.
+    if tool["name"] == "saved" {
+        return None;
+    }
     let fields = tool
         .pointer("/inputSchema/properties")
         .and_then(Value::as_object)
@@ -179,7 +184,7 @@ pub(super) fn check(tools: &[Value]) -> Result<(), String> {
         .collect::<Vec<_>>();
     if names != TOOLS {
         return Err(format!(
-            "approved catalog is the 17 entity tools, got {names:?}"
+            "approved catalog is the 17 entity tools and saved, got {names:?}"
         ));
     }
     coverage(tools)?;
@@ -242,6 +247,20 @@ pub(super) fn coverage(tools: &[Value]) -> Result<(), String> {
 pub(in crate::runner) fn coverage_schemas(tools: &[Value]) -> Result<(), String> {
     for tool in tools {
         let name = tool["name"].as_str().ok_or("tool name")?;
+        if name == "saved" {
+            // Like an entity tool, saved names its fields without forbidding others. A saved
+            // search's call carries an entity tool's arguments, which that tool's own schema
+            // names and the server checks against it.
+            let mut schema = tool["inputSchema"].clone();
+            if let Some(call) = schema
+                .pointer_mut("/properties/save_search/properties/call/properties")
+                .and_then(Value::as_object_mut)
+            {
+                call.shift_remove("arguments");
+            }
+            free_form(&schema, name, false)?;
+            continue;
+        }
         let Some(actions) = actions(tool) else {
             free_form(&tool["inputSchema"], name, true)?;
             continue;

@@ -36,6 +36,8 @@ pub(super) fn tools(root: &crate::grammar::Root) -> io::Result<Vec<Value>> {
 #[derive(Clone)]
 pub(super) enum Projection {
     Cli,
+    /// The typed `saved` tool: saved command words, or a search with `--save-as`.
+    Saved,
     Search,
     Fetch(String),
 }
@@ -108,7 +110,7 @@ pub(super) fn execute(
     http: bool,
 ) -> io::Result<Completed> {
     // Research views have their own shape; chosen fields belong to entity searches.
-    let mut outcome = if !matches!(call.projection, Projection::Cli)
+    let mut outcome = if matches!(call.projection, Projection::Search | Projection::Fetch(_))
         && call
             .args
             .iter()
@@ -119,6 +121,8 @@ pub(super) fn execute(
             biomcp_types::UsageError::argument("--fields".into()),
             crate::command::Encoding::Mcp,
         )?
+    } else if matches!(call.projection, Projection::Saved) {
+        crate::saved_mcp::tool(&call.args, context)?
     } else if http {
         crate::command::tool_http(&call.args, context)?
     } else {
@@ -156,7 +160,7 @@ fn prepare_view(
     original: &Value,
 ) -> io::Result<Option<View>> {
     match &call.projection {
-        Projection::Cli => Ok(None),
+        Projection::Cli | Projection::Saved => Ok(None),
         Projection::Search => {
             search(root, call, original.clone()).map(|value| Some(View::Search(value)))
         }

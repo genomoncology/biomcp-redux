@@ -17,10 +17,15 @@ pub(super) fn compatible(
 }
 
 /// `new` admits nothing `old` did not, apart from a longer open (`x-extensible-enum`) value
-/// list, such as a new source, or a reviewed pattern widening the forward check allowed.
+/// list, such as a new source, a reviewed pattern widening the forward check allowed, or a
+/// reviewed raise of a text length limit.
 fn reverse(old: &Shape, new: &Shape, reviews: &Reviews, context: (&str, u64, &str)) -> bool {
     let mut back = new.clone();
     back.pattern.clone_from(&old.pattern);
+    let (name, major, path) = context;
+    if reviews.length_raise(name, major, path, old.maximum_length, new.maximum_length) {
+        back.maximum_length = old.maximum_length;
+    }
     if old.open_enum && new.open_enum {
         back.values.clone_from(&old.values);
     }

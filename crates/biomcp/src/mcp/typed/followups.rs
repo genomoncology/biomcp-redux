@@ -48,6 +48,21 @@ pub(super) fn project(
     Ok(calls)
 }
 
+/// The typed call for command words, with any carried `--fields=a,b` as its `fields` list.
+pub(super) fn call(
+    root: &crate::grammar::Root,
+    words: &[Value],
+    tools: &super::grouping::Catalog,
+) -> Option<Value> {
+    let args = without_globals(root, words)?;
+    let mut call = super::summary::translate(root, &args, tools)?;
+    if let Some(chosen) = chosen_fields(words) {
+        let arguments = call.get_mut("arguments")?.as_object_mut()?;
+        arguments.insert("fields".into(), chosen);
+    }
+    Some(call)
+}
+
 /// A step's command-line options under the argument names the called tool advertises; an
 /// option the tool does not advertise is left out.
 fn options_for(

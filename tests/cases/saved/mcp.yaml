@@ -1,0 +1,381 @@
+{
+  "live_check": "public",
+  "feature": "saved-work",
+  "story": "A typed MCP caller searches trials, runs the reply's save step as written and again by hand, sees the search from the command line, keeps genes and a cell line in lists, removes one, notes an item and the project, checks the saved search for changes, exports, is refused a path, an unknown action, a non-search call, an unknown name and a list add without IDs, and deletes everything.",
+  "replay": "trial/condition",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "condition": "melanoma"
+          }
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/next/*/kind": {
+          "includes": "save"
+        },
+        "/next/*/name": {
+          "includes": "saved"
+        }
+      }
+    },
+    {
+      "follow": "save",
+      "expect": {
+        "/schema": "biomcp.saved/1",
+        "/result/searches/0/name": "trial --condition melanoma",
+        "/result/searches/0/args": {
+          "equals": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "save_search",
+          "save_search": {
+            "name": "trial --condition melanoma",
+            "call": {
+              "name": "trial",
+              "arguments": {
+                "action": "search",
+                "search": {
+                  "condition": "melanoma"
+                }
+              }
+            }
+          }
+        }
+      },
+      "expect": {
+        "/result/searches/*/name": {
+          "equals": [
+            "trial --condition melanoma"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "show"
+      ],
+      "expect": {
+        "/result/searches/*/name": {
+          "equals": [
+            "trial --condition melanoma"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "list_add",
+          "list_add": {
+            "name": "braf-genes",
+            "entity": "gene",
+            "note": "--help",
+            "ids": [
+              "BRAF",
+              "NRAS"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/result/lists/0/name": "braf-genes",
+        "/result/lists/0/items/*/ref/id": {
+          "equals": [
+            "BRAF",
+            "NRAS"
+          ]
+        },
+        "/result/lists/0/items/0/note": "--help"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "list_add",
+          "list_add": {
+            "name": "cell-lines",
+            "entity": "cell_line",
+            "ids": [
+              "CVCL_0023"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/result/lists/0/items/0/ref/entity": "cell-line"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "list_remove",
+          "list_remove": {
+            "name": "braf-genes",
+            "ids": [
+              "NRAS",
+              "KIT"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/result/lists/0/items/*/ref/id": {
+          "equals": [
+            "BRAF"
+          ]
+        },
+        "/result/missing": {
+          "equals": [
+            "KIT"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "note",
+          "note": {
+            "name": "braf-genes",
+            "item": "BRAF",
+            "text": "Check V600E trials"
+          }
+        }
+      },
+      "expect": {
+        "/result/user_notes/0/target/kind": "item",
+        "/result/user_notes/0/text": "Check V600E trials"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "note",
+          "note": {
+            "text": "tumor board"
+          }
+        }
+      },
+      "expect": {
+        "/result/user_notes/0/target/kind": "project"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "show",
+          "show": {
+            "name": "BRAF-GENES"
+          }
+        }
+      },
+      "expect": {
+        "/result/lists/*/name": {
+          "equals": [
+            "braf-genes"
+          ]
+        },
+        "/result/user_notes": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "changed",
+          "changed": {
+            "name": "trial --condition melanoma"
+          }
+        }
+      },
+      "expect": {
+        "/result/changes/0/search": "trial --condition melanoma",
+        "/result/changes/0/state": "first"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "changed"
+        }
+      },
+      "expect": {
+        "/result/changes/0/state": "not_due"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "export"
+        }
+      },
+      "expect": {
+        "/result/snapshots": {
+          "count": 1
+        },
+        "/result/lists": {
+          "count": 2
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "show",
+          "show": {
+            "path": "/tmp/other.sqlite"
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "path",
+        "/error/valid_values": {
+          "equals": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "rename"
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "action",
+        "/error/valid_values": {
+          "includes": "save_search"
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "save_search",
+          "save_search": {
+            "name": "one-gene",
+            "call": {
+              "name": "gene",
+              "arguments": {
+                "action": "get",
+                "get": {
+                  "id": "BRAF"
+                }
+              }
+            }
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "call"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "delete",
+          "delete": {
+            "name": "nothing"
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "name",
+        "/error/message": "no saved search or list has this name; biomcp saved show lists the names"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "list_add",
+          "list_add": {
+            "name": "x",
+            "entity": "gene"
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "ids"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {
+          "action": "delete",
+          "delete": {
+            "all": true
+          }
+        }
+      },
+      "expect": {
+        "/result/searches/*/name": {
+          "equals": [
+            "trial --condition melanoma"
+          ]
+        },
+        "/result/lists": {
+          "count": 2
+        }
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "show"
+      ],
+      "expect": {
+        "/result": {
+          "equals": {}
+        }
+      }
+    }
+  ]
+}

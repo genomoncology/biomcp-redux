@@ -39,8 +39,13 @@ struct Key {
 }
 
 impl SavedStore {
-    /// Attach a note; the same text on the same target again returns the note unchanged.
-    pub fn note(&mut self, target: NoteTarget<'_>, note: &Text) -> Result<SavedNote, SavedError> {
+    /// Attach a note; the same text on the same target again returns the note unchanged. A
+    /// note on an item whose stored source this build cannot read is kept and answers its skip.
+    pub fn note(
+        &mut self,
+        target: NoteTarget<'_>,
+        note: &Text,
+    ) -> Result<Result<SavedNote, SavedSkipped>, SavedError> {
         within(note.as_str(), NOTE_CHARS)?;
         self.write(|tx, now| {
             let key = resolve(tx, target)?;
@@ -60,7 +65,7 @@ impl SavedStore {
                     seconds(now)?
                 ],
             )?;
-            load(tx, &id)
+            read(tx, &id)
         })
     }
 
@@ -199,11 +204,6 @@ type NoteRow = (
     String,
     i64,
 );
-
-/// Load a note this build can read; the note and delete replies need one.
-pub(super) fn load(connection: &Connection, id: &str) -> Result<SavedNote, SavedError> {
-    read(connection, id)?.map_err(|_| SavedError::Database)
-}
 
 /// Load a note, or the skip for a note kind or item source a newer build wrote.
 pub(super) fn read(

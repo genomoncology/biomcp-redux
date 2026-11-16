@@ -11,6 +11,7 @@ mod grouping;
 pub(super) use grouping::Catalog;
 mod help;
 mod refusal;
+mod saved;
 mod summary;
 mod validation;
 
@@ -52,6 +53,16 @@ pub(super) fn prepare_with_catalog(
         }
         fields.insert("next".into(), json!([call]));
     }
+    // Typed only: a save step's call is the `saved` tool's, which single mode lacks.
+    if let Some(step) = saved::step(context, value, args, advertised)
+        && let Some(fields) = value.as_object_mut()
+        && let Some(next) = fields
+            .entry("next")
+            .or_insert_with(|| json!([]))
+            .as_array_mut()
+    {
+        next.push(step);
+    }
     Ok(())
 }
 
@@ -72,7 +83,7 @@ fn name(verb: &str, entity: &str) -> String {
     catalog::front_map::command_name(verb, entity)
 }
 /// Catalog tools that are not entity tools. A test walks the real catalog against this list.
-const FIXED_TOOLS: [&str; 4] = ["biomcp", "help", "search", "fetch"];
+const FIXED_TOOLS: [&str; 5] = ["biomcp", "help", "search", "fetch", saved::NAME];
 /// Whether a caller-supplied tool name is one this build can serve, so it is safe to log.
 pub(in crate::mcp) fn served(tool: &str) -> bool {
     FIXED_TOOLS.contains(&tool)
@@ -150,6 +161,9 @@ pub(super) fn parse(
     let root = context.root;
     let mut catalog = catalog(context, read_only).ok()?;
     let called = params.get("name")?.as_str()?;
+    if called == saved::NAME {
+        return saved::parse(context, params, read_only, catalog);
+    }
     if called == "help" {
         let mut call = help::parse(params)?;
         call.catalog = Some(catalog);

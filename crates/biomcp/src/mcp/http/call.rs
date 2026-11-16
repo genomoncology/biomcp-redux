@@ -48,6 +48,8 @@ pub(super) struct ToolCall {
     /// The hosted whole-call deadline, which a slow source's declared budget may lengthen;
     /// plain HTTP has none, and its wait ends at the command budget.
     pub(super) scope: Option<Cancellation>,
+    /// Hosted mode's checked account header.
+    pub(super) account: Option<String>,
 }
 
 impl Calls {
@@ -64,6 +66,7 @@ impl Calls {
             excluded,
             declared_use,
             scope,
+            account,
         } = work;
         let budget = crate::config::budget(&service.settings);
         let patience = service
@@ -105,6 +108,7 @@ impl Calls {
                     excluded: Some(&excluded),
                     declared_use,
                     scope: worker_scope.as_ref(),
+                    account: account.as_deref(),
                 };
                 let outcome = worker::execute(|| {
                     research::execute(&call, context, true).map(|outcome| {

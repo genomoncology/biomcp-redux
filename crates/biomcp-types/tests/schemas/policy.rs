@@ -19,6 +19,19 @@ pub(super) struct Reviews {
     successors: Vec<Successor>,
     #[serde(default)]
     enum_transitions: Vec<EnumTransition>,
+    #[serde(default)]
+    length_raises: Vec<LengthRaise>,
+}
+
+/// A reviewed raise of a text length limit, such as a shared BioData text type's.
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct LengthRaise {
+    schema: String,
+    path: String,
+    from: u64,
+    to: u64,
+    review: String,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -66,12 +79,33 @@ struct EnumTransition {
 }
 
 impl Reviews {
-    /// Saved schemas take only reviewed pattern widenings, such as a shared BioData pattern.
+    /// Saved schemas take only reviewed widenings: a pattern or a text length limit, such as
+    /// a shared BioData type's.
     pub(super) fn widenings_only(&self) -> Self {
         Self {
             pattern_widenings: self.pattern_widenings.clone(),
+            length_raises: self.length_raises.clone(),
             ..Self::default()
         }
+    }
+
+    /// Whether a raise of a text length limit at this schema path was reviewed.
+    pub(super) fn length_raise(
+        &self,
+        name: &str,
+        major: u64,
+        path: &str,
+        from: Option<u64>,
+        to: Option<u64>,
+    ) -> bool {
+        self.length_raises.iter().any(|entry| {
+            entry.schema == format!("{name}/{major}")
+                && entry.path == path
+                && from == Some(entry.from)
+                && to == Some(entry.to)
+                && entry.from < entry.to
+                && !entry.review.trim().is_empty()
+        })
     }
 
     /// Replace only an explicitly reviewed enum node in a private baseline copy.

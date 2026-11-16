@@ -119,6 +119,7 @@ mod schema_proof;
 tool_only! { mod semantic_tables; }
 mod cache_errors;
 mod saved_files;
+mod saved_hosted;
 mod snapshot_errors;
 mod source_queries;
 mod source_terms;

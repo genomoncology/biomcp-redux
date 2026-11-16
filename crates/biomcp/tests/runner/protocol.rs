@@ -80,6 +80,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(reply_size::trials());
     trials.extend(super::store_clean::trials());
     trials.extend(super::saved_files::trials());
+    trials.extend(super::saved_hosted::trials());
     trials.extend(super::store_coexistence::trials());
     trials
 }

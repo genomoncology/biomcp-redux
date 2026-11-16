@@ -25,7 +25,7 @@ pub(super) fn check() -> Result<(), String> {
             .get("name")
             .and_then(Value::as_str)
             .ok_or("tool name")?;
-        let writes = matches!(name, "biomcp" | "article" | "trial");
+        let writes = matches!(name, "biomcp" | "article" | "trial" | "saved");
         if tool.pointer("/annotations/readOnlyHint") != Some(&json!(!writes)) {
             return Err(format!("wrong file capability hint: {name}"));
         }

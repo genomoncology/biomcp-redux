@@ -26,7 +26,13 @@ pub(super) fn check() -> Result<(), String> {
     let (_, served) = server.request("POST", "/mcp", &list.to_string())?;
     let served = tools(std::slice::from_ref(&served))?;
     let names = served.iter().map(|tool| &tool["name"]).collect::<Vec<_>>();
-    if names != super::typed_catalog::TOOLS {
+    // Hosted mode offers saved work only when started with a saved-work folder.
+    let hosted = super::typed_catalog::TOOLS
+        .iter()
+        .copied()
+        .filter(|name| *name != "saved")
+        .collect::<Vec<_>>();
+    if names != hosted {
         return Err(format!("hosted HTTP serves other tools: {names:?}"));
     }
     super::typed_catalog::coverage_schemas(&served)?;

@@ -54,6 +54,8 @@ pub(crate) struct Globals {
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
     pub(crate) hosted: bool,
+    /// Hosted mode's saved-work folder; each account's file sits under the account header.
+    pub(crate) saved_folder: Option<PathBuf>,
     /// Set when a server call inherits the process globals; its caller cannot name their paths.
     pub(crate) served: bool,
     pub(crate) mcp_tool_mode: Option<crate::config::ToolMode>,
@@ -389,6 +391,7 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ParseInvalid> {
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
         hosted: false,
+        saved_folder: None,
         served: false,
         http_max_calls: None,
         http_max_connections: None,
@@ -476,6 +479,7 @@ impl Globals {
         self.case_cache = process.case_cache.clone();
         self.fresh |= process.fresh;
         self.hosted = process.hosted;
+        self.saved_folder.clone_from(&process.saved_folder);
         self.served = true;
         self.http_max_calls = process.http_max_calls;
         self.http_max_connections = process.http_max_connections;
