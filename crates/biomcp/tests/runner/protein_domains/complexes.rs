@@ -5,6 +5,7 @@ pub(super) fn run() -> Result<(), String> {
     let first = call(&env, &["protein", "complexes", "P38398"], 0)?;
     super::super::protein_budgets::check(&first, "synthetic-complex/headers", "cli")?;
     if first.pointer("/result/native_total") != Some(&json!(3))
+        || first.pointer("/result/total") != Some(&json!(2))
         || first.pointer("/page/total") != Some(&json!(2))
         || first.pointer("/result/items/0/predicted") != Some(&json!(true))
     {

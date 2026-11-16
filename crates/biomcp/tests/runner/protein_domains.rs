@@ -72,6 +72,7 @@ fn domains() -> Result<(), String> {
     )?;
     super::protein_budgets::check(&selected, "synthetic-domains/selected-domain", "cli")?;
     if selected.pointer("/page/total") != Some(&json!(1))
+        || selected.pointer("/result/total") != Some(&json!(1))
         || selected.pointer("/result/native_total") != Some(&json!(2))
         || selected.pointer("/result/items/0/id") != Some(&json!("IPR010991"))
     {

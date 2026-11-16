@@ -971,6 +971,13 @@
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole selected collection before paging; the count to report.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -1118,6 +1125,13 @@
         },
         "native_total": {
           "description": "Native source total before type selection or exact participant admission.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole selected collection before paging; the count to report.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
