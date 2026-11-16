@@ -78,7 +78,7 @@
         "/result/items/19/status": "failed",
         "/result/items/19/failure/source": "ctgov",
         "/result/items/19/failure/reason": "unavailable",
-        "/result/items/19/failure/problem": "ClinicalTrials.gov did not return this trial. Read it again with the fresh step.",
+        "/result/items/19/failure/problem": "ClinicalTrials.gov did not return this trial. Read it again on its own or in smaller batches.",
         "/next/0/kind": "fresh",
         "/next/0/args": [
           "get",

@@ -32,20 +32,34 @@ impl Leg<'_> {
     }
 }
 
+/// Most time pacing may add to one command, the largest declared slow-source command budget
+/// (VAERS, 60 s), so slower configured pacing cannot hold a hosted call for minutes (1003).
+pub const PACED_CEILING: Duration = Duration::from_secs(60);
+
 impl crate::Fetch {
-    /// Time BioMCP's own pacing adds to `requests` sequential keyless requests to `spec`: one
-    /// interval after each but the first, so a batch BioMCP accepts is not cut short by its own
-    /// spacing (1003).
+    /// Time BioMCP's own pacing adds to `requests` sequential requests to `spec`: one interval
+    /// after each but the first, so a batch BioMCP accepts is not cut short by its own spacing
+    /// (1003). It uses the rate admission uses: the keyed rate when this caller holds the key,
+    /// scaled by the rate share only for a hosted caller with a key. At most [`PACED_CEILING`].
     pub fn paced_time(&self, spec: &crate::SourceSpec, requests: usize) -> Duration {
+        let keyed = match spec.key {
+            KeyUse::Optional(c) | KeyUse::Required(c) => self.secrets.get(c.secret).is_some(),
+            KeyUse::None => false,
+        };
         let rate = self
             .config
             .source_pacing
             .resolve(spec.quota)
-            .credential_rate(false);
+            .credential_rate(keyed);
+        let share = if self.hosted && keyed {
+            self.config.rate_share
+        } else {
+            super::RateShare::default()
+        };
         let tokens = u128::try_from(requests.saturating_sub(1))
             .unwrap_or(u128::MAX)
             .saturating_mul(1_000_000_000);
-        self.config.rate_share.delay(tokens, rate)
+        share.delay(tokens, rate).min(PACED_CEILING)
     }
     /// The caller's budget plus [`Self::paced_time`]; a hosted call's end lengthens to match, as
     /// for a declared source budget. Pass the same count to [`Self::paced_leg`].

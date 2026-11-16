@@ -116,23 +116,42 @@ fn fetch(
 /// Say on the item itself why it was not read, and whether the cause is BioMCP's own limit.
 fn failure(reason: Option<biomcp_types::Reason>) -> biomcp_types::TrialItemFailure {
     use biomcp_types::Reason;
-    let problem = match reason {
-        Some(Reason::DeadlineExceeded) => {
-            "BioMCP's own time limit for this command ran out before this trial was read. Read it again with the fresh step, or in smaller batches."
-        }
-        Some(Reason::LocalQuota) => {
-            "BioMCP's own request pacing for ClinicalTrials.gov left no time to read this trial. Read it again with the fresh step, or in smaller batches."
-        }
-        Some(Reason::RateLimited) => {
-            "ClinicalTrials.gov limited the request rate before this trial was read. Read it again with the fresh step after a short wait."
-        }
-        Some(Reason::ReplayMiss) => "No recorded reply matched this trial's request.",
-        Some(_) => {
-            "ClinicalTrials.gov did not return this trial. Read it again with the fresh step."
-        }
-        None => {
-            "BioMCP's local cache failed while reading this trial. Read it again with the fresh step."
-        }
+    const AGAIN: &str = "Read it again on its own or in smaller batches.";
+    let (cause, again) = match reason {
+        Some(Reason::DeadlineExceeded) => (
+            "BioMCP's own time limit for this command ran out before this trial was read.",
+            true,
+        ),
+        Some(Reason::LocalQuota) => (
+            "BioMCP's own request pacing for ClinicalTrials.gov left no time to read this trial.",
+            true,
+        ),
+        Some(Reason::TooLarge) => (
+            "ClinicalTrials.gov's reply for this trial was larger than BioMCP's reply cap.",
+            false,
+        ),
+        Some(
+            Reason::Disabled | Reason::Offline | Reason::NoKey | Reason::Tls | Reason::Proxy,
+        ) => (
+            "A local BioMCP setting stopped the request for this trial; reading it again will not help until the setting changes.",
+            false,
+        ),
+        Some(Reason::BadReply) => (
+            "ClinicalTrials.gov answered for this trial, but BioMCP could not use the reply.",
+            false,
+        ),
+        Some(Reason::RateLimited) => (
+            "ClinicalTrials.gov limited the request rate before this trial was read; wait a moment first.",
+            true,
+        ),
+        Some(Reason::ReplayMiss) => ("No recorded reply matched this trial's request.", false),
+        Some(_) => ("ClinicalTrials.gov did not return this trial.", true),
+        None => ("A local error in BioMCP stopped this trial from being read.", true),
+    };
+    let problem = if again {
+        format!("{cause} {AGAIN}")
+    } else {
+        cause.to_owned()
     };
     biomcp_types::TrialItemFailure {
         source: Source::ClinicalTrialsGov,

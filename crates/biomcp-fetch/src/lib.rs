@@ -72,7 +72,8 @@ pub use error::{
     BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError, bad_reply,
 };
 pub use quota::{
-    InvalidRateShare, PacingOverride, PacingRate, Quota, Rate, RateShare, SourceKey, SourcePacing,
+    InvalidRateShare, PACED_CEILING, PacingOverride, PacingRate, Quota, Rate, RateShare, SourceKey,
+    SourcePacing,
 };
 pub use record::ReplayCache;
 pub use secret::{KeyFingerprint, Secret, Secrets};
