@@ -255,9 +255,11 @@ def main():
         record.write_text(original_record + f"Evidence at ~/{folder}/data/x.\n")
         result = check(root)
         assert result.returncode != 0 and "sdlc/planning/upgrade.md:" in result.stderr, result
-        # A made-up machine name joins the hashed set, so this test names no real machine.
-        check_docs.INTERNAL_WORDS.add(check_docs.digest("plantedhost"))
-        record.write_text(original_record + "Ran on plantedhost.\n")
+        # A made-up machine name joins the hashed set, so this test names no real machine. It is
+        # split because the checker also reads this file.
+        machine = "planted" + "host"
+        check_docs.INTERNAL_WORDS.add(check_docs.digest(machine))
+        record.write_text(original_record + f"Ran on {machine}.\n")
         try:
             check_docs.internal_names(root)
             raise AssertionError("a machine name in sdlc/ passed the internal-word check")
@@ -265,7 +267,7 @@ def main():
             assert str(error).startswith("sdlc/planning/upgrade.md:"), error
         record.write_text(original_record)
         check_docs.internal_names(root)
-        check_docs.INTERNAL_WORDS.discard(check_docs.digest("plantedhost"))
+        check_docs.INTERNAL_WORDS.discard(check_docs.digest(machine))
         readme.write_text(original_readme + "See https://example.org/home/about and /home/runner/work.\n")
         assert check(root).returncode == 0, check(root).stderr
         readme.write_text(original_readme)
