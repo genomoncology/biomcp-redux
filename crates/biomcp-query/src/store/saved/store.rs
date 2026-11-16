@@ -10,7 +10,7 @@ use super::MIGRATIONS;
 pub const PROJECT: &str = "default";
 /// Longest accepted name, in characters.
 pub const NAME_CHARS: usize = 80;
-/// Longest accepted item note, in characters.
+/// Longest accepted note, in characters.
 pub const NOTE_CHARS: usize = 2_000;
 
 /// SHA-256 of the checked request in hex, so the same request always gives the same key.
@@ -34,6 +34,21 @@ pub enum SavedError {
     Unknown,
     /// The file could not be read or written.
     Database,
+    /// A name is over 80 characters or a note over 2,000.
+    TooLong,
+    /// The list holds no item with this ID.
+    ItemUnknown,
+    /// The list holds the ID under more than one entity or source.
+    Ambiguous,
+}
+
+/// Refuse a name or note over its limit in characters.
+pub(super) fn within(value: &str, limit: usize) -> Result<(), SavedError> {
+    if value.chars().count() > limit {
+        Err(SavedError::TooLong)
+    } else {
+        Ok(())
+    }
 }
 impl From<rusqlite::Error> for SavedError {
     fn from(error: rusqlite::Error) -> Self {
@@ -148,6 +163,7 @@ impl SavedStore {
         schema: &str,
         request_key: &str,
     ) -> Result<SavedSearch, SavedError> {
+        within(name.as_str(), NAME_CHARS)?;
         self.write(|tx, now| {
             search_name_free(tx, name.as_str(), args)?;
             if search_id(tx, name.as_str())?.is_none() {
@@ -171,6 +187,10 @@ impl SavedStore {
 
     /// Add items to a list, making the list when it is new. Present items stay as they are.
     pub fn list_add(&mut self, name: &Text, items: &[NewItem]) -> Result<SavedList, SavedError> {
+        within(name.as_str(), NAME_CHARS)?;
+        for note in items.iter().filter_map(|item| item.note.as_ref()) {
+            within(note.as_str(), NOTE_CHARS)?;
+        }
         self.write(|tx, now| {
             if search_id(tx, name.as_str())?.is_some() {
                 return Err(SavedError::Taken);
@@ -225,6 +245,7 @@ impl SavedStore {
                     params![id, item.as_str()],
                 )?;
                 if count > 0 {
+                    super::notes::delete_item(tx, &id, item.as_str())?;
                     removed.push(item);
                 } else if !removed.contains(&item) && !missing.contains(item) {
                     missing.push(item.clone());
@@ -245,15 +266,21 @@ impl SavedStore {
         select(&self.connection, name)
     }
 
-    /// Delete the search or list with this name, or everything, and return what was deleted.
+    /// Delete the search or list with this name, or everything, with their notes, and return
+    /// what was deleted.
     pub fn delete(&mut self, name: Option<&str>) -> Result<Saved, SavedError> {
         self.write(|tx, _| {
             let deleted = select(tx, name)?;
+            if name.is_none() {
+                tx.execute("DELETE FROM saved_note", [])?;
+            }
             for search in &deleted.searches {
+                super::notes::delete_record(tx, search.id.as_str())?;
                 super::snapshot::delete_snapshots(tx, search.id.as_str())?;
                 tx.execute("DELETE FROM saved_search WHERE id=?1", [search.id.as_str()])?;
             }
             for list in &deleted.lists {
+                super::notes::delete_record(tx, list.id.as_str())?;
                 tx.execute(
                     "DELETE FROM saved_list_item WHERE list=?1",
                     [list.id.as_str()],
@@ -305,7 +332,7 @@ pub(super) fn search_id(connection: &Connection, name: &str) -> Result<Option<St
         .optional()?)
 }
 
-fn list_id(connection: &Connection, name: &str) -> Result<Option<String>, SavedError> {
+pub(super) fn list_id(connection: &Connection, name: &str) -> Result<Option<String>, SavedError> {
     Ok(connection
         .query_row(
             "SELECT id FROM saved_list WHERE project=?1 AND name=?2 COLLATE NOCASE",
@@ -315,15 +342,22 @@ fn list_id(connection: &Connection, name: &str) -> Result<Option<String>, SavedE
         .optional()?)
 }
 
+/// Every saved search, list and note, or the search or list with this name and its notes.
 fn select(connection: &Connection, name: Option<&str>) -> Result<Saved, SavedError> {
+    use super::notes::{Scope, ids as note_ids, load as note};
     let mut saved = Saved::default();
     if let Some(name) = name {
-        if let Some(id) = search_id(connection, name)? {
+        let record = if let Some(id) = search_id(connection, name)? {
             saved.searches.push(search(connection, &id)?);
+            id
         } else if let Some(id) = list_id(connection, name)? {
             saved.lists.push(list(connection, &id)?);
+            id
         } else {
             return Err(SavedError::Unknown);
+        };
+        for id in note_ids(connection, Scope::Record(&record))? {
+            saved.user_notes.push(note(connection, &id)?);
         }
         return Ok(saved);
     }
@@ -337,6 +371,9 @@ fn select(connection: &Connection, name: Option<&str>) -> Result<Saved, SavedErr
     }
     for id in ids("SELECT id FROM saved_list ORDER BY project, name COLLATE NOCASE, id")? {
         saved.lists.push(list(connection, &id)?);
+    }
+    for id in note_ids(connection, Scope::All)? {
+        saved.user_notes.push(note(connection, &id)?);
     }
     Ok(saved)
 }

@@ -153,6 +153,7 @@ fn registry() -> Vec<Contract> {
         SavedList => ("saved-list", "biomcp.saved-list/1"),
         SavedSnapshot => ("saved-snapshot", "biomcp.saved-snapshot/1"),
         ChangeReport => ("change-report", "biomcp.change-report/1"),
+        SavedNote => ("saved-note", "biomcp.saved-note/1"),
     };
     contracts.extend(common_registry());
     contracts.extend(article_registry());

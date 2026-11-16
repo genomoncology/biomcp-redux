@@ -118,8 +118,8 @@ fn argument(arg: &Arg) -> HelpArgument {
 pub(crate) fn root_help() -> HelpCommand {
     HelpCommand {
         command: vec!["saved".into()],
-        description: "Keep named searches (search ... --save-as NAME) and lists of record IDs on \
-            this machine; command line only. Run biomcp help saved."
+        description: "Keep named searches (search ... --save-as NAME), lists of record IDs and \
+            notes on this machine; command line only. Run biomcp help saved."
             .into(),
         reply_schemas: vec![Saved::SCHEMA.into()],
         arguments: Vec::new(),

@@ -99,6 +99,25 @@ fn write(out: &Path) -> Result<(), String> {
             "NRAS",
         ],
     )?;
+    for note in [
+        &[
+            "saved",
+            "note",
+            "melanoma-trials",
+            "Recheck before the tumor board",
+        ][..],
+        &[
+            "saved",
+            "note",
+            "braf-genes",
+            "--item",
+            "BRAF",
+            "V600E first",
+        ],
+        &["saved", "note", "--project", "default", "Melanoma work"],
+    ] {
+        run(&env, note)?;
+    }
     let folder = out.join(env!("CARGO_PKG_VERSION"));
     fs::create_dir_all(&folder).map_err(|error| error.to_string())?;
     fs::copy(saved_file(&env), folder.join("saved.sqlite")).map_err(|error| error.to_string())?;

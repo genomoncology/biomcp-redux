@@ -24,6 +24,11 @@ pub const MIGRATIONS: &[&str] = &[
     "CREATE TABLE saved_snapshot_row(snapshot TEXT NOT NULL, position INTEGER NOT NULL, \
      entity TEXT NOT NULL, id TEXT NOT NULL, source TEXT NOT NULL DEFAULT '', \
      fingerprint TEXT NOT NULL, PRIMARY KEY(snapshot, position))",
+    "CREATE TABLE saved_note(id TEXT PRIMARY KEY, project TEXT NOT NULL DEFAULT 'default', \
+     kind TEXT NOT NULL, record TEXT NOT NULL DEFAULT '', entity TEXT NOT NULL DEFAULT '', \
+     item TEXT NOT NULL DEFAULT '', source TEXT NOT NULL DEFAULT '', text TEXT NOT NULL, \
+     created INTEGER NOT NULL)",
+    "CREATE INDEX saved_note_record ON saved_note(record, kind, item)",
 ];
 
 /// Whether one migration statement only adds: a table, an index, or a column with a default.

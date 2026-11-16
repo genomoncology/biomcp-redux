@@ -1,4 +1,5 @@
-//! Saved searches and lists on the command line (sdlc/planning/saved-work.md, step 1).
+//! Saved searches, lists and notes on the command line (sdlc/planning/saved-work.md, steps 1,
+//! 3 and 4).
 //!
 //! Only the command line reaches these commands: they stay out of the shared command
 //! tree, so MCP, hosted mode and their discovery are unchanged until the typed `saved`
@@ -29,7 +30,7 @@ const RUN_OPTIONS: &[&str] = &[
     "--source_pacing",
 ];
 
-fn node(name: &'static str) -> Command {
+pub(crate) fn node(name: &'static str) -> Command {
     Command::new(name)
         .disable_help_flag(true)
         .disable_help_subcommand(true)
@@ -45,11 +46,11 @@ pub(crate) fn grammar() -> Command {
             .num_args(1..)
     };
     node("saved")
-        .about("Keep searches and lists of records in saved.sqlite in the data folder; a cache clean or upgrade keeps them.")
+        .about("Keep searches, lists of records and notes in saved.sqlite in the data folder; a cache clean or upgrade keeps them.")
         .subcommand_required(true)
         .subcommand(
             node("show")
-                .about("Show every saved search and list, or the one with this name.")
+                .about("Show every saved search, list and note, or the search or list with this name and its notes.")
                 .after_help("Example: biomcp saved show")
                 .arg(name("Saved search or list name, without regard to case.")),
         )
@@ -61,21 +62,11 @@ pub(crate) fn grammar() -> Command {
         )
         .subcommand(
             node("export")
-                .about("Export every saved search, list and kept search snapshot as typed JSON.")
+                .about("Export every saved search, list, note and kept search snapshot as typed JSON.")
                 .after_help("Example: biomcp saved export"),
         )
-        .subcommand(
-            node("delete")
-                .about("Delete the saved search or list with this name, or everything with --all; reply with what was deleted.")
-                .after_help("Example: biomcp saved delete braf-genes")
-                .arg(name("Saved search or list name.").required_unless_present("all"))
-                .arg(crate::grammar::boolean_argument(
-                    Arg::new("all")
-                        .long("all")
-                        .help("Delete every saved search and list.")
-                        .conflicts_with("name"),
-                )),
-        )
+        .subcommand(crate::saved_note::grammar(node("note")))
+        .subcommand(crate::saved_note::delete_grammar(node("delete")))
         .subcommand(
             node("list")
                 .about("Add records to a named list or remove them.")
@@ -253,14 +244,17 @@ fn save_search(
     }
 }
 
-fn checked_name(name: &str) -> Option<Text> {
+pub(crate) fn checked_name(name: &str) -> Option<Text> {
     Text::new(name)
         .ok()
         .filter(|name| name.as_str().chars().count() <= NAME_CHARS)
 }
 
 /// Open the saved file; a read of a missing file opens nothing and creates nothing.
-fn open(encoding: Encoding, create: bool) -> io::Result<Result<Option<SavedStore>, Outcome>> {
+pub(crate) fn open(
+    encoding: Encoding,
+    create: bool,
+) -> io::Result<Result<Option<SavedStore>, Outcome>> {
     let path = match crate::config::saved_path() {
         Ok(Some(path)) => path,
         Ok(None) => return failure(encoding, SavedError::Database, "").map(Err),
@@ -329,6 +323,10 @@ fn run(
             }),
         },
         "changed" => return changed(root, settings, &globals, encoding, name),
+        "delete" if crate::saved_note::note_id(matches).is_some() => {
+            return crate::saved_note::delete(encoding, matches);
+        }
+        "note" => return crate::saved_note::note(encoding, matches),
         "delete" => match open(encoding, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) if name.is_some() => Err(SavedError::Unknown),
@@ -526,7 +524,7 @@ fn new_items(
     Ok(items)
 }
 
-fn reply(
+pub(crate) fn reply(
     encoding: Encoding,
     result: Result<Saved, SavedError>,
     argument: &str,
@@ -540,7 +538,11 @@ fn reply(
     }
 }
 
-fn failure(encoding: Encoding, error: SavedError, argument: &str) -> io::Result<Outcome> {
+pub(crate) fn failure(
+    encoding: Encoding,
+    error: SavedError,
+    argument: &str,
+) -> io::Result<Outcome> {
     let message = match error {
         SavedError::Newer => {
             return encoding.encode(
@@ -550,7 +552,11 @@ fn failure(encoding: Encoding, error: SavedError, argument: &str) -> io::Result<
         }
         SavedError::Database => return encoding.encode(ErrorEnvelope::local(), Exit::Local),
         SavedError::Taken => ErrorMessage::SavedNameTaken,
+        SavedError::Unknown if argument == "--note" => ErrorMessage::SavedNoteUnknown,
         SavedError::Unknown => ErrorMessage::SavedRecordUnknown,
+        SavedError::TooLong | SavedError::ItemUnknown | SavedError::Ambiguous => {
+            return usage(encoding, UsageError::argument(argument.into()));
+        }
     };
     usage(
         encoding,

@@ -15,6 +15,7 @@ mod retired;
 mod save;
 mod saved;
 mod saved_help;
+mod saved_note;
 mod schema;
 mod skill;
 mod spell;
