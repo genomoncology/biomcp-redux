@@ -87,13 +87,13 @@ fn lists_and_searches_round_trip() {
         .unwrap();
     let list = &removed.lists[0];
     assert_eq!(list.items.len(), 2, "one item removed");
-    assert_eq!(removed.missing, [text("TP53")], "an ID the list did not hold");
+    assert_eq!(removed.missing, [text("TP53")], "not held");
     let unchanged = store.list_remove("genes", &[text("NRAS")]).unwrap();
     assert_eq!(
         unchanged.lists[0].modified, list.modified,
         "nothing removed leaves modified"
     );
-    assert_eq!(unchanged.missing, [text("NRAS")], "a removed ID is now missing");
+    assert_eq!(unchanged.missing, [text("NRAS")], "now missing");
     drop(store);
     let mut store = SavedStore::open(&path).unwrap();
     let all = store.show(None).unwrap();
