@@ -10,6 +10,7 @@
         "clinvar:13961",
         "oncokb"
       ],
+      "offline": true,
       "exit": 0,
       "expect": {
         "/result/candidates/0/sections/oncokb/state": "skipped",
@@ -40,6 +41,7 @@
         "--tumor-type",
         "Melanoma"
       ],
+      "offline": true,
       "exit": 0,
       "expect": {
         "/result/candidates/0/sections/oncokb/state": "skipped",

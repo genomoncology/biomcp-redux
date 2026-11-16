@@ -80,7 +80,7 @@ fn wire() -> Result<(), String> {
     }
     let mut missing_tumor = args();
     missing_tumor.drain(6..8);
-    for call in [missing_tumor, args()] {
+    for call in [missing_tumor.clone(), args()] {
         let skipped = invoke(&env, &call, 0)?;
         if skipped.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
             || skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-key"))
@@ -99,6 +99,20 @@ fn wire() -> Result<(), String> {
         .ok_or("test config object")?
         .insert("keys".into(), json!({"oncokb_api_key":KEY}));
     env.config(&config).map_err(|e| e.to_string())?;
+    // With a key, a missing tumor type skips OncoKB with help; the request count below
+    // proves nothing reached OncoKB.
+    let context = invoke(&env, &missing_tumor, 0)?;
+    if context.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
+        || context.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-join-id"))
+        || !context
+            .get("next")
+            .and_then(Value::as_array)
+            .is_some_and(|rows| rows.iter().any(|r| r.get("kind") == Some(&json!("configure"))))
+    {
+        return Err(format!(
+            "keyed missing tumor type did not skip with help: {context}"
+        ));
+    }
     let mut recorded = args();
     let directory = env.root().join("recorded");
     recorded.extend(["--record".into(), directory.to_string_lossy().into()]);
