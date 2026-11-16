@@ -58,6 +58,10 @@ impl Pair {
             self.native.id_b()
         }
     }
+    /// Native level from the retained row.
+    pub(super) fn level(&self) -> Option<&biodata::Text> {
+        self.native.level()
+    }
     /// Native partner display name from the retained row.
     fn partner_name(&self) -> Option<&str> {
         if self.reversed {
@@ -111,6 +115,30 @@ pub(super) fn partners(mut rows: Vec<PartRow>, anchor: &str) -> Vec<Pair> {
     order
         .into_iter()
         .filter_map(|id| pairs.remove(&id))
+        .collect()
+}
+
+/// Pairs per native level, most severe first, then other levels by name, then pairs with none.
+pub(super) fn level_counts(pairs: &[Pair]) -> Box<[biomcp_types::DrugLevelCount]> {
+    let mut counts = BTreeMap::<(u8, Option<&str>), (Option<&biodata::Text>, u64)>::new();
+    for pair in pairs {
+        let level = pair.level();
+        let name = level.map(biodata::Text::as_str);
+        let rank = match name {
+            Some("Major") => 0,
+            Some("Moderate") => 1,
+            Some("Minor") => 2,
+            Some(_) => 3,
+            None => 4,
+        };
+        counts.entry((rank, name)).or_insert((level, 0)).1 += 1;
+    }
+    counts
+        .into_values()
+        .map(|(level, count)| biomcp_types::DrugLevelCount {
+            level: level.cloned(),
+            count,
+        })
         .collect()
 }
 

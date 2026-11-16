@@ -189,7 +189,7 @@ pub use drug::{
     DrugFdaLatestSubmission, DrugFdaOriginalApproval, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
     DrugFdaSort, DrugFdaSubmission, DrugFdaSupplementPurpose, DrugGet, DrugHeader, DrugIndications,
     DrugIndicationsPart, DrugInteractions, DrugInteractionsPart, DrugLabel, DrugLabelFragment,
-    DrugLabelPart, DrugLabelText, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet,
+    DrugLabelPart, DrugLabelText, DrugLevelCount, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet,
     DrugNameMatch, DrugNameResolution, DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing,
     DrugPage, DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
     DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugRegulatoryPart,

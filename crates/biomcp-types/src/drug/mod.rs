@@ -21,7 +21,8 @@ mod source;
 pub use query::{DrugGet, DrugSection};
 pub use response::{
     DateRoleLabel, DrugApprovals, DrugCard, DrugCivic, DrugHeader, DrugIndications,
-    DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameResolution, DrugPage,
+    DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugLevelCount, DrugNameResolution,
+    DrugPage,
     DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
 };
 pub use search::{DrugFdaSort, DrugSearch};

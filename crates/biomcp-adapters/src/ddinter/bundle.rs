@@ -1,4 +1,4 @@
-use super::{NativeRow, SPEC, identity, partners};
+use super::{NativeRow, SPEC, identity, level_counts, partners};
 use biodata::{DrugId, Text};
 use biomcp_fetch::{
     BundleInfo, BundlePart, BundleSet, Fetch, Find, Freshness, KeyKind, Leg, RequestError,
@@ -194,6 +194,7 @@ pub fn interactions(
         }
     }
     let total = pairs.len() as u64;
+    let levels = level_counts(&pairs);
     let mut problems = Vec::new();
     let records = pairs
         .into_iter()
@@ -228,6 +229,7 @@ pub fn interactions(
             },
             partners: named.into(),
             hint: Some(Text::new(&hint).map_err(|_| biomcp_fetch::CacheError::Limit)?),
+            levels,
         }),
     })
 }

@@ -21,7 +21,8 @@ biodata::canonical_enum! {
         /// Source-scoped regulator events.
         Regulatory => "regulatory",
         /// Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
-        /// DDInter's published files carry a level per pair and no management or mechanism text.
+        /// `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and
+        /// no management or mechanism text; `next` offers the label's drug_interactions section.
         Interactions => "interactions",
         /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
         Markets => "markets",

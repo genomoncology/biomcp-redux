@@ -198,14 +198,6 @@ fn page(
     body: DrugInteractions,
     out: &mut Outcome,
 ) -> DrugInteractions {
-    let unlisted = match &body.interactions {
-        Section::Data { data, .. } => data.total == Some(0),
-        Section::Empty { .. } => true,
-        _ => false,
-    };
-    if query.partner().is_some() && !body.partners.is_empty() && unlisted {
-        label_steps(&body, fresh, out);
-    }
     if let Section::Data { data, .. } = &body.interactions {
         let returned = data.records.len() as u32;
         let total = data.total.unwrap_or(0);
@@ -234,10 +226,11 @@ fn page(
             ));
         }
     }
+    label_steps(&body, fresh, out);
     body
 }
-/// A named pair DDInter lists no row for: each drug's own label interactions section, which
-/// another source BioMCP reads states, since no row does not mean no interaction.
+/// Each named drug's own label interactions section, which states the management text DDInter's
+/// files lack and covers pairs they do not list, since no row does not mean no interaction.
 fn label_steps(body: &DrugInteractions, fresh: bool, out: &mut Outcome) {
     let names = std::iter::once(&body.identity)
         .chain(body.partners.first())
