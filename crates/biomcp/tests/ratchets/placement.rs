@@ -264,6 +264,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Show CR, CR-LF and blank-line runs joining to one space through the private source text helper, with other controls still escaped (0961).",
     ),
     (
+        "crates/biomcp-adapters/src/openfda_label/search_tests.rs",
+        "Show a name lookup page dropping label sections the choice never reads, through the private record, with a made-up label.",
+    ),
+    (
         "crates/biomcp-adapters/src/who_pq/raw_tests.rs",
         "Map blank, WHO-format and unreadable Date of Prequalification cells through the private row type without inventing a source export.",
     ),
