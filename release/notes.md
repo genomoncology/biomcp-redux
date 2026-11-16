@@ -51,15 +51,29 @@ Every search that takes a drug name also searches the drug's other names by defa
 
 Drugs and regulators:
 
-- PLACEHOLDER
+- `get drug NAME markets` gives one row per market, Drugs@FDA, EMA and WHO prequalification, each with its record number, holder, status, first approval date and URL. EMA picks the exact brand, then the earliest authorisation, and says so.
+- Drugs@FDA search takes `--applicant` (sponsor names starting with the text), `--approved-from` and `--approved-to` (original approval window), and `--sort newest` or `--sort original-approval`. Rows carry `latest_submission` and `original_approval`. `get drug ID approvals` takes `--decision-from` and `--decision-to`, and `--section-limit` reaches 200, so a long application history fits one page.
+- EMA's reported European Commission decision date is the decision's own date, read from EMA's referrals file for a referral, or absent with a notice.
+- `get drug NAME interactions --source ddinter --partner NAME` keeps one drug pair; DDInter's files carry a level per pair and no management text. WHO PQ search takes `--therapeutic-area`, and its rows carry `prequalified_on` as a date.
+- Label reads: `get drug NAME label` without `--label-section` lists the section names. A generic name picks the brand-name NDA or BLA label, then the label with the most indications, and says why. Exact name matching ignores letter case. Several label sections come in one reply, each reply fills the `drug_label_bytes` budget, `remaining` counts the fragments still to read, and a section the label lacks is named in `hint`. Many-label generic names, such as metformin, no longer fail as too large or out of time.
+- FDA drug recalls: `--status` and `--reason` searches return full pages, and older recall numbers such as `D-502-2013` appear and can be read. A recall page names each record it drops with the new `record.declined` problem.
+- openFDA text filters accept punctuation and accented letters: accents become base letters, other marks become spaces, and a notice shows what was searched.
 
 Devices and diagnostics:
 
-- PLACEHOLDER
+- FDA PMA: `search diagnostic --source fda-pma --intended-use TEXT` matches the approval order's intended-use statement. `get diagnostic P... summary --find TEXT` returns the matching passages of FDA's safety and effectiveness summary with their fragment numbers, and summary text keeps its words whole. PMA and 510(k) pages carry `source_query`, the openFDA expression that matched.
+- FDA 510(k): `--classification-name TEXT` matches FDA's device classification name. `get diagnostic DEN... --source fda-510k` reads a De Novo record, and rows show `decision_reading`, such as `de-novo-granted`, after `k_number`.
+- FDA companion diagnostics: rows of both FDA tables start with `row_date`, `diagnostic`, `indication`, `device` and `drug`, beside FDA's own `cells`. `--date-from`, `--date-to` and `--sort date` filter and order the whole list. A search by drug application includes the group-labeling rows.
+- GTR: `--name` matches test names and `--condition` matches condition names, ignoring letter case and hyphens, with whole-word matches first. `--gene` with `--condition-id` returns tests that list both. Cards and rows carry `specimens`, `gene_count`, `method_categories` and the lab's state and postcode; cards add `laboratory_certifications`, `laboratory_address`, `laboratory_directors`, `order_url` and `test_url`. `sync gtr` now also downloads NCBI's GTR XML release, about 245 MB in all.
+- FDA device recalls: `--name TEXT` matches the recall's product description, `--classification` selects a recall class, and `--firm` is another name for `--manufacturer`. Rows carry `product_description` and `reason`; cards add `voluntary_mandated`, `initial_firm_notification`, `product_quantity`, `classified` and `reported`. Older recall numbers such as `Z-1192-03` appear and can be read, pages name each record they drop, and recall text joins line breaks into spaces.
+- WHO IVD: `--prequalified-from` and `--prequalified-to` take the prequalification year.
 
 Adverse events:
 
-- PLACEHOLDER
+- FAERS cards label the age unit and every seriousness flag beside its code, and `unmapped_codes` names a code missing from openFDA's published list. Search rows and the `drugs`, `reactions` and identifier sections carry `serious_label`. `case_event_date` holds the case event date; openFDA's public FAERS data has no case narrative.
+- `--aggregate received-year` or `received-month`, with `--received-from` and `--received-to`, counts FAERS or MAUDE reports by FDA receipt period.
+- MAUDE takes `--event-type` (malfunction, injury, death or other). Reports with no event type fall outside every event-type count.
+- VAERS takes `--sort reports` to order the whole table largest first. VAERS tables get a 60-second budget, and a rate-limited table is tried once more before the reply says when to retry.
 
 Trials:
 
@@ -67,7 +81,15 @@ Trials:
 
 Genes, variants, diseases and phenotypes:
 
-- PLACEHOLDER
+- `get gene GENE clinvar` counts the gene's ClinVar variants by germline classification and by review status, each variant once, with the ClinVar release. It works without an NCBI key; the keyless NCBI pacing default is now 5 requests per 2 seconds.
+- Gene search by `--band` or a ClinGen ISCA ID also returns ClinGen dosage regions under `result.regions`, with their haploinsufficiency and triplosensitivity scores, and `result.clingen_regions_matched` says how many matched. `--region` takes a GRCh38 interval and selects overlapping regions only; unlike the 0.9 option of that name, it adds no genes. `--regions-only` returns only the regions. `sync clingen` also fetches the region file.
+- `get phenotype HP:ID ancestors` returns every ancestor term from OLS, and works when Monarch is down.
+- `search phenotype` given comma-separated HP IDs returns Monarch's one ranked list of similar genes, or diseases with `--group diseases`, with `--metric` and `--search-mode`. The ranking gets a 30-second budget.
+- `get pgx --gene GENE --source cpic recommendations --drug-id ID --phenotype TEXT` keeps one CPIC phenotype, such as Poor Metabolizer, and the first page lists the phenotypes present. A plain drug name in `--drug-id` is refused with the accepted form.
+- `get variant ID civic` joins every CIViC variant that states the same protein change, honours `--section-limit`, and takes `--disease` and `--drug`. `get variant CAID hotspots` accepts a ClinGen CAid. `get variant clinvar:ID population` falls back to the ClinGen Allele Registry when MyVariant lacks the record.
+- When a transcript HGVS fails `variant normalize` on its reference base, the reply lists the gene's transcripts where the change fits and offers the fitting one; the reply is `partial` rather than `failed`. `search variant --variant` given a full HGVS name offers the runnable `--gene ... --coding ...` call.
+- `get disease ID prevalence --source orphadata` returns Orphanet prevalence estimates, age of onset and inheritance after `sync orphadata`. Hierarchy rows carry parent labels, and each synonym appears once with `also_stated_by` naming the other sources that state it.
+- `pathway genes` and `pathway events` with an ID the source does not hold answer `absent`, not `failed`.
 
 Articles:
 
@@ -174,6 +196,10 @@ ClinVar VCV, RCV and SCV equality and hashing include the version. Rust callers 
 The schema identity changes below compare this release's schemas with the preserved `release/migration-schema-baseline.tar.gz` history. The [schema directory](https://github.com/genomoncology/biomcp/tree/main/crates/biomcp-types/schemas) defines output fields and required values. In particular, adverse-event snapshot fields become optional when a cache write fails; callers must handle their absence. A major bump permits an intentional breaking schema change. The schema check does not prohibit all breaking changes.
 
 Posted trial results are an explicit exception to the 1.0 command freeze. `get trial ID results` adds the ClinicalTrials.gov results section, including native group values, units, parameter and dispersion labels, analyses and adverse-event tables. The trial-cards reply schema adds `card.results_first_posted` and `sections.results`; the trial-get schema adds the `results` section. The card date is the first public posting date, not submission or last update. Values are reported source values, with no clinical calculations.
+
+Replies also change in these ways:
+
+- PLACEHOLDER
 
 ## Typed tool names for 0.x and hosted users
 
