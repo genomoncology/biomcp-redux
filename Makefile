@@ -238,6 +238,11 @@ stress:
 hosted-http-load:
 	cargo test --locked -p biomcp --bin biomcp hosted_http_sync_load -- --ignored --nocapture
 
+.PHONY: hosted-label-memory
+hosted-label-memory:
+	cargo build --locked --release -p biomcp --bin biomcp
+	$(PYTHON) scripts/hosted_label_memory.py $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/release/biomcp
+
 .PHONY: hosted-surface-check
 hosted-surface-check:
 	$(PYTHON) scripts/trials.py --installed mcp-hosted/served-surface-and-source-policy mcp-parity/typed-hosted-catalog
