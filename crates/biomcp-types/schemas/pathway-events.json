@@ -379,14 +379,14 @@
           "type": "integer"
         },
         "total": {
-          "description": "Source-reported or observed relation total, as qualified by total_kind.",
+          "description": "Source-reported, observed or read-so-far total, as qualified by total_kind.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "total_kind": {
           "$ref": "#/$defs/Reply_PathwayTotalKind",
-          "description": "Whether the total comes from the source or this retained collection."
+          "description": "Whether the total comes from the source, this retained collection, or the rows read so far (`read`)."
         }
       },
       "required": [
@@ -405,12 +405,13 @@
       "type": "string"
     },
     "Reply_PathwayTotalKind": {
-      "description": "Meaning of the collection total, independent of admitted rows on a page.",
+      "description": "Meaning of the collection total; only `read` grows with the rows handed out.",
       "enum": [
         "source",
         "observed",
         "distinct-references",
-        "data-nodes"
+        "data-nodes",
+        "read"
       ],
       "type": "string"
     },
@@ -468,7 +469,7 @@
               "type": "null"
             }
           ],
-          "description": "The record's canonical identifier, when known."
+          "description": "The record's canonical identifier, when known. A `record.declined` problem has none, so\nit names the record by a source key, such as `event_id:100178`."
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -488,12 +489,14 @@
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
-        " A source repeats one exact identity with incompatible records."
+        " A source repeats one exact identity with incompatible records.",
+        " A source record without a usable identity was left off the page; each problem names one such record."
       ],
       "x-extensible-enum": [
         "value.unknown",
         "collection.incomplete",
-        "identity.conflict"
+        "identity.conflict",
+        "record.declined"
       ]
     },
     "Reply_ReactomeId": {

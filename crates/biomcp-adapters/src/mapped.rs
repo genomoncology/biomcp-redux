@@ -3,6 +3,8 @@ use crate::{native_text::NativeText, raw::Field};
 use biodata::Text;
 use biomcp_types::Problem;
 
+mod declined;
+pub(crate) use declined::{declined, page_problems};
 pub(crate) mod refusal_serde;
 mod refusals;
 pub use refusals::Refusal;

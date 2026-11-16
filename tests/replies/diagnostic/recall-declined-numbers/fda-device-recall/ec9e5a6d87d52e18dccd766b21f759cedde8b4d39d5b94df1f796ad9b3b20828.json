@@ -1,0 +1,127 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=classification%3A%22Class%20II%22%20AND%20recalling_firm%3A%22Valorem%20Surgical%22&limit=5&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794778785,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 331,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 144
+            }
+          },
+          "results": [
+            {
+              "status": "Terminated",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Devices",
+              "event_id": "77500",
+              "recalling_firm": "Valorem Surgical LLC",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide Distribution - US including CA and VA.",
+              "recall_number": "Z-2958-2017",
+              "product_description": "PALLAS M/MAXIMIS 350 Straight Rod. Part of MAXIMIS Pedicle Screw Spinal Fixation System.  Valorem Surgical, Chicago, IL.  Product labeled as Pallas M Spinal Fixation System through 2015.  Intended for posterior pedicle screw fixation of the non-cervical spine.",
+              "product_quantity": "2,225 units total",
+              "reason_for_recall": "Devices are not consistent with Quality System Requirements.",
+              "recall_initiation_date": "20170621",
+              "center_classification_date": "20170810",
+              "termination_date": "20181127",
+              "report_date": "20170816"
+            },
+            {
+              "status": "Terminated",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Devices",
+              "event_id": "77500",
+              "recalling_firm": "Valorem Surgical LLC",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide Distribution - US including CA and VA.",
+              "recall_number": "Z-2925-2017",
+              "product_description": "PALLAS M/MAXIMIS MIS Screw5.5 x 55mm. Part of MAXIMIS Pedicle Screw Spinal Fixation System.  Valorem Surgical, Chicago, IL.  Product labeled as Pallas M Spinal Fixation System through 2015.  Intended for posterior pedicle screw fixation of the non-cervical spine.",
+              "product_quantity": "2,225 units total",
+              "reason_for_recall": "Devices are not consistent with Quality System Requirements.",
+              "recall_initiation_date": "20170621",
+              "center_classification_date": "20170810",
+              "termination_date": "20181127",
+              "report_date": "20170816"
+            },
+            {
+              "status": "Terminated",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Devices",
+              "event_id": "77500",
+              "recalling_firm": "Valorem Surgical LLC",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide Distribution - US including CA and VA.",
+              "recall_number": "Z-3011-201",
+              "product_description": "PALLAS M/MAXIMIS Body Alignment Driver. Part of MAXIMIS Pedicle Screw Spinal Fixation System.  Valorem Surgical, Chicago, IL.  Product labeled as Pallas M Spinal Fixation System through 2015.  Intended for posterior pedicle screw fixation of the non-cervical spine.",
+              "product_quantity": "262 units total",
+              "reason_for_recall": "Devices are not consistent with Quality System Requirements.",
+              "recall_initiation_date": "20170621",
+              "center_classification_date": "20170810",
+              "termination_date": "20181127",
+              "report_date": "20170816"
+            },
+            {
+              "status": "Terminated",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Devices",
+              "event_id": "77500",
+              "recalling_firm": "Valorem Surgical LLC",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide Distribution - US including CA and VA.",
+              "recall_number": "Z-2957-2017",
+              "product_description": "PALLAS M/MAXIMIS 40mm Rod. Part of MAXIMIS Pedicle Screw Spinal Fixation System.  Valorem Surgical, Chicago, IL.  Product labeled as Pallas M Spinal Fixation System through 2015.  Intended for posterior pedicle screw fixation of the non-cervical spine.",
+              "product_quantity": "2,225 units total",
+              "reason_for_recall": "Devices are not consistent with Quality System Requirements.",
+              "recall_initiation_date": "20170621",
+              "center_classification_date": "20170810",
+              "termination_date": "20181127",
+              "report_date": "20170816"
+            },
+            {
+              "status": "Terminated",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Devices",
+              "event_id": "77500",
+              "recalling_firm": "Valorem Surgical LLC",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide Distribution - US including CA and VA.",
+              "recall_number": "Z-2895-2017",
+              "product_description": "PALLAS M/MAXIMIS 60mm MIS Rod. Part of MAXIMIS Pedicle Screw Spinal Fixation System.  Valorem Surgical, Chicago, IL.  Product labeled as Pallas M Spinal Fixation System through 2015.  Intended for posterior pedicle screw fixation of the non-cervical spine.",
+              "product_quantity": "2,225 units total",
+              "reason_for_recall": "Devices are not consistent with Quality System Requirements.",
+              "recall_initiation_date": "20170621",
+              "center_classification_date": "20170810",
+              "termination_date": "20181127",
+              "report_date": "20170816"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

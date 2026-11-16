@@ -31,7 +31,7 @@ pub struct Page {
     pub items: Box<[DrugRecallHeader]>,
     /// Native count of recall records.
     pub total: u64,
-    /// Rejected optional values with record provenance.
+    /// Rejected optional values with record provenance, and one problem per declined record.
     pub problems: Vec<Problem>,
     /// Whether a native record was declined, such as one without a recall number.
     pub refusals: crate::Refusal,
@@ -130,11 +130,7 @@ pub fn search_names(leg: &Leg<'_>, q: &DrugSearch, names: &[Text]) -> Result<Pag
             .into_iter()
             .filter_map(|row| {
                 let row = map::mapped(row);
-                for problem in row.problems {
-                    if !page.problems.contains(&problem) {
-                        page.problems.push(problem);
-                    }
-                }
+                crate::mapped::page_problems(&mut page.problems, row.problems);
                 page.refusals.include(row.refusals);
                 row.value.map(|card| card.header)
             })
@@ -172,7 +168,13 @@ fn exact(
         .fresh(Freshness::Days(1))
         .bytes(2 * 1024 * 1024)
         .json_absence();
-    let carries = |r: &raw::Record| r.recall_number.as_ref().and_then(Field::as_ref) == Some(id);
+    let carries = |r: &raw::Record| {
+        r.recall_number
+            .as_ref()
+            .and_then(Field::as_ref)
+            .map(String::as_str)
+            == Some(id.as_str())
+    };
     let identity = |reply: &raw::Response<raw::Record>| !matches!(reply,raw::Response::Page {results,..} if !results.iter().all(carries));
     let reply = leg
         .call(

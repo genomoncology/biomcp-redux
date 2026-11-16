@@ -1,0 +1,24 @@
+{
+  "feature": "gwas-search",
+  "live_check": "authored variant of a live recording; no live provider observation",
+  "story": "A p-value walk that ends after dropping a row with no exact p-value says the count at or below the cut is unknown, not that paging will reveal it.",
+  "verified": "Authored from the GWAS Catalog page recorded live in pm job j41438 (see tests/replies/gwas/threshold-dropped/README.md): the second row (1e-36) has no pvalue_mantissa. At 1e-30 the first row passes, the second is dropped and the third (7e-20) ends the walk.",
+  "replay": "gwas/threshold-dropped",
+  "steps": [
+    {
+      "run": ["search", "gwas", "--pubmed", "17529967", "--p-value", "1e-30", "--limit", "3"],
+      "expect": {
+        "/page/total": 6,
+        "/page/returned": 1,
+        "/page/truncated": false,
+        "/sources/0/notices/0/message": "GWAS Catalog's count of 6 is before the p-value cut; some rows could not be checked against the cut, so the count at or below it is unknown.",
+        "/result": {
+          "omits": ["qualifying_total"]
+        },
+        "/problems/*/field": {
+          "includes": "pvalue_mantissa"
+        }
+      }
+    }
+  ]
+}

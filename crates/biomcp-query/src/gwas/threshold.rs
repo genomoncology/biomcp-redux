@@ -233,10 +233,36 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Option<Pool>, out: &
         .as_ref()
         .filter(|_| !saved.done || (offset as usize) < saved.rows.len())
         .map(|pool| GwasPageQuery::Search(q.in_pool(pool.info.id.clone(), offset)));
+    let qualifying_total = (saved.done && !incomplete).then_some(saved.rows.len() as u64);
+    // The source counts before BioMCP's p-value cut; once the walk ends the cut count is known.
+    let source_total = saved.total.unwrap_or(0);
+    if qualifying_total.is_none()
+        && let Some(source) = out.sources.iter_mut().find(|s| s.source == Source::Gwas)
+    {
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: if saved.done {
+                    format!(
+                        "GWAS Catalog's count of {source_total} is before the p-value cut; some \
+                         rows could not be checked against the cut, so the count at or below it \
+                         is unknown."
+                    )
+                } else {
+                    format!(
+                        "GWAS Catalog's count of {source_total} is before the p-value cut; the \
+                         count at or below it is known when paging reaches the end."
+                    )
+                }
+                .into(),
+                retry_after_seconds: None,
+            });
+    }
     let page = PageInfo {
         offset: q.offset(),
         returned,
-        total: saved.total.unwrap_or(0),
+        total: qualifying_total.unwrap_or(source_total),
         pool: pool.map(|p| p.info),
         truncated: Some(!saved.done),
     };
@@ -244,7 +270,7 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Option<Pool>, out: &
         items,
         page: page.clone(),
         continuation,
-        qualifying_total: (saved.done && !incomplete).then_some(saved.rows.len() as u64),
+        qualifying_total,
     };
     out.next = next::search(
         q,

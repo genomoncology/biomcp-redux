@@ -10,6 +10,9 @@ canonical_enum! {
         CollectionIncomplete => "collection.incomplete",
         /// A source repeats one exact identity with incompatible records.
         IdentityConflict => "identity.conflict",
+        /// A source record without a usable identity was left off the page; each problem names
+        /// one such record.
+        RecordDeclined => "record.declined",
     }
 }
 
@@ -19,7 +22,8 @@ canonical_enum! {
 pub struct Problem {
     /// The source that supplied the record.
     pub source: Source,
-    /// The record's canonical identifier, when known.
+    /// The record's canonical identifier, when known. A `record.declined` problem has none, so
+    /// it names the record by a source key, such as `event_id:100178`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub record: Option<Text>,
     /// The biodata field name.

@@ -1,13 +1,15 @@
 use crate::openfda::Envelope;
 pub(super) type Response<T> = Envelope<T>;
 use crate::raw::Field;
-use biodata::DrugRecallNumber;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Record {
-    /// openFDA sends some records with an empty or `N/A` recall number.
-    pub recall_number: Option<Field<DrugRecallNumber>>,
+    /// openFDA sends some records with an empty, `N/A` or older-form recall number, so the raw
+    /// text is kept to name a declined record; map.rs checks it.
+    pub recall_number: Option<Field<String>>,
+    /// openFDA's recall event key, which names a record declined for its recall number.
+    pub event_id: Option<Field<String>>,
     pub classification: Option<Field<String>>,
     pub status: Option<Field<String>>,
     pub recalling_firm: Option<Field<String>>,

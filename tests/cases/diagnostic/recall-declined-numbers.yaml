@@ -1,0 +1,81 @@
+{
+  "feature": "diagnostic-device-recall",
+  "live_check": "public",
+  "story": "A device recall page holding a record whose recall number is malformed keeps its other rows as a partial page and names the declined record in a record.declined problem by the raw number openFDA sent (cfres_id or event_id only when it is blank or N/A). Its next page starts after every native record on the page.",
+  "verified": "Native openFDA device recall and device enforcement replies recorded 2026-11-15 by biomcp --record in pm job j41441, without a key. On base commit 648240afe the --product-code NPR search failed whole as a bad reply (pm job j41440). Git holds a projection of each 200 body: address, contact, FEI, lot (code_info) and action text are dropped; original and committed sizes are both listed. Requests, recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-declined-numbers/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "diagnostic/recall-declined-numbers",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--product-code",
+        "NPR"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 2,
+        "/page/returned": 1,
+        "/result/items/0/header/recall_number": "Z-1652-2011",
+        "/sources/0/state": "ok",
+        "/problems": {
+          "equals": [
+            {
+              "source": "fda-device-recall",
+              "record": "product_res_number:Z1006-2010",
+              "field": "product_res_number",
+              "code": "record.declined"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--classification",
+        "Class II",
+        "--manufacturer",
+        "Valorem Surgical"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 144,
+        "/page/returned": 4,
+        "/result/items/0/header/recall_number": "Z-2958-2017",
+        "/result/items/2/header/recall_number": "Z-2957-2017",
+        "/result/items/0/classification": "Class II",
+        "/sources/0/state": "ok",
+        "/problems": {
+          "equals": [
+            {
+              "source": "fda-device-recall",
+              "record": "recall_number:Z-3011-201",
+              "field": "recall_number",
+              "code": "record.declined"
+            }
+          ]
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "diagnostic",
+            "--classification",
+            "Class II",
+            "--manufacturer",
+            "Valorem Surgical",
+            "--offset",
+            "5",
+            "--source",
+            "fda-device-recall"
+          ]
+        }
+      }
+    }
+  ]
+}

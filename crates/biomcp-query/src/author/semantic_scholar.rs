@@ -157,6 +157,18 @@ fn present(
             )),
         ));
     }
+    if page.total.is_none() {
+        saved
+            .source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: "Semantic Scholar gives no total for an author's papers; a page step \
+                    follows while it has more."
+                    .into(),
+                retry_after_seconds: None,
+            });
+    }
     out.page = page.total.map(|total| PageInfo {
         offset: q.offset(),
         returned: items.len() as u32,

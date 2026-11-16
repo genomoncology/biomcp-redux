@@ -7,11 +7,13 @@
   "x-enum-descriptions": [
     " The field value was not recognized.",
     " Native collection exceeds the admitted complete source page.",
-    " A source repeats one exact identity with incompatible records."
+    " A source repeats one exact identity with incompatible records.",
+    " A source record without a usable identity was left off the page; each problem names one such record."
   ],
   "x-extensible-enum": [
     "value.unknown",
     "collection.incomplete",
-    "identity.conflict"
+    "identity.conflict",
+    "record.declined"
   ]
 }

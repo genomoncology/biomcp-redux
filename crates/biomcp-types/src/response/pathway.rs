@@ -23,12 +23,13 @@ pub struct PathwayHeader {
     pub revision: Option<Text>,
 }
 biodata::wire_enum! {
-    /// Meaning of the collection total, independent of admitted rows on a page.
+    /// Meaning of the collection total; only `read` grows with the rows handed out.
     PathwayTotalKind {
         #[doc = "Native source-reported total before exact page admission."] Source => "source",
         #[doc = "Number of observed members in the retained relation."] Observed => "observed",
         #[doc = "Distinct namespaced references, preserving isoform identifiers."] DistinctReferences => "distinct-references",
-        #[doc = "Native GeneProduct data nodes, including repeated references."] DataNodes => "data-nodes"
+        #[doc = "Native GeneProduct data nodes, including repeated references."] DataNodes => "data-nodes",
+        #[doc = "Rows read so far from several sources; each source's own count is in sources[].count and is never summed."] Read => "read"
     }
 }
 /// Native page position and explicit count provenance; a short admitted page can continue.
@@ -39,9 +40,9 @@ pub struct PathwayPageInfo {
     pub offset: u32,
     /// Whole admitted rows on this page.
     pub returned: u32,
-    /// Source-reported or observed relation total, as qualified by total_kind.
+    /// Source-reported, observed or read-so-far total, as qualified by total_kind.
     pub total: u64,
-    /// Whether the total comes from the source or this retained collection.
+    /// Whether the total comes from the source, this retained collection, or the rows read so far (`read`).
     pub total_kind: PathwayTotalKind,
     /// Next native position, independent of returned rows; absent only at the end.
     #[serde(default, skip_serializing_if = "Option::is_none")]

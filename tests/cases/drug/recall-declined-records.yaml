@@ -1,0 +1,108 @@
+{
+  "feature": "drug-recall",
+  "live_check": "public",
+  "story": "A drug recall page that declines records without a usable recall number names each declined record in its own record.declined problem by the raw recall number openFDA sent (event_id only when the number is blank or N/A), so the problems count and tell apart the declined records, and keeps the other rows as a partial page.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41440 on base commit 648240afe, without a key; bodies unchanged. On that base each page answered partial with one recall_number problem naming no record. Requests, sizes and SHA-256 are in tests/replies/drug/recall-declined-records/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "drug/recall-declined-records",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-drug-recall",
+        "--initiated-from",
+        "2013-10-18",
+        "--initiated-to",
+        "2013-10-18"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 6,
+        "/page/returned": 1,
+        "/result/items/0/recall_number": "D-1161-2014",
+        "/sources/0/state": "ok",
+        "/problems": {
+          "equals": [
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-404-2014",
+              "field": "recall_number",
+              "code": "record.declined"
+            },
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-402-2014",
+              "field": "recall_number",
+              "code": "record.declined"
+            },
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-403-2014",
+              "field": "recall_number",
+              "code": "record.declined"
+            },
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-401-2014",
+              "field": "recall_number",
+              "code": "record.declined"
+            },
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-405-2014",
+              "field": "recall_number",
+              "code": "record.declined"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-drug-recall",
+        "--initiated-from",
+        "2013-02-27",
+        "--initiated-to",
+        "2013-02-27"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 4,
+        "/page/returned": 0,
+        "/sources/0/state": "ok",
+        "/problems": {
+          "equals": [
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-400-2014",
+              "field": "recall_number",
+              "code": "record.declined"
+            },
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-398-2014",
+              "field": "recall_number",
+              "code": "record.declined"
+            },
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-399-2014",
+              "field": "recall_number",
+              "code": "record.declined"
+            },
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-623-2013",
+              "field": "recall_number",
+              "code": "record.declined"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

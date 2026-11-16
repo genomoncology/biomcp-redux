@@ -1,0 +1,168 @@
+{
+  "method": "GET",
+  "source": "cellosaurus",
+  "url": "https://api.cellosaurus.org/search/cell-line?q=idsy%3A%22HeLa%22&format=json&fields=ac%2Cid%2Csy%2Cox%2Cdi%2Cca&rows=3",
+  "exchanges": [
+    {
+      "fetched": 1794778526,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 616,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "Cellosaurus": {
+    "cell-line-list": [
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_1922"
+          }
+        ],
+        "category": "Cancer cell line",
+        "disease-list": [
+          {
+            "accession": "C27677",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C27677",
+            "label": "Human papillomavirus-related endocervical adenocarcinoma",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C27677"
+          }
+        ],
+        "name-list": [
+          {
+            "type": "identifier",
+            "value": "HeLa Kyoto"
+          },
+          {
+            "type": "synonym",
+            "value": "HeLa-Kyoto"
+          },
+          {
+            "type": "synonym",
+            "value": "HeLa (Kyoto)"
+          },
+          {
+            "type": "synonym",
+            "value": "HeLa(Kyoto)"
+          },
+          {
+            "type": "synonym",
+            "value": "HeLa 'Kyoto'"
+          },
+          {
+            "type": "synonym",
+            "value": "HeLa isolate Kyoto"
+          },
+          {
+            "type": "synonym",
+            "value": "Hela K"
+          }
+        ],
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      },
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_ZF12"
+          }
+        ],
+        "category": "Cancer cell line",
+        "disease-list": [
+          {
+            "accession": "C27677",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C27677",
+            "label": "Human papillomavirus-related endocervical adenocarcinoma",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C27677"
+          }
+        ],
+        "name-list": [
+          {
+            "type": "identifier",
+            "value": "HeLa E"
+          },
+          {
+            "type": "synonym",
+            "value": "HeLa-E"
+          },
+          {
+            "type": "synonym",
+            "value": "HeLa Essen"
+          }
+        ],
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      },
+      {
+        "accession-list": [
+          {
+            "type": "primary",
+            "value": "CVCL_2484"
+          }
+        ],
+        "category": "Cancer cell line",
+        "disease-list": [
+          {
+            "accession": "C27677",
+            "category": "Medical resources",
+            "database": "NCIt",
+            "iri": "http://purl.obolibrary.org/obo/NCIT_C27677",
+            "label": "Human papillomavirus-related endocervical adenocarcinoma",
+            "url": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/C27677"
+          }
+        ],
+        "name-list": [
+          {
+            "type": "identifier",
+            "value": "HeLa Ohio"
+          },
+          {
+            "type": "synonym",
+            "value": "Ohio-HeLa"
+          },
+          {
+            "type": "synonym",
+            "value": "HeLa (OH)"
+          }
+        ],
+        "species-list": [
+          {
+            "accession": "9606",
+            "category": "Taxonomy",
+            "database": "NCBI_TaxID",
+            "iri": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+            "label": "Homo sapiens (Human)",
+            "url": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=9606&lvl=3"
+          }
+        ]
+      }
+    ]
+  }
+}
+      }
+    }
+  ]
+}
