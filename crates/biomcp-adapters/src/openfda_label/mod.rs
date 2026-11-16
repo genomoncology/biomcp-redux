@@ -22,6 +22,7 @@ mod admit;
 mod map;
 mod page;
 mod raw;
+mod reading;
 mod wire;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
@@ -107,6 +108,20 @@ pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
         Some(set),
     )
 }
+/// A page of whole labels waits for a turn; a single-label read is small and never waits.
+fn turn(leg: &Leg<'_>, limit: u32) -> Result<Option<reading::Turn<'static>>, RequestError> {
+    if limit <= 1 {
+        return Ok(None);
+    }
+    let turn = reading::PAGES.enter(leg.remaining()).ok_or(biomcp_fetch::SourceError {
+        source: Source::OpenfdaLabel,
+        reason: biomcp_types::Reason::DeadlineExceeded,
+        status: None,
+        tls_cause: None,
+        retry_after: None,
+    })?;
+    Ok(Some(turn))
+}
 fn page(
     leg: &Leg<'_>,
     selector: &str,
@@ -114,6 +129,7 @@ fn page(
     offset: u32,
     set: Option<&DrugId>,
 ) -> Result<Page, RequestError> {
+    let _turn = turn(leg, limit)?;
     let mut args = vec![
         ("search", Arg::Text(selector)),
         ("limit", Arg::Num(limit.into())),
