@@ -116,6 +116,8 @@ Other commands:
 
 `biomcp skill install` and the Claude plugin now ship only `SKILL.md`. The worked examples stay in the binary: read them with `biomcp skill list` and `biomcp skill NAME`.
 
+The skill now says where data often assumed missing lives: FDA 510(k), PMA and device recalls under `search diagnostic`, SEER incidence and survival under `disease --source seer`, an author's papers with `search article --author`, a citing paper's own paragraph with `citation-evidence --fulltext`, CPIC gene-drug pairs with `search pgx`, and any label section with `--label-section`.
+
 ## Hosted use and source terms
 
 See [hosted server configuration](../docs/configuration.md#hosted-servers) for source modes, caller credentials and deployment limits.

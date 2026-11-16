@@ -31,3 +31,7 @@ Bench analyses of six persona runs on 2026-11-16 found 64 of 99 missed or wrong 
 ## Changes
 
 - Changes: the named command's code, help, cases and a release-notes line.
+
+## Progress
+
+- 2026-11-16: `skills/SKILL.md` gains a "Where data lives" list: FDA 510(k), PMA and device recalls; SEER incidence and survival; an author's papers with `--sort date|citations`; `citation-evidence --fulltext`; CPIC pair search; any label section; and, moved into the list, markets, the DDInter pair and the CPIC phenotype lines. Every command form checked against `docs/reference/commands.md` (search diagnostic sources, search/get disease `--source seer` and its `survival`/`incidence` sections, search article `--author`/`--sort`, citation-evidence `--fulltext`, search pgx `--gene --source cpic`, get drug `label --source openfda-label --label-section`). To fit the 4,096-byte build limit, the intro drops its entity list (repeated in Commands) and other lines are tightened; skill is 4,077 bytes. `skills/use-cases/04-article-follow-up.md` adds `--fulltext` and an author step. `tests/cases/local/skill.yaml` checks each route. Release-notes line under Agent skill.
