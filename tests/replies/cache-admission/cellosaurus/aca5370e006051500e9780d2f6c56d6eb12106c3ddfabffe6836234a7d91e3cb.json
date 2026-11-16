@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "cellosaurus",
+  "url": "https://api.cellosaurus.org/search/cell-line?q=idsy%3A%22MOLM13%22&format=txt&fields=ac&rows=0",
+  "exchanges": [
+    {
+      "fetched": 1794784542,
+      "status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "delay_ms": 119,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "##   query.q: idsy:\"MOLM13\"\n##   query.defType: edismax\n##   query.indent: True\n##   query.qf: ac^16 id^16 sy^8 text\n##   query.fl: ac\n##   query.pf: ac^160 id^160 sy^80 text\n##   query.start: 0\n##   query.q.op: AND\n##   query.sort: score desc\n##   query.rows: 0\n##   query.wt: json\n##   query.fields: ac\n##   query.format: txt\n##   QTime: 0\n##   response.numFound: 1\n\n"
+      }
+    }
+  ]
+}

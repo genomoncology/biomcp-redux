@@ -16,10 +16,8 @@
         "/problems/*/field": {
           "includes": "accession-list"
         },
-        "/next/0/kind": "page",
-        "/next/0/args": {
-          "includes": "--offset"
-        },
+        "/page/total": 1,
+        "/page/returned": 0,
         "/result": {
           "omits": [
             "items"
@@ -39,10 +37,8 @@
         "/problems/*/field": {
           "includes": "accession-list"
         },
-        "/next/0/kind": "page",
-        "/next/0/args": {
-          "includes": "--offset"
-        },
+        "/page/total": 1,
+        "/page/returned": 0,
         "/result": {
           "omits": [
             "items"

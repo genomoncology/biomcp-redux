@@ -1,5 +1,7 @@
 //! Literal native Cellosaurus queries and request-bound identity checks.
 use biomcp_fetch::{Input, Read, Received};
+mod count;
+pub use count::count;
 mod identity;
 mod map;
 mod raw;
@@ -75,10 +77,28 @@ pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestE
     let accession = q
         .query()
         .and_then(|v| v.as_str().parse::<CellosaurusAccession>().ok());
+    let mutations = q.mutation_terms();
+    let shown = (q.gene().is_some() || !mutations.is_empty()).then_some(sections::Wanted {
+        gene: q.gene(),
+        mutations: &mutations,
+    });
+    candidates(
+        leg,
+        &search_query(q),
+        q.limit(),
+        (accession.is_some() || q.offset() > 0).then_some(q.offset()),
+        shown,
+    )
+}
+/// The native query for a search's literal text and fields.
+fn search_query(q: &CellLineSearchCommand) -> String {
+    let accession = q
+        .query()
+        .is_some_and(|v| v.as_str().parse::<CellosaurusAccession>().is_ok());
     let mut terms = Vec::new();
     if let Some(text) = q.query() {
         terms.push(literal(
-            if accession.is_some() { "ac" } else { "idsy" },
+            if accession { "ac" } else { "idsy" },
             text.as_str(),
         ));
     }
@@ -98,18 +118,7 @@ pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestE
     if q.exclude_derived() {
         terms.push("NOT hi:*".to_owned());
     }
-    let query = terms.join(" AND ");
-    let shown = (q.gene().is_some() || !mutations.is_empty()).then_some(sections::Wanted {
-        gene: q.gene(),
-        mutations: &mutations,
-    });
-    candidates(
-        leg,
-        &query,
-        q.limit(),
-        (accession.is_some() || q.offset() > 0).then_some(q.offset()),
-        shown,
-    )
+    terms.join(" AND ")
 }
 /// One exact cross-reference query; its result never verifies identity.
 pub fn reverse(leg: &Leg<'_>, id: &CellLineSourceId) -> Result<Page, RequestError> {

@@ -181,7 +181,7 @@ Each header keeps its predicted flag and actual participant count. Search text a
 
 ## Cell-line identity
 
-Names remain unchanged and results do not claim a total. The card preserves entry dates, source disease/species references and complete stock-qualified warnings. Publisher release metadata and retrieval time remain separate. Cellosaurus uses CC BY 4.0 with attribution; source omissions do not establish a negative biological finding.
+Names remain unchanged. A full search page's total is Cellosaurus's own match count, read with one small extra request; a shorter page's total is the rows read to its end. The card preserves entry dates, source disease/species references and complete stock-qualified warnings. Publisher release metadata and retrieval time remain separate. Cellosaurus uses CC BY 4.0 with attribution; source omissions do not establish a negative biological finding.
 
 ## ChEMBL cell metadata
 
