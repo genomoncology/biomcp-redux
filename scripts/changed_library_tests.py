@@ -11,7 +11,8 @@ Files outside crates/ that a crate's build script or library tests read count as
 change to that crate (0927): biomcp's build script embeds skills/ and the example
 cases in tests/cases/, and its grammar test compares the generated docs it names;
 biomcp-types' schema tests compile in release/schema-reviews.json.
-A change to the workspace manifest, lock file or toolchain selects every crate.
+A change to the workspace manifest, lock file, toolchain or Makefile, which names every
+cargo test command and its features, selects every crate (0997).
 When no base or crate graph can be found it runs every crate rather than none.
 """
 import json
@@ -20,7 +21,7 @@ import subprocess
 import sys
 
 BASE_REF = os.environ.get('LIBRARY_TESTS_BASE', 'origin/main')
-WORKSPACE_FILES = ('Cargo.toml', 'Cargo.lock', 'rust-toolchain', 'rust-toolchain.toml')
+WORKSPACE_FILES = ('Cargo.toml', 'Cargo.lock', 'rust-toolchain', 'rust-toolchain.toml', 'Makefile')
 WORKSPACE_DIRS = ('.cargo/',)
 # Each file or directory outside crates/ and the crate whose build script or tests read it.
 CRATE_INPUTS = {

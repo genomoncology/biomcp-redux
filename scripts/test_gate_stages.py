@@ -174,6 +174,7 @@ class GateStages(unittest.TestCase):
             result = run(CARGO_METADATA=str(Path(temporary) / 'missing.json'))
             self.assertIn('no crate graph from cargo metadata', result.stdout)
             self.assertIn(every, result.stdout)
+            self.assertIn(every, branch('makefile', 'Makefile').stdout)
             commit('Cargo.lock', 'y')
             self.assertIn(every, run().stdout)
             git('checkout', '-q', 'main')
