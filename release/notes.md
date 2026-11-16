@@ -6,7 +6,7 @@ BioMCP 1.0 retrieves source records for cancer care and human health research th
 
 JSON replaces Markdown as the default CLI output. Select `--format md` or set `"format": "md"` in configuration for Markdown. MCP always returns JSON. Scripts must read the new response envelopes and entity schemas instead of parsing 0.9 output.
 
-MCP uses `single` mode by default: the `biomcp` tool accepts a CLI argument array, alongside the research `search` and `fetch` tools. Opt into typed tools with `"mcp_tool_mode": "typed"` in configuration or `biomcp serve --tool-mode typed`. The command-line setting overrides configuration. Typed mode offers 18 tools: 13 entity tools (`gene`, `variant`, `disease`, `drug`, `trial`, `article`, `protein`, `pathway`, `phenotype`, `adverse_event`, `diagnostic`, `cell_line` and `study`) plus `biomcp`, `help`, `search`, `fetch` and `saved`. A hosted server offers `saved` only when started with `--saved-folder`. An entity tool takes `action` and one object named after the action, for example `gene` with `{"action":"get","get":{"id":"BRAF"}}`. Every search takes its text as `query`, every get takes its record ID as `id`, and sections go in `section`; an ID, a section or any list argument may be one string or a list. Every registry command is reachable through a typed schema. Available tools and source choices follow the server's policy; use its `tools/list` response for the current catalog.
+MCP uses `single` mode by default: the `biomcp` tool accepts a CLI argument array, alongside the research `search` and `fetch` tools. Opt into typed tools with `"mcp_tool_mode": "typed"` in configuration or `biomcp serve --tool-mode typed`. The command-line setting overrides configuration. Typed mode offers 18 tools: 13 entity tools (`gene`, `variant`, `disease`, `drug`, `trial`, `article`, `protein`, `pathway`, `phenotype`, `adverse_event`, `diagnostic`, `cell_line` and `study`) plus `biomcp`, `help`, `search`, `fetch` and `saved`. A hosted server offers `saved` only when started with `--saved-folder`. An entity tool takes `action` and one object named after the action, for example `gene` with `{"action":"get","get":{"id":"BRAF"}}`. Every search takes its text as `query`, every get takes its record ID as `id`, and sections go in `section`; an ID, a section or any list argument may be one string or a list. The server also reads `input`, `text`, `name`, `keyword`, `keywords` and `sections` as the argument they mean, and section words are plain text it checks. Every registry command is reachable through a typed schema. Available tools and source choices follow the server's policy; use its `tools/list` response for the current catalog.
 
 Command help now includes summaries from shared command metadata, and typed tool descriptions use those summaries. `help` accepts a command path and returns the existing command help. For `get` errors, follow the returned `next` action: an identifier with the accepted shape but no source record keeps its existing help advice.
 
@@ -21,7 +21,7 @@ The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/plann
 - Use `sync SOURCE` for stored bundles and `store clean` for expired replies and collections. `cache clean --dry-run`, `--max-age` and `--max-size` have no maintenance-policy replacement.
 - Use returned `--next-page` and `--pool` commands for continuation. Keep the returned argument arrays and policy settings together. Trial `--offset` is continuation bookkeeping and requires `--next-page` when nonzero. Hidden sessions do not identify the new collections.
 - Use explicit entity search and get commands. Discover, chart generation, local study analysis, self-update and automatic text-based classification or identity merging retire. Patient reading moves to 1.1.
-- Trial discovery uses literal `--variant` and `--criteria`; mutation and biomarker aliases and semantic therapy-line filters retire. Discovery never determines eligibility.
+- Trial discovery's `--variant` and `--criteria` search other spellings of a protein change, or only the typed text with `--exact-term`; mutation and biomarker aliases and semantic therapy-line filters retire. Discovery never determines eligibility.
 - Article downloads use exact file selections and `--save PATH`. Text readers, PDFs and supplements have separate commands. HTTP MCP refuses file saves.
 - Variant normalization uses `--source`, `--hgvs` and explicit builds. Variant source assertions, population and recurrence use their named commands. No source score becomes a clinical classification.
 
@@ -45,7 +45,7 @@ BioMCP keeps saved searches, lists of records and notes in `saved.sqlite` in the
 
 ## Drug names and variant spellings widen by default
 
-Every search that takes a drug name also searches the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search also widens a protein change to its other spellings, such as V600E, Val600Glu and p.V600E, and to the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. MAUDE and VAERS always search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads ChEMBL records from MyChem instead of waiting on ChEMBL's own service, and a slow lookup no longer makes a search partial.
+Drug-name searches also search the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search's `--variant` and `--criteria` also search a protein change's other spellings, such as V600E, Val600Glu and p.V600E, and the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. Other drug sources, MAUDE and VAERS search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads ChEMBL records from MyChem instead of waiting on ChEMBL's own service, and a slow lookup no longer makes a search partial.
 
 ## Added commands, filters and sections
 
@@ -53,9 +53,9 @@ Drugs and regulators:
 
 - `get drug NAME markets` gives one row per market, Drugs@FDA, EMA and WHO prequalification, each with its record number, holder, status, first approval date and URL. EMA picks the exact brand, then the earliest authorisation, and says so.
 - Drugs@FDA search takes `--applicant` (sponsor names starting with the text), `--approved-from` and `--approved-to` (original approval window), and `--sort newest` or `--sort original-approval`. Rows carry `latest_submission` and `original_approval`. `get drug ID approvals` takes `--decision-from` and `--decision-to`, and `--section-limit` reaches 200, so a long application history fits one page.
-- EMA's reported European Commission decision date is the decision's own date, read from EMA's referrals file for a referral, or absent with a notice.
+- EMA: `get drug ID regulatory --source ema` no longer labels the medicines file's latest-procedure date as the Commission decision; that date's role is now `latest_procedure_affecting_product_information_date`. For a referral, `european_commission_decision_date` comes from EMA's referrals file, which `sync ema` now downloads, so sync EMA again.
 - `get drug NAME interactions --source ddinter --partner NAME` keeps one drug pair; DDInter's files carry a level per pair and no management text. WHO PQ search takes `--therapeutic-area`, and its rows carry `prequalified_on` as a date.
-- Label reads: `get drug NAME label` without `--label-section` lists the section names. A generic name picks the brand-name NDA or BLA label, then the label with the most indications, and says why. Exact name matching ignores letter case. Several label sections come in one reply, each reply fills the `drug_label_bytes` budget, `remaining` counts the fragments still to read, and a section the label lacks is named in `hint`. Many-label generic names, such as metformin, no longer fail as too large or out of time.
+- Label reads: `get drug NAME label` without `--label-section` lists the section names in `sections` instead of refusing. A generic name picks the brand-name NDA or BLA label, then the label with the most indications, and says why. Exact name matching ignores letter case, and the total counts exact and word matches together. Several label sections come in one reply, each reply fills the `drug_label_bytes` budget, `remaining` counts the fragments still to read, and a section the label lacks is named in `hint`. Many-label generic names, such as metformin, no longer fail as too large or out of time.
 - FDA drug recalls: `--status` and `--reason` searches return full pages, and older recall numbers such as `D-502-2013` appear and can be read. A recall page names each record it drops with the new `record.declined` problem.
 - openFDA text filters accept punctuation and accented letters: accents become base letters, other marks become spaces, and a notice shows what was searched.
 
@@ -64,9 +64,9 @@ Devices and diagnostics:
 - FDA PMA: `search diagnostic --source fda-pma --intended-use TEXT` matches the approval order's intended-use statement. `get diagnostic P... summary --find TEXT` returns the matching passages of FDA's safety and effectiveness summary with their fragment numbers, and summary text keeps its words whole. PMA and 510(k) pages carry `source_query`, the openFDA expression that matched.
 - FDA 510(k): `--classification-name TEXT` matches FDA's device classification name. `get diagnostic DEN... --source fda-510k` reads a De Novo record, and rows show `decision_reading`, such as `de-novo-granted`, after `k_number`.
 - FDA companion diagnostics: rows of both FDA tables start with `row_date`, `diagnostic`, `indication`, `device` and `drug`, beside FDA's own `cells`. `--date-from`, `--date-to` and `--sort date` filter and order the whole list. A search by drug application includes the group-labeling rows.
-- GTR: `--name` matches test names and `--condition` matches condition names, ignoring letter case and hyphens, with whole-word matches first. `--gene` with `--condition-id` returns tests that list both. Cards and rows carry `specimens`, `gene_count`, `method_categories` and the lab's state and postcode; cards add `laboratory_certifications`, `laboratory_address`, `laboratory_directors`, `order_url` and `test_url`. `sync gtr` now also downloads NCBI's GTR XML release, about 245 MB in all.
+- GTR: `--name` matches test names and `--condition` matches condition names, ignoring letter case and hyphens, with whole-word matches first and each row's `name_match` saying which. `--gene` with `--condition-id` returns tests that list both. Cards and rows carry `specimens`, `gene_count`, `method_categories` and the lab's state and postcode; cards add `laboratory_certifications`, `laboratory_address`, `laboratory_directors`, `order_url` and `test_url`. `sync gtr` now also downloads NCBI's GTR XML release, about 245 MB in all.
 - FDA device recalls: `--name TEXT` matches the recall's product description, `--classification` selects a recall class, and `--firm` is another name for `--manufacturer`. Rows carry `product_description` and `reason`; cards add `voluntary_mandated`, `initial_firm_notification`, `product_quantity`, `classified` and `reported`. Older recall numbers such as `Z-1192-03` appear and can be read, pages name each record they drop, and recall text joins line breaks into spaces.
-- WHO IVD: `--prequalified-from` and `--prequalified-to` take the prequalification year.
+- WHO IVD: `--prequalified-from` and `--prequalified-to` take the prequalification year, and rows carry `prequalification_year`.
 
 Adverse events:
 
@@ -77,7 +77,11 @@ Adverse events:
 
 Trials:
 
-- PLACEHOLDER
+- `get trial NCT...` shows `enrollment`, its count with `ACTUAL` or `ESTIMATED`, and a stopped trial's `why_stopped` text.
+- `get trial ID flow` and `get trial ID baseline` return participant flow and baseline characteristics without the posted outcomes.
+- `locations` pages hold up to 100 sites, state the site total and offer the next page. Search rows carry `has_results`. A batched trial get names each trial it could not read.
+- `search trial --fields` refuses a field the source's rows lack and names that source's fields.
+- A ClinicalTrials.gov continuation is tied to its offset, filters and matching mode. Changing any of them is refused before the registry is asked, with a fresh first page offered, and a registry rejection of `--next-page` says so.
 
 Genes, variants, diseases and phenotypes:
 
@@ -93,7 +97,18 @@ Genes, variants, diseases and phenotypes:
 
 Articles:
 
-- PLACEHOLDER
+- `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
+- `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`. PDF downloads, FDA documents included, ask for a PDF in a way FDA's servers accept, and an FDA refusal names the URL and status.
+- A single-source search reports the source's own total. A drug-name search on Semantic Scholar or LitSense says the per-name counts overlap and are not added, and a cut-short search says later rows cannot be paged. `get article` states its limit of 20 IDs.
+
+Other commands:
+
+- Protein features, domains and cards carry `coordinate_note`, which explains that spans are zero-based and half-open, unlike UniProt's one-based coordinates and the one-based `--position`.
+- `search gwas --p-value` leaves out `qualifying_total`, and is not `complete`, when an association cannot be compared with the threshold.
+- `variant recurrence` fails, with no counts, when `--sample-set` is unknown or belongs to another study or list.
+- `search cell-line` reports Cellosaurus's own match count as its total.
+- `biomcp health` honours `command_timeout_seconds` and each source's deadline instead of a 3-second cap.
+- `help questions` lists every command by the question it answers, and `help examples` gives one worked call per use case in CLI and typed form. The MCP `help` tool takes the same words.
 
 ## Hosted use and source terms
 
@@ -135,8 +150,9 @@ The source credential names `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_A
 - `sync_timeout_seconds`: how long one `sync` may take, 120 seconds by default. A sync that runs out of time names the limit and this key.
 - `drug_label_bytes`: how much label text one `--label-section` reply returns, from 6144 through 32768 bytes.
 - `transcript_fit_seconds`: how long `variant normalize` waits for each check of which transcript a mismatched reference base fits.
-- `mcp_queue_wait_seconds` and `mcp_queue_max_calls`: how long, and on stdio how many, MCP calls over the call limit wait for a turn. `0` turns waiting off.
-- `mcp_reply_form` accepts `once`, the new default for local servers: each reply carries its JSON one time. Hosted servers keep `both`.
+- `mcp_queue_wait_seconds` and `mcp_queue_max_calls`: how long, and on stdio how many, MCP calls over the call limit wait for a turn, instead of being refused at once. `0` turns waiting off. Plain `serve --http` now queues too, and its `http_max_connections` defaults to twice its call limit. A call that waits too long gets `error.data.retry_after_seconds`.
+- `mcp_reply_form` accepts `once`, the new default for local servers: each reply carries its JSON one time, and a typed reply has no summary line. Hosted servers keep `both`.
+- Source pacing defaults: openFDA allows 4 requests in flight at its unchanged rate, and keyless NCBI E-utilities calls pace at 5 requests per 2 seconds.
 
 ## Output migration
 
@@ -204,11 +220,11 @@ Replies also change in these ways:
 - One get returns several sections, and one drug read several label sections, in one reply; each part keeps its own paging and names its section. A several-sections drug reply, `biomcp.drug-sections/1`, states the drug's identity once.
 - Every search and section page reports the source's total or says the source gives none, and a page cut short by a limit says so and offers the next page. Totals from several sources are never added together. JSON replies write the envelope's `page`, and each page's total and offset, before the rows.
 - A section that is empty for a record the source holds is `complete` with an empty list; `absent` means the source does not hold the record.
-- An empty, partial or failed reply says why, and a failed reply names its cause in `problems`. An unknown saved pool or snapshot name is `usage.arguments`, no longer `pool.expired`.
+- An empty, partial or failed reply says why, and a failed reply names its cause in `problems`. A source reply over the size limit fails as `too-large`, not `bad-reply`. An unknown pool or snapshot name is `usage.arguments`, no longer `pool.expired`. Offline, an expired cached not-found says current absence is unknown.
 - MCP replies list each object's fields in the same order as CLI JSON.
 - Markdown shows source text's full stops, colons and @ signs as plain characters, and a source value cannot become a list, code block or link. Source line breaks print as spaces, never as a literal `\u{000a}`; Markdown text fields keep real line breaks.
 - `version --verbose` no longer lists schema versions; `biomcp schema` does.
-- A refusal's first `next` step is the corrected call when one exists, and a typed call refused for an unknown argument gets the same fixes as the CLI. When several sources could fix a missing input, the refusal offers help instead of guessing a source.
+- A refusal's first `next` step is the corrected call when one exists. Common mistyped forms, such as `-q`, `-c` or `-i`, `--section` where the section is a word after the ID, or a retired option, fail with an error naming the option and the working call. A typed call refused for an unknown argument gets the same fixes as the CLI. When several sources could fix a missing input, the refusal offers help instead of guessing a source.
 - Help answers the underscore entity names that `help questions` prints, such as `help adverse_event`. `help get drug approvals` shows one section's help with only the options that section accepts. An option limited to some sources says `Only with --source X`, and each command-wide line appears once.
 
 ## Typed tool names for 0.x and hosted users
