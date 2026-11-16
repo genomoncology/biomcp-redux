@@ -292,6 +292,16 @@ class HistoryBindingError(ValueError):
         self.code, self.row = code, row
 
 
+def held(target, env, blob, file):
+    commits = git(target, env, "rev-list", "--full-history", *HISTORY_SCOPE, "--", file).split()
+    if not commits:
+        return False
+    query = b"".join(commit + b":" + file.encode() + b"\n" for commit in commits)
+    found = subprocess.check_output(["git", "--no-replace-objects", "-C", str(target), "cat-file", "--batch-check=%(objectname)"],
+                                    input=query, env=env, stderr=subprocess.DEVNULL)
+    return blob.encode() in found.split()
+
+
 def history_ignores(target, env, mapping, staging):
     if not HISTORY_IGNORE.exists():
         return []
@@ -312,14 +322,17 @@ def history_ignores(target, env, mapping, staging):
             continue
         if reachable is None:
             reachable = set(git(target, env, "rev-list", *HISTORY_SCOPE).decode().splitlines())
-        if row["commit"] not in reachable:
+        if row["commit"] in reachable:
+            try:
+                blob = git(target, env, "rev-parse", row["commit"] + ":" + row["file"]).decode().strip()
+            except subprocess.CalledProcessError:
+                raise HistoryBindingError("history-ignore-wrong-blob", number) from None
+            if blob != row["blob"]:
+                raise HistoryBindingError("history-ignore-wrong-blob", number)
+        elif not held(target, env, row["blob"], row["file"]):
+            # A squash landing rewrites the reviewed commit; the binding still
+            # holds when a reachable commit has the same blob at the same path.
             raise HistoryBindingError("history-ignore-unreachable-commit", number)
-        try:
-            blob = git(target, env, "rev-parse", row["commit"] + ":" + row["file"]).decode().strip()
-        except subprocess.CalledProcessError:
-            raise HistoryBindingError("history-ignore-wrong-blob", number) from None
-        if blob != row["blob"]:
-            raise HistoryBindingError("history-ignore-wrong-blob", number)
         for key in keys:
             if mapping[key]["git_file"] != row["file"]:
                 raise ValueError("history exception must name its actual Git path")

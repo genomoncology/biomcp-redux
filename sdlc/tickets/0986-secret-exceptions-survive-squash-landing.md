@@ -1,6 +1,7 @@
 # 0986 — secret-exceptions-survive-squash-landing
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 08710171f214f13a31458d84f9c699abc4b34838
 
 Milestone: 7
 
@@ -40,3 +41,6 @@ Root cause of a problem repeated across tickets on 2026-11-15:
 - Changes: `release/secrets.py`, its tests, `release/secrets.ignore.jsonl` if rows simplify.
 
 ## Progress
+
+- 2026-11-15: Chose the fallback over dropping the `commit` field. When a row's commit is reachable, the check is unchanged: that commit must hold the row's blob at the row's file. When it is not (a squash landing published a new commit), `release/secrets.py` `held` accepts the row only if some reachable commit (same `--single-worktree --all HEAD` scope) holds the same blob at the same file; otherwise it still fails with `history-ignore-unreachable-commit`. Rows stay exact to blob, file, line and rule, no row in `release/secrets.ignore.jsonl` changes, and rows that 0982 and 0849 add on their branches keep working after they land. Dropping the field would have rewritten all 226 rows and conflicted with those branches for no extra safety, because the blob and path already identify the reviewed content.
+- Tests (`release/test_security.py`): new `test_history_exceptions_survive_a_squash_landing` rewrites the branch as one new commit on main with the same tree and deletes the branch, then shows the rows still pass, while a wrong line (`history-ignore-wrong-line`), another rule, another path, another blob, a later changed blob, and a reachable commit without the blob (`history-ignore-wrong-blob`) still fail. The existing exact-binding test's detached-sibling row now passes, because the reachable base commit holds the same blob at the same path.
