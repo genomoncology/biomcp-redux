@@ -48,7 +48,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
-    #[doc = "Disease; NCI needs NCIt.\nConditions joined with OR. NCI needs NCIt codes such as C3224; use --condition-id for MONDO or DOID identifiers."]
+    #[doc = "Disease; NCI needs NCIt.\nConditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
     condition: Box<[Text]>,
@@ -58,7 +58,7 @@ struct Fields {
     /// Search typed drug names and variant text as written, without other names or spellings.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    #[doc = "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."]
+    #[doc = "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma)."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -86,7 +86,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     variant: Option<Text>,
-    #[doc = "NCI NCIt code.\nExact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. \
+    #[doc = "NCI NCIt code.\nExact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. \
         This listing does not establish biomarker positivity or patient eligibility."]
     #[serde(
         default,
