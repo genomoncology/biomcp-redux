@@ -61,6 +61,7 @@ pub use bundle::{
     encode_bundle_row,
 };
 pub use cache::sql_deadline as configure_sqlite_deadline;
+pub use cache::REPLY_CACHE_MAX_BYTES;
 pub use cache::{CACHE_NAMESPACE_VERSION, STALE_GRACE_SECONDS, SchemaOwner, VERSION, check_owners};
 pub use deadline::{CommandDeadline, Deadline, LocalDeadline};
 pub use declaration::{
@@ -144,18 +145,13 @@ pub struct FetchConfig {
     pub sync_budget: Duration,
     /// Maximum automatically downloaded bundle bytes.
     pub auto_sync_max_bytes: u64,
-    /// Maximum stored reply body bytes; a write past it removes expired, then oldest, replies.
+    /// Maximum stored reply body bytes, enforced when a reply is written.
     pub reply_cache_max_bytes: u64,
     /// Days after a publisher dataset date before replies flag old data.
     pub source_data_max_age_days: u32,
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biomcp_types::Source, Duration>,
 }
-
-/// Default reply cache ceiling (1001). A typical openFDA label name page measured 3.6 MiB
-/// (median of twelve common names, 2026-11-16; 0.3 to 8.5 MiB), and an ECS Fargate task
-/// gets 20 GiB of disk by default. A tenth of that disk, 2 GiB, holds about 560 such pages.
-pub const REPLY_CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 
 impl Default for FetchConfig {
     fn default() -> Self {

@@ -24,6 +24,10 @@ pub const CACHE_NAMESPACE_VERSION: u32 = 1;
 const OWNER: &str = "biomcp-fetch";
 /// Retain expired replies for stale and offline fallback before automatic pruning.
 pub const STALE_GRACE_SECONDS: i64 = 30 * 24 * 60 * 60;
+/// Default reply cache ceiling (1001). A typical openFDA label name page measured 3.6 MiB
+/// (median of twelve common names, 2026-11-16; 0.3 to 8.5 MiB), and an ECS Fargate task
+/// gets 20 GiB of disk by default. A tenth of that disk, 2 GiB, holds about 560 such pages.
+pub const REPLY_CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 const OPEN_WAIT: Duration = Duration::from_secs(5);
 
 // One connection is shared by source legs. Its lock covers only SQLite work;
