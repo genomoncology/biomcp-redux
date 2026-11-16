@@ -65,3 +65,4 @@ The JSON reply can't carry the count. TSV carries count and rows in one reply, b
 - A page past the end (`search cell-line HeLa --offset 5000 --limit 3`) got 0 rows and reported total 5,000 (offset plus rows). An empty page at an offset above 0 now reads the count as a full page does: total 2,355, Cellosaurus count 2,355, no page step. The new step in `cell-line/search-total.yaml` replays the empty search page recorded live in pm job j41490 (the count reply is the one from j41475, same request).
 - `tests/replies/cache-admission/README.md` says the MOLM13 count reply is stored inline, unchanged.
 - j41490 passed `make check-cheap`; the cell cases failed only on the then-missing recording.
+- Review-fix gate passed on the branch merged with origin/main (94395bcad) in pm job j41493 at 6bc8cde85.
