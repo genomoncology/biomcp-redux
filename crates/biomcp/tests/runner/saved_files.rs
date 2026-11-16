@@ -196,7 +196,10 @@ fn shared_folder() -> Result<(), String> {
 
 /// One saved-changed call against a replay folder: its exit code and reply.
 fn changed(env: &Environment, name: &str, replay: &Path) -> Result<(i32, Value), String> {
-    let mut args = vec!["saved".to_owned(), "changed".to_owned(), name.to_owned()];
+    let mut args = vec!["saved".to_owned(), "changed".to_owned()];
+    if !name.is_empty() {
+        args.push(name.to_owned());
+    }
     args.extend(env.globals(Some(replay), false));
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
@@ -240,9 +243,30 @@ fn expect_state<'a>(reply: &'a Value, state: &str) -> Result<&'a Value, String> 
     Ok(report)
 }
 
+/// The hand-counted IDs of one report field, sorted.
+fn hand(count: &Value, field: &str) -> Vec<String> {
+    let mut ids: Vec<String> = count
+        .get(field)
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|id| id.as_str().map(str::to_owned))
+        .collect();
+    ids.sort();
+    ids
+}
+
+fn save(env: &Environment, words: &[String], name: &str, replay: &Path) -> Result<(), String> {
+    let mut args = words.to_vec();
+    args.extend(["--save-as".into(), name.into()]);
+    args.extend(env.globals(Some(replay), false));
+    let args: Vec<&str> = args.iter().map(String::as_str).collect();
+    run(env, &args).map(|_| ())
+}
+
 /// Two recorded days of one trial search: the report equals the hand count in
-/// tests/replies/saved/changed/hand-count.json, inside the floor nothing runs, and a
-/// snapshot under another row schema rebaselines instead of listing every row.
+/// tests/replies/saved/changed/hand-count.json, inside the floor nothing runs, a snapshot
+/// under another row schema rebaselines, and one failing search keeps the others' reports.
 fn two_days() -> Result<(), String> {
     let env = Environment::new().map_err(|error| error.to_string())?;
     let folder = fixtures().join("replies/saved/changed");
@@ -251,23 +275,18 @@ fn two_days() -> Result<(), String> {
     )
     .map_err(|error| error.to_string())?;
     let (day1, day2) = (folder.join("day1"), folder.join("day2"));
-    let mut save: Vec<String> = count
+    let words: Vec<String> = count
         .get("args")
         .and_then(Value::as_array)
         .ok_or("hand count names no search words")?
         .iter()
         .filter_map(|word| word.as_str().map(str::to_owned))
         .collect();
-    save.extend(["--save-as".into(), "watched".into()]);
-    save.extend(env.globals(Some(&day1), false));
-    let save: Vec<&str> = save.iter().map(String::as_str).collect();
-    run(&env, &save)?;
+    save(&env, &words, "watched", &day1)?;
     let (_, first) = changed(&env, "watched", &day1)?;
     let report = expect_state(&first, "first")?;
     if report.pointer("/to/total") != count.get("day1_total") {
-        return Err(format!(
-            "day one total differs from the hand count: {first}"
-        ));
+        return Err(format!("day one total differs from the hand count: {first}"));
     }
     // Nothing is due, so an empty replay folder, which answers no request, is never read.
     let empty = env.root().join("no-replies");
@@ -280,35 +299,15 @@ fn two_days() -> Result<(), String> {
     age(&env, "")?;
     let (_, second) = changed(&env, "watched", &day2)?;
     let report = expect_state(&second, "changed")?;
+    if report.pointer("/to/total") != count.get("day2_total") {
+        return Err(format!("day two total differs from the hand count: {second}"));
+    }
     for field in ["new", "gone", "changed"] {
-        let mut expected: Vec<String> = count
-            .get(field)
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter_map(|id| id.as_str().map(str::to_owned))
-            .collect();
-        expected.sort();
-        if ids(report, field) != expected {
+        if ids(report, field) != hand(&count, field) {
             return Err(format!("{field} differs from the hand count: {second}"));
         }
     }
-    // Snapshots an older build fingerprinted under another row schema.
-    age(
-        &env,
-        "UPDATE saved_snapshot SET row_schema='biomcp.trial-page/16#0000000000000000';",
-    )?;
-    let (_, rebaselined) = changed(&env, "watched", &day2)?;
-    let report = expect_state(&rebaselined, "rebaselined")?;
-    if ["new", "gone", "changed"]
-        .iter()
-        .any(|field| !ids(report, field).is_empty())
-    {
-        return Err(format!("a rebaseline listed rows: {rebaselined}"));
-    }
-    age(&env, "")?;
-    let (_, unchanged) = changed(&env, "watched", &day2)?;
-    expect_state(&unchanged, "unchanged")?;
+    rebaseline(&env, &count, &day1)?;
     let export: Value = serde_json::from_slice(&run(&env, &["saved", "export"])?)
         .map_err(|error| error.to_string())?;
     let kept = export
@@ -318,16 +317,59 @@ fn two_days() -> Result<(), String> {
     if kept != 2 {
         return Err(format!("kept {kept} snapshots, not the two newest"));
     }
-    retired(&env, &day2)
+    retired(&env, &words, &day2)
 }
 
-/// A saved search whose words no longer parse answers the usage error and runs nothing.
-fn retired(env: &Environment, replay: &Path) -> Result<(), String> {
+/// Snapshots an older build fingerprinted under another row schema: going back to day one
+/// lists the hand count's new and gone the other way round by ID, and no changed rows.
+fn rebaseline(env: &Environment, count: &Value, day1: &Path) -> Result<(), String> {
     age(
         env,
-        "UPDATE saved_search SET args='[\"search\",\"trial\",\"--no-such-filter\",\"x\"]';",
+        "UPDATE saved_snapshot SET row_schema='biomcp.trial-page/16#0000000000000000';",
     )?;
-    let (code, reply) = changed(env, "watched", replay)?;
+    let (_, rebaselined) = changed(env, "watched", day1)?;
+    let report = expect_state(&rebaselined, "rebaselined")?;
+    if ids(report, "new") != hand(count, "gone")
+        || ids(report, "gone") != hand(count, "new")
+        || !ids(report, "changed").is_empty()
+    {
+        return Err(format!("a rebaseline must list IDs, not rows: {rebaselined}"));
+    }
+    age(env, "")?;
+    let (_, unchanged) = changed(env, "watched", day1)?;
+    expect_state(&unchanged, "unchanged").map(|_| ())
+}
+
+/// A saved search whose words no longer parse runs nothing: checked with the others it
+/// reports failed while they keep their reports; checked by name it answers the usage error.
+fn retired(env: &Environment, words: &[String], replay: &Path) -> Result<(), String> {
+    save(env, words, "zz-retired", replay)?;
+    age(
+        env,
+        "UPDATE saved_search SET args='[\"search\",\"trial\",\"--no-such-filter\",\"x\"]' \
+         WHERE name='zz-retired';",
+    )?;
+    let (code, all) = changed(env, "", replay)?;
+    let states: Vec<_> = ["0", "1"]
+        .iter()
+        .map(|index| {
+            let report = all.pointer(&format!("/result/changes/{index}"));
+            (
+                report.and_then(|r| r.get("search")).and_then(Value::as_str),
+                report.and_then(|r| r.get("state")).and_then(Value::as_str),
+            )
+        })
+        .collect();
+    if code != 0
+        || states
+            != [
+                (Some("watched"), Some("changed")),
+                (Some("zz-retired"), Some("failed")),
+            ]
+    {
+        return Err(format!("a failing search hid another's report: {all}"));
+    }
+    let (code, reply) = changed(env, "zz-retired", replay)?;
     let usage = reply
         .pointer("/error/code")
         .and_then(Value::as_str)

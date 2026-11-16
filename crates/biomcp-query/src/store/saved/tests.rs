@@ -285,9 +285,10 @@ fn snapshots_compare_and_keep_two() {
         ChangeState::Rebaselined,
         "row schema moved"
     );
-    assert!(
-        rebaselined.new.is_empty() && rebaselined.gone.is_empty(),
-        "a rebaseline lists no rows"
+    assert_eq!(
+        (ids(&rebaselined.new), ids(&rebaselined.gone), ids(&rebaselined.changed)),
+        (vec!["X"], vec!["B", "C"], Vec::<&str>::new()),
+        "a rebaseline lists new and gone by ID but no changed rows"
     );
     let incomplete = store
         .record_check(&search, &check(&[("Y", "9")], "s/2", false))

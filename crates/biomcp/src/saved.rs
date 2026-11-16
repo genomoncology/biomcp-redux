@@ -422,30 +422,41 @@ fn changed(
         Ok(searches) => searches,
         Err(error) => return failure(encoding, error, "NAME"),
     };
+    let now = saved_store::now();
+    let mut due = Vec::new();
     let mut changes = Vec::new();
     for search in &searches {
         let kept = match store.snapshots(search.id.as_str()) {
             Ok(kept) => kept,
             Err(error) => return failure(encoding, error, "NAME"),
         };
-        if let Some(report) = saved_store::not_due(search, kept.first(), saved_store::now()) {
-            changes.push(report);
-            continue;
+        match saved_store::not_due(search, kept.first(), now) {
+            Some(report) => changes.push(report),
+            None => due.push((search, kept.into_iter().next())),
         }
-        // A re-check reads the source; offline would read only the cache.
-        if globals.offline {
-            return usage(encoding, UsageError::argument("--offline".into()));
-        }
+    }
+    // A re-check reads the source; offline would read only the cache. Refuse before any runs.
+    if globals.offline && !due.is_empty() {
+        return usage(encoding, UsageError::argument("--offline".into()));
+    }
+    for (search, newest) in due {
         let snapshot =
             match crate::command::recheck(root, settings, globals, &search.args, encoding)? {
                 Ok(snapshot) => snapshot,
-                Err(outcome) => return Ok(outcome),
+                // One named search answers its own reply; among several, its failure is
+                // its report, so the others' changes are still shown.
+                Err(outcome) if name.is_some() => return Ok(outcome),
+                Err(_) => {
+                    changes.push(saved_store::failed(search, newest.as_ref(), now));
+                    continue;
+                }
             };
         match store.record_check(search, &snapshot) {
             Ok(report) => changes.push(report),
             Err(error) => return failure(encoding, error, "NAME"),
         }
     }
+    changes.sort_by_key(|report| report.search.as_str().to_lowercase());
     reply(
         encoding,
         Ok(Saved {

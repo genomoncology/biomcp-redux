@@ -165,8 +165,22 @@ pub fn not_due(
     })
 }
 
-/// What `to` gained, lost and changed since `from`. Rows compare only when both snapshots
-/// are complete and share a row schema; otherwise the state says why they did not.
+/// The report for a due search whose check could not finish; nothing was kept, so it stays due.
+pub fn failed(search: &SavedSearch, newest: Option<&SavedSnapshot>, now: u64) -> ChangeReport {
+    ChangeReport {
+        search: search.name.clone(),
+        from: None,
+        to: newest.map(mark),
+        state: ChangeState::Failed,
+        new: Vec::new(),
+        gone: Vec::new(),
+        changed: Vec::new(),
+        next_due: now,
+    }
+}
+
+/// What `to` gained, lost and changed since `from`. IDs compare only when both snapshots are
+/// complete; rows compare only when they also share a row schema.
 pub fn compare(name: &Text, from: Option<&SavedSnapshot>, to: &SavedSnapshot) -> ChangeReport {
     let mut report = ChangeReport {
         search: name.clone(),
@@ -182,20 +196,22 @@ pub fn compare(name: &Text, from: Option<&SavedSnapshot>, to: &SavedSnapshot) ->
         report.state = ChangeState::First;
         return report;
     };
-    if from.row_schema != to.row_schema {
-        report.state = ChangeState::Rebaselined;
-        return report;
-    }
     if !from.complete || !to.complete {
-        report.state = ChangeState::Incomplete;
+        report.state = if from.row_schema == to.row_schema {
+            ChangeState::Incomplete
+        } else {
+            ChangeState::Rebaselined
+        };
         return report;
     }
+    // IDs do not depend on the row format, so a rebaseline still lists new and gone.
+    let rebaselined = from.row_schema != to.row_schema;
     let before: BTreeMap<_, _> = from.rows.iter().map(|row| (key(row), row)).collect();
     let after: BTreeSet<_> = to.rows.iter().map(key).collect();
     for row in &to.rows {
         match before.get(&key(row)) {
             None => report.new.push(row.reference.clone()),
-            Some(old) if old.fingerprint != row.fingerprint => {
+            Some(old) if !rebaselined && old.fingerprint != row.fingerprint => {
                 report.changed.push(row.reference.clone());
             }
             Some(_) => {}
@@ -207,7 +223,9 @@ pub fn compare(name: &Text, from: Option<&SavedSnapshot>, to: &SavedSnapshot) ->
         .filter(|row| !after.contains(&key(row)))
         .map(|row| row.reference.clone())
         .collect();
-    if !(report.new.is_empty() && report.gone.is_empty() && report.changed.is_empty()) {
+    if rebaselined {
+        report.state = ChangeState::Rebaselined;
+    } else if !(report.new.is_empty() && report.gone.is_empty() && report.changed.is_empty()) {
         report.state = ChangeState::Changed;
     }
     report

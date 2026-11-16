@@ -172,20 +172,92 @@ impl Walk {
     }
 }
 
-/// The reply schema the rows were read under, with a digest of its definition, so any row
-/// format change rebaselines instead of reporting every row as changed.
+/// The reply schema the rows were read under, with a digest of the row definition alone
+/// (descriptions removed), so a row format change rebaselines while wording and other parts
+/// of the reply do not.
 fn row_schema(envelope: &Value) -> io::Result<Text> {
     let id = envelope
         .get("schema")
         .and_then(Value::as_str)
         .unwrap_or("unknown");
-    let digest = Sha256::digest(crate::schema::find(id).unwrap_or_default().as_bytes());
+    let schema: Value = crate::schema::find(id)
+        .and_then(|text| serde_json::from_str(text).ok())
+        .unwrap_or(Value::Null);
+    let shape = row_definition(&schema).unwrap_or_else(|| strip(&schema));
+    let digest = Sha256::digest(serde_json::to_vec(&shape).map_err(io::Error::other)?);
     let hex: String = digest
         .iter()
         .take(8)
         .map(|byte| format!("{byte:02x}"))
         .collect();
     Text::new(&format!("{id}#{hex}")).map_err(io::Error::other)
+}
+
+/// The row node of a reply schema and every definition it reaches, without descriptions.
+fn row_definition(schema: &Value) -> Option<Value> {
+    let definitions = schema.get("$defs")?;
+    let body = first_ref(schema.pointer("/properties/result")?)?;
+    let properties = definitions.get(&body)?.get("properties")?;
+    let rows = properties.get("items").or_else(|| properties.get("rows"))?;
+    let mut reached = std::collections::BTreeMap::new();
+    let mut pending = Vec::new();
+    refs(rows, &mut pending);
+    while let Some(name) = pending.pop() {
+        if reached.contains_key(&name) {
+            continue;
+        }
+        let definition = definitions.get(&name)?;
+        refs(definition, &mut pending);
+        reached.insert(name, strip(definition));
+    }
+    Some(serde_json::json!({"rows": strip(rows), "defs": reached}))
+}
+
+fn first_ref(node: &Value) -> Option<String> {
+    let mut found = Vec::new();
+    refs(node, &mut found);
+    found.into_iter().next()
+}
+
+/// Definition names a node refers to.
+fn refs(node: &Value, names: &mut Vec<String>) {
+    match node {
+        Value::Object(fields) => {
+            for (key, value) in fields {
+                if key == "$ref"
+                    && let Some(name) = value.as_str().and_then(|r| r.strip_prefix("#/$defs/"))
+                {
+                    names.push(name.to_owned());
+                } else {
+                    refs(value, names);
+                }
+            }
+        }
+        Value::Array(values) => values.iter().for_each(|value| refs(value, names)),
+        _ => {}
+    }
+}
+
+/// A schema node without its prose, in key order.
+fn strip(node: &Value) -> Value {
+    match node {
+        Value::Object(fields) => Value::Object(
+            fields
+                .iter()
+                // A property may itself be named description; only prose values go.
+                .filter(|(key, value)| match key.as_str() {
+                    "description" | "title" => !value.is_string(),
+                    "examples" | "x-enum-descriptions" => !value.is_array(),
+                    _ => true,
+                })
+                .map(|(key, value)| (key.clone(), strip(value)))
+                .collect::<std::collections::BTreeMap<_, _>>()
+                .into_iter()
+                .collect(),
+        ),
+        Value::Array(values) => Value::Array(values.iter().map(strip).collect()),
+        other => other.clone(),
+    }
 }
 
 fn sources(envelope: &Value) -> Vec<SavedSnapshotSource> {

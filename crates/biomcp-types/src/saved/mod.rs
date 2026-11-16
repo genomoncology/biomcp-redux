@@ -174,10 +174,12 @@ biodata::wire_enum! {
         Changed => "changed",
         /// Checked less than an hour ago; nothing ran. Ask again at next_due.
         NotDue => "not_due",
-        /// The row format changed since the last check, so rows were not compared; the next check compares.
+        /// The row format changed since the last check, so new and gone list IDs but changed rows are not compared; the next check compares them.
         Rebaselined => "rebaselined",
         /// A check matched more records than a snapshot holds; only totals compare.
         Incomplete => "incomplete",
+        /// The check could not finish, such as when the source failed or the saved words no longer parse; nothing was kept. Run saved changed NAME to see why.
+        Failed => "failed",
     }
 }
 
@@ -195,10 +197,10 @@ pub struct ChangeReport {
     pub to: Option<ChangeSnapshot>,
     /// What the check found.
     pub state: ChangeState,
-    /// Records the later snapshot holds and the earlier one does not.
+    /// Records the later snapshot holds and the earlier one does not; also listed when rebaselined.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub new: Vec<SavedRef>,
-    /// Records the earlier snapshot holds and the later one does not.
+    /// Records the earlier snapshot holds and the later one does not; also listed when rebaselined.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub gone: Vec<SavedRef>,
     /// Records in both whose rows differ.
