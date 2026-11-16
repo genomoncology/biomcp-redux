@@ -112,6 +112,7 @@ fn apply(
     page: nci::Page,
 ) {
     out.include_refusals(page.refusals);
+    out.problems.extend(page.problems);
     source.count = Some(page.total);
     source.retrieved_count = Some(page.data.len() as u32);
     {
@@ -138,13 +139,15 @@ fn apply(
         pool: None,
         truncated: None,
     });
-    if !q.count_only() && returned > 0 && u64::from(offset.saturating_add(returned)) < page.total {
-        let token = Text::new(&offset.saturating_add(returned).to_string());
+    // The next page starts after every received row, refused ones included.
+    let read = offset.saturating_add(page.received);
+    if !q.count_only() && page.received > 0 && u64::from(read) < page.total {
+        let token = Text::new(&read.to_string());
         if let Some(token) = crate::next::checked(token, Source::Nci, &mut out.problems) {
             out.next.push(crate::next::Step::run(
                 StepKind::Page,
                 &[Source::Nci],
-                Request::SearchTrial(q.at_page(token, offset.saturating_add(returned))),
+                Request::SearchTrial(q.at_page(token, read)),
                 fresh,
             ));
         }
