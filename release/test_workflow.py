@@ -135,7 +135,7 @@ class Staging(unittest.TestCase):
                 for name, data in payloads().items():
                     self.assertEqual(archive.read(name), data)
                 self.assertEqual(archive.read("skills/SKILL.md").decode(), EXPANDED)
-                self.assertEqual(archive.read("skills/use-cases/01-example.md"), b"# Example\n")
+                self.assertNotIn("skills/use-cases/01-example.md", archive.namelist())
                 self.assertEqual(json.loads(archive.read(".claude-plugin/plugin.json"))["skills"], ["./skills/"])
 
     def test_stage_refuses_incomplete_or_mixed_candidates(self):

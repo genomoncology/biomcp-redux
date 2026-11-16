@@ -81,6 +81,13 @@ impl Skill {
         }
     }
 }
+/// Files `skill install` writes: the worked examples stay embedded for `skill list`
+/// and first reads, but no persona run has opened an installed copy (0993).
+pub(super) fn managed() -> impl Iterator<Item = &'static (&'static str, &'static str)> {
+    ASSETS
+        .iter()
+        .filter(|(path, _)| !path.starts_with("use-cases/"))
+}
 fn asset(name: &str) -> io::Result<&'static str> {
     ASSETS
         .iter()

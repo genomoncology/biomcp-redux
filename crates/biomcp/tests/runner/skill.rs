@@ -39,6 +39,9 @@ fn check() -> Check {
     state(&env, "agent", "current")?;
     let target = env.root().join("agent/skills/biomcp");
     let guide = fs::read(target.join("SKILL.md"))?;
+    if target.join("use-cases").exists() {
+        return Err("install wrote the worked examples, which no agent reads".into());
+    }
     fs::write(target.join("SKILL.md"), "local change")?;
     state(&env, "agent", "locally_modified")?;
     let unchanged: Value = serde_json::from_slice(&run(&env, &["skill", "install", "agent"])?)?;
