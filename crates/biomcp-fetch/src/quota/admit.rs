@@ -31,3 +31,17 @@ impl Leg<'_> {
         )
     }
 }
+
+impl crate::Fetch {
+    /// How long `intervals` keyless requests to `spec` wait for this process's pacing in turn.
+    pub(crate) fn pacing(&self, spec: &crate::SourceSpec, intervals: usize) -> Duration {
+        let rate = self
+            .config
+            .source_pacing
+            .resolve(spec.quota)
+            .credential_rate(false);
+        self.config
+            .rate_share
+            .delay(u128::try_from(intervals).unwrap_or(u128::MAX).saturating_mul(1_000_000_000), rate)
+    }
+}

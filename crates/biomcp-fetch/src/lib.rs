@@ -377,17 +377,41 @@ impl Fetch {
     /// Start a leg capped by this source's budget.
     /// Replay legs spend independent virtual budgets and share provider quota schedules.
     /// Requests reject deadlines from a different clock domain or replay client.
+    pub fn leg<'a>(&'a self, spec: &'static SourceSpec, deadline: Deadline<'a>) -> Leg<'a> {
+        self.leg_within(spec, deadline, Duration::ZERO)
+    }
+    /// Time BioMCP's own pacing adds to `requests` sequential requests to `spec`: one interval
+    /// after each but the first. Add it to the caller's budget, and pass the same count to
+    /// [`Self::paced_leg`], so a batch BioMCP accepts is not cut short by its own spacing (1003).
+    pub fn paced_time(&self, spec: &SourceSpec, requests: usize) -> Duration {
+        self.pacing(spec, requests.saturating_sub(1))
+    }
+    /// A leg for `requests` sequential requests: the source's deadline plus [`Self::paced_time`].
+    pub fn paced_leg<'a>(
+        &'a self,
+        spec: &'static SourceSpec,
+        deadline: Deadline<'a>,
+        requests: usize,
+    ) -> Leg<'a> {
+        self.leg_within(spec, deadline, self.paced_time(spec, requests))
+    }
     #[expect(
         clippy::disallowed_types,
         reason = "Create the shared leg report lock without holding it during request work"
     )]
-    pub fn leg<'a>(&'a self, spec: &'static SourceSpec, deadline: Deadline<'a>) -> Leg<'a> {
+    fn leg_within<'a>(
+        &'a self,
+        spec: &'static SourceSpec,
+        deadline: Deadline<'a>,
+        extra: Duration,
+    ) -> Leg<'a> {
         let cap = self
             .config
             .source_deadlines
             .get(&spec.source)
             .copied()
-            .unwrap_or(spec.deadline);
+            .unwrap_or(spec.deadline)
+            .saturating_add(extra);
         let no_key = !self.disabled(spec.source)
             && match spec.key {
                 KeyUse::Required(credential) => self.secrets.get(credential.secret).is_none(),

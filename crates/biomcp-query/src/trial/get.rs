@@ -18,7 +18,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
     }
 
     let mut out = empty(query);
-    let command = cx.fetch.command_deadline(cx.budget);
+    // Each trial is its own request, spaced by BioMCP's pacing; give a batch that time (1003).
+    let paced = cx.fetch.paced_time(&ctgov::SPEC, query.input().len());
+    let command = cx.fetch.command_deadline(cx.budget.saturating_add(paced));
     let deadline = command.deadline();
     let result = if query.pool().is_some() {
         restore(cx, query, deadline, &mut out)
@@ -38,7 +40,10 @@ fn fetch(
     deadline: biomcp_fetch::Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
+    let leg = cx
+        .fetch
+        .paced_leg(&ctgov::SPEC, deadline, query.input().len())
+        .fresh(cx.fresh);
     let rows: Vec<_> = query
         .input()
         .iter()
@@ -89,24 +94,49 @@ fn fetch(
                 };
                 items.push(page::render(query, snapshot, pool, out)?);
             }
+            Err(e) if not_found(e) => items.push(unresolved(
+                *id,
+                crate::status::item_status(false, false, false),
+            )),
             Err(e) => {
-                if !not_found(e) {
-                    unread.push((*id, status::reason(e)));
-                }
-                items.push(unresolved(
-                    *id,
-                    if not_found(e) {
-                        crate::status::item_status(false, false, false)
-                    } else {
-                        crate::status::item_status(false, true, false)
-                    },
-                ))
+                let reason = status::reason(e);
+                unread.push((*id, reason));
+                let mut item = unresolved(*id, crate::status::item_status(false, true, false));
+                item.failure = Some(failure(reason));
+                items.push(item);
             }
         }
     }
     say_unread(query, &unread, out);
     finish(query, items, source_updated, out);
     Ok(())
+}
+/// Say on the item itself why it was not read, and whether the cause is BioMCP's own limit.
+fn failure(reason: Option<biomcp_types::Reason>) -> biomcp_types::TrialItemFailure {
+    use biomcp_types::Reason;
+    let problem = match reason {
+        Some(Reason::DeadlineExceeded) => {
+            "BioMCP's own time limit for this command ran out before this trial was read. Read it again with the fresh step, or in smaller batches."
+        }
+        Some(Reason::LocalQuota) => {
+            "BioMCP's own request pacing for ClinicalTrials.gov left no time to read this trial. Read it again with the fresh step, or in smaller batches."
+        }
+        Some(Reason::RateLimited) => {
+            "ClinicalTrials.gov limited the request rate before this trial was read. Read it again with the fresh step after a short wait."
+        }
+        Some(Reason::ReplayMiss) => "No recorded reply matched this trial's request.",
+        Some(_) => {
+            "ClinicalTrials.gov did not return this trial. Read it again with the fresh step."
+        }
+        None => {
+            "BioMCP's local cache failed while reading this trial. Read it again with the fresh step."
+        }
+    };
+    biomcp_types::TrialItemFailure {
+        source: Source::ClinicalTrialsGov,
+        reason,
+        problem: problem.into(),
+    }
 }
 /// A batch item that failed carries only its input and status; name each one, its reason
 /// and a retry, so a missing card or section never reads as an empty one.
@@ -229,6 +259,7 @@ fn unresolved(input: NctId, status: Status) -> TrialCardItem {
         fetched: None,
         sections: None,
         more: Box::default(),
+        failure: None,
     }
 }
 fn finish(
