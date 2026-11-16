@@ -49,7 +49,7 @@ pub fn search_names(leg: &Leg<'_>, name: &Text) -> Result<Vec<Page>, RequestErro
         let name = literal(name.as_str());
         format!("openfda.brand_name:{name} OR openfda.generic_name:{name}")
     };
-    let first = page(leg, &selector, NAME_PAGE, 0, None)?;
+    let first = choice_fields(page(leg, &selector, NAME_PAGE, 0, None)?);
     let Some(next) = first.window.next_offset() else {
         return Ok(vec![first]);
     };
@@ -60,11 +60,26 @@ pub fn search_names(leg: &Leg<'_>, name: &Text) -> Result<Vec<Page>, RequestErro
         .collect();
     let mut pages = vec![first];
     for found in leg.batch(&offsets, |child, offset| {
-        page(child, &selector, NAME_PAGE, *offset, None)
+        page(child, &selector, NAME_PAGE, *offset, None).map(choice_fields)
     }) {
         pages.push(found?);
     }
     Ok(pages)
+}
+/// A name lookup holds every page until it chooses a label, and a live page of whole labels may
+/// reach the 32 MiB page bound. Choosing reads names and identity, plus the indications it
+/// counts, so the other sections go as each page arrives: eight metformin lookups at once over
+/// live-sized pages (54 MB per lookup) peaked at 733 MiB while every page stayed whole.
+fn choice_fields(mut page: Page) -> Page {
+    choice_sections(&mut page.window.rows);
+    page
+}
+fn choice_sections(rows: &mut [super::Record]) {
+    for row in rows {
+        row.0
+            .sections
+            .retain(|heading, _| heading == "indications_and_usage");
+    }
 }
 fn discover(
     leg: &Leg<'_>,
@@ -143,3 +158,7 @@ fn candidates(
 ) -> Result<Page, RequestError> {
     page(leg, selector, limit, offset, None)
 }
+
+#[cfg(test)]
+#[path = "search_tests.rs"]
+mod tests;
