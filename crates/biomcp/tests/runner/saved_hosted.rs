@@ -184,7 +184,12 @@ fn stored_rechecks(server: &Server, folder: &std::path::Path) -> Result<(), Stri
         .ok_or_else(|| format!("a live search on a left-out source is refused: {live}"))?
         .to_owned();
     let rows = [
-        ("fresh-trials", with(&["--fresh"]), &carol, "usage.mcp_unavailable"),
+        (
+            "fresh-trials",
+            with(&["--fresh"]),
+            &carol,
+            "usage.mcp_unavailable",
+        ),
         (
             "one-trial",
             vec!["get".into(), "trial".into(), "NCT02576665".into()],

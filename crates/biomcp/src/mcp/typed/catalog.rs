@@ -29,9 +29,7 @@ pub(in crate::mcp) fn available(
         })
 }
 
-pub(crate) fn excluded(
-    context: crate::command::Context<'_>,
-) -> io::Result<BTreeSet<Source>> {
+pub(crate) fn excluded(context: crate::command::Context<'_>) -> io::Result<BTreeSet<Source>> {
     let mut sources = crate::config::excluded_sources(context.globals, context.settings)
         .map_err(|error| io::Error::other(error.0))?;
     sources.extend(crate::command::hosted_use::disabled(

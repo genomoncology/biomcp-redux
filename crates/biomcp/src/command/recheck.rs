@@ -55,7 +55,10 @@ pub(crate) fn recheck(
     if let Some(context) = context {
         let excluded = crate::mcp::typed::catalog::excluded(context)?;
         if !crate::mcp::typed::catalog::request_allowed(&request, &excluded)? {
-            return Ok(Err(super::usage_envelope(UsageError::arguments(), encoding)?));
+            return Ok(Err(super::usage_envelope(
+                UsageError::arguments(),
+                encoding,
+            )?));
         }
     }
     let mut globals = parsed.globals;
