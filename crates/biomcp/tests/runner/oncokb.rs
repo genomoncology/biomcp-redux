@@ -107,7 +107,10 @@ fn wire() -> Result<(), String> {
         || !context
             .get("next")
             .and_then(Value::as_array)
-            .is_some_and(|rows| rows.iter().any(|r| r.get("kind") == Some(&json!("configure"))))
+            .is_some_and(|rows| {
+                rows.iter()
+                    .any(|r| r.get("kind") == Some(&json!("configure")))
+            })
     {
         return Err(format!(
             "keyed missing tumor type did not skip with help: {context}"
