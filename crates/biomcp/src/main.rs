@@ -13,6 +13,8 @@ mod output;
 mod paths;
 mod retired;
 mod save;
+mod saved;
+mod saved_help;
 mod schema;
 mod skill;
 mod spell;
@@ -90,6 +92,12 @@ fn main() -> ExitCode {
             mcp::serve(globals, fetch, root.clone(), settings.clone()),
             exit::Status::Success,
         );
+    }
+    if let Some(outcome) = saved::cli(&root, &settings, &args) {
+        return match outcome {
+            Ok(outcome) => exit::finish(output::command(&outcome), outcome.status),
+            Err(error) => exit::failure(error),
+        };
     }
     match command::dispatch(&root, &settings, &args) {
         Ok(outcome) => exit::finish(output::command(&outcome), outcome.status),

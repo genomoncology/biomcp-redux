@@ -12,6 +12,20 @@ pub(crate) fn config(
             .map(|root| root.join("biomcp/config.json"))
     }
 }
+/// Saved work lives in the data folder, never the cache folder, so no cache cleanup,
+/// predecessor scan or drop-and-rebuild can reach it.
+pub(crate) fn saved(
+    xdg: Option<PathBuf>,
+    home: Option<PathBuf>,
+    appdata: Option<PathBuf>,
+) -> Option<PathBuf> {
+    if cfg!(windows) {
+        appdata.map(|root| root.join("biomcp/saved.sqlite"))
+    } else {
+        xdg.or_else(|| home.map(|root| root.join(".local/share")))
+            .map(|root| root.join("biomcp/saved.sqlite"))
+    }
+}
 pub(crate) fn cache(
     xdg: Option<PathBuf>,
     home: Option<PathBuf>,
