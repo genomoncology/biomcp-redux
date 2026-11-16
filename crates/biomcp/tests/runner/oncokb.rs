@@ -70,12 +70,17 @@ fn wire() -> Result<(), String> {
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
     env.config(&config).map_err(|e| e.to_string())?;
-    // Without a key, missing context is not a usage error on `section` (1004).
+    // Chromosome notation needs --build whatever the section; the refusal never names
+    // `section`, and without a key a missing tumor type is no usage error (1004).
     let mut missing_build = args();
     missing_build.drain(4..6);
+    let refused = invoke(&env, &missing_build, 2)?;
+    if refused.pointer("/error/option") == Some(&json!("section")) {
+        return Err(format!("missing build refused the section word: {refused}"));
+    }
     let mut missing_tumor = args();
     missing_tumor.drain(6..8);
-    for call in [missing_build, missing_tumor, args()] {
+    for call in [missing_tumor, args()] {
         let skipped = invoke(&env, &call, 0)?;
         if skipped.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
             || skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-key"))
