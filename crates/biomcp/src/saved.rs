@@ -85,7 +85,7 @@ pub(crate) fn grammar() -> Command {
                         .arg(Arg::new("source").long("source").help(
                             "Source the IDs belong to, when the get command's IDs are source-specific.",
                         ))
-                        .arg(Arg::new("note").long("note").help(
+                        .arg(Arg::new("note").long("note").allow_hyphen_values(true).help(
                             "A note kept with each added item, up to 2,000 characters.",
                         ))
                         .arg(ids("Exact IDs the get command accepts.")),
@@ -136,11 +136,31 @@ fn command_path<'a>(words: &[&'a str]) -> Vec<&'a str> {
         .collect()
 }
 
-/// `-h` or `--help` under `saved` answers as `help saved ...` does.
+/// `-h` or `--help` under `saved` answers as `help saved ...` does, unless it is an option's value.
 fn asks_help(args: &[OsString]) -> bool {
-    args.iter()
-        .take_while(|arg| *arg != "--")
-        .any(|arg| arg == "-h" || arg == "--help")
+    let parser = crate::grammar::saved_parser();
+    let mut node = &parser;
+    let mut words = args.iter().take_while(|arg| *arg != "--");
+    while let Some(word) = words.next() {
+        let Some(word) = word.to_str() else {
+            continue;
+        };
+        if word == "-h" || word == "--help" {
+            return true;
+        }
+        if let Some(command) = node.find_subcommand(word) {
+            node = command;
+        } else if let Some(long) = word.strip_prefix("--").filter(|word| !word.contains('='))
+            && parser
+                .get_arguments()
+                .chain(node.get_arguments())
+                .find(|arg| arg.get_long() == Some(long))
+                .is_some_and(|arg| matches!(arg.get_action(), ArgAction::Set | ArgAction::Append))
+        {
+            words.next();
+        }
+    }
+    false
 }
 
 fn save_as_position(args: &[OsString]) -> Option<usize> {

@@ -197,7 +197,7 @@ pub fn compare(name: &Text, from: Option<&SavedSnapshot>, to: &SavedSnapshot) ->
         return report;
     };
     if !from.complete || !to.complete {
-        report.state = if from.row_schema == to.row_schema {
+        report.state = if same_rows(from, to) {
             ChangeState::Incomplete
         } else {
             ChangeState::Rebaselined
@@ -205,7 +205,7 @@ pub fn compare(name: &Text, from: Option<&SavedSnapshot>, to: &SavedSnapshot) ->
         return report;
     }
     // IDs do not depend on the row format, so a rebaseline still lists new and gone.
-    let rebaselined = from.row_schema != to.row_schema;
+    let rebaselined = !same_rows(from, to);
     let before: BTreeMap<_, _> = from.rows.iter().map(|row| (key(row), row)).collect();
     let after: BTreeSet<_> = to.rows.iter().map(key).collect();
     for row in &to.rows {
@@ -229,6 +229,18 @@ pub fn compare(name: &Text, from: Option<&SavedSnapshot>, to: &SavedSnapshot) ->
         report.state = ChangeState::Changed;
     }
     report
+}
+
+/// Whether two snapshots share a row format. Only the row digest after `#` counts, so a new
+/// reply schema ID whose rows are unchanged, such as an envelope-only major, compares rows.
+fn same_rows(from: &SavedSnapshot, to: &SavedSnapshot) -> bool {
+    let digest = |schema: &str| {
+        schema
+            .rsplit_once('#')
+            .map_or(schema, |(_, digest)| digest)
+            .to_owned()
+    };
+    digest(from.row_schema.as_str()) == digest(to.row_schema.as_str())
 }
 
 fn key(row: &SavedSnapshotRow) -> (&str, &str, Option<String>) {

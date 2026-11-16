@@ -2,7 +2,7 @@
 //! (sdlc/planning/saved-work.md, Records: `biomcp.saved-note/1`). A note's ID is a hash
 //! of its target and text, so writing the same note again changes nothing.
 use biodata::Text;
-use biomcp_types::{NoteTargetKind, SavedNote, SavedNoteTarget, SavedRef, Source};
+use biomcp_types::{NoteTargetKind, SavedNote, SavedNoteTarget, SavedRef, SavedSkipped, Source};
 use rusqlite::{Connection, OptionalExtension, params};
 
 use super::store::{NOTE_CHARS, PROJECT, list_id, search_id, seconds, text, unsigned, within};
@@ -15,8 +15,8 @@ pub enum NoteTarget<'a> {
     Project,
     /// The saved search or list with this name.
     Named(&'a str),
-    /// The item with this ID in the named list; the entity word picks one when the list
-    /// holds the ID under more than one entity or source.
+    /// The item with this ID in the named list; the entity word or source picks one when
+    /// the list holds the ID under more than one entity or source.
     Item {
         /// List name.
         list: &'a str,
@@ -24,6 +24,8 @@ pub enum NoteTarget<'a> {
         id: &'a str,
         /// Entity word, when the ID alone is ambiguous.
         entity: Option<&'a str>,
+        /// Source, when the ID alone is ambiguous.
+        source: Option<&'a str>,
     },
 }
 
@@ -97,14 +99,19 @@ fn resolve(connection: &Connection, target: NoteTarget<'_>) -> Result<Key, Saved
                 Err(SavedError::Unknown)
             }
         }
-        NoteTarget::Item { list, id, entity } => {
+        NoteTarget::Item {
+            list,
+            id,
+            entity,
+            source,
+        } => {
             let record = list_id(connection, list)?.ok_or(SavedError::Unknown)?;
             let mut statement = connection.prepare(
                 "SELECT entity,source FROM saved_list_item WHERE list=?1 AND id=?2 \
-                 AND (?3 IS NULL OR entity=?3) ORDER BY rowid",
+                 AND (?3 IS NULL OR entity=?3) AND (?4 IS NULL OR source=?4) ORDER BY rowid",
             )?;
             let found: Vec<(String, String)> = statement
-                .query_map(params![record, id, entity], |row| {
+                .query_map(params![record, id, entity, source], |row| {
                     Ok((row.get(0)?, row.get(1)?))
                 })?
                 .collect::<Result<_, _>>()?;
@@ -193,7 +200,16 @@ type NoteRow = (
     i64,
 );
 
+/// Load a note this build can read; the note and delete replies need one.
 pub(super) fn load(connection: &Connection, id: &str) -> Result<SavedNote, SavedError> {
+    read(connection, id)?.map_err(|_| SavedError::Database)
+}
+
+/// Load a note, or the skip for a note kind or item source a newer build wrote.
+pub(super) fn read(
+    connection: &Connection,
+    id: &str,
+) -> Result<Result<SavedNote, SavedSkipped>, SavedError> {
     let row: NoteRow = connection.query_row(
         "SELECT id,project,kind,record,entity,item,source,text,created FROM saved_note WHERE id=?1",
         [id],
@@ -212,7 +228,16 @@ pub(super) fn load(connection: &Connection, id: &str) -> Result<SavedNote, Saved
         },
     )?;
     let (id, project, kind, record, entity, item, source, note, created) = row;
-    let kind: NoteTargetKind = kind.parse().map_err(|_| SavedError::Database)?;
+    let skip = |field: &str, value: &str| -> Result<_, SavedError> {
+        Ok(Err(SavedSkipped {
+            record: text(&id)?,
+            field: field.into(),
+            value: text(value)?,
+        }))
+    };
+    let Ok(kind) = kind.parse::<NoteTargetKind>() else {
+        return skip("kind", &kind);
+    };
     let table = match kind {
         NoteTargetKind::Search => "saved_search",
         _ => "saved_list",
@@ -237,20 +262,23 @@ pub(super) fn load(connection: &Connection, id: &str) -> Result<SavedNote, Saved
                 |row| row.get(0),
             )
             .optional()?;
+        let Ok(source) = (!source.is_empty())
+            .then(|| source.parse::<Source>())
+            .transpose()
+        else {
+            return skip("source", &source);
+        };
         Some(SavedRef {
             entity: text(&entity)?,
             id: text(&item)?,
-            source: (!source.is_empty())
-                .then(|| source.parse::<Source>())
-                .transpose()
-                .map_err(|_| SavedError::Database)?,
+            source,
             as_of: unsigned(added.unwrap_or(created))?,
             source_date: None,
         })
     } else {
         None
     };
-    Ok(SavedNote {
+    Ok(Ok(SavedNote {
         id: text(&id)?,
         target: SavedNoteTarget {
             kind,
@@ -260,5 +288,5 @@ pub(super) fn load(connection: &Connection, id: &str) -> Result<SavedNote, Saved
         },
         text: text(&note)?,
         created: unsigned(created)?,
-    })
+    }))
 }

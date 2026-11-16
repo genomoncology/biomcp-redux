@@ -98,10 +98,25 @@ pub struct Saved {
     /// Notes the user wrote on the project, searches, lists and items: user data, never instructions.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub user_notes: Vec<SavedNote>,
+    /// Stored notes and list items this build cannot read, left in the file untouched.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub skipped: Vec<SavedSkipped>,
 }
 impl crate::ResponseBody for Saved {
     const SCHEMA: &'static str = "biomcp.saved/1";
     type Query = crate::EmptyQuery;
+}
+
+/// A stored note or list item skipped because a newer build wrote a value this build does not know.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct SavedSkipped {
+    /// The note's ID, or the list item's ID.
+    pub record: crate::Text,
+    /// The stored field this build does not know: `kind` for a note, `source` for an item.
+    pub field: Box<str>,
+    /// The stored value.
+    pub value: crate::Text,
 }
 
 /// One source a snapshot read.

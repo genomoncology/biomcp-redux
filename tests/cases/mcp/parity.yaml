@@ -19,6 +19,8 @@ steps:
     expect:
       /schema: biomcp.help/7
       /status: complete
+      /result/commands/*/description:
+        excludes: "Keep named searches (search ... --save-as NAME), lists of record IDs and notes on this machine; command line only. Run biomcp help saved."
   - mcp: [serve]
     is_error: true
     expect:

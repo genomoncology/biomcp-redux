@@ -280,6 +280,17 @@ fn snapshots_compare_and_keep_two() {
         2,
         "two newest kept"
     );
+    let renamed = store
+        .record_check(&search, &check(&[("B", "2"), ("C", "3")], "s/2#rows", true))
+        .unwrap();
+    let again = store
+        .record_check(&search, &check(&[("B", "2"), ("C", "4")], "s/3#rows", true))
+        .unwrap();
+    assert_eq!(
+        (renamed.state, again.state, ids(&again.changed)),
+        (ChangeState::Rebaselined, ChangeState::Changed, vec!["C"]),
+        "a new schema ID with the same row digest compares rows instead of rebaselining"
+    );
     let rebaselined = store
         .record_check(&search, &check(&[("X", "9")], "s/2", true))
         .unwrap();
@@ -374,6 +385,7 @@ fn on_item<'a>(id: &'a str, entity: Option<&'a str>) -> NoteTarget<'a> {
         list: "genes",
         id,
         entity,
+        source: None,
     }
 }
 
@@ -483,4 +495,70 @@ fn notes_follow_their_targets() {
         "the list note and the project note"
     );
     assert_eq!(store.show(None).unwrap(), Default::default());
+}
+
+#[test]
+fn source_picks_an_item_and_unknown_stored_values_are_skipped() {
+    use biomcp_types::{SavedSkipped, Source};
+    let folder = tempfile::tempdir().unwrap();
+    let mut store = SavedStore::open(&folder.path().join("saved.sqlite")).unwrap();
+    let item = |source: Source| NewItem {
+        entity: text("gene"),
+        id: text("BRAF"),
+        source: Some(source),
+        note: None,
+    };
+    store
+        .list_add(&text("genes"), &[item(Source::Civic), item(Source::UniProt)])
+        .unwrap();
+    let on = |source| NoteTarget::Item {
+        list: "genes",
+        id: "BRAF",
+        entity: Some("gene"),
+        source,
+    };
+    assert_eq!(
+        store.note(on(None), &text("x")).err(),
+        Some(SavedError::Ambiguous),
+        "one ID and entity under two sources needs a source"
+    );
+    let civic = store.note(on(Some("civic")), &text("v600e")).unwrap();
+    assert_eq!(
+        civic.target.item.and_then(|item| item.source),
+        Some(Source::Civic)
+    );
+    // A newer 1.x build may store a note kind or item source this build does not know.
+    store
+        .connection
+        .execute(
+            "UPDATE saved_list_item SET source='future-source' WHERE source='uniprot'",
+            [],
+        )
+        .unwrap();
+    store
+        .connection
+        .execute(
+            "INSERT INTO saved_note(id,project,kind,record,entity,item,source,text,created) \
+             VALUES('future','default','future-kind','','','','','x',1)",
+            [],
+        )
+        .unwrap();
+    let skipped = |field: &str, record: &str, value: &str| SavedSkipped {
+        record: text(record),
+        field: field.into(),
+        value: text(value),
+    };
+    for shown in [store.show(None).unwrap(), store.show(Some("genes")).unwrap()] {
+        assert_eq!(shown.lists[0].items.len(), 1, "the readable item stays");
+        assert_eq!(shown.user_notes.len(), 1, "the readable note stays");
+        assert!(shown.skipped.contains(&skipped("source", "BRAF", "future-source")));
+    }
+    assert_eq!(
+        store.show(None).unwrap().skipped,
+        [
+            skipped("source", "BRAF", "future-source"),
+            skipped("kind", "future", "future-kind")
+        ],
+        "each unreadable row is named, not a failure"
+    );
 }
