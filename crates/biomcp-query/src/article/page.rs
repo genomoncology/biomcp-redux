@@ -242,7 +242,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         .any(|r| r.item.pmid.is_none() && r.item.header.is_none());
     let returned = u32::try_from(rows.len()).unwrap_or(u32::MAX);
     let held = u64::from(pool.info.size);
-    let total = source_total(&pool.sources).unwrap_or(held);
+    let total = source_total(query, &pool.sources).unwrap_or(held);
     out.page = Some(PageInfo {
         offset: query.offset(),
         returned,
@@ -290,12 +290,14 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
 }
 
 /// One searched source's own count when it matched more than the retrieved window holds.
-/// Several sources' counts are never summed; their union keeps the held size. Sources
-/// that only resolved names or titles retrieve no window, so they are not counted.
-fn source_total(sources: &[biomcp_types::SourceOutcome]) -> Option<u64> {
+/// Several sources' counts are never summed; their union keeps the held size. Only the
+/// query's own sources count as searched, so name and title lookups stay out, and a source
+/// searched once per name stays in with no single count, so the total is the held size.
+fn source_total(query: Cursor<'_>, sources: &[biomcp_types::SourceOutcome]) -> Option<u64> {
+    let asked = query.sources();
     let searched: Vec<_> = sources
         .iter()
-        .filter(|s| s.retrieved_count.is_some())
+        .filter(|s| asked.contains(&s.source))
         .collect();
     let [source] = searched.as_slice() else {
         return None;
@@ -458,7 +460,7 @@ pub(super) fn fetched<'a>(
     out: &mut Outcome,
 ) {
     let held = items.len() as u64;
-    let total = source_total(&out.sources).unwrap_or(held);
+    let total = source_total(query, &out.sources).unwrap_or(held);
     let cut = truncated(&out.sources);
     let mut items: Box<[_]> = items
         .into_iter()

@@ -1,0 +1,18 @@
+{
+  "feature": "article-search",
+  "live_check": "synthetic names in real source reply shapes; no clinical or live completeness claim",
+  "story": "An article search that sends a source one request per drug name says on the first page that the per-name counts overlap and are not added, and the page total counts the distinct articles read.",
+  "verified": "Synthetic Semantic Scholar replies (noncommercial source, per 0920) in the search/drug-names replay: the three names match 1, 2 and 2 papers, three distinct in all.",
+  "replay": "search/drug-names",
+  "steps": [
+    {
+      "run": ["search", "article", "EX-66", "--source", "semantic-scholar"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/sources/8/source": "semantic-scholar",
+        "/sources/8/notices/0/message": "Semantic Scholar was searched once per drug name. Its counts per name (\"Canonical therapy\" 1, \"EX-66\" 2, \"Example brand\" 2) overlap, so BioMCP does not add them; the page total counts the distinct articles read."
+      }
+    }
+  ]
+}

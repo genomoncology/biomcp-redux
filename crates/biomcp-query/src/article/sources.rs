@@ -215,6 +215,51 @@ fn append_results(out: &mut Outcome, results: &[ResultLeg]) {
         }
         status::append(&mut out.problems, result.problems.clone());
     }
+    note_overlapping_counts(out, results);
+}
+/// A source searched once per drug name states one count per name. One article can match
+/// several names, so those counts overlap; they are never added, and the page total counts
+/// the distinct articles read (0979).
+fn note_overlapping_counts(out: &mut Outcome, results: &[ResultLeg]) {
+    for source in &mut out.sources {
+        let legs: Vec<_> = results
+            .iter()
+            .filter(|r| r.outcome.source == source.source)
+            .collect();
+        if legs.len() < 2 {
+            continue;
+        }
+        let counts: Vec<_> = legs
+            .iter()
+            .filter_map(|r| {
+                let count = r.outcome.count?;
+                Some(
+                    r.outcome
+                        .term
+                        .as_ref()
+                        .map_or_else(|| count.to_string(), |term| format!("\"{term}\" {count}")),
+                )
+            })
+            .collect();
+        let counts = if counts.is_empty() {
+            String::new()
+        } else {
+            format!(" ({})", counts.join(", "))
+        };
+        let name = biomcp_adapters::registry::display_name(source.source);
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: format!(
+                    "{name} was searched once per drug name. Its counts per name{counts} \
+                     overlap, so BioMCP does not add them; the page total counts the distinct \
+                     articles read."
+                )
+                .into(),
+                retry_after_seconds: None,
+            });
+    }
 }
 // Boolean providers receive one literal OR group. Sentence/ranked providers run each
 // source-stated name separately, then the existing pool fold removes duplicate identities.

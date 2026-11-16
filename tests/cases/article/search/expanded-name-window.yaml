@@ -1,0 +1,21 @@
+{
+  "feature": "article-search",
+  "live_check": "Europe PMC, MyChem and PubMed replies recorded live (pm job j41438); Semantic Scholar replies synthetic (noncommercial source, per 0920)",
+  "story": "When Europe PMC and Semantic Scholar both search a drug name, Semantic Scholar's per-name counts are not added and Europe PMC's own count does not become the page total: the total counts the distinct articles read, as Semantic Scholar's sentence says.",
+  "verified": "pm job j41491: live, search article tebentafusp --source europepmc --source semantic-scholar --limit 3 gave total 260, the pool held, with Europe PMC's count 1,178 kept on its own row. Before the fix the merged Semantic Scholar row had no rows-read number, so it was not counted as searched and the total became 1,178.",
+  "replay": "article/search/expanded-name-window",
+  "steps": [
+    {
+      "run": ["search", "article", "tebentafusp", "--source", "europepmc", "--source", "semantic-scholar", "--limit", "3"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 100,
+        "/page/pool/size": 100,
+        "/sources/2/source": "europepmc",
+        "/sources/2/count": 1178,
+        "/sources/3/source": "semantic-scholar",
+        "/sources/3/notices/0/message": "Semantic Scholar was searched once per drug name. Its counts per name (\"Imcgp100\" 7, \"Kimmtrak\" 3, \"tebentafusp\" 25, \"Tebentafusp-tebn\" 24) overlap, so BioMCP does not add them; the page total counts the distinct articles read."
+      }
+    }
+  ]
+}
