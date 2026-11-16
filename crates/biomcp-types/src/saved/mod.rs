@@ -111,9 +111,12 @@ impl crate::ResponseBody for Saved {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct SavedSkipped {
-    /// The note's ID, or the list item's ID.
+    /// The note's ID, the list item's ID, or the snapshot row's ID.
     pub record: crate::Text,
-    /// The stored field this build does not know: `kind` for a note, `source` for an item.
+    /// The list holding a skipped item, or the saved search holding a skipped snapshot row.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<crate::Text>,
+    /// The stored field this build does not know: `kind` for a note, `source` for an item or row.
     pub field: Box<str>,
     /// The stored value.
     pub value: crate::Text,

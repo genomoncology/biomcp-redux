@@ -3,10 +3,10 @@
 //! fingerprints, never source content, and each search keeps its two newest.
 use biodata::Text;
 use biomcp_types::{
-    ChangeReport, ChangeSnapshot, ChangeState, SavedRef, SavedSearch, SavedSnapshot,
-    SavedSnapshotRow, SavedSnapshotSource, Source,
+    ChangeReport, ChangeSnapshot, ChangeState, SavedRef, SavedSearch, SavedSkipped,
+    SavedSnapshot, SavedSnapshotRow, SavedSnapshotSource, Source,
 };
-use rusqlite::{Connection, Transaction, params};
+use rusqlite::{Connection, OptionalExtension, Transaction, params};
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::store::{seconds, text, unsigned};
@@ -57,16 +57,24 @@ impl SavedStore {
         Ok(saved.searches)
     }
 
-    /// A search's kept snapshots, newest first.
-    pub fn snapshots(&self, search: &str) -> Result<Vec<SavedSnapshot>, SavedError> {
+    /// A search's kept snapshots, newest first; rows this build cannot read go to `skipped`.
+    pub fn snapshots(
+        &self,
+        search: &str,
+        skipped: &mut Vec<SavedSkipped>,
+    ) -> Result<Vec<SavedSnapshot>, SavedError> {
         kept(&self.connection, search)?
             .iter()
-            .map(|id| snapshot(&self.connection, id))
+            .map(|id| snapshot(&self.connection, id, skipped))
             .collect()
     }
 
-    /// Every kept snapshot of every saved search, by search name and then oldest first.
-    pub fn all_snapshots(&self) -> Result<Vec<SavedSnapshot>, SavedError> {
+    /// Every kept snapshot of every saved search, by search name and then oldest first; rows
+    /// this build cannot read go to `skipped`.
+    pub fn all_snapshots(
+        &self,
+        skipped: &mut Vec<SavedSkipped>,
+    ) -> Result<Vec<SavedSnapshot>, SavedError> {
         let mut statement = self.connection.prepare(
             "SELECT s.id FROM saved_snapshot s JOIN saved_search q ON q.id=s.search \
              ORDER BY q.project, q.name COLLATE NOCASE, q.id, s.taken, s.rowid",
@@ -75,7 +83,7 @@ impl SavedStore {
             .query_map([], |row| row.get::<_, String>(0))?
             .collect::<Result<Vec<_>, _>>()?;
         ids.iter()
-            .map(|id| snapshot(&self.connection, id))
+            .map(|id| snapshot(&self.connection, id, skipped))
             .collect()
     }
 
@@ -90,7 +98,8 @@ impl SavedStore {
             let id = search.id.as_str();
             let previous = kept(tx, id)?
                 .first()
-                .map(|previous| snapshot(tx, previous))
+                // `saved changed` reports the previous snapshot's skips when it reads it.
+                .map(|previous| snapshot(tx, previous, &mut Vec::new()))
                 .transpose()?;
             let sources = serde_json::to_string(&new.sources).map_err(|_| SavedError::Database)?;
             tx.execute(
@@ -135,7 +144,7 @@ impl SavedStore {
                 "UPDATE saved_search SET checked=?2 WHERE id=?1",
                 params![id, seconds(now)?],
             )?;
-            let current = snapshot(tx, &taken)?;
+            let current = snapshot(tx, &taken, &mut Vec::new())?;
             Ok(compare(&search.name, previous.as_ref(), &current))
         })
     }
@@ -286,7 +295,11 @@ pub(super) fn delete_snapshots(tx: &Transaction<'_>, search: &str) -> Result<(),
 type SnapshotHead = (String, String, i64, i64, bool, String, String);
 type RowColumns = (String, String, String, String);
 
-fn snapshot(connection: &Connection, id: &str) -> Result<SavedSnapshot, SavedError> {
+fn snapshot(
+    connection: &Connection,
+    id: &str,
+    skipped: &mut Vec<SavedSkipped>,
+) -> Result<SavedSnapshot, SavedError> {
     let (id, search, taken, total, complete, row_schema, sources): SnapshotHead = connection
         .query_row(
             "SELECT id,search,taken,total,complete,row_schema,sources FROM saved_snapshot \
@@ -305,6 +318,20 @@ fn snapshot(connection: &Connection, id: &str) -> Result<SavedSnapshot, SavedErr
             },
         )?;
     let taken = unsigned(taken)?;
+    let name: Option<String> = connection
+        .query_row("SELECT name FROM saved_search WHERE id=?1", [&search], |row| {
+            row.get(0)
+        })
+        .optional()?;
+    let mut skip = |record: &str, value: &str| -> Result<(), SavedError> {
+        skipped.push(SavedSkipped {
+            record: text(record)?,
+            name: name.as_deref().map(text).transpose()?,
+            field: "source".into(),
+            value: text(value)?,
+        });
+        Ok(())
+    };
     let mut statement = connection.prepare(
         "SELECT entity,id,source,fingerprint FROM saved_snapshot_row WHERE snapshot=?1 \
          ORDER BY position",
@@ -314,19 +341,33 @@ fn snapshot(connection: &Connection, id: &str) -> Result<SavedSnapshot, SavedErr
         .collect::<Result<Vec<RowColumns>, _>>()?;
     let mut rows = Vec::with_capacity(columns.len());
     for (entity, record, source, fingerprint) in columns {
+        let source = match (!source.is_empty()).then(|| source.parse::<Source>()) {
+            None => None,
+            Some(Ok(known)) => Some(known),
+            Some(Err(_)) => {
+                skip(&record, &source)?;
+                continue;
+            }
+        };
         rows.push(SavedSnapshotRow {
             reference: SavedRef {
                 entity: text(&entity)?,
                 id: text(&record)?,
-                source: (!source.is_empty())
-                    .then(|| source.parse::<Source>())
-                    .transpose()
-                    .map_err(|_| SavedError::Database)?,
+                source,
                 as_of: taken,
                 source_date: None,
             },
             fingerprint: text(&fingerprint)?,
         });
+    }
+    let stored: Vec<serde_json::Value> =
+        serde_json::from_str(&sources).map_err(|_| SavedError::Database)?;
+    let mut read = Vec::with_capacity(stored.len());
+    for source in stored {
+        match serde_json::from_value::<SavedSnapshotSource>(source.clone()) {
+            Ok(source) => read.push(source),
+            Err(_) => skip(&id, source["source"].as_str().unwrap_or("unknown"))?,
+        }
     }
     Ok(SavedSnapshot {
         id: text(&id)?,
@@ -335,7 +376,7 @@ fn snapshot(connection: &Connection, id: &str) -> Result<SavedSnapshot, SavedErr
         total: unsigned(total)?,
         complete,
         row_schema: text(&row_schema)?,
-        sources: serde_json::from_str(&sources).map_err(|_| SavedError::Database)?,
+        sources: read,
         rows,
     })
 }

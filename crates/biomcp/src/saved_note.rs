@@ -86,7 +86,13 @@ pub(crate) fn delete(encoding: Encoding, matches: &ArgMatches) -> io::Result<Out
     let result = match open(encoding, false)? {
         Err(outcome) => return Ok(outcome),
         Ok(None) => Err(SavedError::Unknown),
-        Ok(Some(mut store)) => store.delete_note(id).map(one_note),
+        Ok(Some(mut store)) => store.delete_note(id).map(|note| match note {
+            Ok(note) => one_note(note),
+            Err(skip) => Saved {
+                skipped: vec![skip],
+                ..Saved::default()
+            },
+        }),
     };
     reply(encoding, result, "--note")
 }

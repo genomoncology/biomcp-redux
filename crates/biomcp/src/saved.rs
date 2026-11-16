@@ -305,11 +305,9 @@ fn run(
         "export" => match open(encoding, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) => Ok(Saved::default()),
-            Ok(Some(store)) => store.show(None).and_then(|saved| {
-                Ok(Saved {
-                    snapshots: store.all_snapshots()?,
-                    ..saved
-                })
+            Ok(Some(store)) => store.show(None).and_then(|mut saved| {
+                saved.snapshots = store.all_snapshots(&mut saved.skipped)?;
+                Ok(saved)
             }),
         },
         "changed" => return changed(root, settings, &globals, encoding, name),
@@ -362,14 +360,7 @@ fn list(
             Ok(None) => Err(SavedError::Unknown),
             Ok(Some(mut store)) => store.list_remove(name.as_str(), &ids),
         };
-        return reply(
-            encoding,
-            result.map(|(list, missing)| Saved {
-                missing,
-                ..one_list(list)
-            }),
-            "NAME",
-        );
+        return reply(encoding, result, "NAME");
     }
     let items = match new_items(root, matches, &ids) {
         Ok(items) => items,
@@ -380,14 +371,7 @@ fn list(
         Ok(None) => Err(SavedError::Database),
         Ok(Some(mut store)) => store.list_add(&name, &items),
     };
-    reply(encoding, result.map(one_list), "NAME")
-}
-
-fn one_list(list: biomcp_types::SavedList) -> Saved {
-    Saved {
-        lists: vec![list],
-        ..Saved::default()
-    }
+    reply(encoding, result, "NAME")
 }
 
 /// Check saved searches for changes. A search checked within the hour answers `not_due`
@@ -413,8 +397,9 @@ fn changed(
     let now = saved_store::now();
     let mut due = Vec::new();
     let mut changes = Vec::new();
+    let mut skipped = Vec::new();
     for search in &searches {
-        let kept = match store.snapshots(search.id.as_str()) {
+        let kept = match store.snapshots(search.id.as_str(), &mut skipped) {
             Ok(kept) => kept,
             Err(error) => return failure(encoding, error, "NAME"),
         };
@@ -449,6 +434,7 @@ fn changed(
         encoding,
         Ok(Saved {
             changes,
+            skipped,
             ..Saved::default()
         }),
         "NAME",

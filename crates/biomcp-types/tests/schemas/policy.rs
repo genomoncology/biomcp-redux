@@ -21,7 +21,7 @@ pub(super) struct Reviews {
     enum_transitions: Vec<EnumTransition>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PatternWidening {
     schema: String,
@@ -66,6 +66,14 @@ struct EnumTransition {
 }
 
 impl Reviews {
+    /// Saved schemas take only reviewed pattern widenings, such as a shared BioData pattern.
+    pub(super) fn widenings_only(&self) -> Self {
+        Self {
+            pattern_widenings: self.pattern_widenings.clone(),
+            ..Self::default()
+        }
+    }
+
     /// Replace only an explicitly reviewed enum node in a private baseline copy.
     pub(super) fn enum_baseline(&self, old: &Value, new: &Value) -> Value {
         let mut baseline = old.clone();

@@ -186,7 +186,7 @@ impl SavedStore {
     }
 
     /// Add items to a list, making the list when it is new. Present items stay as they are.
-    pub fn list_add(&mut self, name: &Text, items: &[NewItem]) -> Result<SavedList, SavedError> {
+    pub fn list_add(&mut self, name: &Text, items: &[NewItem]) -> Result<Saved, SavedError> {
         within(name.as_str(), NAME_CHARS)?;
         for note in items.iter().filter_map(|item| item.note.as_ref()) {
             within(note.as_str(), NOTE_CHARS)?;
@@ -224,17 +224,15 @@ impl SavedStore {
                 "UPDATE saved_list SET updated=?2 WHERE id=?1",
                 params![id, seconds(now)?],
             )?;
-            list(tx, &id, &mut Vec::new())
+            let mut saved = Saved::default();
+            saved.lists.push(list(tx, &id, &mut saved.skipped)?);
+            Ok(saved)
         })
     }
 
     /// Remove items with these identifiers from a list. Return the list and the identifiers
     /// it did not hold; a remove that removes nothing leaves `modified` as it was.
-    pub fn list_remove(
-        &mut self,
-        name: &str,
-        ids: &[Text],
-    ) -> Result<(SavedList, Vec<Text>), SavedError> {
+    pub fn list_remove(&mut self, name: &str, ids: &[Text]) -> Result<Saved, SavedError> {
         self.write(|tx, now| {
             let id = list_id(tx, name)?.ok_or(SavedError::Unknown)?;
             let mut missing = Vec::new();
@@ -257,7 +255,12 @@ impl SavedStore {
                     params![id, seconds(now)?],
                 )?;
             }
-            Ok((list(tx, &id, &mut Vec::new())?, missing))
+            let mut saved = Saved {
+                missing,
+                ..Saved::default()
+            };
+            saved.lists.push(list(tx, &id, &mut saved.skipped)?);
+            Ok(saved)
         })
     }
 
@@ -463,6 +466,7 @@ fn list(
             Some(Err(_)) => {
                 skipped.push(SavedSkipped {
                     record: text(&item)?,
+                    name: Some(text(&name)?),
                     field: "source".into(),
                     value: text(&source)?,
                 });

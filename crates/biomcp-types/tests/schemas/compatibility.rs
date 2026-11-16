@@ -1,3 +1,5 @@
+#[path = "compatibility/additive.rs"]
+mod additive;
 #[path = "compatibility/scalars.rs"]
 mod scalars;
 use super::policy::{ContractKind, Reviews};
@@ -44,9 +46,9 @@ pub(super) fn check_reviewed(
     kind: ContractKind,
     reviews: &Reviews,
 ) -> Check<()> {
-    // Saved work is stored and read back by any 1.x build, so only optional fields may be added.
     let saved = identity(old)?.0.starts_with("biomcp.saved-");
-    let reviews = if saved { &Reviews::default() } else { reviews };
+    let widenings = reviews.widenings_only();
+    let reviews = if saved { &widenings } else { reviews };
     let baseline = reviews.enum_baseline(old, new);
     let old = &baseline;
     let old_shapes = shapes(old)?;
@@ -76,10 +78,7 @@ pub(super) fn check_reviewed(
         let new = new_shapes
             .get(&new_path)
             .ok_or("missing new structural path")?;
-        let context = (old_name, old_major, path.as_str());
-        if !compatible(old, new, kind, reviews, context)
-            || saved && !compatible(new, old, ContractKind::Reply, reviews, context)
-        {
+        if !additive::compatible(saved, old, new, kind, reviews, (old_name, old_major, &path)) {
             return Err(format!("incompatible contract at {path}"));
         }
         for (edge, child) in &old.children {

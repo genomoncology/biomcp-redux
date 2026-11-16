@@ -76,22 +76,28 @@ fn lists_and_searches_round_trip() {
         .unwrap();
     let list = store
         .list_add(&text("genes"), &[item("BRAF"), item("KIT")])
-        .unwrap();
+        .unwrap()
+        .lists
+        .remove(0);
     let ids: Vec<_> = list.items.iter().map(|i| i.reference.id.as_str()).collect();
     assert_eq!(ids, ["BRAF", "NRAS", "KIT"], "set insert in added order");
     assert_eq!(list.name.as_str(), "Genes", "the first spelling stays");
-    let (list, missing) = store
+    let biomcp_types::Saved {
+        mut lists, missing, ..
+    } = store
         .list_remove("GENES", &[text("NRAS"), text("TP53")])
         .unwrap();
+    let list = lists.remove(0);
     assert_eq!(list.items.len(), 2, "one item removed");
     assert_eq!(
         missing,
         [text("TP53")],
         "an ID the list did not hold is reported"
     );
-    let (unchanged, missing) = store.list_remove("genes", &[text("NRAS")]).unwrap();
+    let unchanged = store.list_remove("genes", &[text("NRAS")]).unwrap();
+    let missing = unchanged.missing;
     assert_eq!(
-        unchanged.modified, list.modified,
+        unchanged.lists[0].modified, list.modified,
         "nothing removed leaves modified"
     );
     assert_eq!(missing, [text("NRAS")], "a removed ID is now missing");
@@ -162,7 +168,11 @@ fn file_with_later_additive_migrations_opens() {
             }],
         )
         .unwrap();
-    assert_eq!(list.items.len(), 2, "an older build writes the later file");
+    assert_eq!(
+        list.lists[0].items.len(),
+        2,
+        "an older build writes the later file"
+    );
     let schema: i64 = connection
         .query_row("SELECT value FROM meta WHERE key='schema'", [], |row| {
             row.get(0)
@@ -276,7 +286,10 @@ fn snapshots_compare_and_keep_two() {
         "new, gone and changed by ID and fingerprint"
     );
     assert_eq!(
-        store.snapshots(search.id.as_str()).unwrap().len(),
+        store
+            .snapshots(search.id.as_str(), &mut Vec::new())
+            .unwrap()
+            .len(),
         2,
         "two newest kept"
     );
@@ -332,17 +345,23 @@ fn checks_inside_the_floor_are_not_due_and_delete_takes_snapshots() {
         .record_check(&search, &check(&[("A", "1")], "s/1", true))
         .unwrap();
     let checked = store.searches(Some("melanoma")).unwrap().remove(0);
-    let newest = store.snapshots(search.id.as_str()).unwrap();
+    let newest = store
+        .snapshots(search.id.as_str(), &mut Vec::new())
+        .unwrap();
     let not_due = super::not_due(&checked, newest.first(), super::now()).unwrap();
     assert_eq!(not_due.state, ChangeState::NotDue, "inside the floor");
     assert!(
         super::not_due(&checked, newest.first(), not_due.next_due).is_none(),
         "due at next_due"
     );
-    assert_eq!(store.all_snapshots().unwrap().len(), 1, "export lists kept");
+    assert_eq!(
+        store.all_snapshots(&mut Vec::new()).unwrap().len(),
+        1,
+        "export lists kept"
+    );
     store.delete(Some("melanoma")).unwrap();
     assert!(
-        store.all_snapshots().unwrap().is_empty(),
+        store.all_snapshots(&mut Vec::new()).unwrap().is_empty(),
         "delete takes snapshots"
     );
     let rows: i64 = store
@@ -477,7 +496,7 @@ fn notes_follow_their_targets() {
         2,
         "removing an item removes its notes"
     );
-    assert_eq!(store.delete_note(gene.id.as_str()).unwrap(), gene);
+    assert_eq!(store.delete_note(gene.id.as_str()).unwrap(), Ok(gene.clone()));
     assert_eq!(
         store.delete_note(gene.id.as_str()).err(),
         Some(SavedError::Unknown)
@@ -546,29 +565,56 @@ fn source_picks_an_item_and_unknown_stored_values_are_skipped() {
             [],
         )
         .unwrap();
-    let skipped = |field: &str, record: &str, value: &str| SavedSkipped {
+    let skipped = |name: Option<&str>, field: &str, record: &str, value: &str| SavedSkipped {
         record: text(record),
+        name: name.map(text),
         field: field.into(),
         value: text(value),
     };
+    let item = skipped(Some("genes"), "source", "BRAF", "future-source");
     for shown in [
         store.show(None).unwrap(),
         store.show(Some("genes")).unwrap(),
     ] {
         assert_eq!(shown.lists[0].items.len(), 1, "the readable item stays");
         assert_eq!(shown.user_notes.len(), 1, "the readable note stays");
-        assert!(
-            shown
-                .skipped
-                .contains(&skipped("source", "BRAF", "future-source"))
-        );
+        assert!(shown.skipped.contains(&item));
     }
+    let note = skipped(None, "kind", "future", "future-kind");
     assert_eq!(
         store.show(None).unwrap().skipped,
-        [
-            skipped("source", "BRAF", "future-source"),
-            skipped("kind", "future", "future-kind")
-        ],
+        [item.clone(), note.clone()],
         "each unreadable row is named, not a failure"
+    );
+    assert_eq!(
+        store.list_remove("genes", &[text("KIT")]).unwrap().skipped,
+        [item.clone()],
+        "a list remove names the item it cannot read"
+    );
+    assert_eq!(store.list_add(&text("genes"), &[]).unwrap().skipped, [item]);
+    assert_eq!(
+        store.delete_note("future").unwrap(),
+        Err(note),
+        "an unreadable note is deleted by its ID"
+    );
+    assert_eq!(store.show(None).unwrap().skipped.len(), 1);
+    let search = melanoma(&mut store);
+    store
+        .record_check(&search, &check(&[("A", "1"), ("B", "1")], "s/1", true))
+        .unwrap();
+    store
+        .connection
+        .execute(
+            "UPDATE saved_snapshot_row SET source='future-source' WHERE id='A'",
+            [],
+        )
+        .unwrap();
+    let mut rows = Vec::new();
+    let kept = store.all_snapshots(&mut rows).unwrap();
+    assert_eq!(kept[0].rows.len(), 1, "the readable row stays");
+    assert_eq!(
+        rows,
+        [skipped(Some("Melanoma"), "source", "A", "future-source")],
+        "a snapshot row from a newer build is skipped"
     );
 }

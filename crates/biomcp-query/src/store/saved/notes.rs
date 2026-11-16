@@ -64,8 +64,8 @@ impl SavedStore {
         })
     }
 
-    /// Delete one note by its ID and return it.
-    pub fn delete_note(&mut self, id: &str) -> Result<SavedNote, SavedError> {
+    /// Delete one note by its ID and return it, or its skip when this build cannot read it.
+    pub fn delete_note(&mut self, id: &str) -> Result<Result<SavedNote, SavedSkipped>, SavedError> {
         self.write(|tx, _| {
             let exists: Option<String> = tx
                 .query_row("SELECT id FROM saved_note WHERE id=?1", [id], |row| {
@@ -73,7 +73,7 @@ impl SavedStore {
                 })
                 .optional()?;
             let id = exists.ok_or(SavedError::Unknown)?;
-            let note = load(tx, &id)?;
+            let note = read(tx, &id)?;
             tx.execute("DELETE FROM saved_note WHERE id=?1", [id.as_str()])?;
             Ok(note)
         })
@@ -228,16 +228,17 @@ pub(super) fn read(
         },
     )?;
     let (id, project, kind, record, entity, item, source, note, created) = row;
-    let skip = |field: &str, value: &str| -> Result<_, SavedError> {
+    let skip = |name: Option<&str>, field: &str, value: &str| -> Result<_, SavedError> {
         Ok(Err(SavedSkipped {
             record: text(&id)?,
+            name: name.map(text).transpose()?,
             field: field.into(),
             value: text(value)?,
         }))
     };
     let kind = match kind.parse::<NoteTargetKind>() {
         Ok(kind) => kind,
-        Err(_) => return skip("kind", &kind),
+        Err(_) => return skip(None, "kind", &kind),
     };
     let table = match kind {
         NoteTargetKind::Search => "saved_search",
@@ -266,7 +267,7 @@ pub(super) fn read(
         let source = match (!source.is_empty()).then(|| source.parse::<Source>()) {
             None => None,
             Some(Ok(known)) => Some(known),
-            Some(Err(_)) => return skip("source", &source),
+            Some(Err(_)) => return skip(name.as_deref(), "source", &source),
         };
         Some(SavedRef {
             entity: text(&entity)?,
