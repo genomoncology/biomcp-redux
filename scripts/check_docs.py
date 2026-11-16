@@ -10,6 +10,9 @@ from pathlib import Path
 
 from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, rows, table, upgrade
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from release.tools import check as check_manifest_tools  # noqa: E402
+
 
 def architecture(root):
     text = (root / "sdlc/planning/architecture.md").read_text()
@@ -322,6 +325,11 @@ def check(root, executable=None):
     for path in (root / "scripts").glob("*.py"):
         if len(path.read_text().splitlines()) > 600:
             raise ValueError(f"script exceeds file line limit: {path.name}")
+    # The desktop manifest names the default tools/list, so a rename fails here, not at release (0997).
+    try:
+        check_manifest_tools(root)
+    except (KeyError, IndexError, TypeError) as error:
+        raise ValueError(f"desktop manifest tools cannot be read: {error!r}") from error
 
 
 if __name__ == "__main__":
@@ -334,4 +342,6 @@ if __name__ == "__main__":
     except (ValueError, OSError) as error:
         print(str(error), file=sys.stderr)
         sys.exit(1)
-    print("Parity, feature declarations and architecture check references agree; public files name no internal machine or workspace path")
+    print("Architecture check files, retired tool names, example calls, README examples, the parity ledger, "
+          "upgrade commands, feature line format and desktop manifest tools hold; public files name no internal "
+          "machine or workspace path")

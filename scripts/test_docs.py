@@ -115,6 +115,9 @@ def main():
             "sdlc/planning/upgrade.md",
             "sdlc/planning/architecture.md",
             "sdlc/planning/parity-0.9.3.json",
+            "manifest.json",
+            "crates/biomcp/src/mcp/protocol.rs",
+            "crates/biomcp/src/mcp/research.rs",
         ):
             target = root / name
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -273,8 +276,15 @@ def main():
         readme.write_text(original_readme)
         commercial_check(root, readme, original_readme)
         tools_check(root, readme, original_readme)
+        manifest = root / "manifest.json"
+        original_manifest = manifest.read_text()
+        assert '"name": "fetch"' in original_manifest
+        manifest.write_text(original_manifest.replace('"name": "fetch"', '"name": "fetch_record"', 1))
+        result = check(root)
+        assert result.returncode != 0 and "desktop manifest tools differ" in result.stderr, result
+        manifest.write_text(original_manifest)
     print(
-        "Documentation contracts reject missing architecture checks, phantom leaves, unknown options, missing leaf accounting, drift, invalid feature declarations, internal workspace paths and machine names in sdlc records"
+        "Documentation contracts reject missing architecture checks, phantom leaves, unknown options, missing leaf accounting, drift, invalid feature declarations, a wrong desktop manifest tool name, internal workspace paths and machine names in sdlc records"
     )
 
 
