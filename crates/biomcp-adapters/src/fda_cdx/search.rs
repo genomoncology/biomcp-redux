@@ -204,14 +204,13 @@ fn newest_first(
     };
     by_date.then_with(|| place(&a.0.relation).cmp(&place(&b.0.relation)))
 }
+/// FDA's tables break and pad one test's name differently; read it as one line (0994).
+fn line(cell: &biodata::DiagnosticCell) -> Option<Box<str>> {
+    Some(cell.text.split_whitespace().collect::<Vec<_>>().join(" ").into())
+}
 /// FDA's original row with its date and the names both tables share.
 fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> CompanionDiagnosticRow {
     let text = |cell: &biodata::DiagnosticCell| Some(cell.text.clone());
-    // FDA's two tables break and pad the same name differently, so one test
-    // would read as two; the name fields read as one line (0994).
-    let line = |cell: &biodata::DiagnosticCell| {
-        Some(cell.text.split_whitespace().collect::<Vec<_>>().join(" ").into())
-    };
     match native.relation {
         CompanionDiagnosticRelation::Individual {
             snapshot,
