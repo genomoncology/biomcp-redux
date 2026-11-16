@@ -201,15 +201,8 @@ impl TryFrom<Fields> for VariantGet {
                 "section",
             ]));
         }
-        if fields.section.contains(&VariantSection::Oncokb)
-            && (fields.build.is_none() || fields.tumor_type.is_none())
-        {
-            return Err(super::gene::QueryInvalid::new(&[
-                "section",
-                "build",
-                "tumor_type",
-            ]));
-        }
+        // OncoKB's key, build and tumor checks run with the section (1004): a missing key
+        // skips it like any licensed section, and missing context names its help step.
         let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
         query.0.tumor_type = fields.tumor_type;
         query.0.civic_profile = fields.civic_profile;

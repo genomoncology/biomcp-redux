@@ -1,0 +1,59 @@
+{
+  "feature": "variant-oncokb",
+  "live_check": "local-only; a keyless OncoKB section stops before any source request",
+  "replay": "variant/id-forms",
+  "story": "A ClinVar ID with the oncokb section and no OncoKB key is skipped as no-key and points at the key help, with or without a tumor type, instead of refusing the section word",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "clinvar:13961",
+        "oncokb"
+      ],
+      "exit": 0,
+      "expect": {
+        "/result/candidates/0/sections/oncokb/state": "skipped",
+        "/result/candidates/0/sections/oncokb/reason": "no-key",
+        "/sources": {
+          "includes": {
+            "source": "oncokb",
+            "state": "skipped",
+            "reason": "no-key",
+            "use": "licensed"
+          }
+        },
+        "/next/*/args": {
+          "includes": [
+            "help",
+            "key",
+            "oncokb"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "clinvar:13961",
+        "oncokb",
+        "--tumor-type",
+        "Melanoma"
+      ],
+      "offline": true,
+      "exit": 0,
+      "expect": {
+        "/result/candidates/0/sections/oncokb/state": "skipped",
+        "/result/candidates/0/sections/oncokb/reason": "no-key",
+        "/next/*/args": {
+          "includes": [
+            "help",
+            "key",
+            "oncokb"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -70,29 +70,13 @@ fn wire() -> Result<(), String> {
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
     let mut config = json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca});
     env.config(&config).map_err(|e| e.to_string())?;
-    let mut missing_build = args();
-    missing_build.drain(4..6);
-    invoke(&env, &missing_build, 2)?;
-    let mut missing_tumor = args();
-    missing_tumor.drain(6..8);
-    invoke(&env, &missing_tumor, 2)?;
-    let skipped = invoke(&env, &args(), 0)?;
-    if skipped.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
-        || skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-key"))
-        || !skipped
-            .get("next")
-            .and_then(Value::as_array)
-            .is_some_and(|rows| rows.iter().any(|r| r.get("kind") == Some(&json!("key"))))
-    {
-        return Err(format!(
-            "no-key annotation did not skip with setup: {skipped}"
-        ));
-    }
+    let missing_tumor = keyless(&env)?;
     config
         .as_object_mut()
         .ok_or("test config object")?
         .insert("keys".into(), json!({"oncokb_api_key":KEY}));
     env.config(&config).map_err(|e| e.to_string())?;
+    keyed_missing_context(&env, &missing_tumor)?;
     let mut recorded = args();
     let directory = env.root().join("recorded");
     recorded.extend(["--record".into(), directory.to_string_lossy().into()]);
@@ -133,6 +117,55 @@ fn wire() -> Result<(), String> {
     }
     content(&data)?;
     replay_proof(&env, &directory)?;
+    Ok(())
+}
+/// Keyless calls: no refusal names `section`, and a missing tumor type skips as no-key.
+fn keyless(env: &Environment) -> Result<Vec<String>, String> {
+    // Chromosome notation needs --build whatever the section; the refusal never names
+    // `section`, and without a key a missing tumor type is no usage error (1004).
+    let mut missing_build = args();
+    missing_build.drain(4..6);
+    let refused = invoke(env, &missing_build, 2)?;
+    if refused.pointer("/error/option") == Some(&json!("section")) {
+        return Err(format!("missing build refused the section word: {refused}"));
+    }
+    let mut missing_tumor = args();
+    missing_tumor.drain(6..8);
+    for call in [missing_tumor.clone(), args()] {
+        let skipped = invoke(env, &call, 0)?;
+        if skipped.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
+            || skipped.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-key"))
+            || !skipped
+                .get("next")
+                .and_then(Value::as_array)
+                .is_some_and(|rows| rows.iter().any(|r| r.get("kind") == Some(&json!("key"))))
+        {
+            return Err(format!(
+                "no-key annotation did not skip with setup: {skipped}"
+            ));
+        }
+    }
+    Ok(missing_tumor)
+}
+/// Keyed call without a tumor type: skipped with help and no OncoKB request.
+fn keyed_missing_context(env: &Environment, missing_tumor: &[String]) -> Result<(), String> {
+    // With a key, a missing tumor type skips OncoKB with help; the request count below
+    // proves nothing reached OncoKB.
+    let context = invoke(env, missing_tumor, 0)?;
+    if context.pointer(&format!("{SECTION}/state")) != Some(&json!("skipped"))
+        || context.pointer(&format!("{SECTION}/reason")) != Some(&json!("no-join-id"))
+        || !context
+            .get("next")
+            .and_then(Value::as_array)
+            .is_some_and(|rows| {
+                rows.iter()
+                    .any(|r| r.get("kind") == Some(&json!("configure")))
+            })
+    {
+        return Err(format!(
+            "keyed missing tumor type did not skip with help: {context}"
+        ));
+    }
     Ok(())
 }
 pub(super) fn reply(request: &str) -> Result<String, String> {
