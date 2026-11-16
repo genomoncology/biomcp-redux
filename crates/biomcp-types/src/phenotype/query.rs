@@ -88,7 +88,7 @@ struct SearchFields {
     #[serde(default = "five")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Native source row offset; a ranked HP ID set has no further pages.
+    /// Source row offset; a ranked HP ID set has no further pages.
     #[serde(default)]
     offset: u32,
     /// HP IDs only: rank genes, the default, or diseases.
