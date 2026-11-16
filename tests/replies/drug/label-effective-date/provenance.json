@@ -1,0 +1,22 @@
+{
+  "projection": "None: both openFDA replies are kept whole as biomcp --record wrote them.",
+  "sha256": "SHA-256 of each original reply body serialized as compact JSON",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22KRAZATI%22%20OR%20openfda.generic_name%3A%22KRAZATI%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "f44f43fc9baa7d36ee95f6cdeb61fd315002dab7f6b9f777f2f57e4bcb6835ba",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j41933"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%220b8bf078-34c2-4f45-9012-38a8ac082b01%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "75472bd8d6ae01599fb982a908dd587e0470eede0d9f52d77a9a0163781e4c4f",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j41933"
+    }
+  ]
+}

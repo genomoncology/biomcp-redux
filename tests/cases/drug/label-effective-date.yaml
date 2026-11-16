@@ -1,0 +1,43 @@
+{
+  "verified": "tests/replies/drug/label-effective-date/provenance.json records the live openFDA replies of 2026-11-16 (job j41933) and their body hashes: KRAZATI's one label, SPL set 0b8bf078-34c2-4f45-9012-38a8ac082b01, version 14, effective_time 20260831.",
+  "live_check": "public",
+  "feature": "drug-label",
+  "story": "A label read names the label's own effective date beside its SPL set ID and version, so an agent can tell a current label from an old one: KRAZATI's version 14 label took effect on 2026-08-31, in both the bare label read and a section read. Before 1005 the identity gave only the version, and an agent took a current label for a stale openFDA snapshot (bench 0058, msl persona).",
+  "replay": "drug/label-effective-date",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "KRAZATI",
+        "label"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/source": "openfda-label",
+        "/result/identity/id": "0b8bf078-34c2-4f45-9012-38a8ac082b01",
+        "/result/identity/version": "14",
+        "/result/identity/effective_date": "2026-08-31"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "KRAZATI",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "0b8bf078-34c2-4f45-9012-38a8ac082b01",
+        "/result/identity/version": "14",
+        "/result/identity/effective_date": "2026-08-31",
+        "/result/label/data/heading": "indications_and_usage"
+      }
+    }
+  ]
+}
