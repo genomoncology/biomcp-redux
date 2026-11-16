@@ -60,6 +60,8 @@ fn client_left() -> Result<(), String> {
         return Err(format!("cancel notification got HTTP {status}, not 202"));
     }
     // A notification has no caller to match, so the running call keeps its source request.
+    // The pause gives a cancel that the server did act on time to close the socket.
+    std::thread::sleep(std::time::Duration::from_millis(100));
     held.set_nonblocking(true).map_err(|e| e.to_string())?;
     match super::socket_read::read(&mut held, &mut [0]) {
         Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => (),
