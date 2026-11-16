@@ -38,6 +38,9 @@
             "search pgx --gene G --source cpic",
             "--source openfda-label --label-section",
             "get drug NAME markets",
+            "WHO PQ rows",
+            "`variant normalize --hgvs --source`",
+            "Get pgx (no ID)",
             "--source cpic recommendations --drug-id RxNorm:32968 --phenotype \"Poor Metabolizer\"",
             "A `no-key` reply will not change on retry",
             "Process exit codes:"
