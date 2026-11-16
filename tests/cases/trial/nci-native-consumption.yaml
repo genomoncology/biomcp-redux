@@ -15,8 +15,8 @@
         "trial",
         "--source",
         "nci",
-        "--keyword",
-        "Synthetic paging",
+        "--condition-id",
+        "NCIT:C3224",
         "--limit",
         "2"
       ],
