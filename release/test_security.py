@@ -538,9 +538,10 @@ class Screening(unittest.TestCase):
             git("branch", "side-only-exception", sibling_commit)
             sibling_entries = [entries[0], {**entries[1], "commit": sibling_commit}]
             screen(sibling_entries, 0)
-            # Detached sibling worktrees do not belong to this scanner's scope.
+            # Detached sibling worktrees do not belong to this scanner's scope,
+            # but a reachable commit still holds the reviewed blob at its path.
             git("branch", "-D", "side-only-exception")
-            screen(sibling_entries, 2, "history-ignore-unreachable-commit", row=2)
+            screen(sibling_entries, 0)
             screen([{**r, "line": 2} for r in entries], 2, "history-ignore-wrong-line")
             screen([{**r, "rule": "unrelated-rule"} for r in entries], 1)
             screen([{**r, "commit": empty} for r in entries], 2, "history-ignore-wrong-blob")
@@ -548,6 +549,67 @@ class Screening(unittest.TestCase):
             git("add", ".")
             git("commit", "--quiet", "-m", "Change the same path")
             screen(entries, 1)
+
+    def test_history_exceptions_survive_a_squash_landing(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            tools, repo = root / "tools", root / "repo"
+            tools.mkdir()
+            repo.mkdir()
+            for name in ["secrets.py", "smoke.py", "toolchain.py", "toolchain.json"]:
+                shutil.copy2(ROOT / "release" / name, tools / name)
+            env = {**environment(root), "PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1"}
+            def git(*args):
+                return subprocess.check_output(["git", "-C", str(repo), *args], env=env, stderr=subprocess.DEVNULL).decode().strip()
+            git("init", "--quiet", "--initial-branch", "main")
+            git("config", "user.name", "Fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            (repo / "README").write_text("fixture\n")
+            git("add", ".")
+            git("commit", "--quiet", "-m", "Initial fixture")
+            main = git("rev-parse", "HEAD")
+            token = github_token()
+            path = "tests/replies/credential.json"
+            file = repo / path
+            git("checkout", "--quiet", "-b", "ticket")
+            file.parent.mkdir(parents=True)
+            file.write_text('api_key = "' + token + '"\n')
+            git("add", ".")
+            git("commit", "--quiet", "-m", "Add fixture")
+            git("commit", "--quiet", "--allow-empty", "-m", "Second branch commit")
+            branch = git("rev-parse", "HEAD~1")
+            rows = [{"commit": branch, "blob": git("rev-parse", "HEAD:" + path), "file": path, "line": 1,
+                     "rule": rule, "reason": "Synthetic squash landing fixture."}
+                    for rule in ["github-pat", "generic-api-key"]]
+            # A squash landing publishes one new commit on main with the same
+            # tree, then drops the branch, so the reviewed commit is unreachable.
+            squashed = git("commit-tree", "HEAD^{tree}", "-p", main, "-m", "Land ticket")
+            git("checkout", "--quiet", "main")
+            git("reset", "--quiet", "--hard", squashed)
+            git("branch", "-D", "ticket")
+            self.assertNotIn(branch, git("rev-list", "--all").split())
+            ignore = tools / "secrets.ignore.jsonl"
+            def screen(records, expected, code=None):
+                ignore.write_text("".join(json.dumps(row) + "\n" for row in records))
+                result = subprocess.run([sys.executable, str(tools / "secrets.py"), "history", str(repo),
+                                         "--cache", str(ROOT / "target/security-tools")],
+                                        cwd=ROOT, env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, expected, "squash-landed history binding changed behavior")
+                self.assertNotIn(token, result.stdout + result.stderr)
+                if code:
+                    self.assertEqual(result.stderr, json.dumps({"code": code, "row": 1}) + "\n")
+            screen(rows, 0)
+            screen([{**row, "line": 2} for row in rows], 2, "history-ignore-wrong-line")
+            screen([{**row, "rule": "unrelated-rule"} for row in rows], 1)
+            # A blob that never reached this path covers nothing.
+            screen([{**row, "file": "tests/replies/other.json"} for row in rows], 1)
+            screen([{**row, "blob": "0" * 40} for row in rows], 1)
+            # A reachable commit must still hold the blob it names.
+            screen([{**row, "commit": main} for row in rows], 2, "history-ignore-wrong-blob")
+            file.write_text(file.read_text() + "changed blob\n")
+            git("add", ".")
+            git("commit", "--quiet", "-m", "Change the same path")
+            screen(rows, 1)
 
     def test_working_tree_patterns_do_not_allow_other_fields_or_accessions(self):
         with tempfile.TemporaryDirectory() as temporary:
