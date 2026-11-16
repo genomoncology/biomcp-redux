@@ -736,6 +736,15 @@
       ],
       "type": "object"
     },
+    "Reply_ClinvarRecordKind": {
+      "description": "ClinVar record kind.",
+      "enum": [
+        "vcv",
+        "rcv",
+        "scv"
+      ],
+      "type": "string"
+    },
     "Reply_ClinvarReviewStatusCode": {
       "description": "Checked ClinVar review status codes.",
       "enum": [
@@ -3302,6 +3311,17 @@
           "$ref": "#/$defs/Reply_VariantLookupInput",
           "description": "Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.",
           "x-positional": 0
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ClinvarRecordKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar."
         },
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",

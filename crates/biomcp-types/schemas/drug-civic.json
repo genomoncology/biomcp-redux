@@ -615,6 +615,15 @@
       ],
       "type": "object"
     },
+    "Reply_ClinvarRecordKind": {
+      "description": "ClinVar record kind.",
+      "enum": [
+        "vcv",
+        "rcv",
+        "scv"
+      ],
+      "type": "string"
+    },
     "Reply_ClinvarReviewStatusCode": {
       "description": "Checked ClinVar review status codes.",
       "enum": [
@@ -3939,6 +3948,17 @@
             "integer",
             "null"
           ]
+        },
+        "clinvar_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ClinvarRecordKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Record kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
         },
         "disease": {
           "anyOf": [
