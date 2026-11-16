@@ -37,6 +37,8 @@ Variant population replies add source-published `homozygote_count` for exome and
 
 See [hosted server configuration](../docs/configuration.md#hosted-servers) for source modes, caller credentials and deployment limits.
 
+Hosted mode runs only over HTTP behind a hosting front end. Start it with `biomcp serve --hosted --http`; `serve --hosted` without `--http` now exits with a `usage.arguments` error before serving, because source use, source exclusions, caller keys and accounts are all per-request HTTP headers that stdio cannot carry.
+
 The published `restricted` source label is replaced by the actual `open`, `attribution`, `noncommercial`, `licensed` or `per-record` category. The retired `restricted` disable group is no longer accepted; use `noncommercial` and `licensed` to exclude commercially restricted sources and components. Current named groups follow corrected labels:
 
 - `open` gains `car`, `clinvar`, `erepo`, `gwas`, `litsense`, `mutalyzer`, `mygene`, `nci`, `pubmed`, `pubtator`, `variantvalidator` and `cpic`, plus the MyVariant `clinvar` and `snpeff` components. The MyVariant service is open while each carried component retains its own terms.

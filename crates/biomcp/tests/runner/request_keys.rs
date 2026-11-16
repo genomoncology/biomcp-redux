@@ -17,8 +17,8 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-hosted/keys/public-wire-fallback", || {
             public().map_err(Into::into)
         }),
-        transcript_trial("mcp-hosted/keys/stdio-license", || {
-            stdio().map_err(Into::into)
+        transcript_trial("mcp-hosted/keys/account-license", || {
+            account_license().map_err(Into::into)
         }),
         transcript_trial("mcp-hosted/keys/startup-recovery", || {
             recovery(false).map_err(Into::into)
@@ -398,15 +398,16 @@ fn public() -> Check {
     Ok(())
 }
 
-fn stdio() -> Check {
+/// A hosted call without its own key for a source that has no server fallback gets account
+/// guidance, never the server's key.
+fn account_license() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"keys":{"oncokb_api_key":SERVER,"alphagenome_api_key":SERVER}}))
         .map_err(|e| e.to_string())?;
-    let mut globals = env.globals(
+    let globals = env.globals(
         Some(&super::launch::fixtures().join("replies/gene/oncokb-synthetic/data")),
         false,
     );
-    globals.push("--hosted".into());
     for (source, args) in [
         ("oncokb", vec!["get", "gene", "TP53", "oncokb"]),
         (
@@ -419,14 +420,15 @@ fn stdio() -> Check {
             "tools/call",
             json!({"name":"biomcp","arguments":{"args":args}}),
         );
-        let replies = super::mcp::exchange_with_globals(&env, &[frame], &globals)?;
-        let reply = replies.first().ok_or("missing stdio reply")?;
+        let replies =
+            super::mcp::exchange_hosted(&env, &[frame], &globals, "x-biomcp-use: academic\r\n")?;
+        let reply = replies.first().ok_or("missing hosted reply")?;
         if reply.pointer("/result/structuredContent/error/source") != Some(&json!(source))
             || reply.pointer("/result/structuredContent/error/message")
                 != Some(&json!("add the source key in your account settings"))
             || reply.to_string().contains(SERVER)
         {
-            return Err("hosted stdio used a server credential or omitted account guidance".into());
+            return Err("hosted call used a server credential or omitted account guidance".into());
         }
     }
     Ok(())

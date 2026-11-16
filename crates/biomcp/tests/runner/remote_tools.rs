@@ -25,12 +25,9 @@ fn metadata() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replies = super::mcp::exchange(&env, &[request(json!(1), "tools/list", json!({}))])?;
     check_tools(replies.first().ok_or("missing stdio tools")?, false)?;
-    let hosted = super::mcp::exchange_with_globals(
-        &env,
-        &[request(json!(1), "tools/list", json!({}))],
-        &["--hosted".into()],
-    )?;
-    check_tools(hosted.first().ok_or("missing hosted stdio tools")?, true)
+    let hosted =
+        super::mcp::exchange_hosted(&env, &[request(json!(1), "tools/list", json!({}))], &[], "")?;
+    check_tools(hosted.first().ok_or("missing hosted tools")?, true)
 }
 fn check_tools(reply: &Value, read_only: bool) -> Result<(), String> {
     let tools = reply

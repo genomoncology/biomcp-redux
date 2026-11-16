@@ -1,7 +1,7 @@
 //! Installed discovery uses command-owned summaries, primary operands and section publishers.
 use crate::runner::{
     launch::Environment,
-    mcp::{exchange_with_globals, request},
+    mcp::{exchange_hosted, exchange_with_globals, request},
 };
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
@@ -327,19 +327,17 @@ fn complete_words(
 }
 
 fn catalog(env: &Environment, hosted: bool) -> Result<Vec<Value>, String> {
-    let mut globals = vec!["--offline".into()];
-    if hosted {
-        globals.push("--hosted".into());
-    }
-    let replies = exchange_with_globals(
-        env,
-        &[request(
-            json!(if hosted { 2 } else { 1 }),
-            "tools/list",
-            json!({}),
-        )],
-        &globals,
-    )?;
+    let globals = ["--offline".to_owned()];
+    let list = [request(
+        json!(if hosted { 2 } else { 1 }),
+        "tools/list",
+        json!({}),
+    )];
+    let replies = if hosted {
+        exchange_hosted(env, &list, &globals, "x-biomcp-use: commercial\r\n")?
+    } else {
+        exchange_with_globals(env, &list, &globals)?
+    };
     replies
         .first()
         .and_then(|reply| reply.pointer("/result/tools"))

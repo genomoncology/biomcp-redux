@@ -1,0 +1,26 @@
+live_check: "local-only command validation; no recorded source replies"
+feature: query-validation
+story: Hosted mode runs only over HTTP, because every per-caller control is an HTTP header, so serve --hosted without --http is refused before anything is served.
+steps:
+- run:
+  - serve
+  - --hosted
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+    /error/option: --http
+    /error/message: hosted mode runs only over HTTP behind the hosting front end; add --http
+    /next/0/args:
+    - help
+    - serve
+- run:
+  - serve
+  - --hosted
+  - --tool-mode
+  - typed
+  - --rate-share
+  - "0.5"
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+    /error/option: --http

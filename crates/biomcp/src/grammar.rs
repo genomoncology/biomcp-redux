@@ -283,7 +283,7 @@ pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseIn
     let globals = globals(&matches)?;
     let (verb, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
     if verb == "serve" {
-        return Ok(local::serve(matches, globals));
+        return local::serve(matches, globals);
     }
     if verb == "key" {
         return Ok(Parsed {

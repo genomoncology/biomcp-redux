@@ -57,7 +57,6 @@ pub(super) fn check() -> Result<(), String> {
                     json!({"name":"biomcp","arguments":{"args":["invalid-command"]}}),
                 ),
             ];
-            let replies = exchange_wire(&environment, &calls, &globals, None)?;
             let server = Server::configured_globals(
                 "127.0.0.1:0",
                 Some(config),
@@ -66,6 +65,15 @@ pub(super) fn check() -> Result<(), String> {
                 None,
                 &globals,
             )?;
+            // Hosted mode serves only HTTP, so its first reply of each pair is HTTP too.
+            let replies = if hosted {
+                calls
+                    .iter()
+                    .map(|call| http_wire(&server, call, "x-biomcp-use: academic\r\n"))
+                    .collect::<Result<Vec<_>, _>>()?
+            } else {
+                exchange_wire(&environment, &calls, &globals, None)?
+            };
             for (index, call) in calls.iter().enumerate() {
                 let stdio = replies
                     .iter()

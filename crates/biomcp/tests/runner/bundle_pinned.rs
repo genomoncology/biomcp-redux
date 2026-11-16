@@ -1,8 +1,8 @@
 //! Feature gene-bundle: a hosted server answers from its stored copy past the
 //! refresh date with that copy's date, while the CLI keeps it partial.
 use super::{
-    bundle_wait::native_body, configuration::invoke, launch::Environment, mcp::request,
-    network_stub::Stub, publication::Peer,
+    bundle_wait::native_body, configuration::invoke, http::Server, launch::Environment,
+    mcp::request, network_stub::Stub,
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -58,13 +58,26 @@ fn read() -> Result<(), String> {
     if notice(local).is_some() {
         return Err(format!("the CLI stated a hosted copy date: {local}"));
     }
-    let mut server = Peer::with_globals(&env, &["--hosted".into()])?;
-    server.send(&request(
+    let mut server = Server::configured_launch(
+        "127.0.0.1:0",
+        None,
+        None,
+        None,
+        None,
+        &["--hosted".into()],
+        |_, args| env.command(env!("CARGO_BIN_EXE_biomcp"), args),
+    )?;
+    let frame = request(
         json!("hosted"),
         "tools/call",
         json!({"name":"biomcp","arguments":{"args":["get","gene","ODC1"]}}),
-    ))?;
-    let reply = server.next()?;
+    );
+    let (_, reply) = server.request_with_headers(
+        "POST",
+        "/mcp",
+        &frame.to_string(),
+        "x-biomcp-use: academic\r\n",
+    )?;
     let result = reply
         .pointer("/result/structuredContent")
         .ok_or_else(|| format!("missing content: {reply}"))
@@ -76,7 +89,7 @@ fn read() -> Result<(), String> {
     let admitted = admission
         .recv_timeout(Duration::from_secs(15))
         .map_err(|e| format!("owned refresh was not admitted: {e}"));
-    let stopped = server.finish();
+    let stopped = server.stop();
     let fixture = stub.finish().and_then(|requests| {
         if requests.len() == 2 {
             Ok(())

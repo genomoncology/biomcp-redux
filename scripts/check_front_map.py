@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import urllib.request
 
 
 def require(condition, reason):
@@ -56,6 +57,36 @@ FIRST_READ_CEILINGS = {mode: -(-size * (100 + FIRST_READ_ROOM_PERCENT) // 100)
                        for mode, size in FIRST_READ_MEASURED.items()}
 
 
+def hosted_replies(binary, flags, env, frames):
+    """Hosted mode serves only HTTP: start a loopback server, post each request, then stop it.
+    The academic use header lists every source, as the measured hosted base did."""
+    process = subprocess.Popen([str(binary), "serve", "--http", "127.0.0.1:0", *flags], env=env,
+                               stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                               stderr=subprocess.PIPE, text=True)
+    try:
+        line = process.stderr.readline()
+        ready = json.loads(line) if line.startswith("{") else {}
+        require("listening" in ready, f"hosted serve did not start: {line}")
+        # A proxy from the environment must never carry loopback requests.
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        replies = {}
+        for frame in frames:
+            if "id" not in frame:
+                continue
+            request = urllib.request.Request(
+                f"http://{ready['listening']}/mcp", data=json.dumps(frame).encode(), method="POST",
+                headers={"Content-Type": "application/json", "Accept": "application/json, text/event-stream",
+                         "MCP-Protocol-Version": "2025-11-25", "x-biomcp-use": "academic"})
+            with opener.open(request, timeout=60) as response:
+                body = response.read().decode()
+            data = [row[5:] for row in body.splitlines() if row.startswith("data:")]
+            replies[frame["id"]] = json.loads(data[-1] if data else body)
+        return replies
+    finally:
+        process.terminate()
+        process.wait(timeout=30)
+
+
 def first_read_sizes(binary, env):
     """Measure what every connection loads: initialize instructions and the tools list."""
     sizes = {}
@@ -65,11 +96,14 @@ def first_read_sizes(binary, env):
             "clientInfo": {"name": "first-read-size", "version": "1"}}},
             {"jsonrpc": "2.0", "method": "notifications/initialized"},
             {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}]
-        process = subprocess.run([str(binary), "serve", "--offline", *flags],
-                                 input="".join(json.dumps(frame) + "\n" for frame in frames),
-                                 env=env, capture_output=True, text=True, timeout=60)
-        require(process.returncode == 0, f"{mode} serve failed: {process.stderr}")
-        replies = {reply.get("id"): reply for reply in map(json.loads, process.stdout.splitlines())}
+        if "--hosted" in flags:
+            replies = hosted_replies(binary, ["--offline", *flags], env, frames)
+        else:
+            process = subprocess.run([str(binary), "serve", "--offline", *flags],
+                                     input="".join(json.dumps(frame) + "\n" for frame in frames),
+                                     env=env, capture_output=True, text=True, timeout=60)
+            require(process.returncode == 0, f"{mode} serve failed: {process.stderr}")
+            replies = {reply.get("id"): reply for reply in map(json.loads, process.stdout.splitlines())}
         instructions = replies[1]["result"]["instructions"]
         tools = json.dumps(replies[2]["result"]["tools"], ensure_ascii=False, separators=(",", ":"))
         sizes[mode] = {"instructions_characters": len(instructions), "tools_bytes": len(tools.encode()),
