@@ -471,8 +471,16 @@ fn notes_follow_their_targets() {
         Some(SavedError::Unknown)
     );
     let deleted = store.delete(Some("trials")).unwrap();
-    assert_eq!(deleted.user_notes, [search], "a deleted search takes its notes");
+    assert_eq!(
+        deleted.user_notes,
+        [search],
+        "a deleted search takes its notes"
+    );
     let deleted = store.delete(None).unwrap();
-    assert_eq!(deleted.user_notes.len(), 2, "the list note and the project note");
+    assert_eq!(
+        deleted.user_notes.len(),
+        2,
+        "the list note and the project note"
+    );
     assert_eq!(store.show(None).unwrap(), Default::default());
 }

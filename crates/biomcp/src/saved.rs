@@ -251,7 +251,10 @@ pub(crate) fn checked_name(name: &str) -> Option<Text> {
 }
 
 /// Open the saved file; a read of a missing file opens nothing and creates nothing.
-pub(crate) fn open(encoding: Encoding, create: bool) -> io::Result<Result<Option<SavedStore>, Outcome>> {
+pub(crate) fn open(
+    encoding: Encoding,
+    create: bool,
+) -> io::Result<Result<Option<SavedStore>, Outcome>> {
     let path = match crate::config::saved_path() {
         Ok(Some(path)) => path,
         Ok(None) => return failure(encoding, SavedError::Database, "").map(Err),
@@ -535,7 +538,11 @@ pub(crate) fn reply(
     }
 }
 
-pub(crate) fn failure(encoding: Encoding, error: SavedError, argument: &str) -> io::Result<Outcome> {
+pub(crate) fn failure(
+    encoding: Encoding,
+    error: SavedError,
+    argument: &str,
+) -> io::Result<Outcome> {
     let message = match error {
         SavedError::Newer => {
             return encoding.encode(
