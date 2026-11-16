@@ -20,10 +20,11 @@
       "expect": {
         "/page/total": 100,
         "/next": {
-          "count": 6
+          "count": 7
         },
         "/next/*/kind": {
-          "excludes": "configure"
+          "excludes": "configure",
+          "includes": "save"
         }
       },
       "max_bytes": 3185
