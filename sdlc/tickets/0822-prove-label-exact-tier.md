@@ -19,7 +19,7 @@ The bounded mutation sample found that replacing `NameTier::exact` with `false` 
 
 ## Starts from
 
-- The supplemental proof at `cf40f6c0c09c9bbddf195a94767d549f2b12f20a`, j37279. The verified evidence is at Yellow `data/biomcp-redux-evidence/0788/label-exact-tier-cf40f6c0c`.
+- The supplemental proof at `cf40f6c0c09c9bbddf195a94767d549f2b12f20a`, j37279. The verified evidence is at Yellow `data/{repo}-evidence/0788/label-exact-tier-cf40f6c0c`.
 
 ## Keeps
 

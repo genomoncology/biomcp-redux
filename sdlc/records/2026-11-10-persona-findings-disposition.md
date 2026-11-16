@@ -24,7 +24,7 @@ Review of the merged biomed-agent-bench suite at 94160cd6529f4ce2a228a0f87ba8179
 
 - The merged suite is under `repos/biomed-agent-bench/personas/`. Findings were checked against raw envelopes where available, not accepted from rollup prose alone.
 - Valid recurrence: `tumor-board/evidence/q5-recurrence-pik3ca.json`, 128 observed/355 examined. Invalid-list persona observation is log-only; controlled old-runtime job j37148 supplies the actual regression witness.
-- Allele reproduction: Yellow `data/biomcp-redux-evidence/0788/variant-allele-witness-ca945a56a`, manifest `b40145668cffd513c864f77977d4b217d15d0bf6397bd9f6da300f3a805e6ffa`. Genuine selected-source binary, shared isolated configuration/cache, three bounded calls, raw envelopes/records/observations retained.
+- Allele reproduction: Yellow `data/{repo}-evidence/0788/variant-allele-witness-ca945a56a`, manifest `b40145668cffd513c864f77977d4b217d15d0bf6397bd9f6da300f3a805e6ffa`. Genuine selected-source binary, shared isolated configuration/cache, three bounded calls, raw envelopes/records/observations retained.
 - Variant spelling: `patient-navigator/evidence/q7-rows-p1.json` and `q7-rows-v600.json`; log synthesis is not a raw superset or eligibility proof.
 - Recall: `dx-lab-director/evidence/cmp-openfda-recall-illumina.json` is enforcement data; the retained pv-scientist RES capture has no classification. Compare feed identity before proposing a field mapping.
 - Label: `pt-committee` retains distinct apixaban/ELIQUIS search and exact-set replies; trimmed envelopes lack native harmonized name fields, so the precise provider annotation cause is unproved.

@@ -11,7 +11,7 @@ The gene full-name replay declares its intended live-check eligibility using the
 
 ## Why
 
-Hosted selected-main run 42095109380 built its package successfully, then failed `live-source-checks/offline-eligibility` because `tests/cases/gene/names-single.yaml`, added by the gene-name change, was the only case without a `live_check` declaration. The installed tool proof reported 35 passes, one failure and one intentional ignore. Raw proof is on Yellow at `data/biomcp-redux-evidence/0666/hosted-42095109380`.
+Hosted selected-main run 42095109380 built its package successfully, then failed `live-source-checks/offline-eligibility` because `tests/cases/gene/names-single.yaml`, added by the gene-name change, was the only case without a `live_check` declaration. The installed tool proof reported 35 passes, one failure and one intentional ignore. Raw proof is on Yellow at `data/{repo}-evidence/0666/hosted-42095109380`.
 
 ## Proof
 

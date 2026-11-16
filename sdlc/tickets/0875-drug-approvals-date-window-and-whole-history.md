@@ -11,7 +11,7 @@ A drug's approvals section takes a decision-date window, and a whole application
 
 ## Why
 
-From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `~/workspace/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:40-45 and 212-220: counting Keytruda's supplements per year took three paged calls at the 50-row maximum, and the approvals section has no date window, though `--decision-from/--decision-to` exist for PMA and 510(k).
+From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `{workspace}/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:40-45 and 212-220: counting Keytruda's supplements per year took three paged calls at the 50-row maximum, and the approvals section has no date window, though `--decision-from/--decision-to` exist for PMA and 510(k).
 
 ## Proof
 

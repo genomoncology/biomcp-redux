@@ -291,7 +291,7 @@ Every 0.9 timing and output-size row remains **unmeasured**: this lane has no in
 
 ## Evidence and review limits
 
-Evidence is outside Git on Yellow under `data/biomcp-redux/0194-study-investigation/`:
+Evidence is outside Git on Yellow under `data/{repo}/0194-study-investigation/`:
 
 | Job | Archive | SHA-256 | Independent verification |
 | --- | --- | --- | --- |
@@ -448,7 +448,7 @@ Every distinct native `cancerTypeId` and its study-record count appears below. T
 | `vsc` | 1 |
 | `wt` | 2 |
 
-The evidence archive is `data/biomcp-redux/0207-study-bounded-captures/2293-study-admission.tar.gz` on Yellow, SHA-256 `7ce61d45a4fc89024452f5467524a0b759be6cae39ff767fc32d58e0634ecd71`. Its 17 exact members include the retained input archive, request plans, both helper archives, HTTP headers, receipts, offline measurements, OpenAPI inspection and executable recipe. Every one of its 16 manifest hashes was independently verified after transfer, together with both nested helper archives. The input archive's exact members and hashes were verified before use. Raw replies remain outside Git. No product code, participant identifier or licensed curation answer enters this change.
+The evidence archive is `data/{repo}/0207-study-bounded-captures/2293-study-admission.tar.gz` on Yellow, SHA-256 `7ce61d45a4fc89024452f5467524a0b759be6cae39ff767fc32d58e0634ecd71`. Its 17 exact members include the retained input archive, request plans, both helper archives, HTTP headers, receipts, offline measurements, OpenAPI inspection and executable recipe. Every one of its 16 manifest hashes was independently verified after transfer, together with both nested helper archives. The input archive's exact members and hashes were verified before use. Raw replies remain outside Git. No product code, participant identifier or licensed curation answer enters this change.
 
 
 ## Implemented catalog disclosure measurements
@@ -464,7 +464,7 @@ The retained catalog replay at `d2231c0c7cdac895fc450c8445bd46b3e59049dc` checke
 
 The case runner enforces the serialized MCP structured content budget and verifies equivalent response text. The whole transport frame is a measured reference rather than an enforced case ceiling; all 547 measured frames fit that reference. Whole executable help measured 61,078 bytes and fits its existing ceiling. The five-header measurements include the envelope, source terms, retained pool metadata and next actions. They replace projected page sizes for the implemented catalog search. Larger requested limits retain their explicit row bound.
 
-The durable archive is `data/biomcp-redux/0213-study-catalog/d2231c0c7cdac895fc450c8445bd46b3e59049dc.tar.gz` on Yellow, SHA-256 `d06e4a1605e6bbd55e3c4e71efb7403ccbf48a7c82817d5545954d978b2c6f02`. Its five exact members preserve the input archive, sync receipt, all window measurements, executable recipe and manifest. Its four manifest hashes and the nested input archive's 41 exact members and 40 hashes were verified at the durable destination. The first native job passed external cases and then stopped on the recipe's noncanonical macOS temporary path; the bounded continuation used its canonical path and ran only the unreached measurement and transfer. The raw catalog remains outside Git. No 0.9 timing or output comparison is claimed.
+The durable archive is `data/{repo}/0213-study-catalog/d2231c0c7cdac895fc450c8445bd46b3e59049dc.tar.gz` on Yellow, SHA-256 `d06e4a1605e6bbd55e3c4e71efb7403ccbf48a7c82817d5545954d978b2c6f02`. Its five exact members preserve the input archive, sync receipt, all window measurements, executable recipe and manifest. Its four manifest hashes and the nested input archive's 41 exact members and 40 hashes were verified at the durable destination. The first native job passed external cases and then stopped on the recipe's noncanonical macOS temporary path; the bounded continuation used its canonical path and ran only the unreached measurement and transfer. The raw catalog remains outside Git. No 0.9 timing or output comparison is claimed.
 
 ## Implemented card and section disclosure measurements
 
@@ -482,9 +482,9 @@ Each of the forty-six cases has its own measured ceiling plus fifteen percent in
 
 The original capture archive does not record per-request acquisition timestamps. Native replay preserves that missing provenance as the shared transport's legacy timestamp value of zero. It does not substitute an HTTP Date header, a batch completion time or a fabricated timestamp. Synthetic navigation cases separately prove that a nonzero original reply timestamp survives cache reads and emitted continuation commands. The catalog's local acquisition time and the native import date remain independent.
 
-The first twenty-two native measurements are preserved in `data/biomcp-redux/0238-study-get/j14671-partial.tar.gz` on Yellow, SHA-256 `84f699ec854f2db0e3072d745e6f9558ad18715a0e19c2dc8481d2a38ab40843`. The continuation archive is `data/biomcp-redux/0238-study-get/ccc94f2d5da52b01c2dc510c9c059392e2295eda.tar.gz` on Yellow. Its SHA-256 is `45795b4c1a68e9df0f8a8f473844b39168114294d0c2fe50f0b35c37c84c1191`. Each archive has fifty-six exact members and fifty-five verified manifest hashes, including the original capture archive, external cases, replay records and measured output. The original input's forty-one members and forty manifest hashes are verified before case generation. No provider request ran.
+The first twenty-two native measurements are preserved in `data/{repo}/0238-study-get/j14671-partial.tar.gz` on Yellow, SHA-256 `84f699ec854f2db0e3072d745e6f9558ad18715a0e19c2dc8481d2a38ab40843`. The continuation archive is `data/{repo}/0238-study-get/ccc94f2d5da52b01c2dc510c9c059392e2295eda.tar.gz` on Yellow. Its SHA-256 is `45795b4c1a68e9df0f8a8f473844b39168114294d0c2fe50f0b35c37c84c1191`. Each archive has fifty-six exact members and fifty-five verified manifest hashes, including the original capture archive, external cases, replay records and measured output. The original input's forty-one members and forty manifest hashes are verified before case generation. No provider request ran.
 
-The complete replay with the explicit full-response guard passed all forty-six CLI/MCP cases in j14686. Its durable archive is `data/biomcp-redux/0238-study-get/45ca299c1b6e090e437ec6e3e8ef815cd3651bb8.tar.gz` on Yellow, SHA-256 `5448657b7c0ad0ea82857286b0ef6ba6fd501f4ef477a16ec9df3f5bbd48fb0a`. Its fifty-six exact members and fifty-five manifest hashes were verified at the durable destination before scratch cleanup. All original source bodies remained outside Git, and the replay made no provider requests.
+The complete replay with the explicit full-response guard passed all forty-six CLI/MCP cases in j14686. Its durable archive is `data/{repo}/0238-study-get/45ca299c1b6e090e437ec6e3e8ef815cd3651bb8.tar.gz` on Yellow, SHA-256 `5448657b7c0ad0ea82857286b0ef6ba6fd501f4ef477a16ec9df3f5bbd48fb0a`. Its fifty-six exact members and fifty-five manifest hashes were verified at the durable destination before scratch cleanup. All original source bodies remained outside Git, and the replay made no provider requests.
 
 
 ## Native file reference disclosure

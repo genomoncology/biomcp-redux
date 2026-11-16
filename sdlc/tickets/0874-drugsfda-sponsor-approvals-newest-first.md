@@ -11,7 +11,7 @@ A regulatory digest's first table, a company's most recent FDA drug approvals ne
 
 ## Why
 
-From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `~/workspace/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:63-75 and 269-280: `search drug --source drugsfda --applicant NOVARTIS` returns 204 applications with no approval date on any row and no sort, so the digest needs one `get drug <id> approvals` per application (204 calls). openFDA's own API sorts by `submissions.submission_status_date` in one call.
+From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `{workspace}/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:63-75 and 269-280: `search drug --source drugsfda --applicant NOVARTIS` returns 204 applications with no approval date on any row and no sort, so the digest needs one `get drug <id> approvals` per application (204 calls). openFDA's own API sorts by `submissions.submission_status_date` in one call.
 
 ## Proof
 

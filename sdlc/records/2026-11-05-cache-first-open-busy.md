@@ -18,7 +18,7 @@ Job j30327 installed the actual frozen `015aea0a704b7b6176b6988bc6fae707ac0feb38
 
 Eight barrier-dispatched `health --offline` commands shared one fresh cache per round, with isolated configuration disabling source groups. The campaign stopped at its first failed round: two rounds passed, and round 2 worker 5 exited 5 with `local_error=busy`. Actual total: 24 commands, 23 passed and one Busy. The failed command took 33.420 ms; one-minute host load was 0.080. The cache had a valid schema and WAL after all processes exited. This disproves fixture-only attribution for the installed failure.
 
-Raw red custody is on Yellow under `data/biomcp-redux-evidence/0639/41e6870a789849096dd6196b21b009c9193c5607/j30327/witness.tar.gz`, SHA-256 `9e32e14d717fb5f6cb008f93c45b6a366ee68ff4c9afefcdac872b374a357acc`.
+Raw red custody is on Yellow under `data/{repo}-evidence/0639/41e6870a789849096dd6196b21b009c9193c5607/j30327/witness.tar.gz`, SHA-256 `9e32e14d717fb5f6cb008f93c45b6a366ee68ff4c9afefcdac872b374a357acc`.
 
 ## Fixed proof
 
@@ -28,7 +28,7 @@ Fixed wheel SHA-256: `48194690a2ca49e5c5346153e246e897ff0767687a959408c5a999a422
 
 All 400 commands exited 0 with complete envelopes and empty stderr. Every round began with an empty shared cache and ended in WAL. Five WAL updates actually returned SQLite primary/extended code 5/5 at fixed `cache.rs:337`, then recovered successfully inside the existing bound. Thus the proof exercises the repaired mechanism, rather than merely failing to reproduce it. Dispatch-to-exit durations were 25.570–66.044 ms; one-minute host load was 3.649–4.078. Individual successful schema/WAL phase timings are unobservable in these unmodified binaries; only dispatch duration, error coordinates and post-exit database state are claimed.
 
-Raw green custody is on Yellow under `data/biomcp-redux-evidence/0639/b0b5206e0674f57c5d065fffc2ff8815808fd6ca/j30347/witness.tar.gz`, SHA-256 `7417576f0615680f135222b0f99814cee681c1410058d3c89642a2926f630307`. It contains the artifact, all raw command and numeric diagnostic files, split scanner reports and source-file bindings; the job and partial-cleanup logs are retained beside it.
+Raw green custody is on Yellow under `data/{repo}-evidence/0639/b0b5206e0674f57c5d065fffc2ff8815808fd6ca/j30347/witness.tar.gz`, SHA-256 `7417576f0615680f135222b0f99814cee681c1410058d3c89642a2926f630307`. It contains the artifact, all raw command and numeric diagnostic files, split scanner reports and source-file bindings; the job and partial-cleanup logs are retained beside it.
 
 The lasting installed smoke check runs one eight-process fresh-cache round for each installed channel. The focused fifty-round runner reuses that helper. Existing process-test assertions and timeouts stay intact.
 

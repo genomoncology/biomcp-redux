@@ -425,7 +425,7 @@ Proof adds a multi-page cohort.
 
 ## 0722 — Author search works from open sources
 
-**State.** In a lane. Done and gated: j32772 passed at 138c6ab18 on gator, 650 cases, coverage 84.54%, all stages green. Everything after that (f35854ff1, 15f55cbf7, 93aa0d523, bc8e12c3b) only adds `scripts/check_author_artifact.py` and a Makefile goal. Its jobs j32858 and j32879 failed (exit 2) and j32903 was cancelled. So a finished ticket is now spending jobs on a checker of its own artifact.
+**State.** In a lane. Done and gated: j32772 passed at 138c6ab18 on the speed-test machine, 650 cases, coverage 84.54%, all stages green. Everything after that (f35854ff1, 15f55cbf7, 93aa0d523, bc8e12c3b) only adds `scripts/check_author_artifact.py` and a Makefile goal. Its jobs j32858 and j32879 failed (exit 2) and j32903 was cancelled. So a finished ticket is now spending jobs on a checker of its own artifact.
 
 **Detail.** On the shakedown binary with no key, `search author "KRAS G12C"` returned 0 rows from Semantic Scholar, `status: complete`, so the reported problem exists and looks like an empty answer. The lane (read, not run) adds `AuthorSearchSource::Auto` and `Pubmed`, and `author/literature.rs` runs a plain PubMed search and an esummary. It returns papers with their author names and a fixed sentence saying identities are not resolved. Paging is safe: `retmax` is 9999 and the cap matches. No text beyond citation data, so 0689 has nothing to filter here (read).
 

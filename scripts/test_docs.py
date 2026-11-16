@@ -7,6 +7,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+import check_docs
 from check_docs import ENTITY_TOOLS, SHARED_TOOLS, mapping
 from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, table, upgrade
 
@@ -248,13 +249,32 @@ def main():
             readme.write_text(original_readme + planted)
             result = check(root)
             assert result.returncode != 0 and "README.md:" in result.stderr and "workspace path" in result.stderr, result
+        readme.write_text(original_readme)
+        record = root / "sdlc/planning/upgrade.md"
+        original_record = record.read_text()
+        record.write_text(original_record + f"Evidence at ~/{folder}/data/x.\n")
+        result = check(root)
+        assert result.returncode != 0 and "sdlc/planning/upgrade.md:" in result.stderr, result
+        # A made-up machine name joins the hashed set, so this test names no real machine. It is
+        # split because the checker also reads this file.
+        machine = "planted" + "host"
+        check_docs.INTERNAL_WORDS.add(check_docs.digest(machine))
+        record.write_text(original_record + f"Ran on {machine}.\n")
+        try:
+            check_docs.internal_names(root)
+            raise AssertionError("a machine name in sdlc/ passed the internal-word check")
+        except ValueError as error:
+            assert str(error).startswith("sdlc/planning/upgrade.md:"), error
+        record.write_text(original_record)
+        check_docs.internal_names(root)
+        check_docs.INTERNAL_WORDS.discard(check_docs.digest(machine))
         readme.write_text(original_readme + "See https://example.org/home/about and /home/runner/work.\n")
         assert check(root).returncode == 0, check(root).stderr
         readme.write_text(original_readme)
         commercial_check(root, readme, original_readme)
         tools_check(root, readme, original_readme)
     print(
-        "Documentation contracts reject missing architecture checks, phantom leaves, unknown options, missing leaf accounting, drift, invalid feature declarations and internal workspace paths"
+        "Documentation contracts reject missing architecture checks, phantom leaves, unknown options, missing leaf accounting, drift, invalid feature declarations, internal workspace paths and machine names in sdlc records"
     )
 
 

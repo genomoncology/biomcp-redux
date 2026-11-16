@@ -1,6 +1,7 @@
 # 0992 — public-records-use-generic-machine-names
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ba270fd735adf9fb91a0db6f61b117f473512a69
 
 Milestone: 7
 
@@ -34,3 +35,12 @@ Ian, 2026-11-16 (`sdlc/decisions/2026-11-16-review-follow-ups.md`, item 3), on f
 ## Changes
 
 - Changes: `sdlc/` text, `scripts/check_docs.py` and its test.
+
+## Progress
+
+- 2026-11-16 scan: the check's hashed sets caught 209 lines in 95 files, all under `sdlc/`; `tests/replies/` and `tests/fixtures/` held none, so their exemption stays. Names are counted by hash only here.
+- Machines became roles: the coordination machine is "the PM's machine", the shared test machine is "the speed-test machine", and a build host's account name became "the build machine". Machine words the check treats as common words outside an SSH path stay as they were, as elsewhere in public files.
+- Paths keep their shape with placeholders, explained in `sdlc/README.md`: `{workspace}` for a machine's workspace root, `{home}` for its home folder, `{repo}` for this repository's working name.
+- `scripts/check_docs.py` now checks `sdlc/`. The retired-tool-name check still skips `sdlc/`, as before, since records cite retired names on purpose. `scripts/test_docs.py` plants a workspace path and a made-up hashed machine name in an `sdlc/` record and shows each fails.
+- Left open: `sdlc/data/` stays exempt. It is the registry `pm disk` reads, and each Location line must name a real machine and folder for pm to place it, so a role word there would leave this team's data unregistered. Clearing it needs those entries moved to a private registry, which belongs to the pm and rules owners.
+- Jobs: j41675 `make check-cheap` passed and the docs test failed (a README plant was still in place); j41684 failed because the copied test file held the planted word whole; j41687 passed the docs check and test after both fixes. The merge with origin/main brought no new names. Gate j41691 passed at 80d8572f7: `make --keep-going landing-gate docs-check schema-release-check`.

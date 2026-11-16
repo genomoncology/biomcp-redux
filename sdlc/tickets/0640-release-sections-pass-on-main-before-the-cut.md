@@ -20,9 +20,9 @@ The release product remains `b3809eb1baa6d1e470efaf6499d8be0ba600f511`, tree `4b
 
 The receiver-verified evidence is on Yellow:
 
-- `data/biomcp-redux-evidence/0640/b3809eb1baa6/`: `j36350-receipt.json` binds the bounded mutation results; `j36356-cold-receipt.json` binds the cold outputs.
-- `data/biomcp-redux-evidence/0293/b3809eb1baa6/run-42680531044/`: `receiver-manifest.json` binds the actual API records, raw logs, downloaded artifact ZIPs and extracted payloads; `provenance-helper-receiver-manifest.json` binds signature and local-channel records. `download-receipt.json` records every skipped production step.
-- The full suite, schema comparison and load evidence remain under `data/biomcp-redux-evidence/0640/42a79b1bbdc9/`, with their original identities. 0778 changed only Fetch integration tests, mutation selection and its tests, and the ticket. Runtime, Cargo pins, platform producers, installed cases, fixtures and workflow bytes were unchanged. The ending mutation baseline exercised both CLI cases and the revised Fetch cache tests.
+- `data/{repo}-evidence/0640/b3809eb1baa6/`: `j36350-receipt.json` binds the bounded mutation results; `j36356-cold-receipt.json` binds the cold outputs.
+- `data/{repo}-evidence/0293/b3809eb1baa6/run-42680531044/`: `receiver-manifest.json` binds the actual API records, raw logs, downloaded artifact ZIPs and extracted payloads; `provenance-helper-receiver-manifest.json` binds signature and local-channel records. `download-receipt.json` records every skipped production step.
+- The full suite, schema comparison and load evidence remain under `data/{repo}-evidence/0640/42a79b1bbdc9/`, with their original identities. 0778 changed only Fetch integration tests, mutation selection and its tests, and the ticket. Runtime, Cargo pins, platform producers, installed cases, fixtures and workflow bytes were unchanged. The ending mutation baseline exercised both CLI cases and the revised Fetch cache tests.
 
 | Section | Actual result and scope |
 | --- | --- |

@@ -27,7 +27,7 @@ All five native platforms passed. Each macOS architecture installed six channels
 
 The complete staged payload, artifact secret scan, both staged Homebrew architectures, strict wheel metadata and staged installer-byte comparison passed. Every one of the 26 staged regular files occurs once in the checksum inventory, matches its retained bytes and independently verifies against the signed provenance using GitHub CLI 2.92. Verification required the exact repository, signer workflow, source ref and source digest; each verified statement identifies this run.
 
-The retained, receiver-verified packet is Yellow `data/biomcp-redux-evidence/0293/b3809eb1baa6/run-42680531044/`:
+The retained, receiver-verified packet is Yellow `data/{repo}-evidence/0293/b3809eb1baa6/run-42680531044/`:
 
 - `run-terminal.json`, `jobs-terminal.json`, `artifacts-terminal.json` and `raw-terminal-logs.zip` retain the actual run.
 - `download-receipt.json` binds all nine downloaded native/staged/report artifact ZIPs to their API IDs, byte counts and SHA-256 digests, and lists skipped production steps.

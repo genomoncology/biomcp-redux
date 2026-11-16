@@ -11,7 +11,7 @@ Regulatory codes and dates read plainly: a De Novo record says it is a De Novo g
 
 ## Why
 
-From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `~/workspace/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:109, 118 and 233-236: DEN170058 shows `decision_description: "Unknown"` (openFDA's own value for code DENG, checked 2026-11-13), which a tracker column shows as Unknown; WHO PQ `date_of_prequalification` arrives as "14  Oct,  2014" and is empty on 8 of 52 dolutegravir rows.
+From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `{workspace}/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:109, 118 and 233-236: DEN170058 shows `decision_description: "Unknown"` (openFDA's own value for code DENG, checked 2026-11-13), which a tracker column shows as Unknown; WHO PQ `date_of_prequalification` arrives as "14  Oct,  2014" and is empty on 8 of 52 dolutegravir rows.
 
 ## Proof
 

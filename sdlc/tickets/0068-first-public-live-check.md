@@ -21,6 +21,6 @@ A build delegate runs the landed live-check command once over every eligible pub
 
 ## Reviewed automatic result
 
-The automatic scheduled run j14800 at `8f854c56c1747d2101d3e6272fd1f972450717e7` produced its report on 2026-10-26. Review verified all four file hashes in the Yellow evidence directory `data/biomcp-redux/0068-scheduled/20261026T080118Z-owirvcp0`. The report SHA-256 is `a953f4291adb9858a02a83f11c8dd929c97612de5adb0738c0720db13c97a51b`; the manifest SHA-256 is `fa12a6c643a78afe7afe0de64aac76ffa1a1bfb41d3627bc20a34173a8996915`.
+The automatic scheduled run j14800 at `8f854c56c1747d2101d3e6272fd1f972450717e7` produced its report on 2026-10-26. Review verified all four file hashes in the Yellow evidence directory `data/{repo}/0068-scheduled/20261026T080118Z-owirvcp0`. The report SHA-256 is `a953f4291adb9858a02a83f11c8dd929c97612de5adb0738c0720db13c97a51b`; the manifest SHA-256 is `fa12a6c643a78afe7afe0de64aac76ffa1a1bfb41d3627bc20a34173a8996915`.
 
 The run discovered 563 cases, checked 97, skipped 466, reported 12 drifts and no errors, and took 613368 ms. The runner exited successfully; the wrapper failed on drift as expected. This result proves automatic dispatch and report preservation. It does not establish healthy sources or resolve drift. The bounded diagnosis went to the PM. PM message m6851 authorized recording this reviewed result and landing the evidence with the next batch. No additional provider run or baseline refresh forms part of this completion.

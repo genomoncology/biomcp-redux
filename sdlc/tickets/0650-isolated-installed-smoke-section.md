@@ -19,7 +19,7 @@ The earlier broad debug run j30338 timed out after 300 seconds with buffered chi
 
 ## Starts from
 
-- Starts from: the clean pushed `ticket/0066-full-installed-smoke` branch, accepted source T above, and Yellow `data/biomcp-redux-evidence/0293/candidate-1bb97e64f416/full-installed-smoke-T4f2e13b07/runtime-j30464`. Witness SHA256: `9de3985b9a7c344baba020f3997fd2a949ed5fd6b022d608d7df03428d135e46`.
+- Starts from: the clean pushed `ticket/0066-full-installed-smoke` branch, accepted source T above, and Yellow `data/{repo}-evidence/0293/candidate-1bb97e64f416/full-installed-smoke-T4f2e13b07/runtime-j30464`. Witness SHA256: `9de3985b9a7c344baba020f3997fd2a949ed5fd6b022d608d7df03428d135e46`.
 
 ## Keeps
 

@@ -19,7 +19,7 @@ The release runner omits the owning API tests, allowing meaningful cache changes
 
 ## Starts from
 
-- Starts from: `release/mutations.py::native_args`, `release/test_mutations.py`, `crates/biomcp-fetch/tests/cache/{storage,freshness}.rs`, and `crates/biomcp-fetch/src/cache.rs`. Raw j36291 evidence is retained on Yellow under `data/biomcp-redux-evidence/0640/42a79b1bbdc9/`; the fresh findings reviewer has actual survivor diffs.
+- Starts from: `release/mutations.py::native_args`, `release/test_mutations.py`, `crates/biomcp-fetch/tests/cache/{storage,freshness}.rs`, and `crates/biomcp-fetch/src/cache.rs`. Raw j36291 evidence is retained on Yellow under `data/{repo}-evidence/0640/42a79b1bbdc9/`; the fresh findings reviewer has actual survivor diffs.
 
 ## Keeps
 

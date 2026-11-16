@@ -19,7 +19,7 @@ Hosted run `42030695983` stopped Linux arm64 at `/target/fixture-evidence` permi
 
 ## Starts from
 
-- Starts from: `.github/workflows/`, `release/linux.sh`, `release/gate.py`, and the local native recovery's explicit revision handling. Actual failed logs are on Yellow at `data/biomcp-redux-evidence/0293/candidate-1bb97e64f416/hosted-42030695983/initial-failures/`: Linux arm64 job 127257791290 line 1965; macOS arm64 job 127257791390 line 1305; Windows job 127257791408 line 1293.
+- Starts from: `.github/workflows/`, `release/linux.sh`, `release/gate.py`, and the local native recovery's explicit revision handling. Actual failed logs are on Yellow at `data/{repo}-evidence/0293/candidate-1bb97e64f416/hosted-42030695983/initial-failures/`: Linux arm64 job 127257791290 line 1965; macOS arm64 job 127257791390 line 1305; Windows job 127257791408 line 1293.
 
 ## Keeps
 

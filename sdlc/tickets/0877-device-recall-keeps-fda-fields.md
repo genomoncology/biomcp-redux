@@ -11,7 +11,7 @@ Device recall records keep the seriousness fields openFDA publishes: voluntary o
 
 ## Why
 
-From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `~/workspace/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:182-190: for Z-1747-2025 openFDA's enforcement record carries `voluntary_mandated`, `initial_firm_notification`, `product_quantity`, `center_classification_date` and `report_date`, which BioMCP's card drops; the persona's question is what seriousness signal survives on the device side.
+From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `personas/reg-affairs/runs/2026-11-13/log.md` in biomed-agent-bench (until filed: `{workspace}/data/biomed-agent-bench/0041-persona-reg-affairs/` on the M5), log.md:182-190: for Z-1747-2025 openFDA's enforcement record carries `voluntary_mandated`, `initial_firm_notification`, `product_quantity`, `center_classification_date` and `report_date`, which BioMCP's card drops; the persona's question is what seriousness signal survives on the device side.
 
 ## Proof
 

@@ -364,7 +364,7 @@ Findings 11, 12, 15, 17 and 18 also fall under the every-known-fix stance, but n
 
 #### Brief note for the gate reviewer
 
-The nightly live check, job j31978 under ticket 0068, failed with exit 2 on this exact commit. Its evidence is on yellow at `/home/ian/workspace/data/biomcp/0068-scheduled/20261106T090113Z-cmtr4ay0`. I did not read why.
+The nightly live check, job j31978 under ticket 0068, failed with exit 2 on this exact commit. Its evidence is on yellow at `{workspace}/data/biomcp/0068-scheduled/20261106T090113Z-cmtr4ay0`. I did not read why.
 
 #### 18. Smaller correctness items from the adapter sweep
 
@@ -544,7 +544,7 @@ No clinical questions came up in my area.
 - **Design gap, Low:** no public doc warns that query text goes to third-party sources and stays in the cache URL column. BioMCP serves cancer care, so a line saying not to enter patient identifiers is cheap.
 - **Question, Low:** NCI's comment and terms say it needs the user's own API key (`nci/mod.rs:23,37`), while its key tier is `Fallback` (`:30`). Ticket 0503 allows that, but `sdlc/decisions/2026-10-24-keyed-sources-run-only-with-the-user-s-key.md` reads differently if NCI's terms bind the key to its holder.
 - **Inconsistency, Low:** `docs/cautions.md` says CPIC follows the registry's noncommercial ruling and the release notes say noncommercial use loses it, but `cpic/mod.rs:14` labels it `Open`.
-- **Risk, Low:** a local build holds 368 absolute `/home/ian/.cargo` paths, and the release scripts set no path remapping, so a release binary would hold CI runner paths. No private names were found. Not run on a CI build.
+- **Risk, Low:** a local build holds 368 absolute `{home}/.cargo` paths, and the release scripts set no path remapping, so a release binary would hold CI runner paths. No private names were found. Not run on a CI build.
 - **Risk, Low:** apt packages in `release/Dockerfile` are pinned by version with no dated archive, so an old pin can vanish and break a rebuild.
 - **Question, Low:** the BioData pin 8bcd2456 matches the `v1.0.0` tag but differs from 08d9399 named in the decision, which asked for a recheck. I found no record of that recheck in 0459.
 - **For reviewer A:** non-hosted `serve --http` skips `Calls::run` (`http.rs:347-362`), so `http_max_calls` and the whole-call deadline do not apply, although the docs state the cap without that limit.
@@ -627,7 +627,7 @@ Reviewer C of three. Written 2026-11-06. Correctness, reliability, performance, 
 - Repository: `biomcp`, main commit `f33f42a55e040fccfc3394b516799f4baaf89133` ("Record landed ignore-ledger repair"), reviewed from an export, not the shared checkout. The only later commit, b886c33, adds the ticket for this review.
 - Version in Cargo: 1.0.0. 20 open tickets including this review's own.
 - Tools seen: cargo-deny 0.20.2, cargo-machete 0.9.2, actionlint 1.7.12. Python is pinned to 3.12 in `toolchain.json`; m5's default `python3` is 3.9.6; my jobs used 3.13.17.
-- Every build and test ran as a pm job under ticket key 0688 on m5 (j32005, j32009, j32010, j32013, j32021, j32033). Nothing ran on Gator. Nothing was pushed or dispatched. Hosted run facts come from read-only `gh` and pm records.
+- Every build and test ran as a pm job under ticket key 0688 on m5 (j32005, j32009, j32010, j32013, j32021, j32033). Nothing ran on the speed-test machine. Nothing was pushed or dispatched. Hosted run facts come from read-only `gh` and pm records.
 
 ### Verdict: not ready
 
@@ -778,7 +778,7 @@ Ranked by severity, then by area order (release, gate trust, tests, maintainabil
 #### 17. The gate ran only on macOS arm64, and release runs a different set
 
 - Label and severity: Risk, Medium.
-- Evidence: 69 sampled gates ran on m5 or a few on Gator. Linux x86_64, Intel and Windows run only in hosted rehearsal. The release workflow runs `make fmt lint test docs-check`, not `landing-gate`, with no coverage stage. Mutation runs only in a local section.
+- Evidence: 69 sampled gates ran on m5 or a few on the speed-test machine. Linux x86_64, Intel and Windows run only in hosted rehearsal. The release workflow runs `make fmt lint test docs-check`, not `landing-gate`, with no coverage stage. Mutation runs only in a local section.
 - Smallest fix: accept this and name it, or add one Linux run to the section list. The "hosted Windows is the Windows proof" ruling covers Windows.
 
 #### 18. Stale docs and plan text, all copies
@@ -818,7 +818,7 @@ Reviewer B owns this table. From my side only: `THIRD-PARTY-NOTICES.txt` (224,02
 - Post-publication check: exists, but only compares the version string; no plugin or desktop extension check (finding 8).
 - Upgrade notes for 0.9 users: good. `release/notes.md` covers breaking changes and links a table of every 0.9 leaf command, including retired ones such as `list`. Gaps: macOS floor, internal wording, and section names and aliases sit outside the ledger, while the stance says notes list every change.
 - Tested build equals shipped build: yes for bytes. Every channel is bound to the candidate hash and revision. Publication commands themselves are untested (finding 8).
-- Packed artifact contents: checked on macOS arm64 (j32009). Wheel 31.6 MB, archive 15.7 MB, desktop extension 49.4 MB, with license and notices. Private-name scan: `Yellow`, `Beelink`, `GENIE`, `Jarvis`, `biomcp-hosting` 0. `gator` 43 and `Genome` 327 were counted but not inspected; they are probably ordinary words inside strings (biology text, "navigator"), which a look at the matches would settle. Clean install worked: `version`, `--verbose`, `health --offline`, `mcp-config`, `help` all exit 0.
+- Packed artifact contents: checked on macOS arm64 (j32009). Wheel 31.6 MB, archive 15.7 MB, desktop extension 49.4 MB, with license and notices. Private-name scan: `Yellow`, the PM's machine's name, `GENIE`, `Jarvis`, `biomcp-hosting` 0. The speed-test machine's name 43 and `Genome` 327 were counted but not inspected; they are probably ordinary words inside strings (biology text, "navigator"), which a look at the matches would settle. Clean install worked: `version`, `--verbose`, `health --offline`, `mcp-config`, `help` all exit 0.
 - Can each check fail: docs reference, workflow, schema and README example probes all failed as they should. Version-mismatch probes under `check_docs` stayed at 0 because versions come from the build, so those probes were weak; the plugin version is checked only at stage. README prose has no check.
 - Do logs keep failing output: mostly yes. Gate stages print time and failure. Exceptions: nightly, `check_front_map`.
 - Flakiness: of 39 failed gates in my sample, about 8 were not caused by the ticket: timing 4, Python 1, ledger 2, flake 1.

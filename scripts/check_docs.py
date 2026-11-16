@@ -32,8 +32,9 @@ INTERNAL_WORDS = {"e712a02b83a65ca2", "2572e799420e05c9", "a1fb86a4c024c04c", "0
 # Common words that name an internal machine only as an SSH or copy host, such as HOST:/path.
 INTERNAL_HOSTS = INTERNAL_WORDS | {"b5f2031eb62e37c6", "c685a2c9bab235cc", "16477688c0e00699", "1b4c9133da73a711"}
 INTERNAL_USERS = {"b54a95127a4b573f", "a1fb86a4c024c04c"}
-# Third-party source data and planning records are reviewed separately.
-INTERNAL_SKIP = ("sdlc/", "tests/replies/", "tests/fixtures/")
+# Third-party source data is reviewed separately. sdlc/data/ is the registry `pm disk` reads; its
+# Location lines must name the machine and folder (0992).
+INTERNAL_SKIP = ("sdlc/data/", "tests/replies/", "tests/fixtures/")
 
 
 def digest(word):
@@ -91,7 +92,7 @@ EXAMPLE = re.compile(r"`(\{\"action\":.*?\})`(?=[\s,.;:)|]|$)")
 
 def doc_files(root):
     return [name for name in public_files(root)
-            if name.endswith((".md", ".json")) and not name.startswith(("crates/", "tests/", "scripts/"))
+            if name.endswith((".md", ".json")) and not name.startswith(("crates/", "tests/", "scripts/", "sdlc/"))
             and (not name.startswith("release/") or name == "release/notes.md")]
 
 

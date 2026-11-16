@@ -16,12 +16,12 @@ Load is the one-minute load average when pm started the job, as `pm job list` re
 | 0667, second | j30773 (candidate abbbfd9d8, which fixed only the version test) | m5, load 19.7 of 18, beside 6 jobs | `test_deadline_preserves_partial_native_outcomes_without_fresh_budget`: a 3 s budget ran out in the planning step's version check ("Install the pinned cargo-mutants before planning") before any shard ran (confirmed, log and diff) | A |
 | 0667, third | none, found by reading | | Owned-child test armed 5 s before the nested child was ready (confirmed, removed in dea3f1389) | A |
 | Unticketed | j30393 (0642 branch, which did not touch the gate, smoke or test files) | Yellow, load 0.02 of 4 | `release.test_gate ... test_installed_cli_rows_bind_results_and_fail_on_cli_exit`: `tool-runner --proofs` "timed out after 0.0556 seconds" (confirmed, log). No ticket or record mentions it (confirmed, grep) | A |
-| 0639 record | j30338 | gator, load 0.2 of 12 | `release.test_smoke ... test_isolated_installed_commands_and_cleanup` went past its 300 s limit. The section later passed in 258 s (j30464, 0650). The stalled stage was never identified (confirmed, record) | A (likely) |
+| 0639 record | j30338 | speed-test machine, load 0.2 of 12 | `release.test_smoke ... test_isolated_installed_commands_and_cleanup` went past its 300 s limit. The section later passed in 258 s (j30464, 0650). The stalled stage was never identified (confirmed, record) | A (likely) |
 | 0103 | j10684 | from ticket | HTTP slow-header test timed the server's close event together with test cleanup. Its isolated rerun passed (ticket text) | A |
 | 0286 | review finding | | HTTP close-time test had an upper bound that failed under coverage and parallel load (ticket text) | A |
 | 0622 | j29497 (cold matrix, 99 min) | m5 under x86 emulation, load 1.8 | A bare socket `read` returned `Interrupted` in two sub-checks of `mcp-http/framing-resource-deadlines-and-shutdown` (confirmed, log lines for slow header and rejected framing). Fixed for every runner read through one helper | B |
 | 0569 | j25631 | Linux ARM64 container | Cache-process child got `DeadlineExceeded` inside its 10 s budget. The fix moved SQLite fixtures off Docker Desktop host mounts, which "lost committed rows" (confirmed, `scripts/linux_fixture_cache.sh` comment) | C (environment) |
-| 0639 | j30303, j30327 | m5, gator | Same cache test. It was a real startup race in the product (Busy at the WAL switch) | C (product bug) |
+| 0639 | j30303, j30327 | m5, speed-test machine | Same cache test. It was a real startup race in the product (Busy at the WAL switch) | C (product bug) |
 | 0287 | j14991, j16003, j16035 | from ticket | Opaque concurrency failures that passed on rerun. Typed errors were added, and startup contention was later proven by 0639 | C |
 | 0255, 0272, 0351 | j14991, j15216, j18030 | from tickets | Failed once and passed on rerun. Closed with extra diagnostics and no cause found | D |
 
@@ -94,7 +94,7 @@ Tests that use the real clock quietly assume how fast a machine is: that a child
 ## Why the routine gate did not catch these before batching
 
 - **Confirmed:** the gate did run them, once per landing, and they passed for six days. These failures are rare and need load. One run per gate cannot be expected to find them.
-- **Confirmed:** the failing batch gates ran on m5 at loads of 14.7 and 19.7, beside 5 to 6 other jobs. The author's later focused runs for 0667 ran on gator at 0.12 and 1.8 of 12 cores. The original author's gates for 0457 ran on m5 at 3.4 to 12. So yes, gates usually run on a busier machine than authors' focused runs. But the bigger factor is one run per gate on a machine whose load varies five-fold.
+- **Confirmed:** the failing batch gates ran on m5 at loads of 14.7 and 19.7, beside 5 to 6 other jobs. The author's later focused runs for 0667 ran on the speed-test machine at 0.12 and 1.8 of 12 cores. The original author's gates for 0457 ran on m5 at 3.4 to 12. So yes, gates usually run on a busier machine than authors' focused runs. But the bigger factor is one run per gate on a machine whose load varies five-fold.
 - **Confirmed:** in the gate, the runner's live trials run with coverage instrumentation (`scripts/coverage.sh:104`), which is slower than an author's plain `cargo test`.
 - **Confirmed:** j30393 failed on a quiet machine. A budget of "15 percent over one earlier short run" fails on ordinary run-to-run variation, not only under load.
 
