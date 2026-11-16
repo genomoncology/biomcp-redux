@@ -6,8 +6,8 @@ pub(crate) use phrase::phrase;
 pub use phrase::{expression, spaced_name};
 mod raw;
 use biodata::DeviceRecallNumber;
-use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, RequestError, SourceSpec, Terms};
-use biomcp_types::{DeviceRecallCard, DiagnosticCandidate, DiagnosticSearch, Problem, Source, Use};
+use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, RequestError, SourceSpec};
+use biomcp_types::{DeviceRecallCard, DiagnosticCandidate, DiagnosticSearch, Problem, Source};
 use raw::Identity;
 use std::{collections::HashMap, time::Duration};
 /// Shared openFDA admission policy for recall and its exact enforcement lookup.
@@ -16,11 +16,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     user_agent: None,
     source: Source::FdaDeviceRecall,
     base: "https://api.fda.gov",
-    terms: Terms {
-        name: "openFDA terms and license; third-party exceptions",
-        url: "https://open.fda.gov/terms/",
-        usage: Use::Open,
-    },
+    terms: crate::openfda::TERMS,
     quota: &crate::quotas::OPENFDA,
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),

@@ -148,22 +148,6 @@ impl GeneSearch {
             offset,
         })
     }
-    /// Select ClinGen dosage regions overlapping a GRCh38 interval.
-    pub fn in_region(
-        region: crate::VariantRegion,
-        limit: u32,
-        offset: u32,
-    ) -> Result<Self, QueryInvalid> {
-        Self::checked(SearchFields {
-            query: None,
-            band: None,
-            region: Some(region),
-            regions_only: false,
-            locus_group: None,
-            limit,
-            offset,
-        })
-    }
     fn checked(fields: SearchFields) -> Result<Self, QueryInvalid> {
         if fields.query.is_none() && fields.band.is_none() && fields.region.is_none() {
             return Err(QueryInvalid::new(&["query", "band", "region"]));

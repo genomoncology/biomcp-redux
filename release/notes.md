@@ -22,7 +22,7 @@ The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/plann
 - Use returned `--next-page` and `--pool` commands for continuation. Keep the returned argument arrays and policy settings together. Trial `--offset` is continuation bookkeeping and requires `--next-page` when nonzero. Hidden sessions do not identify the new collections.
 - Use explicit entity search and get commands. Discover, chart generation, local study analysis, self-update and automatic text-based classification or identity merging retire. Patient reading moves to 1.1.
 - Trial discovery's `--variant` and `--criteria` search other spellings of a protein change, or only the typed text with `--exact-term`; mutation and biomarker aliases and semantic therapy-line filters retire. Discovery never determines eligibility.
-- Article downloads use exact file selections and `--save PATH`. Text readers, PDFs and supplements have separate commands. HTTP MCP refuses file saves.
+- Article downloads use exact file selections and `--save PATH`. Text readers, PDFs and supplements have separate commands. HTTP MCP refuses file saves. Plain `serve --http` refuses `article pdf` and `trial document`, whose save is required, with a `usage.arguments` error naming `--save` before it asks any source.
 - Variant normalization uses `--source`, `--hgvs` and explicit builds. Variant source assertions, population and recurrence use their named commands. No source score becomes a clinical classification.
 
 ## HGNC gene name search
@@ -86,7 +86,7 @@ Trials:
 
 Genes, variants, diseases and phenotypes:
 
-- `get gene GENE clinvar` counts the gene's ClinVar variants by germline classification and by review status, each variant once, with the ClinVar release. It works without an NCBI key.
+- `get gene GENE clinvar` counts the gene's ClinVar variants by germline classification and by review status, each variant once, with the ClinVar release. It works without an NCBI key, and it gets 30 seconds, its command too, so large genes finish under keyless NCBI pacing.
 - Gene search by `--band` or a ClinGen ISCA ID also returns ClinGen dosage regions under `result.regions`, with their haploinsufficiency and triplosensitivity scores, and `result.clingen_regions_matched` says how many matched. `--region` takes a GRCh38 interval and selects overlapping regions only; unlike the 0.9 option of that name, it adds no genes. `--regions-only` returns only the regions. `sync clingen` also fetches the region file.
 - `get phenotype HP:ID ancestors` returns every ancestor term from OLS, and works when Monarch is down.
 - `search phenotype` given comma-separated HP IDs returns Monarch's one ranked list of similar genes, or diseases with `--group diseases`, with `--metric` and `--search-mode`. The ranking gets a 30-second budget.
@@ -133,7 +133,7 @@ ClinicalTrials.gov, cBioPortal, Cancer Hotspots, VAERS, FAERS MedDRA terms and M
 Hosted servers gain these settings and limits:
 
 - Set the same `BIOMCP_TRIAL_CONTINUATION_KEY` in every process of a multi-task deployment, so a ClinicalTrials.gov continuation from one task works on another. Without it, continuations stay with the task that issued them.
-- A call to a slow source, a VAERS table or a Monarch similarity ranking, gets that source's longer budget instead of ending at `command_timeout_seconds`.
+- A call to a slow source, a VAERS table, a Monarch similarity ranking or ClinVar gene counts, gets that source's longer budget instead of ending at `command_timeout_seconds`.
 - Saved work needs `serve --saved-folder DIR` and an `x-biomcp-account` header that the front end sets from the verified user. The [hosted server configuration](../docs/configuration.md#hosted-servers) gives the front end's whole contract.
 
 ## Configuration migration
@@ -232,7 +232,7 @@ Replies also change in these ways:
 - Markdown shows source text's full stops, colons and @ signs as plain characters, and a source value cannot become a list, code block or link. Source line breaks print as spaces, never as a literal `\u{000a}`; Markdown text fields keep real line breaks.
 - `version --verbose` no longer lists schema versions; `biomcp schema` does.
 - A refusal's first `next` step is the corrected call when one exists. Common mistyped forms, such as `-q`, `-c` or `-i`, `--section` where the section is a word after the ID, or a retired option, fail with an error naming the option and the working call. A typed call refused for an unknown argument gets the same fixes as the CLI. When several sources could fix a missing input, the refusal offers help instead of guessing a source.
-- Help answers the underscore entity names that `help questions` prints, such as `help adverse_event`. `help get drug approvals` shows one section's help with only the options that section accepts. An option limited to some sources says `Only with --source X`, and each command-wide line appears once.
+- Help answers the underscore entity names that `help questions` prints, such as `help adverse_event`. `help get drug approvals` shows one section's help with only the options that section accepts. Generated command help uses the same plain words as the option details below it, "source" and "exact" rather than "native" and "literal". An option limited to some sources says `Only with --source X`, and each command-wide line appears once.
 
 ## Typed tool names for 0.x and hosted users
 

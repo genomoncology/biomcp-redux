@@ -536,7 +536,7 @@
           "description": "Which record was chosen and why, with counts of the others by kind; label names only."
         },
         "total": {
-          "description": "Total exact source records, including the selected record.",
+          "description": "Distinct exact-name source records found among the rows read, including the selected record; MyChem reads at most 250 rows.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"

@@ -39,6 +39,21 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(15),
     command_budget: None,
 };
+/// ClinVar gene counts: about seventeen searches run one at a time on NCBI's shared pacing.
+/// Keyless BRCA1 reads took 7.3 to 7.6 s once paced (2026-11-14), and reads that met NCBI
+/// throttle replies, 2 s each, ran 14 to 17 s and failed the 15 s other ClinVar reads keep.
+/// Like Monarch similarity search, the section gets 30 s and its command 30 s too.
+pub static GENE_COUNTS: SourceSpec = SourceSpec {
+    destinations: SPEC.destinations,
+    user_agent: SPEC.user_agent,
+    terms: SPEC.terms,
+    source: Source::ClinVar,
+    base: SPEC.base,
+    key: SPEC.key,
+    quota: &quotas::NCBI,
+    deadline: Duration::from_secs(30),
+    command_budget: Some(Duration::from_secs(30)),
+};
 const FETCH: Endpoint = SPEC.get("/efetch.fcgi").fresh(Freshness::Days(1));
 /// Fetch exactly one Variation ID and validate the XML identity before cache admission.
 pub fn assertions(

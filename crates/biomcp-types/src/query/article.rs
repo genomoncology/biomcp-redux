@@ -106,7 +106,7 @@ struct Fields {
     /// Search the typed drug term without resolving its other names.
     #[serde(default, skip_serializing_if = "is_false")]
     exact_term: bool,
-    #[doc = "Exclude preprints.\nPubMed and Europe PMC only: exclude preprints using the source's native filter."]
+    #[doc = "Exclude preprints.\nPubMed and Europe PMC only: exclude preprints using the source's own filter."]
     #[serde(default, skip_serializing_if = "is_false")]
     no_preprints: bool,
     #[doc = "Retraction filter.\nInclude retracted papers by default. Exclusion is supported only by PubMed and Europe PMC."]

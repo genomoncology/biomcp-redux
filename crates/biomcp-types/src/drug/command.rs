@@ -8,7 +8,7 @@ impl schemars::JsonSchema for DrugGetCommand {
     }
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let mut schema = super::DrugGet::json_schema(generator);
-        schema.insert("description".into(), "Retrieve a drug by source-native ID, brand or generic name, with explicit source-scoped sections.".into());
+        schema.insert("description".into(), "Retrieve a drug by source ID, brand or generic name, with explicit source-scoped sections.".into());
         let who = super::DrugWhoGet::json_schema(generator);
         if let Some(properties) = schema.get_mut("properties").and_then(|v| v.as_object_mut())
             && let Some(input) = who.pointer("/properties/input")
@@ -18,7 +18,7 @@ impl schemars::JsonSchema for DrugGetCommand {
                 object.insert(
                     "description".into(),
                     concat!("Source ID, brand or generic name.\n",
-                        "Source-native ID or complete brand or generic name; WHO references retain native spaces. ",
+                        "Source ID or complete brand or generic name; WHO references retain native spaces. ",
                         "Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; ",
                         "EMA prefers earliest authorisation. ",
                         "Other sources retain search order. The chosen record reports up to five alternatives and their total.").into(),

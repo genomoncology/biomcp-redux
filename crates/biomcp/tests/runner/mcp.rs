@@ -156,6 +156,22 @@ pub(super) fn call_text_hosted(
     tool_text(replies.first().ok_or("missing hosted reply")?, is_error)
 }
 
+/// One single-tool call to a plain, unhosted HTTP server.
+pub(super) fn call_text_http(
+    environment: &Environment,
+    args: &[String],
+    is_error: bool,
+    globals: &[String],
+) -> Result<(Value, String), String> {
+    let body = request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":args}}),
+    );
+    let replies = exchange_http(environment, &[body], globals, "")?;
+    tool_text(replies.first().ok_or("missing HTTP reply")?, is_error)
+}
+
 /// Hosted mode serves only HTTP: send each frame in turn, with any extra caller headers, to one
 /// hosted HTTP server started in this environment with these server arguments.
 pub(super) fn exchange_hosted(
@@ -166,13 +182,23 @@ pub(super) fn exchange_hosted(
 ) -> Result<Vec<Value>, String> {
     let mut hosted = vec!["--hosted".to_owned()];
     hosted.extend(globals.iter().filter(|word| *word != "--hosted").cloned());
+    exchange_http(environment, frames, &hosted, extra)
+}
+
+/// Send each frame in turn to one HTTP server started in this environment with these arguments.
+fn exchange_http(
+    environment: &Environment,
+    frames: &[Value],
+    globals: &[String],
+    extra: &str,
+) -> Result<Vec<Value>, String> {
     let mut server = super::http::Server::configured_launch(
         "127.0.0.1:0",
         None,
         None,
         None,
         None,
-        &hosted,
+        globals,
         |_, args| environment.command(env!("CARGO_BIN_EXE_biomcp"), args),
     )?;
     let replies = frames
@@ -183,7 +209,7 @@ pub(super) fn exchange_hosted(
             if status == 200 {
                 Ok(reply)
             } else {
-                Err(format!("hosted MCP status {status}: {reply}"))
+                Err(format!("HTTP MCP status {status}: {reply}"))
             }
         })
         .collect::<Result<Vec<_>, String>>();
