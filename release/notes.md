@@ -135,7 +135,7 @@ Hosted servers gain these settings and limits:
 - Set the same `BIOMCP_TRIAL_CONTINUATION_KEY` in every process of a multi-task deployment, so a ClinicalTrials.gov continuation from one task works on another. Without it, continuations stay with the task that issued them.
 - A call to a slow source, a VAERS table or a Monarch similarity ranking, gets that source's longer budget instead of ending at `command_timeout_seconds`.
 - Saved work needs `serve --saved-folder DIR` and an `x-biomcp-account` header that the front end sets from the verified user. The [hosted server configuration](../docs/configuration.md#hosted-servers) gives the front end's whole contract.
-- `reply_cache_max_bytes` caps the stored source replies, 2 GiB by default. When a new reply would pass it, expired replies are removed first, then the oldest, so a server that cannot run `store clean` cannot fill its disk.
+- `reply_cache_max_bytes` caps the stored source replies, 2 GiB by default: about 560 typical 3.6 MiB openFDA label pages, a tenth of a 20 GiB container disk. When a new reply would pass it, expired replies are removed first, then the oldest, so a server that cannot run `store clean` cannot fill its disk.
 
 ## Configuration migration
 
