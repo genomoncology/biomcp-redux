@@ -17,7 +17,7 @@ fn other_licence() -> Result<(), String> {
     let cache = env.root().join("orphadata-case-cache");
     let good = super::launch::fixtures().join("replies").join(SYNTHETIC);
     let first = run(&env, cached(&["sync", "orphadata"], &cache, Some(&good)))?;
-    if first.pointer("/result/rows") != Some(&json!(2)) {
+    if first.pointer("/result/rows") != Some(&json!(4)) {
         return Err(format!("synthetic set did not install: {first}"));
     }
     let other = env.root().join("other-licence");
