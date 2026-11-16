@@ -847,15 +847,6 @@
           ],
           "description": "Exact provider search term."
         },
-        "terms": {
-          "description": "Publisher terms name from the source registry.",
-          "type": "string"
-        },
-        "terms_url": {
-          "description": "Publisher page documenting the terms.",
-          "format": "uri",
-          "type": "string"
-        },
         "use": {
           "$ref": "#/$defs/Reply_Use",
           "description": "Reviewed source use category; publisher terms remain authoritative."
@@ -864,8 +855,6 @@
       "required": [
         "source",
         "use",
-        "terms",
-        "terms_url",
         "state"
       ],
       "type": "object"

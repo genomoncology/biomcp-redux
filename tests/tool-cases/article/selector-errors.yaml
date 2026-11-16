@@ -78,7 +78,7 @@
       "follow": "configure",
       "offline": true,
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/result/commands/0/command": [
           "article",
           "text"

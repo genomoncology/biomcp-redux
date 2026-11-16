@@ -32,3 +32,24 @@ Every reply's per-source outcome drops `terms` and `terms_url`, keeping `source`
 ## Changes
 
 - Changes: `crates/biomcp-types/src/response/`, `schemas/`, `crates/biomcp/src/help/`, `tests/cases/`
+
+## Progress
+
+- 2026-11-15: Built on ec489dc1d. `SourceOutcome` keeps `source`, `use`, `state`, `reason`, `term`, `count`, `retrieved_count` and `notices` and drops `terms` and `terms_url`. `help sources` now ends with "Publisher terms by source", one `source: terms <url> (use)` entry per registered source. `health` keeps its own terms per source. Stored outcomes are still relabelled with the current `use`; old stored `terms` fields are ignored on read.
+- Major: the 137 reply schemas that carry a source outcome each take one new major (`const SCHEMA` in `crates/biomcp-types/src/`, plus `$id` and every test, case and script naming the old major), the same mechanism 0838 used for `trial-page/17`. `compatibility::check_reviewed` accepts any change when the new major is higher, so `schema-release-check` passes against the 1.0.0 baseline with no review entries. Schemas new since the baseline bump too, except `saved/1`: saved-work replies carry no source outcomes, 0982 is changing the saved schemas now, and its checked-in export fixture is bound to a secret-scan exception by commit, so saved takes its next major with 0982.
+- Proof: `tests/cases/help/source-terms.yaml`; `gene/braf`, `gene/sections/oncokb-no-key`, `readme/gene`, `disease/orphadata`, `diagnostic/510k-failures`, `mcp/fetch-keeps-fence-backslash` now check that replies omit `terms` and `terms_url`. Budget accounting in `source_terms.rs` now deducts only `use` and rejects a repeated `terms`.
+- Size, ten recorded CLI JSON replies (job j41518: before at ec489dc1d, after on this branch before its history was squashed; the saved revert does not touch these replies):
+
+| Case | Command | Before bytes | After bytes | Saved |
+| --- | --- | --- | --- | --- |
+| gene/braf | get gene BRAF | 2,373 | 2,112 | 261 (11.0%) |
+| disease/orphadata | get disease MONDO:0016512 prevalence --source orphadata | 2,246 | 1,915 | 331 (14.7%) |
+| drug/ema | search drug Tibsovo --source ema --limit 1 | 1,259 | 1,107 | 152 (12.1%) |
+| variant/search-L858R | search variant --gene EGFR --protein L858R --build GRCh37 | 1,226 | 1,124 | 102 (8.3%) |
+| gwas/studies | search gwas --pubmed 17554300 --studies --limit 50 | 2,429 | 2,325 | 104 (4.3%) |
+| trial/country | get trial NCT03734029 locations --limit 1 | 2,914 | 2,760 | 154 (5.3%) |
+| protein/cards | get protein P00533 Q9UIF7 P38398-2 | 2,027 | 1,956 | 71 (3.5%) |
+| article/get/card | get article 33123537 | 2,376 | 2,258 | 118 (5.0%) |
+| pathway/examples | search pathway Signaling by EGFR | 1,445 | 1,370 | 75 (5.2%) |
+| pgx/examples | search pgx --gene DPYD --source cpic | 979 | 894 | 85 (8.7%) |
+| Total | | 19,274 | 17,821 | 1,453 (7.5%) |

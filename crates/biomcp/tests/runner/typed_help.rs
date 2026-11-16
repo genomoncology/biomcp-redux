@@ -188,7 +188,7 @@ pub(super) fn recovery() -> Result<(), String> {
             let executed = call(&env, &server, &request(json!(2), "tools/call", next), http)?;
             if executed.pointer("/result/isError") != Some(&json!(false))
                 || executed.pointer("/result/structuredContent/schema")
-                    != Some(&json!("biomcp.help/6"))
+                    != Some(&json!("biomcp.help/7"))
             {
                 return Err(format!("help next not executable: {executed}"));
             }

@@ -40,7 +40,7 @@
       ],
       "max_bytes": 3700,
       "expect": {
-        "/schema": "biomcp.drug-markets/1",
+        "/schema": "biomcp.drug-markets/2",
         "/status": "complete",
         "/query/input": "dolutegravir",
         "/result/markets/*/source": [
@@ -148,7 +148,7 @@
       ],
       "max_bytes": 3200,
       "expect": {
-        "/schema": "biomcp.drug-markets/1",
+        "/schema": "biomcp.drug-markets/2",
         "/status": "complete",
         "/result/markets/*/source": [
           "drugsfda",
@@ -217,7 +217,7 @@
       ],
       "max_bytes": 3700,
       "expect": {
-        "/schema": "biomcp.drug-markets/1",
+        "/schema": "biomcp.drug-markets/2",
         "/status": "complete",
         "/result/markets/*/source": [
           "drugsfda",

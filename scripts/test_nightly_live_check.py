@@ -38,14 +38,14 @@ for key, (code, body, *once) in replies.items():
         print(body if isinstance(body, str) else json.dumps(body))
         print('crash detail', file=sys.stderr) if code == 101 else None
         sys.exit(code)
-print(json.dumps({'schema': 'biomcp.article-page/9', 'status': 'complete',
+print(json.dumps({'schema': 'biomcp.article-page/10', 'status': 'complete',
                   'page': {'offset': 0, 'returned': 1, 'total': 193},
                   'result': {'items': [{'pmid': '1'}]},
                   'sources': [{'source': 'pubmed', 'state': 'ok', 'count': 193}],
                   'problems': [{'source': 'pubmed', 'field': 'electronic_date',
                                 'code': 'value.unknown'}]}))
 '''
-FAILED_SOURCE = {'schema': 'biomcp.article-page/9', 'status': 'failed',
+FAILED_SOURCE = {'schema': 'biomcp.article-page/10', 'status': 'failed',
                  'sources': [{'source': 'pubmed', 'state': 'failed', 'reason': 'proxy',
                               'term': 'AKT1 E17K'}]}
 NO_RESULTS = {'schema': 'biomcp.trial-page/14', 'status': 'complete',
@@ -59,7 +59,7 @@ EMPTY_ITEMS = {'schema': 'biomcp.pathway-page/1', 'status': 'complete', 'page': 
                'sources': [{'source': 'reactome', 'state': 'ok'}]}
 USAGE = {'schema': 'biomcp.error/4', 'status': 'usage',
          'error': {'code': 'usage.arguments', 'message': 'expected a supported command'}}
-PARTIAL = {'schema': 'biomcp.gene-cards/13', 'status': 'partial',
+PARTIAL = {'schema': 'biomcp.gene-cards/14', 'status': 'partial',
            'sources': [{'source': 'hgnc', 'state': 'ok'},
                        {'source': 'gnomad', 'state': 'failed', 'reason': 'timeout'}]}
 

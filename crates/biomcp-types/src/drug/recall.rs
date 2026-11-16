@@ -77,11 +77,11 @@ pub struct DrugRecallPage {
     pub items: Box<[DrugRecallHeader]>,
 }
 impl crate::ResponseBody for DrugRecallPage {
-    const SCHEMA: &'static str = "biomcp.drug-recall-page/4";
+    const SCHEMA: &'static str = "biomcp.drug-recall-page/5";
     type Query = super::DrugSearch;
 }
 impl crate::ResponseBody for DrugRecallCard {
-    const SCHEMA: &'static str = "biomcp.drug-recall-card/3";
+    const SCHEMA: &'static str = "biomcp.drug-recall-card/4";
     type Query = super::DrugGet;
 }
 pub(super) fn validate_search(

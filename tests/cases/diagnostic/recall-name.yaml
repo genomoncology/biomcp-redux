@@ -33,7 +33,7 @@
       "max_bytes": 5600,
       "expect": {
         "/status": "complete",
-        "/schema": "biomcp.diagnostic-page/6",
+        "/schema": "biomcp.diagnostic-page/7",
         "/query/name": "infusion pump",
         "/page/total": 87,
         "/page/returned": 5,

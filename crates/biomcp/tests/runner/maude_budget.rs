@@ -11,14 +11,12 @@ pub(super) fn check(value: &Value) -> Result<(), String> {
                     .map_err(|e| e.to_string())?;
             let terms = biomcp_query::sources::terms(source).ok_or("source declaration")?;
             if fields.get("use") != Some(&json!(terms.usage))
-                || fields.get("terms") != Some(&json!(terms.name))
-                || fields.get("terms_url") != Some(&json!(terms.url))
+                || fields.contains_key("terms")
+                || fields.contains_key("terms_url")
             {
                 return Err("source terms changed before budget comparison".into());
             }
-            for key in ["use", "terms", "terms_url"] {
-                fields.remove(key).ok_or("source terms field")?;
-            }
+            fields.remove("use").ok_or("source use field")?;
         }
     }
     let bytes = serde_json::to_vec(&comparable)
@@ -55,19 +53,19 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
     }
     if value.get("status") == Some(&json!("failed")) {
         return match schema {
-            "biomcp.adverse-event-page/6" => Some((
+            "biomcp.adverse-event-page/7" => Some((
                 crate::runner::output_limit("maude-envelope-364").ok()?,
                 crate::runner::output_limit("maude-envelope-232").ok()?,
             )),
-            "biomcp.adverse-event-maude-card/4" => Some((
+            "biomcp.adverse-event-maude-card/5" => Some((
                 crate::runner::output_limit("maude-envelope-472").ok()?,
                 crate::runner::output_limit("maude-envelope-340").ok()?,
             )),
-            "biomcp.adverse-event-devices/4" => Some((
+            "biomcp.adverse-event-devices/5" => Some((
                 crate::runner::output_limit("maude-envelope-481").ok()?,
                 crate::runner::output_limit("maude-envelope-349").ok()?,
             )),
-            "biomcp.adverse-event-narrative/4" => Some((
+            "biomcp.adverse-event-narrative/5" => Some((
                 crate::runner::output_limit("maude-envelope-500").ok()?,
                 crate::runner::output_limit("maude-envelope-367").ok()?,
             )),
@@ -81,19 +79,19 @@ fn ceiling(value: &Value, schema: &str) -> Option<(usize, usize)> {
         ));
     }
     match schema {
-        "biomcp.adverse-event-page/6" => Some((
+        "biomcp.adverse-event-page/7" => Some((
             crate::runner::output_limit("maude-envelope-948").ok()?,
             crate::runner::output_limit("maude-envelope-816").ok()?,
         )),
-        "biomcp.adverse-event-maude-card/4" => Some((
+        "biomcp.adverse-event-maude-card/5" => Some((
             crate::runner::output_limit("maude-envelope-1497").ok()?,
             crate::runner::output_limit("maude-envelope-1364").ok()?,
         )),
-        "biomcp.adverse-event-devices/4" => Some((
+        "biomcp.adverse-event-devices/5" => Some((
             crate::runner::output_limit("maude-envelope-1495").ok()?,
             crate::runner::output_limit("maude-envelope-1355").ok()?,
         )),
-        "biomcp.adverse-event-narrative/4" => Some((
+        "biomcp.adverse-event-narrative/5" => Some((
             crate::runner::output_limit("maude-envelope-1147").ok()?,
             crate::runner::output_limit("maude-envelope-1007").ok()?,
         )),

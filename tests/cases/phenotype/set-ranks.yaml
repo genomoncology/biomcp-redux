@@ -14,7 +14,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/schema": "biomcp.phenotype-matches/1",
+        "/schema": "biomcp.phenotype-matches/2",
         "/result/terms/2/label": "Seizure",
         "/result/method/metric": "ancestor_information_content",
         "/result/method/search_mode": "hybrid",

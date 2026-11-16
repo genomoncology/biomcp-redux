@@ -18,7 +18,7 @@
       ],
       "max_bytes": 4031,
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": [
           [
@@ -91,7 +91,7 @@
       ],
       "max_bytes": 4031,
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": [
           [
@@ -223,7 +223,7 @@
         "regulatory"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/result/commands/0/sections/*/word": [
           "regulatory"
         ]

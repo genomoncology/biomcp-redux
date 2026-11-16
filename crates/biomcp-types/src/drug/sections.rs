@@ -295,6 +295,6 @@ impl DrugSectionBody for DrugInteractions {
 }
 
 impl ResponseBody for DrugSections {
-    const SCHEMA: &'static str = "biomcp.drug-sections/1";
+    const SCHEMA: &'static str = "biomcp.drug-sections/2";
     type Query = DrugGet;
 }

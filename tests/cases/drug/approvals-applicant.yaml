@@ -29,7 +29,7 @@
       "max_bytes": 6000,
       "expect": {
         "/status": "complete",
-        "/schema": "biomcp.drug-fda-page/7",
+        "/schema": "biomcp.drug-fda-page/8",
         "/query/applicant": "ALNYLAM PHARMS INC",
         "/page/total": 4,
         "/page/returned": 2,

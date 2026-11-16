@@ -14,7 +14,7 @@ pub struct KeyHelp {
     pub environment: crate::Text,
 }
 impl super::ResponseBody for KeyHelp {
-    const SCHEMA: &'static str = "biomcp.key/5";
+    const SCHEMA: &'static str = "biomcp.key/6";
     type Query = super::EmptyQuery;
 }
 
@@ -66,7 +66,7 @@ pub struct RegisteredKeys {
     pub entries: Vec<RegisteredKey>,
 }
 impl super::ResponseBody for RegisteredKeys {
-    const SCHEMA: &'static str = "biomcp.registered-keys/5";
+    const SCHEMA: &'static str = "biomcp.registered-keys/6";
     type Query = super::EmptyQuery;
 }
 /// One source name a hosted request may leave out.
@@ -91,6 +91,6 @@ pub struct SwitchableSources {
     pub entries: Vec<SwitchableSource>,
 }
 impl super::ResponseBody for SwitchableSources {
-    const SCHEMA: &'static str = "biomcp.switchable-sources/1";
+    const SCHEMA: &'static str = "biomcp.switchable-sources/2";
     type Query = super::EmptyQuery;
 }

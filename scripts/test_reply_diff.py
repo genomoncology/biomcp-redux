@@ -246,7 +246,7 @@ class ReplyDiff(ReplyDiffCase):
     def test_opaque_next_tokens_align_later_requests_and_keep_exit_visible(self):
         for directory, suffix in [(self.base, "base"), (self.head, "head")]:
             root, token = "/tmp/" + suffix, suffix + "-token"
-            reply = {"schema": "biomcp.article-evidence/6", "query": {"citing": "33123537",
+            reply = {"schema": "biomcp.article-evidence/7", "query": {"citing": "33123537",
                      "cited": "10.1038/nature05933"}, "next": [{"kind": "page", "args": [
                          "article", "citation-evidence", "33123537", "10.1038/nature05933",
                          "--pool", token]}]}
@@ -288,7 +288,7 @@ class ReplyDiff(ReplyDiffCase):
                 args += ["--record" if stage == 0 else "--replay", parent + "/record"]
                 stable = [arg.replace(root, "<root>") for arg in args]
                 digest = hashlib.sha256(json.dumps(stable, separators=(",", ":")).encode()).hexdigest()
-                reply = {"schema": "biomcp.article-evidence/6", "query": {}}
+                reply = {"schema": "biomcp.article-evidence/7", "query": {}}
                 if stage < 2:
                     reply["next"] = [{"kind": "page", "args": ["article", "citation-evidence",
                         "33123537", "10.1038/nature05933", "--pool", first if stage == 0 else second]}]
@@ -301,12 +301,12 @@ class ReplyDiff(ReplyDiffCase):
 
     def test_snapshot_sections_bind_only_their_declared_token_slots(self):
         for directory, token in [(self.base, "base-token"), (self.head, "head-token")]:
-            reply = {"schema": "biomcp.phenotype-card/5", "query": {"id": "HP:0000001"},
+            reply = {"schema": "biomcp.phenotype-card/6", "query": {"id": "HP:0000001"},
                      "next": [{"kind": "section", "args": ["get", "phenotype", "HP:0000001",
                                                                "synonyms", "--snapshot", token]}]}
             self.write(directory, "case/phenotype.yaml/step/0", json.dumps(reply).encode())
             self.write(directory, "case/phenotype.yaml/step/1", json.dumps({
-                "schema": "biomcp.phenotype-card/5", "query": {"snapshot": token}}).encode(),
+                "schema": "biomcp.phenotype-card/6", "query": {"snapshot": token}}).encode(),
                 args=["get", "phenotype", "HP:0000001", "synonyms", "--snapshot", token])
         result = self.compare()
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
@@ -330,11 +330,11 @@ class ReplyDiff(ReplyDiffCase):
         args = ['get', 'pgx', 'annotations', '--gene', 'DPYD', '--kind', 'clinical',
                 '--section-limit', '1', '--section-offset', '1', '--snapshot', token,
                 '--source', 'clinpgx']
-        reply = {'schema': 'biomcp.pgx-annotations/5',
+        reply = {'schema': 'biomcp.pgx-annotations/6',
                  'query': {'gene': 'DPYD', 'source': 'clinpgx', 'section': 'annotations'},
                  'next': [{'kind': 'page', 'args': args}]}
         if mutation == 'schema':
-            reply['schema'] = 'biomcp.pgx-card/4'
+            reply['schema'] = 'biomcp.pgx-card/5'
         if mutation == 'kind':
             reply['next'][0]['kind'] = 'section'
         if mutation == 'source-nesting':
@@ -342,7 +342,7 @@ class ReplyDiff(ReplyDiffCase):
         self.write(directory, 'case/pgx.yaml/step/0', json.dumps(reply).encode())
         reference = 'broken' if mutation == 'reference' else token
         self.write(directory, 'case/pgx.yaml/step/1', json.dumps({
-            'schema': 'biomcp.pgx-annotations/5', 'query': {'snapshot': reference},
+            'schema': 'biomcp.pgx-annotations/6', 'query': {'snapshot': reference},
             'result': {'lifetime': 86401 if mutation == 'lifetime' else 86400},
         }).encode(), args=args[:12] + [reference] + args[13:])
         markdown = '**page:**\n\n```sh\nbiomcp ' + ' '.join(args) + '\n```\n'
@@ -386,7 +386,7 @@ class ReplyDiff(ReplyDiffCase):
                     '--section-limit', '1', '--section-offset', '1', '--snapshot', token,
                     '--source', 'clinpgx']
             self.write(directory, 'trial/pgx/' + 'a' * 64 + '/0', json.dumps({
-                'schema': 'biomcp.pgx-annotations/5',
+                'schema': 'biomcp.pgx-annotations/6',
                 'next': [{'kind': 'page', 'args': args}]}).encode())
             frame = {'jsonrpc': '2.0', 'method': 'tools/call',
                      'params': {'name': 'biomcp', 'arguments': {'args': args}}}

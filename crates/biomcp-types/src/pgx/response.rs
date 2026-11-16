@@ -57,12 +57,12 @@ macro_rules! collection {
         }
     };
 }
-collection!(PgxPage, PgxPair, PgxSearch, "biomcp.pgx-page/6");
+collection!(PgxPage, PgxPair, PgxSearch, "biomcp.pgx-page/7");
 collection!(
     PgxGuidelines,
     PgxGuidelineReference,
     PgxGet,
-    "biomcp.pgx-guidelines/4"
+    "biomcp.pgx-guidelines/5"
 );
 /// Independent recommendation contracts preserve native table and view shapes.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -94,7 +94,7 @@ pub enum PgxRecommendations {
     },
 }
 impl ResponseBody for PgxRecommendations {
-    const SCHEMA: &'static str = "biomcp.pgx-recommendations/5";
+    const SCHEMA: &'static str = "biomcp.pgx-recommendations/6";
     type Query = PgxGet;
 }
 /// Compact exact source gene identity, not a selected gene-drug pair.
@@ -107,7 +107,7 @@ pub struct PgxCard {
     pub identity: PgxGeneIdentity,
 }
 impl ResponseBody for PgxCard {
-    const SCHEMA: &'static str = "biomcp.pgx-card/4";
+    const SCHEMA: &'static str = "biomcp.pgx-card/5";
     type Query = PgxGet;
 }
 /// Every source-returned mapping for the exact declared expression.
@@ -121,7 +121,7 @@ pub struct PgxDiplotype {
     pub diplotypes: Box<[PgxDiplotypeResult]>,
 }
 impl ResponseBody for PgxDiplotype {
-    const SCHEMA: &'static str = "biomcp.pgx-diplotype/4";
+    const SCHEMA: &'static str = "biomcp.pgx-diplotype/5";
     type Query = PgxGet;
 }
 /// One independent ClinPGx collection, preserving its native min-tier shape.
@@ -161,7 +161,7 @@ pub enum PgxAnnotations {
     },
 }
 impl ResponseBody for PgxAnnotations {
-    const SCHEMA: &'static str = "biomcp.pgx-annotations/5";
+    const SCHEMA: &'static str = "biomcp.pgx-annotations/6";
     type Query = PgxGet;
 }
 /// Exact clinical annotation identity, distinct from any genomic allele identity.
@@ -183,6 +183,6 @@ pub struct PgxAnnotation {
     pub annotation: PgxAnnotationDetail,
 }
 impl ResponseBody for PgxAnnotation {
-    const SCHEMA: &'static str = "biomcp.pgx-annotation/5";
+    const SCHEMA: &'static str = "biomcp.pgx-annotation/6";
     type Query = PgxAnnotationGet;
 }

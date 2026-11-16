@@ -265,35 +265,35 @@ pub struct CellLineAssayCount {
     pub assay_count: u64,
 }
 impl ResponseBody for CellLinePage {
-    const SCHEMA: &'static str = "biomcp.cell-line-page/7";
+    const SCHEMA: &'static str = "biomcp.cell-line-page/8";
     type Query = CellLineSearch;
 }
 impl ResponseBody for CellLineCard {
-    const SCHEMA: &'static str = "biomcp.cell-line-card/8";
+    const SCHEMA: &'static str = "biomcp.cell-line-card/9";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineNames {
-    const SCHEMA: &'static str = "biomcp.cell-line-names/5";
+    const SCHEMA: &'static str = "biomcp.cell-line-names/6";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineIdentityPage {
-    const SCHEMA: &'static str = "biomcp.cell-line-identity/6";
+    const SCHEMA: &'static str = "biomcp.cell-line-identity/7";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineXrefs {
-    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/6";
+    const SCHEMA: &'static str = "biomcp.cell-line-xrefs/7";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineVariants {
-    const SCHEMA: &'static str = "biomcp.cell-line-variants/7";
+    const SCHEMA: &'static str = "biomcp.cell-line-variants/8";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineChembl {
-    const SCHEMA: &'static str = "biomcp.cell-line-chembl/7";
+    const SCHEMA: &'static str = "biomcp.cell-line-chembl/8";
     type Query = CellLineGet;
 }
 impl ResponseBody for CellLineAssayCount {
-    const SCHEMA: &'static str = "biomcp.cell-line-assay-count/6";
+    const SCHEMA: &'static str = "biomcp.cell-line-assay-count/7";
     type Query = CellLineAssayCountQuery;
 }
 
@@ -315,6 +315,6 @@ pub struct CellLineRelease {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLineFilteredPage(pub CellLinePage);
 impl ResponseBody for CellLineFilteredPage {
-    const SCHEMA: &'static str = "biomcp.cell-line-filtered-page/1";
+    const SCHEMA: &'static str = "biomcp.cell-line-filtered-page/2";
     type Query = super::CellLineSearchCommand;
 }

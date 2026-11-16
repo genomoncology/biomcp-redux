@@ -56,7 +56,7 @@ def accepted_sync(execution, value, mcp_arguments):
     query, sources = value.get('query'), value.get('sources')
     return (isinstance(query, dict) and isinstance(sources, list)
             and captured_command(args, ['sync', 'cbioportal-studies'])
-            and execution['exit'] == 0 and value.get('schema') == 'biomcp.sync/7'
+            and execution['exit'] == 0 and value.get('schema') == 'biomcp.sync/8'
             and query.get('source') == 'cbioportal'
             and any(isinstance(source, dict) and source.get('source') == 'cbioportal' and source.get('state') == 'ok'
                     for source in sources))
@@ -65,7 +65,7 @@ def accepted_sync(execution, value, mcp_arguments):
 def study_pool(execution, value, mcp_arguments):
     """Recognize only captured study-page declarations and their exact continuations."""
     query, page, sources = (value.get(key) for key in ('query', 'page', 'sources'))
-    if (value.get('schema') != 'biomcp.study-page/5'
+    if (value.get('schema') != 'biomcp.study-page/6'
             or not isinstance(query, dict) or not isinstance(page, dict)
             or not isinstance(query.get('text'), str) or not isinstance(sources, list)
             or not any(isinstance(s, dict) and s.get('source') == 'cbioportal'

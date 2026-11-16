@@ -79,12 +79,8 @@ fn failed(value: &Value) -> Result<(), String> {
     path(value, "/sources/0/source", json!("cellosaurus"))?;
     path(value, "/sources/0/state", json!("failed"))?;
     path(value, "/sources/0/use", json!("open"))?;
-    if value
-        .pointer("/sources/0/terms_url")
-        .and_then(Value::as_str)
-        .is_none_or(str::is_empty)
-    {
-        return Err("failure lost terms".into());
+    if value.pointer("/sources/0/terms_url").is_some() {
+        return Err("failure repeats publisher terms".into());
     }
     if value.pointer("/result/header").is_some() || value.pointer("/result/items").is_some() {
         return Err("failed reply became identity or empty result".into());

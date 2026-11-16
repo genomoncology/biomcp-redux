@@ -100,10 +100,10 @@ impl DrugWhoGet {
     }
 }
 impl ResponseBody for DrugWhoPage {
-    const SCHEMA: &'static str = "biomcp.drug-who-page/5";
+    const SCHEMA: &'static str = "biomcp.drug-who-page/6";
     type Query = crate::DrugSearch;
 }
 impl ResponseBody for DrugWhoCard {
-    const SCHEMA: &'static str = "biomcp.drug-who-card/3";
+    const SCHEMA: &'static str = "biomcp.drug-who-card/4";
     type Query = DrugWhoGet;
 }

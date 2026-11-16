@@ -18,7 +18,7 @@
         "/status": "failed",
         "/sources/0/source": "fda-510k",
         "/sources/0/use": "open",
-        "/sources/0/terms": "openFDA terms and license; third-party exceptions",
+        "/sources/0": {"omits": ["terms", "terms_url"]},
         "/sources/0/reason": "bad-reply"
       },
       "is_error": true

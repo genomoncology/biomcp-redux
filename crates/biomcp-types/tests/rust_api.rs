@@ -484,13 +484,7 @@ fn profile_refuses_nested_native_haplotypes() -> Check {
 
 #[test]
 fn source_status_is_atomic_across_updates_clones_and_wire_input() -> Result<(), serde_json::Error> {
-    let mut source = SourceOutcome::new(
-        Source::FdaCdx,
-        biomcp_types::Use::Open,
-        "terms".into(),
-        "https://example.org".into(),
-        SourceStatus::Ok,
-    );
+    let mut source = SourceOutcome::new(Source::FdaCdx, biomcp_types::Use::Open, SourceStatus::Ok);
     for status in [
         SourceStatus::Ok,
         SourceStatus::Stale(Some(Reason::Unavailable)),
@@ -527,6 +521,8 @@ fn source_status_is_atomic_across_updates_clones_and_wire_input() -> Result<(), 
         wire["reason"] = json!(reason);
         let mut health = wire.clone();
         health["disabled"] = json!(false);
+        health["terms"] = json!("terms");
+        health["terms_url"] = json!("https://example.org");
         assert!(
             serde_json::from_value::<SourceHealth>(health).is_err(),
             "health answer cannot import reason {reason}"

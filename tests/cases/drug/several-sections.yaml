@@ -26,7 +26,7 @@
         "1"
       ],
       "expect": {
-        "/schema": "biomcp.drug-sections/1",
+        "/schema": "biomcp.drug-sections/2",
         "/status": "complete",
         "/result/identity/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
         "/result/parts/*/section": [
@@ -67,7 +67,7 @@
         }
       },
       "expect": {
-        "/schema": "biomcp.drug-sections/1",
+        "/schema": "biomcp.drug-sections/2",
         "/status": "complete",
         "/result/identity/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
         "/result/parts/*/section": [

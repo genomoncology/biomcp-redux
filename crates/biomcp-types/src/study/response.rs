@@ -25,7 +25,7 @@ pub struct StudyPage {
     pub snapshot: StudySnapshot,
 }
 impl ResponseBody for StudyPage {
-    const SCHEMA: &'static str = "biomcp.study-page/5";
+    const SCHEMA: &'static str = "biomcp.study-page/6";
     type Query = StudySearch;
 }
 /// Exact card with independent live section states and catalog provenance.
@@ -56,7 +56,7 @@ pub struct StudyCard {
     pub samples: Option<Section<StudySamples>>,
 }
 impl ResponseBody for StudyCard {
-    const SCHEMA: &'static str = "biomcp.study-card/7";
+    const SCHEMA: &'static str = "biomcp.study-card/8";
     type Query = StudyGet;
 }
 
@@ -65,7 +65,7 @@ page!(
     StudyProfiles,
     StudyProfile,
     StudyGet,
-    "biomcp.study-profiles/4",
+    "biomcp.study-profiles/5",
     "One independently acquired, bounded native metadata collection."
 );
 page!(
@@ -73,7 +73,7 @@ page!(
     StudySampleLists,
     StudySampleList,
     StudyGet,
-    "biomcp.study-sample-lists/4",
+    "biomcp.study-sample-lists/5",
     "One independently acquired, bounded native metadata collection."
 );
 /// One native repository directory page; blob sizes do not describe data content.
@@ -97,7 +97,7 @@ pub struct StudyFiles {
     pub license_notice: Option<Text>,
 }
 impl ResponseBody for StudyFiles {
-    const SCHEMA: &'static str = "biomcp.study-files/3";
+    const SCHEMA: &'static str = "biomcp.study-files/4";
     type Query = StudyGet;
 }
 
@@ -138,7 +138,7 @@ pub struct StudySamples {
     pub acquired: Option<u64>,
 }
 impl ResponseBody for StudySamples {
-    const SCHEMA: &'static str = "biomcp.study-samples/1";
+    const SCHEMA: &'static str = "biomcp.study-samples/2";
     type Query = StudyGet;
 }
 /// Source mutation rows and the explicit gene/profile scope used to obtain them.
@@ -159,6 +159,6 @@ pub struct StudyMutations {
     pub acquired: Option<u64>,
 }
 impl ResponseBody for StudyMutations {
-    const SCHEMA: &'static str = "biomcp.study-mutations/1";
+    const SCHEMA: &'static str = "biomcp.study-mutations/2";
     type Query = StudyGet;
 }

@@ -109,7 +109,7 @@ pub struct AdverseEventPage {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventPage {
-    const SCHEMA: &'static str = "biomcp.adverse-event-page/6";
+    const SCHEMA: &'static str = "biomcp.adverse-event-page/7";
     type Query = AdverseEventSearch;
 }
 /// FAERS card with native report-level facts and independent collection lengths.
@@ -169,7 +169,7 @@ pub struct AdverseEventFaersCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventFaersCard {
-    const SCHEMA: &'static str = "biomcp.adverse-event-faers-card/5";
+    const SCHEMA: &'static str = "biomcp.adverse-event-faers-card/6";
     type Query = AdverseEventGet;
 }
 /// MAUDE card; native device/patient counts remain separate from array lengths.
@@ -223,7 +223,7 @@ pub struct AdverseEventMaudeCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for AdverseEventMaudeCard {
-    const SCHEMA: &'static str = "biomcp.adverse-event-maude-card/4";
+    const SCHEMA: &'static str = "biomcp.adverse-event-maude-card/5";
     type Query = AdverseEventGet;
 }
 /// One complete-row page tied to the retained report snapshot.
@@ -269,25 +269,25 @@ section!(
     AdverseEventDrugs,
     AdverseEventDrug,
     drugs,
-    "biomcp.adverse-event-drugs/4"
+    "biomcp.adverse-event-drugs/5"
 );
 section!(
     AdverseEventReactions,
     AdverseEventReaction,
     reactions,
-    "biomcp.adverse-event-reactions/6"
+    "biomcp.adverse-event-reactions/7"
 );
 section!(
     AdverseEventDevices,
     AdverseEventDevice,
     devices,
-    "biomcp.adverse-event-devices/4"
+    "biomcp.adverse-event-devices/5"
 );
 section!(
     AdverseEventNarrative,
     AdverseEventNarrativeItem,
     narrative,
-    "biomcp.adverse-event-narrative/4"
+    "biomcp.adverse-event-narrative/5"
 );
 /// One selected original identifier array, owned by an absolute drug index.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -339,6 +339,6 @@ identifiers! {
     ApplicationNumber, application_number, "application-number";
 }
 impl ResponseBody for AdverseEventIdentifiers {
-    const SCHEMA: &'static str = "biomcp.adverse-event-identifiers/4";
+    const SCHEMA: &'static str = "biomcp.adverse-event-identifiers/5";
     type Query = AdverseEventGet;
 }

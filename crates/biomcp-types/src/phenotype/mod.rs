@@ -22,7 +22,7 @@ pub struct PhenotypeTermCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for PhenotypeTermCard {
-    const SCHEMA: &'static str = "biomcp.phenotype-card/5";
+    const SCHEMA: &'static str = "biomcp.phenotype-card/6";
     type Query = PhenotypeGet;
 }
 
@@ -31,7 +31,7 @@ page!(
     PhenotypePage,
     PhenotypeHeader,
     PhenotypeSearch,
-    "biomcp.phenotype-search/5",
+    "biomcp.phenotype-search/6",
     "Native HP search header page, without local ranking."
 );
 page!(
@@ -39,7 +39,7 @@ page!(
     PhenotypeSynonyms,
     PhenotypeSynonym,
     PhenotypeGet,
-    "biomcp.phenotype-synonyms/4",
+    "biomcp.phenotype-synonyms/5",
     "Source synonym rows preserving publisher classes."
 );
 page!(
@@ -47,7 +47,7 @@ page!(
     PhenotypeXrefs,
     PhenotypeXref,
     PhenotypeGet,
-    "biomcp.phenotype-xrefs/4",
+    "biomcp.phenotype-xrefs/5",
     "Source reference rows without equivalence promotion."
 );
 page!(
@@ -55,7 +55,7 @@ page!(
     PhenotypeHierarchy,
     PhenotypeHierarchyLink,
     PhenotypeGet,
-    "biomcp.phenotype-hierarchy/5",
+    "biomcp.phenotype-hierarchy/6",
     "Direct source hierarchy links without graph traversal."
 );
 page!(
@@ -63,7 +63,7 @@ page!(
     PhenotypeAncestors,
     PhenotypeAncestor,
     PhenotypeGet,
-    "biomcp.phenotype-ancestors/1",
+    "biomcp.phenotype-ancestors/2",
     "Every ancestor of one HP term up to the ontology root, as OLS lists them, in one reply.",
     [
     /// True when OLS marks the queried term obsolete; an obsolete term lists no ancestors.
@@ -110,7 +110,7 @@ pub struct PhenotypeMatches {
     pub fetched: Option<u64>,
 }
 impl ResponseBody for PhenotypeMatches {
-    const SCHEMA: &'static str = "biomcp.phenotype-matches/1";
+    const SCHEMA: &'static str = "biomcp.phenotype-matches/2";
     type Query = PhenotypeSearch;
 }
 /// One ranked Monarch entity and why it matched.
@@ -216,11 +216,11 @@ macro_rules! associations {
 }
 associations!(
     PhenotypeDiseases,
-    "biomcp.phenotype-diseases/7",
+    "biomcp.phenotype-diseases/8",
     "Direct source disease association rows without clinical inference."
 );
 associations!(
     PhenotypeGenes,
-    "biomcp.phenotype-genes/7",
+    "biomcp.phenotype-genes/8",
     "Direct source human gene association rows with native taxon."
 );

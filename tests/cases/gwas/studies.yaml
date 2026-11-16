@@ -19,7 +19,7 @@
       },
       "expect": {
         "/status": "complete",
-        "/schema": "biomcp.gwas-study-page/1",
+        "/schema": "biomcp.gwas-study-page/2",
         "/result/items": {
           "count": 7
         },
