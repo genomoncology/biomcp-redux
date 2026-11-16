@@ -130,9 +130,7 @@ fn failure(reason: Option<biomcp_types::Reason>) -> biomcp_types::TrialItemFailu
             "ClinicalTrials.gov's reply for this trial was larger than BioMCP's reply cap.",
             false,
         ),
-        Some(
-            Reason::Disabled | Reason::Offline | Reason::NoKey | Reason::Tls | Reason::Proxy,
-        ) => (
+        Some(Reason::Disabled | Reason::Offline | Reason::NoKey | Reason::Tls | Reason::Proxy) => (
             "A local BioMCP setting stopped the request for this trial; reading it again will not help until the setting changes.",
             false,
         ),
@@ -146,7 +144,10 @@ fn failure(reason: Option<biomcp_types::Reason>) -> biomcp_types::TrialItemFailu
         ),
         Some(Reason::ReplayMiss) => ("No recorded reply matched this trial's request.", false),
         Some(_) => ("ClinicalTrials.gov did not return this trial.", true),
-        None => ("A local error in BioMCP stopped this trial from being read.", true),
+        None => (
+            "A local error in BioMCP stopped this trial from being read.",
+            true,
+        ),
     };
     let problem = if again {
         format!("{cause} {AGAIN}")
