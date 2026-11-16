@@ -80,7 +80,10 @@ pub(super) fn proof() -> Check {
         put(root, path, copy)?;
         let failure = check(root).err().ok_or("planted openFDA copy passed")?;
         let failure = failure.to_string();
-        assert!(failure.contains(path) && failure.contains(rule), "{failure}");
+        assert!(
+            failure.contains(path) && failure.contains(rule),
+            "{failure}"
+        );
         put(root, path, "type Page = crate::openfda::Envelope<Row>;\n")?;
         put(root, OWNER, "impl<T> Reply for Envelope<T> {}\n")?;
         check(root)?;
