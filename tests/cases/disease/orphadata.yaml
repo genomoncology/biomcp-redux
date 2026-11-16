@@ -31,6 +31,7 @@
         "/result/items/0/inheritance": ["Autosomal dominant", "Not applicable"],
         "/result/items/0/attribution/release": "2026-06-23 07:57:58",
         "/sources/*/source": ["mydisease", "orphadata"],
+        "/result/items/0/notice": "BioMCP uses Orphanet/Orphadata data; its results may not truly reflect that data, and Orphanet is not responsible for their quality",
         "/sources/*/state": ["ok", "ok"],
         "/sources/1": {"omits": ["terms", "terms_url"]}
       }

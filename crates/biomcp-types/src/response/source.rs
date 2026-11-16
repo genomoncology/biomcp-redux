@@ -22,7 +22,7 @@ SourceState {
 pub struct SourceOutcome {
     /// Asked source.
     pub source: Source,
-    /// Reviewed source use category; publisher terms remain authoritative.
+    /// Reviewed source use category; publisher terms remain authoritative: see `help sources`.
     #[serde(rename = "use")]
     pub usage: crate::Use,
     #[serde(flatten)]

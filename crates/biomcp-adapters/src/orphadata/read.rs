@@ -102,6 +102,7 @@ fn item(
             evaluated: None,
             url: None,
         },
+        notice: super::bundle::NOTICE.into(),
         id,
     };
     problems.extend(cx.list);

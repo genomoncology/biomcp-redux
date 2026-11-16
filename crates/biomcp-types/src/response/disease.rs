@@ -169,6 +169,8 @@ pub struct OrphanetEpidemiology {
     pub inheritance: Box<[Text]>,
     /// Orphadata record and file release.
     pub attribution: Attribution,
+    /// Statement Orphanet's legal notice asks every result from its data to carry.
+    pub notice: Box<str>,
 }
 
 page!(

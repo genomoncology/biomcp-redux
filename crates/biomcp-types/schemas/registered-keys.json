@@ -716,7 +716,7 @@
         },
         "use": {
           "$ref": "#/$defs/Reply_Use",
-          "description": "Reviewed source use category; publisher terms remain authoritative."
+          "description": "Reviewed source use category; publisher terms remain authoritative: see `help sources`."
         }
       },
       "required": [
