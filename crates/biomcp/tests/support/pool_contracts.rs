@@ -157,6 +157,12 @@ pub(crate) const HOSTED_PACING: (&str, &[&str]) = (
     &["option serve --rate-share"],
 );
 
+// A hosted server with a saved-work folder keeps each account's file under its header.
+pub(crate) const SAVED_FOLDER: (&str, &[&str]) = (
+    "saved-work/hosted-account-folder",
+    &["option serve --saved-folder"],
+);
+
 // Operator flags override file settings and keep discovery available under tool load.
 pub(crate) const HTTP_CAPACITY: (&str, &[&str]) = (
     "mcp-http/configured-capacity-and-refusals",

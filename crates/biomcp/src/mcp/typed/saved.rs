@@ -34,8 +34,10 @@ pub(super) fn tool(output_schema: bool) -> std::io::Result<Value> {
     let ids = json!({"type":"array","items":{"type":"string"}});
     let object = |description: &str, properties: Value, required: &[&str]| {
         let mut object = json!({"type":"object","description":description,"properties":properties});
-        if !required.is_empty() {
-            object["required"] = json!(required);
+        if !required.is_empty()
+            && let Some(fields) = object.as_object_mut()
+        {
+            fields.insert("required".into(), json!(required));
         }
         object
     };
@@ -121,7 +123,7 @@ pub(super) fn parse(
         match search(context, name, call, read_only) {
             Ok(Some(args)) => args,
             Ok(None) => return refuse("call", allowed, catalog),
-            Err(rejected) => return Some(Err(rejected)),
+            Err(rejected) => return Some(Err(*rejected)),
         }
     } else {
         match words(action, &values) {
@@ -142,7 +144,7 @@ fn search(
     name: &str,
     call: &Value,
     read_only: bool,
-) -> Result<Option<Vec<OsString>>, super::Rejected> {
+) -> Result<Option<Vec<OsString>>, Box<super::Rejected>> {
     let tool = call.get("name").and_then(Value::as_str).unwrap_or_default();
     if !super::catalog::front_map::ENTITY_TOOLS
         .iter()
@@ -153,7 +155,7 @@ fn search(
     let mut args = match super::parse(context, call, crate::config::ToolMode::Typed, false, read_only)
     {
         Some(Ok(parsed)) => parsed.args,
-        Some(Err(rejected)) => return Err(rejected),
+        Some(Err(rejected)) => return Err(Box::new(rejected)),
         None => return Ok(None),
     };
     if first_search(context.root, &args).is_none() {

@@ -450,6 +450,7 @@ mod tests {
                 excluded: Default::default(),
                 declared_use: Some(crate::command::DeclaredUse::Academic),
                 scope: Some(Cancellation::with_budget(DEADLOCK_GUARD)),
+                account: None,
             },
             None,
         );

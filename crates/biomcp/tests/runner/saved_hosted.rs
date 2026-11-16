@@ -10,7 +10,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial("saved-work/hosted-account-folder", || {
+    vec![transcript_trial(super::pool_contract::SAVED_FOLDER.0, || {
         hosted().map_err(Into::into)
     })]
 }
@@ -58,9 +58,9 @@ fn hosted() -> Result<(), String> {
     let offered = tools
         .pointer("/result/tools")
         .and_then(Value::as_array)
-        .is_some_and(|tools| tools.iter().any(|tool| tool["name"] == "saved"));
+        .is_some_and(|tools| tools.iter().any(|tool| tool.get("name") == Some(&json!("saved"))));
     if !offered {
-        return Err("a hosted server with a saved-work folder offers saved".into());
+        return Err(format!("a hosted server with a saved-work folder offers saved: {tools}"));
     }
     let add = json!({"action":"list_add","list_add":{"name":"braf-genes","entity":"gene","ids":["BRAF"]}});
     let (_, refused) = call(&server, "saved", add.clone(), "")?;
@@ -104,16 +104,21 @@ fn hosted() -> Result<(), String> {
 fn save_step(server: &Server) -> Result<(), String> {
     let search = json!({"action":"search","search":{"condition":"melanoma"}});
     let (_, anonymous) = call(server, "trial", search.clone(), "")?;
-    if steps(&anonymous).iter().any(|step| step["kind"] == "save") {
+    let save = |step: &Value| step.get("kind") == Some(&json!("save"));
+    if steps(&anonymous).iter().any(save) {
         return Err("no save step without an account".into());
     }
     let (_, page) = call(server, "trial", search, &account("carol"))?;
     let step = steps(&page)
         .into_iter()
-        .find(|step| step["kind"] == "save")
+        .find(save)
         .ok_or_else(|| format!("a first search page offers save: {page}"))?;
-    let name = step["name"].as_str().ok_or("save step tool")?;
-    let (_, saved) = call(server, name, step["arguments"].clone(), &account("carol"))?;
+    let name = step
+        .get("name")
+        .and_then(Value::as_str)
+        .ok_or("save step tool")?;
+    let arguments = step.get("arguments").cloned().unwrap_or_default();
+    let (_, saved) = call(server, name, arguments, &account("carol"))?;
     if saved.pointer("/result/searches/0/args/1") != Some(&json!("trial")) {
         return Err(format!("the save step runs as written: {saved}"));
     }

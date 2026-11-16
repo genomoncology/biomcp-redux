@@ -32,13 +32,12 @@
       "follow": "save",
       "expect": {
         "/schema": "biomcp.saved/1",
-        "/result/searches/0/name": "trial --condition melanoma",
+        "/result/searches/0/name": "trial --condition=melanoma",
         "/result/searches/0/args": {
           "equals": [
             "search",
             "trial",
-            "--condition",
-            "melanoma"
+            "--condition=melanoma"
           ]
         }
       }
@@ -49,7 +48,7 @@
         "arguments": {
           "action": "save_search",
           "save_search": {
-            "name": "trial --condition melanoma",
+            "name": "trial --condition=melanoma",
             "call": {
               "name": "trial",
               "arguments": {
@@ -65,7 +64,7 @@
       "expect": {
         "/result/searches/*/name": {
           "equals": [
-            "trial --condition melanoma"
+            "trial --condition=melanoma"
           ]
         }
       }
@@ -78,7 +77,7 @@
       "expect": {
         "/result/searches/*/name": {
           "equals": [
-            "trial --condition melanoma"
+            "trial --condition=melanoma"
           ]
         }
       }
@@ -213,12 +212,12 @@
         "arguments": {
           "action": "changed",
           "changed": {
-            "name": "trial --condition melanoma"
+            "name": "trial --condition=melanoma"
           }
         }
       },
       "expect": {
-        "/result/changes/0/search": "trial --condition melanoma",
+        "/result/changes/0/search": "trial --condition=melanoma",
         "/result/changes/0/state": "first"
       }
     },
@@ -358,7 +357,7 @@
       "expect": {
         "/result/searches/*/name": {
           "equals": [
-            "trial --condition melanoma"
+            "trial --condition=melanoma"
           ]
         },
         "/result/lists": {
