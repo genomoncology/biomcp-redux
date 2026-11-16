@@ -1,6 +1,7 @@
 # 1000 — hosted-http-calls-stop-when-cancelled
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c70d5bce8216717b6c641be126981969c86163ec
 
 Milestone: 7
 
@@ -40,3 +41,10 @@ The hosting team's core handoff (2026-11-16) asked core for this, and Ian asked 
 ## Changes
 
 - Changes: hosted HTTP call handling, one runner test, configuration docs, the notes.
+
+## Progress
+
+- Test: runner trial `mcp-hosted/client-that-leaves-stops-running-call` (`crates/biomcp/tests/runner/hosted_cancel.rs`). A hosted server with `http_max_calls` 1, a 60 s queue wait and a 120 s deadline runs `get protein P15056` through a proxy that holds its CONNECT. The test sends `notifications/cancelled` for that request ID (HTTP 202, source socket stays open), closes the client, then requires the source socket to close within 5 s and a second call to answer within the request's 5 s read limit.
+- Change: while a hosted call runs, its waiter checks the client socket on each 20 ms poll, the same check a queued call already made. A closed client cancels the call's scope, which shuts its source sockets and stops new requests, and the slot frees when the worker exits. Plain HTTP is unchanged: it has no shared call scope, and the ticket covers hosted calls.
+- `notifications/cancelled` over HTTP: ignored, and the docs say a client cancels by closing its connection. Why: every HTTP call has its own connection and no session, request IDs are chosen by each client and repeat across clients, and a hosted call need not carry an account header, so a request ID alone names no single caller. Matching by account would still let two sessions of one account cancel each other's calls. Closing the connection can only cancel the closer's own call. Our replies are plain JSON with no resumable stream, so a client that left can never get the answer; stopping its work loses nothing.
+- Docs: one paragraph in `docs/configuration.md` (Hosted servers) and one release-notes line. The paragraph links to "Command deadlines" for the slow-source budgets instead of repeating them, so it stays right when 0998 adds ClinVar gene counts (30 s) there.
