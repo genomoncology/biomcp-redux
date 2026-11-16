@@ -50,3 +50,4 @@ The 0984 review (2026-11-16, accepted at 76ef8d4e8) found four gaps. None blocke
   - b. With an MCP context, `recheck` now also runs the account's source-exclusion check (`catalog::excluded` and `request_allowed`, as follow-up steps use) and refuses with `usage.arguments`, the code a live typed call gets for a left-out source. New step in `saved_hosted.rs`: a live `trial` search with `source: nci` under `x-biomcp-exclude-sources: nci` is refused, and a stored `--source nci` search re-checked with that header gets the same code and keeps no snapshot.
   - c. The stored `get trial` row now asserts exactly `usage.arguments`.
 - Cheap job j41579 (366c706c8): fmt, regeneration (no changes beyond fmt, committed), `make check-cheap`, `saved` cases with `saved-work/hosted-account-folder` passing.
+- Full gate j41580 passed on 345b80c91 (`make --keep-going landing-gate docs-check schema-release-check`; origin/main still 2a705db95).
