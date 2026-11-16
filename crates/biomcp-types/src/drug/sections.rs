@@ -1,9 +1,8 @@
 //! Several named drug sections read in one call: the drug once, then one part per section.
 use super::{
     DateRoleLabel, DrugApprovals, DrugCivic, DrugCivicStreams, DrugFdaProduct, DrugFdaSubmission,
-    DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel, DrugLabelText, DrugLevelCount,
-    DrugRecords,
-    DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
+    DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel, DrugLabelText,
+    DrugLevelCount, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
 };
 use crate::{CacheProblem, PageInfo, Problem, ResponseBody, Section, SourceOutcome, Status, Step};
 use biodata::{
