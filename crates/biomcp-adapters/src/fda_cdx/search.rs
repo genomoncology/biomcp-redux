@@ -205,8 +205,8 @@ fn newest_first(
     by_date.then_with(|| place(&a.0.relation).cmp(&place(&b.0.relation)))
 }
 /// FDA's tables break and pad one test's name differently; read it as one line (0994).
-fn line(cell: &biodata::DiagnosticCell) -> Option<Box<str>> {
-    Some(cell.text.split_whitespace().collect::<Vec<_>>().join(" ").into())
+fn line(t: &str) -> Option<Box<str>> {
+    Some(t.split_whitespace().collect::<Vec<_>>().join(" ").into())
 }
 /// FDA's original row with its date and the names both tables share.
 fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> CompanionDiagnosticRow {
@@ -221,8 +221,8 @@ fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> Comp
         } => CompanionDiagnosticRow::Individual {
             shared: CompanionShared {
                 row_date: date,
-                diagnostic: line(&cells.diagnostic),
-                indication: line(&cells.indication),
+                diagnostic: line(&cells.diagnostic.text),
+                indication: line(&cells.indication.text),
                 device: text(&cells.device),
                 drug: text(&cells.drug),
             },
@@ -241,8 +241,8 @@ fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> Comp
         } => CompanionDiagnosticRow::Group {
             shared: CompanionShared {
                 row_date: date,
-                diagnostic: line(&cells.diagnostic),
-                indication: line(&cells.indication),
+                diagnostic: line(&cells.diagnostic.text),
+                indication: line(&cells.indication.text),
                 device: text(&cells.device),
                 drug: text(&cells.drug_group),
             },
