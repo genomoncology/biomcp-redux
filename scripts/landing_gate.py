@@ -8,11 +8,13 @@ import time
 # examples and first read against the debug binary pre-job builds. Changed-library-tests
 # runs the library tests of the crates the branch changed, so a ticket's own tests run (0914).
 # Changed-tool-proofs runs the tooling proofs the branch changed, so a broken proof fails the
-# gate; the full suite runs them all (0944).
+# gate; the full suite runs them all (0944). Changed-schema-release-check compares the reply
+# schemas with the release baseline when the branch changed their inputs; the full suite
+# always compares (0997).
 LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases',
-           'changed-tool-proofs', 'changed-library-tests')
+           'changed-tool-proofs', 'changed-library-tests', 'changed-schema-release-check')
 FULL = ('audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
-        'tensor-proto-check', 'library-tests', 'tool-proofs', 'coverage')
+        'tensor-proto-check', 'library-tests', 'schema-release-check', 'tool-proofs', 'coverage')
 
 
 def main():

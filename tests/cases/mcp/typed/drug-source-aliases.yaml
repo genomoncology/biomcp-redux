@@ -81,7 +81,7 @@
           "equals": {
             "action": "get",
             "get": {
-              "input": "KTUFNOKKBVMGRW-UHFFFAOYSA-M",
+              "id": "KTUFNOKKBVMGRW-UHFFFAOYSA-M",
               "source": "mychem"
             }
           }
