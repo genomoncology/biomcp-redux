@@ -207,7 +207,7 @@ pub(crate) fn drug_label_pages_at_once(settings: &Settings) -> std::num::NonZero
         .ok()
         .and_then(Option::as_ref)
         .and_then(|file| file.drug_label_pages_at_once)
-        .or(std::num::NonZeroUsize::new(biomcp_adapters::openfda_label::PAGES_AT_ONCE))
+        .or(std::num::NonZeroUsize::new(biomcp_query::LABEL_PAGES_AT_ONCE))
         .unwrap_or(std::num::NonZeroUsize::MIN)
 }
 pub(crate) fn transcript_fit_deadline(settings: &Settings) -> std::time::Duration {

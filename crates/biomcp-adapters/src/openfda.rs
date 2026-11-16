@@ -85,7 +85,9 @@ pub(crate) fn page<T: Item>(
     limit: u32,
     check: &dyn Fn(&Envelope<T>) -> Result<(), BadReply>,
 ) -> Result<biomcp_fetch::Received<Envelope<T>>, biomcp_fetch::RequestError> {
-    paged(source, leg, endpoint, args, (offset, limit), check, &|_| Ok(()))
+    paged(source, leg, endpoint, args, (offset, limit), check, &|_| {
+        Ok(())
+    })
 }
 /// [`page`], with a check of the page's bytes before they are decoded.
 pub(crate) fn paged<T: Item>(

@@ -10,6 +10,9 @@ mod run;
 mod status;
 mod text_find;
 pub use context::{Ctx, DRUG_NAME_LIMIT, FIT_DEADLINE, LABEL_BYTES, MAX_LABEL_BYTES};
+pub use biomcp_adapters::openfda_label::{
+    PAGES_AT_ONCE as LABEL_PAGES_AT_ONCE, set_pages_at_once as set_label_pages_at_once,
+};
 pub use run::{Action, Bundle, run, run_drug_parts};
 pub use status::{Outcome, sync_status};
 
