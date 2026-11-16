@@ -37,7 +37,7 @@ debug = false
 lopdf = { version = "=0.47.0", default-features = false }
 biomcp-test-support = { version = "=1.0.0", path = "crates/biomcp-test-support" }
 # BioData v1.0.0 plus the older FDA recall number forms (BioData 0025), pinned to its commit.
-biodata = { version = "=1.0.0", git = "https://github.com/genomoncology/biodata", rev = "7b138af560f87cf348f51501a5686439c336f315", features = ["schema"] }
+biodata = { version = "=1.0.0", git = "https://github.com/genomoncology/biodata", rev = "d979c98e6fe1e0376033dea72ade249b7e1b5496", features = ["schema"] }
 biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }
 biomcp-fetch = { version = "=1.0.0", path = "crates/biomcp-fetch" }
 biomcp-query = { version = "=1.0.0", path = "crates/biomcp-query" }
