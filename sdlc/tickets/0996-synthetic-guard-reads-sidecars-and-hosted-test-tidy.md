@@ -40,3 +40,13 @@ From the review of 0990 and 0991 (2026-11-16), which accepted both:
 ## Changes
 
 - Changes: the guard and its test, the README, the hosted tests named above, one docs line.
+
+## Progress
+
+- Guard (`crates/biomcp/tests/ratchets/noncommercial_replies.rs`): an Orphadata body of kind `sidecar` is now read from its `.bin` beside the record (a missing sidecar is reported), and every `JDBOR` body, inline or sidecar, must state `dbserver="synthetic"` and give each disorder (the first `Name` after each `OrphaCode`) a name starting with "Synthetic". `real_orphadata_replies_fail` gains a hand-cut case (an authored server with the name "Kabuki syndrome") and a sidecar case (a real-server `.bin`).
+- Base proof, pm job j41674 on throwaway branch `proof/0996-base-guard` at 4b5132f1e (base c2ca20f4f's guard with the new test, plus a copy that runs only the sidecar case): both fail on the old guard, with "a hand-cut real Orphadata file passed" and "a real Orphadata sidecar passed".
+- README (`tests/replies/disease/orphadata-synthetic/README.md`) now lists what is invented (disorder names, code 900001, estimates, geographies, PubMed IDs 90000001-90000003) and what keeps a real case's shape (900001 cites the real PubMed IDs 18442953 and 33080481; code 2322's disorder type, onset ages and inheritance come from Orphanet's real entry, Kabuki syndrome). The data is unchanged, so no case step changes.
+- `typed_descriptions.rs` reads the hosted catalog with `x-biomcp-use: academic`. `typed_policy::check` no longer sets `hosted_max_use: commercial` in that environment, since that ceiling refuses the academic header; its own hosted HTTP server keeps its commercial config.
+- `mcp_reply_form.rs` and `typed_followups.rs` send the second (HTTP) request only in local mode; in hosted mode the one HTTP reply is checked alone. The unhosted stdio legs in `mcp_hosted.rs` are renamed `mcp-hosted/local-stdio/*`, since they check ordinary stdio replies as the contrast to hosted refusals.
+- `docs/configuration.md` names `serve --hosted --http` for the hosted reply-form default.
+- Cheap job j41676 at 3efa3ecad: no docs or schemas regenerated; every `mcp-parity` (65) and `mcp-hosted` (54) trial and all 50 ratchet tests passed; `check-cheap` failed only on `cargo fmt` and `too_many_lines` in the two hosted test functions, both fixed.
