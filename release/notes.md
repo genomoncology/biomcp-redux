@@ -45,23 +45,23 @@ BioMCP keeps saved searches, lists of records and notes in `saved.sqlite` in the
 
 ## Drug names and variant spellings widen by default
 
-Drug-name searches also search the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search's `--variant` and `--criteria` also search a protein change's other spellings, such as V600E, Val600Glu and p.V600E, and the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. Other drug sources, MAUDE and VAERS search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads ChEMBL records from MyChem instead of waiting on ChEMBL's own service, and a slow lookup no longer makes a search partial.
+Drug-name searches also search the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search's `--variant` and `--criteria` also search a protein change's other spellings, such as V600E, Val600Glu and p.V600E, and the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. Other drug sources, MAUDE and VAERS search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads ChEMBL records from MyChem instead of waiting on ChEMBL's own service. When the lookup is slow or incomplete, trial and article search use the typed name, say so, and stay complete.
 
 ## Added commands, filters and sections
 
 Drugs and regulators:
 
 - `get drug NAME markets` gives one row per market, Drugs@FDA, EMA and WHO prequalification, each with its record number, holder, status, first approval date and URL. EMA picks the exact brand, then the earliest authorisation, and says so.
-- Drugs@FDA search takes `--applicant` (sponsor names starting with the text), `--approved-from` and `--approved-to` (original approval window), and `--sort newest` or `--sort original-approval`. Rows carry `latest_submission` and `original_approval`. `get drug ID approvals` takes `--decision-from` and `--decision-to`, and `--section-limit` reaches 200, so a long application history fits one page.
+- Drugs@FDA search takes `--applicant` (sponsor names starting with the text), `--approved-from` and `--approved-to` (original approval window), and `--sort newest` or `--sort original-approval`; a sorted or windowed search says how many applications it read. Rows carry `latest_submission` and `original_approval`. `get drug ID approvals` takes `--decision-from` and `--decision-to`, and `--section-limit` reaches 200, so a long application history fits one page.
 - EMA: `get drug ID regulatory --source ema` no longer labels the medicines file's latest-procedure date as the Commission decision; that date's role is now `latest_procedure_affecting_product_information_date`. For a referral, `european_commission_decision_date` comes from EMA's referrals file, which `sync ema` now downloads, so sync EMA again.
-- `get drug NAME interactions --source ddinter --partner NAME` keeps one drug pair; DDInter's files carry a level per pair and no management text. WHO PQ search takes `--therapeutic-area`, and its rows carry `prequalified_on` as a date.
+- `get drug NAME interactions --source ddinter --partner NAME` keeps one drug pair; DDInter's files carry a level per pair and no management text. `sync ddinter` now reads all of DDInter's published files. WHO PQ search takes `--therapeutic-area`, and its rows carry `prequalified_on` as a date.
 - Label reads: `get drug NAME label` without `--label-section` lists the section names in `sections` instead of refusing. A generic name picks the brand-name NDA or BLA label, then the label with the most indications, and says why. Exact name matching ignores letter case, and the total counts exact and word matches together. Several label sections come in one reply, each reply fills the `drug_label_bytes` budget, `remaining` counts the fragments still to read, and a section the label lacks is named in `hint`. Many-label generic names, such as metformin, no longer fail as too large or out of time.
 - FDA drug recalls: `--status` and `--reason` searches return full pages, and older recall numbers such as `D-502-2013` appear and can be read. A recall page names each record it drops with the new `record.declined` problem.
 - openFDA text filters accept punctuation and accented letters: accents become base letters, other marks become spaces, and a notice shows what was searched.
 
 Devices and diagnostics:
 
-- FDA PMA: `search diagnostic --source fda-pma --intended-use TEXT` matches the approval order's intended-use statement. `get diagnostic P... summary --find TEXT` returns the matching passages of FDA's safety and effectiveness summary with their fragment numbers, and summary text keeps its words whole. PMA and 510(k) pages carry `source_query`, the openFDA expression that matched.
+- FDA PMA: `search diagnostic --source fda-pma --intended-use TEXT` matches the approval order's intended-use statement. `get diagnostic P... summary --find TEXT` returns the matching passages of FDA's safety and effectiveness summary with their fragment numbers, and summary text keeps its words whole. PMA and 510(k) pages carry `source_query`, the openFDA expression that matched. FDA PDF downloads ask for a PDF in the form FDA's servers accept, and a refusal names the document's URL and status.
 - FDA 510(k): `--classification-name TEXT` matches FDA's device classification name. `get diagnostic DEN... --source fda-510k` reads a De Novo record, and rows show `decision_reading`, such as `de-novo-granted`, after `k_number`.
 - FDA companion diagnostics: rows of both FDA tables start with `row_date`, `diagnostic`, `indication`, `device` and `drug`, beside FDA's own `cells`. `--date-from`, `--date-to` and `--sort date` filter and order the whole list. A search by drug application includes the group-labeling rows.
 - GTR: `--name` matches test names and `--condition` matches condition names, ignoring letter case and hyphens, with whole-word matches first and each row's `name_match` saying which. `--gene` with `--condition-id` returns tests that list both. Cards and rows carry `specimens`, `gene_count`, `method_categories` and the lab's state and postcode; cards add `laboratory_certifications`, `laboratory_address`, `laboratory_directors`, `order_url` and `test_url`. `sync gtr` now also downloads NCBI's GTR XML release, about 245 MB in all.
@@ -85,12 +85,12 @@ Trials:
 
 Genes, variants, diseases and phenotypes:
 
-- `get gene GENE clinvar` counts the gene's ClinVar variants by germline classification and by review status, each variant once, with the ClinVar release. It works without an NCBI key; the keyless NCBI pacing default is now 5 requests per 2 seconds.
+- `get gene GENE clinvar` counts the gene's ClinVar variants by germline classification and by review status, each variant once, with the ClinVar release. It works without an NCBI key.
 - Gene search by `--band` or a ClinGen ISCA ID also returns ClinGen dosage regions under `result.regions`, with their haploinsufficiency and triplosensitivity scores, and `result.clingen_regions_matched` says how many matched. `--region` takes a GRCh38 interval and selects overlapping regions only; unlike the 0.9 option of that name, it adds no genes. `--regions-only` returns only the regions. `sync clingen` also fetches the region file.
 - `get phenotype HP:ID ancestors` returns every ancestor term from OLS, and works when Monarch is down.
 - `search phenotype` given comma-separated HP IDs returns Monarch's one ranked list of similar genes, or diseases with `--group diseases`, with `--metric` and `--search-mode`. The ranking gets a 30-second budget.
 - `get pgx --gene GENE --source cpic recommendations --drug-id ID --phenotype TEXT` keeps one CPIC phenotype, such as Poor Metabolizer, and the first page lists the phenotypes present. A plain drug name in `--drug-id` is refused with the accepted form.
-- `get variant ID civic` joins every CIViC variant that states the same protein change, honours `--section-limit`, and takes `--disease` and `--drug`. `get variant CAID hotspots` accepts a ClinGen CAid. `get variant clinvar:ID population` falls back to the ClinGen Allele Registry when MyVariant lacks the record.
+- `get variant ID civic` joins a CIViC variant that states the same protein change, honours `--section-limit`, and takes `--disease` and `--drug`. `get variant CAID hotspots` accepts a ClinGen CAid. `get variant clinvar:ID population` falls back to the ClinGen Allele Registry when MyVariant lacks the record.
 - When a transcript HGVS fails `variant normalize` on its reference base, the reply lists the gene's transcripts where the change fits and offers the fitting one; the reply is `partial` rather than `failed`. `search variant --variant` given a full HGVS name offers the runnable `--gene ... --coding ...` call.
 - `get disease ID prevalence --source orphadata` returns Orphanet prevalence estimates, age of onset and inheritance after `sync orphadata`. Hierarchy rows carry parent labels, and each synonym appears once with `also_stated_by` naming the other sources that state it.
 - `pathway genes` and `pathway events` with an ID the source does not hold answer `absent`, not `failed`.
@@ -98,7 +98,7 @@ Genes, variants, diseases and phenotypes:
 Articles:
 
 - `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
-- `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`. PDF downloads, FDA documents included, ask for a PDF in a way FDA's servers accept, and an FDA refusal names the URL and status.
+- `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`.
 - A single-source search reports the source's own total. A drug-name search on Semantic Scholar or LitSense says the per-name counts overlap and are not added, and a cut-short search says later rows cannot be paged. `get article` states its limit of 20 IDs.
 
 Other commands:
@@ -145,7 +145,7 @@ Create a JSON configuration file at the platform path described in the [upgrade 
 
 The source credential names `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_API_KEY`, `OPENFDA_API_KEY`, `ORCID_ACCESS_TOKEN` and `ALPHAGENOME_API_KEY` remain recognized. Use `biomcp key set SOURCE` to keep values out of shell history. Stored keys override environment values. Use JSON `format`, `disable_sources`, `keys`, `ncbi_email`, `ca_bundle`, `proxy` and `http.allowed_hosts` for the corresponding settings. Proxy environment variables remain supported. Every source starts enabled; commercial users must disable the `noncommercial` and `licensed` groups and review publisher terms.
 
-[Configuration](../docs/configuration.md) also takes these keys:
+[Configuration](../docs/configuration.md) also takes these keys and defaults:
 
 - `sync_timeout_seconds`: how long one `sync` may take, 120 seconds by default. A sync that runs out of time names the limit and this key.
 - `drug_label_bytes`: how much label text one `--label-section` reply returns, from 6144 through 32768 bytes.
@@ -215,7 +215,7 @@ Posted trial results are an explicit exception to the 1.0 command freeze. `get t
 
 Replies also change in these ways:
 
-- `sources[]` entries no longer carry `terms` and `terms_url`; `help sources` lists each source's terms and link. Every reply schema took a new major version for this.
+- `sources[]` entries no longer carry `terms` and `terms_url`; `help sources` lists each source's terms and link. Reply schemas took a new major version for this.
 - `--fields a,b` on an entity search, or a `fields` list beside `action` on a typed entity tool, keeps only those top-level fields of each row, plus the row's required and identifier fields and the whole envelope. `help search ENTITY` lists the names on a `Fields:` line, and the research `search` and `fetch` tools refuse it. Trial rows' `conditions`, `interventions` and `url` became optional so trials can narrow.
 - One get returns several sections, and one drug read several label sections, in one reply; each part keeps its own paging and names its section. A several-sections drug reply, `biomcp.drug-sections/1`, states the drug's identity once.
 - Every search and section page reports the source's total or says the source gives none, and a page cut short by a limit says so and offers the next page. Totals from several sources are never added together. JSON replies write the envelope's `page`, and each page's total and offset, before the rows.
