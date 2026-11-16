@@ -3,7 +3,7 @@
   "feature": "trial-results",
   "story": "Asked only how many participants started, completed or dropped out, or only who was enrolled at baseline, the agent gets that part of the posted results alone, without paging through the posted outcomes that come first in results; both parts also answer together in one call.",
   "replay": "trial/results/NCT01844505",
-  "verified": "tests/replies/trial/results/README.md identifies the unchanged public NCT01844505 reply. Its resultsSection.participantFlowModule has 3 groups and 2 periods (Pre-Treatment Period, Treatment Period); its baselineCharacteristicsModule has an analysis population, 4 groups and 3 measures (first Age, Continuous). In results the flow records start on page 12, after about 152 KB of outcomes. Each ceiling is the measured reply plus 15 percent.",
+  "verified": "tests/replies/trial/results/README.md identifies the unchanged public NCT01844505 reply. Its resultsSection.participantFlowModule has 3 groups and 2 periods (Pre-Treatment Period, Treatment Period); its baselineCharacteristicsModule has an analysis population, 4 groups and 3 measures (first Age, Continuous). In results the flow records come after about 152 KB of outcomes, several pages in. Each ceiling is the measured reply plus 15 percent.",
   "steps": [
     {
       "run": ["get", "trial", "NCT01844505", "flow"],
