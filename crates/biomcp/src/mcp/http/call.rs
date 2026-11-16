@@ -388,7 +388,8 @@ mod tests {
             &service.settings,
         );
         let tools = crate::mcp::typed::tools(context, false).unwrap();
-        assert_eq!(tools.len(), 17);
+        // The 13 entity tools, saved, help, biomcp, search and fetch.
+        assert_eq!(tools.len(), 18);
         let log = |name: &serde_json::Value| {
             super::super::logging::line(&json!({"name":name}), Duration::ZERO, 200, None)
         };
