@@ -14,7 +14,7 @@ biodata::canonical_enum! {
         Indications => "indications",
         /// Native CIViC therapy evidence and profile context.
         Civic => "civic",
-        /// One exact native label heading.
+        /// One exact native label heading; label replies also name the application numbers and recent major changes.
         Label => "label",
         /// Native application and product history rows.
         Approvals => "approvals",

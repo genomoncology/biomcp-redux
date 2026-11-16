@@ -53,5 +53,6 @@ pub(super) fn header(identity: DrugIdentity) -> DrugHeader {
         url: identity.url,
         version: None,
         effective_date: None,
+        application_numbers: Box::default(),
     }
 }

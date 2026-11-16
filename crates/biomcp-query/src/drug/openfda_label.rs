@@ -142,11 +142,20 @@ pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         let mut left = cx.label_bytes;
         let outcomes = queries
             .iter()
-            .map(|query| {
+            .enumerate()
+            .map(|(at, query)| {
                 let mut part = fork(&out, query);
                 let cx = &sharing(cx, left);
                 if let Some(record) = page.window.rows.first() {
                     let selected = select(cx, query, record, page.metadata.fetched, &mut part);
+                    // Recent major changes describe the label, not a heading: once per reply.
+                    if at > 0
+                        && let biomcp_types::ReplyData::DrugLabel {
+                            body: Some(body), ..
+                        } = &mut part.body
+                    {
+                        body.recent_major_changes = Box::default();
+                    }
                     left = left.saturating_sub(text_bytes(&part));
                     if let Err(error) = selected {
                         crate::status::item(&mut part, false, true, false);
@@ -283,6 +292,12 @@ fn select(
     };
     out.body = (DrugLabel {
         identity: record.header()?,
+        // A read of the section itself already carries its text.
+        recent_major_changes: if heading.starts_with("recent_major_changes") {
+            Box::default()
+        } else {
+            record.recent_major_changes()
+        },
         hint: no_room(&label)?,
         label,
         sections: Box::default(),
@@ -322,6 +337,7 @@ fn section_names(
 ) -> Result<biomcp_types::ReplyData, RequestError> {
     Ok(DrugLabel {
         identity: record.header()?,
+        recent_major_changes: record.recent_major_changes(),
         label: Section::Empty {
             source: SOURCE,
             record: None,
@@ -351,6 +367,7 @@ fn absent_heading(
     );
     Ok(DrugLabel {
         identity,
+        recent_major_changes: record.recent_major_changes(),
         label: Section::Empty {
             source: SOURCE,
             record: None,
