@@ -18,6 +18,7 @@ pub(super) fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error>
         name: problems.text("pref_name", row.pref_name.as_deref()),
         r#type: problems.checked_text("molecule_type", row.molecule_type.as_deref()),
         version: None,
+        effective_date: None,
         identity_level: DrugIdentityLevel::Unknown,
         url: Some(Text::new(&format!(
             "https://www.ebi.ac.uk/chembl/explore/compound/{}",

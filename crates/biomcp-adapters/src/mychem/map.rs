@@ -43,6 +43,7 @@ fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> 
         id: id.parse().map_err(|_| BadReply)?,
         source: DrugSource::Mychem,
         version: None,
+        effective_date: None,
         name: rows
             .iter()
             .find_map(|(_, c)| name(c))

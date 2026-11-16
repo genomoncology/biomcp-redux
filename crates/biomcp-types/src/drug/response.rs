@@ -31,6 +31,9 @@ pub struct DrugHeader {
     /// Native source revision, omitted when the source supplies none.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<Text>,
+    /// The label's effective date, as openFDA's `effective_time` states it; openFDA labels only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effective_date: Option<PartialDate>,
     /// Source record URL.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]

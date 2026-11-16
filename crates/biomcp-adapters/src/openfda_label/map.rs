@@ -21,6 +21,7 @@ impl RawRecord {
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
             version: self.version.clone(),
+            effective_date: self.effective_time,
             // Display order: brand, generic, then the native SPL set ID.
             // Product-data paragraphs remain in the original label sections.
             name: Some(
