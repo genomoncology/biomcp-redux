@@ -1,0 +1,31 @@
+{
+  "projection": "None: the UniProt, InterPro and Complex Portal replies are kept whole as biomcp --record wrote them.",
+  "sha256": "SHA-256 of each original reply body serialized as compact JSON",
+  "licenses": "UniProt CC BY 4.0 (https://www.uniprot.org/help/license); InterPro CC0; Complex Portal CC0.",
+  "originals": [
+    {
+      "url": "https://www.ebi.ac.uk/intact/complex-ws/search/Q14191?number=25&filters=species_f%3A%28%22Homo%20sapiens%22%29",
+      "sha256": "eca91d69fe197121b37e506b3f7006ceaf2aed0139a794807cd0cc63615e5ec0",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j41965 (biomcp --record)"
+    },
+    {
+      "url": "https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/Q14191/?page_size=25",
+      "sha256": "071587f6f175e2e29e31683a194442593a8b7a9e99f83ad0333ae0ee02c6df67",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j41965 (biomcp --record)"
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/Q14191.json",
+      "sha256": "b9370895507012b465f80b770029a082ee8a0cf2995b67b8000062b7947cc652",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j41965 (biomcp --record)"
+    }
+  ]
+}
