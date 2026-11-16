@@ -1,5 +1,7 @@
 # 0987 — saved-work-hosted-hardening
 
+Status: OPEN.
+
 Milestone: 7
 
 ## Outcome
