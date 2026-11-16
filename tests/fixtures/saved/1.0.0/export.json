@@ -5,7 +5,7 @@
   "result": {
     "searches": [
       {
-        "id": "f0103156fa1ab31009eb90968d85de67",
+        "id": "f48ea2b348010a8581716dc38a9d76cb",
         "name": "melanoma-trials",
         "project": "default",
         "args": [
@@ -16,72 +16,72 @@
         ],
         "schema": "biomcp.trial-search/6",
         "request_key": "7afb01503cdc6641defbf9f1c1e689a036ef1b8a18974768d21f01822939c9df",
-        "created": 1794791955,
-        "checked": 1794791955
+        "created": 1794796355,
+        "checked": 1794796355
       }
     ],
     "lists": [
       {
-        "id": "1c14f658b34dff7d92591db8d429a827",
+        "id": "c43c919e416e07a399a9b789df204a5b",
         "name": "braf-genes",
         "project": "default",
-        "created": 1794791955,
-        "modified": 1794791955,
+        "created": 1794796355,
+        "modified": 1794796355,
         "items": [
           {
             "ref": {
               "entity": "gene",
               "id": "BRAF",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
-            "added": 1794791955
+            "added": 1794796355
           },
           {
             "ref": {
               "entity": "gene",
               "id": "NRAS",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
-            "added": 1794791955
+            "added": 1794796355
           }
         ]
       },
       {
-        "id": "f2bec1e95883eed78f6987b900913109",
+        "id": "495cf41a2ef9560e437853e337990428",
         "name": "melanoma-picks",
         "project": "default",
-        "created": 1794791955,
-        "modified": 1794791955,
+        "created": 1794796355,
+        "modified": 1794796355,
         "items": [
           {
             "ref": {
               "entity": "trial",
               "id": "NCT04631731",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "note": "Recruiting in the US",
-            "added": 1794791955
+            "added": 1794796355
           },
           {
             "ref": {
               "entity": "trial",
               "id": "NCT05355701",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "note": "Recruiting in the US",
-            "added": 1794791955
+            "added": 1794796355
           }
         ]
       }
     ],
     "snapshots": [
       {
-        "id": "d655dc8fa320e42d524d581ceeeb333f",
-        "search": "f0103156fa1ab31009eb90968d85de67",
-        "taken": 1794791955,
+        "id": "dc9d26d60ab008f3237ba9d7c7e75f08",
+        "search": "f48ea2b348010a8581716dc38a9d76cb",
+        "taken": 1794796355,
         "total": 3780,
         "complete": false,
-        "row_schema": "biomcp.trial-page/17#3dd1476c04857b48",
+        "row_schema": "biomcp.trial-page/17#32452d888fcbcbec",
         "sources": [
           {
             "source": "ctgov",
@@ -97,7 +97,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT04631731",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "b461bd9858c260ef997bbbb6e12264fb1533e8f7657435ef3d8fc1f45f5e44da"
           },
@@ -105,7 +105,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT05355701",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "fd9d7f8efbbd101324475450be6f79a33713138458ef6c3ef29b1555e38b47c8"
           },
@@ -113,7 +113,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT06952400",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "97fd0e3e459276f7dc7b1c9c4e0d079dccea46141d9e3c9782bbef713621c2b9"
           },
@@ -121,7 +121,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT00847522",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "d21247e0d14e833c7b512f57e942a2eb2035e6faa819dbd6ffa7943669fe94b2"
           },
@@ -129,7 +129,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT03538028",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "4c1f080aa40938dab7f191ee9a8cf3f15563e2945c3ed90d8d58a8ee3d8605f6"
           },
@@ -137,7 +137,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT05712551",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "b7247cc40d44ab1d6856ccfd1832f165e9f6a12a43239552399b258ff0c7d304"
           },
@@ -145,7 +145,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT07381972",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "b4a6414c70487b5cacc00e1537429fd20b766b352a1b91024513d647e5ec5efe"
           },
@@ -153,7 +153,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT00002892",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "71052d7f5826141169b0917e3171d6c6747ecb25ad6d503fe32978416300a9a4"
           },
@@ -161,7 +161,7 @@
             "ref": {
               "entity": "trial",
               "id": "NCT00521001",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "d2ee9665c77416e67a53d4cabf746277f952bbd85ec3415ebe3ae965606642cf"
           },
@@ -169,11 +169,47 @@
             "ref": {
               "entity": "trial",
               "id": "NCT01874119",
-              "as_of": 1794791955
+              "as_of": 1794796355
             },
             "fingerprint": "6c84b9454843032006aedc1f58cbb1c2e6982d33dba308f369dd04ac7ac8d1d4"
           }
         ]
+      }
+    ],
+    "user_notes": [
+      {
+        "id": "2b9323a4c8f29c50d4693071c18e45db",
+        "target": {
+          "kind": "search",
+          "project": "default",
+          "name": "melanoma-trials"
+        },
+        "text": "Recheck before the tumor board",
+        "created": 1794796355
+      },
+      {
+        "id": "b0267ae881bb6780be0b7d1371a13be6",
+        "target": {
+          "kind": "item",
+          "project": "default",
+          "name": "braf-genes",
+          "ref": {
+            "entity": "gene",
+            "id": "BRAF",
+            "as_of": 1794796355
+          }
+        },
+        "text": "V600E first",
+        "created": 1794796355
+      },
+      {
+        "id": "97500d7c0daeacd722e18b58c88cbf48",
+        "target": {
+          "kind": "project",
+          "project": "default"
+        },
+        "text": "Melanoma work",
+        "created": 1794796355
       }
     ]
   }

@@ -181,7 +181,17 @@ pub(super) fn delete_item(connection: &Connection, list: &str, id: &str) -> Resu
     Ok(())
 }
 
-type NoteRow = (String, String, String, String, String, String, String, String, i64);
+type NoteRow = (
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+    i64,
+);
 
 pub(super) fn load(connection: &Connection, id: &str) -> Result<SavedNote, SavedError> {
     let row: NoteRow = connection.query_row(

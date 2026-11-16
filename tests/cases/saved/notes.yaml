@@ -59,6 +59,11 @@ steps:
     expect:
       /error/code: usage.arguments
       /error/option: --item
+  - run: [saved, note, braf-genes, --item, BRAF, --entity, protein, "x"]
+    exit: 2
+    expect:
+      /error/code: usage.arguments
+      /error/option: --item
   - run: [saved, note, no-such-list, "x"]
     exit: 2
     expect:

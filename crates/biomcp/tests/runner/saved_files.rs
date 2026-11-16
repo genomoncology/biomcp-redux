@@ -100,8 +100,20 @@ fn write(out: &Path) -> Result<(), String> {
         ],
     )?;
     for note in [
-        &["saved", "note", "melanoma-trials", "Recheck before the tumor board"][..],
-        &["saved", "note", "braf-genes", "--item", "BRAF", "V600E first"],
+        &[
+            "saved",
+            "note",
+            "melanoma-trials",
+            "Recheck before the tumor board",
+        ][..],
+        &[
+            "saved",
+            "note",
+            "braf-genes",
+            "--item",
+            "BRAF",
+            "V600E first",
+        ],
         &["saved", "note", "--project", "default", "Melanoma work"],
     ] {
         run(&env, note)?;
