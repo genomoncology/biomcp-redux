@@ -53,7 +53,27 @@ fn disclose(mut out: Outcome, query: &AdverseEventSearch) -> Outcome {
             .map(|v| ("--product-code", Some(v), codes)),
     );
     crate::openfda_text::disclose(&mut out, source, named.into_iter().chain(listed));
+    death_flag(&mut out, query);
     out
+}
+
+/// FAERS seriousnessdeath marks the report, not a reaction, so a death count with --reaction is
+/// reports flagged death that list that reaction (1012).
+fn death_flag(out: &mut Outcome, query: &AdverseEventSearch) {
+    if query.source() != biomcp_types::AdverseEventSource::Faers
+        || query.serious() != Some(biomcp_types::AdverseEventSerious::Death)
+        || query.reaction().is_none()
+    {
+        return;
+    }
+    if let Some(report) = out.sources.iter_mut().find(|report| report.source == Source::Faers) {
+        report.notices.push(biomcp_types::SourceNotice::RequestGuidance {
+            data_date: None,
+            message: "Counts reports flagged death that list this reaction, not deaths caused by it."
+                .into(),
+            retry_after_seconds: None,
+        });
+    }
 }
 
 fn search<'a>(

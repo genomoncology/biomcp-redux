@@ -1,6 +1,6 @@
 {
   "feature": "adverse-event-search",
-  "story": "A FAERS drug name searches the drug's other names by default in one native query, so the generic name finds the brand's reports; --exact-term searches the typed names only.",
+  "story": "A FAERS drug name searches the drug's other names by default in one native query, so the generic name finds the brand's reports; --exact-term searches the typed names only. Each name-widened count says a report naming several names counts once, and a death-flag count with --reaction says it counts reports flagged death that list the reaction, not deaths caused by it.",
   "live_check": "public",
   "verified": "The actual CLI recorded these replies from the public sources on 2026-11-12 with --record (job j38466). Fatal pembrolizumab myocarditis reports: 704 widened, 292 for the generic name alone, 703 for the generic and brand typed together. Apixaban as typed finds 69,029 reports; widened it finds 282,308 (faers-widened-names.yaml). FAERS rows keep only report identity, version, seriousness and receipt date; totals and metadata are unchanged.",
   "replay": "adverse-event/faers-names-by-default",
@@ -31,7 +31,10 @@
         ],
         "/sources/0/notices/1/kind": "drug-name-search",
         "/sources/1/source": "mychem",
-        "/sources/2/source": "chembl"
+        "/sources/2/source": "chembl",
+        "/sources/0/notices/*/message": {
+          "includes": "Counts reports flagged death that list this reaction, not deaths caused by it."
+        }
       }
     },
     {
@@ -53,8 +56,9 @@
         "/status": "complete",
         "/page/total": 292,
         "/sources/0/notices": {
-          "count": 1
-        }
+          "count": 2
+        },
+        "/sources/0/notices/1/message": "Counts reports flagged death that list this reaction, not deaths caused by it."
       }
     },
     {
@@ -76,7 +80,10 @@
       ],
       "expect": {
         "/status": "complete",
-        "/page/total": 703
+        "/page/total": 703,
+        "/sources/0/notices/*/message": {
+          "includes": "Counts reports flagged death that list this reaction, not deaths caused by it."
+        }
       }
     },
     {

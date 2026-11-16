@@ -167,7 +167,7 @@ fn disclose(query: &AdverseEventSearch, saved: &Saved, out: &mut Outcome) {
     };
     let widened = saved.names.len() > typed(query).len();
     let message = search_names::compact(
-        "one FAERS query",
+        "one FAERS query, so a report naming several counts once",
         (widened, saved.rejected),
         &saved.unsettled,
         &saved.left_out,

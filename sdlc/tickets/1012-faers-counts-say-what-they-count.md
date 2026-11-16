@@ -31,3 +31,9 @@ pt-committee 8.4 and life-sciences-ci 5.2 (bench `personas/pt-committee/runs/202
 ## Changes
 
 - Changes: the named command's code, help, cases and a release-notes line.
+
+## Progress
+
+- FAERS's drug-name notice now reads "one FAERS query, so a report naming several counts once" when other names were searched (`adverse_event/names.rs`).
+- A FAERS search with `--serious death` and `--reaction` adds a request-guidance notice on FAERS: "Counts reports flagged death that list this reaction, not deaths caused by it." (`adverse_event.rs`). No new reply field; help already says the flag is never a reaction outcome.
+- Cases: `faers-widened-names` asserts the new drug-name wording; `faers-names-by-default` asserts the death notice on the widened, typed-only and two-name pembrolizumab myocarditis death searches, on the replies recorded for 0959-era job j38466. Release-notes line added.
