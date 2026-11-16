@@ -2069,6 +2069,17 @@
           ],
           "description": "Source card, absent after confirmed 404 or failed lookup."
         },
+        "failure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialItemFailure"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Why a failed item carries no card, as a whole failed reply would say it; absent otherwise."
+        },
         "fetched": {
           "description": "Original record retrieval timestamp.",
           "format": "uint64",
@@ -2912,6 +2923,35 @@
         "RADIATION",
         "OTHER"
       ]
+    },
+    "Reply_TrialItemFailure": {
+      "description": "Why one trial in a batch was not read.",
+      "properties": {
+        "problem": {
+          "description": "What went wrong and what to do, in plain words.",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Typed reason; absent for a local storage error."
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "The source that was asked."
+        }
+      },
+      "required": [
+        "source",
+        "problem"
+      ],
+      "type": "object"
     },
     "Reply_TrialLocation": {
       "description": "One source site, kept whole during pagination.",

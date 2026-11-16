@@ -33,16 +33,44 @@ impl Leg<'_> {
 }
 
 impl crate::Fetch {
-    /// How long `intervals` keyless requests to `spec` wait for this process's pacing in turn.
-    pub(crate) fn pacing(&self, spec: &crate::SourceSpec, intervals: usize) -> Duration {
+    /// Time BioMCP's own pacing adds to `requests` sequential keyless requests to `spec`: one
+    /// interval after each but the first, so a batch BioMCP accepts is not cut short by its own
+    /// spacing (1003).
+    pub fn paced_time(&self, spec: &crate::SourceSpec, requests: usize) -> Duration {
         let rate = self
             .config
             .source_pacing
             .resolve(spec.quota)
             .credential_rate(false);
-        let tokens = u128::try_from(intervals)
+        let tokens = u128::try_from(requests.saturating_sub(1))
             .unwrap_or(u128::MAX)
             .saturating_mul(1_000_000_000);
         self.config.rate_share.delay(tokens, rate)
+    }
+    /// The caller's budget plus [`Self::paced_time`]; a hosted call's end lengthens to match, as
+    /// for a declared source budget. Pass the same count to [`Self::paced_leg`].
+    pub fn paced_budget(
+        &self,
+        spec: &crate::SourceSpec,
+        caller: Duration,
+        requests: usize,
+    ) -> Duration {
+        let paced = self.paced_time(spec, requests);
+        let budget = caller.saturating_add(paced);
+        if !paced.is_zero()
+            && let Some(end) = &self.call_end
+        {
+            end.lengthen(budget);
+        }
+        budget
+    }
+    /// A leg for `requests` sequential requests: the source's deadline plus [`Self::paced_time`].
+    pub fn paced_leg<'a>(
+        &'a self,
+        spec: &'static crate::SourceSpec,
+        deadline: crate::Deadline<'a>,
+        requests: usize,
+    ) -> Leg<'a> {
+        self.leg_within(spec, deadline, self.paced_time(spec, requests))
     }
 }
