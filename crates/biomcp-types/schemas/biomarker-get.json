@@ -20,7 +20,7 @@
   "properties": {
     "id": {
       "$ref": "#/$defs/NcitId",
-      "description": "Exact NCIt code, such as C96022.",
+      "description": "Exact NCIt code, such as C96022 (CD274 Gene, PD-L1).",
       "x-positional": 0
     },
     "source": {

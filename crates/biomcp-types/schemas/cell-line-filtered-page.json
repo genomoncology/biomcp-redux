@@ -321,7 +321,7 @@
       "properties": {
         "disease": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224)."
+          "description": "Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma)."
         },
         "exclude_derived": {
           "description": "Leave out lines derived from a parent line; needs another search term.",
