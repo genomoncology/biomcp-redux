@@ -88,15 +88,13 @@ fn counts_notes(out: &mut Outcome, query: &AdverseEventSearch, typed: usize) {
             "Counts reports flagged death that list this reaction, not deaths caused by it.".into(),
         );
     }
-    report.notices.extend(
-        notes
-            .into_iter()
-            .map(|message| biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: message.into(),
-                retry_after_seconds: None,
-            }),
-    );
+    report.notices.extend(notes.into_iter().map(|message| {
+        biomcp_types::SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        }
+    }));
 }
 
 fn search<'a>(
