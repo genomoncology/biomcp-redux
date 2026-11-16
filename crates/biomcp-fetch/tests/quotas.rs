@@ -473,6 +473,34 @@ fn rate_share_scales_only_keyed_hosted_source_rates() -> Check {
 }
 
 #[test]
+fn paced_time_follows_admission_rate_and_share_up_to_the_ceiling() -> Check {
+    let (_dir, process, spec) = fixture("0.25".parse()?)?;
+    // Three requests wait two intervals; one request waits none.
+    assert_eq!(process.paced_time(spec, 1), Duration::ZERO);
+    assert_eq!(
+        process.paced_time(spec, 3),
+        Duration::from_secs(1),
+        "a local process ignores the hosted rate share"
+    );
+    assert_eq!(
+        caller(&process, None).paced_time(spec, 3),
+        Duration::from_secs(1),
+        "a keyless hosted caller paces at the unscaled keyless rate"
+    );
+    assert_eq!(
+        caller(&process, Some("placeholder-paced-key")).paced_time(spec, 3),
+        Duration::from_secs(2),
+        "a keyed hosted caller paces at its share of the keyed rate"
+    );
+    assert_eq!(
+        process.paced_time(spec, 1_000),
+        biomcp_fetch::PACED_CEILING,
+        "pacing never adds more than the ceiling"
+    );
+    Ok(())
+}
+
+#[test]
 fn rate_share_rejects_zero_nonfinite_and_excess_shares() {
     for value in ["0", "-0.5", "1.01", "NaN", "inf", "-inf", "", "bad"] {
         assert!(

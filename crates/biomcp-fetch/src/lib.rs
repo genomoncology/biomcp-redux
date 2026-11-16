@@ -72,7 +72,8 @@ pub use error::{
     BadReply, CacheError, FetchError, InputError, RecordError, RequestError, SourceError, bad_reply,
 };
 pub use quota::{
-    InvalidRateShare, PacingOverride, PacingRate, Quota, Rate, RateShare, SourceKey, SourcePacing,
+    InvalidRateShare, PACED_CEILING, PacingOverride, PacingRate, Quota, Rate, RateShare, SourceKey,
+    SourcePacing,
 };
 pub use record::ReplayCache;
 pub use secret::{KeyFingerprint, Secret, Secrets};
@@ -377,17 +378,26 @@ impl Fetch {
     /// Start a leg capped by this source's budget.
     /// Replay legs spend independent virtual budgets and share provider quota schedules.
     /// Requests reject deadlines from a different clock domain or replay client.
+    pub fn leg<'a>(&'a self, spec: &'static SourceSpec, deadline: Deadline<'a>) -> Leg<'a> {
+        self.leg_within(spec, deadline, Duration::ZERO)
+    }
     #[expect(
         clippy::disallowed_types,
         reason = "Create the shared leg report lock without holding it during request work"
     )]
-    pub fn leg<'a>(&'a self, spec: &'static SourceSpec, deadline: Deadline<'a>) -> Leg<'a> {
+    pub(crate) fn leg_within<'a>(
+        &'a self,
+        spec: &'static SourceSpec,
+        deadline: Deadline<'a>,
+        extra: Duration,
+    ) -> Leg<'a> {
         let cap = self
             .config
             .source_deadlines
             .get(&spec.source)
             .copied()
-            .unwrap_or(spec.deadline);
+            .unwrap_or(spec.deadline)
+            .saturating_add(extra);
         let no_key = !self.disabled(spec.source)
             && match spec.key {
                 KeyUse::Required(credential) => self.secrets.get(credential.secret).is_none(),

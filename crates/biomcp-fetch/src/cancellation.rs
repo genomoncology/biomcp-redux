@@ -23,7 +23,9 @@ pub struct Cancellation {
     reason = "A hosted call's worker lengthens the end its waiter reads"
 )]
 /// When a call must end: its start plus its budget. Only a hosted call's end may lengthen, to its
-/// start plus a declared source budget (sdlc/tickets/0912-hosted-calls-honour-slow-source-budgets.md).
+/// start plus a declared source budget (sdlc/tickets/0912-hosted-calls-honour-slow-source-budgets.md),
+/// or by a batched trial get's pacing time: one ClinicalTrials.gov interval per trial after the
+/// first, 19 s for 20 trials at default pacing, up to `PACED_CEILING` (1003).
 #[derive(Clone)]
 pub(crate) struct CallEnd {
     start: std::time::Instant,

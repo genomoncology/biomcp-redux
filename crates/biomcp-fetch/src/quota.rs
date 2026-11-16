@@ -1,5 +1,6 @@
 //! Provider pacing declarations and process-owned source admission.
 mod admit;
+pub use admit::PACED_CEILING;
 mod declaration;
 mod limiter;
 mod pacing;

@@ -40,6 +40,21 @@ pub struct TrialCardItem {
     /// Available sections omitted from this request.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub more: Box<[TrialSection]>,
+    /// Why a failed item carries no card, as a whole failed reply would say it; absent otherwise.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failure: Option<TrialItemFailure>,
+}
+/// Why one trial in a batch was not read.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct TrialItemFailure {
+    /// The source that was asked.
+    pub source: crate::Source,
+    /// Typed reason; absent for a local storage error.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<crate::Reason>,
+    /// What went wrong and what to do, in plain words.
+    pub problem: Box<str>,
 }
 /// Independently bounded sections from the same source protocol snapshot.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]

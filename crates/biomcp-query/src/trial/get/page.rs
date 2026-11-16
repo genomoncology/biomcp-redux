@@ -86,6 +86,7 @@ pub(super) fn render(
             .copied()
             .filter(|s| !requested(*s))
             .collect(),
+        failure: None,
     })
 }
 fn eligibility(

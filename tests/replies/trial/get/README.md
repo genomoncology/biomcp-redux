@@ -1,3 +1,5 @@
 These are public ClinicalTrials.gov replies collected on 2026-10-24 during the trial investigation. The original raw bodies and request manifests remain outside Git. Exact original request URLs were delivered through a local TLS peer to the actual CLI with --record. No public source was called during delivery. The transport generated every request identity and recording filename. Recorded fetched timestamps describe local delivery; source dataTimestamp and each study's update dates retain their original meanings. The valid absent ID retains the investigation's genuine HTTP 404. Response-only failure variants in the runner are explicitly synthetic.
 
 NCT00627419 is the exception: the actual CLI recorded it and its version reply from the public source on 2026-11-11 with --record, for the terminated trial's enrollment and why-stopped text. Its dataTimestamp is 2026-11-10T10:00:05.
+
+batch-of-20 holds the 20 trials of a trial-ops site-load batch, recorded by the actual CLI with --record from the public source on 2026-11-16 (1003), with their version reply. Its NCT02578680 reply is a copy of the synthetic HTTP 500 outage above.
