@@ -81,7 +81,6 @@ pub(crate) struct ConfigFile {
     pub(super) drug_approvals_limit: Option<u32>,
     pub(super) drug_search_name_limit: Option<std::num::NonZeroUsize>,
     pub(super) drug_label_bytes: Option<usize>,
-    pub(super) drug_label_pages_at_once: Option<std::num::NonZeroUsize>,
     pub(super) transcript_fit_seconds: Option<std::num::NonZeroU32>,
     pub(super) source_pacing: Option<BTreeMap<String, biomcp_fetch::PacingOverride>>,
     pub(super) mcp_max_calls: Option<std::num::NonZeroUsize>,
@@ -217,7 +216,6 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
         drug_approvals_limit: take(&mut map, "drug_approvals_limit")?,
         drug_search_name_limit: take(&mut map, "drug_search_name_limit")?,
         drug_label_bytes: take(&mut map, "drug_label_bytes")?,
-        drug_label_pages_at_once: take(&mut map, "drug_label_pages_at_once")?,
         transcript_fit_seconds: take(&mut map, "transcript_fit_seconds")?,
         source_pacing: map
             .remove("source_pacing")

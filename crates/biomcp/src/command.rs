@@ -487,8 +487,6 @@ fn query_context<'a>(
     fresh: bool,
     settings: &crate::config::Settings,
 ) -> io::Result<biomcp_query::Ctx<'a>> {
-    // The decoding limit is the process's own; every call reads the same settings.
-    biomcp_query::set_label_pages_at_once(crate::config::drug_label_pages_at_once(settings));
     Ok(biomcp_query::Ctx {
         ncbi_email: crate::config::ncbi_email(settings)
             .map_err(|_| io::Error::other("local configuration failed"))?,

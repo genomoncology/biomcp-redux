@@ -200,16 +200,6 @@ pub(crate) fn drug_label_bytes(settings: &Settings) -> usize {
         .and_then(|file| file.drug_label_bytes)
         .unwrap_or(biomcp_query::LABEL_BYTES)
 }
-/// How many large openFDA label pages this process decodes at once.
-pub(crate) fn drug_label_pages_at_once(settings: &Settings) -> std::num::NonZeroUsize {
-    settings
-        .as_ref()
-        .ok()
-        .and_then(Option::as_ref)
-        .and_then(|file| file.drug_label_pages_at_once)
-        .or(std::num::NonZeroUsize::new(biomcp_query::LABEL_PAGES_AT_ONCE))
-        .unwrap_or(std::num::NonZeroUsize::MIN)
-}
 pub(crate) fn transcript_fit_deadline(settings: &Settings) -> std::time::Duration {
     settings
         .as_ref()

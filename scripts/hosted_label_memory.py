@@ -109,15 +109,12 @@ def post(address, index, users):
     return content["result"]["identity"]["name"]
 
 
-def scenario(binary, name, calls, users, sizes, pages_at_once=None):
+def scenario(binary, name, calls, users, sizes):
     with tempfile.TemporaryDirectory(prefix="biomcp-label-memory-") as temporary:
         root = Path(temporary)
         for folder in ("home", "config/biomcp", "cache", "replies"):
             (root / folder).mkdir(parents=True)
-        config = {"source_data_max_age_days": 1_000_000}
-        if pages_at_once:
-            config["drug_label_pages_at_once"] = pages_at_once
-        (root / "config/biomcp/config.json").write_text(json.dumps(config))
+        (root / "config/biomcp/config.json").write_text(json.dumps({"source_data_max_age_days": 1_000_000}))
         largest, pages = replies(root / "replies", sizes, calls)
         env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": str(root / "home"),
                "XDG_CONFIG_HOME": str(root / "config"), "XDG_CACHE_HOME": str(root / "cache")}
@@ -178,7 +175,7 @@ def scenario(binary, name, calls, users, sizes, pages_at_once=None):
                 "process_peak_rss_mib": round(peak / 1024, 1), "rss_after_mib": round(after / 1024, 1),
                 "peak_over_idle_mib": round((peak - idle) / 1024, 1), "seconds": round(elapsed, 2),
                 "call_seconds_p50": round(sorted(seconds)[len(seconds) // 2], 3),
-                "call_seconds_max": round(max(seconds), 3), "pages_at_once": pages_at_once or "default",
+                "call_seconds_max": round(max(seconds), 3),
                 "labels": sorted({o for o in outcomes if isinstance(o, str)}), "failures": failures}
 
 
@@ -192,11 +189,8 @@ def main():
             ("8 calls, keyless, live-sized pages", SLOTS, 0, "live"),
             ("8 calls, 8 caller keys, live-sized pages", SLOTS, SLOTS, "live"),
             ("32 calls, 8 caller keys, live-sized pages", HOSTED_SLOTS, keys, "live"),
-            ("32 calls, 8 caller keys, live-sized pages, no page limit", HOSTED_SLOTS, keys, "live", 1000),
             ("8 calls, 8 caller keys, largest page near 32 MiB", SLOTS, SLOTS, "bound"),
-            ("32 calls, 8 caller keys, largest page near 32 MiB", HOSTED_SLOTS, keys, "bound"),
-            ("32 calls, 8 caller keys, largest page near 32 MiB, no page limit", HOSTED_SLOTS, keys, "bound",
-             1000)]
+            ("32 calls, 8 caller keys, largest page near 32 MiB", HOSTED_SLOTS, keys, "bound")]
     results = []
     for run in runs:
         try:

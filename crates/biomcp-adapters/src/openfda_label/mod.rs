@@ -22,8 +22,6 @@ mod admit;
 mod map;
 mod page;
 mod raw;
-mod reading;
-pub use reading::{PAGES_AT_ONCE, set_pages_at_once};
 mod wire;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
@@ -109,10 +107,6 @@ pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
         Some(set),
     )
 }
-#[expect(
-    clippy::disallowed_types,
-    reason = "A large page's decoding turn is taken in the byte check and held until it is mapped"
-)]
 fn page(
     leg: &Leg<'_>,
     selector: &str,
@@ -128,21 +122,13 @@ fn page(
     if offset > 0 {
         args.push(("skip", Arg::Num(offset.into())));
     }
-    // A large page waits for a turn once its bytes have arrived, and holds it until mapped.
-    let turn = std::cell::RefCell::new(None);
-    let before_decode = |body: &[u8]| {
-        if body.len() >= reading::LARGE_PAGE && turn.borrow().is_none() {
-            let entered = reading::PAGES.enter(leg.remaining());
-            *turn.borrow_mut() = Some(entered.ok_or(biomcp_types::Reason::DeadlineExceeded)?);
-        }
-        Ok(())
-    };
-    let (reply, metadata) = crate::openfda::paged(
+    let (reply, metadata) = crate::openfda::page(
         Source::OpenfdaLabel,
         leg,
         &LABEL,
         &args,
-        (offset, limit),
+        offset,
+        limit,
         &|reply| match reply {
             raw::Response::Page { meta, results }
                 if meta.results.skip != offset
@@ -153,7 +139,6 @@ fn page(
             }
             _ => Ok(()),
         },
-        &before_decode,
     )
     .map(|received| (received.value, received.meta))?;
     let (records, total) = match reply {
