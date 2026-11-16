@@ -231,9 +231,8 @@ fn mark(snapshot: &SavedSnapshot) -> ChangeSnapshot {
 
 /// Snapshot IDs of a search, newest first.
 fn kept(connection: &Connection, search: &str) -> Result<Vec<String>, SavedError> {
-    let mut statement = connection.prepare(
-        "SELECT id FROM saved_snapshot WHERE search=?1 ORDER BY taken DESC, rowid DESC",
-    )?;
+    let mut statement = connection
+        .prepare("SELECT id FROM saved_snapshot WHERE search=?1 ORDER BY taken DESC, rowid DESC")?;
     let ids = statement
         .query_map([search], |row| row.get(0))?
         .collect::<Result<Vec<_>, _>>()?;

@@ -230,7 +230,7 @@ fn ids(report: &Value, field: &str) -> Vec<String> {
     ids
 }
 
-fn expect_state(reply: &Value, state: &str) -> Result<&Value, String> {
+fn expect_state<'a>(reply: &'a Value, state: &str) -> Result<&'a Value, String> {
     let report = reply
         .pointer("/result/changes/0")
         .ok_or_else(|| format!("no change report: {reply}"))?;
@@ -265,7 +265,9 @@ fn two_days() -> Result<(), String> {
     let (_, first) = changed(&env, "watched", &day1)?;
     let report = expect_state(&first, "first")?;
     if report.pointer("/to/total") != count.get("day1_total") {
-        return Err(format!("day one total differs from the hand count: {first}"));
+        return Err(format!(
+            "day one total differs from the hand count: {first}"
+        ));
     }
     // Nothing is due, so an empty replay folder, which answers no request, is never read.
     let empty = env.root().join("no-replies");

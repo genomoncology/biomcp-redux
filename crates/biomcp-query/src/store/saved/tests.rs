@@ -280,7 +280,11 @@ fn snapshots_compare_and_keep_two() {
     let rebaselined = store
         .record_check(&search, &check(&[("X", "9")], "s/2", true))
         .unwrap();
-    assert_eq!(rebaselined.state, ChangeState::Rebaselined, "row schema moved");
+    assert_eq!(
+        rebaselined.state,
+        ChangeState::Rebaselined,
+        "row schema moved"
+    );
     assert!(
         rebaselined.new.is_empty() && rebaselined.gone.is_empty(),
         "a rebaseline lists no rows"

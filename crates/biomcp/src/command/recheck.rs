@@ -56,8 +56,14 @@ pub(crate) fn recheck(
                 Action::Run { request, .. } => Some(request.clone()),
                 _ => None,
             });
-        let outcome =
-            super::response(&transport.fetch, request, result, true, &globals, Encoding::Json)?;
+        let outcome = super::response(
+            &transport.fetch,
+            request,
+            result,
+            true,
+            &globals,
+            Encoding::Json,
+        )?;
         let envelope: Value = serde_json::from_slice(outcome.bytes()?).map_err(io::Error::other)?;
         let status = envelope.get("status").and_then(Value::as_str);
         if !matches!(status, Some("complete" | "absent")) {
@@ -139,7 +145,10 @@ impl Walk {
             let key = (
                 row.entity.to_string(),
                 row.id.to_string(),
-                row.source.as_ref().map(ToString::to_string).unwrap_or_default(),
+                row.source
+                    .as_ref()
+                    .map(ToString::to_string)
+                    .unwrap_or_default(),
             );
             if self.seen.insert(key) && self.rows.len() < SNAPSHOT_ROWS {
                 self.rows.push(row);

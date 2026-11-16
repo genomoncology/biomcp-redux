@@ -12282,10 +12282,11 @@ Keep searches and lists of records in saved.sqlite in the data folder; a cache c
 Usage: biomcp saved <COMMAND>
 
 Commands:
-  show    Show every saved search and list, or the one with this name.
-  export  Export every saved search and list as typed JSON.
-  delete  Delete the saved search or list with this name, or everything with --all; reply with what was deleted.
-  list    Add records to a named list or remove them.
+  show     Show every saved search and list, or the one with this name.
+  changed  Re-read each saved search from its source, at most once an hour, and report the IDs it gained, lost or changed since its last check.
+  export   Export every saved search, list and kept search snapshot as typed JSON.
+  delete   Delete the saved search or list with this name, or everything with --all; reply with what was deleted.
+  list     Add records to a named list or remove them.
 
 ```
 
@@ -12304,10 +12305,25 @@ Example: biomcp saved show
 
 ```
 
+## biomcp saved changed
+
+```text
+Re-read each saved search from its source, at most once an hour, and report the IDs it gained, lost or changed since its last check.
+
+Usage: biomcp saved changed [NAME]
+
+Arguments:
+  [NAME]
+          Saved search name; without it, every saved search.
+
+Example: biomcp saved changed melanoma-trials
+
+```
+
 ## biomcp saved export
 
 ```text
-Export every saved search and list as typed JSON.
+Export every saved search, list and kept search snapshot as typed JSON.
 
 Usage: biomcp saved export
 
