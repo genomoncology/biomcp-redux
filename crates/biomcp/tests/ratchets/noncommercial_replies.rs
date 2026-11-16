@@ -100,7 +100,10 @@ fn real_orphadata(path: &Path, record: &Value) -> Option<String> {
         .into_iter()
         .flatten();
     for body in exchanges.filter_map(|exchange| exchange.get("body")) {
-        let value = body.get("value").and_then(Value::as_str).unwrap_or_default();
+        let value = body
+            .get("value")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
         let text = match body.get("kind").and_then(Value::as_str) {
             Some("sidecar") => match fs::read(path.with_file_name(value)) {
                 Ok(bytes) => String::from_utf8_lossy(&bytes).into_owned(),

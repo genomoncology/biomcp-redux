@@ -73,11 +73,7 @@ pub(super) fn check() -> Result<(), String> {
                     .and_then(|reply| reply.get("result"))
                     .ok_or("first result missing")?;
                 // A hosted first reply is already HTTP; only local mode pairs stdio with HTTP.
-                let http = if hosted {
-                    None
-                } else {
-                    Some(http_reply(&server, call)?)
-                };
+                let http = (!hosted).then(|| http_reply(&server, call)).transpose()?;
                 let default = if hosted { "both" } else { "once" };
                 let value = check_pair(first, http.as_ref(), form.unwrap_or(default), index)
                     .map_err(|error| format!("hosted={hosted}: {error}"))?;

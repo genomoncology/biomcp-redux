@@ -138,7 +138,7 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
         None,
         &hosted_globals,
     )?;
-    // Hosted mode serves only HTTP, so its first reply of each pair is HTTP too.
+    // Hosted mode serves only HTTP, so its one reply per frame is HTTP; local mode adds an HTTP pair.
     let replies = if hosted {
         frames
             .iter()
@@ -166,12 +166,9 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
             .iter()
             .find(|v| v["id"] == frame["id"])
             .ok_or("first reply")?;
-        // A hosted first reply is already HTTP; only local mode pairs stdio with HTTP.
-        let http = if hosted {
-            None
-        } else {
-            Some(http_wire(&server, frame, "")?)
-        };
+        let http = (!hosted)
+            .then(|| http_wire(&server, frame, ""))
+            .transpose()?;
         for reply in std::iter::once(first).chain(http.as_ref()) {
             check_reply(reply, form, tools, (index == 1 && !restricted, restricted))?;
         }
