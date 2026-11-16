@@ -29,7 +29,7 @@
           "BMS-562247-01",
           "Apixaban accord"
         ],
-        "/sources/0/notices/1/message": "one FAERS query; skipped non-ascii: apixabán; skipped markup: Eliquis&reg;"
+        "/sources/0/notices/1/message": "one FAERS query, so a report naming several counts once; skipped non-ascii: apixabán; skipped markup: Eliquis&reg;"
       }
     },
     {
@@ -54,7 +54,7 @@
           "NSC-758927",
           "Prexxartan"
         ],
-        "/sources/0/notices/1/message": "one FAERS query; skipped component of another product: Valsartan component of agsav301, Valsartan component of byvalson, Valsartan component of copalia, Valsartan component of copalia-hct, Valsartan component of dafiro, Valsartan component of dafiro-hct, Valsartan component of diovan hct, Valsartan component of entresto, Valsartan component of exforge, Valsartan component of exforge hct, Valsartan component of imprida, Valsartan component of imprida-hct, Valsartan component of valturna"
+        "/sources/0/notices/1/message": "one FAERS query, so a report naming several counts once; skipped component of another product: Valsartan component of agsav301, Valsartan component of byvalson, Valsartan component of copalia, Valsartan component of copalia-hct, Valsartan component of dafiro, Valsartan component of dafiro-hct, Valsartan component of diovan hct, Valsartan component of entresto, Valsartan component of exforge, Valsartan component of exforge hct, Valsartan component of imprida, Valsartan component of imprida-hct, Valsartan component of valturna"
       }
     }
   ]
