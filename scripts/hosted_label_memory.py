@@ -24,13 +24,15 @@ ROOT = Path(__file__).resolve().parents[1]
 RECORDED = ROOT / "tests/replies/drug/label-many-names/openfda-label"
 ARGS = ["get", "drug", "metformin", "label", "--label-section", "indications_and_usage"]
 SLOTS = 8  # DEFAULT_HTTP_CAPACITY in crates/biomcp/src/config.rs
+HOSTED_SLOTS = 32  # the call limit the docs example and a hosted deployment set
+PER_USER = 4  # calls one hosted user may run at once behind the front end
 PAGE_BYTES = 32 * 1024 * 1024  # openfda_label PAGE_BYTES
 NEAR_BOUND = 30 * 1024 * 1024
 KEY_HEADER = "x-biomcp-key-openfda-api-key"
 IDENTITY = {"effective_time", "id", "openfda", "set_id", "version", "spl_product_data_elements"}
 
 
-def replies(target, scale):
+def replies(target, scale, calls):
     """Copy the recorded pages, one exchange per call, with the largest body in a sidecar."""
     folder = target / "openfda-label"
     folder.mkdir(parents=True)
@@ -55,7 +57,7 @@ def replies(target, scale):
             (folder / sidecar).write_bytes(body)
             exchange["body"] = {"kind": "sidecar", "value": sidecar}
             largest = max(largest, len(body))
-        recording["exchanges"] = [exchange] * SLOTS
+        recording["exchanges"] = [exchange] * calls
         (folder / path.name).write_text(json.dumps(recording))
     return largest
 
@@ -65,14 +67,14 @@ def rss_kib(pid):
     return int(result.stdout.strip() or 0)
 
 
-def post(address, index, key):
+def post(address, index, users):
     body = json.dumps({"jsonrpc": "2.0", "id": index, "method": "tools/call",
                        "params": {"name": "biomcp", "arguments": {"args": ARGS}}}).encode()
     headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream",
                "MCP-Protocol-Version": "2025-11-25"}
-    if key:
-        # A distinct caller key gives each call its own openFDA bucket, as separate hosted users have.
-        headers[KEY_HEADER] = f"synthetic-measurement-key-{index}"
+    if users:
+        # Each caller key has its own openFDA bucket, as separate hosted users have.
+        headers[KEY_HEADER] = f"synthetic-measurement-key-{index % users}"
     request = urllib.request.Request(f"http://{address}/mcp", data=body, headers=headers)
     with urllib.request.urlopen(request, timeout=120) as response:
         reply = json.loads(response.read())
@@ -84,22 +86,27 @@ def post(address, index, key):
     return content["result"]["identity"]["name"]
 
 
-def scenario(binary, name, calls, key, scale):
+def scenario(binary, name, calls, users, scale):
     with tempfile.TemporaryDirectory(prefix="biomcp-label-memory-") as temporary:
         root = Path(temporary)
         for folder in ("home", "config/biomcp", "cache", "replies"):
             (root / folder).mkdir(parents=True)
         (root / "config/biomcp/config.json").write_text(json.dumps({"source_data_max_age_days": 1_000_000}))
-        page = replies(root / "replies", scale)
+        page = replies(root / "replies", scale, calls)
         env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": str(root / "home"),
                "XDG_CONFIG_HOME": str(root / "config"), "XDG_CACHE_HOME": str(root / "cache")}
         server = subprocess.Popen(
             [binary, "serve", "--hosted", "--http", "127.0.0.1:0", "--replay", str(root / "replies"),
-             "--case-cache", str(root / "case-cache")],
+             "--case-cache", str(root / "case-cache"), "--http_max_calls", str(max(calls, SLOTS)),
+             "--http_max_connections", str(2 * max(calls, SLOTS))],
             cwd=root, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
             text=True)
         try:
-            ready = json.loads(server.stderr.readline())
+            line = server.stderr.readline()
+            if not line.startswith("{"):
+                server.terminate()
+                raise RuntimeError(f"server did not start: {line}{server.stderr.read()[:2000]}")
+            ready = json.loads(line)
             address = ready["listening"]
             threading.Thread(target=lambda: shutil.copyfileobj(server.stderr, open(os.devnull, "w")),
                              daemon=True).start()
@@ -118,7 +125,7 @@ def scenario(binary, name, calls, key, scale):
             def call(index):
                 barrier.wait()
                 try:
-                    outcomes[index] = post(address, index, key)
+                    outcomes[index] = post(address, index, users)
                 except Exception as error:  # every failure is reported with the measurement
                     outcomes[index] = error
             started = time.monotonic()
@@ -138,7 +145,7 @@ def scenario(binary, name, calls, key, scale):
         # ru_maxrss is bytes on macOS and KiB on Linux.
         peak = usage.ru_maxrss // (1024 if sys.platform == "darwin" else 1)
         failures = [str(outcome) for outcome in outcomes if not isinstance(outcome, str)]
-        return {"scenario": name, "calls": calls, "own_keys": key, "largest_page_bytes": page,
+        return {"scenario": name, "calls": calls, "caller_keys": users, "largest_page_bytes": page,
                 "idle_rss_mib": round(idle / 1024, 1), "sampled_peak_rss_mib": round(max(samples) / 1024, 1),
                 "process_peak_rss_mib": round(peak / 1024, 1), "rss_after_mib": round(after / 1024, 1),
                 "peak_over_idle_mib": round((peak - idle) / 1024, 1), "seconds": round(elapsed, 2),
@@ -147,11 +154,18 @@ def scenario(binary, name, calls, key, scale):
 
 def main():
     binary = os.path.abspath(sys.argv[1])
-    runs = [("one call", 1, False, False), ("eight calls, shared keyless bucket", SLOTS, False, False),
-            ("eight calls, eight caller keys", SLOTS, True, False),
-            ("eight calls, eight caller keys, page scaled near 32 MiB", SLOTS, True, True)]
-    results = [scenario(binary, *run) for run in runs]
-    for result in results:
+    runs = [("one call", 1, 0, False), ("8 calls, keyless", SLOTS, 0, False),
+            ("8 calls, 8 caller keys", SLOTS, SLOTS, False),
+            ("8 calls, 8 caller keys, page scaled near 32 MiB", SLOTS, SLOTS, True),
+            ("32 calls, 8 caller keys", HOSTED_SLOTS, HOSTED_SLOTS // PER_USER, False),
+            ("32 calls, 8 caller keys, page scaled near 32 MiB", HOSTED_SLOTS, HOSTED_SLOTS // PER_USER, True)]
+    results = []
+    for run in runs:
+        try:
+            result = scenario(binary, *run)
+        except Exception as error:  # report the scenario and go on to the next
+            result = {"scenario": run[0], "failures": [repr(error)]}
+        results.append(result)
         print(json.dumps(result), flush=True)
     print(json.dumps({"benchmark": "hosted-label-memory", "host": sys.platform,
                       "machine": os.uname().machine, "binary": binary}))
