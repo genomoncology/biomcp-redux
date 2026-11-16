@@ -1,0 +1,36 @@
+{
+  "method": "GET",
+  "source": "nci",
+  "url": "https://clinicaltrialsapi.cancer.gov/api/v2/trials?size=2&from=4&keyword=Synthetic%20paging&include=nci_id&include=nct_id&include=brief_title&include=current_trial_status&include=phase&include=diseases",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "total": 8,
+          "data": [
+            {
+              "nci_id": "not-an-nci-id",
+              "nct_id": "NCT09100005",
+              "brief_title": "Synthetic paging control",
+              "current_trial_status": "Active",
+              "phase": "II",
+              "diseases": []
+            },
+            {
+              "nci_id": "NCI-2026-90006",
+              "brief_title": "Synthetic paging control",
+              "current_trial_status": "Active",
+              "phase": "II",
+              "diseases": []
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
