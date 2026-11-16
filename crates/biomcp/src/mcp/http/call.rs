@@ -134,7 +134,7 @@ impl Calls {
             scope: held,
         });
         drop(state);
-        wait(scope.as_ref(), receiver, id)
+        wait(scope.as_ref(), receiver, id, peer)
     }
     /// Hold the lock with a free slot, or say how long this call waited and when to retry.
     fn turn(
@@ -185,8 +185,9 @@ impl Calls {
         }
     }
 }
-/// A client that closed its connection can get no answer, so its waiting call gives up its place.
-/// A client that half-closes after its request is treated as gone; HTTP clients wait open.
+/// A client that closed its connection can get no answer, so its waiting call gives up its place
+/// and its running hosted call stops. A client that half-closes after its request is treated as
+/// gone; HTTP clients wait open.
 fn gone(peer: &TcpStream) -> bool {
     if peer.set_nonblocking(true).is_err() {
         return false;
@@ -229,10 +230,13 @@ impl Drop for Calls {
     }
 }
 
+/// A hosted call whose client closes its connection can get no answer, so it is cancelled at once:
+/// its source requests close and its slot frees when the worker stops, as a stdio cancel does.
 fn wait(
     scope: Option<&Cancellation>,
     receiver: mpsc::Receiver<std::io::Result<Value>>,
     id: Value,
+    peer: Option<&TcpStream>,
 ) -> Value {
     let Some(scope) = scope else {
         // Plain HTTP has no whole-call deadline; the command's own budget ends its work.
@@ -258,7 +262,12 @@ fn wait(
             Err(mpsc::RecvTimeoutError::Disconnected) => {
                 return protocol::error(id, -32603, "Internal error");
             }
-            Err(mpsc::RecvTimeoutError::Timeout) => (),
+            Err(mpsc::RecvTimeoutError::Timeout) => {
+                if peer.is_some_and(gone) {
+                    scope.cancel();
+                    return protocol::error(id, -32800, "Request cancelled");
+                }
+            }
         }
     }
 }
