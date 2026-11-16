@@ -75,9 +75,9 @@ class GateStages(unittest.TestCase):
 
     def test_gate_runs_its_stages_in_order_and_stops_on_a_failing_stage(self):
         landing = ['rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases',
-                   'changed-tool-proofs', 'changed-library-tests']
+                   'changed-tool-proofs', 'changed-library-tests', 'changed-schema-release-check']
         full = ['audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
-                'tensor-proto-check', 'library-tests', 'tool-proofs', 'coverage']
+                'tensor-proto-check', 'library-tests', 'schema-release-check', 'tool-proofs', 'coverage']
         with tempfile.TemporaryDirectory() as temporary:
             tools = Path(temporary)
             make = tools / 'make'
@@ -174,6 +174,7 @@ class GateStages(unittest.TestCase):
             result = run(CARGO_METADATA=str(Path(temporary) / 'missing.json'))
             self.assertIn('no crate graph from cargo metadata', result.stdout)
             self.assertIn(every, result.stdout)
+            self.assertIn(every, branch('makefile', 'Makefile').stdout)
             commit('Cargo.lock', 'y')
             self.assertIn(every, run().stdout)
             git('checkout', '-q', 'main')

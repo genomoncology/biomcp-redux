@@ -142,6 +142,57 @@ class SchemaRelease(unittest.TestCase):
                     path.touch()
                 subprocess.run(schema_test, cwd=ROOT, env=environment, check=True)
 
+    def test_landing_gate_compares_only_when_the_branch_changed_its_inputs(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root, tools = Path(folder) / "repo", Path(folder) / "bin"
+            root.mkdir(); tools.mkdir()
+            calls = Path(folder) / "calls"
+            cargo = tools / "cargo"
+            # A passing schema test run; the name is the ninth argument (see the invocation above).
+            cargo.write_text("#!/bin/sh\nprintf '%s\\n' \"$9\" >> \"$CARGO_CALLS\"\n"
+                             "printf 'test %s ... ok\\ntest result: ok. 1 passed; 0 failed; 0 ignored; "
+                             "0 measured; 3 filtered out\\n' \"$9\"\n")
+            cargo.chmod(0o755)
+            # The fixture repository must not see the checkout's own Git settings.
+            env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+            env.update(PATH=str(tools) + os.pathsep + os.environ["PATH"], HOME=folder,
+                       GIT_CONFIG_NOSYSTEM="1", CARGO_CALLS=str(calls), SCHEMA_RELEASE_BASE="main")
+
+            def git(*args):
+                subprocess.run(["git", "-C", str(root), *args], env=env, check=True, capture_output=True)
+
+            def commit(path):
+                (root / path).parent.mkdir(parents=True, exist_ok=True)
+                (root / path).write_text(path)
+                git("add", "."); git("commit", "-qm", "Change " + path)
+
+            git("init", "-q", "-b", "main")
+            git("config", "user.name", "Fixture"); git("config", "user.email", "fixture@example.invalid")
+            commit("README.md")
+            compared = ["generated_schemas_preserve_release_contracts", "checked_in_schemas_match_types"]
+            for number, (path, ran) in enumerate((
+                    ("docs/notes.md", []), ("crates/biomcp/src/main.rs", []), ("release/notes.md", []),
+                    ("crates/biomcp-types/src/response.rs", compared),
+                    ("crates/biomcp-types/schemas/gene-card.json", compared),
+                    ("release/schema-reviews.json", compared), ("release/schema-baseline.json", compared),
+                    ("scripts/schema_release.py", compared), ("Cargo.lock", compared), ("Makefile", compared))):
+                with self.subTest(path=path):
+                    git("checkout", "-q", "-b", f"ticket-{number}", "main")
+                    commit(path)
+                    calls.write_text("")
+                    result = subprocess.run([sys.executable, str(ROOT / "scripts/schema_release.py"), "--changed"],
+                                            cwd=root, env=env, capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn("schema-release base=", result.stdout)
+                    self.assertEqual(calls.read_text().split(), ran)
+            calls.write_text("")
+            result = subprocess.run([sys.executable, str(ROOT / "scripts/schema_release.py"), "--changed"],
+                                    cwd=root, env=dict(env, SCHEMA_RELEASE_BASE="missing"),
+                                    capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("no base from missing", result.stdout)
+            self.assertEqual(calls.read_text().split(), compared)
+
 
 if __name__ == "__main__":
     unittest.main()
