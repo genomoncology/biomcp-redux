@@ -559,9 +559,9 @@ fn native_totals_without_total(node: &Value, path: &str, found: &mut Vec<String>
         found.push(path.to_owned());
     }
     match node {
-        Value::Object(values) => values
-            .iter()
-            .for_each(|(key, value)| native_totals_without_total(value, &format!("{path}/{key}"), found)),
+        Value::Object(values) => values.iter().for_each(|(key, value)| {
+            native_totals_without_total(value, &format!("{path}/{key}"), found)
+        }),
         Value::Array(values) => values
             .iter()
             .for_each(|value| native_totals_without_total(value, &format!("{path}/[]"), found)),

@@ -45,7 +45,7 @@ impl ResponseBody for ProteinFeatures {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinDomains {
     // The totals come before the rows (0942): a reader of only the start sees them.
-    /// Rows in the whole selected collection before paging; the count to report (1010).
+    /// Rows in the whole selected collection before paging; the count to report.
     #[serde(default)]
     pub total: u64,
     /// Native source total before type selection or exact participant admission.
@@ -74,7 +74,7 @@ page!(
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinComplexes {
     // The totals come before the rows (0942): a reader of only the start sees them.
-    /// Rows in the whole selected collection before paging; the count to report (1010).
+    /// Rows in the whole selected collection before paging; the count to report.
     #[serde(default)]
     pub total: u64,
     /// Native source total before type selection or exact participant admission.
