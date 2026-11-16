@@ -43,7 +43,7 @@ Every reply's per-source outcome drops `terms` and `terms_url`, keeping `source`
 | Case | Command | Before bytes | After bytes | Saved |
 | --- | --- | --- | --- | --- |
 | gene/braf | get gene BRAF | 2,373 | 2,112 | 261 (11.0%) |
-| disease/orphadata | get disease MONDO:0016512 prevalence --source orphadata | 2,246 | 1,915 | 331 (14.7%) |
+| disease/orphadata | get disease MONDO:0016512 prevalence --source orphadata | 2,246 | 2,058 | 188 (8.4%) |
 | drug/ema | search drug Tibsovo --source ema --limit 1 | 1,259 | 1,107 | 152 (12.1%) |
 | variant/search-L858R | search variant --gene EGFR --protein L858R --build GRCh37 | 1,226 | 1,124 | 102 (8.3%) |
 | gwas/studies | search gwas --pubmed 17554300 --studies --limit 50 | 2,429 | 2,325 | 104 (4.3%) |
@@ -52,4 +52,5 @@ Every reply's per-source outcome drops `terms` and `terms_url`, keeping `source`
 | article/get/card | get article 33123537 | 2,376 | 2,258 | 118 (5.0%) |
 | pathway/examples | search pathway Signaling by EGFR | 1,445 | 1,370 | 75 (5.2%) |
 | pgx/examples | search pgx --gene DPYD --source cpic | 979 | 894 | 85 (8.7%) |
-| Total | | 19,274 | 17,821 | 1,453 (7.5%) |
+| Total | | 19,274 | 17,964 | 1,310 (6.8%) |
+- 2026-11-15, review fixes (decision `2026-11-15-source-terms-live-in-help-sources.md`): each Orphadata record (`OrphanetEpidemiology`) now carries a required `notice` with the statement Orphanet's legal notice asks results to carry, taken from the same text as its terms in `crates/biomcp-adapters/src/orphadata/bundle.rs`; `disease/orphadata` asserts it. The `use` description points to `help sources`; `skills/SKILL.md` drops "terms" from its preserve line (4,085 bytes). Merged main with 0982; its saved schemas carry no source outcome and stay at `saved/1`. Orphadata row re-measured in j41539 (2,058 bytes after; the table above uses it).

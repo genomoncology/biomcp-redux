@@ -459,6 +459,10 @@
           ],
           "description": "Publisher disorder name."
         },
+        "notice": {
+          "description": "Statement Orphanet's legal notice asks every result from its data to carry.",
+          "type": "string"
+        },
         "onset": {
           "description": "Average ages of onset in file order.",
           "items": {
@@ -476,7 +480,8 @@
       },
       "required": [
         "id",
-        "attribution"
+        "attribution",
+        "notice"
       ],
       "type": "object"
     },
