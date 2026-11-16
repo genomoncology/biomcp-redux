@@ -643,12 +643,23 @@
       "description": "A stored note or list item skipped because a newer build wrote a value this build does not know.",
       "properties": {
         "field": {
-          "description": "The stored field this build does not know: `kind` for a note, `source` for an item.",
+          "description": "The stored field this build does not know: `kind` for a note, `source` for an item or row.",
           "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The list holding a skipped item, or the saved search holding a skipped snapshot row."
         },
         "record": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "The note's ID, or the list item's ID."
+          "description": "The note's ID, the list item's ID, or the snapshot row's ID."
         },
         "value": {
           "$ref": "#/$defs/Reply_Text",

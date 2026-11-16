@@ -5,7 +5,7 @@ use super::{
 };
 use biodata::Text;
 
-fn text(value: &str) -> Text {
+pub(super) fn text(value: &str) -> Text {
     Text::new(value).unwrap()
 }
 
@@ -82,25 +82,18 @@ fn lists_and_searches_round_trip() {
     let ids: Vec<_> = list.items.iter().map(|i| i.reference.id.as_str()).collect();
     assert_eq!(ids, ["BRAF", "NRAS", "KIT"], "set insert in added order");
     assert_eq!(list.name.as_str(), "Genes", "the first spelling stays");
-    let biomcp_types::Saved {
-        mut lists, missing, ..
-    } = store
+    let removed = store
         .list_remove("GENES", &[text("NRAS"), text("TP53")])
         .unwrap();
-    let list = lists.remove(0);
+    let list = &removed.lists[0];
     assert_eq!(list.items.len(), 2, "one item removed");
-    assert_eq!(
-        missing,
-        [text("TP53")],
-        "an ID the list did not hold is reported"
-    );
+    assert_eq!(removed.missing, [text("TP53")], "an ID the list did not hold");
     let unchanged = store.list_remove("genes", &[text("NRAS")]).unwrap();
-    let missing = unchanged.missing;
     assert_eq!(
         unchanged.lists[0].modified, list.modified,
         "nothing removed leaves modified"
     );
-    assert_eq!(missing, [text("NRAS")], "a removed ID is now missing");
+    assert_eq!(unchanged.missing, [text("NRAS")], "a removed ID is now missing");
     drop(store);
     let mut store = SavedStore::open(&path).unwrap();
     let all = store.show(None).unwrap();
@@ -228,7 +221,7 @@ fn newer_file_is_refused_untouched() {
     assert_eq!(before.0, newer, "the newer key stays");
 }
 
-fn check(rows: &[(&str, &str)], schema: &str, complete: bool) -> super::NewSnapshot {
+pub(super) fn check(rows: &[(&str, &str)], schema: &str, complete: bool) -> super::NewSnapshot {
     super::NewSnapshot {
         total: rows.len() as u64,
         complete,
@@ -250,7 +243,7 @@ fn ids(refs: &[biomcp_types::SavedRef]) -> Vec<&str> {
     refs.iter().map(|r| r.id.as_str()).collect()
 }
 
-fn melanoma(store: &mut SavedStore) -> biomcp_types::SavedSearch {
+pub(super) fn melanoma(store: &mut SavedStore) -> biomcp_types::SavedSearch {
     let args = vec!["search".to_owned(), "trial".to_owned()];
     store
         .save_search(&text("Melanoma"), &args, "biomcp.trial-search/1", "00")
@@ -496,7 +489,10 @@ fn notes_follow_their_targets() {
         2,
         "removing an item removes its notes"
     );
-    assert_eq!(store.delete_note(gene.id.as_str()).unwrap(), Ok(gene.clone()));
+    assert_eq!(
+        store.delete_note(gene.id.as_str()).unwrap(),
+        Ok(gene.clone())
+    );
     assert_eq!(
         store.delete_note(gene.id.as_str()).err(),
         Some(SavedError::Unknown)
@@ -514,107 +510,4 @@ fn notes_follow_their_targets() {
         "the list note and the project note"
     );
     assert_eq!(store.show(None).unwrap(), Default::default());
-}
-
-#[test]
-fn source_picks_an_item_and_unknown_stored_values_are_skipped() {
-    use biomcp_types::{SavedSkipped, Source};
-    let folder = tempfile::tempdir().unwrap();
-    let mut store = SavedStore::open(&folder.path().join("saved.sqlite")).unwrap();
-    let item = |source: Source| NewItem {
-        entity: text("gene"),
-        id: text("BRAF"),
-        source: Some(source),
-        note: None,
-    };
-    store
-        .list_add(
-            &text("genes"),
-            &[item(Source::Civic), item(Source::UniProt)],
-        )
-        .unwrap();
-    let on = |source| NoteTarget::Item {
-        list: "genes",
-        id: "BRAF",
-        entity: Some("gene"),
-        source,
-    };
-    assert_eq!(
-        store.note(on(None), &text("x")).err(),
-        Some(SavedError::Ambiguous),
-        "one ID and entity under two sources needs a source"
-    );
-    let civic = store.note(on(Some("civic")), &text("v600e")).unwrap();
-    assert_eq!(
-        civic.target.item.and_then(|item| item.source),
-        Some(Source::Civic)
-    );
-    // A newer 1.x build may store a note kind or item source this build does not know.
-    store
-        .connection
-        .execute(
-            "UPDATE saved_list_item SET source='future-source' WHERE source='uniprot'",
-            [],
-        )
-        .unwrap();
-    store
-        .connection
-        .execute(
-            "INSERT INTO saved_note(id,project,kind,record,entity,item,source,text,created) \
-             VALUES('future','default','future-kind','','','','','x',1)",
-            [],
-        )
-        .unwrap();
-    let skipped = |name: Option<&str>, field: &str, record: &str, value: &str| SavedSkipped {
-        record: text(record),
-        name: name.map(text),
-        field: field.into(),
-        value: text(value),
-    };
-    let item = skipped(Some("genes"), "source", "BRAF", "future-source");
-    for shown in [
-        store.show(None).unwrap(),
-        store.show(Some("genes")).unwrap(),
-    ] {
-        assert_eq!(shown.lists[0].items.len(), 1, "the readable item stays");
-        assert_eq!(shown.user_notes.len(), 1, "the readable note stays");
-        assert!(shown.skipped.contains(&item));
-    }
-    let note = skipped(None, "kind", "future", "future-kind");
-    assert_eq!(
-        store.show(None).unwrap().skipped,
-        [item.clone(), note.clone()],
-        "each unreadable row is named, not a failure"
-    );
-    assert_eq!(
-        store.list_remove("genes", &[text("KIT")]).unwrap().skipped,
-        [item.clone()],
-        "a list remove names the item it cannot read"
-    );
-    assert_eq!(store.list_add(&text("genes"), &[]).unwrap().skipped, [item]);
-    assert_eq!(
-        store.delete_note("future").unwrap(),
-        Err(note),
-        "an unreadable note is deleted by its ID"
-    );
-    assert_eq!(store.show(None).unwrap().skipped.len(), 1);
-    let search = melanoma(&mut store);
-    store
-        .record_check(&search, &check(&[("A", "1"), ("B", "1")], "s/1", true))
-        .unwrap();
-    store
-        .connection
-        .execute(
-            "UPDATE saved_snapshot_row SET source='future-source' WHERE id='A'",
-            [],
-        )
-        .unwrap();
-    let mut rows = Vec::new();
-    let kept = store.all_snapshots(&mut rows).unwrap();
-    assert_eq!(kept[0].rows.len(), 1, "the readable row stays");
-    assert_eq!(
-        rows,
-        [skipped(Some("Melanoma"), "source", "A", "future-source")],
-        "a snapshot row from a newer build is skipped"
-    );
 }

@@ -3,8 +3,8 @@
 //! fingerprints, never source content, and each search keeps its two newest.
 use biodata::Text;
 use biomcp_types::{
-    ChangeReport, ChangeSnapshot, ChangeState, SavedRef, SavedSearch, SavedSkipped,
-    SavedSnapshot, SavedSnapshotRow, SavedSnapshotSource, Source,
+    ChangeReport, ChangeSnapshot, ChangeState, SavedRef, SavedSearch, SavedSkipped, SavedSnapshot,
+    SavedSnapshotRow, SavedSnapshotSource, Source,
 };
 use rusqlite::{Connection, OptionalExtension, Transaction, params};
 use std::collections::{BTreeMap, BTreeSet};
@@ -319,9 +319,11 @@ fn snapshot(
         )?;
     let taken = unsigned(taken)?;
     let name: Option<String> = connection
-        .query_row("SELECT name FROM saved_search WHERE id=?1", [&search], |row| {
-            row.get(0)
-        })
+        .query_row(
+            "SELECT name FROM saved_search WHERE id=?1",
+            [&search],
+            |row| row.get(0),
+        )
         .optional()?;
     let mut skip = |record: &str, value: &str| -> Result<(), SavedError> {
         skipped.push(SavedSkipped {
@@ -360,15 +362,7 @@ fn snapshot(
             fingerprint: text(&fingerprint)?,
         });
     }
-    let stored: Vec<serde_json::Value> =
-        serde_json::from_str(&sources).map_err(|_| SavedError::Database)?;
-    let mut read = Vec::with_capacity(stored.len());
-    for source in stored {
-        match serde_json::from_value::<SavedSnapshotSource>(source.clone()) {
-            Ok(source) => read.push(source),
-            Err(_) => skip(&id, source["source"].as_str().unwrap_or("unknown"))?,
-        }
-    }
+    let sources = read_sources(&sources, |value| skip(&id, value))?;
     Ok(SavedSnapshot {
         id: text(&id)?,
         search: text(&search)?,
@@ -376,7 +370,29 @@ fn snapshot(
         total: unsigned(total)?,
         complete,
         row_schema: text(&row_schema)?,
-        sources: read,
+        sources,
         rows,
     })
+}
+
+/// A snapshot's stored sources; one a newer build wrote goes to `skip`.
+fn read_sources(
+    stored: &str,
+    mut skip: impl FnMut(&str) -> Result<(), SavedError>,
+) -> Result<Vec<SavedSnapshotSource>, SavedError> {
+    let stored: Vec<serde_json::Value> =
+        serde_json::from_str(stored).map_err(|_| SavedError::Database)?;
+    let mut read = Vec::with_capacity(stored.len());
+    for source in stored {
+        let value = source
+            .get("source")
+            .and_then(serde_json::Value::as_str)
+            .unwrap_or("unknown")
+            .to_owned();
+        match serde_json::from_value::<SavedSnapshotSource>(source) {
+            Ok(source) => read.push(source),
+            Err(_) => skip(&value)?,
+        }
+    }
+    Ok(read)
 }

@@ -99,8 +99,14 @@ fn saved_schemas_take_open_list_growth_and_reviewed_pattern_widenings() {
         "from":"^[0-9]{4}$", "to":"^[0-9]{4,5}$", "review":"BioData widened the shared ID."
     }]}))
     .unwrap_or_default();
-    assert!(!reply(&widened, &none), "an unreviewed pattern change fails");
-    assert!(reply(&widened, &reviews), "a reviewed pattern widening passes");
+    assert!(
+        !reply(&widened, &none),
+        "an unreviewed pattern change fails"
+    );
+    assert!(
+        reply(&widened, &reviews),
+        "a reviewed pattern widening passes"
+    );
     let narrowings: Reviews = serde_json::from_value(json!({"pattern_narrowings":[{
         "from":"^[0-9]{4}$", "to":"^[0-9]{4,5}$", "review":"x",
         "sites":[{"schema":"biomcp.saved-example/1", "paths":["/id"]}]

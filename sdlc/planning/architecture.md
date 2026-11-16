@@ -265,6 +265,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-fetch/tests/xml.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-query/tests/article_search.rs` | Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries. |
 | `crates/biomcp-query/src/store/privacy_tests.rs` | Prove caller ownership and atomic current-pool admission at the private query store transaction boundary before retained routes publish continuations. |
+| `crates/biomcp-query/src/store/saved/skip_tests.rs` | Check saved list items picked by source and stored values a newer build wrote, at the private saved store boundary. |
 | `crates/biomcp-query/src/store/saved/tests.rs` | Check that saved-work migrations only add and a newer file stays unchanged, at the private saved store boundary. |
 | `crates/biomcp-query/src/diagnostic/summary_tests.rs` | Find every match in synthetic long extracted lines at the private PMA summary passage cut, which a recorded document cannot shape on demand. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |

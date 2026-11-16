@@ -16,4 +16,6 @@ pub use store::{
 };
 
 #[cfg(test)]
+mod skip_tests;
+#[cfg(test)]
 mod tests;

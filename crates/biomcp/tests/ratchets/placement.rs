@@ -437,6 +437,10 @@ const ALLOWED: &[(&str, &str)] = &[
         before retained routes publish continuations.",
     ),
     (
+        "crates/biomcp-query/src/store/saved/skip_tests.rs",
+        "Check saved list items picked by source and stored values a newer build wrote, at the private saved store boundary.",
+    ),
+    (
         "crates/biomcp-query/src/store/saved/tests.rs",
         "Check that saved-work migrations only add and a newer file stays unchanged, at the private saved store boundary.",
     ),
