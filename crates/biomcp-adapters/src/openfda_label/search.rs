@@ -68,8 +68,8 @@ pub fn search_names(leg: &Leg<'_>, name: &Text) -> Result<Vec<Page>, RequestErro
 }
 /// A name lookup holds every page until it chooses a label, and a live page carries whole labels
 /// of up to 32 MiB. Choosing reads names and identity, plus the indications it counts, so the
-/// other sections go as each page arrives. Eight lookups at once over live-sized metformin pages
-/// (52 MiB each) held 1.3 GiB before this (ticket 1002).
+/// other sections go as each page arrives: eight metformin lookups at once over live-sized pages
+/// (52 MiB per lookup) peaked at 733 MiB while every page stayed whole.
 fn choice_fields(mut page: Page) -> Page {
     choice_sections(&mut page.window.rows);
     page
