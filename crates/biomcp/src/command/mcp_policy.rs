@@ -26,6 +26,12 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
         if globals.fresh {
             return Some(UsageError::argument("--fresh".into()));
         }
+        // Plain HTTP writes no file, so a save is refused before any source request.
+        if let Action::Run { request, .. } = action
+            && saves(request)
+        {
+            return Some(UsageError::argument("--save".into()));
+        }
     }
     match action {
         Action::Run { request, .. } if replaces(request) => {

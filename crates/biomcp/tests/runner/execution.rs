@@ -33,6 +33,8 @@ pub(super) fn run_step(
     if let Some(args) = &step.mcp {
         let (result, text) = if step.hosted {
             mcp::call_text_hosted(environment, args, step.is_error, &globals)?
+        } else if step.http {
+            mcp::call_text_http(environment, args, step.is_error, &globals)?
         } else {
             mcp::call_text_with_globals(environment, args, step.is_error, &globals)?
         };

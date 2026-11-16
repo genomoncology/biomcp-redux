@@ -220,8 +220,10 @@ fn apply_page(
     outcome: &mut Outcome,
     mut page: ctgov::SearchPage,
 ) {
-    outcome.dropped = page.refusals == biomcp_adapters::Refusal::Refused;
-    if outcome.dropped {
+    let refused = page.refusals == biomcp_adapters::Refusal::Refused;
+    // A refusal from an earlier stage must survive a clean page.
+    outcome.dropped |= refused;
+    if refused {
         crate::status::item(outcome, true, false, false);
     }
     outcome.problems.append(&mut page.problems);
@@ -332,5 +334,33 @@ fn gene<'a>(
             outcome.local = status::local(error);
             None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn earlier_refusal_survives_a_clean_page() {
+        let query: TrialSearch = serde_json::from_str(r#"{"query":"melanoma"}"#).unwrap();
+        let mut outcome = empty(&query);
+        outcome.dropped = true;
+        let page = ctgov::SearchPage {
+            refusals: biomcp_adapters::Refusal::None,
+            received: 0,
+            items: Vec::new(),
+            problems: Vec::new(),
+            condition_word_mismatch: false,
+            gene_contexts: Vec::new(),
+            codon_only: Vec::new(),
+            codon_error: None,
+            total: Some(0),
+            count_error: None,
+            count_request: None,
+            next: None,
+        };
+        apply_page(&query, &query, false, None, &mut outcome, page);
+        assert!(outcome.dropped);
     }
 }

@@ -37,6 +37,9 @@ pub(crate) struct Step {
     /// Send the `mcp` call to a hosted HTTP server instead of stdio.
     #[serde(default)]
     pub(crate) hosted: bool,
+    /// Send the `mcp` call to a plain (not hosted) HTTP server instead of stdio.
+    #[serde(default)]
+    pub(crate) http: bool,
     pub(crate) mcp_call: Option<McpCall>,
     #[serde(default)]
     pub(crate) is_error: bool,
