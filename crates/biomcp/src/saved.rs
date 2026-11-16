@@ -109,12 +109,9 @@ pub(crate) fn cli(
     let words: Vec<&str> = crate::grammar::command_words(root, args).collect();
     let saves = save_as_position(args).is_some();
     match words.as_slice() {
-        ["saved", rest @ ..] if crate::saved_help::asks_help(args) => Some(crate::saved_help::help(
-            root,
-            settings,
-            args,
-            &command_path(rest),
-        )),
+        ["saved", rest @ ..] if crate::saved_help::asks_help(args) => Some(
+            crate::saved_help::help(root, settings, args, &command_path(rest)),
+        ),
         ["saved", ..] => Some(run(root, settings, args)),
         ["help", "saved", rest @ ..] => Some(crate::saved_help::help(
             root,

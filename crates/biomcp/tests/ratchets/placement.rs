@@ -168,6 +168,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise recursive public schema graphs and their compatibility constraints.",
     ),
     (
+        "crates/biomcp-types/tests/schemas/compatibility_saved_cases.rs",
+        "Hold saved-work schemas to added optional fields only.",
+    ),
+    (
         "crates/biomcp-types/tests/schemas/temporal.rs",
         "Exercise native timestamp schema spelling and temporal property consistency.",
     ),
