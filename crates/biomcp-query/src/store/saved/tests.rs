@@ -5,7 +5,7 @@ use super::{
 };
 use biodata::Text;
 
-fn text(value: &str) -> Text {
+pub(super) fn text(value: &str) -> Text {
     Text::new(value).unwrap()
 }
 
@@ -76,25 +76,24 @@ fn lists_and_searches_round_trip() {
         .unwrap();
     let list = store
         .list_add(&text("genes"), &[item("BRAF"), item("KIT")])
-        .unwrap();
+        .unwrap()
+        .lists
+        .remove(0);
     let ids: Vec<_> = list.items.iter().map(|i| i.reference.id.as_str()).collect();
     assert_eq!(ids, ["BRAF", "NRAS", "KIT"], "set insert in added order");
     assert_eq!(list.name.as_str(), "Genes", "the first spelling stays");
-    let (list, missing) = store
+    let removed = store
         .list_remove("GENES", &[text("NRAS"), text("TP53")])
         .unwrap();
+    let list = &removed.lists[0];
     assert_eq!(list.items.len(), 2, "one item removed");
+    assert_eq!(removed.missing, [text("TP53")], "not held");
+    let unchanged = store.list_remove("genes", &[text("NRAS")]).unwrap();
     assert_eq!(
-        missing,
-        [text("TP53")],
-        "an ID the list did not hold is reported"
-    );
-    let (unchanged, missing) = store.list_remove("genes", &[text("NRAS")]).unwrap();
-    assert_eq!(
-        unchanged.modified, list.modified,
+        unchanged.lists[0].modified, list.modified,
         "nothing removed leaves modified"
     );
-    assert_eq!(missing, [text("NRAS")], "a removed ID is now missing");
+    assert_eq!(unchanged.missing, [text("NRAS")], "now missing");
     drop(store);
     let mut store = SavedStore::open(&path).unwrap();
     let all = store.show(None).unwrap();
@@ -162,7 +161,11 @@ fn file_with_later_additive_migrations_opens() {
             }],
         )
         .unwrap();
-    assert_eq!(list.items.len(), 2, "an older build writes the later file");
+    assert_eq!(
+        list.lists[0].items.len(),
+        2,
+        "an older build writes the later file"
+    );
     let schema: i64 = connection
         .query_row("SELECT value FROM meta WHERE key='schema'", [], |row| {
             row.get(0)
@@ -218,7 +221,7 @@ fn newer_file_is_refused_untouched() {
     assert_eq!(before.0, newer, "the newer key stays");
 }
 
-fn check(rows: &[(&str, &str)], schema: &str, complete: bool) -> super::NewSnapshot {
+pub(super) fn check(rows: &[(&str, &str)], schema: &str, complete: bool) -> super::NewSnapshot {
     super::NewSnapshot {
         total: rows.len() as u64,
         complete,
@@ -240,7 +243,7 @@ fn ids(refs: &[biomcp_types::SavedRef]) -> Vec<&str> {
     refs.iter().map(|r| r.id.as_str()).collect()
 }
 
-fn melanoma(store: &mut SavedStore) -> biomcp_types::SavedSearch {
+pub(super) fn melanoma(store: &mut SavedStore) -> biomcp_types::SavedSearch {
     let args = vec!["search".to_owned(), "trial".to_owned()];
     store
         .save_search(&text("Melanoma"), &args, "biomcp.trial-search/1", "00")
@@ -276,9 +279,23 @@ fn snapshots_compare_and_keep_two() {
         "new, gone and changed by ID and fingerprint"
     );
     assert_eq!(
-        store.snapshots(search.id.as_str()).unwrap().len(),
+        store
+            .snapshots(search.id.as_str(), &mut Vec::new())
+            .unwrap()
+            .len(),
         2,
         "two newest kept"
+    );
+    let renamed = store
+        .record_check(&search, &check(&[("B", "2"), ("C", "3")], "s/2#rows", true))
+        .unwrap();
+    let again = store
+        .record_check(&search, &check(&[("B", "2"), ("C", "4")], "s/3#rows", true))
+        .unwrap();
+    assert_eq!(
+        (renamed.state, again.state, ids(&again.changed)),
+        (ChangeState::Rebaselined, ChangeState::Changed, vec!["C"]),
+        "a new schema ID with the same row digest compares rows instead of rebaselining"
     );
     let rebaselined = store
         .record_check(&search, &check(&[("X", "9")], "s/2", true))
@@ -321,17 +338,23 @@ fn checks_inside_the_floor_are_not_due_and_delete_takes_snapshots() {
         .record_check(&search, &check(&[("A", "1")], "s/1", true))
         .unwrap();
     let checked = store.searches(Some("melanoma")).unwrap().remove(0);
-    let newest = store.snapshots(search.id.as_str()).unwrap();
+    let newest = store
+        .snapshots(search.id.as_str(), &mut Vec::new())
+        .unwrap();
     let not_due = super::not_due(&checked, newest.first(), super::now()).unwrap();
     assert_eq!(not_due.state, ChangeState::NotDue, "inside the floor");
     assert!(
         super::not_due(&checked, newest.first(), not_due.next_due).is_none(),
         "due at next_due"
     );
-    assert_eq!(store.all_snapshots().unwrap().len(), 1, "export lists kept");
+    assert_eq!(
+        store.all_snapshots(&mut Vec::new()).unwrap().len(),
+        1,
+        "export lists kept"
+    );
     store.delete(Some("melanoma")).unwrap();
     assert!(
-        store.all_snapshots().unwrap().is_empty(),
+        store.all_snapshots(&mut Vec::new()).unwrap().is_empty(),
         "delete takes snapshots"
     );
     let rows: i64 = store
@@ -374,6 +397,7 @@ fn on_item<'a>(id: &'a str, entity: Option<&'a str>) -> NoteTarget<'a> {
         list: "genes",
         id,
         entity,
+        source: None,
     }
 }
 
@@ -465,7 +489,10 @@ fn notes_follow_their_targets() {
         2,
         "removing an item removes its notes"
     );
-    assert_eq!(store.delete_note(gene.id.as_str()).unwrap(), gene);
+    assert_eq!(
+        store.delete_note(gene.id.as_str()).unwrap(),
+        Ok(gene.clone())
+    );
     assert_eq!(
         store.delete_note(gene.id.as_str()).err(),
         Some(SavedError::Unknown)

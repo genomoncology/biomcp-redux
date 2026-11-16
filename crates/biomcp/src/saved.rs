@@ -85,7 +85,7 @@ pub(crate) fn grammar() -> Command {
                         .arg(Arg::new("source").long("source").help(
                             "Source the IDs belong to, when the get command's IDs are source-specific.",
                         ))
-                        .arg(Arg::new("note").long("note").help(
+                        .arg(Arg::new("note").long("note").allow_hyphen_values(true).help(
                             "A note kept with each added item, up to 2,000 characters.",
                         ))
                         .arg(ids("Exact IDs the get command accepts.")),
@@ -109,12 +109,9 @@ pub(crate) fn cli(
     let words: Vec<&str> = crate::grammar::command_words(root, args).collect();
     let saves = save_as_position(args).is_some();
     match words.as_slice() {
-        ["saved", rest @ ..] if asks_help(args) => Some(crate::saved_help::help(
-            root,
-            settings,
-            args,
-            &command_path(rest),
-        )),
+        ["saved", rest @ ..] if crate::saved_help::asks_help(args) => Some(
+            crate::saved_help::help(root, settings, args, &command_path(rest)),
+        ),
         ["saved", ..] => Some(run(root, settings, args)),
         ["help", "saved", rest @ ..] => Some(crate::saved_help::help(
             root,
@@ -134,13 +131,6 @@ fn command_path<'a>(words: &[&'a str]) -> Vec<&'a str> {
         .copied()
         .take_while(|word| !word.starts_with('-'))
         .collect()
-}
-
-/// `-h` or `--help` under `saved` answers as `help saved ...` does.
-fn asks_help(args: &[OsString]) -> bool {
-    args.iter()
-        .take_while(|arg| *arg != "--")
-        .any(|arg| arg == "-h" || arg == "--help")
 }
 
 fn save_as_position(args: &[OsString]) -> Option<usize> {
@@ -315,11 +305,9 @@ fn run(
         "export" => match open(encoding, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) => Ok(Saved::default()),
-            Ok(Some(store)) => store.show(None).and_then(|saved| {
-                Ok(Saved {
-                    snapshots: store.all_snapshots()?,
-                    ..saved
-                })
+            Ok(Some(store)) => store.show(None).and_then(|mut saved| {
+                saved.snapshots = store.all_snapshots(&mut saved.skipped)?;
+                Ok(saved)
             }),
         },
         "changed" => return changed(root, settings, &globals, encoding, name),
@@ -372,14 +360,7 @@ fn list(
             Ok(None) => Err(SavedError::Unknown),
             Ok(Some(mut store)) => store.list_remove(name.as_str(), &ids),
         };
-        return reply(
-            encoding,
-            result.map(|(list, missing)| Saved {
-                missing,
-                ..one_list(list)
-            }),
-            "NAME",
-        );
+        return reply(encoding, result, "NAME");
     }
     let items = match new_items(root, matches, &ids) {
         Ok(items) => items,
@@ -390,14 +371,7 @@ fn list(
         Ok(None) => Err(SavedError::Database),
         Ok(Some(mut store)) => store.list_add(&name, &items),
     };
-    reply(encoding, result.map(one_list), "NAME")
-}
-
-fn one_list(list: biomcp_types::SavedList) -> Saved {
-    Saved {
-        lists: vec![list],
-        ..Saved::default()
-    }
+    reply(encoding, result, "NAME")
 }
 
 /// Check saved searches for changes. A search checked within the hour answers `not_due`
@@ -423,8 +397,9 @@ fn changed(
     let now = saved_store::now();
     let mut due = Vec::new();
     let mut changes = Vec::new();
+    let mut skipped = Vec::new();
     for search in &searches {
-        let kept = match store.snapshots(search.id.as_str()) {
+        let kept = match store.snapshots(search.id.as_str(), &mut skipped) {
             Ok(kept) => kept,
             Err(error) => return failure(encoding, error, "NAME"),
         };
@@ -459,6 +434,7 @@ fn changed(
         encoding,
         Ok(Saved {
             changes,
+            skipped,
             ..Saved::default()
         }),
         "NAME",

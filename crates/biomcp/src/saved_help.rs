@@ -128,3 +128,30 @@ pub(crate) fn root_help() -> HelpCommand {
         examples: Vec::new(),
     }
 }
+
+/// `-h` or `--help` under `saved` answers as `help saved ...` does, unless it is an option's value.
+pub(crate) fn asks_help(args: &[OsString]) -> bool {
+    let parser = crate::grammar::saved_parser();
+    let mut node = &parser;
+    let mut words = args.iter().take_while(|arg| *arg != "--");
+    while let Some(word) = words.next() {
+        let Some(word) = word.to_str() else {
+            continue;
+        };
+        if word == "-h" || word == "--help" {
+            return true;
+        }
+        if let Some(command) = node.find_subcommand(word) {
+            node = command;
+        } else if let Some(long) = word.strip_prefix("--").filter(|word| !word.contains('='))
+            && parser
+                .get_arguments()
+                .chain(node.get_arguments())
+                .find(|arg| arg.get_long() == Some(long))
+                .is_some_and(|arg| matches!(arg.get_action(), ArgAction::Set | ArgAction::Append))
+        {
+            words.next();
+        }
+    }
+    false
+}

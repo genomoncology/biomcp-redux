@@ -4,7 +4,7 @@ use crate::command::{Encoding, Outcome};
 use crate::saved::{checked_name, help_usage, open, reply, usage};
 use biodata::Text;
 use biomcp_query::store::saved::{NOTE_CHARS, NoteTarget, PROJECT, SavedError};
-use biomcp_types::{Saved, UsageError};
+use biomcp_types::{Saved, Source, UsageError};
 use clap::{Arg, ArgMatches, Command};
 use std::io;
 
@@ -36,6 +36,12 @@ pub(crate) fn grammar(node: Command) -> Command {
         Arg::new("entity")
             .long("entity")
             .help("Entity word of the item, when the list holds its ID under more than one.")
+            .requires("item"),
+    )
+    .arg(
+        Arg::new("source")
+            .long("source")
+            .help("Source of the item, when the list holds its ID under more than one.")
             .requires("item"),
     )
     .arg(
@@ -80,7 +86,13 @@ pub(crate) fn delete(encoding: Encoding, matches: &ArgMatches) -> io::Result<Out
     let result = match open(encoding, false)? {
         Err(outcome) => return Ok(outcome),
         Ok(None) => Err(SavedError::Unknown),
-        Ok(Some(mut store)) => store.delete_note(id).map(one_note),
+        Ok(Some(mut store)) => store.delete_note(id).map(|note| match note {
+            Ok(note) => one_note(note),
+            Err(skip) => Saved {
+                skipped: vec![skip],
+                ..Saved::default()
+            },
+        }),
     };
     reply(encoding, result, "--note")
 }
@@ -117,6 +129,10 @@ pub(crate) fn note(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outco
         );
     }
     let (target, text) = match words.as_slice() {
+        // --project notes the project, so a TARGET beside it would be silently ignored.
+        [_, _] if project.is_some() => {
+            return usage(encoding, UsageError::argument("--project".into()));
+        }
         [target, text] => (Some(*target), *text),
         [text] if project.is_some() => (None, *text),
         _ => return usage(encoding, help_usage(UsageError::argument("TEXT".into()))),
@@ -126,6 +142,13 @@ pub(crate) fn note(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outco
         .filter(|text| text.as_str().chars().count() <= NOTE_CHARS)
     else {
         return usage(encoding, UsageError::argument("TEXT".into()));
+    };
+    let Ok(source) = matches
+        .get_one::<String>("source")
+        .map(|source| source.parse::<Source>().map(|source| source.to_string()))
+        .transpose()
+    else {
+        return usage(encoding, UsageError::argument("--source".into()));
     };
     let target = match target {
         None => NoteTarget::Project,
@@ -137,6 +160,7 @@ pub(crate) fn note(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outco
                 list: name,
                 id: id.as_str(),
                 entity: matches.get_one::<String>("entity").map(String::as_str),
+                source: source.as_deref(),
             },
             None => NoteTarget::Named(name),
         },
@@ -148,6 +172,7 @@ pub(crate) fn note(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outco
     };
     let argument = match &result {
         Err(SavedError::ItemUnknown) => "--item",
+        Err(SavedError::Ambiguous) if matches.get_one::<String>("entity").is_some() => "--source",
         Err(SavedError::Ambiguous) => "--entity",
         Err(SavedError::TooLong) => "TEXT",
         _ => "TARGET",

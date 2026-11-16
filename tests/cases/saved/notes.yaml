@@ -49,6 +49,12 @@ steps:
     expect:
       /error/code: usage.arguments
       /error/option: --project
+  # --project notes the project, so a TARGET beside it is refused rather than ignored.
+  - run: [saved, note, --project, default, braf-genes, "x"]
+    exit: 2
+    expect:
+      /error/code: usage.arguments
+      /error/option: --project
   - run: [saved, note, braf-genes]
     exit: 2
     expect:
@@ -130,6 +136,34 @@ steps:
     expect:
       /result:
         equals: {}
+  # --source picks the item by its source; the store test covers one ID under two sources.
+  - run: [saved, list, add, recalls, --entity, diagnostic, --source, fda-device-recall, Z-0884-2026]
+    expect:
+      /result/lists/0/items/0/ref/source: fda-device-recall
+  - run: [saved, note, recalls, --item, Z-0884-2026, --source, gtr, "x"]
+    exit: 2
+    expect:
+      /error/code: usage.arguments
+      /error/option: --item
+  - run: [saved, note, recalls, --item, Z-0884-2026, --source, fda-device-recall, "Check the lot numbers"]
+    expect:
+      /result/user_notes/0/target/kind: item
+      /result/user_notes/0/target/ref/source: fda-device-recall
+      /result/user_notes/0/text: Check the lot numbers
+  - run: [saved, delete, --all]
+    expect:
+      /result/lists/0/name: recalls
+  # Markdown shows notes under their user-data label, with Markdown and HTML kept literal.
+  - run: [saved, note, --project, default, "**Bold** <b>x</b> | [link](https://example.org)"]
+    expect:
+      /result/user_notes/0/text: "**Bold** <b>x</b> | [link](https://example.org)"
+  - run: [saved, show]
+    expect:
+      /result/user_notes/0/text: "**Bold** <b>x</b> | [link](https://example.org)"
+  - run: [saved, show, --format, md]
+    expect:
+      "":
+        includes_all_of: ["User notes", "\\*\\*Bold\\*\\* &lt;b&gt;x&lt;/b&gt; \\| \\[link\\](https\\://example.org)"]
   - mcp: [saved, note, braf-genes, "x"]
     is_error: true
     expect:

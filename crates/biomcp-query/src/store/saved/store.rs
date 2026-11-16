@@ -1,6 +1,6 @@
 //! Open saved.sqlite and read or change its searches and lists.
 use biodata::Text;
-use biomcp_types::{Saved, SavedList, SavedListItem, SavedRef, SavedSearch, Source};
+use biomcp_types::{Saved, SavedList, SavedListItem, SavedRef, SavedSearch, SavedSkipped, Source};
 use rusqlite::{Connection, OptionalExtension, Transaction, TransactionBehavior, params};
 use std::path::Path;
 
@@ -186,7 +186,7 @@ impl SavedStore {
     }
 
     /// Add items to a list, making the list when it is new. Present items stay as they are.
-    pub fn list_add(&mut self, name: &Text, items: &[NewItem]) -> Result<SavedList, SavedError> {
+    pub fn list_add(&mut self, name: &Text, items: &[NewItem]) -> Result<Saved, SavedError> {
         within(name.as_str(), NAME_CHARS)?;
         for note in items.iter().filter_map(|item| item.note.as_ref()) {
             within(note.as_str(), NOTE_CHARS)?;
@@ -224,17 +224,15 @@ impl SavedStore {
                 "UPDATE saved_list SET updated=?2 WHERE id=?1",
                 params![id, seconds(now)?],
             )?;
-            list(tx, &id)
+            let mut saved = Saved::default();
+            saved.lists.push(list(tx, &id, &mut saved.skipped)?);
+            Ok(saved)
         })
     }
 
     /// Remove items with these identifiers from a list. Return the list and the identifiers
     /// it did not hold; a remove that removes nothing leaves `modified` as it was.
-    pub fn list_remove(
-        &mut self,
-        name: &str,
-        ids: &[Text],
-    ) -> Result<(SavedList, Vec<Text>), SavedError> {
+    pub fn list_remove(&mut self, name: &str, ids: &[Text]) -> Result<Saved, SavedError> {
         self.write(|tx, now| {
             let id = list_id(tx, name)?.ok_or(SavedError::Unknown)?;
             let mut missing = Vec::new();
@@ -257,7 +255,12 @@ impl SavedStore {
                     params![id, seconds(now)?],
                 )?;
             }
-            Ok((list(tx, &id)?, missing))
+            let mut saved = Saved {
+                missing,
+                ..Saved::default()
+            };
+            saved.lists.push(list(tx, &id, &mut saved.skipped)?);
+            Ok(saved)
         })
     }
 
@@ -344,20 +347,23 @@ pub(super) fn list_id(connection: &Connection, name: &str) -> Result<Option<Stri
 
 /// Every saved search, list and note, or the search or list with this name and its notes.
 fn select(connection: &Connection, name: Option<&str>) -> Result<Saved, SavedError> {
-    use super::notes::{Scope, ids as note_ids, load as note};
+    use super::notes::{Scope, ids as note_ids, read as note};
     let mut saved = Saved::default();
     if let Some(name) = name {
         let record = if let Some(id) = search_id(connection, name)? {
             saved.searches.push(search(connection, &id)?);
             id
         } else if let Some(id) = list_id(connection, name)? {
-            saved.lists.push(list(connection, &id)?);
+            saved.lists.push(list(connection, &id, &mut saved.skipped)?);
             id
         } else {
             return Err(SavedError::Unknown);
         };
         for id in note_ids(connection, Scope::Record(&record))? {
-            saved.user_notes.push(note(connection, &id)?);
+            match note(connection, &id)? {
+                Ok(note) => saved.user_notes.push(note),
+                Err(skip) => saved.skipped.push(skip),
+            }
         }
         return Ok(saved);
     }
@@ -370,10 +376,13 @@ fn select(connection: &Connection, name: Option<&str>) -> Result<Saved, SavedErr
         saved.searches.push(search(connection, &id)?);
     }
     for id in ids("SELECT id FROM saved_list ORDER BY project, name COLLATE NOCASE, id")? {
-        saved.lists.push(list(connection, &id)?);
+        saved.lists.push(list(connection, &id, &mut saved.skipped)?);
     }
     for id in note_ids(connection, Scope::All)? {
-        saved.user_notes.push(note(connection, &id)?);
+        match note(connection, &id)? {
+            Ok(note) => saved.user_notes.push(note),
+            Err(skip) => saved.skipped.push(skip),
+        }
     }
     Ok(saved)
 }
@@ -429,7 +438,12 @@ pub(super) fn search(connection: &Connection, id: &str) -> Result<SavedSearch, S
 
 type ItemRow = (String, String, String, Option<String>, i64);
 
-fn list(connection: &Connection, id: &str) -> Result<SavedList, SavedError> {
+/// A list and its items; an item whose source a newer build wrote is skipped into `skipped`.
+fn list(
+    connection: &Connection,
+    id: &str,
+    skipped: &mut Vec<SavedSkipped>,
+) -> Result<SavedList, SavedError> {
     let (list_id, name, project, created, updated): (String, String, String, i64, i64) = connection
         .query_row(
             "SELECT id,name,project,created,updated FROM saved_list WHERE id=?1",
@@ -446,14 +460,24 @@ fn list(connection: &Connection, id: &str) -> Result<SavedList, SavedError> {
     for row in rows {
         let (entity, item, source, note, added): ItemRow = row?;
         let added = unsigned(added)?;
+        let known = match (!source.is_empty()).then(|| source.parse::<Source>()) {
+            None => None,
+            Some(Ok(known)) => Some(known),
+            Some(Err(_)) => {
+                skipped.push(SavedSkipped {
+                    record: text(&item)?,
+                    name: Some(text(&name)?),
+                    field: "source".into(),
+                    value: text(&source)?,
+                });
+                continue;
+            }
+        };
         items.push(SavedListItem {
             reference: SavedRef {
                 entity: text(&entity)?,
                 id: text(&item)?,
-                source: (!source.is_empty())
-                    .then(|| source.parse::<Source>())
-                    .transpose()
-                    .map_err(|_| SavedError::Database)?,
+                source: known,
                 as_of: added,
                 source_date: None,
             },

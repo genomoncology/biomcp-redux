@@ -1,6 +1,7 @@
 # 0985 — saved-schemas-additive-only-release-check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f6c51c991d9ba5a2cadf787c3df359d03df51f41
 
 Milestone: 9
 
@@ -37,3 +38,12 @@ The schema release check holds `biomcp.saved-*` schemas to additive-only changes
 - Changes: the saved-work code and its cases.
 
 ## Progress
+
+- 2026-11-16: Additive-only mode: the release comparison treats any `biomcp.saved-*` schema as additive-only. It keeps its major, takes no reviewed exceptions, keeps the same required fields, and every shared path must be compatible in both directions, so only optional fields (and descriptions) may be added. `saved_schemas_accept_only_added_optional_fields` (`compatibility_saved_cases.rs`) shows an added optional field passes while a required addition, an enum widening and a major bump fail, and that the same changes still pass outside saved work. The 1.0.0 baseline holds no saved schemas yet, so the mode applies once a release records them.
+- 2026-11-16: The MCP root-help step asserts the saved line is absent (`excludes`); the export step asserts `/error/option`. `asks_help` now skips a value-taking option's value, and `--note` accepts a value starting with `-`, so `saved list add help-words --entity gene --note --help BRAF` keeps the note `--help` (fails on the base, which answered help).
+- 2026-11-16: `saved changed` compares only the row digest after `#` in the stored row schema, so a new schema ID with the same rows reports `changed`, not `rebaselined` (store test in `tests.rs`).
+- 2026-11-16: `saved note --project default NAME TEXT` is refused on `--project`. `saved note --source` picks an item held under one entity and two sources (store test); an ambiguous item with `--entity` given points at `--source`. The case uses a device recall kept under `fda-device-recall`, because `get gene` takes no `--source`, so the CLI cannot keep one gene ID under two sources.
+- 2026-11-16: Decision: the envelope's `problems` need a provider `Source`, which a stored note or item has none of, so an unknown stored note kind or item source is reported in a new optional `skipped` list in the `biomcp.saved/1` result (record, field, value) and the row stays in the file. `saved show` and `saved export` no longer fail on it. A list add or remove reply leaves such an item out without naming it.
+- 2026-11-16: A `saved show --format md` step proves notes appear under "User notes" with Markdown, HTML and the link kept literal.
+- 2026-11-16 (review): The reverse check was too strict: saved-list, saved-note and saved-snapshot carry the shared open source list (`x-extensible-enum`), so a release adding a source would have failed. The saved check now lets an open list grow (it still may not lose a value), while a closed `enum` widening still fails. Saved schemas take reviewed pattern widenings from `release/schema-reviews.json`, for a shared BioData text pattern, but no other reviewed exception (narrowings, successors, enum transitions). Test: `saved_schemas_take_open_list_growth_and_reviewed_pattern_widenings`.
+- 2026-11-16 (review): A snapshot row or snapshot source that a newer build wrote is skipped into `skipped` in `saved export` and `saved changed`. List add and remove replies now carry their skips. `saved delete --note ID` deletes a note whose kind this build cannot read and replies with its skip. Each skip names its list (for an item) or saved search (for a snapshot row) in an optional `name`.

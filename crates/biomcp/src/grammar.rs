@@ -95,9 +95,11 @@ fn global_arguments() -> Command {
 }
 /// Saved-work commands share the process options but stay out of the shared command tree,
 /// so MCP and hosted discovery never offer them.
+pub(crate) fn saved_parser() -> Command {
+    process_arguments::case_choices(global_arguments().subcommand(crate::saved::grammar()))
+}
 pub(crate) fn saved(args: &[OsString]) -> Result<(Globals, clap::ArgMatches), ParseInvalid> {
-    let parser =
-        process_arguments::case_choices(global_arguments().subcommand(crate::saved::grammar()));
+    let parser = saved_parser();
     let matches = parser
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
         .map_err(|error| ParseInvalid {
