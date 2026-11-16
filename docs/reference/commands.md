@@ -3695,7 +3695,7 @@ Form: get variant INPUT SECTION...; not --section.
 - `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer; example: --section-offset 0.
 - `--tumor-type`: Tumor
-Explicit tumor context for keyed OncoKB annotation. Value form: string; example: --tumor-type <tumor-type> (syntax; replace the placeholder with your retained value).
+Explicit tumor context for keyed OncoKB annotation. Value form: string; example: --tumor-type Melanoma.
 
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
