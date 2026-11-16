@@ -249,6 +249,7 @@ def main():
             readme.write_text(original_readme + planted)
             result = check(root)
             assert result.returncode != 0 and "README.md:" in result.stderr and "workspace path" in result.stderr, result
+        readme.write_text(original_readme)
         record = root / "sdlc/planning/upgrade.md"
         original_record = record.read_text()
         record.write_text(original_record + f"Evidence at ~/{folder}/data/x.\n")
