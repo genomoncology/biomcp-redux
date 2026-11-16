@@ -110,11 +110,19 @@ pub(crate) fn cli(
     let words: Vec<&str> = crate::grammar::command_words(root, args).collect();
     let saves = save_as_position(args).is_some();
     match words.as_slice() {
-        ["saved", rest @ ..] if asks_help(args) => {
-            Some(crate::saved_help::help(root, settings, args, &command_path(rest)))
-        }
+        ["saved", rest @ ..] if asks_help(args) => Some(crate::saved_help::help(
+            root,
+            settings,
+            args,
+            &command_path(rest),
+        )),
         ["saved", ..] => Some(run(root, settings, args)),
-        ["help", "saved", rest @ ..] => Some(crate::saved_help::help(root, settings, args, &command_path(rest))),
+        ["help", "saved", rest @ ..] => Some(crate::saved_help::help(
+            root,
+            settings,
+            args,
+            &command_path(rest),
+        )),
         _ if saves => Some(save_search(root, settings, args)),
         _ => None,
     }
@@ -273,8 +281,15 @@ fn run(
     settings: &crate::config::Settings,
     args: &[OsString],
 ) -> io::Result<Outcome> {
-    let Ok((globals, matches)) = crate::grammar::saved(args) else {
-        return usage(Encoding::Json, help_usage(UsageError::arguments()));
+    let (globals, matches) = match crate::grammar::saved(args) {
+        Ok(parsed) => parsed,
+        Err(invalid) => {
+            let error = match invalid.argument {
+                Some(argument) => UsageError::argument(argument.into()),
+                None => UsageError::arguments(),
+            };
+            return usage(Encoding::Json, help_usage(error));
+        }
     };
     let encoding = match globals.format.or_else(|| crate::config::format(settings)) {
         Some(crate::grammar::Format::Md) => Encoding::Markdown,

@@ -100,7 +100,13 @@ pub(crate) fn saved(args: &[OsString]) -> Result<(Globals, clap::ArgMatches), Pa
         process_arguments::case_choices(global_arguments().subcommand(crate::saved::grammar()));
     let matches = parser
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
-        .map_err(|_| ParseInvalid::default())?;
+        .map_err(|error| ParseInvalid {
+            argument: match error.get(clap::error::ContextKind::InvalidArg) {
+                Some(clap::error::ContextValue::String(argument)) => Some(argument.clone()),
+                _ => None,
+            },
+            ..ParseInvalid::default()
+        })?;
     let globals = globals(&matches)?;
     let (_, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
     Ok((globals, matches.clone()))
