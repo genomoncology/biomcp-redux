@@ -449,6 +449,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Check that saved-work migrations only add and a newer file stays unchanged, at the private saved store boundary.",
     ),
     (
+        "crates/biomcp-query/src/trial/page_tests.rs",
+        "Keep an earlier refusal flag across a clean page at the private trial page join, which no recorded reply can order on demand.",
+    ),
+    (
         "crates/biomcp-query/src/diagnostic/summary_tests.rs",
         "Find every match in synthetic long extracted lines at the private PMA summary passage cut, which a recorded document cannot shape on demand.",
     ),

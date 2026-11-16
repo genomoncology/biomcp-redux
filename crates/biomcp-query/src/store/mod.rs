@@ -31,6 +31,7 @@ pub const CACHE_NAMESPACES: &[u32] = &[CACHE_NAMESPACE_VERSION, 4];
 pub const OWNER: SchemaOwner = SchemaOwner {
     name: "biomcp-query",
     version: VERSION,
+    // Upgraded in place like the transport's reply table: local state, not a CLI or MCP format.
     migratable_versions: &[4, 5],
     tables: &[
         "pool",

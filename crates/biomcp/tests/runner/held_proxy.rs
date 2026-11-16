@@ -306,7 +306,7 @@ fn hold(
     }
     Ok(())
 }
-fn peer_eof(stream: &mut std::net::TcpStream) -> Result<(), String> {
+pub(super) fn peer_eof(stream: &mut std::net::TcpStream) -> Result<(), String> {
     stream
         .set_read_timeout(Some(Duration::from_secs(5)))
         .map_err(|e| e.to_string())?;
@@ -356,7 +356,7 @@ fn resume_other(
     .map_err(|e| e.to_string())?;
     tls.flush().map_err(|e| e.to_string())
 }
-fn proxy_request(
+pub(super) fn proxy_request(
     mut stream: std::net::TcpStream,
     connected: &mpsc::Sender<Result<(), String>>,
 ) -> Result<std::net::TcpStream, String> {

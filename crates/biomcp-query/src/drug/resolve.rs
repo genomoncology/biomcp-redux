@@ -293,6 +293,9 @@ fn native_pages(
     command.finish(remaining);
     (out, candidates, examined)
 }
+/// Drugs@FDA and openFDA label name lookups read every page on purpose, unlike MyChem's
+/// 250-row cap: the ranking (NDA/BLA before ANDA, then earliest approval; labels by holder,
+/// then indications) needs the whole set, so a lookup answers whole or fails, never partly.
 fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     native_names(
         cx,

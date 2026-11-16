@@ -63,6 +63,7 @@ mod gene_names;
 mod held_proxy;
 mod help_contract;
 mod hgnc_sync;
+mod hosted_cancel;
 mod hosted_deadline;
 mod hosted_pacing;
 mod housekeeping;
@@ -227,8 +228,11 @@ fn run_case_owned(
             {
                 return Err("named MCP call requires its own step".into());
             }
-            if step.hosted && step.mcp.is_none() {
-                return Err("a hosted step requires mcp".into());
+            if (step.hosted || step.http) && step.mcp.is_none() {
+                return Err("a hosted or HTTP step requires mcp".into());
+            }
+            if step.hosted && step.http {
+                return Err("a step is hosted or plain HTTP, not both".into());
             }
             if step.run.is_none()
                 && step.mcp.is_none()
@@ -366,6 +370,7 @@ fn retained_source_trials() -> Vec<Trial> {
 
 fn transcript_trials() -> Vec<Trial> {
     let mut trials = call_queue::trials();
+    trials.extend(hosted_cancel::trials());
     trials.extend([
         transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
             article_save::check().map_err(Into::into)

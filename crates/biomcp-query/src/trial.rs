@@ -7,6 +7,8 @@ mod drug_names;
 mod gene_notice;
 pub(crate) mod get;
 mod nci;
+#[cfg(test)]
+mod page_tests;
 mod portable_continuation;
 mod variant_spellings;
 use crate::{Action, Ctx, Outcome, status};
@@ -220,8 +222,10 @@ fn apply_page(
     outcome: &mut Outcome,
     mut page: ctgov::SearchPage,
 ) {
-    outcome.dropped = page.refusals == biomcp_adapters::Refusal::Refused;
-    if outcome.dropped {
+    let refused = page.refusals == biomcp_adapters::Refusal::Refused;
+    // A refusal from an earlier stage must survive a clean page.
+    outcome.dropped |= refused;
+    if refused {
         crate::status::item(outcome, true, false, false);
     }
     outcome.problems.append(&mut page.problems);

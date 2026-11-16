@@ -128,6 +128,14 @@ fn reference_matches_grammar() -> Check {
             fs::read_to_string(root().join(name))? == expected,
             "{name}: run make docs-generate"
         );
+        // Plain wording must never leave a doubled word, as "Source source offset" once did.
+        let lower = expected.to_ascii_lowercase();
+        for doubled in ["source source", "source-source", "source's source"] {
+            assert!(
+                !lower.contains(doubled),
+                "{name}: generated help says {doubled:?}"
+            );
+        }
     }
     Ok(())
 }

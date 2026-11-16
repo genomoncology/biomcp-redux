@@ -1,0 +1,29 @@
+{
+  "feature": "mcp-parity",
+  "live_check": "offline; the refusal comes before any source request",
+  "story": "Plain HTTP writes no file, so a command that must save is refused before any source or publisher request, as hosted mode refuses it.",
+  "steps": [
+    {
+      "mcp": ["article", "pdf", "41351423", "--save", "owned.pdf"],
+      "http": true,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--save"
+      }
+    },
+    {
+      "mcp": ["trial", "document", "NCT04303780", "SAP_001.pdf", "--save", "protocol.pdf"],
+      "http": true,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--save"
+      }
+    }
+  ]
+}

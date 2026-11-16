@@ -2217,7 +2217,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native source row offset; a ranked HP ID set has no further pages.",
+          "description": "Source row offset; a ranked HP ID set has no further pages.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -2651,7 +2651,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native source offset.",
+          "description": "Source offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -5596,7 +5596,7 @@
           "type": "integer"
         },
         "no_preprints": {
-          "description": "Exclude preprints.\nPubMed and Europe PMC only: exclude preprints using the source's native filter.",
+          "description": "Exclude preprints.\nPubMed and Europe PMC only: exclude preprints using the source's own filter.",
           "type": "boolean"
         },
         "offset": {

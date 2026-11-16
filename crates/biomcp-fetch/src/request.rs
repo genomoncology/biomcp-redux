@@ -370,9 +370,10 @@ impl Leg<'_> {
             retry_after,
         };
         if let Err(error) = self.contain_response(prepared, &wire, &wire.body, status) {
-            // A 429 from any source may name the key it throttled, as NCBI's body does. A
-            // throttle reply is retried and never read, so it keeps its status and loses its
-            // body; a key left in its headers, or in any other reply, is refused.
+            // A 429 from any source may name the key it throttled, as NCBI's body does. A keyed
+            // request reads the throttle body only to scan it for its key; the reply is retried
+            // and its body is never parsed, so it keeps its status and loses its body. A key
+            // left in its headers, or in any other reply, is refused.
             if status != 429 {
                 return Err(Failure::Local(error));
             }

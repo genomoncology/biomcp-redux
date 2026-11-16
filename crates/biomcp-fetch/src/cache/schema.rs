@@ -185,6 +185,9 @@ impl Cache {
     }
 }
 
+/// The local cache upgrades its own tables in place, so a new BioMCP keeps a user's cached
+/// replies. The cache is local working state, not a CLI or MCP format, which the
+/// no-compatibility ruling (sdlc/decisions/2026-11-01-no-backwards-compatibility.md) covers.
 fn create_reply_schema(tx: &Transaction<'_>, version: Option<u32>) -> Result<(), CacheError> {
     tx.execute_batch(
         "CREATE TABLE IF NOT EXISTS meta (owner TEXT PRIMARY KEY, version INTEGER NOT NULL);
