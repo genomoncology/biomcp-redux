@@ -19,8 +19,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
 
     let mut out = empty(query);
     // Each trial is its own request, spaced by BioMCP's pacing; give a batch that time (1003).
-    let paced = cx.fetch.paced_time(&ctgov::SPEC, query.input().len());
-    let command = cx.fetch.command_deadline(cx.budget.saturating_add(paced));
+    let budget = cx
+        .fetch
+        .paced_budget(&ctgov::SPEC, cx.budget, query.input().len());
+    let command = cx.fetch.command_deadline(budget);
     let deadline = command.deadline();
     let result = if query.pool().is_some() {
         restore(cx, query, deadline, &mut out)

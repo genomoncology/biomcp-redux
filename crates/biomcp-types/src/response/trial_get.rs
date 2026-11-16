@@ -54,7 +54,7 @@ pub struct TrialItemFailure {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reason: Option<crate::Reason>,
     /// What went wrong and what to do, in plain words.
-    pub problem: crate::Text,
+    pub problem: Box<str>,
 }
 /// Independently bounded sections from the same source protocol snapshot.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]

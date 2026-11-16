@@ -381,10 +381,21 @@ impl Fetch {
         self.leg_within(spec, deadline, Duration::ZERO)
     }
     /// Time BioMCP's own pacing adds to `requests` sequential requests to `spec`: one interval
-    /// after each but the first. Add it to the caller's budget, and pass the same count to
-    /// [`Self::paced_leg`], so a batch BioMCP accepts is not cut short by its own spacing (1003).
+    /// after each but the first. A batch BioMCP accepts is then not cut short by its own spacing (1003).
     pub fn paced_time(&self, spec: &SourceSpec, requests: usize) -> Duration {
         self.pacing(spec, requests.saturating_sub(1))
+    }
+    /// The caller's budget plus [`Self::paced_time`]; a hosted call's end lengthens to match, as
+    /// for a declared source budget. Pass the same count to [`Self::paced_leg`].
+    pub fn paced_budget(&self, spec: &SourceSpec, caller: Duration, requests: usize) -> Duration {
+        let paced = self.paced_time(spec, requests);
+        let budget = caller.saturating_add(paced);
+        if !paced.is_zero()
+            && let Some(end) = &self.call_end
+        {
+            end.lengthen(budget);
+        }
+        budget
     }
     /// A leg for `requests` sequential requests: the source's deadline plus [`Self::paced_time`].
     pub fn paced_leg<'a>(
