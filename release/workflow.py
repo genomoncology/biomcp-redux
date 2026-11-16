@@ -127,7 +127,9 @@ def plugin(source, output, version, native_output):
     if b"{{front-map}}" in expanded:
         raise ValueError("plugin skill guide must ship its front map expanded")
     metadata["version"] = entry["version"] = version
-    paths = [path for path in (source / "skills").rglob("*") if path.is_file()]
+    # The worked examples stay in the binary; no agent run has opened a shipped copy (0993).
+    paths = [path for path in (source / "skills").rglob("*")
+             if path.is_file() and "use-cases" not in path.relative_to(source / "skills").parts]
     with zipfile.ZipFile(output / "biomcp-plugin.zip", "w", zipfile.ZIP_DEFLATED) as archive:
         for name, data in payloads(native_output).items():
             archive.writestr(name, data)

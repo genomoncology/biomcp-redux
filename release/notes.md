@@ -111,6 +111,10 @@ Other commands:
 - `biomcp health` honours `command_timeout_seconds` and each source's deadline instead of a 3-second cap.
 - `help questions` lists every command by the question it answers, and `help examples` gives one worked call per use case in CLI and typed form. The MCP `help` tool takes the same words.
 
+## Agent skill
+
+`biomcp skill install` and the Claude plugin now ship only `SKILL.md`. The worked examples stay in the binary: read them with `biomcp skill list` and `biomcp skill NAME`.
+
 ## Hosted use and source terms
 
 See [hosted server configuration](../docs/configuration.md#hosted-servers) for source modes, caller credentials and deployment limits.

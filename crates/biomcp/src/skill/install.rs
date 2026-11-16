@@ -1,5 +1,5 @@
 //! Explicit destination handling; no automatic client discovery or home writes.
-use super::{ASSETS, status};
+use super::{managed, status};
 use serde_json::json;
 use std::{
     fs, io,
@@ -68,14 +68,14 @@ pub(super) fn run(directory: &Path, force: bool) -> io::Result<String> {
     }
     // Preflight the whole payload before making any writes. Never take write
     // paths from an installed manifest, which may be untrusted or stale.
-    for (path, _) in ASSETS {
+    for (path, _) in managed() {
         relative(path)?;
         check(&target.join(path))?;
     }
     check(&target.join(status::STAMP))?;
     fs::create_dir_all(directory)?;
     let staging = tempfile::tempdir_in(directory)?;
-    for (path, text) in ASSETS {
+    for (path, text) in managed() {
         let output = staging.path().join(path);
         fs::create_dir_all(
             output
@@ -89,7 +89,7 @@ pub(super) fn run(directory: &Path, force: bool) -> io::Result<String> {
         serde_json::to_vec(&status::manifest())?,
     )?;
     fs::create_dir_all(&target)?;
-    for path in ASSETS.iter().map(|(path, _)| *path).chain([status::STAMP]) {
+    for path in managed().map(|(path, _)| *path).chain([status::STAMP]) {
         let output = target.join(path);
         check(&output)?;
         fs::create_dir_all(

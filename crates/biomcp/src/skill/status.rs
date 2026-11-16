@@ -1,5 +1,5 @@
 //! Managed payload status never follows installed links or manifest-supplied paths.
-use super::{ASSETS, install};
+use super::{install, managed};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, io, path::Path};
@@ -11,8 +11,7 @@ pub(super) fn digest(text: &[u8]) -> String {
         .collect()
 }
 pub(super) fn manifest() -> Value {
-    let files: BTreeMap<_, _> = ASSETS
-        .iter()
+    let files: BTreeMap<_, _> = managed()
         .map(|(path, text)| (*path, digest(text.as_bytes())))
         .collect();
     json!({"schema_version":1,"biomcp_version":env!("CARGO_PKG_VERSION"),"managed_files":files})

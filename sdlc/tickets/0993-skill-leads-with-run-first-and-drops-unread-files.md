@@ -36,3 +36,9 @@ A review of the persona bench, passed on by Ian on 2026-11-16, applied the Evide
 ## Changes
 
 - Changes: the skill, its packaging, the notes, the skill checks.
+
+## Progress
+
+- 2026-11-16, use-case reads: searched the 43 kept persona run folders on the bench's main (`personas/*/runs/*/`, bench commit 8fec383, 157 files, rounds 2026-11-12 through 2026-11-16) for `use-cases`, `use-case` and `skill show`: 0 hits each. `bot find use-cases --runs` indexes none of these folders (they hold Markdown records, not call records) and reports 0; over the dx-lab-director round-1 call records it finds 1 hit, the skill's own text in call 1, not a file read. `biomcp skill list` appears in 5 runs, all from 2026-11-12 (comp-bio, dx-lab-director 12b, patient-navigator 12b, trial-ops 12 and 12b); each listed the 17 titles, found none fitting, and opened none. So no run opened a use-case file.
+- Change: `skill install` writes only `SKILL.md` and its stamp; `skill status` judges only those files; the plugin zip leaves out `skills/use-cases/`. The 17 files (2,618 words) stay in the repo: the binary still embeds them for `skill list`, `skill NAME` and the first-read examples, and `scripts/check_front_map.py` still checks them. The install case asserts no `use-cases` folder is written; `release/test_workflow.py` asserts the zip leaves them out. Release notes say so under "Agent skill".
+- Skill order: no change. At origin/main 616e68d22 (and at round 4's 95a74e246) the run-first paragraph (line 13) already directly follows the command list (lines 8-11), so the move this ticket asks for is already the order round 4 read. `skills/SKILL.md` stays 4,085 bytes.
