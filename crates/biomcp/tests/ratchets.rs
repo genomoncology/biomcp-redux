@@ -198,6 +198,11 @@ fn request_hosts(
 }
 
 #[test]
+fn openfda_reply_checks_have_one_owner() -> Check {
+    openfda_owner::proof()
+}
+
+#[test]
 fn required_surface_has_asserted_calls() -> Check {
     required::required_surface_has_asserted_calls()
 }

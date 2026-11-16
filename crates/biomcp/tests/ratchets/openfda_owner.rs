@@ -8,7 +8,10 @@ const OWNER: &str = "crates/biomcp-adapters/src/openfda.rs";
 pub(super) fn check(root: &Path) -> Check {
     let mut files = Vec::new();
     for path in rust_files(&root.join(ADAPTERS))? {
-        let relative = path.strip_prefix(root)?.to_string_lossy().replace('\\', "/");
+        let relative = path
+            .strip_prefix(root)?
+            .to_string_lossy()
+            .replace('\\', "/");
         files.push((relative, fs::read_to_string(&path)?));
     }
     // An openFDA module is any top-level adapter module that declares the openFDA host.
@@ -24,7 +27,9 @@ pub(super) fn check(root: &Path) -> Check {
         }
         let openfda = module(relative).is_some_and(|name| modules.contains(&name))
             || text.contains("openfda::")
-            || modules.iter().any(|name| text.contains(&format!("{name}::SPEC")));
+            || modules
+                .iter()
+                .any(|name| text.contains(&format!("{name}::SPEC")));
         let declares = tokens(text).windows(2).any(|pair| match pair {
             [a, b] => (a == "fn" && b == "check_status") || (a == "Reply" && b == "for"),
             _ => false,
@@ -47,38 +52,38 @@ fn module(relative: &str) -> Option<&str> {
     Some(rest.split('/').next()?.trim_end_matches(".rs"))
 }
 
-#[test]
-fn openfda_reply_checks_have_one_owner() -> Check {
+/// Planted copies fail inside an openFDA module, beside one, or naming the shared module.
+pub(super) fn proof() -> Check {
+    use super::proof_support::{put, tree};
     let rule = "openFDA reply checks belong in";
-    super::proof_support::rejects(
-        "crates/biomcp-adapters/src/adverse_event_sources/received.rs",
-        "use crate::faers::SPEC;\nimpl biomcp_fetch::Reply for Response {}\n",
-        rule,
-    )?;
-    super::proof_support::rejects(
-        "crates/biomcp-adapters/src/faers/counts.rs",
-        "use crate::openfda::Absence;\nfn check_status() {}\n",
-        rule,
-    )?;
-    let tree = super::proof_support::tree()?;
-    let root = tree.path();
-    super::proof_support::put(
-        root,
-        "crates/biomcp-adapters/src/fda_new/mod.rs",
-        "const BASE: &str = \"https://api.fda.gov/new.json\";\n",
-    )?;
-    let copy = "crates/biomcp-adapters/src/fda_new/raw.rs";
-    super::proof_support::put(root, copy, "impl<T> Reply for Page<T> {}\n")?;
-    let failure = super::check(root).err().ok_or("openFDA module copy passed")?;
-    assert!(failure.to_string().contains(copy), "{failure}");
-    super::proof_support::put(root, copy, "type Page = crate::openfda::Envelope<Row>;\n")?;
-    super::proof_support::put(
-        root,
-        "crates/biomcp-adapters/src/openfda.rs",
-        "impl<T> Reply for Envelope<T> {}\n",
-    )?;
-    if let Err(error) = super::check(root) {
-        assert!(!error.to_string().contains(rule), "{error}");
+    for (path, copy) in [
+        (
+            "crates/biomcp-adapters/src/adverse_event_sources/received.rs",
+            "use crate::faers::SPEC;\nimpl biomcp_fetch::Reply for Response {}\n",
+        ),
+        (
+            "crates/biomcp-adapters/src/faers/counts.rs",
+            "use super::SPEC;\nfn check_status() {}\n",
+        ),
+        (
+            "crates/biomcp-adapters/src/device_counts.rs",
+            "type Page = crate::openfda::Envelope<Row>;\nimpl<T> Reply for Count<T> {}\n",
+        ),
+    ] {
+        let tree = tree()?;
+        let root = tree.path();
+        put(
+            root,
+            "crates/biomcp-adapters/src/faers/mod.rs",
+            "const BASE: &str = \"https://api.fda.gov/drug/event.json\";\n",
+        )?;
+        put(root, path, copy)?;
+        let failure = check(root).err().ok_or("planted openFDA copy passed")?;
+        let failure = failure.to_string();
+        assert!(failure.contains(path) && failure.contains(rule), "{failure}");
+        put(root, path, "type Page = crate::openfda::Envelope<Row>;\n")?;
+        put(root, OWNER, "impl<T> Reply for Envelope<T> {}\n")?;
+        check(root)?;
     }
     Ok(())
 }
