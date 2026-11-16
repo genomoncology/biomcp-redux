@@ -381,7 +381,8 @@ impl Fetch {
         self.leg_within(spec, deadline, Duration::ZERO)
     }
     /// Time BioMCP's own pacing adds to `requests` sequential requests to `spec`: one interval
-    /// after each but the first. A batch BioMCP accepts is then not cut short by its own spacing (1003).
+    /// after each but the first, so a batch BioMCP accepts is not cut short by its own spacing
+    /// (1003).
     pub fn paced_time(&self, spec: &SourceSpec, requests: usize) -> Duration {
         self.pacing(spec, requests.saturating_sub(1))
     }

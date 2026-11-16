@@ -40,8 +40,9 @@ impl crate::Fetch {
             .source_pacing
             .resolve(spec.quota)
             .credential_rate(false);
-        self.config
-            .rate_share
-            .delay(u128::try_from(intervals).unwrap_or(u128::MAX).saturating_mul(1_000_000_000), rate)
+        let tokens = u128::try_from(intervals)
+            .unwrap_or(u128::MAX)
+            .saturating_mul(1_000_000_000);
+        self.config.rate_share.delay(tokens, rate)
     }
 }
