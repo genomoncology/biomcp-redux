@@ -59,3 +59,4 @@ This is that round's biggest BioMCP finding, and it got worse since 2026-11-12.
   | NCT03734029 (92 KB, 208 sites) | 78,424 | 78,424 | 78,573 | 50,445 / 50,658 |
 
   The largest is 78,573, about half the cap, so 40,000 stays. `results-outcomes-together` measured 23,965 bytes in CLI and MCP; its ceiling is now 27,560 (plus 15 percent).
+- Gate j41664 passed on 90983b770 (branch merged with origin/main 510d625c9): `make --keep-going landing-gate docs-check schema-release-check`.
