@@ -11,14 +11,47 @@ pub(crate) const TERMS: biomcp_fetch::Terms = biomcp_fetch::Terms {
 };
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
-pub(crate) enum Envelope<T> {
-    Page { meta: Meta, results: Vec<T> },
+pub(crate) enum Envelope<T, M = Meta> {
+    Page { meta: M, results: Vec<T> },
     Absent { error: Absence },
 }
+/// Page metadata of a search reply, which reports its native window and total.
 #[derive(Debug, Deserialize)]
 pub(crate) struct Meta {
     pub(crate) last_updated: Option<PartialDate>,
     pub(crate) results: Counts,
+}
+/// Page metadata of a `count=` reply, which reports no window or total.
+#[derive(Debug, Deserialize)]
+pub(crate) struct CountMeta {
+    pub(crate) last_updated: Option<PartialDate>,
+}
+/// What every openFDA page's metadata says about the publisher date and the admitted rows.
+pub(crate) trait PageMeta: DeserializeOwned {
+    fn last_updated(&self) -> Option<PartialDate>;
+    fn admits(&self, len: usize) -> bool;
+}
+impl PageMeta for Meta {
+    fn last_updated(&self) -> Option<PartialDate> {
+        self.last_updated
+    }
+    fn admits(&self, len: usize) -> bool {
+        self.results.limit > 0
+            && len as u64
+                == self
+                    .results
+                    .total
+                    .saturating_sub(self.results.skip.into())
+                    .min(self.results.limit.into())
+    }
+}
+impl PageMeta for CountMeta {
+    fn last_updated(&self) -> Option<PartialDate> {
+        self.last_updated
+    }
+    fn admits(&self, _: usize) -> bool {
+        true
+    }
 }
 #[derive(Debug, Deserialize)]
 pub(crate) struct Counts {
@@ -34,35 +67,31 @@ pub(crate) struct Absence {
     extra: std::collections::BTreeMap<String, serde::de::IgnoredAny>,
 }
 impl Absence {
-    pub(crate) fn valid(&self) -> bool {
+    fn valid(&self) -> bool {
         self.extra.is_empty() && self.code == "NOT_FOUND" && self.message == "No matches found!"
     }
 }
-pub(crate) trait Item: DeserializeOwned {
+/// One row of an openFDA page; its own check runs on every row of a valid page.
+pub(crate) trait Item<M: PageMeta = Meta>: DeserializeOwned {
     fn check(&self) -> Result<(), BadReply> {
         Ok(())
     }
-    fn counts(meta: &Meta, len: usize) -> bool {
-        meta.results.limit > 0
-            && len as u64
-                == meta
-                    .results
-                    .total
-                    .saturating_sub(meta.results.skip.into())
-                    .min(meta.results.limit.into())
+    fn counts(meta: &M, len: usize) -> bool {
+        meta.admits(len)
     }
 }
-impl<T: Item> Reply for Envelope<T> {
+/// The one owner of openFDA page, absence and status checks.
+impl<T: Item<M>, M: PageMeta> Reply for Envelope<T, M> {
     fn data_date(&self) -> Option<String> {
         match self {
-            Self::Page { meta, .. } => meta.last_updated.map(|date| date.to_string()),
+            Self::Page { meta, .. } => meta.last_updated().map(|date| date.to_string()),
             Self::Absent { .. } => None,
         }
     }
     fn check(&self) -> Result<(), BadReply> {
         match self {
-            Self::Page { meta, results } if T::counts(meta, results.len()) => {
-                results.iter().try_for_each(Item::check)
+            Self::Page { meta, results } if <T as Item<M>>::counts(meta, results.len()) => {
+                results.iter().try_for_each(<T as Item<M>>::check)
             }
             Self::Absent { error } if error.valid() => Ok(()),
             _ => Err(BadReply),

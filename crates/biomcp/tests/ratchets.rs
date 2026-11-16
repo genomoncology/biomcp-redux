@@ -13,6 +13,8 @@ mod lints;
 mod module_shape;
 #[path = "ratchets/noncommercial_replies.rs"]
 mod noncommercial_replies;
+#[path = "ratchets/openfda_owner.rs"]
+mod openfda_owner;
 #[path = "ratchets/placement.rs"]
 mod placement;
 #[path = "ratchets/process_setup.rs"]
@@ -51,6 +53,7 @@ fn check(root: &Path) -> Check {
         source_declarations::check(root),
         noncommercial_replies::check(root),
         noncommercial_replies::ids(root),
+        openfda_owner::check(root),
     ])
 }
 
@@ -192,6 +195,11 @@ fn request_hosts(
     hosts.sort();
     hosts.dedup();
     Ok(hosts)
+}
+
+#[test]
+fn openfda_reply_checks_have_one_owner() -> Check {
+    openfda_owner::proof()
 }
 
 #[test]

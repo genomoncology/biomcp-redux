@@ -1,9 +1,8 @@
 //! Native openFDA reaction counts, independent of report discovery and its totals.
 use super::SPEC;
 use biodata::PartialDate;
-use biomcp_fetch::{Arg, BadReply, Freshness, Input, Leg, Reply, ReplyMetadata, RequestError};
+use biomcp_fetch::{Arg, BadReply, Freshness, Input, Leg, ReplyMetadata, RequestError};
 use biomcp_types::{AdverseEventReactionCount, AdverseEventSearch};
-use serde::Deserialize;
 
 /// One source count request; report totals and pagination are not available here.
 #[derive(Debug)]
@@ -18,46 +17,8 @@ pub struct CountPage {
     pub components: Box<[biomcp_types::ComponentLabel]>,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum Response {
-    Page {
-        meta: Meta,
-        results: Vec<AdverseEventReactionCount>,
-    },
-    Absent {
-        error: crate::openfda::Absence,
-    },
-}
-#[derive(Debug, Deserialize)]
-struct Meta {
-    last_updated: Option<PartialDate>,
-}
-impl Reply for Response {
-    fn data_date(&self) -> Option<String> {
-        match self {
-            Self::Page { meta, .. } => meta.last_updated.map(|date| date.to_string()),
-            Self::Absent { .. } => None,
-        }
-    }
-    fn check(&self) -> Result<(), BadReply> {
-        match self {
-            Self::Page { .. } => Ok(()),
-            Self::Absent { error } if error.valid() => Ok(()),
-            _ => Err(BadReply),
-        }
-    }
-    fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!(
-            (self, status),
-            (Self::Page { .. }, 200) | (Self::Absent { .. }, 404)
-        ) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
-    }
-}
+type Response = crate::openfda::Envelope<AdverseEventReactionCount, crate::openfda::CountMeta>;
+impl crate::openfda::Item<crate::openfda::CountMeta> for AdverseEventReactionCount {}
 
 /// Count exact reaction terms over the matching reports in one native request.
 pub fn reactions(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<CountPage, RequestError> {

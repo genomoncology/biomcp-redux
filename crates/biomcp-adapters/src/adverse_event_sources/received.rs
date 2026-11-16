@@ -1,7 +1,7 @@
 //! FDA receipt-date report counts: openFDA's daily `count=` buckets for the whole range in one
 //! request, summed to years or months.
 use biodata::PartialDate;
-use biomcp_fetch::{Arg, BadReply, Freshness, Input, InputError, Leg, Read, Reply, RequestError};
+use biomcp_fetch::{Arg, BadReply, Freshness, Input, InputError, Leg, Read, RequestError};
 use biomcp_types::{
     AdverseEventAggregate, AdverseEventReceivedCount, AdverseEventSearch, AdverseEventSource,
     ComponentLabel, Source,
@@ -22,46 +22,15 @@ pub struct ReceivedPage {
     pub components: Box<[ComponentLabel]>,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum Response {
-    Page { meta: Meta, results: Vec<Day> },
-    Absent { error: crate::openfda::Absence },
-}
-#[derive(Debug, Deserialize)]
-struct Meta {
-    last_updated: Option<PartialDate>,
-}
+type Response = crate::openfda::Envelope<Day, crate::openfda::CountMeta>;
 #[derive(Debug, Deserialize)]
 struct Day {
     time: Box<str>,
     count: u64,
 }
-impl Reply for Response {
-    fn data_date(&self) -> Option<String> {
-        match self {
-            Self::Page { meta, .. } => meta.last_updated.map(|date| date.to_string()),
-            Self::Absent { .. } => None,
-        }
-    }
+impl crate::openfda::Item<crate::openfda::CountMeta> for Day {
     fn check(&self) -> Result<(), BadReply> {
-        match self {
-            Self::Page { results, .. } if results.iter().all(|day| day_of(&day.time).is_ok()) => {
-                Ok(())
-            }
-            Self::Absent { error } if error.valid() => Ok(()),
-            _ => Err(BadReply),
-        }
-    }
-    fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!(
-            (self, status),
-            (Self::Page { .. }, 200) | (Self::Absent { .. }, 404)
-        ) {
-            Ok(())
-        } else {
-            Err(BadReply)
-        }
+        day_of(&self.time).map(|_| ())
     }
 }
 
