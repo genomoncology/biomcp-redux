@@ -10,7 +10,7 @@
       ],
       "max_bytes": 991,
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/query/command": [
           "adverse-event"
@@ -47,7 +47,7 @@
       ],
       "max_bytes": 991,
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/query/command": [
           "adverse-event"
@@ -80,7 +80,7 @@
       ],
       "max_bytes": 1488,
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/query/command": [
           "cell-line"
@@ -129,7 +129,7 @@
       ],
       "max_bytes": 1488,
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/query/command": [
           "cell-line"

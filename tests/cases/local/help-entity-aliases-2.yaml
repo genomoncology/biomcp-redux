@@ -13,7 +13,7 @@
         "drug"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -51,7 +51,7 @@
         "events"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -85,7 +85,7 @@
         "features"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -119,7 +119,7 @@
         "gene"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -157,7 +157,7 @@
         "genes"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -191,7 +191,7 @@
         "gwas"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -229,7 +229,7 @@
         "isoforms"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -263,7 +263,7 @@
         "normalize"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -297,7 +297,7 @@
         "organization"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -331,7 +331,7 @@
         "papers"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -365,7 +365,7 @@
         "pdf"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -399,7 +399,7 @@
         "pgx"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [

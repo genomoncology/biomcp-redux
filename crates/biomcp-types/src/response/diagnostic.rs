@@ -256,7 +256,7 @@ pub enum DiagnosticCard {
     Clearance(DiagnosticClearance),
 }
 impl ResponseBody for DiagnosticCard {
-    const SCHEMA: &'static str = "biomcp.diagnostic-card/4";
+    const SCHEMA: &'static str = "biomcp.diagnostic-card/5";
     type Query = DiagnosticGet;
 }
 /// One bounded regulatory fragment from the exact selected native submission.
@@ -305,7 +305,7 @@ page!(
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
-    "biomcp.diagnostic-page/6",
+    "biomcp.diagnostic-page/7",
     "Source-ordered native diagnostic and medical-device submission candidates.",
     [
         /// Exact openFDA search expression sent for a PMA, 510(k) or device recall page; it names the field each filter matched.
@@ -318,7 +318,7 @@ page!(
     DiagnosticGenes,
     GtrGeneRelation,
     DiagnosticGet,
-    "biomcp.diagnostic-genes/5",
+    "biomcp.diagnostic-genes/6",
     "Native GTR gene relation rows without variant-coverage inference."
 );
 page!(
@@ -326,7 +326,7 @@ page!(
     DiagnosticConditions,
     GtrConditionRelation,
     DiagnosticGet,
-    "biomcp.diagnostic-conditions/5",
+    "biomcp.diagnostic-conditions/6",
     "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
@@ -334,7 +334,7 @@ page!(
     DiagnosticMethods,
     GtrMethod,
     DiagnosticGet,
-    "biomcp.diagnostic-methods/4",
+    "biomcp.diagnostic-methods/5",
     "Independent native method entries without positional pairing."
 );
 page!(
@@ -342,7 +342,7 @@ page!(
     DiagnosticRegulatory,
     DiagnosticRegulatoryFragment,
     DiagnosticGet,
-    "biomcp.diagnostic-regulatory/3",
+    "biomcp.diagnostic-regulatory/4",
     "Exact selected submission regulatory text fragments."
 );
 page!(
@@ -350,7 +350,7 @@ page!(
     DiagnosticSupplements,
     DiagnosticPmaHeader,
     DiagnosticGet,
-    "biomcp.diagnostic-supplements/3",
+    "biomcp.diagnostic-supplements/4",
     "Native supplement records retaining exact identity and independent dated decisions."
 );
 page!(
@@ -358,7 +358,7 @@ page!(
     DiagnosticCompanion,
     CompanionDiagnosticRow,
     DiagnosticSearch,
-    "biomcp.diagnostic-companion/4",
+    "biomcp.diagnostic-companion/5",
     "Whole distinct physical companion-table rows with cell-owned identifiers."
 );
 /// Compact exact PMA row identity; its native empty base cell is explicit.
@@ -475,7 +475,7 @@ pub struct DiagnosticSummary {
     pub hits: Option<Box<[super::PdfTextHit]>>,
 }
 impl ResponseBody for DiagnosticSummary {
-    const SCHEMA: &'static str = "biomcp.diagnostic-summary/1";
+    const SCHEMA: &'static str = "biomcp.diagnostic-summary/2";
     type Query = DiagnosticGet;
 }
 

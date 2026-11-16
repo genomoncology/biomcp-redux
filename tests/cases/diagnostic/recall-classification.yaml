@@ -25,7 +25,7 @@
       "max_bytes": 3000,
       "expect": {
         "/status": "complete",
-        "/schema": "biomcp.diagnostic-page/6",
+        "/schema": "biomcp.diagnostic-page/7",
         "/page/total": 117,
         "/page/returned": 5,
         "/result/items/*/header/recall_number": [

@@ -276,39 +276,39 @@ pub struct DrugInteractions {
     pub hint: Option<Text>,
 }
 impl ResponseBody for DrugPage {
-    const SCHEMA: &'static str = "biomcp.drug-page/7";
+    const SCHEMA: &'static str = "biomcp.drug-page/8";
     type Query = DrugSearch;
 }
 impl ResponseBody for DrugCard {
-    const SCHEMA: &'static str = "biomcp.drug-card/6";
+    const SCHEMA: &'static str = "biomcp.drug-card/7";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugLabel {
-    const SCHEMA: &'static str = "biomcp.drug-label/7";
+    const SCHEMA: &'static str = "biomcp.drug-label/8";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugTargets {
-    const SCHEMA: &'static str = "biomcp.drug-targets/8";
+    const SCHEMA: &'static str = "biomcp.drug-targets/9";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugIndications {
-    const SCHEMA: &'static str = "biomcp.drug-indications/8";
+    const SCHEMA: &'static str = "biomcp.drug-indications/9";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugCivic {
-    const SCHEMA: &'static str = "biomcp.drug-civic/11";
+    const SCHEMA: &'static str = "biomcp.drug-civic/12";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugApprovals {
-    const SCHEMA: &'static str = "biomcp.drug-approvals/8";
+    const SCHEMA: &'static str = "biomcp.drug-approvals/9";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugRegulatory {
-    const SCHEMA: &'static str = "biomcp.drug-regulatory/6";
+    const SCHEMA: &'static str = "biomcp.drug-regulatory/7";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugInteractions {
-    const SCHEMA: &'static str = "biomcp.drug-interactions/8";
+    const SCHEMA: &'static str = "biomcp.drug-interactions/9";
     type Query = DrugGet;
 }
 
@@ -322,7 +322,7 @@ pub struct DrugXrefs {
     pub xrefs: Section<DrugRecords<DrugIdentityRelation>>,
 }
 impl ResponseBody for DrugXrefs {
-    const SCHEMA: &'static str = "biomcp.drug-xrefs/5";
+    const SCHEMA: &'static str = "biomcp.drug-xrefs/6";
     type Query = DrugGet;
 }
 

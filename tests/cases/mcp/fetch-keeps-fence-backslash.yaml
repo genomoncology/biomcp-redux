@@ -99,9 +99,9 @@ steps:
 
         ## Sources
 
-        | Source | State | Terms | Terms url | Use |
-        | --- | --- | --- | --- | --- |
-        | europepmc | ok | Europe PMC copyright; record-specific licenses | <https://europepmc.org/help#copyright> | per-record |
+        | Source | State | Use |
+        | --- | --- | --- |
+        | europepmc | ok | per-record |
 
         **status:** partial
         ````

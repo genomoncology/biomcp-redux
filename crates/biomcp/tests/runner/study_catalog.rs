@@ -76,7 +76,7 @@ pub(super) fn call(
     let mut command = env.globals(Some(replay), false);
     command.extend(args.iter().map(|s| (*s).into()));
     let value = invoke(env, command, exit)?;
-    if value.get("schema") == Some(&json!("biomcp.study-page/5"))
+    if value.get("schema") == Some(&json!("biomcp.study-page/6"))
         && value
             .pointer("/query/limit")
             .and_then(Value::as_u64)
@@ -245,10 +245,10 @@ fn replacement() -> Check {
         )?;
         if failure.pointer("/sources/0/state") != Some(&json!("failed"))
             || failure.pointer("/sources/0/use") != Some(&json!("attribution"))
-            || failure.pointer("/sources/0/terms").is_none()
+            || failure.pointer("/sources/0/terms").is_some()
         {
             return Err(format!(
-                "sync fault lost terms or source outcome: {failure}"
+                "sync fault lost its source outcome or repeats terms: {failure}"
             ));
         }
         let found = call(

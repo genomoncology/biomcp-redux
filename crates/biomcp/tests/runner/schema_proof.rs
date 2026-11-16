@@ -300,8 +300,8 @@ fn discovery() -> Result<(), String> {
             .map(Vec::as_slice)
             .unwrap_or_default();
         for (entity, reply) in [
-            ("drug", "biomcp.drug-who-card/3"),
-            ("pgx", "biomcp.pgx-annotation/5"),
+            ("drug", "biomcp.drug-who-card/4"),
+            ("pgx", "biomcp.pgx-annotation/6"),
         ] {
             if command["command"] == json!(["get", entity])
                 && !schemas.iter().any(|id| id.as_str() == Some(reply))

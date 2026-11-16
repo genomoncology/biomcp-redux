@@ -67,7 +67,7 @@ pub struct DiseaseCard {
     pub components: Box<[ComponentLabel]>,
 }
 impl ResponseBody for DiseaseCard {
-    const SCHEMA: &'static str = "biomcp.disease-card/6";
+    const SCHEMA: &'static str = "biomcp.disease-card/7";
     type Query = DiseaseGet;
 }
 /// One publisher catalog site, independent of ontology identities.
@@ -169,6 +169,8 @@ pub struct OrphanetEpidemiology {
     pub inheritance: Box<[Text]>,
     /// Orphadata record and file release.
     pub attribution: Attribution,
+    /// Statement Orphanet's legal notice asks every result from its data to carry.
+    pub notice: Box<str>,
 }
 
 page!(
@@ -176,7 +178,7 @@ page!(
     DiseasePage,
     DiseaseHeader,
     DiseaseSearch,
-    "biomcp.disease-page/5",
+    "biomcp.disease-page/6",
     "One source-ordered disease candidate page."
 );
 page!(
@@ -184,7 +186,7 @@ page!(
     DiseaseSynonyms,
     DiseaseSynonymItem,
     DiseaseGet,
-    "biomcp.disease-synonyms/5",
+    "biomcp.disease-synonyms/6",
     "One publisher synonym page with scope and language."
 );
 page!(
@@ -192,7 +194,7 @@ page!(
     DiseaseXrefs,
     DiseaseRelation,
     DiseaseGet,
-    "biomcp.disease-xrefs/5",
+    "biomcp.disease-xrefs/6",
     "Native cross-reference predicates without equivalence promotion."
 );
 page!(
@@ -200,7 +202,7 @@ page!(
     DiseaseHierarchy,
     DiseaseRelation,
     DiseaseGet,
-    "biomcp.disease-hierarchy/5",
+    "biomcp.disease-hierarchy/6",
     "Native parent relations with both endpoints."
 );
 page!(
@@ -208,7 +210,7 @@ disease,
 DiseaseGenes,
 DiseaseAssociationItem,
 DiseaseGet,
-"biomcp.disease-genes/9",
+"biomcp.disease-genes/10",
 "Native association rows, not a unique-gene count.",
 [
         /// Original response retrieval Unix seconds, independent of local delivery.
@@ -221,7 +223,7 @@ disease,
 DiseasePhenotypes,
 DiseaseAssociationItem,
 DiseaseGet,
-"biomcp.disease-phenotypes/9",
+"biomcp.disease-phenotypes/10",
 "Native phenotype association rows without diagnostic inference.",
 [
         /// Original response retrieval Unix seconds, independent of local delivery.
@@ -234,7 +236,7 @@ disease,
 DiseaseSites,
 DiseaseSite,
 DiseaseSearch,
-"biomcp.disease-sites/6",
+"biomcp.disease-sites/7",
 "Publisher site catalog without an ontology-to-site mapping.",
 [
         /// Original response retrieval time in Unix seconds, distinct from publisher version/date.
@@ -250,7 +252,7 @@ disease,
 DiseaseIncidence,
 DiseaseStatistic,
 DiseaseGet,
-"biomcp.disease-incidence/7",
+"biomcp.disease-incidence/8",
 "Native incidence rows preserving requested and returned dimensions.",
 [
         /// Original response retrieval time in Unix seconds, distinct from dataset publication.
@@ -263,7 +265,7 @@ disease,
 DiseaseSurvival,
 DiseaseStatistic,
 DiseaseGet,
-"biomcp.disease-survival/7",
+"biomcp.disease-survival/8",
 "Native annual survival rows with separate observed and modeled values.",
 [
         /// Original response retrieval time in Unix seconds, distinct from dataset publication.
@@ -276,7 +278,7 @@ disease,
 DiseasePrevalence,
 OrphanetEpidemiology,
 DiseaseGet,
-"biomcp.disease-prevalence/1",
+"biomcp.disease-prevalence/2",
 "Orphanet epidemiology for each linked Orphanet disorder, without pooling or ranking estimates.",
 [
         /// Orphanet links of a MONDO or DOID concept; empty when an Orphanet code was requested.

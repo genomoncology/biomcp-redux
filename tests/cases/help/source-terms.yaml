@@ -1,0 +1,28 @@
+{
+  "feature": "schema-discovery",
+  "live_check": "local-only command help from the source registry; no recorded source replies",
+  "story": "Replies name each source and its use but no longer repeat publisher terms; an agent or user who needs a source's licence text and link reads them once in help sources.",
+  "steps": [
+    {
+      "run": ["help", "sources"],
+      "expect": {
+        "/status": "complete",
+        "/result/commands/0/command": ["help", "sources"]
+      }
+    },
+    {
+      "run": ["help", "sources", "--format", "md"],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "Publisher terms by source",
+            "oncokb: OncoKB license",
+            "faq.oncokb.org/licensing",
+            "orphadata: CC BY 4.0; cite Orphadata",
+            "civic: CC0 1.0"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -14,7 +14,7 @@ page!(
     ProteinPage,
     ProteinHeader,
     ProteinSearch,
-    "biomcp.protein-page/5",
+    "biomcp.protein-page/6",
     "Source-ordered human reviewed protein headers."
 );
 /// How to read every span in a reply, stated once beside the spans themselves.
@@ -37,7 +37,7 @@ pub struct ProteinFeatures {
     pub coordinate_note: Option<Box<str>>,
 }
 impl ResponseBody for ProteinFeatures {
-    const SCHEMA: &'static str = "biomcp.protein-features/5";
+    const SCHEMA: &'static str = "biomcp.protein-features/6";
     type Query = ProteinFeaturesQuery;
 }
 /// Whole native rows with the independent unfiltered source count.
@@ -55,7 +55,7 @@ pub struct ProteinDomains {
     pub coordinate_note: Option<Box<str>>,
 }
 impl ResponseBody for ProteinDomains {
-    const SCHEMA: &'static str = "biomcp.protein-domains/8";
+    const SCHEMA: &'static str = "biomcp.protein-domains/9";
     type Query = ProteinDomainsQuery;
 }
 page!(
@@ -63,7 +63,7 @@ page!(
     ProteinIsoforms,
     ProteinIsoform,
     ProteinRelationQuery,
-    "biomcp.protein-isoforms/4",
+    "biomcp.protein-isoforms/5",
     "Alternative products with every stated identifier and explicit direct sequence state."
 );
 /// Whole native rows with the independent unfiltered source count.
@@ -78,7 +78,7 @@ pub struct ProteinComplexes {
     pub items: Box<[ProteinComplexHeader]>,
 }
 impl ResponseBody for ProteinComplexes {
-    const SCHEMA: &'static str = "biomcp.protein-complexes/5";
+    const SCHEMA: &'static str = "biomcp.protein-complexes/6";
     type Query = ProteinRelationQuery;
 }
 page!(
@@ -86,7 +86,7 @@ page!(
     ProteinComplexMembers,
     ProteinComplexMember,
     ProteinComplexMembersQuery,
-    "biomcp.protein-complex-members/4",
+    "biomcp.protein-complex-members/5",
     "Native participants of one exact containing complex, including non-protein source facts."
 );
 page!(
@@ -94,7 +94,7 @@ page!(
     ProteinStructures,
     ProteinStructureRef,
     ProteinRelationQuery,
-    "biomcp.protein-structures/5",
+    "biomcp.protein-structures/6",
     "Source structure links and native properties; no residue coverage claim."
 );
 /// Answers to requested inputs; ambiguous gene inputs retain all candidates.
@@ -109,7 +109,7 @@ pub struct ProteinCard {
     pub coordinate_note: Option<Box<str>>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein-card/11";
+    const SCHEMA: &'static str = "biomcp.protein-card/12";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.
@@ -170,7 +170,7 @@ pub struct ProteinSequenceResult {
     pub sequence: ProteinSequence,
 }
 impl ResponseBody for ProteinSequenceResult {
-    const SCHEMA: &'static str = "biomcp.protein-sequence/4";
+    const SCHEMA: &'static str = "biomcp.protein-sequence/5";
     type Query = ProteinSequenceQuery;
 }
 /// Whole source function paragraphs and their own evidence.
@@ -182,7 +182,7 @@ pub struct ProteinFunctionResult {
     pub items: Box<[ProteinFunction]>,
 }
 impl ResponseBody for ProteinFunctionResult {
-    const SCHEMA: &'static str = "biomcp.protein-function/4";
+    const SCHEMA: &'static str = "biomcp.protein-function/5";
     type Query = ProteinGet;
 }
 

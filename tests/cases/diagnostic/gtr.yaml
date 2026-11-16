@@ -11,7 +11,7 @@
       ],
       "max_bytes": 320,
       "expect": {
-        "/schema": "biomcp.sync/7",
+        "/schema": "biomcp.sync/8",
         "/result/rows": 21,
         "/result/duplicate_identities": 1
       }
@@ -27,7 +27,7 @@
       ],
       "max_bytes": 4080,
       "expect": {
-        "/schema": "biomcp.diagnostic-page/6",
+        "/schema": "biomcp.diagnostic-page/7",
         "/page/total": 8,
         "/page/returned": 5,
         "/result/items/0/header/id": "GTR000006692.3",
@@ -190,7 +190,7 @@
       ],
       "max_bytes": 320,
       "expect": {
-        "/schema": "biomcp.sync/7",
+        "/schema": "biomcp.sync/8",
         "/result/rows": 21,
         "/result/duplicate_identities": 1
       }

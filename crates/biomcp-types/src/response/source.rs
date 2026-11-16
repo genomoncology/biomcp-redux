@@ -22,14 +22,9 @@ SourceState {
 pub struct SourceOutcome {
     /// Asked source.
     pub source: Source,
-    /// Reviewed source use category; publisher terms remain authoritative.
+    /// Reviewed source use category; publisher terms remain authoritative: see `help sources`.
     #[serde(rename = "use")]
     pub usage: crate::Use,
-    /// Publisher terms name from the source registry.
-    pub terms: Box<str>,
-    /// Publisher page documenting the terms.
-    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
-    pub terms_url: Box<str>,
     #[serde(flatten)]
     status: SourceStatusView,
     /// Exact provider search term.
@@ -48,18 +43,10 @@ pub struct SourceOutcome {
 
 impl SourceOutcome {
     /// Build a source report with one complete status.
-    pub fn new(
-        source: Source,
-        usage: crate::Use,
-        terms: Box<str>,
-        terms_url: Box<str>,
-        status: SourceStatus,
-    ) -> Self {
+    pub fn new(source: Source, usage: crate::Use, status: SourceStatus) -> Self {
         Self {
             source,
             usage,
-            terms,
-            terms_url,
             status: status.into(),
             term: None,
             count: None,

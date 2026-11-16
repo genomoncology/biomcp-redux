@@ -130,14 +130,12 @@ fn measure(value: &Value, args: &[String]) -> Check {
                     .map_err(|e| e.to_string())?;
             let terms = biomcp_query::sources::terms(source).ok_or("source terms declaration")?;
             if row.get("use") != Some(&json!(terms.usage))
-                || row.get("terms") != Some(&json!(terms.name))
-                || row.get("terms_url") != Some(&json!(terms.url))
+                || row.contains_key("terms")
+                || row.contains_key("terms_url")
             {
                 return Err("source metadata differs before budget deduction".into());
             }
-            for field in ["use", "terms", "terms_url"] {
-                row.remove(field).ok_or("source terms")?;
-            }
+            row.remove("use").ok_or("source use")?;
         }
     }
     let bytes = serde_json::to_vec(&comparable)

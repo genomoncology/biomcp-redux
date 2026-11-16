@@ -35,21 +35,21 @@ pub(super) fn trials() -> Vec<Trial> {
 
 fn cases() -> Vec<(&'static str, Vec<&'static str>, &'static str)> {
     vec![
-        ("health", vec!["health"], "biomcp.health/6"),
+        ("health", vec!["health"], "biomcp.health/7"),
         (
             "sync",
             vec!["sync", "wikipathways"],
-            "biomcp.wikipathways-sync/4",
+            "biomcp.wikipathways-sync/5",
         ),
         (
             "store-clean",
             vec!["store", "clean"],
-            "biomcp.store-clean/4",
+            "biomcp.store-clean/5",
         ),
         (
             "fresh",
             vec!["get", "gene", "BRAF", "--fresh"],
-            "biomcp.gene-cards/13",
+            "biomcp.gene-cards/14",
         ),
         ("key-list", vec!["key", "list"], "biomcp.error/4"),
         ("key-set", vec!["key", "set", "oncokb"], "biomcp.error/4"),
@@ -61,22 +61,22 @@ fn cases() -> Vec<(&'static str, Vec<&'static str>, &'static str)> {
         (
             "article-text",
             vec!["article", "text", "28944238"],
-            "biomcp.article-text/7",
+            "biomcp.article-text/8",
         ),
         (
             "article-supplement",
             vec!["article", "supplement", "28944238", "MGG3-5-553-s002.xlsx"],
-            "biomcp.article-supplement/7",
+            "biomcp.article-supplement/8",
         ),
         (
             "article-pdf",
             vec!["article", "pdf", "28944238"],
-            "biomcp.article-pdf/6",
+            "biomcp.article-pdf/7",
         ),
         (
             "trial-document",
             vec!["trial", "document", "NCT04303780", "SAP_001.pdf"],
-            "biomcp.trial-document/7",
+            "biomcp.trial-document/8",
         ),
     ]
 }

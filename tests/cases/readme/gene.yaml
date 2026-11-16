@@ -36,9 +36,7 @@
             "source": "oncokb",
             "state": "skipped",
             "reason": "disabled",
-            "use": "licensed",
-            "terms": "OncoKB license",
-            "terms_url": "https://faq.oncokb.org/licensing"
+            "use": "licensed"
           }
         },
         "/result/items/0/answer/gene/mane/0/status": "select"

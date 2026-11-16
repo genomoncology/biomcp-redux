@@ -157,7 +157,7 @@
         "clean"
       ],
       "expect": {
-        "/schema": "biomcp.store-clean/4",
+        "/schema": "biomcp.store-clean/5",
         "/status": "complete"
       }
     },

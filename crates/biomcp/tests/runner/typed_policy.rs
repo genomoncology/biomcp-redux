@@ -142,7 +142,7 @@ fn boundaries(env: &Environment) -> Result<(), String> {
         .first()
         .ok_or("missing reply")?
         .pointer("/result/structuredContent/schema")
-        == Some(&json!("biomcp.help/6"))
+        == Some(&json!("biomcp.help/7"))
     {
         return Err("literal input became a CLI flag".into());
     }
@@ -185,7 +185,7 @@ fn exact_next(env: &Environment, reply: &Value, expected: Value) -> Result<(), S
         .and_then(Value::as_str)
         .ok_or_else(|| format!("next call rejected: {reply}"))?;
     if status != "complete"
-        || reply.pointer("/result/structuredContent/schema") != Some(&json!("biomcp.help/6"))
+        || reply.pointer("/result/structuredContent/schema") != Some(&json!("biomcp.help/7"))
     {
         return Err(format!("next call failed CLI validation: {reply}"));
     }

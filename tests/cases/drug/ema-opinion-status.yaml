@@ -21,7 +21,7 @@
     {
       "run": ["get", "drug", "pembrolizumab", "markets"],
       "expect": {
-        "/schema": "biomcp.drug-markets/1",
+        "/schema": "biomcp.drug-markets/2",
         "/status": "complete",
         "/result/markets/1/source": "ema",
         "/result/markets/1/state": "found",

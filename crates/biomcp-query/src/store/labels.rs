@@ -25,12 +25,17 @@ fn relabel(value: &mut Value, owner: Option<Source>) -> Option<()> {
                 Some(source) => registered_source(source),
                 None => owner,
             };
-            if row.contains_key("use") && row.contains_key("terms_url") {
+            // Source outcomes carry use beside state; only source probes still carry terms.
+            if row.contains_key("use")
+                && (row.contains_key("state") || row.contains_key("terms_url"))
+            {
                 let source = registered_source(row.get("source")?)?;
                 let terms = crate::sources::terms(source)?;
                 row.insert("use".into(), terms.usage.as_str().into());
-                row.insert("terms".into(), terms.name.into());
-                row.insert("terms_url".into(), terms.url.into());
+                if row.contains_key("terms_url") {
+                    row.insert("terms".into(), terms.name.into());
+                    row.insert("terms_url".into(), terms.url.into());
+                }
             }
             if row
                 .get("terms")

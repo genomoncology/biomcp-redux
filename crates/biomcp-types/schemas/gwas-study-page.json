@@ -999,25 +999,14 @@
           ],
           "description": "Exact provider search term."
         },
-        "terms": {
-          "description": "Publisher terms name from the source registry.",
-          "type": "string"
-        },
-        "terms_url": {
-          "description": "Publisher page documenting the terms.",
-          "format": "uri",
-          "type": "string"
-        },
         "use": {
           "$ref": "#/$defs/Reply_Use",
-          "description": "Reviewed source use category; publisher terms remain authoritative."
+          "description": "Reviewed source use category; publisher terms remain authoritative: see `help sources`."
         }
       },
       "required": [
         "source",
         "use",
-        "terms",
-        "terms_url",
         "state"
       ],
       "type": "object"
@@ -1105,7 +1094,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.gwas-study-page/1",
+  "$id": "biomcp.gwas-study-page/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1161,7 +1150,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.gwas-study-page/1",
+      "const": "biomcp.gwas-study-page/2",
       "type": "string"
     },
     "sources": {

@@ -12,7 +12,7 @@ class ReplyAcquisitions(ReplyDiffCase):
         for step in range(5 if mutation == 'redeclare' else 4):
             sync = step in (0, 2)
             current = step in (2, 4)
-            value = {'schema': 'biomcp.sync/7' if sync else 'biomcp.study-page/5',
+            value = {'schema': 'biomcp.sync/8' if sync else 'biomcp.study-page/6',
                      'status': 'complete', 'sources': [{'source': 'cbioportal', 'state': 'ok'}],
                      'query': {'source': 'cbioportal'} if sync else {'text': 'atlas', 'offset': 0},
                      'result': {'snapshot': {'revision': 'new' if current else 'old',
@@ -120,7 +120,7 @@ class ReplyAcquisitions(ReplyDiffCase):
             clock = 10 if side == "base" else (20 if step == 0 else 21)
             sync = step < 2 or step == 3
             stale = step == 3
-            value = {"schema": "biomcp.sync/7" if sync else "biomcp.study-page/5",
+            value = {"schema": "biomcp.sync/8" if sync else "biomcp.study-page/6",
                      "status": "partial" if stale else "complete",
                      "query": {"source": "cbioportal"},
                      "sources": [{"source": "cbioportal", "state": "stale" if stale else "ok"}],

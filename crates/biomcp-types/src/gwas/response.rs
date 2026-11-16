@@ -21,7 +21,7 @@ pub struct GwasPage {
     pub continuation: Option<GwasPageQuery>,
 }
 impl ResponseBody for GwasPage {
-    const SCHEMA: &'static str = "biomcp.gwas-page/8";
+    const SCHEMA: &'static str = "biomcp.gwas-page/9";
     type Query = GwasPageQuery;
 }
 /// Exact association card; no second association representation.
@@ -32,7 +32,7 @@ pub struct GwasAssociationCard {
     pub association: GwasAssociation,
 }
 impl ResponseBody for GwasAssociationCard {
-    const SCHEMA: &'static str = "biomcp.gwas-association/6";
+    const SCHEMA: &'static str = "biomcp.gwas-association/7";
     type Query = GwasGet;
 }
 /// Source reported gene identity, without a causal-gene interpretation.
@@ -82,7 +82,7 @@ pub struct GwasLoci {
     pub continuation: Option<GwasGet>,
 }
 impl ResponseBody for GwasLoci {
-    const SCHEMA: &'static str = "biomcp.gwas-loci/4";
+    const SCHEMA: &'static str = "biomcp.gwas-loci/5";
     type Query = GwasGet;
 }
 /// Native study card; independent source descriptions are never reconciled.
@@ -152,7 +152,7 @@ pub struct GwasStudy {
     pub license_url: Option<Text>,
 }
 impl ResponseBody for GwasStudy {
-    const SCHEMA: &'static str = "biomcp.gwas-study/6";
+    const SCHEMA: &'static str = "biomcp.gwas-study/7";
     type Query = GwasGet;
 }
 /// Native country and region metadata.
@@ -207,7 +207,7 @@ pub struct GwasAncestries {
     pub continuation: Option<GwasGet>,
 }
 impl ResponseBody for GwasAncestries {
-    const SCHEMA: &'static str = "biomcp.gwas-ancestries/5";
+    const SCHEMA: &'static str = "biomcp.gwas-ancestries/6";
     type Query = GwasGet;
 }
 
@@ -235,7 +235,7 @@ pub struct GwasStudyPage {
     pub continuation: Option<GwasSearch>,
 }
 impl ResponseBody for GwasStudyPage {
-    const SCHEMA: &'static str = "biomcp.gwas-study-page/1";
+    const SCHEMA: &'static str = "biomcp.gwas-study-page/2";
     type Query = GwasSearch;
 }
 /// Source study metadata and the count from its association page.

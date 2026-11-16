@@ -111,6 +111,6 @@ biodata::wire_enum! {
 }
 
 impl ResponseBody for DrugMarkets {
-    const SCHEMA: &'static str = "biomcp.drug-markets/1";
+    const SCHEMA: &'static str = "biomcp.drug-markets/2";
     type Query = DrugMarketsGet;
 }

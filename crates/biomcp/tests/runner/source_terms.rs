@@ -1,9 +1,6 @@
 //! Required publisher provenance is measured separately from unchanged payload caps.
 // Test-owned Markdown contract for data cells. Product rendering is checked by callers.
 pub(super) mod text {
-    pub(crate) fn source_link(value: &str) -> String {
-        format!("<{value}>")
-    }
     pub(crate) fn escape(value: &str) -> String {
         let mut before = None;
         value.char_indices().map(|(at, ch)| {
@@ -36,19 +33,19 @@ fn strip_row(row: &mut Value) -> Result<(), String> {
     let object = row
         .as_object_mut()
         .ok_or("source outcome is not an object")?;
-    for (field, expected) in [
-        ("use", json!(terms.usage)),
-        ("terms", json!(terms.name)),
-        ("terms_url", json!(terms.url)),
-    ] {
-        if object.remove(field) != Some(expected) {
-            return Err(format!("{source}: missing or changed registry {field}"));
+    // Publisher terms and their link live in `help sources`; a reply carries only the use.
+    for field in ["terms", "terms_url"] {
+        if object.contains_key(field) {
+            return Err(format!("{source}: reply repeats registry {field}"));
         }
+    }
+    if object.remove("use") != Some(json!(terms.usage)) {
+        return Err(format!("{source}: missing or changed registry use"));
     }
     Ok(())
 }
 
-/// Validate every source outcome and remove exactly its three new registry fields.
+/// Validate every source outcome and remove exactly its registry use.
 pub(super) fn comparable(value: &Value, pointer: &str) -> Result<Value, String> {
     let mut result = value.clone();
     if pointer.is_empty() {
@@ -106,21 +103,13 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
         .split('|')
         .enumerate()
         .filter_map(|(i, cell)| match cell {
-            " Terms " => Some((i, "terms")),
-            " Terms url " => Some((i, "terms_url")),
+            " Terms " | " Terms url " => Some((i, "terms")),
             " Use " => Some((i, "use")),
             _ => None,
         })
         .collect();
-    if columns.len() != 3
-        || columns
-            .iter()
-            .map(|(_, field)| *field)
-            .collect::<std::collections::BTreeSet<_>>()
-            .len()
-            != 3
-    {
-        return Err("source table lost required publisher columns".into());
+    if columns.iter().map(|(_, field)| *field).collect::<Vec<_>>() != ["use"] {
+        return Err("source table lost its use column or repeats publisher terms".into());
     }
     let mut bytes = 0;
     for (number, line) in lines.iter().enumerate() {
@@ -136,16 +125,7 @@ pub(super) fn markdown_bytes(text: &str, value: &Value) -> Result<usize, String>
                     .and_then(|r| r.get(*field))
                     .and_then(Value::as_str)
                     .ok_or("missing publisher value")?;
-                if *cell
-                    != format!(
-                        " {} ",
-                        if *field == "terms_url" {
-                            text::source_link(expected)
-                        } else {
-                            text::escape(expected)
-                        }
-                    )
-                {
+                if *cell != format!(" {} ", text::escape(expected)) {
                     return Err("changed Markdown publisher terms".into());
                 }
             }
@@ -159,26 +139,19 @@ fn markdown_object_bytes(table: &str, rows: &[Value]) -> Result<usize, String> {
     let mut rest = table;
     let mut bytes = 0;
     for row in rows {
-        for field in ["terms", "terms_url", "use"] {
-            let value = row
-                .get(field)
-                .and_then(Value::as_str)
-                .ok_or("missing publisher value")?;
-            let rendered = if field == "terms_url" {
-                text::source_link(value)
-            } else {
-                text::escape(value)
-            };
-            let line = format!("**{}:** {rendered}\n\n", text::escape(field));
-            let (before, after) = rest
-                .split_once(&line)
-                .ok_or("changed Markdown publisher terms")?;
-            if before.contains("**use:**") {
-                return Err("source objects lost publisher fields".into());
-            }
-            bytes += line.len();
-            rest = after;
+        let value = row
+            .get("use")
+            .and_then(Value::as_str)
+            .ok_or("missing publisher value")?;
+        let line = format!("**use:** {}\n\n", text::escape(value));
+        let (before, after) = rest
+            .split_once(&line)
+            .ok_or("changed Markdown publisher use")?;
+        if before.contains("**terms") {
+            return Err("source objects repeat publisher terms".into());
         }
+        bytes += line.len();
+        rest = after;
     }
     Ok(bytes)
 }
@@ -218,17 +191,26 @@ fn subtraction() -> Result<(), String> {
         .pointer_mut("/sources/0")
         .and_then(Value::as_object_mut)
         .ok_or("missing source")?
-        .insert("terms".into(), json!("wrong terms"));
+        .insert("terms".into(), json!("CC0 1.0"));
     if size(&envelope, "").is_ok() {
-        return Err("malformed terms earned a deduction".into());
+        return Err("repeated terms earned a deduction".into());
+    }
+    let row = envelope
+        .pointer_mut("/sources/0")
+        .and_then(Value::as_object_mut)
+        .ok_or("missing row")?;
+    row.remove("terms");
+    row.insert("use".into(), json!("licensed"));
+    if size(&envelope, "").is_ok() {
+        return Err("changed use earned a deduction".into());
     }
     envelope
         .pointer_mut("/sources/0")
         .and_then(Value::as_object_mut)
         .ok_or("missing row")?
-        .remove("terms");
+        .remove("use");
     if size(&envelope, "").is_ok() {
-        return Err("missing terms earned a deduction".into());
+        return Err("missing use earned a deduction".into());
     }
     Ok(())
 }
@@ -240,11 +222,7 @@ fn markdown_subtraction() -> Result<(), String> {
         biomcp_types::Source::Hgnc,
         biomcp_types::SourceStatus::Ok,
     );
-    let text = format!(
-        "## Sources\n\n| Source | State | Terms | Terms url | Use |\n| --- | --- | --- | --- | --- |\n| hgnc | ok | {} | {} | open |\n\n",
-        text::escape(&outcome.terms),
-        text::source_link(&outcome.terms_url)
-    );
+    let text = "## Sources\n\n| Source | State | Use |\n| --- | --- | --- |\n| hgnc | ok | open |\n\n".to_owned();
     let value = json!({"sources":[outcome]});
     let expected = "## Sources\n\n| Source | State |\n| --- | --- |\n| hgnc | ok |\n\n";
     if text.len() - markdown_bytes(&text, &value)? != expected.len() {
@@ -255,8 +233,11 @@ fn markdown_subtraction() -> Result<(), String> {
         return Err("ordinary Markdown earned a deduction".into());
     }
     for changed in [
-        text.replace(&text::escape("CC0 1.0"), "wrong terms"),
-        text.replace(" Terms ", " Missing "),
+        text.replace("| open |", "| licensed |"),
+        text.replace(" Use ", " Missing "),
+        text.replace(" Use |", " Terms | Use |")
+            .replace("| --- | --- | --- |", "| --- | --- | --- | --- |")
+            .replace("| ok |", "| ok | CC0 1.0 |"),
     ] {
         if markdown_bytes(&changed, &value).is_ok() {
             return Err("invalid Markdown terms earned a deduction".into());

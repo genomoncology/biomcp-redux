@@ -63,7 +63,7 @@ pub struct PathwayPage {
     pub items: Box<[PathwayHeader]>,
 }
 impl ResponseBody for PathwayPage {
-    const SCHEMA: &'static str = "biomcp.pathway-page/8";
+    const SCHEMA: &'static str = "biomcp.pathway-page/9";
     type Query = PathwaySearch;
 }
 /// One checked source pathway with supported disclosures and whole native text.
@@ -89,7 +89,7 @@ pub struct PathwayCard {
     pub events: Option<crate::Section<PathwayEvents>>,
 }
 impl ResponseBody for PathwayCard {
-    const SCHEMA: &'static str = "biomcp.pathway-card/10";
+    const SCHEMA: &'static str = "biomcp.pathway-card/11";
     type Query = PathwayGet;
 }
 
@@ -111,7 +111,7 @@ pub struct PathwayGenes {
     pub items: Box<[PathwayMember]>,
 }
 impl ResponseBody for PathwayGenes {
-    const SCHEMA: &'static str = "biomcp.pathway-genes/9";
+    const SCHEMA: &'static str = "biomcp.pathway-genes/10";
     type Query = PathwayGenesQuery;
 }
 page!(
@@ -119,7 +119,7 @@ page!(
     PathwayEvents,
     PathwayEventRef,
     PathwayEventsQuery,
-    "biomcp.pathway-events/6",
+    "biomcp.pathway-events/7",
     "Independent source-ordered page of whole native references."
 );
 /// Receipt for one independently validated WikiPathways metadata catalog.
@@ -150,6 +150,6 @@ pub struct WikiPathwaysSync {
 }
 
 impl ResponseBody for WikiPathwaysSync {
-    const SCHEMA: &'static str = "biomcp.wikipathways-sync/4";
+    const SCHEMA: &'static str = "biomcp.wikipathways-sync/5";
     type Query = crate::SyncQuery;
 }

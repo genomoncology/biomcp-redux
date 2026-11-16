@@ -13,7 +13,7 @@
         "adverse-event"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -51,7 +51,7 @@
         "assay-count"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -85,7 +85,7 @@
         "assertions"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -119,7 +119,7 @@
         "biomarker"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -157,7 +157,7 @@
         "citation-evidence"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -191,7 +191,7 @@
         "citations"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -225,7 +225,7 @@
         "complex-members"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -259,7 +259,7 @@
         "complexes"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -293,7 +293,7 @@
         "diagnostic"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -331,7 +331,7 @@
         "disease"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -369,7 +369,7 @@
         "document"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -403,7 +403,7 @@
         "domains"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [

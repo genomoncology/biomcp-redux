@@ -11,7 +11,7 @@
       ],
       "max_bytes": 438,
       "expect": {
-        "/schema": "biomcp.sync/7",
+        "/schema": "biomcp.sync/8",
         "/status": "complete",
         "/query/source": "ema",
         "/result/rows": 7,
@@ -27,7 +27,7 @@
       ],
       "max_bytes": 438,
       "expect": {
-        "/schema": "biomcp.sync/7",
+        "/schema": "biomcp.sync/8",
         "/status": "complete",
         "/query/source": "ema",
         "/result/rows": 7,

@@ -39,11 +39,8 @@
           "open",
           "licensed"
         ],
-        "/sources/*/terms": {
-          "count": 3
-        },
-        "/sources/*/terms_url": {
-          "count": 3
+        "/sources/0": {
+          "omits": ["terms", "terms_url"]
         },
         "/sources/1/source": "mygene",
         "/sources/2": {
@@ -51,9 +48,7 @@
             "source": "oncokb",
             "state": "skipped",
             "reason": "no-key",
-            "use": "licensed",
-            "terms": "OncoKB license",
-            "terms_url": "https://faq.oncokb.org/licensing"
+            "use": "licensed"
           }
         },
         "/next/*/kind": [

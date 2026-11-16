@@ -56,7 +56,7 @@ class Bindings:
             flags = {3: '--gene', 5: '--kind', 7: '--section-limit',
                      9: '--section-offset', 11: '--snapshot', 13: '--source'}
             return (len(position) == 3 and position[0] == 'next'
-                    and all(d.get('schema') == 'biomcp.pgx-annotations/5'
+                    and all(d.get('schema') == 'biomcp.pgx-annotations/6'
                             and d['next'][position[1]].get('kind') == 'page'
                             for d in documents)
                     and all(len(args) == 15 and args[:3] == ['get', 'pgx', 'annotations']

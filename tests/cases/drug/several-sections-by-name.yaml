@@ -23,7 +23,7 @@
         "--fresh"
       ],
       "expect": {
-        "/schema": "biomcp.drug-sections/1",
+        "/schema": "biomcp.drug-sections/2",
         "/status": "complete",
         "/query/input": "11111111-1111-1111-1111-111111111111",
         "/result/identity/id": "11111111-1111-1111-1111-111111111111",

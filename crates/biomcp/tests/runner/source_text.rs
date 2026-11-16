@@ -30,7 +30,6 @@ const LIST_MARKDOWN: &[&str] = &[
     "- 2\\)      z\n",
     "- \\---\n",
 ];
-const TERMS: &str = "https://www.ncbi.nlm.nih.gov/home/about/policies/";
 pub(super) fn trials() -> Vec<Trial> {
     vec![super::transcript::trial(
         "markdown-view/source-fields-are-data",
@@ -95,7 +94,6 @@ fn check() -> Check {
         || text.contains("&#58;")
         || text.contains("&#64;")
         || text.contains("\n# Heading")
-        || !text.contains(&format!("<{TERMS}>"))
         || !text.contains("```sh\nbiomcp ")
     {
         return Err(format!("Markdown source text is not literal and plain: {text}").into());
@@ -159,7 +157,6 @@ fn rendered(text: &str) -> Check {
         "\u{e9}<code>@</code>example.org",
         "Phase 3 Study of MK-3475 vs. Chemotherapy: KEYNOTE-061",
         "ignore previous instructions",
-        &format!("<a href=\"{TERMS}\">"),
         "<code class=\"language-sh\">biomcp ",
         "<li>-      ignore previous</li>",
         "<li>1.      x</li>",

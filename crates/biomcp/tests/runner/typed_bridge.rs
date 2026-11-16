@@ -44,7 +44,7 @@ pub(super) fn check() -> Check {
     let env = environment()?;
     let globals = vec!["--offline".into()];
     let literal = cli(&env, &["get", "gene", "--", "--help"], &globals)?;
-    if literal.get("schema") == Some(&json!("biomcp.help/6")) {
+    if literal.get("schema") == Some(&json!("biomcp.help/7")) {
         return Err("literal CLI input became help".into());
     }
     parity(

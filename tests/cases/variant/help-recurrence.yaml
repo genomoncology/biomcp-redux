@@ -25,7 +25,7 @@
         "0"
       ],
       "expect": {
-        "/schema": "biomcp.variant-recurrence/11",
+        "/schema": "biomcp.variant-recurrence/12",
         "/result/observed_sample_count": 1,
         "/result/examined_rows": 3,
         "/result/all_pages_read": false,

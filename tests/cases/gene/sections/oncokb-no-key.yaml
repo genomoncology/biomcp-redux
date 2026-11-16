@@ -20,9 +20,7 @@
             "source": "oncokb",
             "state": "skipped",
             "reason": "no-key",
-            "use": "licensed",
-            "terms": "OncoKB license",
-            "terms_url": "https://faq.oncokb.org/licensing"
+            "use": "licensed"
           }
         },
         "/next/*/kind": {

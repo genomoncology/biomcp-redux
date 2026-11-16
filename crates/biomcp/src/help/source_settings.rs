@@ -40,6 +40,22 @@ pub(super) fn help(topic: &str) -> Help {
         ));
     }
     description.push_str("Carried-field exclusions leave the aggregator's other fields available. PMC Open Access (pmc-oa) supplies PMC reading.");
+    if topic == "sources" {
+        // Replies name each source and its use; its publisher terms and link are listed here.
+        let terms = registry::sources()
+            .map(|spec| {
+                format!(
+                    "{}: {} <{}> ({})",
+                    spec.source,
+                    spec.terms.name,
+                    spec.terms.url,
+                    spec.terms.usage.as_str()
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("; ");
+        description.push_str(&format!(" Publisher terms by source: {terms}."));
+    }
     Help {
         commands: vec![HelpCommand {
             reply_schemas: crate::schema::local_replies(&["help".into()]),

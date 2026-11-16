@@ -516,7 +516,6 @@ const LINKS: &[(&str, &[(&str, &str)])] = &[
     ("ResearchFetch", &[("url", "uri")]),
     ("ResearchHit", &[("url", "uri")]),
     ("SourceHealth", &[("terms_url", "uri")]),
-    ("SourceOutcome", &[("terms_url", "uri")]),
     ("SourceRecord", &[("url", "uri")]),
     ("StudyCard", &[("source_url", "uri")]),
     ("SupplementContent", &[("url", "uri")]),

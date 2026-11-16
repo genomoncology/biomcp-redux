@@ -68,11 +68,11 @@ pub struct GenePage {
     pub regions: Box<[ClinGenRegion]>,
 }
 impl ResponseBody for GeneCards {
-    const SCHEMA: &'static str = "biomcp.gene-cards/13";
+    const SCHEMA: &'static str = "biomcp.gene-cards/14";
     type Query = GeneGet;
 }
 impl ResponseBody for GenePage {
-    const SCHEMA: &'static str = "biomcp.gene-page/8";
+    const SCHEMA: &'static str = "biomcp.gene-page/9";
     type Query = GeneSearch;
 }
 /// Explicit source synchronization selector.
@@ -113,7 +113,7 @@ pub struct SyncResult {
     pub duplicate_identities: Option<u64>,
 }
 impl ResponseBody for SyncResult {
-    const SCHEMA: &'static str = "biomcp.sync/7";
+    const SCHEMA: &'static str = "biomcp.sync/8";
     type Query = SyncQuery;
 }
 

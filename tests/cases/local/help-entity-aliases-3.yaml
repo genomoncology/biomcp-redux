@@ -13,7 +13,7 @@
         "phenotype"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -51,7 +51,7 @@
         "population"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -85,7 +85,7 @@
         "recommendations"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -119,7 +119,7 @@
         "recurrence"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -153,7 +153,7 @@
         "references"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -187,7 +187,7 @@
         "sequence"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -221,7 +221,7 @@
         "structures"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -255,7 +255,7 @@
         "study"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -293,7 +293,7 @@
         "supplement"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
@@ -327,7 +327,7 @@
         "text"
       ],
       "expect": {
-        "/schema": "biomcp.help/6",
+        "/schema": "biomcp.help/7",
         "/status": "complete",
         "/result/commands/*/command": {
           "includes_all_of": [
