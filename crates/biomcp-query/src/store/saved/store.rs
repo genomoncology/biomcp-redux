@@ -76,7 +76,9 @@ fn meta(connection: &Connection, key: &str) -> Result<Option<i64>, SavedError> {
         return Ok(None);
     }
     Ok(connection
-        .query_row("SELECT value FROM meta WHERE key=?1", [key], |row| row.get(0))
+        .query_row("SELECT value FROM meta WHERE key=?1", [key], |row| {
+            row.get(0)
+        })
         .optional()?)
 }
 

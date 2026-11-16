@@ -6,7 +6,8 @@ mod migrations;
 mod store;
 pub use migrations::MIGRATIONS;
 pub use store::{
-    COMPATIBILITY, NAME_CHARS, NOTE_CHARS, NewItem, PROJECT, SavedError, SavedStore, request_key};
+    COMPATIBILITY, NAME_CHARS, NOTE_CHARS, NewItem, PROJECT, SavedError, SavedStore, request_key,
+};
 
 #[cfg(test)]
 mod tests;

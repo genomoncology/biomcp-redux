@@ -153,7 +153,10 @@ fn shared_folder() -> Result<(), String> {
             .output()
             .map_err(|error| error.to_string())?;
         if !output.status.success() {
-            return Err(format!("{args:?} failed: {}", String::from_utf8_lossy(&output.stdout)));
+            return Err(format!(
+                "{args:?} failed: {}",
+                String::from_utf8_lossy(&output.stdout)
+            ));
         }
         serde_json::from_slice(&output.stdout).map_err(|error| error.to_string())
     };
@@ -163,7 +166,15 @@ fn shared_folder() -> Result<(), String> {
     if saved.exists() {
         return Err("reads and an empty delete created saved.sqlite".into());
     }
-    run_shared(&["saved", "list", "add", "braf-genes", "--entity", "gene", "BRAF"])?;
+    run_shared(&[
+        "saved",
+        "list",
+        "add",
+        "braf-genes",
+        "--entity",
+        "gene",
+        "BRAF",
+    ])?;
     if !saved.exists() {
         return Err("saved.sqlite is not in the shared cache folder".into());
     }

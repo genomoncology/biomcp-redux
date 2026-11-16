@@ -210,6 +210,13 @@
           },
           "type": "array"
         },
+        "missing": {
+          "description": "IDs a list remove named that the list did not hold.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
         "searches": {
           "description": "Saved searches, by project and name.",
           "items": {

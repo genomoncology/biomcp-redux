@@ -84,7 +84,7 @@ fn dispatch_using(
         let mut help = crate::help::dispatch(root, &path)?;
         // Saved work is command-line only, so only the command line's root help names it.
         if context.is_none() && path.is_empty() {
-            help.commands.push(crate::saved::root_help());
+            help.commands.push(crate::saved_help::root_help());
         }
         return encoding.encode(
             Envelope::new(

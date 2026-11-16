@@ -8,13 +8,12 @@ use crate::exit::Status as Exit;
 use biodata::Text;
 use biomcp_query::store::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
 use biomcp_types::{
-    Envelope, ErrorEnvelope, ErrorMessage, Help, HelpArgument, HelpCommand, HelpQuery,
-    ResponseBody, Saved, Source, Status, UsageArguments, UsageError,
+    Envelope, ErrorEnvelope, ErrorMessage, Saved, Source, Status, UsageArguments, UsageError,
 };
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use std::{ffi::OsString, io, path::Path};
 
-const SAVE_AS: &str = "--save-as";
+pub(crate) const SAVE_AS: &str = "--save-as";
 /// Process options that say how to run, not what to search; a saved search keeps none.
 const RUN_OPTIONS: &[&str] = &[
     "--config",
@@ -112,12 +111,10 @@ pub(crate) fn cli(
     let saves = save_as_position(args).is_some();
     match words.as_slice() {
         ["saved", rest @ ..] if asks_help(args) => {
-            Some(help(root, settings, args, &command_path(rest)))
+            Some(crate::saved_help::help(root, settings, args, &command_path(rest)))
         }
         ["saved", ..] => Some(run(root, settings, args)),
-        ["help", "saved", rest @ ..] => {
-            Some(help(root, settings, args, &command_path(rest)))
-        }
+        ["help", "saved", rest @ ..] => Some(crate::saved_help::help(root, settings, args, &command_path(rest))),
         _ if saves => Some(save_search(root, settings, args)),
         _ => None,
     }
@@ -468,11 +465,11 @@ fn failure(encoding: Encoding, error: SavedError, argument: &str) -> io::Result<
     )
 }
 
-fn usage(encoding: Encoding, error: UsageError) -> io::Result<Outcome> {
+pub(crate) fn usage(encoding: Encoding, error: UsageError) -> io::Result<Outcome> {
     crate::command::usage_envelope(error, encoding)
 }
 
-fn help_usage(error: UsageError) -> UsageError {
+pub(crate) fn help_usage(error: UsageError) -> UsageError {
     match error {
         UsageError::Arguments(mut arguments) => {
             arguments.next = vec![biomcp_types::Step {
@@ -483,126 +480,5 @@ fn help_usage(error: UsageError) -> UsageError {
             UsageError::Arguments(arguments)
         }
         other => other,
-    }
-}
-
-/// Command-line help for saved work and the search option that saves.
-fn help(
-    root: &crate::grammar::Root,
-    settings: &crate::config::Settings,
-    args: &[OsString],
-    rest: &[&str],
-) -> io::Result<Outcome> {
-    let encoding = Encoding::cli(root, settings, args);
-    let mut commands = vec![HelpCommand {
-        command: vec![
-            "search".into(),
-            "<entity>".into(),
-            SAVE_AS.into(),
-            "NAME".into(),
-        ],
-        description: "Save a search under NAME when it succeeds; its words, without options \
-            such as --format or --config, are what runs again. biomcp saved show lists it."
-            .into(),
-        reply_schemas: Vec::new(),
-        arguments: Vec::new(),
-        sections: Vec::new(),
-        section_rule: None,
-        examples: vec![
-            [
-                "search",
-                "trial",
-                "--condition",
-                "melanoma",
-                SAVE_AS,
-                "melanoma-trials",
-            ]
-            .map(String::from)
-            .to_vec(),
-        ],
-    }];
-    walk(&grammar(), vec!["saved".into()], &mut commands);
-    let path: Vec<String> = std::iter::once("saved")
-        .chain(rest.iter().copied())
-        .map(String::from)
-        .collect();
-    commands.retain(|command| path.len() == 1 || command.command.starts_with(&path));
-    if commands.is_empty() {
-        return usage(encoding, help_usage(UsageError::arguments()));
-    }
-    encoding.encode(
-        Envelope::new(
-            Status::Complete,
-            HelpQuery { command: path },
-            Some(Help { commands }),
-        ),
-        Exit::Success,
-    )
-}
-
-fn walk(command: &Command, path: Vec<String>, commands: &mut Vec<HelpCommand>) {
-    if command.get_subcommands().next().is_none() {
-        commands.push(HelpCommand {
-            command: path.clone(),
-            description: command
-                .get_about()
-                .map(ToString::to_string)
-                .unwrap_or_default(),
-            reply_schemas: vec![Saved::SCHEMA.into()],
-            arguments: command.get_arguments().map(argument).collect(),
-            sections: Vec::new(),
-            section_rule: None,
-            examples: command
-                .get_after_help()
-                .map(ToString::to_string)
-                .unwrap_or_default()
-                .lines()
-                .filter_map(|line| line.strip_prefix("Example: biomcp "))
-                .filter_map(shlex::split)
-                .collect(),
-        });
-    }
-    for child in command.get_subcommands() {
-        let mut child_path = path.clone();
-        child_path.push(child.get_name().into());
-        walk(child, child_path, commands);
-    }
-}
-
-fn argument(arg: &Arg) -> HelpArgument {
-    HelpArgument {
-        name: arg.get_long().map_or_else(
-            || arg.get_id().to_string().to_uppercase(),
-            |name| format!("--{name}"),
-        ),
-        description: arg.get_help().map(ToString::to_string).unwrap_or_default(),
-        value_type: if matches!(arg.get_action(), ArgAction::SetTrue) {
-            "boolean"
-        } else {
-            "string"
-        }
-        .into(),
-        aliases: Vec::new(),
-        default: None,
-        required: arg.is_required_set(),
-        position: arg.get_index().map(|index| (index - 1) as u64),
-        minimum: None,
-        maximum: None,
-        choices: Vec::new(),
-    }
-}
-
-/// The command-line root help line for saved work; MCP help never carries it.
-pub(crate) fn root_help() -> HelpCommand {
-    HelpCommand {
-        command: vec!["saved".into()],
-        description: "Keep named searches (search ... --save-as NAME) and lists of record IDs on \
-            this machine; command line only. Run biomcp help saved."
-            .into(),
-        reply_schemas: vec![Saved::SCHEMA.into()],
-        arguments: Vec::new(),
-        sections: Vec::new(),
-        section_rule: None,
-        examples: Vec::new(),
     }
 }

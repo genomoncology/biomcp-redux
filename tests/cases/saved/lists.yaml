@@ -238,6 +238,29 @@
           "equals": {}
         }
       }
+    },
+    {
+      "run": [
+        "saved",
+        "delete",
+        "no-such-list"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "NAME"
+      }
+    },
+    {
+      "run": [
+        "saved",
+        "export",
+        "--unrecognized-argument"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
     }
   ]
 }

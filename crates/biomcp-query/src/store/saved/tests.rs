@@ -81,9 +81,16 @@ fn lists_and_searches_round_trip() {
         .list_remove("GENES", &[text("NRAS"), text("TP53")])
         .unwrap();
     assert_eq!(list.items.len(), 2, "one item removed");
-    assert_eq!(missing, [text("TP53")], "an ID the list did not hold is reported");
+    assert_eq!(
+        missing,
+        [text("TP53")],
+        "an ID the list did not hold is reported"
+    );
     let (unchanged, missing) = store.list_remove("genes", &[text("NRAS")]).unwrap();
-    assert_eq!(unchanged.modified, list.modified, "nothing removed leaves modified");
+    assert_eq!(
+        unchanged.modified, list.modified,
+        "nothing removed leaves modified"
+    );
     assert_eq!(missing, [text("NRAS")], "a removed ID is now missing");
     drop(store);
     let mut store = SavedStore::open(&path).unwrap();
@@ -154,9 +161,14 @@ fn file_with_later_additive_migrations_opens() {
         .unwrap();
     assert_eq!(list.items.len(), 2, "an older build writes the later file");
     let schema: i64 = connection
-        .query_row("SELECT value FROM meta WHERE key='schema'", [], |row| row.get(0))
+        .query_row("SELECT value FROM meta WHERE key='schema'", [], |row| {
+            row.get(0)
+        })
         .unwrap();
-    assert_eq!(schema, later, "an older build never lowers the migration count");
+    assert_eq!(
+        schema, later,
+        "an older build never lowers the migration count"
+    );
 }
 
 #[test]
@@ -195,6 +207,10 @@ fn newer_file_is_refused_untouched() {
         .query_row("PRAGMA data_version", [], |row| row.get(0))
         .unwrap();
     assert_eq!(after, changes, "no other connection wrote the refused file");
-    assert_eq!(state(&connection), before, "refused file keeps its key, tables and items");
+    assert_eq!(
+        state(&connection),
+        before,
+        "refused file keeps its key, tables and items"
+    );
     assert_eq!(before.0, newer, "the newer key stays");
 }
