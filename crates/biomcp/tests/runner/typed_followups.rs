@@ -110,7 +110,6 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
     } else {
         vec![]
     };
-    globals.extend(hosted_globals.clone());
     globals.extend([
         "--config".into(),
         env.root()
@@ -131,7 +130,6 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
             crate::runner::protocol::typed_catalog::entity("get_gene", json!({})),
         ),
     ];
-    let replies = exchange_wire(&env, &frames, &globals, None)?;
     let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(config),
@@ -140,6 +138,23 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
         None,
         &hosted_globals,
     )?;
+    // Hosted mode serves only HTTP, so its first reply of each pair is HTTP too.
+    let replies = if hosted {
+        frames
+            .iter()
+            .map(|frame| {
+                if frame["method"] == "tools/list" {
+                    server
+                        .request("POST", "/mcp", &frame.to_string())
+                        .map(|(_, reply)| reply)
+                } else {
+                    http_wire(&server, frame, "")
+                }
+            })
+            .collect::<Result<Vec<_>, _>>()?
+    } else {
+        exchange_wire(&env, &frames, &globals, None)?
+    };
     let tools = replies
         .iter()
         .find(|v| v["id"] == 1)

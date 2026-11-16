@@ -6348,7 +6348,7 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --hosted[=<hosted>]
-          Refuse host file saves, health details and store or key changes over MCP.
+          Serve behind a hosting front end; requires --http. Refuses host file saves, health details and store or key changes over MCP.
 
           [default: false]
           [possible values: true, false]
@@ -6396,12 +6396,12 @@ Example: biomcp help serve
 
 ```
 
-Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. --rate-share scales only keyed hosted source rates. Hosted HTTP calls have bounded work and one whole-call deadline. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
+Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. --hosted requires --http and refuses file saves, health details, sync, store clean, --fresh and key commands with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. --rate-share scales only keyed hosted source rates. Hosted HTTP calls have bounded work and one whole-call deadline. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
 Listed choices accept any letter case; replies use their listed spelling.
 Options are local to the command and independent of source selection.
 
 - `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single. Value form: string; example: --tool-mode single.
-- `--hosted`: Refuse host file saves, health details and store or key changes over MCP. Value form: boolean; example: --hosted.
+- `--hosted`: Serve behind a hosting front end; requires --http. Refuses host file saves, health details and store or key changes over MCP. Value form: boolean; example: --hosted.
 - `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string; example: --rate-share 1.
 - `--saved-folder`: Keep each account's saved work in hosted mode under DIR, in the folder its account header names. Value form: string; example: --saved-folder <saved-folder> (syntax; replace the placeholder with your retained value).
 - `--http`: Listen on an HTTP address; omit its value for the loopback default. Value form: string; example: --http 127.0.0.1:8080.

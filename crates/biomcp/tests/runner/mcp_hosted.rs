@@ -1,4 +1,4 @@
-//! Feature mcp-hosted: transport calls cannot use the host's files, keys or maintenance commands.
+//! Feature mcp-hosted: hosted HTTP calls cannot use the host's files, keys or maintenance commands.
 use super::{http::Server, launch::Environment};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
@@ -12,7 +12,7 @@ pub(super) fn trials() -> Vec<Trial> {
         .flat_map(|http| {
             cases().into_iter().map(move |(name, words, schema)| {
                 let transport = if http { "http" } else { "stdio" };
-                let trial_name = if !http && name == "health" {
+                let trial_name = if http && name == "health" {
                     crate::runner::pool_contract::HOSTED_MODE.0.to_owned()
                 } else {
                     format!("mcp-hosted/{transport}/{name}")
@@ -23,13 +23,9 @@ pub(super) fn trials() -> Vec<Trial> {
             })
         })
         .collect();
-    for http in [false, true] {
-        let transport = if http { "http" } else { "stdio" };
-        trials.push(transcript_trial(
-            format!("mcp-hosted/{transport}/reader"),
-            move || reader(http).map_err(|e| e.to_string().into()),
-        ));
-    }
+    trials.push(transcript_trial("mcp-hosted/http/reader", || {
+        reader().map_err(|e| e.to_string().into())
+    }));
     trials
 }
 
@@ -89,7 +85,9 @@ fn check(http: bool, words: &[&str], schema: &str) -> Check {
         args.extend(["--save".into(), path.to_string_lossy().into()]);
     }
     args.push("--offline".into());
-    for hosted in [true, false] {
+    // Hosted mode serves only HTTP; stdio checks the ordinary local replies.
+    let modes: &[bool] = if http { &[true, false] } else { &[false] };
+    for &hosted in modes {
         let globals = if hosted {
             vec!["--hosted".into()]
         } else {
@@ -176,7 +174,7 @@ fn call(http: bool, env: &Environment, args: &[String], globals: &[String]) -> C
     Ok(value.clone())
 }
 
-fn reader(http: bool) -> Check {
+fn reader() -> Check {
     let env = Environment::new()?;
     for words in [
         vec!["get", "gene", "BRAF", "--offline"],
@@ -192,7 +190,7 @@ fn reader(http: bool) -> Check {
         ],
     ] {
         let args: Vec<String> = words.into_iter().map(str::to_owned).collect();
-        let value = call(http, &env, &args, &["--hosted".into()])?;
+        let value = call(true, &env, &args, &["--hosted".into()])?;
         assert!(
             value.get("error").is_none(),
             "hosted readers must remain available: {value}"

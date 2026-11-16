@@ -1,10 +1,10 @@
 #[path = "typed_descriptions.rs"]
 mod descriptions;
-// Both transports retain hosted policy while typed errors name executable next calls.
+// Hosted HTTP retains hosted policy while typed errors name executable next calls.
 use super::super::super::{
     http::Server,
     launch::Environment,
-    mcp::{exchange_with_globals, request},
+    mcp::{exchange_hosted, exchange_with_globals, request},
 };
 use serde_json::{Value, json};
 
@@ -22,7 +22,6 @@ pub(super) fn check() -> Result<(), String> {
 }
 fn hosted(env: &Environment) -> Result<(), String> {
     let frames = frames();
-    let replies = exchange_with_globals(env, &frames, &["--offline".into(), "--hosted".into()])?;
     let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"mcp_tool_mode":"typed","hosted_max_use":"commercial"})),
@@ -32,18 +31,11 @@ fn hosted(env: &Environment) -> Result<(), String> {
         &["--offline".into(), "--hosted".into()],
     )?;
     for (index, frame) in frames.iter().enumerate() {
-        let stdio = replies
-            .iter()
-            .find(|r| r["id"] == frame["id"])
-            .ok_or("stdio reply")?;
-        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-        if status != 200
-            || stdio.pointer("/result/structuredContent")
-                != http.pointer("/result/structuredContent")
-        {
-            return Err("typed hosted transport mismatch".into());
+        let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
+        if status != 200 || reply.get("id") != frame.get("id") {
+            return Err(format!("typed hosted call failed: {status} {reply}"));
         }
-        let text = first_call(stdio)
+        let text = first_call(&reply)
             .map(|call| call.to_string())
             .unwrap_or_default();
         if index < 5 {
@@ -54,7 +46,7 @@ fn hosted(env: &Environment) -> Result<(), String> {
             };
             exact_next(
                 env,
-                stdio,
+                &reply,
                 json!({"name":"help","arguments":{"command":command}}),
             )?;
         }
@@ -64,7 +56,7 @@ fn hosted(env: &Environment) -> Result<(), String> {
             ));
         }
         if index >= 5
-            && !stdio
+            && !reply
                 .pointer("/result/structuredContent")
                 .ok_or("structured reply")?
                 .to_string()
@@ -121,7 +113,7 @@ fn fresh_refusal(env: &Environment) -> Result<(), String> {
         "tools/call",
         crate::runner::protocol::typed_catalog::entity("get_gene", json!({"input":["BRAF"]})),
     );
-    let replies = exchange_with_globals(env, &[frame], &["--hosted".into(), "--fresh".into()])?;
+    let replies = exchange_hosted(env, &[frame], &["--fresh".into()], "")?;
     let reply = replies.first().ok_or("hosted fresh reply")?;
     if reply.pointer("/result/structuredContent/error/code")
         != Some(&json!("usage.mcp_unavailable"))

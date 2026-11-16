@@ -9,7 +9,7 @@ pub(super) fn serve_command() -> Command {
         .arg(
             super::boolean_argument(Arg::new("hosted")
                 .long("hosted")
-                .help("Refuse host file saves, health details and store or key changes over MCP.")
+                .help("Serve behind a hosting front end; requires --http. Refuses host file saves, health details and store or key changes over MCP.")
                 ),
         )
         .arg(
@@ -219,11 +219,28 @@ pub(super) fn housekeeping(
     }
 }
 
-pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> super::Parsed {
+pub(super) fn serve(
+    matches: &clap::ArgMatches,
+    mut globals: super::Globals,
+) -> Result<super::Parsed, super::ParseInvalid> {
     globals.mcp_tool_mode = matches
         .get_one::<crate::config::ToolMode>("tool-mode")
         .copied();
     globals.hosted = matches.get_flag("hosted");
+    // Every per-caller control is an HTTP header, so hosted mode never serves stdio.
+    if globals.hosted && matches.get_one::<String>("http").is_none() {
+        return Err(super::ParseInvalid {
+            usage: Some(biomcp_types::UsageError::Arguments(
+                biomcp_types::UsageArguments {
+                    argument: Some("--http".into()),
+                    message: Some(biomcp_types::ErrorMessage::HostedHttp),
+                    valid_values: None,
+                    next: vec![super::validation::help(["serve"])],
+                },
+            )),
+            ..Default::default()
+        });
+    }
     globals.saved_folder = matches
         .get_one::<std::path::PathBuf>("saved-folder")
         .cloned();
@@ -237,7 +254,7 @@ pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> 
         .get_one::<biomcp_fetch::RateShare>("rate-share")
         .copied()
         .unwrap_or_default();
-    super::Parsed {
+    Ok(super::Parsed {
         key: None,
         housekeeping: None,
         http: matches.get_one::<String>("http").map(|address| {
@@ -254,5 +271,5 @@ pub(super) fn serve(matches: &clap::ArgMatches, mut globals: super::Globals) -> 
         action: None,
         globals,
         help: None,
-    }
+    })
 }

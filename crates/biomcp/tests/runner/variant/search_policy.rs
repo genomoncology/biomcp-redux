@@ -107,14 +107,6 @@ fn check_policy(protein: &str) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let cli: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
     check_reply(&cli)?;
-    let replay_env = launch::Environment::new()
-        .map_err(|e| e.to_string())?
-        .with_replay_owner(env.shared_root());
-    let args: Vec<String> = words.into_iter().map(str::to_owned).collect();
-    let mut globals = replay_env.globals(Some(&replay), false);
-    globals.push("--hosted".into());
-    let hosted = mcp::call_with_globals(&replay_env, &args, false, &globals)?;
-    check_reply(&hosted)?;
     hosted_http(&replay, protein, check_reply)?;
     let requests = stub.finish()?;
     let [(_, request)] = requests.as_slice() else {

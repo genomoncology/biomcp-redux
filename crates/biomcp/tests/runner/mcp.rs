@@ -147,8 +147,25 @@ pub(super) fn call_text_hosted(
     is_error: bool,
     globals: &[String],
 ) -> Result<(Value, String), String> {
+    let body = request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":args}}),
+    );
+    let replies = exchange_hosted(environment, &[body], globals, "")?;
+    tool_text(replies.first().ok_or("missing hosted reply")?, is_error)
+}
+
+/// Hosted mode serves only HTTP: send each frame in turn, with any extra caller headers, to one
+/// hosted HTTP server started in this environment with these server arguments.
+pub(super) fn exchange_hosted(
+    environment: &Environment,
+    frames: &[Value],
+    globals: &[String],
+    extra: &str,
+) -> Result<Vec<Value>, String> {
     let mut hosted = vec!["--hosted".to_owned()];
-    hosted.extend_from_slice(globals);
+    hosted.extend(globals.iter().filter(|word| *word != "--hosted").cloned());
     let mut server = super::http::Server::configured_launch(
         "127.0.0.1:0",
         None,
@@ -158,17 +175,20 @@ pub(super) fn call_text_hosted(
         &hosted,
         |_, args| environment.command(env!("CARGO_BIN_EXE_biomcp"), args),
     )?;
-    let body = request(
-        json!(1),
-        "tools/call",
-        json!({"name":"biomcp","arguments":{"args":args}}),
-    );
-    let (status, reply) = server.request("POST", "/mcp", &body.to_string())?;
+    let replies = frames
+        .iter()
+        .map(|frame| {
+            let (status, reply) =
+                server.request_with_headers("POST", "/mcp", &frame.to_string(), extra)?;
+            if status == 200 {
+                Ok(reply)
+            } else {
+                Err(format!("hosted MCP status {status}: {reply}"))
+            }
+        })
+        .collect::<Result<Vec<_>, String>>();
     server.stop()?;
-    if status != 200 {
-        return Err(format!("hosted MCP status {status}: {reply}"));
-    }
-    tool_text(&reply, is_error)
+    replies
 }
 
 fn tool_text(reply: &Value, is_error: bool) -> Result<(Value, String), String> {

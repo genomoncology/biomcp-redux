@@ -87,6 +87,7 @@ singleton! {
  McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
  McpKey => "key is unavailable over MCP; run it from the command line",
  McpHosted => "this command is unavailable in hosted mode",
+ HostedHttp => "hosted mode runs only over HTTP behind the hosting front end; add --http",
  SavedRecordUnknown => "no saved search or list has this name; biomcp saved show lists the names",
  SavedNameTaken => "a saved search or list already has this name; choose another name or delete it with biomcp saved \
  delete NAME",

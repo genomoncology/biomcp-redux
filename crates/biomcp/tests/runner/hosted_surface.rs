@@ -1,9 +1,9 @@
 //! Hosted discovery and follow-ups describe this server's actual authority.
-//! live_check: local HTTP/stdio transport replay with recorded public replies; no live calls.
+//! live_check: local HTTP transport replay with recorded public replies; no live calls.
 use super::super::{
     http::Server,
     launch::{Environment, fixtures},
-    mcp::{exchange_with_globals, request},
+    mcp::request,
 };
 use serde_json::{Value, json};
 
@@ -40,12 +40,12 @@ fn check() -> Check {
 }
 
 fn surface(mode: &str) -> Check {
-    let (server, config) = server(
+    let (server, _config) = server(
         mode,
         &["ctgov", "meddra", "gmdn", "reactome"],
         "replies/drug/openfda-label-page",
     )?;
-    parser_recovery(&server, &config, mode)?;
+    parser_recovery(&server, mode)?;
     if mode == "typed" {
         let tools = catalog(&server)?;
         let gene = super::typed_catalog::command(&tools, "get_gene").ok_or("get_gene")?;
@@ -98,25 +98,14 @@ fn server(mode: &str, disabled: &[&str], replay: &str) -> Result<(Server, Enviro
     Ok((server, config))
 }
 
-fn parser_recovery(server: &Server, env: &Environment, mode: &str) -> Check {
+fn parser_recovery(server: &Server, mode: &str) -> Check {
     let invalid = params(
         mode,
         "article_text",
         &["article", "text", "--unexpected"],
         json!({"unexpected":true}),
     );
-    recovery(&call(server, invalid.clone())?)?;
-    let stdio = exchange_with_globals(
-        env,
-        &[request(json!(3), "tools/call", invalid)],
-        &["--hosted".into(), "--offline".into()],
-    )?;
-    recovery(
-        stdio
-            .first()
-            .and_then(|reply| reply.pointer("/result/structuredContent"))
-            .ok_or("stdio error reply")?,
-    )
+    recovery(&call(server, invalid)?)
 }
 
 fn offered_help(server: &Server, mode: &str) -> Check {

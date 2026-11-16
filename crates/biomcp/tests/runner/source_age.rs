@@ -98,9 +98,8 @@ fn hosted() -> Check {
     db.execute("UPDATE bundle SET fresh_until=0 WHERE name='ema'", [])
         .map_err(|e| e.to_string())?;
     drop(db);
-    let mut globals = env.globals(None, true);
-    globals.push("--hosted".into());
-    let reply = mcp::call_with_globals(
+    let globals = env.globals(None, true);
+    let (reply, _) = mcp::call_text_hosted(
         &env,
         &["search", "drug", "Glivec", "--source", "ema"].map(str::to_owned),
         false,
@@ -111,7 +110,6 @@ fn hosted() -> Check {
     if !reply.to_string().contains("Local copy retrieved ") {
         return Err(format!("hosted reply omits the local copy date: {reply}"));
     }
-    globals.pop();
     let server = Server::configured_globals("127.0.0.1:0", None, None, None, None, &globals)?;
     let frame = mcp::request(
         json!(1),
