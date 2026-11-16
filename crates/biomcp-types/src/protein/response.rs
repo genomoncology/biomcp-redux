@@ -44,7 +44,10 @@ impl ResponseBody for ProteinFeatures {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinDomains {
-    // The total comes before the rows (0942): a reader of only the start sees it.
+    // The totals come before the rows (0942): a reader of only the start sees them.
+    /// Rows in the whole selected collection before paging; the count to report (1010).
+    #[serde(default)]
+    pub total: u64,
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,
     /// Bounded retained rows in source order.
@@ -70,7 +73,10 @@ page!(
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinComplexes {
-    // The total comes before the rows (0942): a reader of only the start sees it.
+    // The totals come before the rows (0942): a reader of only the start sees them.
+    /// Rows in the whole selected collection before paging; the count to report (1010).
+    #[serde(default)]
+    pub total: u64,
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,
     /// Bounded retained rows in source order.
