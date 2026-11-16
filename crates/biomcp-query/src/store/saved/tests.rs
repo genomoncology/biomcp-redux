@@ -286,7 +286,11 @@ fn snapshots_compare_and_keep_two() {
         "row schema moved"
     );
     assert_eq!(
-        (ids(&rebaselined.new), ids(&rebaselined.gone), ids(&rebaselined.changed)),
+        (
+            ids(&rebaselined.new),
+            ids(&rebaselined.gone),
+            ids(&rebaselined.changed)
+        ),
         (vec!["X"], vec!["B", "C"], Vec::<&str>::new()),
         "a rebaseline lists new and gone by ID but no changed rows"
     );

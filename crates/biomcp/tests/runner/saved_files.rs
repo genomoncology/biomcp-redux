@@ -286,7 +286,9 @@ fn two_days() -> Result<(), String> {
     let (_, first) = changed(&env, "watched", &day1)?;
     let report = expect_state(&first, "first")?;
     if report.pointer("/to/total") != count.get("day1_total") {
-        return Err(format!("day one total differs from the hand count: {first}"));
+        return Err(format!(
+            "day one total differs from the hand count: {first}"
+        ));
     }
     // Nothing is due, so an empty replay folder, which answers no request, is never read.
     let empty = env.root().join("no-replies");
@@ -300,7 +302,9 @@ fn two_days() -> Result<(), String> {
     let (_, second) = changed(&env, "watched", &day2)?;
     let report = expect_state(&second, "changed")?;
     if report.pointer("/to/total") != count.get("day2_total") {
-        return Err(format!("day two total differs from the hand count: {second}"));
+        return Err(format!(
+            "day two total differs from the hand count: {second}"
+        ));
     }
     for field in ["new", "gone", "changed"] {
         if ids(report, field) != hand(&count, field) {
@@ -333,7 +337,9 @@ fn rebaseline(env: &Environment, count: &Value, day1: &Path) -> Result<(), Strin
         || ids(report, "gone") != hand(count, "new")
         || !ids(report, "changed").is_empty()
     {
-        return Err(format!("a rebaseline must list IDs, not rows: {rebaselined}"));
+        return Err(format!(
+            "a rebaseline must list IDs, not rows: {rebaselined}"
+        ));
     }
     age(env, "")?;
     let (_, unchanged) = changed(env, "watched", day1)?;

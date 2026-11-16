@@ -35,7 +35,8 @@
         "changed",
         "not_due",
         "rebaselined",
-        "incomplete"
+        "incomplete",
+        "failed"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -43,8 +44,9 @@
         " The same records with the same rows as the last check.",
         " Records were gained, lost or changed; new, gone and changed list them.",
         " Checked less than an hour ago; nothing ran. Ask again at next_due.",
-        " The row format changed since the last check, so rows were not compared; the next check compares.",
-        " A check matched more records than a snapshot holds; only totals compare."
+        " The row format changed since the last check, so new and gone list IDs but changed rows are not compared; the next check compares them.",
+        " A check matched more records than a snapshot holds; only totals compare.",
+        " The check could not finish, such as when the source failed or the saved words no longer parse; nothing was kept. Run saved changed NAME to see why."
       ]
     },
     "Reply_SavedRef": {
@@ -313,14 +315,14 @@
       "description": "The earlier snapshot, absent on a first check."
     },
     "gone": {
-      "description": "Records the earlier snapshot holds and the later one does not.",
+      "description": "Records the earlier snapshot holds and the later one does not; also listed when rebaselined.",
       "items": {
         "$ref": "#/$defs/Reply_SavedRef"
       },
       "type": "array"
     },
     "new": {
-      "description": "Records the later snapshot holds and the earlier one does not.",
+      "description": "Records the later snapshot holds and the earlier one does not; also listed when rebaselined.",
       "items": {
         "$ref": "#/$defs/Reply_SavedRef"
       },
