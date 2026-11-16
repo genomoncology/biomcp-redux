@@ -56,14 +56,18 @@ pub(super) fn check(root: &Path) -> Check {
             unmarked.push(format!("{relative} ({source})"));
         }
         if source == <&str>::from(Source::Orphadata) && real_orphadata(&record) {
-            unmarked.push(format!("{relative} ({source}: body lacks {ORPHADATA_AUTHORED})"));
+            unmarked.push(format!(
+                "{relative} ({source}: body lacks {ORPHADATA_AUTHORED})"
+            ));
         }
     }
     if unmarked.is_empty() {
         Ok(())
     } else {
         Err(format!(
-            "replies from noncommercial sources and Orphadata need `Synthetic: <source>` in README.md in their source or case folder, and Orphadata file bodies need {ORPHADATA_AUTHORED}:\n{}",
+            "replies from noncommercial sources and Orphadata need `Synthetic: <source>` in \
+             README.md in their source or case folder, and Orphadata bodies need \
+             {ORPHADATA_AUTHORED}:\n{}",
             unmarked.join("\n")
         )
         .into())
