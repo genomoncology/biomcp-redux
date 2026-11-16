@@ -109,12 +109,15 @@ def post(address, index, users):
     return content["result"]["identity"]["name"]
 
 
-def scenario(binary, name, calls, users, sizes):
+def scenario(binary, name, calls, users, sizes, pages_at_once=None):
     with tempfile.TemporaryDirectory(prefix="biomcp-label-memory-") as temporary:
         root = Path(temporary)
         for folder in ("home", "config/biomcp", "cache", "replies"):
             (root / folder).mkdir(parents=True)
-        (root / "config/biomcp/config.json").write_text(json.dumps({"source_data_max_age_days": 1_000_000}))
+        config = {"source_data_max_age_days": 1_000_000}
+        if pages_at_once:
+            config["drug_label_pages_at_once"] = pages_at_once
+        (root / "config/biomcp/config.json").write_text(json.dumps(config))
         largest, pages = replies(root / "replies", sizes, calls)
         env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": str(root / "home"),
                "XDG_CONFIG_HOME": str(root / "config"), "XDG_CACHE_HOME": str(root / "cache")}
@@ -143,14 +146,16 @@ def scenario(binary, name, calls, users, sizes):
                     time.sleep(0.02)
             sampler = threading.Thread(target=sample)
             sampler.start()
-            barrier, outcomes = threading.Barrier(calls), [None] * calls
+            barrier, outcomes, seconds = threading.Barrier(calls), [None] * calls, [0.0] * calls
 
             def call(index):
                 barrier.wait()
+                began = time.monotonic()
                 try:
                     outcomes[index] = post(address, index, users)
                 except Exception as error:  # every failure is reported with the measurement
                     outcomes[index] = error
+                seconds[index] = time.monotonic() - began
             started = time.monotonic()
             workers = [threading.Thread(target=call, args=(index,)) for index in range(calls)]
             for worker in workers:
@@ -172,6 +177,8 @@ def scenario(binary, name, calls, users, sizes):
                 "idle_rss_mib": round(idle / 1024, 1), "sampled_peak_rss_mib": round(max(samples) / 1024, 1),
                 "process_peak_rss_mib": round(peak / 1024, 1), "rss_after_mib": round(after / 1024, 1),
                 "peak_over_idle_mib": round((peak - idle) / 1024, 1), "seconds": round(elapsed, 2),
+                "call_seconds_p50": round(sorted(seconds)[len(seconds) // 2], 3),
+                "call_seconds_max": round(max(seconds), 3), "pages_at_once": pages_at_once or "default",
                 "labels": sorted({o for o in outcomes if isinstance(o, str)}), "failures": failures}
 
 
@@ -185,8 +192,11 @@ def main():
             ("8 calls, keyless, live-sized pages", SLOTS, 0, "live"),
             ("8 calls, 8 caller keys, live-sized pages", SLOTS, SLOTS, "live"),
             ("32 calls, 8 caller keys, live-sized pages", HOSTED_SLOTS, keys, "live"),
+            ("32 calls, 8 caller keys, live-sized pages, no page limit", HOSTED_SLOTS, keys, "live", 1000),
             ("8 calls, 8 caller keys, largest page near 32 MiB", SLOTS, SLOTS, "bound"),
-            ("32 calls, 8 caller keys, largest page near 32 MiB", HOSTED_SLOTS, keys, "bound")]
+            ("32 calls, 8 caller keys, largest page near 32 MiB", HOSTED_SLOTS, keys, "bound"),
+            ("32 calls, 8 caller keys, largest page near 32 MiB, no page limit", HOSTED_SLOTS, keys, "bound",
+             1000)]
     results = []
     for run in runs:
         try:

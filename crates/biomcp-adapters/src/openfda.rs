@@ -85,8 +85,21 @@ pub(crate) fn page<T: Item>(
     limit: u32,
     check: &dyn Fn(&Envelope<T>) -> Result<(), BadReply>,
 ) -> Result<biomcp_fetch::Received<Envelope<T>>, biomcp_fetch::RequestError> {
+    paged(source, leg, endpoint, args, (offset, limit), check, &|_| Ok(()))
+}
+/// [`page`], with a check of the page's bytes before they are decoded.
+pub(crate) fn paged<T: Item>(
+    source: biomcp_types::Source,
+    leg: &biomcp_fetch::Leg<'_>,
+    endpoint: &biomcp_fetch::Endpoint,
+    args: &[(&str, biomcp_fetch::Arg<'_>)],
+    (offset, limit): (u32, u32),
+    check: &dyn Fn(&Envelope<T>) -> Result<(), BadReply>,
+    before_decode: &dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason>,
+) -> Result<biomcp_fetch::Received<Envelope<T>>, biomcp_fetch::RequestError> {
     use biomcp_fetch::{Arg, Input, Read};
-    let mut received = leg.call(endpoint, Input::Params(args), Read::json().check(check))?;
+    let read = Read::json().check(check).validate_body(before_decode);
+    let mut received = leg.call(endpoint, Input::Params(args), read)?;
     if offset == 0 || !matches!(received.value, Envelope::Absent { .. }) {
         return Ok(received);
     }

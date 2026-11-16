@@ -23,6 +23,7 @@ mod map;
 mod page;
 mod raw;
 mod reading;
+pub use reading::{PAGES_AT_ONCE, set_pages_at_once};
 mod wire;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
@@ -108,20 +109,10 @@ pub fn get(leg: &Leg<'_>, set: &DrugId) -> Result<Page, RequestError> {
         Some(set),
     )
 }
-/// A page of whole labels waits for a turn; a single-label read is small and never waits.
-fn turn(leg: &Leg<'_>, limit: u32) -> Result<Option<reading::Turn<'static>>, RequestError> {
-    if limit <= 1 {
-        return Ok(None);
-    }
-    let turn = reading::PAGES.enter(leg.remaining()).ok_or(biomcp_fetch::SourceError {
-        source: Source::OpenfdaLabel,
-        reason: biomcp_types::Reason::DeadlineExceeded,
-        status: None,
-        tls_cause: None,
-        retry_after: None,
-    })?;
-    Ok(Some(turn))
-}
+#[expect(
+    clippy::disallowed_types,
+    reason = "A large page's decoding turn is taken in the byte check and held until it is mapped"
+)]
 fn page(
     leg: &Leg<'_>,
     selector: &str,
@@ -129,7 +120,6 @@ fn page(
     offset: u32,
     set: Option<&DrugId>,
 ) -> Result<Page, RequestError> {
-    let _turn = turn(leg, limit)?;
     let mut args = vec![
         ("search", Arg::Text(selector)),
         ("limit", Arg::Num(limit.into())),
@@ -138,13 +128,21 @@ fn page(
     if offset > 0 {
         args.push(("skip", Arg::Num(offset.into())));
     }
-    let (reply, metadata) = crate::openfda::page(
+    // A large page waits for a turn once its bytes have arrived, and holds it until mapped.
+    let turn = std::cell::RefCell::new(None);
+    let before_decode = |body: &[u8]| {
+        if body.len() >= reading::LARGE_PAGE && turn.borrow().is_none() {
+            let entered = reading::PAGES.enter(leg.remaining());
+            *turn.borrow_mut() = Some(entered.ok_or(biomcp_types::Reason::DeadlineExceeded)?);
+        }
+        Ok(())
+    };
+    let (reply, metadata) = crate::openfda::paged(
         Source::OpenfdaLabel,
         leg,
         &LABEL,
         &args,
-        offset,
-        limit,
+        (offset, limit),
         &|reply| match reply {
             raw::Response::Page { meta, results }
                 if meta.results.skip != offset
@@ -155,6 +153,7 @@ fn page(
             }
             _ => Ok(()),
         },
+        &before_decode,
     )
     .map(|received| (received.value, received.meta))?;
     let (records, total) = match reply {
