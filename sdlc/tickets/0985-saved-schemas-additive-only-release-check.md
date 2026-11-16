@@ -18,6 +18,8 @@ The schema release check holds `biomcp.saved-*` schemas to additive-only changes
 - Proof: the three case steps above fail on the base commit.
 - Proof (from 0982's review, 2026-11-15): `saved changed` compares only the row-format digest, not the reply schema ID, so an envelope-only major (such as 0849's 137-schema bump) does not rebaseline every saved search (`crates/biomcp/src/command/recheck.rs:177-194`); a trial shows a schema-ID-only change reports `changed`, not `rebaselined`.
 
+- Proof (from 0983's review, 2026-11-15): `saved note --project default NAME TEXT` is refused instead of silently noting NAME (`crates/biomcp/src/saved_note.rs:119-123`); an item can be picked by `--source` when a list holds the same entity and ID under two sources (`crates/biomcp-query/src/store/saved/notes.rs:100-117`); an unknown stored note kind or item source is skipped with a problem rather than failing `saved show` and `saved export` (`notes.rs:215`); a `--format md` case for `saved show` with a note holding Markdown characters proves the user-data label and escaping.
+
 ## Starts from
 
 - Starts from: `release/` schema release check; `tests/cases/mcp/parity.yaml`, `tests/cases/saved/lists.yaml`; `asks_help` in `crates/biomcp/src/saved.rs`.
