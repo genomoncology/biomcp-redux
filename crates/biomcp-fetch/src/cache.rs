@@ -18,7 +18,7 @@ use std::{
 };
 
 /// Transport SQLite schema version checked by other owners of the shared database.
-pub const VERSION: u32 = 5;
+pub const VERSION: u32 = 6;
 /// Compatible cache namespace used by callers when naming shared cache files.
 pub const CACHE_NAMESPACE_VERSION: u32 = 1;
 const OWNER: &str = "biomcp-fetch";
@@ -27,6 +27,8 @@ pub const STALE_GRACE_SECONDS: i64 = 30 * 24 * 60 * 60;
 /// Default reply cache ceiling (1001). 2 GiB: about 560 typical 3.6 MiB openFDA label pages
 /// (median of twelve common names, 2026-11-16; 0.3 to 8.5 MiB), a tenth of a 20 GiB container disk.
 pub const REPLY_CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+/// Bytes each stored reply counts beyond its body and URL, so empty rows count too.
+const ROW_OVERHEAD: usize = 64;
 const OPEN_WAIT: Duration = Duration::from_secs(5);
 
 // One connection is shared by source legs. Its lock covers only SQLite work;
@@ -311,9 +313,11 @@ impl Cache {
             let tx = connection.unchecked_transaction().map_err(|error| db_error(error))?;
             let at = now();
             tx.execute("DELETE FROM reply WHERE fresh_until<=?1", [at.saturating_sub(STALE_GRACE_SECONDS)]).map_err(|error| db_error(error))?;
+            // A row counts its body, its URL and 64 bytes of overhead, as the reply_bytes
+            // triggers do. A reply larger than the whole ceiling is served but never stored.
             let ceiling = i64::try_from(self.5).unwrap_or(i64::MAX);
-            // A reply larger than the whole ceiling is served but never stored (1001).
-            if u64::try_from(entry.body.len()).unwrap_or(u64::MAX) > self.5 {
+            let size = entry.body.len().saturating_add(url.len()).saturating_add(ROW_OVERHEAD);
+            if i64::try_from(size).unwrap_or(i64::MAX) > ceiling {
                 tx.execute("DELETE FROM reply WHERE key=?1", [key]).map_err(|error| db_error(error))?;
                 return tx.commit().map_err(|error| db_error(error));
             }
@@ -342,16 +346,23 @@ impl Cache {
                 ],
             )
             .map_err(|error| db_error(error))?;
-            // Past the ceiling, remove expired rows first, then the oldest, until the bodies fit.
-            // The row this write serves is never removed.
-            tx.execute(
-                "DELETE FROM reply WHERE key IN (SELECT key FROM (SELECT key, \
-                sum(length(body)) OVER (ORDER BY fresh_until>?2, fetched_at, key ROWS UNBOUNDED PRECEDING) \
-                - length(body) AS before FROM reply WHERE key<>?1) \
-                WHERE before < (SELECT sum(length(body)) FROM reply) - ?3)",
-                params![key, at, ceiling],
-            )
-            .map_err(|error| db_error(error))?;
+            // The triggers keep the running total, so a write under the ceiling scans nothing.
+            let total: i64 = tx
+                .query_row("SELECT total FROM reply_bytes", [], |row| row.get(0))
+                .map_err(|error| db_error(error))?;
+            if total > ceiling {
+                // Remove expired rows first, then the oldest, down to nine tenths of the
+                // ceiling, so the next writes need no removal. The row just written stays.
+                let excess = total.saturating_sub(ceiling.saturating_sub(ceiling / 10));
+                tx.execute(
+                    "DELETE FROM reply WHERE key IN (SELECT key FROM (SELECT key, \
+                    sum(length(body)+length(url)+64) OVER (ORDER BY fresh_until>?2, fetched_at, key \
+                    ROWS UNBOUNDED PRECEDING) - (length(body)+length(url)+64) AS before \
+                    FROM reply WHERE key<>?1) WHERE before < ?3)",
+                    params![key, at, excess],
+                )
+                .map_err(|error| db_error(error))?;
+            }
             tx.commit().map_err(|error| db_error(error))
         })
     }
