@@ -91,6 +91,7 @@ singleton! {
  SavedNameTaken => "a saved search or list already has this name; choose another name or delete it with biomcp saved \
  delete NAME",
  SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",
+ SavedNoteUnknown => "no saved note has this ID; biomcp saved show lists the notes",
  HostedKey => "add the source key in your account settings",
  UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",

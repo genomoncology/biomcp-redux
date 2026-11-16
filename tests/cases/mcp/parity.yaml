@@ -13,7 +13,7 @@ steps:
       /schema: biomcp.help/6
       /status: complete
       /result/commands/*/description:
-        includes: "Keep named searches (search ... --save-as NAME) and lists of record IDs on this machine; command line only. Run biomcp help saved."
+        includes: "Keep named searches (search ... --save-as NAME), lists of record IDs and notes on this machine; command line only. Run biomcp help saved."
   - mcp: []
     is_error: false
     expect:

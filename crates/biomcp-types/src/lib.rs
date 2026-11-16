@@ -202,7 +202,8 @@ pub use query::{CheckedQuery, QueryInvalid};
 
 mod saved;
 pub use saved::{
-    ChangeReport, ChangeSnapshot, ChangeState, Saved, SavedList, SavedListItem, SavedRef,
+    ChangeReport, ChangeSnapshot, ChangeState, NoteTargetKind, Saved, SavedList, SavedListItem,
+    SavedNote, SavedNoteTarget, SavedRef,
     SavedSearch, SavedSnapshot, SavedSnapshotRow, SavedSnapshotSource,
 };
 

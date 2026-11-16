@@ -1,4 +1,5 @@
-//! Saved searches and lists on the command line (sdlc/planning/saved-work.md, step 1).
+//! Saved searches, lists and notes on the command line (sdlc/planning/saved-work.md, steps 1,
+//! 3 and 4).
 //!
 //! Only the command line reaches these commands: they stay out of the shared command
 //! tree, so MCP, hosted mode and their discovery are unchanged until the typed `saved`
@@ -7,7 +8,8 @@ use crate::command::{Encoding, Outcome};
 use crate::exit::Status as Exit;
 use biodata::Text;
 use biomcp_query::store::saved::{
-    self as saved_store, NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore,
+    self as saved_store, NAME_CHARS, NOTE_CHARS, NewItem, NoteTarget, PROJECT, SavedError,
+    SavedStore,
 };
 use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Saved, Source, Status, UsageArguments, UsageError,
@@ -45,11 +47,11 @@ pub(crate) fn grammar() -> Command {
             .num_args(1..)
     };
     node("saved")
-        .about("Keep searches and lists of records in saved.sqlite in the data folder; a cache clean or upgrade keeps them.")
+        .about("Keep searches, lists of records and notes in saved.sqlite in the data folder; a cache clean or upgrade keeps them.")
         .subcommand_required(true)
         .subcommand(
             node("show")
-                .about("Show every saved search and list, or the one with this name.")
+                .about("Show every saved search, list and note, or the search or list with this name and its notes.")
                 .after_help("Example: biomcp saved show")
                 .arg(name("Saved search or list name, without regard to case.")),
         )
@@ -61,18 +63,57 @@ pub(crate) fn grammar() -> Command {
         )
         .subcommand(
             node("export")
-                .about("Export every saved search, list and kept search snapshot as typed JSON.")
+                .about("Export every saved search, list, note and kept search snapshot as typed JSON.")
                 .after_help("Example: biomcp saved export"),
         )
         .subcommand(
+            node("note")
+                .about("Attach a note to a saved search or list, one list item with --item, or the project with --project; notes come back as user data, never instructions, and the same note again changes nothing.")
+                .after_help("Example: biomcp saved note braf-genes --item BRAF \"Check V600E trials\"")
+                .arg(
+                    Arg::new("target")
+                        .value_name("TARGET")
+                        .help("Saved search or list name; with --project, the note itself.")
+                        .required(true),
+                )
+                .arg(
+                    Arg::new("text")
+                        .value_name("TEXT")
+                        .help("The note, up to 2,000 characters."),
+                )
+                .arg(Arg::new("item").long("item").value_name("ID").help(
+                    "ID of the list item to note.",
+                ))
+                .arg(
+                    Arg::new("entity")
+                        .long("entity")
+                        .help("Entity word of the item, when the list holds its ID under more than one.")
+                        .requires("item"),
+                )
+                .arg(
+                    Arg::new("project")
+                        .long("project")
+                        .value_name("PROJECT")
+                        .help("Project to note when no TARGET is given; the one project is default.")
+                        .conflicts_with("item"),
+                ),
+        )
+        .subcommand(
             node("delete")
-                .about("Delete the saved search or list with this name, or everything with --all; reply with what was deleted.")
+                .about("Delete the saved search or list with this name and its notes, one note with --note, or everything with --all; reply with what was deleted.")
                 .after_help("Example: biomcp saved delete braf-genes")
-                .arg(name("Saved search or list name.").required_unless_present("all"))
+                .arg(name("Saved search or list name.").required_unless_present_any(["all", "note"]))
+                .arg(
+                    Arg::new("note")
+                        .long("note")
+                        .value_name("ID")
+                        .help("ID of one note to delete.")
+                        .conflicts_with_all(["name", "all"]),
+                )
                 .arg(crate::grammar::boolean_argument(
                     Arg::new("all")
                         .long("all")
-                        .help("Delete every saved search and list.")
+                        .help("Delete every saved search, list and note.")
                         .conflicts_with("name"),
                 )),
         )
@@ -329,6 +370,16 @@ fn run(
             }),
         },
         "changed" => return changed(root, settings, &globals, encoding, name),
+        "delete" if note_id(matches).is_some() => {
+            let id = note_id(matches).unwrap_or_default();
+            let result = match open(encoding, false)? {
+                Err(outcome) => return Ok(outcome),
+                Ok(None) => Err(SavedError::Unknown),
+                Ok(Some(mut store)) => store.delete_note(id).map(one_note),
+            };
+            return reply(encoding, result, "--note");
+        }
+        "note" => return note(encoding, matches),
         "delete" => match open(encoding, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) if name.is_some() => Err(SavedError::Unknown),
@@ -393,6 +444,81 @@ fn list(
         Ok(Some(mut store)) => store.list_add(&name, &items),
     };
     reply(encoding, result.map(one_list), "NAME")
+}
+
+fn note_id(matches: &ArgMatches) -> Option<&str> {
+    matches
+        .try_get_one::<String>("note")
+        .ok()
+        .flatten()
+        .map(String::as_str)
+}
+
+fn one_note(note: biomcp_types::SavedNote) -> Saved {
+    Saved {
+        user_notes: vec![note],
+        ..Saved::default()
+    }
+}
+
+/// Attach a note to a saved search or list, a list item, or the project.
+fn note(encoding: Encoding, matches: &ArgMatches) -> io::Result<Outcome> {
+    let words: Vec<&str> = ["target", "text"]
+        .into_iter()
+        .filter_map(|id| matches.get_one::<String>(id).map(String::as_str))
+        .collect();
+    let project = matches.get_one::<String>("project").map(String::as_str);
+    if project.is_some_and(|project| project != PROJECT) {
+        return usage(
+            encoding,
+            UsageError::argument_values(
+                "--project".into(),
+                Text::new(PROJECT).into_iter().collect(),
+            ),
+        );
+    }
+    let (target, text) = match words.as_slice() {
+        [target, text] => (Some(*target), *text),
+        [text] if project.is_some() => (None, *text),
+        _ => return usage(encoding, help_usage(UsageError::argument("TEXT".into()))),
+    };
+    let Some(text) = Text::new(text)
+        .ok()
+        .filter(|text| text.as_str().chars().count() <= NOTE_CHARS)
+    else {
+        return usage(encoding, UsageError::argument("TEXT".into()));
+    };
+    let target = match target {
+        None => NoteTarget::Project,
+        Some(name) if checked_name(name).is_none() => {
+            return usage(encoding, UsageError::argument("TARGET".into()));
+        }
+        Some(name) => match matches.get_one::<String>("item") {
+            Some(id) => NoteTarget::Item {
+                list: name,
+                id: id.as_str(),
+                entity: matches.get_one::<String>("entity").map(String::as_str),
+            },
+            None => NoteTarget::Named(name),
+        },
+    };
+    let result = match open(encoding, target_needs_file(target))? {
+        Err(outcome) => return Ok(outcome),
+        Ok(None) => Err(SavedError::Unknown),
+        Ok(Some(mut store)) => store.note(target, &text),
+    };
+    let argument = match &result {
+        Err(SavedError::ItemUnknown) => "--item",
+        Err(SavedError::Ambiguous) => "--entity",
+        Err(SavedError::TooLong) => "TEXT",
+        _ => "TARGET",
+    };
+    reply(encoding, result.map(one_note), argument)
+}
+
+/// Only a note on the project may create the file; a named target must already exist.
+fn target_needs_file(target: NoteTarget<'_>) -> bool {
+    matches!(target, NoteTarget::Project)
 }
 
 fn one_list(list: biomcp_types::SavedList) -> Saved {
@@ -550,7 +676,11 @@ fn failure(encoding: Encoding, error: SavedError, argument: &str) -> io::Result<
         }
         SavedError::Database => return encoding.encode(ErrorEnvelope::local(), Exit::Local),
         SavedError::Taken => ErrorMessage::SavedNameTaken,
+        SavedError::Unknown if argument == "--note" => ErrorMessage::SavedNoteUnknown,
         SavedError::Unknown => ErrorMessage::SavedRecordUnknown,
+        SavedError::TooLong | SavedError::ItemUnknown | SavedError::Ambiguous => {
+            return usage(encoding, UsageError::argument(argument.into()));
+        }
     };
     usage(
         encoding,

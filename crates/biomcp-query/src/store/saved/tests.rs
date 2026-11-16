@@ -1,5 +1,8 @@
 //! Saved store migrations, round trips and newer-file refusal.
-use super::{COMPATIBILITY, MIGRATIONS, NewItem, SavedError, SavedStore, migrations::only_adds};
+use super::{
+    COMPATIBILITY, MIGRATIONS, NAME_CHARS, NOTE_CHARS, NewItem, NoteTarget, SavedError,
+    SavedStore, migrations::only_adds,
+};
 use biodata::Text;
 
 fn text(value: &str) -> Text {
@@ -338,4 +341,116 @@ fn checks_inside_the_floor_are_not_due_and_delete_takes_snapshots() {
         })
         .unwrap();
     assert_eq!(rows, 0, "and their rows");
+}
+
+#[test]
+fn notes_are_content_addressed_and_follow_their_targets() {
+    use biomcp_types::NoteTargetKind;
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("saved.sqlite");
+    let mut store = SavedStore::open(&path).unwrap();
+    let item = |entity: &str, id: &str| NewItem {
+        entity: text(entity),
+        id: text(id),
+        source: None,
+        note: None,
+    };
+    store
+        .list_add(
+            &text("genes"),
+            &[item("gene", "BRAF"), item("protein", "BRAF"), item("gene", "KIT")],
+        )
+        .unwrap();
+    let args = vec!["search".to_owned(), "trial".to_owned()];
+    store
+        .save_search(&text("trials"), &args, "biomcp.trial-search/1", "00")
+        .unwrap();
+    let first = store.note(NoteTarget::Named("GENES"), &text("watch")).unwrap();
+    let again = store.note(NoteTarget::Named("genes"), &text("watch")).unwrap();
+    assert_eq!(first, again, "the same note again changes nothing");
+    assert_eq!(first.id.as_str().len(), 32, "16 bytes of the hash in hex");
+    assert_eq!(first.target.kind, NoteTargetKind::List);
+    let other = store.note(NoteTarget::Named("trials"), &text("watch")).unwrap();
+    assert_ne!(other.id, first.id, "the target is part of the ID");
+    assert_eq!(other.target.kind, NoteTargetKind::Search);
+    let item_note = |entity| NoteTarget::Item {
+        list: "genes",
+        id: "BRAF",
+        entity,
+    };
+    assert_eq!(
+        store.note(item_note(None), &text("v600e")).err(),
+        Some(SavedError::Ambiguous),
+        "an ID held under two entities needs one"
+    );
+    let on_item = store.note(item_note(Some("gene")), &text("v600e")).unwrap();
+    assert_eq!(
+        on_item.target.item.as_ref().map(|r| r.entity.as_str()),
+        Some("gene")
+    );
+    let kit = NoteTarget::Item {
+        list: "genes",
+        id: "KIT",
+        entity: None,
+    };
+    store.note(kit, &text("gist")).unwrap();
+    assert_eq!(
+        store
+            .note(
+                NoteTarget::Item {
+                    list: "genes",
+                    id: "TP53",
+                    entity: None
+                },
+                &text("x")
+            )
+            .err(),
+        Some(SavedError::ItemUnknown)
+    );
+    assert_eq!(
+        store.note(NoteTarget::Named("nothing"), &text("x")).err(),
+        Some(SavedError::Unknown)
+    );
+    let project = store.note(NoteTarget::Project, &text("tumor board")).unwrap();
+    assert_eq!(project.target.name, None);
+    let longest = "n".repeat(NOTE_CHARS);
+    store
+        .note(NoteTarget::Project, &text(&longest))
+        .expect("a note at the limit is kept");
+    assert_eq!(
+        store
+            .note(NoteTarget::Project, &text(&format!("{longest}n")))
+            .err(),
+        Some(SavedError::TooLong)
+    );
+    assert_eq!(
+        store
+            .list_add(&text(&"x".repeat(NAME_CHARS + 1)), &[item("gene", "BRAF")])
+            .err(),
+        Some(SavedError::TooLong),
+        "the store refuses a long name itself"
+    );
+    assert_eq!(store.show(None).unwrap().user_notes.len(), 6);
+    assert_eq!(
+        store.show(Some("genes")).unwrap().user_notes.len(),
+        3,
+        "a list shows its own and its items' notes"
+    );
+    store.list_remove("genes", &[text("KIT")]).unwrap();
+    assert_eq!(
+        store.show(Some("genes")).unwrap().user_notes.len(),
+        2,
+        "removing an item removes its notes"
+    );
+    let deleted = store.delete_note(on_item.id.as_str()).unwrap();
+    assert_eq!(deleted, on_item);
+    assert_eq!(
+        store.delete_note(on_item.id.as_str()).err(),
+        Some(SavedError::Unknown)
+    );
+    let deleted = store.delete(Some("trials")).unwrap();
+    assert_eq!(deleted.user_notes, [other], "a deleted search takes its notes");
+    let deleted = store.delete(None).unwrap();
+    assert_eq!(deleted.user_notes.len(), 3, "list note and two project notes");
+    assert_eq!(store.show(None).unwrap(), Default::default());
 }
