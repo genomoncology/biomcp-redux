@@ -681,7 +681,7 @@ Options:
           HP IDs only: the Monarch similarity metric to rank by.
 
       --offset <offset>
-          Source source row offset; a ranked HP ID set has no further pages.
+          Source row offset; a ranked HP ID set has no further pages.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -718,7 +718,7 @@ Options apply to every listed source unless their description restricts them.
 - `--group`: HP IDs only: rank genes, the default, or diseases. Value form: string; example: --group diseases.
 - `--limit`: Maximum source headers, default five. Value form: integer; example: --limit 3.
 - `--metric`: HP IDs only: the Monarch similarity metric to rank by. Value form: string; example: --metric phenodigm-score.
-- `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer; example: --offset 0.
+- `--offset`: Source row offset; a ranked HP ID set has no further pages. Value form: integer; example: --offset 0.
 - `--search-mode`: HP IDs only: hybrid (default) or slower full. Value form: string; example: --search-mode full.
 - `--source`: Monarch only; HPO search is unsupported. Value form: string; example: --source monarch.
 - `text`: Unchanged exact term search text, or HP IDs separated by commas to rank genes or diseases for the set.
@@ -891,7 +891,7 @@ Options:
           Rows per source page.
 
       --offset <offset>
-          Source source offset.
+          Source offset.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -924,7 +924,7 @@ Options apply to every listed source unless their description restricts them.
 - `--cpic-level`: Exact source level, including compound levels such as B/C. Value form: string; example: --cpic-level B/C.
 - `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
 - `--limit`: Rows per source page. Value form: integer; example: --limit 1.
-- `--offset`: Source source offset. Value form: integer; example: --offset 0.
+- `--offset`: Source offset. Value form: integer; example: --offset 0.
 - `--source`: Required CPIC source; ClinPGx is not supported for search. Value form: string; example: --source cpic.
 
 ## biomcp search diagnostic
@@ -1720,7 +1720,7 @@ Options:
 
       --no-preprints[=<no_preprints>]
           Exclude preprints.
-          PubMed and Europe PMC only: exclude preprints using the source's source filter.
+          PubMed and Europe PMC only: exclude preprints using the source's own filter.
 
           [default: false]
           [possible values: true, false]
@@ -1815,7 +1815,7 @@ Gene input; PubMed resolves it through HGNC. Value form: string; example: --gene
 PubMed and Europe PMC only: journal words sent to the source's journal field. Value form: string; example: --journal 'journal words'.
 - `--limit`: Maximum page length. Value form: integer; example: --limit 5.
 - `--no-preprints`: Exclude preprints.
-PubMed and Europe PMC only: exclude preprints using the source's source filter. Value form: boolean; example: --no-preprints.
+PubMed and Europe PMC only: exclude preprints using the source's own filter. Value form: boolean; example: --no-preprints.
 - `--offset`: Number of pool items to skip. Value form: integer; example: --offset 5.
 - `--open-access`: Source open access.
 PubMed, Europe PMC and Semantic Scholar only: require source open access; Semantic Scholar means a public PDF. Value form: boolean; example: --open-access; only with --source pubmed, europepmc or semantic-scholar.
@@ -3192,7 +3192,7 @@ Usage: biomcp get drug [OPTIONS] <input> [section]...
 Arguments:
   <input>
           Source ID, brand or generic name.
-          Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+          Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 
   [section]...
           Source sections; help get drug
@@ -3315,7 +3315,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
 - `input`: Source ID, brand or generic name.
-Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.

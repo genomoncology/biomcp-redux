@@ -131,7 +131,10 @@ fn reference_matches_grammar() -> Check {
         // Plain wording must never leave a doubled word, as "Source source offset" once did.
         let lower = expected.to_ascii_lowercase();
         for doubled in ["source source", "source-source", "source's source"] {
-            assert!(!lower.contains(doubled), "{name}: generated help says {doubled:?}");
+            assert!(
+                !lower.contains(doubled),
+                "{name}: generated help says {doubled:?}"
+            );
         }
     }
     Ok(())
