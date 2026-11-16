@@ -44,3 +44,4 @@ Every per-caller control exists only on the HTTP route (`crates/biomcp/src/mcp/h
 - Dead code: none removed. Every hosted branch in `src/` is also reached by hosted HTTP; the stdio server now always passes `hosted = false`, but that is a value, not a branch.
 - Docs: `docs/configuration.md` hosted section, `help serve`, the `--hosted` option help and `release/notes.md`.
 - Cheap job j41620 on 39279d23c: every touched trial passed (filters `hosted`, `mcp-parity`, `mcp-http`, `variant-search`), the first-read check passed with hosted measured over HTTP (hosted 2002 and hosted-single 2545 instruction characters, inside the 5% room), fmt clean; it regenerated `schemas/error.json` and `docs/reference/commands.md` (committed) and clippy flagged two long test functions and one index, fixed.
+- Full gate j41630 passed on bcc076323 (branch merged with origin/main): `make --keep-going landing-gate docs-check schema-release-check`.
