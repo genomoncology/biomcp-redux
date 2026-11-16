@@ -63,7 +63,7 @@ pub use variant_search::{
 mod assertion_id;
 mod variant_assertions;
 pub use assertion_id::AssertionId;
-pub use variant_assertions::{AssertionSource, VariantAssertionsGet};
+pub use variant_assertions::{AssertionSource, ClinvarRecordKind, VariantAssertionsGet};
 mod variant_population;
 pub use variant_population::{VariantPopulationQuery, VariantPopulationQueryEcho};
 

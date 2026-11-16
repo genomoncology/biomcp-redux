@@ -571,6 +571,7 @@ fn context(
         ("get", "variant", "civic_kind" | "evidence_level" | "evidence_status") => {
             json!({"section":["civic"], "civic_kind":"evidence", "civic_profile":1})
         }
+        ("get", "variant", "clinvar_kind") => json!({"section":["clinvar"]}),
         ("get", "pgx", "kind") => json!({"source":"clinpgx", "section":"annotations"}),
         ("get", "disease", "ontology") => json!({"source":"ols"}),
         ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),

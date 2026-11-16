@@ -164,7 +164,7 @@ pub use response::{GeneHeader, GeneResolution, Match};
 
 pub use response::TrialHeader;
 
-pub use query::{AssertionId, AssertionSource, VariantAssertionsGet};
+pub use query::{AssertionId, AssertionSource, ClinvarRecordKind, VariantAssertionsGet};
 pub use response::{
     AssertionAssessment, AssertionCondition, AssertionConditionRelationship, AssertionDetail,
     AssertionDocument, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion,
