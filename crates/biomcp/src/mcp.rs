@@ -7,7 +7,7 @@ mod legacy;
 mod output_schema;
 mod protocol;
 mod queue;
-mod research;
+pub(crate) mod research;
 mod rpc;
 pub(crate) mod typed;
 /// Each use case's worked example with the typed call this server derives from its command.

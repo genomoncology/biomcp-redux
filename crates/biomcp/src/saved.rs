@@ -6,7 +6,9 @@
 use crate::command::{Encoding, Outcome};
 use crate::exit::Status as Exit;
 use biodata::Text;
-use biomcp_query::store::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
+use biomcp_query::store::saved::{
+    self as saved_store, NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore,
+};
 use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Saved, Source, Status, UsageArguments, UsageError,
 };
@@ -52,8 +54,14 @@ pub(crate) fn grammar() -> Command {
                 .arg(name("Saved search or list name, without regard to case.")),
         )
         .subcommand(
+            node("changed")
+                .about("Re-read each saved search from its source, at most once an hour, and report the IDs it gained, lost or changed since its last check.")
+                .after_help("Example: biomcp saved changed melanoma-trials")
+                .arg(name("Saved search name; without it, every saved search.")),
+        )
+        .subcommand(
             node("export")
-                .about("Export every saved search and list as typed JSON.")
+                .about("Export every saved search, list and kept search snapshot as typed JSON.")
                 .after_help("Example: biomcp saved export"),
         )
         .subcommand(
@@ -304,12 +312,23 @@ fn run(
         .flatten()
         .map(String::as_str);
     let result = match verb {
-        "show" | "export" => match open(encoding, false)? {
+        "show" => match open(encoding, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) if name.is_some() => Err(SavedError::Unknown),
             Ok(None) => Ok(Saved::default()),
             Ok(Some(store)) => store.show(name),
         },
+        "export" => match open(encoding, false)? {
+            Err(outcome) => return Ok(outcome),
+            Ok(None) => Ok(Saved::default()),
+            Ok(Some(store)) => store.show(None).and_then(|saved| {
+                Ok(Saved {
+                    snapshots: store.all_snapshots()?,
+                    ..saved
+                })
+            }),
+        },
+        "changed" => return changed(root, settings, &globals, encoding, name),
         "delete" => match open(encoding, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) if name.is_some() => Err(SavedError::Unknown),
@@ -378,10 +397,74 @@ fn list(
 
 fn one_list(list: biomcp_types::SavedList) -> Saved {
     Saved {
-        searches: Vec::new(),
         lists: vec![list],
-        missing: Vec::new(),
+        ..Saved::default()
     }
+}
+
+/// Check saved searches for changes. A search checked within the hour answers `not_due`
+/// and runs nothing; a due one re-reads its source through the reviewed fresh path, keeps
+/// the new snapshot and reports against the one before it.
+fn changed(
+    root: &crate::grammar::Root,
+    settings: &crate::config::Settings,
+    globals: &crate::grammar::Globals,
+    encoding: Encoding,
+    name: Option<&str>,
+) -> io::Result<Outcome> {
+    let mut store = match open(encoding, false)? {
+        Err(outcome) => return Ok(outcome),
+        Ok(None) if name.is_some() => return failure(encoding, SavedError::Unknown, "NAME"),
+        Ok(None) => return reply(encoding, Ok(Saved::default()), "NAME"),
+        Ok(Some(store)) => store,
+    };
+    let searches = match store.searches(name) {
+        Ok(searches) => searches,
+        Err(error) => return failure(encoding, error, "NAME"),
+    };
+    let now = saved_store::now();
+    let mut due = Vec::new();
+    let mut changes = Vec::new();
+    for search in &searches {
+        let kept = match store.snapshots(search.id.as_str()) {
+            Ok(kept) => kept,
+            Err(error) => return failure(encoding, error, "NAME"),
+        };
+        match saved_store::not_due(search, kept.first(), now) {
+            Some(report) => changes.push(report),
+            None => due.push((search, kept.into_iter().next())),
+        }
+    }
+    // A re-check reads the source; offline would read only the cache. Refuse before any runs.
+    if globals.offline && !due.is_empty() {
+        return usage(encoding, UsageError::argument("--offline".into()));
+    }
+    for (search, newest) in due {
+        let snapshot =
+            match crate::command::recheck(root, settings, globals, &search.args, encoding)? {
+                Ok(snapshot) => snapshot,
+                // One named search answers its own reply; among several, its failure is
+                // its report, so the others' changes are still shown.
+                Err(outcome) if name.is_some() => return Ok(outcome),
+                Err(_) => {
+                    changes.push(saved_store::failed(search, newest.as_ref(), now));
+                    continue;
+                }
+            };
+        match store.record_check(search, &snapshot) {
+            Ok(report) => changes.push(report),
+            Err(error) => return failure(encoding, error, "NAME"),
+        }
+    }
+    changes.sort_by_key(|report| report.search.as_str().to_lowercase());
+    reply(
+        encoding,
+        Ok(Saved {
+            changes,
+            ..Saved::default()
+        }),
+        "NAME",
+    )
 }
 
 /// Check each ID the way `get ENTITY ID` would read it, before anything is written.

@@ -1,0 +1,33 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&filter.advanced=AREA%5BPhase%5DPHASE3&pageSize=1&query.cond=%28uveal%20melanoma%29",
+  "exchanges": [
+    {
+      "fetched": 1794791873,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 53,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":22,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT07804186","briefTitle":"Study of Adjuvant Darovasertib and Crizotinib in Participants With Primary Non-metastatic Uveal Melanoma"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2026-09-04","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2034-03","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-11-12"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"IDEAYA Biosciences"}},"conditionsModule":{"conditions":["Uveal Melanoma"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Darovasertib"},{"name":"Crizotinib (Xalkori)"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWc35o-32mpOQJJxubPSm3vg"}
+      }
+    },
+    {
+      "fetched": 1794791876,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 55,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":22,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT07804186","briefTitle":"Study of Adjuvant Darovasertib and Crizotinib in Participants With Primary Non-metastatic Uveal Melanoma"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2026-09-04","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2034-03","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-11-12"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"IDEAYA Biosciences"}},"conditionsModule":{"conditions":["Uveal Melanoma"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Darovasertib"},{"name":"Crizotinib (Xalkori)"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWc35o-32mpOQJJxubPSm3vg"}
+      }
+    }
+  ]
+}

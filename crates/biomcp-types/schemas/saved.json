@@ -21,6 +21,123 @@
       ],
       "type": "string"
     },
+    "Reply_ChangeReport": {
+      "description": "What a saved search gained, lost or changed between two snapshots; derived, never stored.",
+      "properties": {
+        "changed": {
+          "description": "Records in both whose rows differ.",
+          "items": {
+            "$ref": "#/$defs/Reply_SavedRef"
+          },
+          "type": "array"
+        },
+        "from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ChangeSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The earlier snapshot, absent on a first check."
+        },
+        "gone": {
+          "description": "Records the earlier snapshot holds and the later one does not; also listed when rebaselined.",
+          "items": {
+            "$ref": "#/$defs/Reply_SavedRef"
+          },
+          "type": "array"
+        },
+        "new": {
+          "description": "Records the later snapshot holds and the earlier one does not; also listed when rebaselined.",
+          "items": {
+            "$ref": "#/$defs/Reply_SavedRef"
+          },
+          "type": "array"
+        },
+        "next_due": {
+          "description": "Unix seconds from which the next check reads the source.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "search": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Name of the saved search."
+        },
+        "state": {
+          "$ref": "#/$defs/Reply_ChangeState",
+          "description": "What the check found."
+        },
+        "to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ChangeSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The later snapshot, absent when a search not yet checked is not due."
+        }
+      },
+      "required": [
+        "search",
+        "state",
+        "next_due"
+      ],
+      "type": "object"
+    },
+    "Reply_ChangeSnapshot": {
+      "description": "A snapshot a change report compares.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Snapshot identifier."
+        },
+        "taken": {
+          "description": "Unix seconds when the snapshot was taken.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "The snapshot's matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "taken",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Reply_ChangeState": {
+      "description": "What a check of a saved search found.",
+      "enum": [
+        "first",
+        "unchanged",
+        "changed",
+        "not_due",
+        "rebaselined",
+        "incomplete",
+        "failed"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " The first check; there is nothing to compare yet.",
+        " The same records with the same rows as the last check.",
+        " Records were gained, lost or changed; new, gone and changed list them.",
+        " Checked less than an hour ago; nothing ran. Ask again at next_due.",
+        " The row format changed since the last check, so new and gone list IDs but changed rows are not compared; the next check compares them.",
+        " A check matched more records than a snapshot holds; only totals compare.",
+        " The check could not finish, such as when the source failed or the saved words no longer parse; nothing was kept. Run saved changed NAME to see why."
+      ]
+    },
     "Reply_EmptyQuery": {
       "description": "Explicit empty query for commands without selectors.",
       "type": "object"
@@ -205,6 +322,13 @@
     "Reply_Saved": {
       "description": "Saved searches and lists selected by a saved command.",
       "properties": {
+        "changes": {
+          "description": "What each checked saved search gained, lost or changed.",
+          "items": {
+            "$ref": "#/$defs/Reply_ChangeReport"
+          },
+          "type": "array"
+        },
         "lists": {
           "description": "Saved lists, by project and name.",
           "items": {
@@ -223,6 +347,13 @@
           "description": "Saved searches, by project and name.",
           "items": {
             "$ref": "#/$defs/Reply_SavedSearch"
+          },
+          "type": "array"
+        },
+        "snapshots": {
+          "description": "Kept snapshots of saved searches; only an export lists them.",
+          "items": {
+            "$ref": "#/$defs/Reply_SavedSnapshot"
           },
           "type": "array"
         }
@@ -405,6 +536,113 @@
         "schema",
         "request_key",
         "created"
+      ],
+      "type": "object"
+    },
+    "Reply_SavedSnapshot": {
+      "description": "The identifiers a saved search matched when it was checked; never source content.",
+      "properties": {
+        "complete": {
+          "description": "Whether the rows hold every matching record.",
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Random 16-byte identifier in hex."
+        },
+        "row_schema": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Reply schema the fingerprints were computed under, with a digest of its definition."
+        },
+        "rows": {
+          "description": "Matching records in source order.",
+          "items": {
+            "$ref": "#/$defs/Reply_SavedSnapshotRow"
+          },
+          "type": "array"
+        },
+        "search": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Identifier of the saved search."
+        },
+        "sources": {
+          "description": "Sources read.",
+          "items": {
+            "$ref": "#/$defs/Reply_SavedSnapshotSource"
+          },
+          "type": "array"
+        },
+        "taken": {
+          "description": "Unix seconds when the snapshot was taken.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Matching count the provider stated, or the rows held when it stated none.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "search",
+        "taken",
+        "total",
+        "complete",
+        "row_schema"
+      ],
+      "type": "object"
+    },
+    "Reply_SavedSnapshotRow": {
+      "description": "One matching record in a snapshot: its identifier and a fingerprint of its row.",
+      "properties": {
+        "fingerprint": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "SHA-256 of the record's search row under the snapshot's row schema, in hex."
+        },
+        "ref": {
+          "$ref": "#/$defs/Reply_SavedRef",
+          "description": "The matching record."
+        }
+      },
+      "required": [
+        "ref",
+        "fingerprint"
+      ],
+      "type": "object"
+    },
+    "Reply_SavedSnapshotSource": {
+      "description": "One source a snapshot read.",
+      "properties": {
+        "count": {
+          "description": "The source's matching count, when it states one.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "The source."
+        },
+        "source_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_SourceTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source data date of the read, when the source states one."
+        }
+      },
+      "required": [
+        "source"
       ],
       "type": "object"
     },

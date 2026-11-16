@@ -1,0 +1,49 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/version",
+  "exchanges": [
+    {
+      "fetched": 1794791878,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 44,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "apiVersion" : "2.0.5",
+  "dataTimestamp" : "2026-11-13T10:00:06"
+}
+      }
+    },
+    {
+      "fetched": 1794791881,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 43,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "apiVersion" : "2.0.5",
+  "dataTimestamp" : "2026-11-13T10:00:06"
+}
+      }
+    },
+    {
+      "fetched": 1794791885,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 403,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "apiVersion" : "2.0.5",
+  "dataTimestamp" : "2026-11-13T10:00:06"
+}
+      }
+    }
+  ]
+}

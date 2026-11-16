@@ -214,3 +214,128 @@ fn newer_file_is_refused_untouched() {
     );
     assert_eq!(before.0, newer, "the newer key stays");
 }
+
+fn check(rows: &[(&str, &str)], schema: &str, complete: bool) -> super::NewSnapshot {
+    super::NewSnapshot {
+        total: rows.len() as u64,
+        complete,
+        row_schema: text(schema),
+        sources: Vec::new(),
+        rows: rows
+            .iter()
+            .map(|(id, fingerprint)| super::SnapshotRow {
+                entity: text("trial"),
+                id: text(id),
+                source: None,
+                fingerprint: text(fingerprint),
+            })
+            .collect(),
+    }
+}
+
+fn ids(refs: &[biomcp_types::SavedRef]) -> Vec<&str> {
+    refs.iter().map(|r| r.id.as_str()).collect()
+}
+
+fn melanoma(store: &mut SavedStore) -> biomcp_types::SavedSearch {
+    let args = vec!["search".to_owned(), "trial".to_owned()];
+    store
+        .save_search(&text("Melanoma"), &args, "biomcp.trial-search/1", "00")
+        .unwrap()
+}
+
+#[test]
+fn snapshots_compare_and_keep_two() {
+    use biomcp_types::ChangeState;
+    let folder = tempfile::tempdir().unwrap();
+    let mut store = SavedStore::open(&folder.path().join("saved.sqlite")).unwrap();
+    let search = melanoma(&mut store);
+    let first = store
+        .record_check(&search, &check(&[("A", "1"), ("B", "1")], "s/1", true))
+        .unwrap();
+    assert_eq!(first.state, ChangeState::First, "nothing to compare yet");
+    assert_eq!(
+        Some(first.next_due),
+        first.to.map(|to| to.taken + super::FLOOR_SECONDS),
+        "due an hour after the check"
+    );
+    let same = store
+        .record_check(&search, &check(&[("A", "1"), ("B", "1")], "s/1", true))
+        .unwrap();
+    assert_eq!(same.state, ChangeState::Unchanged, "same IDs and rows");
+    let changed = store
+        .record_check(&search, &check(&[("B", "2"), ("C", "1")], "s/1", true))
+        .unwrap();
+    assert_eq!(changed.state, ChangeState::Changed, "rows differ");
+    assert_eq!(
+        (ids(&changed.new), ids(&changed.gone), ids(&changed.changed)),
+        (vec!["C"], vec!["A"], vec!["B"]),
+        "new, gone and changed by ID and fingerprint"
+    );
+    assert_eq!(
+        store.snapshots(search.id.as_str()).unwrap().len(),
+        2,
+        "two newest kept"
+    );
+    let rebaselined = store
+        .record_check(&search, &check(&[("X", "9")], "s/2", true))
+        .unwrap();
+    assert_eq!(
+        rebaselined.state,
+        ChangeState::Rebaselined,
+        "row schema moved"
+    );
+    assert_eq!(
+        (
+            ids(&rebaselined.new),
+            ids(&rebaselined.gone),
+            ids(&rebaselined.changed)
+        ),
+        (vec!["X"], vec!["B", "C"], Vec::<&str>::new()),
+        "a rebaseline lists new and gone by ID but no changed rows"
+    );
+    let incomplete = store
+        .record_check(&search, &check(&[("Y", "9")], "s/2", false))
+        .unwrap();
+    assert_eq!(incomplete.state, ChangeState::Incomplete, "over the cap");
+    assert!(
+        incomplete.new.is_empty() && incomplete.gone.is_empty(),
+        "only totals compare"
+    );
+}
+
+#[test]
+fn checks_inside_the_floor_are_not_due_and_delete_takes_snapshots() {
+    use biomcp_types::ChangeState;
+    let folder = tempfile::tempdir().unwrap();
+    let mut store = SavedStore::open(&folder.path().join("saved.sqlite")).unwrap();
+    let search = melanoma(&mut store);
+    assert!(
+        super::not_due(&search, None, super::now()).is_none(),
+        "a search never checked is due"
+    );
+    store
+        .record_check(&search, &check(&[("A", "1")], "s/1", true))
+        .unwrap();
+    let checked = store.searches(Some("melanoma")).unwrap().remove(0);
+    let newest = store.snapshots(search.id.as_str()).unwrap();
+    let not_due = super::not_due(&checked, newest.first(), super::now()).unwrap();
+    assert_eq!(not_due.state, ChangeState::NotDue, "inside the floor");
+    assert!(
+        super::not_due(&checked, newest.first(), not_due.next_due).is_none(),
+        "due at next_due"
+    );
+    assert_eq!(store.all_snapshots().unwrap().len(), 1, "export lists kept");
+    store.delete(Some("melanoma")).unwrap();
+    assert!(
+        store.all_snapshots().unwrap().is_empty(),
+        "delete takes snapshots"
+    );
+    let rows: i64 = store
+        .connection
+        .query_row("SELECT count(*) FROM saved_snapshot_row", [], |row| {
+            row.get(0)
+        })
+        .unwrap();
+    assert_eq!(rows, 0, "and their rows");
+}
