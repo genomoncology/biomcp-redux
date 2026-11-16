@@ -1,0 +1,42 @@
+# 0997 — gates-claim-only-what-they-check
+
+Status: OPEN.
+
+Milestone: 7
+
+## Outcome
+
+Every check in the landing gate runs what it claims to run, and nothing in the repo looks like coverage when no gate runs it.
+
+## Why
+
+These findings from `sdlc/records/2026-11-14-adversarial-review.md` were still open on main 3f14da1a6, a PM triage on 2026-11-16:
+
+- **D3:** `scripts/landing_gate.py:11-12` leaves out the schema contract check. Every landing so far has passed it only because the PM adds `schema-release-check` to the command by hand.
+- **D4:** nine `tests/tool-cases/` files are run by no stage. The runner reads only `tests/cases` (`runner/case_main.rs:61`).
+- **D5:** `manifest.json` tool names are checked only by the full suite and the release.
+- **D8:** `scripts/changed_library_tests.py:23` doesn't treat the `Makefile` as a library-test input.
+- **F2:** the success line at `scripts/check_docs.py:336` claims a case and feature comparison that lives in the Rust runner.
+
+## Proof
+
+- Proof: the landing gate runs the schema contract check when `crates/biomcp-types/` or `release/schema-reviews.json` changes. A test of the selection shows it.
+- Proof: each `tests/tool-cases/` file is either moved into `tests/cases/`, so the routine runner runs it, or deleted, with the reason in Progress.
+- Proof: `check_docs.py` checks the manifest's tool names against the typed catalog's, and a test plants a wrong name.
+- Proof: a Makefile change selects the library tests, and `check_docs.py`'s success line names only what it checks.
+
+## Starts from
+
+- Starts from: the review's lane D findings 3, 4, 5 and 8, and finding F2.
+
+## Keeps
+
+- Keeps: gate time. Each new stage runs only on the paths it covers.
+
+## Defers
+
+- Defers: nothing.
+
+## Changes
+
+- Changes: `scripts/`, the Makefile, `tests/tool-cases/`, and the tests of those scripts.
