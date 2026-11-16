@@ -32,7 +32,7 @@ fn hosted(env: &Environment) -> Result<(), String> {
     )?;
     for (index, frame) in frames.iter().enumerate() {
         let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
-        if status != 200 || reply["id"] != frame["id"] {
+        if status != 200 || reply.get("id") != frame.get("id") {
             return Err(format!("typed hosted call failed: {status} {reply}"));
         }
         let text = first_call(&reply)

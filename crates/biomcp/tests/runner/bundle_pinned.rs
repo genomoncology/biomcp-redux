@@ -58,26 +58,14 @@ fn read() -> Result<(), String> {
     if notice(local).is_some() {
         return Err(format!("the CLI stated a hosted copy date: {local}"));
     }
-    let mut server = Server::configured_launch(
-        "127.0.0.1:0",
-        None,
-        None,
-        None,
-        None,
-        &["--hosted".into()],
-        |_, args| env.command(env!("CARGO_BIN_EXE_biomcp"), args),
-    )?;
+    let mut server = hosted(&env)?;
     let frame = request(
         json!("hosted"),
         "tools/call",
         json!({"name":"biomcp","arguments":{"args":["get","gene","ODC1"]}}),
     );
-    let (_, reply) = server.request_with_headers(
-        "POST",
-        "/mcp",
-        &frame.to_string(),
-        "x-biomcp-use: academic\r\n",
-    )?;
+    let use_header = "x-biomcp-use: academic\r\n";
+    let (_, reply) = server.request_with_headers("POST", "/mcp", &frame.to_string(), use_header)?;
     let result = reply
         .pointer("/result/structuredContent")
         .ok_or_else(|| format!("missing content: {reply}"))
@@ -101,6 +89,19 @@ fn read() -> Result<(), String> {
         }
     });
     result.and(admitted).and(stopped).and(fixture)
+}
+
+/// Hosted mode serves only HTTP: one hosted server in this environment.
+fn hosted(env: &Environment) -> Result<Server, String> {
+    Server::configured_launch(
+        "127.0.0.1:0",
+        None,
+        None,
+        None,
+        None,
+        &["--hosted".into()],
+        |_, args| env.command(env!("CARGO_BIN_EXE_biomcp"), args),
+    )
 }
 
 fn args(words: &[&str]) -> Vec<String> {
