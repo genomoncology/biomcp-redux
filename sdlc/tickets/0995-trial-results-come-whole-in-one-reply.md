@@ -39,3 +39,12 @@ This is that round's biggest BioMCP finding, and it got worse since 2026-11-12.
 ## Changes
 
 - Changes: the trial results section or its paging, one case and its recording, the notes.
+
+## Progress
+
+- Cause, 2026-11-16: the page size. `crates/biomcp-query/src/trial/get/page/results.rs` paged posted results with an 8,000-byte record budget. A page always takes its first record whole and stops before the next one that would pass the budget. ELI-002's first three outcome measures are each about 5 KB (5,058, 4,936 and 4,838 bytes in the source), so pages 1-3 each held one outcome; the remaining 90 records came about 8 KB at a time. It was not a per-record cap and not the 0823/0824 section shape.
+- The 93 calls in the bench log are the agent's reading, not BioMCP's paging: after the first page held one record, the agent wrote "one outcome record per page" and looped on the continuation. Its first loop got 26 records in 5 calls (`biomcp-cli/calls.md` turn 27), so the whole section was about a dozen pages. Still, the outcome measures, which is what the agent wanted, took three calls and the first reply looked like one record per page.
+- Fix: the results page budget is now 40,000 bytes (`RESULTS_BUDGET`), which also sizes `flow` and `baseline`. Records stay whole and `--limit` still caps the count. 40,000 keeps `get trial ID all` under the 150,000-character MCP reply cap (`crates/biomcp/src/mcp/protocol.rs`): the other sections' budgets add to 91,000 bytes (locations 60,000, outcomes 8,000, publications 8,000, eligibility 6,000, arms 4,500, contacts 4,500). No schema change: same fields, only more records a page. Release notes say results pages hold up to 40,000 bytes.
+- Recording: NCT04853017 recorded live in j41645 (base adf01aabb); its `resultsSection` equals the same day's direct download (5 outcome measures). Case `tests/cases/trial/results-outcomes-together.yaml`: `get trial NCT04853017 results` returns all 5 outcomes, whole, in one call. On the base code (j41651, results.rs reverted) it fails: item 1 is missing.
+- `tests/cases/trial/results-flow.yaml` (NCT02987543) now finds outcomes, flow and baseline in one `--limit 20` page with continuation at 20; its ceiling is the measured 18,691 bytes plus 15 percent (j41651). The CheckMate 067 paging runner still pages 1,000-odd records whole and passed unchanged.
+- j41651 (136166ad4): schema and docs regenerate with no diff, `make check-cheap` passes, trial cases pass except the old results-flow expectations, fixed above.
