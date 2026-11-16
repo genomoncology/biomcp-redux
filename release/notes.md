@@ -199,7 +199,17 @@ Posted trial results are an explicit exception to the 1.0 command freeze. `get t
 
 Replies also change in these ways:
 
-- PLACEHOLDER
+- `sources[]` entries no longer carry `terms` and `terms_url`; `help sources` lists each source's terms and link. Every reply schema took a new major version for this.
+- `--fields a,b` on an entity search, or a `fields` list beside `action` on a typed entity tool, keeps only those top-level fields of each row, plus the row's required and identifier fields and the whole envelope. `help search ENTITY` lists the names on a `Fields:` line, and the research `search` and `fetch` tools refuse it. Trial rows' `conditions`, `interventions` and `url` became optional so trials can narrow.
+- One get returns several sections, and one drug read several label sections, in one reply; each part keeps its own paging and names its section. A several-sections drug reply, `biomcp.drug-sections/1`, states the drug's identity once.
+- Every search and section page reports the source's total or says the source gives none, and a page cut short by a limit says so and offers the next page. Totals from several sources are never added together. JSON replies write the envelope's `page`, and each page's total and offset, before the rows.
+- A section that is empty for a record the source holds is `complete` with an empty list; `absent` means the source does not hold the record.
+- An empty, partial or failed reply says why, and a failed reply names its cause in `problems`. An unknown saved pool or snapshot name is `usage.arguments`, no longer `pool.expired`.
+- MCP replies list each object's fields in the same order as CLI JSON.
+- Markdown shows source text's full stops, colons and @ signs as plain characters, and a source value cannot become a list, code block or link. Source line breaks print as spaces, never as a literal `\u{000a}`; Markdown text fields keep real line breaks.
+- `version --verbose` no longer lists schema versions; `biomcp schema` does.
+- A refusal's first `next` step is the corrected call when one exists, and a typed call refused for an unknown argument gets the same fixes as the CLI. When several sources could fix a missing input, the refusal offers help instead of guessing a source.
+- Help answers the underscore entity names that `help questions` prints, such as `help adverse_event`. `help get drug approvals` shows one section's help with only the options that section accepts. An option limited to some sources says `Only with --source X`, and each command-wide line appears once.
 
 ## Typed tool names for 0.x and hosted users
 
