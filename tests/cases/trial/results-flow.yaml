@@ -1,9 +1,9 @@
 {
   "live_check": "public",
   "feature": "trial-results",
-  "story": "The results section still opens with the posted outcomes; the page after them carries the participant flow by arm and period, with its dropout reasons, then the baseline characteristics, each as the registry's own whole record.",
+  "story": "The results section still opens with the posted outcomes; the participant flow by arm and period, with its dropout reasons, then the baseline characteristics follow them on the same page, each as the registry's own whole record.",
   "replay": "trial/get/NCT02987543",
-  "verified": "tests/replies/trial/get/README.md identifies the unchanged public NCT02987543 reply. Expected records are that reply's resultsSection.participantFlowModule.periods[0] and baselineCharacteristicsModule.measures[0], copied whole, and its first outcome title. Its five outcomes fill the first page and start the second inside the section's existing 8,000-byte record budget; the flow and baseline records follow the last outcome. Each ceiling is the measured reply plus 15 percent.",
+  "verified": "tests/replies/trial/get/README.md identifies the unchanged public NCT02987543 reply. Expected records are that reply's resultsSection.participantFlowModule.periods[0] and baselineCharacteristicsModule.measures[0], copied whole, and its first outcome title. Its five outcomes, the flow and the baseline records are the first 20 posted records, about 16 KB, so `--limit 20` returns them in one page inside the section's 40,000-byte record budget (0995). The ceiling is the measured reply (18,691 bytes, j41651) plus 15 percent.",
   "steps": [
     {
       "run": [
@@ -35,21 +35,7 @@
             "outcome",
             "outcome",
             "outcome",
-            "outcome"
-          ]
-        },
-        "/result/items/0/sections/results/data/items/0/data/title": "Confirmed Objective Response Rate (ORR) by Blinded Independent Central Review (BICR) - Cohort A Only",
-        "/result/items/0/sections/results/data/continuation/offset": 4
-      },
-      "max_bytes": 11276
-    },
-    {
-      "follow": "page",
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/sections/results/data/offset": 4,
-        "/result/items/0/sections/results/data/items/*/record": {
-          "equals": [
+            "outcome",
             "outcome",
             "participant-flow",
             "flow-group",
@@ -64,10 +50,12 @@
             "baseline-group",
             "baseline-group",
             "baseline-measure",
+            "baseline-measure",
             "baseline-measure"
           ]
         },
-        "/result/items/0/sections/results/data/items/6": {
+        "/result/items/0/sections/results/data/items/0/data/title": "Confirmed Objective Response Rate (ORR) by Blinded Independent Central Review (BICR) - Cohort A Only",
+        "/result/items/0/sections/results/data/items/10": {
           "equals": {
             "record": "flow-period",
             "data": {
@@ -310,7 +298,7 @@
             }
           }
         },
-        "/result/items/0/sections/results/data/items/13": {
+        "/result/items/0/sections/results/data/items/17": {
           "equals": {
             "record": "baseline-measure",
             "data": {
@@ -356,9 +344,9 @@
             }
           }
         },
-        "/result/items/0/sections/results/data/continuation/offset": 19
+        "/result/items/0/sections/results/data/continuation/offset": 20
       },
-      "max_bytes": 12221
+      "max_bytes": 21495
     }
   ],
   "harvest": "biomed-agent-bench navigator and trial-ops personas: dropout numbers"
