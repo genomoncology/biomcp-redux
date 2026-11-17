@@ -132,6 +132,7 @@ pub const fn decl(source: Source) -> &'static SourceDecl {
         Source::Cbioportal => &crate::cbioportal::decl::DECL,
         Source::Orphadata => &crate::orphadata::decl::DECL,
         Source::StringDb => &crate::string_db::decl::DECL,
+        Source::NihReporter => &crate::nih_reporter::decl::DECL,
     }
 }
 /// Iterate direct sources in the established public order.

@@ -66,6 +66,14 @@ impl Reply for Counted {
 fn checked(value: &str) -> Result<Text, RequestError> {
     crate::mapped::text(value).map_err(|_| biomcp_fetch::bad_reply(Source::Chembl, Some(200)))
 }
+/// The accession ChEMBL is asked about: ChEMBL names canonical accessions, so an isoform's
+/// canonical accession.
+pub fn canonical(accession: &UniProtIsoform) -> &str {
+    accession
+        .as_str()
+        .split_once('-')
+        .map_or(accession.as_str(), |(base, _)| base)
+}
 /// Every single-protein target ChEMBL lists for the accession, up to `limit`, with each target's
 /// assay and activity totals as ChEMBL's `page_meta.total_count` reports them.
 ///
@@ -75,10 +83,7 @@ pub fn protein_targets(
     accession: &UniProtIsoform,
     limit: u32,
 ) -> Result<ProteinChembl, RequestError> {
-    let canonical = accession
-        .as_str()
-        .split_once('-')
-        .map_or(accession.as_str(), |(base, _)| base);
+    let canonical = canonical(accession);
     let reply = leg
         .call(
             &TARGETS,
@@ -112,6 +117,7 @@ pub fn protein_targets(
         });
     }
     Ok(ProteinChembl {
+        accession: Some(checked(canonical)?),
         total: reply.page_meta.total_count,
         items: items.into(),
     })

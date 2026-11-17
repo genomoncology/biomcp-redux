@@ -36,6 +36,7 @@ mod pgx;
 mod adverse_event_maude;
 
 mod biomarker;
+mod grant;
 mod nci_search;
 mod organization;
 /// Native human pathway discovery and exact cards.

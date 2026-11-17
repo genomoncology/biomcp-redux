@@ -36,6 +36,14 @@
       "note": "recorded live in pm job j42236 (biomcp --record)"
     },
     {
+      "url": "https://rest.uniprot.org/uniprotkb/Q8N726-2.json",
+      "sha256": "382680cfd6dc60ef3b6ccd732445fc21606e2a38bcd9da5d41e888f9731f5bcf",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42263 (biomcp --record)"
+    },
+    {
       "url": "https://www.ebi.ac.uk/chembl/api/data/activity.json?target_chembl_id=CHEMBL3105&limit=1&offset=0",
       "sha256": "69d4b50d253da8111235e30bb5721a2cce11c5d55f85934cabe68549f7efe5e3",
       "status": 200,

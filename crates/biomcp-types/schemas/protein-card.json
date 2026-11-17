@@ -965,6 +965,17 @@
     "Reply_ProteinChembl": {
       "description": "ChEMBL's single-protein targets for one UniProt accession, each with ChEMBL's own totals.",
       "properties": {
+        "accession": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The UniProt accession ChEMBL was asked about: an isoform's canonical accession, since\nChEMBL names canonical accessions."
+        },
         "items": {
           "description": "The targets, each with its assay and activity totals.",
           "items": {
@@ -3181,7 +3192,8 @@
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
         " Orphadata Science epidemiology and natural-history files.",
-        " STRING."
+        " STRING.",
+        " NIH RePORTER research project grants."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -3259,7 +3271,8 @@
         "cbioportal",
         "cellosaurus",
         "orphadata",
-        "string-db"
+        "string-db",
+        "nih-reporter"
       ]
     },
     "Reply_SourceNotice": {

@@ -128,6 +128,7 @@ Commands:
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
   variant        Discover source candidates using one declared selector, without interpreting free text.
+  grant          Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with --investigator-id.
 
 Options:
       --format <format>
@@ -2220,6 +2221,77 @@ Options apply to every listed source unless their description restricts them.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string; example: --region chr7:140453136-140453136.
 - `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Value form: string; example: --review-status 'no assertion criteria provided'.
 - `--source`: Explicit source language; required for a raw query. Value form: string; example: --source myvariant.
+
+## biomcp search grant
+
+```text
+Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with --investigator-id.
+
+Usage: biomcp search grant [OPTIONS] [query]
+
+Arguments:
+  [query]
+          Words that must all appear in the project title, abstract or terms, such as "KRAS G12C".
+
+Options:
+      --fiscal-year <fiscal_year>
+          One NIH fiscal year, such as 2025; all years by default.
+
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --investigator <investigator>
+          Principal investigator name, such as "Pasi Janne". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs.
+
+      --investigator-id <investigator_id>
+          RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.
+
+      --limit <limit>
+          Ten project-years by default, one to fifty.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offset <offset>
+          Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep.
+
+      --organization <organization>
+          Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER".
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Search NIH RePORTER research grants by topic, investigator, organization and fiscal year. Sources: nih-reporter.
+Options apply to every listed source unless their description restricts them.
+
+- `--fiscal-year`: One NIH fiscal year, such as 2025; all years by default. Value form: integer; example: --fiscal-year 2025.
+- `--investigator`: Principal investigator name, such as "Pasi Janne". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs. Value form: string; example: --investigator 'Pasi Janne'.
+- `--investigator-id`: RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387. Value form: integer; example: --investigator-id 14892358.
+- `--limit`: Ten project-years by default, one to fifty. Value form: integer; example: --limit 3.
+- `--offset`: Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep. Value form: integer; example: --offset 68.
+- `--organization`: Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER". Value form: string; example: --organization DANA-FARBER.
+- `query`: Words that must all appear in the project title, abstract or terms, such as "KRAS G12C".
+Form: search grant QUERY; not --query.
 
 ## biomcp get
 
@@ -6583,6 +6655,7 @@ Commands:
   population
   recurrence
   normalize
+  grant
   help               Describe commands and their arguments.
   network
   sources
@@ -6653,6 +6726,7 @@ Commands:
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
+  grant
 
 Options:
       --format <format>
@@ -7383,6 +7457,44 @@ Options:
 ```
 
 Read source variant assertions, populations and recurrence.
+
+
+## biomcp help search grant
+
+```text
+Usage: biomcp help search grant [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help search grant.
 
 
 ## biomcp help get
@@ -12002,6 +12114,44 @@ Options:
 ```
 
 Describe help normalize.
+
+
+## biomcp help grant
+
+```text
+Usage: biomcp help grant [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help grant.
 
 
 ## biomcp help help

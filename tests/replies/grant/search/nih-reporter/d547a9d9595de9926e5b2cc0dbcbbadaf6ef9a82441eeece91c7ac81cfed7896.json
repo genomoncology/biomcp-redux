@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "nih-reporter",
+  "url": "https://api.reporter.nih.gov/v2/projects/search",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "214620ef496f942a3ab9ac8c9b886eccb22749c2a96bd33d19ab037626dfb19f"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794905684,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 155,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"meta":{"search_id":"oAaYHP_ZRUq1sSvqbPQiaQ","total":0,"offset":0,"limit":10,"sort_field":null,"sort_order":"ASC","sorted_by_relevance":true,"properties":{"URL":"https:/reporter.nih.gov/search/oAaYHP_ZRUq1sSvqbPQiaQ/projects"}},"results":[]}
+      }
+    }
+  ]
+}

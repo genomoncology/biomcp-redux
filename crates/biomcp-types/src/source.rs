@@ -155,6 +155,8 @@ canonical_enum! {
         Orphadata => "orphadata",
         /// STRING.
         StringDb => "string-db",
+        /// NIH RePORTER research project grants.
+        NihReporter => "nih-reporter",
     }
 }
 
