@@ -1,0 +1,96 @@
+{
+  "$defs": {
+    "EnrichmentCorrection": {
+      "description": "g:Profiler's multiple-testing correction.",
+      "enum": [
+        "g-scs",
+        "fdr",
+        "bonferroni"
+      ],
+      "type": "string"
+    },
+    "EnrichmentTerms": {
+      "description": "One openly licensed g:Profiler term source; licensed and noncommercial sources are not offered.",
+      "enum": [
+        "reactome",
+        "go-bp",
+        "go-mf",
+        "go-cc",
+        "wikipathways"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Reactome pathways.",
+        "Gene Ontology biological processes.",
+        "Gene Ontology molecular functions.",
+        "Gene Ontology cellular components.",
+        "WikiPathways pathways."
+      ]
+    },
+    "Text": {
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.gene-enrichment-query/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Over-represented terms for a human gene list from g:Profiler, with its own statistics.",
+  "properties": {
+    "correction": {
+      "$ref": "#/$defs/EnrichmentCorrection",
+      "default": "g-scs",
+      "description": "Multiple-testing correction; g:SCS by default; help gene enrichment\nMultiple-testing correction; g:SCS by default."
+    },
+    "genes": {
+      "description": "One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them.",
+      "items": {
+        "$ref": "#/$defs/Text"
+      },
+      "maxItems": 500,
+      "minItems": 1,
+      "type": "array",
+      "x-positional": 0
+    },
+    "limit": {
+      "default": 10,
+      "description": "Ten terms by default, one to fifty, smallest adjusted p value first.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Terms to skip in that order.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "terms": {
+      "default": [
+        "reactome",
+        "go-bp",
+        "go-mf",
+        "go-cc",
+        "wikipathways"
+      ],
+      "description": "Term sources to test; all five by default; help gene enrichment\nTerm sources to test; all five by default.",
+      "items": {
+        "$ref": "#/$defs/EnrichmentTerms"
+      },
+      "maxItems": 5,
+      "minItems": 1,
+      "type": "array",
+      "x-comma-separated": true
+    }
+  },
+  "required": [
+    "genes"
+  ],
+  "title": "GeneEnrichmentQuery",
+  "type": "object"
+}
