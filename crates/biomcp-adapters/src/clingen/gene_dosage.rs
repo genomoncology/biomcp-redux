@@ -60,7 +60,7 @@ impl Row for GeneDosage {
 }
 
 /// Published gene dosage evidence for the two independent directions.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Evidence {
     /// Copy-loss evidence.
     pub haploinsufficiency: Option<ClinGenGeneDosage>,
