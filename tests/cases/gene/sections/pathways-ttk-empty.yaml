@@ -1,0 +1,39 @@
+{
+  "live_check": "public",
+  "feature": "gene-pathways",
+  "story": "Reactome lists no pathway for TTK, and the empty section names the UniProt accession it was asked",
+  "replay": "gene/pathways-ttk",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TTK",
+        "pathways"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/pathways/state": "empty",
+        "/result/items/0/sections/pathways/source": "reactome",
+        "/result/items/0/sections/pathways/record/namespace": "UniProt",
+        "/result/items/0/sections/pathways/record/id": "P33981"
+      },
+      "max_bytes": 3100
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TTK",
+        "pathways",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes": "reactome returned no data for UniProt:P33981."
+        }
+      }
+    }
+  ]
+}

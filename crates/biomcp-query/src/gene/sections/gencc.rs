@@ -25,7 +25,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                         },
                         None => Section::Empty {
                             source: GeneSection::Gencc.source(),
-                            record: None,
+                            record: biomcp_types::SourceRecord::asked(None, id),
                         },
                     }
                 }

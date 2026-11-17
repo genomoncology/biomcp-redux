@@ -1,0 +1,1 @@
+TTK replies were recorded live with `biomcp get gene TTK pathways --fresh --record` in pm job j41993 on 2026-11-16. MyGene and Reactome replies are kept whole; Reactome answers HTTP 404 "No pathways found for UniProt:P33981". The HGNC complete-set reply is trimmed to its header and the TTK row, as in the other gene replays.

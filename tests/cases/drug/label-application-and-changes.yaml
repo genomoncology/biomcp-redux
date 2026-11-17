@@ -1,0 +1,95 @@
+{
+  "verified": "tests/replies/drug/label-effective-date/provenance.json records the live openFDA replies of 2026-11-16 (job j41933) and their body hashes: KRAZATI's one label, SPL set 0b8bf078-34c2-4f45-9012-38a8ac082b01, openfda.application_number NDA216340, recent_major_changes 'Indications and Usage, KRAS G12C Mutated Locally Advanced or Metastatic Colorectal Cancer - Accelerated Approval Indication Removed 08/2026'.",
+  "live_check": "public",
+  "feature": "drug-label",
+  "story": "A label read names the label's FDA application number in its identity and shows the label's recent major changes, so an agent can tell which of several same-name labels it read and that a missing indication was removed rather than stale: KRAZATI's label is NDA216340, and its colorectal cancer indication was removed in 08/2026. The changes come once per reply, in the first label part, and not beside a read of that section itself. Before 1017 the reply named only the SPL set, and agents could not tell 11 ELIQUIS labels apart or took KRAZATI's current label for a stale one (bench 2026-11-16, pt-committee and msl personas).",
+  "replay": "drug/label-effective-date",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "KRAZATI",
+        "label"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "0b8bf078-34c2-4f45-9012-38a8ac082b01",
+        "/result/identity/application_numbers": [
+          "NDA216340"
+        ],
+        "/result/recent_major_changes": [
+          "Indications and Usage, KRAS G12C Mutated Locally Advanced or Metastatic Colorectal Cancer - Accelerated Approval Indication Removed 08/2026"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "KRAZATI",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/identity/application_numbers": [
+          "NDA216340"
+        ],
+        "/result/recent_major_changes": [
+          "Indications and Usage, KRAS G12C Mutated Locally Advanced or Metastatic Colorectal Cancer - Accelerated Approval Indication Removed 08/2026"
+        ],
+        "/result/label/data/heading": "indications_and_usage"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "KRAZATI",
+        "label",
+        "--label-section",
+        "indications_and_usage,warnings_and_cautions"
+      ],
+      "exit": 0,
+      "expect": {
+        "/schema": "biomcp.drug-sections/2",
+        "/status": "complete",
+        "/result/identity/application_numbers": [
+          "NDA216340"
+        ],
+        "/result/parts/0/reply/result/recent_major_changes": [
+          "Indications and Usage, KRAS G12C Mutated Locally Advanced or Metastatic Colorectal Cancer - Accelerated Approval Indication Removed 08/2026"
+        ],
+        "/result/parts/1/reply/result": {
+          "omits": [
+            "recent_major_changes"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "KRAZATI",
+        "label",
+        "--label-section",
+        "recent_major_changes"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result": {
+          "omits": [
+            "recent_major_changes"
+          ]
+        },
+        "/result/label/data/heading": "recent_major_changes"
+      }
+    }
+  ]
+}

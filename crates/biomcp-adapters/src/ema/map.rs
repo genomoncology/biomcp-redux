@@ -88,6 +88,7 @@ pub(super) fn header(row: &raw::Medicine, problems: &mut crate::mapped::Problems
         },
         version: None,
         effective_date: None,
+        application_numbers: Box::default(),
         // The feed's category describes Human/Veterinary, not identity granularity.
         identity_level: DrugIdentityLevel::Unknown,
         r#type: {

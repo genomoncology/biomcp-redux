@@ -4,7 +4,7 @@ use biodata::{Gene, HgncId};
 
 use biomcp_adapters::uniprot;
 use biomcp_fetch::Deadline;
-use biomcp_types::{GeneSection, Section};
+use biomcp_types::{GeneSection, Section, SourceRecord};
 pub(super) fn applicable(gene: &Gene) -> bool {
     !gene.uniprot.is_empty()
 }
@@ -43,7 +43,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     if data.is_empty() {
                         Section::Empty {
                             source: GeneSection::Protein.source(),
-                            record: None,
+                            record: gene
+                                .uniprot
+                                .first()
+                                .and_then(|id| SourceRecord::asked(Some("UniProt"), id)),
                         }
                     } else {
                         Section::Data {

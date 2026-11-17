@@ -4,7 +4,7 @@ use biodata::{Gene, HgncId, LocusGroup};
 
 use biomcp_adapters::gnomad;
 use biomcp_fetch::Deadline;
-use biomcp_types::{GeneSection, Reason, Section};
+use biomcp_types::{GeneSection, Reason, Section, SourceRecord};
 
 pub(super) fn applicable(gene: &Gene) -> bool {
     gene.locus_group == Some(LocusGroup::ProteinCoding) && gene.ensembl_id.is_some()
@@ -49,7 +49,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                         } else {
                             Section::Empty {
                                 source: GeneSection::Constraint.source(),
-                                record: None,
+                                record: gene
+                                    .ensembl_id
+                                    .as_ref()
+                                    .and_then(|id| SourceRecord::asked(Some("Ensembl"), id.base())),
                             }
                         }
                     }

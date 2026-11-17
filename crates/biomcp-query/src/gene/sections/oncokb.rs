@@ -26,7 +26,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
             Some(Ok(mapped)) => {
                 let partial = mapped.refusals == biomcp_adapters::Refusal::Refused;
                 status::append(&mut problems, mapped.problems);
-                mapped_value(mapped.value, partial)
+                mapped_value(mapped.value, partial, &gene.symbol)
             }
             Some(Err(failure)) => {
                 error = Some(failure);
@@ -112,6 +112,7 @@ fn skipped(genes: &[(HgncId, Gene)], reason: Reason) -> SectionResult {
 fn mapped_value(
     data: Option<oncokb::GeneData>,
     partial: bool,
+    symbol: &biodata::GeneSymbol,
 ) -> (
     Section<biomcp_types::Oncokb>,
     Option<biomcp_types::OncokbCard>,
@@ -134,7 +135,7 @@ fn mapped_value(
         None => (
             Section::Empty {
                 source: GeneSection::Oncokb.source(),
-                record: None,
+                record: biomcp_types::SourceRecord::asked(Some("hugoSymbol"), symbol.as_str()),
             },
             None,
             false,

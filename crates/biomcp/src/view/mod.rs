@@ -33,7 +33,7 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
             .flatten()
         {
             if source.get("state").and_then(Value::as_str) == Some("ok") {
-                no_data(&source["source"], &mut out);
+                no_data(&source["source"], None, &mut out);
             }
         }
     }
@@ -201,15 +201,30 @@ fn table_notes(value: &Value, out: &mut String) {
         }
     }
 }
-fn no_data(source: &Value, out: &mut String) {
-    out.push_str(&format!("{} returned no data.\n\n", scalar(source)));
+// An empty answer names what the source was asked, so it does not read as a failed join.
+fn no_data(source: &Value, record: Option<&Value>, out: &mut String) {
+    let asked = record
+        .and_then(|record| record.get("id"))
+        .map(|id| {
+            match record
+                .and_then(|r| r.get("namespace"))
+                .and_then(Value::as_str)
+            {
+                Some(namespace) if namespace != "unknown" => {
+                    format!(" for {}:{}", escape(namespace), scalar(id))
+                }
+                _ => format!(" for {}", scalar(id)),
+            }
+        })
+        .unwrap_or_default();
+    out.push_str(&format!("{} returned no data{asked}.\n\n", scalar(source)));
 }
 fn state_note(value: &Value, out: &mut String) {
     let Some(source) = value.get("source").filter(|source| source.is_string()) else {
         return;
     };
     match value.get("state").and_then(Value::as_str) {
-        Some("empty") => no_data(source, out),
+        Some("empty") => no_data(source, value.get("record"), out),
         Some("unavailable" | "failed") => {
             if let Some(reason) = value.get("reason") {
                 out.push_str(&format!(

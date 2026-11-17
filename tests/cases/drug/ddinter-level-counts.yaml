@@ -1,0 +1,89 @@
+{
+  "live_check": "synthetic authored or response-edited replies; no live provider observation; reuses the ddinter-synthetic recording",
+  "feature": "drug-ddinter",
+  "story": "A DDInter interactions page counts the drug's pairs by level across every page, most severe first and DDInter's Unknown level kept as published, and offers a search for the drug's openFDA label, whose drug_interactions section holds the management text DDInter's files lack",
+  "replay": "drug/ddinter-synthetic",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "ddinter"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 16
+      },
+      "max_bytes": 179
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Synthetic Anchor One",
+        "interactions",
+        "--source",
+        "ddinter",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "DDInter9001",
+        "/result/interactions/data/total": 4,
+        "/result/interactions/data/records": {
+          "count": 1
+        },
+        "/result/levels": {
+          "equals": [
+            {
+              "level": "Major",
+              "count": 2
+            },
+            {
+              "level": "Moderate",
+              "count": 1
+            },
+            {
+              "level": "Minor",
+              "count": 1
+            }
+          ]
+        },
+        "/next/0/kind": "page",
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "drug",
+            "Synthetic Anchor One",
+            "--source",
+            "openfda-label"
+          ]
+        }
+      },
+      "max_bytes": 2217
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter9006",
+        "interactions",
+        "--source",
+        "ddinter"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/interactions/data/total": 1,
+        "/result/levels": {
+          "equals": [
+            {
+              "level": "Unknown",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "max_bytes": 1800
+    }
+  ]
+}

@@ -31,6 +31,7 @@ fn native_header(
         name: field_text(&mut p.list, p.source, p.record.clone(), "name", name),
         version: None,
         effective_date: None,
+        application_numbers: Box::default(),
         identity_level: biodata::DrugIdentityLevel::Unknown,
         r#type: Some("drug".parse()?),
         url: Some(format!("https://platform.opentargets.org/drug/{id}").parse()?),
