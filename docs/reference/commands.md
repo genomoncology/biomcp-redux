@@ -4851,8 +4851,10 @@ Options:
           Fixed snapshot from an earlier page.
 
       --source <source>
-          Graph source; iCite, the default, lists the; help article citations
-          Graph source; iCite, the default, lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
+          Graph source; iCite remains the default; help article citations
+          Graph source; iCite remains the default.
+
+          iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -4883,7 +4885,9 @@ Options apply to every listed source unless their description restricts them.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article citations PMID; not --pmid.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `--source`: Graph source; iCite, the default, lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order. Value form: string; example: --source semantic-scholar.
+- `--source`: Graph source; iCite remains the default.
+
+iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article references
 
@@ -4916,8 +4920,10 @@ Options:
           Fixed snapshot from an earlier page.
 
       --source <source>
-          Graph source; iCite, the default, lists the; help article citations
-          Graph source; iCite, the default, lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
+          Graph source; iCite remains the default; help article citations
+          Graph source; iCite remains the default.
+
+          iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -4948,7 +4954,9 @@ Options apply to every listed source unless their description restricts them.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article references PMID; not --pmid.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `--source`: Graph source; iCite, the default, lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order. Value form: string; example: --source semantic-scholar.
+- `--source`: Graph source; iCite remains the default.
+
+iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article citation-evidence
 

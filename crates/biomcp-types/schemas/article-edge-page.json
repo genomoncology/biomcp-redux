@@ -54,7 +54,7 @@
         "source": {
           "$ref": "#/$defs/Reply_EdgeSource",
           "default": "icite",
-          "description": "Graph provider; iCite, the default, lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order."
+          "description": "Graph provider; iCite remains the default.\n\niCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order."
         }
       },
       "required": [
