@@ -41,7 +41,7 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
         if matches!(positional.get(..2), Some(["get", "pathway"])) && flag == "--section" {
             let section = inline.or_else(|| args.next().and_then(|v| v.to_str()));
             if section == Some("enrichment") {
-                return Some(ErrorMessage::PathwayEnrich);
+                return Some(ErrorMessage::GeneEnrichment);
             }
         } else if inline.is_none() && super::takes_value(root, flag, &positional)? {
             args.next();
@@ -51,13 +51,13 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
 }
 fn command(words: &[&str]) -> Option<ErrorMessage> {
     Some(match words {
-        ["enrich", ..] => ErrorMessage::PathwayEnrich,
+        ["enrich", ..] => ErrorMessage::GeneEnrichment,
         ["list", "pathway", ..] => ErrorMessage::PathwayHelp,
         ["pathway", "drugs", ..] => ErrorMessage::PathwayDrugs,
         ["pathway", "articles", ..] => ErrorMessage::PathwayArticles,
         ["pathway", "trials", ..] => ErrorMessage::PathwayTrials,
         ["get", "pathway", id, ..] if kegg(id) => ErrorMessage::PathwayKegg,
-        ["get", "pathway", _, "enrichment", ..] => ErrorMessage::PathwayEnrich,
+        ["get", "pathway", _, "enrichment", ..] => ErrorMessage::GeneEnrichment,
         _ => return None,
     })
 }

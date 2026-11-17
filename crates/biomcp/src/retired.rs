@@ -149,7 +149,7 @@ pub(crate) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
         return Some(message);
     }
     match words.positional.as_slice() {
-        ["gene", rest @ ..] if !rest.is_empty() => {
+        ["gene", rest @ ..] if !rest.is_empty() && rest.first() != Some(&"enrichment") => {
             find(GENE, rest.first()?).or(Some(ErrorMessage::Gene))
         }
         ["search", "drug", ..] | ["search", "gwas", ..] => words.retired_option,

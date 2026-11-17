@@ -35,7 +35,8 @@ const PROFILE: Endpoint = SPEC
     .fresh(Freshness::Days(7));
 
 /// The test g:Profiler's documentation names for g:GOSt.
-pub const TEST: &str = "Fisher's one-tailed test (cumulative hypergeometric), as g:Profiler documents for g:GOSt";
+pub const TEST: &str =
+    "Fisher's one-tailed test (cumulative hypergeometric), as g:Profiler documents for g:GOSt";
 const THRESHOLD: f64 = 0.05;
 const ORGANISM: &str = "hsapiens";
 const DOMAIN: &str = "annotated";
@@ -129,14 +130,22 @@ pub fn enrichment(
     let body = Body {
         organism: ORGANISM,
         query: query.genes().iter().map(Text::as_str).collect(),
-        sources: query.terms().into_iter().map(EnrichmentTerms::native).collect(),
+        sources: query
+            .terms()
+            .into_iter()
+            .map(EnrichmentTerms::native)
+            .collect(),
         user_threshold: THRESHOLD,
         significance_threshold_method: correction.native(),
         domain_scope: DOMAIN,
         all_results: false,
         no_evidences: false,
     };
-    let received = leg.call(&PROFILE, biomcp_fetch::Input::json(&[], &body), Read::json())?;
+    let received = leg.call(
+        &PROFILE,
+        biomcp_fetch::Input::json(&[], &body),
+        Read::json(),
+    )?;
     let profile: Profile = received.value;
     let fetched = received.meta.fetched;
     let stated = EnrichmentCorrection::from_native(

@@ -23,6 +23,7 @@ Commands:
   article     Read article text, references, citations and files.
   trial       Read trial groups and public documents.
   variant     Read source variant assertions, populations and recurrence.
+  gene        Find pathways and GO terms over-represented in a gene list.
   sync        Synchronize a local source bundle.
   skill       Read embedded guidance and worked examples. No source requests. Overview and catalog are bounded by the embedded payload; install and status return one summary. Install writes only inside DIR and refuses symbolic links and parent traversal.
   source      List source names as JSON. No source requests or key reads.
@@ -78,6 +79,7 @@ pathway: Read pathway genes and source events.
 article: Read article text, references, citations and files.
 trial: Read trial groups and public documents.
 variant: Read source variant assertions, populations and recurrence.
+gene: Find pathways and GO terms over-represented in a gene list.
 sync: Synchronize a local source bundle.
 skill: Read embedded guidance and worked examples
 source: List source names as JSON
@@ -5584,6 +5586,115 @@ mismatch, VariantValidator names the gene's transcripts where the base fits. Val
 - `--offset`: Source mapping rows to skip per service. Value form: integer; example: --offset 0.
 - `--source`: Explicit service; all preserves independent results without consensus. Value form: string; example: --source mutalyzer.
 
+## biomcp gene
+
+```text
+Find pathways and GO terms over-represented in a gene list.
+
+Usage: biomcp gene [OPTIONS] <COMMAND>
+
+Commands:
+  enrichment  Over-represented terms for a human gene list from g:Profiler, with its own statistics.
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Find pathways and GO terms over-represented in a gene list.
+
+
+## biomcp gene enrichment
+
+```text
+Over-represented terms for a human gene list from g:Profiler, with its own statistics.
+
+Usage: biomcp gene enrichment [OPTIONS] <genes>...
+
+Arguments:
+  <genes>...
+          One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them.
+
+Options:
+      --correction <correction>
+          Multiple-testing correction; g:SCS by default; help gene enrichment
+          Multiple-testing correction; g:SCS by default.
+
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --limit <limit>
+          Ten terms by default, one to fifty, smallest adjusted p value first.
+
+      --offset <offset>
+          Terms to skip in that order.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --terms <terms>
+          Term sources to test; all five by default; help gene enrichment
+          Term sources to test; all five by default.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Find pathways and GO terms over-represented in a gene list (g:Profiler). Sources: gprofiler.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
+
+- `--correction`: Multiple-testing correction; g:SCS by default. Value form: string; example: --correction fdr.
+- `genes`: One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them.
+Form: gene enrichment GENES...; not --genes.
+- `--limit`: Ten terms by default, one to fifty, smallest adjusted p value first. Value form: integer; example: --limit 10.
+- `--offset`: Terms to skip in that order. Value form: integer; example: --offset 0.
+- `--terms`: Term sources to test; all five by default. Value form: repeatable values (repeat the flag); example: --terms reactome.
+
 ## biomcp sync
 
 ```text
@@ -6528,6 +6639,7 @@ Commands:
   article            Read article text, references, citations and files.
   trial              Read trial groups and public documents.
   variant            Read source variant assertions, populations and recurrence.
+  gene               Find pathways and GO terms over-represented in a gene list.
   sync               Synchronize a local source bundle.
   skill
   source
@@ -6559,7 +6671,6 @@ Commands:
   adverse-event
   disease
   drug
-  gene
   supplement
   pdf
   text
@@ -6572,6 +6683,7 @@ Commands:
   population
   recurrence
   normalize
+  enrichment
   help               Describe commands and their arguments.
   network
   sources
@@ -6638,7 +6750,7 @@ Commands:
   adverse-event
   disease
   drug
-  gene
+  gene           Find pathways and GO terms over-represented in a gene list.
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
@@ -7219,6 +7331,8 @@ Describe help search drug.
 ## biomcp help search gene
 
 ```text
+Find pathways and GO terms over-represented in a gene list.
+
 Usage: biomcp help search gene [OPTIONS]
 
 Options:
@@ -7251,7 +7365,7 @@ Options:
 
 ```
 
-Describe help search gene.
+Find pathways and GO terms over-represented in a gene list.
 
 
 ## biomcp help search article
@@ -7395,7 +7509,7 @@ Commands:
   adverse-event
   disease
   drug
-  gene
+  gene           Find pathways and GO terms over-represented in a gene list.
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
@@ -8005,6 +8119,8 @@ Form: help get drug SECTION; not --section.
 ## biomcp help get gene
 
 ```text
+Find pathways and GO terms over-represented in a gene list.
+
 Usage: biomcp help get gene [OPTIONS] [section]
 
 Arguments:
@@ -8041,7 +8157,7 @@ Options:
 
 ```
 
-Describe help get gene.
+Find pathways and GO terms over-represented in a gene list.
 
 - `section`: One section of the get command to describe.
 Form: help get gene SECTION; not --section.
@@ -9411,6 +9527,87 @@ Options:
 ```
 
 Describe help variant normalize.
+
+
+## biomcp help gene
+
+```text
+Find pathways and GO terms over-represented in a gene list.
+
+Usage: biomcp help gene [OPTIONS] [COMMAND]
+
+Commands:
+  enrichment
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Find pathways and GO terms over-represented in a gene list.
+
+
+## biomcp help gene enrichment
+
+```text
+Usage: biomcp help gene enrichment [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help gene enrichment.
 
 
 ## biomcp help sync
@@ -11493,50 +11690,6 @@ Describe help drug.
 - `section`: One section of the get command to describe.
 Form: help drug SECTION; not --section.
 
-## biomcp help gene
-
-```text
-Usage: biomcp help gene [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
-
-Options:
-      --format <format>
-          Choose JSON or Markdown output; configuration can change the default.
-
-          [default: json]
-          [possible values: json, md]
-
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups. Example: --disable-sources civic.
-
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
-      --offline[=<offline>]
-          Read local data without source requests.
-
-          [default: false]
-          [possible values: true, false]
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
-
-```
-
-Describe help gene.
-
-- `section`: One section of the get command to describe.
-Form: help gene SECTION; not --section.
-
 ## biomcp help supplement
 
 ```text
@@ -11991,6 +12144,44 @@ Options:
 ```
 
 Describe help normalize.
+
+
+## biomcp help enrichment
+
+```text
+Usage: biomcp help enrichment [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help enrichment.
 
 
 ## biomcp help help

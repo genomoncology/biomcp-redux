@@ -20,9 +20,10 @@ pub fn command_section_component(verb: &str, entity: &str, word: &str) -> Option
 pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
     use Source::{
         AlleleRegistry, AlphaGenome, CancerHotspots, Cbioportal, Cellosaurus, Chembl, Civic,
-        ClinGen, ClinVar, ClinicalTrialsGov, ComplexPortal, Erepo, EuropePmc, Gencc, Gnomad, Gprofiler, Gwas,
-        Hgnc, Hpa, Icite, InterPro, Mutalyzer, MyGene, MyVariant, Oncokb, Orcid, PmcOa, PubMed,
-        PubTator, Reactome, SemanticScholar, UniProt, VariantValidator, WikiPathways,
+        ClinGen, ClinVar, ClinicalTrialsGov, ComplexPortal, Erepo, EuropePmc, Gencc, Gnomad,
+        Gprofiler, Gwas, Hgnc, Hpa, Icite, InterPro, Mutalyzer, MyGene, MyVariant, Oncokb, Orcid,
+        PmcOa, PubMed, PubTator, Reactome, SemanticScholar, UniProt, VariantValidator,
+        WikiPathways,
     };
     match (verb, entity) {
         ("protein", "domains") => &[InterPro],
