@@ -7,8 +7,8 @@ BioMCP retrieves biomedical source records. It does not choose treatments or run
 
 Commands:
 
-- `biomcp search ENTITY TEXT`: find records. `biomcp get ENTITY ID [SECTION...]`: read one record and its sections. Entities: gene, variant, disease, drug, trial, article, protein, pathway, phenotype, adverse-event, diagnostic, biomarker, cell-line, study, gwas, pgx, author; search also takes organization. Variant, pgx, biomarker, organization and diagnostic search by flags, not text: `biomcp search variant --gene BRAF --protein V600E`. Get pgx (no ID) and get diagnostic need `--source`.
-- Follow-ups on one record: `biomcp variant assertions|population|recurrence|normalize`, `protein features|isoforms|domains|complexes|complex-members|structures|sequence`, `pathway genes|events`, `article text|citations|references|citation-evidence|recommendations|supplement|pdf`, `trial document`, `author papers`, `cell-line assay-count`. Some need flags (`variant normalize --hgvs --source`); a refusal names them.
+- `biomcp search ENTITY TEXT`: find records. `biomcp get ENTITY ID [SECTION...]`: read one record and sections. Entities: gene, variant, disease, drug, trial, article, protein, pathway, phenotype, adverse-event, diagnostic, biomarker, cell-line, study, gwas, pgx, author; search also takes organization, grant. Variant, pgx, biomarker, organization and diagnostic search by flags, not text: `biomcp search variant --gene BRAF --protein V600E`. Get pgx (no ID) and get diagnostic need `--source`.
+- Follow-ups on a record: `biomcp variant assertions|population|recurrence|normalize`, `protein features|isoforms|domains|complexes|complex-members|structures|sequence`, `pathway genes|events`, `article text|citations|references|citation-evidence|recommendations|supplement|pdf`, `trial document`, `author papers`, `cell-line assay-count`. Some need flags (`variant normalize --hgvs --source`); refusals name them.
 
 Run the command first. A refusal names the valid values and a next step: use them. Read help only when a reply still leaves you stuck: `biomcp help get drug`. Take names only from a refusal or that help page, never keys from the returned data:
 
