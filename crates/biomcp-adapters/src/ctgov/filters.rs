@@ -112,13 +112,14 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
     if query.has_results() {
         advanced.push("AREA[ResultsFirstPostDate]RANGE[MIN,MAX]".into());
     }
-    let stopped = query.why_stopped_words();
-    if !stopped.is_empty() {
-        // Each word quoted, so registry operators in the caller's text stay plain words.
-        let words: Vec<_> = stopped.into_iter().map(quote).collect();
-        advanced.push(format!("AREA[WhyStopped]({})", words.join(" AND ")));
-    }
+    advanced.extend(why_stopped(query));
     advanced.join(" AND ")
+}
+
+/// Each stop reason word quoted, so registry operators in the caller's text stay plain words.
+fn why_stopped(query: &TrialSearch) -> Option<String> {
+    let words: Vec<_> = query.why_stopped_words().into_iter().map(quote).collect();
+    (!words.is_empty()).then(|| format!("AREA[WhyStopped]({})", words.join(" AND ")))
 }
 
 pub(super) fn name_parameters(
