@@ -2,7 +2,7 @@
   "feature": "grant-search",
   "live_check": "public",
   "story": "A medical science liaison counts a key opinion leader's NIH project-years, narrows them to one organization and one fiscal year, and searches NIH grants by topic, with institute, organization and award amount on every row.",
-  "verified": "Captured live 2026-11-17 from NIH RePORTER in pm jobs j42229 and JOB3. Pasi Janne has 70 project-years (the msl run's 8.3 count); the newest is FY2026 5P50CA265826-05 (NCI, Dana-Farber, $384,444). \"KRAS G12C\" over title, abstract and terms gives 173. Janne at DANA-FARBER in fiscal year 2025 gives 1 (5P50CA265826-04). An unknown name gives 0.",
+  "verified": "Captured live 2026-11-17 from NIH RePORTER in pm jobs j42229 and j42240. Pasi Janne has 70 project-years (the msl run's 8.3 count); the newest is FY2026 5P50CA265826-05 (NCI, Dana-Farber, $384,444). \"KRAS G12C\" over title, abstract and terms gives 173. Janne at DANA-FARBER in fiscal year 2025 gives 1 (5P50CA265826-04). An unknown name gives 0.",
   "replay": "grant/search",
   "steps": [
     {
