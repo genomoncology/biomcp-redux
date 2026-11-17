@@ -22,7 +22,8 @@ biodata::canonical_enum! {
         Regulatory => "regulatory",
         /// Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
         /// `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and
-        /// no management or mechanism text; `next` offers the label's drug_interactions section.
+        /// no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions
+        /// section has that text.
         Interactions => "interactions",
         /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
         Markets => "markets",

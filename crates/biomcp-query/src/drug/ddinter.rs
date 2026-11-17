@@ -198,6 +198,15 @@ fn page(
     body: DrugInteractions,
     out: &mut Outcome,
 ) -> DrugInteractions {
+    let unlisted = match &body.interactions {
+        Section::Data { data, .. } => data.total == Some(0),
+        Section::Empty { .. } => true,
+        _ => false,
+    };
+    let unlisted_pair = query.partner().is_some() && !body.partners.is_empty() && unlisted;
+    if unlisted_pair {
+        label_steps(&body, fresh, out);
+    }
     if let Section::Data { data, .. } = &body.interactions {
         let returned = data.records.len() as u32;
         let total = data.total.unwrap_or(0);
@@ -226,16 +235,40 @@ fn page(
             ));
         }
     }
-    label_steps(&body, fresh, out);
+    if !unlisted_pair {
+        label_searches(&body, fresh, out);
+    }
     body
 }
-/// Each named drug's own label interactions section, which states the management text DDInter's
-/// files lack and covers pairs they do not list, since no row does not mean no interaction.
-fn label_steps(body: &DrugInteractions, fresh: bool, out: &mut Outcome) {
-    let names = std::iter::once(&body.identity)
+/// The drugs named in this reply: the drug, then the first named partner.
+fn named(body: &DrugInteractions) -> impl Iterator<Item = biodata::Text> + '_ {
+    std::iter::once(&body.identity)
         .chain(body.partners.first())
-        .filter_map(|header| header.name.clone());
-    for name in names {
+        .filter_map(|header| header.name.clone())
+}
+/// A label search for each named drug: its label's drug_interactions section holds the management
+/// text DDInter's files lack. A search, not a label read, because a DDInter name need not be an
+/// exact openFDA label name, and some drugs have no US label.
+fn label_searches(body: &DrugInteractions, fresh: bool, out: &mut Outcome) {
+    for name in named(body) {
+        if let Some(search) = crate::next::checked(
+            DrugSearch::named(name, DrugSource::OpenfdaLabel, 10),
+            Source::Ddinter,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
+                StepKind::Disambiguate,
+                &[Source::OpenfdaLabel],
+                Request::SearchDrug(search),
+                fresh,
+            ));
+        }
+    }
+}
+/// A named pair DDInter lists no row for: each drug's own label interactions section, which
+/// another source BioMCP reads states, since no row does not mean no interaction.
+fn label_steps(body: &DrugInteractions, fresh: bool, out: &mut Outcome) {
+    for name in named(body) {
         let get = DrugGet::named(name, DrugSource::OpenfdaLabel).and_then(|get| {
             let heading = biodata::Text::new("drug_interactions")
                 .map_err(|_| biomcp_types::QueryInvalid::new(&["label_section"]))?;

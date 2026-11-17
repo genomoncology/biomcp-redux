@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic authored or response-edited replies; no live provider observation; reuses the ddinter-synthetic recording",
   "feature": "drug-ddinter",
-  "story": "A DDInter interactions page counts the drug's pairs by level across every page, most severe first, and offers the drug's label drug_interactions section, which holds the management text DDInter's files lack",
+  "story": "A DDInter interactions page counts the drug's pairs by level across every page, most severe first and DDInter's Unknown level kept as published, and offers a search for the drug's openFDA label, whose drug_interactions section holds the management text DDInter's files lack",
   "replay": "drug/ddinter-synthetic",
   "steps": [
     {
@@ -52,14 +52,34 @@
         "/next/0/kind": "page",
         "/next/*/args": {
           "includes": [
-            "get",
+            "search",
             "drug",
             "Synthetic Anchor One",
-            "label",
-            "--label-section",
-            "drug_interactions",
             "--source",
             "openfda-label"
+          ]
+        }
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter9006",
+        "interactions",
+        "--source",
+        "ddinter"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/interactions/data/total": 1,
+        "/result/levels": {
+          "equals": [
+            {
+              "level": "Unknown",
+              "count": 1
+            }
           ]
         }
       },
