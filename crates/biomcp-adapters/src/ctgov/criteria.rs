@@ -13,19 +13,22 @@ pub struct Split {
 
 /// Whether a line is an inclusion (`false`) or exclusion (`true`) heading, with any text after its colon.
 pub(crate) fn heading(line: &str) -> Option<(bool, &str)> {
-    let trimmed = trim(line);
+    let trimmed = line.trim_start_matches(|c: char| c.is_whitespace() || "#*_-".contains(c));
     let lower = trimmed.to_ascii_lowercase();
     let lower = lower.strip_prefix("key ").unwrap_or(&lower);
     [("exclusion criteria", true), ("inclusion criteria", false)]
         .into_iter()
         .find_map(|(prefix, excluded)| {
             let tail = lower.strip_prefix(prefix)?.trim_start();
-            (tail.is_empty() || tail.starts_with(':')).then_some((excluded, tail.len()))
+            if tail.starts_with(':') {
+                return Some((excluded, tail.len()));
+            }
+            trim(tail).is_empty().then_some((excluded, 0))
         })
         .map(|(excluded, tail)| {
             // ASCII lowercasing keeps byte offsets, so the tail is the original's suffix.
             let rest = trimmed.split_at(trimmed.len() - tail).1;
-            (excluded, rest.trim_start_matches(':').trim())
+            (excluded, rest.strip_prefix(':').unwrap_or(rest).trim_start())
         })
 }
 
@@ -42,7 +45,6 @@ fn other_criteria_heading(line: &str) -> bool {
         .strip_suffix(':')
         .is_some_and(|head| head.trim_end().to_ascii_lowercase().ends_with("criteria"))
         && !list_marker(trimmed)
-        && heading(line).is_none()
 }
 
 /// A number or a single letter followed by "." or ")", or a bullet; `trim` already removed
@@ -88,11 +90,13 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
     if !splits(text) {
         return None;
     }
-    let mut section = text
-        .get(..start)?
-        .lines()
-        .rev()
-        .find_map(heading)
+    let before = text.get(..start)?;
+    let starts_on_line = before.is_empty() || before.ends_with('\n');
+    let line_start = before.rfind('\n').map_or(0, |index| index + 1);
+    let whole_line = text.get(line_start..)?.lines().next();
+    let continued_heading = whole_line.filter(|_| !starts_on_line).and_then(heading);
+    let mut section = continued_heading
+        .or_else(|| text.get(..line_start)?.lines().rev().find_map(heading))
         .map(|(excluded, _)| excluded);
     let mut out = Split::default();
     let mut preamble = String::new();
@@ -105,8 +109,18 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
             }
         }
     };
-    for line in page.split_inclusive('\n') {
-        if let Some((excluded, rest)) = heading(line) {
+    let remaining = text.get(start..)?;
+    for (index, (line, source_line)) in page
+        .split_inclusive('\n')
+        .zip(remaining.split_inclusive('\n'))
+        .enumerate()
+    {
+        let complete_start = index > 0 || starts_on_line;
+        let complete_end = line.len() == source_line.len();
+        if complete_start
+            && (complete_end || heading(source_line).is_some())
+            && let Some((excluded, rest)) = heading(line)
+        {
             close(&mut out, &mut item, section);
             section = Some(excluded);
             list(&mut out, excluded);
@@ -142,5 +156,35 @@ fn list(out: &mut Split, excluded: bool) -> &mut Vec<Box<str>> {
         out.exclusion.get_or_insert_with(Vec::new)
     } else {
         out.inclusion.get_or_insert_with(Vec::new)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::split;
+
+    #[test]
+    fn partial_lines_use_their_actual_source_heading() {
+        let text = concat!(
+            "Inclusion Criteria:\nExclusion Criteria are mentioned\n",
+            "* Item mentions Exclusion Criteria: here\nExclusion Criteria: continued item"
+        );
+        let first = "Inclusion Criteria:\nExclusion Criteria";
+        let page = split(text, 0, first).expect("split");
+        assert!(page.exclusion.is_none());
+        let suffix = "Exclusion Criteria: here\n";
+        let suffix_start = text.find(suffix).expect("suffix in fixture");
+        let page = split(text, suffix_start, suffix).expect("split");
+        assert_eq!(
+            page.inclusion.as_deref(),
+            Some([Box::from("Exclusion Criteria: here")].as_slice())
+        );
+        assert!(page.exclusion.is_none());
+        let heading_end = text.len() - "continued item".len();
+        let page = split(text, heading_end, "continued item").expect("split");
+        assert_eq!(
+            page.exclusion.as_deref(),
+            Some([Box::from("continued item")].as_slice())
+        );
     }
 }
