@@ -42,11 +42,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let status = match &read.population {
         Section::Data { .. } => status::item_status(true, false, read.dropped),
         _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
-        Section::Empty { .. }
-        | Section::Unavailable {
-            reason: Reason::NotFound,
-            ..
-        } => status::item_status(read.dropped, false, read.dropped),
+        Section::Empty { .. } => status::item_status(read.dropped, false, read.dropped),
+        _ if read.identity_absent => status::item_status(read.dropped, false, read.dropped),
         Section::Unavailable {
             reason: Reason::BadReply,
             ..
@@ -75,6 +72,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
 }
 struct PopulationRead {
     dropped: bool,
+    identity_absent: bool,
     population: Section<biomcp_types::VariantPopulation>,
     groups: Vec<GnomadCounts>,
     candidates: Vec<biomcp_types::VariantHeader>,
@@ -89,6 +87,7 @@ fn read(
 ) -> PopulationRead {
     let mut read = PopulationRead {
         dropped: false,
+        identity_absent: false,
         population: Section::unavailable(Source::Gnomad, Reason::NoJoinId),
         groups: Vec::new(),
         candidates: Vec::new(),
@@ -109,6 +108,7 @@ fn read(
         read.local = found.local;
         read.candidates = found.rows;
         if let Some(reason) = found.reason {
+            read.identity_absent = reason == Reason::NotFound;
             read.population = Section::unavailable(Source::Gnomad, reason);
             return read;
         }
