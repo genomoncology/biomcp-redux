@@ -1,8 +1,7 @@
+use super::ArticleFilter;
 use super::gene::{QueryInvalid, present};
 use crate::{GeneInput, PartialDate, Text};
 use serde::{Deserialize, Serialize};
-mod filter;
-pub use filter::ArticleFilter;
 biodata::wire_enum! {
     /// Source selectors supported by article search.
     ArticleSource {
@@ -551,5 +550,28 @@ impl ArticleSearch {
         let mut value = self.page(0, None);
         value.0.source = Box::new([ArticleSource::Pubmed, ArticleSource::Litvar]);
         value
+    }
+}
+
+impl ArticleSearch {
+    /// Whether any named unsupported capability is requested.
+    pub fn rejects(&self, filters: &[ArticleFilter]) -> Option<ArticleFilter> {
+        filters.iter().copied().find(|filter| match filter {
+            ArticleFilter::OpenAccess => self.open_access(),
+            ArticleFilter::NoPreprints => self.no_preprints(),
+            ArticleFilter::ExcludeRetracted => self.exclude_retracted(),
+            ArticleFilter::Text => self.0.text.is_some(),
+            ArticleFilter::Gene => self.0.gene.is_some(),
+            ArticleFilter::Variant => self.0.variant.is_some(),
+            ArticleFilter::Disease => self.0.disease.is_some(),
+            ArticleFilter::Drug => self.0.drug.is_some(),
+            ArticleFilter::Author => self.0.author.is_some(),
+            ArticleFilter::Journal => self.0.journal.is_some(),
+            ArticleFilter::Affiliation => self.0.affiliation.is_some(),
+            ArticleFilter::Since => self.0.since.is_some(),
+            ArticleFilter::Until => self.0.until.is_some(),
+            ArticleFilter::Type => self.0.kind.is_some(),
+            ArticleFilter::DateSort => self.0.sort == ArticleSort::Date,
+        })
     }
 }
