@@ -3288,6 +3288,7 @@
         "--type is retired: the accepted pathway class is enforced and needs no filter.",
         "KEGG pathways are dropped; use a Reactome R-HSA-\u2026 or WikiPathways WP\u2026 ID.",
         "Gene-set enrichment is dropped; an agent can call g:Profiler itself.",
+        "use: gene enrichment GENE...; g:Profiler runs the enrichment and states its statistics.",
         "use: get pathway ID genes; reverse gene-to-drug search is not supported; select a drug identity and request its explicit source sections.",
         "use: search article <text>; a matching title does not establish pathway article linkage.",
         "use: search trial --gene <gene>; pathway-name trial search is retired.",
@@ -3302,7 +3303,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1007, 2026-11-16: against the 1.0.0 baseline, the NCI disease refusal names its example code's disease, C3224 (melanoma), because a run took C3224 for pancreatic cancer; the error code and meaning are unchanged. The other added messages are later widenings; a ticket that adds a message must extend this target list."
+      "review": "Ticket 1007, 2026-11-16: against the 1.0.0 baseline, the NCI disease refusal names its example code's disease, C3224 (melanoma), because a run took C3224 for pancreatic cancer; the error code and meaning are unchanged. The other added messages are later widenings; a ticket that adds a message must extend this target list. Ticket 1028, 2026-11-17: adds the message that points the retired enrich command and the get pathway enrichment section at gene enrichment."
     }
   ]
 }

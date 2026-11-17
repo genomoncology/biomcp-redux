@@ -57,11 +57,11 @@ fn entity_admission() -> Result<(), String> {
         (json!({"name":"gene","arguments":"get"}), None),
         (
             json!({"name":"gene","arguments":{"action":"unknown"}}),
-            Some(json!(["search", "get", "pgx", "pgx_get", "gwas"])),
+            Some(json!(["search", "get", "pgx", "pgx_get", "gwas", "enrichment"])),
         ),
         (
             json!({"name":"gene","arguments":{"get":{"input":["BRAF"]}}}),
-            Some(json!(["search", "get", "pgx", "pgx_get", "gwas"])),
+            Some(json!(["search", "get", "pgx", "pgx_get", "gwas", "enrichment"])),
         ),
         (
             json!({"name":"gene","arguments":{"action":"get","input":["BRAF"]}}),
