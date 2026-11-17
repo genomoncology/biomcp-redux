@@ -85,4 +85,3 @@ pub(super) fn selected(
         .find(|id| q.molecular_profile().is_none_or(|asked| asked == id));
     found.ok_or_else(|| unavailable.into())
 }
-

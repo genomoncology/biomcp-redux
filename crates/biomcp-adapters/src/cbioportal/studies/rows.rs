@@ -46,7 +46,10 @@ struct MutationFilter<'a> {
     sample_list_id: &'a biodata::StudySampleListId,
 }
 
-pub(super) fn endpoint(path: &'static str, segments: &[&str]) -> Result<biomcp_fetch::Endpoint, RequestError> {
+pub(super) fn endpoint(
+    path: &'static str,
+    segments: &[&str],
+) -> Result<biomcp_fetch::Endpoint, RequestError> {
     let segments = segments
         .iter()
         .map(|v| PathSegment::new(v))
