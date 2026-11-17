@@ -206,7 +206,7 @@ pub(super) fn budget(tool: &Value) -> Result<(), String> {
     // search_diagnostic serves five FDA and NCBI sources with their own filters; 0964's condition filter
     // measured 2432, so the PM set 2800 (sdlc/decisions/2026-10-26-measured-entity-caps-need-no-ask.md,
     // "search_diagnostic action budget for 0964"). get_drug's CIViC evidence significance filter (1008)
-    // measured 2517 (j42018); the PM set 2900, measured plus 15 percent (PM ruling 2026-11-16).
+    // measured 2517 (j42018); the PM set 2900, measured plus 15 percent (sdlc/decisions/2026-10-26-measured-entity-caps-need-no-ask.md, get_drug section).
     let limit = match field(tool, "name").as_str() {
         Some("search_trial") => 3500,
         Some("search_diagnostic") => 2800,
