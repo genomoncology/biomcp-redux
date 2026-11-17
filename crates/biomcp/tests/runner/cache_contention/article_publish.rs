@@ -116,7 +116,8 @@ pub(super) fn pubmed_titles(failing_on: &'static str, trigger: &'static str) -> 
     stub.retain(env.shared_root());
     let ca = env.root().join("source-ca.pem");
     fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca}))
+    // The stub serves PubMed only, so the page's Europe PMC access lookup (1046) stays off.
+    env.config(&json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,"disable_sources":["europepmc"]}))
         .map_err(|e| e.to_string())?;
     let args = ["search", "article", "synthetic stored", "--exact-term"].map(str::to_owned);
     let output = env

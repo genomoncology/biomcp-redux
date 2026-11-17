@@ -177,7 +177,11 @@ fn fill_access<'a>(
         changed.push(row.item.clone());
     }
     if !changed.is_empty() {
-        store.rewrite_article_text(id, &changed)?;
+        // A store that refuses the write still returns the values read for this page.
+        crate::publish::keep(
+            store.rewrite_article_text(id, &changed).map_err(Into::into),
+            out,
+        )?;
     }
     Ok(())
 }
