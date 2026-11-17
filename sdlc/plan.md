@@ -4,13 +4,13 @@ This plan covers milestone 5: a useful and accurate CLI/MCP interface, bounded a
 
 ## Current state
 
-Read [the November 11 handover](planning/handover-2026-11-11.md) first. Since this plan was written, Ian made agent tooling the content of 1.0, parked publication and the AWS rollout, and put one PM in charge. Sections 4 and 5 below are parked, not cancelled; milestones 7 and 8 in `planning/milestones.md` are the active work. On 2026-11-12 Ian set the bar for 1.0: efficient tools and all eleven personas at A- or better, judged by a top-model review of each persona's run ([decision](decisions/2026-11-12-1-0-is-done-when-tools-are-efficient-and-personas-reach-a-minus.md)); BioMCP need not beat curl.
+Ian made agent tooling the content of 1.0, parked publication and the AWS rollout, and put one PM in charge. See [milestones 7 and 8](planning/milestones.md) for the release outcomes. On November 12 Ian set the bar for 1.0 at efficient tools and all eleven personas at A- or better, judged by a top-model review of each persona's run. Beating curl is outside that bar. [1.0 release decision](decisions/2026-11-12-1-0-is-done-when-tools-are-efficient-and-personas-reach-a-minus.md)
 
 ## Immediate priority
 
-Ian's [November 10 direction](decisions/2026-11-10-prioritize-remaining-product-issues.md) puts finding and fixing remaining maintainability, usability and accuracy issues ahead of release timing and AWS publication. Review external claims as leads, inspect the code, independently weigh findings, then file small executable tickets. Do not call an unrun suspicion a reproduced bug or a later successful provider request an explanation of an earlier failure.
+The November 17 persona work starts with whether the actor does the job the persona asked it to do. The bench's **1.0 persona baseline** ticket owns the matched BioMCP and code-mode runs, the frozen scoring inputs and the independent PM or SOL evidence review. Factory runs the batches, Bot keeps each run's calls, outputs, usage and leak checks, and evals holds cases, checks, batches and pins. Diagnostic runs can test an explanation while the scored baseline stays pinned.
 
-The review deliverable is the findings register, test playbook and ready fix tickets. Implementations follow in their owning lanes; no new product implementation is required merely to deliver this review.
+Use the answer, command and reply to find the cause before filing a fix. Put a confirmed gap in the owning tool, reply or guidance. Record what the change should improve, replay the saved reply where possible, and retest the persona case that showed the problem. [Name the gnomAD no-record result](tickets/1047-name-gnomad-no-record.md) is one example. Bring affected cases back into the matched comparison after the changes land. This continues [Ian's November 10 direction](decisions/2026-11-10-prioritize-remaining-product-issues.md) to put product issues ahead of release timing and AWS publication. Sections 4 and 5 retain the rollout and publication steps.
 
 ## 1. Correct results and retained state
 
