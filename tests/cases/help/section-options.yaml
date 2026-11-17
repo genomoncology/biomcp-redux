@@ -86,6 +86,7 @@
         ],
         "/result/commands/0/arguments/*/name": [
           "--build",
+          "--clinvar-kind",
           "input",
           "--limit",
           "--offset",
@@ -146,7 +147,8 @@
             "--disease",
             "--drug",
             "--evidence-level",
-            "--evidence-status"
+            "--evidence-status",
+            "--evidence-significance"
           ]
         }
       }

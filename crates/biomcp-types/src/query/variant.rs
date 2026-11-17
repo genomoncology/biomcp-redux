@@ -60,6 +60,10 @@ struct Fields<R: ResolverChoice = VariantResolver> {
     civic_cursor: Option<crate::Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
+    #[doc = "Kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); \
+        the section total counts only that kind. Only with section clinvar or all."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    clinvar_kind: Option<crate::ClinvarRecordKind>,
     #[doc = "Disease\nCIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     disease: Option<crate::Text>,
@@ -135,6 +139,7 @@ impl VariantGet {
             civic_kind: v.civic_kind,
             civic_cursor: v.civic_cursor,
             evidence_filter: v.evidence_filter,
+            clinvar_kind: v.clinvar_kind,
             disease: v.disease,
             drug: v.drug,
             resolver: VariantResolver::answered(outcome),
@@ -160,11 +165,20 @@ impl TryFrom<Fields> for VariantGet {
             return Err(super::gene::QueryInvalid::new(&[
                 "evidence_level",
                 "evidence_status",
+                "evidence_significance",
                 "disease",
                 "drug",
                 "civic_kind",
                 "section",
             ]));
+        }
+        if fields.clinvar_kind.is_some()
+            && !fields
+                .section
+                .iter()
+                .any(|s| matches!(s, VariantSection::Clinvar | VariantSection::All))
+        {
+            return Err(super::gene::QueryInvalid::new(&["clinvar_kind", "section"]));
         }
         if !(1..=50).contains(&fields.limit) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
@@ -209,6 +223,7 @@ impl TryFrom<Fields> for VariantGet {
         query.0.civic_kind = fields.civic_kind;
         query.0.civic_cursor = fields.civic_cursor;
         query.0.evidence_filter = fields.evidence_filter;
+        query.0.clinvar_kind = fields.clinvar_kind;
         query.0.disease = fields.disease;
         query.0.drug = fields.drug;
         query.0.section_limit = fields.section_limit;
@@ -251,6 +266,7 @@ impl VariantGet {
             civic_kind: None,
             civic_cursor: None,
             evidence_filter: Default::default(),
+            clinvar_kind: None,
             disease: None,
             drug: None,
             resolver,
@@ -287,6 +303,10 @@ impl VariantGet {
     /// Selected native CIViC claim collection.
     pub fn civic_kind(&self) -> Option<CivicClaimKind> {
         self.0.civic_kind
+    }
+    /// Selected ClinVar record kind.
+    pub fn clinvar_kind(&self) -> Option<crate::ClinvarRecordKind> {
+        self.0.clinvar_kind
     }
     /// Native evidence selectors retained across pages.
     pub fn evidence_filter(&self) -> &crate::CivicEvidenceFilter {

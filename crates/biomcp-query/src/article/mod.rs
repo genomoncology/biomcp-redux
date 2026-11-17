@@ -245,6 +245,7 @@ pub(crate) fn unsupported(
             F::Drug,
             F::Author,
             F::Journal,
+            F::Affiliation,
             F::Since,
             F::Until,
             F::Type,
@@ -264,6 +265,7 @@ pub(crate) fn unsupported(
             && let Some(option) = query.rejects(&[
                 F::Author,
                 F::Journal,
+                F::Affiliation,
                 F::Since,
                 F::Until,
                 F::Type,
@@ -281,6 +283,7 @@ pub(crate) fn unsupported(
             .rejects(&[
                 F::Author,
                 F::Journal,
+                F::Affiliation,
                 F::Type,
                 F::DateSort,
                 F::NoPreprints,

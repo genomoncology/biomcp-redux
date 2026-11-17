@@ -1,0 +1,58 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "A company's trials include those where it is only a collaborator: --sponsor-role any searches the registry's lead-or-collaborator sponsor area, so Dana-Farber's and Tango's trials with Revolution Medicines as collaborator come back beside its own (16 trials; the lead-only search found 13 the same day). Recorded live from ClinicalTrials.gov on 2026-11-16 in job j42057.",
+  "replay": "trial/sponsor-role",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--sponsor",
+        "Revolution Medicines",
+        "--sponsor-role",
+        "any",
+        "--condition",
+        "pancreatic"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 16,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT06445062",
+            "NCT07252232",
+            "NCT06128551",
+            "NCT06040541",
+            "NCT07621718",
+            "NCT05379985",
+            "NCT07898813",
+            "NCT07491445",
+            "NCT06922591",
+            "NCT07805954"
+          ]
+        },
+        "/result/items/6/sponsor": "Dana-Farber Cancer Institute",
+        "/result/items/8/sponsor": "Tango Therapeutics, Inc.",
+        "/query/sponsor_role": "any"
+      },
+      "max_bytes": 9096
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--sponsor-role",
+        "any",
+        "--condition",
+        "pancreatic"
+      ],
+      "exit": 2,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--sponsor"
+      }
+    }
+  ]
+}

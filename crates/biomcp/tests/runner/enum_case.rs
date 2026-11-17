@@ -565,12 +565,13 @@ fn context(
     values: &mut Map<String, Value>,
 ) -> Result<(), String> {
     let extra = match (verb, entity, key) {
-        ("get", "drug", "civic_kind" | "evidence_level" | "evidence_status") => {
+        ("get", "drug", key) if key == "civic_kind" || key.starts_with("evidence_") => {
             json!({"source":"civic", "section":["civic"], "civic_kind":"evidence"})
         }
-        ("get", "variant", "civic_kind" | "evidence_level" | "evidence_status") => {
+        ("get", "variant", key) if key == "civic_kind" || key.starts_with("evidence_") => {
             json!({"section":["civic"], "civic_kind":"evidence", "civic_profile":1})
         }
+        ("get", "variant", "clinvar_kind") => json!({"section":["clinvar"]}),
         ("get", "pgx", "kind") => json!({"source":"clinpgx", "section":"annotations"}),
         ("get", "disease", "ontology") => json!({"source":"ols"}),
         ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),
@@ -584,6 +585,7 @@ fn context(
         }
         ("search", "adverse-event", "event_type") => json!({"source":"maude"}),
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
+        ("search", "trial", "sponsor_role") => json!({"sponsor":"Revolution Medicines"}),
         ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),
         // A ranking group or metric applies only to a text of HP IDs.
         ("search", "phenotype", "group" | "metric" | "search_mode") => json!({"text":"HP:0001250"}),

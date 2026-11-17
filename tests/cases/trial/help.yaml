@@ -32,6 +32,7 @@
           "--sex",
           "--source",
           "--sponsor",
+          "--sponsor-role",
           "--sponsor-type",
           "--status",
           "--study-type",

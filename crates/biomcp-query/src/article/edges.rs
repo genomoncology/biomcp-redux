@@ -7,6 +7,7 @@ use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, ReplyData, Request, St
 pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outcome {
     let mut out = empty(
         (biomcp_types::ArticleEdgePage {
+            order: None,
             items: Box::default(),
         })
         .with_query(query.clone()),

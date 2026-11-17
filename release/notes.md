@@ -87,6 +87,7 @@ Trials:
 - `locations` pages hold up to 100 sites, state the site total and offer the next page. Search rows carry `has_results`. A batched trial get names each trial it could not read, and each failed item's `failure` gives the source, the reason and the problem in plain words. A batch of up to 20 trials gets one ClinicalTrials.gov pacing interval per trial after the first (19 seconds at the default pacing, at most 60), so a cold batch no longer runs out of time partway.
 - Help, schemas and the NCI disease refusal name the concept beside each example NCIt code, such as C3224 (melanoma), so an example is not mistaken for another disease.
 - `search trial --fields` refuses a field the source's rows lack and names that source's fields.
+- `search trial --sponsor NAME --sponsor-role any` also finds trials where the company is a collaborator, not only the lead sponsor. The default, `lead`, is unchanged.
 - A ClinicalTrials.gov continuation is tied to its offset, filters and matching mode. Changing any of them is refused before the registry is asked, with a fresh first page offered, and a registry rejection of `--next-page` says so.
 
 Genes, variants, diseases and phenotypes:
@@ -97,6 +98,8 @@ Genes, variants, diseases and phenotypes:
 - `search phenotype` given comma-separated HP IDs returns Monarch's one ranked list of similar genes, or diseases with `--group diseases`, with `--metric` and `--search-mode`. The ranking gets a 30-second budget.
 - `get pgx --gene GENE --source cpic recommendations --drug-id ID --phenotype TEXT` keeps one CPIC phenotype, such as Poor Metabolizer, and the first page lists the phenotypes present. A plain drug name in `--drug-id` is refused with the accepted form.
 - `get variant ID civic` joins a CIViC variant that states the same protein change, honours `--section-limit`, and takes `--disease` and `--drug`. `get variant CAID hotspots` accepts a ClinGen CAid. `get variant clinvar:ID population` falls back to the ClinGen Allele Registry when MyVariant lacks the record.
+- `variant assertions ID --source clinvar --kind scv` keeps only ClinVar's per-submitter records, and `--kind vcv` or `rcv` the aggregate records; the page total counts only that kind. `get variant ID clinvar` takes the same filter as `--clinvar-kind`.
+- `get variant ID civic` and `get drug NAME --source civic` take `--evidence-significance`, such as `resistance` or `sensitivityresponse`. CIViC applies it before paging, like `--evidence-level`, so the profile's evidence total counts only the matching items.
 - When a transcript HGVS fails `variant normalize` on its reference base, the reply lists the gene's transcripts where the change fits and offers the fitting one; the reply is `partial` rather than `failed`. `search variant --variant` given a full HGVS name offers the runnable `--gene ... --coding ...` call.
 - `get disease ID prevalence --source orphadata` returns Orphanet prevalence estimates, age of onset and inheritance after `sync orphadata`. Hierarchy rows carry parent labels, and each synonym appears once with `also_stated_by` naming the other sources that state it.
 - `pathway genes` and `pathway events` with an ID the source does not hold answer `absent`, not `failed`.
@@ -104,8 +107,10 @@ Genes, variants, diseases and phenotypes:
 Articles:
 
 - `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
+- `search article --affiliation` finds papers by an author's institution, sent as one phrase to PubMed's affiliation field (`[ad]`) and Europe PMC's `AFF:`.
 - `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`.
 - A single-source search reports the source's own total. A drug-name search on Semantic Scholar or LitSense says the per-name counts overlap and are not added, and a cut-short search says later rows cannot be paged. `get article` states its limit of 20 IDs.
+- `article citations` and `article references` pages give their `order`: iCite pages list the most-cited papers first by each row's `cited_by`, and Semantic Scholar pages keep its own order. `article citation-evidence` offers a `--fulltext` next step when Semantic Scholar has no contexts for the pair or cannot be read.
 
 Other commands:
 
@@ -113,6 +118,7 @@ Other commands:
 - `search gwas --p-value` leaves out `qualifying_total`, and is not `complete`, when an association cannot be compared with the threshold.
 - `variant recurrence` fails, with no counts, when `--sample-set` is unknown or belongs to another study or list.
 - `search cell-line` reports Cellosaurus's own match count as its total.
+- `search cell-line --disease` says that Cellosaurus matches a disease name as a phrase and adds no narrower NCIt diseases, so a subtype such as Pancreatic ductal adenocarcinoma is its own search.
 - `biomcp health` honours `command_timeout_seconds` and each source's deadline instead of a 3-second cap.
 - `help questions` lists every command by the question it answers, and `help examples` gives one worked call per use case in CLI and typed form. The MCP `help` tool takes the same words.
 

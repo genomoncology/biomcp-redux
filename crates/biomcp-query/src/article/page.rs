@@ -257,7 +257,7 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
             candidates: Vec::new(),
         })
         .with_query(q.clone()),
-        Cursor::Edges(q, _) => (ArticleEdgePage { items }).with_query(q.clone()),
+        Cursor::Edges(q, _) => edge_page(q, items),
         Cursor::Recommend(q) => (super::recommend::body(items, held == 0)).with_query(q.clone()),
     };
     actions(query, pool, returned, held, out);
@@ -487,8 +487,26 @@ pub(super) fn fetched<'a>(
             candidates: Vec::new(),
         }
         .with_query(q.clone()),
-        Cursor::Edges(q, _) => ArticleEdgePage { items }.with_query(q.clone()),
+        Cursor::Edges(q, _) => edge_page(q, items),
         Cursor::Recommend(q) => super::recommend::body(items, held == 0).with_query(q.clone()),
     };
     status::item(out, true, false, untitled);
+}
+
+/// iCite pools are sorted by `cited_by` when created; Semantic Scholar pools keep source order.
+/// An empty page states no order.
+fn edge_page(
+    query: &ArticleEdges,
+    items: impl Into<Box<[biomcp_types::ArticleItem]>>,
+) -> ReplyData {
+    let order = match query.source() {
+        biomcp_types::EdgeSource::Icite => biomcp_types::EdgeOrder::MostCitedFirst,
+        biomcp_types::EdgeSource::SemanticScholar => biomcp_types::EdgeOrder::SourceOrder,
+    };
+    let items = items.into();
+    ArticleEdgePage {
+        order: (!items.is_empty()).then_some(order),
+        items,
+    }
+    .with_query(query.clone())
 }

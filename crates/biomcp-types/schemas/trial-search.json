@@ -33,6 +33,14 @@
       "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
+    "SponsorRole": {
+      "description": "Sponsor roles a sponsor name may match.",
+      "enum": [
+        "lead",
+        "any"
+      ],
+      "type": "string"
+    },
     "SponsorType": {
       "description": "Registry funding category facet.",
       "enum": [
@@ -554,7 +562,11 @@
     },
     "sponsor": {
       "$ref": "#/$defs/Text",
-      "description": "Sponsor.\nClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category."
+      "description": "Sponsor.\nClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding."
+    },
+    "sponsor_role": {
+      "$ref": "#/$defs/SponsorRole",
+      "description": "Sponsor role; help search trial\nSponsor role.\nClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor."
     },
     "sponsor_type": {
       "$ref": "#/$defs/SponsorType",

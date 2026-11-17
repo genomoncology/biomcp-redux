@@ -41,6 +41,9 @@ struct Fields<I = Text> {
     /// Assertions to skip in source order.
     #[serde(default)]
     offset: u32,
+    /// ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    kind: Option<ClinvarRecordKind>,
 }
 crate::query::validation::checked_query!(VariantAssertionsGet, Fields);
 impl TryFrom<Fields> for VariantAssertionsGet {
@@ -56,6 +59,12 @@ impl TryFrom<Fields> for VariantAssertionsGet {
         }
         if fields.limit.is_some_and(|n| !(1..=50).contains(&n)) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
+        }
+        if fields.kind.is_some() && fields.source != AssertionSource::Clinvar {
+            return Err(super::gene::QueryInvalid::new(&["kind", "source"]));
+        }
+        if fields.kind.is_some() && fields.assertion.is_some() {
+            return Err(super::gene::QueryInvalid::new(&["kind", "assertion"]));
         }
         if fields.version.is_some() && fields.assertion.is_none() {
             return Err(super::gene::QueryInvalid::new(&["version", "assertion"]));
@@ -94,6 +103,7 @@ impl TryFrom<Fields> for VariantAssertionsGet {
             version: fields.version,
             limit: fields.limit,
             offset: fields.offset,
+            kind: fields.kind,
         }))
     }
 }
@@ -134,6 +144,10 @@ impl VariantAssertionsGet {
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
+    /// Selected ClinVar record kind.
+    pub fn kind(&self) -> Option<ClinvarRecordKind> {
+        self.0.kind
+    }
 
     /// Construct a checked source query without selecting an assertion.
     pub fn new(
@@ -148,6 +162,7 @@ impl VariantAssertionsGet {
             version: None,
             limit: None,
             offset: 0,
+            kind: None,
         }
         .try_into()
     }
@@ -156,6 +171,7 @@ impl VariantAssertionsGet {
         id: crate::VariantId,
         limit: u32,
         offset: u32,
+        kind: Option<ClinvarRecordKind>,
     ) -> Result<Self, crate::QueryInvalid> {
         let source = match &id {
             crate::VariantId::ClinVarVariation(_) | crate::VariantId::Vcv(_) => {
@@ -167,6 +183,7 @@ impl VariantAssertionsGet {
         if !(1..=50).contains(&limit) {
             return Err(crate::QueryInvalid::new(&["limit"]));
         }
+        let kind = kind.filter(|_| source == AssertionSource::Clinvar);
         let input =
             VariantInput::from_identity(id).map_err(|_| crate::QueryInvalid::new(&["input"]))?;
         Ok(Self(Fields {
@@ -177,6 +194,7 @@ impl VariantAssertionsGet {
             version: None,
             limit: Some(limit),
             offset,
+            kind,
         }))
     }
     /// Select an existing native assertion and its exact source version.
@@ -205,6 +223,28 @@ impl crate::Paged for VariantAssertionsGet {
     type Offset = u32;
     fn set_page_offset(&mut self, offset: Self::Offset) {
         self.0.offset = offset;
+    }
+}
+
+biodata::wire_enum! {
+    /// ClinVar record kind.
+    ClinvarRecordKind {
+        /// Variant aggregate (VCV).
+        Vcv=>"vcv",
+        /// Variant-condition aggregates (RCV).
+        Rcv=>"rcv",
+        /// Submitted records, one per submitter (SCV).
+        Scv=>"scv",
+    }
+}
+impl ClinvarRecordKind {
+    /// The reply row kind this selector keeps.
+    pub fn assertion_kind(self) -> crate::AssertionKind {
+        match self {
+            Self::Vcv => crate::AssertionKind::Vcv,
+            Self::Rcv => crate::AssertionKind::Rcv,
+            Self::Scv => crate::AssertionKind::Scv,
+        }
     }
 }
 

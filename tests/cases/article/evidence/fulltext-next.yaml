@@ -1,0 +1,47 @@
+{
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "feature": "article-evidence",
+  "story": "When Semantic Scholar has no contexts for the pair, or cannot be read, the reply offers the same pair with --fulltext, and that step reads the citing paper's own PMC paragraphs.",
+  "verified": "Synthetic Semantic Scholar replies, since its terms are noncommercial: article/evidence/source with the cited row's contexts emptied, and three synthetic 500 replies. The PubMed and PMC OA replies are the real records of article/evidence/source. Before 1015 neither reply offered --fulltext (msl persona 2026-11-16, analysis 3.2 and 3.4).",
+  "replay": "article/evidence/no-contexts",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "citation-evidence",
+        "33123537",
+        "17611497"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/semantic_scholar/data/notice": "no-contexts",
+        "/result/semantic_scholar/data/contexts/total": 0,
+        "/next/*/args": {
+          "includes": [
+            "article",
+            "citation-evidence",
+            "33123537",
+            "17611497",
+            "--fulltext"
+          ]
+        }
+      },
+      "max_bytes": 3600
+    },
+    {
+      "run": [
+        "article",
+        "citation-evidence",
+        "33123537",
+        "17611497",
+        "--fulltext"
+      ],
+      "expect": {
+        "/result/semantic_scholar/data/notice": "no-contexts",
+        "/result/fulltext/state": "data",
+        "/result/fulltext/data/paragraphs/total": 7
+      },
+      "max_bytes": 16000
+    }
+  ]
+}

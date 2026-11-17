@@ -1,0 +1,2354 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/PMID%3A33123537/references?limit=1000&fields=contexts%2Cintents%2CisInfluential%2CexternalIds%2Ctitle%2Cyear",
+  "exchanges": [
+    {
+      "fetched": 1792853284,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 305,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "offset": 0,
+          "citingPaperInfo": {
+            "openAccessPdf": {
+              "url": "https://example.org/synthetic/citing-a.pdf",
+              "status": "GOLD",
+              "license": "CCBY",
+              "disclaimer": "Synthetic notice."
+            },
+            "title": "Synthetic citing paper citing-a",
+            "authors": [
+              {
+                "authorId": "7001",
+                "name": "Synthetic Author 1"
+              },
+              {
+                "authorId": "7002",
+                "name": "Synthetic Author 2"
+              },
+              {
+                "authorId": "7003",
+                "name": "Synthetic Author 3"
+              },
+              {
+                "authorId": "7004",
+                "name": "Synthetic Author 4"
+              },
+              {
+                "authorId": "7005",
+                "name": "Synthetic Author 5"
+              },
+              {
+                "authorId": "7006",
+                "name": "Synthetic Author 6"
+              },
+              {
+                "authorId": "7007",
+                "name": "Synthetic Author 7"
+              }
+            ]
+          },
+          "data": [
+            {
+              "contexts": [
+                "Synthetic context 1.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil",
+                "Synthetic context 1.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000001",
+                "externalIds": {
+                  "MAG": "9000000001",
+                  "DOI": "10.1234/synthetic.a.1",
+                  "CorpusId": 900000001,
+                  "PubMed": "99100142"
+                },
+                "title": "Synthetic a reference 1",
+                "year": 2020
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 2.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthet",
+                "Synthetic context 2.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic",
+                "Synthetic context 2.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic ",
+                "Synthetic context 2.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text s",
+                "Synthetic context 2.5. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic f",
+                "Synthetic context 2.6. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthe"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background",
+                "result"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000002",
+                "externalIds": {
+                  "PubMedCentral": "9900002",
+                  "MAG": "9000000002",
+                  "DOI": "10.1234/SYNTHETIC.A.2",
+                  "CorpusId": 900000002,
+                  "PubMed": "99100141"
+                },
+                "title": "Synthetic a reference 2",
+                "year": 2020
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000003",
+                "externalIds": {
+                  "MAG": "9000000003",
+                  "DOI": "10.1234/synthetic.a.3",
+                  "CorpusId": 900000003,
+                  "PubMed": "99100139"
+                },
+                "title": "Synthetic a reference 3",
+                "year": 2020
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 4.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthet",
+                "Synthetic context 4.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic",
+                "Synthetic context 4.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic ",
+                "Synthetic context 4.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text s",
+                "Synthetic context 4.5. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic f",
+                "Synthetic context 4.6. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthe"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background",
+                "result"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000004",
+                "externalIds": {
+                  "MAG": "9000000004",
+                  "PubMedCentral": "9900004",
+                  "DOI": "10.1234/SYNTHETIC.A.4",
+                  "CorpusId": 900000004,
+                  "PubMed": "99100138"
+                },
+                "title": "Synthetic a reference 4",
+                "year": 2020
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000005",
+                "externalIds": {
+                  "MAG": "9000000005",
+                  "PubMedCentral": "9900005",
+                  "DOI": "10.1234/synthetic.a.5",
+                  "CorpusId": 900000005,
+                  "PubMed": "99100136"
+                },
+                "title": "合成 synthetic a reference 5",
+                "year": 2019
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000006",
+                "externalIds": {
+                  "MAG": "9000000006",
+                  "PubMedCentral": "9900006",
+                  "DOI": "10.1234/synthetic.a.6",
+                  "CorpusId": 900000006,
+                  "PubMed": "99100131"
+                },
+                "title": "Synthetic a reference 6",
+                "year": 2019
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000007",
+                "externalIds": {
+                  "MAG": "9000000007",
+                  "DOI": "10.1234/SYNTHETIC.A.7",
+                  "CorpusId": 900000007,
+                  "PubMed": "99100127"
+                },
+                "title": "Synthetic a reference 7",
+                "year": 2018
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 8.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler",
+                "Synthetic context 8.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler t"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000008",
+                "externalIds": {
+                  "PubMedCentral": "9900008",
+                  "MAG": "9000000008",
+                  "DOI": "10.1234/synthetic.a.8",
+                  "CorpusId": 900000008,
+                  "PubMed": "99100125"
+                },
+                "title": "Synthetic a reference 8",
+                "year": 2018
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 9.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000009",
+                "externalIds": {
+                  "MAG": "9000000009",
+                  "DOI": "10.1234/synthetic.a.9",
+                  "CorpusId": 900000009,
+                  "PubMed": "99100122"
+                },
+                "title": "Synthetic a reference 9",
+                "year": 2018
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 10.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti",
+                "Synthetic context 10.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti",
+                "Synthetic context 10.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synth",
+                "Synthetic context 10.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler t",
+                "Synthetic context 10.5. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic ",
+                "Synthetic context 10.6. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler te",
+                "Synthetic context 10.7. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi",
+                "Synthetic context 10.8. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text "
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background",
+                "result"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000000a",
+                "externalIds": {
+                  "PubMedCentral": "9900010",
+                  "MAG": "9000000010",
+                  "DOI": "10.1234/SYNTHETIC.A.10",
+                  "CorpusId": 900000010,
+                  "PubMed": "99100119"
+                },
+                "title": "Synthetic a reference 10",
+                "year": 2017
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 11.1. synthetic filler text synthetic filler text "
+              ],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000000b",
+                "externalIds": {
+                  "MAG": "9000000011",
+                  "DOI": "10.1234/synthetic.a.11",
+                  "CorpusId": 900000011,
+                  "PubMed": "99100115"
+                },
+                "title": "Synthetic a reference 11",
+                "year": 2017
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000000c",
+                "externalIds": {
+                  "PubMedCentral": "9900012",
+                  "MAG": "9000000012",
+                  "DOI": "10.1234/synthetic.a.12",
+                  "CorpusId": 900000012,
+                  "PubMed": "99100118"
+                },
+                "title": "Synthetic a reference 12",
+                "year": 2017
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 13.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000000d",
+                "externalIds": {
+                  "PubMedCentral": "9900013",
+                  "MAG": "9000000013",
+                  "DOI": "10.1234/SYNTHETIC.A.13",
+                  "CorpusId": 900000013,
+                  "PubMed": "99100116"
+                },
+                "title": "Synthetic a reference 13",
+                "year": 2017
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000000e",
+                "externalIds": {
+                  "PubMedCentral": "9900014",
+                  "MAG": "9000000014",
+                  "DOI": "10.1234/synthetic.a.14",
+                  "CorpusId": 900000014,
+                  "PubMed": "99100114"
+                },
+                "title": "Synthetic a reference 14",
+                "year": 2017
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 15.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000000f",
+                "externalIds": {
+                  "MAG": "9000000015",
+                  "PubMedCentral": "9900015",
+                  "DOI": "10.1234/synthetic.a.15",
+                  "CorpusId": 900000015,
+                  "PubMed": "99100121"
+                },
+                "title": "Synthetic a reference 15",
+                "year": 2017
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 16.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic f"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000010",
+                "externalIds": {
+                  "PubMedCentral": "9900016",
+                  "MAG": "9000000016",
+                  "DOI": "10.1234/synthetic.a.16",
+                  "CorpusId": 900000016,
+                  "PubMed": "99100113"
+                },
+                "title": "Synthetic a reference 16",
+                "year": 2017
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000011",
+                "externalIds": {
+                  "MAG": "9000000017",
+                  "PubMedCentral": "9900017",
+                  "DOI": "10.1234/synthetic.a.17",
+                  "CorpusId": 900000017,
+                  "PubMed": "99100111"
+                },
+                "title": "Synthetic a reference 17",
+                "year": 2016
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 18.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler ",
+                "Synthetic context 18.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler",
+                "Synthetic context 18.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthet",
+                "Synthetic context 18.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fille",
+                "Synthetic context 18.5. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler",
+                "Synthetic context 18.6. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text "
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000012",
+                "externalIds": {
+                  "PubMedCentral": "9900018",
+                  "MAG": "9000000018",
+                  "DOI": "10.1234/synthetic.a.18",
+                  "CorpusId": 900000018,
+                  "PubMed": "99100108"
+                },
+                "title": "Synthetic a reference 18",
+                "year": 2016
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 19.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text",
+                "Synthetic context 19.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler t"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000013",
+                "externalIds": {
+                  "PubMedCentral": "9900019",
+                  "MAG": "9000000019",
+                  "DOI": "10.1234/synthetic.a.19",
+                  "CorpusId": 900000019,
+                  "PubMed": "99100107"
+                },
+                "title": "Synthetic a reference 19",
+                "year": 2016
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000014",
+                "externalIds": {
+                  "MAG": "9000000020",
+                  "PubMedCentral": "9900020",
+                  "DOI": "10.1234/synthetic.a.20",
+                  "CorpusId": 900000020,
+                  "PubMed": "99100103"
+                },
+                "title": "Synthetic a reference 20",
+                "year": 2015
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000015",
+                "externalIds": {
+                  "MAG": "9000000021",
+                  "PubMedCentral": "9900021",
+                  "DOI": "10.1234/SYNTHETIC.A.21",
+                  "CorpusId": 900000021,
+                  "PubMed": "99100100"
+                },
+                "title": "合成 synthetic a reference 21",
+                "year": 2015
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 22.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn",
+                "Synthetic context 22.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic f"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000016",
+                "externalIds": {
+                  "MAG": "9000000022",
+                  "DOI": "10.1234/SYNTHETIC.A.22",
+                  "CorpusId": 900000022,
+                  "PubMed": "99100099"
+                },
+                "title": "Synthetic a reference 22",
+                "year": 2015
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000017",
+                "externalIds": {
+                  "MAG": "9000000023",
+                  "PubMedCentral": "9900023",
+                  "DOI": "10.1234/synthetic.a.23",
+                  "CorpusId": 900000023,
+                  "PubMed": "99100097"
+                },
+                "title": "Synthetic a reference 23",
+                "year": 2015
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 24.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000018",
+                "externalIds": {
+                  "PubMedCentral": "9900024",
+                  "MAG": "9000000024",
+                  "DOI": "10.1234/SYNTHETIC.A.24",
+                  "CorpusId": 900000024,
+                  "PubMed": "99100096"
+                },
+                "title": "Synthetic a reference 24",
+                "year": 2015
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 25.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000019",
+                "externalIds": {
+                  "PubMedCentral": "9900025",
+                  "MAG": "9000000025",
+                  "DOI": "10.1234/synthetic.a.25",
+                  "CorpusId": 900000025,
+                  "PubMed": "99100095"
+                },
+                "title": "Synthetic a reference 25",
+                "year": 2014
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 26.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000001a",
+                "externalIds": {
+                  "PubMedCentral": "9900026",
+                  "MAG": "9000000026",
+                  "DOI": "10.1234/SYNTHETIC.A.26",
+                  "CorpusId": 900000026,
+                  "PubMed": "99100090"
+                },
+                "title": "Synthetic a reference 26",
+                "year": 2013
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 27.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill",
+                "Synthetic context 27.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000001b",
+                "externalIds": {
+                  "MAG": "9000000027",
+                  "DOI": "10.1234/SYNTHETIC.A.27",
+                  "CorpusId": 900000027,
+                  "PubMed": "99100088"
+                },
+                "title": "Synthetic a reference 27",
+                "year": 2013
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000001c",
+                "externalIds": {
+                  "PubMedCentral": "9900028",
+                  "MAG": "9000000028",
+                  "DOI": "10.1234/SYNTHETIC.A.28",
+                  "CorpusId": 900000028,
+                  "PubMed": "99100089"
+                },
+                "title": "Synthetic a reference 28",
+                "year": 2013
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 29.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi",
+                "Synthetic context 29.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi",
+                "Synthetic context 29.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic ",
+                "Synthetic context 29.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000001d",
+                "externalIds": {
+                  "PubMedCentral": "9900029",
+                  "MAG": "9000000029",
+                  "DOI": "10.1234/synthetic.a.29",
+                  "CorpusId": 900000029,
+                  "PubMed": "99100087"
+                },
+                "title": "Synthetic a reference 29",
+                "year": 2013
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000001e",
+                "externalIds": {
+                  "MAG": "9000000030",
+                  "DOI": "10.1234/synthetic.a.30",
+                  "CorpusId": 900000030,
+                  "PubMed": "99100084"
+                },
+                "title": "Synthetic a reference 30",
+                "year": 2013
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 31.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler",
+                "Synthetic context 31.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000001f",
+                "externalIds": {
+                  "MAG": "9000000031",
+                  "PubMedCentral": "9900031",
+                  "DOI": "10.1234/synthetic.a.31",
+                  "CorpusId": 900000031,
+                  "PubMed": "99100086"
+                },
+                "title": "Synthetic a reference 31",
+                "year": 2013
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000020",
+                "externalIds": {
+                  "MAG": "9000000032",
+                  "DOI": "10.1234/SYNTHETIC.A.32",
+                  "CorpusId": 900000032,
+                  "PubMed": "99100083"
+                },
+                "title": "Synthetic a reference 32",
+                "year": 2012
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 33.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text ",
+                "Synthetic context 33.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti",
+                "Synthetic context 33.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler ",
+                "Synthetic context 33.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler te",
+                "Synthetic context 33.5. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text ",
+                "Synthetic context 33.6. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn",
+                "Synthetic context 33.7. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synth",
+                "Synthetic context 33.8. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill",
+                "Synthetic context 33.9. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic ",
+                "Synthetic context 33.10. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background",
+                "result"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000021",
+                "externalIds": {
+                  "MAG": "9000000033",
+                  "DOI": "10.1234/synthetic.a.33",
+                  "CorpusId": 900000033,
+                  "PubMed": "99100078"
+                },
+                "title": "Synthetic a reference 33",
+                "year": 2012
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 34.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthet"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000022",
+                "externalIds": {
+                  "MAG": "9000000034",
+                  "DOI": "10.1234/SYNTHETIC.A.34",
+                  "CorpusId": 900000034,
+                  "PubMed": "99100080"
+                },
+                "title": "Synthetic a reference 34",
+                "year": 2012
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 35.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synt"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000023",
+                "externalIds": {
+                  "MAG": "9000000035",
+                  "PubMedCentral": "9900035",
+                  "DOI": "10.1234/synthetic.a.35",
+                  "CorpusId": 900000035,
+                  "PubMed": "99100081"
+                },
+                "title": "Synthetic a reference 35",
+                "year": 2012
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 36.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi",
+                "Synthetic context 36.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000024",
+                "externalIds": {
+                  "MAG": "9000000036",
+                  "PubMedCentral": "9900036",
+                  "DOI": "10.1234/synthetic.a.36",
+                  "CorpusId": 900000036,
+                  "PubMed": "99100079"
+                },
+                "title": "Synthetic a reference 36",
+                "year": 2012
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 37.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler t"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000025",
+                "externalIds": {
+                  "PubMedCentral": "9900037",
+                  "MAG": "9000000037",
+                  "DOI": "10.1234/SYNTHETIC.A.37",
+                  "CorpusId": 900000037,
+                  "PubMed": "99100077"
+                },
+                "title": "Synthetic a reference 37",
+                "year": 2012
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 38.1. synthetic filler text synthetic filler text synthetic filler text synthe",
+                "Synthetic context 38.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fille"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000026",
+                "externalIds": {
+                  "MAG": "9000000038",
+                  "PubMedCentral": "9900038",
+                  "DOI": "10.1234/SYNTHETIC.A.38",
+                  "CorpusId": 900000038,
+                  "PubMed": "99100076"
+                },
+                "title": "Synthetic a reference 38",
+                "year": 2011
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000027",
+                "externalIds": {
+                  "MAG": "9000000039",
+                  "DOI": "10.1234/synthetic.a.39",
+                  "CorpusId": 900000039,
+                  "PubMed": "99100074"
+                },
+                "title": "Synthetic a reference 39",
+                "year": 2011
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 40.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000028",
+                "externalIds": {
+                  "MAG": "9000000040",
+                  "DOI": "10.1234/synthetic.a.40",
+                  "CorpusId": 900000040,
+                  "PubMed": "99100073"
+                },
+                "title": "Synthetic a reference 40",
+                "year": 2011
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 41.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000029",
+                "externalIds": {
+                  "MAG": "9000000041",
+                  "DOI": "10.1234/synthetic.a.41",
+                  "CorpusId": 900000041,
+                  "PubMed": "99100072"
+                },
+                "title": "Synthetic a reference 41",
+                "year": 2011
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 42.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn",
+                "Synthetic context 42.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000002a",
+                "externalIds": {
+                  "MAG": "9000000042",
+                  "PubMedCentral": "9900042",
+                  "DOI": "10.1234/synthetic.a.42",
+                  "CorpusId": 900000042,
+                  "PubMed": "99100071"
+                },
+                "title": "Synthetic a reference 42",
+                "year": 2011
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 43.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler te"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000002b",
+                "externalIds": {
+                  "MAG": "9000000043",
+                  "DOI": "10.1234/synthetic.a.43",
+                  "CorpusId": 900000043,
+                  "PubMed": "99100069"
+                },
+                "title": "Synthetic a reference 43",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000002c",
+                "externalIds": {
+                  "MAG": "9000000044",
+                  "DOI": "10.1234/synthetic.a.44",
+                  "CorpusId": 900000044,
+                  "PubMed": "99100065"
+                },
+                "title": "Synthetic a reference 44",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 45.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000002d",
+                "externalIds": {
+                  "MAG": "9000000045",
+                  "PubMedCentral": "9900045",
+                  "DOI": "10.1234/synthetic.a.45",
+                  "CorpusId": 900000045,
+                  "PubMed": "99100066"
+                },
+                "title": "合成 synthetic a reference 45",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 46.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000002e",
+                "externalIds": {
+                  "MAG": "9000000046",
+                  "PubMedCentral": "9900046",
+                  "DOI": "10.1234/synthetic.a.46",
+                  "CorpusId": 900000046,
+                  "PubMed": "99100067"
+                },
+                "title": "Synthetic a reference 46",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000002f",
+                "externalIds": {
+                  "PubMedCentral": "9900047",
+                  "MAG": "9000000047",
+                  "DOI": "10.1234/synthetic.a.47",
+                  "CorpusId": 900000047,
+                  "PubMed": "99100064"
+                },
+                "title": "Synthetic a reference 47",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 48.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text sy",
+                "Synthetic context 48.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000030",
+                "externalIds": {
+                  "MAG": "9000000048",
+                  "DOI": "10.1234/synthetic.a.48",
+                  "CorpusId": 900000048,
+                  "PubMed": "99100052"
+                },
+                "title": "Synthetic a reference 48",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 49.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthe",
+                "Synthetic context 49.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000031",
+                "externalIds": {
+                  "MAG": "9000000049",
+                  "DOI": "10.1234/synthetic.a.49",
+                  "CorpusId": 900000049,
+                  "PubMed": "99100063"
+                },
+                "title": "Synthetic a reference 49",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 50.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000032",
+                "externalIds": {
+                  "PubMedCentral": "9900050",
+                  "MAG": "9000000050",
+                  "DOI": "10.1234/synthetic.a.50",
+                  "CorpusId": 900000050,
+                  "PubMed": "99100061"
+                },
+                "title": "Synthetic a reference 50",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 51.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fille",
+                "Synthetic context 51.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text",
+                "Synthetic context 51.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill",
+                "Synthetic context 51.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn",
+                "Synthetic context 51.5. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn",
+                "Synthetic context 51.6. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000033",
+                "externalIds": {
+                  "PubMedCentral": "9900051",
+                  "MAG": "9000000051",
+                  "DOI": "10.1234/synthetic.a.51",
+                  "CorpusId": 900000051,
+                  "PubMed": "99100062"
+                },
+                "title": "Synthetic a reference 51",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000034",
+                "externalIds": {
+                  "MAG": "9000000052",
+                  "DOI": "10.1234/synthetic.a.52",
+                  "CorpusId": 900000052,
+                  "PubMed": "99100057"
+                },
+                "title": "Synthetic a reference 52",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 53.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler te",
+                "Synthetic context 53.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000035",
+                "externalIds": {
+                  "MAG": "9000000053",
+                  "DOI": "10.1234/synthetic.a.53",
+                  "CorpusId": 900000053,
+                  "PubMed": "99100059"
+                },
+                "title": "Synthetic a reference 53",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 54.1. synthetic filler text synthetic",
+                "Synthetic context 54.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic ",
+                "Synthetic context 54.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000036",
+                "externalIds": {
+                  "MAG": "9000000054",
+                  "DOI": "10.1234/synthetic.a.54",
+                  "CorpusId": 900000054,
+                  "PubMed": "99100060"
+                },
+                "title": "Synthetic a reference 54",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000037",
+                "externalIds": {
+                  "MAG": "9000000055",
+                  "DOI": "10.1234/synthetic.a.55",
+                  "CorpusId": 900000055,
+                  "PubMed": "99100054"
+                },
+                "title": "Synthetic a reference 55",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 56.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti",
+                "Synthetic context 56.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill",
+                "Synthetic context 56.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text",
+                "Synthetic context 56.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill",
+                "Synthetic context 56.5. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic ",
+                "Synthetic context 56.6. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000038",
+                "externalIds": {
+                  "MAG": "9000000056",
+                  "PubMedCentral": "9900056",
+                  "DOI": "10.1234/synthetic.a.56",
+                  "CorpusId": 900000056,
+                  "PubMed": "99100055"
+                },
+                "title": "Synthetic a reference 56",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 57.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler tex",
+                "Synthetic context 57.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synth",
+                "Synthetic context 57.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text sy"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000039",
+                "externalIds": {
+                  "MAG": "9000000057",
+                  "DOI": "10.1234/synthetic.a.57",
+                  "CorpusId": 900000057,
+                  "PubMed": "99100053"
+                },
+                "title": "Synthetic a reference 57",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000003a",
+                "externalIds": {
+                  "MAG": "9000000058",
+                  "DOI": "10.1234/synthetic.a.58",
+                  "CorpusId": 900000058,
+                  "PubMed": "99100051"
+                },
+                "title": "Synthetic a reference 58",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000003b",
+                "externalIds": {
+                  "MAG": "9000000059",
+                  "DOI": "10.1234/synthetic.a.59",
+                  "CorpusId": 900000059,
+                  "PubMed": "99100048"
+                },
+                "title": "Synthetic a reference 59",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000003c",
+                "externalIds": {
+                  "MAG": "9000000060",
+                  "DOI": "10.1234/synthetic.a.60",
+                  "CorpusId": 900000060,
+                  "PubMed": "99100049"
+                },
+                "title": "Synthetic a reference 60",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 61.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text sy"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000003d",
+                "externalIds": {
+                  "MAG": "9000000061",
+                  "DOI": "10.1234/synthetic.a.61",
+                  "CorpusId": 900000061,
+                  "PubMed": "99100050"
+                },
+                "title": "Synthetic a reference 61",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 62.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synt"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000003e",
+                "externalIds": {
+                  "MAG": "9000000062",
+                  "PubMedCentral": "9900062",
+                  "DOI": "10.1234/synthetic.a.62",
+                  "CorpusId": 900000062,
+                  "PubMed": "99100046"
+                },
+                "title": "Synthetic a reference 62",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000003f",
+                "externalIds": {
+                  "MAG": "9000000063",
+                  "DOI": "10.1234/synthetic.a.63",
+                  "CorpusId": 900000063,
+                  "PubMed": "99100044"
+                },
+                "title": "Synthetic a reference 63",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 64.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler",
+                "Synthetic context 64.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text",
+                "Synthetic context 64.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fille",
+                "Synthetic context 64.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthet"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000040",
+                "externalIds": {
+                  "PubMedCentral": "9900064",
+                  "MAG": "9000000064",
+                  "DOI": "10.1234/synthetic.a.64",
+                  "CorpusId": 900000064,
+                  "PubMed": "99100045"
+                },
+                "title": "Synthetic a reference 64",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 65.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000041",
+                "externalIds": {
+                  "MAG": "9000000065",
+                  "DOI": "10.1234/synthetic.a.65",
+                  "CorpusId": 900000065,
+                  "PubMed": "99100042"
+                },
+                "title": "Synthetic a reference 65",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 66.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synth"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000042",
+                "externalIds": {
+                  "MAG": "9000000066",
+                  "DOI": "10.1234/synthetic.a.66",
+                  "CorpusId": 900000066,
+                  "PubMed": "99100043"
+                },
+                "title": "Synthetic a reference 66",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000043",
+                "externalIds": {
+                  "MAG": "9000000067",
+                  "DOI": "10.1234/synthetic.a.67",
+                  "CorpusId": 900000067,
+                  "PubMed": "99100038"
+                },
+                "title": "Synthetic a reference 67",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 68.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text",
+                "Synthetic context 68.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synth",
+                "Synthetic context 68.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text ",
+                "Synthetic context 68.4. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn",
+                "Synthetic context 68.5. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil",
+                "Synthetic context 68.6. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler te",
+                "Synthetic context 68.7. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthet",
+                "Synthetic context 68.8. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill",
+                "Synthetic context 68.9. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler te",
+                "Synthetic context 68.10. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler "
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000044",
+                "externalIds": {
+                  "MAG": "9000000068",
+                  "PubMedCentral": "9900068",
+                  "DOI": "10.1234/SYNTHETIC.A.68",
+                  "CorpusId": 900000068,
+                  "PubMed": "99100040"
+                },
+                "title": "Synthetic a reference 68",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000045",
+                "externalIds": {
+                  "MAG": "9000000069",
+                  "PubMedCentral": "9900069",
+                  "DOI": "10.1234/synthetic.a.69",
+                  "CorpusId": 900000069,
+                  "PubMed": "99100039"
+                },
+                "title": "Synthetic a reference 69",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 70.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler t",
+                "Synthetic context 70.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000046",
+                "externalIds": {
+                  "MAG": "9000000070",
+                  "PubMedCentral": "9900070",
+                  "DOI": "10.1234/synthetic.a.70",
+                  "CorpusId": 900000070,
+                  "PubMed": "99100037"
+                },
+                "title": "Synthetic a reference 70",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000047",
+                "externalIds": {
+                  "MAG": "9000000071",
+                  "DOI": "10.1234/synthetic.a.71",
+                  "CorpusId": 900000071,
+                  "PubMed": "99100056"
+                },
+                "title": "Synthetic a reference 71",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 72.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000048",
+                "externalIds": {
+                  "MAG": "9000000072",
+                  "DOI": "10.1234/SYNTHETIC.A.72",
+                  "CorpusId": 900000072,
+                  "PubMed": "99100036"
+                },
+                "title": "Synthetic a reference 72",
+                "year": 2008
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000049",
+                "externalIds": {
+                  "MAG": "9000000073",
+                  "DOI": "10.1234/SYNTHETIC.A.73",
+                  "CorpusId": 900000073,
+                  "PubMed": "99100035"
+                },
+                "title": "Synthetic a reference 73",
+                "year": 2007
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000004a",
+                "externalIds": {
+                  "MAG": "9000000074",
+                  "DOI": "10.1234/synthetic.a.74",
+                  "CorpusId": 900000074,
+                  "PubMed": "17611497"
+                },
+                "title": "Synthetic a reference 74",
+                "year": 2007
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000004b",
+                "externalIds": {
+                  "MAG": "9000000075",
+                  "DOI": "10.1234/synthetic.a.75",
+                  "CorpusId": 900000075,
+                  "PubMed": "99100034"
+                },
+                "title": "Synthetic a reference 75",
+                "year": 2007
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 76.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthe"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000004c",
+                "externalIds": {
+                  "MAG": "9000000076",
+                  "DOI": "10.1234/SYNTHETIC.A.76",
+                  "CorpusId": 900000076,
+                  "PubMed": "99100033"
+                },
+                "title": "Synthetic a reference 76",
+                "year": 2007
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 77.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000004d",
+                "externalIds": {
+                  "PubMedCentral": "9900077",
+                  "MAG": "9000000077",
+                  "DOI": "10.1234/synthetic.a.77",
+                  "CorpusId": 900000077,
+                  "PubMed": "99100031"
+                },
+                "title": "Synthetic a reference 77",
+                "year": 2007
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 78.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi",
+                "Synthetic context 78.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler te",
+                "Synthetic context 78.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000004e",
+                "externalIds": {
+                  "MAG": "9000000078",
+                  "DOI": "10.1234/synthetic.a.78",
+                  "CorpusId": 900000078,
+                  "PubMed": "99100030"
+                },
+                "title": "Synthetic a reference 78",
+                "year": 2006
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 79.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000004f",
+                "externalIds": {
+                  "MAG": "9000000079",
+                  "DOI": "10.1234/SYNTHETIC.A.79",
+                  "CorpusId": 900000079,
+                  "PubMed": "99100029"
+                },
+                "title": "Synthetic a reference 79",
+                "year": 2006
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 80.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000050",
+                "externalIds": {
+                  "MAG": "9000000080",
+                  "DOI": "10.1234/synthetic.a.80",
+                  "CorpusId": 900000080,
+                  "PubMed": "99100028"
+                },
+                "title": "Synthetic a reference 80",
+                "year": 2005
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 81.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fille",
+                "Synthetic context 81.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synt",
+                "Synthetic context 81.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000051",
+                "externalIds": {
+                  "MAG": "9000000081",
+                  "DOI": "10.1234/SYNTHETIC.A.81",
+                  "CorpusId": 900000081,
+                  "PubMed": "99100027"
+                },
+                "title": "Synthetic a reference 81",
+                "year": 2005
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 82.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000052",
+                "externalIds": {
+                  "MAG": "9000000082",
+                  "DOI": "10.1234/synthetic.a.82",
+                  "CorpusId": 900000082,
+                  "PubMed": "99100026"
+                },
+                "title": "Synthetic a reference 82",
+                "year": 2005
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 83.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synt"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000053",
+                "externalIds": {
+                  "MAG": "9000000083",
+                  "DOI": "10.1234/synthetic.a.83",
+                  "CorpusId": 900000083,
+                  "PubMed": "99100025"
+                },
+                "title": "Synthetic a reference 83",
+                "year": 2005
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 84.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000054",
+                "externalIds": {
+                  "MAG": "9000000084",
+                  "DOI": "10.1234/synthetic.a.84",
+                  "CorpusId": 900000084,
+                  "PubMed": "99100024"
+                },
+                "title": "合成 synthetic a reference 84",
+                "year": 2005
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 85.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000055",
+                "externalIds": {
+                  "MAG": "9000000085",
+                  "DOI": "10.1234/SYNTHETIC.A.85",
+                  "CorpusId": 900000085,
+                  "PubMed": "99100023"
+                },
+                "title": "Synthetic a reference 85",
+                "year": 2005
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 86.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler",
+                "Synthetic context 86.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000056",
+                "externalIds": {
+                  "MAG": "9000000086",
+                  "DOI": "10.1234/SYNTHETIC.A.86",
+                  "CorpusId": 900000086,
+                  "PubMed": "99100022"
+                },
+                "title": "Synthetic a reference 86",
+                "year": 2004
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000057",
+                "externalIds": {
+                  "MAG": "9000000087",
+                  "DOI": "10.1234/synthetic.a.87",
+                  "CorpusId": 900000087,
+                  "PubMed": "99100021"
+                },
+                "title": "Synthetic a reference 87",
+                "year": 2004
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 88.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fill"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000058",
+                "externalIds": {
+                  "MAG": "9000000088",
+                  "DOI": "10.1234/SYNTHETIC.A.88",
+                  "CorpusId": 900000088,
+                  "PubMed": "99100017"
+                },
+                "title": "Synthetic a reference 88",
+                "year": 2004
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000059",
+                "externalIds": {
+                  "MAG": "9000000089",
+                  "DOI": "10.1234/SYNTHETIC.A.89",
+                  "CorpusId": 900000089,
+                  "PubMed": "99100020"
+                },
+                "title": "Synthetic a reference 89",
+                "year": 2004
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 90.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000005a",
+                "externalIds": {
+                  "MAG": "9000000090",
+                  "PubMedCentral": "9900090",
+                  "DOI": "10.1234/synthetic.a.90",
+                  "CorpusId": 900000090,
+                  "PubMed": "99100018"
+                },
+                "title": "Synthetic a reference 90",
+                "year": 2004
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 91.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syn"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000005b",
+                "externalIds": {
+                  "MAG": "9000000091",
+                  "DOI": "10.1234/SYNTHETIC.A.91",
+                  "CorpusId": 900000091,
+                  "PubMed": "99100015"
+                },
+                "title": "Synthetic a reference 91",
+                "year": 2003
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 92.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler t"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000005c",
+                "externalIds": {
+                  "MAG": "9000000092",
+                  "DOI": "10.1234/synthetic.a.92",
+                  "CorpusId": 900000092,
+                  "PubMed": "99100012"
+                },
+                "title": "Synthetic a reference 92",
+                "year": 2002
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 93.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler t"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000005d",
+                "externalIds": {
+                  "MAG": "9000000093",
+                  "DOI": "10.1234/synthetic.a.93",
+                  "CorpusId": 900000093,
+                  "PubMed": "99100014"
+                },
+                "title": "Synthetic a reference 93",
+                "year": 2002
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 94.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000005e",
+                "externalIds": {
+                  "MAG": "9000000094",
+                  "DOI": "10.1234/synthetic.a.94",
+                  "CorpusId": 900000094,
+                  "PubMed": "99100011"
+                },
+                "title": "Synthetic a reference 94",
+                "year": 2002
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 95.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text sy"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "result"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000005f",
+                "externalIds": {
+                  "MAG": "9000000095",
+                  "DOI": "10.1234/SYNTHETIC.A.95",
+                  "CorpusId": 900000095,
+                  "PubMed": "99100010"
+                },
+                "title": "Synthetic a reference 95",
+                "year": 2002
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 96.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synth",
+                "Synthetic context 96.2. synthetic filler text synthetic filler text synthetic filler text synt"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000060",
+                "externalIds": {
+                  "MAG": "9000000096",
+                  "DOI": "10.1234/synthetic.a.96",
+                  "CorpusId": 900000096,
+                  "PubMed": "99100008"
+                },
+                "title": "Synthetic a reference 96",
+                "year": 2002
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 97.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text",
+                "Synthetic context 97.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler t"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000061",
+                "externalIds": {
+                  "MAG": "9000000097",
+                  "DOI": "10.1234/synthetic.a.97",
+                  "CorpusId": 900000097,
+                  "PubMed": "99100009"
+                },
+                "title": "合成 synthetic a reference 97",
+                "year": 2002
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000062",
+                "externalIds": {
+                  "MAG": "9000000098",
+                  "DOI": "10.1234/SYNTHETIC.A.98",
+                  "CorpusId": 900000098,
+                  "PubMed": "99100006"
+                },
+                "title": "Synthetic a reference 98",
+                "year": 2002
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000063",
+                "externalIds": {
+                  "MAG": "9000000099",
+                  "DOI": "10.1234/synthetic.a.99",
+                  "CorpusId": 900000099,
+                  "PubMed": "99100007"
+                },
+                "title": "Synthetic a reference 99",
+                "year": 2001
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000064",
+                "externalIds": {
+                  "MAG": "9000000100",
+                  "DOI": "10.1234/SYNTHETIC.A.100",
+                  "CorpusId": 900000100,
+                  "PubMed": "99100005"
+                },
+                "title": "Synthetic a reference 100",
+                "year": 2001
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 101.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000065",
+                "externalIds": {
+                  "MAG": "9000000101",
+                  "DOI": "10.1234/SYNTHETIC.A.101",
+                  "CorpusId": 900000101,
+                  "PubMed": "99100004"
+                },
+                "title": "Synthetic a reference 101",
+                "year": 2000
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 102.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fil"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000066",
+                "externalIds": {
+                  "MAG": "9000000102",
+                  "DOI": "10.1234/SYNTHETIC.A.102",
+                  "CorpusId": 900000102,
+                  "PubMed": "99100003"
+                },
+                "title": "Synthetic a reference 102",
+                "year": 2000
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 103.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text sy"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000067",
+                "externalIds": {
+                  "MAG": "9000000103",
+                  "DOI": "10.1234/SYNTHETIC.A.103",
+                  "CorpusId": 900000103,
+                  "PubMed": "99100001"
+                },
+                "title": "Synthetic a reference 103",
+                "year": 1999
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 104.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text syntheti"
+              ],
+              "isInfluential": true,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000068",
+                "externalIds": {
+                  "MAG": "9000000104",
+                  "DOI": "10.1234/SYNTHETIC.A.104",
+                  "CorpusId": 900000104,
+                  "PubMed": "99100150"
+                },
+                "title": "Synthetic a reference 104",
+                "year": 1998
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 105.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text sy",
+                "Synthetic context 105.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synth"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000069",
+                "externalIds": {
+                  "MAG": "9000000105",
+                  "DOI": "10.1234/SYNTHETIC.A.105",
+                  "CorpusId": 900000105,
+                  "PubMed": "99100149"
+                },
+                "title": "Synthetic a reference 105",
+                "year": 1998
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 106.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text sy"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000006a",
+                "externalIds": {
+                  "MAG": "9000000106",
+                  "CorpusId": 900000106,
+                  "PubMed": "99100148"
+                },
+                "title": "Synthetic a reference 106",
+                "year": 1997
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000006b",
+                "externalIds": {
+                  "MAG": "9000000107",
+                  "DOI": "10.1234/SYNTHETIC.A.107",
+                  "CorpusId": 900000107,
+                  "PubMed": "99100147"
+                },
+                "title": "Synthetic a reference 107",
+                "year": 1995
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 108.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synt"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000006c",
+                "externalIds": {
+                  "DOI": "10.1234/SYNTHETIC.A.108",
+                  "CorpusId": 900000108,
+                  "PubMed": "99100126"
+                },
+                "title": "Synthetic a reference 108",
+                "year": 2018
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000006d",
+                "externalIds": {
+                  "MAG": "9000000109",
+                  "DOI": "10.1234/synthetic.a.109",
+                  "CorpusId": 900000109,
+                  "PubMed": "99100075"
+                },
+                "title": "Synthetic a reference 109",
+                "year": 2012
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 110.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic ",
+                "Synthetic context 110.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000006e",
+                "externalIds": {
+                  "MAG": "9000000110",
+                  "CorpusId": 900000110
+                },
+                "title": "合成 synthetic a reference 110",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "000000000000000000000000000000000000006f",
+                "externalIds": {
+                  "MAG": "9000000111",
+                  "DOI": "10.1234/synthetic.a.111",
+                  "CorpusId": 900000111,
+                  "PubMed": "99100068"
+                },
+                "title": "Synthetic a reference 111",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 112.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text s",
+                "Synthetic context 112.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler ",
+                "Synthetic context 112.3. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fi"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000070",
+                "externalIds": {
+                  "MAG": "9000000112",
+                  "DOI": "10.1234/synthetic.a.112",
+                  "CorpusId": 900000112,
+                  "PubMed": "99100058"
+                },
+                "title": "Synthetic a reference 112",
+                "year": 2010
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 113.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text sy",
+                "Synthetic context 113.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic",
+                "Synthetic context 113.3. synthetic filler text synthetic filler text synthetic filler text s"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": null,
+                "externalIds": null,
+                "title": "Synthetic a reference 113",
+                "year": 2009
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 114.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic fille",
+                "Synthetic context 114.2. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler"
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000072",
+                "externalIds": {
+                  "MAG": "9000000114",
+                  "CorpusId": 900000114,
+                  "PubMed": "99100047"
+                },
+                "title": "Synthetic a reference 114",
+                "year": 2007
+              }
+            },
+            {
+              "contexts": [],
+              "isInfluential": false,
+              "intents": [],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000073",
+                "externalIds": {
+                  "MAG": "9000000115",
+                  "CorpusId": 900000115,
+                  "PubMed": "99100016"
+                },
+                "title": "Synthetic a reference 115",
+                "year": 2003
+              }
+            },
+            {
+              "contexts": [
+                "Synthetic context 116.1. synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler text synthetic filler "
+              ],
+              "isInfluential": false,
+              "intents": [
+                "background"
+              ],
+              "citedPaper": {
+                "paperId": "0000000000000000000000000000000000000074",
+                "externalIds": {
+                  "MAG": "9000000116",
+                  "DOI": "10.1234/synthetic.a.116",
+                  "CorpusId": 900000116,
+                  "PubMed": "99100013"
+                },
+                "title": "Synthetic a reference 116",
+                "year": 2002
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

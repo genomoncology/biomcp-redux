@@ -1,0 +1,115 @@
+{
+  "feature": "variant-identity",
+  "live_check": "public",
+  "story": "ClinVar's per-submitter records arrive alone, with their own total, when a caller asks for one record kind",
+  "replay": "variant/assertions/clinvar-kind",
+  "verified": "ClinVar is public NCBI data. Live efetch reply for Variation 37636 (BRCA1 R1699Q, VCV000037636.161) recorded 2026-11-16 by biomcp --record in job j42016. The reply holds 1 VCV, 13 RCV and 58 SCV rows; one SCV label maps to no common statement, so its record sits under unmapped.attribution.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:37636",
+        "--source",
+        "clinvar",
+        "--kind",
+        "scv",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/kind": "scv",
+        "/result/page/total": 58,
+        "/result/page/returned": 50,
+        "/result/assertions/0/kind": "scv",
+        "/result/assertions/49/kind": "scv",
+        "/result/next/kind": "scv",
+        "/result/next/offset": 50
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:37636",
+        "--source",
+        "clinvar",
+        "--kind",
+        "scv",
+        "--limit",
+        "50",
+        "--offset",
+        "50"
+      ],
+      "expect": {
+        "/result/page/total": 58,
+        "/result/page/returned": 8,
+        "/result/assertions/7/kind": "scv"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:37636",
+        "--source",
+        "clinvar",
+        "--kind",
+        "rcv",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/result/page/total": 13,
+        "/result/assertions/0/kind": "rcv"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:37636",
+        "--source",
+        "clinvar"
+      ],
+      "expect": {
+        "/result/page/total": 72,
+        "/result/assertions/0/kind": "vcv"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "clinvar:37636",
+        "clinvar",
+        "--clinvar-kind",
+        "scv",
+        "--section-limit",
+        "50"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/clinvar/data/page/total": 58,
+        "/result/candidates/0/sections/clinvar/data/assertions/0/kind": "scv",
+        "/result/candidates/0/sections/clinvar/data/next/kind": "scv"
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:37636",
+        "--source",
+        "erepo",
+        "--kind",
+        "scv"
+      ],
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--kind"
+      }
+    }
+  ]
+}

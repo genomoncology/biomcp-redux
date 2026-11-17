@@ -41,7 +41,6 @@ pub use predictor::{
     VariantCosmic, VariantPredictors,
 };
 pub use query::PhaseFilter;
-pub use query::SponsorType;
 pub use query::TrialDocumentGet;
 pub use query::{ArticleEdges, EdgeSource};
 pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
@@ -52,7 +51,8 @@ pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use query::{COMMANDS, CommandSpec, Rewrite, command_paths};
 pub use query::{
-    CivicClaimKind, CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceStatus, VariantSection,
+    CivicClaimKind, CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceSignificance,
+    CivicEvidenceStatus, VariantSection,
 };
 pub use query::{GeneGet, GeneSearch, GeneSection, GeneSectionWord, Request};
 pub use query::{
@@ -68,13 +68,14 @@ pub use query::{
     NormalizationSource, VariantGet, VariantGetEcho, VariantNormalize, VariantResolver,
 };
 pub use query::{RecurrenceSource, VariantRecurrenceQuery};
+pub use query::{SponsorRole, SponsorType};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
 pub use query::{VariantPopulationQuery, VariantPopulationQueryEcho};
 pub use response::TrialParameter;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
-pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
+pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations, EdgeOrder};
 pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
@@ -164,7 +165,7 @@ pub use response::{GeneHeader, GeneResolution, Match};
 
 pub use response::TrialHeader;
 
-pub use query::{AssertionId, AssertionSource, VariantAssertionsGet};
+pub use query::{AssertionId, AssertionSource, ClinvarRecordKind, VariantAssertionsGet};
 pub use response::{
     AssertionAssessment, AssertionCondition, AssertionConditionRelationship, AssertionDetail,
     AssertionDocument, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion,

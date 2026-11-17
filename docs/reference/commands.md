@@ -400,7 +400,7 @@ Arguments:
 
 Options:
       --disease <disease>
-          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma).
+          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -458,7 +458,7 @@ Options:
 Search cell lines by name or identifier. Sources: cellosaurus.
 Options apply to every listed source unless their description restricts them.
 
-- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma). Value form: string; example: --disease Melanoma.
+- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases. Value form: string; example: --disease Melanoma.
 - `--exclude-derived`: Leave out lines derived from a parent line; needs another search term. Value form: boolean; example: --exclude-derived.
 - `--gene`: Cellosaurus variation gene, as the source writes it (for example KRAS). Value form: string; example: --gene KRAS.
 - `--limit`: Source page size. Value form: integer; example: --limit 25.
@@ -1681,15 +1681,19 @@ Arguments:
           Words sent to each named source in its default fields; unsupported by LitVar, which requires a variant selector.
 
 Options:
-      --author <author>
-          PubMed/Europe PMC author words.
-          PubMed and Europe PMC only: author words sent to the source's author field.
+      --affiliation <affiliation>
+          PubMed/Europe PMC affiliation words.
+          PubMed and Europe PMC only: author affiliation words, such as an institution, sent to the source's affiliation field as one phrase.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
+
+      --author <author>
+          PubMed/Europe PMC author words.
+          PubMed and Europe PMC only: author words sent to the source's author field.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -1702,17 +1706,17 @@ Options:
           Drug words.
           Available for command sources except LitVar.
 
-      --exact-term[=<exact_term>]
-          Search the typed drug term without resolving its other names.
-
-          [default: false]
-          [possible values: true, false]
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --exact-term[=<exact_term>]
+          Search the typed drug term without resolving its other names.
+
+          [default: false]
+          [possible values: true, false]
 
       --gene <gene>
           Gene symbol or ID.
@@ -1732,11 +1736,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --offset <offset>
           Number of pool items to skip.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1744,12 +1754,6 @@ Options:
       --open-access[=<open_access>]
           Source open access.
           PubMed, Europe PMC and Semantic Scholar only: require source open access; Semantic Scholar means a public PDF.
-
-          [default: false]
-          [possible values: true, false]
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1809,6 +1813,8 @@ Search research articles and biomedical papers. Sources: europepmc, litsense, li
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
+- `--affiliation`: PubMed/Europe PMC affiliation words.
+PubMed and Europe PMC only: author affiliation words, such as an institution, sent to the source's affiliation field as one phrase. Value form: string; example: --affiliation 'Dana-Farber Cancer Institute'.
 - `--author`: PubMed/Europe PMC author words.
 PubMed and Europe PMC only: author words sent to the source's author field. Value form: string; example: --author Carpten.
 - `--disease`: Disease words.
@@ -1853,7 +1859,7 @@ Form: search article TEXT; not --text.
 - `--type`: Publication type.
 PubMed and Europe PMC only: source publication-type filter. Value form: string; example: --type review.
 - `--until`: Last publication date.
-PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date. Value form: string; example: --until 2020; only with --source pubmed, europepmc or semantic-scholar.
+PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date. Value form: string; example: --until 2025; only with --source pubmed, europepmc or semantic-scholar.
 - `--variant`: Variant words. Value form: string; example: --variant rs121434592.
 - `--query`: Alias for positional article text. Value form: string; example: --query <query> (syntax; replace the placeholder with your retained value).
 
@@ -2014,7 +2020,12 @@ Options:
 
       --sponsor <sponsor>
           Sponsor.
-          ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category.
+          ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding.
+
+      --sponsor-role <sponsor_role>
+          Sponsor role; help search trial
+          Sponsor role.
+          ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor.
 
       --sponsor-type <sponsor_type>
           Funding class; help search trial
@@ -2101,7 +2112,9 @@ Form: search trial QUERY; not --query.
 - `--source`: clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 - `--sponsor`: Sponsor.
-ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string; example: --sponsor 'MD Anderson'.
+ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding. Value form: string; example: --sponsor 'MD Anderson'.
+- `--sponsor-role`: Sponsor role.
+ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor. Value form: string; example: --sponsor-role any.
 - `--sponsor-type`: Funding class.
 ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string; example: --sponsor-type other.
 - `--status`: Source status.
@@ -3252,6 +3265,12 @@ Options:
           Source CIViC evidence levels; repeat to include several levels.
           Only with --source civic on get drug, and the civic section on get variant.
 
+      --evidence-significance <evidence_significance>
+          Significance; help get drug
+          Significance
+          Source CIViC evidence significance, such as resistance or sensitivityresponse.
+          Only with --source civic on get drug, and the civic section on get variant.
+
       --evidence-status <evidence_status>
           Status; help get drug
           Status
@@ -3269,17 +3288,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --partner <partner>
-          Interaction partner.
-          A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
-          Keeps only the pairs with that drug. A name DDInter does not use is tried under the
-          names other sources state for it, as the drug itself is.
-
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --partner <partner>
+          Interaction partner.
+          A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
+          Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+          names other sources state for it, as the drug itself is.
 
       --product-number <product_number>
           FDA product number.
@@ -3318,6 +3337,9 @@ and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --sou
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
+- `--evidence-significance`: Significance
+Source CIViC evidence significance, such as resistance or sensitivityresponse.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
@@ -3611,6 +3633,11 @@ Options:
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
+      --clinvar-kind <clinvar_kind>
+          Kind; help get variant
+          Kind
+          ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all.
+
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
@@ -3628,14 +3655,17 @@ Options:
           Source CIViC evidence levels; repeat to include several levels.
           Only with --source civic on get drug, and the civic section on get variant.
 
+      --evidence-significance <evidence_significance>
+          Significance; help get variant
+          Significance
+          Source CIViC evidence significance, such as resistance or sensitivityresponse.
+          Only with --source civic on get drug, and the civic section on get variant.
+
       --evidence-status <evidence_status>
           Status; help get variant
           Status
           Source CIViC evidence status; omitted preserves the source's existing default.
           Only with --source civic on get drug, and the civic section on get variant.
-
-      --limit <limit>
-          Candidate rows per page; more remain reachable through typed next commands.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3643,14 +3673,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --offset <offset>
-          Candidate rows to skip in source order.
-
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --limit <limit>
+          Candidate rows per page; more remain reachable through typed next commands.
+
+      --offset <offset>
+          Candidate rows to skip in source order.
 
       --resolver <resolver>
           Resolver; help get variant
@@ -3680,6 +3713,8 @@ Source CIViC cursor, retained unchanged. Only with section civic or all. Value f
 - `--civic-kind`: Claims
 Source CIViC claim collection within the selected profile. Only with section civic or all. Value form: string; example: --civic-kind evidence.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Only with section civic or all. Value form: integer; example: --civic-profile 12.
+- `--clinvar-kind`: Kind
+ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
 - `--disease`: Disease
 CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
@@ -3687,6 +3722,9 @@ CIViC therapy name text; CIViC matches it natively against evidence and assertio
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
+- `--evidence-significance`: Significance
+Source CIViC evidence significance, such as resistance or sensitivityresponse.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
@@ -3699,7 +3737,7 @@ Form: get variant INPUT SECTION...; not --input.
 Resolver for reference-qualified notation; never repairs the input locally. Value form: string; example: --resolver variantvalidator.
 - `section`: Sections.
 Form: get variant INPUT SECTION...; not --section.
-- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 2.
+- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 50.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer; example: --section-offset 0.
 - `--tumor-type`: Tumor
 Explicit tumor context for keyed OncoKB annotation. Value form: string; example: --tumor-type Melanoma.
@@ -4861,6 +4899,8 @@ Options:
           Graph source; iCite remains the default; help article citations
           Graph source; iCite remains the default.
 
+          iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
@@ -4890,7 +4930,9 @@ Options apply to every listed source unless their description restricts them.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article citations PMID; not --pmid.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `--source`: Graph source; iCite remains the default. Value form: string; example: --source semantic-scholar.
+- `--source`: Graph source; iCite remains the default.
+
+iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article references
 
@@ -4926,6 +4968,8 @@ Options:
           Graph source; iCite remains the default; help article citations
           Graph source; iCite remains the default.
 
+          iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
@@ -4955,7 +4999,9 @@ Options apply to every listed source unless their description restricts them.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article references PMID; not --pmid.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `--source`: Graph source; iCite remains the default. Value form: string; example: --source semantic-scholar.
+- `--source`: Graph source; iCite remains the default.
+
+iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article citation-evidence
 
@@ -5271,17 +5317,21 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --kind <kind>
+          ClinVar record kind to keep: vcv, rcv or scv (one row; help variant assertions
+          ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar.
+
       --limit <limit>
           Assertions per page; omitted uses the source default.
-
-      --offset <offset>
-          Assertions to skip in source order.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --offset <offset>
+          Assertions to skip in source order.
 
       --source <source>
           One source assertion source; shared identity; help variant assertions
@@ -5312,8 +5362,9 @@ Options apply to every listed source unless their description restricts them.
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 Form: variant assertions INPUT; not --input.
-- `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 1.
-- `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 0.
+- `--kind`: ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar. Value form: string; example: --kind scv.
+- `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 50.
+- `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 50.
 - `--source`: One source assertion source; shared identity conversion precedes source access when needed. Value form: string; example: --source clinvar.
 - `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version. Value form: string; example: --version 1.0.0.
 

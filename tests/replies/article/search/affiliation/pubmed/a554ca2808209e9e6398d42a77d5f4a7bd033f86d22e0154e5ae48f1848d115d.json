@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=KRAS%20G12C%20AND%20%22Dana-Farber%20Cancer%20Institute%22%5Bad%5D%20AND%202023%3A2025%5Bdp%5D&sort=relevance&retmax=9999&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1794874439,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 285,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"28","retmax":"28","retstart":"0","idlist":["38589574","36546659","38402609","37611121","38052910","39215000","37831779","39637943","36945559","40680327","40632992","40716572","37378881","38870980","36751115","38579193","39693588","41325754","37384411","36809054","37589215","38213329","39039804","37223888","37327468","37279096","38902927","39915358"],"translationset":[{"from":"KRAS","to":"\"kras protein, human\"[Supplementary Concept] OR \"kras protein, human\"[All Fields] OR \"kras\"[All Fields]"}],"querytranslation":"(\"kras protein human\"[Supplementary Concept] OR \"kras protein human\"[All Fields] OR \"kras\"[All Fields]) AND \"G12C\"[All Fields] AND \"Dana-Farber Cancer Institute\"[Affiliation] AND 2023/01/01:2025/12/31[Date - Publication]"}}
+      }
+    }
+  ]
+}

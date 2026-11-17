@@ -1,10 +1,10 @@
 //! Checked command inputs shared by every interface.
 mod article;
+mod article_filter;
 mod article_get;
 mod article_supplement;
-pub use article::{
-    ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType, RetractionFilter,
-};
+pub use article::{ArticleSearch, ArticleSort, ArticleSource, ArticleType, RetractionFilter};
+pub use article_filter::ArticleFilter;
 pub use article_supplement::{ArticleSupplement, SheetRows};
 mod article_pdf;
 pub use article_pdf::ArticlePdf;
@@ -28,7 +28,9 @@ pub use article_recommend::ArticleRecommend;
 mod recurrence;
 pub use recurrence::{RecurrenceSource, VariantRecurrenceQuery};
 mod civic_filter;
-pub use civic_filter::{CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceStatus};
+pub use civic_filter::{
+    CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceSignificance, CivicEvidenceStatus,
+};
 mod variant;
 mod variant_normalize;
 pub use variant::{CivicClaimKind, VariantGet, VariantGetEcho, VariantResolver, VariantSection};
@@ -38,8 +40,8 @@ mod variant_input;
 pub use variant_input::{VariantInput, VariantNamespace};
 mod trial;
 pub use trial::{
-    NciBiomarkerUse, NciStatusFilter, PhaseFilter, SponsorType, TrialFilter, TrialPhaseFilter,
-    TrialSearch, TrialSource, TrialStatusFilter,
+    NciBiomarkerUse, NciStatusFilter, PhaseFilter, SponsorRole, SponsorType, TrialFilter,
+    TrialPhaseFilter, TrialSearch, TrialSource, TrialStatusFilter,
 };
 mod variant_terms;
 pub use variant_terms::{
@@ -63,7 +65,7 @@ pub use variant_search::{
 mod assertion_id;
 mod variant_assertions;
 pub use assertion_id::AssertionId;
-pub use variant_assertions::{AssertionSource, VariantAssertionsGet};
+pub use variant_assertions::{AssertionSource, ClinvarRecordKind, VariantAssertionsGet};
 mod variant_population;
 pub use variant_population::{VariantPopulationQuery, VariantPopulationQueryEcho};
 

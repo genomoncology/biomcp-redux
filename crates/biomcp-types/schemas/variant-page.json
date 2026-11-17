@@ -1190,6 +1190,36 @@
       ],
       "type": "string"
     },
+    "Reply_CivicEvidenceSignificance": {
+      "description": "Native CIViC evidence significance, from the live EvidenceSignificance enum.",
+      "enum": [
+        "sensitivityresponse",
+        "resistance",
+        "better_outcome",
+        "poor_outcome",
+        "positive",
+        "negative",
+        "na",
+        "adverse_response",
+        "pathogenic",
+        "likely_pathogenic",
+        "benign",
+        "likely_benign",
+        "uncertain_significance",
+        "reduced_sensitivity",
+        "gain_of_function",
+        "loss_of_function",
+        "unaltered_function",
+        "neomorphic",
+        "unknown",
+        "dominant_negative",
+        "predisposition",
+        "protectiveness",
+        "oncogenicity",
+        "likely_oncogenic"
+      ],
+      "type": "string"
+    },
     "Reply_CivicEvidenceStatus": {
       "description": "Native CIViC evidence review status.",
       "enum": [
@@ -1686,6 +1716,15 @@
         "allele_id"
       ],
       "type": "object"
+    },
+    "Reply_ClinvarRecordKind": {
+      "description": "ClinVar record kind.",
+      "enum": [
+        "vcv",
+        "rcv",
+        "scv"
+      ],
+      "type": "string"
     },
     "Reply_ClinvarReviewStatusCode": {
       "description": "Checked ClinVar review status codes.",
@@ -7059,6 +7098,17 @@
           "description": "Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.",
           "x-positional": 0
         },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ClinvarRecordKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar."
+        },
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
           "format": "uint32",
@@ -7338,6 +7388,17 @@
             "null"
           ]
         },
+        "clinvar_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ClinvarRecordKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+        },
         "disease": {
           "anyOf": [
             {
@@ -7366,6 +7427,17 @@
             "$ref": "#/$defs/Reply_CivicEvidenceLevel"
           },
           "type": "array"
+        },
+        "evidence_significance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CivicEvidenceSignificance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Significance\nNative CIViC evidence significance, such as resistance or sensitivityresponse.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "evidence_status": {
           "anyOf": [
