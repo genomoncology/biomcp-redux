@@ -35,3 +35,9 @@ The trial-ops persona asked both in its 2026-11-10 and 2026-11-12 runs and answe
 ## Changes
 
 - Changes: the trial search query, ClinicalTrials.gov search adapter and row schema, a new site-count reply, cases and their recordings, help and one release-notes line.
+
+## Progress
+
+- Source, live 2026-11-17: `AREA[WhyStopped]("slow" AND "enrollment")` counts 646, the same as the unquoted words, so `--why-stopped` sends each word quoted and joined with AND; `fields=NCTId,LocationFacility,LocationCity,LocationCountry&pageSize=1000` returned all 49 KRAS G12D pancreatic trials (84 KB) and the first 1,000 of 5,135 pancreatic cancer trials (830 KB, 2.2 s) in one request.
+- Change: search rows carry optional `why_stopped` (the same unescaped text the card shows), because the search `fields` list now asks for `WhyStopped`; `--why-stopped TEXT` adds `AREA[WhyStopped](...)`. `--site-count` reads the match 1,000 trials a page, up to 5 pages (5,000 trials), counts each facility, city and country once per trial with names exactly as registered, and returns the `--limit` most as optional `site_counts` on the trial page (`trials_matched`, `trials_read`, `facilities_total`, `facilities`), with no rows; the attribution says names are never merged. It refuses `--count-only` and `--next-page`. NCI refuses both options as unsupported filters. Schema change is additive: two optional query fields, one optional row field, one optional page field, two new filter names.
+- Recordings: the 128 existing search recordings were re-keyed for the new field list (bodies unchanged); new live recordings from job j42492 back `tests/cases/trial/why-stopped.yaml` and `tests/cases/trial/site-count.yaml`, whose values match the ticket's live counts (MGH 9, Moffitt 7, MD Anderson 6). Both cases fail on the base commit, where the options are unknown.

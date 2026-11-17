@@ -109,7 +109,8 @@ pub fn site_count(
         };
         params.insert("pageToken".into(), token.as_str().into());
     }
-    let matched = matched.ok_or_else(|| biomcp_fetch::bad_reply(Source::ClinicalTrialsGov, Some(200)))?;
+    let matched =
+        matched.ok_or_else(|| biomcp_fetch::bad_reply(Source::ClinicalTrialsGov, Some(200)))?;
     let facilities_total = counts.len() as u64;
     let mut rows: Vec<_> = counts.into_iter().collect();
     // The key order already sorts by name, city and country; a stable sort keeps it within a count.

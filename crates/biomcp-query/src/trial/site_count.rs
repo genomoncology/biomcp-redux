@@ -26,7 +26,8 @@ pub(super) fn count<'a>(
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     let missing = error.is_some() || source.state == biomcp_types::SourceState::Stale;
-    let (found, identity_failed, unavailable) = super::item_state(earlier, counted.is_ok(), missing);
+    let (found, identity_failed, unavailable) =
+        super::item_state(earlier, counted.is_ok(), missing);
     status::item(outcome, found, identity_failed, unavailable);
     if let Ok(counts) = &counted {
         source.count = Some(counts.trials_matched);

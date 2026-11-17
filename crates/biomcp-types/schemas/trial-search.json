@@ -556,6 +556,10 @@
       "$ref": "#/$defs/TrialSex",
       "description": "ClinicalTrials.gov only: registry sex facet; help search trial\nClinicalTrials.gov only: registry sex facet."
     },
+    "site_count": {
+      "description": "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged.",
+      "type": "boolean"
+    },
     "source": {
       "$ref": "#/$defs/TrialSource",
       "description": "clinicaltrials/nci; help search trial\nclinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
@@ -591,6 +595,10 @@
     "variant": {
       "$ref": "#/$defs/Text",
       "description": "Variant text.\nClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment."
+    },
+    "why_stopped": {
+      "$ref": "#/$defs/Text",
+      "description": "Stop words.\nClinicalTrials.gov only: keep trials whose registry stop reason contains every word. Each row carries why_stopped."
     }
   },
   "title": "TrialSearch",

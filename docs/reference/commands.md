@@ -2014,6 +2014,13 @@ Options:
           ClinicalTrials.gov only: registry sex facet; help search trial
           ClinicalTrials.gov only: registry sex facet.
 
+      --site-count[=<site_count>]
+          Site count.
+          ClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged.
+
+          [default: false]
+          [possible values: true, false]
+
       --source <source>
           clinicaltrials/nci; help search trial
           clinicaltrials/nci.
@@ -2054,6 +2061,10 @@ Options:
       --variant <variant>
           Variant text.
           ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment.
+
+      --why-stopped <why_stopped>
+          Stop words.
+          ClinicalTrials.gov only: keep trials whose registry stop reason contains every word. Each row carries why_stopped.
 
 ```
 
@@ -2110,6 +2121,8 @@ Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2
 General registry discovery text.
 Form: search trial QUERY; not --query.
 - `--sex`: ClinicalTrials.gov only: registry sex facet. Value form: string; example: --sex ALL.
+- `--site-count`: Site count.
+ClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged. Value form: boolean; example: --site-count.
 - `--source`: clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 - `--sponsor`: Sponsor.
@@ -2128,6 +2141,8 @@ ClinicalTrials.gov only: first included registry update date. Value form: string
 ClinicalTrials.gov only: last included registry update date. Value form: string; example: --updated-until <updated-until> (syntax; replace the placeholder with your retained value).
 - `--variant`: Variant text.
 ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment. Value form: string; example: --variant V600E.
+- `--why-stopped`: Stop words.
+ClinicalTrials.gov only: keep trials whose registry stop reason contains every word. Each row carries why_stopped. Value form: string; example: --why-stopped <why-stopped> (syntax; replace the placeholder with your retained value).
 
 ## biomcp search variant
 

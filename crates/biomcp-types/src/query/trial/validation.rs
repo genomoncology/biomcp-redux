@@ -62,8 +62,7 @@ fn validate_counts(f: &Fields) -> Result<(), QueryInvalid> {
     if f.site_count && f.next_page.is_some() {
         return Err(QueryInvalid::new(&["site_count", "next_page"]));
     }
-    if f
-        .why_stopped
+    if f.why_stopped
         .as_ref()
         .is_some_and(|text| super::words(text.as_str()).is_empty())
     {

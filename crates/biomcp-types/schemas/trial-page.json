@@ -1933,6 +1933,13 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Publisher's canonical record URL.",
           "format": "uri"
+        },
+        "why_stopped": {
+          "description": "Registry reason the trial stopped early, absent when the registry gives none.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -1975,6 +1982,17 @@
             "$ref": "#/$defs/Reply_TrialHeader"
           },
           "type": "array"
+        },
+        "site_counts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialSiteCounts"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "With --site-count, in place of rows: facilities in the most matched trials."
         },
         "source_updated": {
           "anyOf": [
@@ -2409,6 +2427,10 @@
           "$ref": "#/$defs/Reply_TrialSex",
           "description": "ClinicalTrials.gov only: registry sex facet."
         },
+        "site_count": {
+          "description": "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged.",
+          "type": "boolean"
+        },
         "source": {
           "$ref": "#/$defs/Reply_TrialSource",
           "description": "clinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
@@ -2444,6 +2466,10 @@
         "variant": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Variant text.\nClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment."
+        },
+        "why_stopped": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Stop words.\nClinicalTrials.gov only: keep trials whose registry stop reason contains every word. Each row carries why_stopped."
         }
       },
       "type": "object"
@@ -2456,6 +2482,77 @@
         "MALE"
       ],
       "type": "string"
+    },
+    "Reply_TrialSiteCount": {
+      "description": "One registered facility and the number of trials read that list it.",
+      "properties": {
+        "city": {
+          "description": "Site city as registered.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "country": {
+          "description": "Site country as registered.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "facility": {
+          "description": "Facility name as registered.",
+          "type": "string"
+        },
+        "trials": {
+          "description": "Trials read that list this site.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "facility",
+        "trials"
+      ],
+      "type": "object"
+    },
+    "Reply_TrialSiteCounts": {
+      "description": "Facilities counted across the matched trials read, each name exactly as the registry\nwrites it with its city and country; different spellings of one facility stay apart.",
+      "properties": {
+        "facilities": {
+          "description": "Facilities by number of trials, most first, then by name.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialSiteCount"
+          },
+          "type": "array"
+        },
+        "facilities_total": {
+          "description": "Distinct facility, city and country rows among the trials read.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "trials_matched": {
+          "description": "Registry total of matched trials.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "trials_read": {
+          "description": "Matched trials whose sites were read; fewer than matched only when the read limit stopped it.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "trials_matched",
+        "trials_read",
+        "facilities_total",
+        "facilities"
+      ],
+      "type": "object"
     },
     "Reply_TrialSource": {
       "description": "Independent trial providers; results are never folded or used as fallbacks.",
