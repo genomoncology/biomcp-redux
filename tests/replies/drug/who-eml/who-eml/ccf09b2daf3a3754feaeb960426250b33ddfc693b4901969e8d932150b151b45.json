@@ -4,10 +4,10 @@
   "url": "https://list.essentialmeds.org/recommendations/948",
   "exchanges": [
     {
-      "fetched": 1794889787,
+      "fetched": 1794891203,
       "status": 200,
       "content_type": "application/ld+json",
-      "delay_ms": 255,
+      "delay_ms": 634,
       "retry_after_ms": null,
       "body": {
         "kind": "json",

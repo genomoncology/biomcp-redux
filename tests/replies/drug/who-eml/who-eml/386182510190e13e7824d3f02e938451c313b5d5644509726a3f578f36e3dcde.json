@@ -4,10 +4,10 @@
   "url": "https://list.essentialmeds.org/medicines/128",
   "exchanges": [
     {
-      "fetched": 1794889785,
+      "fetched": 1794891201,
       "status": 200,
       "content_type": "application/ld+json",
-      "delay_ms": 194,
+      "delay_ms": 178,
       "retry_after_ms": null,
       "body": {
         "kind": "json",

@@ -167,7 +167,7 @@
           "Warfarin"
         ],
         "/next/0/args": {
-          "includes": [
+          "includes_all_of": [
             "get",
             "drug",
             "128",

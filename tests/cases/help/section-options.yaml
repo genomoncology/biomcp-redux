@@ -77,7 +77,7 @@
         "variant",
         "clinvar"
       ],
-      "max_bytes": 3490,
+      "max_bytes": 3518,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",

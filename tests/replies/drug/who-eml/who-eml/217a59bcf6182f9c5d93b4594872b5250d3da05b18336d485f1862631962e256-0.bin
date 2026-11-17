@@ -17,7 +17,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="csrf-token" content="M8RXVYxi87pWaBb7Gjq2NYLTA68fJUEZna1tlv61">
+  <meta name="csrf-token" content="VvUCM3q2IDzPqevFVs9ySxFMOk8DmdoNsbgkTA6a">
   <title>eEML - Electronic Essential Medicines List</title>
   <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
     <link rel="preload" as="style" href="https://list.essentialmeds.org/build/assets/app-CYHvG-1g.css" /><link rel="modulepreload" as="script" href="https://list.essentialmeds.org/build/assets/app-CimemzdQ.js" /><link rel="stylesheet" href="https://list.essentialmeds.org/build/assets/app-CYHvG-1g.css" /><script type="module" src="https://list.essentialmeds.org/build/assets/app-CimemzdQ.js"></script></head>
@@ -31,7 +31,7 @@
   </a>
   <form class="search-form" action="/" autocomplete="off">
   <input name="query" type="text" placeholder="Search by name/indication" autofocus
-    value="dabigatran etexilate"/>
+    value="pradaxa"/>
   <button class="icon search" type="submit">
   </button>
 </form>
@@ -43,16 +43,16 @@
       <ul class="menu-list">
                   <li>
             <label class="locale-label  active ">
-              <a href="http://list.essentialmeds.org?query=dabigatran%20etexilate&amp;ln=EN">EN</a>
+              <a href="http://list.essentialmeds.org?query=pradaxa&amp;ln=EN">EN</a>
             </label>
           </li>
                   <li>
             <label class="locale-label ">
-              <a href="http://list.essentialmeds.org?query=dabigatran%20etexilate&amp;ln=FR">FR</a>
+              <a href="http://list.essentialmeds.org?query=pradaxa&amp;ln=FR">FR</a>
             </label>
           </li>
                         <li>
-          <a class="export" href="https://list.essentialmeds.org/print?query=dabigatran%20etexilate&amp;format=pdf" target=" _blank">
+          <a class="export" href="https://list.essentialmeds.org/print?query=pradaxa&amp;format=pdf" target=" _blank">
             <span>Export</span>
           </a>
         </li>
@@ -821,7 +821,7 @@
   <div class="export-form">
     <div>
       <h2>Export</h2>
-      <form class="eml-export" method="POST" action="https://list.essentialmeds.org/print?query=dabigatran%20etexilate" target="_blank">
+      <form class="eml-export" method="POST" action="https://list.essentialmeds.org/print?query=pradaxa" target="_blank">
         <div class="export-option">
       <input class="custom-input" id="format-pdf" type="radio" name="format" value="pdf"   checked >
 <label class="custom-input-label" for="format-pdf">
@@ -960,10 +960,10 @@
   </div>
 </div>    <div class="locales">
       <div class="locale  active ">
-      <a href="http://list.essentialmeds.org?query=dabigatran%20etexilate&amp;ln=EN">EN</a>
+      <a href="http://list.essentialmeds.org?query=pradaxa&amp;ln=EN">EN</a>
     </div>
       <div class="locale ">
-      <a href="http://list.essentialmeds.org?query=dabigatran%20etexilate&amp;ln=FR">FR</a>
+      <a href="http://list.essentialmeds.org?query=pradaxa&amp;ln=FR">FR</a>
     </div>
   </div>    <h1>
       <img src="images/pill.svg" />Model List of Essential Medicines
