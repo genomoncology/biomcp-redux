@@ -65,14 +65,6 @@
       "reason": "A device-cell date that is not a real calendar day leaves the row undated; the original cell is kept and the row is named in problems with field date, so nothing reads as dated."
     },
     {
-      "path": "crates/biomcp-query/src/article/page.rs",
-      "site": "fill_access: ) , started , leg . remaining ( ) ) ) ; let Ok ( found ) = found else { return Ok ( ( ) ) ;",
-      "maximum": 1,
-      "class": "legitimate_absence",
-      "owner": "article",
-      "reason": "A failed Europe PMC access lookup settles no row: each row it would have filled says open_access_unknown true, so none reads as open or closed (1046)."
-    },
-    {
       "path": "crates/biomcp-adapters/src/cellosaurus/map.rs",
       "site": "card: ) , 3 ) , diseases : capped ( row . disease_list . unwrap_or_default ( )",
       "maximum": 1,

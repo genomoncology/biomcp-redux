@@ -214,7 +214,16 @@ pub(crate) fn request_defaults(
     settings: &Settings,
     request: &biomcp_types::Request,
 ) -> Result<biomcp_types::Request, ConfigError> {
-    let limit = configured(settings)?.and_then(|file| file.drug_approvals_limit);
+    let file = configured(settings)?;
+    // `article_access_lookup: false` makes every article search skip the Europe PMC lookup.
+    if let biomcp_types::Request::SearchArticle(query) = request
+        && file.and_then(|file| file.article_access_lookup) == Some(false)
+    {
+        return Ok(biomcp_types::Request::SearchArticle(
+            query.without_access_lookup(),
+        ));
+    }
+    let limit = file.and_then(|file| file.drug_approvals_limit);
     if let biomcp_types::Request::GetDrug(query) = request
         && query.source() == biomcp_types::DrugSource::Drugsfda
         && query.sections() == [biomcp_types::DrugSection::Approvals]

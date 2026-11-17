@@ -5,13 +5,14 @@ use crate::{
     store::{Pool, Store, StoredItem},
 };
 use biodata::Text;
-use biomcp_adapters::{europepmc, pubmed};
+use biomcp_adapters::pubmed;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, ReplyData,
     Request, Source, StepKind,
 };
+use std::time::Duration;
 #[derive(Clone, Copy)]
 pub(super) enum Cursor<'a> {
     Search(&'a ArticleSearch),
@@ -83,16 +84,15 @@ pub(super) fn read<'a>(
         .filter(|r| r.item.header.is_none() && (!r.checked || cx.fresh))
         .filter_map(|r| r.item.pmid)
         .collect();
-    if !missing.is_empty() {
-        let deadline = store.deadline();
-        let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
-        let started = leg.remaining();
-        let result = pubmed::summaries(&leg, &missing, cx.ncbi_email.as_ref());
-        store.set_deadline(consume(deadline, started, leg.remaining()));
+    // Titles and the access lookup need only the page's PMIDs, so they run together (1046).
+    let lookup = super::access::wanted(cx, query, &rows);
+    let reads = super::access::read(cx, store.deadline(), &missing, &lookup);
+    store.set_deadline(consume(store.deadline(), reads.elapsed, Duration::ZERO));
+    if let Some((result, report)) = reads.summaries {
         match result {
             Ok(mapped) => {
                 out.include_refusals(mapped.refusals);
-                let source = status::source(Source::PubMed, leg.finish(), None);
+                let source = status::source(Source::PubMed, report, None);
                 keep_source(out, &source);
                 let saved = crate::publish::keep(
                     store
@@ -117,7 +117,7 @@ pub(super) fn read<'a>(
                 }
             }
             Err(error) => {
-                let source = status::source(Source::PubMed, leg.finish(), Some(error));
+                let source = status::source(Source::PubMed, report, Some(error));
                 replace_source(out, source, &pool.sources);
                 if !disabled(error) {
                     crate::status::item(out, false, true, false);
@@ -127,62 +127,17 @@ pub(super) fn read<'a>(
             }
         }
     }
-    if let Cursor::Search(_) = query {
-        fill_access(cx, store, id, &mut rows, out)?;
-    }
+    let failed_lookup = match reads.access {
+        Some((result, report)) => super::access::apply(store, id, &mut rows, result, report, out)?,
+        None => None,
+    };
     filter_stored_text(cx, store, id, &mut rows, out)?;
     finish(query, pool, rows, out);
-    Ok(())
-}
-/// The access lookup may hold a page this long. Europe PMC's core search took 2.2 seconds
-/// for two papers on 2026-11-17 and passed 3 seconds on other tries.
-const ACCESS_BUDGET: std::time::Duration = std::time::Duration::from_secs(8);
-/// Search rows with a PMID and no open-access flag take the flag and license Europe PMC
-/// states, in one request for the page (1046). A failed lookup settles nothing; those
-/// rows say their status is unknown.
-fn fill_access<'a>(
-    cx: &Ctx<'a>,
-    store: &mut Store<'a>,
-    id: &str,
-    rows: &mut [StoredItem],
-    out: &mut Outcome,
-) -> Result<(), RequestError> {
-    let ids: Vec<_> = rows
-        .iter()
-        .filter(|row| row.item.open_access.is_none())
-        .filter_map(|row| row.item.pmid)
-        .collect();
-    if ids.is_empty() {
-        return Ok(());
-    }
-    let leg = cx.fetch.leg(&pubmed::SPEC, store.deadline());
-    let started = leg.remaining();
-    let found = leg.dependency(&europepmc::SPEC, ACCESS_BUDGET, |dependency| {
-        europepmc::access(dependency, &ids)
-    });
-    store.set_deadline(consume(store.deadline(), started, leg.remaining()));
-    let Ok(found) = found else {
-        return Ok(());
-    };
-    status::append(&mut out.problems, found.problems);
-    let mut changed = Vec::new();
-    for row in rows.iter_mut() {
-        if row.item.open_access.is_some() {
-            continue;
+    if let Some(source) = failed_lookup {
+        super::access::failed(source, out);
+        if !out.next.iter().any(|step| step.0 == StepKind::Fresh) {
+            query.retry(Some(pool.info.id.clone()), out);
         }
-        let Some(access) = found.value.iter().find(|a| Some(a.pmid) == row.item.pmid) else {
-            continue;
-        };
-        row.item.open_access = access.open_access;
-        row.item.license = access.license;
-        changed.push(row.item.clone());
-    }
-    if !changed.is_empty() {
-        // A store that refuses the write still returns the values read for this page.
-        crate::publish::keep(
-            store.rewrite_article_text(id, &changed).map_err(Into::into),
-            out,
-        )?;
     }
     Ok(())
 }

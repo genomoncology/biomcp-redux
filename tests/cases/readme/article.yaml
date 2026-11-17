@@ -34,6 +34,70 @@
           ],
           "includes": "33123537"
         },
+        "/result/items/*/open_access": {
+          "equals": [
+            false,
+            true,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false,
+            false
+          ]
+        },
+        "/result/items/0": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/1": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/2": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/3": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/4": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/5": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/6": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/7": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/8": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/9": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
         "/next/1/args": [
           "get",
           "article",

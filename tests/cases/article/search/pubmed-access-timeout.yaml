@@ -1,0 +1,49 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "When Europe PMC does not answer the access lookup in time, the page stays complete, its rows say open_access_unknown, and Europe PMC is named with its timed-out state and a fresh retry, so a reader can tell an unchecked paper from one Europe PMC does not know.",
+  "replay": "article/search/pubmed-access-timeout",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--exact-term",
+        "--offset",
+        "7",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/pmid": {
+          "equals": [
+            "36970111",
+            "42162665"
+          ]
+        },
+        "/result/items/*/open_access_unknown": {
+          "equals": [
+            true,
+            true
+          ]
+        },
+        "/sources/*/source": {
+          "equals": [
+            "pubmed",
+            "europepmc"
+          ]
+        },
+        "/sources/1/state": "failed",
+        "/sources/1/reason": "deadline-exceeded",
+        "/next/*/kind": {
+          "includes": "fresh"
+        }
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "Synthetic Europe PMC delay; see tests/replies/article/search/pubmed-access-timeout/README.md.",
+  "harvest": "biomed-agent-bench msl persona: which papers may be shared"
+}

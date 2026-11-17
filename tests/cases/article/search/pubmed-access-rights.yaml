@@ -13,6 +13,35 @@
         "--offset",
         "7",
         "--limit",
+        "2",
+        "--no-access-lookup"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/no_access_lookup": true,
+        "/result/items/*/open_access_unknown": {
+          "equals": [
+            true,
+            true
+          ]
+        },
+        "/sources/*/source": {
+          "equals": [
+            "pubmed"
+          ]
+        }
+      },
+      "max_bytes": 3000
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--exact-term",
+        "--offset",
+        "7",
+        "--limit",
         "2"
       ],
       "expect": {
