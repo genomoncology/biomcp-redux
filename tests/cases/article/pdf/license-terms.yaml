@@ -28,6 +28,23 @@
       "run": [
         "get",
         "article",
+        "PPR1295425",
+        "pdf"
+      ],
+      "expect": {
+        "/result/items/0/sections/pdf/reason": "rate-limited",
+        "/next/0/args": [
+          "get",
+          "article",
+          "PPR1295425",
+          "fulltext"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "article",
         "28944238",
         "fulltext",
         "supplements"
