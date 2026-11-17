@@ -112,7 +112,10 @@ fn total(leg: &Leg<'_>, endpoint: &biomcp_fetch::Endpoint, id: &str) -> Result<u
             ]),
             biomcp_fetch::Read::json().check(&|r: &Counted| {
                 r.page_meta.check(r.rows.len(), 1, 0)?;
-                if r.rows.iter().all(|row| row.target_chembl_id.as_deref() == Some(id)) {
+                if r.rows
+                    .iter()
+                    .all(|row| row.target_chembl_id.as_deref() == Some(id))
+                {
                     Ok(())
                 } else {
                     Err(BadReply)
