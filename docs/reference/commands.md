@@ -2286,7 +2286,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `--fiscal-year`: One NIH fiscal year, such as 2025; all years by default. Value form: integer; example: --fiscal-year 2025.
 - `--investigator`: Principal investigator name, such as "Pasi Janne". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs. Value form: string; example: --investigator 'Pasi Janne'.
-- `--investigator-id`: RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387. Value form: integer; example: --investigator-id 0.
+- `--investigator-id`: RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387. Value form: integer; example: --investigator-id 14892358.
 - `--limit`: Ten project-years by default, one to fifty. Value form: integer; example: --limit 3.
 - `--offset`: Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep. Value form: integer; example: --offset 68.
 - `--organization`: Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER". Value form: string; example: --organization DANA-FARBER.

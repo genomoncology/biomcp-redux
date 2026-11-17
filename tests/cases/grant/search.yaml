@@ -43,9 +43,7 @@
         ],
         "/result/items/0/subproject": "8784",
         "/result/items/0/investigators/0/profile_id": 1861387,
-        "/result/hint": {
-          "includes": "--investigator-id"
-        }
+        "/result/hint": "page.total counts award rows: one per award and fiscal year, plus one per component of a multi-part award (rows with subproject). A parent's award_amount includes its components, so do not add both. Each investigator name word matches any part of any investigator's name; check investigators[].profile_id and search again with --investigator-id."
       }
     },
     {
