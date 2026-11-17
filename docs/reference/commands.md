@@ -2142,7 +2142,7 @@ ClinicalTrials.gov only: last included registry update date. Value form: string;
 - `--variant`: Variant text.
 ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment. Value form: string; example: --variant V600E.
 - `--why-stopped`: Stop words.
-ClinicalTrials.gov only: keep trials whose registry stop reason contains every word. Each row carries why_stopped. Value form: string; example: --why-stopped <why-stopped> (syntax; replace the placeholder with your retained value).
+ClinicalTrials.gov only: keep trials whose registry stop reason contains every word. Each row carries why_stopped. Value form: string; example: --why-stopped enrollment.
 
 ## biomcp search variant
 
