@@ -272,6 +272,10 @@ pub struct InteractionEvidence {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinChembl {
+    /// The UniProt accession ChEMBL was asked about: an isoform's canonical accession, since
+    /// ChEMBL names canonical accessions.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub accession: Option<Text>,
     /// Single-protein targets ChEMBL lists for the accession; the count to report.
     #[serde(default)]
     pub total: u64,
