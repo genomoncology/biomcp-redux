@@ -36,6 +36,7 @@ const TEXT_FIELDS: &str = "projecttitle,abstracttext,terms";
 const FIELDS: &[&str] = &[
     "ApplId",
     "ProjectNum",
+    "SubprojectId",
     "CoreProjectNum",
     "FiscalYear",
     "ProjectTitle",
@@ -60,6 +61,8 @@ struct Body<'a> {
 struct Criteria<'a> {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pi_names: Vec<Name<'a>>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pi_profile_ids: Vec<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     advanced_text_search: Option<TextSearch<'a>>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -90,6 +93,7 @@ struct Meta {
 #[derive(Deserialize)]
 struct Row {
     project_num: Option<String>,
+    subproject_id: Option<String>,
     core_project_num: Option<String>,
     fiscal_year: Option<u32>,
     project_title: Option<String>,
@@ -171,6 +175,7 @@ fn body(query: &GrantSearch) -> Body<'_> {
                 })
                 .into_iter()
                 .collect(),
+            pi_profile_ids: query.investigator_id().into_iter().collect(),
             advanced_text_search: query.query().map(|text| TextSearch {
                 operator: "and",
                 search_field: TEXT_FIELDS,
@@ -254,6 +259,7 @@ fn grant(p: &mut Problems, row: Row) -> Option<Grant> {
     let project = p.checked_text("project_num", present(row.project_num.as_ref()));
     Some(Grant {
         project: p.required("project_num", project)?,
+        subproject: p.checked_text("subproject_id", present(row.subproject_id.as_ref())),
         core_project: p.checked_text("core_project_num", present(row.core_project_num.as_ref())),
         fiscal_year: p.required("fiscal_year", row.fiscal_year)?,
         title: p.text("project_title", present(row.project_title.as_ref())),

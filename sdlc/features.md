@@ -135,7 +135,7 @@ variant-alphagenome: Read independently paged native scoring groups for one sour
 query-validation: A caller sees argument identities and accepted forms for input failures, accepting sources and declared replacements for incompatible filters, optional true or false values for boolean flags, and case-insensitive enumerated choices echoed canonically.
 local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order.
 diagnostic-device-recall: Search native device recall records with each row's exact enforcement classification, filter by classification, inspect exact recall numbers and follow product codes to MAUDE without inferring harm.
-grant-search: A caller finds NIH RePORTER project-years by topic, investigator, organization and fiscal year, with institute, award amount and RePORTER's total.
+grant-search: A caller finds NIH RePORTER award rows, including multi-part award components, by topic, investigator name or profile ID, organization and fiscal year, with institute, award amount and RePORTER's total.
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging.
 biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code.
 drug-recall: Search published FDA drug recall records by name (together with the drug's bounded source-stated other names in one native query by default, or only the typed name with --exact-term), firm, classification, status, reason and initiation dates; page and fetch exact native recall numbers with source field problems.

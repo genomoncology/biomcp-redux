@@ -42,6 +42,7 @@ fn publish(out: &mut Outcome, query: &GrantSearch, total: u64, items: Vec<biomcp
     out.page = Some(status::page_info(query.offset(), returned, total));
     status::search(out);
     out.body = (GrantPage {
+        hint: biomcp_types::GRANT_HINT.into(),
         items: items.into(),
     })
     .with_query(query.clone());

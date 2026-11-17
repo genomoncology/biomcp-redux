@@ -4,8 +4,10 @@ use biodata::Text;
 use serde::{Deserialize, Serialize};
 
 #[doc = " Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization \
-    and fiscal year. Each row is one project's award for one fiscal year, so a project funded for \
-    five years gives five rows."]
+    and fiscal year. Each row is one award for one fiscal year: a project funded for five years \
+    gives five rows, and a multi-part award gives a parent row plus one row per component \
+    (`subproject`). An investigator name matches any investigator with each word anywhere in \
+    their name; check `investigators[].profile_id` and search again with --investigator-id."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -23,8 +25,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
-    #[doc = " Principal investigator, first and last name, such as \"Pasi Janne\"; partial names \
-        match more people."]
+    #[doc = " Principal investigator name, such as \"Pasi Janne\". Each word matches any part of \
+        any investigator's name, so common names find other people; check the profile IDs."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -32,6 +34,14 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     investigator: Option<Text>,
+    /// RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "u64"))]
+    investigator_id: Option<u64>,
     /// Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER".
     #[serde(
         default,
@@ -67,10 +77,15 @@ crate::query::validation::checked_query!(GrantSearch, Fields);
 impl TryFrom<Fields> for GrantSearch {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
-        if v.query.is_none() && v.investigator.is_none() && v.organization.is_none() {
+        if v.query.is_none()
+            && v.investigator.is_none()
+            && v.investigator_id.is_none()
+            && v.organization.is_none()
+        {
             return Err(QueryInvalid::new(&[
                 "query",
                 "investigator",
+                "investigator_id",
                 "organization",
             ]));
         }
@@ -96,6 +111,10 @@ impl GrantSearch {
     /// Principal investigator name.
     pub fn investigator(&self) -> Option<&Text> {
         self.0.investigator.as_ref()
+    }
+    /// RePORTER investigator profile ID.
+    pub fn investigator_id(&self) -> Option<u64> {
+        self.0.investigator_id
     }
     /// Funded organization name.
     pub fn organization(&self) -> Option<&Text> {

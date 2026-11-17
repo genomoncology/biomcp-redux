@@ -4,22 +4,28 @@ use crate::GrantSearch;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
 
-#[doc = " NIH RePORTER project-years in RePORTER's order. Each row is one project's award for one \
-    fiscal year; `page.total` counts project-years, not distinct projects."]
+#[doc = " NIH RePORTER award rows in RePORTER's order: one per award and fiscal year, plus one per \
+    component of a multi-part award. `page.total` counts these rows, not distinct projects."]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GrantPage {
-    /// Project-years on this page.
+    /// How to read the rows: what the total counts, how to add amounts and how names match.
+    pub hint: Box<str>,
+    /// Award rows on this page.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[Grant]>,
 }
 
-/// One NIH project's award for one fiscal year.
+/// One NIH award, or one component of a multi-part award, for one fiscal year.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Grant {
-    /// Full NIH project number for this year, such as 5P50CA265826-04.
+    /// Full NIH project number for this year, such as 5P50CA265826-04; a parent and its
+    /// components share it.
     pub project: Text,
+    /// Component ID within a multi-part award; absent on the parent and on single awards.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subproject: Option<Text>,
     /// Core project number shared by every year of the project, such as P50CA265826.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub core_project: Option<Text>,
@@ -38,6 +44,7 @@ pub struct Grant {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub organization: Option<GrantOrganization>,
     /// This fiscal year's total cost in US dollars, direct plus indirect, as RePORTER states it.
+    /// A parent row's amount already includes its components' amounts.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub award_amount: Option<u64>,
     /// Project start date.
@@ -96,6 +103,13 @@ pub struct GrantInvestigator {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub profile_id: Option<u64>,
 }
+
+/// The hint every grant page carries.
+pub const GRANT_HINT: &str = "page.total counts award rows: one per award and fiscal year, plus \
+    one per component of a multi-part award (rows with subproject). A parent's award_amount \
+    includes its components, so do not add both. Each investigator name word matches any part \
+    of any investigator's name; check investigators[].profile_id and search again with \
+    --investigator-id.";
 
 impl ResponseBody for GrantPage {
     const SCHEMA: &'static str = "biomcp.grant-page/1";
