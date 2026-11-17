@@ -15,6 +15,32 @@
           "error": "synthetic publisher outage"
         }
       }
+    },
+    {
+      "fetched": 1794952835,
+      "status": 503,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": "synthetic publisher outage"
+        }
+      }
+    },
+    {
+      "fetched": 1794952835,
+      "status": 503,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": "synthetic publisher outage"
+        }
+      }
     }
   ]
 }

@@ -189,8 +189,13 @@
       ],
       "expect": {
         "/status": "failed",
-        "/result/resolution": "unavailable",
-        "/sources/0/state": "failed"
+        "/sources/0/state": "failed",
+        "": {
+          "omits": [
+            "result",
+            "local_error"
+          ]
+        }
       },
       "exit": 4,
       "is_error": true
@@ -236,14 +241,14 @@
       "expect": {
         "/schema": "biomcp.variant-card/16",
         "/status": "failed",
-        "/result/resolution": "unavailable",
-        "/result": {
-          "omits": [
-            "candidates"
-          ]
-        },
         "/sources/0/state": "skipped",
-        "/sources/0/reason": "disabled"
+        "/sources/0/reason": "disabled",
+        "": {
+          "omits": [
+            "result",
+            "local_error"
+          ]
+        }
       }
     }
   ]
