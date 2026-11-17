@@ -2,7 +2,7 @@
 
 Owner: biomcp-redux/0518
 Role: run product
-Location: m5 data/biomcp-redux
+Location: data/biomcp-redux
 Kind: source captures and scheduled-check scratch
 Get again: Rerun the owning capture or scheduled check from its ticket recipe.
 Qualification: unqualified

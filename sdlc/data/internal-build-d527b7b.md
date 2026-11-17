@@ -2,7 +2,7 @@
 
 Owner: biomcp-redux/0336
 Role: run product
-Location: yellow data/biomcp-redux/internal-build/d527b7b031941dc290b2af00605c5baef8610715
+Location: data/biomcp-redux/internal-build/d527b7b031941dc290b2af00605c5baef8610715
 Kind: internal Linux x86_64 executable with delivery evidence
 Get again: Use rebuild.sh with the retained source, Cargo.lock and toolchain inputs.
 Qualification: unqualified

@@ -2,7 +2,7 @@
 
 Owner: biomcp-redux/0518
 Role: run product
-Location: m5 data/biomcp-redux-evidence
+Location: data/biomcp-redux-evidence
 Kind: native captures, regression witnesses and qualification outputs
 Get again: Rerun the owning ticket recipe. Original source replies may change.
 Qualification: unqualified

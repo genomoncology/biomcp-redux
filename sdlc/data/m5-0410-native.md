@@ -2,7 +2,7 @@
 
 Owner: biomcp-redux/0410
 Role: run product
-Location: m5 data/biomcp-redux-0410-native
+Location: data/biomcp-redux-0410-native
 Kind: native source capture with manifest and transport receipts
 Get again: Rerun the native capture recipe for ticket 0410. Historical source replies may change.
 Qualification: unqualified

@@ -2,7 +2,7 @@
 
 Owner: biomcp-redux/0336
 Role: run product
-Location: beelink data/biomcp-redux/internal-build
+Location: data/biomcp-redux/internal-build
 Kind: internal release-profile executables and build evidence
 Get again: Use the retained rebuild.sh and pinned source/toolchain inputs in each build folder.
 Qualification: unqualified
