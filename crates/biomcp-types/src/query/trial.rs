@@ -22,6 +22,15 @@ biodata::wire_enum! {
         Other => "other",
     }
 }
+biodata::wire_enum! {
+    /// Sponsor roles a sponsor name may match.
+    SponsorRole {
+        /// Lead sponsor only.
+        Lead => "lead",
+        /// Lead sponsor or any collaborator.
+        Any => "any",
+    }
+}
 /// Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
@@ -193,7 +202,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     distance: Option<Text>,
-    #[doc = "Sponsor.\nClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category."]
+    #[doc = "Sponsor.\nClinicalTrials.gov only: lead sponsor name, or any role with --sponsor-role any; broadens after zero exact matches. Use --sponsor-type for the funding category."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -201,6 +210,14 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     sponsor: Option<Text>,
+    #[doc = "Sponsor role.\nClinicalTrials.gov only: lead (default) matches the lead sponsor; any also matches collaborators. Needs --sponsor."]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "SponsorRole"))]
+    sponsor_role: Option<SponsorRole>,
     #[doc = "Funding class.\nClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name."]
     #[serde(
         default,
@@ -386,6 +403,10 @@ impl TrialSearch {
     pub fn sponsor(&self) -> Option<&Text> {
         self.0.sponsor.as_ref()
     }
+    /// Sponsor roles the sponsor name may match; lead when absent.
+    pub fn sponsor_role(&self) -> Option<&SponsorRole> {
+        self.0.sponsor_role.as_ref()
+    }
     /// Requested sponsor funding category.
     pub fn sponsor_type(&self) -> Option<&SponsorType> {
         self.0.sponsor_type.as_ref()
@@ -545,6 +566,8 @@ biodata::wire_enum! {
         Latitude => "--lat",
         /// Registry sponsor text.
         Sponsor => "--sponsor",
+        /// Registry sponsor role.
+        SponsorRole => "--sponsor-role",
         /// Registry funding vocabulary.
         SponsorType => "--sponsor-type",
         /// Registry lower update bound.
@@ -587,6 +610,7 @@ impl TrialSearch {
             (self.age().is_some(), F::Age),
             (self.lat().is_some(), F::Latitude),
             (self.sponsor().is_some(), F::Sponsor),
+            (self.sponsor_role().is_some(), F::SponsorRole),
             (self.sponsor_type().is_some(), F::SponsorType),
             (self.updated_since().is_some(), F::UpdatedSince),
             (self.updated_until().is_some(), F::UpdatedUntil),

@@ -75,7 +75,12 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
             query.facility().filter(|_| !broader_names),
         ),
         (
-            "LeadSponsorName",
+            // SponsorSearch is the lead-or-collaborator area that query.spons searches.
+            if query.sponsor_role() == Some(&biomcp_types::SponsorRole::Any) {
+                "SponsorSearch"
+            } else {
+                "LeadSponsorName"
+            },
             query.sponsor().filter(|_| !broader_names),
         ),
     ] {
