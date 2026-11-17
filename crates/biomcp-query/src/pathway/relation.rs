@@ -251,7 +251,10 @@ fn keep_gene_products(body: &mut biomcp_types::PathwayGenes) {
                 continue;
             };
             left_out.rows += 1;
-            match namespaces.iter_mut().find(|c| c.namespace.as_str() == namespace) {
+            match namespaces
+                .iter_mut()
+                .find(|c| c.namespace.as_str() == namespace)
+            {
                 Some(count) => count.rows += 1,
                 None => {
                     if let Ok(namespace) = Text::new(namespace) {
@@ -349,6 +352,7 @@ fn fetch(
                 header,
                 total: rows.value.items.len() as u64,
                 page: full_page(rows.value.items.len(), PathwayTotalKind::DistinctReferences),
+                left_out: None,
                 items: rows.value.items.into(),
                 reference_occurrences: rows.value.reference_occurrences,
                 physical_entities: rows.value.physical_entities,

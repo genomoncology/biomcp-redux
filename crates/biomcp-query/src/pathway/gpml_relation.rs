@@ -52,6 +52,7 @@ pub(super) fn fetch(
                     next_offset: None,
                     pool: None,
                 },
+                left_out: None,
                 reference_occurrences: count as u64,
                 physical_entities: rows.data_nodes,
             }),

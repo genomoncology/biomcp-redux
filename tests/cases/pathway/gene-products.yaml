@@ -1,0 +1,49 @@
+{
+  "feature": "pathway-reactome",
+  "live_check": "public",
+  "story": "An agent building a gene set from a Reactome pathway asks for gene products only: ChEBI small molecules are left out, the reply counts them by namespace, and the total and paging count the kept rows. Without the option the reply is unchanged.",
+  "verified": "Captured live 2026-11-17 in pm job j42430. Reactome's /data/participants/R-HSA-5693607 (Processing of DNA double-strand break ends) holds 89 distinct references: 80 UniProt and 9 ChEBI, the compounds the comp-bio persona filtered by hand on 2026-11-12. On the base commit --gene-products is an unknown option.",
+  "replay": "pathway/gene-products",
+  "steps": [
+    {
+      "run": ["pathway", "genes", "R-HSA-5693607", "--limit", "50"],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 89,
+        "/result/page/total": 89,
+        "/result": {
+          "omits": ["left_out"]
+        }
+      }
+    },
+    {
+      "run": ["pathway", "genes", "R-HSA-5693607", "--gene-products", "--limit", "50"],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 80,
+        "/result/page/total": 80,
+        "/result/page/returned": 50,
+        "/result/page/next_offset": 50,
+        "/result/left_out": {
+          "equals": {"rows": 9, "namespaces": [{"namespace": "chebi", "rows": 9}]}
+        },
+        "/result/items/*/reference/namespace": {
+          "excludes": "chebi"
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/total": 80,
+        "/result/page/offset": 50,
+        "/result/page/returned": 30,
+        "/result/left_out/rows": 9,
+        "/result/items/*/reference/namespace": {
+          "excludes": "chebi"
+        }
+      }
+    }
+  ]
+}

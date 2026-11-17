@@ -38,11 +38,7 @@ pub(super) fn genes(
     }
     if let Some(offset) = body.page.next_offset
         && let Some(pool) = &body.page.pool
-        && let Some(query) = crate::next::checked(
-            base(),
-            biomcp_types::Source::Reactome,
-            problems,
-        )
+        && let Some(query) = crate::next::checked(base(), biomcp_types::Source::Reactome, problems)
     {
         let query = if details { query.with_details() } else { query };
         next.push(crate::next::Step::new(
@@ -57,11 +53,7 @@ pub(super) fn genes(
         && !details
         && !body.items.is_empty()
         && let Some(pool) = &body.page.pool
-        && let Some(query) = crate::next::checked(
-            base(),
-            biomcp_types::Source::Reactome,
-            problems,
-        )
+        && let Some(query) = crate::next::checked(base(), biomcp_types::Source::Reactome, problems)
     {
         next.push(crate::next::Step::new(
             StepKind::Section,
