@@ -13,7 +13,7 @@ mod raw;
 mod relation_raw;
 mod relations;
 pub use discovery::{Page, card, release, search, top_level};
-pub use relations::{Members, events, members};
+pub use relations::{Members, events, gene_product, members};
 /// Public Reactome mapping endpoint policy.
 pub static SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,

@@ -105,6 +105,9 @@ pub struct PathwayGenes {
     pub total: u64,
     /// Distinct-reference total and continuation.
     pub page: PathwayPageInfo,
+    /// Only with `gene_products`: rows left out as non-gene references, which `total` excludes (1045).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub left_out: Option<PathwayLeftOut>,
     /// All reference occurrences across physical entities before distinct-reference grouping.
     pub reference_occurrences: u64,
     /// All native physical entities, never described as gene counts.
@@ -112,6 +115,25 @@ pub struct PathwayGenes {
     /// Distinct namespaced source references in first occurrence order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[PathwayMember]>,
+}
+/// Distinct references a gene-products read left out, such as ChEBI small molecules.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PathwayLeftOut {
+    /// Left-out rows in the whole collection.
+    pub rows: u64,
+    /// Left-out rows per source namespace, in first occurrence order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub namespaces: Box<[PathwayNamespaceCount]>,
+}
+/// Rows of one source namespace.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PathwayNamespaceCount {
+    /// Source namespace, such as `chebi`.
+    pub namespace: Text,
+    /// Distinct references in it.
+    pub rows: u64,
 }
 impl ResponseBody for PathwayGenes {
     const SCHEMA: &'static str = "biomcp.pathway-genes/10";
