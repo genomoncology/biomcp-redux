@@ -1,0 +1,30 @@
+{
+  "feature": "article-get",
+  "live_check": "live citation metadata only",
+  "story": "A PubMed book chapter keeps its exact PMID and links to the official Bookshelf citation.",
+  "replay": "article/get/book-chapter",
+  "steps": [
+    {
+      "run": ["get", "article", "21882399"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/resolution": "resolved",
+        "/result/items/0/answer/card/pmid": "21882399",
+        "/result/items/0/answer/card/title": "Kabuki Syndrome",
+        "/result/items/0/answer/card/book_title": "GeneReviews®",
+        "/result/items/0/answer/card/bookshelf_url": "https://www.ncbi.nlm.nih.gov/books/NBK62111/",
+        "/result/items/0/answer/card": {"omits": ["abstract_parts", "journal"]}
+      }
+    },
+    {
+      "run": ["get", "article", "21882399", "33123537"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/card/pmid": "21882399",
+        "/result/items/1/answer/card/pmid": "33123537",
+        "/result/items/1/answer/card": {"omits": ["book_title", "bookshelf_url"]},
+        "/result/items/1/status": "complete"
+      }
+    }
+  ]
+}

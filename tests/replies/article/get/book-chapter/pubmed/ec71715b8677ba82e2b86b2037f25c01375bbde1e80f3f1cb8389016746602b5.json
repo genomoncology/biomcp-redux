@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "15de38f77738f129ede4158f8e9af48327a3f74f1afcb365aa25fd4b1bd1a778"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794944146,
+      "status": 200,
+      "content_type": "text/xml; charset=UTF-8",
+      "delay_ms": 368,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<PubmedArticleSet>\n<PubmedBookArticle><BookDocument><PMID Version=\"1\">21882399</PMID><ArticleIdList><ArticleId IdType=\"bookaccession\">NBK62111</ArticleId></ArticleIdList><Book><BookTitle book=\"gene\">GeneReviews<sup>\u00ae</sup></BookTitle></Book><ArticleTitle book=\"gene\" part=\"kabuki\">Kabuki Syndrome</ArticleTitle><AuthorList Type=\"authors\" CompleteYN=\"Y\"><Author ValidYN=\"Y\"><LastName>Adam</LastName><Initials>MP</Initials></Author><Author ValidYN=\"Y\"><LastName>Hannibal</LastName><Initials>M</Initials></Author></AuthorList><PublicationType UI=\"D016454\">Review</PublicationType><ContributionDate><Year>2011</Year><Month>9</Month><Day>1</Day></ContributionDate></BookDocument></PubmedBookArticle></PubmedArticleSet>"
+      }
+    }
+  ]
+}
