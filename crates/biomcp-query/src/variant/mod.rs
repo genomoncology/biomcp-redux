@@ -29,22 +29,18 @@ use biomcp_types::{
     VariantResolution,
 };
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
-pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
+pub(crate) fn lookup(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let out = match query.shorthand_search() {
         Some(search) => shorthand::get(cx, query, &search, &mut deadline),
-        None => get_exact(cx, query, &mut deadline),
+        None => get(cx, query, &mut deadline),
     };
     command.finish(deadline.remaining());
     out
 }
 
-fn get_exact<'a>(
-    cx: &Ctx<'a>,
-    query: &VariantGet,
-    deadline: &mut biomcp_fetch::Deadline<'a>,
-) -> Outcome {
+fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadline<'a>) -> Outcome {
     if let Some(source) = direct::source(cx.fetch, query) {
         return direct::get(cx, query, source, *deadline);
     }
@@ -92,7 +88,7 @@ fn get_exact<'a>(
     );
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
-    let out = crate::status::finish(
+    crate::status::finish(
         [overall(resolution, dropped || incomplete, &sources)],
         crate::status::Parts {
             dropped,
@@ -112,8 +108,7 @@ fn get_exact<'a>(
             next,
             local,
         },
-    );
-    out
+    )
 }
 fn transcript_gene_mismatch(query: &VariantGet, candidates: &[VariantHeader]) -> bool {
     let Some((reference, gene)) = query.input().reference_gene() else {

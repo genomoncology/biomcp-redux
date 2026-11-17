@@ -12,7 +12,7 @@ pub(super) fn get<'a>(
     search: &VariantSearch,
     deadline: &mut Deadline<'a>,
 ) -> Outcome {
-    let mut out = super::search::search_at(cx, search, deadline);
+    let mut out = super::search::search(cx, search, deadline);
     let ReplyData::VariantPage { body, .. } = &mut out.body else {
         return out;
     };
@@ -135,7 +135,7 @@ fn attach<'a>(
     deadline: &mut Deadline<'a>,
     discovery: &mut Outcome,
 ) -> Option<Outcome> {
-    let mut exact = super::get_exact(cx, candidate, deadline);
+    let mut exact = super::get(cx, candidate, deadline);
     if let ReplyData::VariantCard {
         body: Some(card), ..
     } = exact.body

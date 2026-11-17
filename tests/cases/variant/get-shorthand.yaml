@@ -225,6 +225,29 @@
       },
       "exit": 2,
       "is_error": true
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V600E",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/schema": "biomcp.variant-card/16",
+        "/status": "failed",
+        "/result/resolution": "unavailable",
+        "/result": {
+          "omits": [
+            "candidates"
+          ]
+        },
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      }
     }
   ]
 }

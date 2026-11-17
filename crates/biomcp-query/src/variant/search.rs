@@ -9,15 +9,15 @@ use biomcp_types::{
     VariantSearch,
 };
 /// Discover one source-native page; a zero result remains distinct from a failed source.
-pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
+pub(crate) fn discover(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let out = search_at(cx, query, &mut deadline);
+    let out = search(cx, query, &mut deadline);
     command.finish(deadline.remaining());
     out
 }
 
-pub(super) fn search_at<'a>(
+pub(super) fn search<'a>(
     cx: &Ctx<'a>,
     query: &VariantSearch,
     deadline: &mut biomcp_fetch::Deadline<'a>,
@@ -44,8 +44,8 @@ pub(super) fn search_at<'a>(
     };
     let terms = terms.ok().flatten();
     let selector_terms = selector_terms.ok().flatten();
-    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let error = reply.as_ref().err().copied();
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(spec.source, leg.finish(), error);
     let mut out = crate::status::finish(
         [crate::status::item_status(false, true, false)],

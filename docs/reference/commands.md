@@ -127,7 +127,7 @@ Commands:
   gene           Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
-  variant        Discover source candidates using one declared selector, without interpreting free text.
+  variant        Discover source candidates by checked selectors or a gene and protein phrase such as BRAF V600E.
   grant          Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with investigator_id (--investigator-id on the command line).
 
 Options:
@@ -2156,7 +2156,7 @@ ClinicalTrials.gov only: keep trials whose registry stop reason contains every w
 ## biomcp search variant
 
 ```text
-Discover source candidates using one declared selector, without interpreting free text.
+Discover source candidates by checked selectors or a gene and protein phrase such as BRAF V600E.
 
 Usage: biomcp search variant [OPTIONS]
 
@@ -2203,7 +2203,7 @@ Options:
           Explicit substitution or synonymous change using checked amino-acid codes.
 
       --query <query>
-          Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
+          Gene and protein shorthand such as BRAF V600E. With --source myvariant this is raw MyVariant text, passed and echoed unchanged when component policy allows.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2241,7 +2241,7 @@ Options apply to every listed source unless their description restricts them.
 - `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates. Value form: integer; example: --limit 50.
 - `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer; example: --offset 0.
 - `--protein`: Explicit substitution or synonymous change using checked amino-acid codes. Value form: string; example: --protein L858R.
-- `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. Value form: string; example: --query CA123643.
+- `--query`: Gene and protein shorthand such as BRAF V600E. With --source myvariant this is raw MyVariant text, passed and echoed unchanged when component policy allows. Value form: string; example: --query CA123643.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string; example: --region chr7:140453136-140453136.
 - `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Value form: string; example: --review-status 'no assertion criteria provided'.
 - `--source`: Explicit source language; required for a raw query. Value form: string; example: --source myvariant.
@@ -2343,7 +2343,7 @@ Commands:
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
   trial          Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
-  variant        Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+  variant        Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Options:
       --format <format>
@@ -3706,14 +3706,14 @@ Optional intact source sections. Default cards only; diseases and summary requir
 ## biomcp get variant
 
 ```text
-Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for gene shorthand. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
           rs/CA/clinvar:N/VCV/HGVS/VCF
-          rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
+          rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E.
 
   [section]...
           Sections; help get variant
@@ -3844,10 +3844,10 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
-rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
+rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E.
 Form: get variant INPUT SECTION...; not --input.
-- `--limit`: Candidate rows per page; more remain reachable through typed next commands. Value form: integer; example: --limit 10.
-- `--offset`: Candidate rows to skip in source order. Value form: integer; example: --offset 0.
+- `--limit`: Candidate rows per page; more remain reachable through typed next commands. Value form: integer; example: --limit 1.
+- `--offset`: Candidate rows to skip in source order. Value form: integer; example: --offset 1.
 - `--resolver`: Resolver.
 Resolver for reference-qualified notation; never repairs the input locally. Value form: string; example: --resolver variantvalidator.
 - `section`: Sections.
