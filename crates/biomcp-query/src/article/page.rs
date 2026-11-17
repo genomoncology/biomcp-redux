@@ -494,6 +494,7 @@ pub(super) fn fetched<'a>(
 }
 
 /// iCite pools are sorted by `cited_by` when created; Semantic Scholar pools keep source order.
+/// An empty page states no order.
 fn edge_page(
     query: &ArticleEdges,
     items: impl Into<Box<[biomcp_types::ArticleItem]>>,
@@ -502,9 +503,10 @@ fn edge_page(
         biomcp_types::EdgeSource::Icite => biomcp_types::EdgeOrder::MostCitedFirst,
         biomcp_types::EdgeSource::SemanticScholar => biomcp_types::EdgeOrder::SourceOrder,
     };
+    let items = items.into();
     ArticleEdgePage {
-        order: Some(order),
-        items: items.into(),
+        order: (!items.is_empty()).then_some(order),
+        items,
     }
     .with_query(query.clone())
 }
