@@ -98,6 +98,12 @@ impl ArticleEvidence {
         q.0.paragraph_offset = paragraph_offset;
         q
     }
+    /// The same pair, first page, with the citing paper's full-text paragraphs.
+    pub fn with_fulltext(&self) -> Self {
+        let mut q = self.identity();
+        q.0.fulltext = true;
+        q
+    }
     /// Checked identity for a stored scan.
     pub fn identity(&self) -> Self {
         let mut q = self.clone();

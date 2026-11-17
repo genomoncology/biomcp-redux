@@ -104,6 +104,7 @@ Articles:
 - `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
 - `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`.
 - A single-source search reports the source's own total. A drug-name search on Semantic Scholar or LitSense says the per-name counts overlap and are not added, and a cut-short search says later rows cannot be paged. `get article` states its limit of 20 IDs.
+- `article citations` and `article references` pages give their `order`: iCite pages list the most-cited papers first by each row's `cited_by`, and Semantic Scholar pages keep its own order. `article citation-evidence` offers a `--fulltext` next step when Semantic Scholar has no contexts for the pair or cannot be read.
 
 Other commands:
 
