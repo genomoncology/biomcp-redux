@@ -3488,12 +3488,12 @@ Form: get article INPUT...; not --input.
 Requested section words; trailing words and --section share this field.
 
 - `annotations`: Normalized text-mined entities from PubTator3.
-- `fulltext`: Licensed PMC body outline.
+- `fulltext`: Licensed PMC body outline; license_terms says what the license allows.
 - `supplements`: Supplementary files confirmed by PMC metadata.
 - `tldr`: Machine-written Semantic Scholar summary and counts.
 - `citations`: Citation counts from NIH iCite.
 - `indexing`: MeSH, keywords and author indexing from the citation.
-- `pdf`: Publisher PDF link without downloading.
+- `pdf`: Publisher PDF link and license terms, without downloading.
 - `all`: Every landed article section.
 
 ## biomcp get trial

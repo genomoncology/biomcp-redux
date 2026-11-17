@@ -410,13 +410,13 @@
       "description": "A landed article section.",
       "type": "string",
       "x-enum-descriptions": [
-        " Licensed PMC body outline.",
+        " Licensed PMC body outline; license_terms says what the license allows.",
         " Supplementary files confirmed by PMC metadata.",
         " Normalized text-mined entities from PubTator3.",
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
-        " Publisher PDF link without downloading."
+        " Publisher PDF link and license terms, without downloading."
       ],
       "x-extensible-enum": [
         "fulltext",
@@ -433,12 +433,12 @@
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
-        " Licensed PMC body outline.",
+        " Licensed PMC body outline; license_terms says what the license allows.",
         " Supplementary files confirmed by PMC metadata.",
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
-        " Publisher PDF link without downloading.",
+        " Publisher PDF link and license terms, without downloading.",
         " Every landed article section."
       ],
       "x-extensible-enum": [
@@ -486,7 +486,7 @@
               "type": "null"
             }
           ],
-          "description": "Licensed PMC body outline."
+          "description": "Licensed PMC body outline; license_terms says what the license allows."
         },
         "indexing": {
           "anyOf": [
@@ -765,6 +765,17 @@
           "$ref": "#/$defs/Reply_License",
           "description": "Selected bucket license."
         },
+        "license_terms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What `license` allows, in plain words from the Creative Commons deed or PMC's Copyright Notice."
+        },
         "manuscript": {
           "description": "Whether this selected version is an author manuscript.",
           "type": "boolean"
@@ -989,6 +1000,17 @@
         "license": {
           "$ref": "#/$defs/Reply_License",
           "description": "Normalized license; other grants no reuse rights."
+        },
+        "license_terms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What `license` allows, in plain words from the Creative Commons deed or PMC's Copyright Notice."
         },
         "status": {
           "$ref": "#/$defs/Reply_OpenAccessStatus",
@@ -2608,6 +2630,17 @@
         "license": {
           "$ref": "#/$defs/Reply_License",
           "description": "Article license from the record."
+        },
+        "license_terms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What `license` allows, in plain words from the Creative Commons deed or PMC's Copyright Notice."
         }
       },
       "required": [

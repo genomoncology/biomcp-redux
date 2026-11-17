@@ -52,7 +52,7 @@ pub struct ArticleSections {
     /// JATS supplementary files confirmed by the bucket record.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supplements: Option<Section<crate::Supplements>>,
-    /// Licensed PMC body outline.
+    /// Licensed PMC body outline; license_terms says what the license allows.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fulltext: Option<Section<crate::FullText>>,
     /// Machine-written Semantic Scholar summary.

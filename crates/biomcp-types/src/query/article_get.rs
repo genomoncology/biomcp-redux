@@ -65,7 +65,7 @@ biodata::canonical_enum! {
     ArticleSectionWord, SourceUnknown {
         /// Normalized text-mined entities from PubTator3.
         Annotations => "annotations",
-        /// Licensed PMC body outline.
+        /// Licensed PMC body outline; license_terms says what the license allows.
         Fulltext => "fulltext",
         /// Supplementary files confirmed by PMC metadata.
         Supplements => "supplements",
@@ -75,7 +75,7 @@ biodata::canonical_enum! {
         Citations => "citations",
         /// MeSH, keywords and author indexing from the citation.
         Indexing => "indexing",
-        /// Publisher PDF link without downloading.
+        /// Publisher PDF link and license terms, without downloading.
         Pdf => "pdf",
         /// Every landed article section.
         All => "all",
@@ -84,7 +84,7 @@ biodata::canonical_enum! {
 biodata::canonical_enum! {
     /// A landed article section.
     ArticleSection, SourceUnknown {
-        /// Licensed PMC body outline.
+        /// Licensed PMC body outline; license_terms says what the license allows.
         Fulltext => "fulltext",
         /// Supplementary files confirmed by PMC metadata.
         Supplements => "supplements",
@@ -96,7 +96,7 @@ biodata::canonical_enum! {
         Citations => "citations",
         /// MeSH, keywords and author indexing from the citation.
         Indexing => "indexing",
-        /// Publisher PDF link without downloading.
+        /// Publisher PDF link and license terms, without downloading.
         Pdf => "pdf",
     }
 }

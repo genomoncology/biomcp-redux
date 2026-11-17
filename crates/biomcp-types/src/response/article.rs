@@ -1,5 +1,7 @@
 mod pdf;
+mod terms;
 pub use pdf::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use terms::license_terms;
 mod supplement;
 use crate::{ArticleHeader, ArticleSearch, ArticleSource, Doi, EuropePmcId, Pmcid, Pmid};
 use serde::{Deserialize, Serialize};

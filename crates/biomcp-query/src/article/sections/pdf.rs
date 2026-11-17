@@ -5,8 +5,8 @@ use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticlePdf, ArticleResolution, OpenAccessStatus, PdfLink, Reason, ReplyData, Request, Section,
-    Source, StepKind,
+    ArticleGet, ArticlePdf, ArticleResolution, ArticleSectionWord, OpenAccessStatus, PdfLink,
+    Reason, ReplyData, Request, Section, Source, StepKind,
 };
 
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
@@ -30,6 +30,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
                 .map(|input| (index, input))
         })
         .collect();
+    let mut fulltext = Vec::new();
     for (index, input) in inputs {
         let section = match load(cx, &input, deadline, out) {
             Ok(section) => section,
@@ -69,12 +70,16 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         if let Some(item) = cards.items.get_mut(index) {
             if matches!(section, Section::Unavailable { reason, .. } if reason != Reason::NotOpen) {
                 item.status = crate::status::item_status(true, false, true);
+                if let Some(open) = open_text(item) {
+                    fulltext.push(open);
+                }
             }
             if let Some(sections) = &mut item.sections {
                 sections.pdf = Some(section);
             }
         }
     }
+    fulltext_next(fulltext, out);
     if let ReplyData::ArticleCards {
         body: Some(cards), ..
     } = &out.body
@@ -82,6 +87,51 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         let state = status::status(cards.items.iter().map(|i| i.status));
         status::get(out, [state].into_iter());
     }
+}
+/// A paper with a PMCID or a Europe PMC preprint ID may have open text without
+/// Semantic Scholar, unless this reply already holds its `fulltext` section. The
+/// step names the paper by PMID, else Europe PMC ID, as `article::next` does; the
+/// DOI the PDF lookup used cannot reach a preprint's text.
+fn open_text(item: &biomcp_types::ArticleCardItem) -> Option<ArticleInput> {
+    let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
+        return None;
+    };
+    if card.pmcid.is_none() && card.europepmc_id.is_none()
+        || item.sections.as_ref().is_none_or(|s| s.fulltext.is_some())
+    {
+        return None;
+    }
+    card.pmid
+        .map(ArticleInput::Pmid)
+        .or_else(|| card.europepmc_id.clone().map(ArticleInput::EuropePmc))
+}
+/// When Semantic Scholar fails, offer one `get article IDS fulltext` step for the
+/// papers whose PMC or Europe PMC copy, and its license, may still be readable.
+fn fulltext_next(inputs: Vec<ArticleInput>, out: &mut Outcome) {
+    if inputs.is_empty() || out.next.len() >= 5 {
+        return;
+    }
+    let mut sources = Vec::new();
+    for input in &inputs {
+        for source in super::super::next::text_sources(input) {
+            if !sources.contains(&source) {
+                sources.push(source);
+            }
+        }
+    }
+    let Some(query) = crate::next::checked(
+        ArticleGet::with_sections(inputs.into(), [ArticleSectionWord::Fulltext].into()),
+        Source::SemanticScholar,
+        &mut out.problems,
+    ) else {
+        return;
+    };
+    out.next.push(crate::next::Step::run(
+        StepKind::Section,
+        &sources,
+        Request::GetArticle(query),
+        false,
+    ));
 }
 pub(in crate::article) fn load<'a>(
     cx: &Ctx<'a>,
@@ -130,6 +180,7 @@ pub(in crate::article) fn load<'a>(
         url: Text::new(&link.url).map_err(|_| pdf_error(Reason::BadReply))?,
         status: link.status,
         license: link.license(),
+        license_terms: biomcp_types::license_terms(link.license()),
     };
     Ok(Section::Data {
         source: Source::SemanticScholar,

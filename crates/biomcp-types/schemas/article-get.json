@@ -20,12 +20,12 @@
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
-        " Licensed PMC body outline.",
+        " Licensed PMC body outline; license_terms says what the license allows.",
         " Supplementary files confirmed by PMC metadata.",
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
-        " Publisher PDF link without downloading.",
+        " Publisher PDF link and license terms, without downloading.",
         " Every landed article section."
       ]
     }

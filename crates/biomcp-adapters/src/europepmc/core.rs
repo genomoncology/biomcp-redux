@@ -209,6 +209,7 @@ pub fn read(
         url: Text::new(&format!("{}/{id}/fullTextXML", SPEC.base))
             .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::EuropePmc, None))?,
         license: pmc_oa::license(license.as_deref().unwrap_or("")),
+        license_stated: pmc_oa::stated(license.as_deref().unwrap_or("")),
         version: None,
         manuscript: None,
         supplements: Default::default(),

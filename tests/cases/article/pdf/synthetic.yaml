@@ -16,7 +16,8 @@
       "max_bytes": 3000,
       "expect": {
         "/result/file/state": "data",
-        "/result/file/data/license": "cc_by"
+        "/result/file/data/license": "cc_by",
+        "/result/file/data/license_terms": "Creative Commons Attribution: you may share and adapt it for any purpose, even commercially, if you give credit, link the license and say what you changed."
       },
       "max_tokens": 200
     },

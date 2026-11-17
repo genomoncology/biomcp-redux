@@ -84,7 +84,7 @@ pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CacheProblem, LitVarCandidate, PoolInfo,
     SourceNotice, WithheldArticleText,
 };
-pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved, license_terms};
 pub use response::{
     ArticleSaved, ArticleTextResult, FigureCaption, FullText, TextContent, TextHit, TextPart,
     TextPartKind,

@@ -175,6 +175,17 @@
           "$ref": "#/$defs/Reply_License",
           "description": "Normalized license; other grants no reuse rights."
         },
+        "license_terms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What `license` allows, in plain words from the Creative Commons deed or PMC's Copyright Notice."
+        },
         "path": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Absolute destination path."
