@@ -22,7 +22,7 @@
         "/result/identity/name": "Glumetza",
         "/result/identity/name_resolution/basis": "generic",
         "/result/identity/name_resolution/total": 284,
-        "/result/identity/name_resolution/reason": "chose Glumetza (fb832474-88d9-4e29-95cd-fbc446944cc4), a brand-name NDA/BLA label; 283 other labels share this name: 1 NDA/BLA labels under the generic name, 282 generic or other labels"
+        "/result/identity/name_resolution/reason": "chose Glumetza (fb832474-88d9-4e29-95cd-fbc446944cc4), a brand-name NDA/BLA label from its original packager; 283 other labels share this name: 1 NDA/BLA labels under the generic name, 282 generic or other labels; 217 are repackaged copies"
       },
       "max_bytes": 12000
     }
