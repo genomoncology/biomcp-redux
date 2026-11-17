@@ -101,6 +101,11 @@
     },
     {
       "required": [
+        "affiliation"
+      ]
+    },
+    {
+      "required": [
         "since"
       ]
     },
@@ -117,6 +122,10 @@
   ],
   "description": "Checked search selectors and pool cursor.",
   "properties": {
+    "affiliation": {
+      "$ref": "#/$defs/Text",
+      "description": "PubMed/Europe PMC affiliation words.\nPubMed and Europe PMC only: author affiliation words, such as an institution, sent to the source's affiliation field as one phrase."
+    },
     "author": {
       "$ref": "#/$defs/Text",
       "description": "PubMed/Europe PMC author words.\nPubMed and Europe PMC only: author words sent to the source's author field."

@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "article-search",
-  "story": "An MSL counting one institution's papers on a topic filters by affiliation, and PubMed and Europe PMC each search their own affiliation field for the whole institution name instead of the agent tallying affiliations by hand.",
+  "story": "An MSL counting one institution's papers on a topic filters by affiliation, so PubMed and Europe PMC each search their own affiliation field for the whole institution name and report their own total, instead of the agent tallying the first ten affiliations of every paper by hand.",
   "replay": "article/search/affiliation",
   "steps": [
     {
@@ -20,8 +20,38 @@
         "3"
       ],
       "expect": {
-        "/status": "complete"
-      }
+        "/status": "complete",
+        "/sources/0/source": "pubmed",
+        "/sources/0/term": "KRAS G12C AND \"Dana-Farber Cancer Institute\"[ad] AND 2023:2025[dp]",
+        "/sources/0/count": 28,
+        "/page/total": 28,
+        "/result/items/*/key/id": {
+          "equals": [
+            "38589574",
+            "36546659",
+            "38402609"
+          ]
+        },
+        "/next/0/args": [
+          "search",
+          "article",
+          "KRAS G12C",
+          "--affiliation",
+          "Dana-Farber Cancer Institute",
+          "--exact-term",
+          "--limit",
+          "3",
+          "--offset",
+          "3",
+          "--pool",
+          "92a19c44086ac74a22775a1327200ff4",
+          "--since",
+          "2023",
+          "--until",
+          "2025"
+        ]
+      },
+      "max_bytes": 2542
     },
     {
       "run": [
@@ -41,7 +71,36 @@
         "3"
       ],
       "expect": {
-        "/status": "complete"
+        "/status": "complete",
+        "/sources/0/source": "europepmc",
+        "/sources/0/term": "KRAS G12C AND AFF:\"Dana-Farber Cancer Institute\" AND FIRST_PDATE:[2023 TO 2025]",
+        "/sources/0/count": 91,
+        "/result/items/*/key/id": {
+          "equals": [
+            "41325754",
+            "40293709",
+            "41086055"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "KRAS G12C",
+        "--affiliation",
+        "Dana-Farber",
+        "--source",
+        "semantic-scholar"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.unsupported_filter",
+        "/error/source": "semantic-scholar",
+        "/error/option": "--affiliation"
       }
     }
   ],

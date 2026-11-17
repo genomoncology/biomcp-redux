@@ -1674,15 +1674,19 @@ Arguments:
           Words sent to each named source in its default fields; unsupported by LitVar, which requires a variant selector.
 
 Options:
-      --author <author>
-          PubMed/Europe PMC author words.
-          PubMed and Europe PMC only: author words sent to the source's author field.
+      --affiliation <affiliation>
+          PubMed/Europe PMC affiliation words.
+          PubMed and Europe PMC only: author affiliation words, such as an institution, sent to the source's affiliation field as one phrase.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
+
+      --author <author>
+          PubMed/Europe PMC author words.
+          PubMed and Europe PMC only: author words sent to the source's author field.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -1695,17 +1699,17 @@ Options:
           Drug words.
           Available for command sources except LitVar.
 
-      --exact-term[=<exact_term>]
-          Search the typed drug term without resolving its other names.
-
-          [default: false]
-          [possible values: true, false]
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --exact-term[=<exact_term>]
+          Search the typed drug term without resolving its other names.
+
+          [default: false]
+          [possible values: true, false]
 
       --gene <gene>
           Gene symbol or ID.
@@ -1725,11 +1729,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --offset <offset>
           Number of pool items to skip.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1737,12 +1747,6 @@ Options:
       --open-access[=<open_access>]
           Source open access.
           PubMed, Europe PMC and Semantic Scholar only: require source open access; Semantic Scholar means a public PDF.
-
-          [default: false]
-          [possible values: true, false]
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1802,6 +1806,8 @@ Search research articles and biomedical papers. Sources: europepmc, litsense, li
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
+- `--affiliation`: PubMed/Europe PMC affiliation words.
+PubMed and Europe PMC only: author affiliation words, such as an institution, sent to the source's affiliation field as one phrase. Value form: string; example: --affiliation 'Dana-Farber Cancer Institute'.
 - `--author`: PubMed/Europe PMC author words.
 PubMed and Europe PMC only: author words sent to the source's author field. Value form: string; example: --author Carpten.
 - `--disease`: Disease words.
@@ -1846,7 +1852,7 @@ Form: search article TEXT; not --text.
 - `--type`: Publication type.
 PubMed and Europe PMC only: source publication-type filter. Value form: string; example: --type review.
 - `--until`: Last publication date.
-PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date. Value form: string; example: --until 2020; only with --source pubmed, europepmc or semantic-scholar.
+PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date. Value form: string; example: --until 2025; only with --source pubmed, europepmc or semantic-scholar.
 - `--variant`: Variant words. Value form: string; example: --variant rs121434592.
 - `--query`: Alias for positional article text. Value form: string; example: --query <query> (syntax; replace the placeholder with your retained value).
 
