@@ -4197,7 +4197,7 @@
               "type": "null"
             }
           ],
-          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar."
+          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitted record per classification area); the total counts only that kind. Only with --source clinvar."
         },
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
@@ -4472,7 +4472,7 @@
               "type": "null"
             }
           ],
-          "description": "Record kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+          "description": "Record kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitted record per classification area); the section total counts only that kind. Only with section clinvar or all."
         },
         "command": {
           "const": "get-variant",

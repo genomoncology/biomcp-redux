@@ -160,7 +160,7 @@
           "type": "null"
         }
       ],
-      "description": "Record kind; help get variant\nRecord kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+      "description": "Record kind; help get variant\nRecord kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitted record per classification area); the section total counts only that kind. Only with section clinvar or all."
     },
     "disease": {
       "anyOf": [
