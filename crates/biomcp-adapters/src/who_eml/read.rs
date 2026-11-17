@@ -11,7 +11,7 @@ use biomcp_types::{
 use std::time::Duration;
 
 /// The eEML is CC BY 3.0 IGO, commercial use included, but not for advertising or promoting
-/// commercial products or suggesting WHO endorsement (https://list.essentialmeds.org/licencing).
+/// commercial products or suggesting WHO endorsement (<https://list.essentialmeds.org/licencing>).
 pub static SPEC: SourceSpec = SourceSpec {
     source: Source::WhoEml,
     base: "https://list.essentialmeds.org",
