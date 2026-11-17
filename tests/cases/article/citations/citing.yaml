@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "article-citations",
-  "story": "The recorded citing-paper pool has1045 papers and its first page is ordered by distinct citing counts; the warm page is offline.",
+  "story": "The recorded citing-paper pool has 1045 papers; the reply says its order is most-cited-first and its first page is ordered by distinct citing counts; the warm page is offline.",
   "replay": "article/citations/live",
   "steps": [
     {
@@ -12,6 +12,7 @@
       ],
       "expect": {
         "/page/total": 1045,
+        "/result/order": "most-cited-first",
         "/result/items/*/cited_by": {
           "nonincreasing": true
         }

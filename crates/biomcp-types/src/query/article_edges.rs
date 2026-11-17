@@ -15,6 +15,8 @@ struct Fields {
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
     pmid: ArticleInput,
     /// Graph provider; iCite remains the default.
+    ///
+    /// iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
     #[serde(default)]
     source: EdgeSource,
     /// Maximum papers on one page.

@@ -5500,7 +5500,7 @@
         "source": {
           "$ref": "#/$defs/EdgeSource",
           "default": "icite",
-          "description": "Graph provider; iCite remains the default."
+          "description": "Graph provider; iCite remains the default.\n\niCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order."
         }
       },
       "required": [
@@ -5544,7 +5544,7 @@
         "source": {
           "$ref": "#/$defs/EdgeSource",
           "default": "icite",
-          "description": "Graph provider; iCite remains the default."
+          "description": "Graph provider; iCite remains the default.\n\niCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order."
         }
       },
       "required": [

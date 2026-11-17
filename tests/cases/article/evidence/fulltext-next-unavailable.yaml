@@ -1,0 +1,50 @@
+{
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "feature": "article-evidence",
+  "story": "When Semantic Scholar fails, the reply keeps its retry and also offers the same pair with --fulltext, which reads the citing paper's own PMC paragraphs.",
+  "verified": "Three synthetic Semantic Scholar 500 replies, since its terms are noncommercial; the PubMed and PMC OA replies are the real records of article/evidence/source. Before 1015 the failed reply offered only a retry (msl persona 2026-11-16, analysis 3.2).",
+  "replay": "article/evidence/s2-unavailable",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "citation-evidence",
+        "33123537",
+        "17611497"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/1/source": "semantic-scholar",
+        "/sources/1/state": "failed",
+        "/next/*/args": {
+          "includes": [
+            "article",
+            "citation-evidence",
+            "33123537",
+            "17611497",
+            "--fulltext"
+          ]
+        }
+      },
+      "max_bytes": 3600
+    },
+    {
+      "run": [
+        "article",
+        "citation-evidence",
+        "33123537",
+        "17611497",
+        "--fulltext"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/semantic_scholar/state": "unavailable",
+        "/result/fulltext/state": "data",
+        "/result/fulltext/data/paragraphs/total": 7
+      },
+      "max_bytes": 16000
+    }
+  ]
+}

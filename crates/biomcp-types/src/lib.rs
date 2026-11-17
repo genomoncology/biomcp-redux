@@ -75,7 +75,7 @@ pub use query::{VariantPopulationQuery, VariantPopulationQueryEcho};
 pub use response::TrialParameter;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
-pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
+pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations, EdgeOrder};
 pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,

@@ -28,6 +28,7 @@ const OWNED: &[&str] = &[
     "RecurrenceGranularity",
     "AlphaGenomeNonfiniteKind",
     "EvidenceNotice",
+    "EdgeOrder",
     "PathwayTotalKind",
     "AlphaGenomeScorer",
     "DrugRecallCountUnit",
