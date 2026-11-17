@@ -97,7 +97,9 @@ pub(super) fn every_section_with_rows_states_its_total_at_the_top() -> Result<()
     });
     sections_with_rows_and_no_total(&named_rows, &named_rows, "named", &mut found);
     if found.len() != 2 {
-        return Err(format!("planted sections with rows and no total: {found:?}"));
+        return Err(format!(
+            "planted sections with rows and no total: {found:?}"
+        ));
     }
     let mut found = Vec::new();
     for contract in registry() {
