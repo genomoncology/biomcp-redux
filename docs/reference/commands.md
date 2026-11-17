@@ -2774,20 +2774,26 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --gene-products[=<gene_products>]
+          With the genes or all section: keep only gene-product references, as `pathway genes --gene-products` does.
+
+          [default: false]
+          [possible values: true, false]
+
       --pool <pool>
           Retained snapshot, when continuing a source relation.
 
       --section-limit <section_limit>
           Bounded initial section size; each all section has its own first page.
 
-      --section-offset <section_offset>
-          Source relation offset for a selected genes or events section.
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --section-offset <section_offset>
+          Source relation offset for a selected genes or events section.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2802,6 +2808,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
 - `--fresh`: Request a new source observation. Value form: boolean; example: --fresh.
+- `--gene-products`: With the genes or all section: keep only gene-product references, as `pathway genes --gene-products` does. Value form: boolean; example: --gene-products.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
 Form: get pathway ID SECTION; not --id.
 - `--pool`: Retained snapshot, when continuing a source relation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
@@ -4582,11 +4589,17 @@ Options:
           [default: json]
           [possible values: json, md]
 
-  -l, --limit <limit>
-          Five complete relation rows by default, at most fifty.
+      --gene-products[=<gene_products>]
+          Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
+
+  -l, --limit <limit>
+          Five complete relation rows by default, at most fifty.
 
       --offset <offset>
           Offset within the retained selected relation.
@@ -4620,9 +4633,10 @@ Options apply to every listed source unless their description restricts them.
 
 - `details`: Include every physical entity context for these references; never clips source text.
 Form: pathway genes ID DETAILS; not --details.
+- `--gene-products`: Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products. Value form: boolean; example: --gene-products.
 - `id`: Checked source-owned human pathway identity.
 Form: pathway genes ID DETAILS; not --id.
-- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 5.
+- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 50.
 - `--offset`: Offset within the retained selected relation. Value form: integer; example: --offset 0.
 - `--pool`: Immutable relation snapshot. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 

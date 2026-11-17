@@ -38,6 +38,9 @@ fields!(GeneFields, "^(R-HSA-|WP)[1-9][0-9]*$",
     #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Details", extend("x-positional" = 1)))]
     details: Option<Details>,
+    /// Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    gene_products: bool,
 );
 macro_rules! relation {
     ($name:ident, $fields:ident, $wire:literal, $check:ident, $doc:literal $(, $extra:ident: $default:expr)*) => {
@@ -83,7 +86,7 @@ impl crate::Paged for $name {
 relation!(PathwayGenesQuery, GeneFields, "GeneFields", valid_genes,
     "Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses \
         complete Reactome physical contexts. Membership names a source and release; it implies no therapy, \
-        response or actionability. No enrichment is calculated.", details: None);
+        response or actionability. No enrichment is calculated.", details: None, gene_products: false);
 relation!(
     PathwayEventsQuery,
     EventFields,
@@ -104,6 +107,15 @@ impl PathwayGenesQuery {
     /// Whether full physical contexts were explicitly requested.
     pub fn details(&self) -> bool {
         self.0.details.is_some()
+    }
+    /// Keep only gene-product references and count the rest.
+    pub fn with_gene_products(mut self, on: bool) -> Self {
+        self.0.gene_products = on;
+        self
+    }
+    /// Whether non-gene references are left out.
+    pub fn gene_products(&self) -> bool {
+        self.0.gene_products
     }
 }
 
