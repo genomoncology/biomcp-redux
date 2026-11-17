@@ -44,6 +44,9 @@ struct GetFields {
     /// Request a new source observation.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     fresh: bool,
+    /// With the genes or all section: keep only gene-product references, as `pathway genes --gene-products` does.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    gene_products: bool,
 }
 crate::query::validation::checked_query!(PathwayGet, GetFields);
 impl TryFrom<GetFields> for PathwayGet {
@@ -62,6 +65,11 @@ impl TryFrom<GetFields> for PathwayGet {
         if !relation && v.section_offset != 0 {
             return Err(QueryInvalid::new(&["section_offset", "section"]));
         }
+        if v.gene_products
+            && !matches!(v.section, Some(PathwaySection::Genes | PathwaySection::All))
+        {
+            return Err(QueryInvalid::new(&["gene_products", "section"]));
+        }
         Ok(Self(v))
     }
 }
@@ -75,14 +83,20 @@ impl PathwayGet {
             section_offset: 0,
             pool: None,
             fresh: false,
+            gene_products: false,
         })
     }
-    /// Select a source-supported disclosure.
+    /// Select a source-supported disclosure; the gene-products option stays only where genes are read.
     pub fn with_section(&self, section: PathwaySection) -> Result<Self, QueryInvalid> {
         let mut value = self.0.clone();
         value.section = Some(section);
         value.section_offset = 0;
+        value.gene_products &= matches!(section, PathwaySection::Genes | PathwaySection::All);
         Self::try_from(value)
+    }
+    /// Whether the genes section keeps only gene-product references.
+    pub fn gene_products(&self) -> bool {
+        self.0.gene_products
     }
     /// Checked source identity.
     pub fn id(&self) -> &PathwayId {
