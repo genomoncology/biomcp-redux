@@ -36,7 +36,7 @@
           "description": "NIH activity code, such as R01, R35 or P50."
         },
         "award_amount": {
-          "description": "Total cost awarded for this fiscal year in US dollars, direct plus indirect, as RePORTER states it.",
+          "description": "This fiscal year's total cost in US dollars, direct plus indirect, as RePORTER states it.",
           "format": "uint64",
           "minimum": 0,
           "type": [
@@ -262,7 +262,7 @@
       "description": "Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one project's award for one fiscal year, so a project funded for five years gives five rows.",
       "properties": {
         "fiscal_year": {
-          "description": "NIH fiscal years, such as 2025; all years by default.",
+          "description": "NIH fiscal years; repeat the option for several, such as 2024 and 2025. All by default.",
           "items": {
             "format": "uint32",
             "minimum": 0,

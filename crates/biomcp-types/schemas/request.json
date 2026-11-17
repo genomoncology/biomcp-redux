@@ -1438,7 +1438,7 @@
           "type": "string"
         },
         "fiscal_year": {
-          "description": "NIH fiscal years, such as 2025; all years by default.",
+          "description": "NIH fiscal years; repeat the option for several, such as 2024 and 2025. All by default.",
           "items": {
             "format": "uint32",
             "minimum": 0,

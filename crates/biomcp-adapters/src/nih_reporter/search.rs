@@ -1,8 +1,8 @@
 //! One NIH RePORTER project search page and its checked reply.
+use crate::mapped::Problems;
 use crate::quotas;
 use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Read, Reply, RequestError, SourceSpec};
-use crate::mapped::Problems;
 use biomcp_types::{
     Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantSearch, Problem, Source,
 };
@@ -123,7 +123,7 @@ struct Investigator {
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
         let rows = self.results.iter().all(|row| {
-            row.project_num.as_deref().and_then(text).is_some() && row.fiscal_year.is_some()
+            present(row.project_num.as_ref()).is_some() && row.fiscal_year.is_some()
         });
         if rows && u64::try_from(self.results.len()).is_ok_and(|n| n <= self.meta.total) {
             Ok(())
@@ -218,7 +218,10 @@ fn grant(p: &mut Problems, row: Row) -> Option<Grant> {
             name: p.text("organization.org_name", present(org.org_name.as_ref())),
             city: p.text("organization.org_city", present(org.org_city.as_ref())),
             state: p.text("organization.org_state", present(org.org_state.as_ref())),
-            country: p.text("organization.org_country", present(org.org_country.as_ref())),
+            country: p.text(
+                "organization.org_country",
+                present(org.org_country.as_ref()),
+            ),
         };
         (organization != GrantOrganization::default()).then_some(organization)
     });
@@ -260,6 +263,9 @@ fn grant(p: &mut Problems, row: Row) -> Option<Grant> {
         start: p.checked_text("project_start_date", date(row.project_start_date.as_ref())),
         end: p.checked_text("project_end_date", date(row.project_end_date.as_ref())),
         investigators,
-        url: p.checked_text("project_detail_url", present(row.project_detail_url.as_ref())),
+        url: p.checked_text(
+            "project_detail_url",
+            present(row.project_detail_url.as_ref()),
+        ),
     })
 }
