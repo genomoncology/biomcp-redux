@@ -64,8 +64,8 @@ struct Criteria<'a> {
     advanced_text_search: Option<TextSearch<'a>>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     org_names: Vec<&'a str>,
-    #[serde(skip_serializing_if = "<[_]>::is_empty")]
-    fiscal_years: &'a [u32],
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    fiscal_years: Vec<u32>,
 }
 #[derive(Serialize)]
 struct Name<'a> {
@@ -122,9 +122,10 @@ struct Investigator {
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        let rows = self.results.iter().all(|row| {
-            present(row.project_num.as_ref()).is_some() && row.fiscal_year.is_some()
-        });
+        let rows = self
+            .results
+            .iter()
+            .all(|row| present(row.project_num.as_ref()).is_some() && row.fiscal_year.is_some());
         if rows && u64::try_from(self.results.len()).is_ok_and(|n| n <= self.meta.total) {
             Ok(())
         } else {
@@ -176,7 +177,7 @@ fn body(query: &GrantSearch) -> Body<'_> {
                 search_text: text.as_str(),
             }),
             org_names: query.organization().map(Text::as_str).into_iter().collect(),
-            fiscal_years: query.fiscal_year(),
+            fiscal_years: query.fiscal_year().into_iter().collect(),
         },
         include_fields: FIELDS,
         offset: query.offset(),

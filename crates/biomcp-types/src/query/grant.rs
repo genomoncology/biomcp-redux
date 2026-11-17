@@ -40,10 +40,14 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     organization: Option<Text>,
-    /// NIH fiscal years; repeat the option for several, such as 2024 and 2025. All by default.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    #[cfg_attr(feature = "schema", schemars(length(max = 50), extend("x-comma-separated" = true)))]
-    fiscal_year: Box<[u32]>,
+    /// One NIH fiscal year, such as 2025; all years by default.
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1985, max = 2100)))]
+    fiscal_year: Option<u32>,
     /// Ten project-years by default, one to fifty.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -67,11 +71,7 @@ impl TryFrom<Fields> for GrantSearch {
                 "organization",
             ]));
         }
-        if v.fiscal_year.len() > 50
-            || v.fiscal_year
-                .iter()
-                .any(|year| !(1985..=2100).contains(year))
-        {
+        if v.fiscal_year.is_some_and(|year| !(1985..=2100).contains(&year)) {
             return Err(QueryInvalid::new(&["fiscal_year"]));
         }
         if !(1..=50).contains(&v.limit) {
@@ -96,9 +96,9 @@ impl GrantSearch {
     pub fn organization(&self) -> Option<&Text> {
         self.0.organization.as_ref()
     }
-    /// NIH fiscal years; empty means all.
-    pub fn fiscal_year(&self) -> &[u32] {
-        &self.0.fiscal_year
+    /// One NIH fiscal year; none means all.
+    pub fn fiscal_year(&self) -> Option<u32> {
+        self.0.fiscal_year
     }
     /// Project-years per page.
     pub fn limit(&self) -> u32 {

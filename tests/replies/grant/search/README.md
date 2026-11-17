@@ -6,5 +6,5 @@ Recorded on 2026-11-17 by `biomcp --fresh --record` without keys in pm jobs j422
 | --- | --- |
 | `POST https://api.reporter.nih.gov/v2/projects/search` with `pi_names [{"any_name": "Pasi Janne"}]`, limit 3 and then offset 68 | JSON |
 | the same with `advanced_text_search` "KRAS G12C" over title, abstract and terms | JSON |
-| the Janne search with `org_names ["DANA-FARBER"]` and `fiscal_years [2024, 2025]` | JSON |
+| the Janne search with `org_names ["DANA-FARBER"]` and `fiscal_years [2025]` | JSON |
 | `pi_names [{"any_name": "Zzqxv Nobody"}]` | JSON, total 0 |

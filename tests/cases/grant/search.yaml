@@ -1,8 +1,8 @@
 {
   "feature": "grant-search",
   "live_check": "public",
-  "story": "A medical science liaison counts a key opinion leader's NIH project-years, narrows them to one organization and two fiscal years, and searches NIH grants by topic, with institute, organization and award amount on every row.",
-  "verified": "Captured live 2026-11-17 from NIH RePORTER in pm jobs j42229 and JOB3. Pasi Janne has 70 project-years (the msl run's 8.3 count); the newest is FY2026 5P50CA265826-05 (NCI, Dana-Farber, $384,444). \"KRAS G12C\" over title, abstract and terms gives 173. Janne at DANA-FARBER in fiscal years 2024 and 2025 gives 3. An unknown name gives 0.",
+  "story": "A medical science liaison counts a key opinion leader's NIH project-years, narrows them to one organization and one fiscal year, and searches NIH grants by topic, with institute, organization and award amount on every row.",
+  "verified": "Captured live 2026-11-17 from NIH RePORTER in pm jobs j42229 and JOB3. Pasi Janne has 70 project-years (the msl run's 8.3 count); the newest is FY2026 5P50CA265826-05 (NCI, Dana-Farber, $384,444). \"KRAS G12C\" over title, abstract and terms gives 173. Janne at DANA-FARBER in fiscal year 2025 gives 1 (5P50CA265826-04). An unknown name gives 0.",
   "replay": "grant/search",
   "steps": [
     {
@@ -39,10 +39,11 @@
       }
     },
     {
-      "run": ["search", "grant", "--investigator", "Pasi Janne", "--organization", "DANA-FARBER", "--fiscal-year", "2024", "--fiscal-year", "2025"],
+      "run": ["search", "grant", "--investigator", "Pasi Janne", "--organization", "DANA-FARBER", "--fiscal-year", "2025"],
       "expect": {
         "/status": "complete",
-        "/page/total": 3,
+        "/page/total": 1,
+        "/result/items/0/project": "5P50CA265826-04",
         "/result/items/0/organization/name": "DANA-FARBER CANCER INST"
       }
     },
