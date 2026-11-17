@@ -334,7 +334,7 @@ The inspected legacy source is `4050fdc7dbdf4d713d94cf02a39a147b863665be`. No le
 | `gene pathways` | Gene; `--limit`; `--offset` | Keep landed `get gene <input> pathways`; Full membership paging uses `search pathway --gene GENE --limit N --offset N`. |
 | `list pathway` | No entity-specific options | Replace with shared `help search pathway` and `help get pathway`; fixed guidance, no network. |
 | `search all` pathway section | Parent query and shared global paging/output flags; no pathway-specific flags | Account for the legacy nested pathway section separately from standalone search. Accounted without a new parent search; standalone pathway search retains source-scoped outcomes. Forbid an implicit enrichment or KEGG leg. |
-| `enrich` | Comma-separated genes; `-l/--limit` | Drop whole command under Ian's entity boundary ruling. Fixed retirement message; no provider and no local calculation. |
+| `enrich` | Comma-separated genes; `-l/--limit` | Renamed `gene enrichment GENE...` with `--limit` (milestone 8, ticket 1028); g:Profiler calculates, BioMCP calculates nothing. The old word answers with a message naming the new command. |
 | global output flags | JSON, Markdown, CLI/MCP transport | Preserve shared versioned envelope and identical request interpretation. Do not create a separate pathway MCP tool. |
 
 ### Leaf-command parity accounting
@@ -349,10 +349,10 @@ The leaf table owns pathway leaves. The article slice transfers `pathway article
 | `pathway drugs` | Dropped by ruling | — | `--limit`, `--offset` | — | — | The 2026-10-26 ruling retires whole-pathway fanout. Inspect exact member genes, then select a drug identity and its explicit source sections; reverse gene-to-drug search is unsupported. |
 | `pathway articles` | Dropped by ruling | — | `--limit`, `--offset` | — | — | The 2026-10-26 ruling retires implicit title matching; use explicit search article TEXT. |
 | `pathway trials` | Dropped by ruling | — | `--limit`, `--offset`, `--source` | — | — | The 2026-10-26 ruling retires condition-name matching and first-gene fallback; use search trial --gene GENE. |
-| `enrich` | Dropped by ruling | — | `--limit` | — | — | The entity boundary ruling excludes g:Profiler, enrichment calculation and execution of analysis tools. |
+| `enrich` | Ported or renamed | `--limit` | — | — | — | Use gene enrichment GENE...; milestone 8 (ticket 1028) brings back gene-set enrichment through g:Profiler, which runs the analysis while BioMCP reports its stated statistics, correction and background. |
 <!-- /parity-accounting -->
 
-KEGG, g:Profiler, `enrich`, `enrichment`, `pathway drugs`, `pathway articles` and `pathway trials` remain dropped. The full GPML archive and bundle-wide gene index remain deferred; exact publisher-linked per-pathway GPML supplies the shipped membership command.
+KEGG, the `get pathway` `enrichment` section, `pathway drugs`, `pathway articles` and `pathway trials` remain dropped. The full GPML archive and bundle-wide gene index remain deferred; exact publisher-linked per-pathway GPML supplies the shipped membership command.
 
 ### Closed public issues
 

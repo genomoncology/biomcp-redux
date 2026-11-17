@@ -333,7 +333,7 @@ singleton! {
         PathwayText => "use: search pathway <text>",
         PathwayClass => "--type is retired: the accepted pathway class is enforced and needs no filter.",
         PathwayKegg => "KEGG pathways are dropped; use a Reactome R-HSA-… or WikiPathways WP… ID.",
-        PathwayEnrich => "Gene-set enrichment is dropped; an agent can call g:Profiler itself.",
+        PathwayEnrich => "use: gene enrichment GENE...; g:Profiler runs the enrichment and states its statistics.",
         PathwayDrugs => "use: get pathway ID genes; reverse gene-to-drug search is not supported; select a drug identity \
             and request its explicit source sections.",
         PathwayArticles => "use: search article <text>; a matching title does not establish pathway article linkage.",
