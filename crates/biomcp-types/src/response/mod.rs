@@ -20,8 +20,8 @@ pub use article::{
 };
 mod article_cards;
 pub use article::{
-    ArticleEdgeItem, ArticleEdgePage, ArticleItem, EdgeOrder, ArticleKey, ArticlePage, ArticleSentence,
-    CitationIntent, LitVarCandidate, WithheldArticleText,
+    ArticleEdgeItem, ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, ArticleSentence,
+    CitationIntent, EdgeOrder, LitVarCandidate, WithheldArticleText,
 };
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};

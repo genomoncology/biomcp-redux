@@ -494,7 +494,10 @@ pub(super) fn fetched<'a>(
 }
 
 /// iCite pools are sorted by `cited_by` when created; Semantic Scholar pools keep source order.
-fn edge_page(query: &ArticleEdges, items: impl Into<Box<[biomcp_types::ArticleItem]>>) -> ReplyData {
+fn edge_page(
+    query: &ArticleEdges,
+    items: impl Into<Box<[biomcp_types::ArticleItem]>>,
+) -> ReplyData {
     let order = match query.source() {
         biomcp_types::EdgeSource::Icite => biomcp_types::EdgeOrder::MostCitedFirst,
         biomcp_types::EdgeSource::SemanticScholar => biomcp_types::EdgeOrder::SourceOrder,

@@ -108,9 +108,7 @@ fn no_contexts(body: &ReplyData) -> bool {
     };
     match &result.semantic_scholar {
         Section::Unavailable { .. } => true,
-        Section::Data { data, .. } => {
-            data.notice == Some(biomcp_types::EvidenceNotice::NoContexts)
-        }
+        Section::Data { data, .. } => data.notice == Some(biomcp_types::EvidenceNotice::NoContexts),
         _ => false,
     }
 }
