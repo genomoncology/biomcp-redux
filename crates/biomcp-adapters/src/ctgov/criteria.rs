@@ -34,12 +34,32 @@ fn trim(line: &str) -> &str {
 }
 
 /// A line ending in "criteria:" that is not one of the two headings, such as a cohort's
-/// heading, could start a block the split would misfile.
+/// heading, could start a block the split would misfile. A line that starts with a list
+/// marker is an item, such as "6. Any of the following cardiac criteria:".
 fn other_criteria_heading(line: &str) -> bool {
-    trim(line)
+    let trimmed = trim(line);
+    trimmed
         .strip_suffix(':')
         .is_some_and(|head| head.trim_end().to_ascii_lowercase().ends_with("criteria"))
+        && !list_marker(trimmed)
         && heading(line).is_none()
+}
+
+/// A number or a single letter followed by "." or ")", or a bullet; `trim` already removed
+/// "*" and "-".
+fn list_marker(line: &str) -> bool {
+    if line.starts_with(['•', '·', '+', '○', '▪']) {
+        return true;
+    }
+    let digits = line.len() - line.trim_start_matches(|c: char| c.is_ascii_digit()).len();
+    let label = match digits {
+        0 => line.chars().next().filter(char::is_ascii_alphabetic).map_or(0, |_| 1),
+        n => n,
+    };
+    label > 0
+        && line
+            .get(label..)
+            .is_some_and(|rest| rest.starts_with(['.', ')']))
 }
 
 /// Whether the whole text carries both headings and no other line ends in "criteria:".
