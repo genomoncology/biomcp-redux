@@ -52,7 +52,8 @@ pub use query::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use query::{ArticleSupplement, ArticleText, SheetRows};
 pub use query::{COMMANDS, CommandSpec, Rewrite, command_paths};
 pub use query::{
-    CivicClaimKind, CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceStatus, VariantSection,
+    CivicClaimKind, CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceSignificance,
+    CivicEvidenceStatus, VariantSection,
 };
 pub use query::{GeneGet, GeneSearch, GeneSection, GeneSectionWord, Request};
 pub use query::{

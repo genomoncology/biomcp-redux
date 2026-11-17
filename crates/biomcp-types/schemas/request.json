@@ -248,6 +248,36 @@
       ],
       "type": "string"
     },
+    "CivicEvidenceSignificance": {
+      "description": "Native CIViC evidence significance, from the live EvidenceSignificance enum.",
+      "enum": [
+        "sensitivityresponse",
+        "resistance",
+        "better_outcome",
+        "poor_outcome",
+        "positive",
+        "negative",
+        "na",
+        "adverse_response",
+        "pathogenic",
+        "likely_pathogenic",
+        "benign",
+        "likely_benign",
+        "uncertain_significance",
+        "reduced_sensitivity",
+        "gain_of_function",
+        "loss_of_function",
+        "unaltered_function",
+        "neomorphic",
+        "unknown",
+        "dominant_negative",
+        "predisposition",
+        "protectiveness",
+        "oncogenicity",
+        "likely_oncogenic"
+      ],
+      "type": "string"
+    },
     "CivicEvidenceStatus": {
       "description": "Native CIViC evidence review status.",
       "enum": [
@@ -4002,6 +4032,17 @@
           },
           "type": "array"
         },
+        "evidence_significance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CivicEvidenceSignificance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Significance\nNative CIViC evidence significance, such as resistance or sensitivityresponse.\nOnly with --source civic on get drug, and the civic section on get variant."
+        },
         "evidence_status": {
           "anyOf": [
             {
@@ -4475,6 +4516,17 @@
             "$ref": "#/$defs/CivicEvidenceLevel"
           },
           "type": "array"
+        },
+        "evidence_significance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CivicEvidenceSignificance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Significance\nNative CIViC evidence significance, such as resistance or sensitivityresponse.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "evidence_status": {
           "anyOf": [
@@ -5543,6 +5595,11 @@
         },
         {
           "required": [
+            "affiliation"
+          ]
+        },
+        {
+          "required": [
             "since"
           ]
         },
@@ -5559,6 +5616,10 @@
       ],
       "description": "Search research articles and biomedical papers.",
       "properties": {
+        "affiliation": {
+          "$ref": "#/$defs/Text",
+          "description": "PubMed/Europe PMC affiliation words.\nPubMed and Europe PMC only: author affiliation words, such as an institution, sent to the source's affiliation field as one phrase."
+        },
         "author": {
           "$ref": "#/$defs/Text",
           "description": "PubMed/Europe PMC author words.\nPubMed and Europe PMC only: author words sent to the source's author field."

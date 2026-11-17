@@ -97,6 +97,7 @@ Genes, variants, diseases and phenotypes:
 - `search phenotype` given comma-separated HP IDs returns Monarch's one ranked list of similar genes, or diseases with `--group diseases`, with `--metric` and `--search-mode`. The ranking gets a 30-second budget.
 - `get pgx --gene GENE --source cpic recommendations --drug-id ID --phenotype TEXT` keeps one CPIC phenotype, such as Poor Metabolizer, and the first page lists the phenotypes present. A plain drug name in `--drug-id` is refused with the accepted form.
 - `get variant ID civic` joins a CIViC variant that states the same protein change, honours `--section-limit`, and takes `--disease` and `--drug`. `get variant CAID hotspots` accepts a ClinGen CAid. `get variant clinvar:ID population` falls back to the ClinGen Allele Registry when MyVariant lacks the record.
+- `get variant ID civic` and `get drug NAME --source civic` take `--evidence-significance`, such as `resistance` or `sensitivityresponse`. CIViC applies it before paging, like `--evidence-level`, so the profile's evidence total counts only the matching items.
 - When a transcript HGVS fails `variant normalize` on its reference base, the reply lists the gene's transcripts where the change fits and offers the fitting one; the reply is `partial` rather than `failed`. `search variant --variant` given a full HGVS name offers the runnable `--gene ... --coding ...` call.
 - `get disease ID prevalence --source orphadata` returns Orphanet prevalence estimates, age of onset and inheritance after `sync orphadata`. Hierarchy rows carry parent labels, and each synonym appears once with `also_stated_by` naming the other sources that state it.
 - `pathway genes` and `pathway events` with an ID the source does not hold answer `absent`, not `failed`.
@@ -104,6 +105,7 @@ Genes, variants, diseases and phenotypes:
 Articles:
 
 - `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
+- `search article --affiliation` finds papers by an author's institution, sent as one phrase to PubMed's affiliation field (`[ad]`) and Europe PMC's `AFF:`.
 - `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`.
 - Article licenses come with `license_terms`, what the license allows in plain words from its Creative Commons deed or PMC's Copyright Notice, in the `fulltext`, `supplements` and `pdf` sections and the `article pdf` receipt; `tdm`, for example, allows text mining and fair use, not sharing. When the `pdf` section fails at Semantic Scholar, `get article` offers a `fulltext` step for papers with a PMC or Europe PMC copy.
 - A single-source search reports the source's own total. A drug-name search on Semantic Scholar or LitSense says the per-name counts overlap and are not added, and a cut-short search says later rows cannot be paged. `get article` states its limit of 20 IDs.

@@ -1190,6 +1190,36 @@
       ],
       "type": "string"
     },
+    "Reply_CivicEvidenceSignificance": {
+      "description": "Native CIViC evidence significance, from the live EvidenceSignificance enum.",
+      "enum": [
+        "sensitivityresponse",
+        "resistance",
+        "better_outcome",
+        "poor_outcome",
+        "positive",
+        "negative",
+        "na",
+        "adverse_response",
+        "pathogenic",
+        "likely_pathogenic",
+        "benign",
+        "likely_benign",
+        "uncertain_significance",
+        "reduced_sensitivity",
+        "gain_of_function",
+        "loss_of_function",
+        "unaltered_function",
+        "neomorphic",
+        "unknown",
+        "dominant_negative",
+        "predisposition",
+        "protectiveness",
+        "oncogenicity",
+        "likely_oncogenic"
+      ],
+      "type": "string"
+    },
     "Reply_CivicEvidenceStatus": {
       "description": "Native CIViC evidence review status.",
       "enum": [
@@ -7351,6 +7381,17 @@
             "$ref": "#/$defs/Reply_CivicEvidenceLevel"
           },
           "type": "array"
+        },
+        "evidence_significance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CivicEvidenceSignificance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Significance\nNative CIViC evidence significance, such as resistance or sensitivityresponse.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "evidence_status": {
           "anyOf": [
