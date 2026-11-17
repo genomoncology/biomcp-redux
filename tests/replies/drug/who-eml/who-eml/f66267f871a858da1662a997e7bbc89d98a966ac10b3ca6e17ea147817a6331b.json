@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=dabigatran%20etexilate",
+  "exchanges": [
+    {
+      "fetched": 1794889795,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 314,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "f66267f871a858da1662a997e7bbc89d98a966ac10b3ca6e17ea147817a6331b-0.bin"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/medicines/128",
+  "exchanges": [
+    {
+      "fetched": 1794889785,
+      "status": 200,
+      "content_type": "application/ld+json",
+      "delay_ms": 194,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"@context":["http://schema.org/docs/jsonldcontext.json","https://list.essentialmeds.org/contexts/v1.jsonld"],"@id":"/medicines/128","@type":["Drug","Medicine"],"name":"warfarin","nonProprietaryName":"warfarin","description":"<div data-contents=\"true\"><div class=\"\" data-block=\"true\" data-editor=\"sgrg\" data-offset-key=\"c2vp8-0-0\"><div data-offset-key=\"c2vp8-0-0\" class=\"public-DraftStyleDefault-block public-DraftStyleDefault-ltr\"><span data-offset-key=\"c2vp8-0-0\"><br data-text=\"true\"></span></div></div></div>","sameAs":"http://en.wikipedia.org/wiki/Warfarin","activeIngredient":["warfarin"],"ingredient":[{"@type":"Substance","name":"warfarin","sameAs":"http://www.drugbank.ca/drugs/DB00682"}],"drugUnit":["Oral > Solid > tablet: 5 mg  (scored) (sodium); 3 mg (scored) (sodium); 0.5 mg  (scored) (sodium); 2 mg  (scored) (sodium); 1 mg  (scored) (sodium)","Oral > Solid > tablet: 3 mg (scored) (sodium); 0.5 mg (scored) (sodium); 2 mg (scored) (sodium); 1 mg (scored) (sodium); 5 mg (scored) (sodium)","Oral > Solid > tablet: 5 mg (scored) (sodium); 3 mg (scored) (sodium); 0.5 mg (scored) (sodium); 2 mg (scored) (sodium); 1 mg (scored) (sodium)"],"guideline":[{"@id":"/recommendations/153"},{"@id":"/recommendations/948"},{"@id":"/recommendations/949"},{"@id":"/recommendations/950"}],"equivalentFor":[],"status":"AddedToEml","antibioticStewardshipGroup":[]}
+      }
+    }
+  ]
+}

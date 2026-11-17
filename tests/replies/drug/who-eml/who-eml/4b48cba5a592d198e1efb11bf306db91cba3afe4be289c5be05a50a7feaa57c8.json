@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=dabigatran",
+  "exchanges": [
+    {
+      "fetched": 1794889781,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 339,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "4b48cba5a592d198e1efb11bf306db91cba3afe4be289c5be05a50a7feaa57c8-0.bin"
+      }
+    }
+  ]
+}
