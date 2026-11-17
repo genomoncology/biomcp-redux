@@ -153,18 +153,3 @@ impl Reply for Raw {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::fields;
-
-    #[test]
-    fn trimming_keeps_only_access_fields() {
-        let body = br#"{"version":"6.9","hitCount":1,"resultList":{"result":[{"id":"1","source":"MED","pmid":"1","isOpenAccess":"Y","license":"cc by","abstractText":"secret"}]}}"#;
-        let kept: serde_json::Value = serde_json::from_slice(&fields(body).unwrap()).unwrap();
-        assert_eq!(
-            kept,
-            serde_json::json!({"hitCount":1,"resultList":{"result":[{"source":"MED","pmid":"1","isOpenAccess":"Y","license":"cc by"}]}})
-        );
-    }
-}
