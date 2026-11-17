@@ -44,6 +44,22 @@
           "excludes": "chebi"
         }
       }
+    },
+    {
+      "run": ["get", "pathway", "R-HSA-5693607", "genes", "--gene-products"],
+      "mcp": ["get", "pathway", "R-HSA-5693607", "genes", "--gene-products"],
+      "expect": {
+        "/status": "complete",
+        "/query/gene_products": true,
+        "/result/genes/data/total": 80,
+        "/result/genes/data/page/total": 80,
+        "/result/genes/data/left_out": {
+          "equals": {"rows": 9, "namespaces": [{"namespace": "chebi", "rows": 9}]}
+        },
+        "/result/genes/data/items/*/reference/namespace": {
+          "excludes": "chebi"
+        }
+      }
     }
   ]
 }

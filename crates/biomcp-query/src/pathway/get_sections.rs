@@ -100,7 +100,8 @@ fn relation_echo(
     };
     if section == PathwaySection::Genes {
         crate::next::checked(
-            biomcp_types::PathwayGenesQuery::new(q.id().clone(), q.section_limit()),
+            biomcp_types::PathwayGenesQuery::new(q.id().clone(), q.section_limit())
+                .map(|query| query.with_gene_products(q.gene_products())),
             source,
             &mut out.problems,
         )
