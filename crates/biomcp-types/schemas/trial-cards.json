@@ -3003,15 +3003,12 @@
           ]
         },
         "distance_mi": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_FiniteNumber"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Straight-line miles from the requested --lat/--lon point, not travel distance; absent without a point or site coordinates."
+          "description": "Straight-line miles from the requested --lat/--lon point, not travel distance; absent without a point or site coordinates.",
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "facility": {
           "description": "Source facility name, absent only when not supplied.",
