@@ -112,9 +112,11 @@ impl State {
             return (now, false);
         };
         let mut gap = now;
-        while let Some(taken) = self.admitted.iter().find(|taken| {
-            gap.max(**taken).saturating_duration_since(gap.min(**taken)) < interval
-        }) {
+        while let Some(taken) = self
+            .admitted
+            .iter()
+            .find(|taken| gap.max(**taken).saturating_duration_since(gap.min(**taken)) < interval)
+        {
             gap = taken.checked_add(interval).unwrap_or(latest);
         }
         let filled = gap < latest;
