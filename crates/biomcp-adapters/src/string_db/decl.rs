@@ -5,7 +5,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     spec: &super::read::SPEC,
     display: "STRING",
     discovery_aliases: &[],
-    registry_order: Some(61),
+    registry_order: Some(62),
     probe: Probe::Get(
         super::read::PARTNERS,
         &[
