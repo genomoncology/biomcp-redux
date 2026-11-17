@@ -25,10 +25,18 @@ Read the source attribution, referenced publication identities and pagination. A
 ## 3. Retrieve and inspect
 
 ```sh
-biomcp article citation-evidence 33123537 17611497
+biomcp article citation-evidence 33123537 17611497 --fulltext
 ```
 
-Read the returned citation context and its source. Check that both publication identities match the requested direction.
+Read the returned citation context and its source; `--fulltext` adds the citing paper's own paragraphs that cite the reference. Check that both publication identities match the requested direction.
+
+## 4. Follow an author
+
+```sh
+biomcp search article --author 'Carpten JD' --sort citations
+```
+
+Read the author's PubMed papers, most cited first; `--sort date` lists the most recently added first.
 
 ## Next
 

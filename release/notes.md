@@ -75,6 +75,7 @@ Adverse events:
 
 - FAERS cards label the age unit and every seriousness flag beside its code, and `unmapped_codes` names a code missing from openFDA's published list. Search rows and the `drugs`, `reactions` and identifier sections carry `serious_label`. `case_event_date` holds the case event date; openFDA's public FAERS data has no case narrative.
 - `--aggregate received-year` or `received-month`, with `--received-from` and `--received-to`, counts FAERS or MAUDE reports by FDA receipt period.
+- FAERS replies say that all names, typed or found, go in one query, so a report naming several counts once, and a `--serious death` count with `--reaction` says it counts reports flagged death that list the reaction, not deaths caused by it.
 - MAUDE takes `--event-type` (malfunction, injury, death or other). Reports with no event type fall outside every event-type count.
 - VAERS takes `--sort reports` to order the whole table largest first. VAERS tables get a 60-second budget, and a rate-limited table is tried once more before the reply says when to retry.
 
@@ -117,6 +118,8 @@ Other commands:
 ## Agent skill
 
 `biomcp skill install` and the Claude plugin now ship only `SKILL.md`. The worked examples stay in the binary: read them with `biomcp skill list` and `biomcp skill NAME`.
+
+The skill now says where data often assumed missing lives: FDA 510(k), PMA and device recalls under `search diagnostic`, SEER incidence and survival under `disease --source seer`, an author's papers with `search article --author`, a citing paper's own paragraph with `citation-evidence --fulltext`, CPIC gene-drug pairs with `search pgx`, and any label section with `--label-section`.
 
 ## Hosted use and source terms
 
