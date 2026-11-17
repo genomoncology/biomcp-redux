@@ -137,7 +137,9 @@ fn read_pages(
         params.insert("pageToken".into(), token.as_str().into());
     }
     let read = seen_trials.len() as u64;
-    let matched = matched.filter(|&total| total == read).ok_or_else(bad_page)?;
+    let matched = matched
+        .filter(|&total| total == read)
+        .ok_or_else(bad_page)?;
     Ok((counts, matched, read))
 }
 
