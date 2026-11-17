@@ -181,7 +181,7 @@ singleton! {
             search pgx --gene <SYMBOL> --source cpic lists each drug's drugid",
         PgxPhase => "unphased variants cannot select a diplotype; --diplotype requires an unchanged declared expression",
         Pharmgkb => "pharmgkb is retired; use: clinpgx",
-        NciDisease => "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
+        NciDisease => "NCI disease filters require an NCIt identifier such as C3224 (melanoma); use --keyword for free text",
         VariantIdentifier => "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome \
             notation needs --build; use search variant --gene BRAF --protein V600E or \
             search variant --gene PTEN --coding c.333G>T for gene shorthand",

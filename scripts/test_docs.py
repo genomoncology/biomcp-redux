@@ -274,6 +274,17 @@ def main():
         readme.write_text(original_readme + "See https://example.org/home/about and /home/runner/work.\n")
         assert check(root).returncode == 0, check(root).stderr
         readme.write_text(original_readme)
+        # An NCIt example without its disease fails; with it, it passes (1007).
+        cautions = root / "docs/cautions.md"
+        cautions.write_text("NCI needs NCIt codes such as C3224.\n")
+        result = check(root)
+        assert result.returncode != 0 and "docs/cautions.md:1: NCIt example C3224" in result.stderr, result
+        cautions.write_text("Use --condition-id NCIT:C3224 (melanoma), or MedGen:C2676676.\n")
+        assert check(root).returncode == 0, check(root).stderr
+        cautions.write_text("NCI needs NCIt codes such as C9120 (pancreatic ductal adenocarcinoma).\n")
+        result = check(root)
+        assert result.returncode != 0 and "NCIt example C9120" in result.stderr, result
+        cautions.unlink()
         commercial_check(root, readme, original_readme)
         tools_check(root, readme, original_readme)
         manifest = root / "manifest.json"
@@ -284,7 +295,7 @@ def main():
         assert result.returncode != 0 and "desktop manifest tools differ" in result.stderr, result
         manifest.write_text(original_manifest)
     print(
-        "Documentation contracts reject missing architecture checks, phantom leaves, unknown options, missing leaf accounting, drift, invalid feature declarations, a wrong desktop manifest tool name, internal workspace paths and machine names in sdlc records"
+        "Documentation contracts reject missing architecture checks, phantom leaves, unknown options, missing leaf accounting, drift, invalid feature declarations, a wrong desktop manifest tool name, internal workspace paths, machine names in sdlc records and NCIt examples without their disease"
     )
 
 
