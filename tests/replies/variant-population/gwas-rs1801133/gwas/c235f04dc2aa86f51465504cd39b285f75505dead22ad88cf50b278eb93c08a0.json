@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "gwas",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs1801133&page=0&size=2",
+  "exchanges": [
+    {
+      "fetched": 1794891840,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 821,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"_embedded":{"associations":[{"association_id":228365407,"risk_frequency":"0.6604","pvalue_description":"","pvalue_mantissa":7,"pvalue_exponent":-22,"multi_snp_haplotype":false,"snp_interaction":false,"range":"[0.022-0.033]","beta":"0.02741 unit decrease","p_value":7.0E-22,"efo_traits":[{"efo_id":"OBA_0003460","efo_trait":"erythrocyte volume"}],"reported_trait":["mean corpuscular volume (MCV, minimum, inv-norm transformed)"],"accession_id":"GCST90475474","locations":["1:11796321"],"mapped_genes":["MTHFR"],"bg_efo_traits":[],"pubmed_id":"39024449","first_author":"Verma A","ci_lower":0.022,"ci_upper":0.033,"snp_effect_allele":["rs1801133-G"],"snp_allele":[{"rs_id":"rs1801133","effect_allele":"G"}],"_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/228365407"},"loci":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/228365407/loci"},"snp":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs1801133"}}},{"association_id":228342631,"risk_frequency":"0.6604","pvalue_description":"","pvalue_mantissa":2,"pvalue_exponent":-30,"multi_snp_haplotype":false,"snp_interaction":false,"range":"[0.027-0.038]","beta":"0.03226 unit decrease","p_value":2.0E-30,"efo_traits":[{"efo_id":"OBA_0003460","efo_trait":"erythrocyte volume"}],"reported_trait":["mean corpuscular volume (MCV, mean, inv-norm transformed)"],"accession_id":"GCST90475470","locations":["1:11796321"],"mapped_genes":["MTHFR"],"bg_efo_traits":[],"pubmed_id":"39024449","first_author":"Verma A","ci_lower":0.027,"ci_upper":0.038,"snp_effect_allele":["rs1801133-G"],"snp_allele":[{"rs_id":"rs1801133","effect_allele":"G"}],"_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/228342631"},"loci":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/228342631/loci"},"snp":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs1801133"}}}]},"_links":{"first":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs1801133&page=0&size=2"},"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs1801133&page=0&size=2"},"next":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs1801133&page=1&size=2"},"last":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs1801133&page=24&size=2"}},"page":{"size":2,"totalElements":50,"totalPages":25,"number":0}}
+      }
+    }
+  ]
+}

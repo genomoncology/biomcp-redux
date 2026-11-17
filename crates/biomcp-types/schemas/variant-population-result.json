@@ -7068,6 +7068,13 @@
         "page": {
           "$ref": "#/$defs/Reply_PageInfo",
           "description": "Page bounds over native rows."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -7176,6 +7183,13 @@
             "$ref": "#/$defs/Reply_CivicProfile_VariantGet"
           },
           "type": "array"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -7554,6 +7568,13 @@
         "rs_id": {
           "$ref": "#/$defs/Reply_VariantId",
           "description": "Exact source rsID."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -7667,6 +7688,13 @@
             "$ref": "#/$defs/Reply_HotspotRecord"
           },
           "type": "array"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -7781,6 +7809,13 @@
             "$ref": "#/$defs/Reply_OncokbVariantRecord"
           },
           "type": "array"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         },
         "tumor_type": {
           "$ref": "#/$defs/Reply_Text",

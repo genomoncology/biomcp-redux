@@ -51,6 +51,7 @@ pub(super) fn section(
                 .collect();
             let returned = data.records.len() as u32;
             let next_offset = u64::from(query.section_offset()) + u64::from(returned);
+            data.total = total;
             data.page = PageInfo {
                 offset: query.section_offset(),
                 returned,

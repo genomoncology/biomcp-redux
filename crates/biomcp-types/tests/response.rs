@@ -456,10 +456,10 @@ use inner_totals::{declared_first, page, pathway_header, pathway_page};
 #[test]
 fn variant_pages_state_their_page_before_their_records() -> Outcome {
     use biomcp_types::{VariantHotspots, VariantOncokb};
-    declared_first::<VariantHotspots>(json!({"page":page()}), &["page"], "records")?;
+    declared_first::<VariantHotspots>(json!({"page":page()}), &["total", "page"], "records")?;
     declared_first::<VariantOncokb>(
         json!({"hgvsg":"7:g.140453136A>T","build":"GRCh37","tumor_type":"Melanoma","page":page()}),
-        &["page"],
+        &["total", "page"],
         "records",
     )?;
     declared_first::<biomcp_types::AlphaGenomeScorerPage>(

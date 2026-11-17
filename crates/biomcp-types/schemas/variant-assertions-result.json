@@ -3297,6 +3297,13 @@
         "page": {
           "$ref": "#/$defs/Reply_PageInfo",
           "description": "Page bounds over native rows."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [

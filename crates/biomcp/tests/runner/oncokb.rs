@@ -361,7 +361,11 @@ fn walk(env: &Environment, baseline: &Value) -> Result<(), String> {
             .get("records")
             .and_then(Value::as_array)
             .ok_or("warm annotation rows")?;
-        if items.len() != 1 || data.pointer("/page/total") != Some(&json!(expected.len())) {
+        // 1026: the top-level total equals the nested page total.
+        if items.len() != 1
+            || data.pointer("/page/total") != Some(&json!(expected.len()))
+            || data.get("total") != Some(&json!(expected.len()))
+        {
             return Err("annotation warm row bounds".into());
         }
         rows.extend(items.iter().cloned());

@@ -57,6 +57,7 @@ pub fn records(mut row: Annotation, tumor_type: Text) -> Mapped<VariantOncokb> {
             vus: cx.field("vus", row.vus),
             hotspot: cx.field("hotspot", row.hotspot),
             allele_exist: cx.field("alleleExist", row.allele_exist),
+            total,
             records: records.into(),
             page: PageInfo {
                 offset: 0,

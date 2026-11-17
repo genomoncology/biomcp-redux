@@ -45,6 +45,7 @@ pub(super) fn every_object_with_a_native_total_also_states_its_total() -> Result
 
 // 1022: the skill says "Read its `total`", so a card section whose data holds rows carries
 // its whole-set count at the top of that data, not only nested in `page` or `items`.
+// 1026: a section with a counted `page` holds rows whatever they are named.
 fn sections_with_rows_and_no_total(
     root: &Value,
     node: &Value,
@@ -59,7 +60,7 @@ fn sections_with_rows_and_no_total(
         .and_then(|r| r.strip_prefix('#'))
         .and_then(|r| root.pointer(r));
     if let Some(properties) = data.and_then(|d| d.get("properties"))
-        && properties.get("items").is_some()
+        && (properties.get("items").is_some() || properties.get("page").is_some())
         && properties.get("total").is_none()
     {
         found.push(path.to_owned());
@@ -86,8 +87,19 @@ pub(super) fn every_section_with_rows_states_its_total_at_the_top() -> Result<()
     });
     let mut found = Vec::new();
     sections_with_rows_and_no_total(&planted, &planted, "", &mut found);
-    if found.is_empty() {
-        return Err("planted section with rows and no total was not found".into());
+    let named_rows = serde_json::json!({
+        "$defs": {
+            "Rows": {"properties": {"page": {}, "records": {}}},
+            "Section": {"oneOf": [{"properties": {
+                "state": {"const": "data"}, "data": {"$ref": "#/$defs/Rows"}
+            }}]}
+        }
+    });
+    sections_with_rows_and_no_total(&named_rows, &named_rows, "named", &mut found);
+    if found.len() != 2 {
+        return Err(format!(
+            "planted sections with rows and no total: {found:?}"
+        ));
     }
     let mut found = Vec::new();
     for contract in registry() {

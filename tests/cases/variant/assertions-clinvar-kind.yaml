@@ -20,6 +20,7 @@
       "expect": {
         "/status": "complete",
         "/query/kind": "scv",
+        "/result/total": 58,
         "/result/page/total": 58,
         "/result/page/returned": 50,
         "/result/assertions/0/kind": "scv",
@@ -50,6 +51,7 @@
         "50"
       ],
       "expect": {
+        "/result/total": 58,
         "/result/page/total": 58,
         "/result/page/returned": 8,
         "/result/assertions/7/kind": "scv"
@@ -68,6 +70,7 @@
         "50"
       ],
       "expect": {
+        "/result/total": 13,
         "/result/page/total": 13,
         "/result/assertions/0/kind": "rcv"
       }
@@ -81,6 +84,7 @@
         "clinvar"
       ],
       "expect": {
+        "/result/total": 72,
         "/result/page/total": 72,
         "/result/assertions/0/kind": "vcv"
       }
@@ -97,6 +101,7 @@
         "50"
       ],
       "expect": {
+        "/result/candidates/0/sections/clinvar/data/total": 58,
         "/result/candidates/0/sections/clinvar/data/page/total": 58,
         "/result/candidates/0/sections/clinvar/data/assertions/0/kind": "scv",
         "/result/candidates/0/sections/clinvar/data/next/kind": "scv"
