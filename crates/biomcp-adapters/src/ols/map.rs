@@ -42,7 +42,10 @@ pub fn components(ontology: DiseaseOntology) -> Result<Box<[ComponentLabel]>, Re
     }]
     .into())
 }
-pub(super) fn record(mut term: raw::Term, ontology: DiseaseOntology) -> Result<Record, RequestError> {
+pub(super) fn record(
+    mut term: raw::Term,
+    ontology: DiseaseOntology,
+) -> Result<Record, RequestError> {
     let mut problems = Problems {
         source: Source::Ols,
         record: record_text(&term.obo_id),
