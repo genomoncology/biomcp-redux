@@ -41,3 +41,5 @@ msl had to tally institutions by hand from 10-affiliation indexing (bench `perso
 - New case `article/search/affiliation`: the PubMed and Europe PMC searches with their exact terms and totals, and Semantic Scholar's refusal. On the base commit `--affiliation` is an unknown option, so the case fails there.
 - pm job j42034 (cases at 605eba5a5): the Europe PMC step needed the PubMed summaries for its PMID rows too, and `article/help.yaml`'s `--sort`/`--source` argument indexes moved by one because `--affiliation` sorts first.
 - pm job j42038 (a967c0cad): `article/`, `search/` and `mcp-parity/` cases passed. The new field pushed `query/article.rs` past the 600-line file limit, so the `ArticleFilter` enum moved to its own file `query/article_filter.rs` (a child module tripped the parent-modules-with-logic ceiling, 171 of 170).
+- pm job j42042 (6383035d5): fmt made no change, `make check-cheap` and the `article/` cases passed.
+- Gate `make --keep-going landing-gate docs-check schema-release-check` passed on the branch merged with origin/main (84f5db681) in pm job j42045 at 55e0d9a31.
