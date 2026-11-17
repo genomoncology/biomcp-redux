@@ -97,12 +97,13 @@ fn product_codes(
     q: &DiagnosticSearch,
     total: u64,
 ) -> Result<DiagnosticProductCodeCounts, biomcp_fetch::RequestError> {
-    let items = biomcp_adapters::fda_510k::product_codes(leg, q)?;
-    let sum = items.iter().map(|row| row.count).sum::<u64>();
+    let codes = biomcp_adapters::fda_510k::product_codes(leg, q)?;
+    let sum = codes.items.iter().map(|row| row.count).sum::<u64>() + codes.without_product_code;
     Ok(DiagnosticProductCodeCounts {
-        limit_reached: items.len() >= biomcp_adapters::fda_510k::CODE_LIMIT as usize,
-        items: items.into(),
+        items: codes.items.into(),
+        without_product_code: codes.without_product_code,
         sum,
         sum_matches_total: sum == total,
+        limit_reached: codes.limit_reached,
     })
 }

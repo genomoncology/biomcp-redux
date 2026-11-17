@@ -1,8 +1,8 @@
 {
   "feature": "device-approval-search",
   "live_check": "public",
-  "story": "A 510(k) search counts every matching record by FDA product code in one call, so a life-sciences analyst's 2024 decisions by product code come from BioMCP rather than openFDA's 100-term default facet. The reply keeps the first page of records and adds product_code_counts, most records first, whose sum equals the page total. The count is refused for other sources and with an offset.",
-  "verified": "Native openFDA device 510(k) replies recorded 2026-11-16 by biomcp --record without a key in pm job j42077: the dated search page (total 3,129) and count=product_code&limit=1000 over the same expression (792 codes, GEX 82 first, summing to 3,129). Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "story": "A 510(k) search counts every matching record by FDA product code in one call, so a life-sciences analyst's 2024 decisions by product code come from BioMCP rather than openFDA's 100-term default facet. The reply keeps the first page of records and adds product_code_counts, most records first, whose sum, with the one record openFDA counts under an empty code, equals the page total. The count is refused for other sources and with an offset.",
+  "verified": "Native openFDA device 510(k) replies recorded 2026-11-16 by biomcp --record without a key in pm job j42077: the dated search page (total 3,129) and count=product_code&limit=1000 over the same expression (792 terms, GEX 82 first, one of them an empty product code with 1 record, summing to 3,129). Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "diagnostic/510k-product-codes",
   "steps": [
     {
@@ -36,14 +36,11 @@
         "/page/total": 3129,
         "/page/returned": 5,
         "/result/source_query": "decision_date:[2024-01-01 TO 2024-12-31]",
-        "/result/product_code_counts/items/0": {
-          "product_code": "GEX",
-          "count": 82
-        },
-        "/result/product_code_counts/items/1": {
-          "product_code": "QIH",
-          "count": 64
-        },
+        "/result/product_code_counts/items/0/product_code": "GEX",
+        "/result/product_code_counts/items/0/count": 82,
+        "/result/product_code_counts/items/1/product_code": "QIH",
+        "/result/product_code_counts/items/1/count": 64,
+        "/result/product_code_counts/without_product_code": 1,
         "/result/product_code_counts/sum": 3129,
         "/result/product_code_counts/sum_matches_total": true,
         "/result/product_code_counts/limit_reached": false,

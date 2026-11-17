@@ -9,18 +9,26 @@ pub const CODE_LIMIT: u32 = 1000;
 
 #[derive(Debug, Deserialize)]
 struct Term {
-    term: biodata::Text,
+    term: Box<str>,
     count: u64,
 }
 impl crate::openfda::Item<crate::openfda::CountMeta> for Term {}
 type Response = crate::openfda::Envelope<Term, crate::openfda::CountMeta>;
 
+/// Product-code rows, most records first, and the records openFDA counts under an empty code.
+#[derive(Debug)]
+pub struct ProductCodes {
+    /// Rows with a product code, in openFDA's order.
+    pub items: Vec<DiagnosticProductCodeCount>,
+    /// openFDA returned its most terms, so more codes may exist.
+    pub limit_reached: bool,
+    /// Records counted under an empty product code (2024 has one, measured 2026-11-16).
+    pub without_product_code: u64,
+}
+
 /// Count the search's matching records by product code, most records first, in one request
 /// with the search's own expression.
-pub fn product_codes(
-    leg: &Leg<'_>,
-    q: &DiagnosticSearch,
-) -> Result<Vec<DiagnosticProductCodeCount>, RequestError> {
+pub fn product_codes(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<ProductCodes, RequestError> {
     let selector = super::expression(q);
     let mut args = vec![
         ("count", Arg::Text("product_code")),
@@ -42,14 +50,23 @@ pub fn product_codes(
             _ => Ok(()),
         }),
     )?;
-    Ok(match reply.value {
-        Response::Page { results, .. } => results
-            .into_iter()
-            .map(|row| DiagnosticProductCodeCount {
-                product_code: row.term,
-                count: row.count,
-            })
-            .collect(),
+    let rows = match reply.value {
+        Response::Page { results, .. } => results,
         Response::Absent { .. } => Vec::new(),
-    })
+    };
+    let mut out = ProductCodes {
+        limit_reached: rows.len() >= CODE_LIMIT as usize,
+        items: Vec::new(),
+        without_product_code: 0,
+    };
+    for row in rows {
+        match biodata::Text::new(&row.term) {
+            Ok(product_code) => out.items.push(DiagnosticProductCodeCount {
+                product_code,
+                count: row.count,
+            }),
+            Err(_) => out.without_product_code += row.count,
+        }
+    }
+    Ok(out)
 }

@@ -91,6 +91,6 @@ mod search;
 pub use search::{expression, search};
 
 mod counts;
-pub use counts::{CODE_LIMIT, product_codes};
+pub use counts::{CODE_LIMIT, ProductCodes, product_codes};
 
 pub use crate::device_search::Page as SearchPage;
