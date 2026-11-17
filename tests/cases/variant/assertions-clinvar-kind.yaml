@@ -1,7 +1,7 @@
 {
   "feature": "variant-identity",
   "live_check": "public",
-  "story": "ClinVar's per-submitter records arrive alone, with their own total, when a caller asks for one record kind",
+  "story": "ClinVar's submitted records arrive alone, with their own total, when a caller asks for one record kind",
   "replay": "variant/assertions/clinvar-kind",
   "verified": "ClinVar is public NCBI data. Live efetch reply for Variation 37636 (BRCA1 R1699Q, VCV000037636.161) recorded 2026-11-16 by biomcp --record in job j42016. The reply holds 1 VCV, 13 RCV and 58 SCV rows; one SCV label maps to no common statement, its record also sits under unmapped.attribution. Rows 0 (SCV000145310, mapped) and 40 (SCV000484957, GeneReviews, not provided) carry record and submitter at the row level.",
   "steps": [
