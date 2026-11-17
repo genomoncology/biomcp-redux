@@ -63,7 +63,10 @@ pub fn access(leg: &Leg<'_>, ids: &[Pmid]) -> Result<Mapped<Vec<Access>>, Reques
         let Some(pmid) = row.pmid.and_then(Field::value) else {
             continue;
         };
-        if row.source != "MED" || !wanted.contains(&pmid) || found.iter().any(|a: &Access| a.pmid == pmid) {
+        if row.source != "MED"
+            || !wanted.contains(&pmid)
+            || found.iter().any(|a: &Access| a.pmid == pmid)
+        {
             continue;
         }
         let mut p = Problems {

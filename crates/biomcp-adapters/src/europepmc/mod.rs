@@ -3,12 +3,12 @@ use crate::native_text::NativeText;
 use biomcp_fetch::{Input, Read};
 mod access;
 mod core;
-pub use access::{Access, access};
 use crate::{
     mapped::{Problems, record},
     quotas,
     raw::Field,
 };
+pub use access::{Access, access};
 use biodata::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid};
 
 use biomcp_fetch::{
