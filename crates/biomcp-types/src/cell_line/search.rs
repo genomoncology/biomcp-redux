@@ -41,7 +41,7 @@ struct CommandFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     species: Option<Text>,
-    /// Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
+    /// Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma).
     #[serde(
         default,
         deserialize_with = "crate::query::present",
