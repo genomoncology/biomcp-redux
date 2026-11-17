@@ -1,4 +1,4 @@
-//! NIH RePORTER project-years as RePORTER publishes them.
+//! NIH RePORTER award rows as RePORTER publishes them.
 use super::ResponseBody;
 use crate::GrantSearch;
 use biodata::Text;
@@ -90,7 +90,7 @@ pub struct GrantOrganization {
     pub country: Option<Text>,
 }
 
-/// A principal investigator on a project-year.
+/// A principal investigator on an award row.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GrantInvestigator {
@@ -109,7 +109,7 @@ pub const GRANT_HINT: &str = "page.total counts award rows: one per award and fi
     one per component of a multi-part award (rows with subproject). A parent's award_amount \
     includes its components, so do not add both. Each investigator name word matches any part \
     of any investigator's name; check investigators[].profile_id and search again with \
-    --investigator-id.";
+    investigator_id (--investigator-id on the command line).";
 
 impl ResponseBody for GrantPage {
     const SCHEMA: &'static str = "biomcp.grant-page/1";

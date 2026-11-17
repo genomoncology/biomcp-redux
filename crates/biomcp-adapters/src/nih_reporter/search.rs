@@ -138,7 +138,7 @@ impl Reply for Page {
     }
 }
 
-/// One page of RePORTER project-years, RePORTER's total for the same criteria, and the fields
+/// One page of RePORTER award rows, RePORTER's total for the same criteria, and the fields
 /// RePORTER sent that could not be read.
 pub fn search(
     leg: &Leg<'_>,
@@ -189,7 +189,7 @@ fn body(query: &GrantSearch) -> Body<'_> {
         limit: query.limit(),
     }
 }
-/// Health asks for one known project-year.
+/// Health asks for one known award row.
 pub(crate) fn probe(leg: &Leg<'_>) -> Result<(), RequestError> {
     #[derive(Serialize)]
     struct Probe {

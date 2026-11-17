@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
     and fiscal year. Each row is one award for one fiscal year: a project funded for five years \
     gives five rows, and a multi-part award gives a parent row plus one row per component \
     (`subproject`). An investigator name matches any investigator with each word anywhere in \
-    their name; check `investigators[].profile_id` and search again with --investigator-id."]
+    their name; check `investigators[].profile_id` and search again with \
+    investigator_id (--investigator-id on the command line)."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -61,11 +62,11 @@ struct Fields {
         schemars(with = "u32", range(min = 1985, max = 2100))
     )]
     fiscal_year: Option<u32>,
-    /// Ten project-years by default, one to fifty.
+    /// Ten award rows by default, one to fifty.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep.
+    /// Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.
     #[serde(default)]
     #[cfg_attr(feature = "schema", schemars(range(max = 14999)))]
     offset: u32,
@@ -124,11 +125,11 @@ impl GrantSearch {
     pub fn fiscal_year(&self) -> Option<u32> {
         self.0.fiscal_year
     }
-    /// Project-years per page.
+    /// Award rows per page.
     pub fn limit(&self) -> u32 {
         self.0.limit
     }
-    /// Project-years skipped.
+    /// Award rows skipped.
     pub fn offset(&self) -> u32 {
         self.0.offset
     }
