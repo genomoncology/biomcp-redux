@@ -25,9 +25,9 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
-    deadline: Duration::from_secs(15),
-    // Each listing's status is on its own page, read at one a second: a medicine with many
-    // applications needs more than the default command time.
+    // Each listing's status is on its own page, read at one a second, so a medicine with many
+    // applications (pembrolizumab: 14 pages) needs a longer leg and command than the default.
+    deadline: Duration::from_secs(60),
     command_budget: Some(Duration::from_secs(60)),
 };
 /// The site's own search page; its results name each medicine and link its eEML number.
