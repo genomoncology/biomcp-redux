@@ -1730,6 +1730,13 @@ Options:
       --limit <limit>
           Maximum page length.
 
+      --no-access-lookup[=<no_access_lookup>]
+          Skip the access lookup.
+          Do not ask Europe PMC for each row's open-access flag and license.
+
+          [default: false]
+          [possible values: true, false]
+
       --no-preprints[=<no_preprints>]
           Exclude preprints.
           PubMed and Europe PMC only: exclude preprints using the source's own filter.
@@ -1743,14 +1750,14 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --offset <offset>
-          Number of pool items to skip.
-
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --offset <offset>
+          Number of pool items to skip.
 
       --open-access[=<open_access>]
           Source open access.
@@ -1828,6 +1835,8 @@ Gene input; PubMed resolves it through HGNC. Value form: string; example: --gene
 - `--journal`: PubMed/Europe PMC journal words.
 PubMed and Europe PMC only: journal words sent to the source's journal field. Value form: string; example: --journal 'journal words'.
 - `--limit`: Maximum page length. Value form: integer; example: --limit 5.
+- `--no-access-lookup`: Skip the access lookup.
+Do not ask Europe PMC for each row's open-access flag and license. Value form: boolean; example: --no-access-lookup.
 - `--no-preprints`: Exclude preprints.
 PubMed and Europe PMC only: exclude preprints using the source's own filter. Value form: boolean; example: --no-preprints.
 - `--offset`: Number of pool items to skip. Value form: integer; example: --offset 5.
