@@ -100,10 +100,9 @@ fn read_genes(
     problems: &mut Vec<biomcp_types::Problem>,
     dropped: &mut bool,
 ) -> (Genes, biomcp_types::SourceOutcome) {
-    let leg = cx
-        .fetch
-        .leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget))
-        .fresh(cx.fresh);
+    // Each read has its own budget, as live; replay charges each its time (1038).
+    let command = cx.fetch.command_deadline(cx.budget);
+    let leg = cx.fetch.leg(&hgnc::SPEC, command.deadline()).fresh(cx.fresh);
     let genes = collect(&leg, query, problems, dropped);
     let error = genes.as_ref().err().copied();
     (genes, status::source(Source::Hgnc, leg.finish(), error))
@@ -117,9 +116,10 @@ fn read_regions(
     biomcp_types::SourceOutcome,
     Option<RequestError>,
 ) {
+    let command = cx.fetch.command_deadline(cx.budget);
     let leg = cx
         .fetch
-        .leg(&clingen::REGION_SPEC, cx.fetch.deadline(cx.budget))
+        .leg(&clingen::REGION_SPEC, command.deadline())
         .fresh(cx.fresh);
     let result = clingen::regions(&leg, find);
     let error = result.as_ref().err().copied();

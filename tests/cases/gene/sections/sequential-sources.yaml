@@ -1,0 +1,25 @@
+{
+  "live_check": "synthetic deadline; an 18-second HGNC read then a 2.5-second UniProt section read pass the 20-second command budget",
+  "feature": "gene-protein",
+  "story": "A gene get reads HGNC and then its sections, one after the other. Replay charges each read its own time, as live does, so the 2.5-second UniProt reply, which starts after the 18-second HGNC read, ends past the 20-second command budget and its section reads as failed.",
+  "replay": "gene/sequential",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "CDKN2A",
+        "protein"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/sources/0/source": "hgnc",
+        "/sources/0/state": "ok",
+        "/sources/1/source": "mygene",
+        "/sources/1/state": "ok",
+        "/sources/2/source": "uniprot",
+        "/sources/2/reason": "deadline-exceeded"
+      }
+    }
+  ]
+}

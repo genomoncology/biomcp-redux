@@ -7,7 +7,8 @@ use biomcp_types::{Health, Reason, SourceHealth, SourceStatus};
 use std::time::Duration;
 /// Probe every implemented source within the shared command and ordinary source deadlines.
 pub fn run(fetch: &Fetch, budget: Duration) -> Result<Health, RequestError> {
-    let deadline = fetch.deadline(budget);
+    let command = fetch.command_deadline(budget);
+    let deadline = command.deadline();
     let store = fetch.store_size(deadline)?;
     let sources = crate::fan_out::run(
         registry::sources()

@@ -105,8 +105,9 @@ impl VirtualClock {
 
 /// One replay command's shared clock: the latest time any of its source legs reached (1035).
 /// Legs on the command's own thread run one after another, so each starts where the last one
-/// ended. Legs on worker threads run side by side: their times are held apart until the
-/// command's thread reads the clock again, so every worker starts from the same instant.
+/// ended. Each worker thread keeps its own time, so legs one after another inside a worker add
+/// up (1038), while workers side by side are held apart until the command's thread reads the
+/// clock again, so every worker starts from the same instant.
 #[derive(Debug)]
 #[expect(
     clippy::disallowed_types,
@@ -114,32 +115,48 @@ impl VirtualClock {
 )]
 pub(crate) struct CommandClock {
     owner: std::thread::ThreadId,
-    /// The command's time, and the latest time reached by worker threads not yet joined.
-    times: Mutex<(Instant, Instant)>,
+    /// The command's time, and each worker thread's time not yet joined.
+    times: Mutex<(Instant, Vec<(std::thread::ThreadId, Instant)>)>,
 }
 impl CommandClock {
-    fn owned(&self) -> bool {
-        std::thread::current().id() == self.owner
-    }
     fn now(&self) -> Instant {
         let mut times = self
             .times
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        if self.owned() {
-            times.0 = times.0.max(times.1);
+        let thread = std::thread::current().id();
+        if thread == self.owner {
+            times.0 = Self::latest(&times);
+            return times.0;
         }
-        times.0
+        let worker = times.1.iter().find(|(id, _)| *id == thread);
+        worker.map_or(times.0, |(_, time)| times.0.max(*time))
+    }
+    fn latest(times: &(Instant, Vec<(std::thread::ThreadId, Instant)>)) -> Instant {
+        times.1.iter().fold(times.0, |now, (_, time)| now.max(*time))
+    }
+    /// The latest time any leg reached, from whichever thread drops the command.
+    fn end(&self) -> Instant {
+        Self::latest(
+            &self
+                .times
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner),
+        )
     }
     fn reach(&self, completed: Instant) {
         let mut times = self
             .times
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        if self.owned() {
+        let thread = std::thread::current().id();
+        if thread == self.owner {
             times.0 = times.0.max(completed);
+        } else if let Some((_, time)) = times.1.iter_mut().find(|(id, _)| *id == thread) {
+            *time = (*time).max(completed);
         } else {
-            times.1 = times.1.max(completed);
+            let start = times.0;
+            times.1.push((thread, start.max(completed)));
         }
     }
 }
@@ -185,7 +202,7 @@ fn register(origin: Instant) -> Option<CommandId> {
     )?);
     let clock = CommandClock {
         owner: std::thread::current().id(),
-        times: Mutex::new((origin, origin)),
+        times: Mutex::new((origin, Vec::new())),
     };
     commands().insert(id, std::sync::Arc::new(clock));
     Some(id)
@@ -357,7 +374,7 @@ impl Drop for CommandDeadline<'_> {
         };
         let command = commands().remove(&id);
         if let (Some(clock), Some(command)) = (self.0.clock, command) {
-            clock.reach(command.now());
+            clock.reach(command.end());
         }
     }
 }

@@ -164,7 +164,7 @@ fn command_legs_charge_their_replay_time_one_after_another() {
     let server = Server::new();
     let spec = spec(&server);
     let answer = (200, "", r#"{"answer":true}"#);
-    capture(&server, spec, dir.path(), &[answer; 4]);
+    capture(&server, spec, dir.path(), &[answer; 8]);
     change(dir.path(), |v| {
         for exchange in v["exchanges"].as_array_mut().unwrap() {
             exchange["delay_ms"] = 3_000.into();
@@ -217,6 +217,31 @@ fn command_legs_charge_their_replay_time_one_after_another() {
         "two 3 s replies read side by side take about 3 s, took {spent:?}"
     );
     command.finish(deadline.remaining());
+
+    // Each worker reads two legs one after another; the workers run side by side (1038).
+    let command = fetch.command_deadline(CALLER);
+    let deadline = command.deadline();
+    let shared = fetch.deadline(CALLER);
+    thread::scope(|scope| {
+        let workers: Vec<_> = (0..2)
+            .map(|_| {
+                scope.spawn(|| {
+                    read(&fetch.leg(spec, deadline));
+                    read(&fetch.leg(spec, deadline));
+                })
+            })
+            .collect();
+        for worker in workers {
+            worker.join().unwrap();
+        }
+        // A command dropped off its own thread still charges every worker's time (1038).
+        scope.spawn(move || drop(command)).join().unwrap();
+    });
+    let spent = CALLER.saturating_sub(shared.remaining());
+    assert!(
+        spent >= 2 * reply && spent < 3 * reply,
+        "two workers each reading two 3 s replies in turn take about 6 s, took {spent:?}"
+    );
     assert!(
         server.requests.try_recv().is_err(),
         "replay never reaches the provider"

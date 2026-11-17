@@ -3,6 +3,7 @@
     clippy::unwrap_used,
     clippy::panic,
     clippy::disallowed_macros,
+    clippy::disallowed_methods,
     clippy::disallowed_types,
     clippy::indexing_slicing,
     clippy::too_many_lines,
