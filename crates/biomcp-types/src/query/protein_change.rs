@@ -144,7 +144,6 @@ impl ProteinQuery {
 }
 text_value!(ProteinQuery, "ProteinQuery", protein_pattern(true));
 
-#[cfg(feature = "schema")]
 pub(super) fn protein_pattern(synonymous: bool) -> String {
     let residues = AMINO
         .iter()
@@ -157,7 +156,6 @@ pub(super) fn protein_pattern(synonymous: bool) -> String {
         biodata::schema_pattern::decimal(u32::MAX.into())
     )
 }
-#[cfg(feature = "schema")]
 fn regex_escape(value: &str) -> String {
     if value == "*" {
         "\\*".into()
