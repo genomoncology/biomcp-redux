@@ -16,7 +16,10 @@ use std::time::Duration;
 const ACCESS_BUDGET: Duration = Duration::from_secs(3);
 
 type Summaries = (Result<Mapped<Vec<ArticleHeader>>, RequestError>, LegReport);
-type Access = (Result<Mapped<Vec<europepmc::Access>>, RequestError>, LegReport);
+type Access = (
+    Result<Mapped<Vec<europepmc::Access>>, RequestError>,
+    LegReport,
+);
 
 /// What the page's concurrent reads returned, and the longest of their times.
 #[derive(Default)]
@@ -128,7 +131,11 @@ pub(super) fn apply<'a>(
 /// `open_access_unknown` rows read as "not checked" rather than "Europe PMC does not know".
 pub(super) fn failed(source: SourceOutcome, out: &mut Outcome) {
     // A search that also asked Europe PMC already lists it; its row takes the failure.
-    if let Some(searched) = out.sources.iter_mut().find(|s| s.source == Source::EuropePmc) {
+    if let Some(searched) = out
+        .sources
+        .iter_mut()
+        .find(|s| s.source == Source::EuropePmc)
+    {
         status::retain_source_state(searched, &source);
     } else {
         out.sources.push(source);

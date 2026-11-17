@@ -158,6 +158,10 @@
       "minimum": 1,
       "type": "integer"
     },
+    "no_access_lookup": {
+      "description": "Skip the access lookup.\nDo not ask Europe PMC for each row's open-access flag and license.",
+      "type": "boolean"
+    },
     "no_preprints": {
       "description": "Exclude preprints.\nPubMed and Europe PMC only: exclude preprints using the source's own filter.",
       "type": "boolean"

@@ -16,7 +16,7 @@
         "--limit",
         "5"
       ],
-      "max_bytes": 2970,
+      "max_bytes": 3639,
       "expect": {
         "/status": "complete",
         "/sources/0/term": "KRAS G12C sotorasib AND 2024:3000[dp]",

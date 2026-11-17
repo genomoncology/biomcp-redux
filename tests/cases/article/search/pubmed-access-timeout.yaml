@@ -41,7 +41,7 @@
           "includes": "fresh"
         }
       },
-      "max_bytes": 3000
+      "max_bytes": 1
     }
   ],
   "verified": "Synthetic Europe PMC delay; see tests/replies/article/search/pubmed-access-timeout/README.md.",
