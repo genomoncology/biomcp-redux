@@ -4,7 +4,7 @@ use super::{
     source_relations::{self, Selection},
 };
 use crate::{Ctx, Outcome, status};
-use biomcp_adapters::string_db;
+use biomcp_adapters::{chembl, string_db};
 use biomcp_fetch::{Deadline, SourceError};
 use biomcp_types::{
     ProteinCardItem, ProteinDomainsQuery, ProteinGet, ProteinRelationQuery, ProteinSection,
@@ -25,7 +25,8 @@ pub(super) fn supplement(
             .filter(|s| match s {
                 ProteinSection::Domains
                 | ProteinSection::Complexes
-                | ProteinSection::Interactions => {
+                | ProteinSection::Interactions
+                | ProteinSection::Chembl => {
                     s.source().is_none_or(|source| !cx.fetch.disabled(source))
                 }
                 _ => true,
@@ -52,6 +53,58 @@ pub(super) fn supplement(
         if wants(q, ProteinSection::Interactions) {
             interactions(cx, q, item, out, deadline);
         }
+        if wants(q, ProteinSection::Chembl) {
+            targets(cx, q, item, out, deadline);
+        }
+    }
+}
+/// Map the accession to its ChEMBL single-protein target and read ChEMBL's assay and activity totals.
+fn targets(
+    cx: &Ctx<'_>,
+    q: &ProteinGet,
+    item: &mut ProteinCardItem,
+    out: &mut Outcome,
+    deadline: Deadline<'_>,
+) {
+    let Some(header) = &item.header else {
+        return;
+    };
+    let id = header.protein.accession.clone();
+    let leg = cx
+        .fetch
+        .leg(&chembl::TARGET_COUNTS, deadline)
+        .fresh(cx.fresh);
+    let result = if cx.fetch.disabled(Source::Chembl) {
+        Err(SourceError::disabled(Source::Chembl).into())
+    } else {
+        chembl::protein_targets(&leg, &id, q.section_limit())
+    };
+    let error = result.as_ref().err().copied();
+    out.sources
+        .push(status::source(Source::Chembl, leg.finish(), error));
+    let section = match result {
+        Ok(data) if data.items.is_empty() => Section::Empty {
+            source: Source::Chembl,
+            record: biomcp_types::SourceRecord::asked(Some("UniProt"), &id),
+        },
+        Ok(data) => Section::Data {
+            source: Source::Chembl,
+            data,
+        },
+        Err(e) => {
+            super::reply_problem(out, Source::Chembl, &id, e);
+            let reason = status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable);
+            if !matches!(
+                reason,
+                biomcp_types::Reason::Disabled | biomcp_types::Reason::NoKey
+            ) {
+                item.status = crate::status::item_status(true, false, true);
+            }
+            Section::unavailable(Source::Chembl, reason)
+        }
+    };
+    if let Some(sections) = &mut item.sections {
+        sections.chembl = Some(section);
     }
 }
 /// Read STRING's whole partner list once; the card keeps its total and the strongest rows.

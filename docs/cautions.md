@@ -197,6 +197,10 @@ Names remain unchanged. A full search page's total is Cellosaurus's own match co
 
 The reply preserves native names, tissue, organism, taxon and optional EFO/CLO identifiers. Metadata never requests assays. The total counts assays only and supplies no activity, experiment or drug sensitivity estimate. ChEMBL uses CC BY-SA 3.0. Its independently cached release metadata and labelled retrieval time remain separate.
 
+## Protein ChEMBL targets
+
+`get protein P09874 chembl` asks ChEMBL for the single-protein targets whose component is the protein's canonical UniProt accession; an isoform asks for its canonical accession, since ChEMBL names canonical accessions. ChEMBL also files the protein under complexes, families and protein-protein interaction targets; those are not shown or counted. Each target's `assay_count` and `activity_count` are ChEMBL's own totals (`page_meta.total_count` of its assay and activity lists for that target), not rows BioMCP read or filtered, and they count every assay type and every activity record, active or not, including records ChEMBL flags as doubtful. They measure how much a target has been tested, not whether any compound works. An empty section means ChEMBL lists no single-protein target for the accession. ChEMBL uses CC BY-SA 3.0.
+
 ## Cell-line sections
 
 Each source keeps its own outcome and release dates. Composite reads never request assay counts. PharmacoDB drug response remains deferred until a data reuse grant is published, and the HPA expression route remains deferred until an exact cell identity join exists.
