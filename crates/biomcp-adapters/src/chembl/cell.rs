@@ -9,17 +9,17 @@ use serde::Deserialize;
 const CELLS: biomcp_fetch::Endpoint = SPEC.get("/cell_line.json").fresh(Freshness::Days(1));
 const ASSAYS: biomcp_fetch::Endpoint = SPEC.get("/assay.json").fresh(Freshness::Days(1));
 const STATUS: biomcp_fetch::Endpoint = SPEC.get("/status.json").fresh(Freshness::Days(1));
-/// Cell-specific native paging; drug endpoint validation remains independent.
+/// Cell and target native paging; drug endpoint validation remains independent.
 #[derive(Debug, Deserialize)]
-struct PageMeta {
-    total_count: u64,
+pub(super) struct PageMeta {
+    pub(super) total_count: u64,
     offset: u32,
     limit: u32,
     next: Option<biodata::Text>,
     previous: Option<biodata::Text>,
 }
 impl PageMeta {
-    fn check(&self, count: usize, limit: u32, offset: u32) -> Result<(), BadReply> {
+    pub(super) fn check(&self, count: usize, limit: u32, offset: u32) -> Result<(), BadReply> {
         let expected = self
             .total_count
             .saturating_sub(u64::from(offset))

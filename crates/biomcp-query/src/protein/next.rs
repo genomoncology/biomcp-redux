@@ -162,6 +162,7 @@ fn section_source(section: biomcp_types::ProteinSection) -> biomcp_types::Source
         biomcp_types::ProteinSection::Domains => biomcp_types::Source::InterPro,
         biomcp_types::ProteinSection::Complexes => biomcp_types::Source::ComplexPortal,
         biomcp_types::ProteinSection::Interactions => biomcp_types::Source::StringDb,
+        biomcp_types::ProteinSection::Chembl => biomcp_types::Source::Chembl,
         _ => biomcp_types::Source::UniProt,
     }
 }

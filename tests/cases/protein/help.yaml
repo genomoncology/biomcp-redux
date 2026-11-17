@@ -60,6 +60,7 @@
             "isoforms",
             "complexes",
             "interactions",
+            "chembl",
             "structures",
             "function",
             "sequence",

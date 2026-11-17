@@ -21,6 +21,8 @@ biodata::wire_enum! { described
         Complexes => "complexes",
         /// STRING interaction partners with combined and channel scores.
         Interactions => "interactions",
+        /// ChEMBL single-protein target with its assay and activity totals.
+        Chembl => "chembl",
         /// Native structure cross-reference links.
         Structures => "structures",
         /// One whole native function text record with all source paragraphs.
@@ -228,6 +230,7 @@ impl ProteinSection {
             Self::Domains => Some(Source::InterPro),
             Self::Complexes => Some(Source::ComplexPortal),
             Self::Interactions => Some(Source::StringDb),
+            Self::Chembl => Some(Source::Chembl),
             Self::Features
             | Self::Isoforms
             | Self::Structures

@@ -962,6 +962,75 @@
       ],
       "type": "object"
     },
+    "Reply_ProteinChembl": {
+      "description": "ChEMBL's single-protein targets for one UniProt accession, each with ChEMBL's own totals.",
+      "properties": {
+        "items": {
+          "description": "The targets, each with its assay and activity totals.",
+          "items": {
+            "$ref": "#/$defs/Reply_ProteinChemblTarget"
+          },
+          "type": "array"
+        },
+        "total": {
+          "default": 0,
+          "description": "Single-protein targets ChEMBL lists for the accession; the count to report.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "Reply_ProteinChemblTarget": {
+      "description": "One ChEMBL target; its totals are ChEMBL's own counts, not rows BioMCP read.",
+      "properties": {
+        "activity_count": {
+          "description": "Activity records ChEMBL lists for this target.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "assay_count": {
+          "description": "Assays ChEMBL lists for this target.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "ChEMBL target ID, such as CHEMBL3105."
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ChEMBL preferred target name."
+        },
+        "organism": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ChEMBL target organism."
+        }
+      },
+      "required": [
+        "id",
+        "assay_count",
+        "activity_count"
+      ],
+      "type": "object"
+    },
     "Reply_ProteinComplexHeader": {
       "description": "Exact source complex header admitted by a native participant identity.",
       "properties": {
@@ -1546,6 +1615,7 @@
         "isoforms",
         "complexes",
         "interactions",
+        "chembl",
         "structures",
         "function",
         "sequence",
@@ -1558,6 +1628,7 @@
         " Native alternative products.",
         " Exact participant-admitted complex headers.",
         " STRING interaction partners with combined and channel scores.",
+        " ChEMBL single-protein target with its assay and activity totals.",
         " Native structure cross-reference links.",
         " One whole native function text record with all source paragraphs.",
         " Direct exact-identity sequence and audit metadata.",
@@ -1636,6 +1707,17 @@
     "Reply_ProteinSections": {
       "description": "Independent source section states; all discloses bounded first pages only.",
       "properties": {
+        "chembl": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Section_ProteinChembl"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested ChEMBL target and its assay and activity totals."
+        },
         "complexes": {
           "anyOf": [
             {
@@ -1948,6 +2030,122 @@
         "replay-miss",
         "syncing",
         "no-join-id"
+      ]
+    },
+    "Reply_Section_ProteinChembl": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_ProteinChembl",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not-applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
       ]
     },
     "Reply_Section_ProteinComplexes": {

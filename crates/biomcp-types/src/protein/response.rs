@@ -161,6 +161,9 @@ pub struct ProteinSections {
     /// Requested STRING interaction partners, strongest first.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub interactions: Option<Section<ProteinInteractions>>,
+    /// Requested ChEMBL target and its assay and activity totals.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chembl: Option<Section<ProteinChembl>>,
     /// Requested structure-link page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub structures: Option<Section<ProteinSectionPage<ProteinStructureRef>>>,
@@ -264,4 +267,32 @@ pub struct InteractionEvidence {
     /// Phylogenetic co-occurrence.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cooccurrence: Option<f64>,
+}
+/// ChEMBL's single-protein targets for one UniProt accession, each with ChEMBL's own totals.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinChembl {
+    /// Single-protein targets ChEMBL lists for the accession; the count to report.
+    #[serde(default)]
+    pub total: u64,
+    /// The targets, each with its assay and activity totals.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub items: Box<[ProteinChemblTarget]>,
+}
+/// One ChEMBL target; its totals are ChEMBL's own counts, not rows BioMCP read.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinChemblTarget {
+    /// ChEMBL target ID, such as CHEMBL3105.
+    pub id: Text,
+    /// ChEMBL preferred target name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
+    /// ChEMBL target organism.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub organism: Option<Text>,
+    /// Assays ChEMBL lists for this target.
+    pub assay_count: u64,
+    /// Activity records ChEMBL lists for this target.
+    pub activity_count: u64,
 }
