@@ -39,3 +39,5 @@ Milestone: 7
 - `paging::study` broke at 0724-source-text-arrives-clean (1d04b4803): each returned sample list now reads its own count from `/sample-lists/{id}`, so the sample-lists second window makes a third request, which the stub answered with the list array (`sampleCount: bad-reply`). The check now answers that request with a synthetic count and expects three sample-lists requests.
 - Neither check tests something no longer promised; both still prove the native window skips a refused row without shifting positions. The code they cover is right; the checks lagged it.
 - New `make value-proof` runs the tool, and `check-cheap` runs it after `ratchets`.
+- j42283: the tool passed inside `check-cheap`; clippy's 80-line limit then failed `lint-tools` on the two checks, so their stubs moved into helpers.
+- j42285 (5081d7bc7): `make check-cheap` passes in 78 s on a warm M5 tree. `value-proof` adds about 32 s of that: 12 s to build the tools test binary after `ratchets` and 20 s to run the tool (a warm rerun took 20 s). On a cold tree (j42283) the build share was 9 s of a 177 s run.
