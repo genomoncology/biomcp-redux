@@ -85,7 +85,7 @@ fn targets(
     let section = match result {
         Ok(data) if data.items.is_empty() => Section::Empty {
             source: Source::Chembl,
-            record: biomcp_types::SourceRecord::asked(Some("UniProt"), &id),
+            record: biomcp_types::SourceRecord::asked(Some("UniProt"), chembl::canonical(&id)),
         },
         Ok(data) => Section::Data {
             source: Source::Chembl,
@@ -143,7 +143,7 @@ fn interactions(
         }
         Ok(None) => Section::Empty {
             source: Source::StringDb,
-            record: biomcp_types::SourceRecord::asked(Some("UniProt"), &id),
+            record: biomcp_types::SourceRecord::asked(Some("UniProt"), chembl::canonical(&id)),
         },
         Err(e) => {
             super::reply_problem(out, Source::StringDb, &id, e);
