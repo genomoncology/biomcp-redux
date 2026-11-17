@@ -2533,6 +2533,10 @@
           "description": "Include every physical entity context for these references; never clips source text.",
           "x-positional": 1
         },
+        "gene_products": {
+          "description": "Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.",
+          "type": "boolean"
+        },
         "id": {
           "description": "Checked source-owned human pathway identity.",
           "pattern": "^(R-HSA-|WP)[1-9][0-9]*$",

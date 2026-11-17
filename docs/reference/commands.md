@@ -4574,11 +4574,17 @@ Options:
           [default: json]
           [possible values: json, md]
 
-  -l, --limit <limit>
-          Five complete relation rows by default, at most fifty.
+      --gene-products[=<gene_products>]
+          Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
+
+  -l, --limit <limit>
+          Five complete relation rows by default, at most fifty.
 
       --offset <offset>
           Offset within the retained selected relation.
@@ -4612,9 +4618,10 @@ Options apply to every listed source unless their description restricts them.
 
 - `details`: Include every physical entity context for these references; never clips source text.
 Form: pathway genes ID DETAILS; not --details.
+- `--gene-products`: Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products. Value form: boolean; example: --gene-products.
 - `id`: Checked source-owned human pathway identity.
 Form: pathway genes ID DETAILS; not --id.
-- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 5.
+- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 50.
 - `--offset`: Offset within the retained selected relation. Value form: integer; example: --offset 0.
 - `--pool`: Immutable relation snapshot. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 

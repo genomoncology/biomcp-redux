@@ -241,26 +241,22 @@ fn keep_gene_products(body: &mut biomcp_types::PathwayGenes) {
         let mut namespaces: Vec<biomcp_types::PathwayNamespaceCount> = Vec::new();
         let mut kept = Vec::new();
         for row in std::mem::take(&mut body.items) {
-            let Some(namespace) = row
-                .reference
-                .namespace
-                .as_deref()
-                .filter(|n| !reactome::gene_product(n))
-            else {
+            // Reactome always states a namespace; a row without one cannot be judged, so it stays.
+            let biodata::IdentifierNamespace::Stated(namespace) = &row.reference.namespace else {
                 kept.push(row);
                 continue;
             };
+            if reactome::gene_product(namespace.as_str()) {
+                kept.push(row);
+                continue;
+            }
             left_out.rows += 1;
-            match namespaces
-                .iter_mut()
-                .find(|c| c.namespace.as_str() == namespace)
-            {
+            match namespaces.iter_mut().find(|c| &c.namespace == namespace) {
                 Some(count) => count.rows += 1,
-                None => {
-                    if let Ok(namespace) = Text::new(namespace) {
-                        namespaces.push(biomcp_types::PathwayNamespaceCount { namespace, rows: 1 });
-                    }
-                }
+                None => namespaces.push(biomcp_types::PathwayNamespaceCount {
+                    namespace: namespace.clone(),
+                    rows: 1,
+                }),
             }
         }
         body.items = kept.into();

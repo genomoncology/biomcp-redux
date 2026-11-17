@@ -122,6 +122,17 @@
           },
           "type": "array"
         },
+        "left_out": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PathwayLeftOut"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Only with `gene_products`: rows left out as non-gene references, which `total` excludes (1045)."
+        },
         "page": {
           "$ref": "#/$defs/Reply_PathwayPageInfo",
           "description": "Distinct-reference total and continuation."
@@ -161,6 +172,10 @@
           "$ref": "#/$defs/Reply_Details",
           "description": "Include every physical entity context for these references; never clips source text.",
           "x-positional": 1
+        },
+        "gene_products": {
+          "description": "Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.",
+          "type": "boolean"
         },
         "id": {
           "description": "Checked source-owned human pathway identity.",
@@ -284,6 +299,28 @@
       ],
       "x-identifier": true
     },
+    "Reply_PathwayLeftOut": {
+      "description": "Distinct references a gene-products read left out, such as ChEBI small molecules.",
+      "properties": {
+        "namespaces": {
+          "description": "Left-out rows per source namespace, in first occurrence order.",
+          "items": {
+            "$ref": "#/$defs/Reply_PathwayNamespaceCount"
+          },
+          "type": "array"
+        },
+        "rows": {
+          "description": "Left-out rows in the whole collection.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rows"
+      ],
+      "type": "object"
+    },
     "Reply_PathwayMember": {
       "description": "One source membership reference, without name-based gene inference.",
       "properties": {
@@ -367,6 +404,26 @@
       "required": [
         "reference",
         "physical_context_count"
+      ],
+      "type": "object"
+    },
+    "Reply_PathwayNamespaceCount": {
+      "description": "Rows of one source namespace.",
+      "properties": {
+        "namespace": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Source namespace, such as `chebi`."
+        },
+        "rows": {
+          "description": "Distinct references in it.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "namespace",
+        "rows"
       ],
       "type": "object"
     },

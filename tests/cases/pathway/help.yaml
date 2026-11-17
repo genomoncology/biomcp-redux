@@ -97,7 +97,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 1700,
+      "max_bytes": 2042,
       "run": [
         "help",
         "pathway",
