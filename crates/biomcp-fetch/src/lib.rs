@@ -501,16 +501,18 @@ impl Leg<'_> {
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .license_unchecked
     }
-    /// Run a metadata dependency within the remaining request budget.
-    /// Charge its independent replay clock back to the calling source leg.
+    /// Run a metadata dependency from this leg's replay time and charge its time back here. Its
+    /// `command_remaining` measures against this leg's capped end, which it was opened under.
     pub fn dependency<T>(
         &self,
         spec: &'static SourceSpec,
         cap: Duration,
         operation: impl FnOnce(&Leg<'_>) -> T,
     ) -> T {
+        let budget = self.budget();
         let mut leg = self.fetch.leg(spec, self.deadline);
-        leg.deadline = leg.deadline.child(self.remaining().min(cap));
+        leg.clock = self.clock.as_ref().map(deadline::VirtualClock::detached);
+        leg.deadline = self.deadline.until(budget.child(cap).end());
         let started = leg.remaining();
         let result = operation(&leg);
         self.budget()
@@ -532,6 +534,7 @@ impl Leg<'_> {
         self
     }
     pub(crate) fn budget(&self) -> Deadline<'_> {
+        self.clock.iter().for_each(deadline::VirtualClock::follow);
         self.deadline.bind(self.clock.as_ref())
     }
     /// Bind the source leg's remaining budget for cooperative local parsing.
@@ -548,6 +551,7 @@ impl Leg<'_> {
         self.budget().until(self.opened_end).remaining()
     }
     /// Open a leg for another declaration of the same source within this leg's deadline.
+    /// It joins the command clock; `command_remaining` measures against this leg's capped end.
     pub fn sibling(&self, spec: &'static SourceSpec) -> Self {
         debug_assert_eq!(
             spec.source, self.spec.source,
