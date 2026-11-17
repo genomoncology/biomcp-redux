@@ -41,7 +41,7 @@ struct Fields<I = Text> {
     /// Assertions to skip in source order.
     #[serde(default)]
     offset: u32,
-    #[doc = "ClinVar record kind to keep: vcv, rcv or scv (one row per submitted record per classification area); \
+    #[doc = "ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); \
         the total counts only that kind. Only with --source clinvar."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     kind: Option<ClinvarRecordKind>,
