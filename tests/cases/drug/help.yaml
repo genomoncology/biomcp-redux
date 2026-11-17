@@ -46,7 +46,8 @@
           "approvals",
           "regulatory",
           "interactions",
-          "markets"
+          "markets",
+          "essential-medicines"
         ],
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
