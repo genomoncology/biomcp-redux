@@ -133,17 +133,30 @@ fn search<'a>(
         let sent = sent.as_ref().unwrap_or(query);
         apply_page(query, sent, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
-    if let Ok(version) = version {
-        apply_version(&mut outcome, version);
-    }
     if rejected && query.next_page().is_some() {
         continuation::rejected(query, &mut outcome);
     } else if generic_rejected {
         outcome.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("query"));
     }
-    outcome.local = error.and_then(status::local);
+    outcome.local = finish_version(&mut outcome, version, error);
     outcome.sources.push(source);
     outcome
+}
+fn finish_version(
+    outcome: &mut Outcome,
+    version: Result<
+        biomcp_adapters::Mapped<Option<biomcp_types::SourceTimestamp>>,
+        biomcp_fetch::RequestError,
+    >,
+    error: Option<biomcp_fetch::RequestError>,
+) -> Option<biomcp_fetch::RequestError> {
+    match version {
+        Ok(version) => {
+            apply_version(outcome, version);
+            error.and_then(status::local)
+        }
+        Err(version_error) => status::local(version_error),
+    }
 }
 fn apply_version(
     outcome: &mut Outcome,
