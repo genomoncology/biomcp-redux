@@ -158,6 +158,7 @@ fn navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         | ReplyData::StudySampleLists { .. }
         | ReplyData::StudySamples { .. }
         | ReplyData::StudyMutations { .. }
+        | ReplyData::StudyCopyNumber { .. }
         | ReplyData::StudyFiles { .. } => Navigation::Bounded,
         ReplyData::PathwayPage { .. } | ReplyData::PhenotypePage { .. } => Navigation::Selectable,
         ReplyData::PhenotypeTermCard { .. }

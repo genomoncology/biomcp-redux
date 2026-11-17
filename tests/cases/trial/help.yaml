@@ -32,6 +32,7 @@
           "--sex",
           "--source",
           "--sponsor",
+          "--sponsor-role",
           "--sponsor-type",
           "--status",
           "--study-type",
@@ -43,7 +44,7 @@
           "count": 1
         }
       },
-      "max_bytes": 11077,
+      "max_bytes": 11486,
       "run": [
         "help",
         "search",

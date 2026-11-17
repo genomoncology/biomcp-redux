@@ -8,6 +8,10 @@ use biomcp_types::{
     Request, SourceNotice, SourceOutcome, SourceState, SourceStatus, StepKind,
 };
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut out = search_spelling(cx, query);
@@ -73,6 +77,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
 
 /// Get every part of one drug name, resolving the name once; a name that resolves to no
 /// record answers with one outcome for all parts.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut outcomes = super::resolve::get_parts(cx, queries);
@@ -253,6 +261,10 @@ impl Stated {
 /// Try each exact name another source states for `input`; the caller adds the evidence to
 /// what `attempt` found. ChEMBL's record is read from MyChem's copy of ChEMBL, so a stalled
 /// ChEMBL API never holds the search.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 fn with_aliases<T>(
     cx: &Ctx<'_>,
     input: &Text,
@@ -455,6 +467,10 @@ fn hint(out: &mut Outcome, stated: &Stated, input: &Text, selected: DrugSource, 
     status::search_for(out, &[selected.source()]);
 }
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 fn search_spelling(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut out = super::search(cx, query);

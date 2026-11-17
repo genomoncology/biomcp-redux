@@ -258,6 +258,16 @@
       ],
       "type": "object"
     },
+    "Reply_DiagnosticAggregate": {
+      "description": "Source-native count of matching 510(k) records.",
+      "enum": [
+        "product-code"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Matching 510(k) records by FDA product code, from openFDA's count facet."
+      ]
+    },
     "Reply_DiagnosticCell": {
       "description": "Whole physical source-table cell and its own links.",
       "properties": {
@@ -371,6 +381,18 @@
     "Reply_DiagnosticSearch": {
       "description": "Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.",
       "properties": {
+        "aggregate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DiagnosticAggregate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Count by product code.\nAlso counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page.",
+          "x-required-component": "fda-510k"
+        },
         "biomarker": {
           "anyOf": [
             {
@@ -1011,6 +1033,7 @@
         " Drugs@FDA application records.",
         " European Medicines Agency.",
         " WHO finished pharmaceutical products.",
+        " WHO Model List of Essential Medicines, from the WHO eEML.",
         " DDInter interaction records.",
         " MyChem DrugBank Open identity subset only.",
         " MyChem DrugCentral component.",
@@ -1044,7 +1067,9 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
-        " Orphadata Science epidemiology and natural-history files."
+        " Orphadata Science epidemiology and natural-history files.",
+        " STRING.",
+        " NIH RePORTER research project grants."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -1087,6 +1112,7 @@
         "drugsfda",
         "ema",
         "who-pq",
+        "who-eml",
         "ddinter",
         "drugbank-open",
         "drugcentral",
@@ -1120,7 +1146,9 @@
         "clinpgx",
         "cbioportal",
         "cellosaurus",
-        "orphadata"
+        "orphadata",
+        "string-db",
+        "nih-reporter"
       ]
     },
     "Reply_SourceNotice": {

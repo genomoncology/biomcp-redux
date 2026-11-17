@@ -1,5 +1,7 @@
 mod pdf;
+mod terms;
 pub use pdf::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use terms::license_terms;
 mod supplement;
 use crate::{ArticleHeader, ArticleSearch, ArticleSource, Doi, EuropePmcId, Pmcid, Pmid};
 use serde::{Deserialize, Serialize};
@@ -95,10 +97,22 @@ impl super::ResponseBody for ArticlePage {
     type Query = ArticleSearch;
 }
 
-/// A page of citing or referenced papers in citation order.
+biodata::wire_enum! {
+    /// How the papers of an edge pool are ordered.
+    EdgeOrder {
+        /// Most-cited papers first, by iCite `cited_by`; equal or missing counts keep iCite's order.
+        MostCitedFirst => "most-cited-first",
+        /// Semantic Scholar's own order, not sorted by BioMCP.
+        SourceOrder => "source-order",
+    }
+}
+/// A page of citing or referenced papers.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleEdgePage {
+    /// How the pool is ordered: iCite pools list the most-cited papers first by each row's `cited_by`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub order: Option<EdgeOrder>,
     /// Papers in the fixed edge pool.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ArticleEdgeItem]>,

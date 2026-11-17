@@ -486,7 +486,7 @@ fn card_ids_requested_and_statement_subjects_share_published_text()
                 "identity":{"ids":[id]}, "requested":id,
                 "source":"erepo", "record":{"namespace":"unknown","id":"synthetic-record"},
                 "sections":{"erepo":{"state":"data", "source":"erepo", "data":{
-                    "assertions":[{"kind":"erepo", "domain":"germline", "statement":{
+                    "total":1, "assertions":[{"kind":"erepo", "domain":"germline", "statement":{
                         "subject":{"level":"allele", "id":id},
                         "proposition":"pathogenicity", "classification":{"label":"synthetic"},
                         "attribution":{"source":"erepo", "record":"synthetic-record"}

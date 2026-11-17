@@ -1,0 +1,63 @@
+{
+  "live_check": "synthetic response case",
+  "feature": "article-pdf",
+  "story": "A failed pdf section offers the PMC full text, and each license code says in plain words what it allows, so a text-mining license is not read as permission to share.",
+  "replay": "article/pdf/synthetic-terms",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "28944238",
+        "pdf"
+      ],
+      "expect": {
+        "/sources/1/source": "semantic-scholar",
+        "/sources/1/reason": "rate-limited",
+        "/result/items/0/sections/pdf/state": "unavailable",
+        "/result/items/0/sections/pdf/reason": "rate-limited",
+        "/next/0/args": [
+          "get",
+          "article",
+          "28944238",
+          "fulltext"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "PPR1295425",
+        "pdf"
+      ],
+      "expect": {
+        "/result/items/0/sections/pdf/reason": "rate-limited",
+        "/next/0/args": [
+          "get",
+          "article",
+          "PPR1295425",
+          "fulltext"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "28944238",
+        "fulltext",
+        "supplements"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/fulltext/data/license": "tdm",
+        "/result/items/0/sections/fulltext/data/manuscript": true,
+        "/result/items/0/sections/fulltext/data/license_terms": "PMC author manuscript terms: available for text mining and for uses consistent with fair use under copyright law. This is not an open license: sharing or reproducing it beyond that needs the copyright owner's permission.",
+        "/result/items/0/sections/supplements/data/license": "tdm",
+        "/result/items/0/sections/supplements/data/license_terms": "PMC author manuscript terms: available for text mining and for uses consistent with fair use under copyright law. This is not an open license: sharing or reproducing it beyond that needs the copyright owner's permission."
+      }
+    }
+  ],
+  "verified": "1016: bench msl run 2026-11-16 (analysis 9.1, 9.2) read the bare code tdm and treated a PMC copy as shareable, and its rate-limited pdf section named no other way to the license. The tdm meaning quotes PMC's Article Datasets page (the Author Manuscript Dataset's default license) and PMC's Copyright Notice."
+}

@@ -28,6 +28,8 @@ pub(super) fn select(query: &CellLineGet, card: &mut CellLineCard) {
         card.sections.variants = None;
     }
     if let Some(Section::Data { data, .. }) = &mut card.sections.names {
+        // A card cached before 1022 lacks the top-level total; its rows carry it.
+        data.total = data.items.total;
         page(&mut data.items, query, 5);
         data.offset = query.section_offset();
     }
@@ -38,10 +40,14 @@ pub(super) fn select(query: &CellLineGet, card: &mut CellLineCard) {
         data.offset = query.section_offset();
     }
     if let Some(Section::Data { data, .. }) = &mut card.sections.xrefs {
+        // A card cached before 1022 lacks the top-level total; its rows carry it.
+        data.total = data.items.total;
         page(&mut data.items, query, 5);
         data.offset = query.section_offset();
     }
     if let Some(Section::Data { data, .. }) = &mut card.sections.variants {
+        // A card cached before 1022 lacks the top-level total; its rows carry it.
+        data.total = data.items.total;
         page(&mut data.items, query, 3);
         data.offset = query.section_offset();
     }

@@ -212,6 +212,7 @@
         "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; openFDA publishes no intended-use text for 510(k) records, so select them with --product-code, whose FDA classification name describes the device type",
         "--intended-use needs ASCII text with a letter or digit, such as e for é, because openFDA refuses any non-ASCII character in a phrase",
         "--classification-name matches FDA's device classification name on 510(k) and De Novo records and needs --source fda-510k",
+        "--aggregate product-code counts 510(k) records by FDA product code and needs --source fda-510k",
         "--gene and --gene-id each name one gene, by symbol or by NCBI GeneID; give one of them, not both",
         "--classification-name needs ASCII text with a letter or digit, such as e for é, because openFDA refuses any non-ASCII character in a phrase",
         "retired; use: --criteria for literal registry eligibility text",
@@ -402,6 +403,7 @@
         " Drugs@FDA application records.",
         " European Medicines Agency.",
         " WHO finished pharmaceutical products.",
+        " WHO Model List of Essential Medicines, from the WHO eEML.",
         " DDInter interaction records.",
         " MyChem DrugBank Open identity subset only.",
         " MyChem DrugCentral component.",
@@ -435,7 +437,9 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
-        " Orphadata Science epidemiology and natural-history files."
+        " Orphadata Science epidemiology and natural-history files.",
+        " STRING.",
+        " NIH RePORTER research project grants."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -478,6 +482,7 @@
         "drugsfda",
         "ema",
         "who-pq",
+        "who-eml",
         "ddinter",
         "drugbank-open",
         "drugcentral",
@@ -511,7 +516,9 @@
         "clinpgx",
         "cbioportal",
         "cellosaurus",
-        "orphadata"
+        "orphadata",
+        "string-db",
+        "nih-reporter"
       ]
     },
     "Reply_Step": {

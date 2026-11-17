@@ -26,6 +26,9 @@ pub struct PdfLink {
     pub status: OpenAccessStatus,
     /// Normalized license; other grants no reuse rights.
     pub license: License,
+    /// What `license` allows, in plain words from the Creative Commons deed or PMC's Copyright Notice.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license_terms: Option<Text>,
 }
 /// Receipt for one file explicitly saved by the caller.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -5,7 +5,7 @@ use super::{
 use crate::{ItemStatus, ResponseBody, Section};
 use biodata::{
     ProteinAudit, ProteinComplexHeader, ProteinComplexMember, ProteinDomainMatch, ProteinFeature,
-    ProteinFunction, ProteinHeader, ProteinIsoform, ProteinSequence, ProteinStructureRef,
+    ProteinFunction, ProteinHeader, ProteinIsoform, ProteinSequence, ProteinStructureRef, Text,
 };
 use serde::{Deserialize, Serialize};
 
@@ -158,6 +158,12 @@ pub struct ProteinSections {
     /// Requested exact participant-admitted header page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub complexes: Option<Section<ProteinComplexes>>,
+    /// Requested STRING interaction partners, strongest first.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub interactions: Option<Section<ProteinInteractions>>,
+    /// Requested ChEMBL target and its assay and activity totals.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chembl: Option<Section<ProteinChembl>>,
     /// Requested structure-link page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub structures: Option<Section<ProteinSectionPage<ProteinStructureRef>>>,
@@ -183,6 +189,9 @@ impl ResponseBody for ProteinSequenceResult {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinFunctionResult {
+    /// Paragraphs in the whole section, all of them shown; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     /// Native paragraphs in source order, without inferred interpretation.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub items: Box<[ProteinFunction]>,
@@ -200,4 +209,94 @@ pub struct ProteinSectionPage<T> {
     pub total: u64,
     /// Whole native rows in source order.
     pub items: Box<[T]>,
+}
+
+/// STRING interaction partners of one protein, strongest combined score first.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinInteractions {
+    /// Partners at or above `min_score` in the whole STRING list; the count to report.
+    #[serde(default)]
+    pub total: u64,
+    /// The lowest combined score kept: STRING's medium confidence, 0.4.
+    pub min_score: f64,
+    /// STRING release that scored these partners.
+    pub version: Text,
+    /// STRING entry the asked accession maps to. STRING keeps one protein per gene, so distinct
+    /// products of one gene, such as CDKN2A's P42771 and Q8N726, share one entry and one partner list.
+    pub string_id: Text,
+    /// Bounded first rows in STRING's order, highest combined score first.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub items: Box<[ProteinInteraction]>,
+}
+/// One STRING functional association; a score is STRING's confidence (0 to 1), not a measured affinity.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinInteraction {
+    /// STRING preferred name of the partner, usually its gene symbol.
+    pub name: Text,
+    /// Partner STRING protein identity.
+    pub string_id: Text,
+    /// STRING combined score from all evidence channels.
+    pub score: f64,
+    /// Channel scores that are above zero; an absent channel scored zero.
+    pub evidence: InteractionEvidence,
+}
+/// STRING evidence channel scores (0 to 1); zero channels are omitted.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct InteractionEvidence {
+    /// Experimental and biochemical data.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub experiments: Option<f64>,
+    /// Curated pathway and complex databases.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub databases: Option<f64>,
+    /// Co-mention in the literature.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub textmining: Option<f64>,
+    /// Co-expression.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub coexpression: Option<f64>,
+    /// Conserved gene neighborhood.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub neighborhood: Option<f64>,
+    /// Gene fusion events.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fusion: Option<f64>,
+    /// Phylogenetic co-occurrence.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cooccurrence: Option<f64>,
+}
+/// ChEMBL's single-protein targets for one UniProt accession, each with ChEMBL's own totals.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinChembl {
+    /// The UniProt accession ChEMBL was asked about: an isoform's canonical accession, since
+    /// ChEMBL names canonical accessions.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub accession: Option<Text>,
+    /// Single-protein targets ChEMBL lists for the accession; the count to report.
+    #[serde(default)]
+    pub total: u64,
+    /// The targets, each with its assay and activity totals.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub items: Box<[ProteinChemblTarget]>,
+}
+/// One ChEMBL target; its totals are ChEMBL's own counts, not rows BioMCP read.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ProteinChemblTarget {
+    /// ChEMBL target ID, such as CHEMBL3105.
+    pub id: Text,
+    /// ChEMBL preferred target name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<Text>,
+    /// ChEMBL target organism.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub organism: Option<Text>,
+    /// Assays ChEMBL lists for this target.
+    pub assay_count: u64,
+    /// Activity records ChEMBL lists for this target.
+    pub activity_count: u64,
 }

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/medicines/478",
+  "exchanges": [
+    {
+      "fetched": 1794893117,
+      "status": 200,
+      "content_type": "application/ld+json",
+      "delay_ms": 152,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"@context":["http://schema.org/docs/jsonldcontext.json","https://list.essentialmeds.org/contexts/v1.jsonld"],"@id":"/medicines/478","@type":["Drug","Medicine"],"name":"apixaban","nonProprietaryName":"apixaban","description":"<div data-contents=\"true\"><div class=\"\" data-block=\"true\" data-editor=\"7pjqv\" data-offset-key=\"bgpcn-0-0\"><div data-offset-key=\"bgpcn-0-0\" class=\"public-DraftStyleDefault-block public-DraftStyleDefault-ltr\"><span data-offset-key=\"bgpcn-0-0\"><br data-text=\"true\"></span></div></div></div>","sameAs":"http://en.wikipedia.org/wiki/Apixaban","activeIngredient":["apixaban"],"ingredient":[{"@type":"Substance","name":"apixaban","sameAs":"http://www.drugbank.ca/drugs/DB06605"}],"drugUnit":[],"guideline":[],"equivalentFor":{"0":{"@id":"/recommendations/1022"},"2":{"@id":"/recommendations/1004"}},"status":"AddedToEml","antibioticStewardshipGroup":[]}
+      }
+    }
+  ]
+}

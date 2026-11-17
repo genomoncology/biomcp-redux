@@ -131,6 +131,8 @@ The `regulatory` section pages the selected row’s original statement fragments
 
 `search diagnostic --source fda-510k --classification-name "cell-free"` matches FDA's device classification name, the name of the device type its product code stands for, which openFDA adds to each 510(k) and De Novo record as `openfda.device_name`. It is not intended-use text: every device under one product code shares the name, so it finds devices of a kind, such as DEN230046 under "High Throughput Sequencing Based Tumor Profiling Test Of Circulating Cell-Free Nucleic Acids", while `--name` matches only the submitted `device_name`. The reply's `source_query` names the field. The phrase follows the same openFDA rules as `--intended-use`. PMA classification names are not searched.
 
+`search diagnostic --source fda-510k --aggregate product-code` also counts every matching 510(k) record by FDA product code with openFDA's count facet, for example `--decision-from 2024-01-01 --decision-to 2024-12-31 --aggregate product-code`. Sent with no limit, that facet returns only the 100 largest codes; BioMCP asks for openFDA's most, 1,000. `product_code_counts` lists the codes most records first; records openFDA counts under an empty code are in `without_product_code`, and `sum` adds both; `sum_matches_total` says whether that sum equals the page total, so every matching record is counted under a listed code. When `limit_reached` is true, more codes may exist: narrow the decision dates, for example one year at a time. The reply still holds the first page of records, and its next page drops the count.
+
 ## FDA companion tables
 
 Rows retain their whole cells and original links. Both tables also give `diagnostic`, `indication`, `device` and `drug` as cell text under one name. A row's `row_date` is the newest date printed in its own device cell, which may be a supplement's date rather than the first approval; a row whose cell prints no valid date has none and is named in `problems`, never guessed. `--sort date` and `--date-from`/`--date-to` read every matching row of the stored table before paging. Biomarker selection is unsupported for the group table. A companion row is not a treatment recommendation.
@@ -146,6 +148,10 @@ openFDA answers HTTP 400 to `! # $ ; ? ^ | ~`, the backtick and every character 
 ## WHO finished products
 
 Reads never download. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is noncommercial and links WHO's copyright policy.
+
+## WHO essential medicines
+
+`get drug NAME essential-medicines` reads the WHO eEML live. WHO says the PDF Model Lists (EML and EMLc) are the binding versions and the eEML may differ from them or miss medicines once listed and later removed. The eEML names a medicine by its own name, such as dabigatran, not a salt such as dabigatran etexilate or a brand such as Pradaxa; `search drug NAME --source who-eml` lists the eEML's own matches. Only Model List listings are shown: the eEML also publishes applications the Expert Committee rejected, which are left out, and the total counts listings only. Each listing's status is on its own page, so a medicine with many applications takes a second per page. A changed eEML page fails the call rather than answering absent. Its terms forbid using it to advertise or promote commercial products or to suggest WHO endorsement.
 
 ## WHO diagnostic search
 
@@ -179,6 +185,10 @@ Entries keep every location group and fragment. Families, sites and superfamilie
 
 Each header keeps its predicted flag and actual participant count. Search text and descriptions establish no membership. Non-protein members remain source facts. Disabled sources supply neither retained rows nor card actions. Members preserve native xref namespaces, values and node identities. Exact approved HGNC mappings offer gene pivots; labels and aliases never resolve an identifier. Totals count data nodes rather than distinct genes, and source failures remain visible.
 
+## STRING interaction partners
+
+`get protein Q14191 interactions` reads STRING 12.5's functional association partners for the protein's canonical UniProt accession; STRING keeps one protein per gene, so an isoform reads its canonical entry, and distinct products of one gene share one entry and one partner list: CDKN2A's P42771 (p16) and Q8N726 (p14ARF) both map to `9606.ENSP00000418915`. The reply's `string_id` names the entry, so a partner list is never evidence about one specific product. A partner is listed when its combined score is 0.4 or above, STRING's medium confidence, and rows keep STRING's order, highest score first. A score is STRING's confidence that two proteins are functionally associated, which includes physical binding but also shared pathways, co-expression and co-mention in papers; it is not a binding affinity. Each row names the evidence channels that scored above zero. `total` counts every listed partner, and the card shows the first `--section-limit` rows. An empty section means STRING does not know the protein or lists no partner at 0.4 or above. STRING data is licensed under [CC BY 4.0](https://string-db.org/cgi/access); cite STRING and its version when you reuse it.
+
 ## Cell-line identity
 
 Names remain unchanged. A full search page's total is Cellosaurus's own match count, read with one small extra request; a shorter page's total is the rows read to its end. The card preserves entry dates, source disease/species references and complete stock-qualified warnings. Publisher release metadata and retrieval time remain separate. Cellosaurus uses CC BY 4.0 with attribution; source omissions do not establish a negative biological finding.
@@ -186,6 +196,10 @@ Names remain unchanged. A full search page's total is Cellosaurus's own match co
 ## ChEMBL cell metadata
 
 The reply preserves native names, tissue, organism, taxon and optional EFO/CLO identifiers. Metadata never requests assays. The total counts assays only and supplies no activity, experiment or drug sensitivity estimate. ChEMBL uses CC BY-SA 3.0. Its independently cached release metadata and labelled retrieval time remain separate.
+
+## Protein ChEMBL targets
+
+`get protein P09874 chembl` asks ChEMBL for the single-protein targets whose component is the protein's canonical UniProt accession; an isoform asks for its canonical accession, since ChEMBL names canonical accessions. The section's `accession`, or an empty section's record, names the accession ChEMBL was asked about. ChEMBL also files the protein under complexes, families and protein-protein interaction targets; those are not shown or counted. Each target's `assay_count` and `activity_count` are ChEMBL's own totals (`page_meta.total_count` of its assay and activity lists for that target), not rows BioMCP read or filtered, and they count every assay type and every activity record, active or not, including records ChEMBL flags as doubtful. They measure how much a target has been tested, not whether any compound works. An empty section means ChEMBL lists no single-protein target for the accession. ChEMBL uses CC BY-SA 3.0.
 
 ## Cell-line sections
 

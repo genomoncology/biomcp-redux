@@ -215,6 +215,7 @@ singleton! {
             refuses any non-ASCII character in a phrase",
         DiagnosticClassificationName510k => "--classification-name matches FDA's device classification name on 510(k) \
             and De Novo records and needs --source fda-510k",
+        DiagnosticAggregate510k => "--aggregate product-code counts 510(k) records by FDA product code and needs --source fda-510k",
         DiagnosticGeneOrGeneId => "--gene and --gene-id each name one gene, by symbol or by NCBI GeneID; give one of them, not both",
         DiagnosticClassificationNameAscii => "--classification-name needs ASCII text with a letter or digit, such as e for é, \
             because openFDA refuses any non-ASCII character in a phrase",
@@ -321,7 +322,7 @@ singleton! {
         ProteinPage => "use: --pool and --offset from the returned continuation",
         ProteinUnreviewed => "--include-unreviewed is not yet supported because no unreviewed positive was captured",
         ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein \
-            products; use: get protein <ACCESSION> complexes",
+            products; use: get protein <ACCESSION> complexes", // Unsent since 1029; kept for the 1.0 schema.
         StudyList => "use: search study",
         StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
             whole-study analytical installs are retired",

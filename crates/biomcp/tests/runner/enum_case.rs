@@ -1,6 +1,6 @@
 //! Every published query choice keeps its meaning across letter case and adapters.
+mod hosted;
 use crate::runner::{
-    http::Server,
     launch::Environment,
     mcp::{exchange_with_globals, request},
 };
@@ -167,7 +167,7 @@ fn check() -> Result<(), String> {
             }
         }
     }
-    hosted_sources(&env, &mut failures)?;
+    hosted::hosted_sources(&env, &mut failures)?;
     writeln!(
         std::io::stdout(),
         "ENUM_CASE parameters={count} values={added} failures={}",
@@ -319,57 +319,6 @@ fn refuses(reply: &Value, key: &str, word: &str) -> bool {
             != Some(&json!(
                 "a selected source does not support the requested filters"
             ))
-}
-
-// The hosted list must never offer a word that only reaches a source hosting has switched off.
-fn hosted_sources(env: &Environment, failures: &mut Vec<String>) -> Result<(), String> {
-    let server = Server::configured_globals(
-        "127.0.0.1:0",
-        Some(json!({"mcp_tool_mode":"typed"})),
-        None,
-        None,
-        None,
-        &["--offline".into(), "--hosted".into()],
-    )?;
-    let frame = request(json!(1), "tools/list", json!({}));
-    let (_, catalog) = server.request("POST", "/mcp", &frame.to_string())?;
-    let tools = catalog
-        .pointer("/result/tools")
-        .and_then(Value::as_array)
-        .ok_or("hosted tools")?;
-    let tools = crate::runner::protocol::typed_catalog::commands(tools);
-    for (verb, entity, id) in biomcp_types::command_paths() {
-        let name = format!("{verb}_{entity}").replace('-', "_");
-        let Some(tool) = tools.iter().find(|tool| tool["name"] == name.as_str()) else {
-            continue;
-        };
-        let schema = cli(env, &["schema".into(), id.into()])?;
-        for word in listed(
-            "source",
-            tool.pointer("/inputSchema/properties/source/enum"),
-        ) {
-            let mut values = seed(verb, entity, &schema)?;
-            context(verb, entity, "source", &mut values)?;
-            values.insert("source".into(), json!(word));
-            let call = request(
-                json!(2),
-                "tools/call",
-                crate::runner::protocol::typed_catalog::entity(&name, json!(values)),
-            );
-            let (_, reply) = server.request("POST", "/mcp", &call.to_string())?;
-            if only_disabled(reply.pointer("/result/structuredContent/sources")) {
-                failures.push(format!("hosted {name} offers refused source {word}"));
-            }
-        }
-    }
-    Ok(())
-}
-
-fn only_disabled(sources: Option<&Value>) -> bool {
-    sources
-        .and_then(Value::as_array)
-        .filter(|sources| !sources.is_empty())
-        .is_some_and(|sources| sources.iter().all(|s| s["reason"] == "disabled"))
 }
 
 fn choice_node<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
@@ -577,6 +526,7 @@ fn context(
         ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),
         ("search", "diagnostic", "classification") => json!({"source":"fda-device-recall"}),
         ("search", "diagnostic", "sort") => json!({"source":"fda-cdx"}),
+        ("search", "diagnostic", "aggregate") => json!({"source":"fda-510k"}),
         ("search", "drug", "name_selector") => json!({"source":"chembl"}),
         ("search", "drug", "sort") => json!({"source":"drugsfda"}),
         ("search", "adverse-event", "section" | "sort") => {
@@ -584,6 +534,7 @@ fn context(
         }
         ("search", "adverse-event", "event_type") => json!({"source":"maude"}),
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
+        ("search", "trial", "sponsor_role") => json!({"sponsor":"Revolution Medicines"}),
         ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),
         // A ranking group or metric applies only to a text of HP IDs.
         ("search", "phenotype", "group" | "metric" | "search_mode") => json!({"text":"HP:0001250"}),

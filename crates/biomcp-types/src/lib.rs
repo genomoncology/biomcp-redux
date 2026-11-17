@@ -41,7 +41,6 @@ pub use predictor::{
     VariantCosmic, VariantPredictors,
 };
 pub use query::PhaseFilter;
-pub use query::SponsorType;
 pub use query::TrialDocumentGet;
 pub use query::{ArticleEdges, EdgeSource};
 pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
@@ -69,13 +68,14 @@ pub use query::{
     NormalizationSource, VariantGet, VariantGetEcho, VariantNormalize, VariantResolver,
 };
 pub use query::{RecurrenceSource, VariantRecurrenceQuery};
+pub use query::{SponsorRole, SponsorType};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
 pub use query::{VariantPopulationQuery, VariantPopulationQueryEcho};
 pub use response::TrialParameter;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
-pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations};
+pub use response::{ArticleEdgeItem, ArticleEdgePage, CitationIntent, Citations, EdgeOrder};
 pub use response::{
     ArticleEvidenceResult, ArticleRecommendations, CitationContexts, CitationParagraphs,
     EvidenceContext, EvidenceNotice, EvidenceParagraph,
@@ -84,7 +84,7 @@ pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CacheProblem, LitVarCandidate, PoolInfo,
     SourceNotice, WithheldArticleText,
 };
-pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved, license_terms};
 pub use response::{
     ArticleSaved, ArticleTextResult, FigureCaption, FullText, TextContent, TextHit, TextPart,
     TextPartKind,
@@ -150,6 +150,7 @@ pub use response::{
 pub use response::{VariantPage, VariantSearchExclusionReason, VariantSearchExclusions};
 pub use source::{Reason, Source, Use};
 
+pub use query::GrantSearch;
 pub use query::{OrganizationSearch, OrganizationSource};
 
 mod article;
@@ -186,7 +187,8 @@ mod drug;
 pub use drug::{
     DEFAULT_DRUG_APPROVALS_LIMIT, DateRoleLabel, DrugApprovals, DrugApprovalsPart, DrugCard,
     DrugCivic, DrugCivicClaim, DrugCivicMember, DrugCivicPage, DrugCivicPart, DrugCivicProfile,
-    DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
+    DrugCivicStreams, DrugEssentialMedicineDecision, DrugEssentialMedicineListing,
+    DrugEssentialMedicines, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
     DrugFdaLatestSubmission, DrugFdaOriginalApproval, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
     DrugFdaSort, DrugFdaSubmission, DrugFdaSupplementPurpose, DrugGet, DrugHeader, DrugIndications,
     DrugIndicationsPart, DrugInteractions, DrugInteractionsPart, DrugLabel, DrugLabelFragment,
@@ -227,15 +229,16 @@ pub use adverse_event::{
 mod pgx;
 pub use pgx::*;
 pub use query::{
-    DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch, DiagnosticSearchSource,
-    DiagnosticSection, DiagnosticSort,
+    DiagnosticAggregate, DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch,
+    DiagnosticSearchSource, DiagnosticSection, DiagnosticSort,
 };
 pub use response::{
     CompanionDiagnosticRow, CompanionShared, DiagnosticCandidate, DiagnosticCard,
     DiagnosticCompanion, DiagnosticConditions, DiagnosticGenes, DiagnosticLaboratory,
-    DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory, DiagnosticRegulatoryField,
-    DiagnosticRegulatoryFragment, DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader,
-    GtrLabAddress, GtrLabCertification, GtrNameMatch, GtrNativeStatus,
+    DiagnosticMethods, DiagnosticPage, DiagnosticProductCodeCount, DiagnosticProductCodeCounts,
+    DiagnosticRegulatory, DiagnosticRegulatoryField, DiagnosticRegulatoryFragment,
+    DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader, GtrLabAddress,
+    GtrLabCertification, GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{
@@ -289,6 +292,9 @@ pub use response::{NciPhaseFilter, NciTrialPhase};
 
 pub use response::{DeviceRecallCard, DeviceRecallHeader};
 
+pub use response::{
+    GRANT_HINT, Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantPage,
+};
 pub use response::{Organization, OrganizationCoordinates, OrganizationPage};
 
 pub use query::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};

@@ -1,0 +1,47 @@
+{
+  "feature": "study-get",
+  "live_check": "public",
+  "story": "A study card's sections state `total`, the whole set, at the top of each section's data, as the skill tells agents to read it, so an agent reports SKCM's 448 samples and 245 BRAF mutations, not the 2 rows a card shows. Before 1022 these sections carried their count only at `data.page.total`, and an agent that read `data.total` got nothing (1010's review, bench comp-bio 2026-11-16, fact 10.1).",
+  "verified": "tests/replies/study/card-section-totals/provenance.json records the live cBioPortal and GitHub replies for skcm_tcga_pan_can_atlas_2018 of 2026-11-16 (pm job j42123) and their body hashes; the live card gave 13 profiles, 11 sample lists, 49 files, 245 BRAF mutations and 448 samples.",
+  "replay": "study/card-section-totals",
+  "steps": [
+    {
+      "run": ["sync", "cbioportal-studies"],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "study",
+        "skcm_tcga_pan_can_atlas_2018",
+        "all",
+        "--gene",
+        "BRAF",
+        "--section-limit",
+        "2"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/profiles/data/total": 13,
+        "/result/profiles/data/page/total": 13,
+        "/result/sample_lists/data/total": 11,
+        "/result/sample_lists/data/page/total": 11,
+        "/result/files/data/total": 49,
+        "/result/files/data/page/total": 49,
+        "/result/mutations/data/total": 245,
+        "/result/mutations/data/page/total": 245,
+        "/result/mutations/data/items": {
+          "count": 2
+        },
+        "/result/samples/data/total": 448,
+        "/result/samples/data/page/total": 448,
+        "/result/samples/data/items": {
+          "count": 2
+        }
+      }
+    }
+  ]
+}

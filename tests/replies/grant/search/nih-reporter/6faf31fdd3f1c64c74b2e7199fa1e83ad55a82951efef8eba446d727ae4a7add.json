@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "nih-reporter",
+  "url": "https://api.reporter.nih.gov/v2/projects/search",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "998a8d974ff309dd6b694013e3c4070de0031f0178fccdc33dc04eb700005404"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794905683,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 260,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"meta":{"search_id":"xY4d9BbUbkSt1D50tt-kJw","total":70,"offset":68,"limit":2,"sort_field":null,"sort_order":"ASC","sorted_by_relevance":true,"properties":{"URL":"https:/reporter.nih.gov/search/xY4d9BbUbkSt1D50tt-kJw/projects"}},"results":[{"appl_id":7507614,"subproject_id":null,"fiscal_year":2008,"project_num":"1R01CA135257-01","organization":{"org_name":"DANA-FARBER CANCER INST","city":null,"country":null,"org_city":"BOSTON","org_country":"UNITED STATES","org_state":"MA","org_state_name":null,"dept_type":null,"fips_country_code":null,"org_duns":["076580745"],"org_ueis":["DPMGH9MG1X67"],"primary_duns":"076580745","primary_uei":"DPMGH9MG1X67","org_fips":"US","org_ipf_code":"1464901","org_zipcode":"022155450","external_org_id":1464901},"activity_code":"R01","award_amount":358976,"principal_investigators":[{"profile_id":1861387,"first_name":"Pasi","middle_name":"A","last_name":"Janne","is_contact_pi":true,"full_name":"Pasi A Janne","title":"SVP FOR TRANSLATIONAL MEDICINE"}],"agency_ic_admin":{"code":"CA","abbreviation":"NCI","name":"National Cancer Institute","admin_org_id":"12500008","admin_funding_url":""},"project_start_date":"2008-08-01T00:00:00","project_end_date":"2013-06-30T00:00:00","core_project_num":"R01CA135257","project_title":"Drug Resistance in Lung Cancer","project_detail_url":"https://reporter.nih.gov/project-details/7507614"},{"appl_id":7450279,"subproject_id":"0010","fiscal_year":2008,"project_num":"2P50CA090578-06","organization":{"org_name":"DANA-FARBER CANCER INST","city":null,"country":null,"org_city":"BOSTON","org_country":"UNITED STATES","org_state":"MA","org_state_name":null,"dept_type":null,"fips_country_code":null,"org_duns":["076580745"],"org_ueis":["DPMGH9MG1X67"],"primary_duns":"076580745","primary_uei":"DPMGH9MG1X67","org_fips":"US","org_ipf_code":"1464901","org_zipcode":"022155450","external_org_id":1464901},"activity_code":"P50","award_amount":220564,"principal_investigators":[{"profile_id":1861387,"first_name":"Pasi","middle_name":"A","last_name":"Janne","is_contact_pi":true,"full_name":"Pasi A Janne","title":"SVP FOR TRANSLATIONAL MEDICINE"}],"agency_ic_admin":{"code":"CA","abbreviation":"NCI","name":"National Cancer Institute","admin_org_id":"12500008","admin_funding_url":""},"project_start_date":"2003-09-19T00:00:00","project_end_date":"2013-06-30T00:00:00","core_project_num":"P50CA090578","project_title":"Mechanisms of acquired resistance to EGFR-targeted agents","project_detail_url":"https://reporter.nih.gov/project-details/7450279"}]}
+      }
+    }
+  ]
+}

@@ -5457,6 +5457,7 @@
         " Drugs@FDA application records.",
         " European Medicines Agency.",
         " WHO finished pharmaceutical products.",
+        " WHO Model List of Essential Medicines, from the WHO eEML.",
         " DDInter interaction records.",
         " MyChem DrugBank Open identity subset only.",
         " MyChem DrugCentral component.",
@@ -5490,7 +5491,9 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
-        " Orphadata Science epidemiology and natural-history files."
+        " Orphadata Science epidemiology and natural-history files.",
+        " STRING.",
+        " NIH RePORTER research project grants."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -5533,6 +5536,7 @@
         "drugsfda",
         "ema",
         "who-pq",
+        "who-eml",
         "ddinter",
         "drugbank-open",
         "drugcentral",
@@ -5566,7 +5570,9 @@
         "clinpgx",
         "cbioportal",
         "cellosaurus",
-        "orphadata"
+        "orphadata",
+        "string-db",
+        "nih-reporter"
       ]
     },
     "Reply_SourceDateTime": {
@@ -7004,6 +7010,17 @@
           "$ref": "#/$defs/Reply_AssertionKind",
           "description": "Aggregate/submission/document context."
         },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source record ID, at this path on mapped and unmapped rows alike."
+        },
         "statement": {
           "anyOf": [
             {
@@ -7018,6 +7035,17 @@
         "statement_unmapped": {
           "description": "The native conclusion has no common-model statement.",
           "type": "boolean"
+        },
+        "submitter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitter or panel, at this path on mapped and unmapped rows alike."
         },
         "unmapped": {
           "anyOf": [
@@ -7061,6 +7089,13 @@
         "page": {
           "$ref": "#/$defs/Reply_PageInfo",
           "description": "Page bounds over native rows."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -7107,7 +7142,7 @@
               "type": "null"
             }
           ],
-          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar."
+          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); the total counts only that kind. Only with --source clinvar."
         },
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
@@ -7169,6 +7204,13 @@
             "$ref": "#/$defs/Reply_CivicProfile_VariantGet"
           },
           "type": "array"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -7397,7 +7439,7 @@
               "type": "null"
             }
           ],
-          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all."
         },
         "disease": {
           "anyOf": [
@@ -7547,6 +7589,13 @@
         "rs_id": {
           "$ref": "#/$defs/Reply_VariantId",
           "description": "Exact source rsID."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -7660,6 +7709,13 @@
             "$ref": "#/$defs/Reply_HotspotRecord"
           },
           "type": "array"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -7774,6 +7830,13 @@
             "$ref": "#/$defs/Reply_OncokbVariantRecord"
           },
           "type": "array"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole section, equal to `page.total`; the count to report (1026).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         },
         "tumor_type": {
           "$ref": "#/$defs/Reply_Text",

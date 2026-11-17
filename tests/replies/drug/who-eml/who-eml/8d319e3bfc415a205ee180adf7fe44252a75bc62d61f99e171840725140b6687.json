@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/medicines/479",
+  "exchanges": [
+    {
+      "fetched": 1794893108,
+      "status": 200,
+      "content_type": "application/ld+json",
+      "delay_ms": 161,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"@context":["http://schema.org/docs/jsonldcontext.json","https://list.essentialmeds.org/contexts/v1.jsonld"],"@id":"/medicines/479","@type":["Drug","Medicine"],"name":"dabigatran","nonProprietaryName":"dabigatran","description":"<div data-contents=\"true\"><div class=\"\" data-block=\"true\" data-editor=\"e42g\" data-offset-key=\"f6hqa-0-0\"><div data-offset-key=\"f6hqa-0-0\" class=\"public-DraftStyleDefault-block public-DraftStyleDefault-ltr\"><span data-offset-key=\"f6hqa-0-0\"><br data-text=\"true\"></span></div></div></div>","sameAs":"http://en.wikipedia.org/wiki/Dabigatran","activeIngredient":["dabigatran"],"ingredient":[{"@type":"Substance","name":"dabigatran","sameAs":"http://www.drugbank.ca/drugs/DB06695"}],"drugUnit":["Oral > Solid: 110 mg; 150 mg"],"guideline":[{"@id":"/recommendations/1004"},{"@id":"/recommendations/1022"}],"equivalentFor":[],"status":"AddedToEml","antibioticStewardshipGroup":[]}
+      }
+    }
+  ]
+}

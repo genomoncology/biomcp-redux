@@ -1,0 +1,67 @@
+{
+  "feature": "protein-string",
+  "live_check": "public",
+  "story": "A computational biologist asks for WRN's interaction partners (bench comp-bio 2026-11-16, Q10). `get protein Q14191 interactions` lists STRING's partners at medium confidence, strongest first, with each combined score and its nonzero evidence channels, and `total` counts all of them. STRING keeps one protein per gene, so CDKN2A's two products, P42771 and Q8N726, name the same `string_id` and partner list.",
+  "verified": "tests/replies/protein/string-interactions/provenance.json records the live UniProt and STRING 12.5 replies for Q14191 (WRN), P42771 and Q8N726 of 2026-11-17 (pm job j42208) and their body hashes: STRING lists 313 WRN partners at combined score 0.4 or above, led by RPA3, RPA1 and FEN1 at 0.999; both CDKN2A products map to 9606.ENSP00000418915.",
+  "replay": "protein/string-interactions",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "Q14191",
+        "interactions",
+        "--section-limit",
+        "3"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/protein/accession": "Q14191",
+        "/result/items/0/sections/interactions/source": "string-db",
+        "/result/items/0/sections/interactions/data/total": 313,
+        "/result/items/0/sections/interactions/data/version": "12.5",
+        "/result/items/0/sections/interactions/data/min_score": 0.4,
+        "/result/items/0/sections/interactions/data/string_id": "9606.ENSP00000298139",
+        "/result/items/0/sections/interactions/data/items": {
+          "count": 3
+        },
+        "/result/items/0/sections/interactions/data/items/0/name": "RPA3",
+        "/result/items/0/sections/interactions/data/items/0/score": 0.999,
+        "/result/items/0/sections/interactions/data/items/0/evidence/experiments": 0.999,
+        "/result/items/0/sections/interactions/data/items/1/name": "RPA1",
+        "/result/items/0/sections/interactions/data/items/2/name": "FEN1"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "P42771",
+        "interactions",
+        "--section-limit",
+        "1"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/interactions/data/string_id": "9606.ENSP00000418915"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "Q8N726",
+        "interactions",
+        "--section-limit",
+        "1"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/interactions/data/string_id": "9606.ENSP00000418915"
+      }
+    }
+  ]
+}

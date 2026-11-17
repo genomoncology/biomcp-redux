@@ -25,8 +25,8 @@
           "<text>"
         ]
       },
-      "max_bytes": 4500
+      "max_bytes": 5351
     }
   ],
-  "verified": "2026-10-24 actual command capture; core license cc by governs JATS whose license-p names CC BY without license-type. Markdown retains checked text and reader continuations. Measured fulltext reply 4379 bytes stays under 4500; first-part reply 4814 bytes stays under the shared 4000-token reader limit. No comparable 0.9 preprint command exists."
+  "verified": "2026-10-24 actual command capture; core license cc by governs JATS whose license-p names CC BY without license-type. Markdown retains checked text and reader continuations. Measured fulltext reply 4379 bytes stays under 4500; first-part reply 4814 bytes stays under the shared 4000-token reader limit. No comparable 0.9 preprint command exists. 1016 added license_terms: measured 4653 bytes in pm job j42069; 5351 is that plus 15 percent."
 }

@@ -1,9 +1,9 @@
 {
   "feature": "variant-identity",
   "live_check": "public",
-  "story": "ClinVar's per-submitter records arrive alone, with their own total, when a caller asks for one record kind",
+  "story": "ClinVar's submitted records arrive alone, with their own total, when a caller asks for one record kind",
   "replay": "variant/assertions/clinvar-kind",
-  "verified": "ClinVar is public NCBI data. Live efetch reply for Variation 37636 (BRCA1 R1699Q, VCV000037636.161) recorded 2026-11-16 by biomcp --record in job j42016. The reply holds 1 VCV, 13 RCV and 58 SCV rows; one SCV label maps to no common statement, so its record sits under unmapped.attribution.",
+  "verified": "ClinVar is public NCBI data. Live efetch reply for Variation 37636 (BRCA1 R1699Q, VCV000037636.161) recorded 2026-11-16 by biomcp --record in job j42016. The reply holds 1 VCV, 13 RCV and 58 SCV rows; one SCV label maps to no common statement, its record also sits under unmapped.attribution. Rows 0 (SCV000145310, mapped) and 40 (SCV000484957, GeneReviews, not provided) carry record and submitter at the row level.",
   "steps": [
     {
       "run": [
@@ -20,10 +20,18 @@
       "expect": {
         "/status": "complete",
         "/query/kind": "scv",
+        "/result/total": 58,
         "/result/page/total": 58,
         "/result/page/returned": 50,
         "/result/assertions/0/kind": "scv",
         "/result/assertions/49/kind": "scv",
+        "/result/assertions/0/record": "SCV000145310",
+        "/result/assertions/0/statement/attribution/record": "SCV000145310",
+        "/result/assertions/0/submitter": "Breast Cancer Information Core (BIC) (BRCA1)",
+        "/result/assertions/40/statement_unmapped": true,
+        "/result/assertions/40/record": "SCV000484957",
+        "/result/assertions/40/unmapped/attribution/record": "SCV000484957",
+        "/result/assertions/40/submitter": "GeneReviews",
         "/result/next/kind": "scv",
         "/result/next/offset": 50
       }
@@ -43,6 +51,7 @@
         "50"
       ],
       "expect": {
+        "/result/total": 58,
         "/result/page/total": 58,
         "/result/page/returned": 8,
         "/result/assertions/7/kind": "scv"
@@ -61,6 +70,7 @@
         "50"
       ],
       "expect": {
+        "/result/total": 13,
         "/result/page/total": 13,
         "/result/assertions/0/kind": "rcv"
       }
@@ -74,6 +84,7 @@
         "clinvar"
       ],
       "expect": {
+        "/result/total": 72,
         "/result/page/total": 72,
         "/result/assertions/0/kind": "vcv"
       }
@@ -90,6 +101,7 @@
         "50"
       ],
       "expect": {
+        "/result/candidates/0/sections/clinvar/data/total": 58,
         "/result/candidates/0/sections/clinvar/data/page/total": 58,
         "/result/candidates/0/sections/clinvar/data/assertions/0/kind": "scv",
         "/result/candidates/0/sections/clinvar/data/next/kind": "scv"

@@ -164,6 +164,10 @@ quotas! {
     /// provider-domain policy search; retain conservative local ceiling.
     ORPHADATA = Quota::new(SourceKey::declare("orphadata"), Rate::per_second(1), None, 1);
 
+    /// Checked 2026-11-17: https://api.reporter.nih.gov/ . Published limit: no more than one request per second, and
+    /// large jobs on weekends or 9 PM to 5 AM Eastern, or the address may be blocked.
+    NIH_REPORTER = Quota::new(SourceKey::declare("nih-reporter"), Rate::per_second(1), None, 1);
+
     /// Checked 2026-11-01: https://www.ncbi.nlm.nih.gov/gtr/docs/ . No published numeric limit found in service documentation/terms and provider-domain
     /// policy search; retain conservative local ceiling.
     GTR = Quota::new(SourceKey::declare("gtr-files"), Rate::per_second(1), None, 1);
@@ -171,6 +175,10 @@ quotas! {
     /// Checked 2026-11-01: https://www.who.int/about/policies/terms-of-use . No published numeric limit found in service documentation/terms and
     /// provider-domain policy search; retain conservative local ceiling.
     WHO = Quota::new(SourceKey::declare("who-ivd"), Rate::per_second(1), None, 1);
+
+    /// Checked 2026-11-16: https://list.essentialmeds.org/licencing . No published numeric limit found on the eEML's licensing, about and caveats
+    /// pages, and robots.txt disallows nothing; retain conservative local ceiling.
+    WHO_EML = Quota::new(SourceKey::declare("who-eml"), Rate::per_second(1), None, 1);
 
     /// Checked 2026-11-01: https://www.fda.gov/about-fda/about-website/website-policies . No published numeric limit found in service documentation/terms
     /// and provider-domain policy search; retain conservative local ceiling.
@@ -202,6 +210,9 @@ quotas! {
     /// Checked 2026-11-01: https://www.ebi.ac.uk/complexportal/documentation . No published numeric limit found in service documentation/terms and
     /// provider-domain policy search; retain conservative local ceiling.
     COMPLEX_PORTAL = Quota::new(SourceKey::declare("complex-portal"), Rate::per_second(1), None, 1);
+
+    /// Checked 2026-11-17: https://string-db.org/help/api/ . Published: wait one second between calls and do not call in parallel.
+    STRING = Quota::new(SourceKey::declare("string-db"), Rate::per_second(1), None, 1);
 
     /// Checked 2026-11-01: https://api.cellosaurus.org/ . No published numeric limit found in service documentation/terms and provider-domain policy
     /// search; retain conservative local ceiling.

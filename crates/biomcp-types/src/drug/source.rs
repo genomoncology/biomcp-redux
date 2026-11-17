@@ -25,10 +25,12 @@ pub enum DrugSource {
     Ema,
     /// DDInter native bundle records.
     Ddinter,
+    /// WHO Model List of Essential Medicines listings from the WHO eEML.
+    WhoEml,
 }
 impl DrugSource {
     /// Every retained drug source; registry bindings use these canonical values.
-    pub const ALL: [Self; 10] = [
+    pub const ALL: [Self; 11] = [
         Self::WhoPq,
         Self::FdaDrugRecall,
         Self::Mychem,
@@ -39,6 +41,7 @@ impl DrugSource {
         Self::Drugsfda,
         Self::Ema,
         Self::Ddinter,
+        Self::WhoEml,
     ];
     /// Canonical source spelling, reusing an existing source identity when present.
     pub fn as_str(self) -> &'static str {
@@ -57,6 +60,7 @@ impl DrugSource {
             Self::Drugsfda => crate::Source::Drugsfda,
             Self::Ema => crate::Source::Ema,
             Self::Ddinter => crate::Source::Ddinter,
+            Self::WhoEml => crate::Source::WhoEml,
         }
     }
 }
@@ -101,7 +105,8 @@ impl DrugSource {
     /// Named disclosures actually served by this source's exact-ID endpoint.
     pub fn sections(self) -> &'static [super::DrugSection] {
         use super::DrugSection::{
-            Approvals, Civic, Indications, Interactions, Label, Regulatory, Targets, Xrefs,
+            Approvals, Civic, EssentialMedicines, Indications, Interactions, Label, Regulatory,
+            Targets, Xrefs,
         };
         match self {
             Self::Mychem => &[Xrefs],
@@ -112,6 +117,7 @@ impl DrugSource {
             Self::Drugsfda => &[Approvals],
             Self::Ema => &[Regulatory],
             Self::Ddinter => &[Interactions],
+            Self::WhoEml => &[EssentialMedicines],
             Self::WhoPq | Self::FdaDrugRecall => &[],
         }
     }
@@ -136,6 +142,8 @@ impl DrugSource {
             Self::Chembl | Self::Opentargets => id.strip_prefix("CHEMBL").is_some_and(digits),
             Self::Civic => civic_id(&id).is_some(),
             Self::Ddinter => id.strip_prefix("DDInter").is_some_and(digits),
+            // An eEML medicine number, as its page address states it.
+            Self::WhoEml => digits(&id),
             Self::Drugsfda => ["NDA", "ANDA", "BLA"].iter().any(|p| {
                 id.strip_prefix(p)
                     .is_some_and(|s| s.len() == 6 && digits(s))

@@ -17,7 +17,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     } else {
         cx.budget
     };
-    let deadline = cx.fetch.deadline(budget);
+    // HGNC, then the sections side by side, all on one command clock (1038).
+    let command = cx.fetch.command_deadline(budget);
+    let deadline = command.deadline();
     let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
     let mut problems = Vec::new();
     let mut hgnc_error = None;

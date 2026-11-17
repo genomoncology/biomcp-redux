@@ -6,22 +6,11 @@ mod drug_terms;
 mod filters;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
-pub use filters::{NciStatusFilter, TrialPhaseFilter, TrialStatusFilter};
+pub use filters::{
+    NciStatusFilter, PhaseFilter, SponsorRole, SponsorType, TrialPhaseFilter, TrialStatusFilter,
+};
 use serde::{Deserialize, Serialize};
 const MAX_ALTERNATIVES: usize = 5;
-biodata::wire_enum! {
-    /// Registry funding category facet.
-    SponsorType {
-        /// National Institutes of Health.
-        Nih => "nih",
-        /// Other United States federal agency.
-        Fed => "fed",
-        /// Industry.
-        Industry => "industry",
-        /// Other sponsor category.
-        Other => "other",
-    }
-}
 /// Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
@@ -193,7 +182,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     distance: Option<Text>,
-    #[doc = "Sponsor.\nClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category."]
+    #[doc = "Sponsor.\nClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -201,6 +190,14 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     sponsor: Option<Text>,
+    #[doc = "Sponsor role.\nClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor."]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "SponsorRole"))]
+    sponsor_role: Option<SponsorRole>,
     #[doc = "Funding class.\nClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name."]
     #[serde(
         default,
@@ -386,6 +383,10 @@ impl TrialSearch {
     pub fn sponsor(&self) -> Option<&Text> {
         self.0.sponsor.as_ref()
     }
+    /// Sponsor roles the sponsor name may match; lead when absent.
+    pub fn sponsor_role(&self) -> Option<&SponsorRole> {
+        self.0.sponsor_role.as_ref()
+    }
     /// Requested sponsor funding category.
     pub fn sponsor_type(&self) -> Option<&SponsorType> {
         self.0.sponsor_type.as_ref()
@@ -454,43 +455,6 @@ impl TrialSearch {
     }
 }
 biodata::wire_enum! {
-    /// Explicit source phase selection, including the registry's combined phases.
-    PhaseFilter {
-        /// Early phase 1.
-        Early1 => "early-1",
-        /// Phase 1.
-        One => "1",
-        /// Phase 2.
-        Two => "2",
-        /// Phase 3.
-        Three => "3",
-        /// Phase 4.
-        Four => "4",
-        /// Not applicable.
-        NotApplicable => "not-applicable",
-        /// Combined phase 1 and phase 2.
-        OneTwo => "1/2",
-        /// Combined phase 2 and phase 3.
-        TwoThree => "2/3",
-    }
-}
-impl PhaseFilter {
-    /// Exact registry phases required together.
-    pub fn phases(self) -> &'static [crate::TrialPhase] {
-        use crate::TrialPhase as P;
-        match self {
-            Self::Early1 => &[P::Early1],
-            Self::One => &[P::Phase1],
-            Self::Two => &[P::Phase2],
-            Self::Three => &[P::Phase3],
-            Self::Four => &[P::Phase4],
-            Self::NotApplicable => &[P::NotApplicable],
-            Self::OneTwo => &[P::Phase1, P::Phase2],
-            Self::TwoThree => &[P::Phase2, P::Phase3],
-        }
-    }
-}
-biodata::wire_enum! {
     /// Independent trial providers; results are never folded or used as fallbacks.
     #[derive(Default)]
     TrialSource {
@@ -545,6 +509,8 @@ biodata::wire_enum! {
         Latitude => "--lat",
         /// Registry sponsor text.
         Sponsor => "--sponsor",
+        /// Registry sponsor role.
+        SponsorRole => "--sponsor-role",
         /// Registry funding vocabulary.
         SponsorType => "--sponsor-type",
         /// Registry lower update bound.
@@ -587,6 +553,7 @@ impl TrialSearch {
             (self.age().is_some(), F::Age),
             (self.lat().is_some(), F::Latitude),
             (self.sponsor().is_some(), F::Sponsor),
+            (self.sponsor_role().is_some(), F::SponsorRole),
             (self.sponsor_type().is_some(), F::SponsorType),
             (self.updated_since().is_some(), F::UpdatedSince),
             (self.updated_until().is_some(), F::UpdatedUntil),

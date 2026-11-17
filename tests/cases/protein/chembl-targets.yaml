@@ -1,0 +1,81 @@
+{
+  "feature": "protein-chembl",
+  "live_check": "public",
+  "story": "A computational biologist asks how many ChEMBL assays and activities each target has (bench comp-bio 2026-11-16, Q7). `get protein O75417 P09874 chembl` maps POLQ and PARP1 to their ChEMBL single-protein targets and gives ChEMBL's own assay and activity totals; an isoform reads its canonical target and the section names the canonical accession ChEMBL was asked about, and CDKN2A's p14ARF (Q8N726) and its isoform Q8N726-2, which ChEMBL has no target for, are empty sections naming Q8N726.",
+  "verified": "tests/replies/protein/chembl-targets/provenance.json records the live UniProt and ChEMBL 37 replies for O75417 (POLQ), O75417-2, P09874 (PARP1) and Q8N726 of 2026-11-17 (pm job j42236) and their body hashes. The totals are ChEMBL's own page_meta.total_count for assay.json and activity.json filtered by target_chembl_id: POLQ CHEMBL6025 46 assays and 693 activities, PARP1 CHEMBL3105 705 and 10,162; ChEMBL lists no single-protein target for Q8N726. The Q8N726-2 UniProt reply was recorded live on 2026-11-17 for ticket 1037 (pm job j42263); its ChEMBL target lookup asks Q8N726 and reuses the recorded empty reply.",
+  "replay": "protein/chembl-targets",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "O75417",
+        "P09874",
+        "chembl"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/protein/accession": "O75417",
+        "/result/items/0/sections/chembl/source": "chembl",
+        "/result/items/0/sections/chembl/data/total": 1,
+        "/result/items/0/sections/chembl/data/items/0/id": "CHEMBL6025",
+        "/result/items/0/sections/chembl/data/items/0/assay_count": 46,
+        "/result/items/0/sections/chembl/data/items/0/activity_count": 693,
+        "/result/items/1/header/protein/accession": "P09874",
+        "/result/items/1/sections/chembl/data/total": 1,
+        "/result/items/1/sections/chembl/data/items/0/id": "CHEMBL3105",
+        "/result/items/1/sections/chembl/data/items/0/name": "Poly [ADP-ribose] polymerase 1",
+        "/result/items/1/sections/chembl/data/items/0/organism": "Homo sapiens",
+        "/result/items/1/sections/chembl/data/items/0/assay_count": 705,
+        "/result/items/1/sections/chembl/data/items/0/activity_count": 10162,
+        "/result/items/0/sections/chembl/data/accession": "O75417"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "O75417-2",
+        "chembl"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/chembl/data/items/0/id": "CHEMBL6025",
+        "/result/items/0/sections/chembl/data/accession": "O75417"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "Q8N726",
+        "chembl"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/chembl/state": "empty",
+        "/result/items/0/sections/chembl/source": "chembl",
+        "/result/items/0/sections/chembl/record/namespace": "UniProt",
+        "/result/items/0/sections/chembl/record/id": "Q8N726"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "Q8N726-2",
+        "chembl"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/chembl/state": "empty",
+        "/result/items/0/sections/chembl/record/namespace": "UniProt",
+        "/result/items/0/sections/chembl/record/id": "Q8N726"
+      }
+    }
+  ]
+}

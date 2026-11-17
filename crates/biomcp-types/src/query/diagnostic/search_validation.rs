@@ -228,3 +228,18 @@ pub(super) fn validate_condition(v: &SearchFields) -> Result<(), QueryInvalid> {
     }
     Ok(())
 }
+
+/// openFDA's product-code count is asked of 510(k) records only, once, beside the first page (1019).
+pub(super) fn validate_aggregate(v: &SearchFields) -> Result<(), QueryInvalid> {
+    if v.aggregate.is_none() {
+        return Ok(());
+    }
+    if v.source != DiagnosticSearchSource::Fda510k {
+        return Err(QueryInvalid::new(&["source", "aggregate"])
+            .with_message(crate::ErrorMessage::DiagnosticAggregate510k));
+    }
+    if v.offset != 0 {
+        return Err(QueryInvalid::new(&["aggregate", "offset"]));
+    }
+    Ok(())
+}

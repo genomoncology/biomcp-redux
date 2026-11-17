@@ -42,6 +42,7 @@ pub(super) fn fetch(
                     version: None,
                     revision: Some(rows.version),
                 },
+                total: count as u64,
                 items: rows.items.into(),
                 page: PathwayPageInfo {
                     offset: 0,

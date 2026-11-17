@@ -16,6 +16,7 @@
         "/status": "complete",
         "/page/total": 116,
         "/page/truncated": false,
+        "/result/order": "source-order",
         "/result/items": {
           "count": 116
         },

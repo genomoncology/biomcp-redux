@@ -261,6 +261,7 @@ fn references_for(
     for (relation, values) in [
         ("openfda.spl_set_id", &c.spl_set_id),
         ("openfda.application_number", &c.application_number),
+        ("chembl.atc_classifications", &c.atc_classifications),
     ] {
         for target in values.as_ref().map(strings).unwrap_or_default() {
             refs.extend(super::links::mapped_reference(

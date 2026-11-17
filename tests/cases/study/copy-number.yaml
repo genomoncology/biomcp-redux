@@ -1,0 +1,32 @@
+{
+  "feature": "study-copy-number",
+  "live_check": "Native public cBioPortal API replies captured unchanged on 2026-11-17 (pm job j42192); API schema https://www.cbioportal.org/api/v3/api-docs.",
+  "replay": "study/copy-number",
+  "story": "A study's cna section gives the counts cBioPortal itself reports for one gene in the study's discrete GISTIC profile: brca_tcga has ERBB2 amplified (call 2) in 133 of 1,080 samples and deeply deleted (call -2) in 1. BioMCP counts nothing itself.",
+  "steps": [
+    {
+      "run": ["get", "study", "brca_tcga", "cna"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--gene"
+      }
+    },
+    {
+      "run": ["get", "study", "brca_tcga", "cna", "--gene", "ERBB2"],
+      "expect": {
+        "/schema": "biomcp.study-copy-number/1",
+        "/status": "complete",
+        "/result/study_id": "brca_tcga",
+        "/result/molecular_profile_id": "brca_tcga_gistic",
+        "/result/entrez_gene_id": "2064",
+        "/result/number_of_samples": 1080,
+        "/result/amplified": 133,
+        "/result/deep_deleted": 1
+      },
+      "max_bytes": 1500
+    }
+  ]
+}

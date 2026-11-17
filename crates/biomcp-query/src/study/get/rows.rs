@@ -57,6 +57,7 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         out.problems.extend(rows.problems);
         let data = StudySamples {
             study_id: q.id().clone(),
+            total: page.total,
             items: rows.window.rows.into(),
             page: page.clone(),
             acquired: rows.acquired,
@@ -78,7 +79,13 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         let (rows, profile, gene) = match studies::mutations(leg, q) {
             Ok(found) => found,
             Err(error) => {
-                if let Some(usage) = profile_refused(leg, q, error)? {
+                if let Some(usage) = profile_refused(
+                    leg,
+                    q,
+                    error,
+                    studies::mutation_profiles,
+                    biomcp_types::ErrorMessage::StudyMutationProfile,
+                )? {
                     out.body = ReplyData::Usage(usage);
                     return Ok(());
                 }
@@ -94,6 +101,7 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
             study_id: q.id().clone(),
             molecular_profile_id: profile,
             entrez_gene_id: gene,
+            total: page.total,
             items: rows.window.rows.into(),
             page: page.clone(),
             acquired: rows.acquired,
@@ -114,11 +122,14 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
     }
     Ok(())
 }
-/// A non-mutation profile is the caller's choice to fix, not a source outage.
-fn profile_refused(
+type Profiles = fn(&Leg<'_>, &StudyGet) -> Result<Vec<biodata::StudyProfileId>, RequestError>;
+/// A profile of the wrong kind is the caller's choice to fix, not a source outage.
+pub(super) fn profile_refused(
     leg: &Leg<'_>,
     q: &StudyGet,
     error: RequestError,
+    profiles: Profiles,
+    message: biomcp_types::ErrorMessage,
 ) -> Result<Option<biomcp_types::UsageError>, RequestError> {
     let Some(asked) = q.molecular_profile() else {
         return Ok(None);
@@ -126,7 +137,7 @@ fn profile_refused(
     if crate::status::reason(error) != Some(biomcp_types::Reason::Unavailable) {
         return Ok(None);
     }
-    let valid = studies::mutation_profiles(leg, q)?;
+    let valid = profiles(leg, q)?;
     if valid.is_empty() || valid.contains(asked) {
         return Ok(None);
     }
@@ -138,7 +149,7 @@ fn profile_refused(
     Ok(Some(biomcp_types::UsageError::Arguments(
         biomcp_types::UsageArguments {
             argument: Some("--molecular-profile".into()),
-            message: Some(biomcp_types::ErrorMessage::StudyMutationProfile),
+            message: Some(message),
             valid_values: Some(values.into()),
             next: Vec::new(),
         },

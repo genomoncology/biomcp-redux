@@ -252,6 +252,13 @@
             }
           ],
           "description": "Independently fetched publisher release."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole collection, equal to `items.total`; the count to report (1022).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -654,6 +661,7 @@
         " Drugs@FDA application records.",
         " European Medicines Agency.",
         " WHO finished pharmaceutical products.",
+        " WHO Model List of Essential Medicines, from the WHO eEML.",
         " DDInter interaction records.",
         " MyChem DrugBank Open identity subset only.",
         " MyChem DrugCentral component.",
@@ -687,7 +695,9 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
-        " Orphadata Science epidemiology and natural-history files."
+        " Orphadata Science epidemiology and natural-history files.",
+        " STRING.",
+        " NIH RePORTER research project grants."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -730,6 +740,7 @@
         "drugsfda",
         "ema",
         "who-pq",
+        "who-eml",
         "ddinter",
         "drugbank-open",
         "drugcentral",
@@ -763,7 +774,9 @@
         "clinpgx",
         "cbioportal",
         "cellosaurus",
-        "orphadata"
+        "orphadata",
+        "string-db",
+        "nih-reporter"
       ]
     },
     "Reply_SourceNotice": {

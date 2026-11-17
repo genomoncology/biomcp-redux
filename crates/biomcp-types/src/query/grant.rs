@@ -1,0 +1,142 @@
+//! NIH RePORTER project search by topic, investigator, organization and fiscal year.
+use crate::QueryInvalid;
+use biodata::Text;
+use serde::{Deserialize, Serialize};
+
+#[doc = " Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization \
+    and fiscal year. Each row is one award for one fiscal year: a project funded for five years \
+    gives five rows, and a multi-part award gives a parent row plus one row per component \
+    (`subproject`). An investigator name matches any investigator with each word anywhere in \
+    their name; check `investigators[].profile_id` and search again with \
+    investigator_id (--investigator-id on the command line)."]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "Fields")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "Fields"))]
+pub struct GrantSearch(Fields);
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+struct Fields {
+    /// Words that must all appear in the project title, abstract or terms, such as "KRAS G12C".
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
+    query: Option<Text>,
+    #[doc = " Principal investigator name, such as \"Pasi Janne\". Each word matches any part of \
+        any investigator's name, so common names find other people; check the profile IDs."]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    investigator: Option<Text>,
+    /// RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "u64"))]
+    investigator_id: Option<u64>,
+    /// Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER".
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    organization: Option<Text>,
+    /// One NIH fiscal year, such as 2025; all years by default.
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "u32", range(min = 1985, max = 2100))
+    )]
+    fiscal_year: Option<u32>,
+    /// Ten award rows by default, one to fifty.
+    #[serde(default = "default_limit")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    limit: u32,
+    /// Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(range(max = 14999)))]
+    offset: u32,
+}
+fn default_limit() -> u32 {
+    10
+}
+crate::query::validation::checked_query!(GrantSearch, Fields);
+impl TryFrom<Fields> for GrantSearch {
+    type Error = QueryInvalid;
+    fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
+        if v.query.is_none()
+            && v.investigator.is_none()
+            && v.investigator_id.is_none()
+            && v.organization.is_none()
+        {
+            return Err(QueryInvalid::new(&[
+                "query",
+                "investigator",
+                "investigator_id",
+                "organization",
+            ]));
+        }
+        if v.fiscal_year
+            .is_some_and(|year| !(1985..=2100).contains(&year))
+        {
+            return Err(QueryInvalid::new(&["fiscal_year"]));
+        }
+        if !(1..=50).contains(&v.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        if v.offset > 14_999 {
+            return Err(QueryInvalid::new(&["offset"]));
+        }
+        Ok(Self(v))
+    }
+}
+impl GrantSearch {
+    /// Words matched in title, abstract and terms.
+    pub fn query(&self) -> Option<&Text> {
+        self.0.query.as_ref()
+    }
+    /// Principal investigator name.
+    pub fn investigator(&self) -> Option<&Text> {
+        self.0.investigator.as_ref()
+    }
+    /// RePORTER investigator profile ID.
+    pub fn investigator_id(&self) -> Option<u64> {
+        self.0.investigator_id
+    }
+    /// Funded organization name.
+    pub fn organization(&self) -> Option<&Text> {
+        self.0.organization.as_ref()
+    }
+    /// One NIH fiscal year; none means all.
+    pub fn fiscal_year(&self) -> Option<u32> {
+        self.0.fiscal_year
+    }
+    /// Award rows per page.
+    pub fn limit(&self) -> u32 {
+        self.0.limit
+    }
+    /// Award rows skipped.
+    pub fn offset(&self) -> u32 {
+        self.0.offset
+    }
+    /// The same search at another offset.
+    pub fn at_offset(&self, offset: u32) -> Self {
+        let mut query = self.clone();
+        query.0.offset = offset;
+        query
+    }
+}

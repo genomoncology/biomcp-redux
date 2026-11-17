@@ -41,6 +41,13 @@ biodata::wire_enum! {
         #[doc = "PMA base application supplement headers; five per page."] Supplements => "supplements"
     }
 }
+biodata::wire_enum! {
+    described
+    /// Source-native count of matching 510(k) records.
+    DiagnosticAggregate {
+        #[doc = "Matching 510(k) records by FDA product code, from openFDA's count facet."] ProductCode => "product-code"
+    }
+}
 fn limit() -> u32 {
     5
 }
@@ -185,6 +192,11 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoIvd)))]
     prequalified_to: Option<PartialDate>,
+    #[doc = "Count by product code.\nAlso counts every matching record by FDA product code, up to openFDA's 1,000 codes, \
+    and says whether the counts sum to the total; fda-510k only, first page."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Fda510k)))]
+    aggregate: Option<DiagnosticAggregate>,
     /// Five results by default; at most fifty source rows or product headers.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -266,6 +278,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             return Err(QueryInvalid::new(&["marker", "manufacturer"]));
         }
         validate_who_years(&v)?;
+        search_validation::validate_aggregate(&v)?;
         if v.device_id
             .as_ref()
             .is_some_and(|id| !(id.as_str().starts_with('P') || id.as_str().starts_with('K')))
@@ -313,6 +326,7 @@ impl DiagnosticSearch {
             classification: None,
             prequalified_from: None,
             prequalified_to: None,
+            aggregate: None,
             limit: limit(),
             offset: 0,
             bundle_revision: None,
@@ -429,6 +443,16 @@ impl DiagnosticSearch {
     /// Inclusive WHO IVD prequalification year upper bound.
     pub fn prequalified_to(&self) -> Option<PartialDate> {
         self.0.prequalified_to
+    }
+    /// Count asked beside the page, when any.
+    pub fn aggregate(&self) -> Option<DiagnosticAggregate> {
+        self.0.aggregate
+    }
+    /// The same search without its count, for the next page of records.
+    pub fn without_aggregate(&self) -> Self {
+        let mut v = self.clone();
+        v.0.aggregate = None;
+        v
     }
     /// Native rows per page.
     pub fn limit(&self) -> u32 {

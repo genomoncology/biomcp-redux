@@ -1,0 +1,103 @@
+{
+  "projection": "None: the UniProt and ChEMBL replies are kept whole as biomcp --record wrote them.",
+  "sha256": "SHA-256 of each original reply body serialized as compact JSON",
+  "licenses": "UniProt CC BY 4.0 (https://www.uniprot.org/help/license); ChEMBL CC BY-SA 3.0 (https://chembl.github.io/chembl-licensing/), attribution: ChEMBL, EMBL-EBI, ChEMBL 37, replies unchanged.",
+  "originals": [
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/O75417-2.json",
+      "sha256": "c821cd1bcf7e449580e4fdfa41d9546c1da13e842e49a2b380d1a852822ed334",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/O75417.json",
+      "sha256": "c8c332fcd38953287a6ab348fa4994f9ff0dc59fbd68c96493b53b48de079c71",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/P09874.json",
+      "sha256": "31fd73b30d48189084c90c0db85df7af041d65fd95524b602cd1696156695191",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/Q8N726.json",
+      "sha256": "c6b36662612d42a53d7b1760e7007626c90cbde66773981238f16d5d7d0538df",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/Q8N726-2.json",
+      "sha256": "382680cfd6dc60ef3b6ccd732445fc21606e2a38bcd9da5d41e888f9731f5bcf",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42263 (biomcp --record)"
+    },
+    {
+      "url": "https://www.ebi.ac.uk/chembl/api/data/activity.json?target_chembl_id=CHEMBL3105&limit=1&offset=0",
+      "sha256": "69d4b50d253da8111235e30bb5721a2cce11c5d55f85934cabe68549f7efe5e3",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://www.ebi.ac.uk/chembl/api/data/activity.json?target_chembl_id=CHEMBL6025&limit=1&offset=0",
+      "sha256": "c7ace737a53a8ca74b94db50b18646e44a037d71a94f38dc5b5b73829902c804",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://www.ebi.ac.uk/chembl/api/data/assay.json?target_chembl_id=CHEMBL3105&limit=1&offset=0",
+      "sha256": "23144ab54202102579856962d5dd3e8a87810bf6a7bee5a726fc9c765c29502f",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://www.ebi.ac.uk/chembl/api/data/assay.json?target_chembl_id=CHEMBL6025&limit=1&offset=0",
+      "sha256": "48075f93b4976fe54c4f9e79cf940c9f593720f7b033ae8308dc29d094829e87",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://www.ebi.ac.uk/chembl/api/data/target.json?target_components__accession=O75417&target_type=SINGLE%20PROTEIN&limit=5&offset=0",
+      "sha256": "2481468075732f0de5135e242f4f1410f55d1cc073062bb67190c6261ee53156",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://www.ebi.ac.uk/chembl/api/data/target.json?target_components__accession=P09874&target_type=SINGLE%20PROTEIN&limit=5&offset=0",
+      "sha256": "05f8a6b58d3e5e066717277fc762cc24215367718b99acb4a0faf5658e29b1ba",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    },
+    {
+      "url": "https://www.ebi.ac.uk/chembl/api/data/target.json?target_components__accession=Q8N726&target_type=SINGLE%20PROTEIN&limit=5&offset=0",
+      "sha256": "fcebd06140e9f66dee2f5e77b033b8fc6db1f3cf9cb4399d4a91ca875835c404",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42236 (biomcp --record)"
+    }
+  ]
+}

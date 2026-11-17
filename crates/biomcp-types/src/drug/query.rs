@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 biodata::canonical_enum! {
     /// Explicit drug disclosures; identity cards never expand into these sections.
     DrugSection, SourceUnknown {
-        /// All native identity cross-references and product links, mechanically paged.
+        /// All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.
         Xrefs => "xrefs",
         /// Native target and mechanism relations.
         Targets => "targets",
@@ -27,6 +27,9 @@ biodata::canonical_enum! {
         Interactions => "interactions",
         /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
         Markets => "markets",
+        /// Essential Medicines List listings from the eEML: core or complementary, section, indication,
+        /// date added, therapeutic alternatives and Expert Committee text; five per default page.
+        EssentialMedicines => "essential-medicines",
     }
 }
 /// Retrieve a native ID or a complete source name.
@@ -196,6 +199,17 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
             || fields.section.as_ref() != [DrugSection::Interactions])
     {
         return Err(QueryInvalid::new(&["partner", "source", "section"]));
+    }
+    // The WHO eEML answers only its own section, which a who-eml get reads with or without the word.
+    let eml = fields.section.contains(&DrugSection::EssentialMedicines);
+    if (fields.source == Some(DrugSource::WhoEml)
+        && !matches!(
+            fields.section.as_ref(),
+            [] | [DrugSection::EssentialMedicines]
+        ))
+        || (eml && fields.source != Some(DrugSource::WhoEml))
+    {
+        return Err(QueryInvalid::new(&["source", "section"]));
     }
     if fields.source == Some(DrugSource::FdaDrugRecall) && !fields.section.is_empty() {
         return Err(QueryInvalid::new(&["source", "section"]));
@@ -501,12 +515,19 @@ impl schemars::JsonSchema for DrugGet {
         let mut schema = GetFields::json_schema(generator);
         schema.insert(
             "description".into(),
-            "A source-selected drug request echoed with a native ID after name resolution.".into(),
+            "A source-selected drug request echoed with a native ID after name resolution, otherwise with the name as given.".into(),
         );
+        // A name can stay in the echo, so the echo admits every input the parser admits.
+        let text = <Text as schemars::JsonSchema>::json_schema(generator);
         if let Some(properties) = schema.get_mut("properties").and_then(|p| p.as_object_mut()) {
             properties.insert(
                 "input".into(),
-                generator.subschema_for::<DrugId>().to_value(),
+                schemars::json_schema!({
+                    "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
+                    "pattern": text.get("pattern"),
+                    "type": "string",
+                })
+                .to_value(),
             );
             properties.insert(
                 "source".into(),

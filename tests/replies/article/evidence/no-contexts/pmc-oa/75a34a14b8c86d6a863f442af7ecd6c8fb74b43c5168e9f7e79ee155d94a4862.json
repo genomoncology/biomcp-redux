@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "pmc-oa",
+  "url": "https://pmc-oa-opendata.s3.amazonaws.com/?list-type=2&prefix=PMC7573235.",
+  "exchanges": [
+    {
+      "fetched": 1792843178,
+      "status": 200,
+      "content_type": "application/xml",
+      "delay_ms": 94,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>pmc-oa-opendata</Name><Prefix>PMC7573235.</Prefix><KeyCount>8</KeyCount><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>PMC7573235.1/PMC7573235.1.json</Key><LastModified>2026-06-26T23:43:53.000Z</LastModified><ETag>&quot;1f72b029b96b22d07a6b799f5d9ffcba&quot;</ETag><ChecksumAlgorithm>CRC32</ChecksumAlgorithm><ChecksumType>FULL_OBJECT</ChecksumType><Size>1137</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>PMC7573235.1/PMC7573235.1.pdf</Key><LastModified>2026-02-22T06:09:11.000Z</LastModified><ETag>&quot;5d4f463b3119ed58962462f35a47efb4&quot;</ETag><ChecksumAlgorithm>CRC32</ChecksumAlgorithm><ChecksumType>FULL_OBJECT</ChecksumType><Size>1593747</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>PMC7573235.1/PMC7573235.1.txt</Key><LastModified>2026-06-26T23:43:53.000Z</LastModified><ETag>&quot;c8b9f98e9891fe1c88943ad3b60e97b8&quot;</ETag><ChecksumAlgorithm>CRC32</ChecksumAlgorithm><ChecksumType>FULL_OBJECT</ChecksumType><Size>66355</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>PMC7573235.1/PMC7573235.1.xml</Key><LastModified>2026-06-26T23:43:53.000Z</LastModified><ETag>&quot;ac4033b8821f44dff8e515f4eb67a48e&quot;</ETag><ChecksumAlgorithm>CRC32</ChecksumAlgorithm><ChecksumType>FULL_OBJECT</ChecksumType><Size>163782</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>PMC7573235.1/fcell-08-573599-g0001.jpg</Key><LastModified>2026-02-22T06:09:10.000Z</LastModified><ETag>&quot;cf78a31c634ec6d7c3c92d5094048860&quot;</ETag><ChecksumAlgorithm>CRC32</ChecksumAlgorithm><ChecksumType>FULL_OBJECT</ChecksumType><Size>90844</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>PMC7573235.1/fcell-08-573599-g0002.jpg</Key><LastModified>2026-02-22T06:09:10.000Z</LastModified><ETag>&quot;5ea6d92c9b226c1133d031bb9b08f2f4&quot;</ETag><ChecksumAlgorithm>CRC32</ChecksumAlgorithm><ChecksumType>FULL_OBJECT</ChecksumType><Size>97545</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>PMC7573235.1/fcell-08-573599-g0003.jpg</Key><LastModified>2026-02-22T06:09:09.000Z</LastModified><ETag>&quot;b239815d16370226472dd1755a7d7609&quot;</ETag><ChecksumAlgorithm>CRC32</ChecksumAlgorithm><ChecksumType>FULL_OBJECT</ChecksumType><Size>139677</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>PMC7573235.1/fcell-08-573599-g0004.jpg</Key><LastModified>2026-02-22T06:09:09.000Z</LastModified><ETag>&quot;e6892478245ea15d37f85313502c2082&quot;</ETag><ChecksumAlgorithm>CRC32</ChecksumAlgorithm><ChecksumType>FULL_OBJECT</ChecksumType><Size>143827</Size><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>"
+      }
+    }
+  ]
+}

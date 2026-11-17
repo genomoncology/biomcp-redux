@@ -2,8 +2,8 @@
 use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{
-    DiagnosticCountUnit, DiagnosticPage, DiagnosticSearch, PageInfo, Paged, ReplyBody, Request,
-    Source, StepKind,
+    DiagnosticAggregate, DiagnosticCountUnit, DiagnosticProductCodeCounts, DiagnosticSearch,
+    PageInfo, Paged, ReplyBody, Request, Source, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let source = q.source().source();
@@ -19,12 +19,11 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     };
     let source_query = || Some(expression.clone().into_boxed_str()).filter(|s| !s.is_empty());
     let mut out = empty(
-        (DiagnosticPage {
-            items: Box::default(),
-            count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
-            distinct_id_total: None,
-            source_query: source_query(),
-        })
+        super::device_page(
+            Box::default(),
+            DiagnosticCountUnit::DeviceSubmissions,
+            source_query(),
+        )
         .with_query(q.clone()),
     );
     let command = cx.fetch.command_deadline(cx.budget);
@@ -35,8 +34,16 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     } else {
         biomcp_adapters::fda_510k::search(&leg, q)
     };
+    // The count reads the same expression as the page; its sum is checked against the page total.
+    let result = result.and_then(|page| {
+        let counts = match q.aggregate() {
+            Some(DiagnosticAggregate::ProductCode) => Some(product_codes(&leg, q, page.total)?),
+            None => None,
+        };
+        Ok((page, counts))
+    });
     let error = match result {
-        Ok(page) => {
+        Ok((page, product_code_counts)) => {
             let returned = page.items.len() as u32;
             {
                 let found = page.total != 0;
@@ -49,7 +56,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                     &mut out,
                     StepKind::Page,
                     &[q.source().source()],
-                    Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
+                    Request::SearchDiagnostic(
+                        q.without_aggregate().at_offset(q.offset() + returned),
+                    ),
                     cx.fresh,
                 );
             }
@@ -60,13 +69,13 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                 pool: None,
                 truncated: None,
             });
-            out.body = (DiagnosticPage {
-                items: page.items,
-                count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
-                distinct_id_total: None,
-                source_query: source_query(),
-            })
-            .with_query(q.clone());
+            let mut body = super::device_page(
+                page.items,
+                DiagnosticCountUnit::DeviceSubmissions,
+                source_query(),
+            );
+            body.product_code_counts = product_code_counts;
+            out.body = body.with_query(q.clone());
             None
         }
         Err(error) => Some(error),
@@ -77,4 +86,21 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     status::search(&mut out);
     command.finish(deadline.remaining());
     out
+}
+
+/// Matching 510(k) records by product code, with the sum checked against the search total.
+fn product_codes(
+    leg: &biomcp_fetch::Leg<'_>,
+    q: &DiagnosticSearch,
+    total: u64,
+) -> Result<DiagnosticProductCodeCounts, biomcp_fetch::RequestError> {
+    let codes = biomcp_adapters::fda_510k::product_codes(leg, q)?;
+    let sum = codes.items.iter().map(|row| row.count).sum::<u64>() + codes.without_product_code;
+    Ok(DiagnosticProductCodeCounts {
+        items: codes.items.into(),
+        without_product_code: codes.without_product_code,
+        sum,
+        sum_matches_total: sum == total,
+        limit_reached: codes.limit_reached,
+    })
 }

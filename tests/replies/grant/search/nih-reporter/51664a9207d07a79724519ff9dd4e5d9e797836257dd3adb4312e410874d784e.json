@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "nih-reporter",
+  "url": "https://api.reporter.nih.gov/v2/projects/search",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "f837f20951414e779ad61190d2ec3873e6210b1afd14c2be4113fb5438ffbf4e"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794905680,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 164,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"meta":{"search_id":"a2jTyIDS10qo2eLIiniO0w","total":173,"offset":0,"limit":3,"sort_field":null,"sort_order":"ASC","sorted_by_relevance":true,"properties":{"URL":"https:/reporter.nih.gov/search/a2jTyIDS10qo2eLIiniO0w/projects"}},"results":[{"appl_id":11251746,"subproject_id":null,"fiscal_year":2026,"project_num":"5R21CA295906-02","organization":{"org_name":"UNIVERSITY OF TX MD ANDERSON CAN CTR","city":null,"country":null,"org_city":"HOUSTON","org_country":"UNITED STATES","org_state":"TX","org_state_name":null,"dept_type":"SURGERY","fips_country_code":null,"org_duns":["800772139"],"org_ueis":["S3GMKS8ELA16"],"primary_duns":"800772139","primary_uei":"S3GMKS8ELA16","org_fips":"US","org_ipf_code":"578407","org_zipcode":"770304009","external_org_id":578407},"activity_code":"R21","award_amount":152873,"principal_investigators":[{"profile_id":14325721,"first_name":"Yonathan","middle_name":"","last_name":"Lissanu","is_contact_pi":true,"full_name":"Yonathan  Lissanu","title":"ASSOCIATE PROFESSOR"}],"agency_ic_admin":{"code":"CA","abbreviation":"NCI","name":"National Cancer Institute","admin_org_id":"12500008","admin_funding_url":""},"project_start_date":"2025-01-01T00:00:00","project_end_date":"2026-12-31T00:00:00","core_project_num":"R21CA295906","project_title":"Targeting SMARCA2 to overcome resistance of SMARCA4-mutant lung cancer to KRAS G12C inhibitors","project_detail_url":"https://reporter.nih.gov/project-details/11251746"},{"appl_id":11319754,"subproject_id":null,"fiscal_year":2026,"project_num":"5R01CA279264-04","organization":{"org_name":"SLOAN-KETTERING INST CAN RESEARCH","city":null,"country":null,"org_city":"NEW YORK","org_country":"UNITED STATES","org_state":"NY","org_state_name":null,"dept_type":null,"fips_country_code":null,"org_duns":["064931884"],"org_ueis":["KUKXRCZ6NZC2"],"primary_duns":"064931884","primary_uei":"KUKXRCZ6NZC2","org_fips":"US","org_ipf_code":"5079202","org_zipcode":"100656007","external_org_id":5079202},"activity_code":"R01","award_amount":514185,"principal_investigators":[{"profile_id":10911245,"first_name":"Piro","middle_name":"","last_name":"Lito","is_contact_pi":true,"full_name":"Piro  Lito","title":"PROFESSOR AND MEMBER"}],"agency_ic_admin":{"code":"CA","abbreviation":"NCI","name":"National Cancer Institute","admin_org_id":"12500008","admin_funding_url":""},"project_start_date":"2023-05-01T00:00:00","project_end_date":"2028-04-30T00:00:00","core_project_num":"R01CA279264","project_title":"Mechanisms of adaptation and resistance to emerging therapies for lung cancer","project_detail_url":"https://reporter.nih.gov/project-details/11319754"},{"appl_id":11231694,"subproject_id":null,"fiscal_year":2026,"project_num":"5K22CA276357-03","organization":{"org_name":"UNIVERSITY OF PITTSBURGH AT PITTSBURGH","city":null,"country":null,"org_city":"PITTSBURGH","org_country":"UNITED STATES","org_state":"PA","org_state_name":null,"dept_type":"INTERNAL MEDICINE/MEDICINE","fips_country_code":null,"org_duns":["004514360"],"org_ueis":["MKAGLD59JRL1"],"primary_duns":"004514360","primary_uei":"MKAGLD59JRL1","org_fips":"US","org_ipf_code":"2059802","org_zipcode":"152133320","external_org_id":2059802},"activity_code":"K22","award_amount":189756,"principal_investigators":[{"profile_id":14892358,"first_name":"Hua","middle_name":"","last_name":"Zhang","is_contact_pi":true,"full_name":"Hua  Zhang","title":"ASSISTANT PROFESSOR"}],"agency_ic_admin":{"code":"CA","abbreviation":"NCI","name":"National Cancer Institute","admin_org_id":"12500008","admin_funding_url":""},"project_start_date":"2023-12-21T00:00:00","project_end_date":"2026-11-30T00:00:00","core_project_num":"K22CA276357","project_title":"Targeted degradation of KRAS oncoproteins triggers antitumor immunity and abolishes lung tumor","project_detail_url":"https://reporter.nih.gov/project-details/11231694"}]}
+      }
+    }
+  ]
+}

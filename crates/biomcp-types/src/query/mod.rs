@@ -40,8 +40,8 @@ mod variant_input;
 pub use variant_input::{VariantInput, VariantNamespace};
 mod trial;
 pub use trial::{
-    NciBiomarkerUse, NciStatusFilter, PhaseFilter, SponsorType, TrialFilter, TrialPhaseFilter,
-    TrialSearch, TrialSource, TrialStatusFilter,
+    NciBiomarkerUse, NciStatusFilter, PhaseFilter, SponsorRole, SponsorType, TrialFilter,
+    TrialPhaseFilter, TrialSearch, TrialSource, TrialStatusFilter,
 };
 mod variant_terms;
 pub use variant_terms::{
@@ -80,14 +80,17 @@ pub use gene::QueryInvalid;
 
 mod diagnostic;
 pub use diagnostic::{
-    DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch, DiagnosticSearchSource,
-    DiagnosticSection, DiagnosticSort,
+    DiagnosticAggregate, DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch,
+    DiagnosticSearchSource, DiagnosticSection, DiagnosticSort,
 };
 
 mod pathway;
 pub use pathway::{
     PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PathwaySource,
 };
+
+mod grant;
+pub use grant::GrantSearch;
 
 mod organization;
 pub use organization::{OrganizationSearch, OrganizationSource};

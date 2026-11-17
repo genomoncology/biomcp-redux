@@ -63,6 +63,7 @@ pub(super) fn page(
     Ok(Mapped {
         refusals,
         value: VariantCivic {
+            total: page.total,
             profiles: profiles.into(),
             page,
             next,

@@ -1,7 +1,7 @@
 {
   "feature": "cell-line-identity",
   "live_check": "public",
-  "story": "Species, NCIt disease, derived-line and sequence variation constraints are sent to Cellosaurus before its native window, so paging stays correct; human melanoma excludes mouse B16, a specific disease name and ID identify the same source line, excluding derived lines reaches the parent line in the first window, and variation replies show what matched and say the match is on source text.",
+  "story": "Species, NCIt disease, derived-line and sequence variation constraints are sent to Cellosaurus before its native window, so paging stays correct; human melanoma excludes mouse B16 and says how Cellosaurus matches a disease, a specific disease name and ID identify the same source line, excluding derived lines reaches the parent line in the first window, and variation replies show what matched and say the match is on source text.",
   "verified": "Unchanged public Cellosaurus API reply bodies captured 2026-11-04, CC BY 4.0; cite Bairoch (2018). Native ox (NCBI Taxonomy) and din (NCIt-only disease) fields documented at https://api.cellosaurus.org/api-fields. Variation and derived-line replies captured 2026-11-06 from the same API; var and hi are native fields. Disease name/ID comparison uses the complete one-row Desmoplastic melanoma result; no inferred disease mapping or local result filtering.",
   "replay": "cell-line/filters",
   "steps": [
@@ -45,6 +45,11 @@
         },
         "/result/items/*/name": {
           "excludes": "B16"
+        },
+        "/sources/0/notices/*/message": {
+          "includes_all_of": [
+            "Cellosaurus matched --disease to each line's NCIt disease: an ID matches that disease only, and a name matches those words in that order anywhere in the disease name. Narrower NCIt diseases are not added, so a subtype whose name breaks the phrase, such as Pancreatic ductal adenocarcinoma for Pancreatic adenocarcinoma, is a separate search."
+          ]
         }
       },
       "max_bytes": 9000
@@ -115,7 +120,10 @@
             "CVCL_0152"
           ]
         },
-        "/query/exclude_derived": true
+        "/query/exclude_derived": true,
+        "/sources/0/notices/*/message": {
+          "excludes": "Cellosaurus matched --disease"
+        }
       },
       "max_bytes": 9000
     },

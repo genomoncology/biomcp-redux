@@ -58,11 +58,6 @@
       ],
       "type": "string"
     },
-    "DrugId": {
-      "description": "A published native drug record identifier, without a consumer source prefix.",
-      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
-      "type": "string"
-    },
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "enum": [
@@ -74,11 +69,12 @@
         "approvals",
         "regulatory",
         "interactions",
-        "markets"
+        "markets",
+        "essential-medicines"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " All native identity cross-references and product links, mechanically paged.",
+        " All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
@@ -86,7 +82,8 @@
         " Native application and product history rows.",
         " Source-scoped regulator events.",
         " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
-        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.",
+        " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
       ]
     },
     "DrugSource": {
@@ -101,7 +98,8 @@
         "openfda-label",
         "drugsfda",
         "ema",
-        "ddinter"
+        "ddinter",
+        "who-eml"
       ],
       "type": "string"
     },
@@ -121,7 +119,7 @@
   "$id": "biomcp.drug-get/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "A source-selected drug request echoed with a native ID after name resolution.",
+  "description": "A source-selected drug request echoed with a native ID after name resolution, otherwise with the name as given.",
   "properties": {
     "civic_cursor": {
       "anyOf": [
@@ -220,7 +218,9 @@
       "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
     },
     "input": {
-      "$ref": "#/$defs/DrugId"
+      "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
     },
     "label_section": {
       "anyOf": [

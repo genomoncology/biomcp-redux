@@ -22,6 +22,9 @@ macro_rules! page {
             @body, $name, $row, $query, $schema, $doc, [Eq], "Complete ordered metadata records, never member sample IDs.", [
             /// Exact study scope of this collection.
             pub study_id: StudyId,
+            /// Rows in the whole collection, equal to `page.total`; the count to report (1022).
+            #[serde(default)]
+            pub total: u64,
             /// Bounds and source-stated total for this collection.
             pub page: PageInfo,], [
             /// Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition.
@@ -41,6 +44,9 @@ macro_rules! page {
             @body, $name, $row, $query, $schema, $doc, [], "Whole native references; unresolved identities remain visible.", [
             /// Exact source pathway owning this relation.
             pub header: PathwayHeader,
+            /// Rows in the whole collection, equal to `page.total`; the count to report (1022).
+            #[serde(default)]
+            pub total: u64,
             /// Relation-specific count provenance and continuation.
             pub page: PathwayPageInfo,], []);
     };

@@ -41,7 +41,8 @@ struct Fields<I = Text> {
     /// Assertions to skip in source order.
     #[serde(default)]
     offset: u32,
-    /// ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar.
+    #[doc = "ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); \
+        the total counts only that kind. Only with --source clinvar."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     kind: Option<ClinvarRecordKind>,
 }
@@ -233,7 +234,7 @@ biodata::wire_enum! {
         Vcv=>"vcv",
         /// Variant-condition aggregates (RCV).
         Rcv=>"rcv",
-        /// Submitted records, one per submitter (SCV).
+        /// Submitted records (SCV), one row per classification area.
         Scv=>"scv",
     }
 }

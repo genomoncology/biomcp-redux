@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22Sulpyrine%22%20OR%20openfda.generic_name%3A%22Sulpyrine%22&limit=50&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794896375,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 142,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No matches found!"
+  }
+}
+      }
+    }
+  ]
+}

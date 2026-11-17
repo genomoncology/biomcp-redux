@@ -60,7 +60,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         })
         .with_query(query.clone());
     }
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     out.sources.push(status::source(
         Source::ClinicalTrialsGov,
         leg.finish(),

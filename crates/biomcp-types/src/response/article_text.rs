@@ -39,6 +39,9 @@ pub struct FigureCaption {
 pub struct FullText {
     /// Selected bucket license.
     pub license: License,
+    /// What `license` allows, in plain words from the Creative Commons deed or PMC's Copyright Notice.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license_terms: Option<Text>,
     /// Highest numeric processing version.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "u32"))]

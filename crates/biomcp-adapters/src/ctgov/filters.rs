@@ -75,7 +75,7 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
             query.facility().filter(|_| !broader_names),
         ),
         (
-            "LeadSponsorName",
+            sponsor_area(query),
             query.sponsor().filter(|_| !broader_names),
         ),
     ] {
@@ -131,6 +131,14 @@ pub(super) fn name_parameters(
                 params.insert(name.into(), value.to_string());
             }
         }
+    }
+}
+/// SponsorSearch is the lead-or-collaborator area that query.spons searches.
+fn sponsor_area(query: &TrialSearch) -> &'static str {
+    if query.sponsor_role() == Some(&biomcp_types::SponsorRole::Any) {
+        "SponsorSearch"
+    } else {
+        "LeadSponsorName"
     }
 }
 fn quote(value: &str) -> String {

@@ -67,6 +67,10 @@ pub(crate) fn bounded<'a, T>(
 /// `fit` says which names the searching provider can take, and why it cannot take the others.
 /// A lookup that does not finish never counts against the search: its sources are listed as
 /// skipped, and the notice names the term searched as typed.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 pub(crate) fn resolve<'a>(
     cx: &Ctx<'a>,
     input: &Text,
@@ -188,7 +192,7 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
         .fresh(cx.fresh);
     let result = biomcp_adapters::mychem::name_records(&leg, input.as_str(), NAME_ROWS);
     let error = result.as_ref().err().copied();
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     let parent = status::source(DrugSource::Mychem.source(), leg.finish(), error);
     command.finish(remaining);
     let mapped = match result {
@@ -269,7 +273,7 @@ pub(super) fn chembl_copy(cx: &Ctx<'_>, input: &Text) -> ChemblCopy {
         .fresh(cx.fresh);
     let result = biomcp_adapters::mychem::chembl_names(&leg, input.as_str(), NAME_ROWS);
     let error = result.as_ref().err().copied();
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     let parent = status::source(DrugSource::Mychem.source(), leg.finish(), error);
     command.finish(remaining);
     let copied = biomcp_adapters::registry::outcome(DrugSource::Chembl.source(), parent.status());

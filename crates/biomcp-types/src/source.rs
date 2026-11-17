@@ -83,6 +83,8 @@ canonical_enum! {
         Ema => "ema",
         /// WHO finished pharmaceutical products.
         WhoPq => "who-pq",
+        /// WHO Model List of Essential Medicines, from the WHO eEML.
+        WhoEml => "who-eml",
         /// DDInter interaction records.
         Ddinter => "ddinter",
         /// MyChem DrugBank Open identity subset only.
@@ -151,6 +153,10 @@ canonical_enum! {
         Cellosaurus => "cellosaurus",
         /// Orphadata Science epidemiology and natural-history files.
         Orphadata => "orphadata",
+        /// STRING.
+        StringDb => "string-db",
+        /// NIH RePORTER research project grants.
+        NihReporter => "nih-reporter",
     }
 }
 

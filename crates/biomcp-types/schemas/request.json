@@ -100,12 +100,12 @@
       "type": "string",
       "x-enum-descriptions": [
         " Normalized text-mined entities from PubTator3.",
-        " Licensed PMC body outline.",
+        " Licensed PMC body outline; license_terms says what the license allows.",
         " Supplementary files confirmed by PMC metadata.",
         " Machine-written Semantic Scholar summary and counts.",
         " Citation counts from NIH iCite.",
         " MeSH, keywords and author indexing from the citation.",
-        " Publisher PDF link without downloading.",
+        " Publisher PDF link and license terms, without downloading.",
         " Every landed article section."
       ]
     },
@@ -328,6 +328,16 @@
       ],
       "type": "string"
     },
+    "DiagnosticAggregate": {
+      "description": "Source-native count of matching 510(k) records.",
+      "enum": [
+        "product-code"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Matching 510(k) records by FDA product code, from openFDA's count facet."
+      ]
+    },
     "DiagnosticDeviceId": {
       "description": "Source device identifier; DEN and H identifiers imply no executable get.",
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
@@ -445,11 +455,6 @@
       ],
       "type": "string"
     },
-    "DrugId": {
-      "description": "A published native drug record identifier, without a consumer source prefix.",
-      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
-      "type": "string"
-    },
     "DrugNameSelector": {
       "description": "One explicit ChEMBL name filter without fallback or synonym expansion.",
       "enum": [
@@ -487,11 +492,12 @@
         "approvals",
         "regulatory",
         "interactions",
-        "markets"
+        "markets",
+        "essential-medicines"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " All native identity cross-references and product links, mechanically paged.",
+        " All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
@@ -499,7 +505,8 @@
         " Native application and product history rows.",
         " Source-scoped regulator events.",
         " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
-        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.",
+        " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
       ]
     },
     "DrugSource": {
@@ -514,7 +521,8 @@
         "openfda-label",
         "drugsfda",
         "ema",
-        "ddinter"
+        "ddinter",
+        "who-eml"
       ],
       "type": "string"
     },
@@ -886,6 +894,8 @@
         "domains",
         "isoforms",
         "complexes",
+        "interactions",
+        "chembl",
         "structures",
         "function",
         "sequence",
@@ -897,6 +907,8 @@
         " Native InterPro entry matches.",
         " Native alternative products.",
         " Exact participant-admitted complex headers.",
+        " STRING interaction partners with combined and channel scores.",
+        " ChEMBL single-protein target with its assay and activity totals.",
         " Native structure cross-reference links.",
         " One whole native function text record with all source paragraphs.",
         " Direct exact-identity sequence and audit metadata.",
@@ -938,6 +950,14 @@
       "pattern": "^(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})-(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0})$",
       "type": "string"
     },
+    "SponsorRole": {
+      "description": "Sponsor roles a sponsor name may match.",
+      "enum": [
+        "lead",
+        "any"
+      ],
+      "type": "string"
+    },
     "SponsorType": {
       "description": "Registry funding category facet.",
       "enum": [
@@ -959,12 +979,13 @@
       "type": "string"
     },
     "StudySection": {
-      "description": "Supported bounded study metadata sections; gene counts are deferred.",
+      "description": "Supported bounded study metadata sections.",
       "enum": [
         "profiles",
         "sample-lists",
         "mutations",
         "samples",
+        "cna",
         "files",
         "all"
       ],
@@ -974,6 +995,7 @@
         " Five sample-list metadata records, without member sample IDs.",
         " Source mutation rows for the required gene and selected mutation profile.",
         " Source sample identities and types only.",
+        " cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.",
         " Five repository file references; no automatic download.",
         " Bounded first pages; mutations are included only when gene is supplied."
       ]
@@ -1413,6 +1435,62 @@
     },
     {
       "additionalProperties": false,
+      "description": "Search NIH RePORTER research grants by topic, investigator, organization and fiscal year.",
+      "properties": {
+        "command": {
+          "const": "search-grant",
+          "type": "string"
+        },
+        "fiscal_year": {
+          "description": "One NIH fiscal year, such as 2025; all years by default.",
+          "format": "uint32",
+          "maximum": 2100,
+          "minimum": 1985,
+          "type": "integer"
+        },
+        "investigator": {
+          "$ref": "#/$defs/Text",
+          "description": "Principal investigator name, such as \"Pasi Janne\". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs."
+        },
+        "investigator_id": {
+          "description": "RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "limit": {
+          "default": 10,
+          "description": "Ten award rows by default, one to fifty.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.",
+          "format": "uint32",
+          "maximum": 14999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "organization": {
+          "$ref": "#/$defs/Text",
+          "description": "Funded organization name or part of it, as RePORTER spells it, such as \"DANA-FARBER\"."
+        },
+        "query": {
+          "$ref": "#/$defs/Text",
+          "description": "Words that must all appear in the project title, abstract or terms, such as \"KRAS G12C\".",
+          "x-positional": 0
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
       "description": "Search research paper authors.",
       "properties": {
         "command": {
@@ -1591,7 +1669,7 @@
         },
         "disease": {
           "$ref": "#/$defs/Text",
-          "description": "Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma)."
+          "description": "Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases."
         },
         "exclude_derived": {
           "description": "Leave out lines derived from a parent line; needs another search term.",
@@ -2605,7 +2683,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations."
+          "description": "Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna."
         },
         "id": {
           "$ref": "#/$defs/StudyId",
@@ -2621,7 +2699,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact mutation profile ID; omitted selects the study's first mutation profile."
+          "description": "Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind."
         },
         "section": {
           "anyOf": [
@@ -2848,6 +2926,18 @@
       "additionalProperties": false,
       "description": "Search diagnostic laboratory tests and devices.",
       "properties": {
+        "aggregate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticAggregate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Count by product code.\nAlso counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page.",
+          "x-required-component": "fda-510k"
+        },
         "biomarker": {
           "anyOf": [
             {
@@ -4064,7 +4154,9 @@
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "input": {
-          "$ref": "#/$defs/DrugId"
+          "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
+          "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+          "type": "string"
         },
         "label_section": {
           "anyOf": [
@@ -4238,7 +4330,7 @@
               "type": "null"
             }
           ],
-          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar."
+          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); the total counts only that kind. Only with --source clinvar."
         },
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
@@ -4513,7 +4605,7 @@
               "type": "null"
             }
           ],
-          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all."
         },
         "command": {
           "const": "get-variant",
@@ -5195,7 +5287,11 @@
         },
         "sponsor": {
           "$ref": "#/$defs/Text",
-          "description": "Sponsor.\nClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category."
+          "description": "Sponsor.\nClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding."
+        },
+        "sponsor_role": {
+          "$ref": "#/$defs/SponsorRole",
+          "description": "Sponsor role.\nClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor."
         },
         "sponsor_type": {
           "$ref": "#/$defs/SponsorType",
@@ -5500,7 +5596,7 @@
         "source": {
           "$ref": "#/$defs/EdgeSource",
           "default": "icite",
-          "description": "Graph provider; iCite remains the default."
+          "description": "Graph provider; iCite remains the default.\n\niCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order."
         }
       },
       "required": [
@@ -5544,7 +5640,7 @@
         "source": {
           "$ref": "#/$defs/EdgeSource",
           "default": "icite",
-          "description": "Graph provider; iCite remains the default."
+          "description": "Graph provider; iCite remains the default.\n\niCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order."
         }
       },
       "required": [

@@ -128,6 +128,7 @@ Commands:
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
   variant        Discover source candidates using one declared selector, without interpreting free text.
+  grant          Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with investigator_id (--investigator-id on the command line).
 
 Options:
       --format <format>
@@ -400,7 +401,7 @@ Arguments:
 
 Options:
       --disease <disease>
-          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma).
+          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -458,7 +459,7 @@ Options:
 Search cell lines by name or identifier. Sources: cellosaurus.
 Options apply to every listed source unless their description restricts them.
 
-- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma). Value form: string; example: --disease Melanoma.
+- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases. Value form: string; example: --disease Melanoma.
 - `--exclude-derived`: Leave out lines derived from a parent line; needs another search term. Value form: boolean; example: --exclude-derived.
 - `--gene`: Cellosaurus variation gene, as the source writes it (for example KRAS). Value form: string; example: --gene KRAS.
 - `--limit`: Source page size. Value form: integer; example: --limit 25.
@@ -935,9 +936,10 @@ Search five source records by default. FDA device recalls cover every medical de
 Usage: biomcp search diagnostic [OPTIONS] --source <source>
 
 Options:
-      --biomarker <biomarker>
-          Exact table-0 cell.
-          Exact table-0 biomarker cell; unsupported in the group table.
+      --aggregate <aggregate>
+          Count by product code; help search diagnostic
+          Count by product code.
+          Also counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -945,31 +947,35 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --bundle-revision <bundle_revision>
-          Stored bundle revision.
-          Immutable stored bundle revision retained by a continuation.
+      --biomarker <biomarker>
+          Exact table-0 cell.
+          Exact table-0 biomarker cell; unsupported in the group table.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --bundle-revision <bundle_revision>
+          Stored bundle revision.
+          Immutable stored bundle revision retained by a continuation.
 
       --classification <classification>
           FDA recall class; help search diagnostic
           FDA recall class.
           Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
 
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
       --classification-name <classification_name>
           FDA classification name phrase.
           Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --condition <condition>
           Condition name text.
           Text in GTR condition_identifiers, the test's condition names, matched like the GTR --name.
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
 
       --condition-id <condition_id>
           Exact MedGen:CUI.
@@ -987,12 +993,18 @@ Options:
           First date, YYYY-MM-DD.
           Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --decision-to <decision_to>
           Last date, YYYY-MM-DD.
           Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1000,12 +1012,6 @@ Options:
       --device-id <device_id>
           PMA or K identifier.
           Exact PMA application, application/supplement or source K identity.
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
 
       --drug-application <drug_application>
           NDA/BLA application.
@@ -1086,6 +1092,8 @@ Search diagnostic laboratory tests and devices. FDA CDx rows of both tables star
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
+- `--aggregate`: Count by product code.
+Also counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page. Value form: string; example: --aggregate product-code; only with --source fda-510k.
 - `--biomarker`: Exact table-0 cell.
 Exact table-0 biomarker cell; unsupported in the group table. Value form: string; example: --biomarker KRAS; only with --source fda-cdx.
 - `--bundle-revision`: Stored bundle revision.
@@ -1528,7 +1536,7 @@ Options:
 
 ```
 
-Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -2013,7 +2021,12 @@ Options:
 
       --sponsor <sponsor>
           Sponsor.
-          ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category.
+          ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding.
+
+      --sponsor-role <sponsor_role>
+          Sponsor role; help search trial
+          Sponsor role.
+          ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor.
 
       --sponsor-type <sponsor_type>
           Funding class; help search trial
@@ -2100,7 +2113,9 @@ Form: search trial QUERY; not --query.
 - `--source`: clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 - `--sponsor`: Sponsor.
-ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string; example: --sponsor 'MD Anderson'.
+ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding. Value form: string; example: --sponsor 'MD Anderson'.
+- `--sponsor-role`: Sponsor role.
+ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor. Value form: string; example: --sponsor-role any.
 - `--sponsor-type`: Funding class.
 ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string; example: --sponsor-type other.
 - `--status`: Source status.
@@ -2206,6 +2221,77 @@ Options apply to every listed source unless their description restricts them.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string; example: --region chr7:140453136-140453136.
 - `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Value form: string; example: --review-status 'no assertion criteria provided'.
 - `--source`: Explicit source language; required for a raw query. Value form: string; example: --source myvariant.
+
+## biomcp search grant
+
+```text
+Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with investigator_id (--investigator-id on the command line).
+
+Usage: biomcp search grant [OPTIONS] [query]
+
+Arguments:
+  [query]
+          Words that must all appear in the project title, abstract or terms, such as "KRAS G12C".
+
+Options:
+      --fiscal-year <fiscal_year>
+          One NIH fiscal year, such as 2025; all years by default.
+
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --investigator <investigator>
+          Principal investigator name, such as "Pasi Janne". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs.
+
+      --investigator-id <investigator_id>
+          RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.
+
+      --limit <limit>
+          Ten award rows by default, one to fifty.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offset <offset>
+          Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.
+
+      --organization <organization>
+          Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER".
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Search NIH RePORTER research grants by topic, investigator, organization and fiscal year. Sources: nih-reporter.
+Options apply to every listed source unless their description restricts them.
+
+- `--fiscal-year`: One NIH fiscal year, such as 2025; all years by default. Value form: integer; example: --fiscal-year 2025.
+- `--investigator`: Principal investigator name, such as "Pasi Janne". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs. Value form: string; example: --investigator 'Pasi Janne'.
+- `--investigator-id`: RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387. Value form: integer; example: --investigator-id 14892358.
+- `--limit`: Ten award rows by default, one to fifty. Value form: integer; example: --limit 3.
+- `--offset`: Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep. Value form: integer; example: --offset 68.
+- `--organization`: Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER". Value form: string; example: --organization DANA-FARBER.
+- `query`: Words that must all appear in the project title, abstract or terms, such as "KRAS G12C".
+Form: search grant QUERY; not --query.
 
 ## biomcp get
 
@@ -2557,7 +2643,7 @@ Options:
 
 ```
 
-Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, uniprot.
+Get protein details and source annotations. Sources: chembl, complex-portal, hgnc, interpro, string-db, uniprot.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -2572,6 +2658,8 @@ Select source sections or all bounded first pages; function keeps one whole text
 - `domains`: Source InterPro entry matches.
 - `isoforms`: Source alternative products.
 - `complexes`: Exact participant-admitted complex headers.
+- `interactions`: STRING interaction partners with combined and channel scores.
+- `chembl`: ChEMBL single-protein target with its assay and activity totals.
 - `structures`: Source structure cross-reference links.
 - `function`: One whole source function text record with all source paragraphs.
 - `sequence`: Direct exact-identity sequence and audit metadata.
@@ -2751,13 +2839,13 @@ Options:
           [possible values: json, md]
 
       --gene <gene>
-          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
+          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --molecular-profile <molecular_profile>
-          Exact mutation profile ID; omitted selects the study's first mutation profile.
+          Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind.
 
       --section-limit <section_limit>
           Maximum records in each selected section.
@@ -2789,13 +2877,13 @@ Get cancer genomics study details. Sources: cbioportal.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
-- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations. Value form: string; example: --gene BRAF.
+- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna. Value form: string; example: --gene BRAF.
 - `id`: Exact source study ID; no default or repair.
 Form: get study ID SECTION; not --id.
-- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
+- `--molecular-profile`: Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
 - `section`: Omit for the card; all returns bounded first pages only… (full rule with the sections).
 Form: get study ID SECTION; not --section.
-- `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 1.
+- `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Offset within one named section; all requires zero. Value form: integer; example: --section-offset 45.
 
 Omit for the card; all returns bounded first pages only.
@@ -2804,6 +2892,7 @@ Omit for the card; all returns bounded first pages only.
 - `sample-lists`: Five sample-list metadata records, without member sample IDs.
 - `mutations`: Source mutation rows for the required gene and selected mutation profile.
 - `samples`: Source sample identities and types only.
+- `cna`: cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.
 - `files`: Five repository file references; no automatic download.
 - `all`: Bounded first pages; mutations are included only when gene is supplied.
 
@@ -3303,7 +3392,7 @@ Options:
 
 ```
 
-Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -3350,7 +3439,7 @@ At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer; example: -
 
 Named disclosures of the selected source, each its own part of one reply; empty means identity only.
 
-- `xrefs`: All source identity cross-references and product links, mechanically paged.
+- `xrefs`: All source identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.
 - `targets`: Source target and mechanism relations.
 - `indications`: Source indication wording.
 - `civic`: Source CIViC therapy evidence and profile context.
@@ -3359,6 +3448,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `regulatory`: Source-scoped regulator events.
 - `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.
 - `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
+- `essential-medicines`: Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page.
 
 ## biomcp get gene
 
@@ -3481,12 +3571,12 @@ Form: get article INPUT...; not --input.
 Requested section words; trailing words and --section share this field.
 
 - `annotations`: Normalized text-mined entities from PubTator3.
-- `fulltext`: Licensed PMC body outline.
+- `fulltext`: Licensed PMC body outline; license_terms says what the license allows.
 - `supplements`: Supplementary files confirmed by PMC metadata.
 - `tldr`: Machine-written Semantic Scholar summary and counts.
 - `citations`: Citation counts from NIH iCite.
 - `indexing`: MeSH, keywords and author indexing from the citation.
-- `pdf`: Publisher PDF link without downloading.
+- `pdf`: Publisher PDF link and license terms, without downloading.
 - `all`: Every landed article section.
 
 ## biomcp get trial
@@ -3622,7 +3712,7 @@ Options:
       --clinvar-kind <clinvar_kind>
           Kind; help get variant
           Kind
-          ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all.
+          ClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -3700,7 +3790,7 @@ Source CIViC cursor, retained unchanged. Only with section civic or all. Value f
 Source CIViC claim collection within the selected profile. Only with section civic or all. Value form: string; example: --civic-kind evidence.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Only with section civic or all. Value form: integer; example: --civic-profile 12.
 - `--clinvar-kind`: Kind
-ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
+ClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
 - `--disease`: Disease
 CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
@@ -4885,6 +4975,8 @@ Options:
           Graph source; iCite remains the default; help article citations
           Graph source; iCite remains the default.
 
+          iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
@@ -4914,7 +5006,9 @@ Options apply to every listed source unless their description restricts them.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article citations PMID; not --pmid.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `--source`: Graph source; iCite remains the default. Value form: string; example: --source semantic-scholar.
+- `--source`: Graph source; iCite remains the default.
+
+iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article references
 
@@ -4950,6 +5044,8 @@ Options:
           Graph source; iCite remains the default; help article citations
           Graph source; iCite remains the default.
 
+          iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
@@ -4979,7 +5075,9 @@ Options apply to every listed source unless their description restricts them.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article references PMID; not --pmid.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `--source`: Graph source; iCite remains the default. Value form: string; example: --source semantic-scholar.
+- `--source`: Graph source; iCite remains the default.
+
+iCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article citation-evidence
 
@@ -5297,7 +5395,7 @@ Options:
 
       --kind <kind>
           ClinVar record kind to keep: vcv, rcv or scv (one row; help variant assertions
-          ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar.
+          ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); the total counts only that kind. Only with --source clinvar.
 
       --limit <limit>
           Assertions per page; omitted uses the source default.
@@ -5340,7 +5438,7 @@ Options apply to every listed source unless their description restricts them.
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 Form: variant assertions INPUT; not --input.
-- `--kind`: ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar. Value form: string; example: --kind scv.
+- `--kind`: ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); the total counts only that kind. Only with --source clinvar. Value form: string; example: --kind scv.
 - `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 50.
 - `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 50.
 - `--source`: One source assertion source; shared identity conversion precedes source access when needed. Value form: string; example: --source clinvar.
@@ -6557,6 +6655,7 @@ Commands:
   population
   recurrence
   normalize
+  grant
   help               Describe commands and their arguments.
   network
   sources
@@ -6627,6 +6726,7 @@ Commands:
   article        Read article text, references, citations and files.
   trial          Read trial groups and public documents.
   variant        Read source variant assertions, populations and recurrence.
+  grant
 
 Options:
       --format <format>
@@ -7357,6 +7457,44 @@ Options:
 ```
 
 Read source variant assertions, populations and recurrence.
+
+
+## biomcp help search grant
+
+```text
+Usage: biomcp help search grant [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help search grant.
 
 
 ## biomcp help get
@@ -11976,6 +12114,44 @@ Options:
 ```
 
 Describe help normalize.
+
+
+## biomcp help grant
+
+```text
+Usage: biomcp help grant [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help grant.
 
 
 ## biomcp help help

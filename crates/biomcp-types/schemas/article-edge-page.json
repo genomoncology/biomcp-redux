@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Reply_ArticleEdgePage": {
-      "description": "A page of citing or referenced papers in citation order.",
+      "description": "A page of citing or referenced papers.",
       "properties": {
         "items": {
           "description": "Papers in the fixed edge pool.",
@@ -9,6 +9,17 @@
             "$ref": "#/$defs/Reply_ArticleItem"
           },
           "type": "array"
+        },
+        "order": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_EdgeOrder"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "How the pool is ordered: iCite pools list the most-cited papers first by each row's `cited_by`."
         }
       },
       "type": "object"
@@ -43,7 +54,7 @@
         "source": {
           "$ref": "#/$defs/Reply_EdgeSource",
           "default": "icite",
-          "description": "Graph provider; iCite remains the default."
+          "description": "Graph provider; iCite remains the default.\n\niCite lists the most-cited papers first by each row's `cited_by`; Semantic Scholar keeps its own order."
         }
       },
       "required": [
@@ -508,6 +519,14 @@
       "pattern": "^10\\.[0-9]+/[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]+$",
       "type": "string"
     },
+    "Reply_EdgeOrder": {
+      "description": "How the papers of an edge pool are ordered.",
+      "enum": [
+        "most-cited-first",
+        "source-order"
+      ],
+      "type": "string"
+    },
     "Reply_EdgeSource": {
       "description": "Graph edge provider, independent of article search providers.",
       "enum": [
@@ -845,6 +864,7 @@
         " Drugs@FDA application records.",
         " European Medicines Agency.",
         " WHO finished pharmaceutical products.",
+        " WHO Model List of Essential Medicines, from the WHO eEML.",
         " DDInter interaction records.",
         " MyChem DrugBank Open identity subset only.",
         " MyChem DrugCentral component.",
@@ -878,7 +898,9 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
-        " Orphadata Science epidemiology and natural-history files."
+        " Orphadata Science epidemiology and natural-history files.",
+        " STRING.",
+        " NIH RePORTER research project grants."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -921,6 +943,7 @@
         "drugsfda",
         "ema",
         "who-pq",
+        "who-eml",
         "ddinter",
         "drugbank-open",
         "drugcentral",
@@ -954,7 +977,9 @@
         "clinpgx",
         "cbioportal",
         "cellosaurus",
-        "orphadata"
+        "orphadata",
+        "string-db",
+        "nih-reporter"
       ]
     },
     "Reply_SourceNotice": {

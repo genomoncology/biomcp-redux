@@ -83,7 +83,34 @@ pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleEvidence) -> Outcome {
             true,
         ));
     }
+    if !query.fulltext() && !cx.fetch.disabled(Source::PmcOa) && no_contexts(&out.body) {
+        let text = query.identity().with_fulltext();
+        let sources: Vec<_> = super::next::evidence_sources(&text)
+            .into_iter()
+            .filter(|source| *source != Source::SemanticScholar)
+            .collect();
+        out.next.push(crate::next::Step::run(
+            StepKind::Section,
+            &sources,
+            Request::ArticleEvidence(text),
+            false,
+        ));
+    }
     out
+}
+/// Semantic Scholar gave no context text, so the citing paper's own PMC paragraphs may help.
+fn no_contexts(body: &ReplyData) -> bool {
+    let ReplyData::ArticleEvidenceResult {
+        body: Some(result), ..
+    } = body
+    else {
+        return false;
+    };
+    match &result.semantic_scholar {
+        Section::Unavailable { .. } => true,
+        Section::Data { data, .. } => data.notice == Some(biomcp_types::EvidenceNotice::NoContexts),
+        _ => false,
+    }
 }
 fn execute<'a>(
     cx: &Ctx<'a>,

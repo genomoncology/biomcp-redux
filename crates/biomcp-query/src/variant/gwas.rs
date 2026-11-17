@@ -64,6 +64,7 @@ pub(super) fn section(
                 source: Source::Gwas,
                 data: VariantGwas {
                     rs_id: id,
+                    total: page.total,
                     associations: rows
                         .into_iter()
                         .map(|row| crate::gwas::map::association(row, &mut problems))

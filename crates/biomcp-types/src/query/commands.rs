@@ -20,6 +20,11 @@ macro_rules! command_types {
                 "search", "organization", OrganizationSearch, "organization-search", "biomcp.organization-search/2", OrganizationSearch,
                 "organization-search", "biomcp.organization-search/2", "biomcp.organization-search/2", 4, Direct
             );
+            /// Search NIH RePORTER research grants by topic, investigator, organization and fiscal year.
+            SearchGrant(GrantSearch) => (
+                "search", "grant", GrantSearch, "grant-search", "biomcp.grant-search/1", GrantSearch, "grant-search",
+                "biomcp.grant-search/1", "biomcp.grant-search/1", 59, Direct
+            );
             /// Search research paper authors.
             SearchAuthor(AuthorSearch) => (
                 "search", "author", AuthorSearch, "author-search-query", "biomcp.author-search-query/3", AuthorSearch, "author-search-query",

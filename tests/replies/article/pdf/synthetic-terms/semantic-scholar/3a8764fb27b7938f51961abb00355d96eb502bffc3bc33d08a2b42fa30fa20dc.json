@@ -1,0 +1,21 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/PMID%3A28944238?fields=openAccessPdf",
+  "exchanges": [
+    {
+      "fetched": 1794877756,
+      "status": 429,
+      "content_type": "application/json",
+      "delay_ms": 168,
+      "retry_after_ms": 600000,
+      "body": {
+        "kind": "json",
+        "value": {
+          "message": "BioMCP synthetic rate-limit refusal",
+          "code": "429"
+        }
+      }
+    }
+  ]
+}

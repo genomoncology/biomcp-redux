@@ -31,7 +31,9 @@ impl Codec {
             Self::Bytes(_) => true,
             Self::Probe => true,
             Self::Json | Self::JsonText => {
+                // STRING serves its JSON API as text/json (checked 2026-11-17).
                 name == "application/json"
+                    || name == "text/json"
                     || name.starts_with("application/") && name.ends_with("+json")
                     || matches!(self, Self::JsonText) && name == "text/plain"
             }

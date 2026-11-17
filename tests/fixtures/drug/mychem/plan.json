@@ -89,7 +89,7 @@
     "subset": false
   },
   {
-    "request": "GET /v1/chem/KTUFNOKKBVMGRW-UHFFFAOYSA-N?fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Cdrugbank.synonyms%2Cchembl.molecule_hierarchy%2Cchembl.molecule_synonyms%2Cdrugcentral.id%2Cdrugcentral.synonyms%2Cdrugcentral.xrefs%2Cgtopdb.synonyms%2Cgtopdb.chembl_id%2Cgtopdb.xrefs%2Cunii.rxcui%2Cunii.ncit%2Cndc.applicationnumber%2Cndc.dosageformname%2Cndc.package%2Copenfda.generic_name%2Copenfda.brand_name%2Copenfda.spl_set_id%2Copenfda.application_number HTTP/1.1",
+    "request": "GET /v1/chem/KTUFNOKKBVMGRW-UHFFFAOYSA-N?fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Cdrugbank.synonyms%2Cchembl.atc_classifications%2Cchembl.molecule_hierarchy%2Cchembl.molecule_synonyms%2Cdrugcentral.id%2Cdrugcentral.synonyms%2Cdrugcentral.xrefs%2Cgtopdb.synonyms%2Cgtopdb.chembl_id%2Cgtopdb.xrefs%2Cunii.rxcui%2Cunii.ncit%2Cndc.applicationnumber%2Cndc.dosageformname%2Cndc.package%2Copenfda.generic_name%2Copenfda.brand_name%2Copenfda.spl_set_id%2Copenfda.application_number HTTP/1.1",
     "retrieved": "2026-10-25T00:54:18.155452+00:00",
     "original_sha256": "c92d2a086e743e3066ee9099270a2545d00d2be67eb8c3f69fd9ec08e5737d2e",
     "total": null,
@@ -97,17 +97,18 @@
       "KTUFNOKKBVMGRW-UHFFFAOYSA-N"
     ],
     "subset": true,
-    "subset_note": "Omit only unused ndc.package and ndc.dosageformname; retain all mapped native identity fields, aliases and cross-references."
+    "subset_note": "Omit only unused ndc.package and ndc.dosageformname; retain all mapped native identity fields, aliases and cross-references. Recorded before the card asked for chembl.atc_classifications (1021), so the body has no ATC code; MyChem gave L01EA01 live on 2026-11-16."
   },
   {
-    "request": "GET /v1/chem/CHEMBL3989989?fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Cdrugbank.synonyms%2Cchembl.molecule_hierarchy%2Cchembl.molecule_synonyms%2Cdrugcentral.id%2Cdrugcentral.synonyms%2Cdrugcentral.xrefs%2Cgtopdb.synonyms%2Cgtopdb.chembl_id%2Cgtopdb.xrefs%2Cunii.rxcui%2Cunii.ncit%2Cndc.applicationnumber%2Cndc.dosageformname%2Cndc.package%2Copenfda.generic_name%2Copenfda.brand_name%2Copenfda.spl_set_id%2Copenfda.application_number HTTP/1.1",
+    "request": "GET /v1/chem/CHEMBL3989989?fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Cdrugbank.synonyms%2Cchembl.atc_classifications%2Cchembl.molecule_hierarchy%2Cchembl.molecule_synonyms%2Cdrugcentral.id%2Cdrugcentral.synonyms%2Cdrugcentral.xrefs%2Cgtopdb.synonyms%2Cgtopdb.chembl_id%2Cgtopdb.xrefs%2Cunii.rxcui%2Cunii.ncit%2Cndc.applicationnumber%2Cndc.dosageformname%2Cndc.package%2Copenfda.generic_name%2Copenfda.brand_name%2Copenfda.spl_set_id%2Copenfda.application_number HTTP/1.1",
     "retrieved": "2026-10-25T00:54:18.488137+00:00",
     "original_sha256": "efebb29293a504ee2dcd5064defc62a1a55101fb37378f273c73d0174676ae93",
     "total": null,
     "ids": [
       "CHEMBL3989989"
     ],
-    "subset": false
+    "subset": true,
+    "subset_note": "Recorded before the card asked for chembl.atc_classifications (1021); the request line names the current fields and the body, otherwise unchanged, has no ATC code. MyChem gave L01XL03 live on 2026-11-16."
   },
   {
     "request": "GET /v1/query?q=%22biomcp-nonexistent-drug-0116-control%22&size=10&from=0&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname HTTP/1.1",

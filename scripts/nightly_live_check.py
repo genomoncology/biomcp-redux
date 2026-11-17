@@ -24,6 +24,7 @@ CHECKS = (
     ('search', 'disease', 'breast cancer', '--source', 'ols', '--ontology', 'mondo', '--limit', '1'),
     ('get', 'disease', 'MONDO:0007254', 'synonyms', '--source', 'mydisease', '--section-limit', '2'),
     ('search', 'pathway', 'Signaling by EGFR'),
+    ('search', 'grant', '--investigator', 'Pasi Janne', '--limit', '2'),
     ('get', 'pathway', 'R-HSA-5673001', 'summary'),
     ('search', 'protein', '--gene', 'EGFR', '--reviewed'),
     ('get', 'protein', 'P00533', '--section', 'function', '--section-limit', '2'),

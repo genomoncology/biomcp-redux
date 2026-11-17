@@ -315,7 +315,7 @@
       "type": "object"
     },
     "Reply_DrugGet": {
-      "description": "A source-selected drug request echoed with a native ID after name resolution.",
+      "description": "A source-selected drug request echoed with a native ID after name resolution, otherwise with the name as given.",
       "properties": {
         "civic_cursor": {
           "anyOf": [
@@ -414,7 +414,9 @@
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "input": {
-          "$ref": "#/$defs/Reply_DrugId"
+          "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
+          "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+          "type": "string"
         },
         "label_section": {
           "anyOf": [
@@ -780,7 +782,7 @@
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "type": "string",
       "x-enum-descriptions": [
-        " All native identity cross-references and product links, mechanically paged.",
+        " All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
@@ -788,7 +790,8 @@
         " Native application and product history rows.",
         " Source-scoped regulator events.",
         " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
-        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.",
+        " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
       ],
       "x-extensible-enum": [
         "xrefs",
@@ -799,7 +802,8 @@
         "approvals",
         "regulatory",
         "interactions",
-        "markets"
+        "markets",
+        "essential-medicines"
       ]
     },
     "Reply_DrugSource": {
@@ -815,7 +819,8 @@
         "openfda-label",
         "drugsfda",
         "ema",
-        "ddinter"
+        "ddinter",
+        "who-eml"
       ]
     },
     "Reply_IdentifierNamespace": {
@@ -1167,6 +1172,7 @@
         " Drugs@FDA application records.",
         " European Medicines Agency.",
         " WHO finished pharmaceutical products.",
+        " WHO Model List of Essential Medicines, from the WHO eEML.",
         " DDInter interaction records.",
         " MyChem DrugBank Open identity subset only.",
         " MyChem DrugCentral component.",
@@ -1200,7 +1206,9 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
-        " Orphadata Science epidemiology and natural-history files."
+        " Orphadata Science epidemiology and natural-history files.",
+        " STRING.",
+        " NIH RePORTER research project grants."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -1243,6 +1251,7 @@
         "drugsfda",
         "ema",
         "who-pq",
+        "who-eml",
         "ddinter",
         "drugbank-open",
         "drugcentral",
@@ -1276,7 +1285,9 @@
         "clinpgx",
         "cbioportal",
         "cellosaurus",
-        "orphadata"
+        "orphadata",
+        "string-db",
+        "nih-reporter"
       ]
     },
     "Reply_SourceNotice": {

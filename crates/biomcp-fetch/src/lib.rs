@@ -391,13 +391,7 @@ impl Fetch {
         deadline: Deadline<'a>,
         extra: Duration,
     ) -> Leg<'a> {
-        let cap = self
-            .config
-            .source_deadlines
-            .get(&spec.source)
-            .copied()
-            .unwrap_or(spec.deadline)
-            .saturating_add(extra);
+        let cap = self.source_limit(spec).saturating_add(extra);
         let no_key = !self.disabled(spec.source)
             && match spec.key {
                 KeyUse::Required(credential) => self.secrets.get(credential.secret).is_none(),
@@ -407,6 +401,7 @@ impl Fetch {
             fetch: self,
             spec,
             deadline: deadline.child(cap),
+            opened_end: deadline.end(),
             clock: deadline.fork(),
             wrong_clock: !deadline.matches(self.clock.as_deref()),
             no_key,
@@ -415,6 +410,11 @@ impl Fetch {
             refreshed_bundles: Default::default(),
             fresh: matches!(self.mode, Mode::Live { fresh: true }),
         }
+    }
+    /// The source's own time limit: the user's setting, else its declared one.
+    fn source_limit(&self, spec: &SourceSpec) -> Duration {
+        let limits = &self.config.source_deadlines;
+        limits.get(&spec.source).copied().unwrap_or(spec.deadline)
     }
 }
 
@@ -428,6 +428,8 @@ pub struct Leg<'a> {
     fetch: &'a Fetch,
     spec: &'static SourceSpec,
     deadline: Deadline<'a>,
+    /// The end of the deadline the leg was opened under, before the source's own cap.
+    opened_end: std::time::Instant,
     clock: Option<deadline::VirtualClock>,
     wrong_clock: bool,
     no_key: bool,
@@ -498,16 +500,19 @@ impl Leg<'_> {
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .license_unchecked
     }
-    /// Run a metadata dependency within the remaining request budget.
-    /// Charge its independent replay clock back to the calling source leg.
+    /// Run a metadata dependency within `cap` and its source's own limit (1038), from this leg's
+    /// replay time, charged back here. Its `command_remaining` measures against this leg's capped end.
     pub fn dependency<T>(
         &self,
         spec: &'static SourceSpec,
         cap: Duration,
         operation: impl FnOnce(&Leg<'_>) -> T,
     ) -> T {
+        let budget = self.budget();
         let mut leg = self.fetch.leg(spec, self.deadline);
-        leg.deadline = leg.deadline.child(self.remaining().min(cap));
+        leg.clock = self.clock.as_ref().map(deadline::VirtualClock::detached);
+        let cap = cap.min(self.fetch.source_limit(spec));
+        leg.deadline = self.deadline.until(budget.child(cap).end());
         let started = leg.remaining();
         let result = operation(&leg);
         self.budget()
@@ -529,6 +534,7 @@ impl Leg<'_> {
         self
     }
     pub(crate) fn budget(&self) -> Deadline<'_> {
+        self.clock.iter().for_each(deadline::VirtualClock::follow);
         self.deadline.bind(self.clock.as_ref())
     }
     /// Bind the source leg's remaining budget for cooperative local parsing.
@@ -539,7 +545,13 @@ impl Leg<'_> {
     pub fn remaining(&self) -> Duration {
         self.budget().remaining()
     }
+    /// Return the budget left on the deadline this leg was opened under, on this leg's clock.
+    /// A command joins its replay time through this: the source's cap is not time spent (1034).
+    pub fn command_remaining(&self) -> Duration {
+        self.budget().until(self.opened_end).remaining()
+    }
     /// Open a leg for another declaration of the same source within this leg's deadline.
+    /// It joins the command clock; `command_remaining` measures against this leg's capped end.
     pub fn sibling(&self, spec: &'static SourceSpec) -> Self {
         debug_assert_eq!(
             spec.source, self.spec.source,

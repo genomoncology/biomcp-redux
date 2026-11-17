@@ -20,6 +20,7 @@ pub use mapped::{Mapped, Refusal};
 pub mod complex_portal;
 pub mod gnomad;
 pub mod interpro;
+pub mod string_db;
 pub mod uniprot;
 
 /// Direct HPO publisher policy.
@@ -98,6 +99,9 @@ pub mod monarch;
 pub mod mydisease;
 pub mod ols;
 pub mod orphadata;
+
+/// NIH RePORTER research project grants.
+pub mod nih_reporter;
 pub mod seer;
 
 mod text_parts;
@@ -134,6 +138,9 @@ pub mod fda_510k;
 
 /// WHO finished pharmaceutical product prequalification.
 pub mod who_pq;
+
+/// WHO Model List of Essential Medicines listings from the WHO eEML.
+pub mod who_eml;
 
 /// Explicit CDC WONDER vaccine report summaries.
 pub mod vaers;

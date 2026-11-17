@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "Text": {
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.grant-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with investigator_id (--investigator-id on the command line).",
+  "properties": {
+    "fiscal_year": {
+      "description": "One NIH fiscal year, such as 2025; all years by default.",
+      "format": "uint32",
+      "maximum": 2100,
+      "minimum": 1985,
+      "type": "integer"
+    },
+    "investigator": {
+      "$ref": "#/$defs/Text",
+      "description": "Principal investigator name, such as \"Pasi Janne\". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs."
+    },
+    "investigator_id": {
+      "description": "RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "limit": {
+      "default": 10,
+      "description": "Ten award rows by default, one to fifty.",
+      "format": "uint32",
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "offset": {
+      "default": 0,
+      "description": "Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.",
+      "format": "uint32",
+      "maximum": 14999,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "organization": {
+      "$ref": "#/$defs/Text",
+      "description": "Funded organization name or part of it, as RePORTER spells it, such as \"DANA-FARBER\"."
+    },
+    "query": {
+      "$ref": "#/$defs/Text",
+      "description": "Words that must all appear in the project title, abstract or terms, such as \"KRAS G12C\".",
+      "x-positional": 0
+    }
+  },
+  "title": "GrantSearch",
+  "type": "object"
+}

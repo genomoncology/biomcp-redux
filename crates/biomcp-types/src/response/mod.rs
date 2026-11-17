@@ -13,7 +13,7 @@ pub use alphagenome_enums::{
 mod catalog;
 pub use catalog::{SchemaCatalog, SchemaEntry};
 mod article;
-pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
+pub use article::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved, license_terms};
 pub use article::{
     ArticleSupplementResult, CellFragment, FileKind, FirstSheetRow, SheetInfo, SheetRow,
     SupplementContent, SupplementFile, Supplements,
@@ -21,7 +21,7 @@ pub use article::{
 mod article_cards;
 pub use article::{
     ArticleEdgeItem, ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, ArticleSentence,
-    CitationIntent, LitVarCandidate, WithheldArticleText,
+    CitationIntent, EdgeOrder, LitVarCandidate, WithheldArticleText,
 };
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
@@ -172,6 +172,8 @@ pub use disease::{
 
 mod diagnostic;
 pub use diagnostic::*;
+mod diagnostic_counts;
+pub use diagnostic_counts::*;
 
 mod pathway;
 pub use pathway::*;
@@ -186,6 +188,11 @@ pub use nci_phase::{NciPhaseFilter, NciTrialPhase};
 
 mod device_recall;
 pub use device_recall::{DeviceRecallCard, DeviceRecallHeader};
+
+mod grant;
+pub use grant::{
+    GRANT_HINT, Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantPage,
+};
 
 mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
