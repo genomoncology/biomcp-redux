@@ -75,7 +75,7 @@ pub struct GeneEnrichmentQuery(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them.
+    /// One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them; commas also separate genes.
     #[cfg_attr(feature = "schema", schemars(length(min = 1, max = 500), extend("x-positional" = 0)))]
     genes: Box<[Text]>,
     /// Term sources to test; all five by default.
@@ -108,7 +108,16 @@ fn default_limit() -> u32 {
 crate::query::validation::checked_query!(GeneEnrichmentQuery, Fields);
 impl TryFrom<Fields> for GeneEnrichmentQuery {
     type Error = QueryInvalid;
-    fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
+    fn try_from(mut v: Fields) -> Result<Self, QueryInvalid> {
+        // 0.9's enrich took one comma-separated list; both spellings name the same genes.
+        if v.genes.iter().any(|gene| gene.as_str().contains(',')) {
+            v.genes = v
+                .genes
+                .iter()
+                .flat_map(|gene| gene.as_str().split(','))
+                .filter_map(|gene| Text::new(gene).ok())
+                .collect();
+        }
         if v.genes.is_empty()
             || v.genes.len() > 500
             || v.genes.iter().any(|gene| {
