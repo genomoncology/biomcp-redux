@@ -12,7 +12,8 @@
         "openfda-label",
         "drugsfda",
         "ema",
-        "ddinter"
+        "ddinter",
+        "who-eml"
       ],
       "type": "string"
     },

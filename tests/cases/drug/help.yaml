@@ -25,7 +25,7 @@
           ]
         }
       },
-      "max_bytes": 8943
+      "max_bytes": 9007
     },
     {
       "run": [
@@ -46,7 +46,8 @@
           "approvals",
           "regulatory",
           "interactions",
-          "markets"
+          "markets",
+          "essential-medicines"
         ],
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -63,7 +64,7 @@
           ]
         }
       },
-      "max_bytes": 7898
+      "max_bytes": 9379
     },
     {
       "run": [

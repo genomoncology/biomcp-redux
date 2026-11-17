@@ -64,6 +64,7 @@ fn selected_source_checks_its_native_identifier_grammar() {
         ("drugsfda", "NDA021335"),
         ("openfda-label", "741ff3e3-dc1a-45a6-84e5-2481b27131aa"),
         ("ddinter", "DDInter9001"),
+        ("who-eml", "479"),
         ("civic", "5"),
     ] {
         let selected: DrugSource = source.parse().expect("source");
@@ -83,6 +84,7 @@ fn selected_source_checks_its_native_identifier_grammar() {
         ("ema", "CHEMBL941"),
         ("drugsfda", "NDA1"),
         ("ddinter", "1744"),
+        ("who-eml", "dabigatran"),
         ("civic", "0"),
         ("openfda-label", "not-a-uuid"),
     ] {
@@ -127,6 +129,7 @@ fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
         "approvals",
         "regulatory",
         "interactions",
+        "essential-medicines",
     ] {
         let value: DrugSection = name.parse().expect("section");
         assert_eq!(value.to_string(), name);
@@ -144,6 +147,7 @@ fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
         "drugsfda",
         "ema",
         "ddinter",
+        "who-eml",
     ] {
         let value: DrugSource = name.parse().expect("source");
         assert_eq!(value.to_string(), name);

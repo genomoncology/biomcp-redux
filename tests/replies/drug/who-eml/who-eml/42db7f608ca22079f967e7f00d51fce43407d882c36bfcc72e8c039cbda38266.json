@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=warfarin",
+  "exchanges": [
+    {
+      "fetched": 1794893111,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 301,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "42db7f608ca22079f967e7f00d51fce43407d882c36bfcc72e8c039cbda38266-0.bin"
+      }
+    }
+  ]
+}

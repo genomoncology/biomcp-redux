@@ -98,6 +98,7 @@ pub const fn decl(source: Source) -> &'static SourceDecl {
         Source::Drugsfda => &crate::drugsfda::decl::DECL,
         Source::Ema => &crate::ema::decl::DECL,
         Source::WhoPq => &crate::who_pq::decl::DECL,
+        Source::WhoEml => &crate::who_eml::decl::DECL,
         Source::Ddinter => &crate::ddinter::decl::DECL,
         Source::DrugbankOpen => &crate::mychem::decl::DRUGBANKOPEN,
         Source::Drugcentral => &crate::mychem::decl::DRUGCENTRAL,

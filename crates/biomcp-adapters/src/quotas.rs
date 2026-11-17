@@ -172,6 +172,10 @@ quotas! {
     /// provider-domain policy search; retain conservative local ceiling.
     WHO = Quota::new(SourceKey::declare("who-ivd"), Rate::per_second(1), None, 1);
 
+    /// Checked 2026-11-16: https://list.essentialmeds.org/licencing . No published numeric limit found on the eEML's licensing, about and caveats
+    /// pages, and robots.txt disallows nothing; retain conservative local ceiling.
+    WHO_EML = Quota::new(SourceKey::declare("who-eml"), Rate::per_second(1), None, 1);
+
     /// Checked 2026-11-01: https://www.fda.gov/about-fda/about-website/website-policies . No published numeric limit found in service documentation/terms
     /// and provider-domain policy search; retain conservative local ceiling.
     FDA_WEBSITE = Quota::new(SourceKey::declare("fda-website"), Rate::per_second(1), None, 1);
