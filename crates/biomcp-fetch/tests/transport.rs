@@ -241,6 +241,8 @@ fn unusable_success_replies_keep_distinct_failure_reasons() {
         ("application/json", "{broken", 100, BadReply),
         ("application/json", r#"{"ERROR":"failed"}"#, 100, BadReply),
         ("application/problem+json", "{}", 1, TooLarge),
+        // STRING labels its JSON text/json; it passes the media check and reaches the size limit.
+        ("text/json", "{}", 1, TooLarge),
     ] {
         let stub = Stub::new(200, content_type, body, None);
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));

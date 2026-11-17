@@ -5,7 +5,7 @@ Date: 2026-10-26. Decided by the PM on the 0190, 0191 and 0194 investigation pro
 ## Protein
 
 - Keep UniProt identity, features, isoforms, sequence and structure references, InterPro location matches and Complex Portal exact-member access.
-- Defer STRING. Its mapping returns one STRING ID for the two distinct CDKN2A protein products, so it cannot prove protein-specific identity. A later research question that needs STRING reopens it.
+- Defer STRING. Its mapping returns one STRING ID for the two distinct CDKN2A protein products, so it cannot prove protein-specific identity. A later research question that needs STRING reopens it. (Reopened 2026-11-17 by ticket 1029 for comp-bio Q10; the reply states the shared STRING entry.)
 - Keep `protein complex-members ACCESSION --complex CPX-ID` with bounded pages and an anchor that must be an actual participant.
 - Accept the proposed ceilings as starting targets. Each product ticket sets its final ceiling from measured output plus 15%.
 - Defer `--disease` and `--existence`. Drop `--all-species`.

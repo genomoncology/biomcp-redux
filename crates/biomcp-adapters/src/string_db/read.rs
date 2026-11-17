@@ -50,7 +50,8 @@ pub fn partners(
         ("identifiers", Arg::Text(canonical)),
         ("species", Arg::Num(u64::from(HUMAN))),
         ("required_score", Arg::Num(u64::from(REQUIRED_SCORE))),
-        // STRING returns every partner when the limit is zero.
+        // limit=0 returned every partner when checked live on 2026-11-17 (WRN 313, TP53 2,396);
+        // STRING's API documentation does not state it.
         ("limit", Arg::Num(0)),
         ("caller_identity", Arg::Text(CALLER)),
     ];
