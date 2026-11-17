@@ -53,7 +53,11 @@ fn list_marker(line: &str) -> bool {
     }
     let digits = line.len() - line.trim_start_matches(|c: char| c.is_ascii_digit()).len();
     let label = match digits {
-        0 => line.chars().next().filter(char::is_ascii_alphabetic).map_or(0, |_| 1),
+        0 => line
+            .chars()
+            .next()
+            .filter(char::is_ascii_alphabetic)
+            .map_or(0, |_| 1),
         n => n,
     };
     label > 0

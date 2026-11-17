@@ -3,7 +3,7 @@
   "feature": "trial-get",
   "story": "A numbered item ending in \"criteria:\" stays an item: FLAURA's exclusion item 6 keeps its nested cardiac criteria, and the text still splits.",
   "replay": "trial/get/NCT02296125",
-  "verified": "Source collected 2026-10-24 in trial investigation (tests/replies/trial/get/README.md). The registry text has Inclusion Criteria and Exclusion Criteria headings with 8 numbered items each; exclusion item 6 reads '6. Any of the following cardiac criteria:' with three nested lines. The ceiling is the measured reply plus 15 percent.",
+  "verified": "Source collected 2026-10-24 in trial investigation (tests/replies/trial/get/README.md). The registry text has Inclusion Criteria and Exclusion Criteria headings with 8 numbered items each; exclusion item 6 reads '6. Any of the following cardiac criteria:' with three nested lines. The ceiling is the measured reply of 5,916 bytes (job j42493) plus 15 percent.",
   "steps": [
     {
       "run": [
@@ -29,7 +29,7 @@
           ]
         }
       },
-      "max_bytes": 1
+      "max_bytes": 6804
     }
   ],
   "harvest": "Coordinator review of 1044, 2026-11-17: numbered items ending in criteria: must not block the split"
