@@ -1,4 +1,6 @@
 mod pdf;
+mod terms;
+pub use terms::license_terms;
 pub use pdf::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 mod supplement;
 use crate::{ArticleHeader, ArticleSearch, ArticleSource, Doi, EuropePmcId, Pmcid, Pmid};

@@ -44,6 +44,9 @@ pub struct SupplementFile {
 pub struct Supplements {
     /// Article license from the record.
     pub license: License,
+    /// What `license` allows, in plain words from the Creative Commons deed or PMC's Copyright Notice.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license_terms: Option<Text>,
     /// Exact JATS/record intersection.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub files: Box<[SupplementFile]>,

@@ -101,6 +101,7 @@ fn content(result: Result<Option<pmc_oa::Document>, RequestError>) -> Content {
                 let text = outline(&doc);
                 let files = Supplements {
                     license: doc.license,
+                    license_terms: biomcp_types::license_terms(doc.license),
                     files: doc.supplements.into_iter().map(|v| v.file).collect(),
                 };
                 (text, files)
@@ -146,6 +147,7 @@ fn supplement_next(
 pub(crate) fn outline(document: &pmc_oa::Document) -> FullText {
     FullText {
         license: document.license,
+        license_terms: biomcp_types::license_terms(document.license),
         processing_version: document.version,
         manuscript: document.manuscript,
         parts: document.body.parts.iter().map(|p| p.meta.clone()).collect(),
