@@ -1,6 +1,7 @@
 # 1042 — trial-sites-give-distance-nearest-first
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d5c43e12ad8dcd536c7f0fd769587ddfcc1872bb
 
 Milestone: 7
 
@@ -31,3 +32,11 @@ The patient-navigator persona sorted sites by hand in three runs: 2026-11-10 (bi
 ## Changes
 
 - Changes: the trial get query and locations section, the site row schema (one optional field), a case and its recording, and one release-notes line.
+
+## Progress
+
+- Source: ClinicalTrials.gov returns each site's `geoPoint` and no distance or distance order, so BioMCP computes it. The recorded NCT00627419 reply (live, 2026-11-11) lists 17 sites; the first in source order, Arizona Cancer Center, has no `geoPoint`, so the case reuses that real recording rather than a new one.
+- Change: `get trial ID locations` takes `--lat` and `--lon`, checked by the same helper `search trial` now uses (both or neither, numbers in range); a point without the locations section, or with `all`, is a usage error. With a point, every site row with coordinates gets `distance_mi`, the haversine straight-line miles (Earth radius 3,958.8 mi, rounded to 0.1), and the whole site list sorts nearest first before paging, sites without coordinates last in source order. Continuations of the locations section carry the point, so later pages keep the order. The reply echoes the point in `query.lat`/`query.lon`, and the `distance_mi` description says it is straight-line, not travel distance. Without a point, order, fields and paging are unchanged.
+- Schema: the site row stays `Reply_TrialLocation` (a wrapper flattens the biodata row and adds optional `distance_mi`); the trial-get query adds optional `lat` and `lon`. `distance_mi` is a plain number: a checked `FiniteNumber` needed a dropped `.ok()` that the optional-value ratchet refuses, and checked degrees keep the haversine finite.
+- Proof: `tests/cases/trial/sites/distance-nearest-first.yaml` expects, from 39.96,-83.00, Gabrail (Canton) 103.2, Pittsburgh 162.0, Indianapolis 168.0 first, Los Angeles 1973.6 fifteenth and Arizona last without a distance; the second page starts at Dana-Farber 642.2; no point keeps source order; `--lat` alone and a point without `locations` are refused. Expected miles were computed independently in Python. Base refuses `--lat` (the query denies unknown fields).
+- Jobs: j42429 (regenerated schemas and docs; cases passed; `check-cheap` failed on the `.ok()` ratchet), j42435 (`check-cheap`, `trial/sites`, `mcp/parity` and `schema-release-check` passed), j42440 (full gate: only `trial/help.yaml` failed, because `get trial` help now lists `--lat` and `--lon`; the case now expects them). Gate j42455 on 3f66d6730 (contains origin/main 876387841): `make --keep-going landing-gate docs-check schema-release-check` passed.

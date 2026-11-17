@@ -1,6 +1,7 @@
 # 1045 — pathway-gene-lists-can-leave-out-non-gene-members
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d91317feee5c89422935a1ca8db41de26caecb20
 
 Milestone: 7
 
@@ -31,3 +32,12 @@ The comp-bio persona built gene sets from pathway "genes" replies in its 2026-11
 ## Changes
 
 - Changes: the pathway genes query and Reactome mapping, a case and its recording, help and one release-notes line.
+
+## Progress
+
+- 2026-11-17, measured live: Reactome participants name references as `namespace:id` in lower case. R-HSA-5693607 holds 89 distinct references, 80 `uniprot` and 9 `chebi`. Larger pathways also carry `ensembl` (ReferenceDNASequence and ReferenceRNASequence), `mirbase`, `ena.embl`, `nucleotide`, `iuphar.ligand` and `pubchem.compound`. No `ncbigene` reference was seen; it is kept where present.
+- Built: `pathway genes ID --gene-products` (`gene_products: true` in MCP). It keeps `uniprot`, `ensembl` and `ncbigene` rows and leaves out every other namespace from the retained relation before paging, so `total`, `page.total` and `next_offset` count kept rows. The new optional `left_out` gives `rows` and per-namespace counts in first-occurrence order. Next-page and details steps keep the option. The pool is shared with the plain read, so the default reply is unchanged and carries no `left_out`.
+- WikiPathways: the GPML adapter keeps only `GeneProduct` DataNodes (`crates/biomcp-adapters/src/wikipathways/gpml.rs`, `member`), so the option leaves nothing out there and reports `left_out.rows` 0. The help says so.
+- Mature miRNAs (`mirbase`) are left out and counted in `left_out`, while Ensembl RNAs (`ensembl` ReferenceRNASequence) are kept. The help text for `--gene-products` lists the kept namespaces: UniProt, Ensembl, NCBI Gene.
+- Review fix: `get pathway ID genes --gene-products` (and with `all`) takes the same option; it is refused with any other section, and section follow-ups to summary or events drop it.
+- Case `tests/cases/pathway/gene-products.yaml` replays R-HSA-5693607 with and without the option and pages to the end.

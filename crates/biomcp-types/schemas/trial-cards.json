@@ -2827,6 +2827,10 @@
           "type": "array",
           "x-positional": 0
         },
+        "lat": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first."
+        },
         "limit": {
           "default": 10,
           "description": "Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.",
@@ -2834,6 +2838,10 @@
           "maximum": 100,
           "minimum": 1,
           "type": "integer"
+        },
+        "lon": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Longitude degrees; used with --lat."
         },
         "offset": {
           "default": 0,
@@ -2991,6 +2999,14 @@
           "description": "Source country.",
           "type": [
             "string",
+            "null"
+          ]
+        },
+        "distance_mi": {
+          "description": "Straight-line miles from the requested --lat/--lon point, not travel distance; absent without a point or site coordinates.",
+          "format": "double",
+          "type": [
+            "number",
             "null"
           ]
         },

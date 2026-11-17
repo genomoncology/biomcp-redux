@@ -33,6 +33,14 @@ pub fn members(leg: &Leg<'_>, id: &ReactomeId) -> Result<Mapped<Members>, Reques
         .value;
     map_members(rows, id)
 }
+/// Whether a reference namespace from `map_members` names a gene product. Reactome writes
+/// `uniprot` and `ensembl` (live 2026-11-17); `ncbigene` is kept where present. ChEBI,
+/// IUPHAR, PubChem, miRBase, ENA and nucleotide references are not gene products here (1045).
+pub fn gene_product(namespace: &str) -> bool {
+    ["uniprot", "ensembl", "ncbigene"]
+        .iter()
+        .any(|kept| namespace.eq_ignore_ascii_case(kept))
+}
 fn map_members(rows: raw::Participants, id: &ReactomeId) -> Result<Mapped<Members>, RequestError> {
     let invalid_reply = biomcp_fetch::bad_reply(Source::Reactome, Some(200));
     let mut problems = fields(id);

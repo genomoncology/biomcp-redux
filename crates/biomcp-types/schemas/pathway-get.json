@@ -33,6 +33,10 @@
       "description": "Request a new source observation.",
       "type": "boolean"
     },
+    "gene_products": {
+      "description": "With the genes or all section: keep only gene-product references, as `pathway genes --gene-products` does.",
+      "type": "boolean"
+    },
     "id": {
       "description": "Exact human Reactome or WikiPathways identity without version suffixes.",
       "pattern": "^(R-HSA-|WP)[1-9][0-9]*$",

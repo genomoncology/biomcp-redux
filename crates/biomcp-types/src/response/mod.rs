@@ -116,7 +116,7 @@ pub use trial_condition::TrialConditionResolution;
 mod trial_get;
 pub use trial_get::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
-    TrialItemFailure, TrialRecords, TrialSections,
+    TrialItemFailure, TrialRecords, TrialSections, TrialSite,
 };
 
 mod nci_trial;

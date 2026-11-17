@@ -140,7 +140,7 @@ pub use response::{
 pub use response::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 pub use response::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
-    TrialItemFailure, TrialRecords, TrialSections,
+    TrialItemFailure, TrialRecords, TrialSections, TrialSite,
 };
 pub use response::{TrialConditionResolution, TrialPage};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
@@ -261,8 +261,8 @@ pub use query::{
 };
 
 pub use response::{
-    PathwayCard, PathwayEvents, PathwayGenes, PathwayHeader, PathwayPage, PathwayPageInfo,
-    PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
+    PathwayCard, PathwayEvents, PathwayGenes, PathwayHeader, PathwayLeftOut, PathwayNamespaceCount,
+    PathwayPage, PathwayPageInfo, PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
 };
 
 mod protein;

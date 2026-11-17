@@ -93,6 +93,7 @@ Trials:
 - `results` pages hold up to 40,000 bytes of whole posted records, so a trial's outcome measures usually come in one call instead of one record a page.
 - `locations` pages hold up to 100 sites, state the site total and offer the next page. Search rows carry `has_results`. A batched trial get names each trial it could not read, and each failed item's `failure` gives the source, the reason and the problem in plain words. A batch of up to 20 trials gets one ClinicalTrials.gov pacing interval per trial after the first (19 seconds at the default pacing, at most 60), so a cold batch no longer runs out of time partway.
 - Help, schemas and the NCI disease refusal name the concept beside each example NCIt code, such as C3224 (melanoma), so an example is not mistaken for another disease.
+- `get trial ID locations --lat LAT --lon LON` gives each site's straight-line distance in miles from that point, not travel distance, as `distance_mi`, and orders the sites nearest first across pages, with sites lacking coordinates last.
 - `search trial --fields` refuses a field the source's rows lack and names that source's fields.
 - `search trial --sponsor NAME --sponsor-role any` also finds trials where the company is a collaborator, not only the lead sponsor. The default, `lead`, is unchanged.
 - A ClinicalTrials.gov continuation is tied to its offset, filters and matching mode. Changing any of them is refused before the registry is asked, with a fresh first page offered, and a registry rejection of `--next-page` says so.
@@ -111,6 +112,7 @@ Genes, variants, diseases and phenotypes:
 - When a transcript HGVS fails `variant normalize` on its reference base, the reply lists the gene's transcripts where the change fits and offers the fitting one; the reply is `partial` rather than `failed`. `search variant --variant` given a full HGVS name offers the runnable `--gene ... --coding ...` call.
 - `get disease ID prevalence --source orphadata` returns Orphanet prevalence estimates, age of onset and inheritance after `sync orphadata`. Hierarchy rows carry parent labels, and each synonym appears once with `also_stated_by` naming the other sources that state it.
 - `pathway genes` and `pathway events` with an ID the source does not hold answer `absent`, not `failed`.
+- `pathway genes ID --gene-products` keeps only gene-product rows (UniProt, Ensembl, NCBI Gene) and leaves out small molecules such as ChEBI compounds. `left_out` counts the rows left out by namespace, and `total` counts the kept rows. WikiPathways rows are already gene products, so nothing is left out there.
 
 Articles:
 

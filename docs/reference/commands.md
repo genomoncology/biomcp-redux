@@ -2783,20 +2783,26 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --gene-products[=<gene_products>]
+          With the genes or all section: keep only gene-product references, as `pathway genes --gene-products` does.
+
+          [default: false]
+          [possible values: true, false]
+
       --pool <pool>
           Retained snapshot, when continuing a source relation.
 
       --section-limit <section_limit>
           Bounded initial section size; each all section has its own first page.
 
-      --section-offset <section_offset>
-          Source relation offset for a selected genes or events section.
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --section-offset <section_offset>
+          Source relation offset for a selected genes or events section.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2811,6 +2817,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
 - `--fresh`: Request a new source observation. Value form: boolean; example: --fresh.
+- `--gene-products`: With the genes or all section: keep only gene-product references, as `pathway genes --gene-products` does. Value form: boolean; example: --gene-products.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
 Form: get pathway ID SECTION; not --id.
 - `--pool`: Retained snapshot, when continuing a source relation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
@@ -3606,26 +3613,32 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --limit <limit>
-          Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.
+      --lat <lat>
+          Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --limit <limit>
+          Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.
+
+      --lon <lon>
+          Longitude degrees; used with --lat.
+
       --offset <offset>
           Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
-
-      --pool <pool>
-          Checked stored source record, supplied by a continuation.
-
-      --section <section>
-          Optional intact source sections. Default cards only; diseases; help get trial
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --pool <pool>
+          Checked stored source record, supplied by a continuation.
+
+      --section <section>
+          Optional intact source sections. Default cards only; diseases; help get trial
 
       --source <source>
           Explicit source; defaults to ClinicalTrials.gov and never; help get trial
@@ -3651,7 +3664,9 @@ Options apply to every listed source unless their description restricts them.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
 Form: get trial INPUT...; not --input.
+- `--lat`: Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first. Value form: string; example: --lat 39.96.
 - `--limit`: Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
+- `--lon`: Longitude degrees; used with --lat. Value form: string; example: --lon -83.00.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer; example: --offset 0.
 - `--pool`: Checked stored source record, supplied by a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `--section`: Optional intact source sections. Default cards only; diseases… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section outcomes.
@@ -4583,11 +4598,17 @@ Options:
           [default: json]
           [possible values: json, md]
 
-  -l, --limit <limit>
-          Five complete relation rows by default, at most fifty.
+      --gene-products[=<gene_products>]
+          Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.
+
+          [default: false]
+          [possible values: true, false]
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
+
+  -l, --limit <limit>
+          Five complete relation rows by default, at most fifty.
 
       --offset <offset>
           Offset within the retained selected relation.
@@ -4621,9 +4642,10 @@ Options apply to every listed source unless their description restricts them.
 
 - `details`: Include every physical entity context for these references; never clips source text.
 Form: pathway genes ID DETAILS; not --details.
+- `--gene-products`: Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products. Value form: boolean; example: --gene-products.
 - `id`: Checked source-owned human pathway identity.
 Form: pathway genes ID DETAILS; not --id.
-- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 5.
+- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 50.
 - `--offset`: Offset within the retained selected relation. Value form: integer; example: --offset 0.
 - `--pool`: Immutable relation snapshot. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
