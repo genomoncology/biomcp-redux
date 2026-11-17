@@ -38,6 +38,9 @@ pub struct VariantOncokb {
     /// Native alternate allele curation flag.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allele_exist: Option<bool>,
+    /// Rows in the whole section, equal to `page.total`; the count to report (1026).
+    #[serde(default)]
+    pub total: u64,
     // The page comes before the rows (0942): a reader of only the start sees the total.
     /// Disclosure bounds over the records, independent of identity paging.
     pub page: PageInfo,

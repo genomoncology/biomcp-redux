@@ -66,6 +66,9 @@ pub struct GnomadCounts {
 pub struct VariantGwas {
     /// Exact source rsID.
     pub rs_id: VariantId,
+    /// Rows in the whole section, equal to `page.total`; the count to report (1026).
+    #[serde(default)]
+    pub total: u64,
     /// Native source associations, without inferred clinical meaning.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub associations: Box<[GwasAssociation]>,

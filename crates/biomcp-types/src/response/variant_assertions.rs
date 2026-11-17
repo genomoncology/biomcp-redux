@@ -6,6 +6,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct VariantAssertions {
+    /// Rows in the whole section, equal to `page.total`; the count to report (1026).
+    #[serde(default)]
+    pub total: u64,
     /// Source assertion rows in native order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub assertions: Box<[VariantAssertion]>,

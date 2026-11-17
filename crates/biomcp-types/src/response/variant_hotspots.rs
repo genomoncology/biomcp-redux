@@ -13,6 +13,9 @@ pub struct VariantHotspots {
         deserialize_with = "data_reason"
     )]
     reason: Option<crate::Reason>,
+    /// Rows in the whole section, equal to `page.total`; the count to report (1026).
+    #[serde(default)]
+    pub total: u64,
     // The page comes before the rows (0942): a reader of only the start sees the total.
     /// Disclosure bounds for this section.
     pub page: PageInfo,
@@ -29,6 +32,7 @@ impl VariantHotspots {
     pub fn new(records: Box<[HotspotRecord]>, page: PageInfo, next: Option<VariantGet>) -> Self {
         Self {
             reason: None,
+            total: page.total,
             records,
             page,
             next,

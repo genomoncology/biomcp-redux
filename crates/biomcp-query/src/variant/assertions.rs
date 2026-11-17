@@ -325,6 +325,7 @@ fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> Varian
     }
     let returned = rows.len() as u32;
     VariantAssertions {
+        total,
         assertions: rows.into(),
         page: PageInfo {
             offset: query.offset(),
@@ -339,6 +340,7 @@ fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> Varian
 }
 fn empty(query: &VariantAssertionsGet) -> VariantAssertions {
     VariantAssertions {
+        total: 0,
         assertions: Box::default(),
         page: PageInfo {
             offset: query.offset(),
