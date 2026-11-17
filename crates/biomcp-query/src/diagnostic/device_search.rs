@@ -3,7 +3,7 @@ use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{
     DiagnosticAggregate, DiagnosticCountUnit, DiagnosticProductCodeCounts, DiagnosticSearch,
-    PageInfo, Paged, ReplyBody, Request, Source, StepKind,
+    PageInfo, Paged, ReplyBody, Request, Source, SourceNotice, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let source = q.source().source();
@@ -83,9 +83,43 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(source, leg.finish(), error));
+    applicant(&mut out, q, cx.fresh);
     status::search(&mut out);
     command.finish(deadline.remaining());
     out
+}
+
+/// An empty --name page matched only the trade or device name; the same words may be the
+/// FDA applicant, so the reply says so and offers them as --manufacturer (1040).
+fn applicant(out: &mut Outcome, q: &DiagnosticSearch, fresh: bool) -> Option<()> {
+    let none_found = out.page.as_ref().is_some_and(|page| page.total == 0);
+    if !none_found || q.name().is_none() || q.manufacturer().is_some() {
+        return None;
+    }
+    let source = q.source().source();
+    let get = crate::next::checked(q.name_as_manufacturer(), source, &mut out.problems)?;
+    next::push(
+        out,
+        StepKind::Configure,
+        &[source],
+        Request::SearchDiagnostic(get),
+        fresh,
+    );
+    let field = if source == Source::FdaPma {
+        "PMA trade name"
+    } else {
+        "510(k) device name"
+    };
+    let report = out.sources.iter_mut().find(|r| r.source == source)?;
+    report.notices.push(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: format!(
+            "--name matched the {field} only; the FDA applicant is searched with --manufacturer."
+        )
+        .into(),
+        retry_after_seconds: None,
+    });
+    Some(())
 }
 
 /// Matching 510(k) records by product code, with the sum checked against the search total.

@@ -454,6 +454,16 @@ impl DiagnosticSearch {
         v.0.aggregate = None;
         v
     }
+    /// The same first page with its --name sent as the FDA applicant (--manufacturer) (1040).
+    pub fn name_as_manufacturer(&self) -> Result<Self, QueryInvalid> {
+        let mut v = self.0.clone();
+        if v.manufacturer.is_some() {
+            return Err(QueryInvalid::new(&["manufacturer"]));
+        }
+        v.manufacturer = v.name.take();
+        v.offset = 0;
+        v.try_into()
+    }
     /// Native rows per page.
     pub fn limit(&self) -> u32 {
         self.0.limit
