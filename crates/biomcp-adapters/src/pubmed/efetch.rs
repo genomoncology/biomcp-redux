@@ -29,6 +29,7 @@ pub struct FetchedArticle {
     pub problems: Vec<Problem>,
 }
 /// Decoded PubMed citations from one EFetch response.
+#[derive(Debug)]
 pub struct FetchedArticles {
     /// Usable citations in source order.
     pub articles: Vec<FetchedArticle>,
