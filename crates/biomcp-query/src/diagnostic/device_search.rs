@@ -3,7 +3,7 @@ use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{
     DiagnosticAggregate, DiagnosticCountUnit, DiagnosticProductCodeCounts, DiagnosticSearch,
-    PageInfo, Paged, ReplyBody, Request, Source, StepKind,
+    PageInfo, Paged, ReplyBody, Request, Source, SourceNotice, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let source = q.source().source();
@@ -42,6 +42,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         };
         Ok((page, counts))
     });
+    let mut name_only = None;
     let error = match result {
         Ok((page, product_code_counts)) => {
             let returned = page.items.len() as u32;
@@ -51,6 +52,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             };
             out.problems = page.problems;
             next::candidates(&mut out, q, &page.items, cx.fresh);
+            if page.total == 0 && q.manufacturer().is_none() {
+                name_only = applicant(&mut out, q, cx.fresh);
+            }
             if u64::from(q.offset()) + u64::from(returned) < page.total && returned > 0 {
                 next::push(
                     &mut out,
@@ -83,9 +87,32 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(source, leg.finish(), error));
+    if let Some(notice) = name_only.take() {
+        if let Some(report) = out.sources.iter_mut().find(|r| r.source == source) {
+            report.notices.push(notice);
+        }
+    }
     status::search(&mut out);
     command.finish(deadline.remaining());
     out
+}
+
+/// An empty --name search matched only the trade or device name; the same words may be the
+/// FDA applicant, so the reply says so and offers them as --manufacturer (1040).
+fn applicant(out: &mut Outcome, q: &DiagnosticSearch, fresh: bool) -> Option<SourceNotice> {
+    q.name()?;
+    let source = q.source().source();
+    let get = crate::next::checked(q.name_as_manufacturer(), source, &mut out.problems)?;
+    next::push(out, StepKind::Configure, &[source], Request::SearchDiagnostic(get), fresh);
+    let field = if source == Source::FdaPma { "PMA trade name" } else { "510(k) device name" };
+    Some(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: format!(
+            "--name matched the {field} only; the FDA applicant is searched with --manufacturer."
+        )
+        .into(),
+        retry_after_seconds: None,
+    })
 }
 
 /// Matching 510(k) records by product code, with the sum checked against the search total.
