@@ -1642,7 +1642,7 @@
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "type": "string",
       "x-enum-descriptions": [
-        " All native identity cross-references and product links, mechanically paged.",
+        " All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",

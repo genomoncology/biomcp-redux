@@ -1,0 +1,40 @@
+{
+  "feature": "drug-mychem",
+  "story": "A drug's cross-references give its ATC codes: apixaban's xrefs carry B01AF02 from ChEMBL through MyChem, attributed to ChEMBL record CHEMBL231779.",
+  "live_check": "public",
+  "verified": "MyChem replies recorded unchanged 2026-11-16 with biomcp --record in pm job j42093; details in tests/replies/drug/xrefs-atc/README.md.",
+  "replay": "drug/xrefs-atc",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "apixaban",
+        "xrefs",
+        "--section-limit",
+        "5"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "apixaban",
+        "xrefs",
+        "--section-limit",
+        "5"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/source": "mychem",
+        "/result/xrefs/data/records/*/identity/id": {
+          "includes": "B01AF02"
+        },
+        "/result/xrefs/data/records/2/identity/id": "B01AF02",
+        "/result/xrefs/data/records/2/identity/namespace": "atc",
+        "/result/xrefs/data/records/2/relation": "chembl.atc_classifications",
+        "/result/xrefs/data/records/2/attribution/source": "chembl",
+        "/result/xrefs/data/records/2/attribution/record": "CHEMBL231779"
+      },
+      "max_bytes": 6000
+    }
+  ]
+}
