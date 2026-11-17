@@ -146,7 +146,8 @@
             "--disease",
             "--drug",
             "--evidence-level",
-            "--evidence-status"
+            "--evidence-status",
+            "--evidence-significance"
           ]
         }
       }

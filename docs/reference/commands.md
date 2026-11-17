@@ -3245,6 +3245,12 @@ Options:
           Source CIViC evidence levels; repeat to include several levels.
           Only with --source civic on get drug, and the civic section on get variant.
 
+      --evidence-significance <evidence_significance>
+          Significance; help get drug
+          Significance
+          Source CIViC evidence significance, such as resistance or sensitivityresponse.
+          Only with --source civic on get drug, and the civic section on get variant.
+
       --evidence-status <evidence_status>
           Status; help get drug
           Status
@@ -3262,17 +3268,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --partner <partner>
-          Interaction partner.
-          A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
-          Keeps only the pairs with that drug. A name DDInter does not use is tried under the
-          names other sources state for it, as the drug itself is.
-
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --partner <partner>
+          Interaction partner.
+          A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
+          Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+          names other sources state for it, as the drug itself is.
 
       --product-number <product_number>
           FDA product number.
@@ -3311,6 +3317,9 @@ and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --sou
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
+- `--evidence-significance`: Significance
+Source CIViC evidence significance, such as resistance or sensitivityresponse.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
@@ -3621,6 +3630,12 @@ Options:
           Source CIViC evidence levels; repeat to include several levels.
           Only with --source civic on get drug, and the civic section on get variant.
 
+      --evidence-significance <evidence_significance>
+          Significance; help get variant
+          Significance
+          Source CIViC evidence significance, such as resistance or sensitivityresponse.
+          Only with --source civic on get drug, and the civic section on get variant.
+
       --evidence-status <evidence_status>
           Status; help get variant
           Status
@@ -3636,14 +3651,14 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --offset <offset>
-          Candidate rows to skip in source order.
-
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --offset <offset>
+          Candidate rows to skip in source order.
 
       --resolver <resolver>
           Resolver; help get variant
@@ -3680,6 +3695,9 @@ CIViC therapy name text; CIViC matches it natively against evidence and assertio
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
+- `--evidence-significance`: Significance
+Source CIViC evidence significance, such as resistance or sensitivityresponse.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
