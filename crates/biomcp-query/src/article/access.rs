@@ -34,7 +34,7 @@ pub(super) fn wanted(cx: &Ctx<'_>, query: Cursor<'_>, rows: &[StoredItem]) -> Ve
     let Cursor::Search(search) = query else {
         return Vec::new();
     };
-    if search.no_access_lookup() || cx.fetch.disabled(Source::EuropePmc) {
+    if search.no_access_lookup() || cx.fetch.is_offline() || cx.fetch.disabled(Source::EuropePmc) {
         return Vec::new();
     }
     rows.iter()

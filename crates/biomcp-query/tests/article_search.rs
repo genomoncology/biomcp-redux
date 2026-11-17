@@ -10,7 +10,7 @@
 use biomcp_fetch::{CacheError, Fetch, FetchConfig, Mode, ReplayCache, RequestError};
 use biomcp_query::{Ctx, Outcome};
 use biomcp_test_support::recordings as recording_support;
-use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, Status};
+use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, Source, Status};
 use std::{path::PathBuf, time::Duration};
 fn recordings(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -423,7 +423,9 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     let repeated = run(&offline, query(Some(id.as_str()), 0), false);
     assert_eq!(repeated.local, None);
     assert_eq!(repeated.status(), Status::Partial);
-    assert_eq!(repeated.sources, first.sources);
+    // The optional access lookup failure belongs to the live read only.
+    assert_eq!(first.sources[1].source, Source::EuropePmc);
+    assert_eq!(repeated.sources, first.sources[..1]);
     let ReplyData::ArticlePage {
         body: Some(body), ..
     } = repeated.body
