@@ -32,24 +32,9 @@
             "38402609"
           ]
         },
-        "/next/0/args": [
-          "search",
-          "article",
-          "KRAS G12C",
-          "--affiliation",
-          "Dana-Farber Cancer Institute",
-          "--exact-term",
-          "--limit",
-          "3",
-          "--offset",
-          "3",
-          "--pool",
-          "92a19c44086ac74a22775a1327200ff4",
-          "--since",
-          "2023",
-          "--until",
-          "2025"
-        ]
+        "/next/0/args": {
+          "includes": "Dana-Farber Cancer Institute"
+        }
       },
       "max_bytes": 2542
     },
