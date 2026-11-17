@@ -22,7 +22,12 @@
         },
         "/sources/1/source": "gnomad",
         "/sources/1/state": "failed",
-        "/sources/1/reason": "bad-reply"
+        "/sources/1/reason": "bad-reply",
+        "/sources/1": {
+          "omits": [
+            "notices"
+          ]
+        }
       },
       "max_bytes": 427
     }

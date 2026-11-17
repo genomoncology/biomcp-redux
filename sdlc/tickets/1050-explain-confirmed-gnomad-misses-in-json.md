@@ -1,6 +1,7 @@
 # 1050 — Explain confirmed gnomAD misses in JSON
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ba573a7ab9decaa543ec06fad9d9d176a0ac5ba7
 
 Milestone: 7
 

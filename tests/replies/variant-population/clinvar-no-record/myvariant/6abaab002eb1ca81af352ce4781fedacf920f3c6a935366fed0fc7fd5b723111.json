@@ -1,0 +1,50 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=rs121917919&size=1000&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann%2Cchrom%2Chg19%2Chg38%2Cclingen.caid&assembly=hg38",
+  "exchanges": [
+    {
+      "fetched": 1794946657,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 377,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 5,
+          "total": 1,
+          "max_score": 1.3725777,
+          "hits": [
+            {
+              "_id": "chr2:g.165994236A>G",
+              "_score": 1.3725777,
+              "chrom": "2",
+              "clingen": {
+                "caid": "CA284979"
+              },
+              "clinvar": {
+                "variant_id": 68552
+              },
+              "dbsnp": {
+                "gene": [
+                  {
+                    "symbol": "SCN1A"
+                  },
+                  {
+                    "symbol": "LOC102724058"
+                  }
+                ],
+                "rsid": "rs121917919"
+              },
+              "hg38": {
+                "end": 165994236,
+                "start": 165994236
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

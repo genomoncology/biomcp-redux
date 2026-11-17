@@ -19,6 +19,11 @@
             "record",
             "data"
           ]
+        },
+        "/sources/1": {
+          "omits": [
+            "notices"
+          ]
         }
       }
     },
@@ -37,6 +42,11 @@
           "omits": [
             "record",
             "data"
+          ]
+        },
+        "/sources/1": {
+          "omits": [
+            "notices"
           ]
         }
       }

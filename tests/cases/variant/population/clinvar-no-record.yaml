@@ -8,7 +8,7 @@
       "run": [
         "variant",
         "population",
-        "clinvar:68552"
+        "rs121917919"
       ],
       "exit": 1,
       "expect": {
@@ -21,14 +21,17 @@
           "omits": [
             "data"
           ]
-        }
+        },
+        "/sources/2/source": "gnomad",
+        "/sources/2/notices/0/kind": "request-guidance",
+        "/sources/2/notices/0/message": "gnomAD found no variant record for 2-165994236-A-G in gnomad_r4. This lookup has no measured allele frequency."
       }
     },
     {
       "run": [
         "variant",
         "population",
-        "clinvar:68552",
+        "rs121917919",
         "--format",
         "md"
       ],
@@ -57,7 +60,10 @@
           "omits": [
             "data"
           ]
-        }
+        },
+        "/sources/2/source": "gnomad",
+        "/sources/2/notices/0/kind": "request-guidance",
+        "/sources/2/notices/0/message": "gnomAD found no variant record for 2-165994236-A-G in gnomad_r4. This lookup has no measured allele frequency."
       }
     },
     {

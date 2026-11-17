@@ -215,8 +215,8 @@ fn load(
             .transpose()
     });
     let error = result.as_ref().err().copied();
-    let source = status::source(Source::Gnomad, leg.finish(), error);
-    let section = super::population::source_section(result, id, dropped);
+    let mut source = status::source(Source::Gnomad, leg.finish(), error);
+    let section = super::population::source_section(result, id, dropped, &mut source);
     (
         section,
         groups,

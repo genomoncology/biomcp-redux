@@ -5,8 +5,8 @@ use biodata::{Build, Chromosome, PopulationDataType, PopulationSex, Text};
 use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    GnomadCounts, Problem, ProblemCode, Reason, Section, Source, SourceOutcome, VariantGet,
-    VariantHeader, VariantPopulation,
+    GnomadCounts, Problem, ProblemCode, Reason, Section, Source, SourceNotice, SourceOutcome,
+    VariantGet, VariantHeader, VariantPopulation,
 };
 /// Read only gnomAD after one unambiguous source allele has been established.
 pub(super) fn section(
@@ -45,8 +45,8 @@ pub(super) fn section(
             .transpose()
     });
     let error = result.as_ref().err().copied();
-    let source = status::source(Source::Gnomad, leg.finish(), error);
-    let value = source_section(result, &id, dropped);
+    let mut source = status::source(Source::Gnomad, leg.finish(), error);
+    let value = source_section(result, &id, dropped, &mut source);
     (
         value,
         joined.sources.into_iter().chain([source]).collect(),
@@ -60,6 +60,7 @@ pub(super) fn source_section(
     result: Result<Option<VariantPopulation>, RequestError>,
     id: &str,
     dropped: bool,
+    source: &mut SourceOutcome,
 ) -> Section<VariantPopulation> {
     match result {
         Ok(Some(data)) => Section::Data {
@@ -67,7 +68,7 @@ pub(super) fn source_section(
             data,
         },
         Ok(None) if dropped => Section::unavailable(Source::Gnomad, Reason::BadReply),
-        Ok(None) => no_record(id),
+        Ok(None) => no_record(id, source),
         Err(e) => Section::unavailable(
             Source::Gnomad,
             crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
@@ -76,10 +77,19 @@ pub(super) fn source_section(
 }
 
 /// Only the adapter's accepted variant miss reaches this state.
-fn no_record(id: &str) -> Section<VariantPopulation> {
+fn no_record(id: &str, source: &mut SourceOutcome) -> Section<VariantPopulation> {
+    let dataset = gnomad::variant::DATASET;
+    source.notices.push(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: format!(
+            "gnomAD found no variant record for {id} in {dataset}. This lookup has no measured allele frequency."
+        )
+        .into(),
+        retry_after_seconds: None,
+    });
     Section::Empty {
         source: Source::Gnomad,
-        record: biomcp_types::SourceRecord::asked(Some(gnomad::variant::DATASET), id),
+        record: biomcp_types::SourceRecord::asked(Some(dataset), id),
     }
 }
 
