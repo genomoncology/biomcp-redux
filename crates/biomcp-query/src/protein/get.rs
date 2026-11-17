@@ -8,16 +8,18 @@ use biomcp_types::{
     ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, Request, Section, Source, SourceState,
     Status, StepKind,
 };
-/// Exact accessions resolve independently and remain in caller order.
-pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
-    // ChEMBL target counts declare a longer budget than the default; other legs keep their caps.
-    let budget = if super::sections::wants(q, biomcp_types::ProteinSection::Chembl) {
+/// ChEMBL target counts declare a longer budget than the default; other legs keep their caps.
+fn budget(cx: &Ctx<'_>, q: &ProteinGet) -> std::time::Duration {
+    if super::sections::wants(q, biomcp_types::ProteinSection::Chembl) {
         cx.fetch
             .source_budget(&biomcp_adapters::chembl::TARGET_COUNTS, cx.budget)
     } else {
         cx.budget
-    };
-    let command = cx.fetch.command_deadline(budget);
+    }
+}
+/// Exact accessions resolve independently and remain in caller order.
+pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
+    let command = cx.fetch.command_deadline(budget(cx, q));
     let deadline = command.deadline();
     let hgnc_leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
     let leg = cx.fetch.leg(&uniprot::SPEC, deadline).fresh(cx.fresh);
