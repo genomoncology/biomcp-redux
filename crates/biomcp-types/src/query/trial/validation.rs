@@ -46,8 +46,8 @@ impl TryFrom<Fields> for TrialSearch {
         }
         validate_location(&f)?;
         if f.sponsor_role.is_some() && f.sponsor.is_none() {
-            return Err(QueryInvalid::new(&["sponsor_role", "sponsor"])
-                .with_message(crate::ErrorMessage::TrialSponsorRole));
+            // Name the missing --sponsor, not the role, as the argument to fix.
+            return Err(QueryInvalid::new(&["sponsor", "sponsor_role"]));
         }
         Ok(Self(Box::new(f)))
     }

@@ -207,7 +207,6 @@
         "--query takes MyVariant query syntax and needs --source myvariant; for a gene and change use --gene <SYMBOL> --coding <CHANGE> or --protein <CHANGE>",
         "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction",
         "the registry cannot bind --facility and radius to one site; choose one filter",
-        "--sponsor-role says which sponsor roles --sponsor matches; add --sponsor NAME",
         "--classification selects device enforcement records, which carry no product code; drop --product-code, or drop --classification and read each returned row's classification",
         "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, such as e for é",
         "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; openFDA publishes no intended-use text for 510(k) records, so select them with --product-code, whose FDA classification name describes the device type",

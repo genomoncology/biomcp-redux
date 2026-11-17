@@ -51,7 +51,7 @@
       "offline": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/message": "--sponsor-role says which sponsor roles --sponsor matches; add --sponsor NAME"
+        "/error/option": "--sponsor"
       }
     }
   ]
