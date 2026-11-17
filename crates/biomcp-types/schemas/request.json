@@ -1276,7 +1276,7 @@
         },
         "id": {
           "$ref": "#/$defs/NcitId",
-          "description": "Exact NCIt code, such as C96022.",
+          "description": "Exact NCIt code, such as C96022 (CD274 Gene, PD-L1).",
           "x-positional": 0
         },
         "source": {
@@ -1552,7 +1552,7 @@
         },
         "disease": {
           "$ref": "#/$defs/Text",
-          "description": "Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224)."
+          "description": "Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma)."
         },
         "exclude_derived": {
           "description": "Leave out lines derived from a parent line; needs another search term.",
@@ -4756,7 +4756,7 @@
         },
         "biomarker_code": {
           "$ref": "#/$defs/NcitId",
-          "description": "NCI NCIt code.\nExact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility."
+          "description": "NCI NCIt code.\nExact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility."
         },
         "biomarker_use": {
           "$ref": "#/$defs/NciBiomarkerUse",
@@ -4767,7 +4767,7 @@
           "type": "string"
         },
         "condition": {
-          "description": "Disease; NCI needs NCIt.\nConditions joined with OR. NCI needs NCIt codes such as C3224; use --condition-id for MONDO or DOID identifiers.",
+          "description": "Disease; NCI needs NCIt.\nConditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers.",
           "items": {
             "$ref": "#/$defs/Text"
           },
@@ -4776,7 +4776,7 @@
         },
         "condition_id": {
           "$ref": "#/$defs/Curie",
-          "description": "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."
+          "description": "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma)."
         },
         "count_only": {
           "description": "Total.\nSource total only; no returned study rows.",

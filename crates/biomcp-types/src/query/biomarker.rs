@@ -107,7 +107,7 @@ impl crate::Paged for BiomarkerSearch {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct BiomarkerGet {
-    /// Exact NCIt code, such as C96022.
+    /// Exact NCIt code, such as C96022 (CD274 Gene, PD-L1).
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub id: NcitId,
     /// NCI is the biomarker concept source.
