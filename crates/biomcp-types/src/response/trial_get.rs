@@ -110,6 +110,15 @@ pub struct TrialEligibilityPage {
     /// Source healthy-volunteer field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub healthy_volunteers: Option<bool>,
+    /// This page's items below the registry's "Inclusion Criteria" headings, each with its nested lines, in source order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inclusion: Option<Vec<Box<str>>>,
+    /// This page's items below the registry's "Exclusion Criteria" headings, each with its nested lines, in source order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exclusion: Option<Vec<Box<str>>>,
+    /// Why `inclusion` and `exclusion` are absent: the registry text lacks one or both headings, so read `criteria`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub not_split: Option<Box<str>>,
     /// Exact original text fragment, including whitespace.
     pub criteria: Box<str>,
     /// The page ends within a criterion whose lines exceed the page budget.

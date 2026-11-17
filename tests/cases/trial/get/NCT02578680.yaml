@@ -25,6 +25,20 @@
           "equals": {
             "state": "no_limit"
           }
+        },
+        "/result/items/0/sections/eligibility/data/inclusion": {
+          "count": 10
+        },
+        "/result/items/0/sections/eligibility/data/inclusion/0": "* Has a histologically-confirmed or cytologically confirmed diagnosis of stage IV nonsquamous NSCLC.",
+        "/result/items/0/sections/eligibility/data/inclusion/9": "* If male with a female partner(s) of child-bearing potential, must agree to use adequate contraception starting with the first dose of study medication through 120 days after the last dose of study medication or through 180 days after last dose of chemotherapeutic agents.",
+        "/result/items/0/sections/eligibility/data/exclusion": {
+          "count": 25
+        },
+        "/result/items/0/sections/eligibility/data/exclusion/0": "* Has predominantly squamous cell histology NSCLC.",
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "not_split"
+          ]
         }
       },
       "max_bytes": 8395

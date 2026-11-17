@@ -1,0 +1,36 @@
+{
+  "live_check": "public",
+  "feature": "trial-get",
+  "story": "Eligibility text without the registry's Inclusion Criteria and Exclusion Criteria headings stays whole and says it is not split.",
+  "replay": "trial/get/NCT00003020",
+  "verified": "RECORDING_PENDING",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00003020",
+        "eligibility"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/nct_id": "NCT00003020",
+        "/result/items/0/sections/eligibility/data/not_split": "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, so it is not split; read criteria.",
+        "/result/items/0/sections/eligibility/data/criteria": {
+          "includes": "PATIENT CHARACTERISTICS: Age: 18 and over"
+        },
+        "/result/items/0/sections/eligibility/data/offset": 0,
+        "/result/items/0/sections/eligibility/data/total_characters": 1167,
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "inclusion",
+            "exclusion",
+            "continuation"
+          ]
+        }
+      },
+      "max_bytes": 20000
+    }
+  ],
+  "harvest": "biomed-agent-bench trial-ops persona, 2026-11-12 run, log line 57"
+}
