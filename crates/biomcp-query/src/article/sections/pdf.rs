@@ -5,8 +5,8 @@ use biomcp_adapters::semantic_scholar;
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleGet, ArticlePdf, ArticleResolution, ArticleSectionWord, OpenAccessStatus, PdfLink, Reason, ReplyData, Request, Section,
-    Source, StepKind,
+    ArticleGet, ArticlePdf, ArticleResolution, ArticleSectionWord, OpenAccessStatus, PdfLink,
+    Reason, ReplyData, Request, Section, Source, StepKind,
 };
 
 pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outcome) {
