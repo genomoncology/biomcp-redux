@@ -508,11 +508,12 @@ impl schemars::JsonSchema for DrugGet {
         if let Some(properties) = schema.get_mut("properties").and_then(|p| p.as_object_mut()) {
             properties.insert(
                 "input".into(),
-                serde_json::json!({
+                schemars::json_schema!({
                     "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
                     "pattern": text.get("pattern"),
                     "type": "string",
-                }),
+                })
+                .to_value(),
             );
             properties.insert(
                 "source".into(),
