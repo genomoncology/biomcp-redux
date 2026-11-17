@@ -7,3 +7,5 @@ The HGNC fixtures reuse the existing constraint slices. Missing MLH1, MSH2, MSH6
 The all and constraint directories reuse these same ClinGen slices. ClinGen reports are public CC0 summaries.
 
 The region curation list recorded in j39307 on 2026-11-13 is copied whole from ../regions/clingen; see ../regions/README.md.
+
+The SCN2A witness adds exact rows from the published HGNC and ClinGen exports read on 2026-11-17. The detailed ClinGen TSV retains its native header and the SCN2A row, including both PubMed IDs in its third copy-loss citation cell. Other rows in the original summary captures retain their October spelling and order. Its MyGene reply uses the corresponding native batch request.
