@@ -134,8 +134,9 @@ pub(super) fn read<'a>(
     finish(query, pool, rows, out);
     Ok(())
 }
-/// The access lookup may hold a page this long, as the license lookup does.
-const ACCESS_BUDGET: std::time::Duration = std::time::Duration::from_secs(3);
+/// The access lookup may hold a page this long. Europe PMC's core search took 2.2 seconds
+/// for two papers on 2026-11-17 and passed 3 seconds on other tries.
+const ACCESS_BUDGET: std::time::Duration = std::time::Duration::from_secs(8);
 /// Search rows with a PMID and no open-access flag take the flag and license Europe PMC
 /// states, in one request for the page (1046). A failed lookup settles nothing; those
 /// rows say their status is unknown.

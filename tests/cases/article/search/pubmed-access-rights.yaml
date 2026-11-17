@@ -11,7 +11,7 @@
         "tebentafusp",
         "--exact-term",
         "--offset",
-        "16",
+        "7",
         "--limit",
         "2"
       ],
@@ -19,8 +19,8 @@
         "/status": "complete",
         "/result/items/*/pmid": {
           "equals": [
-            "36785760",
-            "36931146"
+            "36970111",
+            "42162665"
           ]
         },
         "/result/items/*/open_access": {
@@ -30,10 +30,15 @@
           ]
         },
         "/result/items/0/license": "cc_by_nc",
-        "/result/items/0/header/pmcid": "PMC9921510",
+        "/result/items/0/header/pmcid": "PMC10031621",
+        "/result/items/1/license": "cc_by_nc_nd",
+        "/result/items/0": {
+          "omits": [
+            "open_access_unknown"
+          ]
+        },
         "/result/items/1": {
           "omits": [
-            "license",
             "open_access_unknown"
           ]
         },
@@ -43,9 +48,9 @@
           ]
         }
       },
-      "max_bytes": 2004
+      "max_bytes": 2007
     }
   ],
-  "verified": "PENDING",
+  "verified": "2026-11-17 capture with biomcp --fresh --record in pm job j42460 of the PubMed search, the PubMed summaries for the page and the Europe PMC access lookup. Europe PMC states 36970111 (PMC10031621) isOpenAccess Y with license cc by-nc, and 42162665 isOpenAccess N with the publisher's cc by-nc-nd and no PMC copy. The Europe PMC reply keeps only each row's source, pmid, isOpenAccess and license. The ceiling is the measured 1,745-byte page plus 15 percent. Before 1046 the rows carry no open_access field.",
   "harvest": "biomed-agent-bench msl persona: which papers may be shared"
 }
