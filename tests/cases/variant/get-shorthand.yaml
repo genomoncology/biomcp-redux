@@ -135,7 +135,6 @@
         "TP53 R249S",
         "--limit",
         "1",
-        "--section",
         "clinvar"
       ],
       "expect": {
