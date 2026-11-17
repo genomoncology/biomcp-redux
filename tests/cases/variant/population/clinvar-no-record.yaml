@@ -1,0 +1,80 @@
+{
+  "feature": "variant-population",
+  "live_check": "public",
+  "story": "A confirmed gnomAD miss names the exact dataset selector and GRCh38 lookup in both variant views.",
+  "replay": "variant-population/clinvar-no-record",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "population",
+        "clinvar:68552"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/result/population/state": "empty",
+        "/result/population/source": "gnomad",
+        "/result/population/record/namespace": "gnomad_r4",
+        "/result/population/record/id": "2-165994236-A-G",
+        "/result/population": {
+          "omits": [
+            "data"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "population",
+        "clinvar:68552",
+        "--format",
+        "md"
+      ],
+      "exit": 1,
+      "expect": {
+        "": {
+          "includes": "gnomad found no variant record for 2-165994236-A-G in gnomad_r4."
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "clinvar:68552",
+        "population"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/candidates/0/sections/population/state": "empty",
+        "/result/candidates/0/sections/population/source": "gnomad",
+        "/result/candidates/0/sections/population/record/namespace": "gnomad_r4",
+        "/result/candidates/0/sections/population/record/id": "2-165994236-A-G",
+        "/result/candidates/0/sections/population": {
+          "omits": [
+            "data"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "clinvar:68552",
+        "population",
+        "--format",
+        "md"
+      ],
+      "exit": 0,
+      "expect": {
+        "": {
+          "includes": "gnomad found no variant record for 2-165994236-A-G in gnomad_r4."
+        }
+      }
+    }
+  ]
+}
