@@ -1,6 +1,5 @@
 //! Facilities counted over every page of a registry match, each name exactly as registered.
-use crate::raw::Field;
-use biodata::Text;
+use biodata::{NctId, Text};
 use biomcp_fetch::{Arg, BadReply, Input, Leg, Reply, RequestError};
 use biomcp_types::{Source, TrialSearch, TrialSiteCount, TrialSiteCounts};
 use serde::Deserialize;
@@ -14,7 +13,7 @@ const FIELDS: &str = "NCTId,LocationFacility,LocationCity,LocationCountry";
 #[serde(rename_all = "camelCase")]
 struct SitePage {
     total_count: Option<u64>,
-    studies: Option<Vec<Field<Study>>>,
+    studies: Option<Vec<Study>>,
     next_page_token: Option<Text>,
 }
 impl Reply for SitePage {
@@ -30,44 +29,39 @@ impl Reply for SitePage {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Study {
-    protocol_section: Option<Field<Protocol>>,
+    protocol_section: Protocol,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Protocol {
-    contacts_locations_module: Option<Field<Locations>>,
+    identification_module: Identification,
+    contacts_locations_module: Option<Locations>,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Identification {
+    nct_id: NctId,
 }
 #[derive(Deserialize)]
 struct Locations {
-    locations: Option<Field<Vec<Field<Site>>>>,
+    locations: Option<Vec<Site>>,
 }
 #[derive(Deserialize)]
 struct Site {
-    facility: Option<Field<Box<str>>>,
-    city: Option<Field<Box<str>>>,
-    country: Option<Field<Box<str>>>,
+    facility: Option<Box<str>>,
+    city: Option<Box<str>>,
+    country: Option<Box<str>>,
 }
 type Key = (Box<str>, Option<Box<str>>, Option<Box<str>>);
 impl Study {
     /// Each named site once per trial, however often the trial lists it.
     fn sites(self) -> BTreeSet<Key> {
         self.protocol_section
-            .and_then(Field::value)
-            .and_then(|p| p.contacts_locations_module)
-            .and_then(Field::value)
-            .and_then(|m| m.locations)
-            .and_then(Field::value)
+            .contacts_locations_module
+            .and_then(|module| module.locations)
             .unwrap_or_default()
             .into_iter()
-            .filter_map(Field::value)
-            .filter_map(|site| {
-                let facility = site.facility.and_then(Field::value)?;
-                Some((
-                    facility,
-                    site.city.and_then(Field::value),
-                    site.country.and_then(Field::value),
-                ))
-            })
+            .filter_map(|site| site.facility.map(|name| (name, site.city, site.country)))
             .collect()
     }
 }
@@ -116,31 +110,39 @@ fn read_pages(
 ) -> Result<(BTreeMap<Key, u64>, u64, u64), RequestError> {
     let mut counts = BTreeMap::<Key, u64>::new();
     let mut matched = None;
-    let mut read = 0;
+    let mut seen_trials = BTreeSet::new();
     let mut seen_tokens = BTreeSet::new();
     loop {
         let page = fetch(leg, &params)?;
-        matched = matched.or(page.total_count);
-        let studies = page.studies.unwrap_or_default();
-        read += studies.len() as u64;
-        for site in studies
-            .into_iter()
-            .filter_map(Field::value)
-            .flat_map(Study::sites)
-        {
-            *counts.entry(site).or_default() += 1;
+        if let Some(total) = page.total_count {
+            if matched.is_some_and(|earlier| earlier != total) {
+                return Err(bad_page());
+            }
+            matched = Some(total);
+        }
+        for study in page.studies.unwrap_or_default() {
+            if !seen_trials.insert(study.protocol_section.identification_module.nct_id) {
+                return Err(bad_page());
+            }
+            for site in study.sites() {
+                *counts.entry(site).or_default() += 1;
+            }
         }
         let Some(token) = page.next_page_token else {
             break;
         };
         if !seen_tokens.insert(token.as_str().to_owned()) {
-            return Err(biomcp_fetch::bad_reply(Source::ClinicalTrialsGov, Some(200)));
+            return Err(bad_page());
         }
         params.insert("pageToken".into(), token.as_str().into());
     }
-    let matched =
-        matched.ok_or_else(|| biomcp_fetch::bad_reply(Source::ClinicalTrialsGov, Some(200)))?;
+    let read = seen_trials.len() as u64;
+    let matched = matched.filter(|&total| total == read).ok_or_else(bad_page)?;
     Ok((counts, matched, read))
+}
+
+fn bad_page() -> RequestError {
+    biomcp_fetch::bad_reply(Source::ClinicalTrialsGov, Some(200))
 }
 
 fn fetch(leg: &Leg<'_>, params: &BTreeMap<String, String>) -> Result<SitePage, RequestError> {
