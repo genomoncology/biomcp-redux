@@ -2,7 +2,7 @@
 use crate::{Action, Ctx, Outcome, next::Step, status};
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    Paged, ReplyData, Request, Source, Status, StepKind, VariantCard, VariantGet, VariantHeader,
+    Paged, ReplyData, Request, Source, Status, StepKind, VariantCard, VariantGet,
     VariantResolution, VariantSearch,
 };
 
@@ -25,7 +25,7 @@ pub(super) fn get<'a>(
         .is_some_and(|page| page.total == 1 && page.offset == 0)
         && out.status() == Status::Complete
         && body.excluded.is_none()
-        && matches!(body.items.as_ref(), [row] if confirms(search, row));
+        && matches!(body.items.as_ref(), [row] if row.transcripts.iter().any(|row| row.matched));
     let mut actions = Vec::new();
     for row in &body.items {
         if let Some((request, source)) = super::identity::choice(row, &mut out.problems) {
@@ -118,17 +118,6 @@ pub(super) fn get<'a>(
         &out.sources,
     );
     out
-}
-
-fn confirms(search: &VariantSearch, row: &VariantHeader) -> bool {
-    row.transcripts.iter().any(|row| {
-        row.hgvs_p.as_ref().is_some_and(|protein| {
-            search.matches_protein(
-                row.gene.as_ref().map(biodata::Text::as_str),
-                protein.as_str(),
-            )
-        })
-    })
 }
 
 fn preserve(

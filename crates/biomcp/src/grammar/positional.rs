@@ -81,12 +81,20 @@ pub(super) fn variant_shorthand(root: &Command, args: &[OsString]) -> Option<Vec
     if verb == "search" {
         let phrase = words.join(" ");
         let (gene, protein) = biomcp_types::VariantSearch::shorthand_fields(&phrase)?;
-        kept.extend([
-            "--gene".into(),
-            gene.into(),
-            "--protein".into(),
-            protein.into(),
-        ]);
+        if kept
+            .iter()
+            .filter_map(|arg| arg.to_str())
+            .any(|flag| flag == "--source" || flag.starts_with("--source="))
+        {
+            kept.extend(["--query".into(), phrase.into()]);
+        } else {
+            kept.extend([
+                "--gene".into(),
+                gene.into(),
+                "--protein".into(),
+                protein.into(),
+            ]);
+        }
     } else {
         let (first, rest) = words.split_first()?;
         if biomcp_types::VariantSearch::shorthand_fields(first).is_some() {

@@ -395,7 +395,7 @@ impl schemars::JsonSchema for GetLookupInput {
         let mut schema = LookupInput::json_schema(generator);
         if let Some(pattern) = schema.get("pattern").and_then(|value| value.as_str()) {
             let gene = crate::GeneSymbol::pattern();
-            let protein = super::ProteinQuery::pattern();
+            let protein = super::protein_change::protein_pattern(false);
             let shorthand = format!(
                 "^ *{} +{} *$",
                 gene.trim_start_matches('^').trim_end_matches('$'),
