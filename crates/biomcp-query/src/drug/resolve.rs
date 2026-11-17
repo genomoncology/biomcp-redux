@@ -390,10 +390,7 @@ fn mychem(
                 .filter_map(|(header, drug)| {
                     header.matched_name.map(|matched| {
                         let rank = u8::from(matched == DrugNameMatch::Generic);
-                        (
-                            plain(rank, u8::from(!drug), String::new()),
-                            header.clone(),
-                        )
+                        (plain(rank, u8::from(!drug), String::new()), header.clone())
                     })
                 })
                 .collect();
