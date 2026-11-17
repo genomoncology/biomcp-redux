@@ -154,3 +154,62 @@ fn hosted_call_grows_to_a_declared_budget_and_cancel_still_wins() {
         "replay never reaches the provider"
     );
 }
+
+/// Legs a command uses one after another add their replay time, as they did live, even when
+/// both were opened first; legs on side-by-side workers share a start. The command's own
+/// deadline sees that time, so a finish that passes it charges every leg (1035).
+#[test]
+fn command_legs_charge_their_replay_time_one_after_another() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let spec = spec(&server);
+    capture(&server, spec, dir.path(), &[(200, "", r#"{"answer":true}"#)]);
+    change(dir.path(), |v| v["exchanges"][0]["delay_ms"] = 3_000.into());
+    let fetch = fetch(Mode::Replay {
+        dir: dir.path().to_owned(),
+    });
+    let read = |leg: &biomcp_fetch::Leg<'_>| {
+        leg.call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json())
+            .unwrap();
+    };
+    let reply = Duration::from_secs(3);
+
+    let command = fetch.command_deadline(CALLER);
+    let deadline = command.deadline();
+    let first = fetch.leg(spec, deadline);
+    let second = fetch.leg(spec, deadline);
+    read(&first);
+    read(&second);
+    let spent = CALLER.saturating_sub(deadline.remaining());
+    assert!(
+        spent >= 2 * reply && spent < 3 * reply,
+        "two 3 s replies read one after another take about 6 s, took {spent:?}"
+    );
+    assert_eq!(
+        second.command_remaining(),
+        deadline.remaining(),
+        "the last leg ends where the command is"
+    );
+    command.finish(deadline.remaining());
+
+    let command = fetch.command_deadline(CALLER);
+    let deadline = command.deadline();
+    thread::scope(|scope| {
+        let workers: Vec<_> = (0..2)
+            .map(|_| scope.spawn(|| read(&fetch.leg(spec, deadline))))
+            .collect();
+        for worker in workers {
+            worker.join().unwrap();
+        }
+    });
+    let spent = CALLER.saturating_sub(deadline.remaining());
+    assert!(
+        spent >= reply && spent < 2 * reply,
+        "two 3 s replies read side by side take about 3 s, took {spent:?}"
+    );
+    command.finish(deadline.remaining());
+    assert!(
+        server.requests.try_recv().is_err(),
+        "replay never reaches the provider"
+    );
+}

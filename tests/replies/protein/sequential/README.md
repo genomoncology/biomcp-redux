@@ -1,0 +1,1 @@
+Synthetic copies of two protein/synthetic records, the HGNC set and the UniProt P00533 entry, with their reply delays set to 8 s and 9 s. They exercise a command that reads two sources one after another: each reply is inside its source's limit, but together they pass UniProt's 15-second limit. Names and audits are invented.

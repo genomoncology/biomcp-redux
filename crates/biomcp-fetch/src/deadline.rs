@@ -20,6 +20,8 @@ pub struct Deadline<'a> {
     frozen: Option<Instant>,
     clock: Option<&'a VirtualClock>,
     cancelled: Option<&'a CancellationFlag>,
+    /// The replay command this deadline belongs to; its legs share the command's clock (1035).
+    command: Option<CommandId>,
 }
 
 #[derive(Debug)]
@@ -27,45 +29,163 @@ pub struct Deadline<'a> {
     clippy::disallowed_types,
     reason = "Advance replay clocks and observe command cancellation across request workers"
 )]
-pub(crate) struct VirtualClock(Mutex<Instant>);
+pub(crate) struct VirtualClock {
+    now: Mutex<Instant>,
+    /// The command a source leg's clock follows and charges, when opened under one (1035).
+    command: Option<std::sync::Arc<CommandClock>>,
+}
 impl Default for VirtualClock {
+    fn default() -> Self {
+        Self::at(Instant::now(), None)
+    }
+}
+impl VirtualClock {
     #[expect(
         clippy::disallowed_types,
         reason = "Advance replay clocks and observe command cancellation across request workers"
     )]
-    fn default() -> Self {
-        Self(Mutex::new(Instant::now()))
+    fn at(now: Instant, command: Option<std::sync::Arc<CommandClock>>) -> Self {
+        Self {
+            now: Mutex::new(now),
+            command,
+        }
     }
-}
-impl VirtualClock {
     fn now(&self) -> Instant {
         *self
-            .0
+            .now
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
+    }
+    /// A clock at this one's time that charges no command; its owner charges its time back.
+    pub(crate) fn detached(&self) -> Self {
+        Self::at(self.now(), None)
     }
     pub(crate) fn join(&self, other: &Self) {
         self.reach(other.now());
     }
-    fn reach(&self, completed: Instant) {
+    fn set(&self, completed: Instant) -> Instant {
         let mut now = self
-            .0
+            .now
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         *now = (*now).max(completed);
+        *now
     }
-    fn advance(&self, delay: Duration) -> bool {
-        let mut now = self
-            .0
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        if let Some(next) = now.checked_add(delay) {
-            *now = next;
-            true
-        } else {
-            false
+    fn reach(&self, completed: Instant) {
+        let now = self.set(completed);
+        self.charge(now);
+    }
+    /// Start this leg's next step no earlier than the latest step any leg of its command finished.
+    pub(crate) fn follow(&self) {
+        if let Some(command) = &self.command {
+            self.set(command.now());
         }
     }
+    fn charge(&self, now: Instant) {
+        if let Some(command) = &self.command {
+            command.reach(now);
+        }
+    }
+    fn advance(&self, delay: Duration) -> bool {
+        let next = {
+            let mut now = self
+                .now
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            let Some(next) = now.checked_add(delay) else {
+                return false;
+            };
+            *now = next;
+            next
+        };
+        self.charge(next);
+        true
+    }
+}
+
+/// One replay command's shared clock: the latest time any of its source legs reached (1035).
+/// Legs on the command's own thread run one after another, so each starts where the last one
+/// ended. Legs on worker threads run side by side: their times are held apart until the
+/// command's thread reads the clock again, so every worker starts from the same instant.
+#[derive(Debug)]
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share one replay command's time across its source legs and workers"
+)]
+pub(crate) struct CommandClock {
+    owner: std::thread::ThreadId,
+    /// The command's time, and the latest time reached by worker threads not yet joined.
+    times: Mutex<(Instant, Instant)>,
+}
+impl CommandClock {
+    fn owned(&self) -> bool {
+        std::thread::current().id() == self.owner
+    }
+    fn now(&self) -> Instant {
+        let mut times = self
+            .times
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if self.owned() {
+            times.0 = times.0.max(times.1);
+        }
+        times.0
+    }
+    fn reach(&self, completed: Instant) {
+        let mut times = self
+            .times
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if self.owned() {
+            times.0 = times.0.max(completed);
+        } else {
+            times.1 = times.1.max(completed);
+        }
+    }
+}
+
+/// Names a running replay command's clock without borrowing it, so deadlines stay `Copy`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct CommandId(std::num::NonZeroU64);
+
+#[expect(
+    clippy::disallowed_types,
+    reason = "Find a running replay command's clock from the copyable deadlines of its legs"
+)]
+type Commands = Mutex<std::collections::BTreeMap<CommandId, std::sync::Arc<CommandClock>>>;
+#[expect(
+    clippy::disallowed_types,
+    reason = "Find a running replay command's clock from the copyable deadlines of its legs"
+)]
+static COMMANDS: std::sync::LazyLock<Commands> = std::sync::LazyLock::new(Commands::default);
+#[expect(
+    clippy::disallowed_types,
+    reason = "Number replay commands uniquely across fetch clients"
+)]
+static NEXT_COMMAND: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+
+fn commands() -> std::sync::MutexGuard<'static, std::collections::BTreeMap<CommandId, std::sync::Arc<CommandClock>>> {
+    COMMANDS
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+fn command_clock(id: CommandId) -> Option<std::sync::Arc<CommandClock>> {
+    commands().get(&id).cloned()
+}
+#[expect(
+    clippy::disallowed_types,
+    reason = "Share one replay command's time across its source legs and workers"
+)]
+fn register(origin: Instant) -> Option<CommandId> {
+    let id = CommandId(std::num::NonZeroU64::new(
+        NEXT_COMMAND.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
+    )?);
+    let clock = CommandClock {
+        owner: std::thread::current().id(),
+        times: Mutex::new((origin, origin)),
+    };
+    commands().insert(id, std::sync::Arc::new(clock));
+    Some(id)
 }
 impl<'a> Deadline<'a> {
     pub(crate) fn start(budget: Duration, clock: Option<&'a VirtualClock>) -> Self {
@@ -75,6 +195,7 @@ impl<'a> Deadline<'a> {
             frozen: None,
             clock,
             cancelled: None,
+            command: None,
         }
     }
     pub(crate) fn matches(&self, clock: Option<&VirtualClock>) -> bool {
@@ -89,6 +210,7 @@ impl<'a> Deadline<'a> {
             frozen: None,
             clock,
             cancelled: self.cancelled,
+            command: None,
         }
     }
     #[expect(
@@ -96,11 +218,16 @@ impl<'a> Deadline<'a> {
         reason = "Advance replay clocks and observe command cancellation across request workers"
     )]
     pub(crate) fn fork(&self) -> Option<VirtualClock> {
-        self.clock.map(|_| VirtualClock(Mutex::new(self.now())))
+        self.clock
+            .map(|_| VirtualClock::at(self.now(), self.command.and_then(command_clock)))
     }
     pub(crate) fn now(&self) -> Instant {
-        self.frozen
-            .unwrap_or_else(|| self.clock.map_or_else(Instant::now, VirtualClock::now))
+        let now = self
+            .frozen
+            .unwrap_or_else(|| self.clock.map_or_else(Instant::now, VirtualClock::now));
+        self.command
+            .and_then(command_clock)
+            .map_or(now, |command| now.max(command.now()))
     }
     /// Bind this remaining budget to wall time for cooperative local decoding.
     pub fn local(self) -> LocalDeadline {
@@ -169,6 +296,7 @@ impl<'a> Deadline<'a> {
             frozen: self.frozen,
             clock: self.clock,
             cancelled: self.cancelled,
+            command: self.command,
         }
     }
     /// Move a command's replay origin past one completed stage, retaining its absolute end.
@@ -181,13 +309,16 @@ impl<'a> Deadline<'a> {
     }
 }
 
-/// A sequential command's fixed replay origin, completed once into shared time.
+/// A command's replay origin and clock, completed once into shared time.
+/// Every source leg opened under it starts at the command clock and charges its time there
+/// (1035), so the command reaches its latest leg's end however it finishes.
 #[derive(Debug)]
 pub struct CommandDeadline<'a>(Deadline<'a>);
 impl<'a> CommandDeadline<'a> {
     pub(crate) fn start(budget: Duration, clock: Option<&'a VirtualClock>) -> Self {
         let mut deadline = Deadline::start(budget, clock);
         deadline.frozen = clock.map(VirtualClock::now);
+        deadline.command = deadline.frozen.and_then(register);
         Self(deadline)
     }
     #[expect(
@@ -207,6 +338,7 @@ impl<'a> CommandDeadline<'a> {
     }
     /// Join the completed absolute endpoint, including an early failure.
     /// Concurrent completions take the maximum endpoint; they never add durations.
+    /// The command clock already holds every leg's time, so `remaining` can only add to it.
     pub fn finish(self, remaining: Duration) {
         if let (Some(clock), Some(origin)) = (self.0.clock, self.0.frozen) {
             let spent = self
@@ -215,6 +347,18 @@ impl<'a> CommandDeadline<'a> {
                 .saturating_duration_since(origin)
                 .saturating_sub(remaining);
             clock.reach(origin.checked_add(spent).unwrap_or(self.0.end));
+        }
+    }
+}
+impl Drop for CommandDeadline<'_> {
+    /// Charge the command's legs to shared time, even when a caller returns without `finish`.
+    fn drop(&mut self) {
+        let Some(id) = self.0.command else {
+            return;
+        };
+        let command = commands().remove(&id);
+        if let (Some(clock), Some(command)) = (self.0.clock, command) {
+            clock.reach(command.now());
         }
     }
 }
