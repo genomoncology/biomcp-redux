@@ -49,8 +49,27 @@ impl TryFrom<Fields> for TrialSearch {
             // Name the missing --sponsor, not the role, as the argument to fix.
             return Err(QueryInvalid::new(&["sponsor", "sponsor_role"]));
         }
+        validate_counts(&f)?;
         Ok(Self(Box::new(f)))
     }
+}
+
+/// A site count reads every page itself, so it takes no page token and returns no total alone.
+fn validate_counts(f: &Fields) -> Result<(), QueryInvalid> {
+    if f.site_count && f.count_only {
+        return Err(QueryInvalid::new(&["site_count", "count_only"]));
+    }
+    if f.site_count && f.next_page.is_some() {
+        return Err(QueryInvalid::new(&["site_count", "next_page"]));
+    }
+    if f
+        .why_stopped
+        .as_ref()
+        .is_some_and(|text| super::words(text.as_str()).is_empty())
+    {
+        return Err(QueryInvalid::new(&["why_stopped"]));
+    }
+    Ok(())
 }
 
 fn validate_exact_condition(f: &Fields) -> Result<(), QueryInvalid> {

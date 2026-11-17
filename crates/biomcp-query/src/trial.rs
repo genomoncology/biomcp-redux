@@ -10,6 +10,7 @@ mod nci;
 #[cfg(test)]
 mod page_tests;
 mod portable_continuation;
+mod site_count;
 mod variant_spellings;
 use crate::{Action, Ctx, Outcome, status};
 
@@ -80,6 +81,14 @@ fn search<'a>(
     let conditions = condition
         .as_ref()
         .map_or(query.condition(), std::slice::from_ref);
+    if query.site_count() {
+        let (q, gene) = (&widened.query, gene.as_deref());
+        let mut source =
+            site_count::count(leg, q, gene, conditions, earlier, deadline, &mut outcome);
+        source.notices.extend(widened.notices);
+        outcome.sources.push(source);
+        return outcome;
+    }
     let (mut result, mut name_notice) =
         ctgov::search_query(&leg, &widened.query, gene.as_deref(), conditions);
     let changed = !expanded.inputs.is_empty() || !widened.notices.is_empty();
@@ -288,6 +297,7 @@ fn empty(query: &TrialSearch) -> Outcome {
                     "ClinicalTrials.gov; source-native discovery, no eligibility assessment".into(),
                 gene_resolution: None,
                 condition_resolution: None,
+                site_counts: None,
             })
             .with_query(query.clone()),
             page: None,

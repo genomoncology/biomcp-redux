@@ -1,4 +1,5 @@
 mod biomarker;
+mod capability;
 mod condition;
 mod continuation;
 mod country;
@@ -6,6 +7,7 @@ mod drug_terms;
 mod filters;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
+pub use capability::TrialFilter;
 pub use filters::{
     NciStatusFilter, PhaseFilter, SponsorRole, SponsorType, TrialPhaseFilter, TrialStatusFilter,
 };
@@ -244,9 +246,20 @@ struct Fields {
     #[doc = "Total.\nSource total only; no returned study rows."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     count_only: bool,
+    #[doc = "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged."]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    site_count: bool,
     #[doc = "Posted results.\nClinicalTrials.gov only: require posted source results. Each row carries has_results."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     has_results: bool,
+    #[doc = "Stop words.\nClinicalTrials.gov only: keep trials whose registry stop reason contains every word. Each row carries why_stopped."]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    why_stopped: Option<Text>,
     #[doc = "Page size.\nHeaders per page; NCI applies its own lower publisher limit."]
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
@@ -419,6 +432,21 @@ impl TrialSearch {
     pub fn has_results(&self) -> bool {
         self.0.has_results
     }
+    /// Text the registry stop reason must contain.
+    pub fn why_stopped(&self) -> Option<&Text> {
+        self.0.why_stopped.as_ref()
+    }
+    /// Each letter or digit run of the stop reason text, searched as its own word.
+    pub fn why_stopped_words(&self) -> Vec<&str> {
+        self.0
+            .why_stopped
+            .as_ref()
+            .map_or_else(Vec::new, |text| words(text.as_str()))
+    }
+    /// Facility counts across every page instead of rows.
+    pub fn site_count(&self) -> bool {
+        self.0.site_count
+    }
     /// Bounded page size.
     pub fn limit(&self) -> u32 {
         self.0.limit
@@ -480,91 +508,12 @@ impl TrialSource {
     }
 }
 
-biodata::wire_enum! {
-    /// Checked trial capability names, never caller-supplied values.
-    TrialFilter {
-        /// Registry general text.
-        Text => "TEXT",
-        /// Registry gene discovery.
-        Gene => "--gene",
-        /// Registry variant discovery.
-        Variant => "--variant",
-        /// Registry criteria text.
-        Criteria => "--criteria",
-        /// Registry intervention text.
-        Intervention => "--intervention",
-        /// Registry status vocabulary.
-        Status => "--status",
-        /// Registry phase vocabulary.
-        Phase => "--phase",
-        /// Registry study type.
-        StudyType => "--study-type",
-        /// Registry sex vocabulary.
-        Sex => "--sex",
-        /// Registry age range.
-        Age => "--age",
-        /// Registry facility text.
-        Facility => "--facility",
-        /// Registry radius.
-        Latitude => "--lat",
-        /// Registry sponsor text.
-        Sponsor => "--sponsor",
-        /// Registry sponsor role.
-        SponsorRole => "--sponsor-role",
-        /// Registry funding vocabulary.
-        SponsorType => "--sponsor-type",
-        /// Registry lower update bound.
-        UpdatedSince => "--updated-since",
-        /// Registry upper update bound.
-        UpdatedUntil => "--updated-until",
-        /// Registry ID conjunction.
-        Id => "--id",
-        /// Registry results restriction.
-        HasResults => "--has-results",
-        /// Explicit NCI keyword mode.
-        Keyword => "--keyword",
-    }
-}
-impl TrialSearch {
-    /// Reject a source disease name instead of silently degrading to free text.
-    pub fn nci_disease_invalid(&self) -> bool {
-        self.source() == TrialSource::Nci
-            && self.condition().iter().any(|v| {
-                !v.as_str()
-                    .strip_prefix('C')
-                    .is_some_and(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
-            })
-    }
-    /// Name the first unsupported capability before any source, key, or cache access.
-    pub fn unsupported(&self) -> Option<TrialFilter> {
-        if self.source() == TrialSource::Ctgov {
-            return None;
-        }
-        use TrialFilter as F;
-        [
-            (self.query().is_some(), F::Text),
-            (self.keyword().len() > 1, F::Keyword),
-            (self.gene().is_some(), F::Gene),
-            (self.variant().is_some(), F::Variant),
-            (self.criteria().is_some(), F::Criteria),
-            (!self.intervention().is_empty(), F::Intervention),
-            (self.study_type().is_some(), F::StudyType),
-            (self.sex().is_some(), F::Sex),
-            (self.age().is_some(), F::Age),
-            (self.lat().is_some(), F::Latitude),
-            (self.sponsor().is_some(), F::Sponsor),
-            (self.sponsor_role().is_some(), F::SponsorRole),
-            (self.sponsor_type().is_some(), F::SponsorType),
-            (self.updated_since().is_some(), F::UpdatedSince),
-            (self.updated_until().is_some(), F::UpdatedUntil),
-            (self.id().is_some(), F::Id),
-            (self.has_results(), F::HasResults),
-        ]
-        .into_iter()
-        .find_map(|(present, option)| present.then_some(option))
-    }
-}
 mod validation;
+fn words(text: &str) -> Vec<&str> {
+    text.split(|c: char| !c.is_alphanumeric())
+        .filter(|word| !word.is_empty())
+        .collect()
+}
 /// Check a --lat/--lon point in degrees, as trial search and trial get both read it.
 pub(super) fn point(lat: &Text, lon: &Text) -> Result<(f64, f64), crate::QueryInvalid> {
     let lat = lat

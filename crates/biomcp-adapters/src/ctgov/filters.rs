@@ -5,7 +5,8 @@ use std::collections::BTreeMap;
 /// Every search row asks for these; a date's type is its actual or estimated qualifier.
 const FIELDS: &str = concat!(
     "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults",
-    ",LeadSponsorName,StartDate,StartDateType,PrimaryCompletionDate,PrimaryCompletionDateType"
+    ",LeadSponsorName,StartDate,StartDateType,PrimaryCompletionDate,PrimaryCompletionDateType",
+    ",WhyStopped"
 );
 
 pub(super) fn base_parameters(query: &TrialSearch) -> BTreeMap<String, String> {
@@ -110,6 +111,12 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
     }
     if query.has_results() {
         advanced.push("AREA[ResultsFirstPostDate]RANGE[MIN,MAX]".into());
+    }
+    let stopped = query.why_stopped_words();
+    if !stopped.is_empty() {
+        // Each word quoted, so registry operators in the caller's text stay plain words.
+        let words: Vec<_> = stopped.into_iter().map(quote).collect();
+        advanced.push(format!("AREA[WhyStopped]({})", words.join(" AND ")));
     }
     advanced.join(" AND ")
 }
