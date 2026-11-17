@@ -3,5 +3,4 @@
 pub(crate) mod decl;
 mod raw;
 mod read;
-pub(crate) use read::{CALLER, PARTNERS};
 pub use read::{REQUIRED_SCORE, SPEC, VERSION, partners};

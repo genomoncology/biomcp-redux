@@ -2,7 +2,7 @@
   "feature": "protein-string",
   "live_check": "public",
   "story": "A computational biologist asks for WRN's interaction partners (bench comp-bio 2026-11-16, Q10). `get protein Q14191 interactions` lists STRING's partners at medium confidence, strongest first, with each combined score and its nonzero evidence channels, and `total` counts all of them. STRING keeps one protein per gene, so CDKN2A's two products, P42771 and Q8N726, name the same `string_id` and partner list.",
-  "verified": "tests/replies/protein/string-interactions/provenance.json records the live UniProt and STRING 12.5 replies.",
+  "verified": "tests/replies/protein/string-interactions/provenance.json records the live UniProt and STRING 12.5 replies for Q14191 (WRN), P42771 and Q8N726 of 2026-11-17 (pm job j42208) and their body hashes: STRING lists 313 WRN partners at combined score 0.4 or above, led by RPA3, RPA1 and FEN1 at 0.999; both CDKN2A products map to 9606.ENSP00000418915.",
   "replay": "protein/string-interactions",
   "steps": [
     {

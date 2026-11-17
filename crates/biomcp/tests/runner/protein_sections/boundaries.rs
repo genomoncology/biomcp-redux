@@ -1,7 +1,11 @@
 use super::{Environment, Stub, Value, call, entry, json, setup};
 pub(super) fn features() -> Result<(), String> {
     let stub = Stub::for_sources(
-        &["rest.uniprot.org", "www.ebi.ac.uk", "version-12-5.string-db.org"],
+        &[
+            "rest.uniprot.org",
+            "www.ebi.ac.uk",
+            "version-12-5.string-db.org",
+        ],
         |_| "application/json",
         |request| {
             if request.contains("/interpro/") {

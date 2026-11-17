@@ -2,17 +2,17 @@
 use crate::decl::{Guidance, Probe, SourceDecl};
 use biomcp_fetch::Arg;
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &super::SPEC,
+    spec: &super::read::SPEC,
     display: "STRING",
     discovery_aliases: &[],
     registry_order: Some(61),
     probe: Probe::Get(
-        super::PARTNERS,
+        super::read::PARTNERS,
         &[
             ("identifiers", Arg::Text("Q14191")),
             ("species", Arg::Num(9606)),
             ("limit", Arg::Num(1)),
-            ("caller_identity", Arg::Text(super::CALLER)),
+            ("caller_identity", Arg::Text(super::read::CALLER)),
         ],
     ),
     components: &[],
