@@ -1,6 +1,6 @@
 {
   "feature": "trial-search",
-  "story": "Site counts include the final registry page and count a repeated facility only once per trial.",
+  "story": "Site counts include the final registry page, count a repeated facility once per trial, and fail when the registry omits or repeats a trial.",
   "replay": "trial/site-count-pages",
   "steps": [
     {
@@ -20,6 +20,40 @@
         "/result/site_counts/facilities/0/facility": "Example Hospital",
         "/result/site_counts/facilities/0/trials": 6
       }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "lymphoma",
+        "--site-count",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "bad-reply"
+      },
+      "exit": 4,
+      "is_error": true
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "sarcoma",
+        "--site-count",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/sources/0/reason": "bad-reply"
+      },
+      "exit": 4,
+      "is_error": true
     }
   ]
 }
