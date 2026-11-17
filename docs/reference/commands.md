@@ -400,7 +400,7 @@ Arguments:
 
 Options:
       --disease <disease>
-          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma).
+          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -458,7 +458,7 @@ Options:
 Search cell lines by name or identifier. Sources: cellosaurus.
 Options apply to every listed source unless their description restricts them.
 
-- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma). Value form: string; example: --disease Melanoma.
+- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases. Value form: string; example: --disease Melanoma.
 - `--exclude-derived`: Leave out lines derived from a parent line; needs another search term. Value form: boolean; example: --exclude-derived.
 - `--gene`: Cellosaurus variation gene, as the source writes it (for example KRAS). Value form: string; example: --gene KRAS.
 - `--limit`: Source page size. Value form: integer; example: --limit 25.
@@ -2013,7 +2013,12 @@ Options:
 
       --sponsor <sponsor>
           Sponsor.
-          ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category.
+          ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding.
+
+      --sponsor-role <sponsor_role>
+          Sponsor role; help search trial
+          Sponsor role.
+          ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor.
 
       --sponsor-type <sponsor_type>
           Funding class; help search trial
@@ -2100,7 +2105,9 @@ Form: search trial QUERY; not --query.
 - `--source`: clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 - `--sponsor`: Sponsor.
-ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string; example: --sponsor 'MD Anderson'.
+ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding. Value form: string; example: --sponsor 'MD Anderson'.
+- `--sponsor-role`: Sponsor role.
+ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor. Value form: string; example: --sponsor-role any.
 - `--sponsor-type`: Funding class.
 ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string; example: --sponsor-type other.
 - `--status`: Source status.
