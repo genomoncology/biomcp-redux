@@ -1,0 +1,52 @@
+{
+  "feature": "gene-clingen",
+  "story": "The legacy local ClinGen bundles still answer offline, and missing detailed evidence is separate from a published zero score.",
+  "replay": "gene/constraint",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "--section",
+        "clingen"
+      ],
+      "expect": {
+        "/result/items/0/sections/clingen/state": "data",
+        "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency",
+        "/result/items/0/sections/clingen/data/triplosensitivity": "No Evidence for Triplosensitivity",
+        "/result/items/0/sections/clingen/data/dosage_date": "2021-11-10T17:19:02+00:00",
+        "/result/items/0/sections/clingen/data": {
+          "omits": [
+            "haploinsufficiency_evidence",
+            "triplosensitivity_evidence"
+          ]
+        },
+        "/result/items/0/sections/clingen/data/dosage_evidence_status/reason": "replay-miss"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "--section",
+        "clingen"
+      ],
+      "offline": true,
+      "expect": {
+        "/result/items/0/sections/clingen/state": "data",
+        "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency",
+        "/result/items/0/sections/clingen/data/triplosensitivity": "No Evidence for Triplosensitivity",
+        "/result/items/0/sections/clingen/data/dosage_date": "2021-11-10T17:19:02+00:00",
+        "/result/items/0/sections/clingen/data": {
+          "omits": [
+            "haploinsufficiency_evidence",
+            "triplosensitivity_evidence"
+          ]
+        },
+        "/result/items/0/sections/clingen/data/dosage_evidence_status/reason": "offline"
+      }
+    }
+  ]
+}

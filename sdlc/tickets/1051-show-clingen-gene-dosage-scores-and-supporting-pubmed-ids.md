@@ -1,6 +1,7 @@
 # 1051 — Show ClinGen gene dosage scores and supporting PubMed IDs
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: be78d934f9104dc5fd74ab3e014f6d537dca4ea1
 
 Milestone: 7
 

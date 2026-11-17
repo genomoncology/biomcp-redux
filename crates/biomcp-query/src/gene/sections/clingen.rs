@@ -7,6 +7,7 @@ use biomcp_types::{ClinGenGene, GeneSection, Section, SourceOutcome};
 
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
     let leg = cx.fetch.leg(&clingen::SPEC, deadline).fresh(cx.fresh);
+    let evidence_leg = leg.sibling(&clingen::REGION_SPEC);
     let mut local = None;
     let mut dropped = false;
     let mut problems = Vec::new();
@@ -39,6 +40,8 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     mapped.value
                 })
                 .unwrap_or_default();
+            let (evidence, dosage_evidence_status) =
+                dosage_evidence(&evidence_leg, gene, &mut problems, &mut dropped);
             let data = ClinGenGene {
                 validity_status,
                 dosage_status,
@@ -50,6 +53,9 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                     .as_ref()
                     .and_then(|row| row.triplosensitivity.clone()),
                 dosage_date: dosage.and_then(|row| row.date),
+                dosage_evidence_status,
+                haploinsufficiency_evidence: evidence.haploinsufficiency,
+                triplosensitivity_evidence: evidence.triplosensitivity,
             };
             (
                 *id,
@@ -67,6 +73,32 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         problems,
         local,
     }
+}
+
+/// Keep the established summary usable when the detailed file is unavailable.
+fn dosage_evidence(
+    leg: &Leg<'_>,
+    gene: &Gene,
+    problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
+) -> (clingen::Evidence, Option<SourceOutcome>) {
+    let Some(id) = gene.entrez_id else {
+        return (clingen::Evidence::default(), None);
+    };
+    let result = clingen::evidence(leg, id);
+    let source = status::source(
+        GeneSection::ClinGen.source(),
+        leg.take_report(),
+        result.as_ref().err().copied(),
+    );
+    let evidence = result
+        .map(|mapped| {
+            *dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+            problems.extend(mapped.problems);
+            mapped.value
+        })
+        .unwrap_or_default();
+    (evidence, Some(source))
 }
 
 fn part_status(

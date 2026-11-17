@@ -20,6 +20,26 @@ pub struct ClinGenGene {
     /// Source dosage assessment date, preserving its original spelling.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dosage_date: Option<Text>,
+    /// Outcome of reading the detailed gene dosage file, when the gene has an NCBI ID.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dosage_evidence_status: Option<crate::SourceOutcome>,
+    /// Published copy-loss score and the papers supporting it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub haploinsufficiency_evidence: Option<ClinGenGeneDosage>,
+    /// Published copy-gain score and the papers supporting it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub triplosensitivity_evidence: Option<ClinGenGeneDosage>,
+}
+/// Evidence from the detailed ClinGen gene dosage file for one direction.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ClinGenGeneDosage {
+    /// Published score, when evaluated. Zero means no evidence.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub score: Option<u32>,
+    /// Supporting PubMed identifiers in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub pmids: Box<[biodata::Pmid]>,
 }
 /// One published ClinGen gene–disease validity record.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

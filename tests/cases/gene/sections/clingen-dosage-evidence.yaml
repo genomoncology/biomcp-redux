@@ -1,0 +1,39 @@
+{
+  "live_check": "public",
+  "feature": "gene-clingen",
+  "story": "ClinGen reports the published numeric scores and separate supporting papers for SCN2A, including two PubMed IDs in one source cell.",
+  "replay": "gene/clingen",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "SCN2A",
+        "--section",
+        "clingen"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/gene/hgnc_id": "HGNC:10588",
+        "/result/items/0/sections/clingen/state": "data",
+        "/result/items/0/sections/clingen/data/validity_status/state": "ok",
+        "/result/items/0/sections/clingen/data/dosage_status/state": "ok",
+        "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency",
+        "/result/items/0/sections/clingen/data/triplosensitivity": "No Evidence for Triplosensitivity",
+        "/result/items/0/sections/clingen/data/haploinsufficiency_evidence/score": 3,
+        "/result/items/0/sections/clingen/data/haploinsufficiency_evidence/pmids": {
+          "equals": [
+            "22495306",
+            "15028761",
+            "28379373",
+            "29655203"
+          ]
+        },
+        "/result/items/0/sections/clingen/data/triplosensitivity_evidence/score": 0,
+        "/result/items/0/sections/clingen/data/triplosensitivity_evidence": {
+          "omits": ["pmids"]
+        }
+      }
+    }
+  ]
+}
