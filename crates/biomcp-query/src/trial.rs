@@ -134,13 +134,7 @@ fn search<'a>(
         apply_page(query, sent, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let Ok(version) = version {
-        outcome.problems.extend(version.problems);
-        if let ReplyData::TrialPage {
-            body: Some(body), ..
-        } = &mut outcome.body
-        {
-            body.source_updated = version.value.map(Into::into);
-        }
+        apply_version(&mut outcome, version);
     }
     if rejected && query.next_page().is_some() {
         continuation::rejected(query, &mut outcome);
@@ -150,6 +144,18 @@ fn search<'a>(
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
     outcome
+}
+fn apply_version(
+    outcome: &mut Outcome,
+    version: biomcp_adapters::Mapped<Option<biomcp_types::SourceTimestamp>>,
+) {
+    outcome.problems.extend(version.problems);
+    if let ReplyData::TrialPage {
+        body: Some(body), ..
+    } = &mut outcome.body
+    {
+        body.source_updated = version.value.map(Into::into);
+    }
 }
 /// The found, identity-failed and unavailable states, counting earlier source outcomes.
 fn item_state(earlier: bool, answered: bool, missing: bool) -> (bool, bool, bool) {

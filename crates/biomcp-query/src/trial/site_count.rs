@@ -45,8 +45,7 @@ pub(super) fn count<'a>(
         body.attribution = ATTRIBUTION.into();
     }
     if let Some(version) = version {
-        outcome.problems.extend(version.problems);
-        body.source_updated = version.value.map(Into::into);
+        super::apply_version(outcome, version);
     }
     source
 }
