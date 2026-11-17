@@ -7,3 +7,5 @@ Folders prefixed `synthetic-` derive request identities and selected XML records
 The checked first search item 33377972 has no objects under its PMC7774047 prefix in the public OA bucket. Its abstract remains outside the repository.
 
 `book-chapter/` uses the original request identities for PMID 21882399 alone and in a mixed request with journal article PMID 33123537. The November 17 replies have been reduced to source citation metadata. The book chapter prose and all abstracts are excluded from the fixtures.
+
+`unbound-book-chapter/` is a response-only control. It removes the chapter PMID from the mixed citation replay, so the chapter cannot claim an identity while the journal citation remains usable.

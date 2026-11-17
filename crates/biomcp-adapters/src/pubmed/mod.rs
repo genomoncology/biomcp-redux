@@ -3,7 +3,7 @@ use biomcp_fetch::{Input, Read};
 mod efetch;
 mod indexing;
 mod map;
-pub use efetch::{FetchedArticle, fetch_articles, resolve_ids};
+pub use efetch::{FetchedArticle, FetchedArticles, fetch_articles, resolve_ids};
 pub(crate) use map::publication_type;
 mod raw;
 use crate::{Mapped, quotas};

@@ -6,13 +6,16 @@ use biodata::{Pmid, Text};
 use biomcp_fetch::BadReply;
 use biomcp_types::{Article, Source};
 
-pub(super) fn chapter(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
-    let document = root.child("BookDocument")?.ok_or(BadReply)?;
-    let pmid: Pmid = document
+pub(super) fn chapter(root: Element<'_>) -> Result<Option<FetchedArticle>, BadReply> {
+    let Some(document) = root.child("BookDocument")? else {
+        return Ok(None);
+    };
+    let Some(pmid) = document
         .value(&["PMID"])?
-        .ok_or(BadReply)?
-        .parse()
-        .map_err(|_| BadReply)?;
+        .and_then(|id| id.parse::<Pmid>().ok())
+    else {
+        return Ok(None);
+    };
     let mut problems = Problems {
         source: Source::PubMed,
         record: record(pmid),
@@ -33,7 +36,7 @@ pub(super) fn chapter(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
     }
     let mut refusals = crate::Refusal::None;
     let indexing = super::super::indexing::parse(document, document, &mut problems, &mut refusals)?;
-    Ok(FetchedArticle {
+    Ok(Some(FetchedArticle {
         refusals,
         indexing,
         article: Article {
@@ -54,7 +57,7 @@ pub(super) fn chapter(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
             abstract_parts: Box::default(),
         },
         problems: problems.list,
-    })
+    }))
 }
 
 fn bookshelf_url(document: Element<'_>, problems: &mut Problems) -> Result<Option<Text>, BadReply> {

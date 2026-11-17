@@ -3,6 +3,7 @@ mod abstracts;
 mod lookup;
 mod policy;
 pub(crate) mod pubmed;
+mod pubmed_book;
 pub(crate) mod pubtator;
 pub(crate) mod semantic;
 pub use lookup::{Licenses, licenses};

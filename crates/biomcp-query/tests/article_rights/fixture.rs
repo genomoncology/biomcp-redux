@@ -159,7 +159,9 @@ fn record_other_routes(fetch: &Fetch) {
         fetch.deadline(Duration::from_secs(20)),
     );
     let ids = ["1002".parse().unwrap()];
-    let (articles, _) = biomcp_adapters::pubmed::fetch_articles(&leg, &ids, None).unwrap();
+    let articles = biomcp_adapters::pubmed::fetch_articles(&leg, &ids, None)
+        .unwrap()
+        .articles;
     assert_eq!(
         articles.first().unwrap().article.abstract_parts.len(),
         1,

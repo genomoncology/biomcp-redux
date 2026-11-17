@@ -28,6 +28,15 @@ pub struct FetchedArticle {
     /// Rejected optional fields from this exact citation.
     pub problems: Vec<Problem>,
 }
+/// Decoded PubMed citations from one EFetch response.
+pub struct FetchedArticles {
+    /// Usable citations in source order.
+    pub articles: Vec<FetchedArticle>,
+    /// Provenance for the whole EFetch response.
+    pub metadata: ReplyMetadata,
+    /// A book citation could not be bound to a valid PMID.
+    pub unbound_book: bool,
+}
 const FETCH: Endpoint = SPEC
     .post_form("/efetch.fcgi")
     .idempotent()
@@ -70,7 +79,7 @@ pub fn fetch_articles(
     leg: &Leg<'_>,
     ids: &[Pmid],
     email: Option<&Secret>,
-) -> Result<(Vec<FetchedArticle>, ReplyMetadata), RequestError> {
+) -> Result<FetchedArticles, RequestError> {
     if ids.len() > 200 || ids.is_empty() {
         return Err(biomcp_fetch::InputError::Method.into());
     }
@@ -93,14 +102,20 @@ pub fn fetch_articles(
             &FETCH,
             Input::Params(&params),
             Read::<Records>::xml()
+                .cache_if(&|reply| !reply.unbound_book)
                 .filter_body(&|body| crate::article_rights::pubmed::filter(leg, body, &licenses)),
         )
         .map(|received| (received.value, received.meta))?;
-    Ok((reply.articles, metadata))
+    Ok(FetchedArticles {
+        articles: reply.articles,
+        metadata,
+        unbound_book: reply.unbound_book,
+    })
 }
 #[derive(Deserialize)]
 struct Records {
     articles: Vec<FetchedArticle>,
+    unbound_book: bool,
 }
 impl Reply for Records {
     fn check(&self) -> Result<(), BadReply> {
@@ -114,14 +129,21 @@ impl XmlReply for Records {
             return Err(BadReply);
         }
         let mut articles = Vec::new();
+        let mut unbound_book = false;
         for (kind, node) in body_nodes(root.0)? {
             match kind.as_str() {
                 "PubmedArticle" => articles.push(article(node)?),
-                "PubmedBookArticle" => articles.push(book::chapter(node)?),
+                "PubmedBookArticle" => match book::chapter(node)? {
+                    Some(chapter) => articles.push(chapter),
+                    None => unbound_book = true,
+                },
                 _ => (),
             }
         }
-        Ok(Self { articles })
+        Ok(Self {
+            articles,
+            unbound_book,
+        })
     }
 }
 fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {

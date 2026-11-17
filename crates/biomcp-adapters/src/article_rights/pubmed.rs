@@ -1,10 +1,10 @@
 //! PubMed abstracts follow source terms unless the record has explicit restrictions.
 use super::Licenses;
-use crate::xml_element::{Element, body_nodes, descendants};
+use super::pubmed_book::book_citations;
+use crate::xml_element::{Element, descendants};
 use biodata::Pmid;
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::Use;
-use std::borrow::Cow;
 
 /// Look licenses up before the source call, so a text check never waits on a
 /// permit its own call holds.
@@ -71,38 +71,6 @@ pub(crate) fn filter(leg: &Leg<'_>, body: &[u8], licenses: &Licenses) -> Result<
     Ok(filtered.into_bytes())
 }
 
-// Store only citation fields for book chapters, regardless of caller text policy.
-fn book_citations(mut xml: &str) -> Result<Cow<'_, str>, BadReply> {
-    if !xml.contains("<PubmedBookArticle") {
-        return Ok(Cow::Borrowed(xml));
-    }
-    let mut filtered = String::new();
-    for chapter in descendants(xml, "PubmedBookArticle")? {
-        let start = xml.find(chapter.0).ok_or(BadReply)?;
-        filtered.push_str(&xml[..start]);
-        xml = &xml[start + chapter.0.len()..];
-        let doc = chapter.child("BookDocument")?.ok_or(BadReply)?;
-        filtered.push_str("<PubmedBookArticle><BookDocument>");
-        for (name, node) in body_nodes(doc.0)? {
-            match name.as_str() {
-                "PMID" | "ArticleIdList" | "ArticleTitle" | "AuthorList" | "PublicationType"
-                | "ContributionDate" => filtered.push_str(node.0),
-                "Book" => {
-                    if let Some(title) = node.child("BookTitle")? {
-                        filtered.push_str("<Book>");
-                        filtered.push_str(title.0);
-                        filtered.push_str("</Book>");
-                    }
-                }
-                _ => (),
-            }
-        }
-        filtered.push_str("</BookDocument></PubmedBookArticle>");
-    }
-    filtered.push_str(xml);
-    Ok(Cow::Owned(filtered))
-}
-
 #[cfg(test)]
 mod tests {
     use super::book_citations;
@@ -113,6 +81,9 @@ mod tests {
             "<PubmedArticleSet><PubmedBookArticle><BookDocument><PMID>21882399</PMID>",
             "<Book><BookTitle>GeneReviews</BookTitle><Abstract>restricted book text</Abstract></Book>",
             "<Abstract>restricted abstract</Abstract><Sections>restricted sections</Sections>",
+            "<AuthorList><Abstract>restricted nested list text</Abstract>",
+            "<Author><LastName>Adam</LastName><Initials>MP</Initials>",
+            "<Abstract>restricted nested author text</Abstract></Author></AuthorList>",
             "</BookDocument><PubmedBookData>unneeded book data</PubmedBookData></PubmedBookArticle>",
             "<PubmedArticle><MedlineCitation><Article><Abstract>journal policy input</Abstract>",
             "</Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
@@ -122,7 +93,9 @@ mod tests {
             filtered,
             concat!(
                 "<PubmedArticleSet><PubmedBookArticle><BookDocument><PMID>21882399</PMID>",
-                "<Book><BookTitle>GeneReviews</BookTitle></Book></BookDocument></PubmedBookArticle>",
+                "<Book><BookTitle>GeneReviews</BookTitle></Book>",
+                "<AuthorList><Author><LastName>Adam</LastName><Initials>MP</Initials></Author>",
+                "</AuthorList></BookDocument></PubmedBookArticle>",
                 "<PubmedArticle><MedlineCitation><Article><Abstract>journal policy input</Abstract>",
                 "</Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
             )
