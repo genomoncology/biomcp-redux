@@ -3,8 +3,8 @@ use super::empty;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::who_eml;
 use biomcp_types::{
-    DrugEssentialMedicines, DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, ReplyBody, Request, Section,
-    Source, StepKind,
+    DrugEssentialMedicines, DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, ReplyBody,
+    Request, Section, Source, StepKind,
 };
 
 /// Listings per page when the call names no section limit; each is one eEML page read.
