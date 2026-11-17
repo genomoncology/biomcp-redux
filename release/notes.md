@@ -33,6 +33,8 @@ Gene search matches words in HGNC current names, previous names and alias names,
 
 Variant population replies add source-published `homozygote_count` for exome and genome totals and `joint` AC, AN and homozygote totals. A joint section with `state: empty` means gnomAD supplied no joint data; BioMCP never adds exome and genome counts. `dataset_version` names a release only when matching same-response exome and genome totals independently report the same version. Joint counts have no invented independent release or frequency. Existing counts, filters and ancestry pagination retain their meanings.
 
+A confirmed gnomAD variant miss names the queried GRCh38 allele key and dataset selector in both population views. The reply carries no release or frequency for that lookup.
+
 ## Saved work
 
 BioMCP keeps saved searches, lists of records and notes in `saved.sqlite` in the data folder. A cache clean or an upgrade keeps them.

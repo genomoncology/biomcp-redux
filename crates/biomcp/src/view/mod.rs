@@ -25,7 +25,12 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
         out.push_str(note);
         out.push_str("\n\n");
     }
-    if value.get("status").and_then(Value::as_str) == Some("absent") {
+    if value.get("status").and_then(Value::as_str) == Some("absent")
+        && !value
+            .pointer("/result/population")
+            .and_then(|population| population.get("record"))
+            .is_some_and(gnomad_lookup)
+    {
         for source in value
             .get("sources")
             .and_then(Value::as_array)
@@ -201,8 +206,23 @@ fn table_notes(value: &Value, out: &mut String) {
         }
     }
 }
+fn gnomad_lookup(record: &Value) -> bool {
+    record.get("namespace").and_then(Value::as_str)
+        == Some(biomcp_adapters::gnomad::variant::DATASET)
+}
+
 // An empty answer names what the source was asked, so it does not read as a failed join.
 fn no_data(source: &Value, record: Option<&Value>, out: &mut String) {
+    if source.as_str() == Some("gnomad")
+        && let Some(record) = record.filter(|record| gnomad_lookup(record))
+    {
+        out.push_str(&format!(
+            "gnomad found no variant record for {} in {}.\n\n",
+            scalar(&record["id"]),
+            scalar(&record["namespace"]),
+        ));
+        return;
+    }
     let asked = record
         .and_then(|record| record.get("id"))
         .map(|id| {

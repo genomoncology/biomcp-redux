@@ -51,14 +51,8 @@ pub(super) fn section(
             source: Source::Gnomad,
             data,
         },
-        Ok(None) => Section::Empty {
-            source: Source::Gnomad,
-            record: Text::new(&id).ok().map(|id| biomcp_types::SourceRecord {
-                namespace: biodata::IdentifierNamespace::Unknown,
-                id,
-                url: None,
-            }),
-        },
+        Ok(None) if dropped => Section::unavailable(Source::Gnomad, Reason::BadReply),
+        Ok(None) => no_record(&id),
         Err(e) => Section::unavailable(
             Source::Gnomad,
             crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
@@ -72,6 +66,14 @@ pub(super) fn section(
         dropped,
     )
 }
+/// Only the adapter's accepted variant miss reaches this state.
+pub(super) fn no_record(id: &str) -> Section<VariantPopulation> {
+    Section::Empty {
+        source: Source::Gnomad,
+        record: biomcp_types::SourceRecord::asked(Some(gnomad::variant::DATASET), id),
+    }
+}
+
 /// Derive an exact SNV key without a second registry request.
 pub(super) fn join(candidates: &[VariantHeader]) -> Option<String> {
     let [row] = candidates else {

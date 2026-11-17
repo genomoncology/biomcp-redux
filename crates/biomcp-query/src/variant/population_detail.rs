@@ -42,7 +42,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
     let status = match &read.population {
         Section::Data { .. } => status::item_status(true, false, read.dropped),
         _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
-        Section::Empty { .. } => status::item_status(read.dropped, false, read.dropped),
+        Section::Empty { .. }
+        | Section::Unavailable {
+            reason: Reason::NotFound,
+            ..
+        } => status::item_status(read.dropped, false, read.dropped),
+        Section::Unavailable {
+            reason: Reason::BadReply,
+            ..
+        } if read.dropped => status::item_status(true, false, true),
         _ => status::item_status(false, true, false),
     };
     let out = crate::status::finish(
@@ -101,14 +109,7 @@ fn read(
         read.local = found.local;
         read.candidates = found.rows;
         if let Some(reason) = found.reason {
-            read.population = if reason == Reason::NotFound {
-                Section::Empty {
-                    source: Source::Gnomad,
-                    record: None,
-                }
-            } else {
-                Section::unavailable(Source::Gnomad, reason)
-            };
+            read.population = Section::unavailable(Source::Gnomad, reason);
             return read;
         }
     }
@@ -220,10 +221,8 @@ fn load(
             source: Source::Gnomad,
             data,
         },
-        Ok(None) => Section::Empty {
-            source: Source::Gnomad,
-            record: None,
-        },
+        Ok(None) if dropped => Section::unavailable(Source::Gnomad, Reason::BadReply),
+        Ok(None) => super::population::no_record(id),
         Err(error) => Section::unavailable(
             Source::Gnomad,
             crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
