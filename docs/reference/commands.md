@@ -2016,7 +2016,7 @@ Options:
 
       --site-count[=<site_count>]
           Site count.
-          ClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged.
+          ClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as registered, never merged.
 
           [default: false]
           [possible values: true, false]
@@ -2122,7 +2122,7 @@ General registry discovery text.
 Form: search trial QUERY; not --query.
 - `--sex`: ClinicalTrials.gov only: registry sex facet. Value form: string; example: --sex ALL.
 - `--site-count`: Site count.
-ClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged. Value form: boolean; example: --site-count.
+ClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as registered, never merged. Value form: boolean; example: --site-count.
 - `--source`: clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 - `--sponsor`: Sponsor.
