@@ -66,10 +66,7 @@ impl TryFrom<GetFields> for PathwayGet {
             return Err(QueryInvalid::new(&["section_offset", "section"]));
         }
         if v.gene_products
-            && !matches!(
-                v.section,
-                Some(PathwaySection::Genes | PathwaySection::All)
-            )
+            && !matches!(v.section, Some(PathwaySection::Genes | PathwaySection::All))
         {
             return Err(QueryInvalid::new(&["gene_products", "section"]));
         }
