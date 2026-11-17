@@ -59,6 +59,12 @@ pub struct ArticleItem {
     /// Europe PMC open-access flag; absent when no source states one. Not a licence.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub open_access: Option<bool>,
+    /// True on a search row whose open-access status no source stated.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub open_access_unknown: bool,
+    /// License Europe PMC states for the paper, even when it is not open access.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license: Option<biodata::License>,
     /// Record-owned text was not admitted under the current use policy.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text_withheld: Option<WithheldArticleText>,

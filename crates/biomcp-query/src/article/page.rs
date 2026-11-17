@@ -5,7 +5,7 @@ use crate::{
     store::{Pool, Store, StoredItem},
 };
 use biodata::Text;
-use biomcp_adapters::pubmed;
+use biomcp_adapters::{europepmc, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
@@ -127,8 +127,58 @@ pub(super) fn read<'a>(
             }
         }
     }
+    if let Cursor::Search(_) = query {
+        fill_access(cx, store, id, &mut rows, out)?;
+    }
     filter_stored_text(cx, store, id, &mut rows, out)?;
     finish(query, pool, rows, out);
+    Ok(())
+}
+/// The access lookup may hold a page this long, as the license lookup does.
+const ACCESS_BUDGET: std::time::Duration = std::time::Duration::from_secs(3);
+/// Search rows with a PMID and no open-access flag take the flag and license Europe PMC
+/// states, in one request for the page (1046). A failed lookup settles nothing; those
+/// rows say their status is unknown.
+fn fill_access<'a>(
+    cx: &Ctx<'a>,
+    store: &mut Store<'a>,
+    id: &str,
+    rows: &mut [StoredItem],
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let ids: Vec<_> = rows
+        .iter()
+        .filter(|row| row.item.open_access.is_none())
+        .filter_map(|row| row.item.pmid)
+        .collect();
+    if ids.is_empty() {
+        return Ok(());
+    }
+    let leg = cx.fetch.leg(&pubmed::SPEC, store.deadline());
+    let started = leg.remaining();
+    let found = leg.dependency(&europepmc::SPEC, ACCESS_BUDGET, |dependency| {
+        europepmc::access(dependency, &ids)
+    });
+    store.set_deadline(consume(store.deadline(), started, leg.remaining()));
+    let Ok(found) = found else {
+        return Ok(());
+    };
+    status::append(&mut out.problems, found.problems);
+    let mut changed = Vec::new();
+    for row in rows.iter_mut() {
+        if row.item.open_access.is_some() {
+            continue;
+        }
+        let Some(access) = found.value.iter().find(|a| Some(a.pmid) == row.item.pmid) else {
+            continue;
+        };
+        row.item.open_access = access.open_access;
+        row.item.license = access.license;
+        changed.push(row.item.clone());
+    }
+    if !changed.is_empty() {
+        store.rewrite_article_text(id, &changed)?;
+    }
     Ok(())
 }
 fn disabled(error: RequestError) -> bool {
@@ -250,7 +300,14 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         pool: Some(pool.info.clone()),
         truncated: Some(truncated(&pool.sources)),
     });
-    let items = rows.into_iter().map(|r| r.item).collect();
+    let search = matches!(query, Cursor::Search(_));
+    let items = rows
+        .into_iter()
+        .map(|mut r| {
+            r.item.open_access_unknown = search && r.item.open_access.is_none();
+            r.item
+        })
+        .collect();
     out.body = match query {
         Cursor::Search(q) => (ArticlePage {
             items,

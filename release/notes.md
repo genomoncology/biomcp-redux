@@ -115,6 +115,7 @@ Genes, variants, diseases and phenotypes:
 Articles:
 
 - `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
+- `search article` rows from PubMed, LitVar and Semantic Scholar now carry `open_access` and the `license` Europe PMC states, from one Europe PMC request per page; having a PMCID does not make a paper open access. A row whose status no source states has `open_access_unknown: true`.
 - `search article --affiliation` finds papers by an author's institution, sent as one phrase to PubMed's affiliation field (`[ad]`) and Europe PMC's `AFF:`.
 - `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`.
 - Article licenses come with `license_terms`, what the license allows in plain words from its Creative Commons deed or PMC's Copyright Notice, in the `fulltext`, `supplements` and `pdf` sections and the `article pdf` receipt; `tdm`, for example, allows text mining and fair use, not sharing. When the `pdf` section fails at Semantic Scholar, `get article` offers a `fulltext` step for papers with a PMC or Europe PMC copy.
