@@ -641,7 +641,7 @@
           "type": "boolean"
         },
         "sum": {
-          "description": "Sum of the listed counts.",
+          "description": "Sum of the listed counts and the records without a product code.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
@@ -649,6 +649,12 @@
         "sum_matches_total": {
           "description": "The sum equals the page total, so every matching record is counted under a listed code.",
           "type": "boolean"
+        },
+        "without_product_code": {
+          "description": "Matching records openFDA counts under an empty product code; omitted when none.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
