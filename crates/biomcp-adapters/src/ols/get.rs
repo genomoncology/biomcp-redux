@@ -2,7 +2,7 @@ use super::{SPEC, map, raw};
 use crate::Mapped;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_fetch::{Input, Read};
-use biomcp_types::{DiseaseCard, DiseaseGet};
+use biomcp_types::{DiseaseCard, DiseaseGet, DiseaseXrefItem};
 /// The exact card and complete native section rows, sliced by the query layer.
 #[derive(Debug)]
 pub struct Record {
@@ -13,7 +13,7 @@ pub struct Record {
     /// Every native synonym, with scope absent when the publisher omits it.
     pub synonyms: Mapped<Vec<biodata::DiseaseSynonym>>,
     /// Every cross-reference, without inferred equivalence.
-    pub xrefs: Mapped<Vec<biodata::DiseaseRelation>>,
+    pub xrefs: Mapped<Vec<DiseaseXrefItem>>,
 }
 /// Request the exact CURIE and refuse wrong returned identities before cache admission.
 pub fn get(leg: &Leg<'_>, query: &DiseaseGet) -> Result<Option<Record>, RequestError> {

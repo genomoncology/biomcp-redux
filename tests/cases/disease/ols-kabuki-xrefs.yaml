@@ -1,0 +1,40 @@
+{
+  "feature": "disease-ols",
+  "live_check": "public",
+  "story": "The exact Kabuki MONDO xrefs carry their original outbound targets while keeping MONDO attribution.",
+  "verified": "MONDO CC BY 4.0. Public OLS MONDO:0016512 GET captured 2026-11-17, original response SHA256 632e0e80e7ec12430b3e4e6b0f8088355fb41fc52a620f1030c536ba2666b902. The NORD URL resolves to the Kabuki syndrome page. The old GARD query URL is copied as supplied and does not establish a disease-page destination.",
+  "replay": "disease/ols-kabuki-xrefs",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512",
+        "xrefs",
+        "--source",
+        "ols",
+        "--section-limit",
+        "50"
+      ],
+      "expect": {
+        "/result/items/8/object/id": "NORD:1318",
+        "/result/items/8/target_url": "https://rarediseases.org/?p=1318",
+        "/result/items/8/attribution/source": "mondo",
+        "/result/items/8/attribution/record": "MONDO:0016512",
+        "/result/items/8/attribution/url": "http://purl.obolibrary.org/obo/MONDO_0016512",
+        "/result/items/1/object/id": "GARD:0006810",
+        "/result/items/1/target_url": "https://rarediseases.info.nih.gov/?gard_id=0006810",
+        "/result/items/13/object/id": "icd11.foundation:1104246467",
+        "/result/items/13": {
+          "omits": [
+            "target_url"
+          ]
+        },
+        "/page/total": 14,
+        "/sources/*/source": [
+          "ols"
+        ]
+      }
+    }
+  ]
+}

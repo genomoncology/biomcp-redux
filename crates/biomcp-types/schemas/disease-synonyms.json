@@ -313,7 +313,7 @@
       "type": "string",
       "x-enum-descriptions": [
         " Publisher scoped synonyms.",
-        " Native cross references.",
+        " Native cross-references. Use --source ols for publisher-supplied target URLs.",
         " Native parent relations.",
         " Native gene association rows.",
         " Native phenotype association rows.",

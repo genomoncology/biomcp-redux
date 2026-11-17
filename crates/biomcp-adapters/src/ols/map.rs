@@ -1,7 +1,7 @@
-use super::{Record, raw};
+use super::{Record, raw, xrefs};
 use crate::mapped::{Problems, record as record_text};
 use crate::{Mapped, raw::Field};
-use biodata::{Attribution, Curie, DiseaseEndpoint, DiseaseRelation, DiseaseSynonym, Text};
+use biodata::{Attribution, Curie, DiseaseSynonym, Text};
 use biomcp_fetch::{InputError, RequestError};
 use biomcp_types::{
     ComponentLabel, ComponentTerms, DiseaseCard, DiseaseConcept, DiseaseOntology, DiseaseSection,
@@ -42,7 +42,10 @@ pub fn components(ontology: DiseaseOntology) -> Result<Box<[ComponentLabel]>, Re
     }]
     .into())
 }
-pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Record, RequestError> {
+pub(super) fn record(
+    mut term: raw::Term,
+    ontology: DiseaseOntology,
+) -> Result<Record, RequestError> {
     let mut problems = Problems {
         source: Source::Ols,
         record: record_text(&term.obo_id),
@@ -64,7 +67,7 @@ pub(super) fn record(term: raw::Term, ontology: DiseaseOntology) -> Result<Recor
     );
     let attribution = attribution(&term.obo_id, iri, ontology)?;
     let synonyms = synonyms(&term, &attribution);
-    let xrefs = xrefs(&term, &attribution);
+    let xrefs = xrefs::map(&mut term, &attribution)?;
     let mut sections = Vec::new();
     if !synonyms.value.is_empty() {
         sections.push(DiseaseSection::Synonyms);
@@ -235,65 +238,4 @@ fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSy
         value,
         problems: problems.list,
     }
-}
-fn xrefs(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseRelation>> {
-    let mut mapped = Mapped {
-        refusals: crate::Refusal::None,
-        value: Vec::new(),
-        problems: Vec::new(),
-    };
-    let mut metadata = Problems {
-        source: Source::Ols,
-        record: record_text(&term.obo_id),
-        list: Vec::new(),
-    };
-    for native in array(term.obo_xref.as_ref(), "obo_xref", &mut metadata) {
-        let Field::Value(native) = native else {
-            metadata.required::<()>("obo_xref", None);
-            continue;
-        };
-        let mut problems = Problems {
-            source: Source::Ols,
-            record: record_text(&term.obo_id),
-            list: Vec::new(),
-        };
-        let id = problems.required(
-            "xref.id",
-            match (&native.database, &native.id) {
-                (Field::Value(database), Field::Value(id)) => {
-                    format!("{database}:{id}").parse().ok()
-                }
-                _ => None,
-            },
-        );
-        let description = problems.optional(
-            "xref.description",
-            native.description.as_ref().map(|v| match v {
-                Field::Value(v) => Ok::<_, ()>(v.as_str().into()),
-                Field::Invalid(_) => Err(()),
-            }),
-        );
-        mapped.problems.extend(problems.list);
-        let Some(id) = id else {
-            continue;
-        };
-        let Ok(predicate) = "oboInOwl:hasDbXref".parse() else {
-            continue;
-        };
-        mapped.value.push(DiseaseRelation {
-            subject: DiseaseEndpoint {
-                id: term.obo_id.clone(),
-                label: match &term.label {
-                    Some(Field::Value(v)) => Some(v.clone().into()),
-                    _ => None,
-                },
-            },
-            predicate,
-            object: DiseaseEndpoint { id, label: None },
-            attribution: attribution.clone(),
-            description,
-        });
-    }
-    mapped.problems.extend(metadata.list);
-    mapped
 }

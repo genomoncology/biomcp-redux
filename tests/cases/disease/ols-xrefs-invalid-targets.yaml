@@ -1,0 +1,52 @@
+{
+  "feature": "disease-ols",
+  "story": "Missing, malformed and non-HTTP targets leave each source cross-reference row intact.",
+  "verified": "Synthetic boundary cases using the same OLS response shape and exact command as the recorded MONDO term.",
+  "replay": "disease/ols-xrefs-invalid-targets",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512",
+        "xrefs",
+        "--source",
+        "ols",
+        "--section-limit",
+        "50"
+      ],
+      "expect": {
+        "/result/items/*/object/id": [
+          "EXAMPLE:missing",
+          "EXAMPLE:malformed",
+          "EXAMPLE:non-http",
+          "EXAMPLE:wrong-type"
+        ],
+        "/result/items/0": {
+          "omits": [
+            "target_url"
+          ]
+        },
+        "/result/items/1": {
+          "omits": [
+            "target_url"
+          ]
+        },
+        "/result/items/2": {
+          "omits": [
+            "target_url"
+          ]
+        },
+        "/result/items/3": {
+          "omits": [
+            "target_url"
+          ]
+        },
+        "/page/total": 4,
+        "/sources/*/source": [
+          "ols"
+        ]
+      }
+    }
+  ]
+}

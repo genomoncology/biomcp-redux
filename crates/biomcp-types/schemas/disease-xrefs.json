@@ -322,8 +322,43 @@
       ],
       "type": "string"
     },
-    "Reply_DiseaseRelation": {
-      "description": "A publisher relation with distinct endpoints and predicate.",
+    "Reply_DiseaseSection": {
+      "description": "One named disease page.",
+      "enum": [
+        "synonyms",
+        "xrefs",
+        "hierarchy",
+        "genes",
+        "phenotypes",
+        "incidence",
+        "survival",
+        "prevalence"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Publisher scoped synonyms.",
+        " Native cross-references. Use --source ols for publisher-supplied target URLs.",
+        " Native parent relations.",
+        " Native gene association rows.",
+        " Native phenotype association rows.",
+        " Native stage incidence rows.",
+        " Annual survival rows.",
+        " Orphanet prevalence, age of onset and inheritance."
+      ]
+    },
+    "Reply_DiseaseSource": {
+      "description": "An explicit disease source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "orphadata"
+      ],
+      "type": "string"
+    },
+    "Reply_DiseaseXrefItem": {
+      "description": "One publisher cross-reference and its available outbound target.",
       "properties": {
         "attribution": {
           "$ref": "#/$defs/Reply_Attribution",
@@ -347,6 +382,17 @@
         "subject": {
           "$ref": "#/$defs/Reply_DiseaseEndpoint",
           "description": "Native subject."
+        },
+        "target_url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher-supplied HTTP(S) target, copied as supplied. Its destination is unverified."
         }
       },
       "required": [
@@ -356,41 +402,6 @@
         "attribution"
       ],
       "type": "object"
-    },
-    "Reply_DiseaseSection": {
-      "description": "One named disease page.",
-      "enum": [
-        "synonyms",
-        "xrefs",
-        "hierarchy",
-        "genes",
-        "phenotypes",
-        "incidence",
-        "survival",
-        "prevalence"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Publisher scoped synonyms.",
-        " Native cross references.",
-        " Native parent relations.",
-        " Native gene association rows.",
-        " Native phenotype association rows.",
-        " Native stage incidence rows.",
-        " Annual survival rows.",
-        " Orphanet prevalence, age of onset and inheritance."
-      ]
-    },
-    "Reply_DiseaseSource": {
-      "description": "An explicit disease source without fallback.",
-      "enum": [
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "orphadata"
-      ],
-      "type": "string"
     },
     "Reply_DiseaseXrefs": {
       "description": "Native cross-reference predicates without equivalence promotion.",
@@ -405,7 +416,7 @@
         "items": {
           "description": "Native source rows; totals in the envelope count rows, not distinct entities.",
           "items": {
-            "$ref": "#/$defs/Reply_DiseaseRelation"
+            "$ref": "#/$defs/Reply_DiseaseXrefItem"
           },
           "type": "array"
         }

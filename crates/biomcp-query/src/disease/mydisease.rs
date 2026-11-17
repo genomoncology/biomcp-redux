@@ -91,7 +91,7 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
             let (items, total) = slice(record.xrefs, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
             out.body = (DiseaseXrefs {
-                items: items.into(),
+                items: items.into_iter().map(Into::into).collect(),
                 components,
             })
             .with_query(query.clone());

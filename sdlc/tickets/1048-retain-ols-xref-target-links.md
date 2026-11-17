@@ -1,6 +1,7 @@
 # 1048 — Keep the outbound links supplied on OLS disease cross-references
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2b52eb3d7e2416eec65f67ad19366ab42eced6a4
 
 Milestone: 7
 

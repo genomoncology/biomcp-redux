@@ -1,0 +1,329 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?obo_id=MONDO%3A0016512",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_embedded": {
+            "terms": [
+              {
+                "iri": "http://purl.obolibrary.org/obo/MONDO_0016512",
+                "lang": "en",
+                "description": [
+                  "Kabuki syndrome (KS) is a multiple congenital anomaly syndrome characterized by typical facial features, skeletal anomalies, mild to moderate intellectual disability and postnatal growth deficiency."
+                ],
+                "synonyms": [
+                  "KMS",
+                  "Kabuki make-up syndrome",
+                  "NKS",
+                  "Niikawa-Kuroki syndrome"
+                ],
+                "annotation": {
+                  "database_cross_reference": [
+                    "DOID:0060473",
+                    "GARD:0006810",
+                    "MEDGEN:162897",
+                    "MESH:C537705",
+                    "MedDRA:10063935",
+                    "NANDO:1200672",
+                    "NANDO:2200956",
+                    "NCIT:C124837",
+                    "NORD:1318",
+                    "OMIMPS:147920",
+                    "Orphanet:2322",
+                    "SCTID:313426007",
+                    "UMLS:C0796004",
+                    "icd11.foundation:1104246467"
+                  ],
+                  "excluded subClassOf": [
+                    "http://purl.obolibrary.org/obo/MONDO_0000508",
+                    "http://purl.obolibrary.org/obo/MONDO_0015216",
+                    "http://purl.obolibrary.org/obo/MONDO_0015246",
+                    "http://purl.obolibrary.org/obo/MONDO_0020159",
+                    "http://purl.obolibrary.org/obo/MONDO_0020161"
+                  ],
+                  "has close match": [
+                    "http://identifiers.org/meddra/10063935"
+                  ],
+                  "has exact match": [
+                    "http://id.who.int/icd/entity/1104246467",
+                    "http://identifiers.org/medgen/162897",
+                    "http://identifiers.org/mesh/C537705",
+                    "http://identifiers.org/snomedct/313426007",
+                    "http://linkedlifedata.com/resource/umls/id/C0796004",
+                    "http://purl.obolibrary.org/obo/DOID_0060473",
+                    "http://purl.obolibrary.org/obo/NCIT_C124837",
+                    "http://www.orpha.net/ORDO/Orphanet_2322",
+                    "https://omim.org/phenotypicSeries/PS147920"
+                  ],
+                  "id": [
+                    "MONDO:0016512"
+                  ],
+                  "should_conform_to": [
+                    "http://purl.obolibrary.org/obo/mondo/patterns/OMIM_phenotypic_series.yaml"
+                  ],
+                  "term tracker item": [
+                    "https://github.com/monarch-initiative/mondo/issues/5588"
+                  ]
+                },
+                "label": "Kabuki syndrome",
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "ontology_iri": "http://purl.obolibrary.org/obo/mondo/mondo-international.owl",
+                "is_obsolete": false,
+                "term_replaced_by": null,
+                "is_defining_ontology": true,
+                "has_children": true,
+                "is_root": false,
+                "short_form": "MONDO_0016512",
+                "obo_id": "MONDO:0016512",
+                "in_subset": [
+                  "doid_rare",
+                  "gard_rare",
+                  "ncit_rare",
+                  "nord_rare",
+                  "ordo_disorder",
+                  "ordo_malformation_syndrome",
+                  "orphanet_rare",
+                  "otar",
+                  "rare"
+                ],
+                "obo_definition_citation": [
+                  {
+                    "definition": "Kabuki syndrome (KS) is a multiple congenital anomaly syndrome characterized by typical facial features, skeletal anomalies, mild to moderate intellectual disability and postnatal growth deficiency.",
+                    "oboXrefs": [
+                      {
+                        "database": "Orphanet",
+                        "id": "2322",
+                        "description": null,
+                        "url": "http://www.orpha.net/ORDO/Orphanet_2322"
+                      }
+                    ]
+                  }
+                ],
+                "obo_xref": [
+                  {
+                    "database": "DOID",
+                    "id": "0060473",
+                    "description": "MONDO:equivalentTo",
+                    "url": "http://purl.obolibrary.org/obo/DOID_0060473"
+                  },
+                  {
+                    "database": "GARD",
+                    "id": "0006810",
+                    "description": "MONDO:GARD",
+                    "url": "https://rarediseases.info.nih.gov/?gard_id=0006810"
+                  },
+                  {
+                    "database": "MEDGEN",
+                    "id": "162897",
+                    "description": "MONDO:equivalentTo",
+                    "url": "https://www.ncbi.nlm.nih.gov/medgen/162897"
+                  },
+                  {
+                    "database": "MESH",
+                    "id": "C537705",
+                    "description": "Orphanet:2322/e",
+                    "url": "http://id.nlm.nih.gov/mesh/C537705"
+                  },
+                  {
+                    "database": "MedDRA",
+                    "id": "10063935",
+                    "description": "Orphanet:2322/e",
+                    "url": "http://bioportal.bioontology.org/ontologies/MEDDRA?p=classes&conceptid=10063935"
+                  },
+                  {
+                    "database": "NANDO",
+                    "id": "1200672",
+                    "description": "https://orcid.org/0000-0003-0011-764X",
+                    "url": "https://nanbyodata.jp/disease/NANDO:1200672"
+                  },
+                  {
+                    "database": "NANDO",
+                    "id": "2200956",
+                    "description": "https://orcid.org/0000-0003-0011-764X",
+                    "url": "https://nanbyodata.jp/disease/NANDO:2200956"
+                  },
+                  {
+                    "database": "NCIT",
+                    "id": "C124837",
+                    "description": "MONDO:equivalentTo",
+                    "url": "http://purl.obolibrary.org/obo/NCIT_C124837"
+                  },
+                  {
+                    "database": "NORD",
+                    "id": "1318",
+                    "description": "MONDO:NORD",
+                    "url": "https://rarediseases.org/?p=1318"
+                  },
+                  {
+                    "database": "OMIMPS",
+                    "id": "147920",
+                    "description": "https://orcid.org/0000-0002-6601-2165",
+                    "url": "https://omim.org/MIM:PS147920"
+                  },
+                  {
+                    "database": "Orphanet",
+                    "id": "2322",
+                    "description": "MONDO:equivalentTo",
+                    "url": "http://www.orpha.net/ORDO/Orphanet_2322"
+                  },
+                  {
+                    "database": "SCTID",
+                    "id": "313426007",
+                    "description": "MONDO:equivalentTo",
+                    "url": "http://purl.bioontology.org/ontology/SNOMEDCT/313426007"
+                  },
+                  {
+                    "database": "UMLS",
+                    "id": "C0796004",
+                    "description": "MONDO:equivalentTo",
+                    "url": "https://uts.nlm.nih.gov/uts/umls/concept/C0796004"
+                  },
+                  {
+                    "database": "icd11.foundation",
+                    "id": "1104246467",
+                    "description": "MONDO:equivalentTo",
+                    "url": null
+                  }
+                ],
+                "obo_synonym": [
+                  {
+                    "name": "KMS",
+                    "scope": "hasExactSynonym",
+                    "type": "abbreviation",
+                    "xrefs": [
+                      {
+                        "database": "DOID",
+                        "id": "0060473",
+                        "description": null,
+                        "url": "http://purl.obolibrary.org/obo/DOID_0060473"
+                      },
+                      {
+                        "database": "NCIT",
+                        "id": "C124837",
+                        "description": null,
+                        "url": "http://purl.obolibrary.org/obo/NCIT_C124837"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Kabuki make-up syndrome",
+                    "scope": "hasExactSynonym",
+                    "type": null,
+                    "xrefs": [
+                      {
+                        "database": "NCIT",
+                        "id": "C124837",
+                        "description": null,
+                        "url": "http://purl.obolibrary.org/obo/NCIT_C124837"
+                      },
+                      {
+                        "database": "Orphanet",
+                        "id": "2322",
+                        "description": null,
+                        "url": "http://www.orpha.net/ORDO/Orphanet_2322"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Niikawa-Kuroki syndrome",
+                    "scope": "hasExactSynonym",
+                    "type": null,
+                    "xrefs": [
+                      {
+                        "database": "DOID",
+                        "id": "0060473",
+                        "description": null,
+                        "url": "http://purl.obolibrary.org/obo/DOID_0060473"
+                      },
+                      {
+                        "database": "NCIT",
+                        "id": "C124837",
+                        "description": null,
+                        "url": "http://purl.obolibrary.org/obo/NCIT_C124837"
+                      },
+                      {
+                        "database": "Orphanet",
+                        "id": "2322",
+                        "description": null,
+                        "url": "http://www.orpha.net/ORDO/Orphanet_2322"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "NKS",
+                    "scope": "hasRelatedSynonym",
+                    "type": "abbreviation",
+                    "xrefs": [
+                      {
+                        "database": "GARD",
+                        "id": "0006810",
+                        "description": null,
+                        "url": "https://rarediseases.info.nih.gov/?gard_id=0006810"
+                      }
+                    ]
+                  }
+                ],
+                "is_preferred_root": false,
+                "_links": {
+                  "self": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512?lang=en"
+                  },
+                  "parents": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/parents"
+                  },
+                  "ancestors": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/ancestors"
+                  },
+                  "hierarchicalParents": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/hierarchicalParents"
+                  },
+                  "hierarchicalAncestors": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/hierarchicalAncestors"
+                  },
+                  "jstree": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/jstree"
+                  },
+                  "children": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/children"
+                  },
+                  "descendants": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/descendants"
+                  },
+                  "hierarchicalChildren": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/hierarchicalChildren"
+                  },
+                  "hierarchicalDescendants": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/hierarchicalDescendants"
+                  },
+                  "graph": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0016512/graph"
+                  }
+                }
+              }
+            ]
+          },
+          "_links": {
+            "self": {
+              "href": "http://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?obo_id=MONDO%3A0016512"
+            }
+          },
+          "page": {
+            "size": 1,
+            "totalElements": 1,
+            "totalPages": 1,
+            "number": 0
+          }
+        }
+      }
+    }
+  ]
+}

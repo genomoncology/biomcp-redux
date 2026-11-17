@@ -3300,7 +3300,7 @@ Form: get disease ID SECTION; not --section.
 One named section; absent means identity card only.
 
 - `synonyms`: Publisher scoped synonyms.
-- `xrefs`: Source cross references.
+- `xrefs`: Source cross-references. Use --source ols for publisher-supplied target URLs.
 - `hierarchy`: Source parent relations.
 - `genes`: Source gene association rows.
 - `phenotypes`: Source phenotype association rows.

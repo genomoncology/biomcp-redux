@@ -67,6 +67,7 @@ pub(super) struct Xref {
     pub database: Field<String>,
     pub id: Field<String>,
     pub description: Option<Field<NativeText>>,
+    pub url: Option<Field<Text>>,
 }
 impl Reply for Exact {
     fn check(&self) -> Result<(), BadReply> {

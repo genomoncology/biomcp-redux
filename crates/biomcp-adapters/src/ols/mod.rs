@@ -24,6 +24,7 @@ mod get;
 mod map;
 mod raw;
 mod search;
+mod xrefs;
 pub use ancestors::{Ancestors, ancestors};
 pub use get::{Record, get};
 pub use map::components;
