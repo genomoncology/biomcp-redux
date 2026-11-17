@@ -1,0 +1,27 @@
+{
+  "feature": "variant-population",
+  "live_check": "synthetic response-only control",
+  "story": "A found variant with a reported zero allele count keeps the source counts and no no-record notice.",
+  "replay": "variant-population/zero-count",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/population/state": "data",
+        "/result/population/data/exome/ac": 0,
+        "/result/population/data/exome/an": 100,
+        "/sources/1/source": "gnomad",
+        "/sources/1": {
+          "omits": [
+            "notices"
+          ]
+        }
+      }
+    }
+  ]
+}
