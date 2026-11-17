@@ -1,9 +1,12 @@
 //! PubMed native search order and citation metadata, without abstracts.
 use biomcp_fetch::{Input, Read};
 mod efetch;
+mod efetch_book;
+#[cfg(test)]
+mod efetch_book_tests;
 mod indexing;
 mod map;
-pub use efetch::{FetchedArticle, FetchedArticles, fetch_articles, resolve_ids};
+pub use efetch::{FetchedArticle, FetchedArticles, fetch_articles};
 pub(crate) use map::publication_type;
 mod raw;
 use crate::{Mapped, quotas};
@@ -211,7 +214,7 @@ fn summaries_reply(
 }
 
 mod query;
-pub use query::{search_dois, search_query};
+pub use query::{resolve_ids, search_dois, search_query};
 
 /// Complete source policy and command declaration.
 pub(crate) mod decl;

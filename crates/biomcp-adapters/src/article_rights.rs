@@ -4,6 +4,9 @@ mod lookup;
 mod policy;
 pub(crate) mod pubmed;
 mod pubmed_book;
+#[cfg(test)]
+#[path = "article_rights/pubmed_book_tests.rs"]
+mod pubmed_book_tests;
 pub(crate) mod pubtator;
 pub(crate) mod semantic;
 pub use lookup::{Licenses, licenses};

@@ -1,5 +1,6 @@
 //! PubMed book chapters supply citation metadata separately from journal articles.
-use super::{FetchedArticle, authors, pubdate, publication_type};
+use super::efetch::{FetchedArticle, authors, pubdate};
+use super::publication_type;
 use crate::mapped::{Problems, record};
 use crate::xml_element::Element;
 use biodata::{Pmid, Text};
@@ -10,10 +11,10 @@ pub(super) fn chapter(root: Element<'_>) -> Result<Option<FetchedArticle>, BadRe
     let Some(document) = root.child("BookDocument")? else {
         return Ok(None);
     };
-    let Some(pmid) = document
-        .value(&["PMID"])?
-        .and_then(|id| id.parse::<Pmid>().ok())
-    else {
+    let Some(id) = document.value(&["PMID"])? else {
+        return Ok(None);
+    };
+    let Ok(pmid) = id.parse::<Pmid>() else {
         return Ok(None);
     };
     let mut problems = Problems {
@@ -35,7 +36,7 @@ pub(super) fn chapter(root: Element<'_>) -> Result<Option<FetchedArticle>, BadRe
         }
     }
     let mut refusals = crate::Refusal::None;
-    let indexing = super::super::indexing::parse(document, document, &mut problems, &mut refusals)?;
+    let indexing = super::indexing::parse(document, document, &mut problems, &mut refusals)?;
     Ok(Some(FetchedArticle {
         refusals,
         indexing,
@@ -85,30 +86,4 @@ fn bookshelf_url(document: Element<'_>, problems: &mut Problems) -> Result<Optio
                 .map_err(|_| BadReply)
         }),
     ))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn absent_invalid_and_conflicting_accessions_do_not_create_links() {
-        for ids in [
-            "",
-            r#"<ArticleId IdType="bookaccession">NBK62111/other</ArticleId>"#,
-            r#"<ArticleId IdType="bookaccession">NBK62111</ArticleId><ArticleId IdType="bookaccession">NBK1109</ArticleId>"#,
-        ] {
-            let xml = format!(
-                "<PubmedBookArticle><BookDocument><PMID>21882399</PMID><ArticleTitle>Kabuki Syndrome</ArticleTitle><ArticleIdList>{ids}</ArticleIdList></BookDocument></PubmedBookArticle>"
-            );
-            assert!(
-                chapter(Element(&xml))
-                    .unwrap()
-                    .expect("checked PMID")
-                    .article
-                    .bookshelf_url
-                    .is_none()
-            );
-        }
-    }
 }

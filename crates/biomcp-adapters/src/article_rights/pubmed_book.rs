@@ -85,10 +85,10 @@ fn citation_text(field: Element<'_>, mixed: bool) -> Result<Option<String>, BadR
     reader.read_event().map_err(|_| BadReply)?;
     loop {
         match reader.read_event().map_err(|_| BadReply)? {
-            Event::Start(tag) | Event::Empty(tag) => {
-                if !mixed || !matches!(tag.name().as_ref(), "b" | "i" | "sup" | "sub" | "u") {
-                    return Ok(None);
-                }
+            Event::Start(tag) | Event::Empty(tag)
+                if !mixed || !matches!(tag.name().as_ref(), "b" | "i" | "sup" | "sub" | "u") =>
+            {
+                return Ok(None);
             }
             Event::Eof => return field.text().map(Some),
             _ => (),

@@ -1,6 +1,7 @@
 //! PubMed wire terms preserve structured selectors and resolved gene names.
-use biomcp_fetch::{Leg, RequestError, Secret};
-use biomcp_types::{ArticleSearch, ArticleType};
+use biodata::Pmid;
+use biomcp_fetch::{Arg, Endpoint, Freshness, Input, Leg, Read, RequestError, Secret};
+use biomcp_types::{ArticleInput, ArticleSearch, ArticleType};
 /// Search typed selectors and retain the exact provider term for disclosure.
 pub fn search_query(
     leg: &Leg<'_>,
@@ -98,4 +99,38 @@ pub fn search_dois(
         ids: batch.iter().map(ToString::to_string).collect(),
     });
     super::search_ids_with_inputs(leg, &term, biomcp_types::ArticleSort::Rank, email, inputs)
+}
+
+const RESOLVE: Endpoint = super::SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
+/// Resolve one namespace and retain distinct source matches.
+pub fn resolve_ids(
+    leg: &Leg<'_>,
+    input: &ArticleInput,
+    email: Option<&Secret>,
+) -> Result<Vec<Pmid>, RequestError> {
+    let term = match input {
+        ArticleInput::EuropePmc(_) => return Ok(Vec::new()),
+        ArticleInput::Pmid(id) => return Ok(vec![*id]),
+        ArticleInput::Pmcid(id) => format!("{id}[pmc]"),
+        ArticleInput::Doi(id) => format!("{id}[doi]"),
+    };
+    let mut params = vec![
+        ("db", Arg::Text("pubmed")),
+        ("term", Arg::Text(&term)),
+        ("retmax", Arg::Num(9999)),
+        ("retmode", Arg::Text("json")),
+        ("tool", Arg::Text("biomcp")),
+    ];
+    if let Some(email) = email {
+        params.push(("email", Arg::Contact(email)));
+    }
+    Ok(leg
+        .call(
+            &RESOLVE,
+            Input::Params(&params),
+            Read::<super::raw::Search>::json(),
+        )
+        .map(|received| received.value)?
+        .esearchresult
+        .idlist)
 }
