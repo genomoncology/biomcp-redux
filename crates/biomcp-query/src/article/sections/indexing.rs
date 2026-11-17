@@ -34,7 +34,9 @@ pub(in crate::article) fn join(
                 {
                     Section::Empty {
                         source: Source::PubMed,
-                        record: None,
+                        record: card
+                            .pmid
+                            .and_then(|id| biomcp_types::SourceRecord::asked(Some("PMID"), id)),
                     }
                 } else {
                     Section::Data {

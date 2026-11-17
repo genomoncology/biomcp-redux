@@ -14,14 +14,16 @@ biodata::canonical_enum! {
         Indications => "indications",
         /// Native CIViC therapy evidence and profile context.
         Civic => "civic",
-        /// One exact native label heading.
+        /// One exact native label heading; label replies also name the application numbers and recent major changes.
         Label => "label",
         /// Native application and product history rows.
         Approvals => "approvals",
         /// Source-scoped regulator events.
         Regulatory => "regulatory",
         /// Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
-        /// DDInter's published files carry a level per pair and no management or mechanism text.
+        /// `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and
+        /// no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions
+        /// section has that text.
         Interactions => "interactions",
         /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
         Markets => "markets",
@@ -236,6 +238,7 @@ fn validate_civic(fields: &GetFields) -> Result<(), QueryInvalid> {
         return Err(QueryInvalid::new(&[
             "evidence_level",
             "evidence_status",
+            "evidence_significance",
             "civic_kind",
         ]));
     }

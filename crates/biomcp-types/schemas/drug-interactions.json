@@ -142,6 +142,36 @@
       ],
       "type": "string"
     },
+    "Reply_CivicEvidenceSignificance": {
+      "description": "Native CIViC evidence significance, from the live EvidenceSignificance enum.",
+      "enum": [
+        "sensitivityresponse",
+        "resistance",
+        "better_outcome",
+        "poor_outcome",
+        "positive",
+        "negative",
+        "na",
+        "adverse_response",
+        "pathogenic",
+        "likely_pathogenic",
+        "benign",
+        "likely_benign",
+        "uncertain_significance",
+        "reduced_sensitivity",
+        "gain_of_function",
+        "loss_of_function",
+        "unaltered_function",
+        "neomorphic",
+        "unknown",
+        "dominant_negative",
+        "predisposition",
+        "protectiveness",
+        "oncogenicity",
+        "likely_oncogenic"
+      ],
+      "type": "string"
+    },
     "Reply_CivicEvidenceStatus": {
       "description": "Native CIViC evidence review status.",
       "enum": [
@@ -227,6 +257,17 @@
             "$ref": "#/$defs/Reply_CivicEvidenceLevel"
           },
           "type": "array"
+        },
+        "evidence_significance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CivicEvidenceSignificance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Significance\nNative CIViC evidence significance, such as resistance or sensitivityresponse.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "evidence_status": {
           "anyOf": [
@@ -318,6 +359,13 @@
     "Reply_DrugHeader": {
       "description": "One source candidate, without authorization, targets, label text or interactions.",
       "properties": {
+        "application_numbers": {
+          "description": "The label's FDA application numbers, such as NDA216340, as openFDA states them; openFDA labels only.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
         "effective_date": {
           "anyOf": [
             {
@@ -563,6 +611,13 @@
           "$ref": "#/$defs/Reply_Section_DrugRecords_DrugInteractionClaim",
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
         },
+        "levels": {
+          "description": "Pairs per DDInter level across every listed pair, not only this page; most severe first.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugLevelCount"
+          },
+          "type": "array"
+        },
         "partners": {
           "description": "DDInter identities the requested partner names; empty when DDInter's files name no such drug.",
           "items": {
@@ -574,6 +629,32 @@
       "required": [
         "identity",
         "interactions"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugLevelCount": {
+      "description": "How many listed pairs carry one DDInter level.",
+      "properties": {
+        "count": {
+          "description": "Listed pairs with this level.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "DDInter's level as published; omitted for pairs whose row gives none."
+        }
+      },
+      "required": [
+        "count"
       ],
       "type": "object"
     },
@@ -707,10 +788,10 @@
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
-        " One exact native label heading.",
+        " One exact native label heading; label replies also name the application numbers and recent major changes.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.",
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
         " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
       ],
       "x-extensible-enum": [

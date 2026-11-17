@@ -565,10 +565,10 @@ fn context(
     values: &mut Map<String, Value>,
 ) -> Result<(), String> {
     let extra = match (verb, entity, key) {
-        ("get", "drug", "civic_kind" | "evidence_level" | "evidence_status") => {
+        ("get", "drug", key) if key == "civic_kind" || key.starts_with("evidence_") => {
             json!({"source":"civic", "section":["civic"], "civic_kind":"evidence"})
         }
-        ("get", "variant", "civic_kind" | "evidence_level" | "evidence_status") => {
+        ("get", "variant", key) if key == "civic_kind" || key.starts_with("evidence_") => {
             json!({"section":["civic"], "civic_kind":"evidence", "civic_profile":1})
         }
         ("get", "variant", "clinvar_kind") => json!({"section":["clinvar"]}),

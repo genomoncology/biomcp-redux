@@ -1,8 +1,8 @@
 //! Several named drug sections read in one call: the drug once, then one part per section.
 use super::{
     DateRoleLabel, DrugApprovals, DrugCivic, DrugCivicStreams, DrugFdaProduct, DrugFdaSubmission,
-    DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel, DrugLabelText, DrugRecords,
-    DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
+    DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel, DrugLabelText,
+    DrugLevelCount, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
 };
 use crate::{CacheProblem, PageInfo, Problem, ResponseBody, Section, SourceOutcome, Status, Step};
 use biodata::{
@@ -118,6 +118,9 @@ pub struct DrugLabelPart {
     /// The requested label heading, as given.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label_section: Option<Text>,
+    /// The label's own recent major changes section text, when it has one; given once, in the first label part.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub recent_major_changes: Box<[Text]>,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub label: Section<DrugLabelText>,
     /// Label section names present for this record, listed when no label_section was given or the label lacks the one given.
@@ -167,6 +170,9 @@ pub struct DrugInteractionsPart {
     /// partner, whether DDInter names that drug at all.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hint: Option<Text>,
+    /// Pairs per DDInter level across every listed pair, not only this page; most severe first.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub levels: Box<[DrugLevelCount]>,
 }
 
 /// A section reply body that splits into the drug identity and the rest.
@@ -221,6 +227,7 @@ impl DrugSectionBody for DrugLabel {
     fn split(self, query: &DrugGet) -> (DrugHeader, Self::Part) {
         let Self {
             identity,
+            recent_major_changes,
             label,
             sections,
             hint,
@@ -229,6 +236,7 @@ impl DrugSectionBody for DrugLabel {
             identity,
             DrugLabelPart {
                 label_section: query.label_section().cloned(),
+                recent_major_changes,
                 label,
                 sections,
                 hint,
@@ -282,6 +290,7 @@ impl DrugSectionBody for DrugInteractions {
             interactions,
             partners,
             hint,
+            levels,
         } = self;
         (
             identity,
@@ -289,6 +298,7 @@ impl DrugSectionBody for DrugInteractions {
                 interactions,
                 partners,
                 hint,
+                levels,
             },
         )
     }

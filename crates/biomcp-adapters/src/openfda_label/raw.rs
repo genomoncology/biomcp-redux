@@ -62,6 +62,27 @@ impl Record {
         }
         (name, problems.list)
     }
+    /// Admit each recent major changes element, naming any that cannot be admitted.
+    pub(super) fn recent_major_changes(&self) -> (Box<[Text]>, Vec<biomcp_types::Problem>) {
+        let mut problems = crate::mapped::Problems {
+            source: biomcp_types::Source::OpenfdaLabel,
+            record: crate::mapped::record(&self.id),
+            list: Vec::new(),
+        };
+        let changes = self
+            .parts("recent_major_changes")
+            .iter()
+            .copied()
+            .flatten()
+            .filter_map(|value| {
+                problems.optional(
+                    "recent_major_changes",
+                    Some(crate::native_text::admit(value)),
+                )
+            })
+            .collect();
+        (changes, problems.list)
+    }
     pub(super) fn check(&self) -> Result<(), BadReply> {
         use biomcp_types::DrugSource;
         if !DrugSource::OpenfdaLabel.accepts(&self.id)

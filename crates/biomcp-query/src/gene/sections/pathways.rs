@@ -4,7 +4,7 @@ use biodata::{Gene, HgncId};
 
 use biomcp_adapters::reactome;
 use biomcp_fetch::Deadline;
-use biomcp_types::{Capped, GeneSection, Section};
+use biomcp_types::{Capped, GeneSection, Section, SourceRecord};
 const LIMIT: usize = 25;
 pub(super) fn applicable(gene: &Gene) -> bool {
     !gene.uniprot.is_empty()
@@ -65,7 +65,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         } else if pathways.is_empty() {
             Section::Empty {
                 source: GeneSection::Pathways.source(),
-                record: None,
+                record: gene
+                    .uniprot
+                    .first()
+                    .and_then(|id| SourceRecord::asked(Some("UniProt"), id)),
             }
         } else {
             let total = u64::try_from(pathways.len()).unwrap_or(u64::MAX);

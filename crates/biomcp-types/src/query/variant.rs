@@ -165,6 +165,7 @@ impl TryFrom<Fields> for VariantGet {
             return Err(super::gene::QueryInvalid::new(&[
                 "evidence_level",
                 "evidence_status",
+                "evidence_significance",
                 "disease",
                 "drug",
                 "civic_kind",

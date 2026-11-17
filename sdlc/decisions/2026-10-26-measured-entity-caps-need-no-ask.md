@@ -16,3 +16,7 @@ PM ruling 2026-10-26 (m8126 ask 19): the whole command tree help ceiling rises f
 ## search_diagnostic action budget for 0964
 
 PM ruling 2026-11-15: `search_diagnostic` gets its own typed action budget of 2,800 characters, beside `search_trial`'s 3,500, in `crates/biomcp/tests/runner/typed_schemas.rs`. It serves five FDA and NCBI sources with their own filters, and 0964's `condition` filter measured 2,432 against the ordinary 2,400 (j41241) with its description already one line. 2,800 is measured plus 15 percent, rounded up. 0901 had already hidden `firm` from the listing to stay under 2,400; that stays. Other actions keep 2,400, and the 128 KiB all-tools cap still guards clients that load every tool. The next filter that passes 2,800 needs a new ruling.
+
+## get_drug action budget for 1008
+
+PM ruling 2026-11-16: `get_drug` gets its own typed action budget of 2,900 characters in `crates/biomcp/tests/runner/typed_schemas.rs`. 1008's `evidence_significance` filter carries CIViC's 24 significance values, and the tool measured 2,517 against the ordinary 2,400 (j42018); cutting values would choose which CIViC values agents may use. 2,900 is measured plus 15 percent, rounded up. Other actions keep 2,400. The next filter that passes 2,900 needs a new ruling.
