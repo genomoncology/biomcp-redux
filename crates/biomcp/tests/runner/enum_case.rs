@@ -576,6 +576,7 @@ fn context(
         ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),
         ("search", "diagnostic", "classification") => json!({"source":"fda-device-recall"}),
         ("search", "diagnostic", "sort") => json!({"source":"fda-cdx"}),
+        ("search", "diagnostic", "aggregate") => json!({"source":"fda-510k"}),
         ("search", "drug", "name_selector") => json!({"source":"chembl"}),
         ("search", "drug", "sort") => json!({"source":"drugsfda"}),
         ("search", "adverse-event", "section" | "sort") => {
