@@ -25,6 +25,10 @@ The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/plann
 - Article downloads use exact file selections and `--save PATH`. Text readers, PDFs and supplements have separate commands. HTTP MCP refuses file saves. Plain `serve --http` refuses `article pdf` and `trial document`, whose save is required, with a `usage.arguments` error naming `--save` before it asks any source.
 - Variant normalization uses `--source`, `--hgvs` and explicit builds. Variant source assertions, population and recurrence use their named commands. No source score becomes a clinical classification.
 
+## PubMed book chapters
+
+An exact PMID lookup for a book chapter returns the chapter citation and, when PubMed supplies a checked Bookshelf accession, its official `bookshelf_url`. BioMCP keeps chapter citation metadata and leaves the chapter text with its publisher.
+
 ## HGNC gene name search
 
 Gene search matches words in HGNC current names, previous names and alias names, while exact symbols rank first. Pre-release 1.0 HGNC stores need their index rebuilt to include the added name fields. A sync that downloads the complete HGNC file rebuilds the index; an HTTP 304 response reuses the old index. Use a fresh store when the publisher keeps returning 304. No released 1.0 store requires migration.
