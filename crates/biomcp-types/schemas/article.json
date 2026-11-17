@@ -273,6 +273,15 @@
       },
       "type": "array"
     },
+    "book_title": {
+      "$ref": "#/$defs/Reply_Text",
+      "description": "Title of the containing book for a PubMed chapter."
+    },
+    "bookshelf_url": {
+      "$ref": "#/$defs/Reply_Text",
+      "description": "The NCBI Bookshelf chapter identified by the PubMed book accession.",
+      "format": "uri"
+    },
     "corrections": {
       "description": "Related correction notices or originals.",
       "items": {

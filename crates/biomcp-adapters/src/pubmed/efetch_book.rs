@@ -37,10 +37,7 @@ pub(super) fn chapter(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         refusals,
         indexing,
         article: Article {
-            text_withheld: Some(
-                crate::article_rights::pubmed::notice(root, pmid)?
-                    .unwrap_or_else(|| crate::article_rights::withheld(pmid)),
-            ),
+            text_withheld: Some(crate::article_rights::withheld(pmid)),
             europepmc_id: None,
             pmid: Some(pmid),
             doi: None,
