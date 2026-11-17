@@ -25,6 +25,7 @@ macro_rules! reply_types {
             switchable_sources: $crate::SwitchableSources => "switchable-sources",
             gene_cards: $crate::GeneCards => "gene-cards",
             gene_page: $crate::GenePage => "gene-page",
+            grant_page: $crate::GrantPage => "grant-page",
             store_clean: $crate::StoreClean => "store-clean",
             saved: $crate::Saved => "saved",
             sync_result: $crate::SyncResult => "sync",

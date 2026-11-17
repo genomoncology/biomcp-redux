@@ -60,6 +60,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::SearchBiomarker(q) => crate::biomarker::search(cx, q),
         Request::GetBiomarker(q) => crate::biomarker::get(cx, q),
         Request::SearchOrganization(q) => crate::organization::search(cx, q),
+        Request::SearchGrant(q) => crate::grant::search(cx, q),
         Request::SearchPathway(q) => crate::pathway::search(cx, q),
         Request::GetPathway(q) => crate::pathway::get(cx, q),
         Request::PathwayGenes(q) => crate::pathway::genes(cx, q),

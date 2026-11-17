@@ -42,6 +42,7 @@ pub(in crate::runner) const MAP: &[(&str, &str, &str)] = &[
     ("article", "author_search", "search_author"),
     ("article", "author_get", "get_author"),
     ("article", "author_papers", "author_papers"),
+    ("article", "grant_search", "search_grant"),
     ("protein", "search", "search_protein"),
     ("protein", "get", "get_protein"),
     ("protein", "features", "protein_features"),

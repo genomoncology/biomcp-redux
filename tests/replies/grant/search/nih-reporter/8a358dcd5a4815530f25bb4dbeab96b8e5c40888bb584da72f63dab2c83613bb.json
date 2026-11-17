@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "nih-reporter",
+  "url": "https://api.reporter.nih.gov/v2/projects/search",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "425cd4897c971f5bc59d34339f725837c29f2e04a6ade00fe383b7e3f0163351"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794905687,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 154,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"meta":{"search_id":"PAsDC8SGckGD2Zl3LMXoLQ","total":5,"offset":0,"limit":3,"sort_field":null,"sort_order":"ASC","sorted_by_relevance":false,"properties":{"URL":"https:/reporter.nih.gov/search/PAsDC8SGckGD2Zl3LMXoLQ/projects"}},"results":[{"appl_id":11303011,"subproject_id":null,"fiscal_year":2026,"project_num":"1R21CA301104-01A1","organization":{"org_name":"UNIVERSITY OF PITTSBURGH AT PITTSBURGH","city":null,"country":null,"org_city":"PITTSBURGH","org_country":"UNITED STATES","org_state":"PA","org_state_name":null,"dept_type":"MICROBIOLOGY/IMMUN/VIROLOGY","fips_country_code":null,"org_duns":["004514360"],"org_ueis":["MKAGLD59JRL1"],"primary_duns":"004514360","primary_uei":"MKAGLD59JRL1","org_fips":"US","org_ipf_code":"2059802","org_zipcode":"152133320","external_org_id":2059802},"activity_code":"R21","award_amount":408829,"principal_investigators":[{"profile_id":15863999,"first_name":"JING","middle_name":"","last_name":"LI","is_contact_pi":true,"full_name":"JING  LI","title":""},{"profile_id":14892358,"first_name":"Hua","middle_name":"","last_name":"Zhang","is_contact_pi":false,"full_name":"Hua  Zhang","title":"ASSISTANT PROFESSOR"}],"agency_ic_admin":{"code":"CA","abbreviation":"NCI","name":"National Cancer Institute","admin_org_id":"12500008","admin_funding_url":""},"project_start_date":"2026-03-13T00:00:00","project_end_date":"2028-02-29T00:00:00","core_project_num":"R21CA301104","project_title":"Immunosuppression mediated by regulatory CD8+ T cells in lung cancers","project_detail_url":"https://reporter.nih.gov/project-details/11303011"},{"appl_id":10571351,"subproject_id":null,"fiscal_year":2024,"project_num":"1K22CA276357-01","organization":{"org_name":"UNIVERSITY OF PITTSBURGH AT PITTSBURGH","city":null,"country":null,"org_city":"PITTSBURGH","org_country":"UNITED STATES","org_state":"PA","org_state_name":null,"dept_type":"INTERNAL MEDICINE/MEDICINE","fips_country_code":null,"org_duns":["004514360"],"org_ueis":["MKAGLD59JRL1"],"primary_duns":"004514360","primary_uei":"MKAGLD59JRL1","org_fips":"US","org_ipf_code":"2059802","org_zipcode":"152133320","external_org_id":2059802},"activity_code":"K22","award_amount":189756,"principal_investigators":[{"profile_id":14892358,"first_name":"Hua","middle_name":"","last_name":"Zhang","is_contact_pi":true,"full_name":"Hua  Zhang","title":"ASSISTANT PROFESSOR"}],"agency_ic_admin":{"code":"CA","abbreviation":"NCI","name":"National Cancer Institute","admin_org_id":"12500008","admin_funding_url":""},"project_start_date":"2023-12-21T00:00:00","project_end_date":"2026-11-30T00:00:00","core_project_num":"K22CA276357","project_title":"Targeted degradation of KRAS oncoproteins triggers antitumor immunity and abolishes lung tumor","project_detail_url":"https://reporter.nih.gov/project-details/10571351"},{"appl_id":11231694,"subproject_id":null,"fiscal_year":2026,"project_num":"5K22CA276357-03","organization":{"org_name":"UNIVERSITY OF PITTSBURGH AT PITTSBURGH","city":null,"country":null,"org_city":"PITTSBURGH","org_country":"UNITED STATES","org_state":"PA","org_state_name":null,"dept_type":"INTERNAL MEDICINE/MEDICINE","fips_country_code":null,"org_duns":["004514360"],"org_ueis":["MKAGLD59JRL1"],"primary_duns":"004514360","primary_uei":"MKAGLD59JRL1","org_fips":"US","org_ipf_code":"2059802","org_zipcode":"152133320","external_org_id":2059802},"activity_code":"K22","award_amount":189756,"principal_investigators":[{"profile_id":14892358,"first_name":"Hua","middle_name":"","last_name":"Zhang","is_contact_pi":true,"full_name":"Hua  Zhang","title":"ASSISTANT PROFESSOR"}],"agency_ic_admin":{"code":"CA","abbreviation":"NCI","name":"National Cancer Institute","admin_org_id":"12500008","admin_funding_url":""},"project_start_date":"2023-12-21T00:00:00","project_end_date":"2026-11-30T00:00:00","core_project_num":"K22CA276357","project_title":"Targeted degradation of KRAS oncoproteins triggers antitumor immunity and abolishes lung tumor","project_detail_url":"https://reporter.nih.gov/project-details/11231694"}]}
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "feature": "grant-search",
+  "live_check": "synthetic",
+  "story": "A grant search with nothing to search for, an impossible fiscal year or an offset past RePORTER's paging limit fails before it asks RePORTER.",
+  "steps": [
+    {
+      "run": ["search", "grant"],
+      "exit": 2,
+      "expect": {"/error/code": "usage.arguments"}
+    },
+    {
+      "run": ["search", "grant", "--investigator", "Pasi Janne", "--fiscal-year", "25"],
+      "exit": 2,
+      "expect": {"/error/code": "usage.arguments"}
+    },
+    {
+      "run": ["search", "grant", "KRAS", "--offset", "15000"],
+      "exit": 2,
+      "expect": {"/error/code": "usage.arguments"}
+    }
+  ]
+}
