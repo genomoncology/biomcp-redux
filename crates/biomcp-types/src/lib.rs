@@ -292,7 +292,9 @@ pub use response::{NciPhaseFilter, NciTrialPhase};
 
 pub use response::{DeviceRecallCard, DeviceRecallHeader};
 
-pub use response::{GRANT_HINT, Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantPage};
+pub use response::{
+    GRANT_HINT, Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantPage,
+};
 pub use response::{Organization, OrganizationCoordinates, OrganizationPage};
 
 pub use query::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};

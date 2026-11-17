@@ -1,12 +1,19 @@
 {
   "feature": "grant-search",
   "live_check": "public",
-  "story": "A medical science liaison counts a key opinion leader's NIH project-years, narrows them to one organization and one fiscal year, and searches NIH grants by topic, with institute, organization and award amount on every row.",
-  "verified": "Captured live 2026-11-17 from NIH RePORTER in pm jobs j42229 and j42240. Pasi Janne has 70 project-years (the msl run's 8.3 count); the newest is FY2026 5P50CA265826-05 (NCI, Dana-Farber, $384,444). \"KRAS G12C\" over title, abstract and terms gives 173. Janne at DANA-FARBER in fiscal year 2025 gives 1 (5P50CA265826-04). An unknown name gives 0.",
+  "story": "A medical science liaison counts a key opinion leader's NIH award rows, narrows them to one organization and one fiscal year, searches NIH grants by topic, and narrows a common investigator name to one person by RePORTER profile ID; rows from multi-part awards name their component.",
+  "verified": "Captured live 2026-11-17 from NIH RePORTER in pm job j42259. Pasi Janne has 70 award rows (the msl run's 8.3 count), 17 of them components of multi-part awards; the newest is FY2026 5P50CA265826-05 component 8784, Project 3 ($384,444). \"KRAS G12C\" over title, abstract and terms gives 173. Janne at DANA-FARBER in fiscal year 2025 gives 1. An unknown name gives 0. \"Hua Zhang\" gives 273 rows whose first ten name Huaye Zhang, Pengyue Zhang, Huang-Ge Zhang, Hua Xu, Jianhua Zhang and others; profile 14892358 (Hua Zhang, University of Pittsburgh) gives 5. Profile 1861387 (Janne) in FY2026 gives 1.",
   "replay": "grant/search",
   "steps": [
     {
-      "run": ["search", "grant", "--investigator", "Pasi Janne", "--limit", "3"],
+      "run": [
+        "search",
+        "grant",
+        "--investigator",
+        "Pasi Janne",
+        "--limit",
+        "3"
+      ],
       "expect": {
         "/status": "complete",
         "/page/total": 70,
@@ -24,11 +31,31 @@
         "/result/items/0/investigators/0/contact": true,
         "/result/items/0/url": "https://reporter.nih.gov/project-details/11402668",
         "/next/0/kind": "page",
-        "/next/0/args": ["search", "grant", "--investigator", "Pasi Janne", "--limit", "3", "--offset", "3"]
+        "/next/0/args": [
+          "search",
+          "grant",
+          "--investigator",
+          "Pasi Janne",
+          "--limit",
+          "3",
+          "--offset",
+          "3"
+        ],
+        "/result/items/0/subproject": "8784",
+        "/result/items/0/investigators/0/profile_id": 1861387,
+        "/result/hint": {
+          "includes": "--investigator-id"
+        }
       }
     },
     {
-      "run": ["search", "grant", "KRAS G12C", "--limit", "3"],
+      "run": [
+        "search",
+        "grant",
+        "KRAS G12C",
+        "--limit",
+        "3"
+      ],
       "expect": {
         "/status": "complete",
         "/page/total": 173,
@@ -39,7 +66,16 @@
       }
     },
     {
-      "run": ["search", "grant", "--investigator", "Pasi Janne", "--organization", "DANA-FARBER", "--fiscal-year", "2025"],
+      "run": [
+        "search",
+        "grant",
+        "--investigator",
+        "Pasi Janne",
+        "--organization",
+        "DANA-FARBER",
+        "--fiscal-year",
+        "2025"
+      ],
       "expect": {
         "/status": "complete",
         "/page/total": 1,
@@ -48,7 +84,16 @@
       }
     },
     {
-      "run": ["search", "grant", "--investigator", "Pasi Janne", "--limit", "2", "--offset", "68"],
+      "run": [
+        "search",
+        "grant",
+        "--investigator",
+        "Pasi Janne",
+        "--limit",
+        "2",
+        "--offset",
+        "68"
+      ],
       "expect": {
         "/status": "complete",
         "/page/offset": 68,
@@ -58,11 +103,68 @@
       }
     },
     {
-      "run": ["search", "grant", "--investigator", "Zzqxv Nobody"],
+      "run": [
+        "search",
+        "grant",
+        "--investigator",
+        "Zzqxv Nobody"
+      ],
       "expect": {
         "/status": "complete",
         "/page/total": 0,
         "/page/returned": 0
+      }
+    },
+    {
+      "run": [
+        "search",
+        "grant",
+        "--investigator",
+        "Hua Zhang",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 273,
+        "/result/items/0/investigators/2/name": "Huaye  Zhang",
+        "/result/items/0/investigators/2/profile_id": 9497459,
+        "/result/items/2/investigators/0/profile_id": 1889248,
+        "/result/items/6/investigators/0/name": "Hua  Zhang",
+        "/result/items/6/investigators/0/profile_id": 14892358
+      }
+    },
+    {
+      "run": [
+        "search",
+        "grant",
+        "--investigator-id",
+        "14892358",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 5,
+        "/result/items/0/project": "1R21CA301104-01A1",
+        "/result/items/0/investigators/1/profile_id": 14892358,
+        "/result/items/1/organization/name": "UNIVERSITY OF PITTSBURGH AT PITTSBURGH"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "grant",
+        "--investigator-id",
+        "1861387",
+        "--fiscal-year",
+        "2026"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/project": "5P50CA265826-05",
+        "/result/items/0/subproject": "8784"
       }
     }
   ]

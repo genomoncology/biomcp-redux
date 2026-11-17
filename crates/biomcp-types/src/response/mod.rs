@@ -190,7 +190,9 @@ mod device_recall;
 pub use device_recall::{DeviceRecallCard, DeviceRecallHeader};
 
 mod grant;
-pub use grant::{GRANT_HINT, Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantPage};
+pub use grant::{
+    GRANT_HINT, Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantPage,
+};
 
 mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};

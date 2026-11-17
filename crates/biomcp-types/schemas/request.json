@@ -1448,7 +1448,13 @@
         },
         "investigator": {
           "$ref": "#/$defs/Text",
-          "description": "Principal investigator, first and last name, such as \"Pasi Janne\"; partial names match more people."
+          "description": "Principal investigator name, such as \"Pasi Janne\". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs."
+        },
+        "investigator_id": {
+          "description": "RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         },
         "limit": {
           "default": 10,
