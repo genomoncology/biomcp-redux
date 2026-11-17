@@ -33,6 +33,15 @@ Rules, set before any run, are in `sdlc/tickets/0066-one-zero-baseline-gated-on-
 - Bridge to 2026-11-16: `personas/_eval/bridge-2026-11-16/README.md`. Terra is stricter than the old Claude graders; compare across eras only through its terra column.
 - After the baseline: group misses into problems, fix one at a time, rerun one persona that shows it (Ian's cycle; `notes/agent-20261117/eval-driven-agent-development-approach.md`).
 
+## Raising BioMCP agents' scores (PM's recommendation to Ian, 2026-11-17)
+
+Ian found the expected gain from 1042 to 1046 disappointing: they patch one fact here and there, inside a run-to-run spread of up to four facts. The recommended next steps, before phase two:
+
+1. Read the BioMCP arm's traces, not just scores. It made 72 calls to code mode's 104 and seems to stop early; it got the same rare-disease fact wrong in all three runs. Find where it stopped, what it misread and what it never asked. About 65% of misses so far were agent-side.
+2. Teach research, not commands: a short research plan per question type in the skill (e.g. rare disease: confirm gene, disease links, variants, trials, then check the answer against the question), and replies that make "partial" and "more here" unmissable. Help text already takes 9 to 17% of input tokens.
+3. Test a BioMCP-plus-web arm. The workspace focus says the agent may use other tools alongside BioMCP; that is the shipped setup.
+4. Smaller: one persona on gpt-6.1-terra arms to see whether BioMCP's edge grows with a stronger model; keep cost and efficiency in the scorecard, since the 2026-11-12 bar judges both.
+
 ## Waiting on Ian
 
 - 1028 gene-set enrichment (above).
