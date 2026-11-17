@@ -30,3 +30,7 @@ Product joint data uses the existing section states: data for supplied totals, e
 `clinvar-no-record` keeps the 2026-11-17 gnomAD HTTP 200 response for GRCh38 `2-165994236-A-G` in `gnomad_r4` whole. The public ClinGen Allele Registry response is retained with the MyVariant identity response limited to identity fields. The exact request body hash matches the checkout's population query. The gnomAD reply supplies no release.
 
 `wrong-allele` reuses the `main` population request for CA123643. Its synthetic response substitutes a different allele ID to check that a refused record cannot become a no-record result.
+
+`clinvar-no-record` also retains the MyVariant identity fields from the rs121917919 lookup, which uses the same gnomAD request as the ClinVar case.
+
+`zero-count` supplies a synthetic record for the existing CA123643 request with exome AC 0 and AN 100 to distinguish source-reported counts from a no-record answer.
