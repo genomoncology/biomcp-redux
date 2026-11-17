@@ -86,8 +86,10 @@ pub(super) fn read(cx: &Ctx<'_>, q: Selection<'_>, deadline: Deadline<'_>) -> Ou
 }
 fn restart(q: &Selection<'_>, out: &mut Outcome) {
     out.body = ReplyData::PoolError { mismatch: false };
+    let products = matches!(&q.echo, Echo::Genes(query) if query.gene_products());
     let request = if q.genes {
         PathwayGenesQuery::new(q.id.clone(), q.limit)
+            .map(|query| query.with_gene_products(products))
             .map(|query| {
                 if q.details {
                     query.with_details()
@@ -192,6 +194,9 @@ fn present_genes(
     pool: Option<biomcp_types::PoolInfo>,
     out: &mut Outcome,
 ) {
+    if query.gene_products() {
+        keep_gene_products(&mut body);
+    }
     body.items = body
         .items
         .iter()
@@ -219,10 +224,47 @@ fn present_genes(
         &mut out.sources,
         &mut out.problems,
     );
-    super::relation_steps::genes(&body, q.limit, q.details, &mut out.next, &mut out.problems);
+    super::relation_steps::genes(&body, query, &mut out.next, &mut out.problems);
     // The pathway card was read first, so an empty relation is a complete answer, not an unknown pathway.
     crate::status::item(out, true, false, false);
     out.body = body.with_query(query.clone());
+}
+/// Leave out non-gene Reactome references from the retained relation and count them by
+/// namespace, so the total and paging count kept rows. WikiPathways rows are GeneProduct
+/// nodes already, so nothing is left out there (1045).
+fn keep_gene_products(body: &mut biomcp_types::PathwayGenes) {
+    let mut left_out = biomcp_types::PathwayLeftOut {
+        rows: 0,
+        namespaces: Box::default(),
+    };
+    if matches!(body.header.id, PathwayId::Reactome(_)) {
+        let mut namespaces: Vec<biomcp_types::PathwayNamespaceCount> = Vec::new();
+        let mut kept = Vec::new();
+        for row in std::mem::take(&mut body.items) {
+            let Some(namespace) = row
+                .reference
+                .namespace
+                .as_deref()
+                .filter(|n| !reactome::gene_product(n))
+            else {
+                kept.push(row);
+                continue;
+            };
+            left_out.rows += 1;
+            match namespaces.iter_mut().find(|c| c.namespace.as_str() == namespace) {
+                Some(count) => count.rows += 1,
+                None => {
+                    if let Ok(namespace) = Text::new(namespace) {
+                        namespaces.push(biomcp_types::PathwayNamespaceCount { namespace, rows: 1 });
+                    }
+                }
+            }
+        }
+        body.items = kept.into();
+        left_out.namespaces = namespaces.into();
+    }
+    body.page.total = body.items.len() as u64;
+    body.left_out = Some(left_out);
 }
 fn present_events(
     q: &Selection<'_>,

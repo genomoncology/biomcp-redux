@@ -111,6 +111,7 @@ Genes, variants, diseases and phenotypes:
 - When a transcript HGVS fails `variant normalize` on its reference base, the reply lists the gene's transcripts where the change fits and offers the fitting one; the reply is `partial` rather than `failed`. `search variant --variant` given a full HGVS name offers the runnable `--gene ... --coding ...` call.
 - `get disease ID prevalence --source orphadata` returns Orphanet prevalence estimates, age of onset and inheritance after `sync orphadata`. Hierarchy rows carry parent labels, and each synonym appears once with `also_stated_by` naming the other sources that state it.
 - `pathway genes` and `pathway events` with an ID the source does not hold answer `absent`, not `failed`.
+- `pathway genes ID --gene-products` keeps only gene-product rows (UniProt, Ensembl, NCBI Gene) and leaves out small molecules such as ChEBI compounds. `left_out` counts the rows left out by namespace, and `total` counts the kept rows. WikiPathways rows are already gene products, so nothing is left out there.
 
 Articles:
 

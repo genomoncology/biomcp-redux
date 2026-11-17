@@ -8,11 +8,15 @@ use biomcp_types::{
 type Steps = Vec<crate::next::Step>;
 pub(super) fn genes(
     body: &PathwayGenes,
-    limit: u32,
-    details: bool,
+    asked: &PathwayGenesQuery,
     next: &mut Steps,
     problems: &mut Vec<biomcp_types::Problem>,
 ) {
+    let (limit, details) = (asked.limit(), asked.details());
+    let base = || {
+        PathwayGenesQuery::new(body.header.id.clone(), limit)
+            .map(|query| query.with_gene_products(asked.gene_products()))
+    };
     let mut seen = Vec::new();
     for row in &body.items {
         if let Some(id) = row.gene
@@ -35,7 +39,7 @@ pub(super) fn genes(
     if let Some(offset) = body.page.next_offset
         && let Some(pool) = &body.page.pool
         && let Some(query) = crate::next::checked(
-            PathwayGenesQuery::new(body.header.id.clone(), limit),
+            base(),
             biomcp_types::Source::Reactome,
             problems,
         )
@@ -54,7 +58,7 @@ pub(super) fn genes(
         && !body.items.is_empty()
         && let Some(pool) = &body.page.pool
         && let Some(query) = crate::next::checked(
-            PathwayGenesQuery::new(body.header.id.clone(), limit),
+            base(),
             biomcp_types::Source::Reactome,
             problems,
         )
