@@ -25,16 +25,22 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::WhoEml, leg.finish(), error));
-    if let Ok(mapped) = result {
-        out.include_refusals(mapped.refusals);
-        out.problems.extend(mapped.problems);
-        let found = mapped.value.is_some();
-        if let Some(body) = &mapped.value {
-            page(query, cx.fresh, body, &mut out);
+    // A failed read is already in `sources`; the reply keeps no body.
+    let mapped = match result {
+        Ok(mapped) => mapped,
+        Err(_) => {
+            command.finish(deadline.remaining());
+            return out;
         }
-        out.body = DrugEssentialMedicines::into_reply(query.clone(), mapped.value);
-        status::item(&mut out, found, false, false);
+    };
+    out.include_refusals(mapped.refusals);
+    out.problems.extend(mapped.problems);
+    let found = mapped.value.is_some();
+    if let Some(body) = &mapped.value {
+        page(query, cx.fresh, body, &mut out);
     }
+    out.body = DrugEssentialMedicines::into_reply(query.clone(), mapped.value);
+    status::item(&mut out, found, false, false);
     command.finish(deadline.remaining());
     out
 }
@@ -95,18 +101,24 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::WhoEml, leg.finish(), error));
-    if let Ok(hits) = result {
-        let total = hits.len() as u64;
-        let page = DrugPage {
-            items: hits
-                .into_iter()
-                .skip(query.offset() as usize)
-                .take(query.limit() as usize)
-                .collect(),
-            total: Some(total),
-        };
-        super::searched(query, cx.fresh, page, &mut out);
-    }
+    // A failed read is already in `sources`; the reply keeps no rows.
+    let hits = match result {
+        Ok(hits) => hits,
+        Err(_) => {
+            command.finish(deadline.remaining());
+            return out;
+        }
+    };
+    let total = hits.len() as u64;
+    let page = DrugPage {
+        items: hits
+            .into_iter()
+            .skip(query.offset() as usize)
+            .take(query.limit() as usize)
+            .collect(),
+        total: Some(total),
+    };
+    super::searched(query, cx.fresh, page, &mut out);
     command.finish(deadline.remaining());
     out
 }
