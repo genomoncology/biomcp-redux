@@ -24,7 +24,12 @@
         ],
         "/sources/1/state": "skipped",
         "/sources/1/reason": "disabled",
-        "/result/items/0/sections/tldr/reason": "disabled"
+        "/result/items/0/sections/tldr/reason": "disabled",
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/indexing/state": "not-applicable",
+        "/result/items/0/sections/pdf/state": "skipped",
+        "/result/items/0/sections/pdf/reason": "disabled",
+        "/result/items/0/sections/tldr/state": "skipped"
       },
       "max_bytes": 5123
     }
