@@ -77,25 +77,29 @@ mod tests {
 
     #[test]
     fn book_metadata_only_survives_the_retention_filter() {
-        let raw = concat!(
-            "<PubmedArticleSet><PubmedBookArticle><BookDocument><PMID>21882399</PMID>",
+        let book = concat!(
+            "<PubmedBookArticle><BookDocument><PMID>21882399</PMID>",
             "<Book><BookTitle>GeneReviews</BookTitle><Abstract>restricted book text</Abstract></Book>",
             "<Abstract>restricted abstract</Abstract><Sections>restricted sections</Sections>",
             "<AuthorList><Abstract>restricted nested list text</Abstract>",
             "<Author><LastName>Adam</LastName><Initials>MP</Initials>",
             "<Abstract>restricted nested author text</Abstract></Author></AuthorList>",
+            "<ArticleIdList><ArticleId IdType=\"bookaccession\"><Abstract>restricted accession text</Abstract>",
+            "</ArticleId></ArticleIdList>",
             "</BookDocument><PubmedBookData>unneeded book data</PubmedBookData></PubmedBookArticle>",
-            "<PubmedArticle><MedlineCitation><Article><Abstract>journal policy input</Abstract>",
-            "</Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
         );
-        let filtered = book_citations(raw).unwrap();
+        let raw = format!(
+            "<PubmedArticleSet><!--{book}-->{book}<PubmedArticle><MedlineCitation><Article><Abstract>journal policy input</Abstract></Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
+        );
+        let filtered = book_citations(&raw).unwrap();
         assert_eq!(
             filtered,
             concat!(
                 "<PubmedArticleSet><PubmedBookArticle><BookDocument><PMID>21882399</PMID>",
                 "<Book><BookTitle>GeneReviews</BookTitle></Book>",
                 "<AuthorList><Author><LastName>Adam</LastName><Initials>MP</Initials></Author>",
-                "</AuthorList></BookDocument></PubmedBookArticle>",
+                "</AuthorList><ArticleIdList><ArticleId IdType=\"bookaccession\"></ArticleId></ArticleIdList>",
+                "</BookDocument></PubmedBookArticle>",
                 "<PubmedArticle><MedlineCitation><Article><Abstract>journal policy input</Abstract>",
                 "</Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
             )

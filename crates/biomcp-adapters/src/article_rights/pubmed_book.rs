@@ -1,26 +1,30 @@
 //! Retain only book citation fields, including within their XML containers.
-use crate::xml_element::{Element, descendants};
+use crate::xml_element::{Element, body_nodes};
 use biomcp_fetch::BadReply;
 use quick_xml::{Reader, escape::escape, events::Event};
 use std::borrow::Cow;
 use std::fmt::Write as _;
 
-pub(super) fn book_citations(mut xml: &str) -> Result<Cow<'_, str>, BadReply> {
+pub(super) fn book_citations(xml: &str) -> Result<Cow<'_, str>, BadReply> {
     if !xml.contains("<PubmedBookArticle") {
         return Ok(Cow::Borrowed(xml));
     }
-    let mut filtered = String::new();
-    for chapter in descendants(xml, "PubmedBookArticle")? {
-        let start = xml.find(chapter.0).ok_or(BadReply)?;
-        filtered.push_str(&xml[..start]);
-        xml = &xml[start + chapter.0.len()..];
-        filtered.push_str("<PubmedBookArticle>");
-        if let Some(doc) = chapter.child("BookDocument")? {
-            citation_fields(&mut filtered, doc)?;
+    let root = Element::root(xml, "PubmedArticleSet")?;
+    let mut filtered = String::from("<PubmedArticleSet>");
+    for (kind, node) in body_nodes(root.0)? {
+        match kind.as_str() {
+            "PubmedArticle" | "ERROR" => filtered.push_str(node.0),
+            "PubmedBookArticle" => {
+                filtered.push_str("<PubmedBookArticle>");
+                if let Some(doc) = node.child("BookDocument")? {
+                    citation_fields(&mut filtered, doc)?;
+                }
+                filtered.push_str("</PubmedBookArticle>");
+            }
+            _ => (),
         }
-        filtered.push_str("</PubmedBookArticle>");
     }
-    filtered.push_str(xml);
+    filtered.push_str("</PubmedArticleSet>");
     Ok(Cow::Owned(filtered))
 }
 
@@ -49,9 +53,8 @@ fn citation_fields(out: &mut String, doc: Element<'_>) -> Result<(), BadReply> {
     if let Some(ids) = doc.child("ArticleIdList")? {
         out.push_str("<ArticleIdList>");
         for id in ids.children("ArticleId")? {
-            if id.attr("IdType")?.as_deref() == Some("bookaccession")
-                && let Some(id) = citation_text(id, false)?
-            {
+            if id.attr("IdType")?.as_deref() == Some("bookaccession") {
+                let id = citation_text(id, false)?.unwrap_or_default();
                 let _ = write!(
                     out,
                     "<ArticleId IdType=\"bookaccession\">{}</ArticleId>",
