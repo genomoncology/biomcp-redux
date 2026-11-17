@@ -105,6 +105,7 @@ Articles:
 
 - `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
 - `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`.
+- Article licenses come with `license_terms`, what the license allows in plain words from its Creative Commons deed or PMC's Copyright Notice, in the `fulltext`, `supplements` and `pdf` sections and the `article pdf` receipt; `tdm`, for example, allows text mining and fair use, not sharing. When the `pdf` section fails at Semantic Scholar, `get article` offers a `fulltext` step for papers with a PMC or Europe PMC copy.
 - A single-source search reports the source's own total. A drug-name search on Semantic Scholar or LitSense says the per-name counts overlap and are not added, and a cut-short search says later rows cannot be paged. `get article` states its limit of 20 IDs.
 
 Other commands:
