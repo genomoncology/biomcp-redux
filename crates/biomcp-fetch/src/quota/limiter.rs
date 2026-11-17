@@ -81,8 +81,11 @@ struct State {
     last_used: Option<Instant>,
     /// Recent replay admissions, in arrival order (1038).
     admitted: Vec<Instant>,
+    /// The latest replay admission dropped from `admitted`; no early slot comes before it.
+    forgotten: Option<Instant>,
 }
-/// Replay admissions kept for gap filling; older ones are rarely behind a live clock.
+/// Replay admissions kept for gap filling. Only a speed bound: older ones are covered by
+/// `forgotten`.
 const ADMISSION_LOG: usize = 64;
 
 // Nanosecond token units retain exact rates across credential changes.
@@ -91,10 +94,16 @@ const TOKEN: u128 = 1_000_000_000;
 impl State {
     /// In replay, wait for a free in-flight slot, then for the rate. Side-by-side workers' replay
     /// clocks are not ordered, so a request whose clock is behind the latest admission takes the
-    /// first earlier gap at least one token's interval from every logged admission, drawing no
-    /// credit; with no such gap it waits for that admission, as an in-order request does (1038).
+    /// first earlier gap at least one token's interval from every admission, drawing no credit;
+    /// with no such gap it waits for that admission, as an in-order request does (1038). Early
+    /// slots assume burst 1 (every declared rate today); `interval` is `None` for a larger burst,
+    /// whose early slots could double replay's rate, so it always waits.
     /// Returns the admission time and whether it filled an earlier gap.
-    fn admission_time(&self, deadline: Deadline<'_>, interval: Duration) -> (Instant, bool) {
+    fn admission_time(
+        &self,
+        deadline: Deadline<'_>,
+        interval: Option<Duration>,
+    ) -> (Instant, bool) {
         let now = deadline.now();
         let slot = self
             .completed
@@ -111,7 +120,12 @@ impl State {
         let Some(latest) = self.updated.filter(|latest| *latest > now) else {
             return (now, false);
         };
-        let mut gap = now;
+        let Some(interval) = interval else {
+            deadline.advance(latest.duration_since(now));
+            return (deadline.now(), false);
+        };
+        let after_forgotten = self.forgotten.and_then(|at| at.checked_add(interval));
+        let mut gap = after_forgotten.map_or(now, |earliest| now.max(earliest));
         while let Some(taken) = self
             .admitted
             .iter()
@@ -119,7 +133,7 @@ impl State {
         {
             gap = taken.checked_add(interval).unwrap_or(latest);
         }
-        let filled = gap < latest;
+        let filled = gap.checked_add(interval).is_some_and(|end| end <= latest);
         let at = if filled { gap } else { latest };
         deadline.advance(at.saturating_duration_since(now));
         (deadline.now(), filled && deadline.now() >= at)
@@ -127,7 +141,8 @@ impl State {
     /// Log a replay admission for later gap filling, keeping the most recent ones.
     fn admit(&mut self, at: Instant) {
         if self.admitted.len() >= ADMISSION_LOG {
-            self.admitted.remove(0);
+            let dropped = self.admitted.remove(0);
+            self.forgotten = self.forgotten.max(Some(dropped));
         }
         self.admitted.push(at);
     }
@@ -193,7 +208,7 @@ impl Limiter {
                 self.wake.notify_all();
                 return Ok(None);
             }
-            let interval = self.share.delay(TOKEN, rate);
+            let interval = (rate.burst == 1).then(|| self.share.delay(TOKEN, rate));
             let (now, filled) = state.admission_time(deadline, interval);
             if deadline.expired() {
                 continue;
