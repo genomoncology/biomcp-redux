@@ -104,6 +104,7 @@ mod tests {
             assert!(
                 chapter(Element(&xml))
                     .unwrap()
+                    .expect("checked PMID")
                     .article
                     .bookshelf_url
                     .is_none()
