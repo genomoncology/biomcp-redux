@@ -115,6 +115,7 @@ Articles:
 
 Other commands:
 
+- `gene enrichment GENE...` sends a human gene list to g:Profiler and returns the over-represented Reactome, Gene Ontology and WikiPathways terms with g:Profiler's adjusted p values, its stated correction (g:SCS by default, or `--correction fdr|bonferroni`), threshold, background size per term and the inputs it could not map. The typed `gene` and `pathway` tools carry it as `enrichment`.
 - Protein features, domains and cards carry `coordinate_note`, which explains that spans are zero-based and half-open, unlike UniProt's one-based coordinates and the one-based `--position`.
 - `search gwas --p-value` leaves out `qualifying_total`, and is not `complete`, when an association cannot be compared with the threshold.
 - `variant recurrence` fails, with no counts, when `--sample-set` is unknown or belongs to another study or list.
