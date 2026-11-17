@@ -30,9 +30,9 @@
             "29655203"
           ]
         },
-        "/result/items/0/sections/clingen/data/triplosensitivity_evidence": {
-          "score": 0,
-          "pmids": []
+        "/result/items/0/sections/clingen/data/triplosensitivity_evidence/score": 0,
+        "/result/items/0/sections/clingen/data/triplosensitivity_evidence/pmids": {
+          "equals": []
         }
       }
     }
