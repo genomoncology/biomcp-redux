@@ -127,6 +127,9 @@ pub enum LabelHolder {
 pub struct LabelChoice {
     /// Who holds the label.
     pub holder: LabelHolder,
+    /// Whether openFDA marks the label as its original packager's; a repackager's copy of the
+    /// holder's label is not, and can lag the holder's text.
+    pub original: bool,
     /// Distinct numbered indications (1.1, 1.2, …) in the indications section; 0 when unnumbered.
     pub indications: u32,
 }
@@ -195,7 +198,7 @@ impl Record {
         )
     }
     /// What orders labels that share one name: the application holding the label, whether it
-    /// carries a brand name of its own, and how many numbered indications (1.1, 1.2, …) it lists.
+    /// carries a brand name of its own, whether its original packager filed it, and how many numbered indications (1.1, 1.2, …) it lists.
     pub fn choice(&self) -> LabelChoice {
         let names = &self.0.openfda;
         let application = names
@@ -214,6 +217,7 @@ impl Record {
                 (true, false) => LabelHolder::Application,
                 (false, _) => LabelHolder::Other,
             },
+            original: names.is_original_packager.iter().flatten().any(|v| *v),
             indications: self
                 .0
                 .parts("indications_and_usage")

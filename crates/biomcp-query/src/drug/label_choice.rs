@@ -7,16 +7,19 @@ use std::cmp::Reverse;
 /// The label ordering a name get applies, stated in every label name lookup.
 pub(super) const RANKING: &str = "exact brand before generic, unless a matching label carries \
      the name as its generic name; then brand-name NDA/BLA labels, other NDA/BLA labels, then \
-     generic or other labels; then most numbered indications; then newest revision";
+     generic or other labels; then the original packager's label before repackaged copies; then \
+     most numbered indications; then newest revision";
 
-/// Brand match first, then the label holder, then more numbered indications; the source's
-/// newest-first order breaks ties. A label whose generic name matches ranks as generic even when
-/// its brand name matches too; `generic_name` then settles every label's match.
+/// Brand match first, then the label holder, then the original packager's label before a
+/// repackager's copy, then more numbered indications; the source's newest-first order breaks
+/// ties. A label whose generic name matches ranks as generic even when its brand name matches
+/// too; `generic_name` then settles every label's match.
 pub(super) fn rank(matched: DrugNameMatch, row: &Record) -> Rank {
     let choice = row.choice();
     (
         u8::from(matched != DrugNameMatch::Brand),
         choice.holder as u8,
+        u8::from(!choice.original),
         Reverse(choice.indications),
         String::new(),
     )
@@ -46,10 +49,19 @@ fn kind(holder: u8) -> &'static str {
 /// Which label was chosen and why, with how many others of each kind share the name; none
 /// when only one label matched.
 pub(super) fn reason(candidates: &[(Rank, DrugHeader)]) -> Option<Box<str>> {
-    let (((_, holder, Reverse(numbered), _), chosen), others) = candidates.split_first()?;
+    let (((_, holder, copy, Reverse(numbered), _), chosen), others) = candidates.split_first()?;
     if others.is_empty() {
         return None;
     }
+    let packager = if *copy == 0 {
+        " from its original packager"
+    } else {
+        " repackaged by another firm"
+    };
+    let copies = others
+        .iter()
+        .filter(|((_, _, copy, _, _), _)| *copy != 0)
+        .count();
     let listing = if *numbered > 0 {
         format!(" listing {numbered} numbered indications")
     } else {
@@ -64,7 +76,7 @@ pub(super) fn reason(candidates: &[(Rank, DrugHeader)]) -> Option<Box<str>> {
     .filter_map(|each| {
         let n = others
             .iter()
-            .filter(|((_, holder, _, _), _)| *holder == each as u8)
+            .filter(|((_, holder, _, _, _), _)| *holder == each as u8)
             .count();
         let plural = kind(each as u8)
             .split_once(' ')
@@ -78,9 +90,14 @@ pub(super) fn reason(candidates: &[(Rank, DrugHeader)]) -> Option<Box<str>> {
     } else {
         ("s", "")
     };
+    let copies = match copies {
+        0 => String::new(),
+        1 => "; 1 is a repackaged copy".into(),
+        n => format!("; {n} are repackaged copies"),
+    };
     Some(
         format!(
-            "chose {} ({}), {}{listing}; {} other label{s} share{verb} this name: {}",
+            "chose {} ({}), {}{packager}{listing}; {} other label{s} share{verb} this name: {}{copies}",
             chosen.name.as_ref().map_or("", |n| n.as_str()),
             chosen.id,
             kind(*holder),

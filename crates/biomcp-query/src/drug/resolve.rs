@@ -7,8 +7,9 @@ use biomcp_types::{
 };
 use std::cmp::Reverse;
 
-/// Name match, source tier, more numbered label indications first, then a source key.
-pub(super) type Rank = (u8, u8, Reverse<u32>, String);
+/// Name match, source tier, a label's original packager before repackagers, more numbered label
+/// indications first, then a source key.
+pub(super) type Rank = (u8, u8, u8, Reverse<u32>, String);
 /// Most MyChem rows a name get reads while looking for a drug record with an exact name.
 const MYCHEM_NAME_CAP: u32 = 250;
 
@@ -199,7 +200,7 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
                     _ => None,
                 };
                 if let Some(rank) = rank {
-                    candidates.push(((rank, 0, Reverse(0), String::new()), header.clone()));
+                    candidates.push(((rank, 0, 0, Reverse(0), String::new()), header.clone()));
                 }
             }
         }
@@ -321,7 +322,13 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
                         row.name_rank(get.input().as_str())
                             .map(|(name, app, date)| {
                                 (
-                                    (name, app, Reverse(0), date.unwrap_or_else(|| "9999".into())),
+                                    (
+                                        name,
+                                        app,
+                                        0,
+                                        Reverse(0),
+                                        date.unwrap_or_else(|| "9999".into()),
+                                    ),
                                     row.header(),
                                 )
                             })
@@ -388,7 +395,7 @@ fn mychem(
                     header.matched_name.map(|matched| {
                         let rank = u8::from(matched == DrugNameMatch::Generic);
                         (
-                            (rank, u8::from(!drug), Reverse(0), String::new()),
+                            (rank, u8::from(!drug), 0, Reverse(0), String::new()),
                             header.clone(),
                         )
                     })
@@ -483,6 +490,7 @@ fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
                             (
                                 u8::from(matched == DrugNameMatch::Generic),
                                 0,
+                                0,
                                 Reverse(0),
                                 String::new(),
                             ),
@@ -532,6 +540,7 @@ fn ema(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
                     (
                         (
                             u8::from(matched == DrugNameMatch::Generic),
+                            0,
                             0,
                             Reverse(0),
                             authorised.map_or_else(|| "9999".into(), |date| date.to_string()),

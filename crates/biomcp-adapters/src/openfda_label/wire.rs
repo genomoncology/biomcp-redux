@@ -22,4 +22,5 @@ pub(super) struct Names {
     pub generic_name: Option<Field<Vec<Field<NativeText>>>>,
     pub spl_set_id: Option<Field<Vec<Field<DrugId>>>>,
     pub application_number: Option<Field<Vec<Field<NativeText>>>>,
+    pub is_original_packager: Option<Field<Vec<Field<bool>>>>,
 }
