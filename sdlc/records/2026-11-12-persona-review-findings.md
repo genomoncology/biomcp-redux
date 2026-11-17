@@ -51,7 +51,7 @@ Added to `planning/sources-to-add.md`.
 
 ## Disposition, 2026-11-17
 
-Status: accepted. Checked against origin/main 1fea41534 and the persona rounds since (biomed-agent-bench `personas/PLAYBOOK.md`, rounds table, and each persona's 2026-11-16 `analysis.md`). Those rounds re-ran every persona and filed what they still found, so they decide which waiting gaps block the A- bar. Of 36 findings, 28 are fixed, 1 is obsolete and 7 are still open; one of the seven blocks 1.0 and has a ticket.
+Status: accepted. Checked against origin/main 1fea41534 and the persona rounds since (biomed-agent-bench `personas/PLAYBOOK.md`, rounds table, and each persona's 2026-11-16 `analysis.md`). Of 36 findings, 28 are fixed, 1 is obsolete, 1 was checked and is fine, and 6 are still open. All six have tickets, because `decisions/2026-10-27-1-0-ships-every-known-fix.md` puts every known gap in 1.0.
 
 Fixed (28).
 
@@ -67,10 +67,19 @@ Obsolete (1).
 
 - rs121913529 resolving to G12V: patient-navigator's 2026-11-16 round got three candidate alleles, with `clinvar:12582` resolving G12D (`analysis.md:22`). The 2026-11-10 rollup had already withdrawn the allele-pick claim as a misread.
 
-Still open (7).
+Checked and fine (1).
 
-- Trial site distance, nearest first: seen in three patient-navigator runs, the last on 2026-11-16. Ticketed as [1042 Trial sites give distance, nearest first](../tickets/1042-trial-sites-give-distance-nearest-first.md).
-- Site counts across trials, `why_stopped` on search rows, and parsed eligibility: still absent from search rows (`why_stopped` is on the trial card since 0823). Trial-ops' 2026-11-16 round found "no other BioMCP changes are warranted" beyond 1007, so they do not block 1.0.
-- Pathway gene lists that leave out non-gene members: the Reactome genes relation still returns every exact reference, labelled by namespace. Comp-bio's 2026-11-16 round did not raise it; not blocking.
-- Open-access status on PubMed search rows: still filled only on Europe PMC rows. Msl's 2026-11-16 round chose 1016 (licence meanings and a `fulltext` next step) as the fix for its question; not blocking.
-- The 2 MiB bound on 510(k) and other device searches (`device_search.rs:75`): no failure seen. A live 100-row page measured 0.78 MB for 510(k) and 0.27 MB for PMA on 2026-11-17; not blocking.
+- The 2 MiB bound on 510(k) and other device searches (`device_search.rs:75`): no failure seen. A live 100-row page measured 0.78 MB for 510(k) and 0.27 MB for PMA on 2026-11-17, well inside the bound. No ticket.
+
+Still open and ticketed (6).
+
+- Trial site distance, nearest first: seen in three patient-navigator runs, the last on 2026-11-16.
+  - [1042 Trial sites give distance, nearest first](../tickets/1042-trial-sites-give-distance-nearest-first.md)
+- Site counts across trials and `why_stopped` on search rows (it is on the trial card since 0823). Both change the trial search, so they share a ticket.
+  - [1043 Trial search rows say why stopped and count sites](../tickets/1043-trial-search-rows-say-why-stopped-and-count-sites.md)
+- Parsed eligibility: the card still gives the criteria as one text.
+  - [1044 Trial eligibility splits inclusion and exclusion](../tickets/1044-trial-eligibility-splits-inclusion-and-exclusion.md)
+- Pathway gene lists include non-gene members: the Reactome genes relation still returns every exact reference, ChEBI compounds included.
+  - [1045 Pathway gene lists can leave out non-gene members](../tickets/1045-pathway-gene-lists-can-leave-out-non-gene-members.md)
+- Open-access status on PubMed search rows: still filled only on Europe PMC rows; 1016 explained licence codes but did not fill PubMed rows.
+  - [1046 PubMed search rows say open access](../tickets/1046-pubmed-search-rows-say-open-access.md)
