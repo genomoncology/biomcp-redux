@@ -41,7 +41,6 @@ pub use predictor::{
     VariantCosmic, VariantPredictors,
 };
 pub use query::PhaseFilter;
-pub use query::SponsorType;
 pub use query::TrialDocumentGet;
 pub use query::{ArticleEdges, EdgeSource};
 pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
@@ -69,6 +68,7 @@ pub use query::{
     NormalizationSource, VariantGet, VariantGetEcho, VariantNormalize, VariantResolver,
 };
 pub use query::{RecurrenceSource, VariantRecurrenceQuery};
+pub use query::{SponsorRole, SponsorType};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
 pub use query::{VariantPopulationQuery, VariantPopulationQueryEcho};
