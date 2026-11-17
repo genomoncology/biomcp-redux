@@ -27,6 +27,12 @@ pub struct VariantAssertion {
     pub kind: AssertionKind,
     /// Source classification domain.
     pub domain: AssertionDomain,
+    /// Source record ID, at this path on mapped and unmapped rows alike.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub record: Option<Text>,
+    /// Source submitter or panel, at this path on mapped and unmapped rows alike.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub submitter: Option<Text>,
     /// The native conclusion has no common-model statement.
     #[serde(default, skip_serializing_if = "is_false")]
     pub statement_unmapped: bool,

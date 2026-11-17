@@ -3200,7 +3200,7 @@
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "type": "string",
       "x-enum-descriptions": [
-        " All native identity cross-references and product links, mechanically paged.",
+        " All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
@@ -7387,7 +7387,7 @@
               "type": "null"
             }
           ],
-          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all."
         },
         "disease": {
           "anyOf": [

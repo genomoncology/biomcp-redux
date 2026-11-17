@@ -3357,7 +3357,7 @@ At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer; example: -
 
 Named disclosures of the selected source, each its own part of one reply; empty means identity only.
 
-- `xrefs`: All source identity cross-references and product links, mechanically paged.
+- `xrefs`: All source identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.
 - `targets`: Source target and mechanism relations.
 - `indications`: Source indication wording.
 - `civic`: Source CIViC therapy evidence and profile context.
@@ -3630,7 +3630,7 @@ Options:
       --clinvar-kind <clinvar_kind>
           Kind; help get variant
           Kind
-          ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all.
+          ClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -3708,7 +3708,7 @@ Source CIViC cursor, retained unchanged. Only with section civic or all. Value f
 Source CIViC claim collection within the selected profile. Only with section civic or all. Value form: string; example: --civic-kind evidence.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Only with section civic or all. Value form: integer; example: --civic-profile 12.
 - `--clinvar-kind`: Kind
-ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
+ClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
 - `--disease`: Disease
 CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
@@ -5313,7 +5313,7 @@ Options:
 
       --kind <kind>
           ClinVar record kind to keep: vcv, rcv or scv (one row; help variant assertions
-          ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar.
+          ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); the total counts only that kind. Only with --source clinvar.
 
       --limit <limit>
           Assertions per page; omitted uses the source default.
@@ -5356,7 +5356,7 @@ Options apply to every listed source unless their description restricts them.
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 Form: variant assertions INPUT; not --input.
-- `--kind`: ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar. Value form: string; example: --kind scv.
+- `--kind`: ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); the total counts only that kind. Only with --source clinvar. Value form: string; example: --kind scv.
 - `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 50.
 - `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 50.
 - `--source`: One source assertion source; shared identity conversion precedes source access when needed. Value form: string; example: --source clinvar.

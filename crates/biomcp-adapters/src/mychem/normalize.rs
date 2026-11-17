@@ -115,6 +115,11 @@ pub(super) fn component(raw: ReceivedComponent, name: &str, problems: &mut Probl
             &format!("{name}.application_number"),
             problems,
         ),
+        atc_classifications: many(
+            raw.atc_classifications,
+            &format!("{name}.atc_classifications"),
+            problems,
+        ),
     }
 }
 

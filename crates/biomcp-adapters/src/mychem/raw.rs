@@ -86,6 +86,7 @@ pub(super) struct Component {
     pub brand_name: Option<OneOrMany<String>>,
     pub spl_set_id: Option<OneOrMany<String>>,
     pub application_number: Option<OneOrMany<String>>,
+    pub atc_classifications: Option<OneOrMany<String>>,
 }
 #[derive(Debug)]
 pub(super) struct Synonym {
@@ -129,6 +130,7 @@ pub(super) struct ReceivedComponent {
     pub brand_name: Option<OneOrMany<crate::raw::Field<String>>>,
     pub spl_set_id: Option<OneOrMany<crate::raw::Field<String>>>,
     pub application_number: Option<OneOrMany<crate::raw::Field<String>>>,
+    pub atc_classifications: Option<OneOrMany<crate::raw::Field<String>>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct ReceivedSynonym {
