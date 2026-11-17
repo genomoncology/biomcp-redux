@@ -1,11 +1,27 @@
 //! ChEMBL single-protein targets of one UniProt accession, with ChEMBL's own assay and activity totals.
-use super::SPEC;
-use super::cell::{ASSAYS, PageMeta};
+use super::SPEC as CHEMBL;
+use super::cell::PageMeta;
 use biodata::{Text, UniProtIsoform};
 use biomcp_fetch::{Arg, BadReply, Freshness, Input, Leg, Reply, RequestError};
 use biomcp_types::{ProteinChembl, ProteinChemblTarget, Source};
 use serde::Deserialize;
+/// One protein's section takes three paced ChEMBL reads: on 2026-11-17 a fresh target lookup took
+/// 2.7 s from the M5 and each count about 1 s, and fresh cards for EGFR alone and for POLQ with
+/// PARP1 ran out of the 20 s default after UniProt (pm job j42227). The section gets 30 s per protein and its command 60 s, the paced ceiling.
+pub static TARGET_COUNTS: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
+    destinations: CHEMBL.destinations,
+    user_agent: CHEMBL.user_agent,
+    terms: CHEMBL.terms,
+    source: Source::Chembl,
+    base: CHEMBL.base,
+    key: CHEMBL.key,
+    quota: CHEMBL.quota,
+    deadline: std::time::Duration::from_secs(30),
+    command_budget: Some(std::time::Duration::from_secs(60)),
+};
+const SPEC: &biomcp_fetch::SourceSpec = &TARGET_COUNTS;
 const TARGETS: biomcp_fetch::Endpoint = SPEC.get("/target.json").fresh(Freshness::Days(1));
+const ASSAYS: biomcp_fetch::Endpoint = SPEC.get("/assay.json").fresh(Freshness::Days(1));
 const ACTIVITIES: biomcp_fetch::Endpoint = SPEC.get("/activity.json").fresh(Freshness::Days(1));
 /// ChEMBL's target type for one protein, as opposed to complexes, families and selectivity groups.
 const SINGLE: &str = "SINGLE PROTEIN";

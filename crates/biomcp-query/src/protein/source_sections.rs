@@ -64,7 +64,7 @@ fn targets(
         return;
     };
     let id = header.protein.accession.clone();
-    let leg = cx.fetch.leg(&chembl::SPEC, deadline).fresh(cx.fresh);
+    let leg = cx.fetch.leg(&chembl::TARGET_COUNTS, deadline).fresh(cx.fresh);
     let result = if cx.fetch.disabled(Source::Chembl) {
         Err(SourceError::disabled(Source::Chembl).into())
     } else {

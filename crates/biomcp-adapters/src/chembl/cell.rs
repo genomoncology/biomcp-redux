@@ -7,7 +7,7 @@ use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestE
 use biomcp_types::{CellLineChemblRecord, CellLineRelease};
 use serde::Deserialize;
 const CELLS: biomcp_fetch::Endpoint = SPEC.get("/cell_line.json").fresh(Freshness::Days(1));
-pub(super) const ASSAYS: biomcp_fetch::Endpoint = SPEC.get("/assay.json").fresh(Freshness::Days(1));
+const ASSAYS: biomcp_fetch::Endpoint = SPEC.get("/assay.json").fresh(Freshness::Days(1));
 const STATUS: biomcp_fetch::Endpoint = SPEC.get("/status.json").fresh(Freshness::Days(1));
 /// Cell and target native paging; drug endpoint validation remains independent.
 #[derive(Debug, Deserialize)]

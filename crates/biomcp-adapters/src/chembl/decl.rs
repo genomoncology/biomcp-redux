@@ -7,7 +7,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     registry_order: Some(45),
     probe: Probe::Get("/status.json", &[]),
     components: &[],
-    auxiliary: &[],
+    auxiliary: &[&super::TARGET_COUNTS],
     bundles: &[],
     guidance: Guidance {
         deadline: None,
