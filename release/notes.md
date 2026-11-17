@@ -37,6 +37,8 @@ Gene search matches words in HGNC current names, previous names and alias names,
 
 Variant population replies add source-published `homozygote_count` for exome and genome totals and `joint` AC, AN and homozygote totals. A joint section with `state: empty` means gnomAD supplied no joint data; BioMCP never adds exome and genome counts. `dataset_version` names a release only when matching same-response exome and genome totals independently report the same version. Joint counts have no invented independent release or frequency. Existing counts, filters and ancestry pagination retain their meanings.
 
+A confirmed gnomAD variant miss names the queried GRCh38 allele key and dataset selector in both population views. The reply carries no release or frequency for that lookup.
+
 ## Saved work
 
 BioMCP keeps saved searches, lists of records and notes in `saved.sqlite` in the data folder. A cache clean or an upgrade keeps them.
@@ -93,6 +95,7 @@ Adverse events:
 Trials:
 
 - `get trial NCT...` shows `enrollment`, its count with `ACTUAL` or `ESTIMATED`, and a stopped trial's `why_stopped` text.
+- `get trial NCT... eligibility` lists the registry's own inclusion and exclusion lines, word for word, in `inclusion` and `exclusion`, with any text before the first heading in `preamble`. These replace `criteria`, which is then absent. The split uses only the "Inclusion Criteria" and "Exclusion Criteria" headings. Text without both headings, or with another line ending in "criteria:", stays whole in `criteria` with a `not_split` notice. A list is absent from a page that holds none of its section.
 - `get trial ID flow` and `get trial ID baseline` return participant flow and baseline characteristics without the posted outcomes.
 - `results` pages hold up to 40,000 bytes of whole posted records, so a trial's outcome measures usually come in one call instead of one record a page.
 - `locations` pages hold up to 100 sites, state the site total and offer the next page. Search rows carry `has_results`. A batched trial get names each trial it could not read, and each failed item's `failure` gives the source, the reason and the problem in plain words. A batch of up to 20 trials gets one ClinicalTrials.gov pacing interval per trial after the first (19 seconds at the default pacing, at most 60), so a cold batch no longer runs out of time partway.
@@ -100,6 +103,7 @@ Trials:
 - `get trial ID locations --lat LAT --lon LON` gives each site's straight-line distance in miles from that point, not travel distance, as `distance_mi`, and orders the sites nearest first across pages, with sites lacking coordinates last.
 - `search trial --fields` refuses a field the source's rows lack and names that source's fields.
 - `search trial --sponsor NAME --sponsor-role any` also finds trials where the company is a collaborator, not only the lead sponsor. The default, `lead`, is unchanged.
+- ClinicalTrials.gov search rows carry the registry's `why_stopped` reason, `--why-stopped WORDS` keeps trials whose stop reason has those words, and `--site-count` returns, instead of rows, the facilities listed by the most matched trials, read over every page, with names counted exactly as registered.
 - A ClinicalTrials.gov continuation is tied to its offset, filters and matching mode. Changing any of them is refused before the registry is asked, with a fresh first page offered, and a registry rejection of `--next-page` says so.
 
 Genes, variants, diseases and phenotypes:
@@ -121,6 +125,7 @@ Genes, variants, diseases and phenotypes:
 Articles:
 
 - `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
+- `search article` rows from PubMed, LitVar and Semantic Scholar now carry `open_access` and the `license` Europe PMC states, from one Europe PMC request per page; having a PMCID does not make a paper open access. A row whose status no source states has `open_access_unknown: true`; when the lookup fails or passes its 3 seconds, the page names Europe PMC with that state. `--no-access-lookup`, or `article_access_lookup: false` in the configuration, skips it.
 - `search article --affiliation` finds papers by an author's institution, sent as one phrase to PubMed's affiliation field (`[ad]`) and Europe PMC's `AFF:`.
 - `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`.
 - Article licenses come with `license_terms`, what the license allows in plain words from its Creative Commons deed or PMC's Copyright Notice, in the `fulltext`, `supplements` and `pdf` sections and the `article pdf` receipt; `tdm`, for example, allows text mining and fair use, not sharing. When the `pdf` section fails at Semantic Scholar, `get article` offers a `fulltext` step for papers with a PMC or Europe PMC copy.

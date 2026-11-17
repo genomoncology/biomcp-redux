@@ -10,6 +10,7 @@ mod nci;
 #[cfg(test)]
 mod page_tests;
 mod portable_continuation;
+mod site_count;
 mod variant_spellings;
 use crate::{Action, Ctx, Outcome, status};
 
@@ -80,6 +81,14 @@ fn search<'a>(
     let conditions = condition
         .as_ref()
         .map_or(query.condition(), std::slice::from_ref);
+    if query.site_count() {
+        let (q, gene) = (&widened.query, gene.as_deref());
+        let mut source =
+            site_count::count(leg, q, gene, conditions, earlier, deadline, &mut outcome);
+        source.notices.extend(widened.notices);
+        outcome.sources.push(source);
+        return outcome;
+    }
     let (mut result, mut name_notice) =
         ctgov::search_query(&leg, &widened.query, gene.as_deref(), conditions);
     let changed = !expanded.inputs.is_empty() || !widened.notices.is_empty();
@@ -124,23 +133,42 @@ fn search<'a>(
         let sent = sent.as_ref().unwrap_or(query);
         apply_page(query, sent, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
-    if let Ok(version) = version {
-        outcome.problems.extend(version.problems);
-        if let ReplyData::TrialPage {
-            body: Some(body), ..
-        } = &mut outcome.body
-        {
-            body.source_updated = version.value.map(Into::into);
-        }
-    }
     if rejected && query.next_page().is_some() {
         continuation::rejected(query, &mut outcome);
     } else if generic_rejected {
         outcome.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("query"));
     }
-    outcome.local = error.and_then(status::local);
+    outcome.local = finish_version(&mut outcome, version, error);
     outcome.sources.push(source);
     outcome
+}
+fn finish_version(
+    outcome: &mut Outcome,
+    version: Result<
+        biomcp_adapters::Mapped<Option<biomcp_types::SourceTimestamp>>,
+        biomcp_fetch::RequestError,
+    >,
+    error: Option<biomcp_fetch::RequestError>,
+) -> Option<biomcp_fetch::RequestError> {
+    match version {
+        Ok(version) => {
+            apply_version(outcome, version);
+            error.and_then(status::local)
+        }
+        Err(version_error) => status::local(version_error),
+    }
+}
+fn apply_version(
+    outcome: &mut Outcome,
+    version: biomcp_adapters::Mapped<Option<biomcp_types::SourceTimestamp>>,
+) {
+    outcome.problems.extend(version.problems);
+    if let ReplyData::TrialPage {
+        body: Some(body), ..
+    } = &mut outcome.body
+    {
+        body.source_updated = version.value.map(Into::into);
+    }
 }
 /// The found, identity-failed and unavailable states, counting earlier source outcomes.
 fn item_state(earlier: bool, answered: bool, missing: bool) -> (bool, bool, bool) {
@@ -288,6 +316,7 @@ fn empty(query: &TrialSearch) -> Outcome {
                     "ClinicalTrials.gov; source-native discovery, no eligibility assessment".into(),
                 gene_resolution: None,
                 condition_resolution: None,
+                site_counts: None,
             })
             .with_query(query.clone()),
             page: None,

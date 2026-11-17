@@ -30,6 +30,7 @@
           "--phase",
           "query",
           "--sex",
+          "--site-count",
           "--source",
           "--sponsor",
           "--sponsor-role",
@@ -38,7 +39,8 @@
           "--study-type",
           "--updated-since",
           "--updated-until",
-          "--variant"
+          "--variant",
+          "--why-stopped"
         ],
         "/result/commands/0/examples": {
           "count": 1

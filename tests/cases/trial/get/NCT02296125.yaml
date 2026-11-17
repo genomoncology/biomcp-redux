@@ -1,0 +1,36 @@
+{
+  "live_check": "public",
+  "feature": "trial-get",
+  "story": "A numbered item ending in \"criteria:\" stays an item: FLAURA's exclusion item 6 keeps its nested cardiac criteria, and the text still splits.",
+  "replay": "trial/get/NCT02296125",
+  "verified": "Source collected 2026-10-24 in trial investigation (tests/replies/trial/get/README.md). The registry text has Inclusion Criteria and Exclusion Criteria headings with 8 numbered items each; exclusion item 6 reads '6. Any of the following cardiac criteria:' with three nested lines. The ceiling is the measured reply of 5,916 bytes (job j42493) plus 15 percent.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02296125",
+        "eligibility"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/inclusion": {
+          "count": 8
+        },
+        "/result/items/0/sections/eligibility/data/exclusion": {
+          "count": 8
+        },
+        "/result/items/0/sections/eligibility/data/exclusion/5": "6. Any of the following cardiac criteria:\n\n   * Mean resting corrected QT interval (QTc) \\>470 msec, obtained from 3 ECGs, using the screening clinic ECG machine-derived QTcF value.\n   * Any clinically important abnormalities in rhythm, conduction, or morphology of resting ECG.\n   * Any patient with any factors that increase the risk of QTc prolongation or risk of arrhythmic events or unexplained sudden death under 40 years of age in first-degree relatives or any concomitant medication known to prolong the QT interval.",
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "criteria",
+            "not_split",
+            "continuation"
+          ]
+        }
+      },
+      "max_bytes": 6804
+    }
+  ],
+  "harvest": "Coordinator review of 1044, 2026-11-17: numbered items ending in criteria: must not block the split"
+}

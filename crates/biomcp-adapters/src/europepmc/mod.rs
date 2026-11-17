@@ -1,12 +1,14 @@
 //! Europe PMC's bounded metadata-only search window.
 use crate::native_text::NativeText;
 use biomcp_fetch::{Input, Read};
+mod access;
 mod core;
 use crate::{
     mapped::{Problems, record},
     quotas,
     raw::Field,
 };
+pub use access::{Access, access};
 use biodata::{Doi, EuropePmcId, PartialDate, Pmcid, Pmid};
 
 use biomcp_fetch::{
@@ -200,6 +202,8 @@ impl Row {
             header,
             cited_by: None,
             open_access,
+            open_access_unknown: false,
+            license: None,
             intents: None,
             influential: None,
             contexts: None,

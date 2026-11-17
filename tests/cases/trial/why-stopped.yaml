@@ -1,0 +1,81 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "A search row carries the registry's reason a trial stopped, and --why-stopped keeps only trials whose stop reason has those words, so a trial-ops question about trials stopped for enrollment takes one call. NCI refuses the option.",
+  "verified": "The actual CLI recorded both searches from ClinicalTrials.gov with --record on 2026-11-17 in job j42492; registry processing time 2026-11-17T10:00:05. NCT04158141's whyStopped is the registry's 'Permanent Administrative Closure'; the other two rows have none. The --why-stopped search sends AREA[WhyStopped](\"enrollment\") and the registry counted 57 pancreatic cancer trials. Ceilings are the measured replies plus 15 percent.",
+  "harvest": "biomed-agent-bench trial-ops persona 2026-11-12, log.md:47-49: which trials stopped for enrollment",
+  "replay": "trial/why-stopped",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "mesothelioma",
+        "--phase",
+        "3",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 28,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT04158141",
+            "NCT00003034",
+            "NCT00004920"
+          ]
+        },
+        "/result/items/0/why_stopped": "Permanent Administrative Closure",
+        "/result/items/1": {
+          "omits": [
+            "why_stopped"
+          ]
+        }
+      },
+      "max_bytes": 3378
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "pancreatic cancer",
+        "--why-stopped",
+        "enrollment",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 57,
+        "/query/why_stopped": "enrollment",
+        "/result/items/*/why_stopped": {
+          "equals": [
+            "The decision to stop enrollment was due to strategic considerations and not due to any specific safety reasons or request from a regulatory authority.",
+            "Enrollment was feasibly not going to be reached.",
+            "study withdrawn due to lack of enrollment"
+          ]
+        }
+      },
+      "max_bytes": 3678
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--why-stopped",
+        "enrollment"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/option": "--why-stopped"
+      }
+    }
+  ]
+}

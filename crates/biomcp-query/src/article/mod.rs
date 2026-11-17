@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 use biomcp_types::ReplyBody;
+mod access;
 mod drug_names;
 mod edges;
 mod empty_litvar;

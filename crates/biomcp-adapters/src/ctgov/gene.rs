@@ -52,7 +52,7 @@ pub(super) fn classify(
     }
     let mut excluded = false;
     for line in eligibility.unwrap_or_default().lines() {
-        if let Some(section) = exclusion_heading(line) {
+        if let Some((section, _)) = super::criteria::heading(line) {
             excluded = section;
         }
         for range in mentions(line, gene) {
@@ -78,20 +78,6 @@ pub(super) fn classify(
     } else {
         None
     }
-}
-
-fn exclusion_heading(line: &str) -> Option<bool> {
-    let heading = line.trim_matches(|c: char| c.is_whitespace() || "#*_-".contains(c));
-    let heading = heading.to_ascii_lowercase();
-    let heading = heading.strip_prefix("key ").unwrap_or(&heading);
-    [("exclusion criteria", true), ("inclusion criteria", false)]
-        .into_iter()
-        .find_map(|(prefix, excluded)| {
-            heading
-                .strip_prefix(prefix)
-                .filter(|tail| tail.is_empty() || tail.starts_with(':'))
-                .map(|_| excluded)
-        })
 }
 
 fn mentions(text: &str, gene: &str) -> Vec<Range<usize>> {

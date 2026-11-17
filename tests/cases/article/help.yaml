@@ -55,8 +55,8 @@
             "--include-retracted"
           ]
         },
-        "/result/commands/0/arguments/16/name": "--source",
-        "/result/commands/0/arguments/16/choices": [
+        "/result/commands/0/arguments/17/name": "--source",
+        "/result/commands/0/arguments/17/choices": [
           "pubmed",
           "europepmc",
           "litvar",
@@ -64,8 +64,8 @@
           "litsense",
           "pubtator"
         ],
-        "/result/commands/0/arguments/15/name": "--sort",
-        "/result/commands/0/arguments/15/choices": [
+        "/result/commands/0/arguments/16/name": "--sort",
+        "/result/commands/0/arguments/16/choices": [
           "rank",
           "date",
           "citations"

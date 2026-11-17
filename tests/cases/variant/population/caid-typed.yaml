@@ -107,7 +107,9 @@
       "exit": 1,
       "expect": {
         "/status": "absent",
-        "/result/population/state": "empty"
+        "/result/population/state": "unavailable",
+        "/result/population/reason": "not-found",
+        "/result/population": {"omits": ["record"]}
       }
     }
   ],
