@@ -565,3 +565,19 @@ impl TrialSearch {
     }
 }
 mod validation;
+/// Check a --lat/--lon point in degrees, as trial search and trial get both read it.
+pub(super) fn point(lat: &Text, lon: &Text) -> Result<(f64, f64), crate::QueryInvalid> {
+    let lat = lat
+        .as_str()
+        .parse::<f64>()
+        .ok()
+        .filter(|v| (-90.0..=90.0).contains(v))
+        .ok_or_else(|| crate::QueryInvalid::new(&["lat"]))?;
+    let lon = lon
+        .as_str()
+        .parse::<f64>()
+        .ok()
+        .filter(|v| (-180.0..=180.0).contains(v))
+        .ok_or_else(|| crate::QueryInvalid::new(&["lon"]))?;
+    Ok((lat, lon))
+}

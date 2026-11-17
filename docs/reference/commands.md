@@ -3597,26 +3597,32 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --limit <limit>
-          Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.
+      --lat <lat>
+          Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --limit <limit>
+          Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.
+
+      --lon <lon>
+          Longitude degrees; used with --lat.
+
       --offset <offset>
           Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
-
-      --pool <pool>
-          Checked stored source record, supplied by a continuation.
-
-      --section <section>
-          Optional intact source sections. Default cards only; diseases; help get trial
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --pool <pool>
+          Checked stored source record, supplied by a continuation.
+
+      --section <section>
+          Optional intact source sections. Default cards only; diseases; help get trial
 
       --source <source>
           Explicit source; defaults to ClinicalTrials.gov and never; help get trial
@@ -3642,7 +3648,9 @@ Options apply to every listed source unless their description restricts them.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
 Form: get trial INPUT...; not --input.
+- `--lat`: Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first. Value form: string; example: --lat 39.96.
 - `--limit`: Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
+- `--lon`: Longitude degrees; used with --lat. Value form: string; example: --lon -83.00.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer; example: --offset 0.
 - `--pool`: Checked stored source record, supplied by a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `--section`: Optional intact source sections. Default cards only; diseases… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section outcomes.
