@@ -2,9 +2,11 @@ live_check: local-only case
 feature: mcp-parity
 story: The schema command and typed usage results agree through MCP and CLI
 steps:
+  # The source enum grew with g:Profiler (1028): 4,113 bytes measured plus 15 percent
+  # (sdlc/decisions/2026-10-26-measured-entity-caps-need-no-ask.md).
   - run: [schema, biomcp.source/1]
     mcp: [schema, biomcp.source/1]
-    max_bytes: 4096
+    max_bytes: 4730
     expect:
       /$id: biomcp.source/1
   # Only the command line's root help names saved work, which MCP cannot run (0831).

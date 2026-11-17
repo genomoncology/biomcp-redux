@@ -162,14 +162,16 @@ pub fn enrichment(
         .collect::<Result<Box<[Text]>, _>>()
         .map_err(|_| biomcp_fetch::bad_reply(Source::Gprofiler, Some(200)))?;
     Ok(GeneEnrichment {
-            release: profile.meta.version,
-            test: TEST.into(),
-            correction,
-            threshold: profile.meta.query_metadata.user_threshold,
-            background: "genes with at least one annotation in the term source (g:Profiler's annotated domain)".into(),
-            unmapped: genes.failed.into(),
-            ambiguous,
-            items,
+        release: profile.meta.version,
+        test: TEST.into(),
+        correction,
+        threshold: profile.meta.query_metadata.user_threshold,
+        background:
+            "genes with at least one annotation in the term source (g:Profiler's annotated domain)"
+                .into(),
+        unmapped: genes.failed.into(),
+        ambiguous,
+        items,
     })
 }
 /// The caller's spelling of each gene g:Profiler tested, in the order its evidence lists use;
@@ -214,4 +216,3 @@ fn term(row: Row, names: &[Text]) -> Option<EnrichedTerm> {
         genes,
     })
 }
-
