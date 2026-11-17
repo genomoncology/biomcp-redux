@@ -1,5 +1,15 @@
 {
   "$defs": {
+    "DiagnosticAggregate": {
+      "description": "Source-native count of matching 510(k) records.",
+      "enum": [
+        "product-code"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Matching 510(k) records by FDA product code, from openFDA's count facet."
+      ]
+    },
     "DiagnosticDeviceId": {
       "description": "Source device identifier; DEN and H identifiers imply no executable get.",
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
@@ -80,6 +90,18 @@
   "additionalProperties": false,
   "description": "Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.",
   "properties": {
+    "aggregate": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DiagnosticAggregate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Count by product code; help search diagnostic\nCount by product code.\nAlso counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page.",
+      "x-required-component": "fda-510k"
+    },
     "biomarker": {
       "anyOf": [
         {

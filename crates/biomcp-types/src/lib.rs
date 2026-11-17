@@ -227,15 +227,16 @@ pub use adverse_event::{
 mod pgx;
 pub use pgx::*;
 pub use query::{
-    DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch, DiagnosticSearchSource,
-    DiagnosticSection, DiagnosticSort,
+    DiagnosticAggregate, DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch,
+    DiagnosticSearchSource, DiagnosticSection, DiagnosticSort,
 };
 pub use response::{
     CompanionDiagnosticRow, CompanionShared, DiagnosticCandidate, DiagnosticCard,
     DiagnosticCompanion, DiagnosticConditions, DiagnosticGenes, DiagnosticLaboratory,
-    DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory, DiagnosticRegulatoryField,
-    DiagnosticRegulatoryFragment, DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader,
-    GtrLabAddress, GtrLabCertification, GtrNameMatch, GtrNativeStatus,
+    DiagnosticMethods, DiagnosticPage, DiagnosticProductCodeCount, DiagnosticProductCodeCounts,
+    DiagnosticRegulatory, DiagnosticRegulatoryField, DiagnosticRegulatoryFragment,
+    DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader, GtrLabAddress,
+    GtrLabCertification, GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{

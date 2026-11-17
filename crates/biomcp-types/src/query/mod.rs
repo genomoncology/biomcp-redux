@@ -80,8 +80,8 @@ pub use gene::QueryInvalid;
 
 mod diagnostic;
 pub use diagnostic::{
-    DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch, DiagnosticSearchSource,
-    DiagnosticSection, DiagnosticSort,
+    DiagnosticAggregate, DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch,
+    DiagnosticSearchSource, DiagnosticSection, DiagnosticSort,
 };
 
 mod pathway;
