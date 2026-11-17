@@ -403,7 +403,7 @@ fn mychem(
                 .collect();
             let settled = candidates
                 .iter()
-                .any(|((_, product, _, _), _)| *product == 0);
+                .any(|((_, product, ..), _)| *product == 0);
             let more = received > 0
                 && page
                     .value
@@ -424,9 +424,9 @@ fn mychem(
     // A product-only record answers only when no record with drug rows matched.
     if candidates
         .iter()
-        .any(|((_, product, _, _), _)| *product == 0)
+        .any(|((_, product, ..), _)| *product == 0)
     {
-        candidates.retain(|((_, product, _, _), _)| *product == 0);
+        candidates.retain(|((_, product, ..), _)| *product == 0);
     }
     let Some(Read { rows, total, .. }) =
         examined.filter(|read| !read.settled && u64::from(read.rows) < read.total)
