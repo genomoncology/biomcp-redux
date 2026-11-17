@@ -150,6 +150,7 @@ pub use response::{
 pub use response::{VariantPage, VariantSearchExclusionReason, VariantSearchExclusions};
 pub use source::{Reason, Source, Use};
 
+pub use query::GrantSearch;
 pub use query::{OrganizationSearch, OrganizationSource};
 
 mod article;
@@ -291,6 +292,7 @@ pub use response::{NciPhaseFilter, NciTrialPhase};
 
 pub use response::{DeviceRecallCard, DeviceRecallHeader};
 
+pub use response::{Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantPage};
 pub use response::{Organization, OrganizationCoordinates, OrganizationPage};
 
 pub use query::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};

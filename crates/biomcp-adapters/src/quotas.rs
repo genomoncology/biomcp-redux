@@ -164,6 +164,10 @@ quotas! {
     /// provider-domain policy search; retain conservative local ceiling.
     ORPHADATA = Quota::new(SourceKey::declare("orphadata"), Rate::per_second(1), None, 1);
 
+    /// Checked 2026-11-17: https://api.reporter.nih.gov/ . The API page asks for no more than one request per second
+    /// and large jobs on weekends or 9 PM to 5 AM Eastern, or it may block the address.
+    NIH_REPORTER = Quota::new(SourceKey::declare("nih-reporter"), Rate::per_second(1), None, 1);
+
     /// Checked 2026-11-01: https://www.ncbi.nlm.nih.gov/gtr/docs/ . No published numeric limit found in service documentation/terms and provider-domain
     /// policy search; retain conservative local ceiling.
     GTR = Quota::new(SourceKey::declare("gtr-files"), Rate::per_second(1), None, 1);

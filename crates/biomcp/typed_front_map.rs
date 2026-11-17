@@ -145,7 +145,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     (
         "article",
         "Research papers, journal articles and preprints: search the literature by topic, \
-         gene, drug, disease or author; read abstracts, full text, citations and references",
+         gene, drug, disease or author; read abstracts, full text, citations and references; \
+         find NIH grants",
         &[
             ("search", "search_article", ""),
             ("get", "get_article", ""),
@@ -171,6 +172,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("author_search", "search_author", "find an author"),
             ("author_get", "get_author", "read an author"),
             ("author_papers", "author_papers", "an author's papers"),
+            ("grant_search", "search_grant", "find NIH grants"),
         ],
         [r#"{"query":"AKT1 E17K"}"#, r#"{"id":"33123537"}"#],
         "Not for trial registry records (use trial)",

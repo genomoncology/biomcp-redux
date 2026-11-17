@@ -98,6 +98,9 @@ pub mod monarch;
 pub mod mydisease;
 pub mod ols;
 pub mod orphadata;
+
+/// NIH RePORTER research project grants.
+pub mod nih_reporter;
 pub mod seer;
 
 mod text_parts;

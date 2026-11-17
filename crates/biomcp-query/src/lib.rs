@@ -37,6 +37,7 @@ mod adverse_event_maude;
 
 mod biomarker;
 mod nci_search;
+mod grant;
 mod organization;
 /// Native human pathway discovery and exact cards.
 mod pathway;

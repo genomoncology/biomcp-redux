@@ -120,6 +120,7 @@ Articles:
 
 Other commands:
 
+- `search grant [TEXT] --investigator NAME --organization NAME --fiscal-year YEAR,...` searches NIH RePORTER research grants. Each row is one project's award for one fiscal year, with project and core project numbers, title, activity code, administering institute, organization, award amount, project dates, principal investigators and the RePORTER page; `page.total` counts project-years. The typed `article` tool carries it as `grant_search`.
 - Protein features, domains and cards carry `coordinate_note`, which explains that spans are zero-based and half-open, unlike UniProt's one-based coordinates and the one-based `--position`.
 - `search gwas --p-value` leaves out `qualifying_total`, and is not `complete`, when an association cannot be compared with the threshold.
 - `variant recurrence` fails, with no counts, when `--sample-set` is unknown or belongs to another study or list.

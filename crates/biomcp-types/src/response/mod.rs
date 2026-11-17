@@ -189,6 +189,9 @@ pub use nci_phase::{NciPhaseFilter, NciTrialPhase};
 mod device_recall;
 pub use device_recall::{DeviceRecallCard, DeviceRecallHeader};
 
+mod grant;
+pub use grant::{Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantPage};
+
 mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
 

@@ -89,6 +89,9 @@ pub use pathway::{
     PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PathwaySource,
 };
 
+mod grant;
+pub use grant::GrantSearch;
+
 mod organization;
 pub use organization::{OrganizationSearch, OrganizationSource};
 
