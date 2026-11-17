@@ -16,9 +16,7 @@
         "/status": "complete",
         "/result/items/0/card/nct_id": "NCT00003020",
         "/result/items/0/sections/eligibility/data/not_split": "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, so it is not split; read criteria.",
-        "/result/items/0/sections/eligibility/data/criteria": {
-          "includes": "PATIENT CHARACTERISTICS: Age: 18 and over"
-        },
+        "/result/items/0/sections/eligibility/data/criteria": "DISEASE CHARACTERISTICS: Histologically proven primary intracranial or extraneural neoplasm with leptomeningeal metastases At least 30% of malignant cells in the cerebrospinal fluid, primary tumor, or metastatic tumor must react with the B3 mouse monoclonal antibody\n\nPATIENT CHARACTERISTICS: Age: 18 and over Performance status: Karnofsky 50-100% Life expectancy: Not specified Hematopoietic: ANC greater than 1000/mm3 Platelet count greater than 100,000/mm3 Hepatic: Bilirubin less than 1.5 mg/dL Renal: Creatinine less than 1.2 mg/dL Pulmonary: DLCO at least 60 Other: No neutralizing antibodies to Pseudomonas exotoxin Not pregnant or nursing Not allergic to penicillin\n\nPRIOR CONCURRENT THERAPY: Biologic therapy: Not specified Chemotherapy: No chemotherapy within past 4 weeks (6 weeks for nitrosoureas) unless there is evidence of disease progression in CNS No concurrent chemotherapy Endocrine therapy: Patients receiving corticosteroids must be on stable dose for 10 days prior to entry Radiotherapy: No radiotherapy to disease site within past 3 months unless there is evidence of disease progression in CNS No concurrent radiotherapy Surgery: Not specified",
         "/result/items/0/sections/eligibility/data/offset": 0,
         "/result/items/0/sections/eligibility/data/total_characters": 1167,
         "/result/items/0/sections/eligibility/data": {

@@ -51,8 +51,8 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Lists> {
     let mut section = text
         .get(..start)?
         .lines()
-        .filter_map(heading)
-        .last()
+        .rev()
+        .find_map(heading)
         .map(|(excluded, _)| excluded);
     let mut lists = Lists::default();
     let mut item: Option<(usize, String)> = None;
