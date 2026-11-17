@@ -360,6 +360,13 @@
         "page": {
           "$ref": "#/$defs/Reply_PathwayPageInfo",
           "description": "Relation-specific count provenance and continuation."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole collection, equal to `page.total`; the count to report (1022).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -394,6 +401,13 @@
         },
         "reference_occurrences": {
           "description": "All reference occurrences across physical entities before distinct-reference grouping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole collection, equal to `page.total`; the count to report (1022).",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"

@@ -20,6 +20,7 @@
       },
       "expect": {
         "/status": "complete",
+        "/result/total": 1398,
         "/result/items/total": 1398,
         "/result/items/items": {
           "count": 1398,

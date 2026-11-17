@@ -59,6 +59,7 @@ Drugs and regulators:
 - openFDA label replies give the label's `effective_date`, openFDA's `effective_time`, in `identity` beside its SPL set ID and `version`, so a reader can tell a current label from an old one.
 - openFDA label replies name the label's FDA application numbers in `identity.application_numbers`, so labels that share a name can be told apart, and a label reply shows the label's `recent_major_changes` text when it has one, such as KRAZATI's 08/2026 removal of its colorectal cancer indication.
 - Protein domains and complexes, alone or as card sections, add `total`, the rows in the whole selected set, like every other section. `native_total` keeps its meaning: InterPro's count before `--type` selection, or Complex Portal's text-search count before exact participant admission. Report `total`.
+- Study sections (profiles, sample lists, files, samples, mutations), pathway gene and event sections, cell-line names, xrefs, variants and ChEMBL sections, and the protein function section add a top-level `total`, the rows in the whole set, equal to the nested `page.total` or `items.total`, which stay. Read `total`.
 - FDA drug recalls: `--status` and `--reason` searches return full pages, and older recall numbers such as `D-502-2013` appear and can be read. A recall page names each record it drops with the new `record.declined` problem.
 - openFDA text filters accept punctuation and accented letters: accents become base letters, other marks become spaces, and a notice shows what was searched.
 

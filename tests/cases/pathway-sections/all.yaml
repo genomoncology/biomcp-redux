@@ -16,10 +16,12 @@
       "is_error": false,
       "expect": {
         "/status": "complete",
+        "/result/genes/data/total": 332,
         "/result/genes/data/page/total": 332,
         "/result/genes/data/page/total_kind": "distinct-references",
         "/result/genes/data/reference_occurrences": 1010,
         "/result/genes/data/physical_entities": 151,
+        "/result/events/data/total": 81,
         "/result/events/data/page/total": 81,
         "/result/pathway/references/*/pubmed": {
           "includes": "24937142"

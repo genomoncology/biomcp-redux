@@ -200,6 +200,8 @@ fn present_genes(
         .cloned()
         .collect();
     body.page = position(body.page, q, body.items.len(), pool);
+    // A pool saved before 1022 lacks the top-level total; the page always has it.
+    body.total = body.page.total;
     if !q.details {
         for row in &mut body.items {
             row.participants = None;
@@ -237,6 +239,8 @@ fn present_events(
         .cloned()
         .collect();
     body.page = position(body.page, q, body.items.len(), pool);
+    // A pool saved before 1022 lacks the top-level total; the page always has it.
+    body.total = body.page.total;
     super::relation_steps::events(&body, q.limit, &mut out.next, &mut out.problems);
     // The pathway card was read first, so an empty relation is a complete answer, not an unknown pathway.
     crate::status::item(out, true, false, false);
@@ -301,6 +305,7 @@ fn fetch(
             saved.problems = rows.problems;
             saved.genes = Some(biomcp_types::PathwayGenes {
                 header,
+                total: rows.value.items.len() as u64,
                 page: full_page(rows.value.items.len(), PathwayTotalKind::DistinctReferences),
                 items: rows.value.items.into(),
                 reference_occurrences: rows.value.reference_occurrences,
@@ -312,6 +317,7 @@ fn fetch(
             saved.problems = rows.problems;
             saved.events = Some(biomcp_types::PathwayEvents {
                 header,
+                total: rows.value.len() as u64,
                 page: full_page(rows.value.len(), PathwayTotalKind::Observed),
                 items: rows.value.into(),
             });
