@@ -31,3 +31,10 @@ A call recorded live and then replayed gives the same answer: name lookups that 
 ## Changes
 
 - Changes: replay timing, the recall case, its recording.
+
+## Progress
+
+- Reproduced with request timing traces (temporary commits, since reverted). j42224 and j42226 recorded `get drug "dabigatran etexilate" --source fda-drug-recall` live on main and replayed it. The lookups do not run side by side: the alias retries run one after another, live and in replay, so the suspected adding-up of parallel delays is not the cause.
+- Cause: in replay, a command that joins its time from a source leg (`command.finish(leg.remaining())`) charged the gap between the command's budget and the source's own cap as spent time. The leg's end is capped at the source deadline (MyChem 15 s), and `CommandDeadline::finish` turns "time left" into "time spent" against the command's end, so a 19 s command over a 15 s leg charged about 4 s that no request took. j42226 shows it: MyChem's name read for the alias lookup finished at 2.08 s of replay time and the next request started at 6.01 s, with no request or pacing wait in between; live, the same step took 1 s. Live is unaffected because live time is the wall clock. Every later lookup then got a smaller share, so with slower recorded replies (j42203's recording, 1033) the last name lookups ran out and the call took a path that was never recorded.
+- Change: `Leg::command_remaining` reads the time left on the deadline the leg was opened under, on the leg's clock, and the ten callers that joined a command from a leg's remaining time use it (drug MyChem search and get, name lookups, native name pages, ChEMBL/Open Targets native reads, openFDA label reads, trial documents). Live deadlines and pacing do not change.
+- Case: 1033's dropped step is back in `tests/cases/drug/spaced-names.yaml`, replaying j42203's live recording (27 replies), asserting absent, the ten names its one recall query searched, and "one recall query", as live answered.
