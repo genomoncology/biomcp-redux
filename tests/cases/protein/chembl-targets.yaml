@@ -2,7 +2,7 @@
   "feature": "protein-chembl",
   "live_check": "public",
   "story": "A computational biologist asks how many ChEMBL assays and activities each target has (bench comp-bio 2026-11-16, Q7). `get protein O75417 P09874 chembl` maps POLQ and PARP1 to their ChEMBL single-protein targets and gives ChEMBL's own assay and activity totals; an isoform reads its canonical target, and CDKN2A's p14ARF (Q8N726), which ChEMBL has no target for, is an empty section.",
-  "verified": "PENDING",
+  "verified": "tests/replies/protein/chembl-targets/provenance.json records the live UniProt and ChEMBL 37 replies for O75417 (POLQ), O75417-2, P09874 (PARP1) and Q8N726 of 2026-11-17 (pm job j42236) and their body hashes. The totals are ChEMBL's own page_meta.total_count for assay.json and activity.json filtered by target_chembl_id: POLQ CHEMBL6025 46 assays and 693 activities, PARP1 CHEMBL3105 705 and 10,162; ChEMBL lists no single-protein target for Q8N726.",
   "replay": "protein/chembl-targets",
   "steps": [
     {
