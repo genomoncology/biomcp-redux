@@ -35,13 +35,13 @@
       "run": [
         "get",
         "protein",
-        "P09874-2",
+        "O75417-2",
         "chembl"
       ],
       "exit": 0,
       "expect": {
         "/status": "complete",
-        "/result/items/0/sections/chembl/data/items/0/id": "CHEMBL3105"
+        "/result/items/0/sections/chembl/data/items/0/id": "CHEMBL6025"
       }
     },
     {
