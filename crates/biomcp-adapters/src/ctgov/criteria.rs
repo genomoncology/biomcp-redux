@@ -1,17 +1,19 @@
 //! The registry's own "Inclusion Criteria" and "Exclusion Criteria" headings and list lines; never eligibility rules.
 
-/// Registry items under each heading, in source order.
+/// One page of the registry text, split at its own headings.
 #[derive(Debug, Default, PartialEq, Eq)]
-pub struct Lists {
-    /// Items below an inclusion heading.
-    pub inclusion: Vec<Box<str>>,
-    /// Items below an exclusion heading.
-    pub exclusion: Vec<Box<str>>,
+pub struct Split {
+    /// This page's text before the first heading, trimmed.
+    pub preamble: Option<Box<str>>,
+    /// Items below an inclusion heading, when this page holds that heading or starts below it.
+    pub inclusion: Option<Vec<Box<str>>>,
+    /// Items below an exclusion heading, when this page holds that heading or starts below it.
+    pub exclusion: Option<Vec<Box<str>>>,
 }
 
 /// Whether a line is an inclusion (`false`) or exclusion (`true`) heading, with any text after its colon.
 pub(crate) fn heading(line: &str) -> Option<(bool, &str)> {
-    let trimmed = line.trim_matches(|c: char| c.is_whitespace() || "#*_-".contains(c));
+    let trimmed = trim(line);
     let lower = trimmed.to_ascii_lowercase();
     let lower = lower.strip_prefix("key ").unwrap_or(&lower);
     [("exclusion criteria", true), ("inclusion criteria", false)]
@@ -27,25 +29,39 @@ pub(crate) fn heading(line: &str) -> Option<(bool, &str)> {
         })
 }
 
+fn trim(line: &str) -> &str {
+    line.trim_matches(|c: char| c.is_whitespace() || "#*_-".contains(c))
+}
+
+/// A line ending in "criteria:" that is not one of the two headings, such as a cohort's
+/// heading, could start a block the split would misfile.
+fn other_criteria_heading(line: &str) -> bool {
+    trim(line)
+        .strip_suffix(':')
+        .is_some_and(|head| head.trim_end().to_ascii_lowercase().ends_with("criteria"))
+        && heading(line).is_none()
+}
+
+/// Whether the whole text carries both headings and no other line ends in "criteria:".
+pub fn splits(text: &str) -> bool {
+    let (mut inclusion, mut exclusion) = (false, false);
+    for line in text.lines() {
+        match heading(line) {
+            Some((true, _)) => exclusion = true,
+            Some((false, _)) => inclusion = true,
+            None if other_criteria_heading(line) => return false,
+            None => {}
+        }
+    }
+    inclusion && exclusion
+}
+
 /// Splits one page of `text`, starting at byte `start`, into the registry's items.
 ///
-/// The split happens only when the whole text carries both headings. An item is a
-/// line below a heading together with the more deeply indented lines that follow it,
-/// as the registry's nested list markers lay them out.
-pub fn split(text: &str, start: usize, page: &str) -> Option<Lists> {
-    let headings = text
-        .lines()
-        .filter_map(heading)
-        .map(|(excluded, _)| excluded);
-    let (mut inclusion, mut exclusion) = (false, false);
-    for excluded in headings {
-        *(if excluded {
-            &mut exclusion
-        } else {
-            &mut inclusion
-        }) = true;
-    }
-    if !(inclusion && exclusion) {
+/// An item is a line below a heading together with the more deeply indented lines
+/// that follow it, as the registry's nested list markers lay them out.
+pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
+    if !splits(text) {
         return None;
     }
     let mut section = text
@@ -54,28 +70,33 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Lists> {
         .rev()
         .find_map(heading)
         .map(|(excluded, _)| excluded);
-    let mut lists = Lists::default();
+    let mut out = Split::default();
+    let mut preamble = String::new();
+    // A page that starts below a heading keeps that section's list even when empty.
     let mut item: Option<(usize, String)> = None;
-    let mut close = |item: &mut Option<(usize, String)>, section: Option<bool>| {
+    if let Some(excluded) = section {
+        list(&mut out, excluded);
+    }
+    let close = |out: &mut Split, item: &mut Option<(usize, String)>, section: Option<bool>| {
         if let (Some((_, body)), Some(excluded)) = (item.take(), section) {
             let body = body.trim();
             if !body.is_empty() {
-                let list = if excluded {
-                    &mut lists.exclusion
-                } else {
-                    &mut lists.inclusion
-                };
-                list.push(body.into());
+                list(out, excluded).push(body.into());
             }
         }
     };
     for line in page.split_inclusive('\n') {
         if let Some((excluded, rest)) = heading(line) {
-            close(&mut item, section);
+            close(&mut out, &mut item, section);
             section = Some(excluded);
+            list(&mut out, excluded);
             if !rest.is_empty() {
                 item = Some((0, rest.to_owned()));
             }
+            continue;
+        }
+        if section.is_none() {
+            preamble.push_str(line);
             continue;
         }
         let indent = line.len() - line.trim_start_matches([' ', '\t']).len();
@@ -84,11 +105,22 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Lists> {
             Some((first, body)) if indent > *first => body.push_str(line),
             _ if line.trim().is_empty() => {}
             _ => {
-                close(&mut item, section);
+                close(&mut out, &mut item, section);
                 item = Some((indent, line.to_owned()));
             }
         }
     }
-    close(&mut item, section);
-    Some(lists)
+    close(&mut out, &mut item, section);
+    let preamble = preamble.trim();
+    out.preamble = (!preamble.is_empty()).then(|| preamble.into());
+    Some(out)
+}
+
+/// The section's list, present from its heading or the page start on.
+fn list(out: &mut Split, excluded: bool) -> &mut Vec<Box<str>> {
+    if excluded {
+        out.exclusion.get_or_insert_with(Vec::new)
+    } else {
+        out.inclusion.get_or_insert_with(Vec::new)
+    }
 }

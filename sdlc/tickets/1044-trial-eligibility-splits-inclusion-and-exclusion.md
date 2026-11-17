@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-`get trial NCT… eligibility` gives the inclusion criteria and the exclusion criteria as two lists of the registry's own items, beside the age, sex and healthy-volunteer fields it already gives. The split uses only the registry's own "Inclusion Criteria" and "Exclusion Criteria" headings and its list markers. When the text has no such headings, the reply keeps the whole text and says it could not be split. The original text stays in the reply.
+`get trial NCT… eligibility` gives the inclusion criteria and the exclusion criteria as two lists of the registry's own items, beside the age, sex and healthy-volunteer fields it already gives. The split uses only the registry's own "Inclusion Criteria" and "Exclusion Criteria" headings and its list markers. When the text has no such headings, the reply keeps the whole text and says it could not be split. When it is split, the lists and any text before the first heading replace the original text in the reply, because efficient tools are part of the 1.0 bar and the lists are the registry's own lines word for word (coordinator review, 2026-11-17).
 
 ## Why
 

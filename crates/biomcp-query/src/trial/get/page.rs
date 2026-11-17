@@ -5,6 +5,7 @@ mod sites;
 use super::Snapshot;
 use crate::Outcome;
 use biodata::{NctId, Text};
+use biomcp_adapters::ctgov::criteria;
 
 use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::{
@@ -89,7 +90,7 @@ pub(super) fn render(
         failure: None,
     })
 }
-const NOT_SPLIT: &str = "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, so it is not split; read criteria.";
+const NOT_SPLIT: &str = "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, or has another line ending in \"criteria:\", so it is not split; read criteria.";
 fn eligibility(
     query: &TrialGet,
     snapshot: &Snapshot,
@@ -105,14 +106,21 @@ fn eligibility(
     };
     let text = e.criteria.as_ref().map_or("", |s| s.as_str());
     let total = text.chars().count() as u32;
-    let (fragment, criterion_continues) = eligibility::fragment(text, query.offset() as usize);
+    let splits = criteria::splits(text);
+    let (fragment, criterion_continues) =
+        eligibility::fragment(text, query.offset() as usize, splits);
     let start = text
         .char_indices()
         .nth(query.offset() as usize)
         .map_or(text.len(), |(i, _)| i);
-    let lists = biomcp_adapters::ctgov::criteria::split(text, start, fragment);
-    let not_split = (lists.is_none() && !text.is_empty()).then(|| NOT_SPLIT.into());
-    let (inclusion, exclusion) = lists.map(|l| (l.inclusion, l.exclusion)).unzip();
+    let split = criteria::split(text, start, fragment);
+    let not_split = (!splits && !text.is_empty()).then(|| NOT_SPLIT.into());
+    let criteria = split.is_none().then(|| fragment.into());
+    let criteria::Split {
+        preamble,
+        inclusion,
+        exclusion,
+    } = split.unwrap_or_default();
     let end = query.offset() + fragment.chars().count() as u32;
     advance(query, id, TrialSection::Eligibility, pool, end, total, out);
     Section::Data {
@@ -124,9 +132,10 @@ fn eligibility(
             sex: e.sex,
             healthy_volunteers: e.healthy_volunteers,
             not_split,
+            preamble,
             inclusion,
             exclusion,
-            criteria: fragment.into(),
+            criteria,
             criterion_continues,
             offset: query.offset(),
             total_characters: total,

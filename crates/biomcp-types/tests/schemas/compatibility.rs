@@ -143,7 +143,10 @@ fn compatible(
         || old.types != new.types
         || match kind {
             ContractKind::Query => !new.required.is_subset(&old.required),
-            ContractKind::Reply => !old.required.is_subset(&new.required),
+            ContractKind::Reply => !old.required.iter().all(|field| {
+                new.required.contains(field)
+                    || reviews.required_removal(old_name, old_major, path, field)
+            }),
         }
         || lowered(old.maximum_length, new.maximum_length)
         || new.minimum_length > old.minimum_length

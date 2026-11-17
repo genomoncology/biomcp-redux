@@ -111,6 +111,64 @@ fn continuations() -> Check {
         return Err("disabled source restored a stored protocol".into());
     }
     altered_pool(&env, &next, &offline)?;
+    split_walk()
+}
+/// A split text's pages rebuild the original from preamble plus lists (1044).
+fn split_walk() -> Check {
+    let env = Environment::new()?;
+    let replay = env.root().join("recordings");
+    let item = |kind: &str, i: usize| format!("* {kind} item {i} {}", "y".repeat(80));
+    let inclusion: Vec<String> = (0..70).map(|i| item("inclusion", i)).collect();
+    let exclusion: Vec<String> = (0..70).map(|i| item("exclusion", i)).collect();
+    let rebuild = |preamble: &str, inclusion: &[String], exclusion: &[String]| {
+        format!(
+            "{preamble}\n\nInclusion Criteria:\n\n{}\n\nExclusion Criteria:\n\n{}",
+            inclusion.join("\n"),
+            exclusion.join("\n")
+        )
+    };
+    let original = rebuild("Read the protocol.", &inclusion, &exclusion);
+    copy_capture("trial/get/NCT02296125", &replay, |_, record| {
+        if record["url"]
+            .as_str()
+            .is_some_and(|u| u.ends_with("NCT02296125"))
+        {
+            record["exchanges"][0]["body"]["value"]["protocolSection"]["eligibilityModule"]
+                ["eligibilityCriteria"] = json!(original);
+        }
+    })?;
+    let mut next: Vec<String> = ["get", "trial", "NCT02296125", "eligibility"].map(str::to_owned).into();
+    let mut globals = env.globals(Some(&replay), false);
+    let (mut preamble, mut walked_in, mut walked_ex) = (String::new(), Vec::new(), Vec::new());
+    for page in 0.. {
+        if page > 10 {
+            return Err("split walk did not end".into());
+        }
+        let out = command(&env, &next, &globals, 0)?;
+        let data = &out["result"]["items"][0]["sections"]["eligibility"]["data"];
+        if data.get("criteria").is_some() || data.get("not_split").is_some() {
+            return Err("split page repeated the text it replaces".into());
+        }
+        if page == 0 && data.get("exclusion").is_some() {
+            return Err("first page sent an exclusion list before the exclusion heading".into());
+        }
+        if let Some(text) = data["preamble"].as_str() {
+            preamble.push_str(text);
+        }
+        for (key, walked) in [("inclusion", &mut walked_in), ("exclusion", &mut walked_ex)] {
+            for value in data[key].as_array().into_iter().flatten() {
+                walked.push(value.as_str().ok_or("non-text item")?.to_owned());
+            }
+        }
+        match super::action(&out, "page") {
+            Ok(args) => next = args,
+            Err(_) => break,
+        }
+        globals = env.globals(None, true);
+    }
+    if rebuild(&preamble, &walked_in, &walked_ex) != original {
+        return Err("preamble plus lists did not rebuild the original text".into());
+    }
     Ok(())
 }
 fn processing_problem(value: &Value) -> Check {

@@ -21,6 +21,18 @@ pub(super) struct Reviews {
     enum_transitions: Vec<EnumTransition>,
     #[serde(default)]
     length_raises: Vec<LengthRaise>,
+    #[serde(default)]
+    required_removals: Vec<RequiredRemoval>,
+}
+
+/// A reviewed reply field that may be absent from now on, at one exact schema path.
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RequiredRemoval {
+    schema: String,
+    path: String,
+    field: String,
+    review: String,
 }
 
 /// A reviewed raise of a text length limit, such as a shared BioData text type's.
@@ -140,6 +152,16 @@ impl Reviews {
                 && entry.path == path
                 && entry.from.as_deref() == from
                 && entry.to.as_deref() == to
+                && !entry.review.trim().is_empty()
+        })
+    }
+
+    /// Whether a reply field at this schema path was reviewed to become optional.
+    pub(super) fn required_removal(&self, name: &str, major: u64, path: &str, field: &str) -> bool {
+        self.required_removals.iter().any(|entry| {
+            entry.schema == format!("{name}/{major}")
+                && entry.path == path
+                && entry.field == field
                 && !entry.review.trim().is_empty()
         })
     }
@@ -312,4 +334,46 @@ fn enum_review_rejects_unknown_fields_and_nonstring_values() {
     ] {
         assert!(serde_json::from_value::<Reviews>(value).is_err());
     }
+}
+
+#[test]
+fn required_removal_binds_reply_schema_path_and_field() {
+    use super::compatibility::check_reviewed;
+    use serde_json::json;
+    let reviews: Reviews = serde_json::from_value(json!({"required_removals":[{
+        "schema":"biomcp.example/1","path":"","field":"text","review":"Reviewed absence"
+    }]}))
+    .expect("valid review fixture");
+    let schema = |name: &str, required: &[&str]| {
+        json!({"$id":name,"type":"object","required":required,"properties":{
+            "text":{"type":"string"},"other":{"type":"string"}
+        }})
+    };
+    for (name, field, kind, accepted) in [
+        ("biomcp.example/1", "text", ContractKind::Reply, true),
+        ("biomcp.example/1", "other", ContractKind::Reply, false),
+        ("biomcp.unrelated/1", "text", ContractKind::Reply, false),
+    ] {
+        let rest: Vec<&str> = ["text", "other"]
+            .into_iter()
+            .filter(|f| *f != field)
+            .collect();
+        assert_eq!(
+            check_reviewed(
+                &schema(name, &["text", "other"]),
+                &schema(name, &rest),
+                kind,
+                &reviews
+            )
+            .is_ok(),
+            accepted,
+            "{name} {field}"
+        );
+    }
+    assert!(
+        serde_json::from_value::<Reviews>(
+            json!({"required_removals":[{"schema":"x/1","path":"","field":"f","review":"ok","typo":true}]})
+        )
+        .is_err()
+    );
 }

@@ -110,17 +110,21 @@ pub struct TrialEligibilityPage {
     /// Source healthy-volunteer field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub healthy_volunteers: Option<bool>,
-    /// This page's items below the registry's "Inclusion Criteria" headings, each with its nested lines, in source order.
+    /// Split text only: this page's registry text before its first "Inclusion Criteria" or "Exclusion Criteria" heading.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub preamble: Option<Box<str>>,
+    /// Split text only: this page's registry lines below "Inclusion Criteria" headings, each with its nested lines, word for word in source order. Absent when this page holds no inclusion heading and starts below none; other pages may hold more.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inclusion: Option<Vec<Box<str>>>,
-    /// This page's items below the registry's "Exclusion Criteria" headings, each with its nested lines, in source order.
+    /// Split text only: this page's registry lines below "Exclusion Criteria" headings, each with its nested lines, word for word in source order. Absent when this page holds no exclusion heading and starts below none; other pages may hold more.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exclusion: Option<Vec<Box<str>>>,
-    /// Why `inclusion` and `exclusion` are absent: the registry text lacks one or both headings, so read `criteria`.
+    /// Why the text is not split: it lacks one of the two headings or has another line ending in "criteria:", so `criteria` holds it whole.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub not_split: Option<Box<str>>,
-    /// Exact original text fragment, including whitespace.
-    pub criteria: Box<str>,
+    /// Exact original text fragment, including whitespace; absent when `preamble`, `inclusion` and `exclusion` replace it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub criteria: Option<Box<str>>,
     /// The page ends within a criterion whose lines exceed the page budget.
     #[serde(default)]
     pub criterion_continues: bool,

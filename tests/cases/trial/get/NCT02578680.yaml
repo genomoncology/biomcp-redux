@@ -37,7 +37,10 @@
         "/result/items/0/sections/eligibility/data/exclusion/0": "* Has predominantly squamous cell histology NSCLC.",
         "/result/items/0/sections/eligibility/data": {
           "omits": [
-            "not_split"
+            "not_split",
+            "criteria",
+            "preamble",
+            "continuation"
           ]
         }
       },
