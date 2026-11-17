@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "chembl",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/assay.json?target_chembl_id=CHEMBL203&limit=1&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794901636,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 300,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"assays": [{"aidx": "CLD0", "assay_category": null, "assay_cell_type": "NIH3T3", "assay_chembl_id": "CHEMBL615325", "assay_classifications": [], "assay_group": null, "assay_organism": "Homo sapiens", "assay_parameters": [], "assay_strain": null, "assay_subcellular_fraction": null, "assay_tax_id": 9606, "assay_test_type": null, "assay_tissue": null, "assay_type": "F", "assay_type_description": "Functional", "bao_format": "BAO_0000219", "bao_label": "cell-based format", "cell_chembl_id": "CHEMBL3307716", "confidence_description": "Direct single protein target assigned", "confidence_score": 9, "description": "Inhibition of ligand-induced proliferation in human EGF-R Kinase expressing 3T3 cells", "document_chembl_id": "CHEMBL1134862", "relationship_description": "Direct protein target assigned", "relationship_type": "D", "src_assay_id": null, "src_id": 1, "target_chembl_id": "CHEMBL203", "tissue_chembl_id": null, "variant_sequence": null}], "page_meta": {"limit": 1, "next": "/chembl/api/data/assay.json?limit=1&offset=1&target_chembl_id=CHEMBL203", "offset": 0, "previous": null, "total_count": 5966}}
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "chembl",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/target.json?target_components__accession=Q8N726&target_type=SINGLE%20PROTEIN&limit=5&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794901633,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 405,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"page_meta": {"limit": 5, "next": null, "offset": 0, "previous": null, "total_count": 0}, "targets": []}
+      }
+    }
+  ]
+}
