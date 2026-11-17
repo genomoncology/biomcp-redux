@@ -60,7 +60,8 @@ struct Fields<R: ResolverChoice = VariantResolver> {
     civic_cursor: Option<crate::Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "Record kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."]
+    #[doc = "Record kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitter); \
+        the section total counts only that kind. Only with section clinvar or all."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     clinvar_kind: Option<crate::ClinvarRecordKind>,
     #[doc = "Disease\nCIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all."]

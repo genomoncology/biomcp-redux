@@ -3679,7 +3679,7 @@ Source CIViC cursor, retained unchanged. Only with section civic or all. Value f
 Source CIViC claim collection within the selected profile. Only with section civic or all. Value form: string; example: --civic-kind evidence.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Only with section civic or all. Value form: integer; example: --civic-profile 12.
 - `--clinvar-kind`: Record kind
-ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind vcv.
+ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
 - `--disease`: Disease
 CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
@@ -3699,7 +3699,7 @@ Form: get variant INPUT SECTION...; not --input.
 Resolver for reference-qualified notation; never repairs the input locally. Value form: string; example: --resolver variantvalidator.
 - `section`: Sections.
 Form: get variant INPUT SECTION...; not --section.
-- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 2.
+- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 50.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer; example: --section-offset 0.
 - `--tumor-type`: Tumor
 Explicit tumor context for keyed OncoKB annotation. Value form: string; example: --tumor-type Melanoma.
@@ -5316,9 +5316,9 @@ Options apply to every listed source unless their description restricts them.
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 Form: variant assertions INPUT; not --input.
-- `--kind`: ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar. Value form: string; example: --kind vcv.
-- `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 1.
-- `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 0.
+- `--kind`: ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar. Value form: string; example: --kind scv.
+- `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 50.
+- `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 50.
 - `--source`: One source assertion source; shared identity conversion precedes source access when needed. Value form: string; example: --source clinvar.
 - `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version. Value form: string; example: --version 1.0.0.
 
