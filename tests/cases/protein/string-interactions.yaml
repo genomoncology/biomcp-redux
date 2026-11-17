@@ -18,7 +18,7 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/header/protein/accession": "Q14191",
-        "/result/items/0/sections/interactions/source": "string",
+        "/result/items/0/sections/interactions/source": "string-db",
         "/result/items/0/sections/interactions/data/total": 313,
         "/result/items/0/sections/interactions/data/version": "12.5",
         "/result/items/0/sections/interactions/data/min_score": 0.4,
@@ -61,17 +61,6 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/interactions/data/string_id": "9606.ENSP00000418915"
-      }
-    },
-    {
-      "run": [
-        "protein",
-        "interactions",
-        "Q14191"
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/message": "STRING partners are a protein card section; use: get protein <ACCESSION> interactions"
       }
     }
   ]

@@ -323,7 +323,6 @@ singleton! {
         ProteinUnreviewed => "--include-unreviewed is not yet supported because no unreviewed positive was captured",
         ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein \
             products; use: get protein <ACCESSION> complexes",
-        ProteinStringSection => "STRING partners are a protein card section; use: get protein <ACCESSION> interactions",
         StudyList => "use: search study",
         StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
             whole-study analytical installs are retired",

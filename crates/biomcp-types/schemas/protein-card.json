@@ -1422,7 +1422,7 @@
         },
         "string_id": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "STRING protein identity of the asked protein."
+          "description": "STRING entry the asked accession maps to. STRING keeps one protein per gene, so distinct\nproducts of one gene, such as CDKN2A's P42771 and Q8N726, share one entry and one partner list."
         },
         "total": {
           "default": 0,
