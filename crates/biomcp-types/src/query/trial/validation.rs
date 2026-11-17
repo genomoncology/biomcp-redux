@@ -46,7 +46,8 @@ impl TryFrom<Fields> for TrialSearch {
         }
         validate_location(&f)?;
         if f.sponsor_role.is_some() && f.sponsor.is_none() {
-            return Err(QueryInvalid::new(&["sponsor_role", "sponsor"]));
+            return Err(QueryInvalid::new(&["sponsor_role", "sponsor"])
+                .with_message(crate::ErrorMessage::TrialSponsorRole));
         }
         Ok(Self(Box::new(f)))
     }
