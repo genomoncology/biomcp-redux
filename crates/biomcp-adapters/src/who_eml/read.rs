@@ -6,7 +6,8 @@ use biomcp_fetch::{
     SourceSpec,
 };
 use biomcp_types::{
-    DrugEssentialMedicines, DrugHeader, DrugRecords, DrugSource, Section, Source, Use,
+    DrugEssentialMedicineListing, DrugEssentialMedicines, DrugHeader, DrugRecords, DrugSource,
+    Section, Source, Use,
 };
 use std::time::Duration;
 
@@ -25,7 +26,9 @@ pub static SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     deadline: Duration::from_secs(15),
-    command_budget: None,
+    // Each listing's status is on its own page, read at one a second: a medicine with many
+    // applications needs more than the default command time.
+    command_budget: Some(Duration::from_secs(60)),
 };
 /// The site's own search page; its results name each medicine and link its eEML number.
 const SEARCH: Endpoint = SPEC
@@ -34,8 +37,10 @@ const SEARCH: Endpoint = SPEC
     .fresh(Freshness::Days(7));
 const MEDICINE: Endpoint = SPEC.get("/medicines").fresh(Freshness::Days(7));
 const RECOMMENDATION: Endpoint = SPEC.get("/recommendations").fresh(Freshness::Days(7));
-const HINT: &str = "From the WHO eEML. WHO says the PDF Model Lists (EML and EMLc) are the \
-                    binding versions and the eEML may differ from them.";
+const HINT: &str = "WHO electronic Essential Medicines List (eEML), World Health Organization, \
+                    2020. https://list.essentialmeds.org/ (beta version 1.0). Licence: CC BY 3.0 \
+                    IGO. WHO says the PDF Model Lists (EML and EMLc) are the binding versions and \
+                    the eEML may differ from them. Listings only: rejected applications are left out.";
 
 /// One page of the eEML listings for a medicine named exactly as the eEML names it (letter case
 /// ignored), or for its eEML number; `None` when the eEML has no such medicine.
@@ -71,23 +76,23 @@ pub fn essential_medicines(
         record: crate::mapped::record(&number),
         list: Vec::new(),
     };
-    let (name, listed) = medicine.map(&mut cx);
-    let total = listed.len() as u64;
-    let mut records = Vec::new();
+    let listed = medicine
+        .map(&mut cx)
+        .map_err(|_| biomcp_fetch::bad_reply(Source::WhoEml, None))?;
+    let all = listings(leg, &listed.numbers, &mut cx)?;
+    let total = all.len() as u64;
+    let mut records: Vec<DrugEssentialMedicineListing> = all
+        .into_iter()
+        .skip(offset as usize)
+        .take(limit as usize)
+        .collect();
+    // Listings for related indications often share one Committee text; a page gives it once.
     let mut previous = None;
-    for id in listed.iter().skip(offset as usize).take(limit as usize) {
-        let segment = PathSegment::new(&id.to_string()).map_err(RequestError::Input)?;
-        let recommendation: Recommendation = leg
-            .call(
-                &RECOMMENDATION.clone().with_segments(&[segment]),
-                Input::Params(&[]),
-                Read::json(),
-            )?
-            .value;
-        let url = format!("{}/recommendations/{id}", SPEC.base);
-        if let Some(listing) = recommendation.map(*id, &url, name.as_ref(), &mut previous, &mut cx)
-        {
-            records.push(listing);
+    for listing in &mut records {
+        if listing.committee.is_some() && listing.committee == previous {
+            listing.committee = None;
+        } else {
+            previous.clone_from(&listing.committee);
         }
     }
     let data = DrugRecords {
@@ -110,12 +115,36 @@ pub fn essential_medicines(
         }
     };
     out.value = Some(DrugEssentialMedicines {
-        identity: header(&number, name)?,
+        identity: header(&number, listed.name)?,
         listings,
         hint: crate::mapped::record(HINT),
     });
     out.problems = cx.list;
     Ok(out)
+}
+
+/// Every Model List listing among the medicine's recommendations, in order. The status of each
+/// is on its own page, so every page is read: the medicine page also links rejected
+/// applications, and the total counts listings only.
+fn listings(
+    leg: &Leg<'_>,
+    numbers: &[(u32, bool)],
+    cx: &mut Problems,
+) -> Result<Vec<DrugEssentialMedicineListing>, RequestError> {
+    let mut listings = Vec::new();
+    for (id, alternative) in numbers {
+        let segment = PathSegment::new(&id.to_string()).map_err(RequestError::Input)?;
+        let recommendation: Recommendation = leg
+            .call(
+                &RECOMMENDATION.clone().with_segments(&[segment]),
+                Input::Params(&[]),
+                Read::json(),
+            )?
+            .value;
+        let url = format!("{}/recommendations/{id}", SPEC.base);
+        listings.extend(recommendation.map(*id, &url, *alternative, cx));
+    }
+    Ok(listings)
 }
 
 /// The eEML number of the medicine the site's search lists under exactly this name.
@@ -143,8 +172,14 @@ pub fn medicines(leg: &Leg<'_>, name: &str) -> Result<Vec<DrugHeader>, RequestEr
         )?
         .value
         .0;
-    search_hits(&String::from_utf8_lossy(&page))
-        .into_iter()
+    let page = String::from_utf8_lossy(&page);
+    let hits = search_hits(&page);
+    // A changed page must not read as "no such medicine": the count line must be there, and a
+    // count above zero must come with medicine headings.
+    if found(&page)? > 0 && hits.is_empty() {
+        return Err(biomcp_fetch::bad_reply(Source::WhoEml, None));
+    }
+    hits.into_iter()
         .map(|(title, number)| header(&number, crate::mapped::record(title)))
         .collect()
 }
@@ -168,6 +203,33 @@ fn header(number: &str, name: Option<biodata::Text>) -> Result<DrugHeader, Reque
     })
 }
 
+/// The medicines and therapeutic equivalents the search page's count line says it found, from
+/// "Found N recommendations for M medicines and E therapeutic equivalents"; a page without that
+/// line is a bad reply.
+fn found(page: &str) -> Result<u32, RequestError> {
+    let bad = || biomcp_fetch::bad_reply(Source::WhoEml, None);
+    let line = page
+        .split_once("Found ")
+        .and_then(|(_, line)| line.split('<').next())
+        .ok_or_else(bad)?;
+    let words: Vec<&str> = line.split_whitespace().collect();
+    let [
+        _,
+        "recommendation" | "recommendations",
+        "for",
+        medicines,
+        "medicine" | "medicines",
+        "and",
+        equivalents,
+        "therapeutic",
+        ..,
+    ] = words.as_slice()
+    else {
+        return Err(bad());
+    };
+    let medicines = medicines.parse::<u32>().map_err(|_| bad())?;
+    Ok(medicines + equivalents.parse::<u32>().map_err(|_| bad())?)
+}
 /// Each medicine on an eEML search page: the name in its heading's `title` and its eEML number.
 fn search_hits(page: &str) -> Vec<(String, String)> {
     const HEADING: &str = "<h5 class=\"medicine-name\" title=\"";

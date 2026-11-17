@@ -12,7 +12,7 @@ const DEFAULT_LIMIT: u32 = 5;
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = empty(DrugEssentialMedicines::into_reply(query.clone(), None));
-    let command = cx.fetch.command_deadline(cx.budget);
+    let command = cx.fetch.source_command_deadline(&who_eml::SPEC, cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&who_eml::SPEC, deadline).fresh(cx.fresh);
     let result = who_eml::essential_medicines(
@@ -93,7 +93,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let Some(name) = query.query() else {
         return super::unsupported(query.source(), out);
     };
-    let command = cx.fetch.command_deadline(cx.budget);
+    let command = cx.fetch.source_command_deadline(&who_eml::SPEC, cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&who_eml::SPEC, deadline).fresh(cx.fresh);
     let result = who_eml::medicines(&leg, name.as_str());

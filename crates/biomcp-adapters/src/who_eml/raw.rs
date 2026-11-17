@@ -10,14 +10,18 @@ use std::collections::BTreeMap;
 #[derive(Deserialize)]
 pub(crate) struct Medicine {
     name: Option<Field<NativeText>>,
-    /// The recommendations that list this medicine.
-    guideline: Option<Field<Links>>,
-    /// The recommendations that name this medicine as a therapeutic alternative.
+    /// The recommendations that list this medicine; every eEML medicine page carries it, so a
+    /// page without it is a changed site, not a medicine with no listings.
+    guideline: Field<Links>,
+    /// The recommendations that name this medicine as a therapeutic alternative; required too.
     #[serde(rename = "equivalentFor")]
-    equivalent_for: Option<Field<Links>>,
+    equivalent_for: Field<Links>,
 }
 impl Reply for Medicine {
     fn check(&self) -> Result<(), BadReply> {
+        for links in [&self.guideline, &self.equivalent_for] {
+            numbers(links)?;
+        }
         Ok(())
     }
 }
@@ -33,39 +37,49 @@ struct Link {
     #[serde(rename = "@id")]
     id: Option<Field<String>>,
 }
+/// The medicine's listings: each recommendation number, and whether the medicine is only the
+/// listing's therapeutic alternative there.
+pub(crate) struct Listed {
+    pub(crate) name: Option<Text>,
+    pub(crate) numbers: Vec<(u32, bool)>,
+}
 impl Medicine {
-    /// The medicine's name and its recommendation numbers: those listing it first, then those
-    /// naming it as an alternative, each in number order.
-    pub(crate) fn map(self, cx: &mut Problems) -> (Option<Text>, Vec<u32>) {
+    /// Recommendations listing the medicine first, then those naming it as an alternative, each
+    /// in number order; a link that is not a recommendation is a bad reply, as `check` says.
+    pub(crate) fn map(self, cx: &mut Problems) -> Result<Listed, BadReply> {
         let name = cx.source_field("name", self.name);
-        let mut found = numbers("guideline", self.guideline, cx);
-        for number in numbers("equivalentFor", self.equivalent_for, cx) {
-            if !found.contains(&number) {
-                found.push(number);
+        let listed = numbers(&self.guideline)?;
+        let mut found: Vec<(u32, bool)> = listed.iter().map(|n| (*n, false)).collect();
+        for number in numbers(&self.equivalent_for)? {
+            if !listed.contains(&number) {
+                found.push((number, true));
             }
         }
-        (name, found)
+        Ok(Listed {
+            name,
+            numbers: found,
+        })
     }
 }
-fn numbers(field: &str, links: Option<Field<Links>>, cx: &mut Problems) -> Vec<u32> {
-    let links = match cx.field(field, links) {
-        Some(Links::List(links)) => links,
-        Some(Links::Keyed(links)) => links.into_values().collect(),
-        None => Vec::new(),
+/// Every linked recommendation number, sorted once each; a bad reply when any link is not one.
+fn numbers(links: &Field<Links>) -> Result<Vec<u32>, BadReply> {
+    let links: Vec<&Field<Link>> = match links.as_ref().ok_or(BadReply)? {
+        Links::List(links) => links.iter().collect(),
+        Links::Keyed(links) => links.values().collect(),
     };
-    let mut numbers: Vec<u32> = links
-        .into_iter()
-        .filter_map(|link| {
-            let id = cx.field(field, Some(link))?.id;
-            let id = cx.required_field(field, id)?;
-            let number = id.strip_prefix("/recommendations/").map(str::parse::<u32>);
-            let number = cx.required(field, number)?;
-            cx.optional(field, Some(number))
-        })
-        .collect();
+    let mut numbers = Vec::new();
+    for link in links {
+        let id = link
+            .as_ref()
+            .and_then(|link| link.id.as_ref())
+            .and_then(Field::as_ref)
+            .ok_or(BadReply)?;
+        let number = id.strip_prefix("/recommendations/").ok_or(BadReply)?;
+        numbers.push(number.parse::<u32>().map_err(|_| BadReply)?);
+    }
     numbers.sort_unstable();
     numbers.dedup();
-    numbers
+    Ok(numbers)
 }
 
 /// One eEML recommendation page: a medicine's listing for one indication.
@@ -88,8 +102,13 @@ pub(crate) struct Recommendation {
     equivalents: Option<Field<Vec<Field<Equivalent>>>>,
 }
 impl Reply for Recommendation {
+    /// Every recommendation page states its status, which decides whether it is a listing.
     fn check(&self) -> Result<(), BadReply> {
-        Ok(())
+        self.status
+            .as_ref()
+            .and_then(Field::as_ref)
+            .map(|_| ())
+            .ok_or(BadReply)
     }
 }
 #[derive(Deserialize)]
@@ -177,31 +196,27 @@ fn decisions(
     }
     decisions.into()
 }
-/// The Committee's recommendation, the first of the eEML's evidence texts; `None` when it repeats
-/// the listing before it, whose text `previous` holds.
+/// The Committee's recommendation, the first of the eEML's evidence texts.
 fn committee(
     evidence: Option<Field<Vec<Option<Field<NativeText>>>>>,
-    previous: &mut Option<Text>,
     cx: &mut Problems,
 ) -> Option<Text> {
-    let committee = cx
-        .field("evidenceOrigin", evidence)
+    cx.field("evidenceOrigin", evidence)
         .and_then(|parts| parts.into_iter().next().flatten())
-        .and_then(|text| cx.source_field("evidenceOrigin", Some(text)));
-    if committee.is_some() && committee == *previous {
-        return None;
-    }
-    previous.clone_from(&committee);
-    committee
+        .and_then(|text| cx.source_field("evidenceOrigin", Some(text)))
 }
+/// The eEML status of a listing on the Model List; the medicine page also links applications
+/// the Committee rejected, which are not listings.
+const ADDED: &str = "AddedToEml";
 impl Recommendation {
-    /// One listing; `previous` holds the last committee text, so a repeat is omitted.
+    /// One listing, or `None` when the recommendation is not on the Model List (its status is not
+    /// `AddedToEml`, such as a rejected application). `alternative` says the medicine asked for
+    /// is only the listing's therapeutic alternative.
     pub(crate) fn map(
         self,
         id: u32,
         url: &str,
-        asked: Option<&Text>,
-        previous: &mut Option<Text>,
+        alternative: bool,
         cx: &mut Problems,
     ) -> Option<DrugEssentialMedicineListing> {
         let subject = cx.field("guidelineSubject", self.subject);
@@ -215,12 +230,7 @@ impl Recommendation {
             .into_iter()
             .filter_map(|drug| cx.source_field("guidelineSubject.drug", drug.name))
             .collect();
-        let alternative_to = listed
-            .first()
-            .filter(|listed| {
-                asked.is_some_and(|asked| !asked.as_str().eq_ignore_ascii_case(listed.as_str()))
-            })
-            .cloned();
+        let alternative_to = listed.first().filter(|_| alternative).cloned();
         let indication = cx.field("guidelineSubject.indication", indication);
         let (indication, code) = match indication {
             Some(i) => (i.name, i.code),
@@ -235,7 +245,11 @@ impl Recommendation {
             .filter(|d| d.decision.as_str() == "DecisionToAdd")
             .filter_map(|d| d.date)
             .min_by_key(|d| (d.year(), d.month(), d.day()));
-        let committee = committee(self.evidence, previous, cx);
+        let status = cx.source_field("statusForIndication", self.status);
+        if status.as_ref().map(Text::as_str) != Some(ADDED) {
+            return None;
+        }
+        let committee = committee(self.evidence, cx);
         Some(DrugEssentialMedicineListing {
             id: crate::mapped::record(id)?,
             url: cx.text("url", Some(url))?,
@@ -246,7 +260,7 @@ impl Recommendation {
                 .and_then(|s| cx.source_field("section.name", s.name)),
             indication: cx.source_field("guidelineSubject.indication.name", indication),
             icd11,
-            status: cx.source_field("statusForIndication", self.status),
+            status,
             added,
             decisions,
             children: cx.field("includedInEmlc", self.children),
