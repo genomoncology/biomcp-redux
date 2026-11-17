@@ -30,8 +30,8 @@
           ]
         },
         "/result/items/0/sections/clingen/data/triplosensitivity_evidence/score": 0,
-        "/result/items/0/sections/clingen/data/triplosensitivity_evidence/pmids": {
-          "equals": []
+        "/result/items/0/sections/clingen/data/triplosensitivity_evidence": {
+          "omits": ["pmids"]
         }
       }
     }

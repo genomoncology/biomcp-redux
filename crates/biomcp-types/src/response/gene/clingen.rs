@@ -38,6 +38,7 @@ pub struct ClinGenGeneDosage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub score: Option<u32>,
     /// Supporting PubMed identifiers in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub pmids: Box<[biodata::Pmid]>,
 }
 /// One published ClinGen gene–disease validity record.
