@@ -2418,7 +2418,7 @@
           "type": "boolean"
         },
         "exclusion": {
-          "description": "Split text only: this page's registry lines below \"Exclusion Criteria\" headings, each with its nested lines, word for word in source order. Absent when this page holds no exclusion heading and starts below none; other pages may hold more.",
+          "description": "Split text only: this page's registry lines below \"Exclusion Criteria\" headings, each with its\nnested lines, word for word in source order. Absent when this page holds no exclusion heading\nor item; other pages may hold them.",
           "items": {
             "type": "string"
           },
@@ -2435,7 +2435,7 @@
           ]
         },
         "inclusion": {
-          "description": "Split text only: this page's registry lines below \"Inclusion Criteria\" headings, each with its nested lines, word for word in source order. Absent when this page holds no inclusion heading and starts below none; other pages may hold more.",
+          "description": "Split text only: this page's registry lines below \"Inclusion Criteria\" headings, each with its\nnested lines, word for word in source order. Absent when this page holds no inclusion heading\nor item; other pages may hold them.",
           "items": {
             "type": "string"
           },
