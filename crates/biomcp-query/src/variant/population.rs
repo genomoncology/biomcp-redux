@@ -46,18 +46,7 @@ pub(super) fn section(
     });
     let error = result.as_ref().err().copied();
     let source = status::source(Source::Gnomad, leg.finish(), error);
-    let value = match result {
-        Ok(Some(data)) => Section::Data {
-            source: Source::Gnomad,
-            data,
-        },
-        Ok(None) if dropped => Section::unavailable(Source::Gnomad, Reason::BadReply),
-        Ok(None) => no_record(&id),
-        Err(e) => Section::unavailable(
-            Source::Gnomad,
-            crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
-        ),
-    };
+    let value = source_section(result, &id, dropped);
     (
         value,
         joined.sources.into_iter().chain([source]).collect(),
@@ -66,8 +55,28 @@ pub(super) fn section(
         dropped,
     )
 }
+/// Apply the same source outcome to both population views.
+pub(super) fn source_section(
+    result: Result<Option<VariantPopulation>, RequestError>,
+    id: &str,
+    dropped: bool,
+) -> Section<VariantPopulation> {
+    match result {
+        Ok(Some(data)) => Section::Data {
+            source: Source::Gnomad,
+            data,
+        },
+        Ok(None) if dropped => Section::unavailable(Source::Gnomad, Reason::BadReply),
+        Ok(None) => no_record(id),
+        Err(e) => Section::unavailable(
+            Source::Gnomad,
+            crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
+        ),
+    }
+}
+
 /// Only the adapter's accepted variant miss reaches this state.
-pub(super) fn no_record(id: &str) -> Section<VariantPopulation> {
+fn no_record(id: &str) -> Section<VariantPopulation> {
     Section::Empty {
         source: Source::Gnomad,
         record: biomcp_types::SourceRecord::asked(Some(gnomad::variant::DATASET), id),
