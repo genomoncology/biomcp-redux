@@ -31,3 +31,9 @@ The reg-affairs pair run on 2026-11-16 (bench ticket 0061, records `0061-persona
 ## Changes
 
 - Changes: the empty reply's next step, a case and its recording, and one release-notes line.
+
+## Progress
+
+- Measured live 2026-11-17: openFDA PMA `trade_name:"Tempus"` and `trade_name:"Tempus xT"` answer 404 "No matches found!"; `applicant:"Tempus"` counts 6 records, P210011 (xT CDx, Tempus AI, Inc.) and its supplements. 510(k) `applicant:"Tempus"` counts 5 (Tempus ECG-AF, xR IVD and others) while `device_name:"Tempus"` finds 19 unrelated devices.
+- Built on the existing `next` steps (0904): an fda-pma or fda-510k search with `--name` and no `--manufacturer` that finds 0 records gets one `configure` step, the same first page with the `--name` words as `--manufacturer` (`DiagnosticSearch::name_as_manufacturer`, checked by the query constructor), and a `request-guidance` notice on the source report: `--name matched the PMA trade name only; the FDA applicant is searched with --manufacturer.` (510(k): "510(k) device name"). The notice is free text in the existing `SourceNotice::RequestGuidance`, so no schema or error-message enum changes and no schema-reviews entry. Code in `crates/biomcp-query/src/diagnostic/device_search.rs`.
+- Recorded in pm job j42287 (first try j42286 hit a recording conflict from two commands in one folder): `tests/replies/diagnostic/pma-name-applicant/`. Case `tests/cases/diagnostic/pma-name-applicant.yaml` runs `--name Tempus` (0 rows, the notice and the `--manufacturer Tempus` step) and then that step (6 rows, P210011). One release-notes line under Output migration.

@@ -1,0 +1,60 @@
+{
+  "feature": "diagnostic-pma",
+  "live_check": "public",
+  "story": "A PMA --name search that finds nothing says --name matched the trade name only and offers the same words as --manufacturer, the FDA applicant. Tempus xT's PMA is filed under the trade name xT CDx, so --name Tempus finds nothing and the offered --manufacturer Tempus finds P210011.",
+  "verified": "Native openFDA replies recorded 2026-11-17 by biomcp --record in pm job j42287, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/diagnostic/pma-name-applicant/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "diagnostic/pma-name-applicant",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--name",
+        "Tempus"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/source_query": "trade_name:\"Tempus\"",
+        "/sources/0/notices/*/message": {
+          "includes": "--name matched the PMA trade name only; the FDA applicant is searched with --manufacturer."
+        },
+        "/next": [
+          {
+            "kind": "configure",
+            "args": [
+              "search",
+              "diagnostic",
+              "--manufacturer",
+              "Tempus",
+              "--source",
+              "fda-pma"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--manufacturer",
+        "Tempus",
+        "--source",
+        "fda-pma"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 6,
+        "/result/source_query": "applicant:\"Tempus\"",
+        "/result/items/*/header/pma_number": {
+          "includes": "P210011"
+        },
+        "/result/items/0/header/applicant": "Tempus AI, Inc.",
+        "/result/items/0/header/trade_name": "xT CDx"
+      }
+    }
+  ]
+}
