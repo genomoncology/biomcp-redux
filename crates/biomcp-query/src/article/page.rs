@@ -12,6 +12,7 @@ use biomcp_types::{
     ArticleEdgePage, ArticleEdges, ArticlePage, ArticleSearch, ArticleSort, PageInfo, ReplyData,
     Request, Source, StepKind,
 };
+use std::time::Duration;
 #[derive(Clone, Copy)]
 pub(super) enum Cursor<'a> {
     Search(&'a ArticleSearch),
@@ -83,16 +84,15 @@ pub(super) fn read<'a>(
         .filter(|r| r.item.header.is_none() && (!r.checked || cx.fresh))
         .filter_map(|r| r.item.pmid)
         .collect();
-    if !missing.is_empty() {
-        let deadline = store.deadline();
-        let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
-        let started = leg.remaining();
-        let result = pubmed::summaries(&leg, &missing, cx.ncbi_email.as_ref());
-        store.set_deadline(consume(deadline, started, leg.remaining()));
+    // Titles and the access lookup need only the page's PMIDs, so they run together (1046).
+    let lookup = super::access::wanted(cx, query, &rows);
+    let reads = super::access::read(cx, store.deadline(), &missing, &lookup);
+    store.set_deadline(consume(store.deadline(), reads.elapsed, Duration::ZERO));
+    if let Some((result, report)) = reads.summaries {
         match result {
             Ok(mapped) => {
                 out.include_refusals(mapped.refusals);
-                let source = status::source(Source::PubMed, leg.finish(), None);
+                let source = status::source(Source::PubMed, report, None);
                 keep_source(out, &source);
                 let saved = crate::publish::keep(
                     store
@@ -117,7 +117,7 @@ pub(super) fn read<'a>(
                 }
             }
             Err(error) => {
-                let source = status::source(Source::PubMed, leg.finish(), Some(error));
+                let source = status::source(Source::PubMed, report, Some(error));
                 replace_source(out, source, &pool.sources);
                 if !disabled(error) {
                     crate::status::item(out, false, true, false);
@@ -127,8 +127,18 @@ pub(super) fn read<'a>(
             }
         }
     }
+    let failed_lookup = match reads.access {
+        Some((result, report)) => super::access::apply(store, id, &mut rows, result, report, out)?,
+        None => None,
+    };
     filter_stored_text(cx, store, id, &mut rows, out)?;
     finish(query, pool, rows, out);
+    if let Some(source) = failed_lookup {
+        super::access::failed(source, out);
+        if !out.next.iter().any(|step| step.0 == StepKind::Fresh) {
+            query.retry(Some(pool.info.id.clone()), out);
+        }
+    }
     Ok(())
 }
 fn disabled(error: RequestError) -> bool {
@@ -250,7 +260,14 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         pool: Some(pool.info.clone()),
         truncated: Some(truncated(&pool.sources)),
     });
-    let items = rows.into_iter().map(|r| r.item).collect();
+    let search = matches!(query, Cursor::Search(_));
+    let items = rows
+        .into_iter()
+        .map(|mut r| {
+            r.item.open_access_unknown = search && r.item.open_access.is_none();
+            r.item
+        })
+        .collect();
     out.body = match query {
         Cursor::Search(q) => (ArticlePage {
             items,

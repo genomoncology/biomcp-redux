@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "europepmc",
+  "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=SRC%3AMED%20AND%20%28EXT_ID%3A36970111%20OR%20EXT_ID%3A42162665%29&format=json&resultType=core&pageSize=100",
+  "exchanges": [
+    {
+      "fetched": 1794935846,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 12000,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"hitCount":2,"resultList":{"result":[{"source":"MED","pmid":"42162665","isOpenAccess":"N","license":"cc by-nc-nd"},{"source":"MED","pmid":"36970111","isOpenAccess":"Y","license":"cc by-nc"}]}}
+      }
+    }
+  ]
+}

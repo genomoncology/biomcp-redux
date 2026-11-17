@@ -204,6 +204,13 @@
       "$ref": "#/$defs/Reply_Text",
       "description": "Publisher's canonical record URL.",
       "format": "uri"
+    },
+    "why_stopped": {
+      "description": "Registry reason the trial stopped early, absent when the registry gives none.",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [

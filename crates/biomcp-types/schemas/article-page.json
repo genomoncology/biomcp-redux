@@ -224,12 +224,27 @@
           "$ref": "#/$defs/Reply_ArticleKey",
           "description": "Stable checked paper identity when the provider supplies one."
         },
+        "license": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_License"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "License Europe PMC states for the paper, even when it is not open access."
+        },
         "open_access": {
           "description": "Europe PMC open-access flag; absent when no source states one. Not a licence.",
           "type": [
             "boolean",
             "null"
           ]
+        },
+        "open_access_unknown": {
+          "description": "True on a search row whose open-access status no source stated.",
+          "type": "boolean"
         },
         "pmid": {
           "$ref": "#/$defs/Reply_Pmid",
@@ -466,6 +481,10 @@
           "maximum": 50,
           "minimum": 1,
           "type": "integer"
+        },
+        "no_access_lookup": {
+          "description": "Skip the access lookup.\nDo not ask Europe PMC for each row's open-access flag and license.",
+          "type": "boolean"
         },
         "no_preprints": {
           "description": "Exclude preprints.\nPubMed and Europe PMC only: exclude preprints using the source's own filter.",

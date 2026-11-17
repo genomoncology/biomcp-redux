@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped&filter.advanced=AREA%5BWhyStopped%5D%28%22enrollment%22%29&pageSize=3&query.cond=%28pancreatic%20cancer%29",
+  "exchanges": [
+    {
+      "fetched": 1794939300,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 146,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":57,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT03685591","briefTitle":"PF-06952229 Treatment in Adult Patients With Advanced Solid Tumors"},"statusModule":{"overallStatus":"TERMINATED","whyStopped":"The decision to stop enrollment was due to strategic considerations and not due to any specific safety reasons or request from a regulatory authority.","startDateStruct":{"date":"2018-10-04","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2022-03-30","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2024-06-26"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Pfizer"}},"conditionsModule":{"conditions":["Breast Neoplasms","Prostate Neoplasms","Neoplasms, Squamous Cell","Melanoma","Mesothelioma","Pancreatic Neoplasms","Colorectal Neoplasms","Carcinoma, Renal Cell","Liver Neoplasms"]},"designModule":{"phases":["PHASE1"]},"armsInterventionsModule":{"interventions":[{"name":"PF-06952229"},{"name":"Enzalutamide"}]}},"hasResults":true},
+{"protocolSection":{"identificationModule":{"nctId":"NCT02166190","briefTitle":"RFA RCT for Pancreatic or Bile Duct Cancer"},"statusModule":{"overallStatus":"TERMINATED","whyStopped":"Enrollment was feasibly not going to be reached.","startDateStruct":{"date":"2014-06"},"primaryCompletionDateStruct":{"date":"2017-05-17","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2019-09-30"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Weill Medical College of Cornell University"}},"conditionsModule":{"conditions":["Unresectable Pancreatic Cancer","Cholangiocarcinoma Non-resectable"]},"designModule":{"phases":["NA"]},"armsInterventionsModule":{"interventions":[{"name":"Radiofrequency Ablation using EndoHPB Probe"},{"name":"Stenting only"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT00728000","briefTitle":"Phase II Study Of Neoadjuvant Chemotherapy In Borderline Resectable Pancreatic Adenocarcinoma"},"statusModule":{"overallStatus":"WITHDRAWN","whyStopped":"study withdrawn due to lack of enrollment","startDateStruct":{"date":"2008-08"},"primaryCompletionDateStruct":{"date":"2009-08","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2019-11-25"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"University of Cincinnati"}},"conditionsModule":{"conditions":["Pancreatic Adenocarcinoma"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Gemcitabine"},{"name":"Oxaliplatin"},{"name":"Erlotinib"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyV9C-4abumpOQJJxuZPKs1fwW"}
+      }
+    }
+  ]
+}

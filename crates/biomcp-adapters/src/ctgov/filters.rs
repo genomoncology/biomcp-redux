@@ -5,7 +5,8 @@ use std::collections::BTreeMap;
 /// Every search row asks for these; a date's type is its actual or estimated qualifier.
 const FIELDS: &str = concat!(
     "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults",
-    ",LeadSponsorName,StartDate,StartDateType,PrimaryCompletionDate,PrimaryCompletionDateType"
+    ",LeadSponsorName,StartDate,StartDateType,PrimaryCompletionDate,PrimaryCompletionDateType",
+    ",WhyStopped"
 );
 
 pub(super) fn base_parameters(query: &TrialSearch) -> BTreeMap<String, String> {
@@ -97,21 +98,30 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
             (AREA[MaximumAge]RANGE[{age} years,MAX] OR AREA[MaximumAge]MISSING)"
         ));
     }
-    if query.updated_since().is_some() || query.updated_until().is_some() {
-        advanced.push(format!(
-            "AREA[LastUpdatePostDate]RANGE[{},{}]",
-            query
-                .updated_since()
-                .map_or("MIN".into(), ToString::to_string),
-            query
-                .updated_until()
-                .map_or("MAX".into(), ToString::to_string)
-        ));
-    }
+    advanced.extend(updated_range(query));
     if query.has_results() {
         advanced.push("AREA[ResultsFirstPostDate]RANGE[MIN,MAX]".into());
     }
+    advanced.extend(why_stopped(query));
     advanced.join(" AND ")
+}
+
+fn updated_range(query: &TrialSearch) -> Option<String> {
+    let since = query.updated_since();
+    let until = query.updated_until();
+    (since.is_some() || until.is_some()).then(|| {
+        format!(
+            "AREA[LastUpdatePostDate]RANGE[{},{}]",
+            since.map_or("MIN".into(), ToString::to_string),
+            until.map_or("MAX".into(), ToString::to_string)
+        )
+    })
+}
+
+/// Each stop reason word quoted, so registry operators in the caller's text stay plain words.
+fn why_stopped(query: &TrialSearch) -> Option<String> {
+    let words: Vec<_> = query.why_stopped_words().into_iter().map(quote).collect();
+    (!words.is_empty()).then(|| format!("AREA[WhyStopped]({})", words.join(" AND ")))
 }
 
 pub(super) fn name_parameters(

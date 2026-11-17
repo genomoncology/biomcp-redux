@@ -229,12 +229,27 @@
           "$ref": "#/$defs/Reply_ArticleKey",
           "description": "Stable checked paper identity when the provider supplies one."
         },
+        "license": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_License"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "License Europe PMC states for the paper, even when it is not open access."
+        },
         "open_access": {
           "description": "Europe PMC open-access flag; absent when no source states one. Not a licence.",
           "type": [
             "boolean",
             "null"
           ]
+        },
+        "open_access_unknown": {
+          "description": "True on a search row whose open-access status no source stated.",
+          "type": "boolean"
         },
         "pmid": {
           "$ref": "#/$defs/Reply_Pmid",

@@ -142,7 +142,7 @@ pub use response::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
     TrialItemFailure, TrialRecords, TrialSections, TrialSite,
 };
-pub use response::{TrialConditionResolution, TrialPage};
+pub use response::{TrialConditionResolution, TrialPage, TrialSiteCount, TrialSiteCounts};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
 pub use response::{
     VariantCard, VariantGetQuery, VariantHeader, VariantResolution, VariantTranscript,

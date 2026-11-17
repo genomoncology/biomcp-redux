@@ -1,4 +1,4 @@
-//! A search row's status and dates, with the same qualifier the record view shows.
+//! A search row's status, stop reason and dates, as the record view shows them.
 use super::Status;
 use crate::{ctgov::detail::RawDate, mapped::Problems, raw::Field};
 use biodata::{PartialDate, TrialDate, TrialStatus};
@@ -6,6 +6,7 @@ use biodata::{PartialDate, TrialDate, TrialStatus};
 /// A row's status and dates; a missing status module still reports its two required fields.
 pub(super) struct Dates {
     pub(super) status: Option<TrialStatus>,
+    pub(super) why_stopped: Option<Box<str>>,
     pub(super) updated: Option<PartialDate>,
     pub(super) start: Option<TrialDate>,
     pub(super) primary_completion: Option<TrialDate>,
@@ -15,6 +16,7 @@ impl Dates {
         let Some(status) = problems.field("statusModule", module) else {
             return Self {
                 status: problems.required("overallStatus", None),
+                why_stopped: None,
                 updated: problems.required("lastUpdatePostDateStruct.date", None),
                 start: None,
                 primary_completion: None,
@@ -29,6 +31,7 @@ impl Dates {
             .and_then(|d| problems.field("lastUpdatePostDateStruct.date", d.date));
         Self {
             status: overall,
+            why_stopped: crate::ctgov::detail::why_stopped(status.why_stopped, problems),
             updated: problems.required("lastUpdatePostDateStruct.date", updated),
             start: RawDate::field("startDateStruct", status.start_date_struct, problems),
             primary_completion: RawDate::field(

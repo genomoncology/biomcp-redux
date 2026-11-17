@@ -61,6 +61,8 @@ The section requires the user's key, configured with `biomcp key set alphagenome
 
 ## Population counts
 
+When gnomAD reports that it found no variant record, the population section has `state: empty` and a `record` naming the queried dataset selector (`gnomad_r4`) and exact GRCh38 allele key. A missing variant identity or failed lookup produces an unavailable section with a reason. The no-record reply supplies neither a release nor a frequency.
+
 The population join requires one source-given GRCh38 single-nucleotide allele. Missing or ambiguous join information produces a problem before gnomAD is called. Exome and genome records remain independent. The source selector does not establish a dataset release. Each request also asks for the source VA cohort release and counts. A typed population-frequency record requires that same response to supply a release for the matching total cohort and matching allele counts. Replies preserve native counts and report a problem when the release is missing or the counts disagree. A missing dataset stays absent; a reported zero stays zero. BioMCP does not compute a frequency from counts or sum overlapping ancestry and sex groups.
 
 ## Variant GWAS associations

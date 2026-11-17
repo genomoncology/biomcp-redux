@@ -26,3 +26,7 @@ Publisher schemas: [variant totals](https://github.com/broadinstitute/gnomad-bro
 Product joint data uses the existing section states: data for supplied totals, empty for null or absent source joint data, and unavailable for a refused joint record. Actual gnomAD exome/genome filters are explicitly `[]` in both live captures. The runner preserves that existing typed GnomadCounts contract only at its exact filters paths; unrelated empty lists and product nulls remain rejected.
 
 `gwas-rs1801133` (1026) is an actual public GWAS Catalog v2 reply for `associations?rs_id=rs1801133&page=0&size=2`, recorded live by `biomcp --record` in pm job j42173 on 2026-11-17 and kept whole. It reported 50 associations; the compact JSON body SHA-256 is `8a1cc3d689766ef35c8b175e81be1a9c8db37b841e3d4dd40b5f332ad1b6846b`.
+
+`clinvar-no-record` keeps the 2026-11-17 gnomAD HTTP 200 response for GRCh38 `2-165994236-A-G` in `gnomad_r4` whole. The public ClinGen Allele Registry response is retained with the MyVariant identity response limited to identity fields. The exact request body hash matches the checkout's population query. The gnomAD reply supplies no release.
+
+`wrong-allele` reuses the `main` population request for CA123643. Its synthetic response substitutes a different allele ID to check that a refused record cannot become a no-record result.

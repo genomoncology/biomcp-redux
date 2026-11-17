@@ -13,6 +13,9 @@ pub struct TrialHeader {
     /// Registry overall status, absent when missing or rejected; independent of site status.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<TrialStatus>,
+    /// Registry reason the trial stopped early, absent when the registry gives none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub why_stopped: Option<Box<str>>,
     /// Source phases; absent phases remain absent.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub phases: Box<[TrialPhase]>,

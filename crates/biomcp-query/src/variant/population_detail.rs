@@ -43,6 +43,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         Section::Data { .. } => status::item_status(true, false, read.dropped),
         _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
         Section::Empty { .. } => status::item_status(read.dropped, false, read.dropped),
+        _ if read.identity_absent => status::item_status(read.dropped, false, read.dropped),
+        _ if read.population_refused => status::item_status(true, false, true),
         _ => status::item_status(false, true, false),
     };
     let out = crate::status::finish(
@@ -67,6 +69,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
 }
 struct PopulationRead {
     dropped: bool,
+    identity_absent: bool,
+    population_refused: bool,
     population: Section<biomcp_types::VariantPopulation>,
     groups: Vec<GnomadCounts>,
     candidates: Vec<biomcp_types::VariantHeader>,
@@ -81,6 +85,8 @@ fn read(
 ) -> PopulationRead {
     let mut read = PopulationRead {
         dropped: false,
+        identity_absent: false,
+        population_refused: false,
         population: Section::unavailable(Source::Gnomad, Reason::NoJoinId),
         groups: Vec::new(),
         candidates: Vec::new(),
@@ -101,14 +107,8 @@ fn read(
         read.local = found.local;
         read.candidates = found.rows;
         if let Some(reason) = found.reason {
-            read.population = if reason == Reason::NotFound {
-                Section::Empty {
-                    source: Source::Gnomad,
-                    record: None,
-                }
-            } else {
-                Section::unavailable(Source::Gnomad, reason)
-            };
+            read.identity_absent = reason == Reason::NotFound;
+            read.population = Section::unavailable(Source::Gnomad, reason);
             return read;
         }
     }
@@ -142,6 +142,7 @@ fn read(
         deadline,
     );
     read.dropped |= dropped;
+    read.population_refused = dropped;
     read.problems.extend(projection_problems(&section, &groups));
     read.sources.push(source);
     read.population = section;
@@ -215,20 +216,7 @@ fn load(
     });
     let error = result.as_ref().err().copied();
     let source = status::source(Source::Gnomad, leg.finish(), error);
-    let section = match result {
-        Ok(Some(data)) => Section::Data {
-            source: Source::Gnomad,
-            data,
-        },
-        Ok(None) => Section::Empty {
-            source: Source::Gnomad,
-            record: None,
-        },
-        Err(error) => Section::unavailable(
-            Source::Gnomad,
-            crate::status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
-        ),
-    };
+    let section = super::population::source_section(result, id, dropped);
     (
         section,
         groups,

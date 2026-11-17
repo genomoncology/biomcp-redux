@@ -1,0 +1,45 @@
+{
+  "feature": "variant-population",
+  "live_check": "synthetic response-only control over the original request identity",
+  "story": "A substituted gnomAD allele is a bad reply on both population views.",
+  "replay": "variant-population/wrong-allele",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "population",
+        "CA123643"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/population/state": "unavailable",
+        "/result/population/reason": "bad-reply",
+        "/result/population": {
+          "omits": [
+            "record",
+            "data"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA123643",
+        "population"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/candidates/0/sections/population/state": "unavailable",
+        "/result/candidates/0/sections/population/reason": "bad-reply",
+        "/result/candidates/0/sections/population": {
+          "omits": [
+            "record",
+            "data"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,12 +1,13 @@
 # 1044 — trial-eligibility-splits-inclusion-and-exclusion
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 343e23932df95acc8516b38dd90df7ae804d0bd4
 
 Milestone: 7
 
 ## Outcome
 
-`get trial NCT… eligibility` gives the inclusion criteria and the exclusion criteria as two lists of the registry's own items, beside the age, sex and healthy-volunteer fields it already gives. The split uses only the registry's own "Inclusion Criteria" and "Exclusion Criteria" headings and its list markers. When the text has no such headings, the reply keeps the whole text and says it could not be split. The original text stays in the reply.
+`get trial NCT… eligibility` gives the inclusion criteria and the exclusion criteria as two lists of the registry's own items, beside the age, sex and healthy-volunteer fields it already gives. The split uses only the registry's own "Inclusion Criteria" and "Exclusion Criteria" headings and its list markers. When the text has no such headings, the reply keeps the whole text and says it could not be split. When it is split, the lists and any text before the first heading replace the original text in the reply, because efficient tools are part of the 1.0 bar and the lists are the registry's own lines word for word (coordinator review, 2026-11-17).
 
 ## Why
 
@@ -31,3 +32,12 @@ The trial-ops persona got eligibility as one block of prose in its 2026-11-10 an
 ## Changes
 
 - Changes: the ClinicalTrials.gov eligibility mapping, the eligibility page schema, cases and their recordings, and one release-notes line.
+
+## Progress
+
+- 2026-11-17: `exclusion_heading` moved from `ctgov/gene.rs` to `ctgov/criteria.rs` as `heading`, now shared by gene notices and the split; it also accepts a space before the colon ("Exclusion criteria :", seen in a batch-of-20 recording). The eligibility page gains three optional fields: `inclusion` and `exclusion` (this page's items, each a top-level line with its more deeply indented nested lines, verbatim) and `not_split` (a notice when the whole text lacks either heading). Lists follow the existing paging: a later page knows its section from the last heading before its offset. Text before the first heading stays only in `criteria`.
+- Measured in j42431: NCT02578680 eligibility page grows from under 8,395 to 12,427 bytes (10 inclusion, 25 exclusion items); ceiling 14,291. NCT00003020 (live recording, no headings) measures 3,652 bytes; ceiling 4,200.
+- 2026-11-17, after the independent review: a split page now sends `preamble`, `inclusion` and `exclusion` in place of `criteria`, which is then absent (reviewed in `release/schema-reviews.json` under a new `required_removals` entry; the schema test reads it). A list appears only on a page that holds its heading or one of its items. The text is not split when any line other than the two headings ends in "criteria:". The page budget counts each line group's list overhead. The checked-source walker now also walks a synthetic two-page split text and rebuilds the original from preamble plus lists.
+- Measured in j42463, j42467 and j42478: NCT02578680 page 8,092 bytes (ceiling 9,306); NCT00003020 3,697 (4,252); NCT03220035 page one 9,152 (10,525) with 7 inclusion items and no exclusion list, page two 7,374 (8,480) with 7 inclusion and 12 exclusion items; NCT05710406, not split by the guard, 9,264 (10,654). Among the recorded trials the guard also stopped the split for NCT02296125 ("6. Any of the following cardiac criteria:"), NCT03511664 and NCT07438106, whose item lines end in "criteria:".
+- 2026-11-17, coordinator follow-up: a line that starts with a list marker after trimming (a number or single letter followed by "." or ")", or a bullet) is an item, so it no longer blocks the split. FLAURA and NCT03511664 split again; FLAURA's case expects 8 inclusion and 8 exclusion items with item 6 and its nested cardiac lines intact (5,916 bytes, ceiling 6,804). NCT05710406's "* REGISTRATION (STEP 1) ELIGIBILITY CRITERIA:" still blocks, because trimming removes its "*". NCT07438106's "Participants will be excluded from the study if they meet any of the following criteria:" has no marker, so it still blocks. Merged origin/main after 1042.
+- 2026-11-17, paused at Ian's agent switch: commit 2d584ef852cc5b0756073c03edc5bead8bb60fa6 (merged with origin/main after 1042 and 1045) passed `make --keep-going landing-gate docs-check schema-release-check` in job j42498. This note is the only later change. Left: an independent re-review of the three review fixes (lists absent from pages without their section, lists replacing the text, the "criteria:" guard with list markers) and of the new `required_removals` schema review category, then land.

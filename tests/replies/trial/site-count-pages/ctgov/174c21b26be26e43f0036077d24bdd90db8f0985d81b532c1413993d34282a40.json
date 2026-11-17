@@ -1,0 +1,44 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CLocationFacility%2CLocationCity%2CLocationCountry&pageSize=1000&query.cond=%28lymphoma%29",
+  "exchanges": [
+    {
+      "fetched": 1794939305,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "studies": [
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT00000001"
+                },
+                "contactsLocationsModule": {
+                  "locations": [
+                    {
+                      "facility": "Example Hospital",
+                      "city": "Boston",
+                      "country": "United States"
+                    },
+                    {
+                      "facility": "Example Hospital",
+                      "city": "Boston",
+                      "country": "United States"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "totalCount": 3,
+          "nextPageToken": "page-2"
+        }
+      }
+    }
+  ]
+}

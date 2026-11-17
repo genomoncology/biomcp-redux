@@ -1,6 +1,7 @@
 # 1047 — Name the gnomAD lookup when the allele has no record
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 31d7ecd75de57c0d91be74f74cd4e2f4af41564e
 
 Milestone: 7
 

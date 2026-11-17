@@ -1,7 +1,11 @@
 //! Preserve registry line structure within the escaped JSON text budget.
 const BUDGET: usize = 6000;
+/// A split page sends each group as a list item: its quotes and comma.
+const ITEM: usize = 3;
 
-pub(super) fn fragment(text: &str, offset: usize) -> (&str, bool) {
+/// `split` counts each line group as the list item the split page sends in its place.
+pub(super) fn fragment(text: &str, offset: usize, split: bool) -> (&str, bool) {
+    let item = if split { ITEM } else { 0 };
     let start = text
         .char_indices()
         .nth(offset)
@@ -34,7 +38,7 @@ pub(super) fn fragment(text: &str, offset: usize) -> (&str, bool) {
             .1
             .split_at(group_end - segment_start)
             .0;
-        let cost = biomcp_adapters::jats::escaped_bytes(candidate);
+        let cost = biomcp_adapters::jats::escaped_bytes(candidate) + item;
         if bytes + cost > BUDGET {
             if end > start {
                 return (remaining.split_at(end - start).0, false);

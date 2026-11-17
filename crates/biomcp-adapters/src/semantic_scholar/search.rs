@@ -252,6 +252,8 @@ impl Paper {
             header,
             cited_by: None,
             open_access: None,
+            open_access_unknown: false,
+            license: None,
             sentence: None,
             intents: None,
             influential: None,

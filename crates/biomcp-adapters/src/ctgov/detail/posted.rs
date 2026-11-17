@@ -27,7 +27,7 @@ impl Enrollment {
     }
 }
 /// The registry escapes this plain sentence as Markdown; readers get the sentence.
-pub(super) fn why_stopped(
+pub(in crate::ctgov) fn why_stopped(
     value: Option<Field<Box<str>>>,
     problems: &mut Problems,
 ) -> Option<Box<str>> {
