@@ -10,6 +10,10 @@ use biomcp_types::{
     StepKind,
 };
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
     let mut out = status::empty(DrugMarkets::into_reply(query.clone(), None));
     let deadline = cx.fetch.deadline(cx.budget);

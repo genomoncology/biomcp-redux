@@ -391,13 +391,7 @@ impl Fetch {
         deadline: Deadline<'a>,
         extra: Duration,
     ) -> Leg<'a> {
-        let cap = self
-            .config
-            .source_deadlines
-            .get(&spec.source)
-            .copied()
-            .unwrap_or(spec.deadline)
-            .saturating_add(extra);
+        let cap = self.source_limit(spec).saturating_add(extra);
         let no_key = !self.disabled(spec.source)
             && match spec.key {
                 KeyUse::Required(credential) => self.secrets.get(credential.secret).is_none(),
@@ -416,6 +410,11 @@ impl Fetch {
             refreshed_bundles: Default::default(),
             fresh: matches!(self.mode, Mode::Live { fresh: true }),
         }
+    }
+    /// The source's own time limit: the user's setting, else its declared one.
+    fn source_limit(&self, spec: &SourceSpec) -> Duration {
+        let limits = &self.config.source_deadlines;
+        limits.get(&spec.source).copied().unwrap_or(spec.deadline)
     }
 }
 
@@ -501,8 +500,8 @@ impl Leg<'_> {
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .license_unchecked
     }
-    /// Run a metadata dependency from this leg's replay time and charge its time back here. Its
-    /// `command_remaining` measures against this leg's capped end, which it was opened under.
+    /// Run a metadata dependency within `cap` and its source's own limit (1038), from this leg's
+    /// replay time, charged back here. Its `command_remaining` measures against this leg's capped end.
     pub fn dependency<T>(
         &self,
         spec: &'static SourceSpec,
@@ -512,6 +511,7 @@ impl Leg<'_> {
         let budget = self.budget();
         let mut leg = self.fetch.leg(spec, self.deadline);
         leg.clock = self.clock.as_ref().map(deadline::VirtualClock::detached);
+        let cap = cap.min(self.fetch.source_limit(spec));
         leg.deadline = self.deadline.until(budget.child(cap).end());
         let started = leg.remaining();
         let result = operation(&leg);

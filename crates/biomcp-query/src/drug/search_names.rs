@@ -67,6 +67,10 @@ pub(crate) fn bounded<'a, T>(
 /// `fit` says which names the searching provider can take, and why it cannot take the others.
 /// A lookup that does not finish never counts against the search: its sources are listed as
 /// skipped, and the notice names the term searched as typed.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 pub(crate) fn resolve<'a>(
     cx: &Ctx<'a>,
     input: &Text,

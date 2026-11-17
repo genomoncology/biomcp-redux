@@ -21,6 +21,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
 /// Resolve the name of the first query once and get every query for the chosen record, so
 /// label headings of one name share one record read. A name that resolves to no record
 /// answers with one outcome for all.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let Some(query) = queries.first() else {
         return Vec::new();
@@ -162,6 +166,10 @@ fn chosen_name(
     out
 }
 
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut query = search.clone();
@@ -438,6 +446,10 @@ fn mychem(
     }
     (out, candidates, true)
 }
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
 fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut all = Vec::new();
