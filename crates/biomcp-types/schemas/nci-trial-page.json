@@ -1884,7 +1884,7 @@
           "description": "ClinicalTrials.gov only: registry sex facet."
         },
         "site_count": {
-          "description": "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged.",
+          "description": "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as registered, never merged.",
           "type": "boolean"
         },
         "source": {
