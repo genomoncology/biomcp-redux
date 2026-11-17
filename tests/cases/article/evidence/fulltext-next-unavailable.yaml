@@ -16,7 +16,8 @@
       "is_error": true,
       "expect": {
         "/status": "failed",
-        "/result/semantic_scholar/state": "unavailable",
+        "/sources/1/source": "semantic-scholar",
+        "/sources/1/state": "failed",
         "/next/*/args": {
           "includes": [
             "article",
@@ -38,6 +39,8 @@
         "--fulltext"
       ],
       "expect": {
+        "/status": "partial",
+        "/result/semantic_scholar/state": "unavailable",
         "/result/fulltext/state": "data",
         "/result/fulltext/data/paragraphs/total": 7
       },
