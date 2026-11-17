@@ -58,11 +58,6 @@
       ],
       "type": "string"
     },
-    "DrugId": {
-      "description": "A published native drug record identifier, without a consumer source prefix.",
-      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
-      "type": "string"
-    },
     "DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "enum": [
