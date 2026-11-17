@@ -38,7 +38,7 @@ impl Default for VirtualClock {
     }
 }
 impl VirtualClock {
-    fn now(&self) -> Instant {
+    pub(crate) fn now(&self) -> Instant {
         *self
             .0
             .lock()
@@ -236,4 +236,11 @@ impl LocalDeadline {
             .is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Acquire))
             || Instant::now() >= self.end
     }
+}
+
+/// Temporary 1034 trace: signed milliseconds from the first traced instant.
+pub(crate) fn trace_ms(at: Instant) -> i128 {
+    static ORIGIN: std::sync::OnceLock<Instant> = std::sync::OnceLock::new();
+    let origin = *ORIGIN.get_or_init(|| at);
+    if at >= origin { at.duration_since(origin).as_millis() as i128 } else { -(origin.duration_since(at).as_millis() as i128) }
 }

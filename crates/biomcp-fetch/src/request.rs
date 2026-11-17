@@ -207,6 +207,7 @@ impl Leg<'_> {
         // A `throttle_retry` request sent once more keeps its admission: the source refused it unread.
         let mut held = None;
         while attempt < crate::retry::ATTEMPTS {
+            let trace_before = self.budget().now();
             let permit = match held.take() {
                 Some(permit) => permit,
                 None => self
@@ -215,8 +216,22 @@ impl Leg<'_> {
                     .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?,
             };
             let started = Instant::now();
+            let trace_admitted = self.budget().now();
             let limit = prepared.stall_limit.filter(|_| attempt == 0);
             let exchange = self.exchange(prepared, codec, limit);
+            if std::env::var_os("BIOMCP_TRACE_1034").is_some() {
+                let global = self.fetch.clock.as_deref().map(|c| crate::deadline::trace_ms(c.now()));
+                eprintln!(
+                    "TRACE1034 req source={} paced_ms={} admitted_at={} done_at={} global_at={:?} leg_remaining_ms={} url={}",
+                    self.spec.source,
+                    trace_admitted.saturating_duration_since(trace_before).as_millis(),
+                    crate::deadline::trace_ms(trace_admitted),
+                    crate::deadline::trace_ms(self.budget().now()),
+                    global,
+                    self.budget().remaining().as_millis(),
+                    prepared.url.chars().take(110).collect::<String>()
+                );
+            }
             self.observe_exchange::<T>(prepared, &exchange, started.elapsed(), codec);
             if limit.is_some() && timed_out(&exchange) && !self.budget().expired() {
                 attempt += 1;

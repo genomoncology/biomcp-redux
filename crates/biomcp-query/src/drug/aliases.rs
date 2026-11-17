@@ -101,6 +101,9 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
                     )
                 })
                 .collect::<Option<Vec<_>>>()?;
+            if std::env::var_os("BIOMCP_TRACE_1034").is_some() {
+                eprintln!("TRACE1034 alias name={} get_remaining_ms={}", name.as_str(), deadline.remaining().as_millis());
+            }
             let mut found = super::resolve::get_parts(&within(cx, deadline.remaining()), &retries);
             if found
                 .first()
