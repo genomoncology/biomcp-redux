@@ -2571,7 +2571,7 @@ Options:
 
 ```
 
-Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, string, uniprot.
+Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, string-db, uniprot.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
