@@ -2318,6 +2318,13 @@
           "$ref": "#/$defs/Reply_Section_DrugRecords_DrugInteractionClaim",
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
         },
+        "levels": {
+          "description": "Pairs per DDInter level across every listed pair, not only this page; most severe first.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugLevelCount"
+          },
+          "type": "array"
+        },
         "partners": {
           "description": "DDInter identities the requested partner names; empty when DDInter's files name no such drug.",
           "items": {
@@ -2524,6 +2531,32 @@
         "heading",
         "text",
         "offset"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugLevelCount": {
+      "description": "How many listed pairs carry one DDInter level.",
+      "properties": {
+        "count": {
+          "description": "Listed pairs with this level.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "DDInter's level as published; omitted for pairs whose row gives none."
+        }
+      },
+      "required": [
+        "count"
       ],
       "type": "object"
     },
@@ -3124,7 +3157,7 @@
         " One exact native label heading; label replies also name the application numbers and recent major changes.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.",
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
         " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
       ],
       "x-extensible-enum": [
