@@ -3344,7 +3344,7 @@ At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer; example: -
 
 Named disclosures of the selected source, each its own part of one reply; empty means identity only.
 
-- `xrefs`: All source identity cross-references and product links, mechanically paged.
+- `xrefs`: All source identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.
 - `targets`: Source target and mechanism relations.
 - `indications`: Source indication wording.
 - `civic`: Source CIViC therapy evidence and profile context.
