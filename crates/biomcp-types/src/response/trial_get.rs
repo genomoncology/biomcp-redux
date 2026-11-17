@@ -159,7 +159,7 @@ pub struct TrialSite {
     pub site: crate::TrialLocation,
     /// Straight-line miles from the requested --lat/--lon point, not travel distance; absent without a point or site coordinates.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub distance_mi: Option<biodata::FiniteNumber>,
+    pub distance_mi: Option<f64>,
 }
 impl From<crate::TrialLocation> for TrialSite {
     fn from(site: crate::TrialLocation) -> Self {

@@ -1,6 +1,6 @@
 use super::{Snapshot, advance, continue_records, records, section};
 use crate::Outcome;
-use biodata::{FiniteNumber, Text, TrialLocation};
+use biodata::{Text, TrialLocation};
 use biomcp_fetch::RequestError;
 use biomcp_types::{TrialContactRecord, TrialGet, TrialSection, TrialSections, TrialSite};
 /// Bytes for one locations page: room for the largest `--limit` (100) of typical sites,
@@ -69,13 +69,14 @@ fn sites(locations: &[TrialLocation], point: Option<(f64, f64)>) -> Vec<TrialSit
         return rows;
     };
     for row in &mut rows {
-        row.distance_mi = row.site.coordinates.and_then(|c| {
+        // Checked degrees keep the haversine finite.
+        row.distance_mi = row.site.coordinates.map(|c| {
             let miles = miles((lat, lon), (c.latitude().get(), c.longitude().get()));
-            FiniteNumber::new((miles * 10.0).round() / 10.0).ok()
+            (miles * 10.0).round() / 10.0
         });
     }
     rows.sort_by(|a, b| match (a.distance_mi, b.distance_mi) {
-        (Some(a), Some(b)) => a.get().total_cmp(&b.get()),
+        (Some(a), Some(b)) => a.total_cmp(&b),
         (Some(_), None) => std::cmp::Ordering::Less,
         (None, Some(_)) => std::cmp::Ordering::Greater,
         (None, None) => std::cmp::Ordering::Equal,
