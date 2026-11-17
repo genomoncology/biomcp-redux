@@ -1,0 +1,56 @@
+{
+  "live_check": "public",
+  "feature": "trial-get",
+  "story": "A split eligibility text longer than one page sends each list only on the pages that hold its section, so page one of a trial whose exclusion heading comes later has no exclusion list.",
+  "replay": "trial/get/NCT03220035",
+  "verified": "The actual CLI recorded https://clinicaltrials.gov/api/v2/studies/NCT03220035 and the version reply from the public source on 2026-11-17 with --record in job j42467; registry processing time 2026-11-17T10:00:05. The 9,254-character text carries Inclusion Criteria and Exclusion Criteria headings; page one ends at character 5,431 inside the inclusion items, and page two holds the last 7 inclusion items, the exclusion heading and 12 exclusion items. Ceilings are the measured replies plus 15 percent.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03220035",
+        "eligibility"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/offset": 0,
+        "/result/items/0/sections/eligibility/data/total_characters": 9254,
+        "/result/items/0/sections/eligibility/data/inclusion": {
+          "count": 7
+        },
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "exclusion",
+            "criteria",
+            "not_split"
+          ]
+        }
+      },
+      "max_bytes": 10525
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/offset": 5431,
+        "/result/items/0/sections/eligibility/data/inclusion": {
+          "count": 7
+        },
+        "/result/items/0/sections/eligibility/data/inclusion/0": "* Creatinine clearance or radioisotope glomerular filtration rate (GFR) \\>= 70 ml/min/1.73 m\\^2 or a serum creatinine based on age/gender as follows:\n\n  * Age: 1 to \\< 2 years; maximum serum creatinine (mg/dL): male 0.6; female 0.6\n  * Age: 2 to \\< 6 years; maximum serum creatinine (mg/dL): male 0.8; female 0.8\n  * Age: 6 to \\< 10 years; maximum serum creatinine (mg/dL): male 1; female 1\n  * Age: 10 to \\< 13 years; maximum serum creatinine (mg/dL): male 1.2; female 1.2\n  * Age: 13 to \\< 16 years; maximum serum creatinine (mg/dL): male 1.5; female 1.4\n  * Age: \\>= 16 years; maximum serum creatinine (mg/dL): male 1.7; female 1.4",
+        "/result/items/0/sections/eligibility/data/exclusion": {
+          "count": 12
+        },
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "criteria",
+            "not_split",
+            "preamble"
+          ]
+        }
+      },
+      "max_bytes": 8480
+    }
+  ],
+  "harvest": "Independent review of 1044, 2026-11-17: NCT03220035's exclusion heading falls on page two"
+}

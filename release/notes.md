@@ -89,6 +89,7 @@ Adverse events:
 Trials:
 
 - `get trial NCT...` shows `enrollment`, its count with `ACTUAL` or `ESTIMATED`, and a stopped trial's `why_stopped` text.
+- `get trial NCT... eligibility` lists the registry's own inclusion and exclusion lines, word for word, in `inclusion` and `exclusion`, with any text before the first heading in `preamble`. These replace `criteria`, which is then absent. The split uses only the "Inclusion Criteria" and "Exclusion Criteria" headings. Text without both headings, or with another line ending in "criteria:", stays whole in `criteria` with a `not_split` notice. A list is absent from a page that holds none of its section.
 - `get trial ID flow` and `get trial ID baseline` return participant flow and baseline characteristics without the posted outcomes.
 - `results` pages hold up to 40,000 bytes of whole posted records, so a trial's outcome measures usually come in one call instead of one record a page.
 - `locations` pages hold up to 100 sites, state the site total and offer the next page. Search rows carry `has_results`. A batched trial get names each trial it could not read, and each failed item's `failure` gives the source, the reason and the problem in plain words. A batch of up to 20 trials gets one ClinicalTrials.gov pacing interval per trial after the first (19 seconds at the default pacing, at most 60), so a cold batch no longer runs out of time partway.

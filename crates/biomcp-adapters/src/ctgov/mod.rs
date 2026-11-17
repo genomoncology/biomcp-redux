@@ -1,5 +1,6 @@
 //! Native registry discovery; no local clinical interpretation or reordering.
 use biomcp_fetch::Input;
+pub mod criteria;
 pub mod detail;
 pub mod document;
 mod filters;
