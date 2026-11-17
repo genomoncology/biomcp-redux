@@ -128,7 +128,7 @@ Commands:
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
   variant        Discover source candidates using one declared selector, without interpreting free text.
-  grant          Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with --investigator-id.
+  grant          Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with investigator_id (--investigator-id on the command line).
 
 Options:
       --format <format>
@@ -2225,7 +2225,7 @@ Options apply to every listed source unless their description restricts them.
 ## biomcp search grant
 
 ```text
-Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with --investigator-id.
+Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with investigator_id (--investigator-id on the command line).
 
 Usage: biomcp search grant [OPTIONS] [query]
 
@@ -2253,7 +2253,7 @@ Options:
           RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.
 
       --limit <limit>
-          Ten project-years by default, one to fifty.
+          Ten award rows by default, one to fifty.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -2262,7 +2262,7 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
-          Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep.
+          Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.
 
       --organization <organization>
           Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER".
@@ -2287,8 +2287,8 @@ Options apply to every listed source unless their description restricts them.
 - `--fiscal-year`: One NIH fiscal year, such as 2025; all years by default. Value form: integer; example: --fiscal-year 2025.
 - `--investigator`: Principal investigator name, such as "Pasi Janne". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs. Value form: string; example: --investigator 'Pasi Janne'.
 - `--investigator-id`: RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387. Value form: integer; example: --investigator-id 14892358.
-- `--limit`: Ten project-years by default, one to fifty. Value form: integer; example: --limit 3.
-- `--offset`: Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep. Value form: integer; example: --offset 68.
+- `--limit`: Ten award rows by default, one to fifty. Value form: integer; example: --limit 3.
+- `--offset`: Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep. Value form: integer; example: --offset 68.
 - `--organization`: Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER". Value form: string; example: --organization DANA-FARBER.
 - `query`: Words that must all appear in the project title, abstract or terms, such as "KRAS G12C".
 Form: search grant QUERY; not --query.

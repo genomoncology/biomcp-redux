@@ -24,6 +24,10 @@ steps:
   expect:
     /status: complete
     /result/commands/0/command: [search, grant]
+    /result/commands/0/arguments/*/description:
+      includes_all_of:
+      - 'Ten award rows by default, one to fifty. Value form: integer; example: --limit 3.'
+      - "Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep. Value form: integer; example: --offset 68."
 - run:
   - help
   - grant

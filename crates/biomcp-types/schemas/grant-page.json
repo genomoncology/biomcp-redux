@@ -181,7 +181,7 @@
       "type": "object"
     },
     "Reply_GrantInvestigator": {
-      "description": "A principal investigator on a project-year.",
+      "description": "A principal investigator on an award row.",
       "properties": {
         "contact": {
           "description": "The contact principal investigator.",
@@ -277,7 +277,7 @@
       "type": "object"
     },
     "Reply_GrantSearch": {
-      "description": "Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with --investigator-id.",
+      "description": "Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one award for one fiscal year: a project funded for five years gives five rows, and a multi-part award gives a parent row plus one row per component (`subproject`). An investigator name matches any investigator with each word anywhere in their name; check `investigators[].profile_id` and search again with investigator_id (--investigator-id on the command line).",
       "properties": {
         "fiscal_year": {
           "description": "One NIH fiscal year, such as 2025; all years by default.",
@@ -298,7 +298,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Ten project-years by default, one to fifty.",
+          "description": "Ten award rows by default, one to fifty.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -306,7 +306,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep.",
+          "description": "Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.",
           "format": "uint32",
           "maximum": 14999,
           "minimum": 0,

@@ -1460,7 +1460,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Ten project-years by default, one to fifty.",
+          "description": "Ten award rows by default, one to fifty.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -1468,7 +1468,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep.",
+          "description": "Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.",
           "format": "uint32",
           "maximum": 14999,
           "minimum": 0,
