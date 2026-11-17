@@ -118,8 +118,10 @@ fn split_walk() -> Check {
     let env = Environment::new()?;
     let replay = env.root().join("recordings");
     let item = |kind: &str, i: usize| format!("* {kind} item {i} {}", "y".repeat(80));
-    let inclusion: Vec<String> = (0..70).map(|i| item("inclusion", i)).collect();
-    let exclusion: Vec<String> = (0..70).map(|i| item("exclusion", i)).collect();
+    let mut inclusion: Vec<String> = (0..70).map(|i| item("inclusion", i)).collect();
+    inclusion[0] = "First item\n  * Nested item".to_owned();
+    let mut exclusion: Vec<String> = (0..70).map(|i| item("exclusion", i)).collect();
+    exclusion[0] = "First exclusion*".to_owned();
     let rebuild = |preamble: &str, inclusion: &[String], exclusion: &[String]| {
         format!(
             "{preamble}\n\nInclusion Criteria:\n\n{}\n\nExclusion Criteria:\n\n{}",
@@ -127,7 +129,9 @@ fn split_walk() -> Check {
             exclusion.join("\n")
         )
     };
-    let original = rebuild("Read the protocol.", &inclusion, &exclusion);
+    let original = rebuild("Read the protocol.", &inclusion, &exclusion)
+        .replacen("Inclusion Criteria:\n\n", "Inclusion Criteria: ", 1)
+        .replacen("Exclusion Criteria:\n\n", "Exclusion Criteria: ", 1);
     copy_capture("trial/get/NCT02296125", &replay, |_, record| {
         if record["url"]
             .as_str()
@@ -168,8 +172,8 @@ fn split_walk() -> Check {
         }
         globals = env.globals(None, true);
     }
-    if rebuild(&preamble, &walked_in, &walked_ex) != original {
-        return Err("preamble plus lists did not rebuild the original text".into());
+    if preamble != "Read the protocol." || walked_in != inclusion || walked_ex != exclusion {
+        return Err("preamble plus lists did not preserve the registry text and items".into());
     }
     Ok(())
 }
