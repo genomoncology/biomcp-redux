@@ -190,18 +190,21 @@ impl Recommendation {
         let icd11 = cx
             .field("guidelineSubject.indication.code", code)
             .and_then(|code| cx.source_field("guidelineSubject.indication.code", code.value));
-        let decisions: Box<[DrugEssentialMedicineDecision]> = cx
-            .fields("history", self.history)
-            .into_vec()
-            .into_iter()
-            .filter_map(|decision| {
-                Some(DrugEssentialMedicineDecision {
-                    decision: cx.required_source_field("history.@type", decision.kind)?,
-                    date: date("history.guidelineDate", decision.date, cx),
-                    list: list_word(decision.list, cx),
-                })
-            })
-            .collect();
+        let mut decisions: Vec<DrugEssentialMedicineDecision> = Vec::new();
+        for decision in cx.fields("history", self.history) {
+            let Some(kind) = cx.required_source_field("history.@type", decision.kind) else {
+                continue;
+            };
+            let decision = DrugEssentialMedicineDecision {
+                decision: kind,
+                date: date("history.guidelineDate", decision.date, cx),
+                list: list_word(decision.list, cx),
+            };
+            // The eEML repeats a decision once per formulation it covers; keep each once.
+            if !decisions.contains(&decision) {
+                decisions.push(decision);
+            }
+        }
         let added = decisions
             .iter()
             .filter(|d| d.decision.as_str() == "DecisionToAdd")
@@ -229,7 +232,7 @@ impl Recommendation {
             icd11,
             status: cx.source_field("statusForIndication", self.status),
             added,
-            decisions,
+            decisions: decisions.into(),
             children: cx.field("includedInEmlc", self.children),
             alternatives: cx
                 .fields("therapeuticEquivalents", self.equivalents)

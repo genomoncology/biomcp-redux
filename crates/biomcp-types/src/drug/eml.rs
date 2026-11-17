@@ -49,7 +49,7 @@ pub struct DrugEssentialMedicineListing {
     /// The earliest Expert Committee decision to add this listing: the edition it was added in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub added: Option<PartialDate>,
-    /// Every Expert Committee decision on this listing, latest first, as the eEML gives them.
+    /// Each distinct Expert Committee decision on this listing, latest first, as the eEML gives them.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub decisions: Box<[DrugEssentialMedicineDecision]>,
     /// Whether the listing is also on the EML for children (EMLc).
