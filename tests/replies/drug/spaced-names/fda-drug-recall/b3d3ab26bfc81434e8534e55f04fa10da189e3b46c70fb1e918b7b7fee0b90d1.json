@@ -1,0 +1,795 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=%28product_description%3A%22BIBR-1048%22%20OR%20openfda.brand_name%3A%22BIBR-1048%22%20OR%20openfda.generic_name%3A%22BIBR-1048%22%20OR%20product_description%3A%22Dabigatran%20etexilate%22%20OR%20openfda.brand_name%3A%22Dabigatran%20etexilate%22%20OR%20openfda.generic_name%3A%22Dabigatran%20etexilate%22%20OR%20product_description%3A%22Dabigatran%20etexilate%20methanesulfonate%22%20OR%20openfda.brand_name%3A%22Dabigatran%20etexilate%20methanesulfonate%22%20OR%20openfda.generic_name%3A%22Dabigatran%20etexilate%20methanesulfonate%22%20OR%20product_description%3A%22Pradaxa%22%20OR%20openfda.brand_name%3A%22Pradaxa%22%20OR%20openfda.generic_name%3A%22Pradaxa%22%20OR%20product_description%3A%22Prazaxa%22%20OR%20openfda.brand_name%3A%22Prazaxa%22%20OR%20openfda.generic_name%3A%22Prazaxa%22%20OR%20product_description%3A%22BIBR1048%22%20OR%20openfda.brand_name%3A%22BIBR1048%22%20OR%20openfda.generic_name%3A%22BIBR1048%22%20OR%20product_description%3A%22BIBR%201048%22%20OR%20openfda.brand_name%3A%22BIBR%201048%22%20OR%20openfda.generic_name%3A%22BIBR%201048%22%20OR%20product_description%3A%22BIBR%201048%20BS%20RS1%22%20OR%20openfda.brand_name%3A%22BIBR%201048%20BS%20RS1%22%20OR%20openfda.generic_name%3A%22BIBR%201048%20BS%20RS1%22%20OR%20product_description%3A%22BIBR-1048-BS-RS1%22%20OR%20openfda.brand_name%3A%22BIBR-1048-BS-RS1%22%20OR%20openfda.generic_name%3A%22BIBR-1048-BS-RS1%22%20OR%20product_description%3A%22Dabigatran%20etexilato%22%20OR%20openfda.brand_name%3A%22Dabigatran%20etexilato%22%20OR%20openfda.generic_name%3A%22Dabigatran%20etexilato%22%20OR%20product_description%3A%22dabigatran%20etexilate%20mesilate%22%20OR%20openfda.brand_name%3A%22dabigatran%20etexilate%20mesilate%22%20OR%20openfda.generic_name%3A%22dabigatran%20etexilate%20mesilate%22%20OR%20product_description%3A%22dabigatran%20etexilate%20mesylate%22%20OR%20openfda.brand_name%3A%22dabigatran%20etexilate%20mesylate%22%20OR%20openfda.generic_name%3A%22dabigatran%20etexilate%20mesylate%22%29&limit=50&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794895882,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 383,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-11",
+    "results": {
+      "skip": 0,
+      "limit": 50,
+      "total": 10
+    }
+  },
+  "results": [
+    {
+      "status": "Ongoing",
+      "city": "Bedminster",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class III",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Major Pharmaceuticals"
+        ],
+        "product_ndc": [
+          "0904-7253",
+          "0904-7254",
+          "0904-7255"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "869fd2f3-9357-4148-8b64-0cca96dd5f75"
+        ],
+        "spl_set_id": [
+          "b76b79ce-b7dd-4390-b40e-71ae6c477d10"
+        ],
+        "package_ndc": [
+          "0904-7253-35",
+          "0904-7253-04",
+          "0904-7253-68",
+          "0904-7254-35",
+          "0904-7254-68",
+          "0904-7255-35",
+          "0904-7255-10",
+          "0904-7255-68"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0309047253043",
+          "0309047255108"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "99421",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "135 Us Highway 202 206 Ste 15",
+      "address_2": "N/A",
+      "postal_code": "07921-2608",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "USA Nationwide",
+      "recall_number": "D-0738-2026",
+      "product_description": "Dabigatran Etexilate Capsules, 75 mg, 60-count (6x10)blister pack further packaged in a carton, Rx only, Manufactured by: Alkem Laboratories Ltd., Mumbai, INDIA, Distributed by: MAJOR PHARMACEUTICALS, Indianapolis, IN 46268, NDC 0904-7253-68.",
+      "product_quantity": "924 cartons x 12 x 6 x 10 (in blister pack)",
+      "reason_for_recall": "Failed impurity/degradation specification: an OOS result observed in Related substance test analysis w.r.t Impurity II, Impurity III and Total impurities for 12-month stability",
+      "recall_initiation_date": "20260716",
+      "center_classification_date": "20260805",
+      "report_date": "20260805",
+      "code_info": "Lot: 25141585, Exp. April 30, 2027."
+    },
+    {
+      "status": "Ongoing",
+      "city": "Bedminster",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class III",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Major Pharmaceuticals"
+        ],
+        "product_ndc": [
+          "0904-7253",
+          "0904-7254",
+          "0904-7255"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "869fd2f3-9357-4148-8b64-0cca96dd5f75"
+        ],
+        "spl_set_id": [
+          "b76b79ce-b7dd-4390-b40e-71ae6c477d10"
+        ],
+        "package_ndc": [
+          "0904-7253-35",
+          "0904-7253-04",
+          "0904-7253-68",
+          "0904-7254-35",
+          "0904-7254-68",
+          "0904-7255-35",
+          "0904-7255-10",
+          "0904-7255-68"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0309047253043",
+          "0309047255108"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "99421",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "135 Us Highway 202 206 Ste 15",
+      "address_2": "N/A",
+      "postal_code": "07921-2608",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "USA Nationwide",
+      "recall_number": "D-0739-2026",
+      "product_description": "Dabigatran Etexilate Capsules, 75 mg, 30-count (3x10) blister pack further packaged in a carton, Rx only, Manufactured by: Alkem Laboratories Ltd., Mumbai, INDIA, Distributed by: MAJOR PHARMACEUTICALS, Indianapolis, IN 46268, NDC 0904-7253-04.",
+      "product_quantity": "936 cartons x 12 x 3 x 10 (in blister pack)",
+      "reason_for_recall": "Failed impurity/degradation specification: an OOS result observed in Related substance test analysis w.r.t Impurity II, Impurity III and Total impurities for 12-month stability",
+      "recall_initiation_date": "20260716",
+      "center_classification_date": "20260805",
+      "report_date": "20260805",
+      "code_info": "Lot: 25141586, Exp. April 30, 2027."
+    },
+    {
+      "status": "Ongoing",
+      "city": "Bedminster",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class III",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Major Pharmaceuticals"
+        ],
+        "product_ndc": [
+          "0904-7253",
+          "0904-7254",
+          "0904-7255"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "869fd2f3-9357-4148-8b64-0cca96dd5f75"
+        ],
+        "spl_set_id": [
+          "b76b79ce-b7dd-4390-b40e-71ae6c477d10"
+        ],
+        "package_ndc": [
+          "0904-7253-35",
+          "0904-7253-04",
+          "0904-7253-68",
+          "0904-7254-35",
+          "0904-7254-68",
+          "0904-7255-35",
+          "0904-7255-10",
+          "0904-7255-68"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0309047253043",
+          "0309047255108"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "99421",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "135 Us Highway 202 206 Ste 15",
+      "address_2": "N/A",
+      "postal_code": "07921-2608",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "USA Nationwide",
+      "recall_number": "D-0737-2026",
+      "product_description": "Dabigatran Etexilate Capsules, 150 mg, 60-count (6x10) blister pack further packaged in a carton, Rx only, Manufactured by: Alkem Laboratories Ltd., Mumbai, INDIA, Distributed by: MAJOR PHARMACEUTICALS, Indianapolis, IN 46268, NDC 0904-7255-68.",
+      "product_quantity": "3,600 cartons x 6 x 10 (in blister pack)",
+      "reason_for_recall": "Failed impurity/degradation specification: an OOS result observed in Related substance test analysis w.r.t Impurity II, Impurity III and Total impurities for 12-month stability",
+      "recall_initiation_date": "20260716",
+      "center_classification_date": "20260805",
+      "report_date": "20260805",
+      "code_info": "Lot: 25141583, Exp. April 30, 2027."
+    },
+    {
+      "status": "Ongoing",
+      "city": "Bedminster",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class III",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Major Pharmaceuticals"
+        ],
+        "product_ndc": [
+          "0904-7253",
+          "0904-7254",
+          "0904-7255"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "869fd2f3-9357-4148-8b64-0cca96dd5f75"
+        ],
+        "spl_set_id": [
+          "b76b79ce-b7dd-4390-b40e-71ae6c477d10"
+        ],
+        "package_ndc": [
+          "0904-7253-35",
+          "0904-7253-04",
+          "0904-7253-68",
+          "0904-7254-35",
+          "0904-7254-68",
+          "0904-7255-35",
+          "0904-7255-10",
+          "0904-7255-68"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0309047253043",
+          "0309047255108"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "99330",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "135 Us Highway 202 206 Ste 15",
+      "address_2": "N/A",
+      "postal_code": "07921-2608",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "USA Nationwide",
+      "recall_number": "D-0736-2026",
+      "product_description": "Dabigatran etexilate Capsules, 150 mg, 20-count carton (2x10), Rx only, Manufactured by: Alkem Laboratories, Mumbai, INDIA, Distributed by: Major Pharmaceuticals, Indianapolis, IN 46268, NDC 0904-7255-10.",
+      "product_quantity": "2,717 cartons",
+      "reason_for_recall": "Failed Impurities/Degradation Specifications: OOS result was observed during the related substance test analysis with respect to Impurity II, Impurity III and Total impurity testing for 12 Month Long-Term Stability.",
+      "recall_initiation_date": "20260630",
+      "center_classification_date": "20260804",
+      "report_date": "20260729",
+      "code_info": "Lot: 25141584, Exp 4/30/2027."
+    },
+    {
+      "status": "Ongoing",
+      "city": "Bedminster",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class III",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Major Pharmaceuticals"
+        ],
+        "product_ndc": [
+          "0904-7253",
+          "0904-7254",
+          "0904-7255"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "869fd2f3-9357-4148-8b64-0cca96dd5f75"
+        ],
+        "spl_set_id": [
+          "b76b79ce-b7dd-4390-b40e-71ae6c477d10"
+        ],
+        "package_ndc": [
+          "0904-7253-35",
+          "0904-7253-04",
+          "0904-7253-68",
+          "0904-7254-35",
+          "0904-7254-68",
+          "0904-7255-35",
+          "0904-7255-10",
+          "0904-7255-68"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0309047253043",
+          "0309047255108"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "99330",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "135 Us Highway 202 206 Ste 15",
+      "address_2": "N/A",
+      "postal_code": "07921-2608",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "USA Nationwide",
+      "recall_number": "D-0735-2026",
+      "product_description": "Dabigatran etexilate Capsules, 110 mg, 60-count carton (6x10), Rx Only, Manufactured by: Alkem Laboratories, Mumbai, INDIA, Distributed by: Major Pharmaceuticals, Indianapolis, IN 46268, NDC 0904-7254-68.",
+      "product_quantity": "1,753 cartons",
+      "reason_for_recall": "Failed Impurities/Degradation Specifications: OOS result was observed during the related substance test analysis with respect to Impurity II, Impurity III and Total impurity testing for 12 Month Long-Term Stability.",
+      "recall_initiation_date": "20260630",
+      "center_classification_date": "20260804",
+      "report_date": "20260729",
+      "code_info": "Lot: 25141707, Exp 4/30/2027."
+    },
+    {
+      "status": "Ongoing",
+      "city": "Parsippany",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Ascend Laboratories, LLC"
+        ],
+        "product_ndc": [
+          "67877-474",
+          "67877-475",
+          "67877-624"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "d2fd635f-6c0f-4509-8c91-348c1b73ca45"
+        ],
+        "spl_set_id": [
+          "3a8ec82a-c367-40dc-9302-e1896fcb05ea"
+        ],
+        "package_ndc": [
+          "67877-475-60",
+          "67877-474-60",
+          "67877-624-60",
+          "67877-624-31"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0367877624600",
+          "0367877474601",
+          "0367877475608"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "95896",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "339 Jefferson Rd Ste 101",
+      "address_2": "",
+      "postal_code": "07054-3707",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide within the United States",
+      "recall_number": "D-0130-2025",
+      "product_description": "Dabigatran Etexilate, 150mg capsules, 60-count bottles, Rx Only, Manufactured by: Alkem Laboratories Ltd., INDIA, Distributed by: Ascend Laboratories, LLC Parsippany, NJ 07054 NDC 67877-475-60",
+      "product_quantity": "10,444 bottles",
+      "reason_for_recall": "CGMP Deviations: Presence of N-nitroso-Dabigatran impurity above recommended interim limit",
+      "recall_initiation_date": "20241212",
+      "center_classification_date": "20241212",
+      "report_date": "20241218",
+      "code_info": "Lot #: 24142192, 24142193, 24142194, Exp. Date April 30, 2026; 24142463, Exp. Date May 31, 2026;",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Parsippany",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Ascend Laboratories, LLC"
+        ],
+        "product_ndc": [
+          "67877-474",
+          "67877-475",
+          "67877-624"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "d2fd635f-6c0f-4509-8c91-348c1b73ca45"
+        ],
+        "spl_set_id": [
+          "3a8ec82a-c367-40dc-9302-e1896fcb05ea"
+        ],
+        "package_ndc": [
+          "67877-475-60",
+          "67877-474-60",
+          "67877-624-60",
+          "67877-624-31"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0367877624600",
+          "0367877474601",
+          "0367877475608"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "95896",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "339 Jefferson Rd Ste 101",
+      "address_2": "",
+      "postal_code": "07054-3707",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide within the United States",
+      "recall_number": "D-0129-2025",
+      "product_description": "Dabigatran Etexilate, 75 mg capsules, 60-count bottles, Rx Only, Manufactured by: Alkem Laboratories Ltd., INDIA, Distributed by: Ascend Laboratories, LLC Parsippany, NJ 07054 NDC 67877-474-60",
+      "product_quantity": "1971 bottles",
+      "reason_for_recall": "CGMP Deviations: Presence of N-nitroso-Dabigatran impurity above recommended interim limit",
+      "recall_initiation_date": "20241212",
+      "center_classification_date": "20241212",
+      "report_date": "20241218",
+      "code_info": "Lot #: 24142328, 24142329, 24142330, Exp. Date May 31, 2026.",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Parsippany",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Ascend Laboratories, LLC"
+        ],
+        "product_ndc": [
+          "67877-474",
+          "67877-475",
+          "67877-624"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "d2fd635f-6c0f-4509-8c91-348c1b73ca45"
+        ],
+        "spl_set_id": [
+          "3a8ec82a-c367-40dc-9302-e1896fcb05ea"
+        ],
+        "package_ndc": [
+          "67877-475-60",
+          "67877-474-60",
+          "67877-624-60",
+          "67877-624-31"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0367877624600",
+          "0367877474601",
+          "0367877475608"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "91880",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "339 Jefferson Rd Ste 101",
+      "address_2": "N/A",
+      "postal_code": "07054-3707",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide in the USA.",
+      "recall_number": "D-0534-2023",
+      "product_description": "Dabigatran Etexilate 150mg Capsules, 150 mg, Rx Only, 60 Capsules per bottle, Manufactured by:  Alkem Laboratories Ltd., INDIA, Distributed by: Ascend Laboratories, LLC Parsippany, NJ 07054, NDC 67877-475-60.",
+      "product_quantity": "12,804 bottles",
+      "reason_for_recall": "CGMP Deviations: Detection of N-nitroso-dabigatran (NDAB) impurity levels above the Acceptable Daily Intake Limit.",
+      "recall_initiation_date": "20230314",
+      "center_classification_date": "20230413",
+      "report_date": "20230405",
+      "code_info": "Lot #s: 22142448, 22142449, 22142450, Exp 5/2024; 22143845, Exp 7/2024."
+    },
+    {
+      "status": "Ongoing",
+      "city": "Parsippany",
+      "state": "NJ",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {
+        "application_number": [
+          "ANDA208040"
+        ],
+        "brand_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "generic_name": [
+          "DABIGATRAN ETEXILATE"
+        ],
+        "manufacturer_name": [
+          "Ascend Laboratories, LLC"
+        ],
+        "product_ndc": [
+          "67877-474",
+          "67877-475",
+          "67877-624"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DABIGATRAN ETEXILATE MESYLATE"
+        ],
+        "rxcui": [
+          "1037045",
+          "1037179",
+          "1723476"
+        ],
+        "spl_id": [
+          "d2fd635f-6c0f-4509-8c91-348c1b73ca45"
+        ],
+        "spl_set_id": [
+          "3a8ec82a-c367-40dc-9302-e1896fcb05ea"
+        ],
+        "package_ndc": [
+          "67877-475-60",
+          "67877-474-60",
+          "67877-624-60",
+          "67877-624-31"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0367877624600",
+          "0367877474601",
+          "0367877475608"
+        ],
+        "unii": [
+          "SC7NUW5IIT"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "91880",
+      "recalling_firm": "Ascend Laboratories, LLC",
+      "address_1": "339 Jefferson Rd Ste 101",
+      "address_2": "N/A",
+      "postal_code": "07054-3707",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide in the USA.",
+      "recall_number": "D-0533-2023",
+      "product_description": "Dabigatran Etexilate Capsules, 75 mg, Rx Only, 60 Capsules per bottle, Manufactured by: Alkem Laboratories Ltd., INDIA, Distributed by: Ascend Laboratories, LLC, Parsippany, NJ 07054, NDC 67877-474-60.",
+      "product_quantity": "13,560 bottles",
+      "reason_for_recall": "CGMP Deviations: Detection of N-nitroso-dabigatran (NDAB) impurity levels above the Acceptable Daily Intake Limit.",
+      "recall_initiation_date": "20230314",
+      "center_classification_date": "20230413",
+      "report_date": "20230405",
+      "code_info": "Lot #s:  22142462, 22142463, 22142464, Exp 5/2024; 22143000, 22143001, 22143002, Exp 6/2024."
+    },
+    {
+      "status": "Terminated",
+      "city": "Columbus",
+      "state": "OH",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "63630",
+      "recalling_firm": "Boehringer Ingelheim Roxane Inc",
+      "address_1": "1809 Wilson Rd",
+      "address_2": "N/A",
+      "postal_code": "43228-9579",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide",
+      "recall_number": "D-067-2013",
+      "product_description": "Pradaxa (dabigatran etexilate), 75 mg Capsules, 60 count bottles, Rx only, Distributed by Boehringer Ingelheim Pharmaceuticals, Inc., Ridgefield, CT --- NDC 0597-0149-54",
+      "product_quantity": "8,381 bottles",
+      "reason_for_recall": "Defective container; damaged bottles could allow moisture to get into the bottle and thus may impair the quality of the product",
+      "recall_initiation_date": "20121105",
+      "center_classification_date": "20121126",
+      "termination_date": "20130918",
+      "report_date": "20121205",
+      "code_info": "Lot 201900  Expiration Date: JAN 2015"
+    }
+  ]
+}
+      }
+    }
+  ]
+}

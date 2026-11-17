@@ -188,7 +188,7 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
         .fresh(cx.fresh);
     let result = biomcp_adapters::mychem::name_records(&leg, input.as_str(), NAME_ROWS);
     let error = result.as_ref().err().copied();
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     let parent = status::source(DrugSource::Mychem.source(), leg.finish(), error);
     command.finish(remaining);
     let mapped = match result {
@@ -269,7 +269,7 @@ pub(super) fn chembl_copy(cx: &Ctx<'_>, input: &Text) -> ChemblCopy {
         .fresh(cx.fresh);
     let result = biomcp_adapters::mychem::chembl_names(&leg, input.as_str(), NAME_ROWS);
     let error = result.as_ref().err().copied();
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     let parent = status::source(DrugSource::Mychem.source(), leg.finish(), error);
     command.finish(remaining);
     let copied = biomcp_adapters::registry::outcome(DrugSource::Chembl.source(), parent.status());
