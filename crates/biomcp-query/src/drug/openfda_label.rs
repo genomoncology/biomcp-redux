@@ -212,6 +212,39 @@ fn empty(query: &DrugGet) -> Outcome {
 fn fork(read: &Outcome, query: &DrugGet) -> Outcome {
     super::fork(read, empty(query).body)
 }
+/// An identity card with one next call per label heading the record carries.
+fn card(
+    cx: &Ctx<'_>,
+    query: &DrugGet,
+    record: &source::Record,
+    fetched: Option<i64>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let card = record.card(received_date(fetched))?;
+    for heading in source::HEADINGS
+        .into_iter()
+        .filter(|h| record.has_heading(h))
+    {
+        if let Some(heading) = crate::next::checked(
+            heading.parse(),
+            biomcp_types::Source::OpenfdaLabel,
+            &mut out.problems,
+        ) && let Some(request) = crate::next::checked(
+            query.for_label(heading),
+            biomcp_types::Source::OpenfdaLabel,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
+                StepKind::Section,
+                &[biomcp_types::Source::OpenfdaLabel],
+                Request::GetDrug(request),
+                cx.fresh,
+            ));
+        }
+    }
+    out.body = card.with_query(query.clone());
+    Ok(())
+}
 fn select(
     cx: &Ctx<'_>,
     query: &DrugGet,
@@ -220,30 +253,7 @@ fn select(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     if query.sections().is_empty() {
-        let card = record.card(received_date(fetched))?;
-        for heading in source::HEADINGS
-            .into_iter()
-            .filter(|h| record.has_heading(h))
-        {
-            if let Some(heading) = crate::next::checked(
-                heading.parse(),
-                biomcp_types::Source::OpenfdaLabel,
-                &mut out.problems,
-            ) && let Some(request) = crate::next::checked(
-                query.for_label(heading),
-                biomcp_types::Source::OpenfdaLabel,
-                &mut out.problems,
-            ) {
-                out.next.push(crate::next::Step::run(
-                    StepKind::Section,
-                    &[biomcp_types::Source::OpenfdaLabel],
-                    Request::GetDrug(request),
-                    cx.fresh,
-                ));
-            }
-        }
-        out.body = card.with_query(query.clone());
-        return Ok(());
+        return card(cx, query, record, fetched, out);
     }
     let recent_major_changes = recent(query, record, &mut out.problems);
     let Some(heading) = query.label_section().map(|h| h.as_str()) else {
