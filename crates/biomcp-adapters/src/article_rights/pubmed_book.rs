@@ -86,7 +86,7 @@ fn citation_text(field: Element<'_>, mixed: bool) -> Result<Option<String>, BadR
     loop {
         match reader.read_event().map_err(|_| BadReply)? {
             Event::Start(tag) | Event::Empty(tag) => {
-                if !mixed || !matches!(tag.name().as_ref(), b"b" | b"i" | b"sup" | b"sub" | b"u") {
+                if !mixed || !matches!(tag.name().as_ref(), "b" | "i" | "sup" | "sub" | "u") {
                     return Ok(None);
                 }
             }
