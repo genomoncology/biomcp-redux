@@ -26,6 +26,7 @@ pub(super) fn reference(
             "ndc.applicationnumber" | "openfda.application_number" => "drugsfda",
             "openfda.spl_set_id" => "openfda-label",
             "gtopdb.chembl_id" => "chembl",
+            "chembl.atc_classifications" => "atc",
             _ => source,
         });
     Ok(DrugIdentityRelation {

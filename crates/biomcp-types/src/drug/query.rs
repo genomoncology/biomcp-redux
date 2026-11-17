@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 biodata::canonical_enum! {
     /// Explicit drug disclosures; identity cards never expand into these sections.
     DrugSection, SourceUnknown {
-        /// All native identity cross-references and product links, mechanically paged.
+        /// All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.
         Xrefs => "xrefs",
         /// Native target and mechanism relations.
         Targets => "targets",

@@ -36,7 +36,7 @@ const CARD_FIELDS: &str = concat!(
     "drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,gtopdb.ligand_id,gtopdb.name,\
                     gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,ndc.productndc,ndc.producttypename,\
                     ndc.nonproprietaryname,ndc.proprietaryname",
-    ",drugbank.synonyms,chembl.molecule_hierarchy,chembl.molecule_synonyms,drugcentral.id,drugcentral.synonyms,drugcentral.xrefs,\
+    ",drugbank.synonyms,chembl.atc_classifications,chembl.molecule_hierarchy,chembl.molecule_synonyms,drugcentral.id,drugcentral.synonyms,drugcentral.xrefs,\
                     gtopdb.synonyms,gtopdb.chembl_id,gtopdb.xrefs,unii.rxcui,unii.ncit,ndc.applicationnumber,ndc.dosageformname,\
                     ndc.package,openfda.generic_name,openfda.brand_name,openfda.spl_set_id,openfda.application_number"
 );
