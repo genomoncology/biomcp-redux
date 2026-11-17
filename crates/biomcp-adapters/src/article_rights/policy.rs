@@ -258,7 +258,7 @@ pub fn snapshot(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
 }
 
 /// An unusable identity cannot establish rights; native mappers retain their field problem.
-pub(super) fn parse_pmid(value: &str) -> Option<Pmid> {
+pub(crate) fn parse_pmid(value: &str) -> Option<Pmid> {
     value.parse().ok()
 }
 fn read_url(value: &str) -> Option<biodata::Text> {

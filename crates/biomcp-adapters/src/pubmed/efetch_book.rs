@@ -3,7 +3,7 @@ use super::efetch::{FetchedArticle, authors, pubdate};
 use super::publication_type;
 use crate::mapped::{Problems, record};
 use crate::xml_element::Element;
-use biodata::{Pmid, Text};
+use biodata::Text;
 use biomcp_fetch::BadReply;
 use biomcp_types::{Article, Source};
 
@@ -14,7 +14,7 @@ pub(super) fn chapter(root: Element<'_>) -> Result<Option<FetchedArticle>, BadRe
     let Some(id) = document.value(&["PMID"])? else {
         return Ok(None);
     };
-    let Ok(pmid) = id.parse::<Pmid>() else {
+    let Some(pmid) = crate::article_rights::parse_pmid(&id) else {
         return Ok(None);
     };
     let mut problems = Problems {
