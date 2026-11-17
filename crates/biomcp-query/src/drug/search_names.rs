@@ -105,6 +105,9 @@ pub(crate) fn resolve<'a>(
         } else {
             card(&lookup, source, input, out)
         };
+        if std::env::var_os("BIOMCP_TRACE_1034").is_some() {
+            eprintln!("TRACE1034 resolve source={:?} before_ms={} stage_spent_ms={} lookup_budget_ms={} found={}", source, deadline.remaining().as_millis(), started.saturating_sub(stage.remaining()).as_millis(), lookup.budget.as_millis(), match &found { Found::Names{..}=>"names", Found::Ambiguous(_)=>"ambiguous", Found::Failed(_)=>"failed", Found::Nothing=>"nothing", Found::Unknown=>"unknown" });
+        }
         *deadline = deadline.after_stage(started.saturating_sub(stage.remaining()));
         match found {
             Found::Names {

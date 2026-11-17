@@ -465,6 +465,9 @@ impl Leg<'_> {
         limit: Option<Duration>,
     ) -> Result<Wire, Failure> {
         let delay = Duration::from_millis(exchange.delay_ms);
+        if std::env::var_os("BIOMCP_TRACE_1034").is_some() {
+            eprintln!("TRACE1034 replay source={} delay_ms={} remaining_ms={} limit={:?} url={}", self.spec.source, exchange.delay_ms, self.budget().remaining().as_millis(), limit, prepared.url.chars().take(160).collect::<String>());
+        }
         let stalled = limit.filter(|limit| delay >= *limit);
         if !self.budget().advance(stalled.unwrap_or(delay)) {
             return Err(Failure::Local(
