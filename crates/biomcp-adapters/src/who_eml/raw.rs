@@ -38,13 +38,13 @@ impl Medicine {
     /// naming it as an alternative, each in number order.
     pub(crate) fn map(self, cx: &mut Problems) -> (Option<Text>, Vec<u32>) {
         let name = cx.source_field("name", self.name);
-        let mut numbers = numbers("guideline", self.guideline, cx);
+        let mut found = numbers("guideline", self.guideline, cx);
         for number in numbers("equivalentFor", self.equivalent_for, cx) {
-            if !numbers.contains(&number) {
-                numbers.push(number);
+            if !found.contains(&number) {
+                found.push(number);
             }
         }
-        (name, numbers)
+        (name, found)
     }
 }
 fn numbers(field: &str, links: Option<Field<Links>>, cx: &mut Problems) -> Vec<u32> {
@@ -140,7 +140,11 @@ fn list_word(value: Option<Field<String>>, cx: &mut Problems) -> Option<Text> {
     };
     cx.text("list", Some(word))
 }
-fn date(field: &str, value: Option<Field<String>>, cx: &mut Problems) -> Option<biodata::PartialDate> {
+fn date(
+    field: &str,
+    value: Option<Field<String>>,
+    cx: &mut Problems,
+) -> Option<biodata::PartialDate> {
     let value = cx.field(field, value)?;
     cx.optional(field, Some(value.parse::<biodata::PartialDate>()))
 }
@@ -231,8 +235,10 @@ impl Recommendation {
                 .fields("therapeuticEquivalents", self.equivalents)
                 .into_vec()
                 .into_iter()
-                .filter_map(|e| cx.field("therapeuticEquivalents.drug", e.drug))
-                .filter_map(|drug| cx.source_field("therapeuticEquivalents.drug", drug.name))
+                .filter_map(|e| {
+                    let drug = cx.field("therapeuticEquivalents.drug", e.drug)?;
+                    cx.source_field("therapeuticEquivalents.drug", drug.name)
+                })
                 .collect(),
             atc: cx
                 .fields("guidelineSubject.code", codes)

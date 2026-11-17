@@ -85,8 +85,7 @@ pub fn essential_medicines(
             )?
             .value;
         let url = format!("{}/recommendations/{id}", SPEC.base);
-        if let Some(listing) =
-            recommendation.map(*id, &url, name.as_ref(), &mut previous, &mut cx)
+        if let Some(listing) = recommendation.map(*id, &url, name.as_ref(), &mut previous, &mut cx)
         {
             records.push(listing);
         }

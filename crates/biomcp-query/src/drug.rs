@@ -114,7 +114,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
 /// headings of one SPL record share one read. A name that resolves to no record answers with
 /// one outcome for all parts.
 pub(crate) fn get_parts(cx: &Ctx<'_>, parts: &[DrugGet]) -> Vec<Outcome> {
-    let mut outcomes = if parts.first().is_some_and(|p| p.source() == DrugSource::WhoEml) {
+    let mut outcomes = if parts
+        .first()
+        .is_some_and(|p| p.source() == DrugSource::WhoEml)
+    {
         parts.iter().map(|part| who_eml::get(cx, part)).collect()
     } else if parts.first().is_some_and(DrugGet::is_name) {
         aliases::get_parts(cx, parts)

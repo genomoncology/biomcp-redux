@@ -1,0 +1,151 @@
+{
+  "feature": "drug-who-eml",
+  "story": "A P&T committee asks whether dabigatran and warfarin are on the WHO Model List of Essential Medicines. `get drug NAME essential-medicines` reads the WHO eEML: dabigatran (eEML medicine 479) is on the core list in section 10.2 for atrial fibrillation and venous thromboembolism, added 2019-04-05, with apixaban, edoxaban and rivaroxaban as therapeutic alternatives and the Expert Committee's recommendation once; warfarin (medicine 128) has four core listings, first added 1977-10-21 and also on the children's list, two per page with a next-page call. Apixaban, listed only as dabigatran's alternative, shows dabigatran's listings marked alternative_to. Imatinib's GIST listing is on the complementary list. A name the eEML does not use answers absent.",
+  "live_check": "public",
+  "verified": "WHO eEML replies recorded unchanged with biomcp --record; see tests/replies/drug/who-eml/README.md.",
+  "replay": "drug/who-eml",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "dabigatran",
+        "essential-medicines"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "dabigatran",
+        "essential-medicines"
+      ],
+      "expect": {
+        "/schema": "biomcp.drug-essential-medicines/1",
+        "/status": "complete",
+        "/result/identity/id": "479",
+        "/result/identity/source": "who-eml",
+        "/result/identity/name": "dabigatran",
+        "/result/listings/source": "who-eml",
+        "/result/listings/data/total": 2,
+        "/result/listings/data/records/*/id": [
+          "1004",
+          "1022"
+        ],
+        "/result/listings/data/records/*/list": [
+          "core",
+          "core"
+        ],
+        "/result/listings/data/records/*/indication": [
+          "Other specified atrial fibrillation",
+          "Venous thromboembolism"
+        ],
+        "/result/listings/data/records/*/added": [
+          "2019-04-05",
+          "2019-04-05"
+        ],
+        "/result/listings/data/records/0/section": "10.2. Medicines affecting coagulation",
+        "/result/listings/data/records/0/alternatives": [
+          "apixaban",
+          "edoxaban",
+          "rivaroxaban"
+        ],
+        "/result/listings/data/records/0/atc": [
+          "B01AE07"
+        ],
+        "/result/listings/data/records/0/committee": "COMMITTEE",
+        "/result/listings/data/records/1": {
+          "omits": [
+            "committee"
+          ]
+        },
+        "/sources/0/source": "who-eml",
+        "/sources/0/use": "attribution"
+      },
+      "max_bytes": 6000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "warfarin",
+        "essential-medicines",
+        "--section-limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "128",
+        "/result/listings/data/total": 4,
+        "/result/listings/data/records/*/list": [
+          "core",
+          "core"
+        ],
+        "/result/listings/data/records/*/added": [
+          "1977-10-21",
+          "1977-10-21"
+        ],
+        "/result/listings/data/records/0/children": true,
+        "/result/listings/data/records/0/alternatives": [
+          "acenocoumarol"
+        ],
+        "/page/total": 4,
+        "/next/0/kind": "page",
+        "/next/0/args": {
+          "includes": [
+            "--section-offset",
+            "2"
+          ]
+        }
+      },
+      "max_bytes": 6000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "apixaban",
+        "essential-medicines"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "478",
+        "/result/listings/data/records/*/alternative_to": [
+          "dabigatran",
+          "dabigatran"
+        ]
+      },
+      "max_bytes": 6000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "imatinib",
+        "essential-medicines",
+        "--section-limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/listings/data/records/*/list": {
+          "includes": [
+            "complementary"
+          ]
+        }
+      },
+      "max_bytes": 20000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "dabigatran etexilate",
+        "essential-medicines"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "who-eml"
+      },
+      "max_bytes": 2000
+    }
+  ]
+}

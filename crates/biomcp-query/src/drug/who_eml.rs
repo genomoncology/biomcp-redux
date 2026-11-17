@@ -56,8 +56,11 @@ fn page(query: &DrugGet, fresh: bool, body: &DrugEssentialMedicines, out: &mut O
         .offset
         .checked_add(returned)
         .filter(|n| returned > 0 && u64::from(*n) < total)
-        && let Some(get) =
-            crate::next::checked(query.at_section_offset(offset), Source::WhoEml, &mut out.problems)
+        && let Some(get) = crate::next::checked(
+            query.at_section_offset(offset),
+            Source::WhoEml,
+            &mut out.problems,
+        )
     {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
