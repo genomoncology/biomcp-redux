@@ -34,6 +34,9 @@ pub struct DrugHeader {
     /// The label's effective date, as openFDA's `effective_time` states it; openFDA labels only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub effective_date: Option<PartialDate>,
+    /// The label's FDA application numbers, such as NDA216340, as openFDA states them; openFDA labels only.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub application_numbers: Box<[Text]>,
     /// Source record URL.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
@@ -160,6 +163,9 @@ pub struct DrugLabelText {
 pub struct DrugLabel {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
+    /// The label's own recent major changes section text, when it has one, so a reader sees what changed lately without asking for it.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub recent_major_changes: Box<[Text]>,
     /// How to read one of those sections, which requested section the label lacks, or why a section returned no text in this reply.
     // Serialized before the section list so a reader that stops early still sees it.
     #[serde(default, skip_serializing_if = "Option::is_none")]

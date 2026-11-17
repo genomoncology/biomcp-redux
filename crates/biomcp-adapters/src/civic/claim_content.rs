@@ -48,6 +48,7 @@ pub(super) fn therapies(
                 r#type: None,
                 version: None,
                 effective_date: None,
+                application_numbers: Box::default(),
                 url: None,
             });
         }

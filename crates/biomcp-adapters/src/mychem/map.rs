@@ -44,6 +44,7 @@ fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> 
         source: DrugSource::Mychem,
         version: None,
         effective_date: None,
+        application_numbers: Box::default(),
         name: rows
             .iter()
             .find_map(|(_, c)| name(c))

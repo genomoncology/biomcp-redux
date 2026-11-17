@@ -177,6 +177,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One source candidate, without authorization, targets, label text or interactions.",
   "properties": {
+    "application_numbers": {
+      "description": "The label's FDA application numbers, such as NDA216340, as openFDA states them; openFDA labels only.",
+      "items": {
+        "$ref": "#/$defs/Reply_Text"
+      },
+      "type": "array"
+    },
     "effective_date": {
       "anyOf": [
         {

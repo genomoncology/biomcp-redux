@@ -142,11 +142,20 @@ pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         let mut left = cx.label_bytes;
         let outcomes = queries
             .iter()
-            .map(|query| {
+            .enumerate()
+            .map(|(at, query)| {
                 let mut part = fork(&out, query);
                 let cx = &sharing(cx, left);
                 if let Some(record) = page.window.rows.first() {
                     let selected = select(cx, query, record, page.metadata.fetched, &mut part);
+                    // Recent major changes describe the label, not a heading: once per reply.
+                    if at > 0
+                        && let biomcp_types::ReplyData::DrugLabel {
+                            body: Some(body), ..
+                        } = &mut part.body
+                    {
+                        body.recent_major_changes = Box::default();
+                    }
                     left = left.saturating_sub(text_bytes(&part));
                     if let Err(error) = selected {
                         crate::status::item(&mut part, false, true, false);
@@ -203,6 +212,39 @@ fn empty(query: &DrugGet) -> Outcome {
 fn fork(read: &Outcome, query: &DrugGet) -> Outcome {
     super::fork(read, empty(query).body)
 }
+/// An identity card with one next call per label heading the record carries.
+fn card(
+    cx: &Ctx<'_>,
+    query: &DrugGet,
+    record: &source::Record,
+    fetched: Option<i64>,
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    let card = record.card(received_date(fetched))?;
+    for heading in source::HEADINGS
+        .into_iter()
+        .filter(|h| record.has_heading(h))
+    {
+        if let Some(heading) = crate::next::checked(
+            heading.parse(),
+            biomcp_types::Source::OpenfdaLabel,
+            &mut out.problems,
+        ) && let Some(request) = crate::next::checked(
+            query.for_label(heading),
+            biomcp_types::Source::OpenfdaLabel,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
+                StepKind::Section,
+                &[biomcp_types::Source::OpenfdaLabel],
+                Request::GetDrug(request),
+                cx.fresh,
+            ));
+        }
+    }
+    out.body = card.with_query(query.clone());
+    Ok(())
+}
 fn select(
     cx: &Ctx<'_>,
     query: &DrugGet,
@@ -211,33 +253,11 @@ fn select(
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     if query.sections().is_empty() {
-        let card = record.card(received_date(fetched))?;
-        for heading in source::HEADINGS
-            .into_iter()
-            .filter(|h| record.has_heading(h))
-        {
-            if let Some(heading) = crate::next::checked(
-                heading.parse(),
-                biomcp_types::Source::OpenfdaLabel,
-                &mut out.problems,
-            ) && let Some(request) = crate::next::checked(
-                query.for_label(heading),
-                biomcp_types::Source::OpenfdaLabel,
-                &mut out.problems,
-            ) {
-                out.next.push(crate::next::Step::run(
-                    StepKind::Section,
-                    &[biomcp_types::Source::OpenfdaLabel],
-                    Request::GetDrug(request),
-                    cx.fresh,
-                ));
-            }
-        }
-        out.body = card.with_query(query.clone());
-        return Ok(());
+        return card(cx, query, record, fetched, out);
     }
+    let recent_major_changes = recent(query, record, &mut out.problems);
     let Some(heading) = query.label_section().map(|h| h.as_str()) else {
-        out.body = section_names(query, record)?;
+        out.body = section_names(query, record, recent_major_changes)?;
         return Ok(());
     };
     if !source::HEADINGS.contains(&heading) {
@@ -245,7 +265,7 @@ fn select(
         return Ok(());
     }
     if !record.has_heading(heading) {
-        out.body = absent_heading(query, record, heading)?;
+        out.body = absent_heading(query, record, heading, recent_major_changes)?;
         return Ok(());
     }
     let offset = query.section_offset().unwrap_or(0);
@@ -283,12 +303,31 @@ fn select(
     };
     out.body = (DrugLabel {
         identity: record.header()?,
+        recent_major_changes,
         hint: no_room(&label)?,
         label,
         sections: Box::default(),
     })
     .with_query(query.clone());
     Ok(())
+}
+
+/// The label's recent major changes, except beside a read of that section, which already
+/// carries its text.
+fn recent(
+    query: &DrugGet,
+    record: &source::Record,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Box<[biodata::Text]> {
+    if query
+        .label_section()
+        .is_some_and(|h| h.as_str().starts_with("recent_major_changes"))
+    {
+        return Box::default();
+    }
+    let (changes, rejected) = record.recent_major_changes();
+    problems.extend(rejected);
+    changes
 }
 
 /// Say why a section sharing a spent reply budget returned no text, since an empty text
@@ -319,9 +358,11 @@ fn page(offset: u32, returned: u32, total: u64) -> PageInfo {
 fn section_names(
     query: &DrugGet,
     record: &source::Record,
+    recent_major_changes: Box<[biodata::Text]>,
 ) -> Result<biomcp_types::ReplyData, RequestError> {
     Ok(DrugLabel {
         identity: record.header()?,
+        recent_major_changes,
         label: Section::Empty {
             source: SOURCE,
             record: None,
@@ -343,6 +384,7 @@ fn absent_heading(
     query: &DrugGet,
     record: &source::Record,
     heading: &str,
+    recent_major_changes: Box<[biodata::Text]>,
 ) -> Result<biomcp_types::ReplyData, RequestError> {
     let identity = record.header()?;
     let hint = format!(
@@ -351,6 +393,7 @@ fn absent_heading(
     );
     Ok(DrugLabel {
         identity,
+        recent_major_changes,
         label: Section::Empty {
             source: SOURCE,
             record: None,

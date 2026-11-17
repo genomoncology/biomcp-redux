@@ -55,6 +55,7 @@ impl Therapy {
             source: DrugSource::Civic,
             version: None,
             effective_date: None,
+            application_numbers: Box::default(),
             name,
             identity_level: DrugIdentityLevel::Unknown,
             r#type: cx.optional("type", Some(Text::new("Therapy"))),

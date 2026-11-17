@@ -118,6 +118,9 @@ pub struct DrugLabelPart {
     /// The requested label heading, as given.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label_section: Option<Text>,
+    /// The label's own recent major changes section text, when it has one; given once, in the first label part.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub recent_major_changes: Box<[Text]>,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub label: Section<DrugLabelText>,
     /// Label section names present for this record, listed when no label_section was given or the label lacks the one given.
@@ -221,6 +224,7 @@ impl DrugSectionBody for DrugLabel {
     fn split(self, query: &DrugGet) -> (DrugHeader, Self::Part) {
         let Self {
             identity,
+            recent_major_changes,
             label,
             sections,
             hint,
@@ -229,6 +233,7 @@ impl DrugSectionBody for DrugLabel {
             identity,
             DrugLabelPart {
                 label_section: query.label_section().cloned(),
+                recent_major_changes,
                 label,
                 sections,
                 hint,

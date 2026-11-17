@@ -22,6 +22,14 @@ impl RawRecord {
             source: DrugSource::OpenfdaLabel,
             version: self.version.clone(),
             effective_date: self.effective_time,
+            application_numbers: self
+                .openfda
+                .application_number
+                .iter()
+                .flatten()
+                .cloned()
+                .map(Into::into)
+                .collect(),
             // Display order: brand, generic, then the native SPL set ID.
             // Product-data paragraphs remain in the original label sections.
             name: Some(
@@ -156,6 +164,11 @@ impl Record {
     /// Map the source card and original retrieval date.
     pub fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
         self.0.card(retrieved)
+    }
+    /// The label's recent major changes section, each native element as admitted text, with a
+    /// problem for each element that cannot be admitted.
+    pub fn recent_major_changes(&self) -> (Box<[Text]>, Vec<biomcp_types::Problem>) {
+        self.0.recent_major_changes()
     }
     /// Whether a supported heading has native text.
     pub fn has_heading(&self, heading: &str) -> bool {
