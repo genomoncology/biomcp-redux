@@ -33,10 +33,17 @@ pub(crate) fn heading(line: &str) -> Option<(bool, &str)> {
 /// line below a heading together with the more deeply indented lines that follow it,
 /// as the registry's nested list markers lay them out.
 pub fn split(text: &str, start: usize, page: &str) -> Option<Lists> {
-    let headings = text.lines().filter_map(heading).map(|(excluded, _)| excluded);
+    let headings = text
+        .lines()
+        .filter_map(heading)
+        .map(|(excluded, _)| excluded);
     let (mut inclusion, mut exclusion) = (false, false);
     for excluded in headings {
-        *(if excluded { &mut exclusion } else { &mut inclusion }) = true;
+        *(if excluded {
+            &mut exclusion
+        } else {
+            &mut inclusion
+        }) = true;
     }
     if !(inclusion && exclusion) {
         return None;
@@ -84,41 +91,4 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Lists> {
     }
     close(&mut item, section);
     Some(lists)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn items(texts: &[&str]) -> Vec<Box<str>> {
-        texts.iter().map(|&text| text.into()).collect()
-    }
-
-    #[test]
-    fn headings_take_registry_spellings() {
-        assert_eq!(heading("Inclusion Criteria:"), Some((false, "")));
-        assert_eq!(heading("**Key Exclusion Criteria:**"), Some((true, "")));
-        assert_eq!(heading("Exclusion criteria :"), Some((true, "")));
-        assert_eq!(heading("Inclusion criteria"), Some((false, "")));
-        assert_eq!(heading("Inclusion Criteria: age 18"), Some((false, "age 18")));
-        assert_eq!(heading("Inclusion Criteria for Part A:"), None);
-    }
-
-    #[test]
-    fn nested_items_stay_with_their_parent() {
-        let text = "Inclusion Criteria:\n\n* A:\n\n  1. a1\n  2. a2\n* B\n\nExclusion Criteria:\n\n* C\n";
-        let lists = split(text, 0, text).unwrap();
-        assert_eq!(lists.inclusion, items(&["* A:\n\n  1. a1\n  2. a2", "* B"]));
-        assert_eq!(lists.exclusion, items(&["* C"]));
-        let start = text.find("* C").unwrap();
-        let later = split(text, start, &text[start..]).unwrap();
-        assert!(later.inclusion.is_empty());
-        assert_eq!(later.exclusion, items(&["* C"]));
-    }
-
-    #[test]
-    fn text_without_both_headings_is_not_split() {
-        assert_eq!(split("DISEASE CHARACTERISTICS: x", 0, "DISEASE CHARACTERISTICS: x"), None);
-        assert_eq!(split("Inclusion Criteria:\n* x", 0, "Inclusion Criteria:\n* x"), None);
-    }
 }

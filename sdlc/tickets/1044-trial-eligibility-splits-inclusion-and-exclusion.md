@@ -31,3 +31,8 @@ The trial-ops persona got eligibility as one block of prose in its 2026-11-10 an
 ## Changes
 
 - Changes: the ClinicalTrials.gov eligibility mapping, the eligibility page schema, cases and their recordings, and one release-notes line.
+
+## Progress
+
+- 2026-11-17: `exclusion_heading` moved from `ctgov/gene.rs` to `ctgov/criteria.rs` as `heading`, now shared by gene notices and the split; it also accepts a space before the colon ("Exclusion criteria :", seen in a batch-of-20 recording). The eligibility page gains three optional fields: `inclusion` and `exclusion` (this page's items, each a top-level line with its more deeply indented nested lines, verbatim) and `not_split` (a notice when the whole text lacks either heading). Lists follow the existing paging: a later page knows its section from the last heading before its offset. Text before the first heading stays only in `criteria`.
+- Measured in j42431: NCT02578680 eligibility page grows from under 8,395 to 12,427 bytes (10 inclusion, 25 exclusion items); ceiling 14,291. NCT00003020 (live recording, no headings) measures 3,652 bytes; ceiling 4,200.

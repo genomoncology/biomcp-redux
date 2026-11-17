@@ -3,7 +3,7 @@
   "feature": "trial-get",
   "story": "Eligibility text without the registry's Inclusion Criteria and Exclusion Criteria headings stays whole and says it is not split.",
   "replay": "trial/get/NCT00003020",
-  "verified": "RECORDING_PENDING",
+  "verified": "The actual CLI recorded https://clinicaltrials.gov/api/v2/studies/NCT00003020 and the version reply from the public source on 2026-11-17 with --record in job j42431; registry processing time 2026-11-17T10:00:05. The registry's eligibilityCriteria is 1,167 characters under DISEASE CHARACTERISTICS, PATIENT CHARACTERISTICS and PRIOR CONCURRENT THERAPY, with no Inclusion Criteria or Exclusion Criteria heading. The ceiling is the measured reply of 3,652 bytes plus 15 percent.",
   "steps": [
     {
       "run": [
@@ -29,7 +29,7 @@
           ]
         }
       },
-      "max_bytes": 20000
+      "max_bytes": 4200
     }
   ],
   "harvest": "biomed-agent-bench trial-ops persona, 2026-11-12 run, log line 57"

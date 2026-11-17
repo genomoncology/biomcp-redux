@@ -2417,10 +2417,30 @@
           "description": "The page ends within a criterion whose lines exceed the page budget.",
           "type": "boolean"
         },
+        "exclusion": {
+          "description": "This page's items below the registry's \"Exclusion Criteria\" headings, each with its nested lines, in source order.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "healthy_volunteers": {
           "description": "Source healthy-volunteer field.",
           "type": [
             "boolean",
+            "null"
+          ]
+        },
+        "inclusion": {
+          "description": "This page's items below the registry's \"Inclusion Criteria\" headings, each with its nested lines, in source order.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
             "null"
           ]
         },
@@ -2445,6 +2465,13 @@
             }
           ],
           "description": "Source minimum age."
+        },
+        "not_split": {
+          "description": "Why `inclusion` and `exclusion` are absent: the registry text lacks one or both headings, so read `criteria`.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "offset": {
           "description": "Original character offset.",
