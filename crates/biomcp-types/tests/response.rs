@@ -524,8 +524,16 @@ fn other_bounded_collections_state_their_totals_before_their_rows() -> Outcome {
         "items",
     )?;
     declared_first::<GenePage>(json!({"regions_total":60}), &["regions_total"], "regions")?;
-    declared_first::<ProteinDomains>(json!({"native_total":0}), &["native_total"], "items")?;
-    declared_first::<ProteinComplexes>(json!({"native_total":0}), &["native_total"], "items")
+    declared_first::<ProteinDomains>(
+        json!({"total":0,"native_total":0}),
+        &["total", "native_total"],
+        "items",
+    )?;
+    declared_first::<ProteinComplexes>(
+        json!({"total":0,"native_total":0}),
+        &["total", "native_total"],
+        "items",
+    )
 }
 // 0955: the four 0942 left because moving them reorders their schema `required` lists.
 #[test]
