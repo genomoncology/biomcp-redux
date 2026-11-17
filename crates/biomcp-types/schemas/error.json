@@ -321,7 +321,6 @@
         "use: search study",
         "use: sync cbioportal-studies for metadata; get study ID files for source file references; whole-study analytical installs are retired",
         "the mutations section reads only a mutation profile of this study; choose --molecular-profile from valid_values",
-        "the cna section reads only a discrete copy-number profile of this study; choose --molecular-profile from valid_values",
         "local calculations are dropped by the entity boundary ruling; use: get study ID and the source study page",
         "charts are retired",
         "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",
