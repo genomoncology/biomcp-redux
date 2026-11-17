@@ -31,3 +31,11 @@ Milestone: 7
 ## Changes
 
 - Changes: the two checks or the code they cover, and the Makefile target.
+
+## Progress
+
+- j42119 (origin/main 35e17aabd): the tool fails both checks, as 1021 saw. Its build took 87 s from a cold test profile; the tool itself ran in under a minute.
+- `paging::seer` broke at 0720-seer-answers-by-site-name (0504a7eef): an annual read now also fetches SEER's label catalog (`get_var_formats.php`), and the check's stub answered that request with the annual document, so the read failed as a bad reply. The check now serves the retained synthetic catalog for that request and expects two requests.
+- `paging::study` broke at 0724-source-text-arrives-clean (1d04b4803): each returned sample list now reads its own count from `/sample-lists/{id}`, so the sample-lists second window makes a third request, which the stub answered with the list array (`sampleCount: bad-reply`). The check now answers that request with a synthetic count and expects three sample-lists requests.
+- Neither check tests something no longer promised; both still prove the native window skips a refused row without shifting positions. The code they cover is right; the checks lagged it.
+- New `make value-proof` runs the tool, and `check-cheap` runs it after `ratchets`.
