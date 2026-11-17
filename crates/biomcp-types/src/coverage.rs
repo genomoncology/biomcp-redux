@@ -22,13 +22,13 @@ pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
         AlleleRegistry, AlphaGenome, CancerHotspots, Cbioportal, Cellosaurus, Chembl, Civic,
         ClinGen, ClinVar, ClinicalTrialsGov, ComplexPortal, Erepo, EuropePmc, Gencc, Gnomad, Gwas,
         Hgnc, Hpa, Icite, InterPro, Mutalyzer, MyGene, MyVariant, Oncokb, Orcid, PmcOa, PubMed,
-        PubTator, Reactome, SemanticScholar, UniProt, VariantValidator, WikiPathways,
+        PubTator, Reactome, SemanticScholar, StringDb, UniProt, VariantValidator, WikiPathways,
     };
     match (verb, entity) {
         ("protein", "domains") => &[InterPro],
         ("protein", "complexes" | "complex-members") => &[ComplexPortal],
         ("protein", _) | ("search", "protein") => &[UniProt],
-        ("get", "protein") => &[Hgnc, UniProt, InterPro, ComplexPortal],
+        ("get", "protein") => &[Hgnc, UniProt, InterPro, ComplexPortal, StringDb],
         ("cell-line", _) => &[Chembl],
         ("search" | "get", "cell-line") => &[Cellosaurus],
         ("pathway", "events") => &[Reactome],
