@@ -189,10 +189,31 @@ page!(
     "biomcp.disease-synonyms/6",
     "One publisher synonym page with scope and language."
 );
+/// One publisher cross-reference and its available outbound target.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiseaseXrefItem {
+    /// Native relation and its attribution.
+    #[serde(flatten)]
+    pub relation: DiseaseRelation,
+    /// Publisher-supplied HTTP(S) target, copied as supplied. Its destination is unverified.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_url: Option<Text>,
+}
+
+impl From<DiseaseRelation> for DiseaseXrefItem {
+    fn from(relation: DiseaseRelation) -> Self {
+        Self {
+            relation,
+            target_url: None,
+        }
+    }
+}
+
 page!(
     disease,
     DiseaseXrefs,
-    DiseaseRelation,
+    DiseaseXrefItem,
     DiseaseGet,
     "biomcp.disease-xrefs/6",
     "Native cross-reference predicates without equivalence promotion."

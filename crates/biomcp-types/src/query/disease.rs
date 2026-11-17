@@ -10,7 +10,7 @@ biodata::wire_enum! { described
     DiseaseSection {
         /// Publisher scoped synonyms.
         Synonyms => "synonyms",
-        /// Native cross references.
+        /// Native cross-references. Use --source ols for publisher-supplied target URLs.
         Xrefs => "xrefs",
         /// Native parent relations.
         Hierarchy => "hierarchy",

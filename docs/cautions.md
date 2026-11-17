@@ -30,6 +30,10 @@ SEER site names match the publisher's catalog labels. BioMCP selects a site for 
 
 The `value.unknown` membership and method problems identify facts the structured source reply does not state: dataset and registry membership, the incidence standard population and rate-adjustment method, and survival modeling, eligibility and age adjustment. A requested dataset label identifies the selection sent to SEER; it does not establish membership of the returned rows. These cautions remain alongside the numerical results and the source's connection outcome. Incidence rows retain rates per 100,000 people, and annual survival rows keep observed and modeled values separate.
 
+## Disease cross-reference links
+
+`get disease MONDO:0016512 xrefs --source ols --section-limit 50` shows publisher-supplied HTTP(S) links in `target_url`. The row's `attribution` identifies the MONDO record that states the cross-reference. BioMCP copies the target without opening it. The NORD link for `NORD:1318` leads to the Kabuki syndrome page, which lists All Things Kabuki. The old GARD query link on the same record does not establish a link to GARD's Kabuki syndrome page. [OLS MONDO record](https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?obo_id=MONDO:0016512) · [NORD Kabuki syndrome page](https://rarediseases.org/rare-diseases/kabuki-syndrome/)
+
 ## Orphanet prevalence
 
 `get disease MONDO:0016512 prevalence --source orphadata` reads Orphanet's prevalence estimates, average age of onset and type of inheritance from a local copy of two Orphadata files, `en_product9_prev.xml` and `en_product9_ages.xml`. Run `sync orphadata` to install or refresh them; reads never download. A MONDO or DOID concept reaches Orphanet only through the Orphanet cross-references MONDO states for it, which the reply lists under `links`; BioMCP adds no name or ontology matching. A MONDO Orphanet link can name a related or broader Orphanet entity, such as a clinical subtype, so each item carries Orphanet's own label and disorder type. A concept without an Orphanet link returns no rows and marks `orphadata` skipped with `no-join-id`. `Orphanet:2322` reads one disorder directly.
