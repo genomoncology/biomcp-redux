@@ -2,7 +2,7 @@
 use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{
-    DiagnosticAggregate, DiagnosticCountUnit, DiagnosticPage, DiagnosticProductCodeCounts,
+    DiagnosticAggregate, DiagnosticCountUnit, DiagnosticProductCodeCounts,
     DiagnosticSearch, PageInfo, Paged, ReplyBody, Request, Source, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
@@ -19,13 +19,11 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     };
     let source_query = || Some(expression.clone().into_boxed_str()).filter(|s| !s.is_empty());
     let mut out = empty(
-        (DiagnosticPage {
-            items: Box::default(),
-            count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
-            distinct_id_total: None,
-            source_query: source_query(),
-            product_code_counts: None,
-        })
+        super::device_page(
+            Box::default(),
+            DiagnosticCountUnit::DeviceSubmissions,
+            source_query(),
+        )
         .with_query(q.clone()),
     );
     let command = cx.fetch.command_deadline(cx.budget);
@@ -71,14 +69,13 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                 pool: None,
                 truncated: None,
             });
-            out.body = (DiagnosticPage {
-                items: page.items,
-                count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
-                distinct_id_total: None,
-                source_query: source_query(),
-                product_code_counts,
-            })
-            .with_query(q.clone());
+            let mut body = super::device_page(
+                page.items,
+                DiagnosticCountUnit::DeviceSubmissions,
+                source_query(),
+            );
+            body.product_code_counts = product_code_counts;
+            out.body = body.with_query(q.clone());
             None
         }
         Err(error) => Some(error),

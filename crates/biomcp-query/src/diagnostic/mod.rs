@@ -21,6 +21,20 @@ use biomcp_types::{
     SourceState, Status, StepKind,
 };
 pub(crate) use get::get;
+/// An openFDA device page; a 510(k) product-code count is set by its caller.
+fn device_page(
+    items: Box<[biomcp_types::DiagnosticCandidate]>,
+    unit: biomcp_types::DiagnosticCountUnit,
+    source_query: Option<Box<str>>,
+) -> DiagnosticPage {
+    DiagnosticPage {
+        items,
+        count_unit: Some(unit),
+        distinct_id_total: None,
+        source_query,
+        product_code_counts: None,
+    }
+}
 fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     finish_bundle(out, leg, error, Source::Gtr, Bundle::GTR);
 }

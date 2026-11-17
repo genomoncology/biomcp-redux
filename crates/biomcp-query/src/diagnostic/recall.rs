@@ -5,19 +5,13 @@ use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiagnosticCard, DiagnosticCountUnit, DiagnosticGet, DiagnosticPage, DiagnosticSearch, PageInfo,
+    DiagnosticCard, DiagnosticCountUnit, DiagnosticGet, DiagnosticSearch, PageInfo,
     Problem, ProblemCode, Request, Source, SourceNotice, SourceState, Status, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let source_query = || Some(adapter::expression(q).into_boxed_str()).filter(|s| !s.is_empty());
     let mut out = empty(
-        (DiagnosticPage {
-            items: Box::default(),
-            count_unit: Some(DiagnosticCountUnit::RecallRecords),
-            distinct_id_total: None,
-            source_query: source_query(),
-            product_code_counts: None,
-        })
+        super::device_page(Box::default(), DiagnosticCountUnit::RecallRecords, source_query())
         .with_query(q.clone()),
     );
     let command = cx.fetch.command_deadline(cx.budget);
@@ -57,13 +51,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             pool: None,
             truncated: None,
         });
-        out.body = (DiagnosticPage {
-            items: page.items,
-            count_unit: Some(DiagnosticCountUnit::RecallRecords),
-            distinct_id_total: None,
-            source_query: source_query(),
-            product_code_counts: None,
-        })
+        out.body = super::device_page(page.items, DiagnosticCountUnit::RecallRecords, source_query())
         .with_query(q.clone());
     }
     let rows_survive = error.is_some() && out.page.is_some();
