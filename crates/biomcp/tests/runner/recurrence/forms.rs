@@ -34,15 +34,7 @@ pub(super) fn check() -> Result<(), String> {
     {
         return Err("recurrence help lost its exact-replacement requirement".into());
     }
-    for input in [
-        "rs113488022",
-        "CA123643",
-        "clinvar:13961",
-        "VCV000013961",
-        "NC_000007.13:g.140453136A>T",
-        "chr7:g.140753336A>T",
-        "7-140753336-A-T",
-    ] {
+    for input in EXACT_FORMS {
         let mut args = super::args();
         *args.get_mut(2).ok_or("recurrence input")? = input.into();
         args.truncate(args.len() - 2);
@@ -98,26 +90,38 @@ fn reply(request: &str) -> Result<String, String> {
     super::cbio(request)
 }
 
+const EXACT_FORMS: [&str; 7] = [
+    "rs113488022",
+    "CA123643",
+    "clinvar:13961",
+    "VCV000013961",
+    "NC_000007.13:g.140453136A>T",
+    "chr7:g.140753336A>T",
+    "7-140753336-A-T",
+];
+
 fn shared_forms(env: &Environment) -> Result<(), String> {
     let mut definitions = Vec::new();
-    for (_, entity, id) in biomcp_types::command_paths()
-        .into_iter()
-        .filter(|(verb, entity, _)| {
-            matches!(
-                (*verb, *entity),
-                ("variant", "recurrence" | "population" | "assertions") | ("get", "variant")
-            )
-        })
+    let mut getter = None;
+    for (verb, entity, id) in
+        biomcp_types::command_paths()
+            .into_iter()
+            .filter(|(verb, entity, _)| {
+                matches!(
+                    (*verb, *entity),
+                    ("variant", "recurrence" | "population" | "assertions") | ("get", "variant")
+                )
+            })
     {
         let output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &["schema".into(), id.into()])
             .output()
             .map_err(|e| e.to_string())?;
         let schema: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        let name = if entity == "recurrence" {
-            "RecurrenceInput"
-        } else {
-            "VariantLookupInput"
+        let name = match (verb, entity) {
+            ("get", "variant") => "VariantGetLookupInput",
+            (_, "recurrence") => "RecurrenceInput",
+            _ => "VariantLookupInput",
         };
         if schema.pointer("/properties/input/$ref") != Some(&json!(format!("#/$defs/{name}"))) {
             return Err(format!(
@@ -134,12 +138,15 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
         {
             return Err("recurrence schema lost its exact-replacement requirement".into());
         }
-        definitions.push(
-            schema
-                .pointer(&format!("/$defs/{name}/pattern"))
-                .cloned()
-                .ok_or("variant input schema")?,
-        );
+        let pattern = schema
+            .pointer(&format!("/$defs/{name}/pattern"))
+            .cloned()
+            .ok_or("variant input schema")?;
+        if verb == "get" {
+            getter = Some(pattern);
+        } else {
+            definitions.push(pattern);
+        }
     }
     let first = definitions
         .first()
@@ -147,13 +154,24 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
     if definitions.iter().any(|definition| definition != first) {
         return Err("variant lookup commands advertise different identifier forms".into());
     }
-    let validator = jsonschema::validator_for(&json!({"type":"string","pattern":first}))
-        .map_err(|e| e.to_string())?;
-    for input in UNSUPPORTED {
-        if validator.is_valid(&json!(input)) {
-            return Err(format!(
-                "lookup schema advertises unrouted identifier {input}"
-            ));
+    let getter = getter.ok_or("variant get schema missing")?;
+    for (pattern, accepts_phrase) in [(first, false), (&getter, true)] {
+        let validator = jsonschema::validator_for(&json!({"type":"string","pattern":pattern}))
+            .map_err(|e| e.to_string())?;
+        for input in EXACT_FORMS {
+            if !validator.is_valid(&json!(input)) {
+                return Err(format!("lookup schema lost exact identifier {input}"));
+            }
+        }
+        for input in UNSUPPORTED {
+            if validator.is_valid(&json!(input)) {
+                return Err(format!(
+                    "lookup schema advertises unrouted identifier {input}"
+                ));
+            }
+        }
+        if validator.is_valid(&json!("BRAF V600E")) != accepts_phrase {
+            return Err("only variant get should advertise the protein phrase".into());
         }
     }
     Ok(())

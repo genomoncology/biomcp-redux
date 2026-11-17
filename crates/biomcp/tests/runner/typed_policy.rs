@@ -85,7 +85,11 @@ pub(super) fn get_help(env: &Environment) -> Result<(), String> {
         ("get_trial", json!({"input":["NCT00000000"]}), "get trial"),
         ("get_variant", json!({"input":"--help"}), "get variant"),
         ("get_trial", json!({"input":["lung cancer"]}), "get trial"),
-        ("get_variant", json!({"input":"BRAF V600E"}), "get variant"),
+        (
+            "get_variant",
+            json!({"input":"BRAF V600bogus"}),
+            "get variant",
+        ),
     ] {
         let frame = request(
             json!(10),
@@ -192,7 +196,7 @@ fn frames() -> [Value; 6] {
             "tools/call",
             crate::runner::protocol::typed_catalog::entity(
                 "get_variant",
-                json!({"input":"BRAF V600E"}),
+                json!({"input":"BRAF V600bogus"}),
             ),
         ),
         request(

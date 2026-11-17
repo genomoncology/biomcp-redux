@@ -51,7 +51,7 @@
       "run": [
         "get",
         "variant",
-        "BRAF V600E"
+        "BRAF V600bogus"
       ],
       "exit": 2,
       "is_error": true,

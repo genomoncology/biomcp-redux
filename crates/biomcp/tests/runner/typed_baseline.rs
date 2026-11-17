@@ -17,7 +17,7 @@ pub(super) fn check() -> Result<(), String> {
         request(
             json!(3),
             "tools/call",
-            json!({"name":"biomcp","arguments":{"args":["get","variant","BRAF V600E"]}}),
+            json!({"name":"biomcp","arguments":{"args":["get","variant","BRAF V600bogus"]}}),
         ),
         request(
             json!(4),
