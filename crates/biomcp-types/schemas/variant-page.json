@@ -7004,6 +7004,17 @@
           "$ref": "#/$defs/Reply_AssertionKind",
           "description": "Aggregate/submission/document context."
         },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source record ID, at this path on mapped and unmapped rows alike."
+        },
         "statement": {
           "anyOf": [
             {
@@ -7018,6 +7029,17 @@
         "statement_unmapped": {
           "description": "The native conclusion has no common-model statement.",
           "type": "boolean"
+        },
+        "submitter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitter or panel, at this path on mapped and unmapped rows alike."
         },
         "unmapped": {
           "anyOf": [
@@ -7107,7 +7129,7 @@
               "type": "null"
             }
           ],
-          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar."
+          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); the total counts only that kind. Only with --source clinvar."
         },
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
@@ -7397,7 +7419,7 @@
               "type": "null"
             }
           ],
-          "description": "Record kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all."
         },
         "disease": {
           "anyOf": [

@@ -3343,7 +3343,7 @@
               "type": "null"
             }
           ],
-          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitted record per classification area); the total counts only that kind. Only with --source clinvar."
+          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submission per classification area); the total counts only that kind. Only with --source clinvar."
         },
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
