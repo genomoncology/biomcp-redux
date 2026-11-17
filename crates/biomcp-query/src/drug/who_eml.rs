@@ -3,7 +3,7 @@ use super::empty;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::who_eml;
 use biomcp_types::{
-    DrugEssentialMedicines, DrugGet, DrugPage, DrugSearch, PageInfo, ReplyBody, Request, Section,
+    DrugEssentialMedicines, DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, ReplyBody, Request, Section,
     Source, StepKind,
 };
 
@@ -58,7 +58,10 @@ fn page(query: &DrugGet, fresh: bool, body: &DrugEssentialMedicines, out: &mut O
         .checked_add(returned)
         .filter(|n| returned > 0 && u64::from(*n) < total)
         && let Some(get) = crate::next::checked(
-            query.at_section_offset(offset),
+            // A who-eml get without the section word pages with it, as section paging needs it.
+            query
+                .for_section(DrugSection::EssentialMedicines)
+                .and_then(|get| get.at_section_offset(offset)),
             Source::WhoEml,
             &mut out.problems,
         )
