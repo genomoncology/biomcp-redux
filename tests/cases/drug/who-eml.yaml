@@ -130,9 +130,7 @@
       "expect": {
         "/status": "complete",
         "/result/listings/data/records/*/list": {
-          "includes": [
-            "complementary"
-          ]
+          "includes": "complementary"
         }
       },
       "max_bytes": 20000
