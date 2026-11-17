@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "7cfadb75ec9876d17ee92e968c73e3d45b7871675ea79b496ede5ad6bbb7a02f"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794944138,
+      "status": 200,
+      "content_type": "text/xml; charset=UTF-8",
+      "delay_ms": 301,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<PubmedArticleSet>\n<PubmedArticle><MedlineCitation Status=\"PubMed-not-MEDLINE\" Owner=\"NLM\"><PMID Version=\"1\">33123537</PMID><Article PubModel=\"Electronic-eCollection\"><Journal><ISSN IssnType=\"Print\">2296-634X</ISSN><JournalIssue CitedMedium=\"Print\"><Volume>8</Volume><PubDate><Year>2020</Year></PubDate></JournalIssue><Title>Frontiers in cell and developmental biology</Title><ISOAbbreviation>Front Cell Dev Biol</ISOAbbreviation></Journal><ArticleTitle>Effect of AKT1 (p. E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis.</ArticleTitle></Article></MedlineCitation></PubmedArticle><PubmedBookArticle><BookDocument><ArticleIdList><ArticleId IdType=\"bookaccession\">NBK62111</ArticleId></ArticleIdList><Book><BookTitle book=\"gene\">GeneReviews<sup>\u00ae</sup></BookTitle></Book><ArticleTitle book=\"gene\" part=\"kabuki\">Kabuki Syndrome</ArticleTitle><AuthorList Type=\"authors\" CompleteYN=\"Y\"><Author ValidYN=\"Y\"><LastName>Adam</LastName><Initials>MP</Initials></Author><Author ValidYN=\"Y\"><LastName>Hannibal</LastName><Initials>M</Initials></Author></AuthorList><PublicationType UI=\"D016454\">Review</PublicationType><ContributionDate><Year>2011</Year><Month>9</Month><Day>1</Day></ContributionDate></BookDocument></PubmedBookArticle></PubmedArticleSet>"
+      }
+    }
+  ]
+}

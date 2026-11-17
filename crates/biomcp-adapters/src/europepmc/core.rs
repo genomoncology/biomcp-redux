@@ -130,6 +130,8 @@ pub fn core(
         .field("journal", raw.book_or_report_details)
         .and_then(|r| p.source_field("journal", r.publisher));
     let value = Article {
+        book_title: None,
+        bookshelf_url: None,
         text_withheld: if leg.disabled_use(biomcp_types::Use::PerRecord)
             && !crate::article_rights::permitted(
                 raw.license

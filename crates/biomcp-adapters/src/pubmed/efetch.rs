@@ -1,6 +1,6 @@
-use super::{SPEC, map::publication_type};
+use super::{SPEC, efetch_book, map::publication_type};
 use crate::mapped::{Problems, record};
-use crate::xml_element::Element;
+use crate::xml_element::{Element, body_nodes};
 use biodata::{PartialDate, Pmid, Text};
 use biomcp_fetch::{Input, Read};
 use biomcp_types::{Problem, Source};
@@ -9,9 +9,7 @@ use biomcp_fetch::{
     Arg, BadReply, Endpoint, Freshness, Leg, Reply, ReplyMetadata, RequestError, Secret,
     xml::XmlReply,
 };
-use biomcp_types::{
-    AbstractPart, Article, ArticleInput, Correction, CorrectionKind, CorrectionRelation,
-};
+use biomcp_types::{AbstractPart, Article, Correction, CorrectionKind, CorrectionRelation};
 use serde::Deserialize;
 /// One citation and its separately requested indexing facts.
 #[derive(Debug, Deserialize)]
@@ -26,49 +24,26 @@ pub struct FetchedArticle {
     /// Rejected optional fields from this exact citation.
     pub problems: Vec<Problem>,
 }
+/// Decoded PubMed citations from one EFetch response.
+#[derive(Debug)]
+pub struct FetchedArticles {
+    /// Usable citations in source order.
+    pub articles: Vec<FetchedArticle>,
+    /// Provenance for the whole EFetch response.
+    pub metadata: ReplyMetadata,
+    /// A book citation could not be bound to a valid PMID.
+    pub unbound_book: bool,
+}
 const FETCH: Endpoint = SPEC
     .post_form("/efetch.fcgi")
     .idempotent()
     .fresh(Freshness::Days(1));
-const RESOLVE: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
-/// Resolve one namespace and retain distinct source matches.
-pub fn resolve_ids(
-    leg: &Leg<'_>,
-    input: &ArticleInput,
-    email: Option<&Secret>,
-) -> Result<Vec<Pmid>, RequestError> {
-    let term = match input {
-        ArticleInput::EuropePmc(_) => return Ok(Vec::new()),
-        ArticleInput::Pmid(id) => return Ok(vec![*id]),
-        ArticleInput::Pmcid(id) => format!("{id}[pmc]"),
-        ArticleInput::Doi(id) => format!("{id}[doi]"),
-    };
-    let mut params = vec![
-        ("db", Arg::Text("pubmed")),
-        ("term", Arg::Text(&term)),
-        ("retmax", Arg::Num(9999)),
-        ("retmode", Arg::Text("json")),
-        ("tool", Arg::Text("biomcp")),
-    ];
-    if let Some(email) = email {
-        params.push(("email", Arg::Contact(email)));
-    }
-    Ok(leg
-        .call(
-            &RESOLVE,
-            Input::Params(&params),
-            Read::<super::raw::Search>::json(),
-        )
-        .map(|received| received.value)?
-        .esearchresult
-        .idlist)
-}
 /// Fetch a checked batch of at most two hundred PMID records and its provenance.
 pub fn fetch_articles(
     leg: &Leg<'_>,
     ids: &[Pmid],
     email: Option<&Secret>,
-) -> Result<(Vec<FetchedArticle>, ReplyMetadata), RequestError> {
+) -> Result<FetchedArticles, RequestError> {
     if ids.len() > 200 || ids.is_empty() {
         return Err(biomcp_fetch::InputError::Method.into());
     }
@@ -91,14 +66,20 @@ pub fn fetch_articles(
             &FETCH,
             Input::Params(&params),
             Read::<Records>::xml()
+                .cache_if(&|reply| !reply.unbound_book)
                 .filter_body(&|body| crate::article_rights::pubmed::filter(leg, body, &licenses)),
         )
         .map(|received| (received.value, received.meta))?;
-    Ok((reply.articles, metadata))
+    Ok(FetchedArticles {
+        articles: reply.articles,
+        metadata,
+        unbound_book: reply.unbound_book,
+    })
 }
 #[derive(Deserialize)]
 struct Records {
     articles: Vec<FetchedArticle>,
+    unbound_book: bool,
 }
 impl Reply for Records {
     fn check(&self) -> Result<(), BadReply> {
@@ -111,12 +92,22 @@ impl XmlReply for Records {
         if root.child("ERROR")?.is_some() {
             return Err(BadReply);
         }
-        let articles = root
-            .children("PubmedArticle")?
-            .into_iter()
-            .map(article)
-            .collect::<Result<_, _>>()?;
-        Ok(Self { articles })
+        let mut articles = Vec::new();
+        let mut unbound_book = false;
+        for (kind, node) in body_nodes(root.0)? {
+            match kind.as_str() {
+                "PubmedArticle" => articles.push(article(node)?),
+                "PubmedBookArticle" => match efetch_book::chapter(node)? {
+                    Some(chapter) => articles.push(chapter),
+                    None => unbound_book = true,
+                },
+                _ => (),
+            }
+        }
+        Ok(Self {
+            articles,
+            unbound_book,
+        })
     }
 }
 fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
@@ -166,6 +157,8 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         refusals,
         indexing,
         article: Article {
+            book_title: None,
+            bookshelf_url: None,
             text_withheld: crate::article_rights::pubmed::notice(&root, pmid)?,
             europepmc_id: None,
             pmid: Some(pmid),
@@ -197,7 +190,7 @@ fn electronic_date(
     Ok(None)
 }
 
-fn authors(row: Element<'_>, problems: &mut Problems) -> Result<Vec<Text>, BadReply> {
+pub(super) fn authors(row: Element<'_>, problems: &mut Problems) -> Result<Vec<Text>, BadReply> {
     let mut out = Vec::new();
     if let Some(list) = row.child("AuthorList")? {
         for author in list.children("Author")? {
@@ -270,7 +263,7 @@ fn corrections(
     }
     Ok(out)
 }
-fn pubdate(
+pub(super) fn pubdate(
     node: Option<Element<'_>>,
     field: &str,
     problems: &mut Problems,

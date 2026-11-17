@@ -198,8 +198,9 @@ fn pubmed_checks_licenses_before_its_own_call_and_keeps_an_unchecked_abstract() 
         &biomcp_adapters::pubmed::SPEC,
         fetch.deadline(Duration::from_secs(20)),
     );
-    let (articles, _) =
-        biomcp_adapters::pubmed::fetch_articles(&leg, &["1002".parse().unwrap()], None).unwrap();
+    let articles = biomcp_adapters::pubmed::fetch_articles(&leg, &["1002".parse().unwrap()], None)
+        .unwrap()
+        .articles;
     let requests = log.lock().unwrap().clone();
     assert_eq!(
         requests.first(),
@@ -287,9 +288,10 @@ fn repeat_reads_keep_refusal_markers_and_write_nothing_new() {
             &biomcp_adapters::pubmed::SPEC,
             fetch.deadline(Duration::from_secs(20)),
         );
-        let (articles, _) =
+        let articles =
             biomcp_adapters::pubmed::fetch_articles(&leg, &["1002".parse().unwrap()], None)
-                .unwrap();
+                .unwrap()
+                .articles;
         assert!(articles.first().unwrap().article.text_withheld.is_some());
     };
     read_pubmed();

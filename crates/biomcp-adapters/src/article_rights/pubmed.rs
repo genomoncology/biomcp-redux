@@ -1,5 +1,6 @@
 //! PubMed abstracts follow source terms unless the record has explicit restrictions.
 use super::Licenses;
+use super::pubmed_book::book_citations;
 use crate::xml_element::{Element, descendants};
 use biodata::Pmid;
 use biomcp_fetch::{BadReply, Leg};
@@ -27,10 +28,12 @@ pub(crate) fn notice(
     })
 }
 pub(crate) fn filter(leg: &Leg<'_>, body: &[u8], licenses: &Licenses) -> Result<Vec<u8>, BadReply> {
-    if !leg.disabled_use(Use::PerRecord) {
-        return Ok(body.to_vec());
-    }
     let xml = std::str::from_utf8(body).map_err(|_| BadReply)?;
+    let books_filtered = book_citations(xml)?;
+    if !leg.disabled_use(Use::PerRecord) {
+        return Ok(books_filtered.into_owned().into_bytes());
+    }
+    let xml = books_filtered.as_ref();
     let articles = descendants(xml, "PubmedArticle")?;
     let mut filtered = xml.to_owned();
     for article in articles {

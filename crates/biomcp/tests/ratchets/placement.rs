@@ -260,6 +260,14 @@ const ALLOWED: &[(&str, &str)] = &[
         "Cover Retry-After forms and backoff boundaries without one recording per table row.",
     ),
     (
+        "crates/biomcp-adapters/src/article_rights/pubmed_book_tests.rs",
+        "Prove that the private PubMed chapter retention filter discards noncitation XML before storage.",
+    ),
+    (
+        "crates/biomcp-adapters/src/pubmed/efetch_book_tests.rs",
+        "Prove that missing, malformed and conflicting chapter accessions cannot generate a Bookshelf link.",
+    ),
+    (
         "crates/biomcp-adapters/src/native_text_tests.rs",
         "Show CR, CR-LF and blank-line runs joining to one space through the private source text helper, with other controls still escaped (0961).",
     ),

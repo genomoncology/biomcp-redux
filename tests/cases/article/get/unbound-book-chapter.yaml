@@ -1,0 +1,20 @@
+{
+  "feature": "article-get",
+  "live_check": "synthetic response-only control",
+  "story": "A malformed book record preserves the journal sibling and cannot confirm absence for the unmatched PMID.",
+  "replay": "article/get/unbound-book-chapter",
+  "steps": [
+    {
+      "run": ["get", "article", "21882399", "33123537"],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/input": "21882399",
+        "/result/items/0/status": "failed",
+        "/result/items/0": {"omits": ["answer"]},
+        "/result/items/1/answer/card/pmid": "33123537",
+        "/result/items/1/status": "complete",
+        "/sources/0/reason": "bad-reply"
+      }
+    }
+  ]
+}

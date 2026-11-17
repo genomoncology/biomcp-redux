@@ -19,8 +19,9 @@ fn check_pubmed(fetch: &Fetch) {
         &biomcp_adapters::pubmed::SPEC,
         fetch.deadline(Duration::from_secs(20)),
     );
-    let (articles, _) =
-        biomcp_adapters::pubmed::fetch_articles(&leg, &["1002".parse().unwrap()], None).unwrap();
+    let articles = biomcp_adapters::pubmed::fetch_articles(&leg, &["1002".parse().unwrap()], None)
+        .unwrap()
+        .articles;
     assert_eq!(
         articles.len(),
         1,

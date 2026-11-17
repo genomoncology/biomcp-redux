@@ -78,7 +78,7 @@ fn citation_indexing_refusals_preserve_the_article() -> Check {
         })?;
         assert!(changed, "PubMed native citation fixture missing");
         let leg = fetch.leg(&pubmed::SPEC, fetch.deadline(Duration::from_secs(20)));
-        let (rows, _) = pubmed::fetch_articles(&leg, &["28944238".parse()?], None)?;
+        let rows = pubmed::fetch_articles(&leg, &["28944238".parse()?], None)?.articles;
         let row = rows.first().ok_or("citation absent")?;
         assert_eq!(
             row.refusals, expected,

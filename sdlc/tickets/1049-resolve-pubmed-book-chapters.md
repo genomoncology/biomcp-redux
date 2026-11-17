@@ -1,6 +1,7 @@
 # 1049 — Resolve known PubMed book chapters to their Bookshelf links
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b10c76ab1e82ecf0dab105a5de338b3d91a00545
 
 Milestone: 7
 

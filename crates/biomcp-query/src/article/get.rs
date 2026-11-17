@@ -102,15 +102,33 @@ fn fetch(leg: &Leg<'_>, ids: &[Pmid], cx: &Ctx<'_>) -> (Vec<Record>, Vec<Failure
     let mut failures = Vec::new();
     for (ids, result) in chunks.into_iter().zip(results) {
         match result {
-            Ok((rows, metadata)) => {
-                for row in rows {
+            Ok(batch) => {
+                for row in batch.articles {
                     if row.article.pmid.is_some_and(|id| ids.contains(&id))
                         && !records
                             .iter()
                             .any(|(r, _): &Record| r.article.pmid == row.article.pmid)
                     {
-                        records.push((row, metadata.fetched));
+                        records.push((row, batch.metadata.fetched));
                     }
+                }
+                if batch.unbound_book {
+                    let error = biomcp_fetch::SourceError {
+                        source: Source::PubMed,
+                        reason: biomcp_types::Reason::BadReply,
+                        status: None,
+                        tls_cause: None,
+                        retry_after: None,
+                    };
+                    failures.extend(
+                        ids.iter()
+                            .filter(|id| {
+                                !records
+                                    .iter()
+                                    .any(|(row, _)| row.article.pmid == Some(**id))
+                            })
+                            .map(|id| (*id, error.into())),
+                    );
                 }
             }
             Err(error) => failures.extend(ids.iter().map(|id| (*id, error))),
