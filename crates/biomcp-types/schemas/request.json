@@ -4513,7 +4513,7 @@
               "type": "null"
             }
           ],
-          "description": "Record kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
         },
         "command": {
           "const": "get-variant",
