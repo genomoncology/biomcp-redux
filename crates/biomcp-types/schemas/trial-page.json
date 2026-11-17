@@ -2540,7 +2540,7 @@
           "type": "integer"
         },
         "trials_read": {
-          "description": "Matched trials whose sites were read; fewer than matched only when the read limit stopped it.",
+          "description": "Number of trial records read across the returned registry pages.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"

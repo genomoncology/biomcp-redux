@@ -29,7 +29,7 @@ pub struct TrialPage {
 pub struct TrialSiteCounts {
     /// Registry total of matched trials.
     pub trials_matched: u64,
-    /// Matched trials whose sites were read; fewer than matched only when the read limit stopped it.
+    /// Number of trial records read across the returned registry pages.
     pub trials_read: u64,
     /// Distinct facility, city and country rows among the trials read.
     pub facilities_total: u64,
