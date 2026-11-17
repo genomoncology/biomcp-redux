@@ -90,7 +90,7 @@
         "/page/total": 4,
         "/next/0/kind": "page",
         "/next/0/args": {
-          "includes": [
+          "includes_all_of": [
             "--section-offset",
             "2"
           ]
