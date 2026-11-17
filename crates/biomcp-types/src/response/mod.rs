@@ -172,6 +172,8 @@ pub use disease::{
 
 mod diagnostic;
 pub use diagnostic::*;
+mod diagnostic_counts;
+pub use diagnostic_counts::*;
 
 mod pathway;
 pub use pathway::*;

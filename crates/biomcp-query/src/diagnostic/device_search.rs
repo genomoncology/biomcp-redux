@@ -2,8 +2,8 @@
 use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{
-    DiagnosticAggregate, DiagnosticCountUnit, DiagnosticProductCodeCounts,
-    DiagnosticSearch, PageInfo, Paged, ReplyBody, Request, Source, StepKind,
+    DiagnosticAggregate, DiagnosticCountUnit, DiagnosticProductCodeCounts, DiagnosticSearch,
+    PageInfo, Paged, ReplyBody, Request, Source, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let source = q.source().source();
