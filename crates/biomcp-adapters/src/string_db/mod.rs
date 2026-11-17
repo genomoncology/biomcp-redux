@@ -1,6 +1,8 @@
 //! STRING functional association partners of one human protein, in STRING's score order.
 use biodata::{Text, UniProtIsoform};
-use biomcp_fetch::{Arg, BadReply, Freshness, Input, KeyUse, Leg, Read, Reply, RequestError, SourceSpec, Terms};
+use biomcp_fetch::{
+    Arg, BadReply, Freshness, Input, KeyUse, Leg, Read, Reply, RequestError, SourceSpec, Terms,
+};
 use biomcp_types::{InteractionEvidence, ProteinInteraction, ProteinInteractions, Source, Use};
 use serde::Deserialize;
 use std::time::Duration;
@@ -73,8 +75,14 @@ impl Row {
             && self.string_id_a != self.string_id_b
             && !self.preferred_name_b.trim().is_empty()
             && [
-                self.score, self.nscore, self.fscore, self.pscore, self.ascore, self.escore,
-                self.dscore, self.tscore,
+                self.score,
+                self.nscore,
+                self.fscore,
+                self.pscore,
+                self.ascore,
+                self.escore,
+                self.dscore,
+                self.tscore,
             ]
             .into_iter()
             .all(unit)
@@ -88,7 +96,9 @@ impl Reply for Partners {
                 let first = rows.first().map(|r| r.string_id_a.as_str());
                 let ordered = rows.windows(2).all(|w| w[0].score >= w[1].score);
                 let mut partners = std::collections::BTreeSet::new();
-                (rows.iter().all(|r| r.valid() && Some(r.string_id_a.as_str()) == first)
+                (rows
+                    .iter()
+                    .all(|r| r.valid() && Some(r.string_id_a.as_str()) == first)
                     && rows.iter().all(|r| partners.insert(r.string_id_b.as_str()))
                     && ordered)
                     .then_some(())

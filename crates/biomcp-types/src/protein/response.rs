@@ -4,8 +4,8 @@ use super::{
 };
 use crate::{ItemStatus, ResponseBody, Section};
 use biodata::{
-    ProteinAudit, Text, ProteinComplexHeader, ProteinComplexMember, ProteinDomainMatch, ProteinFeature,
-    ProteinFunction, ProteinHeader, ProteinIsoform, ProteinSequence, ProteinStructureRef,
+    ProteinAudit, ProteinComplexHeader, ProteinComplexMember, ProteinDomainMatch, ProteinFeature,
+    ProteinFunction, ProteinHeader, ProteinIsoform, ProteinSequence, ProteinStructureRef, Text,
 };
 use serde::{Deserialize, Serialize};
 
@@ -219,7 +219,8 @@ pub struct ProteinInteractions {
     pub min_score: f64,
     /// STRING release that scored these partners.
     pub version: Text,
-    /// STRING protein identity of the asked protein.
+    /// STRING entry the asked accession maps to. STRING keeps one protein per gene, so distinct
+    /// products of one gene, such as CDKN2A's P42771 and Q8N726, share one entry and one partner list.
     pub string_id: Text,
     /// Bounded first rows in STRING's order, highest combined score first.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

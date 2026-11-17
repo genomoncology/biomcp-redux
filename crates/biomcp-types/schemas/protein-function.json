@@ -252,6 +252,7 @@
         "domains",
         "isoforms",
         "complexes",
+        "interactions",
         "structures",
         "function",
         "sequence",
@@ -263,6 +264,7 @@
         " Native InterPro entry matches.",
         " Native alternative products.",
         " Exact participant-admitted complex headers.",
+        " STRING interaction partners with combined and channel scores.",
         " Native structure cross-reference links.",
         " One whole native function text record with all source paragraphs.",
         " Direct exact-identity sequence and audit metadata.",
@@ -392,7 +394,8 @@
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
-        " Orphadata Science epidemiology and natural-history files."
+        " Orphadata Science epidemiology and natural-history files.",
+        " STRING protein association networks."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -468,7 +471,8 @@
         "clinpgx",
         "cbioportal",
         "cellosaurus",
-        "orphadata"
+        "orphadata",
+        "string"
       ]
     },
     "Reply_SourceNotice": {
