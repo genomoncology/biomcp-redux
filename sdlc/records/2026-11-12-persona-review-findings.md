@@ -48,3 +48,29 @@ November 12, 2026. Bench ticket 0039 reviewed the eleven blind-graded persona ru
 ## Missing sources
 
 Added to `planning/sources-to-add.md`.
+
+## Disposition, 2026-11-17
+
+Status: accepted. Checked against origin/main 1fea41534 and the persona rounds since (biomed-agent-bench `personas/PLAYBOOK.md`, rounds table, and each persona's 2026-11-16 `analysis.md`). Those rounds re-ran every persona and filed what they still found, so they decide which waiting gaps block the A- bar. Of 36 findings, 28 are fixed, 1 is obsolete and 7 are still open; one of the seven blocks 1.0 and has a ticket.
+
+Fixed (28).
+
+- Ticketed: 0856 to 0864 are all COMPLETE. The two items 0856 was thought not to cover are also done. CodeBreaK 202 (NCT05920356) does write the change, as "KRAS p.G12C": a ClinicalTrials.gov term search for `G12C` misses it and `p.G12C` finds it (checked 2026-11-17), and 0856 searches that spelling and says in the reply which spellings it searched.
+- Drug-interaction pair: 0898 and 1023. FAERS counts by year: 0894. MAUDE event type: 0893 and 0903. VAERS by count: 0895.
+- Drugs@FDA date sort and window: 0874, 0875 and 0900. Applicant family: 0825's applicant filter is a prefix match on the sponsor name (`NOVARTIS*`, kept by 0874).
+- Recall rows: 0901 (reason), 0877 (FDA fields), 0897 (search by device name). fda-cdx: 0933. De novo: 0870 and 0967.
+- Composite variant evidence pack: 0846 returns several sections in one get. Tumor-board's 2026-11-16 round asked only for 1008 and 1009 beyond it.
+- Study copy number: 1031. Phenotype set ranked: 0886. GTR test type and lab contact: 0887 and 0891. Gene-level ClinVar counts: 0932 and 0946. Article affiliations: 1014.
+- Trial rows with sponsor: 0826, confirmed by patient-navigator's 2026-11-16 round. CIViC first page and limit: 0862.
+
+Obsolete (1).
+
+- rs121913529 resolving to G12V: patient-navigator's 2026-11-16 round got three candidate alleles, with `clinvar:12582` resolving G12D (`analysis.md:22`). The 2026-11-10 rollup had already withdrawn the allele-pick claim as a misread.
+
+Still open (7).
+
+- Trial site distance, nearest first: seen in three patient-navigator runs, the last on 2026-11-16. Ticketed as [1042 Trial sites give distance, nearest first](../tickets/1042-trial-sites-give-distance-nearest-first.md).
+- Site counts across trials, `why_stopped` on search rows, and parsed eligibility: still absent from search rows (`why_stopped` is on the trial card since 0823). Trial-ops' 2026-11-16 round found "no other BioMCP changes are warranted" beyond 1007, so they do not block 1.0.
+- Pathway gene lists that leave out non-gene members: the Reactome genes relation still returns every exact reference, labelled by namespace. Comp-bio's 2026-11-16 round did not raise it; not blocking.
+- Open-access status on PubMed search rows: still filled only on Europe PMC rows. Msl's 2026-11-16 round chose 1016 (licence meanings and a `fulltext` next step) as the fix for its question; not blocking.
+- The 2 MiB bound on 510(k) and other device searches (`device_search.rs:75`): no failure seen. A live 100-row page measured 0.78 MB for 510(k) and 0.27 MB for PMA on 2026-11-17; not blocking.

@@ -18,3 +18,7 @@ Verdict: not ready for the bench. Tickets 0624–0632 carry the fixes.
 Sound: names come from the registry, are unique and fit client limits; flags-then-`--`-then-positionals spelling is safe; clap argument IDs match schema properties by construction; hosted policy is enforced at execution in both modes; cancellation and concurrency are unchanged; single-mode paths pass through; replay validates output with a real JSON Schema validator.
 
 Skipped: build, scanners, advisory scan, gate history. Uncertain: exact sizes, and how pi and Quick handle structured content.
+
+## Disposition, 2026-11-17
+
+Status: accepted. Checked against origin/main 1fea41534. All 10 findings are fixed: 0624 through 0632 are COMPLETE, the reviewed typed implementation landed through 0636 at 95e7be997. The entity tools (`decisions/2026-11-07-entity-tools-in-1-0.md`) have since replaced the 19 typed tools on the same typed path. None is still open, so no ticket was filed.

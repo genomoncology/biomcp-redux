@@ -48,3 +48,14 @@ Secrets are hidden in debug output, loaded lazily and checked against reflection
 ## Skipped
 
 Builds, tests, workflow and container runs, artifact inspection, macOS signing, line-by-line adapter and gRPC transport reads, load and concurrency tests, and Windows-specific paths.
+
+## Disposition, 2026-11-17
+
+Status: accepted. Checked against origin/main 1fea41534. All 28 findings are fixed; none is obsolete or still open, so no ticket was filed.
+
+- Release and code rows: 0393, 0394, 0395, 0396, 0398, 0399 and 0400 are COMPLETE with their landing commits.
+- Schema baseline and the 0336 re-export conflict: 0336 is COMPLETE.
+- Docs rows: 0397 is COMPLETE.
+- Publication before the public append and tag: settled in `plan.md` (section 5) and 0294's release order, which pushes the tag on the merge and fast-forwards public main only after publication passes. 0294 itself stays open as the release step.
+- 0293's cherry-pick and carry-forward rules: 0293 is COMPLETE.
+- Decisions row: the decisions were amended at the time.

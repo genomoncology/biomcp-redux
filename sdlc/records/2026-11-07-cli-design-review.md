@@ -31,3 +31,10 @@ Two observations matter more than the totals. Entity-first typed today fails wit
 - C. Leave as is.
 
 Recommendation: B for 1.0, then make entity-first the documented form together with the MCP entity tools in 1.1, settling the section and facet names (starting with article citations) in that design.
+
+## Disposition, 2026-11-17
+
+Status: accepted. Checked against origin/main 1fea41534. Ian chose option B (0761).
+
+- Inconsistency 1, word order: fixed. 0761 (CLI accepts entity-first order) is COMPLETE; both orders run the same command.
+- Inconsistencies 2 to 5 (section names shared with facets, one spelling for two requests, the bare word's meaning, uneven short flags): still as described, and deferred past 1.0 by decision. 0761's Defers and `decisions/2026-11-07-entity-tools-in-1-0.md` keep today's verb-first order as the documented CLI form and leave section and facet names to the 1.1 design. They do not block 1.0, so no ticket was filed.

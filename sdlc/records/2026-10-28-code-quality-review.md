@@ -32,3 +32,7 @@ The crate graph, import direction, isolation of test processes, secret handling 
 ## Strengths
 
 Cargo enforces the documented layer direction with no cycles. Adapters never retry, sleep, read the clock or set quotas. Product code has two reasoned `expect` exceptions and no `unwrap`. Child processes get one isolated environment. Replay uses virtual time. Checkers have planted-failure tests. Every declared dependency is used.
+
+## Disposition, 2026-11-17
+
+Status: accepted. Checked against origin/main 1fea41534. All 16 findings are fixed: each row's ticket, 0417 through 0432, is COMPLETE with its landing commit in its ticket file. None is obsolete and none is still open, so no ticket was filed.

@@ -164,6 +164,31 @@ Ian answered 2026-11-06: do them. W41, W42, W54 and the deferred W26, W39 and W4
 - W21's fill estimate is arithmetic with an assumed reply size.
 - No clinical or legal judgment of any source's terms; I report what the recorded terms say.
 
+## Disposition, 2026-11-17
+
+Status: accepted. Each row was checked against origin/main 1fea41534. Of 57 rows, 46 are fixed, 7 are obsolete and 4 are still open, all four owned by open release tickets. No new ticket was needed.
+
+Fixed (46). Every ticket named is COMPLETE with its landing commit in its ticket file.
+
+- W1: 0689. W2 and W19: 0691. W3, W4, W38, W46, W50, W51, W53 and W56: 0692. W10: 0692 and 0710.
+- W5: 0687, with 0986 for the repeat failure. W6, W36 and W40: 0686, 0694 and 0944. W7 and W44: 0293 is COMPLETE and its stale line was corrected (see 0734).
+- W9, W29, W34 and W49: 0697. W11: 0695. W30: 0696.
+- W12 to W16, W25 and W27: 0693. W17, W18, W22 and W23: 0690.
+- W21: the hosting repository's infrastructure now alarms on task disk use (`taskDiskAlarmPercent`), and 1001 gives the hosted reply cache a byte ceiling.
+- W24 and W28: 0641. W26: 0714. W39: 0715. W41: 0711. W42: 0712. W54: 0713.
+- W32: the blind comparison decision carries its 2026-11-06 update. W35: 0583 (nightly cause classes). W57: 0060 withdrawn and the other ticket corrections made.
+
+Obsolete (7).
+
+- W20, W37, W45, W47, W52 and W55: rejected, and Ian kept them rejected on 2026-11-06 (Recurring calls, item 9): each is by design or was wrong.
+- W43: 0716 was withdrawn. The wheel keeps both binary copies for 1.0, because the one-copy route could be proved only on hosted Windows and Intel.
+
+Still open (4), each owned by an open ticket for the release session. None needs a new ticket.
+
+- W8 and W31: 0294 (account preflight and release order).
+- W33: 0401 (land the docs site after the release).
+- W48: Ian's account decision on a `v*` tag rule (Q3). It had no owner, so 0294's account preflight now carries it to the approval packet.
+
 # Report A: correctness, stored state, reliability, operability, performance
 
 ## BioMCP pre-1.0 adversarial review: correctness, stored state, reliability, operability, performance
