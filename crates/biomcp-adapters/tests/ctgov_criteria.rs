@@ -1,3 +1,5 @@
+//! Registry eligibility headings across page boundaries.
+
 use biomcp_adapters::ctgov::criteria::split;
 
 #[test]
