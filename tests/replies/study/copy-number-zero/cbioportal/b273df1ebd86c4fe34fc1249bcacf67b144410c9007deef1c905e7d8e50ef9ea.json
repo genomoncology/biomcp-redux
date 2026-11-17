@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "cbioportal",
+  "url": "https://www.cbioportal.org/api/genes/SRY",
+  "exchanges": [
+    {
+      "fetched": 1794895175,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 60,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"entrezGeneId":6736,"hugoGeneSymbol":"SRY","type":"protein-coding"}
+      }
+    }
+  ]
+}

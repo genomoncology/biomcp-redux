@@ -122,6 +122,7 @@ Other commands:
 - Protein features, domains and cards carry `coordinate_note`, which explains that spans are zero-based and half-open, unlike UniProt's one-based coordinates and the one-based `--position`.
 - `search gwas --p-value` leaves out `qualifying_total`, and is not `complete`, when an association cannot be compared with the threshold.
 - `variant recurrence` fails, with no counts, when `--sample-set` is unknown or belongs to another study or list.
+- `get study ID cna --gene GENE` gives cBioPortal's own counts of samples with a high-level amplification (`amplified`, GISTIC call 2) and a deep deletion (`deep_deleted`, call -2) of the gene in the study's discrete copy-number profile, out of `number_of_samples`; brca_tcga has ERBB2 amplified in 133 of 1,080. `--molecular-profile` picks another discrete profile.
 - `search cell-line` reports Cellosaurus's own match count as its total.
 - `search cell-line --disease` says that Cellosaurus matches a disease name as a phrase and adds no narrower NCIt diseases, so a subtype such as Pancreatic ductal adenocarcinoma is its own search.
 - `biomcp health` honours `command_timeout_seconds` and each source's deadline instead of a 3-second cap.

@@ -1,0 +1,20 @@
+{
+  "feature": "study-copy-number",
+  "live_check": "Native public cBioPortal API replies captured unchanged on 2026-11-17 (pm job j42192); API schema https://www.cbioportal.org/api/v3/api-docs.",
+  "replay": "study/copy-number-profile",
+  "story": "The cna section refuses a mutation profile as a usage error naming the study's discrete copy-number profiles, not as a source outage.",
+  "steps": [
+    {
+      "run": ["get", "study", "brca_tcga", "cna", "--gene", "ERBB2", "--molecular-profile", "brca_tcga_mutations"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--molecular-profile",
+        "/error/valid_values": ["brca_tcga_gistic"],
+        "/error/message": "the cna section reads only a discrete copy-number profile of this study; choose --molecular-profile from valid_values"
+      }
+    }
+  ]
+}
