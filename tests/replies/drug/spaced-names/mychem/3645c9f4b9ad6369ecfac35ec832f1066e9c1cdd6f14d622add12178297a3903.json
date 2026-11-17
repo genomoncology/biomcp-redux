@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=domperidone%20maleate&size=50&from=0&fields=drugbank.name%2Cdrugbank.synonyms%2Cchembl.pref_name%2Cchembl.molecule_type%2Cchembl.molecule_synonyms%2Cdrugcentral.synonyms%2Cgtopdb.name%2Cgtopdb.type%2Cgtopdb.synonyms%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Copenfda.generic_name%2Copenfda.brand_name",
+  "exchanges": [
+    {
+      "fetched": 1794896378,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 252,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":10,"total":3,"max_score":39.242477,"hits":[{"_id":"C0771334","_score":39.242477},{"_id":"OAUUYDZHCOULIO-BTJKTKAUSA-N","_score":39.225212,"chembl":{"_license":"http://bit.ly/2KAUCAm","molecule_type":"Small molecule"},"unii":{"_license":"http://bit.ly/2Pg8Oo9","display_name":"DOMPERIDONE MALEATE","ingredient_type":"INGREDIENT SUBSTANCE"}},{"_id":"C0887341","_score":28.802631}]}
+      }
+    }
+  ]
+}

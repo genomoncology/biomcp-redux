@@ -125,6 +125,34 @@
       "from": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
       "to": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "review": "1033: the parser takes any text as a drug name and a reply that keeps the name echoes it in query input, so spaced names such as dabigatran etexilate or metamizole sodium failed the native drug ID pattern. The echo now takes the Text pattern; every value the old pattern accepted still matches."
+    },
+    {
+      "schema": "biomcp.drug-civic/12",
+      "path": "/result/civic/@state=data/data/evidence/page/next/input",
+      "from": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "to": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "review": "1033: the parser takes any text as a drug name and a reply that keeps the name echoes it in query input, so spaced names such as dabigatran etexilate or metamizole sodium failed the native drug ID pattern. The echo now takes the Text pattern; every value the old pattern accepted still matches."
+    },
+    {
+      "schema": "biomcp.drug-civic/12",
+      "path": "/result/civic/@state=data/data/assertions/page/next/input",
+      "from": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "to": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "review": "1033: the parser takes any text as a drug name and a reply that keeps the name echoes it in query input, so spaced names such as dabigatran etexilate or metamizole sodium failed the native drug ID pattern. The echo now takes the Text pattern; every value the old pattern accepted still matches."
+    },
+    {
+      "schema": "biomcp.drug-sections/2",
+      "path": "/result/parts/[]/@section=civic/reply/result/civic/@state=data/data/evidence/page/next/input",
+      "from": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "to": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "review": "1033: the parser takes any text as a drug name and a reply that keeps the name echoes it in query input, so spaced names such as dabigatran etexilate or metamizole sodium failed the native drug ID pattern. The echo now takes the Text pattern; every value the old pattern accepted still matches."
+    },
+    {
+      "schema": "biomcp.drug-sections/2",
+      "path": "/result/parts/[]/@section=civic/reply/result/civic/@state=data/data/assertions/page/next/input",
+      "from": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
+      "to": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "review": "1033: the parser takes any text as a drug name and a reply that keeps the name echoes it in query input, so spaced names such as dabigatran etexilate or metamizole sodium failed the native drug ID pattern. The echo now takes the Text pattern; every value the old pattern accepted still matches."
     }
   ],
   "pattern_narrowings": [

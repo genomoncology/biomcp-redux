@@ -455,11 +455,6 @@
       ],
       "type": "string"
     },
-    "DrugId": {
-      "description": "A published native drug record identifier, without a consumer source prefix.",
-      "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
-      "type": "string"
-    },
     "DrugNameSelector": {
       "description": "One explicit ChEMBL name filter without fallback or synonym expansion.",
       "enum": [
@@ -4094,7 +4089,9 @@
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "input": {
-          "$ref": "#/$defs/DrugId"
+          "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
+          "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+          "type": "string"
         },
         "label_section": {
           "anyOf": [

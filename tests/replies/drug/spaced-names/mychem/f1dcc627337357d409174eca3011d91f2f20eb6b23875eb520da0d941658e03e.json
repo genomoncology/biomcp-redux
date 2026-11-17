@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=chembl.pref_name%3A%22metamizole%20sodium%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22metamizole%20sodium%22&size=50&fields=chembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_synonyms",
+  "exchanges": [
+    {
+      "fetched": 1794896361,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 69,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":4,"total":1,"max_score":14.570526,"hits":[{"_id":"UNZIDPIPYUMVPA-UHFFFAOYSA-M","_score":14.570526,"chembl":{"_license":"http://bit.ly/2KAUCAm","molecule_chembl_id":"CHEMBL3989803","molecule_synonyms":[{"molecule_synonym":"Analgin","syn_type":"OTHER","synonyms":"ANALGIN"},{"molecule_synonym":"Diprofarn","syn_type":"TRADE_NAME","synonyms":"DIPROFARN"},{"molecule_synonym":"Dipyrone","syn_type":"BAN","synonyms":"DIPYRONE"},{"molecule_synonym":"Dipyrone","syn_type":"MERCK_INDEX","synonyms":"DIPYRONE"},{"molecule_synonym":"Dipyrone","syn_type":"OTHER","synonyms":"DIPYRONE"},{"molecule_synonym":"Dipyrone","syn_type":"USAN","synonyms":"DIPYRONE"},{"molecule_synonym":"Dipyrone anhydrous","syn_type":"OTHER","synonyms":"DIPYRONE ANHYDROUS"},{"molecule_synonym":"Metamizol","syn_type":"OTHER","synonyms":"METAMIZOL"},{"molecule_synonym":"Metamizol de sodio","syn_type":"INN_SPANISH","synonyms":"METAMIZOL DE SODIO"},{"molecule_synonym":"Metamizole sodique","syn_type":"INN_FRENCH","synonyms":"METAMIZOLE SODIQUE"},{"molecule_synonym":"Metamizole sodium","syn_type":"ATC","synonyms":"METAMIZOLE SODIUM"},{"molecule_synonym":"Metamizole sodium","syn_type":"INN","synonyms":"METAMIZOLE SODIUM"},{"molecule_synonym":"Metamizole sodium (anhydrous)","syn_type":"OTHER","synonyms":"METAMIZOLE SODIUM (ANHYDROUS)"},{"molecule_synonym":"Metamizole sodium hydrate","syn_type":"OTHER","synonyms":"METAMIZOLE SODIUM HYDRATE"},{"molecule_synonym":"Metamizole sodium monohydrate","syn_type":"OTHER","synonyms":"METAMIZOLE SODIUM MONOHYDRATE"},{"molecule_synonym":"Metamizol monohydrate","syn_type":"OTHER","synonyms":"METAMIZOL MONOHYDRATE"},{"molecule_synonym":"Metamizolum natricum anhydricum","syn_type":"OTHER","synonyms":"METAMIZOLUM NATRICUM ANHYDRICUM"},{"molecule_synonym":"Methampyrone","syn_type":"OTHER","synonyms":"METHAMPYRONE"},{"molecule_synonym":"Noramidopyrine methanesulfonate sodium","syn_type":"DCF","synonyms":"NORAMIDOPYRINE METHANESULFONATE SODIUM"},{"molecule_synonym":"Novaldin","syn_type":"TRADE_NAME","synonyms":"NOVALDIN"},{"molecule_synonym":"Novalgin","syn_type":"OTHER","synonyms":"NOVALGIN"},{"molecule_synonym":"NSC-73205","syn_type":"RESEARCH_CODE","synonyms":"NSC-73205"},{"molecule_synonym":"NSC-758445","syn_type":"RESEARCH_CODE","synonyms":"NSC-758445"},{"molecule_synonym":"Sulpyrine","syn_type":"JAN","synonyms":"SULPYRINE"},{"molecule_synonym":"Sulpyrine","syn_type":"OTHER","synonyms":"SULPYRINE"},{"molecule_synonym":"Sulpyrine hydrate","syn_type":"JAN","synonyms":"SULPYRINE HYDRATE"},{"molecule_synonym":"Sulpyrine hydrate","syn_type":"OTHER","synonyms":"SULPYRINE HYDRATE"}],"pref_name":"DIPYRONE"}}]}
+      }
+    }
+  ]
+}
