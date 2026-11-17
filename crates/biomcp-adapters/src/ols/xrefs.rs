@@ -3,9 +3,16 @@ use super::raw;
 use crate::mapped::{Problems, record as record_text};
 use crate::{Mapped, raw::Field};
 use biodata::{Attribution, DiseaseEndpoint, DiseaseRelation};
+use biomcp_fetch::{InputError, RequestError};
 use biomcp_types::{DiseaseXrefItem, Source};
 
-pub(super) fn map(term: &mut raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseXrefItem>> {
+pub(super) fn map(
+    term: &mut raw::Term,
+    attribution: &Attribution,
+) -> Result<Mapped<Vec<DiseaseXrefItem>>, RequestError> {
+    let predicate: biodata::Curie = "oboInOwl:hasDbXref"
+        .parse()
+        .map_err(|_| InputError::Serialization)?;
     let mut mapped = Mapped {
         refusals: crate::Refusal::None,
         value: Vec::new(),
@@ -18,7 +25,7 @@ pub(super) fn map(term: &mut raw::Term, attribution: &Attribution) -> Mapped<Vec
     };
     let Some(rows) = metadata.field("obo_xref", term.obo_xref.take()) else {
         mapped.problems = metadata.list;
-        return mapped;
+        return Ok(mapped);
     };
     for native in rows {
         let Field::Value(native) = native else {
@@ -48,9 +55,6 @@ pub(super) fn map(term: &mut raw::Term, attribution: &Attribution) -> Mapped<Vec
         let Some(id) = id else {
             continue;
         };
-        let Ok(predicate) = "oboInOwl:hasDbXref".parse() else {
-            continue;
-        };
         mapped.value.push(DiseaseXrefItem {
             relation: DiseaseRelation {
                 subject: DiseaseEndpoint {
@@ -60,7 +64,7 @@ pub(super) fn map(term: &mut raw::Term, attribution: &Attribution) -> Mapped<Vec
                         _ => None,
                     },
                 },
-                predicate,
+                predicate: predicate.clone(),
                 object: DiseaseEndpoint { id, label: None },
                 attribution: attribution.clone(),
                 description,
@@ -69,5 +73,5 @@ pub(super) fn map(term: &mut raw::Term, attribution: &Attribution) -> Mapped<Vec
         });
     }
     mapped.problems.extend(metadata.list);
-    mapped
+    Ok(mapped)
 }

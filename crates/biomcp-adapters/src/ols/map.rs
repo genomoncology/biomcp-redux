@@ -67,7 +67,7 @@ pub(super) fn record(
     );
     let attribution = attribution(&term.obo_id, iri, ontology)?;
     let synonyms = synonyms(&term, &attribution);
-    let xrefs = xrefs::map(&mut term, &attribution);
+    let xrefs = xrefs::map(&mut term, &attribution)?;
     let mut sections = Vec::new();
     if !synonyms.value.is_empty() {
         sections.push(DiseaseSection::Synonyms);
