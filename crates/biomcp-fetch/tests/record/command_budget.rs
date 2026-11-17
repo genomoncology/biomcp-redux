@@ -316,17 +316,17 @@ fn worker_legs_one_after_another_add_up() {
     let command = fetch.command_deadline(CALLER);
     let deadline = command.deadline();
     let shared = fetch.deadline(CALLER);
+    // The second worker runs only after the first has finished, the order that once made it
+    // wait for the first worker's later admission; on their own clocks both start together.
     thread::scope(|scope| {
-        let workers: Vec<_> = (0..2)
-            .map(|_| {
-                scope.spawn(|| {
+        for _ in 0..2 {
+            scope
+                .spawn(|| {
                     read(&fetch.leg(spec, deadline));
                     read(&fetch.leg(spec, deadline));
                 })
-            })
-            .collect();
-        for worker in workers {
-            worker.join().unwrap();
+                .join()
+                .unwrap();
         }
     });
     // Dropped off its own thread, before that thread reads the clock again.
