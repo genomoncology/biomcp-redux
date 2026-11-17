@@ -83,18 +83,17 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(source, leg.finish(), error));
-    if out.page.as_ref().is_some_and(|page| page.total == 0) {
-        applicant(&mut out, q, cx.fresh);
-    }
+    applicant(&mut out, q, cx.fresh);
     status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
 
-/// An empty --name search matched only the trade or device name; the same words may be the
+/// An empty --name page matched only the trade or device name; the same words may be the
 /// FDA applicant, so the reply says so and offers them as --manufacturer (1040).
 fn applicant(out: &mut Outcome, q: &DiagnosticSearch, fresh: bool) -> Option<()> {
-    if q.name().is_none() || q.manufacturer().is_some() {
+    let none_found = out.page.as_ref().is_some_and(|page| page.total == 0);
+    if !none_found || q.name().is_none() || q.manufacturer().is_some() {
         return None;
     }
     let source = q.source().source();
