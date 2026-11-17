@@ -1,6 +1,7 @@
 # 1052 — accept-gene-protein-shorthand-in-variant-lookups
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8b2921a4e912d1d8c196d22c176774ec5b26398d
 
 Milestone: 7
 

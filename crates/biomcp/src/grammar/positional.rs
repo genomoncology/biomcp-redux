@@ -69,6 +69,46 @@ pub(super) fn fix(root: &Command, path: &[&str], args: &[OsString]) -> Option<Us
     })
 }
 
+/// The variant leaf admits one checked gene-and-protein phrase in either shell spelling.
+pub(super) fn variant_shorthand(root: &Command, args: &[OsString]) -> Option<Vec<OsString>> {
+    let mut path = super::command_words(root, args);
+    let verb = path.next()?;
+    if !matches!(verb, "get" | "search") || path.next()? != "variant" {
+        return None;
+    }
+    let command = root.find_subcommand(verb)?.find_subcommand("variant")?;
+    let (mut kept, words) = split(root, command, verb, "variant", args)?;
+    if verb == "search" {
+        let phrase = words.join(" ");
+        let (gene, protein) = biomcp_types::VariantSearch::shorthand_fields(&phrase)?;
+        if kept
+            .iter()
+            .filter_map(|arg| arg.to_str())
+            .any(|flag| flag == "--source" || flag.starts_with("--source="))
+        {
+            kept.extend(["--query".into(), phrase.into()]);
+        } else {
+            kept.extend([
+                "--gene".into(),
+                gene.into(),
+                "--protein".into(),
+                protein.into(),
+            ]);
+        }
+    } else {
+        let (first, rest) = words.split_first()?;
+        if biomcp_types::VariantSearch::shorthand_fields(first).is_some() {
+            return None;
+        }
+        let (second, sections) = rest.split_first()?;
+        let phrase = format!("{first} {second}");
+        biomcp_types::VariantSearch::shorthand_fields(&phrase)?;
+        kept.push(phrase.into());
+        kept.extend(sections.iter().map(OsString::from));
+    }
+    Some(kept)
+}
+
 /// A search-text flag the command does not have: the same call with its text put where
 /// this command takes it.
 pub(super) fn text_flag(

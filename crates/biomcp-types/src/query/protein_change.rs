@@ -142,17 +142,20 @@ impl ProteinQuery {
         &self.original
     }
 }
-text_value!(ProteinQuery, "ProteinQuery", {
+text_value!(ProteinQuery, "ProteinQuery", protein_pattern(true));
+
+pub(super) fn protein_pattern(synonymous: bool) -> String {
     let residues = AMINO
         .iter()
         .flat_map(|(one, three)| [regex_escape(one), (*three).to_owned()])
         .collect::<Vec<_>>()
         .join("|");
+    let no_change = if synonymous { "|=" } else { "" };
     format!(
-        "^(p\\.)?({residues}){}({residues}|=)$",
+        "^(p\\.)?({residues}){}({residues}{no_change})$",
         biodata::schema_pattern::decimal(u32::MAX.into())
     )
-});
+}
 fn regex_escape(value: &str) -> String {
     if value == "*" {
         "\\*".into()

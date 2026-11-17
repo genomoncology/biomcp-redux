@@ -83,12 +83,11 @@
     },
     {
       "required": [
-        "query",
-        "source"
+        "query"
       ]
     }
   ],
-  "description": "Discover source candidates using one declared selector, without interpreting free text.",
+  "description": "Discover source candidates by checked selectors or a gene and protein phrase such as BRAF V600E.",
   "properties": {
     "build": {
       "$ref": "#/$defs/Build",
@@ -132,7 +131,7 @@
     },
     "query": {
       "$ref": "#/$defs/MyVariantQuery",
-      "description": "Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead."
+      "description": "Gene and protein shorthand such as BRAF V600E. With --source myvariant this is raw MyVariant text, passed and echoed unchanged when component policy allows."
     },
     "region": {
       "$ref": "#/$defs/VariantRegion",

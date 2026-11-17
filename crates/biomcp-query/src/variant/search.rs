@@ -9,31 +9,43 @@ use biomcp_types::{
     VariantSearch,
 };
 /// Discover one source-native page; a zero result remains distinct from a failed source.
-pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
+pub(crate) fn discover(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
+    let command = cx.fetch.command_deadline(cx.budget);
+    let mut deadline = command.deadline();
+    let out = search(cx, query, &mut deadline);
+    command.finish(deadline.remaining());
+    out
+}
+
+pub(super) fn search<'a>(
+    cx: &Ctx<'a>,
+    query: &VariantSearch,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
+) -> Outcome {
     if query.raw_query()
         && !cx.fetch.disabled(Source::MyVariant)
         && myvariant::components::restricted(cx.fetch)
     {
         return policy_error();
     }
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
     let spec = if query.uses_clinvar_selector() {
         &clinvar::SPEC
     } else {
         &myvariant::SPEC
     };
-    let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
+    let leg = cx.fetch.leg(spec, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
     let terms = component_terms("clinvar", query.uses_clinvar_filters());
     let (selector, source_query) = selector(cx, query);
     let selector_terms = component_terms(selector, query.uses_dbnsfp_selector());
     let reply = match (&terms, &selector_terms) {
-        (Ok(_), Ok(_)) => fetch_page(cx, &leg, query, selector, &source_query, deadline),
+        (Ok(_), Ok(_)) => fetch_page(cx, &leg, query, selector, &source_query, *deadline),
         (Err(error), _) | (_, Err(error)) => Err(*error),
     };
     let terms = terms.ok().flatten();
     let selector_terms = selector_terms.ok().flatten();
     let error = reply.as_ref().err().copied();
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let source = status::source(spec.source, leg.finish(), error);
     let mut out = crate::status::finish(
         [crate::status::item_status(false, true, false)],
@@ -88,7 +100,6 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
         .with_query(query.clone());
     }
     status::search(&mut out);
-    command.finish(deadline.remaining());
     out
 }
 fn selector(cx: &Ctx<'_>, query: &VariantSearch) -> (&'static str, String) {

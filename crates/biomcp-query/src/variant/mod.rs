@@ -19,6 +19,7 @@ mod predict;
 pub(crate) mod recurrence;
 pub(crate) mod search;
 mod sections;
+mod shorthand;
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::{allele_registry, mutalyzer, myvariant, variantvalidator};
@@ -28,19 +29,26 @@ use biomcp_types::{
     VariantResolution,
 };
 /// Resolve one checked input without guessing a build, allele or preferred candidate.
-pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
+pub(crate) fn lookup(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
+    let out = match query.shorthand_search() {
+        Some(search) => shorthand::get(cx, query, &search, &mut deadline),
+        None => get(cx, query, &mut deadline),
+    };
+    command.finish(deadline.remaining());
+    out
+}
+
+fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadline<'a>) -> Outcome {
     if let Some(source) = direct::source(cx.fetch, query) {
-        let out = direct::get(cx, query, source, deadline);
-        command.finish(deadline.remaining());
-        return out;
+        return direct::get(cx, query, source, *deadline);
     }
     let spec = source(query);
     let population = identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
-    let found = identity::read(cx, query, deadline);
+    let found = identity::read(cx, query, *deadline);
     let resolver = found.resolver.unwrap_or(spec.source);
-    deadline = deadline.after_stage(found.elapsed);
+    *deadline = deadline.after_stage(found.elapsed);
     let found_resolution = identity_resolution(&found);
     let mut dropped = found.dropped;
     let mut problems = found.problems;
@@ -54,13 +62,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
         && resolver == Source::AlleleRegistry
         && resolution == VariantResolution::Resolved
     {
-        let (source, error) = enrich(
-            cx,
-            &mut deadline,
-            &mut candidates,
-            &mut problems,
-            &mut dropped,
-        );
+        let (source, error) = enrich(cx, deadline, &mut candidates, &mut problems, &mut dropped);
         sources.push(source);
         local = local.or(error);
     }
@@ -72,7 +74,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     match_transcripts(query, &mut candidates);
     let page = candidate_page(query, resolution, &mut candidates);
     let (section_sources, section_problems, section_error, incomplete) =
-        sections::apply(cx, query, &mut candidates, &mut deadline, population_reason);
+        sections::apply(cx, query, &mut candidates, deadline, population_reason);
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
@@ -86,7 +88,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     );
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
-    let out = crate::status::finish(
+    crate::status::finish(
         [overall(resolution, dropped || incomplete, &sources)],
         crate::status::Parts {
             dropped,
@@ -106,9 +108,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
             next,
             local,
         },
-    );
-    command.finish(deadline.remaining());
-    out
+    )
 }
 fn transcript_gene_mismatch(query: &VariantGet, candidates: &[VariantHeader]) -> bool {
     let Some((reference, gene)) = query.input().reference_gene() else {
@@ -261,7 +261,10 @@ pub(crate) fn source(query: &VariantGet) -> &'static biomcp_fetch::SourceSpec {
     }
     let direct = matches!(
         query.input().namespace(),
-        VariantNamespace::Rs | VariantNamespace::ClinVar | VariantNamespace::Chromosome
+        VariantNamespace::Rs
+            | VariantNamespace::ClinVar
+            | VariantNamespace::Chromosome
+            | VariantNamespace::Protein
     );
     if direct {
         &myvariant::SPEC
