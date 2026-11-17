@@ -82,6 +82,9 @@ page!(
 pub struct StudyFiles {
     /// Exact study directory scope.
     pub study_id: StudyId,
+    /// Rows in the whole collection, equal to `page.total`; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     // The page comes before the rows (0942): a reader of only the start sees the total.
     /// Bounds within the complete received directory.
     pub page: PageInfo,
@@ -127,6 +130,9 @@ pub struct StudyMutation {
 pub struct StudySamples {
     /// Exact native study scope.
     pub study_id: StudyId,
+    /// Rows in the whole collection, equal to `page.total`; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     // The page comes before the rows (0942): a reader of only the start sees the total.
     /// Bounds within the received collection.
     pub page: PageInfo,
@@ -151,6 +157,9 @@ pub struct StudyMutations {
     pub molecular_profile_id: biodata::StudyProfileId,
     /// Exact cBioPortal gene identifier.
     pub entrez_gene_id: biodata::NcbiGeneId,
+    /// Rows in the whole collection, equal to `page.total`; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     /// Bounds within the received collection.
     pub page: PageInfo,
     /// Source mutation observations in source order.

@@ -183,6 +183,9 @@ impl ResponseBody for ProteinSequenceResult {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinFunctionResult {
+    /// Paragraphs in the whole section, all of them shown; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     /// Native paragraphs in source order, without inferred interpretation.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub items: Box<[ProteinFunction]>,

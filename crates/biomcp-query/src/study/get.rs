@@ -154,6 +154,7 @@ fn section_page(
             let items = records.window.rows.into();
             let data = StudyProfiles {
                 study_id: q.id().clone(),
+                total: page.total,
                 items,
                 page: page.clone(),
                 acquired: records.acquired,
@@ -189,6 +190,7 @@ fn section_page(
             let items = records.window.rows.into();
             let data = StudySampleLists {
                 study_id: q.id().clone(),
+                total: page.total,
                 items,
                 page: page.clone(),
                 acquired: records.acquired,

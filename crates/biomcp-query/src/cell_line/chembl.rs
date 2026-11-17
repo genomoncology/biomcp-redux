@@ -24,6 +24,7 @@ pub(super) fn get_at(
     let leg = cx.fetch.leg(&chembl::SPEC, deadline).fresh(cx.fresh);
     let mut body = CellLineChembl {
         accession: accession.clone(),
+        total: 0,
         items: Capped {
             items: Box::default(),
             total: 0,
@@ -64,6 +65,7 @@ pub(super) fn get_at(
                 })),
             ));
         }
+        body.total = total;
         body.items = Capped {
             items: items.into(),
             total,

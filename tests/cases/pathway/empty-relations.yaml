@@ -15,6 +15,7 @@
       "run": ["pathway", "genes", "WP5034"],
       "expect": {
         "/status": "complete",
+        "/result/total": 0,
         "/result/page/total": 0,
         "/result/page/returned": 0,
         "/result/physical_entities": 25,
@@ -26,6 +27,7 @@
       "run": ["get", "pathway", "WP5034", "genes"],
       "expect": {
         "/status": "complete",
+        "/result/genes/data/total": 0,
         "/result/genes/data/page/total": 0,
         "/sources/0/state": "ok"
       }

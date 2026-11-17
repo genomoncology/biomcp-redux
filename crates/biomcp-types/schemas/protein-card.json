@@ -1205,6 +1205,13 @@
             "$ref": "#/$defs/Reply_ProteinFunction"
           },
           "type": "array"
+        },
+        "total": {
+          "default": 0,
+          "description": "Paragraphs in the whole section, all of them shown; the count to report (1022).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "type": "object"

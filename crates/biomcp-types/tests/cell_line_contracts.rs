@@ -126,7 +126,7 @@ fn whole_variations_keep_fusion_members_and_non_pubmed_provenance() {
     assert_eq!(row, variation);
     assert!(row.get("allele").is_none());
     assert!(row["provenance"][0].get("reference").is_none());
-    let page = json!({"accession":"CVCL_1844","items":{"items":[variation],"total":3},"offset":2});
+    let page = json!({"accession":"CVCL_1844","total":3,"items":{"items":[variation],"total":3},"offset":2});
     assert_eq!(roundtrip::<CellLineVariants>(page.clone()).unwrap(), page);
 }
 #[test]
@@ -143,7 +143,7 @@ fn collections_keep_independent_totals_and_complete_qualified_text() {
         roundtrip::<CellLineIdentityPage>(page.clone()).unwrap(),
         page
     );
-    let page = json!({"accession":"CVCL_0004","items":{"items":[xref("Example","entry-1")],"total":1398},"offset":1397});
+    let page = json!({"accession":"CVCL_0004","total":1398,"items":{"items":[xref("Example","entry-1")],"total":1398},"offset":1397});
     assert_eq!(roundtrip::<CellLineXrefs>(page.clone()).unwrap(), page);
     let name = json!({"kind":"identifier","value":"MV4;11"});
     assert_eq!(roundtrip::<CellLineName>(name.clone()).unwrap(), name);

@@ -1,3 +1,4 @@
+use super::DiagnosticProductCodeCounts;
 use crate::{DiagnosticGet, DiagnosticSearch, DiagnosticSection, Problem, ResponseBody};
 use biodata::{
     CompanionGroupCells, CompanionIndividualCells, DiagnosticDeviceId, DiagnosticDrugApplication,
@@ -311,6 +312,9 @@ page!(
         /// Exact openFDA search expression sent for a PMA, 510(k) or device recall page; it names the field each filter matched.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub source_query: Option<Box<str>>,
+        /// 510(k) records by product code; present only when `--aggregate product-code` was asked.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub product_code_counts: Option<DiagnosticProductCodeCounts>,
     ]
 );
 page!(

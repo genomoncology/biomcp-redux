@@ -57,6 +57,7 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         out.problems.extend(rows.problems);
         let data = StudySamples {
             study_id: q.id().clone(),
+            total: page.total,
             items: rows.window.rows.into(),
             page: page.clone(),
             acquired: rows.acquired,
@@ -94,6 +95,7 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
             study_id: q.id().clone(),
             molecular_profile_id: profile,
             entrez_gene_id: gene,
+            total: page.total,
             items: rows.window.rows.into(),
             page: page.clone(),
             acquired: rows.acquired,
