@@ -31,3 +31,10 @@ Every command that runs a source leg charges that leg's replay time to the comma
 ## Changes
 
 - Changes: the finish sites, one case, and a doc note on `Leg::sibling`/`Leg::dependency` that `command_remaining` measures against the leg's opened end.
+
+## Progress
+
+- Survey at d42922dfe (no build yet): 103 `command.finish(deadline.remaining())` sites in 91 functions. The command deadline is frozen at its replay origin, so `deadline.remaining()` is the whole budget and each of these charges zero replay time.
+- 47 sites in 42 functions open exactly one leg in the same function and hand `deadline` to nothing else (for example drug recall search and get, WHO EML, CIViC, EMA, Drugs@FDA, diagnostic, disease OLS/SEER/Monarch, phenotype, GWAS search, pgx). Each is a two-line edit: read `leg.command_remaining()` before `leg.finish()` and pass it to `command.finish`.
+- 56 sites in 49 functions are not: the legs open in helpers that take `deadline` (article, author, adverse event, trial, variant, protein relations, pathway search, NCI search and others), several legs share one function (protein get reads HGNC then UniProt; both fork from the same origin, so taking the later end still counts them as running side by side, not one after another as live does), or the command already advances stage by stage with `after_stage` and misses only its last stage (variant get, article get, adverse-event name widening). These need each helper to return its leg's remaining time, or a change in `biomcp-fetch` so a finished leg reports its end to the command.
+- Stopped here to ask which shape to build before editing.
