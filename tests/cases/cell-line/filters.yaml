@@ -121,10 +121,8 @@
           ]
         },
         "/query/exclude_derived": true,
-        "/sources/0": {
-          "omits": [
-            "notices"
-          ]
+        "/sources/0/notices/*/message": {
+          "excludes": "Cellosaurus matched --disease"
         }
       },
       "max_bytes": 9000
