@@ -124,6 +124,7 @@ pub struct TrialEligibilityPage {
     pub not_split: Option<Box<str>>,
     /// Exact original text fragment, including whitespace; absent when `preamble`, `inclusion` and `exclusion` replace it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Box<str>"))]
     pub criteria: Option<Box<str>>,
     /// The page ends within a criterion whose lines exceed the page budget.
     #[serde(default)]

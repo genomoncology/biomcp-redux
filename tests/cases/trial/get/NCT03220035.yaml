@@ -34,6 +34,12 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/eligibility/data/offset": 5431,
+        "/result/items/0/sections/eligibility/data/inclusion": {
+          "count": 0
+        },
+        "/result/items/0/sections/eligibility/data/exclusion": {
+          "count": 0
+        },
         "/result/items/0/sections/eligibility/data": {
           "omits": [
             "criteria",

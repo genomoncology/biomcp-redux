@@ -133,11 +133,13 @@ fn split_walk() -> Check {
             .as_str()
             .is_some_and(|u| u.ends_with("NCT02296125"))
         {
-            record["exchanges"][0]["body"]["value"]["protocolSection"]["eligibilityModule"]
-                ["eligibilityCriteria"] = json!(original);
+            record["exchanges"][0]["body"]["value"]["protocolSection"]["eligibilityModule"]["eligibilityCriteria"] =
+                json!(original);
         }
     })?;
-    let mut next: Vec<String> = ["get", "trial", "NCT02296125", "eligibility"].map(str::to_owned).into();
+    let mut next: Vec<String> = ["get", "trial", "NCT02296125", "eligibility"]
+        .map(str::to_owned)
+        .into();
     let mut globals = env.globals(Some(&replay), false);
     let (mut preamble, mut walked_in, mut walked_ex) = (String::new(), Vec::new(), Vec::new());
     for page in 0.. {
