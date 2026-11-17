@@ -16,7 +16,7 @@
         "drug",
         "markets"
       ],
-      "max_bytes": 2083,
+      "max_bytes": 2076,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -50,7 +50,7 @@
         "drug",
         "markets"
       ],
-      "max_bytes": 2083,
+      "max_bytes": 2076,
       "expect": {
         "/result/commands/0/arguments/*/name": [
           "input",
@@ -77,7 +77,7 @@
         "variant",
         "clinvar"
       ],
-      "max_bytes": 3212,
+      "max_bytes": 3490,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -105,7 +105,7 @@
         "variant",
         "population"
       ],
-      "max_bytes": 3161,
+      "max_bytes": 3091,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -132,7 +132,7 @@
         "variant",
         "civic"
       ],
-      "max_bytes": 5549,
+      "max_bytes": 6312,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",

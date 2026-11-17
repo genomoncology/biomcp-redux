@@ -33,8 +33,8 @@
           "cpic"
         ]
       },
-      "max_bytes": 1785,
-      "max_tokens": 447
+      "max_bytes": 1777,
+      "max_tokens": 446
     },
     {
       "run": [
@@ -79,7 +79,7 @@
           "clinpgx"
         ]
       },
-      "max_bytes": 3533
+      "max_bytes": 3835
     }
   ],
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."

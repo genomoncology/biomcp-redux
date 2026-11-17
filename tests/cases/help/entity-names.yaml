@@ -8,7 +8,7 @@
         "help",
         "adverse-event"
       ],
-      "max_bytes": 991,
+      "max_bytes": 992,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -45,7 +45,7 @@
         "help",
         "adverse_event"
       ],
-      "max_bytes": 991,
+      "max_bytes": 992,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -78,7 +78,7 @@
         "help",
         "cell-line"
       ],
-      "max_bytes": 1488,
+      "max_bytes": 1489,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -127,7 +127,7 @@
         "help",
         "cell_line"
       ],
-      "max_bytes": 1488,
+      "max_bytes": 1489,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",

@@ -27,11 +27,8 @@ biodata::canonical_enum! {
         Interactions => "interactions",
         /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
         Markets => "markets",
-        /// WHO Model List of Essential Medicines listings from the WHO eEML: core or complementary list,
-        /// EML section, indication, the edition each listing was added, Expert Committee decisions,
-        /// therapeutic alternatives and the Committee's recommendation text. A drug listed only as
-        /// another medicine's therapeutic alternative shows that medicine's listings with
-        /// `alternative_to`. Five listings per default page.
+        /// WHO Essential Medicines List (eEML) listings: core or complementary, section, indication,
+        /// date added, therapeutic alternatives and Expert Committee text; five per default page.
         EssentialMedicines => "essential-medicines",
     }
 }
