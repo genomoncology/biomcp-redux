@@ -91,6 +91,7 @@ pub enum ArticleType {
 {"required":["drug"]},
 {"required":["author"]},
 {"required":["journal"]},
+{"required":["affiliation"]},
 {"required":["since"]},
 {"required":["until"]},
 {"required":["type"]}])))]
@@ -188,6 +189,14 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     journal: Option<Text>,
+    #[doc = "PubMed/Europe PMC affiliation words.\nPubMed and Europe PMC only: author affiliation words, such as an institution, sent to the source's affiliation field as one phrase."]
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    affiliation: Option<Text>,
     #[doc = "First publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date \
         bound; PubMed matches electronic or print date."]
     #[serde(
@@ -277,7 +286,13 @@ impl TryFrom<Fields> for ArticleSearch {
             return Err(QueryInvalid::new(&["source"]));
         }
         if [
-            &v.text, &v.variant, &v.disease, &v.drug, &v.author, &v.journal,
+            &v.text,
+            &v.variant,
+            &v.disease,
+            &v.drug,
+            &v.author,
+            &v.journal,
+            &v.affiliation,
         ]
         .iter()
         .all(|v| v.is_none())
@@ -287,8 +302,17 @@ impl TryFrom<Fields> for ArticleSearch {
             && v.kind.is_none()
         {
             return Err(QueryInvalid::new(&[
-                "text", "variant", "disease", "drug", "author", "journal", "gene", "since",
-                "until", "type",
+                "text",
+                "variant",
+                "disease",
+                "drug",
+                "author",
+                "journal",
+                "affiliation",
+                "gene",
+                "since",
+                "until",
+                "type",
             ]));
         }
         if v.since.zip(v.until).is_some_and(|(since, until)| {
@@ -335,6 +359,10 @@ impl ArticleSearch {
     /// Journal filter.
     pub fn journal(&self) -> Option<&Text> {
         self.0.journal.as_ref()
+    }
+    /// Author affiliation filter.
+    pub fn affiliation(&self) -> Option<&Text> {
+        self.0.affiliation.as_ref()
     }
     /// Inclusive date bounds, preserving precision.
     pub fn dates(&self) -> (Option<PartialDate>, Option<PartialDate>) {
@@ -426,6 +454,7 @@ impl ArticleSearch {
             drug: None,
             author: None,
             journal: None,
+            affiliation: None,
             since: None,
             until: None,
             kind: None,
@@ -539,6 +568,8 @@ biodata::wire_enum! {
         Author => "--author",
         /// Journal selector.
         Journal => "--journal",
+        /// Author affiliation selector.
+        Affiliation => "--affiliation",
         /// Lower publication date bound.
         Since => "--since",
         /// Upper publication date bound.
@@ -569,6 +600,7 @@ impl ArticleSearch {
             ArticleFilter::Drug => self.0.drug.is_some(),
             ArticleFilter::Author => self.0.author.is_some(),
             ArticleFilter::Journal => self.0.journal.is_some(),
+            ArticleFilter::Affiliation => self.0.affiliation.is_some(),
             ArticleFilter::Since => self.0.since.is_some(),
             ArticleFilter::Until => self.0.until.is_some(),
             ArticleFilter::Type => self.0.kind.is_some(),

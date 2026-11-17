@@ -24,6 +24,9 @@ fn term(query: &ArticleSearch) -> String {
     if let Some(journal) = query.journal() {
         parts.push(format!("JOURNAL:{}", field(journal.as_str())));
     }
+    if let Some(affiliation) = query.affiliation() {
+        parts.push(format!("AFF:{}", field(affiliation.as_str())));
+    }
     let (since, until) = query.dates();
     if since.is_some() || until.is_some() {
         parts.push(format!(

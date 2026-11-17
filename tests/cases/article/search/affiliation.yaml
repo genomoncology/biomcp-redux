@@ -1,0 +1,50 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "An MSL counting one institution's papers on a topic filters by affiliation, and PubMed and Europe PMC each search their own affiliation field for the whole institution name instead of the agent tallying affiliations by hand.",
+  "replay": "article/search/affiliation",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "KRAS G12C",
+        "--affiliation",
+        "Dana-Farber Cancer Institute",
+        "--since",
+        "2023",
+        "--until",
+        "2025",
+        "--exact-term",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "KRAS G12C",
+        "--affiliation",
+        "Dana-Farber Cancer Institute",
+        "--since",
+        "2023",
+        "--until",
+        "2025",
+        "--exact-term",
+        "--source",
+        "europepmc",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    }
+  ],
+  "verified": "TBD",
+  "harvest": "biomed-agent-bench msl persona: institution concentration of KRAS G12C literature"
+}
