@@ -155,6 +155,45 @@ fn atc(code: Code, cx: &mut Problems) -> Option<Text> {
     }
     cx.source_field("guidelineSubject.code", code.value)
 }
+/// Each distinct Committee decision, in the eEML's order. The eEML repeats a decision once per
+/// formulation it covers; each is kept once.
+fn decisions(
+    history: Option<Field<Vec<Field<Decision>>>>,
+    cx: &mut Problems,
+) -> Box<[DrugEssentialMedicineDecision]> {
+    let mut decisions: Vec<DrugEssentialMedicineDecision> = Vec::new();
+    for decision in cx.fields("history", history) {
+        let Some(kind) = cx.required_source_field("history.@type", decision.kind) else {
+            continue;
+        };
+        let decision = DrugEssentialMedicineDecision {
+            decision: kind,
+            date: date("history.guidelineDate", decision.date, cx),
+            list: list_word(decision.list, cx),
+        };
+        if !decisions.contains(&decision) {
+            decisions.push(decision);
+        }
+    }
+    decisions.into()
+}
+/// The Committee's recommendation, the first of the eEML's evidence texts; `None` when it repeats
+/// the listing before it, whose text `previous` holds.
+fn committee(
+    evidence: Option<Field<Vec<Option<Field<NativeText>>>>>,
+    previous: &mut Option<Text>,
+    cx: &mut Problems,
+) -> Option<Text> {
+    let committee = cx
+        .field("evidenceOrigin", evidence)
+        .and_then(|parts| parts.into_iter().next().flatten())
+        .and_then(|text| cx.source_field("evidenceOrigin", Some(text)));
+    if committee.is_some() && committee == *previous {
+        return None;
+    }
+    previous.clone_from(&committee);
+    committee
+}
 impl Recommendation {
     /// One listing; `previous` holds the last committee text, so a repeat is omitted.
     pub(crate) fn map(
@@ -190,36 +229,13 @@ impl Recommendation {
         let icd11 = cx
             .field("guidelineSubject.indication.code", code)
             .and_then(|code| cx.source_field("guidelineSubject.indication.code", code.value));
-        let mut decisions: Vec<DrugEssentialMedicineDecision> = Vec::new();
-        for decision in cx.fields("history", self.history) {
-            let Some(kind) = cx.required_source_field("history.@type", decision.kind) else {
-                continue;
-            };
-            let decision = DrugEssentialMedicineDecision {
-                decision: kind,
-                date: date("history.guidelineDate", decision.date, cx),
-                list: list_word(decision.list, cx),
-            };
-            // The eEML repeats a decision once per formulation it covers; keep each once.
-            if !decisions.contains(&decision) {
-                decisions.push(decision);
-            }
-        }
+        let decisions = decisions(self.history, cx);
         let added = decisions
             .iter()
             .filter(|d| d.decision.as_str() == "DecisionToAdd")
             .filter_map(|d| d.date)
             .min_by_key(|d| (d.year(), d.month(), d.day()));
-        let committee = cx
-            .field("evidenceOrigin", self.evidence)
-            .and_then(|parts| parts.into_iter().next().flatten())
-            .and_then(|text| cx.source_field("evidenceOrigin", Some(text)));
-        let committee = if committee.is_some() && committee == *previous {
-            None
-        } else {
-            previous.clone_from(&committee);
-            committee
-        };
+        let committee = committee(self.evidence, previous, cx);
         Some(DrugEssentialMedicineListing {
             id: crate::mapped::record(id)?,
             url: cx.text("url", Some(url))?,
@@ -232,7 +248,7 @@ impl Recommendation {
             icd11,
             status: cx.source_field("statusForIndication", self.status),
             added,
-            decisions: decisions.into(),
+            decisions,
             children: cx.field("includedInEmlc", self.children),
             alternatives: cx
                 .fields("therapeuticEquivalents", self.equivalents)
@@ -258,34 +274,4 @@ impl Recommendation {
             committee,
         })
     }
-}
-
-/// Each medicine on an eEML search page: the name in its heading's `title` and its eEML number.
-pub(crate) fn search_hits(page: &str) -> Vec<(String, String)> {
-    const HEADING: &str = "<h5 class=\"medicine-name\" title=\"";
-    const LINK: &str = "/medicines/";
-    let mut hits = Vec::new();
-    for part in page.split(HEADING).skip(1) {
-        let Some((title, rest)) = part.split_once('"') else {
-            continue;
-        };
-        let heading = rest.split("</h5>").next().unwrap_or(rest);
-        let Some((_, after)) = heading.split_once(LINK) else {
-            continue;
-        };
-        let number: String = after.chars().take_while(char::is_ascii_digit).collect();
-        if !number.is_empty() {
-            hits.push((unescape(title), number));
-        }
-    }
-    hits
-}
-fn unescape(value: &str) -> String {
-    value
-        .replace("&#039;", "'")
-        .replace("&#39;", "'")
-        .replace("&quot;", "\"")
-        .replace("&lt;", "<")
-        .replace("&gt;", ">")
-        .replace("&amp;", "&")
 }

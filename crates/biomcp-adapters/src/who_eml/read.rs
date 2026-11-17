@@ -143,7 +143,7 @@ pub fn medicines(leg: &Leg<'_>, name: &str) -> Result<Vec<DrugHeader>, RequestEr
         )?
         .value
         .0;
-    super::raw::search_hits(&String::from_utf8_lossy(&page))
+    search_hits(&String::from_utf8_lossy(&page))
         .into_iter()
         .map(|(title, number)| header(&number, crate::mapped::record(title)))
         .collect()
@@ -166,4 +166,34 @@ fn header(number: &str, name: Option<biodata::Text>) -> Result<DrugHeader, Reque
         application_numbers: Box::default(),
         url: crate::mapped::record(format!("{}/medicines/{number}", SPEC.base)),
     })
+}
+
+/// Each medicine on an eEML search page: the name in its heading's `title` and its eEML number.
+fn search_hits(page: &str) -> Vec<(String, String)> {
+    const HEADING: &str = "<h5 class=\"medicine-name\" title=\"";
+    const LINK: &str = "/medicines/";
+    let mut hits = Vec::new();
+    for part in page.split(HEADING).skip(1) {
+        let Some((title, rest)) = part.split_once('"') else {
+            continue;
+        };
+        let heading = rest.split("</h5>").next().unwrap_or(rest);
+        let Some((_, after)) = heading.split_once(LINK) else {
+            continue;
+        };
+        let number: String = after.chars().take_while(char::is_ascii_digit).collect();
+        if !number.is_empty() {
+            hits.push((unescape(title), number));
+        }
+    }
+    hits
+}
+fn unescape(value: &str) -> String {
+    value
+        .replace("&#039;", "'")
+        .replace("&#39;", "'")
+        .replace("&quot;", "\"")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&amp;", "&")
 }
