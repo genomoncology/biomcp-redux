@@ -7418,7 +7418,7 @@
               "type": "null"
             }
           ],
-          "description": "Record kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+          "description": "Record kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
         },
         "disease": {
           "anyOf": [
@@ -7602,7 +7602,7 @@
               "type": "null"
             }
           ],
-          "description": "Record kind\nClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
+          "description": "Record kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
         },
         "disease": {
           "anyOf": [

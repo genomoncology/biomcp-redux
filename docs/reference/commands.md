@@ -3620,9 +3620,9 @@ Options:
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --clinvar-kind <clinvar_kind>
-          Record kind; help get variant
-          Record kind
-          ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all.
+          Kind; help get variant
+          Kind
+          ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -3653,9 +3653,6 @@ Options:
           Source CIViC evidence status; omitted preserves the source's existing default.
           Only with --source civic on get drug, and the civic section on get variant.
 
-      --limit <limit>
-          Candidate rows per page; more remain reachable through typed next commands.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -3667,6 +3664,9 @@ Options:
 
           [default: false]
           [possible values: true, false]
+
+      --limit <limit>
+          Candidate rows per page; more remain reachable through typed next commands.
 
       --offset <offset>
           Candidate rows to skip in source order.
@@ -3699,8 +3699,8 @@ Source CIViC cursor, retained unchanged. Only with section civic or all. Value f
 - `--civic-kind`: Claims
 Source CIViC claim collection within the selected profile. Only with section civic or all. Value form: string; example: --civic-kind evidence.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Only with section civic or all. Value form: integer; example: --civic-profile 12.
-- `--clinvar-kind`: Record kind
-ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
+- `--clinvar-kind`: Kind
+ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
 - `--disease`: Disease
 CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
