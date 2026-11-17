@@ -163,7 +163,8 @@ fn metadata(
     Ok(Some((version, record)))
 }
 pub(crate) fn license(value: &str) -> License {
-    exact(value).unwrap_or_else(|| stated_restriction(&value.to_ascii_uppercase().replace('-', " ")))
+    exact(value)
+        .unwrap_or_else(|| stated_restriction(&value.to_ascii_uppercase().replace('-', " ")))
 }
 /// A code that names its license exactly, or that names no known open license.
 pub(crate) fn stated(value: &str) -> bool {
