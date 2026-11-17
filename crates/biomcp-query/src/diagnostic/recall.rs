@@ -16,6 +16,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             count_unit: Some(DiagnosticCountUnit::RecallRecords),
             distinct_id_total: None,
             source_query: source_query(),
+            product_code_counts: None,
         })
         .with_query(q.clone()),
     );
@@ -61,6 +62,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             count_unit: Some(DiagnosticCountUnit::RecallRecords),
             distinct_id_total: None,
             source_query: source_query(),
+            product_code_counts: None,
         })
         .with_query(q.clone());
     }

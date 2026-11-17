@@ -102,6 +102,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             count_unit: Some(count),
             distinct_id_total: None,
             source_query: None,
+            product_code_counts: None,
         })
         .with_query(q.clone()),
     );
@@ -148,6 +149,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             count_unit: Some(count),
             distinct_id_total: None,
             source_query: None,
+            product_code_counts: None,
         })
         .with_query(q.clone());
     }

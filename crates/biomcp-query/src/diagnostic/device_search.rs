@@ -2,7 +2,7 @@
 use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{
-    DiagnosticCountUnit, DiagnosticPage, DiagnosticSearch, PageInfo, Paged, ReplyBody, Request,
+    DiagnosticAggregate, DiagnosticCountUnit, DiagnosticProductCodeCounts, DiagnosticPage, DiagnosticSearch, PageInfo, Paged, ReplyBody, Request,
     Source, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
@@ -24,6 +24,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
             distinct_id_total: None,
             source_query: source_query(),
+            product_code_counts: None,
         })
         .with_query(q.clone()),
     );
@@ -35,8 +36,16 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     } else {
         biomcp_adapters::fda_510k::search(&leg, q)
     };
+    // The count reads the same expression as the page; its sum is checked against the page total.
+    let result = result.and_then(|page| {
+        let counts = match q.aggregate() {
+            Some(DiagnosticAggregate::ProductCode) => Some(product_codes(&leg, q, page.total)?),
+            None => None,
+        };
+        Ok((page, counts))
+    });
     let error = match result {
-        Ok(page) => {
+        Ok((page, product_code_counts)) => {
             let returned = page.items.len() as u32;
             {
                 let found = page.total != 0;
@@ -49,7 +58,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                     &mut out,
                     StepKind::Page,
                     &[q.source().source()],
-                    Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
+                    Request::SearchDiagnostic(q.without_aggregate().at_offset(q.offset() + returned)),
                     cx.fresh,
                 );
             }
@@ -65,6 +74,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                 count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
                 distinct_id_total: None,
                 source_query: source_query(),
+                product_code_counts,
             })
             .with_query(q.clone());
             None
@@ -77,4 +87,20 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     status::search(&mut out);
     command.finish(deadline.remaining());
     out
+}
+
+/// Matching 510(k) records by product code, with the sum checked against the search total.
+fn product_codes(
+    leg: &biomcp_fetch::Leg<'_>,
+    q: &DiagnosticSearch,
+    total: u64,
+) -> Result<DiagnosticProductCodeCounts, biomcp_fetch::RequestError> {
+    let items = biomcp_adapters::fda_510k::product_codes(leg, q)?;
+    let sum = items.iter().map(|row| row.count).sum::<u64>();
+    Ok(DiagnosticProductCodeCounts {
+        limit_reached: items.len() >= biomcp_adapters::fda_510k::CODE_LIMIT as usize,
+        items: items.into(),
+        sum,
+        sum_matches_total: sum == total,
+    })
 }

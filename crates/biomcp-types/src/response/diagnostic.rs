@@ -300,6 +300,31 @@ biodata::wire_enum! {
     }
 }
 
+/// One FDA product code and the matching 510(k) records filed under it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticProductCodeCount {
+    /// Native FDA product code.
+    pub product_code: Text,
+    /// Matching 510(k) records with this product code.
+    pub count: u64,
+}
+
+/// Matching 510(k) records counted by product code with openFDA's count facet (1019).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticProductCodeCounts {
+    /// Product codes in openFDA's order, most records first.
+    pub items: Box<[DiagnosticProductCodeCount]>,
+    /// Sum of the listed counts.
+    pub sum: u64,
+    /// The sum equals the page total, so every matching record is counted under a listed code.
+    pub sum_matches_total: bool,
+    /// openFDA returned its most codes for one count, 1,000; more codes may exist. A narrower
+    /// decision-date range lists every code.
+    pub limit_reached: bool,
+}
+
 page!(
     diagnostic,
     DiagnosticPage,
@@ -311,6 +336,9 @@ page!(
         /// Exact openFDA search expression sent for a PMA, 510(k) or device recall page; it names the field each filter matched.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub source_query: Option<Box<str>>,
+        /// 510(k) records by product code; present only when `--aggregate product-code` was asked.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub product_code_counts: Option<DiagnosticProductCodeCounts>,
     ]
 );
 page!(
