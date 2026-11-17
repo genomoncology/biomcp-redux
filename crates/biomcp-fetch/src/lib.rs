@@ -501,10 +501,8 @@ impl Leg<'_> {
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .license_unchecked
     }
-    /// Run a metadata dependency within the remaining request budget.
-    /// It starts at this leg's replay time on its own clock, and its time is charged back to
-    /// this leg, which charges its command. Its `command_remaining` measures against the end of
-    /// this leg's capped deadline, the one it was opened under, not the command's.
+    /// Run a metadata dependency from this leg's replay time and charge its time back here. Its
+    /// `command_remaining` measures against this leg's capped end, which it was opened under.
     pub fn dependency<T>(
         &self,
         spec: &'static SourceSpec,
@@ -536,9 +534,7 @@ impl Leg<'_> {
         self
     }
     pub(crate) fn budget(&self) -> Deadline<'_> {
-        if let Some(clock) = &self.clock {
-            clock.follow();
-        }
+        self.clock.iter().for_each(deadline::VirtualClock::follow);
         self.deadline.bind(self.clock.as_ref())
     }
     /// Bind the source leg's remaining budget for cooperative local parsing.
@@ -555,8 +551,7 @@ impl Leg<'_> {
         self.budget().until(self.opened_end).remaining()
     }
     /// Open a leg for another declaration of the same source within this leg's deadline.
-    /// Under a command it starts at the command's replay time and charges its own time there;
-    /// its `command_remaining` measures against the end of this leg's capped deadline.
+    /// It joins the command clock; `command_remaining` measures against this leg's capped end.
     pub fn sibling(&self, spec: &'static SourceSpec) -> Self {
         debug_assert_eq!(
             spec.source, self.spec.source,

@@ -1,7 +1,7 @@
 {
-  "live_check": "synthetic deadline; an 8-second HGNC read then a 9-second UniProt read pass UniProt's 15-second limit",
+  "live_check": "synthetic deadline; a 13-second HGNC read then a 2.5-second UniProt read pass UniProt's 15-second limit",
   "feature": "protein-search",
-  "story": "A protein get by gene name reads HGNC and then UniProt, one after the other. Replay charges each read its own time, as live does, so the 9-second UniProt reply, which starts after the 8-second HGNC read, ends past UniProt's 15-second limit and reads as failed.",
+  "story": "A protein get by gene name reads HGNC and then UniProt, one after the other. Replay charges each read its own time, as live does, so the 2.5-second UniProt reply, which starts after the 13-second HGNC read, ends past UniProt's 15-second limit and reads as failed.",
   "replay": "protein/sequential",
   "steps": [
     {

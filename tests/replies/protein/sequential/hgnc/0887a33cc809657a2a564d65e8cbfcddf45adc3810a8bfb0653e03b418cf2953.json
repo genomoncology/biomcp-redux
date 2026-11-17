@@ -6,7 +6,7 @@
     {
       "status": 200,
       "content_type": "text/tab-separated-values",
-      "delay_ms": 8000,
+      "delay_ms": 13000,
       "retry_after_ms": null,
       "body": {
         "kind": "text",

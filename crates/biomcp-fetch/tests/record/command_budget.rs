@@ -163,14 +163,23 @@ fn command_legs_charge_their_replay_time_one_after_another() {
     let dir = tempfile::tempdir().unwrap();
     let server = Server::new();
     let spec = spec(&server);
-    capture(&server, spec, dir.path(), &[(200, "", r#"{"answer":true}"#)]);
-    change(dir.path(), |v| v["exchanges"][0]["delay_ms"] = 3_000.into());
+    let answer = (200, "", r#"{"answer":true}"#);
+    capture(&server, spec, dir.path(), &[answer; 4]);
+    change(dir.path(), |v| {
+        for exchange in v["exchanges"].as_array_mut().unwrap() {
+            exchange["delay_ms"] = 3_000.into();
+        }
+    });
     let fetch = fetch(Mode::Replay {
         dir: dir.path().to_owned(),
     });
     let read = |leg: &biomcp_fetch::Leg<'_>| {
-        leg.call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json())
-            .unwrap();
+        leg.call(
+            &spec.get("/answer"),
+            Input::Params(&[]),
+            Read::<Answer>::json(),
+        )
+        .unwrap();
     };
     let reply = Duration::from_secs(3);
 

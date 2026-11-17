@@ -164,7 +164,10 @@ static COMMANDS: std::sync::LazyLock<Commands> = std::sync::LazyLock::new(Comman
 )]
 static NEXT_COMMAND: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
-fn commands() -> std::sync::MutexGuard<'static, std::collections::BTreeMap<CommandId, std::sync::Arc<CommandClock>>> {
+fn commands() -> std::sync::MutexGuard<
+    'static,
+    std::collections::BTreeMap<CommandId, std::sync::Arc<CommandClock>>,
+> {
     COMMANDS
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner)
@@ -213,10 +216,6 @@ impl<'a> Deadline<'a> {
             command: None,
         }
     }
-    #[expect(
-        clippy::disallowed_types,
-        reason = "Advance replay clocks and observe command cancellation across request workers"
-    )]
     pub(crate) fn fork(&self) -> Option<VirtualClock> {
         self.clock
             .map(|_| VirtualClock::at(self.now(), self.command.and_then(command_clock)))
