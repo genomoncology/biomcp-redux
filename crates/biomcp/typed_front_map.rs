@@ -180,7 +180,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     (
         "protein",
         "Proteins by accession or gene symbol: function, sequence, domains, features, \
-         isoforms, structures and complexes",
+         isoforms, structures, complexes and STRING interaction partners",
         &[
             ("search", "search_protein", ""),
             ("get", "get_protein", ""),

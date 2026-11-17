@@ -59,6 +59,7 @@
             "domains",
             "isoforms",
             "complexes",
+            "interactions",
             "structures",
             "function",
             "sequence",

@@ -1,0 +1,55 @@
+{
+  "projection": "None: the UniProt and STRING replies are kept whole as biomcp --record wrote them.",
+  "sha256": "SHA-256 of each original reply body serialized as compact JSON",
+  "licenses": "UniProt CC BY 4.0 (https://www.uniprot.org/help/license); STRING 12.5 CC BY 4.0 (https://string-db.org/cgi/access), attribution: STRING consortium, version 12.5, replies unchanged.",
+  "originals": [
+    {
+      "url": "https://version-12-5.string-db.org/api/json/interaction_partners?identifiers=Q14191&species=9606&required_score=400&limit=0&caller_identity=biomcp",
+      "sha256": "5ed9844aa01a977642e5e77d55dd01f7ca1128ed3bd297332028587807a7d0f6",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42208 (biomcp --record)"
+    },
+    {
+      "url": "https://version-12-5.string-db.org/api/json/interaction_partners?identifiers=P42771&species=9606&required_score=400&limit=0&caller_identity=biomcp",
+      "sha256": "70e827613847c7e6ddb3402cc4e781a7043906370934e4cd4a9411b70f3da21d",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42208 (biomcp --record)"
+    },
+    {
+      "url": "https://version-12-5.string-db.org/api/json/interaction_partners?identifiers=Q8N726&species=9606&required_score=400&limit=0&caller_identity=biomcp",
+      "sha256": "70e827613847c7e6ddb3402cc4e781a7043906370934e4cd4a9411b70f3da21d",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42208 (biomcp --record)"
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/Q8N726.json",
+      "sha256": "c6b36662612d42a53d7b1760e7007626c90cbde66773981238f16d5d7d0538df",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42208 (biomcp --record)"
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/P42771.json",
+      "sha256": "49d441b1445bf6d2ec2740d3083458b243d31e2c5246302e6765f3d72a07e959",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42208 (biomcp --record)"
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/Q14191.json",
+      "sha256": "fb45d16ab0cb7b5533e236de0b844631ee9ce56a67ce4839c48badf91dc58cbc",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-17",
+      "note": "recorded live in pm job j42208 (biomcp --record)"
+    }
+  ]
+}

@@ -88,7 +88,7 @@ fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let result = mychem::search(&leg, name.as_str(), query.limit(), query.offset());
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok((page, received)) = result {
@@ -205,7 +205,7 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let result = mychem::get(&leg, &query.input().to_string());
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     out.sources
         .push(status::source(Source::Mychem, leg.finish(), error));
     if let Ok(document) = result {

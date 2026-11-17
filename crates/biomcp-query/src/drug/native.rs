@@ -80,7 +80,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         out.body = page.with_query(query.clone());
     }
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     finish(&mut out, leg, query.source().source(), error);
     status::search(&mut out);
     command.finish(remaining);
@@ -163,7 +163,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     if error.is_some() {
         crate::status::item(&mut out, false, true, false);
     }
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     finish(&mut out, leg, query.source().source(), error);
     if error.is_none()
         && query.source() == DrugSource::Opentargets

@@ -322,7 +322,7 @@ singleton! {
         ProteinPage => "use: --pool and --offset from the returned continuation",
         ProteinUnreviewed => "--include-unreviewed is not yet supported because no unreviewed positive was captured",
         ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein \
-            products; use: get protein <ACCESSION> complexes",
+            products; use: get protein <ACCESSION> complexes", // Unsent since 1029; kept for the 1.0 schema.
         StudyList => "use: search study",
         StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
             whole-study analytical installs are retired",

@@ -1,5 +1,4 @@
 //! Public transport contract against isolated local servers.
-
 use biomcp_fetch::Input;
 use biomcp_fetch::{
     Arg, BadReply, Credential, Fetch, FetchConfig, KeyPlace, KeyUse, Reply, Secret, SecretName,
@@ -241,6 +240,7 @@ fn unusable_success_replies_keep_distinct_failure_reasons() {
         ("application/json", "{broken", 100, BadReply),
         ("application/json", r#"{"ERROR":"failed"}"#, 100, BadReply),
         ("application/problem+json", "{}", 1, TooLarge),
+        ("text/json", "{}", 1, TooLarge),
     ] {
         let stub = Stub::new(200, content_type, body, None);
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));

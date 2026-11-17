@@ -153,6 +153,8 @@ canonical_enum! {
         Cellosaurus => "cellosaurus",
         /// Orphadata Science epidemiology and natural-history files.
         Orphadata => "orphadata",
+        /// STRING.
+        StringDb => "string-db",
         /// NIH RePORTER research project grants.
         NihReporter => "nih-reporter",
     }
