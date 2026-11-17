@@ -1,4 +1,4 @@
-use super::{PhaseFilter, TrialSource};
+use super::TrialSource;
 use crate::{NciPhaseFilter, TrialStatus};
 use serde::{Deserialize, Serialize};
 
@@ -104,5 +104,64 @@ impl schemars::JsonSchema for TrialPhaseFilter {
     }
     fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
         filter_schema::<PhaseFilter, NciPhaseFilter>()
+    }
+}
+biodata::wire_enum! {
+    /// Registry funding category facet.
+    SponsorType {
+        /// National Institutes of Health.
+        Nih => "nih",
+        /// Other United States federal agency.
+        Fed => "fed",
+        /// Industry.
+        Industry => "industry",
+        /// Other sponsor category.
+        Other => "other",
+    }
+}
+biodata::wire_enum! {
+    /// Sponsor roles a sponsor name may match.
+    SponsorRole {
+        /// Lead sponsor only.
+        Lead => "lead",
+        /// Lead sponsor or any collaborator.
+        Any => "any",
+    }
+}
+biodata::wire_enum! {
+    /// Explicit source phase selection, including the registry's combined phases.
+    PhaseFilter {
+        /// Early phase 1.
+        Early1 => "early-1",
+        /// Phase 1.
+        One => "1",
+        /// Phase 2.
+        Two => "2",
+        /// Phase 3.
+        Three => "3",
+        /// Phase 4.
+        Four => "4",
+        /// Not applicable.
+        NotApplicable => "not-applicable",
+        /// Combined phase 1 and phase 2.
+        OneTwo => "1/2",
+        /// Combined phase 2 and phase 3.
+        TwoThree => "2/3",
+    }
+}
+impl PhaseFilter {
+    /// Exact registry phases required together.
+    pub fn phases(self) -> &'static [crate::TrialPhase] {
+        use crate::TrialPhase as P;
+        match self {
+            Self::Early1 => &[P::Early1],
+            Self::One => &[P::Phase1],
+            Self::Two => &[P::Phase2],
+            Self::Three => &[P::Phase3],
+            Self::Four => &[P::Phase4],
+            Self::NotApplicable => &[P::NotApplicable],
+            Self::OneTwo => &[P::Phase1, P::Phase2],
+            Self::TwoThree => &[P::Phase2, P::Phase3],
+        }
     }
 }

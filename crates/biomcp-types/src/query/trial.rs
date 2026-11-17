@@ -6,31 +6,11 @@ mod drug_terms;
 mod filters;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
-pub use filters::{NciStatusFilter, TrialPhaseFilter, TrialStatusFilter};
+pub use filters::{
+    NciStatusFilter, PhaseFilter, SponsorRole, SponsorType, TrialPhaseFilter, TrialStatusFilter,
+};
 use serde::{Deserialize, Serialize};
 const MAX_ALTERNATIVES: usize = 5;
-biodata::wire_enum! {
-    /// Registry funding category facet.
-    SponsorType {
-        /// National Institutes of Health.
-        Nih => "nih",
-        /// Other United States federal agency.
-        Fed => "fed",
-        /// Industry.
-        Industry => "industry",
-        /// Other sponsor category.
-        Other => "other",
-    }
-}
-biodata::wire_enum! {
-    /// Sponsor roles a sponsor name may match.
-    SponsorRole {
-        /// Lead sponsor only.
-        Lead => "lead",
-        /// Lead sponsor or any collaborator.
-        Any => "any",
-    }
-}
 /// Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
@@ -202,7 +182,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     distance: Option<Text>,
-    #[doc = "Sponsor.\nClinicalTrials.gov only: lead sponsor name, or any role with --sponsor-role any; broadens after zero exact matches. Use --sponsor-type for the funding category."]
+    #[doc = "Sponsor.\nClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -210,7 +190,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     sponsor: Option<Text>,
-    #[doc = "Sponsor role.\nClinicalTrials.gov only: lead (default) matches the lead sponsor; any also matches collaborators. Needs --sponsor."]
+    #[doc = "Sponsor role.\nClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -472,43 +452,6 @@ impl TrialSearch {
         next.0.next_page = Some(token);
         next.0.offset = offset;
         next
-    }
-}
-biodata::wire_enum! {
-    /// Explicit source phase selection, including the registry's combined phases.
-    PhaseFilter {
-        /// Early phase 1.
-        Early1 => "early-1",
-        /// Phase 1.
-        One => "1",
-        /// Phase 2.
-        Two => "2",
-        /// Phase 3.
-        Three => "3",
-        /// Phase 4.
-        Four => "4",
-        /// Not applicable.
-        NotApplicable => "not-applicable",
-        /// Combined phase 1 and phase 2.
-        OneTwo => "1/2",
-        /// Combined phase 2 and phase 3.
-        TwoThree => "2/3",
-    }
-}
-impl PhaseFilter {
-    /// Exact registry phases required together.
-    pub fn phases(self) -> &'static [crate::TrialPhase] {
-        use crate::TrialPhase as P;
-        match self {
-            Self::Early1 => &[P::Early1],
-            Self::One => &[P::Phase1],
-            Self::Two => &[P::Phase2],
-            Self::Three => &[P::Phase3],
-            Self::Four => &[P::Phase4],
-            Self::NotApplicable => &[P::NotApplicable],
-            Self::OneTwo => &[P::Phase1, P::Phase2],
-            Self::TwoThree => &[P::Phase2, P::Phase3],
-        }
     }
 }
 biodata::wire_enum! {
