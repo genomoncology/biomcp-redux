@@ -110,21 +110,7 @@ pub fn essential_medicines(
         }
     };
     out.value = Some(DrugEssentialMedicines {
-        identity: DrugHeader {
-            name_resolution: None,
-            id: number
-                .parse()
-                .map_err(|_| biomcp_fetch::bad_reply(Source::WhoEml, None))?,
-            source: DrugSource::WhoEml,
-            name,
-            identity_level: biodata::DrugIdentityLevel::Unknown,
-            matched_name: None,
-            r#type: None,
-            version: None,
-            effective_date: None,
-            application_numbers: Box::default(),
-            url: crate::mapped::record(format!("{}/medicines/{number}", SPEC.base)),
-        },
+        identity: header(&number, name)?,
         listings,
         hint: crate::mapped::record(HINT),
     });
@@ -134,6 +120,21 @@ pub fn essential_medicines(
 
 /// The eEML number of the medicine the site's search lists under exactly this name.
 fn search(leg: &Leg<'_>, name: &str) -> Result<Option<String>, RequestError> {
+    Ok(medicines(leg, name)?
+        .into_iter()
+        .find(|header| {
+            header
+                .name
+                .as_ref()
+                .is_some_and(|title| title.as_str().eq_ignore_ascii_case(name.trim()))
+        })
+        .map(|header| header.id.to_string()))
+}
+
+/// Every medicine the site's own search lists for this text, in its order: each name and eEML
+/// number. The site matches names containing the text, and lists a medicine named only as a
+/// therapeutic alternative too.
+pub fn medicines(leg: &Leg<'_>, name: &str) -> Result<Vec<DrugHeader>, RequestError> {
     let page = leg
         .call(
             &SEARCH,
@@ -142,9 +143,27 @@ fn search(leg: &Leg<'_>, name: &str) -> Result<Option<String>, RequestError> {
         )?
         .value
         .0;
-    let page = String::from_utf8_lossy(&page);
-    Ok(super::raw::search_hits(&page)
+    super::raw::search_hits(&String::from_utf8_lossy(&page))
         .into_iter()
-        .find(|(title, _)| title.eq_ignore_ascii_case(name.trim()))
-        .map(|(_, number)| number))
+        .map(|(title, number)| header(&number, crate::mapped::record(title)))
+        .collect()
+}
+
+/// The eEML medicine's identity: its number, name and page.
+fn header(number: &str, name: Option<biodata::Text>) -> Result<DrugHeader, RequestError> {
+    Ok(DrugHeader {
+        name_resolution: None,
+        id: number
+            .parse()
+            .map_err(|_| biomcp_fetch::bad_reply(Source::WhoEml, None))?,
+        source: DrugSource::WhoEml,
+        name,
+        identity_level: biodata::DrugIdentityLevel::Unknown,
+        matched_name: None,
+        r#type: None,
+        version: None,
+        effective_date: None,
+        application_numbers: Box::default(),
+        url: crate::mapped::record(format!("{}/medicines/{number}", SPEC.base)),
+    })
 }

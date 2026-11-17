@@ -2,4 +2,4 @@
 pub(crate) mod decl;
 mod raw;
 mod read;
-pub use read::{SPEC, essential_medicines};
+pub use read::{SPEC, essential_medicines, medicines};

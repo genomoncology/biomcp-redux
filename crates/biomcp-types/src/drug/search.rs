@@ -176,10 +176,6 @@ impl TryFrom<SearchFields> for DrugSearch {
         if !(1..=50).contains(&fields.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        // The WHO eEML is read by drug name with `get drug NAME essential-medicines`.
-        if fields.source == DrugSource::WhoEml {
-            return Err(QueryInvalid::new(&["source"]));
-        }
         if fields.indication.is_some() && fields.source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["indication", "source"]));
         }

@@ -3,7 +3,8 @@ use super::empty;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::who_eml;
 use biomcp_types::{
-    DrugEssentialMedicines, DrugGet, PageInfo, ReplyBody, Request, Section, Source, StepKind,
+    DrugEssentialMedicines, DrugGet, DrugPage, DrugSearch, PageInfo, ReplyBody, Request, Section,
+    Source, StepKind,
 };
 
 /// Listings per page when the call names no section limit; each is one eEML page read.
@@ -69,4 +70,40 @@ fn page(query: &DrugGet, fresh: bool, body: &DrugEssentialMedicines, out: &mut O
             fresh,
         ));
     }
+}
+
+/// The medicines the eEML's own search lists for the text, each with a call for its listings.
+pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    let mut out = empty(
+        (DrugPage {
+            items: Box::default(),
+            total: None,
+        })
+        .with_query(query.clone()),
+    );
+    let Some(name) = query.query() else {
+        return super::unsupported(query.source(), out);
+    };
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&who_eml::SPEC, deadline).fresh(cx.fresh);
+    let result = who_eml::medicines(&leg, name.as_str());
+    let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
+    out.sources
+        .push(status::source(Source::WhoEml, leg.finish(), error));
+    if let Ok(hits) = result {
+        let total = hits.len() as u64;
+        let page = DrugPage {
+            items: hits
+                .into_iter()
+                .skip(query.offset() as usize)
+                .take(query.limit() as usize)
+                .collect(),
+            total: Some(total),
+        };
+        super::searched(query, cx.fresh, page, &mut out);
+    }
+    command.finish(deadline.remaining());
+    out
 }

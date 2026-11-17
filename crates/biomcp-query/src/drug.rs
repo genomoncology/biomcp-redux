@@ -57,6 +57,9 @@ fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::WhoPq {
         return who::search(cx, query);
     }
+    if query.source() == DrugSource::WhoEml {
+        return who_eml::search(cx, query);
+    }
     if matches!(query.source(), DrugSource::Chembl | DrugSource::Opentargets) {
         return native::search(cx, query);
     }
