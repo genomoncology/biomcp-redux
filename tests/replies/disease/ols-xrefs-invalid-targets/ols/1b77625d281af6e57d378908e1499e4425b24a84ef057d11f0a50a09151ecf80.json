@@ -1,0 +1,52 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?obo_id=MONDO%3A0016512",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_embedded": {
+            "terms": [
+              {
+                "iri": "http://purl.obolibrary.org/obo/MONDO_0016512",
+                "obo_id": "MONDO:0016512",
+                "ontology_name": "mondo",
+                "label": "Kabuki syndrome",
+                "is_obsolete": false,
+                "obo_xref": [
+                  {
+                    "database": "EXAMPLE",
+                    "id": "missing"
+                  },
+                  {
+                    "database": "EXAMPLE",
+                    "id": "malformed",
+                    "url": "https://[not-a-host"
+                  },
+                  {
+                    "database": "EXAMPLE",
+                    "id": "non-http",
+                    "url": "mailto:contact@example.org"
+                  },
+                  {
+                    "database": "EXAMPLE",
+                    "id": "wrong-type",
+                    "url": {
+                      "href": "https://example.org"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
