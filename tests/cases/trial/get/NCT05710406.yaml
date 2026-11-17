@@ -3,7 +3,7 @@
   "feature": "trial-get",
   "story": "Eligibility text with another heading ending in \"criteria:\", such as a registration step's own criteria, is not split, so no cohort heading is filed as an inclusion or exclusion item.",
   "replay": "trial/get/NCT05710406",
-  "verified": "RECORDING_PENDING",
+  "verified": "The actual CLI recorded https://clinicaltrials.gov/api/v2/studies/NCT05710406 and the version reply from the public source on 2026-11-17 with --record in job j42467; registry processing time 2026-11-17T10:00:05. Below its Inclusion Criteria heading the text has the lines '* PRE-REGISTRATION (STEP 0) ELIGIBILITY CRITERIA:' and '* REGISTRATION (STEP 1) ELIGIBILITY CRITERIA:', and ends 'Exclusion Criteria: N/A'. The ceiling is the measured reply of 9,264 bytes plus 15 percent.",
   "steps": [
     {
       "run": [

@@ -90,7 +90,10 @@ pub(super) fn render(
         failure: None,
     })
 }
-const NOT_SPLIT: &str = "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, or has another line ending in \"criteria:\", so it is not split; read criteria.";
+const NOT_SPLIT: &str = concat!(
+    "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, ",
+    "or has another line ending in \"criteria:\", so it is not split; read criteria."
+);
 fn eligibility(
     query: &TrialGet,
     snapshot: &Snapshot,

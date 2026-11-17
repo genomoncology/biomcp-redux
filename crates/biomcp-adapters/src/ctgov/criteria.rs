@@ -5,9 +5,9 @@
 pub struct Split {
     /// This page's text before the first heading, trimmed.
     pub preamble: Option<Box<str>>,
-    /// Items below an inclusion heading, when this page holds that heading or starts below it.
+    /// Items below an inclusion heading, when this page holds that heading or such an item.
     pub inclusion: Option<Vec<Box<str>>>,
-    /// Items below an exclusion heading, when this page holds that heading or starts below it.
+    /// Items below an exclusion heading, when this page holds that heading or such an item.
     pub exclusion: Option<Vec<Box<str>>>,
 }
 
@@ -72,11 +72,7 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
         .map(|(excluded, _)| excluded);
     let mut out = Split::default();
     let mut preamble = String::new();
-    // A page that starts below a heading keeps that section's list even when empty.
     let mut item: Option<(usize, String)> = None;
-    if let Some(excluded) = section {
-        list(&mut out, excluded);
-    }
     let close = |out: &mut Split, item: &mut Option<(usize, String)>, section: Option<bool>| {
         if let (Some((_, body)), Some(excluded)) = (item.take(), section) {
             let body = body.trim();
@@ -116,7 +112,7 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
     Some(out)
 }
 
-/// The section's list, present from its heading or the page start on.
+/// The section's list, present from its heading or first item on this page.
 fn list(out: &mut Split, excluded: bool) -> &mut Vec<Box<str>> {
     if excluded {
         out.exclusion.get_or_insert_with(Vec::new)

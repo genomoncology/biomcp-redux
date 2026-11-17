@@ -156,13 +156,22 @@ impl Reviews {
         })
     }
 
-    /// Whether a reply field at this schema path was reviewed to become optional.
-    pub(super) fn required_removal(&self, name: &str, major: u64, path: &str, field: &str) -> bool {
-        self.required_removals.iter().any(|entry| {
-            entry.schema == format!("{name}/{major}")
-                && entry.path == path
-                && entry.field == field
-                && !entry.review.trim().is_empty()
+    /// Whether a reply keeps every old required field, apart from fields reviewed to become
+    /// optional at this exact schema path.
+    pub(super) fn required_kept(
+        &self,
+        (name, major, path): (&str, u64, &str),
+        old: &std::collections::BTreeSet<String>,
+        new: &std::collections::BTreeSet<String>,
+    ) -> bool {
+        old.iter().all(|field| {
+            new.contains(field)
+                || self.required_removals.iter().any(|entry| {
+                    entry.schema == format!("{name}/{major}")
+                        && entry.path == path
+                        && entry.field == *field
+                        && !entry.review.trim().is_empty()
+                })
         })
     }
 

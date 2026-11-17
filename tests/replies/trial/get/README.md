@@ -2,6 +2,6 @@ These are public ClinicalTrials.gov replies collected on 2026-10-24 during the t
 
 NCT00627419 is the exception: the actual CLI recorded it and its version reply from the public source on 2026-11-11 with --record, for the terminated trial's enrollment and why-stopped text. Its dataTimestamp is 2026-11-10T10:00:05.
 
-NCT00003020 was recorded the same way on 2026-11-17 (1044) with its version reply, for eligibility text that has no Inclusion Criteria or Exclusion Criteria heading. Its dataTimestamp is 2026-11-17T10:00:05.
+NCT00003020 was recorded the same way on 2026-11-17 (1044) with its version reply, for eligibility text that has no Inclusion Criteria or Exclusion Criteria heading. Its dataTimestamp is 2026-11-17T10:00:05. NCT03220035 (eligibility longer than one page) and NCT05710406 (step headings ending in "criteria:") were recorded the same way on 2026-11-17 in job j42467, with the same dataTimestamp.
 
 batch-of-20 holds the 20 trials of a trial-ops site-load batch, recorded by the actual CLI with --record from the public source on 2026-11-16 (1003), with their version reply. Its NCT02578680 reply is a copy of the synthetic HTTP 500 outage above.

@@ -2409,7 +2409,7 @@
           "description": "Checked request for the next intact fragment, absent when complete."
         },
         "criteria": {
-          "description": "Exact original text fragment, including whitespace.",
+          "description": "Exact original text fragment, including whitespace; absent when `preamble`, `inclusion` and `exclusion` replace it.",
           "type": "string"
         },
         "criterion_continues": {
@@ -2418,7 +2418,7 @@
           "type": "boolean"
         },
         "exclusion": {
-          "description": "This page's items below the registry's \"Exclusion Criteria\" headings, each with its nested lines, in source order.",
+          "description": "Split text only: this page's registry lines below \"Exclusion Criteria\" headings, each with its nested lines, word for word in source order. Absent when this page holds no exclusion heading and starts below none; other pages may hold more.",
           "items": {
             "type": "string"
           },
@@ -2435,7 +2435,7 @@
           ]
         },
         "inclusion": {
-          "description": "This page's items below the registry's \"Inclusion Criteria\" headings, each with its nested lines, in source order.",
+          "description": "Split text only: this page's registry lines below \"Inclusion Criteria\" headings, each with its nested lines, word for word in source order. Absent when this page holds no inclusion heading and starts below none; other pages may hold more.",
           "items": {
             "type": "string"
           },
@@ -2467,7 +2467,7 @@
           "description": "Source minimum age."
         },
         "not_split": {
-          "description": "Why `inclusion` and `exclusion` are absent: the registry text lacks one or both headings, so read `criteria`.",
+          "description": "Why the text is not split: it lacks one of the two headings or has another line ending in \"criteria:\", so `criteria` holds it whole.",
           "type": [
             "string",
             "null"
@@ -2478,6 +2478,13 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "preamble": {
+          "description": "Split text only: this page's registry text before its first \"Inclusion Criteria\" or \"Exclusion Criteria\" heading.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "sex": {
           "anyOf": [
@@ -2498,7 +2505,6 @@
         }
       },
       "required": [
-        "criteria",
         "offset",
         "total_characters"
       ],
