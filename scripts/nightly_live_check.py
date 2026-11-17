@@ -25,6 +25,7 @@ CHECKS = (
     ('get', 'disease', 'MONDO:0007254', 'synonyms', '--source', 'mydisease', '--section-limit', '2'),
     ('search', 'pathway', 'Signaling by EGFR'),
     ('get', 'pathway', 'R-HSA-5673001', 'summary'),
+    ('gene', 'enrichment', 'POLQ', 'WRN', 'CHEK1', 'PARP1', '--terms', 'reactome', '--limit', '3'),
     ('search', 'protein', '--gene', 'EGFR', '--reviewed'),
     ('get', 'protein', 'P00533', '--section', 'function', '--section-limit', '2'),
     ('search', 'adverse-event', 'pembrolizumab', '--source', 'faers', '--limit', '1'),
