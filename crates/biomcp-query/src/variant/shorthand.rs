@@ -19,86 +19,13 @@ pub(super) fn get<'a>(
     let Some(body) = body.take() else {
         return out;
     };
-    let unique = out
-        .page
-        .as_ref()
-        .is_some_and(|page| page.total == 1 && page.offset == 0)
-        && out.status() == Status::Complete
-        && body.excluded.is_none()
-        && matches!(body.items.as_ref(), [row] if row.transcripts.iter().any(|row| row.matched));
-    let mut actions = Vec::new();
-    for row in &body.items {
-        if let Some((request, source)) = super::identity::choice(row, &mut out.problems) {
-            let (request, sources) = preserve(cx, query, request, source, &mut out.problems);
-            actions.push(Step::run(StepKind::Disambiguate, &sources, request, false));
-        }
-    }
-    let unique = unique
-        && actions.iter().any(|step| {
-            matches!(
-                &step.1,
-                Action::Run {
-                    request: Request::GetVariant(_),
-                    ..
-                }
-            )
-        });
-    for step in &out.next {
-        if let Action::Run {
-            request: Request::SearchVariant(page),
-            fresh,
-        } = &step.1
+    let mut actions = followups(cx, query, &body.items, &mut out);
+    let mut resolution = classify(&body, &out, &actions);
+    if resolution == VariantResolution::Resolved && !query.sections().is_empty() {
+        if let Some(candidate) = exact_choice(&actions)
+            && let Some(exact) = attach(cx, query, candidate, deadline, &mut out)
         {
-            actions.push(Step::run(
-                StepKind::Page,
-                &step.2,
-                Request::GetVariant(query.at_offset(page.offset())),
-                *fresh,
-            ));
-        }
-    }
-    let mut resolution = if body.items.is_empty() {
-        if out.status() == Status::Complete && out.page.as_ref().is_some_and(|page| page.total == 0)
-        {
-            VariantResolution::Absent
-        } else {
-            VariantResolution::Unavailable
-        }
-    } else if unique {
-        VariantResolution::Resolved
-    } else {
-        VariantResolution::Candidates
-    };
-    if unique && !query.sections().is_empty() {
-        if let [
-            Step(
-                _,
-                Action::Run {
-                    request: Request::GetVariant(candidate),
-                    ..
-                },
-                _,
-            ),
-        ] = actions.as_slice()
-        {
-            let mut exact = super::get_exact(cx, candidate, deadline);
-            if let ReplyData::VariantCard {
-                body: Some(card), ..
-            } = exact.body
-                && matches!(
-                    card.resolution,
-                    VariantResolution::Resolved | VariantResolution::Unresolved
-                )
-                && card.candidates.len() == 1
-            {
-                merge_sources(&mut exact.sources, out.sources);
-                status::append(&mut exact.problems, out.problems);
-                exact.body = super::reply(query, card, &exact.sources);
-                return exact;
-            }
-            out.local = out.local.or(exact.local);
-            merge_sources(&mut out.sources, exact.sources);
-            status::append(&mut out.problems, exact.problems);
+            return exact;
         }
         resolution = VariantResolution::Candidates;
     }
@@ -128,6 +55,106 @@ pub(super) fn get<'a>(
         &out.sources,
     );
     out
+}
+
+fn classify(body: &biomcp_types::VariantPage, out: &Outcome, steps: &[Step]) -> VariantResolution {
+    let total = out.page.as_ref().map(|page| page.total);
+    if body.items.is_empty() {
+        if out.status() == Status::Complete && total == Some(0) {
+            return VariantResolution::Absent;
+        }
+        return VariantResolution::Unavailable;
+    }
+    // A display limit of one and a source total of one are different claims.
+    if out
+        .page
+        .as_ref()
+        .is_some_and(|page| page.total == 1 && page.offset == 0)
+        && out.status() == Status::Complete
+        && body.excluded.is_none()
+        && matches!(body.items.as_ref(), [row] if row.transcripts.iter().any(|row| row.matched))
+        && exact_choice(steps).is_some()
+    {
+        VariantResolution::Resolved
+    } else {
+        VariantResolution::Candidates
+    }
+}
+
+fn exact_choice(steps: &[Step]) -> Option<&VariantGet> {
+    let [
+        Step(
+            StepKind::Disambiguate,
+            Action::Run {
+                request: Request::GetVariant(candidate),
+                ..
+            },
+            _,
+        ),
+    ] = steps
+    else {
+        return None;
+    };
+    Some(candidate)
+}
+
+fn followups(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    candidates: &[biomcp_types::VariantHeader],
+    out: &mut Outcome,
+) -> Vec<Step> {
+    let mut actions = Vec::new();
+    for row in candidates {
+        if let Some((request, source)) = super::identity::choice(row, &mut out.problems) {
+            let (request, sources) = preserve(cx, query, request, source, &mut out.problems);
+            actions.push(Step::run(StepKind::Disambiguate, &sources, request, false));
+        }
+    }
+    for step in &out.next {
+        if let Action::Run {
+            request: Request::SearchVariant(page),
+            fresh,
+        } = &step.1
+        {
+            actions.push(Step::run(
+                StepKind::Page,
+                &step.2,
+                Request::GetVariant(query.at_offset(page.offset())),
+                *fresh,
+            ));
+        }
+    }
+    actions
+}
+
+fn attach<'a>(
+    cx: &Ctx<'a>,
+    query: &VariantGet,
+    candidate: &VariantGet,
+    deadline: &mut Deadline<'a>,
+    discovery: &mut Outcome,
+) -> Option<Outcome> {
+    let mut exact = super::get_exact(cx, candidate, deadline);
+    if let ReplyData::VariantCard {
+        body: Some(card), ..
+    } = exact.body
+        && matches!(
+            card.resolution,
+            VariantResolution::Resolved | VariantResolution::Unresolved
+        )
+        && card.candidates.len() == 1
+    {
+        merge_sources(&mut exact.sources, std::mem::take(&mut discovery.sources));
+        status::append(&mut exact.problems, std::mem::take(&mut discovery.problems));
+        exact.body = super::reply(query, card, &exact.sources);
+        return Some(exact);
+    }
+    // Keep the discoverable candidate and the exact request if attaching a section failed.
+    discovery.local = discovery.local.or(exact.local);
+    merge_sources(&mut discovery.sources, exact.sources);
+    status::append(&mut discovery.problems, exact.problems);
+    None
 }
 
 fn preserve(
