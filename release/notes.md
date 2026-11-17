@@ -96,6 +96,7 @@ Trials:
 - `get trial ID locations --lat LAT --lon LON` gives each site's straight-line distance in miles from that point, not travel distance, as `distance_mi`, and orders the sites nearest first across pages, with sites lacking coordinates last.
 - `search trial --fields` refuses a field the source's rows lack and names that source's fields.
 - `search trial --sponsor NAME --sponsor-role any` also finds trials where the company is a collaborator, not only the lead sponsor. The default, `lead`, is unchanged.
+- ClinicalTrials.gov search rows carry the registry's `why_stopped` reason, `--why-stopped WORDS` keeps trials whose stop reason has those words, and `--site-count` returns, instead of rows, the facilities listed by the most matched trials, read over every page, with names counted exactly as registered.
 - A ClinicalTrials.gov continuation is tied to its offset, filters and matching mode. Changing any of them is refused before the registry is asked, with a fresh first page offered, and a registry rejection of `--next-page` says so.
 
 Genes, variants, diseases and phenotypes:

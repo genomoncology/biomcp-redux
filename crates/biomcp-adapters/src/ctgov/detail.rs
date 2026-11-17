@@ -4,6 +4,7 @@ mod arms;
 mod dates;
 mod eligibility;
 mod posted;
+pub(in crate::ctgov) use posted::why_stopped;
 mod publications;
 mod results;
 mod sites;

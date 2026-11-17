@@ -1,6 +1,7 @@
 # 1043 — trial-search-rows-say-why-stopped-and-count-sites
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f81eee03737b5cdbbd9ecc7edff329882e477cb9
 
 Milestone: 7
 

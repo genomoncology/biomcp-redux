@@ -108,6 +108,7 @@ struct Identification {
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: Option<Field<TrialStatus>>,
+    why_stopped: Option<Field<Box<str>>>,
     start_date_struct: Option<Field<RawDate>>,
     primary_completion_date_struct: Option<Field<RawDate>>,
     last_update_post_date_struct: Option<Field<Updated>>,
@@ -219,6 +220,7 @@ impl Protocol {
             .map_err(|_| BadReply)?,
             title: problems.required_field("briefTitle", self.identification_module.brief_title),
             status: dates.status,
+            why_stopped: dates.why_stopped,
             phases,
             conditions: names(
                 problems

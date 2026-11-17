@@ -1,0 +1,85 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "--site-count answers which sites run the most matched trials in one call: instead of rows, the facilities listed by the most trials, read over every page of the match, with names counted exactly as registered and the number of trials read.",
+  "replay": "trial/site-count",
+  "verified": "The actual CLI recorded this search from ClinicalTrials.gov with --record on 2026-11-17 in job j42492: one request with fields NCTId,LocationFacility,LocationCity,LocationCountry and pageSize 1000 returned all 49 matched trials; registry processing time 2026-11-17T10:00:05. Counted independently in Python from a live reply the same day: Massachusetts General Hospital (Boston) 9, Moffitt Cancer Center (Tampa) 7, MD Anderson Cancer Center (Houston) 6, then City of Hope and Dana Farber Cancer Institute with 5. The mychem and openfda-label replies are the drug-name lookup of the search text, which finds no drug. The ceiling is the measured reply plus 15 percent.",
+  "harvest": "biomed-agent-bench trial-ops persona 2026-11-12, log.md:78: which sites run the most matched trials",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "KRAS G12D",
+        "--condition",
+        "pancreatic cancer",
+        "--site-count",
+        "--limit",
+        "5"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/site_counts/trials_matched": 49,
+        "/result/site_counts/trials_read": 49,
+        "/result/site_counts/facilities/*/facility": {
+          "equals": [
+            "Massachusetts General Hospital",
+            "Moffitt Cancer Center",
+            "MD Anderson Cancer Center",
+            "City of Hope",
+            "Dana Farber Cancer Institute"
+          ]
+        },
+        "/result/site_counts/facilities/*/trials": {
+          "equals": [
+            9,
+            7,
+            6,
+            5,
+            5
+          ]
+        },
+        "/result/site_counts/facilities/0/city": "Boston",
+        "/result/site_counts/facilities/0/country": "United States",
+        "/result/attribution": "ClinicalTrials.gov; facility names counted exactly as registered, never merged; no eligibility assessment",
+        "/result": {
+          "omits": [
+            "items"
+          ]
+        }
+      },
+      "max_bytes": 1379
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--site-count"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.unsupported_filter",
+        "/error/option": "--site-count"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--site-count",
+        "--count-only"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--site-count"
+      }
+    }
+  ]
+}
