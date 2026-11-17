@@ -1,0 +1,124 @@
+//! One page of a drug's WHO Model List of Essential Medicines listings, read live from the WHO eEML.
+use super::empty;
+use crate::{Ctx, Outcome, status};
+use biomcp_adapters::who_eml;
+use biomcp_types::{
+    DrugEssentialMedicines, DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, ReplyBody,
+    Request, Section, Source, StepKind,
+};
+
+/// Listings per page when the call names no section limit; each is one eEML page read.
+const DEFAULT_LIMIT: u32 = 5;
+
+pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    let mut out = empty(DrugEssentialMedicines::into_reply(query.clone(), None));
+    let command = cx.fetch.source_command_deadline(&who_eml::SPEC, cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&who_eml::SPEC, deadline).fresh(cx.fresh);
+    let result = who_eml::essential_medicines(
+        &leg,
+        query.input().as_str(),
+        query.section_limit().unwrap_or(DEFAULT_LIMIT),
+        query.section_offset().unwrap_or(0),
+    );
+    let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
+    out.sources
+        .push(status::source(Source::WhoEml, leg.finish(), error));
+    // A failed read is already in `sources`; the reply keeps no body.
+    let mapped = match result {
+        Ok(mapped) => mapped,
+        Err(_) => {
+            command.finish(deadline.remaining());
+            return out;
+        }
+    };
+    out.include_refusals(mapped.refusals);
+    out.problems.extend(mapped.problems);
+    let found = mapped.value.is_some();
+    if let Some(body) = &mapped.value {
+        page(query, cx.fresh, body, &mut out);
+    }
+    out.body = DrugEssentialMedicines::into_reply(query.clone(), mapped.value);
+    status::item(&mut out, found, false, false);
+    command.finish(deadline.remaining());
+    out
+}
+
+/// Page metadata and the next page's call.
+fn page(query: &DrugGet, fresh: bool, body: &DrugEssentialMedicines, out: &mut Outcome) {
+    let Section::Data { data, .. } = &body.listings else {
+        return;
+    };
+    let returned = data.records.len() as u32;
+    let total = data.total.unwrap_or(0);
+    out.page = Some(PageInfo {
+        offset: data.offset,
+        returned,
+        total,
+        pool: None,
+        truncated: None,
+    });
+    if let Some(offset) = data
+        .offset
+        .checked_add(returned)
+        .filter(|n| returned > 0 && u64::from(*n) < total)
+        && let Some(get) = crate::next::checked(
+            // A who-eml get without the section word pages with it, as section paging needs it.
+            query
+                .for_section(DrugSection::EssentialMedicines)
+                .and_then(|get| get.at_section_offset(offset)),
+            Source::WhoEml,
+            &mut out.problems,
+        )
+    {
+        out.next.push(crate::next::Step::run(
+            StepKind::Page,
+            &[Source::WhoEml],
+            Request::GetDrug(get),
+            fresh,
+        ));
+    }
+}
+
+/// The medicines the eEML's own search lists for the text, each with a call for its listings.
+pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    let mut out = empty(
+        (DrugPage {
+            items: Box::default(),
+            total: None,
+        })
+        .with_query(query.clone()),
+    );
+    let Some(name) = query.query() else {
+        return super::unsupported(query.source(), out);
+    };
+    let command = cx.fetch.source_command_deadline(&who_eml::SPEC, cx.budget);
+    let deadline = command.deadline();
+    let leg = cx.fetch.leg(&who_eml::SPEC, deadline).fresh(cx.fresh);
+    let result = who_eml::medicines(&leg, name.as_str());
+    let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
+    out.sources
+        .push(status::source(Source::WhoEml, leg.finish(), error));
+    // A failed read is already in `sources`; the reply keeps no rows.
+    let hits = match result {
+        Ok(hits) => hits,
+        Err(_) => {
+            command.finish(deadline.remaining());
+            return out;
+        }
+    };
+    let total = hits.len() as u64;
+    let page = DrugPage {
+        items: hits
+            .into_iter()
+            .skip(query.offset() as usize)
+            .take(query.limit() as usize)
+            .collect(),
+        total: Some(total),
+    };
+    super::searched(query, cx.fresh, page, &mut out);
+    command.finish(deadline.remaining());
+    out
+}

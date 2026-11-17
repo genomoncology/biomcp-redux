@@ -135,6 +135,9 @@ pub mod fda_510k;
 /// WHO finished pharmaceutical product prequalification.
 pub mod who_pq;
 
+/// WHO Model List of Essential Medicines listings from the WHO eEML.
+pub mod who_eml;
+
 /// Explicit CDC WONDER vaccine report summaries.
 pub mod vaers;
 

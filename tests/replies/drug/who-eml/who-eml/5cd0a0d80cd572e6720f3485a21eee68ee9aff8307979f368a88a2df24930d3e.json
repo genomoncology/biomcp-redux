@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=imatinib",
+  "exchanges": [
+    {
+      "fetched": 1794893120,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 328,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "5cd0a0d80cd572e6720f3485a21eee68ee9aff8307979f368a88a2df24930d3e-0.bin"
+      }
+    }
+  ]
+}

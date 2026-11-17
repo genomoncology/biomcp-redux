@@ -27,7 +27,8 @@
           "openfda-label",
           "drugsfda",
           "ema",
-          "ddinter"
+          "ddinter",
+          "who-eml"
         ],
         "/next/*/args": {
           "includes": [

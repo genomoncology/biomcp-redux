@@ -1,0 +1,216 @@
+{
+  "feature": "drug-who-eml",
+  "story": "A P&T committee asks whether dabigatran and warfarin are on the WHO Model List of Essential Medicines. `get drug NAME essential-medicines` reads the WHO eEML: dabigatran (eEML medicine 479) is on the core list in section 10.2 for atrial fibrillation and venous thromboembolism, added 2019-04-05, with apixaban, edoxaban and rivaroxaban as therapeutic alternatives and the Expert Committee's recommendation once; warfarin (medicine 128) has four core listings, first added 1977-10-21 and also on the children's list, two per page with a next-page call. Apixaban, listed only as dabigatran's alternative, shows dabigatran's listings marked alternative_to. Imatinib's GIST listing is on the complementary list. Pembrolizumab (medicine 565) shows only its four Model List listings plus nivolumab's, where it is the alternative; the nine applications the Committee rejected are left out. A brand name such as Pradaxa, which the eEML does not use, answers absent, and `search drug warfarin --source who-eml` lists the eEML's own search hits with a call for each.",
+  "live_check": "public",
+  "verified": "WHO eEML replies recorded unchanged with biomcp --record; see tests/replies/drug/who-eml/README.md.",
+  "replay": "drug/who-eml",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "dabigatran",
+        "essential-medicines"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "dabigatran",
+        "essential-medicines"
+      ],
+      "expect": {
+        "/schema": "biomcp.drug-essential-medicines/1",
+        "/status": "complete",
+        "/result/identity/id": "479",
+        "/result/identity/source": "who-eml",
+        "/result/identity/name": "dabigatran",
+        "/result/listings/source": "who-eml",
+        "/result/listings/data/total": 2,
+        "/result/listings/data/records/*/id": [
+          "1004",
+          "1022"
+        ],
+        "/result/listings/data/records/*/list": [
+          "core",
+          "core"
+        ],
+        "/result/listings/data/records/*/indication": [
+          "Other specified atrial fibrillation",
+          "Venous thromboembolism"
+        ],
+        "/result/listings/data/records/*/added": [
+          "2019-04-05",
+          "2019-04-05"
+        ],
+        "/result/listings/data/records/0/section": "10.2. Medicines affecting coagulation",
+        "/result/listings/data/records/0/alternatives": [
+          "apixaban",
+          "edoxaban",
+          "rivaroxaban"
+        ],
+        "/result/listings/data/records/0/atc": [
+          "B01AE07"
+        ],
+        "/result/listings/data/records/0/committee": "The Committee recommended the addition of dabigatran with a square box to the core list of the EML for the prevention of stroke and systemic embolism in patients with nonvalvular atrial fibrillation and for treatment of venous thromboembolism based on favourable efficacy and acceptable safety. The square box refers to apixaban, edoxaban and rivaroxaban as therapeutically equivalent alternatives. The Committee noted that the DOACs demonstrated clinical benefits in terms of reduced mortality, reduced risk of stroke or systemic embolism, and were associated with fewer severe/major bleeding episodes compared to well-controlled warfarin in patients with NVAF. In the treatment of patients with venous thromboembolism, DOACs were associated with small reductions in mortality, risk of subsequent/recurrent thromboembolic events and major bleeding compared to low-molecular weight heparin and vitamin K antagonists. The use of DOACs may also have relevant health system benefits related to the infrastructure required for warfarin treatment monitoring, as they do not require laboratory monitoring. The Committee noted that DOACs have higher daily treatment costs than warfarin, but have been found to be a cost-effective intervention. It is recommended that countries take all these factors into consideration when selecting anticoagulants to best suit their national and local needs and circumstances. The Committtee recommended that WHO take action to facilitate access to these medicines through the WHO prequalification programme, and through collaboration with partners such as the Medicines Patent Pool.",
+        "/result/listings/data/records/1": {
+          "omits": [
+            "committee"
+          ]
+        },
+        "/sources/0/source": "who-eml",
+        "/sources/0/use": "attribution"
+      },
+      "max_bytes": 6000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "warfarin",
+        "essential-medicines",
+        "--section-limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "128",
+        "/result/listings/data/total": 4,
+        "/result/listings/data/records/*/list": [
+          "core",
+          "core"
+        ],
+        "/result/listings/data/records/*/added": [
+          "1977-10-21",
+          "1977-10-21"
+        ],
+        "/result/listings/data/records/0/children": true,
+        "/result/listings/data/records/0/alternatives": [
+          "acenocoumarol"
+        ],
+        "/page/total": 4,
+        "/next/0/kind": "page",
+        "/next/0/args": {
+          "includes_all_of": [
+            "--section-offset",
+            "2"
+          ]
+        }
+      },
+      "max_bytes": 6000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "apixaban",
+        "essential-medicines"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "478",
+        "/result/listings/data/records/*/alternative_to": [
+          "dabigatran",
+          "dabigatran"
+        ],
+        "/result/listings/data/records/0/decisions": {
+          "count": 1
+        }
+      },
+      "max_bytes": 6000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "imatinib",
+        "essential-medicines",
+        "--section-limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/listings/data/records/*/list": {
+          "includes": "complementary"
+        }
+      },
+      "max_bytes": 20000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "pembrolizumab",
+        "essential-medicines"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "565",
+        "/result/listings/data/total": 5,
+        "/result/listings/data/records/*/id": [
+          "1182",
+          "1490",
+          "1491",
+          "1492",
+          "1157"
+        ],
+        "/result/listings/data/records/*/status": [
+          "AddedToEml",
+          "AddedToEml",
+          "AddedToEml",
+          "AddedToEml",
+          "AddedToEml"
+        ],
+        "/result/listings/data/records/0": {
+          "omits": [
+            "alternative_to"
+          ]
+        },
+        "/result/listings/data/records/4/alternative_to": "nivolumab"
+      },
+      "max_bytes": 35977
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "pradaxa",
+        "essential-medicines"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "who-eml"
+      },
+      "max_bytes": 2000
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "warfarin",
+        "--source",
+        "who-eml"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 1,
+        "/result/items/*/id": [
+          "128"
+        ],
+        "/result/items/*/name": [
+          "Warfarin"
+        ],
+        "/next/0/args": {
+          "includes_all_of": [
+            "get",
+            "drug",
+            "128",
+            "--source",
+            "who-eml"
+          ]
+        }
+      },
+      "max_bytes": 2000
+    }
+  ]
+}

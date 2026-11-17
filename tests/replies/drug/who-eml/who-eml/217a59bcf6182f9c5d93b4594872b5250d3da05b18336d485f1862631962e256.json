@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=pradaxa",
+  "exchanges": [
+    {
+      "fetched": 1794893124,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 328,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "217a59bcf6182f9c5d93b4594872b5250d3da05b18336d485f1862631962e256-0.bin"
+      }
+    }
+  ]
+}
