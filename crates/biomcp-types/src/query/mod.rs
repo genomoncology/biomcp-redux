@@ -1,10 +1,10 @@
 //! Checked command inputs shared by every interface.
 mod article;
+mod article_filter;
 mod article_get;
 mod article_supplement;
-pub use article::{
-    ArticleFilter, ArticleSearch, ArticleSort, ArticleSource, ArticleType, RetractionFilter,
-};
+pub use article::{ArticleSearch, ArticleSort, ArticleSource, ArticleType, RetractionFilter};
+pub use article_filter::ArticleFilter;
 pub use article_supplement::{ArticleSupplement, SheetRows};
 mod article_pdf;
 pub use article_pdf::ArticlePdf;

@@ -32,6 +32,10 @@ fn filters(query: &ArticleSearch, words: String) -> String {
     if let Some(journal) = query.journal() {
         parts.push(format!("{journal}[ta]"));
     }
+    // Quoted, so words such as OR stay part of the institution name.
+    if let Some(affiliation) = query.affiliation() {
+        parts.push(format!("\"{}\"[ad]", affiliation.as_str().replace('"', "")));
+    }
     let (since, until) = query.dates();
     if since.is_some() || until.is_some() {
         let date = |value: Option<biodata::PartialDate>, default: &str| {

@@ -106,6 +106,7 @@ Genes, variants, diseases and phenotypes:
 Articles:
 
 - `search article` rows, and citation, reference and recommendation pages, carry `open_access` when Europe PMC states it.
+- `search article --affiliation` finds papers by an author's institution, sent as one phrase to PubMed's affiliation field (`[ad]`) and Europe PMC's `AFF:`.
 - `article pdf` for a Europe PMC preprint says at once that Europe PMC refuses automated PDF downloads and offers the full text. A publisher refusal names the host, URL and status, and a failed save gives `result.file.reason`, `not-pdf` or `not-open`.
 - A single-source search reports the source's own total. A drug-name search on Semantic Scholar or LitSense says the per-name counts overlap and are not added, and a cut-short search says later rows cannot be paged. `get article` states its limit of 20 IDs.
 
