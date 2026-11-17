@@ -24,3 +24,15 @@ steps:
   expect:
     /status: complete
     /result/commands/0/command: [search, grant]
+- run:
+  - help
+  - grant
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+- run:
+  - help
+  - grant
+  expect:
+    /status: complete

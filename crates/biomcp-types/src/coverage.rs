@@ -21,8 +21,9 @@ pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
     use Source::{
         AlleleRegistry, AlphaGenome, CancerHotspots, Cbioportal, Cellosaurus, Chembl, Civic,
         ClinGen, ClinVar, ClinicalTrialsGov, ComplexPortal, Erepo, EuropePmc, Gencc, Gnomad, Gwas,
-        Hgnc, Hpa, Icite, InterPro, Mutalyzer, MyGene, MyVariant, NihReporter, Oncokb, Orcid, PmcOa,
-        PubMed, PubTator, Reactome, SemanticScholar, UniProt, VariantValidator, WikiPathways,
+        Hgnc, Hpa, Icite, InterPro, Mutalyzer, MyGene, MyVariant, NihReporter, Oncokb, Orcid,
+        PmcOa, PubMed, PubTator, Reactome, SemanticScholar, UniProt, VariantValidator,
+        WikiPathways,
     };
     match (verb, entity) {
         ("protein", "domains") => &[InterPro],

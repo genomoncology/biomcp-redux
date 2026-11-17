@@ -3,7 +3,9 @@ use crate::QueryInvalid;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
 
-/// Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization and fiscal year. Each row is one project's award for one fiscal year, so a project funded for five years gives five rows.
+#[doc = " Search NIH-funded research projects in NIH RePORTER by topic, investigator, organization \
+    and fiscal year. Each row is one project's award for one fiscal year, so a project funded for \
+    five years gives five rows."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -21,7 +23,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
-    /// Principal investigator, first and last name, such as "Pasi Janne"; partial names match more people.
+    #[doc = " Principal investigator, first and last name, such as \"Pasi Janne\"; partial names \
+        match more people."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -37,7 +40,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     organization: Option<Text>,
-    /// NIH fiscal years, such as 2025; all years by default.
+    /// NIH fiscal years; repeat the option for several, such as 2024 and 2025. All by default.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 50), extend("x-comma-separated" = true)))]
     fiscal_year: Box<[u32]>,
@@ -58,9 +61,17 @@ impl TryFrom<Fields> for GrantSearch {
     type Error = QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, QueryInvalid> {
         if v.query.is_none() && v.investigator.is_none() && v.organization.is_none() {
-            return Err(QueryInvalid::new(&["query", "investigator", "organization"]));
+            return Err(QueryInvalid::new(&[
+                "query",
+                "investigator",
+                "organization",
+            ]));
         }
-        if v.fiscal_year.len() > 50 || v.fiscal_year.iter().any(|year| !(1985..=2100).contains(year)) {
+        if v.fiscal_year.len() > 50
+            || v.fiscal_year
+                .iter()
+                .any(|year| !(1985..=2100).contains(year))
+        {
             return Err(QueryInvalid::new(&["fiscal_year"]));
         }
         if !(1..=50).contains(&v.limit) {

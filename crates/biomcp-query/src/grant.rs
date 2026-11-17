@@ -19,7 +19,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GrantSearch) -> Outcome {
     out.sources
         .push(status::source(Source::NihReporter, leg.finish(), error));
     match reply {
-        Ok((total, items)) => publish(&mut out, query, total, items),
+        Ok((total, items, problems)) => {
+            out.problems = problems;
+            publish(&mut out, query, total, items);
+        }
         Err(error) => out.local = status::local(error),
     }
     if out.status() == Status::Failed {

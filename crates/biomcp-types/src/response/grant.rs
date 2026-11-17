@@ -4,7 +4,8 @@ use crate::GrantSearch;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
 
-/// NIH RePORTER project-years in RePORTER's order. Each row is one project's award for one fiscal year; `page.total` counts project-years, not distinct projects.
+#[doc = " NIH RePORTER project-years in RePORTER's order. Each row is one project's award for one \
+    fiscal year; `page.total` counts project-years, not distinct projects."]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GrantPage {
@@ -36,7 +37,7 @@ pub struct Grant {
     /// Funded organization.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub organization: Option<GrantOrganization>,
-    /// Total cost awarded for this fiscal year in US dollars, direct plus indirect, as RePORTER states it.
+    /// This fiscal year's total cost in US dollars, direct plus indirect, as RePORTER states it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub award_amount: Option<u64>,
     /// Project start date.

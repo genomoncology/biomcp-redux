@@ -1,0 +1,68 @@
+{
+  "feature": "grant-search",
+  "live_check": "public",
+  "story": "A medical science liaison counts a key opinion leader's NIH project-years, narrows them to one organization and two fiscal years, and searches NIH grants by topic, with institute, organization and award amount on every row.",
+  "verified": "Captured live 2026-11-17 from NIH RePORTER in pm jobs j42229 and JOB3. Pasi Janne has 70 project-years (the msl run's 8.3 count); the newest is FY2026 5P50CA265826-05 (NCI, Dana-Farber, $384,444). \"KRAS G12C\" over title, abstract and terms gives 173. Janne at DANA-FARBER in fiscal years 2024 and 2025 gives 3. An unknown name gives 0.",
+  "replay": "grant/search",
+  "steps": [
+    {
+      "run": ["search", "grant", "--investigator", "Pasi Janne", "--limit", "3"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 70,
+        "/page/returned": 3,
+        "/sources/0/source": "nih-reporter",
+        "/sources/0/state": "ok",
+        "/result/items/0/project": "5P50CA265826-05",
+        "/result/items/0/core_project": "P50CA265826",
+        "/result/items/0/fiscal_year": 2026,
+        "/result/items/0/activity": "P50",
+        "/result/items/0/institute/abbreviation": "NCI",
+        "/result/items/0/organization/name": "DANA-FARBER CANCER INST",
+        "/result/items/0/award_amount": 384444,
+        "/result/items/0/investigators/0/name": "Pasi A Janne",
+        "/result/items/0/investigators/0/contact": true,
+        "/result/items/0/url": "https://reporter.nih.gov/project-details/11402668",
+        "/next/0/kind": "page",
+        "/next/0/args": ["search", "grant", "--investigator", "Pasi Janne", "--limit", "3", "--offset", "3"]
+      }
+    },
+    {
+      "run": ["search", "grant", "KRAS G12C", "--limit", "3"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 173,
+        "/result/items/0/project": "5R21CA295906-02",
+        "/result/items/0/institute/abbreviation": "NCI",
+        "/result/items/0/organization/name": "UNIVERSITY OF TX MD ANDERSON CAN CTR",
+        "/result/items/0/award_amount": 152873
+      }
+    },
+    {
+      "run": ["search", "grant", "--investigator", "Pasi Janne", "--organization", "DANA-FARBER", "--fiscal-year", "2024", "--fiscal-year", "2025"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/0/organization/name": "DANA-FARBER CANCER INST"
+      }
+    },
+    {
+      "run": ["search", "grant", "--investigator", "Pasi Janne", "--limit", "2", "--offset", "68"],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 68,
+        "/page/returned": 2,
+        "/page/total": 70,
+        "/result/items/0/fiscal_year": 2008
+      }
+    },
+    {
+      "run": ["search", "grant", "--investigator", "Zzqxv Nobody"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/page/returned": 0
+      }
+    }
+  ]
+}

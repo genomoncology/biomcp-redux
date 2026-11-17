@@ -2,8 +2,9 @@
 use crate::quotas;
 use biodata::Text;
 use biomcp_fetch::{BadReply, Endpoint, Freshness, Leg, Read, Reply, RequestError, SourceSpec};
+use crate::mapped::Problems;
 use biomcp_types::{
-    Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantSearch, Source,
+    Grant, GrantInstitute, GrantInvestigator, GrantOrganization, GrantSearch, Problem, Source,
 };
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -96,8 +97,7 @@ struct Row {
     organization: Option<Organization>,
     agency_ic_admin: Option<Institute>,
     award_amount: Option<u64>,
-    #[serde(default)]
-    principal_investigators: Vec<Investigator>,
+    principal_investigators: Option<Vec<Investigator>>,
     project_start_date: Option<String>,
     project_end_date: Option<String>,
     project_detail_url: Option<String>,
@@ -118,15 +118,13 @@ struct Institute {
 struct Investigator {
     profile_id: Option<u64>,
     full_name: Option<String>,
-    #[serde(default)]
-    is_contact_pi: bool,
+    is_contact_pi: Option<bool>,
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
-        let rows = self
-            .results
-            .iter()
-            .all(|row| row.project_num.as_deref().and_then(text).is_some() && row.fiscal_year.is_some());
+        let rows = self.results.iter().all(|row| {
+            row.project_num.as_deref().and_then(text).is_some() && row.fiscal_year.is_some()
+        });
         if rows && u64::try_from(self.results.len()).is_ok_and(|n| n <= self.meta.total) {
             Ok(())
         } else {
@@ -135,13 +133,32 @@ impl Reply for Page {
     }
 }
 
-/// One page of RePORTER project-years and RePORTER's total for the same criteria.
-pub fn search(leg: &Leg<'_>, query: &GrantSearch) -> Result<(u64, Vec<Grant>), RequestError> {
+/// One page of RePORTER project-years, RePORTER's total for the same criteria, and the fields
+/// RePORTER sent that could not be read.
+pub fn search(
+    leg: &Leg<'_>,
+    query: &GrantSearch,
+) -> Result<(u64, Vec<Grant>, Vec<Problem>), RequestError> {
     let body = body(query);
     let received = leg.call(&SEARCH, biomcp_fetch::Input::json(&[], &body), Read::json())?;
     let page: Page = received.value;
-    let rows = page.results.into_iter().filter_map(grant).collect();
-    Ok((page.meta.total, rows))
+    let mut problems = Vec::new();
+    let mut rows = Vec::new();
+    for row in page.results {
+        let mut p = Problems {
+            source: Source::NihReporter,
+            record: crate::mapped::record(present(row.project_num.as_ref()).unwrap_or_default()),
+            list: Vec::new(),
+        };
+        let grant = grant(&mut p, row);
+        for problem in p.list {
+            if !problems.contains(&problem) {
+                problems.push(problem);
+            }
+        }
+        rows.extend(grant);
+    }
+    Ok((page.meta.total, rows, problems))
 }
 fn body(query: &GrantSearch) -> Body<'_> {
     Body {
@@ -187,56 +204,62 @@ pub(crate) fn probe(leg: &Leg<'_>) -> Result<(), RequestError> {
     };
     leg.probe(&SEARCH, biomcp_fetch::Input::json(&[], &body))
 }
-/// RePORTER pads names with spaces; keep single spaces and drop empty values.
-fn text(value: &str) -> Option<Text> {
-    Text::new(&value.split_whitespace().collect::<Vec<_>>().join(" ")).ok()
-}
-fn opt(value: Option<&String>) -> Option<Text> {
-    value.and_then(|value| text(value))
+/// RePORTER sends empty strings for values it does not have.
+fn present(value: Option<&String>) -> Option<&str> {
+    value.map(String::as_str).filter(|v| !v.trim().is_empty())
 }
 /// RePORTER dates are midnight timestamps; keep the date.
-fn date(value: Option<&String>) -> Option<Text> {
-    value.and_then(|value| text(value.split('T').next().unwrap_or(value)))
+fn date(value: Option<&String>) -> Option<&str> {
+    present(value).map(|v| v.split('T').next().unwrap_or(v))
 }
-fn grant(row: Row) -> Option<Grant> {
+fn grant(p: &mut Problems, row: Row) -> Option<Grant> {
     let organization = row.organization.as_ref().and_then(|org| {
         let organization = GrantOrganization {
-            name: opt(org.org_name.as_ref()),
-            city: opt(org.org_city.as_ref()),
-            state: opt(org.org_state.as_ref()),
-            country: opt(org.org_country.as_ref()),
+            name: p.text("organization.org_name", present(org.org_name.as_ref())),
+            city: p.text("organization.org_city", present(org.org_city.as_ref())),
+            state: p.text("organization.org_state", present(org.org_state.as_ref())),
+            country: p.text("organization.org_country", present(org.org_country.as_ref())),
         };
         (organization != GrantOrganization::default()).then_some(organization)
     });
     let institute = row.agency_ic_admin.as_ref().and_then(|ic| {
+        let abbreviation = p.checked_text(
+            "agency_ic_admin.abbreviation",
+            present(ic.abbreviation.as_ref()),
+        )?;
         Some(GrantInstitute {
-            abbreviation: opt(ic.abbreviation.as_ref())?,
-            name: opt(ic.name.as_ref()),
+            abbreviation,
+            name: p.text("agency_ic_admin.name", present(ic.name.as_ref())),
         })
     });
     let investigators = row
         .principal_investigators
         .iter()
+        .flatten()
         .filter_map(|pi| {
             Some(GrantInvestigator {
-                name: opt(pi.full_name.as_ref())?,
-                contact: pi.is_contact_pi,
+                name: p.text(
+                    "principal_investigators.full_name",
+                    present(pi.full_name.as_ref()),
+                )?,
+                contact: pi.is_contact_pi == Some(true),
                 profile_id: pi.profile_id,
             })
         })
         .collect();
+    let project = p.checked_text("project_num", present(row.project_num.as_ref()));
     Some(Grant {
-        project: opt(row.project_num.as_ref())?,
-        core_project: opt(row.core_project_num.as_ref()),
-        fiscal_year: row.fiscal_year?,
-        title: opt(row.project_title.as_ref()),
-        activity: opt(row.activity_code.as_ref()),
+        project: p.required("project_num", project)?,
+        core_project: p.checked_text("core_project_num", present(row.core_project_num.as_ref())),
+        fiscal_year: p.required("fiscal_year", row.fiscal_year)?,
+        title: p.text("project_title", present(row.project_title.as_ref())),
+        activity: p.checked_text("activity_code", present(row.activity_code.as_ref())),
         institute,
         organization,
         award_amount: row.award_amount,
-        start: date(row.project_start_date.as_ref()),
-        end: date(row.project_end_date.as_ref()),
+        start: p.checked_text("project_start_date", date(row.project_start_date.as_ref())),
+        end: p.checked_text("project_end_date", date(row.project_end_date.as_ref())),
         investigators,
-        url: opt(row.project_detail_url.as_ref()),
+        url: p.checked_text("project_detail_url", present(row.project_detail_url.as_ref())),
     })
 }
