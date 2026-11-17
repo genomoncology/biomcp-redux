@@ -10,6 +10,7 @@ pub(super) fn describe(mut command: Command) -> Command {
         "variant" => "Read source variant assertions, populations and recurrence.",
         "protein" => "Read protein sequences, features and source relationships.",
         "pathway" => "Read pathway genes and source events.",
+        "gene" => "Find pathways and GO terms over-represented in a gene list.",
         "cell-line" => "Read source cell line assay counts.",
         "author" => "Read papers attributed to a source author record.",
         "sync" => "Synchronize a local source bundle.",
