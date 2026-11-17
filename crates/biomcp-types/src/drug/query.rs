@@ -27,6 +27,9 @@ biodata::canonical_enum! {
         Interactions => "interactions",
         /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
         Markets => "markets",
+        /// Essential Medicines List listings from the eEML: core or complementary, section, indication,
+        /// date added, therapeutic alternatives and Expert Committee text; five per default page.
+        EssentialMedicines => "essential-medicines",
     }
 }
 /// Retrieve a native ID or a complete source name.
@@ -196,6 +199,17 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
             || fields.section.as_ref() != [DrugSection::Interactions])
     {
         return Err(QueryInvalid::new(&["partner", "source", "section"]));
+    }
+    // The WHO eEML answers only its own section, which a who-eml get reads with or without the word.
+    let eml = fields.section.contains(&DrugSection::EssentialMedicines);
+    if (fields.source == Some(DrugSource::WhoEml)
+        && !matches!(
+            fields.section.as_ref(),
+            [] | [DrugSection::EssentialMedicines]
+        ))
+        || (eml && fields.source != Some(DrugSource::WhoEml))
+    {
+        return Err(QueryInvalid::new(&["source", "section"]));
     }
     if fields.source == Some(DrugSource::FdaDrugRecall) && !fields.section.is_empty() {
         return Err(QueryInvalid::new(&["source", "section"]));

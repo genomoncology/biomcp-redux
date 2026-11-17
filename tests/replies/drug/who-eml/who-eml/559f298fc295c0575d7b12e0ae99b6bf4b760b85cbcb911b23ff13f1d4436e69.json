@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/medicines/565",
+  "exchanges": [
+    {
+      "fetched": 1794893125,
+      "status": 200,
+      "content_type": "application/ld+json",
+      "delay_ms": 213,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"@context":["http://schema.org/docs/jsonldcontext.json","https://list.essentialmeds.org/contexts/v1.jsonld"],"@id":"/medicines/565","@type":["Drug","Medicine"],"name":"pembrolizumab","nonProprietaryName":"pembrolizumab","description":"<div data-contents=\"true\"><div class=\"\" data-block=\"true\" data-editor=\"dda7b\" data-offset-key=\"egga8-0-0\"><div data-offset-key=\"egga8-0-0\" class=\"public-DraftStyleDefault-block public-DraftStyleDefault-ltr\"><span data-offset-key=\"egga8-0-0\"><br data-text=\"true\"></span></div></div></div>","sameAs":"http://en.wikipedia.org/wiki/Pembrolizumab","activeIngredient":["pembrolizumab"],"ingredient":[{"@type":"Substance","name":"pembrolizumab","sameAs":"http://www.drugbank.ca/drugs/DB09037"}],"drugUnit":["Parenteral > General injections > IV: 25 mg per  mL in 4 mL vial powder for injection","Parenteral > General injections > IV: 25 mg per  mL in 4 mL vial","Parenteral > General injections > IV: 25 mg per  mL in 4 mL vial concentrate for solution for infusion"],"guideline":[{"@id":"/recommendations/1182"},{"@id":"/recommendations/1490"},{"@id":"/recommendations/1491"},{"@id":"/recommendations/1492"},{"@id":"/recommendations/1549"},{"@id":"/recommendations/1550"},{"@id":"/recommendations/1551"},{"@id":"/recommendations/1552"},{"@id":"/recommendations/1553"},{"@id":"/recommendations/1554"},{"@id":"/recommendations/1561"},{"@id":"/recommendations/1562"},{"@id":"/recommendations/1563"}],"equivalentFor":[{"@id":"/recommendations/1157"}],"status":"AddedToEml","antibioticStewardshipGroup":[]}
+      }
+    }
+  ]
+}

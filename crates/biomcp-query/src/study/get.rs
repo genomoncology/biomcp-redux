@@ -1,5 +1,6 @@
 //! Stored cards and independently acquired bounded metadata sections.
 use biomcp_types::ReplyBody;
+mod copy_number;
 mod files;
 mod rows;
 use super::{empty, finish};
@@ -22,6 +23,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
         Some(StudySection::Mutations) => biomcp_types::StudyMutations::into_reply(q.clone(), None),
         Some(StudySection::Samples) => biomcp_types::StudySamples::into_reply(q.clone(), None),
         Some(StudySection::Files) => biomcp_types::StudyFiles::into_reply(q.clone(), None),
+        Some(StudySection::Cna) => biomcp_types::StudyCopyNumber::into_reply(q.clone(), None),
         _ => biomcp_types::StudyCard::into_reply(q.clone(), None),
     });
     if super::blocked(cx, q.id().as_str(), &mut out) {
@@ -60,6 +62,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
     sections(cx, q, deadline, &mut out);
     files::section(cx, q, deadline, &mut out);
     rows::section(cx, q, deadline, &mut out);
+    copy_number::section(cx, q, deadline, &mut out);
     command.finish(deadline.remaining());
     out
 }

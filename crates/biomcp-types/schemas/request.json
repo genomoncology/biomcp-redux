@@ -492,7 +492,8 @@
         "approvals",
         "regulatory",
         "interactions",
-        "markets"
+        "markets",
+        "essential-medicines"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -504,7 +505,8 @@
         " Native application and product history rows.",
         " Source-scoped regulator events.",
         " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
-        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.",
+        " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
       ]
     },
     "DrugSource": {
@@ -519,7 +521,8 @@
         "openfda-label",
         "drugsfda",
         "ema",
-        "ddinter"
+        "ddinter",
+        "who-eml"
       ],
       "type": "string"
     },
@@ -972,12 +975,13 @@
       "type": "string"
     },
     "StudySection": {
-      "description": "Supported bounded study metadata sections; gene counts are deferred.",
+      "description": "Supported bounded study metadata sections.",
       "enum": [
         "profiles",
         "sample-lists",
         "mutations",
         "samples",
+        "cna",
         "files",
         "all"
       ],
@@ -987,6 +991,7 @@
         " Five sample-list metadata records, without member sample IDs.",
         " Source mutation rows for the required gene and selected mutation profile.",
         " Source sample identities and types only.",
+        " cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.",
         " Five repository file references; no automatic download.",
         " Bounded first pages; mutations are included only when gene is supplied."
       ]
@@ -2618,7 +2623,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations."
+          "description": "Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna."
         },
         "id": {
           "$ref": "#/$defs/StudyId",
@@ -2634,7 +2639,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact mutation profile ID; omitted selects the study's first mutation profile."
+          "description": "Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind."
         },
         "section": {
           "anyOf": [

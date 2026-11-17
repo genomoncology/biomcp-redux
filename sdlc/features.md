@@ -67,6 +67,7 @@ disease-ols: Discover source-ordered ontology candidates, read exact OLS facts a
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
 disease-seer: Find native SEER sites by name or code, report all required selectors together, and page labeled incidence or annual survival within the source deadline.
 disease-orphadata: A caller reads Orphanet prevalence estimates, age of onset and inheritance for an Orphanet code, or for a MONDO or DOID concept through its stated Orphanet links, from a synchronized local copy of Orphadata's files; a concept without an Orphanet link says so.
+drug-who-eml: One drug name gives its WHO Model List of Essential Medicines listings read live from the WHO eEML, one per indication with core or complementary list, section, date added, Committee decisions, therapeutic alternatives and the Committee's recommendation text; a drug listed only as an alternative shows the listed medicine's listings.
 drug-ddinter: Explicit synchronization replaces all eight native pair files atomically, and stored-only search and interaction pages retain native identity, level, order, provenance and content revision.
 disease-monarch: Read native gene and phenotype association rows with their endpoints, evidence, provenance and component terms, without causal inference.
 drug-next-steps: Follow source-stated variant, build and tumor context from drug claims to keyed variant annotation, with explicit missing context and no drug-name inference.
@@ -97,6 +98,7 @@ saved-work: A caller saves searches by name and keeps lists of record IDs on the
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order.
 study-get: Exact stored study cards expose bounded independent profile and sample-list metadata.
 study-rows: Read gene-filtered native mutation observations and sample ID/type rows with bounded pages, totals and the selected mutation profile.
+study-copy-number: Read cBioPortal's own amplification and deep-deletion sample counts for one gene in a study's discrete copy-number profile.
 gwas-search: Search publication studies with source traits, sample descriptions and association counts, or source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities.
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging.

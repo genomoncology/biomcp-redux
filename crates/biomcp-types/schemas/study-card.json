@@ -844,6 +844,7 @@
         " Drugs@FDA application records.",
         " European Medicines Agency.",
         " WHO finished pharmaceutical products.",
+        " WHO Model List of Essential Medicines, from the WHO eEML.",
         " DDInter interaction records.",
         " MyChem DrugBank Open identity subset only.",
         " MyChem DrugCentral component.",
@@ -920,6 +921,7 @@
         "drugsfda",
         "ema",
         "who-pq",
+        "who-eml",
         "ddinter",
         "drugbank-open",
         "drugcentral",
@@ -1654,7 +1656,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations."
+          "description": "Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna."
         },
         "id": {
           "$ref": "#/$defs/Reply_StudyId",
@@ -1670,7 +1672,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact mutation profile ID; omitted selects the study's first mutation profile."
+          "description": "Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind."
         },
         "section": {
           "anyOf": [
@@ -2245,12 +2247,13 @@
       "type": "object"
     },
     "Reply_StudySection": {
-      "description": "Supported bounded study metadata sections; gene counts are deferred.",
+      "description": "Supported bounded study metadata sections.",
       "enum": [
         "profiles",
         "sample-lists",
         "mutations",
         "samples",
+        "cna",
         "files",
         "all"
       ],
@@ -2260,6 +2263,7 @@
         " Five sample-list metadata records, without member sample IDs.",
         " Source mutation rows for the required gene and selected mutation profile.",
         " Source sample identities and types only.",
+        " cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.",
         " Five repository file references; no automatic download.",
         " Bounded first pages; mutations are included only when gene is supplied."
       ]

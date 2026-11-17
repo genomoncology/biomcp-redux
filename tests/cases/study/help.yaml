@@ -35,7 +35,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 2757
+          "max_bytes": 3013
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -58,12 +58,13 @@
           "sample-lists",
           "mutations",
           "samples",
+          "cna",
           "files",
           "all"
         ],
         "/status": "complete"
       },
-      "max_bytes": 2757,
+      "max_bytes": 3013,
       "run": [
         "help",
         "get",

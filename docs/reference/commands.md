@@ -1535,7 +1535,7 @@ Options:
 
 ```
 
-Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -2765,13 +2765,13 @@ Options:
           [possible values: json, md]
 
       --gene <gene>
-          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
+          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --molecular-profile <molecular_profile>
-          Exact mutation profile ID; omitted selects the study's first mutation profile.
+          Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind.
 
       --section-limit <section_limit>
           Maximum records in each selected section.
@@ -2803,10 +2803,10 @@ Get cancer genomics study details. Sources: cbioportal.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
-- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations. Value form: string; example: --gene BRAF.
+- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna. Value form: string; example: --gene BRAF.
 - `id`: Exact source study ID; no default or repair.
 Form: get study ID SECTION; not --id.
-- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
+- `--molecular-profile`: Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
 - `section`: Omit for the card; all returns bounded first pages only… (full rule with the sections).
 Form: get study ID SECTION; not --section.
 - `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 2.
@@ -2818,6 +2818,7 @@ Omit for the card; all returns bounded first pages only.
 - `sample-lists`: Five sample-list metadata records, without member sample IDs.
 - `mutations`: Source mutation rows for the required gene and selected mutation profile.
 - `samples`: Source sample identities and types only.
+- `cna`: cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.
 - `files`: Five repository file references; no automatic download.
 - `all`: Bounded first pages; mutations are included only when gene is supplied.
 
@@ -3317,7 +3318,7 @@ Options:
 
 ```
 
-Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -3373,6 +3374,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `regulatory`: Source-scoped regulator events.
 - `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.
 - `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
+- `essential-medicines`: Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page.
 
 ## biomcp get gene
 

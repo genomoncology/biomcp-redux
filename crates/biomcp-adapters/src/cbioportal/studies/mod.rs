@@ -163,7 +163,11 @@ pub fn snapshot(info: &BundleInfo) -> Result<StudySnapshot, RequestError> {
 }
 
 mod rows;
-pub use rows::{mutation_profiles, mutations, samples};
+pub use rows::{mutations, samples};
+mod profiles;
+pub use profiles::{copy_number_profiles, mutation_profiles};
+mod copy_number;
+pub use copy_number::copy_number;
 mod sections;
 pub use sections::{Records, profiles, sample_lists};
 mod files;

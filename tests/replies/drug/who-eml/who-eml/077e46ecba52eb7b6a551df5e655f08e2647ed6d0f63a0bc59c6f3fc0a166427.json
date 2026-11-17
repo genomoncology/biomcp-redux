@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=pembrolizumab",
+  "exchanges": [
+    {
+      "fetched": 1794893124,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 314,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "077e46ecba52eb7b6a551df5e655f08e2647ed6d0f63a0bc59c6f3fc0a166427-0.bin"
+      }
+    }
+  ]
+}
