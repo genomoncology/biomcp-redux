@@ -2007,7 +2007,12 @@ Options:
 
       --sponsor <sponsor>
           Sponsor.
-          ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category.
+          ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding.
+
+      --sponsor-role <sponsor_role>
+          Sponsor role; help search trial
+          Sponsor role.
+          ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor.
 
       --sponsor-type <sponsor_type>
           Funding class; help search trial
@@ -2094,7 +2099,9 @@ Form: search trial QUERY; not --query.
 - `--source`: clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 - `--sponsor`: Sponsor.
-ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string; example: --sponsor 'MD Anderson'.
+ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding. Value form: string; example: --sponsor 'MD Anderson'.
+- `--sponsor-role`: Sponsor role.
+ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor. Value form: string; example: --sponsor-role any.
 - `--sponsor-type`: Funding class.
 ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string; example: --sponsor-type other.
 - `--status`: Source status.

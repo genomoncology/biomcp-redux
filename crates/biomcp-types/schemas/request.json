@@ -5120,11 +5120,11 @@
         },
         "sponsor": {
           "$ref": "#/$defs/Text",
-          "description": "Sponsor.\nClinicalTrials.gov only: lead sponsor name, or any role with --sponsor-role any; broadens after zero exact matches. Use --sponsor-type for the funding category."
+          "description": "Sponsor.\nClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding."
         },
         "sponsor_role": {
           "$ref": "#/$defs/SponsorRole",
-          "description": "Sponsor role.\nClinicalTrials.gov only: lead (default) matches the lead sponsor; any also matches collaborators. Needs --sponsor."
+          "description": "Sponsor role.\nClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor."
         },
         "sponsor_type": {
           "$ref": "#/$defs/SponsorType",
