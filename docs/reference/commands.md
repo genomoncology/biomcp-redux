@@ -400,7 +400,7 @@ Arguments:
 
 Options:
       --disease <disease>
-          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma).
+          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -458,7 +458,7 @@ Options:
 Search cell lines by name or identifier. Sources: cellosaurus.
 Options apply to every listed source unless their description restricts them.
 
-- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma). Value form: string; example: --disease Melanoma.
+- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases. Value form: string; example: --disease Melanoma.
 - `--exclude-derived`: Leave out lines derived from a parent line; needs another search term. Value form: boolean; example: --exclude-derived.
 - `--gene`: Cellosaurus variation gene, as the source writes it (for example KRAS). Value form: string; example: --gene KRAS.
 - `--limit`: Source page size. Value form: integer; example: --limit 25.

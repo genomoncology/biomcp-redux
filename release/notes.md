@@ -118,6 +118,7 @@ Other commands:
 - `search gwas --p-value` leaves out `qualifying_total`, and is not `complete`, when an association cannot be compared with the threshold.
 - `variant recurrence` fails, with no counts, when `--sample-set` is unknown or belongs to another study or list.
 - `search cell-line` reports Cellosaurus's own match count as its total.
+- `search cell-line --disease` says that Cellosaurus matches a disease name as a phrase and adds no narrower NCIt diseases, so a subtype such as Pancreatic ductal adenocarcinoma is its own search.
 - `biomcp health` honours `command_timeout_seconds` and each source's deadline instead of a 3-second cap.
 - `help questions` lists every command by the question it answers, and `help examples` gives one worked call per use case in CLI and typed form. The MCP `help` tool takes the same words.
 
