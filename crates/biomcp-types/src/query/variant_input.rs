@@ -393,7 +393,7 @@ impl schemars::JsonSchema for GetLookupInput {
     }
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let mut schema = LookupInput::json_schema(generator);
-        if let Some(pattern) = schema.get("pattern").and_then(serde_json::Value::as_str) {
+        if let Some(pattern) = schema.get("pattern").and_then(|value| value.as_str()) {
             let gene = crate::GeneSymbol::pattern();
             let protein = super::ProteinQuery::pattern();
             let shorthand = format!(
