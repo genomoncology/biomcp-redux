@@ -72,6 +72,32 @@ def internal_names(root):
                 raise ValueError(f"{name}:{number}: internal machine name or workspace path in a public file")
 
 
+# An NCIt code given as an example names its concept beside it on the same line, because an agent
+# took C3224, melanoma, for pancreatic cancer (1007). The names are the ones the recorded source
+# replies and planning slices give: C3224 in sdlc/planning/slices/disease.md, C96022 in
+# tests/cases/biomarker/code.yaml.
+NCIT_EXAMPLES = {"C3224": "melanoma", "C96022": "CD274 Gene"}
+NCIT_CODE = re.compile(r"(?<![\w:])(?:NCIT:)?(C[0-9]{4,})\b")
+
+
+def ncit_examples(root):
+    for name in public_files(root):
+        if not (name.startswith(("docs/", "skills/", "crates/biomcp-types/schemas/"))
+                or name in ("README.md", "release/notes.md")
+                or (name.startswith("crates/") and "/src/" in name and name.endswith(".rs"))):
+            continue
+        try:
+            text = (root / name).read_text()
+        except (UnicodeDecodeError, OSError):
+            continue
+        for number, line in enumerate(text.splitlines(), 1):
+            for code in NCIT_CODE.findall(line):
+                concept = NCIT_EXAMPLES.get(code)
+                if concept is None or f"{code} ({concept}".lower() not in line.lower():
+                    raise ValueError(f"{name}:{number}: NCIt example {code} must name its concept beside it, "
+                                     f"such as C3224 (melanoma); add a new code to NCIT_EXAMPLES")
+
+
 # MCP tools through 0.9 and the 1.0 candidates, before the entity tools. Each name appears in public text
 # only inside the release notes' mapping table, which tells 0.x and hosted users where it went.
 RETIRED_TOOLS = set("""
@@ -271,6 +297,7 @@ def commercial_setup(root):
 def check(root, executable=None):
     architecture(root)
     internal_names(root)
+    ncit_examples(root)
     retired(root)
     example_calls(root)
     if executable:
@@ -343,5 +370,5 @@ if __name__ == "__main__":
         print(str(error), file=sys.stderr)
         sys.exit(1)
     print("Architecture check files, retired tool names, example calls, README examples, the parity ledger, "
-          "upgrade commands, feature line format and desktop manifest tools hold; public files name no internal "
+          "upgrade commands, feature line format, named NCIt examples and desktop manifest tools hold; public files name no internal "
           "machine or workspace path")

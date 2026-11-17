@@ -74,6 +74,7 @@ Adverse events:
 
 - FAERS cards label the age unit and every seriousness flag beside its code, and `unmapped_codes` names a code missing from openFDA's published list. Search rows and the `drugs`, `reactions` and identifier sections carry `serious_label`. `case_event_date` holds the case event date; openFDA's public FAERS data has no case narrative.
 - `--aggregate received-year` or `received-month`, with `--received-from` and `--received-to`, counts FAERS or MAUDE reports by FDA receipt period.
+- FAERS replies say that all names, typed or found, go in one query, so a report naming several counts once, and a `--serious death` count with `--reaction` says it counts reports flagged death that list the reaction, not deaths caused by it.
 - MAUDE takes `--event-type` (malfunction, injury, death or other). Reports with no event type fall outside every event-type count.
 - VAERS takes `--sort reports` to order the whole table largest first. VAERS tables get a 60-second budget, and a rate-limited table is tried once more before the reply says when to retry.
 
@@ -83,6 +84,7 @@ Trials:
 - `get trial ID flow` and `get trial ID baseline` return participant flow and baseline characteristics without the posted outcomes.
 - `results` pages hold up to 40,000 bytes of whole posted records, so a trial's outcome measures usually come in one call instead of one record a page.
 - `locations` pages hold up to 100 sites, state the site total and offer the next page. Search rows carry `has_results`. A batched trial get names each trial it could not read, and each failed item's `failure` gives the source, the reason and the problem in plain words. A batch of up to 20 trials gets one ClinicalTrials.gov pacing interval per trial after the first (19 seconds at the default pacing, at most 60), so a cold batch no longer runs out of time partway.
+- Help, schemas and the NCI disease refusal name the concept beside each example NCIt code, such as C3224 (melanoma), so an example is not mistaken for another disease.
 - `search trial --fields` refuses a field the source's rows lack and names that source's fields.
 - A ClinicalTrials.gov continuation is tied to its offset, filters and matching mode. Changing any of them is refused before the registry is asked, with a fresh first page offered, and a registry rejection of `--next-page` says so.
 
@@ -116,6 +118,8 @@ Other commands:
 ## Agent skill
 
 `biomcp skill install` and the Claude plugin now ship only `SKILL.md`. The worked examples stay in the binary: read them with `biomcp skill list` and `biomcp skill NAME`.
+
+The skill now says where data often assumed missing lives: FDA 510(k), PMA and device recalls under `search diagnostic`, SEER incidence and survival under `disease --source seer`, an author's papers with `search article --author`, a citing paper's own paragraph with `citation-evidence --fulltext`, CPIC gene-drug pairs with `search pgx`, and any label section with `--label-section`.
 
 ## Hosted use and source terms
 
