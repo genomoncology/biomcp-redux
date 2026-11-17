@@ -397,7 +397,8 @@ impl schemars::JsonSchema for GetLookupInput {
             let gene = crate::GeneSymbol::pattern();
             let protein = super::protein_change::protein_pattern(false);
             let shorthand = format!(
-                "^ *{} +{} *$",
+                r"^(?=[ -~]{{1,{}}}$) *{} +{} *$",
+                VariantInput::MAX_BYTES,
                 gene.trim_start_matches('^').trim_end_matches('$'),
                 protein.trim_start_matches('^').trim_end_matches('$')
             );

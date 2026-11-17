@@ -1,0 +1,202 @@
+{
+  "feature": "variant-identity",
+  "live_check": "synthetic projection of native identity facts",
+  "replay": "variant/search/shorthand",
+  "story": "A checked get keeps the established card and actual candidates, with source-native absence and failures kept distinct.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V600E"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-card/16",
+        "/status": "complete",
+        "/query/input": "BRAF V600E",
+        "/result/resolution": "resolved",
+        "/result/candidates/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF",
+        "V600E"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-card/16",
+        "/status": "complete",
+        "/query/input": "BRAF V600E",
+        "/result/resolution": "resolved",
+        "/result/candidates/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF V600E"
+          }
+        }
+      },
+      "expect": {
+        "/schema": "biomcp.variant-card/16",
+        "/status": "complete",
+        "/query/input": "BRAF V600E",
+        "/result/resolution": "resolved",
+        "/result/candidates/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "BRAF V600E"
+          }
+        }
+      },
+      "expect": {
+        "/schema": "biomcp.variant-card/16",
+        "/status": "complete",
+        "/query/input": "BRAF V600E",
+        "/result/resolution": "resolved",
+        "/result/candidates/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "TP53 R249S"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-card/16",
+        "/status": "complete",
+        "/query/input": "TP53 R249S",
+        "/result/resolution": "candidates",
+        "/page/total": 2,
+        "/result/candidates/*/record/id": {
+          "equals": [
+            "chr17:g.7577534C>A",
+            "chr17:g.7577534C>G"
+          ]
+        },
+        "/next/0/kind": "disambiguate",
+        "/next/0/args": {
+          "includes": "chr17:g.7577534C>A"
+        },
+        "/next/1/args": {
+          "includes": "chr17:g.7577534C>G"
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "TP53 R249S",
+        "--limit",
+        "1",
+        "--section",
+        "clinvar"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-card/16",
+        "/status": "partial",
+        "/result/resolution": "candidates",
+        "/page/total": 2,
+        "/page/returned": 1,
+        "/result/candidates": {
+          "count": 1
+        },
+        "/next/0/args": {
+          "includes": [
+            "chr17:g.7577534C>A",
+            "clinvar"
+          ]
+        },
+        "/next/1/kind": "page"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "TP53 R249S",
+        "--limit",
+        "1",
+        "--offset",
+        "1"
+      ],
+      "expect": {
+        "/result/resolution": "candidates",
+        "/page/total": 2,
+        "/result/candidates/0/record/id": "chr17:g.7577534C>G"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V9999E"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/result/resolution": "absent",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V9998E"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/result/resolution": "unavailable",
+        "/sources/0/state": "failed"
+      },
+      "exit": 4,
+      "is_error": true
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V600E",
+        "--resolver",
+        "mutalyzer"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.arguments"
+      },
+      "exit": 2,
+      "is_error": true
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V600="
+      ],
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.arguments"
+      },
+      "exit": 2,
+      "is_error": true
+    }
+  ]
+}

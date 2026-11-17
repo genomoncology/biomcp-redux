@@ -83,7 +83,7 @@ pub(super) fn get<'a>(
             {
                 merge_sources(&mut exact.sources, out.sources);
                 status::append(&mut exact.problems, out.problems);
-                exact.body = super::reply(query, *card, &exact.sources);
+                exact.body = super::reply(query, card, &exact.sources);
                 return exact;
             }
             out.local = out.local.or(exact.local);

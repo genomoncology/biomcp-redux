@@ -1,0 +1,201 @@
+{
+  "feature": "variant-search",
+  "live_check": "synthetic projection of native identity facts",
+  "replay": "variant/search/shorthand",
+  "story": "Quoted, unquoted, explicit and MCP protein selectors return the same checked BRAF candidate, while explicit raw queries stay raw.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "variant",
+        "BRAF V600E"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-page/17",
+        "/status": "complete",
+        "/query/gene": "BRAF",
+        "/query/protein": "V600E",
+        "/page/total": 1,
+        "/result/items/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "BRAF",
+        "V600E"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-page/17",
+        "/status": "complete",
+        "/query/gene": "BRAF",
+        "/query/protein": "V600E",
+        "/page/total": 1,
+        "/result/items/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BRAF",
+        "--protein",
+        "V600E"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-page/17",
+        "/status": "complete",
+        "/query/gene": "BRAF",
+        "/query/protein": "V600E",
+        "/page/total": 1,
+        "/result/items/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "BRAF V600E"
+          }
+        }
+      },
+      "expect": {
+        "/schema": "biomcp.variant-page/17",
+        "/status": "complete",
+        "/query/gene": "BRAF",
+        "/query/protein": "V600E",
+        "/page/total": 1,
+        "/result/items/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "biomcp",
+        "arguments": {
+          "args": [
+            "search",
+            "variant",
+            "BRAF",
+            "V600E"
+          ]
+        }
+      },
+      "expect": {
+        "/schema": "biomcp.variant-page/17",
+        "/status": "complete",
+        "/query/gene": "BRAF",
+        "/query/protein": "V600E",
+        "/page/total": 1,
+        "/result/items/0/record/id": "chr7:g.140453136A>T"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "BRAF V600E",
+        "--source",
+        "myvariant"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-page/17",
+        "/status": "complete",
+        "/query/query": "BRAF V600E",
+        "/query/source": "myvariant",
+        "/page/total": 0,
+        "/result/source_query": "BRAF V600E"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "BRAF V600E",
+        "--source",
+        "myvariant"
+      ],
+      "expect": {
+        "/schema": "biomcp.variant-page/17",
+        "/status": "complete",
+        "/query/query": "BRAF V600E",
+        "/query/source": "myvariant",
+        "/page/total": 0,
+        "/result/source_query": "BRAF V600E"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "BRAF V600E",
+            "source": "myvariant"
+          }
+        }
+      },
+      "expect": {
+        "/schema": "biomcp.variant-page/17",
+        "/status": "complete",
+        "/query/query": "BRAF V600E",
+        "/query/source": "myvariant",
+        "/page/total": 0,
+        "/result/source_query": "BRAF V600E"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "BRAF V600E",
+        "--gene",
+        "TP53"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.arguments"
+      },
+      "exit": 2,
+      "is_error": true
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "BRAF V600E",
+        "--coding",
+        "c.1799T>A"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.arguments"
+      },
+      "exit": 2,
+      "is_error": true
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "BRAF V600bogus"
+      ],
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.arguments"
+      },
+      "exit": 2,
+      "is_error": true
+    }
+  ]
+}
