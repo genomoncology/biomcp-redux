@@ -208,7 +208,7 @@
         " Source-scoped regulator events.",
         " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
         " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.",
-        " WHO Model List of Essential Medicines listings from the WHO eEML: core or complementary list, EML section, indication, the edition each listing was added, Expert Committee decisions, therapeutic alternatives and the Committee's recommendation text. A drug listed only as another medicine's therapeutic alternative shows that medicine's listings with `alternative_to`. Five listings per default page."
+        " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
       ],
       "x-extensible-enum": [
         "xrefs",

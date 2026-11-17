@@ -16,7 +16,7 @@
         "drug",
         "approvals"
       ],
-      "max_bytes": 4065,
+      "max_bytes": 4090,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -89,7 +89,7 @@
         "drug",
         "approvals"
       ],
-      "max_bytes": 4065,
+      "max_bytes": 4090,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",

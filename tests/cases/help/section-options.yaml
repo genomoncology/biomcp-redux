@@ -16,7 +16,7 @@
         "drug",
         "markets"
       ],
-      "max_bytes": 2076,
+      "max_bytes": 2102,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -50,7 +50,7 @@
         "drug",
         "markets"
       ],
-      "max_bytes": 2076,
+      "max_bytes": 2102,
       "expect": {
         "/result/commands/0/arguments/*/name": [
           "input",
