@@ -118,6 +118,7 @@ study-failures: Synthetic catalog and study section faults fail explicitly and p
 protein-sections: A caller reads native protein features, alternative products, references, complete sequences and qualified function text without transferring coordinates.
 protein-chembl: A protein card's chembl section maps the UniProt accession to its ChEMBL single-protein target and gives ChEMBL's own assay and activity totals for it.
 protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership.
+protein-string: A protein card's interactions section lists STRING's partners at medium confidence or above, strongest first, with each combined score and its nonzero evidence channels, and counts every listed partner in `total`.
 pathway-help: Discover every pathway source, selector, section and paging option through generated help and parsed case examples.
 protein-docs-accounting: Discover every protein command, native section and selector through generated help and parsed CLI/MCP examples.
 cell-line-identity: A caller searches Cellosaurus headers by literal text, native species or NCIt disease, and retrieves exact accession or verified source-qualified cell identities.

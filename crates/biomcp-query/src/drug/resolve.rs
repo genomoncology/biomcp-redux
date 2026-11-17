@@ -286,7 +286,7 @@ fn native_pages(
         }
     }
     out.local = error.and_then(status::local);
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     out.sources
         .push(status::source(query.source().source(), leg.finish(), error));
     status::search(&mut out);

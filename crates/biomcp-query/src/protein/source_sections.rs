@@ -4,7 +4,7 @@ use super::{
     source_relations::{self, Selection},
 };
 use crate::{Ctx, Outcome, status};
-use biomcp_adapters::chembl;
+use biomcp_adapters::{chembl, string_db};
 use biomcp_fetch::{Deadline, SourceError};
 use biomcp_types::{
     ProteinCardItem, ProteinDomainsQuery, ProteinGet, ProteinRelationQuery, ProteinSection,
@@ -23,7 +23,10 @@ pub(super) fn supplement(
             .iter()
             .copied()
             .filter(|s| match s {
-                ProteinSection::Domains | ProteinSection::Complexes | ProteinSection::Chembl => {
+                ProteinSection::Domains
+                | ProteinSection::Complexes
+                | ProteinSection::Interactions
+                | ProteinSection::Chembl => {
                     s.source().is_none_or(|source| !cx.fetch.disabled(source))
                 }
                 _ => true,
@@ -46,6 +49,9 @@ pub(super) fn supplement(
         }
         for selection in selections {
             apply(item, out, page(cx, &selection, deadline));
+        }
+        if wants(q, ProteinSection::Interactions) {
+            interactions(cx, q, item, out, deadline);
         }
         if wants(q, ProteinSection::Chembl) {
             targets(cx, q, item, out, deadline);
@@ -99,6 +105,60 @@ fn targets(
     };
     if let Some(sections) = &mut item.sections {
         sections.chembl = Some(section);
+    }
+}
+/// Read STRING's whole partner list once; the card keeps its total and the strongest rows.
+fn interactions(
+    cx: &Ctx<'_>,
+    q: &ProteinGet,
+    item: &mut ProteinCardItem,
+    out: &mut Outcome,
+    deadline: Deadline<'_>,
+) {
+    let Some(header) = &item.header else {
+        return;
+    };
+    let id = header.protein.accession.clone();
+    let leg = cx.fetch.leg(&string_db::SPEC, deadline).fresh(cx.fresh);
+    let result = if cx.fetch.disabled(Source::StringDb) {
+        Err(SourceError::disabled(Source::StringDb).into())
+    } else {
+        string_db::partners(&leg, &id)
+    };
+    let error = result.as_ref().err().copied();
+    out.sources
+        .push(status::source(Source::StringDb, leg.finish(), error));
+    let section = match result {
+        Ok(Some(mut data)) => {
+            data.items = data
+                .items
+                .into_vec()
+                .into_iter()
+                .take(q.section_limit() as usize)
+                .collect();
+            Section::Data {
+                source: Source::StringDb,
+                data,
+            }
+        }
+        Ok(None) => Section::Empty {
+            source: Source::StringDb,
+            record: biomcp_types::SourceRecord::asked(Some("UniProt"), &id),
+        },
+        Err(e) => {
+            super::reply_problem(out, Source::StringDb, &id, e);
+            let reason = status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable);
+            if !matches!(
+                reason,
+                biomcp_types::Reason::Disabled | biomcp_types::Reason::NoKey
+            ) {
+                item.status = crate::status::item_status(true, false, true);
+            }
+            Section::unavailable(Source::StringDb, reason)
+        }
+    };
+    if let Some(sections) = &mut item.sections {
+        sections.interactions = Some(section);
     }
 }
 fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {

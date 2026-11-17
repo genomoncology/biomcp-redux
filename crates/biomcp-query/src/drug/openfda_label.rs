@@ -62,7 +62,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     });
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
     let sent = super::widen::retain(
@@ -126,7 +126,7 @@ pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let result = source::get(&leg, &id);
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    let remaining = leg.remaining();
+    let remaining = leg.command_remaining();
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
     if let Ok(page) = result {

@@ -2571,7 +2571,7 @@ Options:
 
 ```
 
-Get protein details and source annotations. Sources: chembl, complex-portal, hgnc, interpro, uniprot.
+Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, string-db, uniprot.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -2586,7 +2586,7 @@ Select source sections or all bounded first pages; function keeps one whole text
 - `domains`: Source InterPro entry matches.
 - `isoforms`: Source alternative products.
 - `complexes`: Exact participant-admitted complex headers.
-- `chembl`: ChEMBL single-protein target with its assay and activity totals.
+- `interactions`: STRING interaction partners with combined and channel scores.
 - `structures`: Source structure cross-reference links.
 - `function`: One whole source function text record with all source paragraphs.
 - `sequence`: Direct exact-identity sequence and audit metadata.

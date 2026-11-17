@@ -59,6 +59,7 @@
             "domains",
             "isoforms",
             "complexes",
+            "interactions",
             "chembl",
             "structures",
             "function",

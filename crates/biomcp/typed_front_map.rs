@@ -178,7 +178,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     (
         "protein",
         "Proteins by accession or gene symbol: function, sequence, domains, features, \
-         isoforms, structures, complexes and ChEMBL assay counts",
+         isoforms, structures, complexes, STRING interaction partners and ChEMBL assay counts",
         &[
             ("search", "search_protein", ""),
             ("get", "get_protein", ""),

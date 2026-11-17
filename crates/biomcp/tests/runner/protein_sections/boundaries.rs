@@ -1,11 +1,17 @@
 use super::{Environment, Stub, Value, call, entry, json, setup};
 pub(super) fn features() -> Result<(), String> {
     let stub = Stub::for_sources(
-        &["rest.uniprot.org", "www.ebi.ac.uk"],
+        &[
+            "rest.uniprot.org",
+            "www.ebi.ac.uk",
+            "version-12-5.string-db.org",
+        ],
         |_| "application/json",
         |request| {
             if request.contains("/interpro/") {
                 Ok(json!({"count":0,"next":null,"results":[]}).to_string())
+            } else if request.contains("/interaction_partners") {
+                Ok("[]".to_owned())
             } else if request.contains("/chembl/") {
                 Ok(json!({"page_meta":{"limit":5,"offset":0,"total_count":0,"next":null,"previous":null},"targets":[]}).to_string())
             } else if request.contains("/complex-ws/") {
@@ -33,8 +39,8 @@ pub(super) fn features() -> Result<(), String> {
     section_context(&env)?;
     retained_relations(&env)?;
     usage(&env)?;
-    // UniProt, InterPro, Complex Portal and ChEMBL, once each.
-    if stub.finish()?.len() != 4 {
+    // UniProt, InterPro, Complex Portal, STRING and ChEMBL, once each.
+    if stub.finish()?.len() != 5 {
         return Err("retained entry sections repeated provider requests".into());
     }
     Ok(())

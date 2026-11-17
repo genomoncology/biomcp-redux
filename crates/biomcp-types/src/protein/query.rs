@@ -19,6 +19,8 @@ biodata::wire_enum! { described
         Isoforms => "isoforms",
         /// Exact participant-admitted complex headers.
         Complexes => "complexes",
+        /// STRING interaction partners with combined and channel scores.
+        Interactions => "interactions",
         /// ChEMBL single-protein target with its assay and activity totals.
         Chembl => "chembl",
         /// Native structure cross-reference links.
@@ -227,6 +229,7 @@ impl ProteinSection {
         match self {
             Self::Domains => Some(Source::InterPro),
             Self::Complexes => Some(Source::ComplexPortal),
+            Self::Interactions => Some(Source::StringDb),
             Self::Chembl => Some(Source::Chembl),
             Self::Features
             | Self::Isoforms

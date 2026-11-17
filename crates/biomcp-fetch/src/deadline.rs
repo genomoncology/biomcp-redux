@@ -110,6 +110,14 @@ impl<'a> Deadline<'a> {
             cancelled: self.cancelled.cloned(),
         }
     }
+    pub(crate) fn end(&self) -> Instant {
+        self.end
+    }
+    /// The same clock and cancellation, ending at `end`.
+    pub(crate) fn until(mut self, end: Instant) -> Self {
+        self.end = end;
+        self
+    }
     /// Report whether this budget advances in replay time.
     pub fn virtual_time(&self) -> bool {
         self.clock.is_some()
