@@ -12,6 +12,7 @@
         "hotspots"
       ],
       "starts_within": {
+        "/result/candidates/0/sections/hotspots/data/total": 1200,
         "/result/candidates/0/sections/hotspots/data/page/total": 1200
       },
       "expect": {
@@ -20,6 +21,7 @@
         "/result/candidates/0/sections/hotspots/data/records/0/alternates/0/count": 8,
         "/result/candidates/0/sections/hotspots/data/records/1/residue": "D594",
         "/result/candidates/0/sections/hotspots/data/records/2/residue": "G466",
+        "/result/candidates/0/sections/hotspots/data/total": 3,
         "/result/candidates/0/sections/hotspots/data/page/total": 3,
         "/result/source": "car"
       }
@@ -39,6 +41,7 @@
         "/result/candidates/0/sections/hotspots/data/records/0/alternates/0/count": 8,
         "/result/candidates/0/sections/hotspots/data/records/1/residue": "D594",
         "/result/candidates/0/sections/hotspots/data/records/2/residue": "G466",
+        "/result/candidates/0/sections/hotspots/data/total": 3,
         "/result/candidates/0/sections/hotspots/data/page/total": 3,
         "/result/source": "myvariant"
       }
