@@ -681,7 +681,7 @@
       ]
     },
     "Reply_DrugGet": {
-      "description": "A source-selected drug request echoed with a native ID after name resolution.",
+      "description": "A source-selected drug request echoed with a native ID after name resolution, otherwise with the name as given.",
       "properties": {
         "civic_cursor": {
           "anyOf": [
@@ -780,7 +780,9 @@
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "input": {
-          "$ref": "#/$defs/Reply_DrugId"
+          "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
+          "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+          "type": "string"
         },
         "label_section": {
           "anyOf": [

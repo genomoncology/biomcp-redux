@@ -2766,13 +2766,13 @@ Options:
           [possible values: json, md]
 
       --gene <gene>
-          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
+          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --molecular-profile <molecular_profile>
-          Exact mutation profile ID; omitted selects the study's first mutation profile.
+          Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind.
 
       --section-limit <section_limit>
           Maximum records in each selected section.
@@ -2804,10 +2804,10 @@ Get cancer genomics study details. Sources: cbioportal.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
-- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations. Value form: string; example: --gene BRAF.
+- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna. Value form: string; example: --gene BRAF.
 - `id`: Exact source study ID; no default or repair.
 Form: get study ID SECTION; not --id.
-- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
+- `--molecular-profile`: Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
 - `section`: Omit for the card; all returns bounded first pages only… (full rule with the sections).
 Form: get study ID SECTION; not --section.
 - `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 2.
@@ -2819,6 +2819,7 @@ Omit for the card; all returns bounded first pages only.
 - `sample-lists`: Five sample-list metadata records, without member sample IDs.
 - `mutations`: Source mutation rows for the required gene and selected mutation profile.
 - `samples`: Source sample identities and types only.
+- `cna`: cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.
 - `files`: Five repository file references; no automatic download.
 - `all`: Bounded first pages; mutations are included only when gene is supplied.
 

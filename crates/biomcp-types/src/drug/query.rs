@@ -515,12 +515,19 @@ impl schemars::JsonSchema for DrugGet {
         let mut schema = GetFields::json_schema(generator);
         schema.insert(
             "description".into(),
-            "A source-selected drug request echoed with a native ID after name resolution.".into(),
+            "A source-selected drug request echoed with a native ID after name resolution, otherwise with the name as given.".into(),
         );
+        // A name can stay in the echo, so the echo admits every input the parser admits.
+        let text = <Text as schemars::JsonSchema>::json_schema(generator);
         if let Some(properties) = schema.get_mut("properties").and_then(|p| p.as_object_mut()) {
             properties.insert(
                 "input".into(),
-                generator.subschema_for::<DrugId>().to_value(),
+                schemars::json_schema!({
+                    "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
+                    "pattern": text.get("pattern"),
+                    "type": "string",
+                })
+                .to_value(),
             );
             properties.insert(
                 "source".into(),

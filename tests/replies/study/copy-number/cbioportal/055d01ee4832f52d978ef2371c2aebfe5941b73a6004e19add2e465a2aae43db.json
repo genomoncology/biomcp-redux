@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "cbioportal",
+  "url": "https://www.cbioportal.org/api/molecular-profiles/brca_tcga_gistic/discrete-copy-number-counts/fetch",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "c6fb9ffc43ec02c617bc1fd1cd17b3db6e741eeddd6b393e62a39ea9c4c4581d"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794895173,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 98,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"molecularProfileId":"brca_tcga_gistic","entrezGeneId":2064,"alteration":2,"numberOfSamples":1080,"numberOfSamplesWithAlterationInGene":133},{"molecularProfileId":"brca_tcga_gistic","entrezGeneId":2064,"alteration":-2,"numberOfSamples":1080,"numberOfSamplesWithAlterationInGene":1}]
+      }
+    }
+  ]
+}

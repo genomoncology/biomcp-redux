@@ -1,0 +1,19 @@
+{
+  "feature": "study-copy-number",
+  "live_check": "Native public cBioPortal API replies captured unchanged on 2026-11-17 (pm job j42192); API schema https://www.cbioportal.org/api/v3/api-docs.",
+  "replay": "study/copy-number-zero",
+  "story": "cBioPortal leaves out numberOfSamplesWithAlterationInGene when no sample has the call; its per-sample discrete copy-number rows for SRY in brca_tcga_gistic were empty on the same day, so the cna section reports 0, not a missing count.",
+  "steps": [
+    {
+      "run": ["get", "study", "brca_tcga", "cna", "--gene", "SRY"],
+      "expect": {
+        "/status": "complete",
+        "/result/entrez_gene_id": "6736",
+        "/result/number_of_samples": 1080,
+        "/result/amplified": 0,
+        "/result/deep_deleted": 0
+      },
+      "max_bytes": 1500
+    }
+  ]
+}

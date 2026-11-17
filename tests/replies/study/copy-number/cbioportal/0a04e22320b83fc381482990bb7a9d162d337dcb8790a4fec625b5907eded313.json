@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "cbioportal",
+  "url": "https://www.cbioportal.org/api/genes/ERBB2",
+  "exchanges": [
+    {
+      "fetched": 1794895172,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 154,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"entrezGeneId":2064,"hugoGeneSymbol":"ERBB2","type":"protein-coding"}
+      }
+    }
+  ]
+}

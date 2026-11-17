@@ -98,6 +98,7 @@ saved-work: A caller saves searches by name and keeps lists of record IDs on the
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order.
 study-get: Exact stored study cards expose bounded independent profile and sample-list metadata.
 study-rows: Read gene-filtered native mutation observations and sample ID/type rows with bounded pages, totals and the selected mutation profile.
+study-copy-number: Read cBioPortal's own amplification and deep-deletion sample counts for one gene in a study's discrete copy-number profile.
 gwas-search: Search publication studies with source traits, sample descriptions and association counts, or source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities.
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging.

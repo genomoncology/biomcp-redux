@@ -45,7 +45,7 @@ BioMCP keeps saved searches, lists of records and notes in `saved.sqlite` in the
 
 ## Drug names and variant spellings widen by default
 
-Drug-name searches also search the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search's `--variant` and `--criteria` also search a protein change's other spellings, such as V600E, Val600Glu and p.V600E, and the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. Other drug sources, MAUDE and VAERS search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads ChEMBL records from MyChem instead of waiting on ChEMBL's own service. When the lookup is slow or incomplete, trial and article search use the typed name, say so, and stay complete.
+Drug-name searches also search the drug's other names by default: trial and article search as before, and now FAERS, openFDA labels, Drugs@FDA, EMA and FDA drug recalls. Trial search's `--variant` and `--criteria` also search a protein change's other spellings, such as V600E, Val600Glu and p.V600E, and the codon when `--gene` is given. The reply says which names and spellings it searched, and which names it left out and why, such as code-like synonyms or names the source cannot take. `--exact-term` searches only the text as typed. Other drug sources, MAUDE and VAERS search the text as typed. `--expand-drug-names` is accepted in 1.0 and changes nothing. The name lookup reads ChEMBL records from MyChem instead of waiting on ChEMBL's own service. When the lookup is slow or incomplete, trial and article search use the typed name, say so, and stay complete. A `get drug` reply that keeps a requested name with spaces, such as "dabigatran etexilate" when the source finds no record, now matches its reply schema: the echoed `query.input` accepts any name the command accepts.
 
 ## Added commands, filters and sections
 
@@ -124,6 +124,7 @@ Other commands:
 - Protein features, domains and cards carry `coordinate_note`, which explains that spans are zero-based and half-open, unlike UniProt's one-based coordinates and the one-based `--position`.
 - `search gwas --p-value` leaves out `qualifying_total`, and is not `complete`, when an association cannot be compared with the threshold.
 - `variant recurrence` fails, with no counts, when `--sample-set` is unknown or belongs to another study or list.
+- `get study ID cna --gene GENE` gives cBioPortal's own counts of samples with a high-level amplification (`amplified`, GISTIC call 2) and a deep deletion (`deep_deleted`, call -2) of the gene in the study's discrete copy-number profile, out of `number_of_samples`; brca_tcga has ERBB2 amplified in 133 of 1,080. `--molecular-profile` picks another discrete profile.
 - `search cell-line` reports Cellosaurus's own match count as its total.
 - `search cell-line --disease` says that Cellosaurus matches a disease name as a phrase and adds no narrower NCIt diseases, so a subtype such as Pancreatic ductal adenocarcinoma is its own search.
 - `biomcp health` honours `command_timeout_seconds` and each source's deadline instead of a 3-second cap.
