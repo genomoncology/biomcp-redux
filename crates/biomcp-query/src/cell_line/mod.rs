@@ -39,6 +39,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     out.sources
         .push(status::source(Source::Cellosaurus, leg.finish(), error));
     out.local = error.and_then(status::local);
+    disease_scope(&mut out, query);
     if let Ok(page) = reply {
         out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
@@ -81,6 +82,32 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     recovery(&mut out, Request::SearchCellLine(query.clone()));
     command.finish(deadline.remaining());
     out
+}
+/// Cellosaurus matches `din` as a phrase in NCIt disease names or one NCIt ID, with no narrower diseases.
+/// Checked live 2026-11-16: "Melanoma" also returns Uveal melanoma lines, but "Pancreatic
+/// adenocarcinoma" returns no Pancreatic ductal adenocarcinoma lines, and C3224 (melanoma) returns Melanoma lines only.
+fn disease_scope(out: &mut Outcome, query: &CellLineSearchCommand) {
+    if query.disease().is_none() {
+        return;
+    }
+    if let Some(source) = out
+        .sources
+        .iter_mut()
+        .find(|s| s.source == Source::Cellosaurus)
+    {
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: "Cellosaurus matched --disease to each line's NCIt disease: an ID \
+                    matches that disease only, and a name matches those words in that order \
+                    anywhere in the disease name. Narrower NCIt diseases are not added, so a \
+                    subtype whose name breaks the phrase, such as Pancreatic ductal \
+                    adenocarcinoma for Pancreatic adenocarcinoma, is a separate search."
+                    .into(),
+                retry_after_seconds: None,
+            });
+    }
 }
 /// Cellosaurus's own count on a full or empty later page, else the rows read to the end.
 /// A failed count leaves no total and says so; the page step still follows a full page.
