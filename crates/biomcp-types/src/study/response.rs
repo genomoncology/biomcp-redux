@@ -171,3 +171,30 @@ impl ResponseBody for StudyMutations {
     const SCHEMA: &'static str = "biomcp.study-mutations/2";
     type Query = StudyGet;
 }
+/// cBioPortal's own sample counts for one gene's amplification and deep-deletion calls in one
+/// discrete copy-number (GISTIC) profile; BioMCP counts nothing itself.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct StudyCopyNumber {
+    /// Exact source study ID.
+    pub study_id: StudyId,
+    /// Selected discrete copy-number profile, including an automatically chosen default.
+    pub molecular_profile_id: biodata::StudyProfileId,
+    /// Exact cBioPortal gene identifier.
+    pub entrez_gene_id: biodata::NcbiGeneId,
+    /// cBioPortal's `numberOfSamples`: samples in the profile.
+    pub number_of_samples: u32,
+    /// cBioPortal's `numberOfSamplesWithAlterationInGene` for call 2, high-level amplification;
+    /// 0 when cBioPortal omits it, as it does when no sample has the call.
+    pub amplified: u32,
+    /// cBioPortal's `numberOfSamplesWithAlterationInGene` for call -2, deep (homozygous) deletion;
+    /// 0 when cBioPortal omits it, as it does when no sample has the call.
+    pub deep_deleted: u32,
+    /// Source acquisition time.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub acquired: Option<u64>,
+}
+impl ResponseBody for StudyCopyNumber {
+    const SCHEMA: &'static str = "biomcp.study-copy-number/1";
+    type Query = StudyGet;
+}
