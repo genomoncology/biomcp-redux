@@ -17,6 +17,8 @@ pub use crate::mychem::SPEC as MYCHEM;
 pub use crate::openfda_label::SPEC as OPENFDA_LABEL;
 /// Canonical OPENTARGETS source declaration.
 pub use crate::opentargets::SPEC as OPENTARGETS;
+/// Canonical WHO_EML source declaration.
+pub use crate::who_eml::SPEC as WHO_EML;
 pub(crate) const FDA_TERMS: Terms = Terms {
     name: "openFDA terms; original label rights retained",
     url: "https://open.fda.gov/terms/",

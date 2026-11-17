@@ -114,7 +114,8 @@
         "openfda-label",
         "drugsfda",
         "ema",
-        "ddinter"
+        "ddinter",
+        "who-eml"
       ]
     },
     "Reply_PartialDate": {
