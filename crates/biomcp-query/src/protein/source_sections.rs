@@ -51,6 +51,9 @@ pub(super) fn supplement(
 fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
     let reason = reason(&result);
     let result_status = result.status();
+    let asked = item.header.as_ref().and_then(|header| {
+        biomcp_types::SourceRecord::asked(Some("UniProt"), &header.protein.accession)
+    });
     if let Some(sections) = &mut item.sections {
         match result.body {
             ReplyData::ProteinDomains { body: data, .. } => {
@@ -62,7 +65,7 @@ fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
                 sections.domains = Some(match data {
                     Some(data) if data.items.is_empty() => Section::Empty {
                         source: Source::InterPro,
-                        record: None,
+                        record: asked.clone(),
                     },
                     Some(data) => Section::Data {
                         source: Source::InterPro,
@@ -75,7 +78,7 @@ fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
                 sections.complexes = Some(match data {
                     Some(data) if data.items.is_empty() => Section::Empty {
                         source: Source::ComplexPortal,
-                        record: None,
+                        record: asked.clone(),
                     },
                     Some(data) => Section::Data {
                         source: Source::ComplexPortal,

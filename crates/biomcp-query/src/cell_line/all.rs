@@ -21,7 +21,10 @@ pub(super) fn attach(cx: &Ctx<'_>, deadline: biomcp_fetch::Deadline<'_>, out: &m
             if data.items.total == 0 {
                 Section::Empty {
                     source: Source::Chembl,
-                    record: None,
+                    record: biomcp_types::SourceRecord::asked(
+                        Some("Cellosaurus"),
+                        &header.accession,
+                    ),
                 }
             } else {
                 Section::Data {

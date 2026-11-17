@@ -43,7 +43,7 @@ fn join(item: &mut ArticleCardItem, result: &order::Counts) {
     } else {
         Section::Empty {
             source: Source::Icite,
-            record: None,
+            record: biomcp_types::SourceRecord::asked(Some("PMID"), id),
         }
     };
     if result.dropped

@@ -283,6 +283,19 @@ pub struct DrugInteractions {
     /// partner, whether DDInter names that drug at all.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hint: Option<Text>,
+    /// Pairs per DDInter level across every listed pair, not only this page; most severe first.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub levels: Box<[DrugLevelCount]>,
+}
+/// How many listed pairs carry one DDInter level.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugLevelCount {
+    /// DDInter's level as published; omitted for pairs whose row gives none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub level: Option<Text>,
+    /// Listed pairs with this level.
+    pub count: u64,
 }
 impl ResponseBody for DrugPage {
     const SCHEMA: &'static str = "biomcp.drug-page/8";

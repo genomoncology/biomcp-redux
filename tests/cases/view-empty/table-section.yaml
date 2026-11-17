@@ -14,7 +14,9 @@
         "json"
       ],
       "expect": {
-        "/result/items/0/sections/features/state": "empty"
+        "/result/items/0/sections/features/state": "empty",
+        "/result/items/0/sections/features/record/namespace": "UniProt",
+        "/result/items/0/sections/features/record/id": "P00533"
       }
     },
     {
@@ -28,7 +30,7 @@
       ],
       "expect": {
         "": {
-          "includes": "uniprot returned no data."
+          "includes": "uniprot returned no data for UniProt:P00533."
         }
       }
     }

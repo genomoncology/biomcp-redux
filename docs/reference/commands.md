@@ -3342,7 +3342,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `label`: One exact source label heading; label replies also name the application numbers and recent major changes.
 - `approvals`: Source application and product history rows.
 - `regulatory`: Source-scoped regulator events.
-- `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.
+- `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.
 - `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
 
 ## biomcp get gene

@@ -1,8 +1,8 @@
 //! Several named drug sections read in one call: the drug once, then one part per section.
 use super::{
     DateRoleLabel, DrugApprovals, DrugCivic, DrugCivicStreams, DrugFdaProduct, DrugFdaSubmission,
-    DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel, DrugLabelText, DrugRecords,
-    DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
+    DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel, DrugLabelText,
+    DrugLevelCount, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
 };
 use crate::{CacheProblem, PageInfo, Problem, ResponseBody, Section, SourceOutcome, Status, Step};
 use biodata::{
@@ -170,6 +170,9 @@ pub struct DrugInteractionsPart {
     /// partner, whether DDInter names that drug at all.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hint: Option<Text>,
+    /// Pairs per DDInter level across every listed pair, not only this page; most severe first.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub levels: Box<[DrugLevelCount]>,
 }
 
 /// A section reply body that splits into the drug identity and the rest.
@@ -287,6 +290,7 @@ impl DrugSectionBody for DrugInteractions {
             interactions,
             partners,
             hint,
+            levels,
         } = self;
         (
             identity,
@@ -294,6 +298,7 @@ impl DrugSectionBody for DrugInteractions {
                 interactions,
                 partners,
                 hint,
+                levels,
             },
         )
     }
