@@ -222,3 +222,61 @@ fn command_legs_charge_their_replay_time_one_after_another() {
         "replay never reaches the provider"
     );
 }
+
+/// A metadata dependency keeps its source's own limit when the user sets it below the caller's
+/// cap: a 2 s PubMed reply fails a 1 s PubMed limit inside a 10 s cap, and its time is charged
+/// back to the calling leg (1038).
+#[test]
+fn dependency_honours_a_configured_source_limit_below_its_cap() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let pubmed = spec(&server);
+    capture(&server, pubmed, dir.path(), &[(200, "", r#"{"answer":true}"#)]);
+    change(dir.path(), |v| v["exchanges"][0]["delay_ms"] = 2_000.into());
+    let replay = |limit: Duration| {
+        Fetch::open(FetchConfig {
+            mode: Mode::Replay {
+                dir: dir.path().to_owned(),
+            },
+            source_deadlines: [(biomcp_types::Source::PubMed, limit)].into(),
+            ..FetchConfig::default()
+        })
+        .unwrap()
+    };
+    let caller: &'static SourceSpec = Box::leak(Box::new(SourceSpec {
+        source: biomcp_types::Source::Hgnc,
+        deadline: Duration::from_secs(60),
+        ..*pubmed
+    }));
+    let lookup = |fetch: &Fetch| {
+        let leg = fetch.leg(caller, fetch.deadline(CALLER));
+        let reply = leg.dependency(pubmed, Duration::from_secs(10), |dependency| {
+            dependency.call(
+                &pubmed.get("/answer"),
+                Input::Params(&[]),
+                Read::<Answer>::json(),
+            )
+        });
+        (reply.map(|received| received.value.answer), leg.remaining())
+    };
+    let (reply, remaining) = lookup(&replay(Duration::from_secs(1)));
+    assert!(
+        timed_out(reply.map(|_| Duration::ZERO)),
+        "a 2 s reply fails the user's 1 s PubMed limit although the cap is 10 s"
+    );
+    assert!(
+        remaining <= CALLER.saturating_sub(Duration::from_secs(1)),
+        "the 1 s the dependency spent is charged to its caller, left {remaining:?}"
+    );
+    let (reply, remaining) = lookup(&replay(Duration::from_secs(5)));
+    assert!(reply.unwrap(), "a 2 s reply passes a 5 s limit");
+    assert_eq!(
+        remaining,
+        CALLER.saturating_sub(Duration::from_secs(2)),
+        "the 2 s reply is charged to its caller"
+    );
+    assert!(
+        server.requests.try_recv().is_err(),
+        "replay never reaches the provider"
+    );
+}
