@@ -3531,7 +3531,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `input`: Gene symbols or checked identifiers, in input order.
 Form: get gene INPUT...; not --input.
-- `--section`: Requested section words, preserving caller order and repetitions… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section protein.
+- `--section`: Requested section words, preserving caller order and repetitions… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section clingen.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
