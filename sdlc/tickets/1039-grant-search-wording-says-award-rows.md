@@ -31,3 +31,9 @@ Milestone: 7
 ## Changes
 
 - Changes: descriptions, regenerated schemas and docs, the case.
+
+## Progress
+
+- Changed: `--limit` and `--offset` help, their accessors, the reply module comment, the investigator doc and two adapter comments now say award rows instead of project-years. The hint and the search description (shown in the grant schemas the MCP tool serves) now end "search again with investigator_id (--investigator-id on the command line)", the form other hints use (`drug/openfda_label.rs`). Schemas and the command reference are regenerated; only descriptions changed.
+- Proof: `tests/cases/local/refusals-search-grant.yaml` (the `help search grant` step) asserts the new `--limit` and `--offset` descriptions, and the replayed first step of `tests/cases/grant/search.yaml` asserts the new hint. Both strings differ from the base commit's, so both fail there.
+- Jobs: j42274 (fmt clean; schemas and docs regenerate; check-cheap and the grant, mcp, help and readme cases pass; the local help assertion needed the full description with its "Value form" suffix, now fixed).
