@@ -164,7 +164,7 @@ fn command_legs_charge_their_replay_time_one_after_another() {
     let server = Server::new();
     let spec = spec(&server);
     let answer = (200, "", r#"{"answer":true}"#);
-    capture(&server, spec, dir.path(), &[answer; 8]);
+    capture(&server, spec, dir.path(), &[answer; 4]);
     change(dir.path(), |v| {
         for exchange in v["exchanges"].as_array_mut().unwrap() {
             exchange["delay_ms"] = 3_000.into();
@@ -218,30 +218,6 @@ fn command_legs_charge_their_replay_time_one_after_another() {
     );
     command.finish(deadline.remaining());
 
-    // Each worker reads two legs one after another; the workers run side by side (1038).
-    let command = fetch.command_deadline(CALLER);
-    let deadline = command.deadline();
-    let shared = fetch.deadline(CALLER);
-    thread::scope(|scope| {
-        let workers: Vec<_> = (0..2)
-            .map(|_| {
-                scope.spawn(|| {
-                    read(&fetch.leg(spec, deadline));
-                    read(&fetch.leg(spec, deadline));
-                })
-            })
-            .collect();
-        for worker in workers {
-            worker.join().unwrap();
-        }
-        // A command dropped off its own thread still charges every worker's time (1038).
-        scope.spawn(move || drop(command)).join().unwrap();
-    });
-    let spent = CALLER.saturating_sub(shared.remaining());
-    assert!(
-        spent >= 2 * reply && spent < 3 * reply,
-        "two workers each reading two 3 s replies in turn take about 6 s, took {spent:?}"
-    );
     assert!(
         server.requests.try_recv().is_err(),
         "replay never reaches the provider"
@@ -256,7 +232,12 @@ fn dependency_honours_a_configured_source_limit_below_its_cap() {
     let dir = tempfile::tempdir().unwrap();
     let server = Server::new();
     let pubmed = spec(&server);
-    capture(&server, pubmed, dir.path(), &[(200, "", r#"{"answer":true}"#)]);
+    capture(
+        &server,
+        pubmed,
+        dir.path(),
+        &[(200, "", r#"{"answer":true}"#)],
+    );
     change(dir.path(), |v| v["exchanges"][0]["delay_ms"] = 2_000.into());
     let replay = |limit: Duration| {
         Fetch::open(FetchConfig {
@@ -299,6 +280,61 @@ fn dependency_honours_a_configured_source_limit_below_its_cap() {
         remaining,
         CALLER.saturating_sub(Duration::from_secs(2)),
         "the 2 s reply is charged to its caller"
+    );
+    assert!(
+        server.requests.try_recv().is_err(),
+        "replay never reaches the provider"
+    );
+}
+
+/// Two legs read one after another inside each worker add up, while the two workers run side
+/// by side; a command dropped off its own thread still charges every worker's time (1038).
+#[test]
+fn worker_legs_one_after_another_add_up() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let spec = spec(&server);
+    let answer = (200, "", r#"{"answer":true}"#);
+    capture(&server, spec, dir.path(), &[answer; 4]);
+    change(dir.path(), |v| {
+        for exchange in v["exchanges"].as_array_mut().unwrap() {
+            exchange["delay_ms"] = 3_000.into();
+        }
+    });
+    let fetch = fetch(Mode::Replay {
+        dir: dir.path().to_owned(),
+    });
+    let read = |leg: &biomcp_fetch::Leg<'_>| {
+        leg.call(
+            &spec.get("/answer"),
+            Input::Params(&[]),
+            Read::<Answer>::json(),
+        )
+        .unwrap();
+    };
+    let reply = Duration::from_secs(3);
+    let command = fetch.command_deadline(CALLER);
+    let deadline = command.deadline();
+    let shared = fetch.deadline(CALLER);
+    thread::scope(|scope| {
+        let workers: Vec<_> = (0..2)
+            .map(|_| {
+                scope.spawn(|| {
+                    read(&fetch.leg(spec, deadline));
+                    read(&fetch.leg(spec, deadline));
+                })
+            })
+            .collect();
+        for worker in workers {
+            worker.join().unwrap();
+        }
+    });
+    // Dropped off its own thread, before that thread reads the clock again.
+    thread::scope(|scope| scope.spawn(move || drop(command)).join().unwrap());
+    let spent = CALLER.saturating_sub(shared.remaining());
+    assert!(
+        spent >= 2 * reply && spent < 3 * reply,
+        "two workers each reading two 3 s replies in turn take about 6 s, took {spent:?}"
     );
     assert!(
         server.requests.try_recv().is_err(),

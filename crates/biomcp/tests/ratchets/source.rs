@@ -87,6 +87,22 @@ const EXCEPTIONS: &[(&str, &str)] = &[
         "Join scoped source jobs before returning the command result",
     ),
     (
+        "crates/biomcp-query/src/drug/aliases.rs",
+        "Time nested drug commands on the shared clock they charge (1038)",
+    ),
+    (
+        "crates/biomcp-query/src/drug/markets.rs",
+        "Time nested drug commands on the shared clock they charge (1038)",
+    ),
+    (
+        "crates/biomcp-query/src/drug/resolve.rs",
+        "Time nested drug commands on the shared clock they charge (1038)",
+    ),
+    (
+        "crates/biomcp-query/src/drug/search_names.rs",
+        "Time nested drug commands on the shared clock they charge (1038)",
+    ),
+    (
         "crates/biomcp-fetch/src/batch.rs",
         "Own bounded scoped callback threads and join their clocks before returning",
     ),

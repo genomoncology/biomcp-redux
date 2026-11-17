@@ -133,7 +133,10 @@ impl CommandClock {
         worker.map_or(times.0, |(_, time)| times.0.max(*time))
     }
     fn latest(times: &(Instant, Vec<(std::thread::ThreadId, Instant)>)) -> Instant {
-        times.1.iter().fold(times.0, |now, (_, time)| now.max(*time))
+        times
+            .1
+            .iter()
+            .fold(times.0, |now, (_, time)| now.max(*time))
     }
     /// The latest time any leg reached, from whichever thread drops the command.
     fn end(&self) -> Instant {
