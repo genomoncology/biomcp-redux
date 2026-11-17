@@ -1431,60 +1431,6 @@
     },
     {
       "additionalProperties": false,
-      "description": "Search NIH RePORTER research grants by topic, investigator, organization and fiscal year.",
-      "properties": {
-        "command": {
-          "const": "search-grant",
-          "type": "string"
-        },
-        "fiscal_year": {
-          "description": "NIH fiscal years; repeat the option for several, such as 2024 and 2025. All by default.",
-          "items": {
-            "format": "uint32",
-            "minimum": 0,
-            "type": "integer"
-          },
-          "maxItems": 50,
-          "type": "array",
-          "x-comma-separated": true
-        },
-        "investigator": {
-          "$ref": "#/$defs/Text",
-          "description": "Principal investigator, first and last name, such as \"Pasi Janne\"; partial names match more people."
-        },
-        "limit": {
-          "default": 10,
-          "description": "Ten project-years by default, one to fifty.",
-          "format": "uint32",
-          "maximum": 50,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "offset": {
-          "default": 0,
-          "description": "Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep.",
-          "format": "uint32",
-          "maximum": 14999,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "organization": {
-          "$ref": "#/$defs/Text",
-          "description": "Funded organization name or part of it, as RePORTER spells it, such as \"DANA-FARBER\"."
-        },
-        "query": {
-          "$ref": "#/$defs/Text",
-          "description": "Words that must all appear in the project title, abstract or terms, such as \"KRAS G12C\".",
-          "x-positional": 0
-        }
-      },
-      "required": [
-        "command"
-      ],
-      "type": "object"
-    },
-    {
-      "additionalProperties": false,
       "description": "Search research paper authors.",
       "properties": {
         "command": {

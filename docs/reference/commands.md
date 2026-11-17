@@ -2281,7 +2281,7 @@ Options:
 Search NIH RePORTER research grants by topic, investigator, organization and fiscal year. Sources: nih-reporter.
 Options apply to every listed source unless their description restricts them.
 
-- `--fiscal-year`: NIH fiscal years; repeat the option for several, such as 2024 and 2025. All by default. Value form: repeatable values (repeat the flag); example: --fiscal-year 2024.
+- `--fiscal-year`: NIH fiscal years; repeat the option for several, such as 2024 and 2025. All by default. Value form: repeatable values (repeat the flag); example: --fiscal-year 2025.
 - `--investigator`: Principal investigator, first and last name, such as "Pasi Janne"; partial names match more people. Value form: string; example: --investigator 'Pasi Janne'.
 - `--limit`: Ten project-years by default, one to fifty. Value form: integer; example: --limit 3.
 - `--offset`: Project-years to skip in RePORTER's order; RePORTER pages at most 15,000 deep. Value form: integer; example: --offset 68.

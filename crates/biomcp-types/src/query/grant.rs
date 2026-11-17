@@ -46,7 +46,10 @@ struct Fields {
         deserialize_with = "super::gene::present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1985, max = 2100)))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "u32", range(min = 1985, max = 2100))
+    )]
     fiscal_year: Option<u32>,
     /// Ten project-years by default, one to fifty.
     #[serde(default = "default_limit")]
@@ -71,7 +74,9 @@ impl TryFrom<Fields> for GrantSearch {
                 "organization",
             ]));
         }
-        if v.fiscal_year.is_some_and(|year| !(1985..=2100).contains(&year)) {
+        if v.fiscal_year
+            .is_some_and(|year| !(1985..=2100).contains(&year))
+        {
             return Err(QueryInvalid::new(&["fiscal_year"]));
         }
         if !(1..=50).contains(&v.limit) {
