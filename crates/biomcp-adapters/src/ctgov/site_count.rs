@@ -89,6 +89,33 @@ pub fn site_count(
     }
     params.insert("fields".into(), FIELDS.into());
     params.insert("pageSize".into(), PAGE_SIZE.to_string());
+    let (counts, matched, read) = read_pages(leg, params)?;
+    let facilities_total = counts.len() as u64;
+    let mut rows: Vec<_> = counts.into_iter().collect();
+    // The key order already sorts by name, city and country; a stable sort keeps it within a count.
+    rows.sort_by_key(|(_, trials)| std::cmp::Reverse(*trials));
+    rows.truncate(query.limit() as usize);
+    Ok(TrialSiteCounts {
+        trials_matched: matched,
+        trials_read: read,
+        facilities_total,
+        facilities: rows
+            .into_iter()
+            .map(|((facility, city, country), trials)| TrialSiteCount {
+                facility,
+                city,
+                country,
+                trials,
+            })
+            .collect(),
+    })
+}
+
+/// Each site's trial count, the registry's matched total and the trials read, page by page.
+fn read_pages(
+    leg: &Leg<'_>,
+    mut params: BTreeMap<String, String>,
+) -> Result<(BTreeMap<Key, u64>, u64, u64), RequestError> {
     let mut counts = BTreeMap::<Key, u64>::new();
     let mut matched = None;
     let mut read = 0;
@@ -111,25 +138,7 @@ pub fn site_count(
     }
     let matched =
         matched.ok_or_else(|| biomcp_fetch::bad_reply(Source::ClinicalTrialsGov, Some(200)))?;
-    let facilities_total = counts.len() as u64;
-    let mut rows: Vec<_> = counts.into_iter().collect();
-    // The key order already sorts by name, city and country; a stable sort keeps it within a count.
-    rows.sort_by_key(|(_, trials)| std::cmp::Reverse(*trials));
-    rows.truncate(query.limit() as usize);
-    Ok(TrialSiteCounts {
-        trials_matched: matched,
-        trials_read: read,
-        facilities_total,
-        facilities: rows
-            .into_iter()
-            .map(|((facility, city, country), trials)| TrialSiteCount {
-                facility,
-                city,
-                country,
-                trials,
-            })
-            .collect(),
-    })
+    Ok((counts, matched, read))
 }
 
 fn fetch(leg: &Leg<'_>, params: &BTreeMap<String, String>) -> Result<SitePage, RequestError> {

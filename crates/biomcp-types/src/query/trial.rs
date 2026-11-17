@@ -246,7 +246,8 @@ struct Fields {
     #[doc = "Total.\nSource total only; no returned study rows."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     count_only: bool,
-    #[doc = "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as the registry writes them, never merged."]
+    #[doc = "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most \
+        matched trials, read over every page; names counted as registered, never merged."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     site_count: bool,
     #[doc = "Posted results.\nClinicalTrials.gov only: require posted source results. Each row carries has_results."]
