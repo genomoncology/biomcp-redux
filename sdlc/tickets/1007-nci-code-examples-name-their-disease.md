@@ -41,3 +41,4 @@ The 2026-11-12 trial-ops run took C3224 from `query/trial.rs:51`'s example as pa
 - `crates/biomcp-types/src/query/trial.rs` sits at the 600-line and 160-column source limits: the condition help line is wrapped with a string continuation, and the blank line before `mod validation;` was dropped to stay at 600 (j41973 and j41978 failed those limits).
 - Job j41982: schemas and reference regenerate with no change, `make check-cheap` passes (includes the new NCIt check and its test). Job j41985: case groups trial/ (56), biomarker/ (5), cell-line/ (10), grammar/ (17), mcp/ (43), mcp-parity/ (66) and help/ (19) all pass.
 - Gate job j41991 on 07d25d1d0 (`make --keep-going landing-gate docs-check schema-release-check`): passed.
+- PM approval (2026-11-16): the two release/schema-reviews.json entries are accepted; 1.0 is not published, and the ticket asks for the error text to change. Later tickets adding an error message extend the baseline entry's target list.
