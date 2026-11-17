@@ -12,7 +12,9 @@ use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use civic::CivicGene;
-pub use clingen::{ClinGenGene, ClinGenGeneDosage, ClinGenRegion, ClinGenRegionDosage, ClinGenValidity};
+pub use clingen::{
+    ClinGenGene, ClinGenGeneDosage, ClinGenRegion, ClinGenRegionDosage, ClinGenValidity,
+};
 pub use clinvar::{ClinVarGeneCounts, ClinVarGermlineCounts, ClinVarReviewCounts};
 pub use constraint::Constraint;
 pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, RnaUnit, TissueNtpm};

@@ -95,9 +95,10 @@ pub use response::{
 };
 pub use response::{BundleSize, ComponentHealth, StoreSize};
 pub use response::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenGeneDosage, ClinGenRegion, ClinGenRegionDosage,
-    ClinGenValidity, ClinVarGeneCounts, ClinVarGermlineCounts, ClinVarReviewCounts, GenccGene,
-    GenccSubmission, GeneExpression, PathwayRef, ReactomeId, RnaAbundance, RnaUnit, TissueNtpm,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenGeneDosage, ClinGenRegion,
+    ClinGenRegionDosage, ClinGenValidity, ClinVarGeneCounts, ClinVarGermlineCounts,
+    ClinVarReviewCounts, GenccGene, GenccSubmission, GeneExpression, PathwayRef, ReactomeId,
+    RnaAbundance, RnaUnit, TissueNtpm,
 };
 pub use response::{
     CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
