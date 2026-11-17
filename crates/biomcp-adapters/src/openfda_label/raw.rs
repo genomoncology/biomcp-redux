@@ -29,6 +29,9 @@ pub(super) struct Names {
     pub brand_name: Option<Vec<NativeText>>,
     pub generic_name: Option<Vec<NativeText>>,
     pub spl_set_id: Option<Vec<DrugId>>,
+    /// `[true]` on a label filed by its product's original packager; openFDA omits it on a
+    /// repackager's copy, which instead names the original product NDC.
+    pub is_original_packager: Option<Vec<bool>>,
 }
 impl Record {
     /// Only published native sections survive admission; absent remains absent.

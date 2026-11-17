@@ -7,8 +7,13 @@ use biomcp_types::{
 };
 use std::cmp::Reverse;
 
-/// Name match, source tier, more numbered label indications first, then a source key.
-pub(super) type Rank = (u8, u8, Reverse<u32>, String);
+/// Name match, source tier, a label's original packager before repackagers, more numbered label
+/// indications first, then a source key.
+pub(super) type Rank = (u8, u8, u8, Reverse<u32>, String);
+/// The rank of a source without label packagers or numbered indications.
+fn plain(name: u8, tier: u8, key: String) -> Rank {
+    (name, tier, 0, Reverse(0), key)
+}
 /// Most MyChem rows a name get reads while looking for a drug record with an exact name.
 const MYCHEM_NAME_CAP: u32 = 250;
 
@@ -199,7 +204,7 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
                     _ => None,
                 };
                 if let Some(rank) = rank {
-                    candidates.push(((rank, 0, Reverse(0), String::new()), header.clone()));
+                    candidates.push((plain(rank, 0, String::new()), header.clone()));
                 }
             }
         }
@@ -320,10 +325,8 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
                     .filter_map(|row| {
                         row.name_rank(get.input().as_str())
                             .map(|(name, app, date)| {
-                                (
-                                    (name, app, Reverse(0), date.unwrap_or_else(|| "9999".into())),
-                                    row.header(),
-                                )
+                                let date = date.unwrap_or_else(|| "9999".into());
+                                (plain(name, app, date), row.header())
                             })
                     })
                     .collect(),
@@ -387,16 +390,11 @@ fn mychem(
                 .filter_map(|(header, drug)| {
                     header.matched_name.map(|matched| {
                         let rank = u8::from(matched == DrugNameMatch::Generic);
-                        (
-                            (rank, u8::from(!drug), Reverse(0), String::new()),
-                            header.clone(),
-                        )
+                        (plain(rank, u8::from(!drug), String::new()), header.clone())
                     })
                 })
                 .collect();
-            let settled = candidates
-                .iter()
-                .any(|((_, product, _, _), _)| *product == 0);
+            let settled = candidates.iter().any(|((_, product, ..), _)| *product == 0);
             let more = received > 0
                 && page
                     .value
@@ -415,11 +413,8 @@ fn mychem(
             })
         });
     // A product-only record answers only when no record with drug rows matched.
-    if candidates
-        .iter()
-        .any(|((_, product, _, _), _)| *product == 0)
-    {
-        candidates.retain(|((_, product, _, _), _)| *product == 0);
+    if candidates.iter().any(|((_, product, ..), _)| *product == 0) {
+        candidates.retain(|((_, product, ..), _)| *product == 0);
     }
     let Some(Read { rows, total, .. }) =
         examined.filter(|read| !read.settled && u64::from(read.rows) < read.total)
@@ -479,15 +474,8 @@ fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
                         let header = biomcp_adapters::chembl::molecule_header(row)
                             .map_err(|_| biomcp_fetch::InputError::Serialization)?;
                         problems.extend(header.problems);
-                        candidates.push((
-                            (
-                                u8::from(matched == DrugNameMatch::Generic),
-                                0,
-                                Reverse(0),
-                                String::new(),
-                            ),
-                            header.value,
-                        ));
+                        let rank = u8::from(matched == DrugNameMatch::Generic);
+                        candidates.push((plain(rank, 0, String::new()), header.value));
                     }
                 }
                 Ok(NativePage {
@@ -529,15 +517,9 @@ fn ema(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
             .into_iter()
             .filter_map(|(header, authorised)| {
                 header.matched_name.map(|matched| {
-                    (
-                        (
-                            u8::from(matched == DrugNameMatch::Generic),
-                            0,
-                            Reverse(0),
-                            authorised.map_or_else(|| "9999".into(), |date| date.to_string()),
-                        ),
-                        header,
-                    )
+                    let rank = u8::from(matched == DrugNameMatch::Generic);
+                    let date = authorised.map_or_else(|| "9999".into(), |date| date.to_string());
+                    (plain(rank, 0, date), header)
                 })
             })
             .collect();

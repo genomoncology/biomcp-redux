@@ -1,0 +1,117 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22f85a48d0-0407-4c50-b0fa-7673a160bf01%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794919760,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 204,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-17",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "effective_time": "20241114",
+              "id": "71d449de-955b-4711-9a44-1e1f66e2e9eb",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "Merck Sharp & Dohme LLC"
+                ],
+                "product_ndc": [
+                  "0006-0112",
+                  "0006-0221",
+                  "0006-0277"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665036",
+                  "665040",
+                  "665044",
+                  "2709603",
+                  "2709608",
+                  "2709612"
+                ],
+                "spl_id": [
+                  "71d449de-955b-4711-9a44-1e1f66e2e9eb"
+                ],
+                "spl_set_id": [
+                  "f85a48d0-0407-4c50-b0fa-7673a160bf01"
+                ],
+                "package_ndc": [
+                  "0006-0221-01",
+                  "0006-0221-28",
+                  "0006-0221-31",
+                  "0006-0221-54",
+                  "0006-0112-01",
+                  "0006-0112-28",
+                  "0006-0112-31",
+                  "0006-0112-54",
+                  "0006-0277-01",
+                  "0006-0277-28",
+                  "0006-0277-31",
+                  "0006-0277-54",
+                  "0006-0277-02",
+                  "0006-0277-33",
+                  "0006-0277-82",
+                  "0006-0277-14",
+                  "0006-0277-27",
+                  "0006-0277-30"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0300060112317",
+                  "0300060221316",
+                  "0300060277313"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "f85a48d0-0407-4c50-b0fa-7673a160bf01",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE pink round 221 JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM magnesium stearate MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE light beige round 112 JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE croscarmellose sodium magnesium stearate MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE beige round 277"
+              ],
+              "version": "71",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: JANUVIA should not be used in patients with type 1 diabetes ( 1 ) JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

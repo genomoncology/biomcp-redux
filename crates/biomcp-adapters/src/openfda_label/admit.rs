@@ -18,12 +18,15 @@ impl From<wire::Record> for Record {
                 brand_name: p.optional_fields("openfda.brand_name", v.brand_name),
                 generic_name: p.optional_fields("openfda.generic_name", v.generic_name),
                 spl_set_id: p.optional_fields("openfda.spl_set_id", v.spl_set_id),
+                is_original_packager: p
+                    .optional_fields("openfda.is_original_packager", v.is_original_packager),
             })
             .unwrap_or(Names {
                 application_number: None,
                 brand_name: None,
                 generic_name: None,
                 spl_set_id: None,
+                is_original_packager: None,
             });
         let effective_time = p
             .field("effective_time", row.effective_time)
