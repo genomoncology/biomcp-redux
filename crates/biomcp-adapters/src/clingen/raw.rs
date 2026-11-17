@@ -248,23 +248,31 @@ fn dosage(
     let field = format!("{kind} Score");
     let score = problems.field(&field, score)?;
     let score = problems.optional(&field, Some(score.as_str().parse::<u32>()))?;
-    let field = format!("{kind} PMID");
-    // A cell can hold several comma-separated PMIDs, as ISCA-37430's PMID1 does.
-    let pmids = pmids
-        .into_iter()
-        .filter_map(|pmid| problems.field(&field, pmid))
-        .collect::<Vec<_>>();
-    let pmids = pmids
-        .iter()
-        .flat_map(|cell| cell.as_str().split(','))
-        .map(str::trim)
-        .filter(|pmid| !pmid.is_empty())
-        .filter_map(|pmid| problems.optional(&field, Some(pmid.parse::<biodata::Pmid>())))
-        .collect();
+    let pmids = dosage_pmids(problems, kind, pmids);
     Some(biomcp_types::ClinGenRegionDosage {
         score,
         description: problems.source_field(&format!("{kind} Description"), description),
         pmids,
         disease_id: problems.field(&format!("{kind} Disease ID"), disease),
     })
+}
+
+pub(super) fn dosage_pmids(
+    problems: &mut Problems,
+    kind: &str,
+    cells: [Option<Field<Text>>; 6],
+) -> Box<[biodata::Pmid]> {
+    let field = format!("{kind} PMID");
+    // A cell can hold several comma-separated PMIDs, as ISCA-37430's PMID1 does.
+    let pmids = cells
+        .into_iter()
+        .filter_map(|pmid| problems.field(&field, pmid))
+        .collect::<Vec<_>>();
+    pmids
+        .iter()
+        .flat_map(|cell| cell.as_str().split(','))
+        .map(str::trim)
+        .filter(|pmid| !pmid.is_empty())
+        .filter_map(|pmid| problems.optional(&field, Some(pmid.parse::<biodata::Pmid>())))
+        .collect()
 }

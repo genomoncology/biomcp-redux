@@ -72,7 +72,7 @@ pub use gene::{SyncQuery, SyncResult};
 pub use gene::{Constraint, GeneSections, Protein};
 
 pub use gene::{
-    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenRegion, ClinGenRegionDosage,
+    CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenGeneDosage, ClinGenRegion, ClinGenRegionDosage,
     ClinGenValidity, ClinVarGeneCounts, ClinVarGermlineCounts, ClinVarReviewCounts, GenccGene,
     GenccSubmission, GeneExpression, PathwayRef, ReactomeId, RnaAbundance, RnaUnit, TissueNtpm,
 };

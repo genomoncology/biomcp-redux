@@ -1,5 +1,7 @@
 //! Published ClinGen validity and dosage bundles, keyed only by HGNC identity, and the region dosage list.
 mod band;
+mod gene_dosage;
+pub use gene_dosage::{Evidence, evidence};
 mod raw;
 use crate::{Mapped, mapped::Problems, quotas};
 use biodata::{GeneSymbol, HgncId};
@@ -40,7 +42,7 @@ const DOSAGE: Bundle<raw::Dosage> = Bundle {
     fresh: Freshness::Days(1),
     row: PhantomData,
 };
-/// ClinGen's region curation lists are published on its file server.
+/// ClinGen publishes detailed gene and region curation lists on its file server.
 pub static REGION_SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
@@ -65,12 +67,15 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let validity = fetch.sync(&VALIDITY)?;
     let dosage = fetch.sync(&DOSAGE)?;
     let regions = fetch.sync(&REGIONS)?;
+    let evidence = fetch.sync(&gene_dosage::BUNDLE)?;
     let mut problems = crate::mapped::bundle_problems(Source::ClinGen, &validity);
     problems.extend(crate::mapped::bundle_problems(Source::ClinGen, &dosage));
     problems.extend(crate::mapped::bundle_problems(Source::ClinGen, &regions));
+    problems.extend(crate::mapped::bundle_problems(Source::ClinGen, &evidence));
     let mut refusals = crate::bundle_mapping::bundle_refusals(&validity);
     refusals.include(crate::bundle_mapping::bundle_refusals(&dosage));
     refusals.include(crate::bundle_mapping::bundle_refusals(&regions));
+    refusals.include(crate::bundle_mapping::bundle_refusals(&evidence));
     Ok(crate::Mapped {
         refusals,
         problems,
@@ -81,11 +86,12 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
             etag: None,
             last_modified: None,
             duplicate_identities: None,
-            rows: validity.rows + dosage.rows + regions.rows,
-            bytes: validity.bytes + dosage.bytes + regions.bytes,
+            rows: validity.rows + dosage.rows + regions.rows + evidence.rows,
+            bytes: validity.bytes + dosage.bytes + regions.bytes + evidence.bytes,
             downloaded_bytes: validity.downloaded_bytes
                 + dosage.downloaded_bytes
-                + regions.downloaded_bytes,
+                + regions.downloaded_bytes
+                + evidence.downloaded_bytes,
         },
     })
 }
@@ -173,11 +179,13 @@ pub fn dosage(
 pub(crate) const HEALTH_PATH: &str = "/kb";
 /// Every source-owned stored file is required for complete local readiness.
 pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
-    let regions = leg.sibling(&REGION_SPEC).stored_bundle_state(&REGIONS)?;
+    let files = leg.sibling(&REGION_SPEC);
+    let regions = files.stored_bundle_state(&REGIONS)?;
     Ok(leg
         .stored_bundle_state(&VALIDITY)?
         .with(leg.stored_bundle_state(&DOSAGE)?)
-        .with(regions))
+        .with(regions)
+        .with(files.stored_bundle_state(&gene_dosage::BUNDLE)?))
 }
 
 /// How a region search selects ClinGen region curations.
