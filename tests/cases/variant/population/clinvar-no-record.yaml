@@ -35,7 +35,7 @@
       "exit": 1,
       "expect": {
         "": {
-          "includes": "gnomad found no variant record for 2-165994236-A-G in gnomad_r4."
+          "includes": "gnomad found no variant record for 2-165994236-A-G in gnomad\\_r4."
         }
       }
     },
@@ -72,7 +72,7 @@
       "exit": 0,
       "expect": {
         "": {
-          "includes": "gnomad found no variant record for 2-165994236-A-G in gnomad_r4."
+          "includes": "gnomad found no variant record for 2-165994236-A-G in gnomad\\_r4."
         }
       }
     }
