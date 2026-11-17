@@ -1,0 +1,58 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=%28product_description%3A%22Pradaxa%22%20OR%20openfda.brand_name%3A%22Pradaxa%22%20OR%20openfda.generic_name%3A%22Pradaxa%22%20OR%20product_description%3A%22DABIGATRAN%20ETEXILATE%20MESYLATE%22%20OR%20openfda.brand_name%3A%22DABIGATRAN%20ETEXILATE%20MESYLATE%22%20OR%20openfda.generic_name%3A%22DABIGATRAN%20ETEXILATE%20MESYLATE%22%29&limit=50&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794895889,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 152,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-11",
+    "results": {
+      "skip": 0,
+      "limit": 50,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "status": "Terminated",
+      "city": "Columbus",
+      "state": "OH",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "63630",
+      "recalling_firm": "Boehringer Ingelheim Roxane Inc",
+      "address_1": "1809 Wilson Rd",
+      "address_2": "N/A",
+      "postal_code": "43228-9579",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide",
+      "recall_number": "D-067-2013",
+      "product_description": "Pradaxa (dabigatran etexilate), 75 mg Capsules, 60 count bottles, Rx only, Distributed by Boehringer Ingelheim Pharmaceuticals, Inc., Ridgefield, CT --- NDC 0597-0149-54",
+      "product_quantity": "8,381 bottles",
+      "reason_for_recall": "Defective container; damaged bottles could allow moisture to get into the bottle and thus may impair the quality of the product",
+      "recall_initiation_date": "20121105",
+      "center_classification_date": "20121126",
+      "termination_date": "20130918",
+      "report_date": "20121205",
+      "code_info": "Lot 201900  Expiration Date: JAN 2015"
+    }
+  ]
+}
+      }
+    }
+  ]
+}

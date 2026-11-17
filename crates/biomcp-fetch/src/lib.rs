@@ -407,6 +407,7 @@ impl Fetch {
             fetch: self,
             spec,
             deadline: deadline.child(cap),
+            opened: deadline,
             clock: deadline.fork(),
             wrong_clock: !deadline.matches(self.clock.as_deref()),
             no_key,
@@ -428,6 +429,8 @@ pub struct Leg<'a> {
     fetch: &'a Fetch,
     spec: &'static SourceSpec,
     deadline: Deadline<'a>,
+    /// The deadline the leg was opened under, before the source's own cap.
+    opened: Deadline<'a>,
     clock: Option<deadline::VirtualClock>,
     wrong_clock: bool,
     no_key: bool,
@@ -538,6 +541,11 @@ impl Leg<'_> {
     /// Return this source leg's remaining real or virtual budget.
     pub fn remaining(&self) -> Duration {
         self.budget().remaining()
+    }
+    /// Return the budget left on the deadline this leg was opened under, on this leg's clock.
+    /// A command joins its replay time through this: the source's cap is not time spent (1034).
+    pub fn command_remaining(&self) -> Duration {
+        self.opened.bind(self.clock.as_ref()).remaining()
     }
     /// Open a leg for another declaration of the same source within this leg's deadline.
     pub fn sibling(&self, spec: &'static SourceSpec) -> Self {

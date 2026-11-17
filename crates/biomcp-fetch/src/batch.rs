@@ -118,6 +118,7 @@ impl Leg<'_> {
             fetch: self.fetch,
             spec: self.spec,
             deadline: self.deadline,
+            opened: self.opened,
             clock: self.budget().fork(),
             wrong_clock: self.wrong_clock,
             no_key: self.no_key,
