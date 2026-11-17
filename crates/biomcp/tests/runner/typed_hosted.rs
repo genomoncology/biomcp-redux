@@ -224,12 +224,13 @@ fn assert_hosted(hosted: &Value) -> Result<(), String> {
         if tool.pointer("/annotations/readOnlyHint") != Some(&json!(true)) {
             return Err("hosted catalog marks a refused write as writable".into());
         }
-        // The WHO eEML (who-eml) is CC BY 3.0 IGO, so the restricted catalog keeps it; every
-        // other WHO source is noncommercial.
+        // The WHO eEML (who-eml) is CC BY 3.0 IGO, so the restricted catalog keeps it, by key
+        // and by name; every other WHO source is noncommercial.
         let advertised =
             json!({"description":tool.get("description"),"inputSchema":tool.get("inputSchema")})
                 .to_string()
-                .replace("who-eml", "");
+                .replace("who-eml", "")
+                .replace("WHO Essential Medicines List", "");
         if advertised.to_lowercase().contains("oncokb")
             || advertised.contains("who-pq")
             || advertised
