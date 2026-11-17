@@ -71,7 +71,10 @@ fn early_replay_slots_keep_clear_of_forgotten_admissions() {
     for _ in 0..super::ADMISSION_LOG + 6 {
         drop(limiter.clone().acquire(false, ahead).unwrap().unwrap());
         admitted.push(ahead.now());
-        assert!(ahead.advance(2 * interval), "the first clock stays in budget");
+        assert!(
+            ahead.advance(2 * interval),
+            "the first clock stays in budget"
+        );
     }
     let behind = crate::Deadline::start(budget, Some(&late));
     drop(limiter.clone().acquire(false, behind).unwrap().unwrap());
