@@ -42,3 +42,4 @@ Milestone: 7
 - j42283: the tool passed inside `check-cheap`; clippy's 80-line limit then failed `lint-tools` on the two checks, so their stubs moved into helpers.
 - j42285 (5081d7bc7): `make check-cheap` passes in 78 s on a warm M5 tree. `value-proof` adds about 32 s of that: 12 s to build the tools test binary after `ratchets` and 20 s to run the tool (a warm rerun took 20 s). On a cold tree (j42283) the build share was 9 s of a 177 s run.
 - j42288 (gate, merged with main b7c395a36): the landing gate passed (580 s, pre-job 200 s), but docs-check's `gate-stage-check` failed because its shell-check fixture copies only the Makefile and omits each Rust goal of check-cheap; `value-proof` joined that omission list.
+- j42294 (81e0a4dd1): `make --keep-going landing-gate docs-check schema-release-check` passes.
