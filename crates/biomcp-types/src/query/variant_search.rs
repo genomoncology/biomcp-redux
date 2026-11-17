@@ -107,7 +107,7 @@ text_value!(
     },
     "Explicit MyVariant query text. The schema limits Unicode character count; the parser additionally limits UTF-8 byte count to the same maximum."
 );
-/// Discover source candidates using one declared selector, without interpreting free text.
+/// Discover source candidates by checked selectors or a gene and protein phrase such as BRAF V600E.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -115,7 +115,7 @@ text_value!(
     {"required":["gene","protein"]},
     {"required":["gene","coding"]},
     {"required":["region","build"]},
-    {"required":["query","source"]}
+    {"required":["query"]}
 ])))]
 pub struct VariantSearch(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -154,8 +154,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantRegion"))]
     region: Option<VariantRegion>,
-    #[doc = " Raw MyVariant query, passed and echoed unchanged when component policy allows; requires \
-        --source myvariant. With disabled components use declared selectors instead."]
+    #[doc = " Gene and protein shorthand such as BRAF V600E. With --source myvariant this is \
+        raw MyVariant text, passed and echoed unchanged when component policy allows."]
     #[serde(
         default,
         deserialize_with = "present",
@@ -218,7 +218,8 @@ fn default_limit() -> u32 {
 crate::query::validation::checked_query!(VariantSearch, Fields);
 impl TryFrom<Fields> for VariantSearch {
     type Error = QueryInvalid;
-    fn try_from(f: Fields) -> Result<Self, Self::Error> {
+    fn try_from(mut f: Fields) -> Result<Self, Self::Error> {
+        f.resolve_shorthand();
         let protein = f.gene.is_some()
             && f.protein.is_some()
             && f.coding.is_none()
@@ -285,7 +286,55 @@ impl TryFrom<Fields> for VariantSearch {
         Ok(Self(f))
     }
 }
+/// Parse two checked tokens. A phrase never guesses a gene or amino-acid spelling.
+pub(super) fn parse_shorthand(value: &str) -> Option<(GeneSymbol, ProteinQuery)> {
+    let (gene, protein) = shorthand_words(value)?;
+    let protein = protein.parse::<ProteinQuery>().ok()?;
+    (!protein.is_synonymous()).then_some((gene.parse().ok()?, protein))
+}
+
+fn shorthand_words(value: &str) -> Option<(&str, &str)> {
+    if value.len() > crate::VariantInput::MAX_BYTES
+        || !value.bytes().all(|b| b.is_ascii_graphic() || b == b' ')
+    {
+        return None;
+    }
+    let mut words = value.split_ascii_whitespace();
+    let gene = words.next()?;
+    let protein = words.next()?;
+    words.next().is_none().then_some((gene, protein))
+}
+
 impl VariantSearch {
+    /// Checked positional shorthand as the two original selector words.
+    pub fn shorthand_fields(value: &str) -> Option<(&str, &str)> {
+        parse_shorthand(value)?;
+        shorthand_words(value)
+    }
+
+    pub(super) fn for_shorthand(
+        gene: GeneSymbol,
+        protein: ProteinQuery,
+        build: Option<Build>,
+        limit: u32,
+        offset: u32,
+    ) -> Option<Self> {
+        Self::try_from(Fields {
+            gene: Some(gene),
+            protein: Some(protein),
+            coding: None,
+            region: None,
+            query: None,
+            build,
+            source: None,
+            review_status: None,
+            condition: None,
+            has: None,
+            limit,
+            offset,
+        })
+        .ok()
+    }
     /// Inspect one unchanged source record without assigning an assembly.
     /// <https://docs.myvariant.info/en/latest/doc/variant_query_service.html#fielded-queries>
     pub fn source_record(id: &crate::VariantInput) -> Result<Self, QueryInvalid> {
@@ -410,6 +459,19 @@ impl crate::Paged for VariantSearch {
 }
 
 impl Fields {
+    fn resolve_shorthand(&mut self) {
+        if self.source.is_none()
+            && self.gene.is_none()
+            && self.protein.is_none()
+            && self.coding.is_none()
+            && self.region.is_none()
+            && let Some((gene, protein)) = self.query.as_ref().and_then(|q| parse_shorthand(&q.0))
+        {
+            self.gene = Some(gene);
+            self.protein = Some(protein);
+            self.query = None;
+        }
+    }
     fn filtered(&self) -> bool {
         self.review_status.is_some() || self.condition.is_some() || self.has.is_some()
     }

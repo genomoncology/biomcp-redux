@@ -276,6 +276,7 @@ pub(crate) struct ParseInvalid {
 pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let args = entry::arguments(args, root);
     let args = arguments::boolean_literals(&args, root);
+    let args = positional::variant_shorthand(root, &args).unwrap_or(args);
     let matches = root
         .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))

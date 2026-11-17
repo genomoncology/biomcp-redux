@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
     VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. \
     MyVariant identity lookups default to GRCh38; --build overrides it. \
     Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E \
-    or search variant --gene PTEN --coding c.333G>T for gene shorthand. \
+    or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein \
+    phrase such as BRAF V600E searches for checked allele candidates. \
     Every candidate remains available; source assertions do not classify the variant for the caller."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
@@ -14,6 +15,14 @@ use serde::{Deserialize, Serialize};
     schemars(with = "Fields", extend("x-reply-query-titles" = ["VariantGetQuery"]))
 )]
 pub struct VariantGet(Fields);
+
+fn lookup_input<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<VariantInput, D::Error> {
+    let input = String::deserialize(deserializer)?;
+    VariantInput::lookup(&input).map_err(serde::de::Error::custom)
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(
     deny_unknown_fields,
@@ -22,11 +31,12 @@ pub struct VariantGet(Fields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields<R: ResolverChoice = VariantResolver> {
     #[doc = "rs/CA/clinvar:N/VCV/HGVS/VCF\n\
-        rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates."]
+        rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E."]
+    #[serde(deserialize_with = "lookup_input")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[cfg_attr(
         feature = "schema",
-        schemars(with = "super::variant_input::LookupInput")
+        schemars(with = "super::variant_input::GetLookupInput")
     )]
     input: VariantInput,
     /// Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
@@ -183,6 +193,9 @@ impl TryFrom<Fields> for VariantGet {
         if !(1..=50).contains(&fields.limit) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
+        if fields.input.protein().is_some() && fields.offset >= crate::VariantSearch::MAX_RESULTS {
+            return Err(super::gene::QueryInvalid::new(&["offset"]));
+        }
         if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
             return Err(super::gene::QueryInvalid::new(&["section_limit"]));
         }
@@ -247,6 +260,9 @@ impl VariantGet {
         if input.namespace() == VariantNamespace::Unsupported {
             return Err(super::gene::QueryInvalid::new(&["input"]));
         }
+        if input.protein().is_some() && resolver != VariantResolver::Car {
+            return Err(super::gene::QueryInvalid::new(&["input", "resolver"]));
+        }
         if resolver == VariantResolver::Variantvalidator && build.is_none() {
             return Err(super::gene::QueryInvalid::new(&["resolver", "build"]));
         }
@@ -274,6 +290,17 @@ impl VariantGet {
             limit: default_limit(),
             offset: 0,
         }))
+    }
+    /// Read shorthand using the same selectors, assembly and page as variant search.
+    pub fn shorthand_search(&self) -> Option<crate::VariantSearch> {
+        let (gene, protein) = self.input().protein()?;
+        crate::VariantSearch::for_shorthand(
+            gene.clone(),
+            protein.clone(),
+            self.build(),
+            self.limit(),
+            self.offset(),
+        )
     }
     /// Explicit section selection; an empty list means identity only.
     pub fn sections(&self) -> &[VariantSection] {

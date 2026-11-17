@@ -14,6 +14,7 @@ enum InputKind {
     Hgvs(crate::HgvsText),
     Chromosome,
     Coordinates(String),
+    Protein(Box<(crate::GeneSymbol, super::ProteinQuery)>),
 }
 /// Namespace selected solely from the published identifier form.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -28,6 +29,8 @@ pub enum VariantNamespace {
     Hgvs,
     /// Chromosome HGVS description requiring an explicit build.
     Chromosome,
+    /// Checked gene and protein substitution, admitted only by variant get.
+    Protein,
     /// Identifier vocabulary is recognized but this get slice has no source route.
     Unsupported,
 }
@@ -76,6 +79,22 @@ impl VariantInput {
             return Err(Error::VariantInputInvalid);
         };
         Ok(Self { text, kind })
+    }
+    pub(super) fn lookup(value: &str) -> Result<Self, Error> {
+        if let Some(pair) = super::variant_search::parse_shorthand(value) {
+            return Ok(Self {
+                text: crate::Text::new(value).map_err(|_| Error::VariantInputInvalid)?,
+                kind: InputKind::Protein(Box::new(pair)),
+            });
+        }
+        Self::new(value)
+    }
+
+    pub(super) fn protein(&self) -> Option<&(crate::GeneSymbol, super::ProteinQuery)> {
+        match &self.kind {
+            InputKind::Protein(pair) => Some(pair),
+            _ => None,
+        }
     }
     /// Preserve a parsed candidate identity and apply the input text bounds once.
     pub fn from_identity(id: crate::VariantId) -> Result<Self, Error> {
@@ -193,6 +212,7 @@ impl VariantInput {
             }
             InputKind::Id(_) => VariantNamespace::Unsupported,
             InputKind::Hgvs(_) => VariantNamespace::Hgvs,
+            InputKind::Protein(_) => VariantNamespace::Protein,
             InputKind::Chromosome | InputKind::Coordinates(_) => VariantNamespace::Chromosome,
         }
     }
@@ -359,6 +379,31 @@ impl schemars::JsonSchema for LookupInput {
             )
             .into(),
         );
+        schema
+    }
+}
+
+/// Variant get also accepts a checked gene/protein phrase.
+#[cfg(feature = "schema")]
+pub(super) struct GetLookupInput;
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for GetLookupInput {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "VariantGetLookupInput".into()
+    }
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        let mut schema = LookupInput::json_schema(generator);
+        if let Some(pattern) = schema.get("pattern").and_then(serde_json::Value::as_str) {
+            let gene = crate::GeneSymbol::pattern();
+            let protein = super::ProteinQuery::pattern();
+            let shorthand = format!(
+                "^ *{} +{} *$",
+                gene.trim_start_matches('^').trim_end_matches('$'),
+                protein.trim_start_matches('^').trim_end_matches('$')
+            );
+            let pattern = format!("(?:{pattern})|(?:{shorthand})");
+            schema.insert("pattern".into(), pattern.into());
+        }
         schema
     }
 }
