@@ -52,7 +52,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                                 record: gene
                                     .ensembl_id
                                     .as_ref()
-                                    .and_then(|id| SourceRecord::asked(Some("Ensembl"), id)),
+                                    .and_then(|id| SourceRecord::asked(Some("Ensembl"), id.base())),
                             }
                         }
                     }

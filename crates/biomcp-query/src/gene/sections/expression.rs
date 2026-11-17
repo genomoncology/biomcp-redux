@@ -34,7 +34,7 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 }
                 Ok(None) => Section::Empty {
                     source: GeneSection::Expression.source(),
-                    record: SourceRecord::asked(Some("Ensembl"), ensembl),
+                    record: SourceRecord::asked(Some("Ensembl"), ensembl.base()),
                 },
                 Err(failure) => {
                     error = Some(failure);
