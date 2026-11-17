@@ -20,7 +20,7 @@ pub fn command_section_component(verb: &str, entity: &str, word: &str) -> Option
 pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
     use Source::{
         AlleleRegistry, AlphaGenome, CancerHotspots, Cbioportal, Cellosaurus, Chembl, Civic,
-        ClinGen, ClinVar, ClinicalTrialsGov, ComplexPortal, Erepo, EuropePmc, Gencc, Gnomad, Gwas,
+        ClinGen, ClinVar, ClinicalTrialsGov, ComplexPortal, Erepo, EuropePmc, Gencc, Gnomad, Gprofiler, Gwas,
         Hgnc, Hpa, Icite, InterPro, Mutalyzer, MyGene, MyVariant, Oncokb, Orcid, PmcOa, PubMed,
         PubTator, Reactome, SemanticScholar, UniProt, VariantValidator, WikiPathways,
     };
@@ -50,6 +50,7 @@ pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
             AlleleRegistry,
         ],
         ("search", "gene") => &[Hgnc, ClinGen],
+        ("gene", "enrichment") => &[Gprofiler],
         ("get", "gene") => &[
             Hgnc, MyGene, UniProt, Civic, ClinGen, Gencc, ClinVar, Gnomad, Hpa, Reactome, Oncokb,
         ],
