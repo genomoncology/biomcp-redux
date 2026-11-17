@@ -292,6 +292,15 @@
       "pattern": "^PA[1-9][0-9]*$",
       "type": "string"
     },
+    "ClinvarRecordKind": {
+      "description": "ClinVar record kind.",
+      "enum": [
+        "vcv",
+        "rcv",
+        "scv"
+      ],
+      "type": "string"
+    },
     "CodingChange": {
       "description": "HGVS 21.1 coding edit syntax without a reference. The parser additionally requires increasing range endpoints, different substitution bases and insertion adjacency where literal positions establish it. It does not check transcript sequence or exon boundaries.",
       "pattern": "^c\\.(?:[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?[ACGTNRYSWKMBDHV]>[ACGTNRYSWKMBDHV]|[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?(?:_[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?)?(?:del|dup|delins(?=[ACGTNRYSWKMBDHV])[ACGTNRYSWKMBDHV]*)|[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?_[-*]?[1-9][0-9]*(?:[+-][1-9][0-9]*)?ins(?=[ACGTNRYSWKMBDHV])[ACGTNRYSWKMBDHV]*)$",
@@ -4220,6 +4229,17 @@
           "description": "Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.",
           "x-positional": 0
         },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ClinvarRecordKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar."
+        },
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
           "format": "uint32",
@@ -4483,6 +4503,17 @@
             "integer",
             "null"
           ]
+        },
+        "clinvar_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ClinvarRecordKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Kind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
         },
         "command": {
           "const": "get-variant",

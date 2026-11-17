@@ -115,6 +115,7 @@ pub(super) fn section(
         id.clone(),
         query.assertion_limit(source),
         query.section_offset(),
+        query.clinvar_kind(),
     ) {
         Ok(query) => query,
         Err(_) => {
@@ -301,6 +302,9 @@ fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> Varian
                         .is_none_or(|v| a.version.as_ref() == Some(v))
             })
         });
+    }
+    if let Some(kind) = query.kind() {
+        rows.retain(|r| r.kind == kind.assertion_kind());
     }
     let total = rows.len() as u64;
     let mut rows = rows

@@ -3619,6 +3619,11 @@ Options:
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
+      --clinvar-kind <clinvar_kind>
+          Kind; help get variant
+          Kind
+          ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all.
+
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
@@ -3648,9 +3653,6 @@ Options:
           Source CIViC evidence status; omitted preserves the source's existing default.
           Only with --source civic on get drug, and the civic section on get variant.
 
-      --limit <limit>
-          Candidate rows per page; more remain reachable through typed next commands.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -3662,6 +3664,9 @@ Options:
 
           [default: false]
           [possible values: true, false]
+
+      --limit <limit>
+          Candidate rows per page; more remain reachable through typed next commands.
 
       --offset <offset>
           Candidate rows to skip in source order.
@@ -3694,6 +3699,8 @@ Source CIViC cursor, retained unchanged. Only with section civic or all. Value f
 - `--civic-kind`: Claims
 Source CIViC claim collection within the selected profile. Only with section civic or all. Value form: string; example: --civic-kind evidence.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Only with section civic or all. Value form: integer; example: --civic-profile 12.
+- `--clinvar-kind`: Kind
+ClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
 - `--disease`: Disease
 CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
@@ -3716,7 +3723,7 @@ Form: get variant INPUT SECTION...; not --input.
 Resolver for reference-qualified notation; never repairs the input locally. Value form: string; example: --resolver variantvalidator.
 - `section`: Sections.
 Form: get variant INPUT SECTION...; not --section.
-- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 2.
+- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 50.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer; example: --section-offset 0.
 - `--tumor-type`: Tumor
 Explicit tumor context for keyed OncoKB annotation. Value form: string; example: --tumor-type Melanoma.
@@ -5288,17 +5295,21 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --kind <kind>
+          ClinVar record kind to keep: vcv, rcv or scv (one row; help variant assertions
+          ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar.
+
       --limit <limit>
           Assertions per page; omitted uses the source default.
-
-      --offset <offset>
-          Assertions to skip in source order.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --offset <offset>
+          Assertions to skip in source order.
 
       --source <source>
           One source assertion source; shared identity; help variant assertions
@@ -5329,8 +5340,9 @@ Options apply to every listed source unless their description restricts them.
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 Form: variant assertions INPUT; not --input.
-- `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 1.
-- `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 0.
+- `--kind`: ClinVar record kind to keep: vcv, rcv or scv (one row per submitter); the total counts only that kind. Only with --source clinvar. Value form: string; example: --kind scv.
+- `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 50.
+- `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 50.
 - `--source`: One source assertion source; shared identity conversion precedes source access when needed. Value form: string; example: --source clinvar.
 - `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version. Value form: string; example: --version 1.0.0.
 

@@ -70,6 +70,15 @@
       ],
       "type": "string"
     },
+    "ClinvarRecordKind": {
+      "description": "ClinVar record kind.",
+      "enum": [
+        "vcv",
+        "rcv",
+        "scv"
+      ],
+      "type": "string"
+    },
     "Text": {
       "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
       "maxLength": 1048576,
@@ -171,6 +180,17 @@
         "integer",
         "null"
       ]
+    },
+    "clinvar_kind": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ClinvarRecordKind"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Kind; help get variant\nKind\nClinVar record kind: vcv, rcv or scv (one row per submitter); the section total counts only that kind. Only with section clinvar or all."
     },
     "disease": {
       "anyOf": [
