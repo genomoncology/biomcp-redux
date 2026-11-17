@@ -15,6 +15,7 @@ mod recall;
 mod resolve;
 pub(crate) mod search_names;
 pub(crate) mod who;
+mod who_eml;
 mod widen;
 use crate::{Ctx, Outcome, status};
 /// Search selected-source records, consulting source-stated names only after an empty lookup.
@@ -98,7 +99,10 @@ fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 /// Get one exact native document, without fallback or automatic section expansion.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let mut out = if query.is_name() {
+    // The WHO eEML resolves its own names: its search page names each medicine.
+    let mut out = if query.source() == DrugSource::WhoEml {
+        who_eml::get(cx, query)
+    } else if query.is_name() {
         aliases::get(cx, query)
     } else {
         selected_get(cx, query)
@@ -110,7 +114,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
 /// headings of one SPL record share one read. A name that resolves to no record answers with
 /// one outcome for all parts.
 pub(crate) fn get_parts(cx: &Ctx<'_>, parts: &[DrugGet]) -> Vec<Outcome> {
-    let mut outcomes = if parts.first().is_some_and(DrugGet::is_name) {
+    let mut outcomes = if parts.first().is_some_and(|p| p.source() == DrugSource::WhoEml) {
+        parts.iter().map(|part| who_eml::get(cx, part)).collect()
+    } else if parts.first().is_some_and(DrugGet::is_name) {
         aliases::get_parts(cx, parts)
     } else {
         selected_parts(cx, parts)

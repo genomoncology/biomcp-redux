@@ -186,7 +186,8 @@ mod drug;
 pub use drug::{
     DEFAULT_DRUG_APPROVALS_LIMIT, DateRoleLabel, DrugApprovals, DrugApprovalsPart, DrugCard,
     DrugCivic, DrugCivicClaim, DrugCivicMember, DrugCivicPage, DrugCivicPart, DrugCivicProfile,
-    DrugCivicStreams, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
+    DrugCivicStreams, DrugEssentialMedicineDecision, DrugEssentialMedicineListing,
+    DrugEssentialMedicines, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
     DrugFdaLatestSubmission, DrugFdaOriginalApproval, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
     DrugFdaSort, DrugFdaSubmission, DrugFdaSupplementPurpose, DrugGet, DrugHeader, DrugIndications,
     DrugIndicationsPart, DrugInteractions, DrugInteractionsPart, DrugLabel, DrugLabelFragment,

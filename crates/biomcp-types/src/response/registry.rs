@@ -78,6 +78,7 @@ macro_rules! reply_types {
             drug_approvals: $crate::DrugApprovals => "drug-approvals",
             drug_regulatory: $crate::DrugRegulatory => "drug-regulatory",
             drug_interactions: $crate::DrugInteractions => "drug-interactions",
+            drug_essential_medicines: $crate::DrugEssentialMedicines => "drug-essential-medicines",
             drug_sections: $crate::DrugSections => "drug-sections",
             drug_markets: $crate::DrugMarkets => "drug-markets",
             diagnostic_page: $crate::DiagnosticPage => "diagnostic-page",

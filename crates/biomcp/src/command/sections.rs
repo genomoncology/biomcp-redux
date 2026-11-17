@@ -167,6 +167,8 @@ impl Reply for Part<'_> {
             }
             // The markets section is its own request; a drug get never carries it.
             DrugSection::Markets => None,
+            // The WHO eEML serves only this section, so it never shares a reply with another.
+            DrugSection::EssentialMedicines => None,
         }
     }
     fn drug_xrefs(self, query: DrugGet, body: Option<DrugXrefs>) -> Self::Output {
