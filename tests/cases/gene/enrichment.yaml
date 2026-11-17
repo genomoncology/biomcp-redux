@@ -2,11 +2,23 @@
   "feature": "gene-enrichment",
   "live_check": "public",
   "story": "A computational biologist sends a five-gene DNA-damage shortlist and reads the over-represented Reactome pathways with g:Profiler's own adjusted p values, its stated correction and the background size; an input g:Profiler cannot map is named, not dropped silently.",
-  "verified": "PENDING",
+  "verified": "Captured live 2026-11-17 from g:Profiler (release e114_eg62_p19_9dc92ac8) in pm job j42159. With --terms reactome --correction fdr the first terms are Homology Directed Repair (REAC:R-HSA-5693538, adjusted p 1.8e-06, 4 of 4 mapped genes, term size 140, background 11,056) and DNA Double-Strand Break Repair; TTK maps to a gene but has no Reactome annotation, so Reactome's query size is 4. NOTAGENE1 comes back in g:Profiler's failed list.",
   "replay": "gene/enrichment",
   "steps": [
     {
-      "run": ["gene", "enrichment", "POLQ", "WRN", "CHEK1", "TTK", "PARP1", "--terms", "reactome", "--correction", "fdr"],
+      "run": [
+        "gene",
+        "enrichment",
+        "POLQ",
+        "WRN",
+        "CHEK1",
+        "TTK",
+        "PARP1",
+        "--terms",
+        "reactome",
+        "--correction",
+        "fdr"
+      ],
       "expect": {
         "/status": "complete",
         "/result/correction": "fdr",
@@ -17,16 +29,60 @@
         "/result/items/1/id": "REAC:R-HSA-5693532",
         "/result/items/1/name": "DNA Double-Strand Break Repair",
         "/sources/0/source": "gprofiler",
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/page/total": 61,
+        "/result/items/0/genes": [
+          "POLQ",
+          "WRN",
+          "CHEK1",
+          "PARP1"
+        ],
+        "/result/items/0/background_size": 11056
       }
     },
     {
-      "run": ["gene", "enrichment", "POLQ", "WRN", "CHEK1", "TTK", "PARP1", "NOTAGENE1"],
+      "run": [
+        "gene",
+        "enrichment",
+        "POLQ",
+        "WRN",
+        "CHEK1",
+        "TTK",
+        "PARP1",
+        "NOTAGENE1"
+      ],
       "expect": {
         "/status": "complete",
         "/result/correction": "g-scs",
         "/result/unmapped/0": "NOTAGENE1",
         "/sources/0/source": "gprofiler"
+      }
+    },
+    {
+      "run": [
+        "gene",
+        "enrichment",
+        "POLQ",
+        "WRN",
+        "CHEK1",
+        "TTK",
+        "PARP1",
+        "--terms",
+        "reactome",
+        "--correction",
+        "fdr",
+        "--limit",
+        "2",
+        "--offset",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 2,
+        "/page/returned": 2,
+        "/page/total": 61,
+        "/result/items/0/id": "REAC:R-HSA-73894",
+        "/result/items/0/name": "DNA Repair"
       }
     }
   ]

@@ -176,7 +176,7 @@
           "description": "Multiple-testing correction; g:SCS by default."
         },
         "genes": {
-          "description": "One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them.",
+          "description": "One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them; commas also separate genes.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },

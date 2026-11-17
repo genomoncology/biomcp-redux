@@ -327,6 +327,7 @@
         "--type is retired: the accepted pathway class is enforced and needs no filter.",
         "KEGG pathways are dropped; use a Reactome R-HSA-… or WikiPathways WP… ID.",
         "Gene-set enrichment is dropped; an agent can call g:Profiler itself.",
+        "use: gene enrichment GENE...; g:Profiler runs the enrichment and states its statistics.",
         "use: get pathway ID genes; reverse gene-to-drug search is not supported; select a drug identity and request its explicit source sections.",
         "use: search article <text>; a matching title does not establish pathway article linkage.",
         "use: search trial --gene <gene>; pathway-name trial search is retired.",

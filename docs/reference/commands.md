@@ -5638,7 +5638,7 @@ Usage: biomcp gene enrichment [OPTIONS] <genes>...
 
 Arguments:
   <genes>...
-          One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them.
+          One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them; commas also separate genes.
 
 Options:
       --correction <correction>
@@ -5689,7 +5689,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
 - `--correction`: Multiple-testing correction; g:SCS by default. Value form: string; example: --correction fdr.
-- `genes`: One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them.
+- `genes`: One to 500 human gene symbols or Ensembl, Entrez or UniProt IDs, as g:Profiler reads them; commas also separate genes.
 Form: gene enrichment GENES...; not --genes.
 - `--limit`: Ten terms by default, one to fifty, smallest adjusted p value first. Value form: integer; example: --limit 10.
 - `--offset`: Terms to skip in that order. Value form: integer; example: --offset 0.
