@@ -151,6 +151,8 @@ canonical_enum! {
         Cellosaurus => "cellosaurus",
         /// Orphadata Science epidemiology and natural-history files.
         Orphadata => "orphadata",
+        /// STRING protein association networks.
+        StringDb => "string",
     }
 }
 

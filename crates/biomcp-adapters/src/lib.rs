@@ -18,6 +18,7 @@ mod strict_input;
 pub use mapped::{Mapped, Refusal};
 
 pub mod complex_portal;
+pub mod string_db;
 pub mod gnomad;
 pub mod interpro;
 pub mod uniprot;

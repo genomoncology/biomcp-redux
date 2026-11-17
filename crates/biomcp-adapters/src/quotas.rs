@@ -203,6 +203,9 @@ quotas! {
     /// provider-domain policy search; retain conservative local ceiling.
     COMPLEX_PORTAL = Quota::new(SourceKey::declare("complex-portal"), Rate::per_second(1), None, 1);
 
+    /// Checked 2026-11-17: https://string-db.org/help/api/ . Published: wait one second between calls and do not call in parallel.
+    STRING = Quota::new(SourceKey::declare("string"), Rate::per_second(1), None, 1);
+
     /// Checked 2026-11-01: https://api.cellosaurus.org/ . No published numeric limit found in service documentation/terms and provider-domain policy
     /// search; retain conservative local ceiling.
     CELLOSAURUS = Quota::new(SourceKey::declare("cellosaurus"), Rate::per_second(2), None, 1);
