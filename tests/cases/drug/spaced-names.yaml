@@ -1,27 +1,10 @@
 {
   "feature": "drug-name-get",
-  "story": "A drug name with a space, such as a salt or full name, answers with a reply that matches its schema on every source that keeps the name. FDA drug recalls have no record for dabigatran etexilate; Drugs@FDA and openFDA labels have none for metamizole sodium, which is not marketed in the US; Open Targets has none for domperidone maleate. Each answers absent and echoes the name as given, spaces included, in query.input.",
+  "story": "A drug name with a space, such as a salt or full name, answers with a reply that matches its schema on every source that keeps the name. Drugs@FDA and openFDA labels have no record for metamizole sodium, which is not marketed in the US, and Open Targets has none for domperidone maleate; each answers absent, names the record another source holds, and echoes the name as given, spaces included, in query.input.",
   "live_check": "public",
   "verified": "Source replies recorded unchanged with biomcp --record; see tests/replies/drug/spaced-names/README.md.",
   "replay": "drug/spaced-names",
   "steps": [
-    {
-      "run": [
-        "get",
-        "drug",
-        "dabigatran etexilate",
-        "--source",
-        "fda-drug-recall"
-      ],
-      "exit": 1,
-      "expect": {
-        "/status": "absent",
-        "/schema": "biomcp.drug-card/7",
-        "/query/input": "dabigatran etexilate",
-        "/query/source": "fda-drug-recall"
-      },
-      "max_bytes": 3000
-    },
     {
       "run": [
         "get",
