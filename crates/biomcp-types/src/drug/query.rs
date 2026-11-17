@@ -238,6 +238,7 @@ fn validate_civic(fields: &GetFields) -> Result<(), QueryInvalid> {
         return Err(QueryInvalid::new(&[
             "evidence_level",
             "evidence_status",
+            "evidence_significance",
             "civic_kind",
         ]));
     }

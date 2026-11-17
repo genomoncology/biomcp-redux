@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "1d8ca35f9b29dfb77890a9a68b5b9506239e83cab8a259cae996301ffcb9fe55"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794871762,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 73,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"evidenceItems":{"totalCount":18,"pageInfo":{"hasNextPage":true,"endCursor":"Mg"},"nodes":[{"id":238,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"SUPPORTS","significance":"RESISTANCE","disease":{"name":"Lung Non-small Cell Carcinoma","doid":"3908"},"therapies":[{"name":"Erlotinib"}],"therapyInteractionType":null,"source":{"citationId":"25668228","sourceType":"PUBMED"}},{"id":240,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"B","evidenceDirection":"SUPPORTS","significance":"RESISTANCE","disease":{"name":"Lung Non-small Cell Carcinoma","doid":"3908"},"therapies":[{"name":"Dacomitinib"}],"therapyInteractionType":null,"source":{"citationId":"21430269","sourceType":"PUBMED"}}]}}}
+      }
+    }
+  ]
+}

@@ -20,6 +20,13 @@ pub(super) fn arguments(
         || default_status.to_owned(),
         |status| format!("status:{}", status.as_str().to_ascii_uppercase()),
     );
+    let status = match filter.evidence_significance {
+        Some(significance) => format!(
+            "{status},significance:{}",
+            significance.as_str().to_ascii_uppercase()
+        ),
+        None => status,
+    };
     match level {
         Some(level) => format!("{status},evidenceLevel:{}", level.as_str()),
         None => status,
