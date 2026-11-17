@@ -22,7 +22,7 @@
         "/result/identity/name": "Xarelto",
         "/result/identity/name_resolution/basis": "brand",
         "/result/identity/name_resolution/total": 7,
-        "/result/identity/name_resolution/reason": "chose Xarelto (10db92f9-2300-4a80-836b-673e1ae91610), a brand-name NDA/BLA label listing 10 numbered indications; 6 other labels share this name: 6 brand-name NDA/BLA labels"
+        "/result/identity/name_resolution/reason": "chose Xarelto (10db92f9-2300-4a80-836b-673e1ae91610), a brand-name NDA/BLA label from its original packager listing 10 numbered indications; 6 other labels share this name: 6 brand-name NDA/BLA labels; 6 are repackaged copies"
       },
       "max_bytes": 12000
     }

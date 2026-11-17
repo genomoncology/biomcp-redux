@@ -1,0 +1,579 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22JANUVIA%22%20OR%20openfda.generic_name%3A%22JANUVIA%22&limit=50&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794919760,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 652,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-17",
+            "results": {
+              "skip": 0,
+              "limit": 50,
+              "total": 9
+            }
+          },
+          "results": [
+            {
+              "effective_time": "20260708",
+              "id": "5e9c2adc-02b6-452b-8c25-12cdaf989152",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-3472"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665044",
+                  "2709608"
+                ],
+                "spl_id": [
+                  "5e9c2adc-02b6-452b-8c25-12cdaf989152"
+                ],
+                "spl_set_id": [
+                  "194c3718-5eb5-4cf5-85d0-2bb1ed8293b8"
+                ],
+                "package_ndc": [
+                  "50090-3472-1",
+                  "50090-3472-0"
+                ],
+                "original_packager_product_ndc": [
+                  "0006-0112"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "194c3718-5eb5-4cf5-85d0-2bb1ed8293b8",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM magnesium stearate MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE light beige round 112"
+              ],
+              "version": "14",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: JANUVIA should not be used in patients with type 1 diabetes ( 1 ) JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            },
+            {
+              "effective_time": "20260708",
+              "id": "a8fb9fdc-d34e-45db-8ecf-f9de43c069ad",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-3527"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665040",
+                  "2709612"
+                ],
+                "spl_id": [
+                  "a8fb9fdc-d34e-45db-8ecf-f9de43c069ad"
+                ],
+                "spl_set_id": [
+                  "1b03c82f-b52e-4092-b9dc-f2c9b0d6ab40"
+                ],
+                "package_ndc": [
+                  "50090-3527-1",
+                  "50090-3527-0"
+                ],
+                "original_packager_product_ndc": [
+                  "0006-0221"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "1b03c82f-b52e-4092-b9dc-f2c9b0d6ab40",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE pink round 221"
+              ],
+              "version": "9",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: JANUVIA should not be used in patients with type 1 diabetes ( 1 ) JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            },
+            {
+              "effective_time": "20260708",
+              "id": "97b5b77b-766b-4f55-b7f8-21a0214e6ee5",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-4087"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665040",
+                  "2709612"
+                ],
+                "spl_id": [
+                  "97b5b77b-766b-4f55-b7f8-21a0214e6ee5"
+                ],
+                "spl_set_id": [
+                  "4a758211-8af1-449b-9a10-f3d67d7ec8b6"
+                ],
+                "package_ndc": [
+                  "50090-4087-0"
+                ],
+                "original_packager_product_ndc": [
+                  "0006-0221"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "4a758211-8af1-449b-9a10-f3d67d7ec8b6",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE pink round 221"
+              ],
+              "version": "7",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: JANUVIA should not be used in patients with type 1 diabetes ( 1 ) JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            },
+            {
+              "effective_time": "20260708",
+              "id": "527a68da-18ba-4618-80ab-269746c1070b",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-4084"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665036",
+                  "2709603"
+                ],
+                "spl_id": [
+                  "527a68da-18ba-4618-80ab-269746c1070b"
+                ],
+                "spl_set_id": [
+                  "62c4f58b-2b28-4825-aeb6-213ab9b7a026"
+                ],
+                "package_ndc": [
+                  "50090-4084-0"
+                ],
+                "original_packager_product_ndc": [
+                  "0006-0277"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "62c4f58b-2b28-4825-aeb6-213ab9b7a026",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE croscarmellose sodium magnesium stearate MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE beige round 277"
+              ],
+              "version": "11",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: JANUVIA should not be used in patients with type 1 diabetes ( 1 ) JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            },
+            {
+              "effective_time": "20260708",
+              "id": "de43e296-456d-415e-b29b-86c5a9c7c174",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-4086"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665044",
+                  "2709608"
+                ],
+                "spl_id": [
+                  "de43e296-456d-415e-b29b-86c5a9c7c174"
+                ],
+                "spl_set_id": [
+                  "eb81a45f-05b8-49de-99ce-5089bd360d9b"
+                ],
+                "package_ndc": [
+                  "50090-4086-0"
+                ],
+                "original_packager_product_ndc": [
+                  "0006-0112"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "eb81a45f-05b8-49de-99ce-5089bd360d9b",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM magnesium stearate MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE light beige round 112"
+              ],
+              "version": "10",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: JANUVIA should not be used in patients with type 1 diabetes ( 1 ) JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            },
+            {
+              "effective_time": "20251105",
+              "id": "f843c4d2-5112-42bf-b060-ed74648d922e",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "Cardinal Health 107, LLC"
+                ],
+                "product_ndc": [
+                  "55154-5040"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665044",
+                  "2709608"
+                ],
+                "spl_id": [
+                  "f843c4d2-5112-42bf-b060-ed74648d922e"
+                ],
+                "spl_set_id": [
+                  "39253ddd-0245-43b1-ad28-d5923983afb4"
+                ],
+                "package_ndc": [
+                  "55154-5040-8"
+                ],
+                "original_packager_product_ndc": [
+                  "0006-0112"
+                ],
+                "upc": [
+                  "0355154504080"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "39253ddd-0245-43b1-ad28-d5923983afb4",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN MICROCRYSTALLINE CELLULOSE ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM MAGNESIUM STEARATE SODIUM STEARYL FUMARATE PROPYL GALLATE POLYVINYL ALCOHOL, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE FERRIC OXIDE RED FERRIC OXIDE YELLOW light beige round 112"
+              ],
+              "version": "26",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: • JANUVIA should not be used in patients with type 1 diabetes ( 1 ) • JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            },
+            {
+              "effective_time": "20251105",
+              "id": "a4967ec8-0c3d-4e7f-a271-b8043bcac46b",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "Cardinal Health 107, LLC"
+                ],
+                "product_ndc": [
+                  "55154-5042"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665036",
+                  "2709603"
+                ],
+                "spl_id": [
+                  "a4967ec8-0c3d-4e7f-a271-b8043bcac46b"
+                ],
+                "spl_set_id": [
+                  "9d558f96-24a5-4788-8933-38256c17384b"
+                ],
+                "package_ndc": [
+                  "55154-5042-8"
+                ],
+                "original_packager_product_ndc": [
+                  "0006-0277"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "9d558f96-24a5-4788-8933-38256c17384b",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN MICROCRYSTALLINE CELLULOSE ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM MAGNESIUM STEARATE SODIUM STEARYL FUMARATE PROPYL GALLATE POLYVINYL ALCOHOL, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE FERRIC OXIDE RED FERRIC OXIDE YELLOW beige round 277"
+              ],
+              "version": "15",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: • JANUVIA should not be used in patients with type 1 diabetes ( 1 ) • JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            },
+            {
+              "effective_time": "20241114",
+              "id": "71d449de-955b-4711-9a44-1e1f66e2e9eb",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "Merck Sharp & Dohme LLC"
+                ],
+                "product_ndc": [
+                  "0006-0112",
+                  "0006-0221",
+                  "0006-0277"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665036",
+                  "665040",
+                  "665044",
+                  "2709603",
+                  "2709608",
+                  "2709612"
+                ],
+                "spl_id": [
+                  "71d449de-955b-4711-9a44-1e1f66e2e9eb"
+                ],
+                "spl_set_id": [
+                  "f85a48d0-0407-4c50-b0fa-7673a160bf01"
+                ],
+                "package_ndc": [
+                  "0006-0221-01",
+                  "0006-0221-28",
+                  "0006-0221-31",
+                  "0006-0221-54",
+                  "0006-0112-01",
+                  "0006-0112-28",
+                  "0006-0112-31",
+                  "0006-0112-54",
+                  "0006-0277-01",
+                  "0006-0277-28",
+                  "0006-0277-31",
+                  "0006-0277-54",
+                  "0006-0277-02",
+                  "0006-0277-33",
+                  "0006-0277-82",
+                  "0006-0277-14",
+                  "0006-0277-27",
+                  "0006-0277-30"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0300060112317",
+                  "0300060221316",
+                  "0300060277313"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "f85a48d0-0407-4c50-b0fa-7673a160bf01",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE pink round 221 JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE CROSCARMELLOSE SODIUM magnesium stearate MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE light beige round 112 JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE croscarmellose sodium magnesium stearate MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE beige round 277"
+              ],
+              "version": "71",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: JANUVIA should not be used in patients with type 1 diabetes ( 1 ) JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            },
+            {
+              "effective_time": "20240131",
+              "id": "57d5a9ab-a804-4a69-bdec-60a319ad8700",
+              "openfda": {
+                "application_number": [
+                  "NDA021995"
+                ],
+                "brand_name": [
+                  "JANUVIA"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-1036"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE"
+                ],
+                "rxcui": [
+                  "665036",
+                  "2709603"
+                ],
+                "spl_id": [
+                  "57d5a9ab-a804-4a69-bdec-60a319ad8700"
+                ],
+                "spl_set_id": [
+                  "e2e576e6-6181-4178-b989-61d0e795e559"
+                ],
+                "package_ndc": [
+                  "50090-1036-2",
+                  "50090-1036-0"
+                ],
+                "original_packager_product_ndc": [
+                  "0006-0277"
+                ],
+                "unii": [
+                  "TS63EW8X6F"
+                ]
+              },
+              "set_id": "e2e576e6-6181-4178-b989-61d0e795e559",
+              "spl_product_data_elements": [
+                "JANUVIA sitagliptin SITAGLIPTIN PHOSPHATE SITAGLIPTIN ANHYDROUS DIBASIC CALCIUM PHOSPHATE croscarmellose sodium magnesium stearate MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM STEARYL FUMARATE talc titanium dioxide FERRIC OXIDE YELLOW PROPYL GALLATE beige round 277"
+              ],
+              "version": "13",
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE JANUVIA ® is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. JANUVIA is a dipeptidyl peptidase-4 (DPP-4) inhibitor indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: JANUVIA should not be used in patients with type 1 diabetes ( 1 ) JANUVIA has not been studied in patients with a history of pancreatitis. ( 1 , 5.1 ) Limitations of Use JANUVIA should not be used in patients with type 1 diabetes. JANUVIA has not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using JANUVIA. [See Warnings and Precautions (5.1) .]"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "verified": "tests/replies/drug/label-holder-choice/provenance.json records the live openFDA replies of 2026-11-17 (job j42296) and their body hashes; the base commit 5f1813739 read RemedyRepack's ELIQUIS copy 7be1f4c1 and A-S Medication's JANUVIA copy 194c3718 the same day.",
+  "live_check": "public",
+  "feature": "drug-name-get",
+  "story": "A label read chooses the label the application holder filed over repackagers' copies, which openFDA does not mark as the original packager's and which can lag the holder's text: ELIQUIS matches 9 labels and the reply reads Bristol-Myers Squibb's, not RemedyRepack's newer copy; JANUVIA matches 9 and the reply reads Merck's 2024 label, not A-S Medication's 2026 copies. The repackaged copies stay listed as alternatives.",
+  "replay": "drug/label-holder-choice",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "ELIQUIS",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/source": "openfda-label",
+        "/result/identity/id": "e9481622-7cc6-418a-acb6-c5450daae9b0",
+        "/result/identity/name_resolution/basis": "brand",
+        "/result/identity/name_resolution/total": 9,
+        "/result/identity/name_resolution/reason": "chose ELIQUIS (e9481622-7cc6-418a-acb6-c5450daae9b0), a brand-name NDA/BLA label from its original packager listing 6 numbered indications; 8 other labels share this name: 8 brand-name NDA/BLA labels; 8 are repackaged copies",
+        "/result/identity/name_resolution/alternatives": {
+          "count": 5
+        },
+        "/result/identity/name_resolution/alternatives/0/args": [
+          "get",
+          "drug",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "--source",
+          "openfda-label"
+        ]
+      },
+      "max_bytes": 5400
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "JANUVIA",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/source": "openfda-label",
+        "/result/identity/id": "f85a48d0-0407-4c50-b0fa-7673a160bf01",
+        "/result/identity/name_resolution/total": 9,
+        "/result/identity/name_resolution/reason": "chose JANUVIA (f85a48d0-0407-4c50-b0fa-7673a160bf01), a brand-name NDA/BLA label from its original packager; 8 other labels share this name: 8 brand-name NDA/BLA labels; 8 are repackaged copies",
+        "/result/identity/name_resolution/alternatives/0/args": [
+          "get",
+          "drug",
+          "194c3718-5eb5-4cf5-85d0-2bb1ed8293b8",
+          "--source",
+          "openfda-label"
+        ]
+      },
+      "max_bytes": 4000
+    }
+  ]
+}

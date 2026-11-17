@@ -1,0 +1,39 @@
+{
+  "projection": "Native identity, harmonized fields, product data and the indications section only (effective_time, id, openfda, set_id, spl_product_data_elements, version, indications_and_usage); meta and request identity are the original live reply's.",
+  "sha256": "SHA-256 of each original reply body serialized as compact JSON",
+  "job": "j42296",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22ELIQUIS%22%20OR%20openfda.generic_name%3A%22ELIQUIS%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "464456bfdb50a78db700a0c8a51ffef566cb1c96ad8a1d50b952eb987002e2f5",
+      "status": 200,
+      "bytes": 2485403,
+      "kept_whole": false,
+      "retrieved": "2026-11-17"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22e9481622-7cc6-418a-acb6-c5450daae9b0%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "2f54776d2674373964191c75fb1f31ce8f8ee17520e966d3fb2aa72451ebe44d",
+      "status": 200,
+      "bytes": 294802,
+      "kept_whole": false,
+      "retrieved": "2026-11-17"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22f85a48d0-0407-4c50-b0fa-7673a160bf01%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "b2b889856354fdafb9b059046e6111cae3f385b7687d958370d3179939779b10",
+      "status": 200,
+      "bytes": 222341,
+      "kept_whole": false,
+      "retrieved": "2026-11-17"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22JANUVIA%22%20OR%20openfda.generic_name%3A%22JANUVIA%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "f807bc13e492b7418d596d681c671c25dc0dd2fc79774bf9b27b15a860d8162c",
+      "status": 200,
+      "bytes": 1991706,
+      "kept_whole": false,
+      "retrieved": "2026-11-17"
+    }
+  ]
+}
