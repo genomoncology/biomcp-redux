@@ -400,7 +400,7 @@ Arguments:
 
 Options:
       --disease <disease>
-          Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
+          Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma).
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -458,7 +458,7 @@ Options:
 Search cell lines by name or identifier. Sources: cellosaurus.
 Options apply to every listed source unless their description restricts them.
 
-- `--disease`: Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224). Value form: string; example: --disease Melanoma.
+- `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma). Value form: string; example: --disease Melanoma.
 - `--exclude-derived`: Leave out lines derived from a parent line; needs another search term. Value form: boolean; example: --exclude-derived.
 - `--gene`: Cellosaurus variation gene, as the source writes it (for example KRAS). Value form: string; example: --gene KRAS.
 - `--limit`: Source page size. Value form: integer; example: --limit 25.
@@ -1875,7 +1875,7 @@ Options:
 
       --biomarker-code <biomarker_code>
           NCI NCIt code.
-          Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+          Exact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -1887,14 +1887,14 @@ Options:
 
       --condition <condition>...
           Disease; NCI needs NCIt.
-          Conditions joined with OR. NCI needs NCIt codes such as C3224; use --condition-id for MONDO or DOID identifiers.
+          Conditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --condition-id <condition_id>
           MONDO/DOID/NCIT:C.
-          Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
+          Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma).
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -2045,13 +2045,13 @@ Options apply to every listed source unless their description restricts them.
 - `--age`: Age in years.
 ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer; example: --age 18.
 - `--biomarker-code`: NCI NCIt code.
-Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string; example: --biomarker-code C96022.
+Exact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string; example: --biomarker-code C96022.
 - `--biomarker-use`: NCI criterion.
 Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems. Value form: string; example: --biomarker-use inclusion.
 - `--condition`: Disease; NCI needs NCIt.
-Conditions joined with OR. NCI needs NCIt codes such as C3224; use --condition-id for MONDO or DOID identifiers. Value form: repeatable values (repeat the flag); example: --condition melanoma.
+Conditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers. Value form: repeatable values (repeat the flag); example: --condition melanoma.
 - `--condition-id`: MONDO/DOID/NCIT:C.
-Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. Value form: string; example: --condition-id NCIT:C3224.
+Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma). Value form: string; example: --condition-id NCIT:C3224.
 - `--count-only`: Total.
 Source total only; no returned study rows. Value form: boolean; example: --count-only.
 - `--country`: Country label.
@@ -2271,7 +2271,7 @@ Usage: biomcp get biomarker [OPTIONS] <id>
 
 Arguments:
   <id>
-          Exact NCIt code, such as C96022.
+          Exact NCIt code, such as C96022 (CD274 Gene, PD-L1).
 
 Options:
       --format <format>
@@ -2311,7 +2311,7 @@ Get NCI biomarker concepts by code. Sources: nci.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
-- `id`: Exact NCIt code, such as C96022.
+- `id`: Exact NCIt code, such as C96022 (CD274 Gene, PD-L1).
 Form: get biomarker ID; not --id.
 - `--source`: NCI is the biomarker concept source. Value form: string; example: --source nci.
 

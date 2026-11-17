@@ -1,6 +1,7 @@
 # 1012 — faers-counts-say-what-they-count
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e48d1ea2f1346be100e0a6e6365d8b6c0f4cdcc2
 
 Milestone: 7
 
@@ -31,3 +32,12 @@ pt-committee 8.4 and life-sciences-ci 5.2 (bench `personas/pt-committee/runs/202
 ## Changes
 
 - Changes: the named command's code, help, cases and a release-notes line.
+
+## Progress
+
+- FAERS's drug-name notice now reads "one FAERS query, so a report naming several counts once" when other names were searched (`adverse_event/names.rs`).
+- A FAERS search with `--serious death` and `--reaction` adds a request-guidance notice on FAERS: "Counts reports flagged death that list this reaction, not deaths caused by it." (`adverse_event.rs`). No new reply field; help already says the flag is never a reaction outcome.
+- Full gate (landing-gate, docs-check, schema-release-check) passed at 8e1e2faa7 in job j41976.
+- Pre-gate job j41969 (fmt, docs and schema regenerate, check-cheap, adverse-event cases) passed; only formatting changed.
+- Cases: `faers-widened-names` asserts the new drug-name wording; `faers-names-by-default` asserts the death notice on the widened, typed-only and two-name pembrolizumab myocarditis death searches,, on the replies recorded in job j38466. Release-notes line added.
+- Review fixes: when FAERS searches several typed names outside the other-names path (with `--exact-term`, when the lookup found no other names, or when FAERS refused the other names), a guidance notice says "The N names went in one FAERS query, so a report naming several counts once."; both notices now appear only when FAERS answered (ok or stale). `faers-names-by-default` step 3 (pembrolizumab with `--drug KEYTRUDA --exact-term`) asserts both notices by position. Cheap job j41989 (fmt, check-cheap, adverse-event cases) passed; only formatting changed. Full gate passed at a6bab5dd2 in job j41997.
