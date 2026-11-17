@@ -101,7 +101,7 @@ fn content(result: Result<Option<pmc_oa::Document>, RequestError>) -> Content {
                 let text = outline(&doc);
                 let files = Supplements {
                     license: doc.license,
-                    license_terms: biomcp_types::license_terms(doc.license),
+                    license_terms: terms(&doc),
                     files: doc.supplements.into_iter().map(|v| v.file).collect(),
                 };
                 (text, files)
@@ -144,10 +144,17 @@ fn supplement_next(
         ));
     }
 }
+/// Plain terms only for a code that names its license; see `Document::license_stated`.
+fn terms(document: &pmc_oa::Document) -> Option<biodata::Text> {
+    document
+        .license_stated
+        .then(|| biomcp_types::license_terms(document.license))
+        .flatten()
+}
 pub(crate) fn outline(document: &pmc_oa::Document) -> FullText {
     FullText {
         license: document.license,
-        license_terms: biomcp_types::license_terms(document.license),
+        license_terms: terms(document),
         processing_version: document.version,
         manuscript: document.manuscript,
         parts: document.body.parts.iter().map(|p| p.meta.clone()).collect(),

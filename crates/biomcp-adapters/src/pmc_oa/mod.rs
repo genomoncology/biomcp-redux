@@ -36,6 +36,9 @@ pub struct Document {
     pub url: biodata::Text,
     /// License owned by the JSON metadata record.
     pub license: License,
+    /// Whether the record's code names `license` exactly, or names no known open
+    /// license; a code read from its words alone does not, so it gets no plain terms.
+    pub license_stated: bool,
     /// Highest numeric processing version, not publication chronology.
     pub version: Option<u32>,
     /// Author manuscript flag from metadata.
@@ -97,6 +100,7 @@ pub fn read(
             url,
             supplements,
             license: license(&license_code),
+            license_stated: stated(&license_code),
             version: Some(version),
             manuscript,
             problems: problems.list.clone(),
@@ -159,8 +163,15 @@ fn metadata(
     Ok(Some((version, record)))
 }
 pub(crate) fn license(value: &str) -> License {
+    exact(value).unwrap_or_else(|| stated_restriction(&value.to_ascii_uppercase().replace('-', " ")))
+}
+/// A code that names its license exactly, or that names no known open license.
+pub(crate) fn stated(value: &str) -> bool {
+    exact(value).is_some() || license(value) == License::Other
+}
+fn exact(value: &str) -> Option<License> {
     let text = value.to_ascii_uppercase().replace('-', " ");
-    match text.as_str() {
+    Some(match text.as_str() {
         "CC BY" => License::CcBy,
         "CC BY NC" => License::CcByNc,
         "CC BY SA" => License::CcBySa,
@@ -170,8 +181,8 @@ pub(crate) fn license(value: &str) -> License {
         "CC0" => License::Cc0,
         "PUBLIC DOMAIN" => License::PublicDomain,
         "TDM" => License::Tdm,
-        _ => stated_restriction(&text),
-    }
+        _ => return None,
+    })
 }
 /// A version, URL or compact spelling must not hide a stated restriction, because
 /// abstracts are withheld only for the restrictions named here. Permissive spellings

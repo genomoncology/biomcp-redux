@@ -53,7 +53,7 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
                     StepKind::Section,
                     &[biomcp_types::Source::SemanticScholar],
                     Request::ArticlePdf(ArticlePdf {
-                        input: input.clone(),
+                        input,
                         save,
                         replace: false,
                     }),
@@ -70,8 +70,8 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
         if let Some(item) = cards.items.get_mut(index) {
             if matches!(section, Section::Unavailable { reason, .. } if reason != Reason::NotOpen) {
                 item.status = crate::status::item_status(true, false, true);
-                if open_text(item) {
-                    fulltext.push(input);
+                if let Some(open) = open_text(item) {
+                    fulltext.push(open);
                 }
             }
             if let Some(sections) = &mut item.sections {
@@ -89,13 +89,21 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
     }
 }
 /// A paper with a PMCID or a Europe PMC preprint ID may have open text without
-/// Semantic Scholar, unless this reply already holds its `fulltext` section.
-fn open_text(item: &biomcp_types::ArticleCardItem) -> bool {
+/// Semantic Scholar, unless this reply already holds its `fulltext` section. The
+/// step names the paper by PMID, else Europe PMC ID, as `article::next` does; the
+/// DOI the PDF lookup used cannot reach a preprint's text.
+fn open_text(item: &biomcp_types::ArticleCardItem) -> Option<ArticleInput> {
     let Some(ArticleResolution::Resolved { card, .. }) = &item.answer else {
-        return false;
+        return None;
     };
-    (card.pmcid.is_some() || card.europepmc_id.is_some())
-        && item.sections.as_ref().is_some_and(|s| s.fulltext.is_none())
+    if card.pmcid.is_none() && card.europepmc_id.is_none()
+        || item.sections.as_ref().is_none_or(|s| s.fulltext.is_some())
+    {
+        return None;
+    }
+    card.pmid
+        .map(ArticleInput::Pmid)
+        .or_else(|| card.europepmc_id.clone().map(ArticleInput::EuropePmc))
 }
 /// When Semantic Scholar fails, offer one `get article IDS fulltext` step for the
 /// papers whose PMC or Europe PMC copy, and its license, may still be readable.
