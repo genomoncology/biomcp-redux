@@ -57,6 +57,14 @@ article! {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub title: Option<Text>,
+    /// Title of the containing book for a PubMed chapter.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub book_title: Option<Text>,
+    /// The NCBI Bookshelf chapter identified by the PubMed book accession.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text", extend("format" = "uri")))]
+    pub bookshelf_url: Option<Text>,
     /// Journal name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub journal: Option<Text>,
@@ -88,6 +96,8 @@ impl Article {
             doi: self.doi,
             pmcid: self.pmcid,
             title: self.title,
+            book_title: self.book_title,
+            bookshelf_url: self.bookshelf_url,
             journal: self.journal,
             date: self.date,
             electronic_date: self.electronic_date,

@@ -1,6 +1,8 @@
 use super::{SPEC, map::publication_type};
 use crate::mapped::{Problems, record};
-use crate::xml_element::Element;
+use crate::xml_element::{Element, body_nodes};
+#[path = "efetch_book.rs"]
+mod book;
 use biodata::{PartialDate, Pmid, Text};
 use biomcp_fetch::{Input, Read};
 use biomcp_types::{Problem, Source};
@@ -111,11 +113,14 @@ impl XmlReply for Records {
         if root.child("ERROR")?.is_some() {
             return Err(BadReply);
         }
-        let articles = root
-            .children("PubmedArticle")?
-            .into_iter()
-            .map(article)
-            .collect::<Result<_, _>>()?;
+        let mut articles = Vec::new();
+        for (kind, node) in body_nodes(root.0)? {
+            match kind.as_str() {
+                "PubmedArticle" => articles.push(article(node)?),
+                "PubmedBookArticle" => articles.push(book::chapter(node)?),
+                _ => (),
+            }
+        }
         Ok(Self { articles })
     }
 }
@@ -166,6 +171,8 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         refusals,
         indexing,
         article: Article {
+            book_title: None,
+            bookshelf_url: None,
             text_withheld: crate::article_rights::pubmed::notice(&root, pmid)?,
             europepmc_id: None,
             pmid: Some(pmid),

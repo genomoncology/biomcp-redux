@@ -13,7 +13,7 @@
         "/result/items/0/answer/card/title": "Kabuki Syndrome",
         "/result/items/0/answer/card/book_title": "GeneReviews®",
         "/result/items/0/answer/card/bookshelf_url": "https://www.ncbi.nlm.nih.gov/books/NBK62111/",
-        "/result/items/0/answer/card": {"omits": ["abstract_parts", "journal"]}
+        "/result/items/0/answer/card": {"omits": ["abstract_parts"]}
       }
     },
     {
