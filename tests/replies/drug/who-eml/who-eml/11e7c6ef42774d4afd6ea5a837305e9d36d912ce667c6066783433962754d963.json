@@ -4,10 +4,10 @@
   "url": "https://list.essentialmeds.org/?query=apixaban",
   "exchanges": [
     {
-      "fetched": 1794891204,
+      "fetched": 1794893116,
       "status": 200,
       "content_type": "text/html; charset=UTF-8",
-      "delay_ms": 320,
+      "delay_ms": 314,
       "retry_after_ms": null,
       "body": {
         "kind": "sidecar",
