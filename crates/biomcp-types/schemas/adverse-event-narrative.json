@@ -599,7 +599,8 @@
         " Public cBioPortal with study-specific reuse terms.",
         " Cellosaurus cell line identity.",
         " Orphadata Science epidemiology and natural-history files.",
-        " STRING."
+        " STRING.",
+        " NIH RePORTER research project grants."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -677,7 +678,8 @@
         "cbioportal",
         "cellosaurus",
         "orphadata",
-        "string-db"
+        "string-db",
+        "nih-reporter"
       ]
     },
     "Reply_SourceNotice": {
