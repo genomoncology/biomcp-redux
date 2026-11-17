@@ -14,6 +14,20 @@ pub struct SourceRecord {
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
 }
+impl SourceRecord {
+    /// Name the identifier a source was asked, under its authority when the
+    /// identifier does not carry one, such as `UniProt` `P33981` or `HGNC:1097`.
+    pub fn asked(namespace: Option<&str>, id: impl std::fmt::Display) -> Option<Self> {
+        Some(Self {
+            namespace: match namespace {
+                Some(namespace) => Text::new(namespace).ok()?.into(),
+                None => biodata::IdentifierNamespace::Unknown,
+            },
+            id: Text::new(&id.to_string()).ok()?,
+            url: None,
+        })
+    }
+}
 /// A requested section has exactly one state.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
