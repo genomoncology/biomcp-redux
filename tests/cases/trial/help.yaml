@@ -55,7 +55,9 @@
       "expect": {
         "/result/commands/0/arguments/*/name": [
           "input",
+          "--lat",
           "--limit",
+          "--lon",
           "--offset",
           "--pool",
           "--section",

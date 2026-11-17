@@ -132,14 +132,7 @@ fn validate_location(f: &Fields) -> Result<(), QueryInvalid> {
         return Err(QueryInvalid::new(&["lat", "lon", "distance"]));
     }
     if let (Some(lat), Some(lon), Some(distance)) = (&f.lat, &f.lon, &f.distance) {
-        let lat = lat
-            .as_str()
-            .parse::<f64>()
-            .map_err(|_| QueryInvalid::new(&["lat"]))?;
-        let lon = lon
-            .as_str()
-            .parse::<f64>()
-            .map_err(|_| QueryInvalid::new(&["lon"]))?;
+        super::point(lat, lon)?;
         let distance = distance
             .as_str()
             .strip_suffix("mi")
@@ -147,12 +140,6 @@ fn validate_location(f: &Fields) -> Result<(), QueryInvalid> {
             .ok_or_else(|| QueryInvalid::new(&["distance"]))?
             .parse::<f64>()
             .map_err(|_| QueryInvalid::new(&["distance"]))?;
-        if !(-90.0..=90.0).contains(&lat) {
-            return Err(QueryInvalid::new(&["lat"]));
-        }
-        if !(-180.0..=180.0).contains(&lon) {
-            return Err(QueryInvalid::new(&["lon"]));
-        }
         if !distance.is_finite() {
             return Err(QueryInvalid::new(&["distance"]));
         }

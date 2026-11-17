@@ -34,6 +34,22 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
+    /// Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    lat: Option<Text>,
+    /// Longitude degrees; used with --lat.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    lon: Option<Text>,
     /// Explicit provider; defaults to ClinicalTrials.gov and never falls back.
     #[serde(default, skip_serializing_if = "TrialSource::is_default")]
     source: TrialSource,
@@ -64,6 +80,20 @@ impl TryFrom<Fields> for TrialGet {
                 || v.section.first() == Some(&TrialSection::All))
         {
             return Err(QueryInvalid::new(&["pool", "offset", "input", "section"]));
+        }
+        match (&v.lat, &v.lon) {
+            (None, None) => {}
+            (Some(lat), Some(lon)) => {
+                super::trial::point(lat, lon)?;
+                if !v
+                    .section
+                    .iter()
+                    .any(|s| matches!(s, TrialSection::Locations | TrialSection::All))
+                {
+                    return Err(QueryInvalid::new(&["lat", "lon", "section"]));
+                }
+            }
+            _ => return Err(QueryInvalid::new(&["lat", "lon"])),
         }
         if v.offset != 0 && v.pool.is_none() {
             return Err(QueryInvalid::new(&["offset", "pool"])
@@ -103,6 +133,10 @@ impl TrialGet {
     pub fn pool(&self) -> Option<&Text> {
         self.0.pool.as_ref()
     }
+    /// Checked point in degrees that site distances are measured from.
+    pub fn point(&self) -> Option<(f64, f64)> {
+        super::trial::point(self.0.lat.as_ref()?, self.0.lon.as_ref()?).ok()
+    }
     /// One card or section request, used by typed next steps.
     pub fn single(input: NctId, section: Option<TrialSection>, limit: u32) -> Self {
         Self(Fields {
@@ -111,12 +145,18 @@ impl TrialGet {
             limit,
             offset: 0,
             pool: None,
+            lat: None,
+            lon: None,
             source: TrialSource::Ctgov,
         })
     }
     /// Continue one immutable source record at a checked position.
     pub fn page(&self, input: NctId, section: TrialSection, pool: Text, offset: u32) -> Self {
         let mut next = Self::single(input, Some(section), self.limit());
+        if section == TrialSection::Locations {
+            next.0.lat = self.0.lat.clone();
+            next.0.lon = self.0.lon.clone();
+        }
         next.0.source = self.source();
         next.0.pool = Some(pool);
         next.0.offset = offset;

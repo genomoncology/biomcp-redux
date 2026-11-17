@@ -68,7 +68,7 @@ pub struct TrialSections {
     pub documents: Option<Section<TrialRecords<crate::TrialDocument>>>,
     /// Whole sites with their original contacts attached.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub locations: Option<Section<TrialRecords<crate::TrialLocation>>>,
+    pub locations: Option<Section<TrialRecords<TrialSite>>>,
     /// Central contacts followed by overall officials, each in source order.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contacts: Option<Section<TrialRecords<TrialContactRecord>>>,
@@ -149,6 +149,26 @@ pub enum TrialArmRecord {
     Intervention(TrialIntervention),
 }
 
+/// One source site, kept whole during pagination.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename = "TrialLocation"))]
+pub struct TrialSite {
+    /// The registry's site record.
+    #[serde(flatten)]
+    pub site: crate::TrialLocation,
+    /// Straight-line miles from the requested --lat/--lon point, not travel distance; absent without a point or site coordinates.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub distance_mi: Option<f64>,
+}
+impl From<crate::TrialLocation> for TrialSite {
+    fn from(site: crate::TrialLocation) -> Self {
+        Self {
+            site,
+            distance_mi: None,
+        }
+    }
+}
 /// Distinct registry-wide contact collections; site contacts stay on locations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "record", content = "data", rename_all = "kebab-case")]
