@@ -116,6 +116,7 @@ pathway-failures: Source faults and foreign identities retain failed or rejected
 study-retirements: Legacy study calculations, charts and local directories return fixed supported routes before source access.
 study-failures: Synthetic catalog and study section faults fail explicitly and preserve accepted stored metadata.
 protein-sections: A caller reads native protein features, alternative products, references, complete sequences and qualified function text without transferring coordinates.
+protein-chembl: A protein card's chembl section maps the UniProt accession to its ChEMBL single-protein target and gives ChEMBL's own assay and activity totals for it.
 protein-domains-complexes: Read source-native InterPro matches and exact-participant Complex Portal pages without inferred membership.
 pathway-help: Discover every pathway source, selector, section and paging option through generated help and parsed case examples.
 protein-docs-accounting: Discover every protein command, native section and selector through generated help and parsed CLI/MCP examples.

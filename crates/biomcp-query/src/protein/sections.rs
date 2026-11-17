@@ -5,9 +5,10 @@ use biomcp_types::{
     ProteinFunctionResult, ProteinGet, ProteinSection, ProteinSectionPage, ProteinSections,
     ProteinSequenceResult, Reason, Section, Source, SourceRecord,
 };
-pub(super) const NAMES: [ProteinSection; 7] = [
+pub(super) const NAMES: [ProteinSection; 8] = [
     ProteinSection::Domains,
     ProteinSection::Complexes,
+    ProteinSection::Chembl,
     ProteinSection::Features,
     ProteinSection::Isoforms,
     ProteinSection::Structures,
@@ -48,6 +49,7 @@ pub(super) fn first(q: &ProteinGet, entry: &Entry) -> ProteinSections {
         sequence: wants(q, ProteinSection::Sequence).then(|| sequence(entry.sequence.clone())),
         domains: None,
         complexes: None,
+        chembl: None,
     }
 }
 fn bounded<T: Clone>(entry: &Entry, items: &[T], limit: usize) -> Section<ProteinSectionPage<T>> {
@@ -117,6 +119,7 @@ pub(super) fn failed(q: &ProteinGet, reason: Reason) -> ProteinSections {
             .then(|| Section::unavailable(Source::UniProt, reason)),
         domains: None,
         complexes: None,
+        chembl: None,
     }
 }
 

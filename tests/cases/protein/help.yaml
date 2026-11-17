@@ -59,6 +59,7 @@
             "domains",
             "isoforms",
             "complexes",
+            "chembl",
             "structures",
             "function",
             "sequence",

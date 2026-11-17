@@ -1,0 +1,62 @@
+{
+  "feature": "protein-chembl",
+  "live_check": "public",
+  "story": "A computational biologist asks how many ChEMBL assays and activities each target has (bench comp-bio 2026-11-16, Q7). `get protein O75417 P09874 chembl` maps POLQ and PARP1 to their ChEMBL single-protein targets and gives ChEMBL's own assay and activity totals; an isoform reads its canonical target, and CDKN2A's p14ARF (Q8N726), which ChEMBL has no target for, is an empty section.",
+  "verified": "PENDING",
+  "replay": "protein/chembl-targets",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "O75417",
+        "P09874",
+        "chembl"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/protein/accession": "O75417",
+        "/result/items/0/sections/chembl/source": "chembl",
+        "/result/items/0/sections/chembl/data/total": 1,
+        "/result/items/0/sections/chembl/data/items/0/id": "CHEMBL6025",
+        "/result/items/0/sections/chembl/data/items/0/assay_count": 46,
+        "/result/items/0/sections/chembl/data/items/0/activity_count": 693,
+        "/result/items/1/header/protein/accession": "P09874",
+        "/result/items/1/sections/chembl/data/total": 1,
+        "/result/items/1/sections/chembl/data/items/0/id": "CHEMBL3105",
+        "/result/items/1/sections/chembl/data/items/0/name": "Poly [ADP-ribose] polymerase 1",
+        "/result/items/1/sections/chembl/data/items/0/organism": "Homo sapiens",
+        "/result/items/1/sections/chembl/data/items/0/assay_count": 705,
+        "/result/items/1/sections/chembl/data/items/0/activity_count": 10162
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "P09874-2",
+        "chembl"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/chembl/data/items/0/id": "CHEMBL3105"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "Q8N726",
+        "chembl"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/chembl/state": "empty",
+        "/result/items/0/sections/chembl/source": "chembl"
+      }
+    }
+  ]
+}

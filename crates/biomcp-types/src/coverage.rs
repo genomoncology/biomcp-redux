@@ -28,7 +28,7 @@ pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
         ("protein", "domains") => &[InterPro],
         ("protein", "complexes" | "complex-members") => &[ComplexPortal],
         ("protein", _) | ("search", "protein") => &[UniProt],
-        ("get", "protein") => &[Hgnc, UniProt, InterPro, ComplexPortal],
+        ("get", "protein") => &[Hgnc, UniProt, InterPro, ComplexPortal, Chembl],
         ("cell-line", _) => &[Chembl],
         ("search" | "get", "cell-line") => &[Cellosaurus],
         ("pathway", "events") => &[Reactome],

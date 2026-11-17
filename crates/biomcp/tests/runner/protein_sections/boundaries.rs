@@ -6,6 +6,8 @@ pub(super) fn features() -> Result<(), String> {
         |request| {
             if request.contains("/interpro/") {
                 Ok(json!({"count":0,"next":null,"results":[]}).to_string())
+            } else if request.contains("/chembl/") {
+                Ok(json!({"page_meta":{"limit":5,"offset":0,"total_count":0,"next":null,"previous":null},"targets":[]}).to_string())
             } else if request.contains("/complex-ws/") {
                 Ok(json!({"size":0,"totalNumberOfResults":0,"elements":[]}).to_string())
             } else {
@@ -31,7 +33,8 @@ pub(super) fn features() -> Result<(), String> {
     section_context(&env)?;
     retained_relations(&env)?;
     usage(&env)?;
-    if stub.finish()?.len() != 3 {
+    // UniProt, InterPro, Complex Portal and ChEMBL, once each.
+    if stub.finish()?.len() != 4 {
         return Err("retained entry sections repeated provider requests".into());
     }
     Ok(())
