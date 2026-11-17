@@ -233,7 +233,7 @@ fn native_short_page_keeps_total_scope_and_next_position() {
     );
     let page = json!(
         {"header":{"id":{"namespace":"reactome","id":"R-HSA-5673001"},"name":"RAF/MAP kinase cascade","species":"Homo sapiens"},
-        "items":[{"kind":"database","db_id":{"namespace":"Reactome","id":5668599}}],"page":{"offset":5,
+        "total":81,"items":[{"kind":"database","db_id":{"namespace":"Reactome","id":5668599}}],"page":{"offset":5,
         "returned":1,"total":81,"total_kind":"observed","next_offset":10}}
     );
     assert_eq!(
