@@ -149,7 +149,7 @@ Reads never download. Results preserve native combined INN, dosage-form and stre
 
 ## WHO essential medicines
 
-`get drug NAME essential-medicines` reads the WHO eEML live. WHO says the PDF Model Lists (EML and EMLc) are the binding versions and the eEML may differ from them or miss medicines once listed and later removed. The eEML names a medicine by its own name, such as dabigatran, not a salt or brand such as dabigatran etexilate; `search drug NAME --source who-eml` lists the eEML's own matches. Its terms forbid using it to advertise or promote commercial products or to suggest WHO endorsement.
+`get drug NAME essential-medicines` reads the WHO eEML live. WHO says the PDF Model Lists (EML and EMLc) are the binding versions and the eEML may differ from them or miss medicines once listed and later removed. The eEML names a medicine by its own name, such as dabigatran, not a salt such as dabigatran etexilate or a brand such as Pradaxa; `search drug NAME --source who-eml` lists the eEML's own matches. Its terms forbid using it to advertise or promote commercial products or to suggest WHO endorsement.
 
 ## WHO diagnostic search
 

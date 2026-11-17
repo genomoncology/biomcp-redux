@@ -1,6 +1,6 @@
 {
   "feature": "drug-who-eml",
-  "story": "A P&T committee asks whether dabigatran and warfarin are on the WHO Model List of Essential Medicines. `get drug NAME essential-medicines` reads the WHO eEML: dabigatran (eEML medicine 479) is on the core list in section 10.2 for atrial fibrillation and venous thromboembolism, added 2019-04-05, with apixaban, edoxaban and rivaroxaban as therapeutic alternatives and the Expert Committee's recommendation once; warfarin (medicine 128) has four core listings, first added 1977-10-21 and also on the children's list, two per page with a next-page call. Apixaban, listed only as dabigatran's alternative, shows dabigatran's listings marked alternative_to. Imatinib's GIST listing is on the complementary list. A name the eEML does not use answers absent, and `search drug warfarin --source who-eml` lists the eEML's own search hits with a call for each.",
+  "story": "A P&T committee asks whether dabigatran and warfarin are on the WHO Model List of Essential Medicines. `get drug NAME essential-medicines` reads the WHO eEML: dabigatran (eEML medicine 479) is on the core list in section 10.2 for atrial fibrillation and venous thromboembolism, added 2019-04-05, with apixaban, edoxaban and rivaroxaban as therapeutic alternatives and the Expert Committee's recommendation once; warfarin (medicine 128) has four core listings, first added 1977-10-21 and also on the children's list, two per page with a next-page call. Apixaban, listed only as dabigatran's alternative, shows dabigatran's listings marked alternative_to. Imatinib's GIST listing is on the complementary list. A brand name such as Pradaxa, which the eEML does not use, answers absent, and `search drug warfarin --source who-eml` lists the eEML's own search hits with a call for each.",
   "live_check": "public",
   "verified": "WHO eEML replies recorded unchanged with biomcp --record; see tests/replies/drug/who-eml/README.md.",
   "replay": "drug/who-eml",
@@ -139,7 +139,7 @@
       "run": [
         "get",
         "drug",
-        "dabigatran etexilate",
+        "pradaxa",
         "essential-medicines"
       ],
       "exit": 1,
