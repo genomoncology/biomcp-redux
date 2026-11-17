@@ -328,6 +328,8 @@ singleton! {
             whole-study analytical installs are retired",
         StudyMutationProfile => "the mutations section reads only a mutation profile of this study; choose \
             --molecular-profile from valid_values",
+        StudyCopyNumberProfile => "the cna section reads only a discrete copy-number profile of this study; choose \
+            --molecular-profile from valid_values",
         StudyCalculate => "local calculations are dropped by the entity boundary ruling; use: get study ID and the source study page",
         StudyCharts => "charts are retired",
         StudyDirectory => "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",
