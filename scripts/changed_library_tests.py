@@ -88,7 +88,8 @@ def commands(names):
                      *[arg for name in library for arg in ('-p', name)]])
     if 'biomcp' in names:
         # The gate already runs biomcp's cases and ratchets targets. Its tools target is
-        # test = false, so neither the gate nor library-tests runs it (deferred by 0921).
+        # test = false, so library-tests never runs it (deferred by 0921); check-cheap runs
+        # only its --other-source-value-proof tool (1025).
         runs.append(['cargo', 'test', '--locked', '--no-fail-fast', '-p', 'biomcp', '--bin', 'biomcp'])
     threads = os.environ.get('RUST_TEST_THREADS', '').strip()
     return [run + ['--', '--test-threads', threads] if threads else run for run in runs]

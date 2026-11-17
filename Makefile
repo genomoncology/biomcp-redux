@@ -47,7 +47,12 @@ LINT_GOALS = unused-dependencies check-no-default-features lint-workspace lint-t
 
 check-cheap:
 	$(PYTHON) scripts/check_docs.py
-	+$(MAKE) --no-print-directory --keep-going -j1 shell-check fmt $(LINT_GOALS) ratchets
+	+$(MAKE) --no-print-directory --keep-going -j1 shell-check fmt $(LINT_GOALS) ratchets value-proof
+
+# The retained other-source value proofs rotted unseen while nothing ran them (1025).
+.PHONY: value-proof
+value-proof:
+	cargo test --locked -p biomcp --test tools -- --other-source-value-proof "$$(mktemp -d)"
 
 .PHONY: shell-check
 shell-check:

@@ -45,10 +45,7 @@ pub(super) fn seer(directory: &Path, registry: &Registry) -> Check {
                 .pointer_mut("/data_series/0/0")
                 .ok_or("retained annual year")? = json!({"bad_shape":true});
         }
-        let stub = Stub::for_source("seer.cancer.gov", "application/json", move |_| {
-            // The native endpoint returns a JSON string containing the document.
-            Ok(json!(body.to_string()).to_string())
-        })?;
+        let stub = seer_stub(&body)?;
         let env = variant::source_environment(&stub)?;
         let value = invoke(
             &env,
@@ -59,7 +56,7 @@ pub(super) fn seer(directory: &Path, registry: &Registry) -> Check {
                 .collect(),
             0,
         )?;
-        if stub.finish()?.len() != 1 {
+        if stub.finish()?.len() != 2 {
             return Err("annual source request count changed".into());
         }
         registry.validate(&value, &words.map(str::to_owned), true)?;
@@ -75,6 +72,27 @@ pub(super) fn seer(directory: &Path, registry: &Registry) -> Check {
         annual_window(&value, refused)?;
     }
     Ok(())
+}
+
+/// The native endpoint returns a JSON string containing the document; since 0720 an
+/// annual read also fetches the site label catalog.
+fn seer_stub(body: &Value) -> Result<Stub, String> {
+    let catalog: Value = serde_json::from_str(&launch::fixture_text(
+        "replies/disease/seer-synthetic/seer/223a28d053d7e4bbf1a87ce337a5b800d2839356b691fa24ee0df85d7d52be5c.json",
+    )?)
+    .map_err(|e| e.to_string())?;
+    let catalog = catalog
+        .pointer("/exchanges/0/body/value")
+        .ok_or("retained label catalog body")?
+        .to_string();
+    let body = json!(body.to_string()).to_string();
+    Stub::for_source("seer.cancer.gov", "application/json", move |request| {
+        Ok(if request.contains("get_var_formats.php") {
+            catalog.clone()
+        } else {
+            body.clone()
+        })
+    })
 }
 
 fn annual_window(value: &Value, refused: bool) -> Check {
@@ -132,10 +150,7 @@ pub(super) fn study(directory: &Path, registry: &Registry) -> Check {
         bad.as_object_mut()
             .ok_or("study refused row object")?
             .insert(identity.into(), json!({"bad_shape":true}));
-        let body = json!([bad, row]);
-        let stub = Stub::for_source("www.cbioportal.org", "application/json", move |_| {
-            Ok(body.to_string())
-        })?;
+        let stub = study_stub(json!([bad, row]))?;
         let env = variant::source_environment(&stub)?;
         let words = [
             "get",
@@ -190,11 +205,24 @@ pub(super) fn study(directory: &Path, registry: &Registry) -> Check {
         {
             return Err("study native second row moved".into());
         }
-        if stub.finish()?.len() != 2 {
-            return Err("study source request count changed".into());
+        let requests = if section == "sample-lists" { 3 } else { 2 };
+        if stub.finish()?.len() != requests {
+            return Err(format!("{section}: study source request count changed"));
         }
     }
     Ok(())
+}
+
+/// Since 0724 each returned sample list reads its own count.
+fn study_stub(body: Value) -> Result<Stub, String> {
+    let count = json!({"sampleListId":"native_1", "studyId":"synthetic_0", "sampleCount":1});
+    Stub::for_source("www.cbioportal.org", "application/json", move |request| {
+        Ok(if request.contains("/sample-lists/native_1") {
+            count.to_string()
+        } else {
+            body.to_string()
+        })
+    })
 }
 
 pub(super) fn chembl(directory: &Path, registry: &Registry) -> Check {
