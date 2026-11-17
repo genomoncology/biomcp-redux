@@ -1,0 +1,51 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "PubMed search rows say whether each paper is open access and give the license Europe PMC states, from one Europe PMC request for the page, so a reader can tell which papers may be shared.",
+  "replay": "article/search/pubmed-access-rights",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--exact-term",
+        "--offset",
+        "16",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/pmid": {
+          "equals": [
+            "36785760",
+            "36931146"
+          ]
+        },
+        "/result/items/*/open_access": {
+          "equals": [
+            true,
+            false
+          ]
+        },
+        "/result/items/0/license": "cc_by_nc",
+        "/result/items/0/header/pmcid": "PMC9921510",
+        "/result/items/1": {
+          "omits": [
+            "license",
+            "open_access_unknown"
+          ]
+        },
+        "/result/items/1/header": {
+          "omits": [
+            "pmcid"
+          ]
+        }
+      },
+      "max_bytes": 2004
+    }
+  ],
+  "verified": "PENDING",
+  "harvest": "biomed-agent-bench msl persona: which papers may be shared"
+}

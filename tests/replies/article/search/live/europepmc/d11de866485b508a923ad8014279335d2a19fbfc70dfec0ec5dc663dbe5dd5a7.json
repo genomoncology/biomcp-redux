@@ -1,0 +1,77 @@
+{
+  "method": "GET",
+  "source": "europepmc",
+  "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=SRC%3AMED%20AND%20%28EXT_ID%3A33377972%20OR%20EXT_ID%3A33123537%20OR%20EXT_ID%3A34837233%20OR%20EXT_ID%3A33303690%20OR%20EXT_ID%3A31138602%20OR%20EXT_ID%3A35312980%20OR%20EXT_ID%3A40135844%20OR%20EXT_ID%3A39506119%20OR%20EXT_ID%3A18504432%20OR%20EXT_ID%3A33030203%29&format=json&resultType=core&pageSize=100",
+  "exchanges": [
+    {
+      "fetched": 1794935115,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "hitCount": 10,
+          "resultList": {
+            "result": [
+              {
+                "source": "MED",
+                "pmid": "40135844",
+                "isOpenAccess": "Y",
+                "license": "cc by"
+              },
+              {
+                "source": "MED",
+                "pmid": "39506119",
+                "isOpenAccess": "N"
+              },
+              {
+                "source": "MED",
+                "pmid": "35312980",
+                "isOpenAccess": "N"
+              },
+              {
+                "source": "MED",
+                "pmid": "34837233",
+                "isOpenAccess": "N",
+                "license": "cc by-nc-nd"
+              },
+              {
+                "source": "MED",
+                "pmid": "33377972",
+                "isOpenAccess": "N"
+              },
+              {
+                "source": "MED",
+                "pmid": "33303690",
+                "isOpenAccess": "N"
+              },
+              {
+                "source": "MED",
+                "pmid": "33030203",
+                "isOpenAccess": "N"
+              },
+              {
+                "source": "MED",
+                "pmid": "33123537",
+                "isOpenAccess": "Y",
+                "license": "cc by"
+              },
+              {
+                "source": "MED",
+                "pmid": "31138602",
+                "isOpenAccess": "N"
+              },
+              {
+                "source": "MED",
+                "pmid": "18504432",
+                "isOpenAccess": "N"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
