@@ -94,7 +94,7 @@
         "/result/candidates/0/record/id": "chr7:g.140453136A>T",
         "/result/candidates/0/sections/clinvar/state": "data",
         "/sources/*/source": {
-          "includes": [
+          "equals": [
             "myvariant",
             "clinvar"
           ]
@@ -147,10 +147,7 @@
           "count": 1
         },
         "/next/0/args": {
-          "includes": [
-            "chr17:g.7577534C>A",
-            "clinvar"
-          ]
+          "includes": "clinvar"
         },
         "/next/1/kind": "page"
       }
