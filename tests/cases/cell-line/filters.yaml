@@ -46,7 +46,11 @@
         "/result/items/*/name": {
           "excludes": "B16"
         },
-        "/sources/0/notices/0/message": "Cellosaurus matched --disease to each line's NCIt disease: an ID matches that disease only, and a name matches those words in that order anywhere in the disease name. Narrower NCIt diseases are not added, so a subtype whose name breaks the phrase, such as Pancreatic ductal adenocarcinoma for Pancreatic adenocarcinoma, is a separate search."
+        "/sources/0/notices/*/message": {
+          "includes_all_of": [
+            "Cellosaurus matched --disease to each line's NCIt disease: an ID matches that disease only, and a name matches those words in that order anywhere in the disease name. Narrower NCIt diseases are not added, so a subtype whose name breaks the phrase, such as Pancreatic ductal adenocarcinoma for Pancreatic adenocarcinoma, is a separate search."
+          ]
+        }
       },
       "max_bytes": 9000
     },

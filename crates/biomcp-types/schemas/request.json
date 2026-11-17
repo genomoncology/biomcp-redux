@@ -1552,7 +1552,7 @@
         },
         "disease": {
           "$ref": "#/$defs/Text",
-          "description": "Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma)."
+          "description": "Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases."
         },
         "exclude_derived": {
           "description": "Leave out lines derived from a parent line; needs another search term.",
