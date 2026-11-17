@@ -134,6 +134,9 @@ pub struct CellLineNames {
     pub accession: CellosaurusAccession,
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Rows in the whole collection, equal to `items.total`; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     /// Whole source rows and the total in this collection only.
     pub items: Capped<CellLineName>,
     /// Independently fetched publisher release.
@@ -151,6 +154,9 @@ pub struct CellLineXrefs {
     pub accession: CellosaurusAccession,
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Rows in the whole collection, equal to `items.total`; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     /// Whole source rows and the total in this collection only.
     pub items: Capped<CellLineXref>,
     /// Independently fetched publisher release.
@@ -168,6 +174,9 @@ pub struct CellLineVariants {
     pub accession: CellosaurusAccession,
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Rows in the whole collection, equal to `items.total`; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     /// Whole source rows and the total in this collection only.
     pub items: Capped<CellLineVariation>,
     /// Independently fetched publisher release.
@@ -245,6 +254,9 @@ pub struct CellLineChembl {
     pub accession: CellosaurusAccession,
     /// Native metadata page offset.
     pub offset: u32,
+    /// Rows in the whole collection, equal to `items.total`; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     /// Every selected whole metadata row and the native total.
     pub items: Capped<CellLineChemblRecord>,
 }

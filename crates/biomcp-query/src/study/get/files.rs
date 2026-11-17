@@ -66,6 +66,7 @@ fn apply(
     let items = window.rows.into();
     let data = StudyFiles {
         study_id: q.id().clone(),
+        total: bounds.total,
         items,
         page: bounds.clone(),
         acquired: directory.acquired,

@@ -100,6 +100,9 @@ pub struct PathwayGenes {
     /// Exact source pathway owning this relation.
     pub header: PathwayHeader,
     // The total comes before the rows (0942): a reader of only the start sees it.
+    /// Rows in the whole collection, equal to `page.total`; the count to report (1022).
+    #[serde(default)]
+    pub total: u64,
     /// Distinct-reference total and continuation.
     pub page: PathwayPageInfo,
     /// All reference occurrences across physical entities before distinct-reference grouping.

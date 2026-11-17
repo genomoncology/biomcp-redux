@@ -20,6 +20,8 @@ mod ownership;
 mod policy;
 #[path = "schemas/release.rs"]
 mod release;
+#[path = "schemas/section_totals.rs"]
+mod section_totals;
 #[path = "schemas/temporal.rs"]
 mod temporal;
 #[test]
@@ -549,44 +551,12 @@ fn required_component_annotations_are_metadata_with_checked_sources() -> Result<
     annotations::required_component_annotations_are_metadata_with_checked_sources()
 }
 
-// 1010: the skill tells agents to read `total`; a source's own pre-selection count
-// (`native_total`) never stands in for it.
-fn native_totals_without_total(node: &Value, path: &str, found: &mut Vec<String>) {
-    if let Some(properties) = node.get("properties").and_then(Value::as_object)
-        && properties.contains_key("native_total")
-        && !properties.contains_key("total")
-    {
-        found.push(path.to_owned());
-    }
-    match node {
-        Value::Object(values) => values.iter().for_each(|(key, value)| {
-            native_totals_without_total(value, &format!("{path}/{key}"), found)
-        }),
-        Value::Array(values) => values
-            .iter()
-            .for_each(|value| native_totals_without_total(value, &format!("{path}/[]"), found)),
-        _ => {}
-    }
+#[test]
+fn every_object_with_a_native_total_also_states_its_total() -> Result<(), String> {
+    section_totals::every_object_with_a_native_total_also_states_its_total()
 }
 
 #[test]
-fn every_object_with_a_native_total_also_states_its_total() -> Result<(), String> {
-    let mut planted = Vec::new();
-    native_totals_without_total(
-        &serde_json::json!({"$defs":{"X":{"properties":{"native_total":{}}}}}),
-        "",
-        &mut planted,
-    );
-    if planted.is_empty() {
-        return Err("planted native_total without total was not found".into());
-    }
-    let mut found = Vec::new();
-    for contract in registry() {
-        native_totals_without_total(&(contract.generate)(), contract.id, &mut found);
-    }
-    if found.is_empty() {
-        Ok(())
-    } else {
-        Err(format!("native_total without total: {found:?}"))
-    }
+fn every_section_with_rows_states_its_total_at_the_top() -> Result<(), String> {
+    section_totals::every_section_with_rows_states_its_total_at_the_top()
 }

@@ -15,7 +15,15 @@
       "expect": {
         "/result/header/accession": "CVCL_0004",
         "/result/sections/names/data/items/items/0/value": "K562",
-        "/result/sections/chembl/data/items/items/0/id": "CHEMBL3308378"
+        "/result/sections/chembl/data/items/items/0/id": "CHEMBL3308378",
+        "/result/sections/names/data/total": 7,
+        "/result/sections/names/data/items/total": 7,
+        "/result/sections/xrefs/data/total": 1398,
+        "/result/sections/xrefs/data/items/total": 1398,
+        "/result/sections/variants/data/total": 2,
+        "/result/sections/variants/data/items/total": 2,
+        "/result/sections/chembl/data/total": 1,
+        "/result/sections/chembl/data/items/total": 1
       }
     }
   ]

@@ -1627,6 +1627,13 @@
         "study_id": {
           "$ref": "#/$defs/Reply_StudyId",
           "description": "Exact study directory scope."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole collection, equal to `page.total`; the count to report (1022).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -1849,6 +1856,13 @@
         "study_id": {
           "$ref": "#/$defs/Reply_StudyId",
           "description": "Exact source study ID."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole collection, equal to `page.total`; the count to report (1022).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -1970,6 +1984,13 @@
         "study_id": {
           "$ref": "#/$defs/Reply_StudyId",
           "description": "Exact study scope of this collection."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole collection, equal to `page.total`; the count to report (1022).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -2167,6 +2188,13 @@
         "study_id": {
           "$ref": "#/$defs/Reply_StudyId",
           "description": "Exact study scope of this collection."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole collection, equal to `page.total`; the count to report (1022).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
@@ -2201,6 +2229,13 @@
         "study_id": {
           "$ref": "#/$defs/Reply_StudyId",
           "description": "Exact native study scope."
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole collection, equal to `page.total`; the count to report (1022).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [

@@ -1,0 +1,95 @@
+{
+  "projection": "Only the study catalog is cut: the DETAILED studies list keeps its one skcm_tcga_pan_can_atlas_2018 row. Every other cBioPortal and GitHub reply is kept whole as biomcp --record wrote it. The samples and mutations bodies are stored as compact JSON text, as tests/replies/study/rows stores the same replies, so the secret scan does not read their pretty-printed sample keys as API keys; their content is unchanged.",
+  "sha256": "SHA-256 of each original reply body: the text as received for the catalog, otherwise serialized as compact JSON",
+  "licenses": "cBioPortal public API replies for skcm_tcga_pan_can_atlas_2018, a study with no noncommercial or purpose flag in crates/biomcp-adapters/src/cbioportal/commercial-restrictions.tsv (docs/cbioportal-study-terms.md); the GitHub reply is the datahub directory listing only.",
+  "originals": [
+    {
+      "url": "https://www.cbioportal.org/api/studies/skcm_tcga_pan_can_atlas_2018/molecular-profiles?projection=DETAILED",
+      "sha256": "893e7eda931cbab9ad93b9fc89df88cd6f2477a573a2e430b251b35e409f057a",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/studies/skcm_tcga_pan_can_atlas_2018/samples?projection=SUMMARY&pageSize=10000000&sortBy=sampleId&direction=ASC",
+      "sha256": "3bf14e20e64a90397e5d109aeb4c340b7a7b21841ce0226b32dce7d4d4f8c1b0",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/genes/BRAF",
+      "sha256": "3624bca4ad3452cd2e44b110abd305334421ce9449075cffce7aa9db19e05903",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/studies?projection=DETAILED",
+      "sha256": "0fa5642161870a626a38917c582174fbbfc0adf6cc102444e5d4c45ac7333d75",
+      "status": 200,
+      "kept_whole": false,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record); the 552-study catalog is kept to its one skcm_tcga_pan_can_atlas_2018 row, unchanged"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/molecular-profiles/skcm_tcga_pan_can_atlas_2018_mutations/mutations/fetch?projection=SUMMARY&pageSize=10000000&sortBy=proteinChange&direction=ASC",
+      "sha256": "69bcdedca03629f99d29c65a135747e229b96c6c7c6b74c7bb745ced530fff19",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://api.github.com/repos/cBioPortal/datahub/contents/public/skcm_tcga_pan_can_atlas_2018",
+      "sha256": "16a432a0b746b56dccb19519627a390c4fdcbaeedc86b8bd2cf159bddc725cc2",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/sample-lists/skcm_tcga_pan_can_atlas_2018_all",
+      "sha256": "55abfe11ce0cadc89938c1ca2ea5d5b4975c082cd5794d8d3eca5ebce210237e",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/sample-lists/skcm_tcga_pan_can_atlas_2018_3way_complete",
+      "sha256": "a156393b355da9ea0647343b456c23876cbe1e5ed9d9f455e6421cd841346df5",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/studies/skcm_tcga_pan_can_atlas_2018/molecular-profiles?projection=SUMMARY",
+      "sha256": "f0c9fc458a5d14d9d373852661a69db7e2d5f47419e6900858442ca6c0dbe90e",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/studies/skcm_tcga_pan_can_atlas_2018/sample-lists?projection=SUMMARY",
+      "sha256": "96c2f81880c14418c0ee8c3674b9e930251c4ab45905cd8667088b38b1d63365",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    },
+    {
+      "url": "https://www.cbioportal.org/api/studies/skcm_tcga_pan_can_atlas_2018/sample-lists?projection=SUMMARY",
+      "sha256": "96c2f81880c14418c0ee8c3674b9e930251c4ab45905cd8667088b38b1d63365",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-16",
+      "note": "recorded live in pm job j42123 (biomcp --record)"
+    }
+  ]
+}

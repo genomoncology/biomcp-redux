@@ -39,7 +39,10 @@ pub(super) fn first(q: &ProteinGet, entry: &Entry) -> ProteinSections {
             .then(|| bounded(entry, &entry.structures, n)),
         function: wants(q, ProteinSection::Function).then(|| {
             rows(entry, entry.function.clone(), |items| {
-                ProteinFunctionResult { items }
+                ProteinFunctionResult {
+                    total: items.len() as u64,
+                    items,
+                }
             })
         }),
         sequence: wants(q, ProteinSection::Sequence).then(|| sequence(entry.sequence.clone())),

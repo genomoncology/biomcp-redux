@@ -2809,7 +2809,7 @@ Form: get study ID SECTION; not --id.
 - `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
 - `section`: Omit for the card; all returns bounded first pages only… (full rule with the sections).
 Form: get study ID SECTION; not --section.
-- `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 1.
+- `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Offset within one named section; all requires zero. Value form: integer; example: --section-offset 45.
 
 Omit for the card; all returns bounded first pages only.

@@ -165,6 +165,13 @@ pub(super) fn matching(
         problems: problems.list,
     })
 }
+fn xrefs(
+    rows: Option<Box<[raw::Xref]>>,
+    problems: &mut crate::mapped::Problems,
+) -> Vec<CellLineXref> {
+    let rows = rows.unwrap_or_default().into_vec().into_iter();
+    rows.map(|r| xref(r, "xref-list", problems)).collect()
+}
 pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, RequestError> {
     let accession = row
         .accession()
@@ -180,15 +187,8 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
     let species = row.species_list.clone().unwrap_or_default().0.into_vec();
     let diseases = row.disease_list.clone().unwrap_or_default().0.into_vec();
     let warnings = super::map::warnings(row.comment_list.as_deref().unwrap_or_default());
-    let xrefs = row
-        .xref_list
-        .take()
-        .unwrap_or_default()
-        .into_vec()
-        .into_iter()
-        .map(|r| xref(r, "xref-list", &mut problems))
-        .collect();
-    let variants = row
+    let xrefs = xrefs(row.xref_list.take(), &mut problems);
+    let variants: Vec<_> = row
         .sequence_variation_list
         .take()
         .unwrap_or_default()
@@ -203,6 +203,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
     };
     card.sections.names = Some(data(CellLineNames {
         accession: accession.clone(),
+        total: names.len() as u64,
         items: super::map::capped(names, usize::MAX),
         offset: 0,
         release: None,
@@ -224,6 +225,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
         source: Source::Cellosaurus,
         data: CellLineXrefs {
             accession: accession.clone(),
+            total: xrefs.len() as u64,
             items: super::map::capped(xrefs, usize::MAX),
             offset: 0,
             release: None,
@@ -234,6 +236,7 @@ pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, 
         source: Source::Cellosaurus,
         data: CellLineVariants {
             accession,
+            total: variants.len() as u64,
             items: super::map::capped(variants, usize::MAX),
             offset: 0,
             release: None,
