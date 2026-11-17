@@ -4377,5 +4377,13 @@
       ],
       "review": "Ticket 1019, 2026-11-16: --aggregate product-code counts 510(k) records by FDA product code, so a refusal says it needs --source fda-510k."
     }
+  ],
+  "required_removals": [
+    {
+      "schema": "biomcp.trial-cards/11",
+      "path": "/result/items/[]/sections/eligibility/@state=data/data",
+      "field": "criteria",
+      "review": "Ticket 1044, 2026-11-17, coordinator review: when ClinicalTrials.gov eligibility text carries both the Inclusion Criteria and Exclusion Criteria headings, the page sends the registry's own lines word for word in preamble, inclusion and exclusion instead of repeating them in criteria, which is then absent. Efficient tools are part of the 1.0 bar. Text that is not split keeps criteria with a not_split notice."
+    }
   ]
 }

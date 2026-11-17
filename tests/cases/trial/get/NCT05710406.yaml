@@ -1,0 +1,32 @@
+{
+  "live_check": "public",
+  "feature": "trial-get",
+  "story": "Eligibility text with another heading ending in \"criteria:\", such as a registration step's own criteria, is not split, so no cohort heading is filed as an inclusion or exclusion item.",
+  "replay": "trial/get/NCT05710406",
+  "verified": "RECORDING_PENDING",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05710406",
+        "eligibility"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/not_split": "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, or has another line ending in \"criteria:\", so it is not split; read criteria.",
+        "/result/items/0/sections/eligibility/data/offset": 0,
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "inclusion",
+            "exclusion",
+            "preamble",
+            "continuation"
+          ]
+        }
+      },
+      "max_bytes": 10654
+    }
+  ],
+  "harvest": "Independent review of 1044, 2026-11-17: guard against cohort headings"
+}

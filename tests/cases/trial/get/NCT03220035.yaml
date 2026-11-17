@@ -1,0 +1,49 @@
+{
+  "live_check": "public",
+  "feature": "trial-get",
+  "story": "A split eligibility text longer than one page sends each list only on the pages that hold its section, so page one of a trial whose exclusion heading comes later has no exclusion list.",
+  "replay": "trial/get/NCT03220035",
+  "verified": "RECORDING_PENDING",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03220035",
+        "eligibility"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/offset": 0,
+        "/result/items/0/sections/eligibility/data/total_characters": 9254,
+        "/result/items/0/sections/eligibility/data/inclusion": {
+          "count": 7
+        },
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "exclusion",
+            "criteria",
+            "not_split"
+          ]
+        }
+      },
+      "max_bytes": 10525
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/offset": 5431,
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "criteria",
+            "not_split",
+            "preamble"
+          ]
+        }
+      },
+      "max_bytes": 20000
+    }
+  ],
+  "harvest": "Independent review of 1044, 2026-11-17: NCT03220035's exclusion heading falls on page two"
+}
