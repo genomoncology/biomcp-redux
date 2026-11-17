@@ -203,7 +203,10 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     // The WHO eEML answers only its own section, which a who-eml get reads with or without the word.
     let eml = fields.section.contains(&DrugSection::EssentialMedicines);
     if (fields.source == Some(DrugSource::WhoEml)
-        && !matches!(fields.section.as_ref(), [] | [DrugSection::EssentialMedicines]))
+        && !matches!(
+            fields.section.as_ref(),
+            [] | [DrugSection::EssentialMedicines]
+        ))
         || (eml && fields.source != Some(DrugSource::WhoEml))
     {
         return Err(QueryInvalid::new(&["source", "section"]));
