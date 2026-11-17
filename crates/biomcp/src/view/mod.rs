@@ -208,7 +208,7 @@ fn table_notes(value: &Value, out: &mut String) {
 }
 fn gnomad_lookup(record: &Value) -> bool {
     record.get("namespace").and_then(Value::as_str)
-        == Some(biomcp_adapters::gnomad::variant::DATASET)
+        == Some(biomcp_query::sources::GNOMAD_VARIANT_DATASET)
 }
 
 // An empty answer names what the source was asked, so it does not read as a failed join.
