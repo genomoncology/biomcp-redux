@@ -40,7 +40,6 @@ pub(super) fn count<'a>(
     };
     if let Some(counts) = counts {
         source.count = Some(counts.trials_matched);
-        // At most five pages of 1,000 trials are read.
         source.retrieved_count = Some(u32::try_from(counts.trials_read).unwrap_or(u32::MAX));
         body.site_counts = Some(counts);
         body.attribution = ATTRIBUTION.into();

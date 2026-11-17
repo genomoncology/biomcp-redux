@@ -8,8 +8,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 /// Rows per request; the registry served all sites of 1,000 trials in one reply (live 2026-11-17).
 const PAGE_SIZE: usize = 1000;
-/// Pages read before the count stops; the reply then reads fewer trials than matched.
-const MAX_PAGES: usize = 5;
 const FIELDS: &str = "NCTId,LocationFacility,LocationCity,LocationCountry";
 
 #[derive(Deserialize)]
@@ -74,7 +72,7 @@ impl Study {
     }
 }
 
-/// Count the facilities of every matched trial, up to the page limit, and keep the `limit` most.
+/// Count the facilities of every matched trial and keep the `limit` most.
 pub fn site_count(
     leg: &Leg<'_>,
     query: &TrialSearch,
@@ -119,7 +117,8 @@ fn read_pages(
     let mut counts = BTreeMap::<Key, u64>::new();
     let mut matched = None;
     let mut read = 0;
-    for _ in 0..MAX_PAGES {
+    let mut seen_tokens = BTreeSet::new();
+    loop {
         let page = fetch(leg, &params)?;
         matched = matched.or(page.total_count);
         let studies = page.studies.unwrap_or_default();
@@ -134,6 +133,9 @@ fn read_pages(
         let Some(token) = page.next_page_token else {
             break;
         };
+        if !seen_tokens.insert(token.as_str().to_owned()) {
+            return Err(biomcp_fetch::bad_reply(Source::ClinicalTrialsGov, Some(200)));
+        }
         params.insert("pageToken".into(), token.as_str().into());
     }
     let matched =
