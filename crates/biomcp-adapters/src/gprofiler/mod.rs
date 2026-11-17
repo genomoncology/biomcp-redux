@@ -146,51 +146,11 @@ pub fn enrichment(
         return Err(biomcp_fetch::bad_reply(Source::Gprofiler, Some(200)));
     }
     let genes = profile.meta.genes_metadata;
-    // g:Profiler reports each term's input genes against its list of distinct mapped genes.
-    let mapped = genes.query.get("query_1");
-    let names: Vec<Option<Text>> = mapped
-        .map(|q| {
-            q.ensgs
-                .iter()
-                .map(|ensg| {
-                    query
-                        .genes()
-                        .iter()
-                        .find(|input| {
-                            q.mapping
-                                .get(input.as_str())
-                                .is_some_and(|ids| ids.contains(ensg))
-                        })
-                        .cloned()
-                        .or_else(|| Text::new(ensg).ok())
-                })
-                .collect()
-        })
-        .unwrap_or_default();
+    let names = input_names(query, genes.query.get("query_1"));
     let items = profile
         .result
         .into_iter()
-        .filter_map(|row| {
-            let terms = EnrichmentTerms::from_native(&row.source)?;
-            let genes = row
-                .intersections
-                .iter()
-                .zip(&names)
-                .filter(|(evidence, _)| !evidence.is_empty())
-                .filter_map(|(_, name)| name.clone())
-                .collect();
-            Some(EnrichedTerm {
-                id: row.native,
-                name: row.name,
-                terms,
-                p_value: row.p_value,
-                overlap: row.intersection_size,
-                query_size: row.query_size,
-                term_size: row.term_size,
-                background_size: row.effective_domain_size,
-                genes,
-            })
-        })
+        .filter_map(|row| term(row, &names))
         .collect();
     let ambiguous = genes
         .ambiguous
@@ -211,5 +171,48 @@ pub fn enrichment(
         fetched,
     ))
 }
+/// The caller's spelling of each gene g:Profiler tested, in the order its evidence lists use.
+fn input_names(query: &GeneEnrichmentQuery, mapped: Option<&QueryGenes>) -> Vec<Option<Text>> {
+    let Some(q) = mapped else {
+        return Vec::new();
+    };
+    q.ensgs
+        .iter()
+        .map(|ensg| {
+            query
+                .genes()
+                .iter()
+                .find(|input| {
+                    q.mapping
+                        .get(input.as_str())
+                        .is_some_and(|ids| ids.contains(ensg))
+                })
+                .cloned()
+                .or_else(|| Text::new(ensg).ok())
+        })
+        .collect()
+}
+fn term(row: Row, names: &[Option<Text>]) -> Option<EnrichedTerm> {
+    let terms = EnrichmentTerms::from_native(&row.source)?;
+    let genes = row
+        .intersections
+        .iter()
+        .zip(names)
+        .filter(|(evidence, _)| !evidence.is_empty())
+        .filter_map(|(_, name)| name.clone())
+        .collect();
+    Some(EnrichedTerm {
+        id: row.native,
+        name: row.name,
+        terms,
+        p_value: row.p_value,
+        overlap: row.intersection_size,
+        query_size: row.query_size,
+        term_size: row.term_size,
+        background_size: row.effective_domain_size,
+        genes,
+    })
+}
+
 /// Complete source policy and command declaration.
 pub(crate) mod decl;
