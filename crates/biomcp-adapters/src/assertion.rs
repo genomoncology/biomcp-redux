@@ -17,6 +17,8 @@ pub(crate) fn row(
     let mut row = VariantAssertion {
         kind,
         domain,
+        record: attribution.record.clone(),
+        submitter: attribution.submitter.clone(),
         statement_unmapped: proposition.is_none(),
         statement: None,
         unmapped: None,
@@ -87,6 +89,8 @@ pub(crate) fn missing(
     VariantAssertion {
         kind,
         domain,
+        record: attribution.record.clone(),
+        submitter: attribution.submitter.clone(),
         statement_unmapped: true,
         statement: None,
         unmapped: Some(UnmappedAssertion {
