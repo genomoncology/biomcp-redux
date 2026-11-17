@@ -935,9 +935,10 @@ Search five source records by default. FDA device recalls cover every medical de
 Usage: biomcp search diagnostic [OPTIONS] --source <source>
 
 Options:
-      --biomarker <biomarker>
-          Exact table-0 cell.
-          Exact table-0 biomarker cell; unsupported in the group table.
+      --aggregate <aggregate>
+          Count by product code; help search diagnostic
+          Count by product code.
+          Also counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -945,31 +946,35 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --bundle-revision <bundle_revision>
-          Stored bundle revision.
-          Immutable stored bundle revision retained by a continuation.
+      --biomarker <biomarker>
+          Exact table-0 cell.
+          Exact table-0 biomarker cell; unsupported in the group table.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --bundle-revision <bundle_revision>
+          Stored bundle revision.
+          Immutable stored bundle revision retained by a continuation.
 
       --classification <classification>
           FDA recall class; help search diagnostic
           FDA recall class.
           Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
 
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
       --classification-name <classification_name>
           FDA classification name phrase.
           Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --condition <condition>
           Condition name text.
           Text in GTR condition_identifiers, the test's condition names, matched like the GTR --name.
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
 
       --condition-id <condition_id>
           Exact MedGen:CUI.
@@ -987,12 +992,18 @@ Options:
           First date, YYYY-MM-DD.
           Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --decision-to <decision_to>
           Last date, YYYY-MM-DD.
           Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1000,12 +1011,6 @@ Options:
       --device-id <device_id>
           PMA or K identifier.
           Exact PMA application, application/supplement or source K identity.
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
 
       --drug-application <drug_application>
           NDA/BLA application.
@@ -1086,6 +1091,8 @@ Search diagnostic laboratory tests and devices. FDA CDx rows of both tables star
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
+- `--aggregate`: Count by product code.
+Also counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page. Value form: string; example: --aggregate product-code; only with --source fda-510k.
 - `--biomarker`: Exact table-0 cell.
 Exact table-0 biomarker cell; unsupported in the group table. Value form: string; example: --biomarker KRAS; only with --source fda-cdx.
 - `--bundle-revision`: Stored bundle revision.

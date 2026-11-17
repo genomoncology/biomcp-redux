@@ -1,0 +1,92 @@
+{
+  "feature": "device-approval-search",
+  "live_check": "public",
+  "story": "A 510(k) search counts every matching record by FDA product code in one call, so a life-sciences analyst's 2024 decisions by product code come from BioMCP rather than openFDA's 100-term default facet. The reply keeps the first page of records and adds product_code_counts, most records first, whose sum equals the page total. The count is refused for other sources and with an offset.",
+  "verified": "Native openFDA device 510(k) replies recorded 2026-11-16 by biomcp --record without a key in pm job j42077: the dated search page (total 3,129) and count=product_code&limit=1000 over the same expression (792 codes, GEX 82 first, summing to 3,129). Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "diagnostic/510k-product-codes",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-510k",
+        "--decision-from",
+        "2024-01-01",
+        "--decision-to",
+        "2024-12-31",
+        "--aggregate",
+        "product-code"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-510k",
+        "--decision-from",
+        "2024-01-01",
+        "--decision-to",
+        "2024-12-31",
+        "--aggregate",
+        "product-code"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/aggregate": "product-code",
+        "/page/total": 3129,
+        "/page/returned": 5,
+        "/result/source_query": "decision_date:[2024-01-01 TO 2024-12-31]",
+        "/result/product_code_counts/items/0": {
+          "product_code": "GEX",
+          "count": 82
+        },
+        "/result/product_code_counts/items/1": {
+          "product_code": "QIH",
+          "count": 64
+        },
+        "/result/product_code_counts/sum": 3129,
+        "/result/product_code_counts/sum_matches_total": true,
+        "/result/product_code_counts/limit_reached": false,
+        "/next/*/kind": {
+          "includes": "page"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--aggregate",
+        "product-code"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--aggregate",
+        "/error/message": "--aggregate product-code counts 510(k) records by FDA product code and needs --source fda-510k"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-510k",
+        "--aggregate",
+        "product-code",
+        "--offset",
+        "5"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

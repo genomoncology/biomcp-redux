@@ -38,9 +38,7 @@ pub fn product_codes(
         &endpoint,
         Input::Params(&args),
         Read::<Response>::json().check(&|reply| match reply {
-            Response::Page { results, .. } if results.len() > CODE_LIMIT as usize => {
-                Err(BadReply)
-            }
+            Response::Page { results, .. } if results.len() > CODE_LIMIT as usize => Err(BadReply),
             _ => Ok(()),
         }),
     )?;
