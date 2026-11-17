@@ -122,6 +122,7 @@ impl Saved {
         limit: u32,
         out: &mut Outcome,
     ) -> Result<(), RequestError> {
+        let total = self.total();
         let offset = offset as usize;
         let limit = limit as usize;
         match (self, q) {
@@ -132,6 +133,7 @@ impl Saved {
                 out.body = (ProteinDomains {
                     coordinate_note: biomcp_types::coordinate_note(super::spans(&items)),
                     items,
+                    total,
                     native_total,
                 })
                 .with_query(query.clone())
@@ -152,6 +154,7 @@ impl Saved {
                     .collect();
                 out.body = (ProteinComplexes {
                     items: items.into(),
+                    total,
                     native_total: c.native_total,
                 })
                 .with_query(query.clone());

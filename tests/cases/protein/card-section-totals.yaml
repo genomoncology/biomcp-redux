@@ -1,0 +1,52 @@
+{
+  "feature": "protein-sections",
+  "live_check": "public",
+  "story": "A protein card's domains and complexes sections state `total`, the whole selected set, as every other section does, so an agent that reads `total` reports WRN's 14 complexes and 17 InterPro entries, not the 5 rows a card shows. Before 1010 these sections carried only `native_total`, and an agent read `total`, got nothing and reported 5 (bench comp-bio 2026-11-16, fact 10.1).",
+  "verified": "tests/replies/protein/card-section-totals/provenance.json records the live UniProt, InterPro and Complex Portal replies for Q14191 (WRN) of 2026-11-16 (pm job j41965) and their body hashes: Complex Portal's human search found 14 complexes, all admitted; InterPro listed 17 integrated entries.",
+  "replay": "protein/card-section-totals",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "Q14191",
+        "domains",
+        "complexes",
+        "--section-limit",
+        "5"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/header/protein/accession": "Q14191",
+        "/result/items/0/sections/complexes/data/total": 14,
+        "/result/items/0/sections/complexes/data/native_total": 14,
+        "/result/items/0/sections/complexes/data/items": {
+          "count": 5
+        },
+        "/result/items/0/sections/domains/data/total": 17,
+        "/result/items/0/sections/domains/data/items": {
+          "count": 5
+        }
+      }
+    },
+    {
+      "run": [
+        "protein",
+        "complexes",
+        "Q14191",
+        "--limit",
+        "5"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 14,
+        "/result/total": 14,
+        "/result/items": {
+          "count": 5
+        }
+      }
+    }
+  ]
+}

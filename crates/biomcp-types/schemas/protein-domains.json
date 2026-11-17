@@ -434,6 +434,13 @@
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
+        },
+        "total": {
+          "default": 0,
+          "description": "Rows in the whole selected collection before paging; the count to report.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
