@@ -74,6 +74,34 @@
       }
     },
     {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF V600E",
+            "section": [
+              "clinvar"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/schema": "biomcp.variant-card/16",
+        "/status": "complete",
+        "/query/input": "BRAF V600E",
+        "/result/resolution": "resolved",
+        "/result/candidates/0/record/id": "chr7:g.140453136A>T",
+        "/result/candidates/0/sections/clinvar/state": "data",
+        "/sources/*/source": {
+          "includes": [
+            "myvariant",
+            "clinvar"
+          ]
+        }
+      }
+    },
+    {
       "run": [
         "get",
         "variant",
