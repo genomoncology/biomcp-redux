@@ -33,6 +33,16 @@ pub(super) fn get<'a>(
             actions.push(Step::run(StepKind::Disambiguate, &sources, request, false));
         }
     }
+    let unique = unique
+        && actions.iter().any(|step| {
+            matches!(
+                &step.1,
+                Action::Run {
+                    request: Request::GetVariant(_),
+                    ..
+                }
+            )
+        });
     for step in &out.next {
         if let Action::Run {
             request: Request::SearchVariant(page),
