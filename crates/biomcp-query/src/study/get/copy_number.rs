@@ -22,7 +22,7 @@ fn counts(leg: &Leg<'_>, q: &StudyGet, out: &mut Outcome) -> Result<(), RequestE
                 q,
                 error,
                 studies::copy_number_profiles,
-                biomcp_types::ErrorMessage::StudyCopyNumberProfile,
+                biomcp_types::ErrorMessage::ArgumentGuidance,
             )? {
                 out.body = ReplyData::Usage(usage);
                 return Ok(());

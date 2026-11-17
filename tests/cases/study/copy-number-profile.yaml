@@ -13,7 +13,7 @@
         "/error/code": "usage.arguments",
         "/error/option": "--molecular-profile",
         "/error/valid_values": ["brca_tcga_gistic"],
-        "/error/message": "the cna section reads only a discrete copy-number profile of this study; choose --molecular-profile from valid_values"
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command"
       }
     }
   ]

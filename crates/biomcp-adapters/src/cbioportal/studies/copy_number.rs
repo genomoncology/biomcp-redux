@@ -1,6 +1,7 @@
 //! cBioPortal's own discrete copy-number sample counts for one gene; BioMCP counts nothing itself.
 use super::SPEC;
-use super::rows::{acquired, copy_number_profiles, gene, selected};
+use super::profiles::{copy_number_profiles, selected};
+use super::rows::{acquired, gene};
 use biodata::StudyProfileId;
 use biomcp_fetch::{BadReply, Freshness, Input, Leg, PathSegment, Read, Reply, RequestError};
 use biomcp_types::{StudyCopyNumber, StudyGet};

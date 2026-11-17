@@ -34,21 +34,10 @@ struct Gene {
     entrez_gene_id: u32,
     hugo_gene_symbol: Text,
 }
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Profile {
-    study_id: StudyId,
-    molecular_profile_id: StudyProfileId,
-    molecular_alteration_type: Text,
-    datatype: Option<Field<Text>>,
-}
-#[derive(Deserialize)]
-#[serde(transparent)]
-struct Profiles(Vec<Profile>);
 macro_rules! reply {
     ($($t:ty),+) => {$(impl Reply for $t { fn check(&self) -> Result<(), BadReply> { Ok(()) } })+};
 }
-reply!(Samples, Mutations, Gene, Profiles);
+reply!(Samples, Mutations, Gene);
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -57,7 +46,7 @@ struct MutationFilter<'a> {
     sample_list_id: &'a biodata::StudySampleListId,
 }
 
-fn endpoint(path: &'static str, segments: &[&str]) -> Result<biomcp_fetch::Endpoint, RequestError> {
+pub(super) fn endpoint(path: &'static str, segments: &[&str]) -> Result<biomcp_fetch::Endpoint, RequestError> {
     let segments = segments
         .iter()
         .map(|v| PathSegment::new(v))
@@ -228,73 +217,9 @@ pub(super) fn gene(leg: &Leg<'_>, q: &StudyGet) -> Result<NcbiGeneId, RequestErr
     NcbiGeneId::new(gene.entrez_gene_id)
         .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))
 }
-/// The study's mutation profiles, in source order.
-pub fn mutation_profiles(leg: &Leg<'_>, q: &StudyGet) -> Result<Vec<StudyProfileId>, RequestError> {
-    profiles_of(leg, q, "MUTATION_EXTENDED", None)
-}
-/// The study's discrete copy-number (GISTIC) profiles, in source order.
-pub fn copy_number_profiles(
-    leg: &Leg<'_>,
-    q: &StudyGet,
-) -> Result<Vec<StudyProfileId>, RequestError> {
-    profiles_of(leg, q, "COPY_NUMBER_ALTERATION", Some("DISCRETE"))
-}
-fn profiles_of(
-    leg: &Leg<'_>,
-    q: &StudyGet,
-    kind: &str,
-    datatype: Option<&str>,
-) -> Result<Vec<StudyProfileId>, RequestError> {
-    let check = |p: &Profiles| {
-        p.0.iter()
-            .all(|p| p.study_id == *q.id())
-            .then_some(())
-            .ok_or(BadReply)
-    };
-    let endpoint = endpoint("/studies", &[q.id().as_str(), "molecular-profiles"])?;
-    let params = [("projection", Arg::Text("SUMMARY"))];
-    let profiles = leg.call(
-        &endpoint,
-        Input::Params(&params),
-        Read::<Profiles>::json().check(&check),
-    )?;
-    Ok(profiles
-        .value
-        .0
-        .into_iter()
-        .filter(|p| {
-            p.molecular_alteration_type.as_str() == kind
-                && datatype.is_none_or(|want| {
-                    p.datatype
-                        .as_ref()
-                        .and_then(Field::as_ref)
-                        .is_some_and(|d| d.as_str() == want)
-                })
-        })
-        .map(|p| p.molecular_profile_id)
-        .collect())
-}
 fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> {
-    selected(mutation_profiles(leg, q)?, q)
+    super::profiles::selected(super::profiles::mutation_profiles(leg, q)?, q)
 }
-/// The caller's profile when the study lists it, else the first; none is an unavailable section.
-pub(super) fn selected(
-    profiles: Vec<StudyProfileId>,
-    q: &StudyGet,
-) -> Result<StudyProfileId, RequestError> {
-    let unavailable = biomcp_fetch::SourceError {
-        source: Source::Cbioportal,
-        reason: biomcp_types::Reason::Unavailable,
-        status: None,
-        tls_cause: None,
-        retry_after: None,
-    };
-    let found = profiles
-        .into_iter()
-        .find(|id| q.molecular_profile().is_none_or(|asked| asked == id));
-    found.ok_or_else(|| unavailable.into())
-}
-
 pub(super) fn acquired(time: Option<i64>) -> Result<Option<u64>, RequestError> {
     time.map(u64::try_from)
         .transpose()
