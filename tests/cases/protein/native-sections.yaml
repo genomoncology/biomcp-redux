@@ -2,7 +2,7 @@
   "feature": "protein-sections",
   "live_check": "public",
   "story": "A caller reads the exact retained UniProt entry and its source-stated sequence, isoform and structure identities.",
-  "verified": "UniProt CC BY 4.0, https://www.uniprot.org/help/license. Original body SHA256 90c459656751eac791efc2f369f49145d38cc949f5b41bf628180ac0a6874b02. Captured 2026-10-30 with no key. Complex Portal CC0 native search body SHA256 4ec43eabf808af512e0fbb67b17b269d14771c24e5700f390ee2f561682639f0 proves an empty exact-accession collection; no membership is inferred. STRING 12.5 CC BY 4.0 (https://string-db.org/cgi/access) interaction_partners body SHA256 fcf27a17926c90eb645d128d607f1561423a3827c760f4b2c7affb4d47c5fb65, recorded live 2026-11-17 in pm job j42220, lists 1,456 EGFR partners at 0.4 or above.",
+  "verified": "UniProt CC BY 4.0, https://www.uniprot.org/help/license. Original body SHA256 90c459656751eac791efc2f369f49145d38cc949f5b41bf628180ac0a6874b02. Captured 2026-10-30 with no key. Complex Portal CC0 native search body SHA256 4ec43eabf808af512e0fbb67b17b269d14771c24e5700f390ee2f561682639f0 proves an empty exact-accession collection; no membership is inferred. STRING 12.5 CC BY 4.0 (https://string-db.org/cgi/access) interaction_partners body SHA256 fcf27a17926c90eb645d128d607f1561423a3827c760f4b2c7affb4d47c5fb65, recorded live 2026-11-17 in pm job j42220, lists 1,456 EGFR partners at 0.4 or above. InterPro CC0 (https://interpro-documentation.readthedocs.io/en/latest/license.html) integrated-entry body for P00533 SHA256 f07c5238463473637f821fbdbca1c0ce0be7e80e5fc4c0367b979b8323525a46, exact request page_size 25, recorded live 2026-11-17 in pm job j42248, lists 15 entries led by IPR000494.",
   "replay": "protein/native-sections",
   "steps": [
     {
@@ -79,7 +79,19 @@
         "/result/items/0/sections/structures/data/items/0/id": "1IVO",
         "/result/items/0/sections/interactions/state": "data",
         "/result/items/0/sections/interactions/data/total": 1456,
-        "/result/items/0/sections/interactions/data/items/0/name": "SOS2"
+        "/result/items/0/sections/interactions/data/items/0/name": "SOS2",
+        "/status": "complete",
+        "/result/items/0/sections/function/state": "data",
+        "/result/items/0/sections/sequence/state": "data",
+        "/result/items/0/sections/isoforms/state": "data",
+        "/result/items/0/sections/structures/state": "data",
+        "/result/items/0/sections/features/state": "data",
+        "/result/items/0/sections/domains/state": "data",
+        "/result/items/0/sections/domains/source": "interpro",
+        "/result/items/0/sections/domains/data/total": 15,
+        "/result/items/0/sections/domains/data/items/0/id": "IPR000494",
+        "/result/items/0/sections/complexes/state": "empty",
+        "/result/items/0/sections/complexes/source": "complex-portal"
       }
     },
     {
