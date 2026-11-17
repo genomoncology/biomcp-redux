@@ -164,6 +164,10 @@ quotas! {
     /// provider-domain policy search; retain conservative local ceiling.
     ORPHADATA = Quota::new(SourceKey::declare("orphadata"), Rate::per_second(1), None, 1);
 
+    /// Checked 2026-11-16: https://biit.cs.ut.ee/gprofiler/page/terms-of-service . No published numeric limit; the terms ask for a few batched
+    /// requests rather than many parallel ones, so retain a conservative local ceiling.
+    GPROFILER = Quota::new(SourceKey::declare("gprofiler"), Rate::per_second(1), None, 1);
+
     /// Checked 2026-11-01: https://www.ncbi.nlm.nih.gov/gtr/docs/ . No published numeric limit found in service documentation/terms and provider-domain
     /// policy search; retain conservative local ceiling.
     GTR = Quota::new(SourceKey::declare("gtr-files"), Rate::per_second(1), None, 1);

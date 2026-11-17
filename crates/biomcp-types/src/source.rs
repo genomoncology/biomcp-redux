@@ -151,6 +151,8 @@ canonical_enum! {
         Cellosaurus => "cellosaurus",
         /// Orphadata Science epidemiology and natural-history files.
         Orphadata => "orphadata",
+        /// g:Profiler g:GOSt functional enrichment.
+        Gprofiler => "gprofiler",
     }
 }
 

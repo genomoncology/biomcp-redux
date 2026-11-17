@@ -1,0 +1,33 @@
+{
+  "feature": "gene-enrichment",
+  "live_check": "public",
+  "story": "A computational biologist sends a five-gene DNA-damage shortlist and reads the over-represented Reactome pathways with g:Profiler's own adjusted p values, its stated correction and the background size; an input g:Profiler cannot map is named, not dropped silently.",
+  "verified": "PENDING",
+  "replay": "gene/enrichment",
+  "steps": [
+    {
+      "run": ["gene", "enrichment", "POLQ", "WRN", "CHEK1", "TTK", "PARP1", "--terms", "reactome", "--correction", "fdr"],
+      "expect": {
+        "/status": "complete",
+        "/result/correction": "fdr",
+        "/result/threshold": 0.05,
+        "/result/items/0/id": "REAC:R-HSA-5693538",
+        "/result/items/0/name": "Homology Directed Repair",
+        "/result/items/0/terms": "reactome",
+        "/result/items/1/id": "REAC:R-HSA-5693532",
+        "/result/items/1/name": "DNA Double-Strand Break Repair",
+        "/sources/0/source": "gprofiler",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": ["gene", "enrichment", "POLQ", "WRN", "CHEK1", "TTK", "PARP1", "NOTAGENE1"],
+      "expect": {
+        "/status": "complete",
+        "/result/correction": "g-scs",
+        "/result/unmapped/0": "NOTAGENE1",
+        "/sources/0/source": "gprofiler"
+      }
+    }
+  ]
+}

@@ -31,6 +31,7 @@ pub(crate) type EntityTool = (
 const GWAS: &str = "GWAS Catalog associations by gene, trait or variant";
 const GWAS_GET: &str = "one GWAS association or study";
 const PGX_GET: &str = "pharmacogenomic guidance and annotations";
+const ENRICHMENT: &str = "pathways and GO terms over-represented in a gene list";
 pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     (
         "gene",
@@ -42,6 +43,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("pgx", "search_pgx", "gene and drug pharmacogenomic pairs"),
             ("pgx_get", "get_pgx", PGX_GET),
             ("gwas", "search_gwas", GWAS),
+            ("enrichment", "gene_enrichment", ENRICHMENT),
         ],
         [r#"{"query":"KRAS"}"#, r#"{"id":"BRAF"}"#],
         "Not for one mutation (use variant) or protein features and structure (use protein)",
@@ -210,6 +212,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("get", "get_pathway", ""),
             ("genes", "pathway_genes", "member genes"),
             ("events", "pathway_events", "reactions and sub-pathways"),
+            ("enrichment", "gene_enrichment", ENRICHMENT),
         ],
         [
             r#"{"query":"Signaling by EGFR"}"#,

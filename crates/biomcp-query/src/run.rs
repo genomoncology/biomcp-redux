@@ -102,6 +102,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::SearchArticle(query) => crate::article::search(cx, query),
         Request::GetGene(query) => gene::get::get(cx, query),
         Request::SearchGene(query) => gene::search::search(cx, query),
+        Request::GeneEnrichment(query) => gene::enrichment::run(cx, query),
     };
     crate::publish::finish(&mut out, request);
     out

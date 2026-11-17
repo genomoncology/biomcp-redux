@@ -98,6 +98,9 @@ pub mod monarch;
 pub mod mydisease;
 pub mod ols;
 pub mod orphadata;
+
+/// g:Profiler over-representation analysis.
+pub mod gprofiler;
 pub mod seer;
 
 mod text_parts;

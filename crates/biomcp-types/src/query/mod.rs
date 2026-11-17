@@ -89,6 +89,9 @@ pub use pathway::{
     PathwayEventsQuery, PathwayGenesQuery, PathwayGet, PathwaySearch, PathwaySection, PathwaySource,
 };
 
+mod gene_enrichment;
+pub use gene_enrichment::{EnrichmentCorrection, EnrichmentTerms, GeneEnrichmentQuery};
+
 mod organization;
 pub use organization::{OrganizationSearch, OrganizationSource};
 

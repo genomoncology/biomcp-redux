@@ -187,6 +187,9 @@ pub use nci_phase::{NciPhaseFilter, NciTrialPhase};
 mod device_recall;
 pub use device_recall::{DeviceRecallCard, DeviceRecallHeader};
 
+mod gene_enrichment;
+pub use gene_enrichment::{EnrichedTerm, GeneEnrichment};
+
 mod organization;
 pub use organization::{Organization, OrganizationCoordinates, OrganizationPage};
 

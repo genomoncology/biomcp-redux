@@ -5,6 +5,7 @@ gene-help: A caller discovers gene arguments, section names and executable examp
 gene-sections: A caller requests named gene sections separately or together, sees each source and availability, and waits within a configurable deadline for an active first bundle publication.
 gene-protein: A caller sees every reviewed human protein linked by the gene's identifiers.
 gene-pathways: A caller sees Reactome pathways linked to the gene.
+gene-enrichment: A caller sends a gene list to g:Profiler and reads the over-represented Reactome, GO and WikiPathways terms with the service's adjusted p values, correction, threshold, background size and unmapped inputs.
 gene-expression: A caller sees source-stated tissue expression and subcellular locations for the gene.
 gene-civic: A caller sees CIViC gene descriptions and counts with checked gene identity.
 gene-clingen: A caller sees ClinGen validity and dosage records from a synchronized local bundle.
