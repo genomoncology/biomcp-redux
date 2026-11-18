@@ -25,6 +25,12 @@ The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/plann
 - Article downloads use exact file selections and `--save PATH`. Text readers, PDFs and supplements have separate commands. HTTP MCP refuses file saves. Plain `serve --http` refuses `article pdf` and `trial document`, whose save is required, with a `usage.arguments` error naming `--save` before it asks any source.
 - Variant normalization uses `--source`, `--hgvs` and explicit builds. Variant source assertions, population and recurrence use their named commands. No source score becomes a clinical classification.
 
+## Variant shorthand
+
+Use a gene symbol and protein substitution with `biomcp search variant "BRAF V600E"` or `biomcp get variant "BRAF V600E"`. With the typed MCP `variant` tool, send `{"action":"search","search":{"query":"BRAF V600E"}}` to search or `{"action":"get","get":{"id":"BRAF V600E"}}` to get a variant card.
+
+When several verified alleles match, get returns the candidates with follow-up actions for looking up an exact allele. Choose the allele you want from those results.
+
 ## ClinGen gene dosage evidence
 
 The ClinGen gene section adds published copy-loss and copy-gain scores and supporting PubMed IDs. A ClinGen sync adds the detailed gene file. Existing local copies can still serve labels and dates offline.

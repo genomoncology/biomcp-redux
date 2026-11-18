@@ -1,6 +1,7 @@
 # 1053 — document-variant-shorthand-in-release-notes
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 85c36a6e2458ddb3f12e0ff95506585ae49f9416
 
 Milestone: 7
 
