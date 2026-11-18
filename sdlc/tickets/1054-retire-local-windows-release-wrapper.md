@@ -1,6 +1,7 @@
 # 1054 — retire-local-windows-release-wrapper
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a4be8590105cbafdfe0cb7f61753e9621362f803
 
 Milestone: 7
 

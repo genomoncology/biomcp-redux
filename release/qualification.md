@@ -107,7 +107,7 @@ The installed cleanup helper runs the success and failure cleanup assertions in 
 
 The legacy helper verifies the pinned 0.9.3 installer bytes and redirects only its exact archive and checksum requests to the existing loopback server. It publishes nothing and uses no source API.
 
-Windows release proof is the hosted native `release/gate.py` result from the recovery action or the rehearsal, as [the release decision](../sdlc/decisions/2026-11-05-release-finds-no-bugs.md) records. The VM wrapper remains outside the release path after its missing-file fault. After machine diagnosis, its existing command is `sh scripts/check_windows_release.sh 0640 "$ARTIFACT_REVISION" "$NATIVE"` on the Windows VM host, under an owning pm job with the same ticket label. It must report actual artifact and tooling revisions. An old artifact can exercise that wrapper but cannot qualify new main.
+Run Windows checks in the existing GitHub Windows release jobs after the local checks pass. Use the native `release/gate.py` result from the release rehearsal or the `win_amd64` recovery action as Windows release proof. Use the recovery action for Windows-only fixes and reruns on the selected main revision. [Windows release checks decision](../sdlc/decisions/2026-11-18-windows-checks-run-in-github-release-workflows.md)
 
 ### 4. Complete payload preparation and screening
 
