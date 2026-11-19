@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=set_id%3A%2208efc731-104b-12a6-e063-6394a90aca55%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"meta\":{\"results\":{\"skip\":0,\"limit\":1,\"total\":1}},\"results\":[{\"id\":\"25821a7f-3f1b-4659-e063-6394a90a6cea\",\"set_id\":\"08efc731-104b-12a6-e063-6394a90aca55\",\"version\":\"2\",\"effective_time\":\"20241027\",\"openfda\":{},\"spl_product_data_elements\":[\"HAWAIIAN TROPIC AVOBENZONE,OCTOCRYLENE SILICON DIOXIDE MINERAL OIL MANGO COCONUT OIL COCOA BUTTER ETHYLHEXYL PALMITATE OCTOCRYLENE OCTOCRYLENE ALKYL (C12-15) BENZOATE ALPHA-TOCOPHEROL ACETATE PAPAYA COLOCASIA ESCULENTA ROOT PASSIFLORA INCARNATA FRUIT GUAVA WATER PANTHENOL ISOPROPYL MYRISTATE AMYL ACETATE ALOE VERA LEAF PLUMERIA RUBRA FLOWER AVOBENZONE AVOBENZONE\"],\"package_label_principal_display_panel\":[\"HAWAIIAN TROPIC(R) CLEAR SPRAY SUNSCREEN ISLAND TANNING ENHANCE TAN & MOISTURIZE COCONUT OIL 12 CRUELTY FREE | VEGAN BROAD SPECTRUM SPF 12 UVA/UVB WATER RESISTANT (80 MINUTES) NET WT 5.5 OZ (158g) Label\"],\"indications_and_usage\":[\"Uses • Helps prevent sunburn\"]}]}"
+      }
+    }
+  ]
+}

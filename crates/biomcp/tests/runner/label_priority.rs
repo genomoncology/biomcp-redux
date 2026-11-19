@@ -27,20 +27,15 @@ fn check() -> Check {
         env.config(&json!({"mcp_tool_mode":mode}))
             .map_err(|e| e.to_string())?;
         for (query, offset, total, names) in [
-            (
-                "pancreatic",
-                0,
-                3,
-                vec!["Indication therapy", "00000000-0000-4000-8000-000000000002"],
-            ),
-            (
-                "pancreatic",
-                2,
-                3,
-                vec!["00000000-0000-4000-8000-000000000003"],
-            ),
+            ("pancreatic", 0, 3, vec![Some("Indication therapy"), None]),
+            ("pancreatic", 2, 3, vec![None]),
             ("pancreatic", 3, 3, vec![]),
-            ("melanoma", 0, 1, vec!["Melanoma reference formulation"]),
+            (
+                "melanoma",
+                0,
+                1,
+                vec![Some("Melanoma reference formulation")],
+            ),
         ] {
             let reply = search(&env, mode, query, offset)?;
             let actual = reply
@@ -49,7 +44,7 @@ fn check() -> Check {
                 .map(|items| {
                     items
                         .iter()
-                        .filter_map(|row| row.get("name").and_then(Value::as_str))
+                        .map(|row| row.get("name").and_then(Value::as_str))
                         .collect::<Vec<_>>()
                 })
                 .unwrap_or_default();
@@ -127,12 +122,13 @@ fn display_names() -> Check {
             return Err(format!("{mode} native label page changed: {reply}"));
         }
         let id = "4764f37b-c9e6-4ede-bcc2-8a03b7c521df";
-        let name = body
-            .pointer("/result/items/3/name")
-            .and_then(Value::as_str)
-            .ok_or("display name missing")?;
-        if body.pointer("/result/items/3/id") != Some(&json!(id)) || name != id {
-            failures.push(format!("{mode}: SPL {id} without brand/generic must display its native ID; got {} display characters", name.chars().count()));
+        // The retained row has no brand or generic and no display panel or indications text
+        // naming it, so it has no name rather than its set ID as one (1060).
+        let name = body.pointer("/result/items/3/name");
+        if body.pointer("/result/items/3/id") != Some(&json!(id)) || name.is_some() {
+            failures.push(format!(
+                "{mode}: SPL {id} without a name in its retained fields must omit the name; got {name:?}"
+            ));
         }
     }
     if failures.is_empty() {
