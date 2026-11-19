@@ -241,7 +241,7 @@ const ALLOWED: &[(&str, &str)] = &[
     ),
     (
         "crates/biomcp-adapters/tests/pdf_structure.rs",
-        "Refuse PDFs written byte by byte whose tables overlap, list one object many times, hold more than the loader may build, or are damaged, before any source request.",
+        "Refuse PDFs written here whose tables list one object many times, that hold too much to load, or that are damaged.",
     ),
     (
         "crates/biomcp-adapters/tests/pmc_body.rs",
