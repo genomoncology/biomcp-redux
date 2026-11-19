@@ -240,16 +240,31 @@
           ],
           "description": "License Europe PMC states for the paper, even when it is not open access."
         },
+        "license_not_checked": {
+          "description": "True on a search row whose licence was not checked; only the Europe PMC lookup reads licences.",
+          "type": "boolean"
+        },
         "open_access": {
-          "description": "Europe PMC open-access flag; absent when no source states one. Not a licence.",
+          "description": "Open-access flag from `open_access_source`; the two sources define open access differently. Not a licence.",
           "type": [
             "boolean",
             "null"
           ]
         },
-        "open_access_unknown": {
-          "description": "True on a search row whose open-access status no source stated.",
+        "open_access_not_checked": {
+          "description": "True on a search row whose open-access flag was not checked or could not be read.",
           "type": "boolean"
+        },
+        "open_access_source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Source"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "`pubmed`: in PubMed Central's open-access subset, per NCBI's filter; `europepmc`: Europe PMC's flag."
         },
         "pmid": {
           "$ref": "#/$defs/Reply_Pmid",
@@ -1409,7 +1424,7 @@
       "type": "object"
     }
   },
-  "$id": "biomcp.article-recommendations/10",
+  "$id": "biomcp.article-recommendations/11",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1465,7 +1480,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.article-recommendations/10",
+      "const": "biomcp.article-recommendations/11",
       "type": "string"
     },
     "sources": {

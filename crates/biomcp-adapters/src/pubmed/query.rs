@@ -134,3 +134,57 @@ pub fn resolve_ids(
         .esearchresult
         .idlist)
 }
+
+const OPEN_FILTER: &str = "pubmed pmc open access";
+
+/// PMIDs of `ids` in PubMed Central's open-access subset, from one ESearch with NCBI's
+/// `"pubmed pmc open access"[filter]`. Rows not returned are not in that subset. A reply where
+/// NCBI says it did not find or ignored the filter phrase, or whose warnings cannot be read, is a
+/// failed check: without the filter, every row would read open access.
+pub fn open_access(
+    leg: &Leg<'_>,
+    ids: &[Pmid],
+    email: Option<&Secret>,
+) -> Result<Vec<Pmid>, RequestError> {
+    let group = ids
+        .iter()
+        .map(|id| format!("{id}[uid]"))
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    let term = format!("({group}) AND \"{OPEN_FILTER}\"[filter]");
+    let inputs = Some(biomcp_fetch::Identities {
+        namespace: "pmid".into(),
+        ids: ids.iter().map(ToString::to_string).collect(),
+    });
+    let found =
+        super::search_ids_with_inputs(leg, &term, biomcp_types::ArticleSort::Date, email, inputs)?;
+    if !found.problems.is_empty() || found.notices.iter().any(names_filter) {
+        return Err(biomcp_fetch::SourceError {
+            source: biomcp_types::Source::PubMed,
+            reason: biomcp_types::Reason::BadReply,
+            status: None,
+            tls_cause: None,
+            retry_after: None,
+        }
+        .into());
+    }
+    Ok(found
+        .ids
+        .into_iter()
+        .filter(|id| ids.contains(id))
+        .collect())
+}
+
+/// NCBI lists a phrase it did not find or ignored, such as `quotedphrasesnotfound`.
+fn names_filter(notice: &biomcp_types::SourceNotice) -> bool {
+    let named = |phrase: &str| phrase.to_ascii_lowercase().contains(OPEN_FILTER);
+    match notice {
+        biomcp_types::SourceNotice::NotFoundWords { words } => {
+            words.iter().any(|w| named(w.as_str()))
+        }
+        biomcp_types::SourceNotice::PubmedWarning { phrases, .. } => {
+            phrases.iter().any(|p| named(p))
+        }
+        _ => false,
+    }
+}

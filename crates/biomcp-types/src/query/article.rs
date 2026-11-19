@@ -111,9 +111,12 @@ struct Fields {
     #[doc = "Exclude preprints.\nPubMed and Europe PMC only: exclude preprints using the source's own filter."]
     #[serde(default, skip_serializing_if = "is_false")]
     no_preprints: bool,
-    #[doc = "Skip the access lookup.\nDo not ask Europe PMC for each row's open-access flag and license."]
+    #[doc = "Skip the open-access lookup.\nDo not ask NCBI which rows are in PubMed Central's open-access subset."]
     #[serde(default, skip_serializing_if = "is_false")]
     no_access_lookup: bool,
+    #[doc = "Read licences from Europe PMC.\nAlso ask Europe PMC for each row's licence and open-access flag; slow, often several seconds."]
+    #[serde(default, skip_serializing_if = "is_false")]
+    license_lookup: bool,
     #[doc = "Retraction filter.\nInclude retracted papers by default. Exclusion is supported only by PubMed and Europe PMC."]
     #[serde(default, skip_serializing_if = "is_include")]
     #[cfg_attr(feature = "schema",
@@ -391,11 +394,15 @@ impl ArticleSearch {
     pub fn exact_term(&self) -> bool {
         self.0.exact_term
     }
-    /// Whether pages skip the Europe PMC open-access lookup.
+    /// Whether pages skip the NCBI open-access lookup.
     pub fn no_access_lookup(&self) -> bool {
         self.0.no_access_lookup
     }
-    /// The same search without the Europe PMC open-access lookup.
+    /// Whether pages also ask Europe PMC for licences.
+    pub fn license_lookup(&self) -> bool {
+        self.0.license_lookup
+    }
+    /// The same search without the NCBI open-access lookup.
     pub fn without_access_lookup(&self) -> Self {
         let mut value = self.clone();
         value.0.no_access_lookup = true;
@@ -482,6 +489,7 @@ impl ArticleSearch {
             exact_term: false,
             no_preprints: false,
             no_access_lookup: false,
+            license_lookup: false,
             retracted: RetractionFilter::default(),
         })
     }

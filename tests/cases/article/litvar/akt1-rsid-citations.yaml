@@ -3,7 +3,7 @@
   "feature": "article-litvar",
   "story": "Citation ordering keeps the landmark paper within the stated native source pool",
   "replay": "article/litvar/akt1-rsid-citations",
-  "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim. Enlarged landmark-check page measured 11190 bytes; bounds add15percent. Seeded source reply cache from existing recordings; only new ESummary identifier sets were requested. The reply with disclosed PubMed optional-field problems measured 4786 comparable bytes in j19522; the updated ceiling adds fifteen percent. Existing recorded source replies are unchanged. Diagnostic j19526 first-page old/full/without-new-problems bytes: 4675/4786/4061. The 30-row step measured 12869/12617/11269 against its unchanged bound. With 1046's open-access field, and no Europe PMC access reply recorded here, each row says `open_access_unknown`; the 30-row step measured 13436 bytes in j42442 and its ceiling adds 15 percent. Only new electronic_date problems were removed for comparison.",
+  "verified": "Actual command recordings from public NCBI sources on 2026-10-24. No exact 0.9 named LitVar-only JSON comparison exists; each ceiling is measured output plus 15 percent. Recorded provider order is native sequence without a ranking claim. Enlarged landmark-check page measured 11190 bytes; bounds add15percent. Seeded source reply cache from existing recordings; only new ESummary identifier sets were requested. The reply with disclosed PubMed optional-field problems measured 4786 comparable bytes in j19522; the updated ceiling adds fifteen percent. Existing recorded source replies are unchanged. Diagnostic j19526 first-page old/full/without-new-problems bytes: 4675/4786/4061. The 30-row step measured 12869/12617/11269 against its unchanged bound. With 1046's open-access field, and no Europe PMC access reply recorded here, each row said `open_access_unknown`; the 30-row step measured 13436 bytes in j42442 and its ceiling adds 15 percent. Only new electronic_date problems were removed for comparison. 2026-11-19 (1072): NCBI's open-access ESearch for the 10-row page, BioMCP's exact request, was recorded live, so rows carry open_access from pubmed. 2026-11-19 (1072): rows now carry open_access_source and license_not_checked; the first step measured 5,563 bytes in j43150 and its ceiling adds 15 percent.",
   "steps": [
     {
       "run": [
@@ -16,7 +16,7 @@
         "--sort",
         "citations"
       ],
-      "max_bytes": 5504,
+      "max_bytes": 6398,
       "expect": {
         "/status": "complete",
         "/page/total": 1590

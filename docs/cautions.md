@@ -8,6 +8,10 @@ Keep cache and store folders on a local disk, or a local Docker named volume. Sh
 
 CLI saves require `--replace` for existing files. Stdio MCP allows new-file saves and refuses `--save` with `--replace` before provider requests or file changes. HTTP server calls refuse saves. CLI and stdio MCP saves belong to the caller and create no download directory or saved-file registry.
 
+## Article open-access flags
+
+A `search article` row's `open_access` comes from the source named in `open_access_source`. By default it is `pubmed`: BioMCP sends one NCBI request per page with the filter that, in [PubMed Central's words](https://pmc.ncbi.nlm.nih.gov/tools/openftlist/), finds "all Open Access Subset articles" in PubMed, and the subset "includes journal articles and preprints that are made available under Creative Commons or similar licenses that allow more liberal redistribution and reuse than a traditionally copyrighted work." With `--license-lookup`, or on a row Europe PMC itself returned, it is `europepmc`: Europe PMC's own `isOpenAccess` flag, which follows Europe PMC's definition, not PubMed Central's. On 440 papers from 44 searches on 2026-11-19, the two disagreed on 92: NCBI listed 90 as open access that Europe PMC did not, mostly recent deposits Europe PMC had not yet indexed, and Europe PMC flagged 2 that NCBI did not. BioMCP does not decide which is right. Only the Europe PMC lookup reads licences, so a row without one says `license_not_checked`; "not checked" never means "no licence". License terms vary: read the article's own license statement before reuse.
+
 ## Trial documents
 
 The reply preserves the source URL, document metadata and license without granting reuse rights. Documents are downloaded as bounded PDF bytes and never read as text.
