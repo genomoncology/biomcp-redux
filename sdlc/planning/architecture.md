@@ -166,6 +166,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-fetch/tests/transport/tls_builds.rs` | Count TLS configuration builds across hosted calls at the private constructor boundary without exposing test controls. |
 | `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |
 | `crates/biomcp-fetch/tests/quotas/expiry.rs` | Check idle bucket expiry after scaled refill without sleeping or exposing transport state. |
+| `crates/biomcp/src/grammar/context.rs` | Check every value option of every query command given no value at the private parser boundary, in one process. |
 | `crates/biomcp/src/grammar/reference.rs` | Generate and compare documentation at the private parser boundary without adding a public command. |
 | `crates/biomcp/src/mcp/worker_tests.rs` | Test worker panic completion and exact serialized tool result character boundaries that public requests cannot intentionally produce. |
 | `crates/biomcp/src/mcp/http/call.rs` | Prove HTTP failure recovery, safe diagnostic fields and hosted worker capacity and shutdown ownership at private boundaries. |

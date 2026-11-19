@@ -88,9 +88,10 @@ fn stripped(error: &clap::Error, args: &[OsString]) -> Option<Vec<OsString>> {
     Some(args)
 }
 
+/// The command path the parser reads from the call, ignoring its other mistakes, such as a
+/// required argument the call also left out.
 fn parsed<'a>(root: &'a Command, args: &[OsString]) -> Option<(&'a Command, Vec<&'a str>)> {
-    let matches = root
-        .clone()
+    let matches = lenient(root.clone())
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
         .ok()?;
     let (mut command, mut found, mut path) = (root, &matches, Vec::new());
@@ -102,54 +103,54 @@ fn parsed<'a>(root: &'a Command, args: &[OsString]) -> Option<(&'a Command, Vec<
     (!path.is_empty()).then_some((command, path))
 }
 
-#[cfg(test)]
-mod tests {
-    use biomcp_types::{ErrorMessage, UsageError};
+/// Every option that takes a value, given none, is named as missing with a next step (1064).
+fn lenient(command: Command) -> Command {
+    command.ignore_errors(true).mut_subcommands(lenient)
+}
 
-    /// Every option that takes a value, given none, is named as missing with a next step (1064).
-    #[test]
-    fn every_value_option_given_no_value_is_named_missing() -> Result<(), String> {
-        let root = super::super::root().map_err(|_| "grammar unavailable")?;
-        let mut failures = Vec::new();
-        for (verb, entity, _) in super::super::command_paths() {
-            let Some(command) = root
-                .find_subcommand(verb)
-                .and_then(|command| command.find_subcommand(entity))
-            else {
+#[cfg(test)]
+#[test]
+fn every_value_option_given_no_value_is_named_missing() -> Result<(), String> {
+    let root = super::root().map_err(|_| "grammar unavailable")?;
+    let mut failures = Vec::new();
+    for (verb, entity, _) in super::command_paths() {
+        let Some(command) = root
+            .find_subcommand(verb)
+            .and_then(|command| command.find_subcommand(entity))
+        else {
+            continue;
+        };
+        for argument in command.get_arguments() {
+            let takes = argument.get_action().takes_values()
+                && argument
+                    .get_num_args()
+                    .is_some_and(|range| range.min_values() > 0);
+            let Some(long) = argument.get_long().filter(|_| takes) else {
                 continue;
             };
-            for argument in command.get_arguments() {
-                let takes = argument.get_action().takes_values()
-                    && argument
-                        .get_num_args()
-                        .is_some_and(|range| range.min_values() > 0);
-                let Some(long) = argument.get_long().filter(|_| takes) else {
-                    continue;
-                };
-                let flag = format!("--{long}");
-                let args = [verb, entity, flag.as_str()].map(std::ffi::OsString::from);
-                let outcome = super::super::parse(&root, &args);
-                let named = match &outcome {
-                    Err(super::super::ParseInvalid {
-                        usage: Some(UsageError::Arguments(refusal)),
-                        ..
-                    }) => {
-                        refusal.argument.as_deref() == Some(flag.as_str())
-                            && refusal.message == Some(ErrorMessage::ArgumentMissing)
-                            && !refusal.next.is_empty()
-                    }
-                    _ => false,
-                };
-                if !named {
-                    let usage = outcome.err().map(|invalid| format!("{:?}", invalid.usage));
-                    failures.push(format!("{verb} {entity} {flag}: {usage:?}"));
+            let flag = format!("--{long}");
+            let args = [verb, entity, flag.as_str()].map(std::ffi::OsString::from);
+            let outcome = super::parse(&root, &args);
+            let named = match &outcome {
+                Err(super::ParseInvalid {
+                    usage: Some(biomcp_types::UsageError::Arguments(refusal)),
+                    ..
+                }) => {
+                    refusal.argument.as_deref() == Some(flag.as_str())
+                        && refusal.message == Some(biomcp_types::ErrorMessage::ArgumentMissing)
+                        && !refusal.next.is_empty()
                 }
+                _ => false,
+            };
+            if !named {
+                let usage = outcome.err().map(|invalid| format!("{:?}", invalid.usage));
+                failures.push(format!("{verb} {entity} {flag}: {usage:?}"));
             }
         }
-        if failures.is_empty() {
-            Ok(())
-        } else {
-            Err(failures.join("\n"))
-        }
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
     }
 }
