@@ -39,7 +39,8 @@ pub(super) fn request(
                     .filter(|key| !MARKETS_FIELDS.contains(key))
                     .collect();
                 if !refused.is_empty() {
-                    return Err(QueryInvalid::new(&refused));
+                    return Err(QueryInvalid::new(&refused)
+                        .with_message(biomcp_types::ErrorMessage::DrugMarketsSource));
                 }
                 decode_query(value).map(Request::GetDrugMarkets)
             } else {

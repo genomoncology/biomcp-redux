@@ -1,0 +1,39 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "When NCBI answers the open-access check but says it did not recognise the open-access filter, the page does not read NCBI's list as the open-access subset: every row says open_access_not_checked, and PubMed's row names the failed check, so a reader never takes an unfiltered list for open access.",
+  "replay": "article/search/pubmed-access-filter-ignored",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--exact-term",
+        "--offset",
+        "7",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/result/items/*/pmid": {
+          "equals": [
+            "36970111",
+            "42162665"
+          ]
+        },
+        "/result/items/*/open_access_not_checked": {
+          "equals": [
+            true,
+            true
+          ]
+        },
+        "/sources/0/source": "pubmed",
+        "/sources/0/reason": "bad-reply"
+      },
+      "max_bytes": 2457
+    }
+  ],
+  "verified": "Synthetic NCBI warning; see tests/replies/article/search/pubmed-access-filter-ignored/README.md. The ceiling is the measured 2,136-byte page (j43231) plus 15 percent. 2026-11-19 (1072).",
+  "harvest": "review of 1072: an ignored NCBI filter must not mark every row open access"
+}
