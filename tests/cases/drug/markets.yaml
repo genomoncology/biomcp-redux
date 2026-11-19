@@ -295,7 +295,12 @@
           "drug",
           "dolutegravir",
           "markets"
-        ]
+        ],
+        "/error": {
+          "omits": [
+            "valid_values"
+          ]
+        }
       }
     },
     {
@@ -317,7 +322,12 @@
           "drug",
           "mobocertinib",
           "markets"
-        ]
+        ],
+        "/error": {
+          "omits": [
+            "valid_values"
+          ]
+        }
       }
     }
   ]
