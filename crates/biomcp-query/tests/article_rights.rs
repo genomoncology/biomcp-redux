@@ -25,10 +25,13 @@ fn run(fetch: &Fetch) -> biomcp_query::Outcome {
             fit_deadline: biomcp_query::FIT_DEADLINE,
         },
         &Request::SearchArticle(
+            // These stubs serve no NCBI open-access check; its failure would make every page
+            // partial under the status words (1059), and the licence path is what they test.
             serde_json::from_str::<ArticleSearch>(
                 r#"{"text":"rights witness","exact_term":true,"source":["litsense"],"limit":3}"#,
             )
-            .unwrap(),
+            .unwrap()
+            .without_access_lookup(),
         ),
     )
 }

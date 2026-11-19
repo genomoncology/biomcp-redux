@@ -31,7 +31,10 @@ fn fetch(name: &str, cache: ReplayCache) -> Fetch {
 fn query(pool: Option<&str>, offset: u32) -> ArticleSearch {
     let query: ArticleSearch =
         serde_json::from_str(r#"{"text":"AKT1 E17K","exact_term":true,"limit":2}"#).unwrap();
-    query.page(offset, pool.map(|value| value.parse().unwrap()))
+    // The stubs serve no NCBI open-access check, whose failure would make the page partial (1059).
+    query
+        .page(offset, pool.map(|value| value.parse().unwrap()))
+        .without_access_lookup()
 }
 fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
     biomcp_query::run(
