@@ -1,7 +1,8 @@
 {
-  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
+  "live_check": "local-only stored-state behavior; the replay holds no WikiPathways catalog",
+  "replay": "pathway/unavailable",
   "feature": "pathway-wikipathways",
-  "story": "Offline, a missing WikiPathways snapshot requests explicit synchronization without a provider request.",
+  "story": "With no recorded catalog, a missing WikiPathways snapshot requests explicit synchronization without a provider request.",
   "steps": [
     {
       "run": [
@@ -11,7 +12,6 @@
         "--source",
         "wikipathways"
       ],
-      "offline": true,
       "exit": 4,
       "expect": {
         "/sources/0/source": "wikipathways",

@@ -1,7 +1,8 @@
 {
-  "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
+  "live_check": "local-only stored-state behavior; the replay holds no WikiPathways catalog",
+  "replay": "pathway/unavailable",
   "feature": "pathway-wikipathways-genes",
-  "story": "Offline, a WikiPathways genes request accepts the exact WP identifier and requests its missing metadata catalog without calling a provider.",
+  "story": "With no recorded catalog, a WikiPathways genes request accepts the exact WP identifier and requests its missing metadata catalog without calling a provider.",
   "steps": [
     {
       "run": [
@@ -10,7 +11,6 @@
         "WP382",
         "genes"
       ],
-      "offline": true,
       "exit": 4,
       "expect": {
         "/sources/0/source": "wikipathways",
