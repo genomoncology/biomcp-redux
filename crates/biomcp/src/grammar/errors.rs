@@ -295,6 +295,7 @@ pub(super) fn checked_invalid(
         .map(|mut arguments| {
             let names: Vec<_> = cause.arguments().iter().map(AsRef::as_ref).collect();
             let corrected = super::recovery::trial_first_page(via, (verb, entity), value, cause)
+                .or_else(|| super::recovery::markets(via, (verb, entity), value, cause))
                 .or_else(|| {
                     super::validation::schema(verb, entity).and_then(|schema| {
                         super::recovery::corrected(
