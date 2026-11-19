@@ -41,3 +41,32 @@ pub(super) fn check(reply: &Value) -> Result<(), String> {
         Some(_) => Ok(()),
     }
 }
+
+/// Check every reply in one command's output, a JSON document or JSON lines such as MCP frames,
+/// so runner trials obey the same rule as cases (1059). Output that is not JSON has no reply.
+pub(super) fn check_output(stdout: &[u8]) -> Result<(), String> {
+    let documents: Vec<Value> = match serde_json::from_slice(stdout) {
+        Ok(value) => vec![value],
+        Err(_) => stdout
+            .split(|byte| *byte == b'\n')
+            .filter_map(|line| serde_json::from_slice(line).ok())
+            .collect(),
+    };
+    documents.iter().try_for_each(replies)
+}
+
+/// Every object with a `schema` and a `status` word is a reply, wherever it sits.
+fn replies(value: &Value) -> Result<(), String> {
+    match value {
+        Value::Object(map) => {
+            if map.get("schema").is_some_and(Value::is_string)
+                && map.get("status").is_some_and(Value::is_string)
+            {
+                return check(value);
+            }
+            map.values().try_for_each(replies)
+        }
+        Value::Array(items) => items.iter().try_for_each(replies),
+        _ => Ok(()),
+    }
+}

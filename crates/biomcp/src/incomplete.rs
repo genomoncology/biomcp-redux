@@ -16,8 +16,13 @@ const MISSING_STATES: [&str; 7] = [
 ];
 
 /// Downgrade a `complete` reply beside a failed source row, then list what a `partial` reply is
-/// missing: failed source rows, result nodes marked missing (not skips the caller asked for), and
-/// the command's own entries; refused records and source notices only when nothing else explains.
+/// missing: failed source rows, result nodes marked missing, and the command's own entries;
+/// refused records and source notices only when nothing else explains.
+///
+/// A section skipped because the caller disabled its source is not missing data, for every
+/// section of every entity, wherever a command marked it. When no sibling section of that record
+/// was read, though, nothing the caller asked for there was answered: the skip is listed with
+/// reason `disabled` and the reply is `partial`, never `complete` with silently empty content.
 pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Incomplete>) {
     let mut found: Vec<Incomplete> = envelope
         .sources
@@ -31,21 +36,22 @@ pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Inc
         })
         .filter_map(|(index, row)| entry(format!("/sources/{index}"), row.source, row.reason))
         .collect();
-    if envelope.status == Status::Complete && !found.is_empty() {
-        envelope.status = Status::Partial;
-    }
-    if envelope.status != Status::Partial {
-        return;
-    }
-    let fallback = envelope.sources.first().map(|row| row.source);
+    let mut marks = Marks::default();
     if let Some(result) = envelope
         .result
         .as_ref()
         .and_then(|result| serde_json::to_value(result).ok())
     {
-        walk(&result, "/result".into(), fallback, &mut found);
+        let fallback = envelope.sources.first().map(|row| row.source);
+        walk(&result, "/result".into(), fallback, false, &mut marks);
     }
-    for item in named {
+    if envelope.status == Status::Complete && !(found.is_empty() && marks.disabled.is_empty()) {
+        envelope.status = Status::Partial;
+    }
+    if envelope.status != Status::Partial {
+        return;
+    }
+    for item in marks.missing.into_iter().chain(marks.disabled).chain(named) {
         if !found.contains(&item) {
             found.push(item);
         }
@@ -56,7 +62,22 @@ pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Inc
     if found.is_empty() {
         found = notices(&envelope.sources);
     }
+    // A reply whose only gap is a skip the caller asked for is whole.
+    if found.is_empty() && marks.quiet {
+        envelope.status = Status::Complete;
+    }
     envelope.incomplete = found;
+}
+
+/// What the walk over a reply's result found.
+#[derive(Default)]
+struct Marks {
+    /// Nodes marked missing.
+    missing: Vec<Incomplete>,
+    /// Caller-disabled skips with no read sibling, listed with reason `disabled`.
+    disabled: Vec<Incomplete>,
+    /// A caller-disabled skip beside read data, which is not missing.
+    quiet: bool,
 }
 
 /// A record or field the source sent but BioMCP refused: one entry per source and code.
@@ -100,36 +121,58 @@ fn entry(at: String, source: Source, reason: Option<biomcp_types::Reason>) -> Op
     })
 }
 
+fn state(value: &Value) -> Option<&str> {
+    value.get("state").and_then(Value::as_str)
+}
+
+/// A node skipped because the caller disabled its source.
+fn disabled(value: &Value) -> bool {
+    state(value) == Some("skipped")
+        && value.get("reason").and_then(Value::as_str) == Some("disabled")
+}
+
 /// Collect nodes marked missing, naming the nearest source stated on the node or above it.
-fn walk(value: &Value, at: String, source: Option<Source>, found: &mut Vec<Incomplete>) {
+/// `listed` says a caller-disabled skip here has no read sibling.
+fn walk(value: &Value, at: String, source: Option<Source>, listed: bool, marks: &mut Marks) {
     match value {
         Value::Object(map) => {
             let source = map
                 .get("source")
                 .and_then(|value| serde_json::from_value(value.clone()).ok())
                 .or(source);
-            // A skip the caller or policy asked for (`disabled`) is not missing data.
-            let asked_skip = map.get("state").and_then(Value::as_str) == Some("skipped")
-                && map.get("reason").and_then(Value::as_str) == Some("disabled");
-            let missing = !asked_skip
-                && map
-                    .get("state")
-                    .and_then(Value::as_str)
-                    .is_some_and(|state| MISSING_STATES.contains(&state));
-            if missing && let Some(source) = source {
+            if disabled(value) {
+                match source {
+                    Some(source) if listed => marks.disabled.extend(entry(
+                        at,
+                        source,
+                        Some(biomcp_types::Reason::Disabled),
+                    )),
+                    _ => marks.quiet = true,
+                }
+                return;
+            }
+            if state(value).is_some_and(|state| MISSING_STATES.contains(&state))
+                && let Some(source) = source
+            {
                 let reason = map
                     .get("reason")
                     .and_then(|value| serde_json::from_value(value.clone()).ok());
-                found.extend(entry(at, source, reason));
+                marks.missing.extend(entry(at, source, reason));
                 return;
             }
+            // A sibling with any other state, such as `data` or `empty`, was read.
+            let read = map.values().any(|child| {
+                state(child).is_some_and(|s| {
+                    !disabled(child) && !MISSING_STATES.contains(&s) && s != "not-applicable"
+                })
+            });
             for (key, child) in map {
-                walk(child, format!("{at}/{}", escape(key)), source, found);
+                walk(child, format!("{at}/{}", escape(key)), source, !read, marks);
             }
         }
         Value::Array(items) => {
             for (index, child) in items.iter().enumerate() {
-                walk(child, format!("{at}/{index}"), source, found);
+                walk(child, format!("{at}/{index}"), source, false, marks);
             }
         }
         _ => {}

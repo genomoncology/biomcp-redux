@@ -34,11 +34,8 @@ pub(super) fn run<'a>(cx: &Ctx<'a>, deadline: &mut Deadline<'a>, out: &mut Outco
             Err(e) => {
                 error.get_or_insert(e);
                 out.local = out.local.or(status::local(e));
+                item.status = crate::status::item_status(true, false, true);
                 let reason = crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable);
-                // A source the caller disabled leaves nothing missing (1059).
-                if reason != Reason::Disabled {
-                    item.status = crate::status::item_status(true, false, true);
-                }
                 Section::unavailable(Source::SemanticScholar, reason)
             }
         };

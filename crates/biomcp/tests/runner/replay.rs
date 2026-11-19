@@ -202,8 +202,10 @@ fn article_sequence(environment: &Environment, globals: &[String]) -> Result<(),
             .chain(std::iter::once(vec![25, 26]))
         {
             for id in &batch {
-                // This checks pools and command epochs; concurrent pages can run NCBI's
-                // open-access check out of time, which makes a reply partial (1059).
+                // This checks pools and command epochs. The copied recordings do hold NCBI's
+                // open-access reply, but on a loaded machine the overlapping pair once ran that
+                // check past its three-second budget (deadline-exceeded, j43244; three runs
+                // without this flag passed in j43283), and the reply is then partial (1059).
                 let args = [
                     "search",
                     "article",
