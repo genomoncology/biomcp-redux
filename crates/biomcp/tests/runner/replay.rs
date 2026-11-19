@@ -338,7 +338,7 @@ fn article_processes() -> Result<(), String> {
         }
         let mut args: Vec<String> = base.iter().map(|v| (*v).into()).collect();
         args.extend(["--offline".into(), "--pool".into(), pool.into()]);
-        if invoke(&env, args, 0)?.pointer("/result/items") != Some(expected) {
+        if keys(invoke(&env, args, 0)?.pointer("/result/items")).as_ref() != Some(&expected) {
             return Err("published snapshot changed".into());
         }
     }
