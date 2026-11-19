@@ -114,10 +114,13 @@ impl TypedValueParser for QueryValueParser {
         value: &std::ffi::OsStr,
     ) -> Result<String, clap::Error> {
         let value = clap::builder::StringValueParser::new().parse_ref(command, argument, value)?;
-        if self.integer
-            && !value.parse::<u64>().is_ok_and(|n| {
-                self.minimum.is_none_or(|min| n >= min) && self.maximum.is_none_or(|max| n <= max)
-            })
+        // No query option takes an empty value; refusing it here names the missing value.
+        if value.is_empty()
+            || self.integer
+                && !value.parse::<u64>().is_ok_and(|n| {
+                    self.minimum.is_none_or(|min| n >= min)
+                        && self.maximum.is_none_or(|max| n <= max)
+                })
         {
             use clap::error::{ContextKind, ContextValue, ErrorKind};
             let mut error = clap::Error::new(ErrorKind::ValueValidation).with_cmd(command);

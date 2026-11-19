@@ -407,7 +407,7 @@ fn every_command_help_page_says_each_generated_sentence_once() -> Check {
 }
 
 /// Every option that takes a value, given none in any spelling (long, one-letter, alias, or an
-/// empty inline value), says its value is missing and offers a next step (1064).
+/// empty inline value on a query option), says its value is missing and offers a next step (1064).
 #[test]
 fn every_value_option_given_no_value_says_so() -> Result<(), String> {
     let root = super::root().map_err(|_| "grammar unavailable")?;
@@ -432,7 +432,12 @@ fn every_value_option_given_no_value_says_so() -> Result<(), String> {
                 .map_or_else(|| argument.get_id().to_string(), |long| format!("--{long}"));
             let mut flags = Vec::new();
             super::context::spellings(command, &argument.to_string(), &mut flags);
-            let inline: Vec<String> = flags.iter().map(|flag| format!("{flag}=")).collect();
+            // Global options keep their own parsers; every query option refuses an empty value.
+            let inline: Vec<String> = flags
+                .iter()
+                .filter(|_| !argument.is_global_set())
+                .map(|flag| format!("{flag}="))
+                .collect();
             for flag in flags.iter().chain(&inline) {
                 let args = [verb, entity, flag.as_str()].map(std::ffi::OsString::from);
                 let outcome = super::parse(&root, &args);
