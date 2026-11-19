@@ -127,19 +127,8 @@ pub(super) fn read<'a>(
             }
         }
     }
-    let mut failed_lookups = Vec::new();
-    if let Some(open) = reads.open {
-        failed_lookups.extend(super::access::apply_open(store, id, &mut rows, open, out)?);
-    }
-    let answered = match reads.access {
-        Some(access) => {
-            super::access::apply(store, id, &mut rows, access, out)?.unwrap_or_else(|source| {
-                failed_lookups.push(source);
-                Vec::new()
-            })
-        }
-        None => Vec::new(),
-    };
+    let (failed_lookups, answered) =
+        super::access::settle(store, id, &mut rows, (reads.open, reads.access), out)?;
     filter_stored_text(cx, store, id, &mut rows, out)?;
     super::access::mark_licenses(query, &mut rows, &answered);
     finish(query, pool, rows, out);

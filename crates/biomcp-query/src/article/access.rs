@@ -132,9 +132,32 @@ pub(super) fn read<'a>(
         })
 }
 
+/// Apply both lookups' answers; returns the failed lookups' outcomes and the PMIDs whose
+/// licence Europe PMC answered.
+pub(super) fn settle(
+    store: &mut Store<'_>,
+    id: &str,
+    rows: &mut [StoredItem],
+    (open, access): (Option<Open>, Option<Access>),
+    out: &mut Outcome,
+) -> Result<(Vec<SourceOutcome>, Vec<Pmid>), RequestError> {
+    let mut failed = Vec::new();
+    if let Some(open) = open {
+        failed.extend(apply_open(store, id, rows, open, out)?);
+    }
+    let answered = match access {
+        Some(access) => apply(store, id, rows, access, out)?.unwrap_or_else(|source| {
+            failed.push(source);
+            Vec::new()
+        }),
+        None => Vec::new(),
+    };
+    Ok((failed, answered))
+}
+
 /// Settle each asked row from NCBI's open-access subset and keep it with the stored page. A
 /// failed lookup settles no row; it returns PubMed's outcome so the page can name the failure.
-pub(super) fn apply_open(
+fn apply_open(
     store: &mut Store<'_>,
     id: &str,
     rows: &mut [StoredItem],
@@ -143,7 +166,15 @@ pub(super) fn apply_open(
 ) -> Result<Option<SourceOutcome>, RequestError> {
     let open = match result {
         Ok(open) => open,
-        Err(error) => return Ok(Some(status::source(Source::PubMed, report, Some(error)))),
+        Err(error) => {
+            let mut source = status::source(Source::PubMed, report, Some(error));
+            source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: "Rows were read; the open-access lookup failed, so rows say open_access_not_checked.".into(),
+                retry_after_seconds: None,
+            });
+            return Ok(Some(source));
+        }
     };
     let mut changed = Vec::new();
     for row in rows.iter_mut() {
@@ -164,7 +195,7 @@ pub(super) fn apply_open(
 /// Fill rows from the asked-for Europe PMC lookup, whose flag replaces NCBI's on the rows it
 /// holds, and keep the values with the stored page. Returns the PMIDs Europe PMC answered, whose
 /// licence is therefore checked, or Europe PMC's outcome when the lookup failed.
-pub(super) fn apply<'a>(
+fn apply<'a>(
     store: &mut Store<'a>,
     id: &str,
     rows: &mut [StoredItem],
