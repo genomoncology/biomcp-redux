@@ -24,7 +24,10 @@ pub struct Incomplete {
     pub at: crate::Text,
     /// The source whose data is missing.
     pub source: crate::Source,
-    /// Why, when a typed reason is known.
+    /// Why, when a typed source reason is known.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reason: Option<crate::Reason>,
+    /// The refused record's own problem code, when a problem is the cause.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code: Option<crate::ProblemCode>,
 }

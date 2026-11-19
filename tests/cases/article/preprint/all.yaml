@@ -1,7 +1,7 @@
 {
   "feature": "article-preprints",
   "live_check": "public",
-  "story": "Preprint all keeps annotation, citation and supplement sections inapplicable without PMID or PMCID, and disabled Semantic Scholar makes no request",
+  "story": "Preprint all keeps annotation, citation and supplement sections inapplicable without PMID or PMCID, and disabled Semantic Scholar makes no request. A source the caller disabled is not missing data, so the reply is complete and lists nothing for it (1059).",
   "replay": "article/preprint/live",
   "steps": [
     {
@@ -14,7 +14,7 @@
         "semantic-scholar"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/result/items/0/sections/annotations/state": "not-applicable",
         "/result/items/0/sections/citations/state": "not-applicable",
         "/result/items/0/sections/supplements/state": "not-applicable",
@@ -29,10 +29,15 @@
         "/result/items/0/sections/indexing/state": "not-applicable",
         "/result/items/0/sections/pdf/state": "skipped",
         "/result/items/0/sections/pdf/reason": "disabled",
-        "/result/items/0/sections/tldr/state": "skipped"
+        "/result/items/0/sections/tldr/state": "skipped",
+        "": {
+          "omits": [
+            "incomplete"
+          ]
+        }
       },
       "max_bytes": 5931
     }
   ],
-  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities. Measured all reply 4454 bytes; ceiling ceil(4454 * 1.15)=5123; no comparable 0.9 preprint command exists. Combined-source integration disables Semantic Scholar explicitly; its skipped notice preserves DOI-based TLDR support without another public request. 1059: the partial reply now carries `incomplete`; step 1 measured 5,157 bytes in j43186 and its ceiling adds 15 percent."
+  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities. Measured all reply 4454 bytes; ceiling ceil(4454 * 1.15)=5123; no comparable 0.9 preprint command exists. Combined-source integration disables Semantic Scholar explicitly; its skipped notice preserves DOI-based TLDR support without another public request. 1059: a source the caller disabled is not missing data (ruling 2026-11-19), so the reply is complete with no `incomplete` list; the 5,931-byte ceiling is kept from j43186."
 }

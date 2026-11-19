@@ -1,5 +1,6 @@
 //! Every replayed reply's status word matches its sources (1059): `complete` never sits beside a
-//! failed, stale or syncing source row, and every `partial` reply says what it is missing.
+//! failed, stale or syncing source row, every `partial` reply says what it is missing, and every
+//! `incomplete` entry points inside the reply.
 use serde_json::Value;
 
 pub(super) fn check(reply: &Value) -> Result<(), String> {
@@ -15,10 +16,19 @@ pub(super) fn check(reply: &Value) -> Result<(), String> {
                 )
             })
         });
-    let entries = reply
+    let listed = reply
         .get("incomplete")
         .and_then(Value::as_array)
-        .map_or(0, Vec::len);
+        .map_or(&[][..], Vec::as_slice);
+    for entry in listed {
+        let at = entry.get("at").and_then(Value::as_str).unwrap_or_default();
+        if !at.starts_with('/') || reply.pointer(at).is_none() {
+            return Err(format!(
+                "status words: incomplete entry {at:?} points at nothing in the reply"
+            ));
+        }
+    }
+    let entries = listed.len();
     match status {
         Some("complete") if failed || entries > 0 => {
             Err("status words: a complete reply has a failed, stale or syncing source row or an incomplete entry".into())

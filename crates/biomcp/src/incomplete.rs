@@ -16,7 +16,8 @@ const MISSING_STATES: [&str; 7] = [
 ];
 
 /// Downgrade a `complete` reply beside a failed source row, then list what a `partial` reply is
-/// missing: failed source rows, result nodes marked missing, and the command's own entries.
+/// missing: failed source rows, result nodes marked missing (not skips the caller asked for), and
+/// the command's own entries; refused records and source notices only when nothing else explains.
 pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Incomplete>) {
     let mut found: Vec<Incomplete> = envelope
         .sources
@@ -67,16 +68,13 @@ fn problems(problems: &[biomcp_types::Problem]) -> Vec<Incomplete> {
             continue;
         }
         seen.push((problem.source, problem.code));
-        let reason = match problem.code {
-            biomcp_types::ProblemCode::CollectionIncomplete => biomcp_types::Reason::TooLarge,
-            biomcp_types::ProblemCode::FilterUnsupported => biomcp_types::Reason::Unsupported,
-            _ => biomcp_types::Reason::BadReply,
-        };
-        found.extend(entry(
-            format!("/problems/{index}"),
-            problem.source,
-            Some(reason),
-        ));
+        // The problem's own code says why; a source reason would only guess.
+        found.extend(
+            entry(format!("/problems/{index}"), problem.source, None).map(|item| Incomplete {
+                code: Some(problem.code),
+                ..item
+            }),
+        );
     }
     found
 }
@@ -98,6 +96,7 @@ fn entry(at: String, source: Source, reason: Option<biomcp_types::Reason>) -> Op
         at: at.parse().ok()?,
         source,
         reason,
+        code: None,
     })
 }
 
@@ -109,10 +108,14 @@ fn walk(value: &Value, at: String, source: Option<Source>, found: &mut Vec<Incom
                 .get("source")
                 .and_then(|value| serde_json::from_value(value.clone()).ok())
                 .or(source);
-            let missing = map
-                .get("state")
-                .and_then(Value::as_str)
-                .is_some_and(|state| MISSING_STATES.contains(&state));
+            // A skip the caller or policy asked for (`disabled`) is not missing data.
+            let asked_skip = map.get("state").and_then(Value::as_str) == Some("skipped")
+                && map.get("reason").and_then(Value::as_str) == Some("disabled");
+            let missing = !asked_skip
+                && map
+                    .get("state")
+                    .and_then(Value::as_str)
+                    .is_some_and(|state| MISSING_STATES.contains(&state));
             if missing && let Some(source) = source {
                 let reason = map
                     .get("reason")

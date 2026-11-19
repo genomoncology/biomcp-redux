@@ -180,8 +180,12 @@ pub(crate) fn missing(
     source: Source,
     reason: Option<biomcp_types::Reason>,
 ) {
-    out.incomplete
-        .push(biomcp_types::Incomplete { at, source, reason });
+    out.incomplete.push(biomcp_types::Incomplete {
+        at,
+        source,
+        reason,
+        code: None,
+    });
 }
 
 /// Start a body whose successful local construction is already an answer.
