@@ -3,9 +3,8 @@ use super::raw::Record;
 use biodata::Text;
 use biomcp_fetch::RequestError;
 
-/// Printed signs that end a product name: a registered or trademark sign, or the opening
-/// parenthesis before the generic name, as in `IBRANCE ® (palbociclib)` or `Itovebi™ (inavolisib)`.
-const ENDS: [char; 3] = ['®', '™', '('];
+/// Registered and trademark signs, allowed directly before a name's end.
+const MARKS: [char; 2] = ['®', '™'];
 /// Punctuation that never belongs to a matched word, such as the apostrophe in `Infants'`.
 const LOOSE: [char; 13] = [
     '™', '®', ',', ';', ':', '.', '\'', '’', '"', '(', ')', '[', ']',
@@ -13,8 +12,10 @@ const LOOSE: [char; 13] = [
 
 impl Record {
     /// The longest run of leading product-data words, no word twice, that the display panel or
-    /// indications section prints whole, in any letter case, followed by an end sign or the end of
-    /// that text. Any other stop gives no name, because a name cut there can name another product.
+    /// indications section prints whole, in any letter case, ended by an opening parenthesis or the
+    /// end of that text, with at most one ® or ™ directly before that end, as in
+    /// `IBRANCE ® (palbociclib)` or `Itovebi™ (inavolisib)`. Any other stop gives no name, because a
+    /// name cut there can be a brand alone or another product, as in `Vicks® VapoRub`.
     pub(super) fn text_name(&self) -> Result<Option<Text>, RequestError> {
         let Some(product) = self.product_name().0 else {
             return Ok(None);
@@ -63,11 +64,22 @@ impl Record {
 #[derive(PartialEq)]
 enum Token {
     Word(String),
-    End,
+    Mark,
+    Open,
 }
 
-/// Whether any printed text holds the run, and whether one such place ends with an end sign or
-/// the end of its text.
+/// Whether the text ends the name at this position: an opening parenthesis or the text's end,
+/// after at most one mark.
+fn ends(text: &[Token], at: usize) -> bool {
+    let at = if text.get(at) == Some(&Token::Mark) {
+        at + 1
+    } else {
+        at
+    };
+    text.get(at).is_none_or(|next| *next == Token::Open)
+}
+
+/// Whether any printed text holds the run, and whether one such place ends the name.
 fn find(printed: &[Vec<Token>], run: &[String]) -> (bool, bool) {
     let mut found = false;
     for text in printed {
@@ -78,10 +90,7 @@ fn find(printed: &[Vec<Token>], run: &[String]) -> (bool, bool) {
                 .all(|(token, word)| matches!(token, Token::Word(w) if w == word));
             if same {
                 found = true;
-                if text
-                    .get(at + run.len())
-                    .is_none_or(|next| *next == Token::End)
-                {
+                if ends(text, at + run.len()) {
                     return (true, true);
                 }
             }
@@ -90,15 +99,16 @@ fn find(printed: &[Vec<Token>], run: &[String]) -> (bool, bool) {
     (found, false)
 }
 
-/// Printed words in lower case without loose punctuation, with each end sign its own token.
+/// Printed words in lower case without loose punctuation, with each mark and opening parenthesis
+/// its own token.
 fn tokens(text: &str) -> Vec<Token> {
     let mut out = Vec::new();
     for piece in text.split_whitespace() {
         let mut word = String::new();
         for c in piece.chars() {
-            if ENDS.contains(&c) {
+            if MARKS.contains(&c) || c == '(' {
                 push(&mut out, &mut word);
-                out.push(Token::End);
+                out.push(if c == '(' { Token::Open } else { Token::Mark });
             } else {
                 word.push(c);
             }

@@ -1,9 +1,9 @@
 {
   "feature": "drug-label",
-  "live_check": "Public PIK3CA indication page and two public set_id replies trimmed to identity, product, display panel and indications fields, plus a synthetic control query; no live calls",
+  "live_check": "Public PIK3CA indication page and three public set_id replies trimmed to identity, product, display panel and indications fields, plus a synthetic control query; no live calls",
   "verified": "tests/replies/drug/label-names-from-text/provenance.json records the public page's URL and retained fields and declares the synthetic control.",
   "replay": "drug/label-names-from-text",
-  "story": "A label search row whose label lacks openFDA's harmonized names shows the drug's name only where the label's own display panel or indications section prints the product data's leading words followed by a registered or trademark sign, an opening parenthesis or the end of the text; otherwise the row has no name, never its set ID or a cut-short name, and the page names those rows and how to read them.",
+  "story": "A label search row whose label lacks openFDA's harmonized names shows the drug's name only where the label's own display panel or indications section prints the product data's leading words whole, ended by an opening parenthesis or the end of the text with at most one registered or trademark sign before it; otherwise, as for a brand printed alone or a store brand, the row has no name, never its set ID or a cut-short name, and the page names those rows and how to read them.",
   "steps": [
     {
       "run": [
@@ -82,6 +82,24 @@
       "expect": {
         "/status": "complete",
         "/result/header/id": "01a50047-0d07-41c5-b35b-129aab5b4afd",
+        "/result/header": {
+          "omits": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "0036d6fc-eed6-ee87-e063-6294a90a8022",
+        "--source",
+        "openfda-label"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/id": "0036d6fc-eed6-ee87-e063-6294a90a8022",
         "/result/header": {
           "omits": [
             "name"
