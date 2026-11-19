@@ -23,6 +23,9 @@ pub(crate) fn other_name(schema: &Value, name: &str) -> Option<&'static str> {
     })
 }
 
+/// How the help line naming a command's paging options starts.
+pub(crate) const HELP_PREFIX: &str = "Paging: ";
+
 /// The one help line that names the options paging this command's lists.
 pub(crate) fn help_line(schema: &Value) -> Option<String> {
     let has = |field: &str| schema.pointer(&format!("/properties/{field}")).is_some();
@@ -55,9 +58,9 @@ pub(crate) fn help_line(schema: &Value) -> Option<String> {
             "Paging: {names} page the named section, else the candidates; {others} page the section."
         )
     } else if others.is_empty() {
-        format!("Paging: {names}.")
+        format!("{HELP_PREFIX}{names}.")
     } else {
-        format!("Paging: {names}; {others} {same}.")
+        format!("{HELP_PREFIX}{names}; {others} {same}.")
     })
 }
 

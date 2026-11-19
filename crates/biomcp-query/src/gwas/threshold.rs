@@ -128,8 +128,14 @@ fn read(
     };
     let needed = q.offset().saturating_add(q.limit()) as usize;
     out.sources = saved.sources.clone();
-    // Walk on until the page is full or the threshold ends; a page past the end stays empty.
-    while !saved.done && saved.rows.len() < needed {
+    // One source page per call, as before, plus the pages needed to reach an offset given
+    // without a pool (1061); a page past the threshold's end stays empty.
+    let mut read = false;
+    while !saved.done
+        && saved.rows.len() < needed
+        && (!read || saved.rows.len() < q.offset() as usize)
+    {
+        read = true;
         let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
         let result = gwas::search(&leg, &q.at_offset(saved.received));
         let error = result.as_ref().err().copied();

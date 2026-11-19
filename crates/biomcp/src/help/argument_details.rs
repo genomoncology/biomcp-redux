@@ -129,6 +129,7 @@ pub(super) fn without_option_lines(description: &str) -> String {
                 LOCAL_OPTIONS,
             ]
             .contains(line)
+                && !line.starts_with(crate::grammar::paging::HELP_PREFIX)
         })
         .collect::<Vec<_>>()
         .join("\n")

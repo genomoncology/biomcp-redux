@@ -40,14 +40,10 @@
         "/status": "complete",
         "/query/limit": 1,
         "/query/offset": 1,
-        "/query": {
-          "omits": [
-            "section_offset"
-          ]
-        },
         "/page/offset": 1,
         "/page/returned": 1,
-        "/page/total": 3
+        "/page/total": 3,
+        "/query/section_offset": 0
       }
     },
     {
@@ -72,6 +68,7 @@
     }
   ],
   "config": {
-    "mcp_tool_mode": "typed"
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
   }
 }
