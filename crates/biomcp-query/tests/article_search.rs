@@ -31,7 +31,11 @@ fn fetch(name: &str, cache: ReplayCache) -> Fetch {
 fn query(pool: Option<&str>, offset: u32) -> ArticleSearch {
     let query: ArticleSearch =
         serde_json::from_str(r#"{"text":"AKT1 E17K","exact_term":true,"limit":2}"#).unwrap();
-    query.page(offset, pool.map(|value| value.parse().unwrap()))
+    // These tests time snapshots and budgets; the NCBI open-access check would add one more
+    // NCBI request per page and can push a two-second budget over under quota spacing (1072).
+    query
+        .page(offset, pool.map(|value| value.parse().unwrap()))
+        .without_access_lookup()
 }
 fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
     biomcp_query::run(
