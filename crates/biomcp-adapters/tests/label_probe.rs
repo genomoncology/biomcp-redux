@@ -42,3 +42,23 @@ fn label_probe() {
         }
     }
 }
+
+#[test]
+#[ignore = "one-off probe: does strict loading read the corpus as lenient loading does"]
+fn strict_probe() {
+    let dir = std::env::var("LABEL_PROBE_DIR").expect("LABEL_PROBE_DIR");
+    let mut names: Vec<_> = fs::read_dir(&dir).expect("dir").map(|e| e.expect("entry").path()).collect();
+    names.sort();
+    for path in names.into_iter().filter(|p| p.extension().is_some_and(|x| x == "pdf")) {
+        let bytes = fs::read(&path).expect("read");
+        let mut options = lopdf::LoadOptions::with_max_decompressed_size(1 << 20);
+        let lenient = lopdf::Document::load_mem_with_options(&bytes, options.clone());
+        options.strict = true;
+        let strict = lopdf::Document::load_mem_with_options(&bytes, options);
+        let summary = |d: &lopdf::Result<lopdf::Document>| match d {
+            Ok(d) => format!("ok objects {} pages {} recovery {:?}", d.objects.len(), d.get_pages().len(), d.xref_recovery),
+            Err(e) => format!("err {e}"),
+        };
+        println!("STRICT {} | {} | {}", path.display(), summary(&lenient), summary(&strict));
+    }
+}
