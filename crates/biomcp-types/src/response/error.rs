@@ -79,6 +79,7 @@ singleton! {
  ArgumentUnknown => "unknown option: this command has no error.option; valid_values lists the options it takes",
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
+ ArgumentCombination => "error.option is not accepted with the other options as given; valid_values names every option involved",
  FieldsUnknown => "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
  FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named \
  sections instead",
@@ -330,8 +331,7 @@ singleton! {
         StudyMutationProfile => "the mutations section reads only a mutation profile of this study; choose \
             --molecular-profile from valid_values",
         StudyCalculate => "local calculations are dropped by the entity boundary ruling; use: get study ID and the source study page",
-        StudyCharts => "charts are retired",
-        StudyDirectory => "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",
+        StudyCharts => "charts are retired", StudyDirectory => "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",
         PathwayText => "use: search pathway <text>",
         PathwayClass => "--type is retired: the accepted pathway class is enforced and needs no filter.",
         PathwayKegg => "KEGG pathways are dropped; use a Reactome R-HSA-… or WikiPathways WP… ID.",

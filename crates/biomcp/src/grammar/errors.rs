@@ -82,6 +82,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
                 ErrorKind::ArgumentConflict if super::repeated::is(error) => {
                     ErrorMessage::ArgumentRepeated
                 }
+                ErrorKind::ArgumentConflict => ErrorMessage::ArgumentCombination,
                 _ => ErrorMessage::ArgumentValue,
             };
             let identity = argument
@@ -115,6 +116,10 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
                     };
                     Some(vec![biodata::Text::new(form).ok()?].into())
                 });
+            let values = match message {
+                ErrorMessage::ArgumentCombination => super::repeated::together(error).or(values),
+                _ => values,
+            };
             (identity, values, message)
         } else if error.kind() == ErrorKind::UnknownArgument {
             let ContextValue::String(spelling) = error.get(ContextKind::InvalidArg)? else {

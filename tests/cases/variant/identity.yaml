@@ -15,7 +15,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/4",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "value not accepted: give error.option a value valid_values accepts",
         "/error/option": "--limit",
         "/next/0/args": [
           "help",
@@ -37,7 +37,7 @@
       "is_error": true,
       "expect": {
         "/schema": "biomcp.error/4",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "value not accepted: give error.option a value valid_values accepts",
         "/error/option": "--offset",
         "/next/0/args": [
           "help",

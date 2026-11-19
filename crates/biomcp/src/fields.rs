@@ -192,7 +192,6 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
             .collect::<Option<Vec<_>>>()
             .map(Into::into),
         next,
-        ..Default::default()
     }))
 }
 

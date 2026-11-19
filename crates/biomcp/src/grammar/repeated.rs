@@ -1,4 +1,5 @@
-//! An option given more than once: name that cause, and join a comma-separated option's values.
+//! An option given twice, or beside one it excludes: name that cause, and join a
+//! comma-separated option's values.
 use clap::{
     Command,
     error::{ContextKind, ContextValue, ErrorKind},
@@ -12,6 +13,22 @@ pub(super) fn is(error: &clap::Error) -> bool {
             (error.get(ContextKind::InvalidArg), error.get(ContextKind::PriorArg)),
             (Some(ContextValue::String(arg)), Some(ContextValue::String(prior))) if arg == prior
         )
+}
+
+/// The options the parser refused together, by their flags, without their values.
+pub(super) fn together(error: &clap::Error) -> Option<Box<[biodata::Text]>> {
+    let mut spellings = vec![error.get(ContextKind::InvalidArg)?];
+    spellings.extend(error.get(ContextKind::PriorArg));
+    spellings
+        .into_iter()
+        .flat_map(|context| match context {
+            ContextValue::String(one) => vec![one.as_str()],
+            ContextValue::Strings(many) => many.iter().map(String::as_str).collect(),
+            _ => Vec::new(),
+        })
+        .map(|spelling| biodata::Text::new(spelling.split_whitespace().next()?).ok())
+        .collect::<Option<Vec<_>>>()
+        .map(Into::into)
 }
 
 /// The same call with a repeated comma-separated option given once, its values joined,

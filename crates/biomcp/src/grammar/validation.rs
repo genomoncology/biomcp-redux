@@ -16,30 +16,46 @@ pub(super) fn checked(
     value: &Value,
     cause: &QueryInvalid,
 ) -> Option<UsageArguments> {
+    use biomcp_types::ErrorMessage;
     let schema = schema(verb, entity)?;
-    let (name, property) = cause.arguments().iter().find_map(|name| {
-        schema
-            .get("properties")?
-            .get(name.as_ref())
-            .map(|property| (name.as_ref(), property))
-    })?;
-    let argument = if property.get("x-positional").is_some() {
+    let properties = schema.get("properties")?;
+    let named: Vec<_> = cause
+        .arguments()
+        .iter()
+        .filter_map(|name| Some((name.as_ref(), properties.get(name.as_ref())?)))
+        .collect();
+    let &(name, property) = named.first()?;
+    let given = |name: &str| value.get(name).is_some_and(|value| !value.is_null());
+    // Several named options mean the refusal is about how they go together.
+    let (message, valid_values) = if let Some(message) = cause.message() {
+        (message, None)
+    } else if !given(name) {
+        (ErrorMessage::ArgumentMissing, None)
+    } else if named.len() > 1 {
+        let options = named
+            .iter()
+            .map(|(name, property)| biodata::Text::new(&identity(name, property)).ok())
+            .collect::<Option<Vec<_>>>()?;
+        (ErrorMessage::ArgumentCombination, Some(options.into()))
+    } else {
+        (ErrorMessage::ArgumentValue, None)
+    };
+    Some(UsageArguments {
+        argument: Some(identity(name, property).into()),
+        message: Some(message),
+        valid_values: valid_values
+            .or_else(|| choices(name).or_else(|| accepted(&schema, property))),
+        next: vec![help([verb, entity])],
+    })
+}
+
+/// How a caller writes an argument: a positional by its name, an option as its flag.
+fn identity(name: &str, property: &Value) -> String {
+    if property.get("x-positional").is_some() {
         name.into()
     } else {
         format!("--{}", name.replace('_', "-"))
-    };
-    Some(UsageArguments {
-        argument: Some(argument.into()),
-        message: cause
-            .message()
-            .or(Some(if value.get(name).is_none_or(Value::is_null) {
-                biomcp_types::ErrorMessage::ArgumentMissing
-            } else {
-                biomcp_types::ErrorMessage::ArgumentValue
-            })),
-        valid_values: choices(name).or_else(|| accepted(&schema, property)),
-        next: vec![help([verb, entity])],
-    })
+    }
 }
 
 /// Name the real choices of a free-text argument whose schema carries only a type description.
