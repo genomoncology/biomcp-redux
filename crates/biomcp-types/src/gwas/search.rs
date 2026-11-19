@@ -139,6 +139,10 @@ impl TryFrom<SearchFields> for GwasSearch {
         {
             return Err(QueryInvalid::new(&["studies", "pubmed"]));
         }
+        // A dependent flag names itself first, though no selector is given either (1064).
+        if f.include_child_traits && f.trait_id.is_none() {
+            return Err(QueryInvalid::new(&["include_child_traits", "trait_id"]));
+        }
         if f.variant.is_none()
             && f.r#trait.is_none()
             && f.trait_id.is_none()
@@ -149,9 +153,6 @@ impl TryFrom<SearchFields> for GwasSearch {
             return Err(QueryInvalid::new(&[
                 "variant", "trait", "trait_id", "gene", "study", "pubmed",
             ]));
-        }
-        if f.include_child_traits && f.trait_id.is_none() {
-            return Err(QueryInvalid::new(&["include_child_traits", "trait_id"]));
         }
         if f.extended_geneset && f.gene.is_none() {
             return Err(QueryInvalid::new(&["extended_geneset", "gene"]));

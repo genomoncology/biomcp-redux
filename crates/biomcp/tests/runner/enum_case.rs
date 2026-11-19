@@ -315,10 +315,12 @@ fn refuses(reply: &Value, key: &str, word: &str) -> bool {
         && option.is_some_and(|option| option.trim_start_matches('-').replace('-', "_") == key)
         && !listed
         && error.get("source").is_none()
-        && error.get("message")
-            != Some(&json!(
-                "a selected source does not support the requested filters"
-            ))
+        && ![
+            "a selected source does not support the requested filters",
+            "error.option is not accepted with the other options as given; valid_values names every option involved",
+        ]
+        .iter()
+        .any(|message| error.get("message") == Some(&json!(message)))
 }
 
 fn choice_node<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
