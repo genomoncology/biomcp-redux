@@ -82,10 +82,11 @@ impl Record {
         let leading: Vec<String> = words(product.as_str()).collect();
         let shown = (1..=leading.len())
             .take_while(|n| {
-                let run = &leading[..*n];
-                printed
-                    .iter()
-                    .any(|text| text.windows(*n).any(|w| w == run))
+                leading.get(..*n).is_some_and(|run| {
+                    printed
+                        .iter()
+                        .any(|text| text.windows(*n).any(|w| w == run))
+                })
             })
             .last()?;
         let name = product
