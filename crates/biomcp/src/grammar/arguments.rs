@@ -86,6 +86,17 @@ fn aliases(
             command = command.mut_arg(alias.argument, |argument| argument.short(alias.short));
         }
     }
+    if super::paging::both(schema) {
+        for (candidate, list) in super::paging::CANDIDATES {
+            let property = &schema["properties"][list];
+            command = command.arg(value_argument(
+                Arg::new(candidate)
+                    .long(candidate.replace('_', "-"))
+                    .help(format!("The candidates' --{list} when a section is named.")),
+                property,
+            ));
+        }
+    }
     for (list, section) in super::paging::PAIRS {
         for (name, field) in [(list, section), (section, list)] {
             if super::paging::other_name(schema, name) == Some(field) {

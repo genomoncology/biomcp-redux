@@ -1872,7 +1872,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Page offset.\nZero-based offset of the first row in this continuation page.",
+          "description": "Rows to skip.\nZero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"

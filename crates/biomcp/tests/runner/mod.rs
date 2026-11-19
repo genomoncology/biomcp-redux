@@ -82,6 +82,7 @@ mod mcp;
 mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
+mod offset_walks;
 mod recurrence;
 mod remote_tools;
 mod replay;
@@ -350,6 +351,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(phenotype::trials());
     trials.extend(drug_next::trials());
     trials.extend(drug_approvals::trials());
+    trials.extend(offset_walks::trials());
     trials.extend(nci::trials());
     trials.extend(drug_civic::trials());
     trials.push(citation_values::trial());

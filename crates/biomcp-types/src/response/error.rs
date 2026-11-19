@@ -80,6 +80,10 @@ singleton! {
  step; run the suggested command",
  OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \
  suggested first-page command, then follow its next command",
+ OffsetPastText => "--offset is past the end of this text, which it counts in characters from zero; use a \
+ smaller offset, or none to start at the beginning",
+ TrialOffsetDeep => "ClinicalTrials.gov search reaches at most 5000 rows by --offset; to go deeper, follow \
+ --next-page from a reply's next step",
  ArticleGetLimit => "get article takes 1 to 20 IDs per call; split a longer list into several calls",
  LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
  --label-section indications_and_usage",

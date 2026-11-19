@@ -82,8 +82,7 @@ fn fetch(
                 };
                 // A character offset is a text position, not a row, so past the text it is refused.
                 if !page::valid(query, &snapshot) {
-                    out.body =
-                        ReplyData::Usage(biomcp_types::UsageError::TextPositionError("--offset"));
+                    out.body = ReplyData::Usage(biomcp_types::UsageError::offset_past_text());
                     return Ok(());
                 }
                 let pool = if query.sections().is_empty() {

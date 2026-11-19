@@ -1,0 +1,27 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.CYP2D6&order=pairid.asc&limit=10&offset=70",
+  "exchanges": [
+    {
+      "fetched": 1795125399,
+      "status": 206,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "70-78/79",
+      "delay_ms": 232,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"pairid":110399,"drugid":"RxNorm:37801","drugname":"terbinafine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":null,"pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110401,"drugid":"RxNorm:119565","drugname":"tolterodine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":"3","pgxtesting":"Informative PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":418197,"drugid":"RxNorm:6813","drugname":"methadone","genesymbol":"CYP2D6","guidelinename":"CYP2D6, OPRM1, COMT, and Opioids","guidelineurl":"https://www.clinpgx.org/guideline/PA166251454","cpiclevel":"C","clinpgxlevel":"3","pgxtesting":null,"pmids":["33387367"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":3122142,"drugid":"RxNorm:2556","drugname":"citalopram","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19, CYP2B6, SLC6A4, HTR2A and Serotonin Reuptake Inhibitor Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251452","cpiclevel":"C","clinpgxlevel":"3","pgxtesting":"No Clinical PGx","pmids":["37032427"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":3122155,"drugid":"RxNorm:321988","drugname":"escitalopram","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19, CYP2B6, SLC6A4, HTR2A and Serotonin Reuptake Inhibitor Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251452","cpiclevel":"C","clinpgxlevel":"3","pgxtesting":null,"pmids":["37032427"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":5401503,"drugid":"RxNorm:149","drugname":"acebutolol","genesymbol":"CYP2D6","guidelinename":"CYP2D6, ADRB1, ADRB2, ADRA2C, GRK4, and GRK5 and Beta-Blockers","guidelineurl":"https://www.clinpgx.org/guideline/PA166343383","cpiclevel":"C","clinpgxlevel":null,"pgxtesting":null,"pmids":["38951961"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":5401504,"drugid":"RxNorm:1520","drugname":"betaxolol","genesymbol":"CYP2D6","guidelinename":"CYP2D6, ADRB1, ADRB2, ADRA2C, GRK4, and GRK5 and Beta-Blockers","guidelineurl":"https://www.clinpgx.org/guideline/PA166343383","cpiclevel":"C","clinpgxlevel":null,"pgxtesting":null,"pmids":["38951961"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":5401505,"drugid":"RxNorm:19484","drugname":"bisoprolol","genesymbol":"CYP2D6","guidelinename":"CYP2D6, ADRB1, ADRB2, ADRA2C, GRK4, and GRK5 and Beta-Blockers","guidelineurl":"https://www.clinpgx.org/guideline/PA166343383","cpiclevel":"C","clinpgxlevel":null,"pgxtesting":null,"pmids":["38951961"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":8099734,"drugid":"Drugbank:DB09290","drugname":"ramosetron","genesymbol":"CYP2D6","guidelinename":"CYP2D6 and Ondansetron and Tropisetron","guidelineurl":"https://www.clinpgx.org/guideline/PA166251457","cpiclevel":"C","clinpgxlevel":null,"pgxtesting":null,"pmids":["41979467"],"usedforrecommendation":"No","provisional":false}]
+      }
+    }
+  ]
+}

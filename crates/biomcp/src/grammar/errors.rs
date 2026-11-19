@@ -125,7 +125,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
             .get_arguments()
             .filter(|argument| !argument.is_hide_set())
             .filter_map(|argument| argument.get_long())
-            .filter(|name| super::paging::listed(command, spelling, name))
+            .filter_map(|name| super::paging::listed(command, spelling, name))
             .map(|name| biodata::Text::new(&format!("--{name}")).ok())
             .collect::<Option<Vec<_>>>()?;
         (spelling.to_owned(), Some(values.into()))

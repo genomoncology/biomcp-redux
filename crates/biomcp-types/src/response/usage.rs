@@ -105,6 +105,27 @@ impl UsageError {
     pub fn arguments() -> Self {
         Self::Arguments(UsageArguments::default())
     }
+    /// Refuse a ClinicalTrials.gov offset deeper than the ID walk reaches, naming the way on.
+    pub fn offset_too_deep() -> Self {
+        let max = crate::TrialSearch::OFFSET_WALK_MAX;
+        Self::Arguments(UsageArguments {
+            argument: Some("--offset".into()),
+            message: Some(crate::ErrorMessage::TrialOffsetDeep),
+            valid_values: [format!("integer >= 0 <= {max}"), "--next-page".into()]
+                .iter()
+                .map(|value| crate::Text::new(value).ok())
+                .collect::<Option<Box<[_]>>>(),
+            next: Vec::new(),
+        })
+    }
+    /// Refuse a character offset past the end of a text.
+    pub fn offset_past_text() -> Self {
+        Self::Arguments(UsageArguments {
+            argument: Some("--offset".into()),
+            message: Some(crate::ErrorMessage::OffsetPastText),
+            ..UsageArguments::default()
+        })
+    }
     /// Name a grammar-owned argument.
     pub fn argument(argument: Box<str>) -> Self {
         Self::Arguments(UsageArguments {

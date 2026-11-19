@@ -53,15 +53,42 @@ pub(crate) fn help_line(schema: &Value) -> Option<String> {
         "are the same options"
     };
     let others = others.join(" and ");
-    Some(if has("limit") && has("section_limit") {
+    Some(if both(schema) {
         format!(
-            "{HELP_PREFIX}{names} page the named section, else the candidates; {others} page the section."
+            "{HELP_PREFIX}{names} page the named section, else the candidates; \
+            --candidate-limit and --candidate-offset page the candidates when a section is named."
         )
     } else if others.is_empty() {
         format!("{HELP_PREFIX}{names}.")
     } else {
         format!("{HELP_PREFIX}{names}; {others} {same}.")
     })
+}
+
+/// A command with both pairs (`get variant`) also takes these names for its candidate list,
+/// so a caller who names a section can still cap the candidates.
+pub(crate) const CANDIDATES: [(&str, &str); 2] =
+    [("candidate_limit", "limit"), ("candidate_offset", "offset")];
+
+/// Read the candidate options a parsed `get variant` call gave; `None` for a malformed value.
+pub(crate) fn candidates(
+    matches: &clap::ArgMatches,
+    fields: &mut Map<String, Value>,
+) -> Option<()> {
+    for (candidate, _) in CANDIDATES {
+        if let Ok(Some(value)) = matches.try_get_one::<String>(candidate) {
+            fields.insert(candidate.into(), value.parse::<u64>().ok()?.into());
+        }
+    }
+    Some(())
+}
+
+/// Whether this command pages candidates and a named section with separate pairs.
+pub(crate) fn both(schema: &Value) -> bool {
+    let has = |field: &str| schema.pointer(&format!("/properties/{field}")).is_some();
+    PAIRS
+        .iter()
+        .all(|(list, section)| has(list) && has(section))
 }
 
 /// Move each paging value onto the field this command reads it from.
@@ -87,6 +114,37 @@ pub(crate) fn rename(schema: &Value, fields: &mut Map<String, Value>) {
             fields.insert(to.into(), value);
         }
     }
+    if both(schema) {
+        for (candidate, list) in CANDIDATES {
+            if !fields.contains_key(list)
+                && let Some(value) = fields.remove(candidate)
+            {
+                fields.insert(list.into(), value);
+            }
+        }
+    }
+}
+
+/// The option name taught for a paging field in a call with these values: `--limit` and
+/// `--offset` for whatever list the call pages, and on `get variant` with a named section,
+/// `--candidate-limit` and `--candidate-offset` for the candidates.
+pub(crate) fn flag(schema: &Value, values: &Value, field: &str) -> String {
+    let taught = if both(schema) {
+        let sectioned = values.get("section").is_some_and(named);
+        match (sectioned, field) {
+            (true, "section_limit") => "limit",
+            (true, "section_offset") => "offset",
+            (true, "limit") => "candidate_limit",
+            (true, "offset") => "candidate_offset",
+            _ => field,
+        }
+    } else {
+        PAIRS
+            .iter()
+            .find(|&&(list, section)| field == section && other_name(schema, list) == Some(section))
+            .map_or(field, |(list, _)| list)
+    };
+    format!("--{}", taught.replace('_', "-"))
 }
 
 fn named(value: &Value) -> bool {
@@ -98,19 +156,40 @@ fn named(value: &Value) -> bool {
 }
 
 /// The paging options a command may have, and other words callers try for them.
-const OPTIONS: [&str; 5] = ["limit", "offset", "section-limit", "section-offset", "page"];
+const OPTIONS: [&str; 7] = [
+    "limit",
+    "offset",
+    "section-limit",
+    "section-offset",
+    "page",
+    "candidate-limit",
+    "candidate-offset",
+];
 const GUESSES: [&str; 5] = ["page-size", "per-page", "size", "skip", "rows"];
 
-/// Whether a refusal of `spelling` lists the option `name`. A paging word the command lacks is
-/// answered with the paging options it has, so the refusal names the working form; any other
-/// refused word, or a command without paging, lists every option.
-pub(crate) fn listed(command: &clap::Command, spelling: &str, name: &str) -> bool {
+/// The name a refusal of `spelling` lists for the option `name`, if any. A paging word the
+/// command lacks is answered with the paging options it has, under the names taught for them
+/// (`--limit` and `--offset` where the section names are the real ones), so the refusal names
+/// the working form; any other refused word, or a command without paging, lists every option.
+pub(crate) fn listed<'a>(
+    command: &clap::Command,
+    spelling: &str,
+    name: &'a str,
+) -> Option<&'a str> {
     let word = spelling.trim_start_matches('-');
     let paging = |name: &str| OPTIONS.contains(&name);
-    let pages = command
+    let longs: Vec<_> = command
         .get_arguments()
         .filter(|argument| !argument.is_hide_set())
         .filter_map(clap::Arg::get_long)
-        .any(paging);
-    !(pages && (paging(word) || GUESSES.contains(&word))) || paging(name)
+        .collect();
+    if !(longs.iter().any(|long| paging(long)) && (paging(word) || GUESSES.contains(&word))) {
+        return Some(name);
+    }
+    let taught = match name {
+        "section-limit" if !longs.contains(&"limit") => "limit",
+        "section-offset" if !longs.contains(&"offset") => "offset",
+        _ => name,
+    };
+    paging(name).then_some(taught)
 }

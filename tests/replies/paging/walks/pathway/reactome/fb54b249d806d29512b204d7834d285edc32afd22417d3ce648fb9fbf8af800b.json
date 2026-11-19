@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "reactome",
+  "url": "https://reactome.org/ContentService/search/query?query=MAPK&rows=50&Start%20row=300&species=Homo%20sapiens&types=Pathway&types=TopLevelPathway&Force%20filters=true",
+  "exchanges": [
+    {
+      "fetched": 1795125404,
+      "status": 404,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 116,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"code":404,"reason":"NOT_FOUND","url":"http://reactome.org/ContentService/search/query","messages":["No entries found for query: MAPK"],"targets":null}
+      }
+    }
+  ]
+}
