@@ -1384,9 +1384,9 @@
         },
         "limit": {
           "default": 10,
-          "description": "Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.",
+          "description": "Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.",
           "format": "uint32",
-          "maximum": 100,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -1515,6 +1515,10 @@
           "minimum": 0,
           "type": "integer"
         },
+        "page": {
+          "$ref": "#/$defs/Reply_PageInfo",
+          "description": "The page every list states: offset, rows returned and total (1061)."
+        },
         "total": {
           "description": "Original collection size.",
           "format": "uint32",
@@ -1524,7 +1528,8 @@
       },
       "required": [
         "offset",
-        "total"
+        "total",
+        "page"
       ],
       "type": "object"
     },

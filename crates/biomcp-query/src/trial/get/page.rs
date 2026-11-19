@@ -165,12 +165,11 @@ pub(in crate::trial) fn records<T: Clone>(
         bytes += size;
         items.push(item.clone());
     }
-    Ok(TrialRecords {
-        continuation: None,
-        items: items.into(),
-        offset: query.offset(),
-        total: rows.len() as u32,
-    })
+    Ok(TrialRecords::new(
+        query.offset(),
+        rows.len() as u32,
+        items.into(),
+    ))
 }
 fn section<T>(page: TrialRecords<T>, id: NctId) -> Section<TrialRecords<T>> {
     if page.total == 0 {
