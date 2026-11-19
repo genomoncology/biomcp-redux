@@ -30,6 +30,9 @@ Agents tried four forms to get past the first ten rows of an approval history, a
 - PM decision, 2026-11-19: on `get variant`, when a section is named, `--limit`/`--offset` page that section; with no section they page the list of matching variants as today. The reply's `page` must make plain which list was paged, with a case for each.
 - PM decision, 2026-11-19: the second name is accepted without being listed in the MCP tool descriptions, but help for each command says in one short line which names page it, and a refusal of any paging form names the working one.
 - PM decision, 2026-11-19: `--fields` is not extended to sections here; it is its own ticket.
+- Review, 2026-11-19 (PM rulings on a fresh review): an offset page short of the end is never empty, and a check walks every touched list by offset alone, each call with a new store, against its big pages, with one page past the end; a past-the-end page is empty with its total everywhere (CPIC pgx search, Reactome pathway search); every offered next page and every paging refusal uses `--limit`/`--offset`; a ClinicalTrials.gov offset the ID walk cannot reach inside the deadline is refused as usage before any request, naming `--next-page`, and help states the limit and that `--next-page` keeps pages consistent while offsets read the live registry; an eligibility offset past the text says so.
+- PM decision, 2026-11-19: keep `--limit` paging the named section on `get variant`, and add an explicit option to cap the candidates when a section is named. Developer's choice: `--candidate-limit` and `--candidate-offset`, named in help and in the next steps.
+- Developer decision, 2026-11-19: the ClinicalTrials.gov offset limit is 5,000 rows. The walk costs about 1.1 s per 1,000 rows skipped and ran out of the 15-second deadline near 14,000; offset 10,000 took 13 s.
 
 ## Keeps
 
