@@ -14,6 +14,11 @@ use biomcp_types::{ArticleSearch, ReplyData, Request, Use};
 use std::time::Duration;
 
 fn run(fetch: &Fetch) -> biomcp_query::Outcome {
+    search(fetch, |query| query)
+}
+/// The rights search, adjusted; the flag that skips NCBI's open-access check is part of the
+/// pool's identity, so a test that skips it must skip it on every page.
+fn search(fetch: &Fetch, adjust: fn(ArticleSearch) -> ArticleSearch) -> biomcp_query::Outcome {
     biomcp_query::run(
         &biomcp_query::Ctx {
             fetch,
@@ -24,15 +29,12 @@ fn run(fetch: &Fetch) -> biomcp_query::Outcome {
             label_bytes: biomcp_query::LABEL_BYTES,
             fit_deadline: biomcp_query::FIT_DEADLINE,
         },
-        &Request::SearchArticle(
-            // These stubs serve no NCBI open-access check; its failure would make every page
-            // partial under the status words (1059), and the licence path is what they test.
+        &Request::SearchArticle(adjust(
             serde_json::from_str::<ArticleSearch>(
                 r#"{"text":"rights witness","exact_term":true,"source":["litsense"],"limit":3}"#,
             )
-            .unwrap()
-            .without_access_lookup(),
-        ),
+            .unwrap(),
+        )),
     )
 }
 fn replay(path: &std::path::Path) -> Fetch {
