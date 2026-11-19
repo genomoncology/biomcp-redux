@@ -1,7 +1,7 @@
 //! An FDA application number gets the openFDA label filed under it, or lists its labels (1063).
 use super::resolve::{carry, within};
-use crate::{Ctx, Outcome, status};
 use crate::Action;
+use crate::{Ctx, Outcome, status};
 use biomcp_types::{
     DrugGet, DrugSearch, DrugSection, DrugSource, ReplyData, Request, SourceState, StepKind,
     UsageError,
@@ -27,11 +27,13 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         return Vec::new();
     };
     let deadline = cx.fetch.deadline(cx.budget);
-    let Ok(search) = DrugSearch::named(query.input().clone(), DrugSource::OpenfdaLabel, LABELS)
-    else {
-        return vec![status::empty(ReplyData::Usage(UsageError::argument(
-            "input".into(),
-        )))];
+    let search = match DrugSearch::named(query.input().clone(), DrugSource::OpenfdaLabel, LABELS) {
+        Ok(search) => search,
+        Err(_) => {
+            return vec![status::empty(ReplyData::Usage(UsageError::argument(
+                "input".into(),
+            )))];
+        }
     };
     let mut found = super::search(&within(cx, deadline.remaining()), &search);
     let label = match &found.body {
@@ -40,20 +42,21 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         } if page.total == Some(1) => page.items.first().map(|label| label.id.clone()),
         _ => None,
     };
-    let Some(label) = label.filter(|_| {
-        !found.dropped && found.sources.iter().all(|s| s.state == SourceState::Ok)
-    }) else {
+    let Some(label) = label
+        .filter(|_| !found.dropped && found.sources.iter().all(|s| s.state == SourceState::Ok))
+    else {
         if query.sections().contains(&DrugSection::Label) {
             read_labels(&mut found);
         }
         return vec![found];
     };
-    let Ok(resolved) = queries
+    let resolved = match queries
         .iter()
         .map(|query| query.with_native_id(label.clone()))
         .collect::<Result<Vec<_>, _>>()
-    else {
-        return vec![super::rejected_input(query.source(), "input", found)];
+    {
+        Ok(resolved) => resolved,
+        Err(_) => return vec![super::rejected_input(query.source(), "input", found)],
     };
     super::selected_parts(&within(cx, deadline.remaining()), &resolved)
         .into_iter()
@@ -67,14 +70,19 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
 /// Each label offered to choose from is offered as a label read, since a label was asked for.
 fn read_labels(found: &mut Outcome) {
     for step in &mut found.next {
-        if step.0 == StepKind::Disambiguate
-            && let Action::Run {
-                request: Request::GetDrug(get),
-                ..
-            } = &mut step.1
-            && let Ok(label) = get.for_section(DrugSection::Label)
+        if step.0 != StepKind::Disambiguate {
+            continue;
+        }
+        if let Action::Run {
+            request: Request::GetDrug(get),
+            ..
+        } = &mut step.1
         {
-            *get = label;
+            // A label read of an SPL set the search just offered is always a valid request.
+            match get.for_section(DrugSection::Label) {
+                Ok(label) => *get = label,
+                Err(_) => continue,
+            }
         }
     }
 }

@@ -67,7 +67,10 @@ impl<'de> Deserialize<'de> for TrialPhaseFilter {
         text.parse()
             .map(Self::Registry)
             .or_else(|_| text.parse().map(Self::Nci))
-            .or_else(|_| text.parse().map(|phase| Self::Registry(PhaseFilter::printed(phase))))
+            .or_else(|_| {
+                text.parse()
+                    .map(|phase| Self::Registry(PhaseFilter::printed(phase)))
+            })
             .map_err(|_| serde::de::Error::custom("unknown trial phase"))
     }
 }
@@ -132,9 +135,7 @@ impl schemars::JsonSchema for TrialPhaseFilter {
         "TrialPhaseFilter".into()
     }
     fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-        filter_schema::<PhaseFilter, NciPhaseFilter>(
-            &PhaseFilter::PRINTED.map(TrialPhase::as_str),
-        )
+        filter_schema::<PhaseFilter, NciPhaseFilter>(&PhaseFilter::PRINTED.map(TrialPhase::as_str))
     }
 }
 biodata::wire_enum! {
