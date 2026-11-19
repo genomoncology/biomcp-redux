@@ -55,7 +55,7 @@ pub(crate) fn help_line(schema: &Value) -> Option<String> {
     let others = others.join(" and ");
     Some(if has("limit") && has("section_limit") {
         format!(
-            "Paging: {names} page the named section, else the candidates; {others} page the section."
+            "{HELP_PREFIX}{names} page the named section, else the candidates; {others} page the section."
         )
     } else if others.is_empty() {
         format!("{HELP_PREFIX}{names}.")
