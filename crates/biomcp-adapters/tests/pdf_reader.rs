@@ -284,6 +284,41 @@ fn documents_naming_too_many_load_time_streams_are_refused_before_loading() {
     );
 }
 
+fn helvetica(document: &mut Document) -> Dictionary {
+    let font = document.add_object(dictionary! {
+        "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica", "Encoding" => "WinAnsiEncoding",
+    });
+    dictionary! { "Font" => dictionary! { "F1" => font } }
+}
+
+#[test]
+fn a_long_stream_is_read_in_pieces_and_an_oversized_operation_is_left_out() {
+    // A MiB of one-byte operations took 300 MB to parse at once; a TJ array of half a
+    // million numbers is one operation of 1 MiB.
+    let mut content = b"n\n".repeat(1 << 19);
+    content.extend(format!("BT /F1 9 Tf ({SENTENCE}) Tj ET\n").bytes());
+    content.extend(format!("BT /F1 9 Tf [{}] TJ ET\n", "0 ".repeat(1 << 19)).bytes());
+    content.extend(b"BI /W 1 /H 1 /BPC 8 /CS /G ID \x00 EI\n");
+    content.extend(b"BT /F1 9 Tf (after the image) Tj ET\n");
+    let bytes = pdf(&content, helvetica).expect("synthetic PDF");
+    let read = read(&bytes).expect("readable PDF");
+    assert_eq!(
+        read.state,
+        PdfTextState::Partial,
+        "the oversized operation is missing"
+    );
+    assert!(
+        read.text.contains(SENTENCE),
+        "text after the long run is read: {}",
+        read.text
+    );
+    assert!(
+        read.text.contains("after the image"),
+        "text after an inline image is read: {}",
+        read.text
+    );
+}
+
 #[test]
 fn a_form_that_cannot_be_read_is_skipped_and_the_page_keeps_its_text() {
     let words = SENTENCE.split(' ').collect::<Vec<_>>().join(") Tj ( ");

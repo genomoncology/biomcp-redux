@@ -16,7 +16,10 @@ fn page_doc(contents: Vec<Vec<u8>>, objects: usize) -> Document {
         })));
     }
     let count = kids.len() as i64;
-    document.objects.insert(pages, Object::Dictionary(dictionary! { "Type" => "Pages", "Kids" => kids, "Count" => count }));
+    document.objects.insert(
+        pages,
+        Object::Dictionary(dictionary! { "Type" => "Pages", "Kids" => kids, "Count" => count }),
+    );
     for n in 0..objects {
         document.add_object(Object::Integer(n as i64));
     }
@@ -28,14 +31,20 @@ fn page_doc(contents: Vec<Vec<u8>>, objects: usize) -> Document {
 #[test]
 #[ignore = "throwaway probe"]
 fn write_hostile() {
-    let Some(out) = std::env::var_os("HOSTILE_OUT") else { return };
+    let Some(out) = std::env::var_os("HOSTILE_OUT") else {
+        return;
+    };
     let out = std::path::PathBuf::from(out);
     std::fs::create_dir_all(&out).unwrap();
     let mb4 = 4 << 20;
     let save = |mut document: Document, name: &str, streams: bool| {
         let mut bytes = Vec::new();
         if streams {
-            let options = SaveOptions::builder().use_object_streams(true).use_xref_streams(true).max_objects_per_stream(60_000).build();
+            let options = SaveOptions::builder()
+                .use_object_streams(true)
+                .use_xref_streams(true)
+                .max_objects_per_stream(60_000)
+                .build();
             document.save_with_options(&mut bytes, options).unwrap();
         } else {
             document.save_to(&mut bytes).unwrap();
@@ -43,11 +52,27 @@ fn write_hostile() {
         println!("{name} {} bytes", bytes.len());
         std::fs::write(out.join(name), bytes).unwrap();
     };
-    save(page_doc(vec![b"n\n".repeat(mb4 / 2 - 8)], 0), "ops-4mib.pdf", false);
+    save(
+        page_doc(vec![b"n\n".repeat(mb4 / 2 - 8)], 0),
+        "ops-4mib.pdf",
+        false,
+    );
     let tj = format!("BT /F1 9 Tf [{}] TJ ET", "0 ".repeat(mb4 / 2 - 64)).into_bytes();
     save(page_doc(vec![tj], 0), "tj-4mib.pdf", false);
-    let text = format!("BT /F1 9 Tf {} ET", "(word word word word word word word word) Tj T* ".repeat(mb4 / 50)).into_bytes();
+    let text = format!(
+        "BT /F1 9 Tf {} ET",
+        "(word word word word word word word word) Tj T* ".repeat(mb4 / 50)
+    )
+    .into_bytes();
     save(page_doc(vec![text; 100], 0), "text-100x4mib.pdf", false);
-    save(page_doc(vec![b"BT ET".to_vec()], 900_000), "objstm-900k.pdf", true);
-    save(page_doc(vec![b"BT ET".to_vec()], 2_000_000), "objstm-2m.pdf", true);
+    save(
+        page_doc(vec![b"BT ET".to_vec()], 900_000),
+        "objstm-900k.pdf",
+        true,
+    );
+    save(
+        page_doc(vec![b"BT ET".to_vec()], 2_000_000),
+        "objstm-2m.pdf",
+        true,
+    );
 }

@@ -1,4 +1,5 @@
 //! Publisher downloads and bounded FDA document embedded-text access.
+mod chunks;
 mod cmap;
 mod download;
 mod embedded;
