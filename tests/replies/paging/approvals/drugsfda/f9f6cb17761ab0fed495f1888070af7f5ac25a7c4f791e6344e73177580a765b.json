@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/022363Orig1s011ltr.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795117232,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 54,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "f9f6cb17761ab0fed495f1888070af7f5ac25a7c4f791e6344e73177580a765b-0.bin"
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "live_check": "public",
+  "feature": "list-paging",
+  "story": "On get variant, --limit and --offset page the named section when one is named and the matching variants otherwise; the query names the field that took them, and each list keeps its own page: the envelope page counts candidates, the section's page counts its rows.",
+  "replay": "paging/variant",
+  "verified": "Recorded live MyVariant and ClinVar replies for rs113488022 on 2026-11-19: three candidates, one with eight ClinVar records. PM decision 2026-11-19 (1061).",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "clinvar",
+        "--limit",
+        "2",
+        "--offset",
+        "2"
+      ],
+      "expect": {
+        "/query/section_limit": 2,
+        "/query/section_offset": 2,
+        "/query/offset": 0,
+        "/page/offset": 0,
+        "/page/total": 3,
+        "/result/candidates/1/sections/clinvar/data/page/offset": 2,
+        "/result/candidates/1/sections/clinvar/data/page/returned": 2
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "--limit",
+        "1",
+        "--offset",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/limit": 1,
+        "/query/offset": 1,
+        "/query": {
+          "omits": [
+            "section_offset"
+          ]
+        },
+        "/page/offset": 1,
+        "/page/returned": 1,
+        "/page/total": 3
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "rs113488022",
+            "section": "clinvar",
+            "limit": 2,
+            "offset": 2
+          }
+        }
+      },
+      "expect": {
+        "/query/section_limit": 2,
+        "/query/section_offset": 2,
+        "/query/offset": 0,
+        "/result/candidates/1/sections/clinvar/data/page/offset": 2
+      }
+    }
+  ],
+  "config": {
+    "mcp_tool_mode": "typed"
+  }
+}

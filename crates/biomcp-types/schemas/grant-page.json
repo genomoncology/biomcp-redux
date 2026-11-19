@@ -298,7 +298,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Ten award rows by default, one to fifty.",
+          "description": "Ten award rows by default, one to 100.",
           "format": "uint32",
           "maximum": 100,
           "minimum": 1,

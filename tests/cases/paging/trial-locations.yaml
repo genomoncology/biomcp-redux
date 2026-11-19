@@ -1,0 +1,87 @@
+{
+  "live_check": "public",
+  "feature": "list-paging",
+  "story": "Trial locations page with --limit and --offset alone, up to 200 sites a page; an offset needs no pool, a page past the last site is empty with the total, and --section-limit is the same option.",
+  "replay": "trial/get/NCT03734029",
+  "verified": "Recorded public registry GET reply for NCT03734029, which lists 208 sites; tests/replies/trial/get/README.md identifies it. On main be96d8d40 --limit 200 and --offset without --pool were refused (1061).",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03734029",
+        "locations",
+        "--limit",
+        "200"
+      ],
+      "max_bytes": 70000,
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/page/offset": 0,
+        "/result/items/0/sections/locations/data/page/returned": 200,
+        "/result/items/0/sections/locations/data/page/total": 208,
+        "/result/items/0/sections/locations/data/items": {
+          "count": 200
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03734029",
+        "locations",
+        "--limit",
+        "200",
+        "--offset",
+        "200"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/page/offset": 200,
+        "/result/items/0/sections/locations/data/page/returned": 8,
+        "/result/items/0/sections/locations/data/page/total": 208,
+        "/result/items/0/sections/locations/data": {
+          "omits": [
+            "continuation"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03734029",
+        "locations",
+        "--limit",
+        "200",
+        "--offset",
+        "300"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/page/offset": 300,
+        "/result/items/0/sections/locations/data/page/returned": 0,
+        "/result/items/0/sections/locations/data/page/total": 208
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03734029",
+        "locations",
+        "--section-limit",
+        "3",
+        "--section-offset",
+        "205"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/page/offset": 205,
+        "/result/items/0/sections/locations/data/page/returned": 3
+      }
+    }
+  ]
+}

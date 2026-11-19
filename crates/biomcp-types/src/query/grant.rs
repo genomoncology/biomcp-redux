@@ -62,7 +62,7 @@ struct Fields {
         schemars(with = "u32", range(min = 1985, max = 2100))
     )]
     fiscal_year: Option<u32>,
-    /// Ten award rows by default, one to fifty.
+    /// Ten award rows by default, one to 100.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::SEARCH_PAGE_MAX)))]
     limit: u32,
