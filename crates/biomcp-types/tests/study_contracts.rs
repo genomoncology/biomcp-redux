@@ -82,7 +82,7 @@ fn literal_search_and_bounded_section_requests_validate_before_io()
         json!({"text":null,"cancer_type":"brca"}),
         json!({"text":"breast","cancer_type":null}),
         json!({"text":"x","limit":0}),
-        json!({"text":"x","limit":51}),
+        json!({"text":"x","limit":201}),
         json!({"text":"x","offset":-1}),
     ] {
         assert!(serde_json::from_value::<StudySearch>(v).is_err());

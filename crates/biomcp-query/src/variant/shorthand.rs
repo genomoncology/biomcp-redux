@@ -40,7 +40,7 @@ pub(super) fn get<'a>(
     out.next = actions;
     status::item(
         &mut out,
-        !body.items.is_empty(),
+        !body.items.is_empty() || resolution == VariantResolution::Candidates,
         resolution == VariantResolution::Unavailable,
         resolution == VariantResolution::Candidates && !query.sections().is_empty(),
     );
@@ -62,6 +62,15 @@ fn classify(body: &biomcp_types::VariantPage, out: &Outcome, steps: &[Step]) -> 
     if body.items.is_empty() {
         if out.status() == Status::Complete && total == Some(0) {
             return VariantResolution::Absent;
+        }
+        // A page past the last candidate is an empty page of candidates with its total (1061).
+        if out.status() == Status::Complete
+            && out
+                .page
+                .as_ref()
+                .is_some_and(|page| page.total > 0 && u64::from(page.offset) >= page.total)
+        {
+            return VariantResolution::Candidates;
         }
         return VariantResolution::Unavailable;
     }

@@ -152,12 +152,10 @@ impl Trial {
             } else {
                 None
             },
-            diseases: biomcp_types::TrialRecords {
-                continuation: None,
-                offset: 0,
-                total: self.diseases.len() as u32,
-                items: self
-                    .diseases
+            diseases: biomcp_types::TrialRecords::new(
+                0,
+                self.diseases.len() as u32,
+                self.diseases
                     .iter()
                     .take(CARD_DISEASES)
                     .map(|d| biomcp_types::NciDiseaseRef {
@@ -165,7 +163,7 @@ impl Trial {
                         nci_thesaurus_concept_id: d.nci_thesaurus_concept_id.clone(),
                     })
                     .collect(),
-            },
+            ),
         }
     }
     fn detail(self) -> Detail {

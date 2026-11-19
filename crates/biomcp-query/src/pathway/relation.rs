@@ -124,7 +124,8 @@ fn read_inner(
         ));
         return Err(error);
     }
-    if q.pool.is_some() && q.fresh || q.offset > 0 && q.pool.is_none() {
+    // An offset without a pool reads the current copy, or starts one, as a first page does (1061).
+    if q.pool.is_some() && q.fresh {
         restart(q, out);
         return Ok(());
     }

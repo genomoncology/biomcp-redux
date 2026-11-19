@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=chembl.pref_name%3A%22tebentafusp%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22tebentafusp%22&size=50&fields=chembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_synonyms",
+  "exchanges": [
+    {
+      "fetched": 1795125354,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 77,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":2,"total":1,"max_score":26.47024,"hits":[{"_id":"CHEMBL4297990","_score":26.47024,"chembl":{"_license":"http://bit.ly/2KAUCAm","molecule_chembl_id":"CHEMBL4297990","molecule_synonyms":[{"molecule_synonym":"IMCgp 100","syn_type":"RESEARCH_CODE","synonyms":"IMCgp 100"},{"molecule_synonym":"IMCGP-100","syn_type":"RESEARCH_CODE","synonyms":"IMCGP-100"},{"molecule_synonym":"Imcgp100","syn_type":"OTHER","synonyms":"IMCGP100"},{"molecule_synonym":"IMCGP100","syn_type":"RESEARCH_CODE","synonyms":"IMCGP100"},{"molecule_synonym":"IMMTAC IMCGP100","syn_type":"RESEARCH_CODE","synonyms":"IMMTAC IMCGP100"},{"molecule_synonym":"ImmTAC IMCgpgp 100","syn_type":"RESEARCH_CODE","synonyms":"ImmTAC IMCgpgp 100"},{"molecule_synonym":"Kimmtrak","syn_type":"TRADE_NAME","synonyms":"Kimmtrak"},{"molecule_synonym":"Kimmtrak","syn_type":"OTHER","synonyms":"KIMMTRAK"},{"molecule_synonym":"Tebentafusp","syn_type":"ATC","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"EMA","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"FDA","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"INN","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"OTHER","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"USAN","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp tebn","syn_type":"OTHER","synonyms":"TEBENTAFUSP TEBN"},{"molecule_synonym":"Tebentafusp-tebn","syn_type":"FDA","synonyms":"TEBENTAFUSP-TEBN"},{"molecule_synonym":"Tebentafusp-tebn","syn_type":"OTHER","synonyms":"TEBENTAFUSP-TEBN"}],"pref_name":"TEBENTAFUSP"}}]}
+      }
+    }
+  ]
+}

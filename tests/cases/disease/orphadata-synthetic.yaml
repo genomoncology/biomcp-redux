@@ -6,7 +6,10 @@
   "replay": "disease/orphadata-synthetic",
   "steps": [
     {
-      "run": ["sync", "orphadata"],
+      "run": [
+        "sync",
+        "orphadata"
+      ],
       "expect": {
         "/status": "complete",
         "/query/source": "orphadata",
@@ -14,44 +17,130 @@
       }
     },
     {
-      "run": ["get", "disease", "Orphanet:900001", "prevalence", "--source", "orphadata"],
+      "run": [
+        "get",
+        "disease",
+        "Orphanet:900001",
+        "prevalence",
+        "--source",
+        "orphadata"
+      ],
       "expect": {
         "/status": "complete",
         "/result/items/0/id": "Orphanet:900001",
-        "/result/items/0/prevalence/*/qualification": ["Class only", "Value and class", "Value and class"],
-        "/result/items/0/prevalence/0": {"omits": ["value", "pmids"]},
+        "/result/items/0/prevalence/*/qualification": [
+          "Class only",
+          "Value and class",
+          "Value and class"
+        ],
+        "/result/items/0/prevalence/0": {
+          "omits": [
+            "value",
+            "pmids"
+          ]
+        },
         "/result/items/0/prevalence/0/class": "<1 / 1 000 000",
         "/result/items/0/prevalence/1/value": "1.5",
-        "/result/items/0/prevalence/1/pmids": ["18442953"],
-        "/result/items/0/prevalence/2/pmids": ["33080481"],
-        "/result/items/0/inheritance": ["Autosomal dominant"]
+        "/result/items/0/prevalence/1/pmids": [
+          "18442953"
+        ],
+        "/result/items/0/prevalence/2/pmids": [
+          "33080481"
+        ],
+        "/result/items/0/inheritance": [
+          "Autosomal dominant"
+        ]
       }
     },
     {
-      "run": ["get", "disease", "MONDO:0016512", "prevalence", "--source", "orphadata"],
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512",
+        "prevalence",
+        "--source",
+        "orphadata"
+      ],
       "expect": {
         "/status": "complete",
         "/result/links/0/object/id": "ORPHANET:2322",
         "/result/items/0/id": "Orphanet:2322",
         "/result/items/0/label": "Synthetic disorder at a MONDO-linked code",
-        "/result/items/0/prevalence/*/kind": ["Prevalence at birth", "Prevalence at birth", "Point prevalence", "Prevalence at birth"],
-        "/result/items/0/prevalence/*/value": ["2.2", "2.2", "4.4", "4.4"],
-        "/result/items/0/prevalence/*/class": ["1-9 / 100 000", "1-9 / 100 000", "1-9 / 100 000", "1-9 / 100 000"],
-        "/result/items/0/prevalence/*/geography": ["Europe", "Japan", "Europe", "Australia"],
-        "/result/items/0/prevalence/*/source": ["90000001[PMID]", "90000001[PMID]", "[EXPERT]_90000002[PMID]", "90000003[PMID]"],
-        "/result/items/0/prevalence/2/pmids": ["90000002"],
-        "/result/items/0/prevalence/*/validation": ["Validated", "Validated", "Validated", "Validated"],
-        "/result/items/0/onset": ["Antenatal", "Infancy", "Neonatal"],
-        "/result/items/0/inheritance": ["Autosomal dominant", "Not applicable"],
+        "/result/items/0/prevalence/*/kind": [
+          "Prevalence at birth",
+          "Prevalence at birth",
+          "Point prevalence",
+          "Prevalence at birth"
+        ],
+        "/result/items/0/prevalence/*/value": [
+          "2.2",
+          "2.2",
+          "4.4",
+          "4.4"
+        ],
+        "/result/items/0/prevalence/*/class": [
+          "1-9 / 100 000",
+          "1-9 / 100 000",
+          "1-9 / 100 000",
+          "1-9 / 100 000"
+        ],
+        "/result/items/0/prevalence/*/geography": [
+          "Europe",
+          "Japan",
+          "Europe",
+          "Australia"
+        ],
+        "/result/items/0/prevalence/*/source": [
+          "90000001[PMID]",
+          "90000001[PMID]",
+          "[EXPERT]_90000002[PMID]",
+          "90000003[PMID]"
+        ],
+        "/result/items/0/prevalence/2/pmids": [
+          "90000002"
+        ],
+        "/result/items/0/prevalence/*/validation": [
+          "Validated",
+          "Validated",
+          "Validated",
+          "Validated"
+        ],
+        "/result/items/0/onset": [
+          "Antenatal",
+          "Infancy",
+          "Neonatal"
+        ],
+        "/result/items/0/inheritance": [
+          "Autosomal dominant",
+          "Not applicable"
+        ],
         "/result/items/0/attribution/release": "2026-06-23 07:57:58",
-        "/sources/*/source": ["mydisease", "orphadata"],
+        "/sources/*/source": [
+          "mydisease",
+          "orphadata"
+        ],
         "/result/items/0/notice": "BioMCP uses Orphanet/Orphadata data; its results may not truly reflect that data, and Orphanet is not responsible for their quality",
-        "/sources/*/state": ["ok", "ok"],
-        "/sources/1": {"omits": ["terms", "terms_url"]}
+        "/sources/*/state": [
+          "ok",
+          "ok"
+        ],
+        "/sources/1": {
+          "omits": [
+            "terms",
+            "terms_url"
+          ]
+        }
       }
     },
     {
-      "run": ["get", "disease", "MONDO:0007254", "prevalence", "--source", "orphadata"],
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0007254",
+        "prevalence",
+        "--source",
+        "orphadata"
+      ],
       "exit": 1,
       "expect": {
         "/status": "absent",
@@ -62,18 +151,45 @@
       }
     },
     {
-      "run": ["get", "disease", "Orphanet:2322", "prevalence", "--source", "orphadata"],
+      "run": [
+        "get",
+        "disease",
+        "Orphanet:2322",
+        "prevalence",
+        "--source",
+        "orphadata"
+      ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/prevalence/*/value": ["2.2", "2.2", "4.4", "4.4"],
-        "/sources/*/source": ["orphadata"]
+        "/result/items/0/prevalence/*/value": [
+          "2.2",
+          "2.2",
+          "4.4",
+          "4.4"
+        ],
+        "/sources/*/source": [
+          "orphadata"
+        ]
       }
     },
     {
-      "run": ["get", "disease", "MONDO:0016512"],
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512"
+      ],
       "expect": {
         "/status": "complete",
-        "/next/3/args": ["get", "disease", "MONDO:0016512", "prevalence", "--section-limit", "5", "--source", "orphadata"]
+        "/next/3/args": [
+          "get",
+          "disease",
+          "MONDO:0016512",
+          "prevalence",
+          "--limit",
+          "5",
+          "--source",
+          "orphadata"
+        ]
       }
     }
   ]

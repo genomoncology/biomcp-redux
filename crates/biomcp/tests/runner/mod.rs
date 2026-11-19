@@ -82,6 +82,7 @@ mod mcp;
 mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
+mod offset_walks;
 mod recurrence;
 mod remote_tools;
 mod replay;
@@ -369,6 +370,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(disease_next::trials());
     trials.extend(first_read::trials());
     trials.extend(source_text::trials());
+    trials.extend(offset_walks::trials());
     trials
 }
 

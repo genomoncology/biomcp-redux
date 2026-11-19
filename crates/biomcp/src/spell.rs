@@ -126,7 +126,7 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
             let is_trailing = property.get("x-trailing-section") == Some(&Value::Bool(true));
             let explicit = is_trailing && trailing_input(schema, query, property);
             if property.get("x-positional").is_none() && !is_trailing {
-                args.push(format!("--{}", name.replace('_', "-")));
+                args.push(crate::grammar::paging::flag(schema, query, name));
             }
             if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
                 // A list is joined; comma-separated text is already one word.

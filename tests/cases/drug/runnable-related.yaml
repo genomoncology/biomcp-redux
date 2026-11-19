@@ -33,8 +33,8 @@
             "--decision-to": "<YYYY-MM-DD>",
             "--document-id": "<TEXT>",
             "--product-number": "<TEXT>",
-            "--section-limit": "<1-200>",
-            "--section-offset": "<N>"
+            "--limit": "<1-200>",
+            "--offset": "<N>"
           }
         }
       },
@@ -103,8 +103,8 @@
             "--decision-to": "<YYYY-MM-DD>",
             "--document-id": "<TEXT>",
             "--product-number": "<TEXT>",
-            "--section-limit": "<1-200>",
-            "--section-offset": "<N>"
+            "--limit": "<1-200>",
+            "--offset": "<N>"
           }
         }
       },
@@ -192,8 +192,8 @@
             "--decision-to": "<YYYY-MM-DD>",
             "--document-id": "<TEXT>",
             "--product-number": "<TEXT>",
-            "--section-limit": "<1-200>",
-            "--section-offset": "<N>"
+            "--limit": "<1-200>",
+            "--offset": "<N>"
           }
         }
       }

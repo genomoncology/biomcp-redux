@@ -70,7 +70,8 @@ fn read(
             .push(status::source(Source::UniProt, leg.finish(), Some(error)));
         return Err(error);
     }
-    if q.pool().is_none() && q.offset() != 0 || q.pool().is_some() && cx.fresh {
+    // An offset without a pool reads the current copy, or starts one, as a first page does (1061).
+    if q.pool().is_some() && cx.fresh {
         restart(q, out, false);
         return Ok(());
     }
@@ -84,10 +85,6 @@ fn read(
             return Err(error);
         }
     };
-    if u64::from(q.offset()) > saved.page.total {
-        restart(q, out, false);
-        return Ok(());
-    }
     let error = extend(&leg, q, &mut saved);
     let incoming = status::source(Source::UniProt, leg.finish(), error);
     if let Some(source) = saved.sources.first_mut() {

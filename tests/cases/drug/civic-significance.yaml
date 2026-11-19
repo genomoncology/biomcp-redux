@@ -35,7 +35,7 @@
             "evidence",
             "--evidence-significance",
             "resistance",
-            "--section-limit",
+            "--limit",
             "2",
             "--source",
             "civic"

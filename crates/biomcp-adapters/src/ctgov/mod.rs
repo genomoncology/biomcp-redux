@@ -287,6 +287,7 @@ mod search_query;
 pub use search_query::{name_fits, search_query};
 mod site_count;
 pub use site_count::site_count;
+mod skip;
 
 /// Complete source policy and command declaration.
 pub(crate) mod decl;

@@ -26,7 +26,14 @@ pub(super) fn next(
     Ok(source_steps(globals, steps))
 }
 
-const PAGING: [&str; 4] = ["--limit", "--offset", "--section-limit", "--section-offset"];
+const PAGING: [&str; 6] = [
+    "--limit",
+    "--offset",
+    "--section-limit",
+    "--section-offset",
+    "--candidate-limit",
+    "--candidate-offset",
+];
 
 /// A section's own first page also offers its own call with the options it could add, after
 /// the follow-ups and outside their cap. A card's options live on the sections it lists, and a

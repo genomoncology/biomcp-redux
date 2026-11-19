@@ -1,0 +1,28 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.CYP2D6&order=pairid.asc&limit=10&offset=30",
+  "exchanges": [
+    {
+      "fetched": 1795125398,
+      "status": 206,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "30-39/79",
+      "delay_ms": 184,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"pairid":110246,"drugid":"RxNorm:44281","drugname":"cevimeline","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":null,"pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110249,"drugid":"RxNorm:2626","drugname":"clozapine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":null,"pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110252,"drugid":"RxNorm:1876905","drugname":"deutetrabenazine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":null,"pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110253,"drugid":"RxNorm:3289","drugname":"dextromethorphan","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"1B","pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110256,"drugid":"RxNorm:135447","drugname":"donepezil","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"3","pgxtesting":"Informative PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110262,"drugid":"RxNorm:4441","drugname":"flecainide","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"1A","pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110263,"drugid":"RxNorm:328134","drugname":"gefitinib","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"3","pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110264,"drugid":"RxNorm:5093","drugname":"haloperidol","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"1A","pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110266,"drugid":"RxNorm:73178","drugname":"iloperidone","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"3","pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110267,"drugid":"RxNorm:6185","drugname":"labetalol","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":null,"pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}]
+      }
+    }
+  ]
+}

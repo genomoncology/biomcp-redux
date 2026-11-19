@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped&pageSize=8&pageToken=ZVNj7o2Elu8o3lpyUt27p6r-mpOQJJxsZvSg2vYSkA&query.cond=%28melanoma%29&query.intr=%28%28%22IMCgp%20100%22%20OR%20%22IMCGP-100%22%20OR%20%22Imcgp100%22%20OR%20%22IMMTAC%20IMCGP100%22%20OR%20%22ImmTAC%20IMCgpgp%20100%22%20OR%20%22Kimmtrak%22%20OR%20%22tebentafusp%22%20OR%20%22Tebentafusp%20tebn%22%20OR%20%22Tebentafusp-tebn%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1795125369,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 61,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT06626516","briefTitle":"Tebentafusp-tebn With LDT in Metastatic UM"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2025-10-15","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2030-10","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-07-21"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Thomas Jefferson University"}},"conditionsModule":{"conditions":["Metastatic Uveal Melanoma"]},"designModule":{"phases":["PHASE1","PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Tebentafusp-Tebn"},{"name":"GM-CSF (Sargramostim)"},{"name":"BCNU"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT01211262","briefTitle":"Study to Assess the Tolerability of a Bispecific Targeted Biologic IMCgp100 in Malignant Melanoma"},"statusModule":{"overallStatus":"COMPLETED","startDateStruct":{"date":"2010-09-28","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2016-02-16","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2020-07-08"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Immunocore Ltd"}},"conditionsModule":{"conditions":["Malignant Melanoma"]},"designModule":{"phases":["PHASE1"]},"armsInterventionsModule":{"interventions":[{"name":"IMCgp100"}]}},"hasResults":true},
+{"protocolSection":{"identificationModule":{"nctId":"NCT07276386","briefTitle":"Phase 2 Combination of Melphalan/HDS Via PHP + Tebentafusp in Treating Metastatic Uveal Melanoma"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2025-12-31","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2030-12","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-03-31"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"H. Lee Moffitt Cancer Center and Research Institute"}},"conditionsModule":{"conditions":["Metastatic Uveal Melanoma"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Melphalan/HDS (Percutaneous Hepatic Perfusion)"},{"name":"Tebentafusp"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT05415072","briefTitle":"A Phase I/II Study of DYP688 in Patients With Metastatic Uveal Melanoma and Other GNAQ/11 Mutant Melanomas"},"statusModule":{"overallStatus":"ACTIVE_NOT_RECRUITING","startDateStruct":{"date":"2022-07-04","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2027-10-01","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-07-28"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Novartis Pharmaceuticals"}},"conditionsModule":{"conditions":["Metastatic Uveal Melanoma"]},"designModule":{"phases":["PHASE1","PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"DYP688"}]}},"hasResults":false}
+]}
+      }
+    }
+  ]
+}

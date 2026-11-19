@@ -79,7 +79,7 @@
       "default": 5,
       "description": "Whole source rows per section page.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 200,
       "minimum": 1,
       "type": "integer"
     },

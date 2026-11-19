@@ -21,9 +21,9 @@
     },
     "limit": {
       "default": 5,
-      "description": "Five complete relation rows by default, at most fifty.",
+      "description": "Five complete relation rows by default, at most 200.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 200,
       "minimum": 1,
       "type": "integer"
     },

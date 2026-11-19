@@ -117,6 +117,12 @@ impl PathwaySearch {
     pub fn fresh(&self) -> bool {
         self.0.fresh
     }
+    /// The same search with another page size, checked as the caller's own.
+    pub fn with_limit(&self, limit: u32) -> Self {
+        let mut value = self.clone();
+        value.0.limit = limit.clamp(1, self.0.limit);
+        value
+    }
     /// Bind continuation to an immutable retained observation.
     pub fn with_pool(&self, pool: Text) -> Self {
         let mut value = self.clone();

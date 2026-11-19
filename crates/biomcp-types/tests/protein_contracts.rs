@@ -238,7 +238,7 @@ fn feature_provenance_and_sequence_availability_use_closed_native_contracts()
             .is_err()
     );
     assert!(
-        serde_json::from_value::<ProteinRelationQuery>(json!({"accession":"P15056","limit":26}))
+        serde_json::from_value::<ProteinRelationQuery>(json!({"accession":"P15056","limit":201}))
             .is_err()
     );
     Ok(())

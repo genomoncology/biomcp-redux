@@ -393,7 +393,7 @@ fn card_section_actions_recheck_source_context_and_keep_the_declared_gene()
     );
     assert!(card.at_section_offset(1).is_err());
     for v in [
-        json!({"gene":"DPYD","source":"cpic","limit":51}),
+        json!({"gene":"DPYD","source":"cpic","limit":101}),
         json!({"gene":"DPYD","source":"cpic","limit":null}),
         json!({"gene":"DPYD","source":"cpic","offset":-1}),
     ] {
