@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=set_id%3A%2201a50047-0d07-41c5-b35b-129aab5b4afd%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"meta\":{\"results\":{\"skip\":0,\"limit\":1,\"total\":1}},\"results\":[{\"id\":\"ff16d7e2-816c-47e1-8d05-fd5c6f721813\",\"set_id\":\"01a50047-0d07-41c5-b35b-129aab5b4afd\",\"version\":\"2\",\"effective_time\":\"20130911\",\"openfda\":{},\"spl_product_data_elements\":[\"Kroger Baby Sunscreen SPF 70 AVOBENZONE HOMOSALATE OCTISALATE OCTOCRYLENE OXYBENZONE AVOBENZONE AVOBENZONE HOMOSALATE HOMOSALATE OCTISALATE OCTISALATE OCTOCRYLENE OCTOCRYLENE WATER DOCOSANOL OXYBENZONE OXYBENZONE PALMITIC ACID PEG-100 STEARATE GLYCERYL MONOSTEARATE STEARIC ACID EDETATE DISODIUM LAURYL ALCOHOL MYRISTYL ALCOHOL CHLORPHENESIN CETYL ALCOHOL CELLULOSE, MICROCRYSTALLINE CARBOXYMETHYLCELLULOSE SODIUM BUTYLENE GLYCOL DIETHYLHEXYL SYRINGYLIDENEMALONATE TRICAPRIN BENZYL ALCOHOL TOCOPHEROL VITAMIN A PALMITATE SODIUM ASCORBYL PHOSPHATE\"],\"package_label_principal_display_panel\":[\"Principal Display Panel COMPARE TO COPPERTONE WATER BABIES see back panel Kroger FROM OUR FAMILY TO OURS BABY sunscreen lotion Broad Spectrum SPF 70 Water resistant (80 Minutes) UVA/UVB Protection Pediatrician Tested FREE FROM: Fragrance, Oil and Dyes 8 FL OZ (236 mL) utntyhrled.jpg\"],\"indications_and_usage\":[\"Uses Helps prevent sunburn If used as directed with other sun protection measures (see Directions), decrease the risk of skin cancer and early skin aging caused by the sun\"]}]}"
+      }
+    }
+  ]
+}
