@@ -1,5 +1,5 @@
 {
-  "projection": "None: the three openFDA replies are kept whole as biomcp --record wrote them.",
+  "projection": "None: every openFDA reply is kept whole as biomcp --record wrote it.",
   "sha256": "SHA-256 of each reply body serialized as compact JSON without ASCII escaping",
   "originals": [
     {
@@ -25,6 +25,14 @@
       "kept_whole": true,
       "retrieved": "2026-11-19",
       "note": "recorded live by scripts/capture_branch.py in pm job j43011"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.application_number.exact%3A%22ANDA090543%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "73b53b0713492ddc987a4e8ab1e37185e181a531922607330405c0acce305400",
+      "status": 404,
+      "kept_whole": true,
+      "retrieved": "2026-11-19",
+      "note": "recorded live by scripts/capture_branch.py in pm job j43053; openFDA answers an application with no label with 404 NOT_FOUND"
     }
   ]
 }

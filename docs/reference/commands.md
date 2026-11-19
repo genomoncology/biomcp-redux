@@ -3386,7 +3386,7 @@ Options:
       --label-section <label_section>
           Exact openFDA SPL fields.
           Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-          Only with --source openfda-label.
+          Only with --source openfda-label; input may also be an FDA application number (NDA216340).
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3454,7 +3454,7 @@ Source ID or complete brand or generic name; WHO references retain source spaces
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-Only with --source openfda-label. Value form: string; example: --label-section indications_and_usage.
+Only with --source openfda-label; input may also be an FDA application number (NDA216340). Value form: string; example: --label-section indications_and_usage.
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
 Keeps only the pairs with that drug. A name DDInter does not use is tried under the

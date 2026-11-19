@@ -1,8 +1,8 @@
 {
-  "verified": "tests/replies/drug/label-application/provenance.json records the live openFDA replies of 2026-11-19 (job j43011): openfda.application_number NDA216340 holds one label, KRAZATI's SPL set 0b8bf078-34c2-4f45-9012-38a8ac082b01; NDA021748 holds two, Glumetza fb832474-88d9-4e29-95cd-fbc446944cc4 and Metformin hydrochloride 74d32a8a-c4c2-4dbb-b376-eea3f8fa64d7. On base 1.0.0 (be96d8d40) both gets were refused with usage.",
+  "verified": "tests/replies/drug/label-application/provenance.json records the live openFDA replies of 2026-11-19 (job j43011): openfda.application_number NDA216340 holds one label, KRAZATI's SPL set 0b8bf078-34c2-4f45-9012-38a8ac082b01; NDA021748 holds two, Glumetza fb832474-88d9-4e29-95cd-fbc446944cc4 and Metformin hydrochloride 74d32a8a-c4c2-4dbb-b376-eea3f8fa64d7. On base 1.0.0 (be96d8d40) both gets were refused with usage. ANDA090543 (modafinil, discontinued) has Drugs@FDA approvals and openFDA answers 404 NOT_FOUND for its application number (job j43053).",
   "live_check": "public",
   "feature": "drug-label",
-  "story": "A label get takes the FDA application number that Drugs@FDA approvals and label replies print: NDA216340 reads KRAZATI's one label, and NDA021748, which two labels share, lists both to choose from with a label read for each. Before 1063 the number was taken for a drug name and refused (agent runs on 1.0.0, 2026-11-19).",
+  "story": "A label get takes the FDA application number that Drugs@FDA approvals and label replies print: NDA216340 reads KRAZATI's one label, and NDA021748, which two labels share, lists both to choose from, each offered as the same read the caller asked for, label sections and section paging included; ANDA090543, which openFDA lists no label for, says so and offers its Drugs@FDA approvals rather than a step that repeats the read. Before 1063 the number was taken for a drug name and refused (agent runs on 1.0.0, 2026-11-19).",
   "replay": "drug/label-application",
   "steps": [
     {
@@ -69,6 +69,84 @@
           "label",
           "--source",
           "openfda-label"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA021748",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "indications_and_usage,boxed_warning",
+        "--section-limit",
+        "2"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 2,
+        "/next/0/args": [
+          "get",
+          "drug",
+          "fb832474-88d9-4e29-95cd-fbc446944cc4",
+          "label",
+          "--label-section",
+          "indications_and_usage,boxed_warning",
+          "--section-limit",
+          "2",
+          "--source",
+          "openfda-label"
+        ],
+        "/next/1/args": [
+          "get",
+          "drug",
+          "74d32a8a-c4c2-4dbb-b376-eea3f8fa64d7",
+          "label",
+          "--label-section",
+          "indications_and_usage,boxed_warning",
+          "--section-limit",
+          "2",
+          "--source",
+          "openfda-label"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "ANDA090543",
+        "label",
+        "--source",
+        "openfda-label"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "ANDA090543",
+        "label",
+        "--source",
+        "openfda-label"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/page/total": 0,
+        "/sources/0/notices/0/message": "openFDA lists no label under this application number.",
+        "/next": {
+          "count": 1
+        },
+        "/next/0/args": [
+          "get",
+          "drug",
+          "ANDA090543",
+          "approvals",
+          "--source",
+          "drugsfda"
         ]
       }
     }

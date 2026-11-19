@@ -398,7 +398,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nOnly with --source openfda-label.",
+          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nOnly with --source openfda-label; input may also be an FDA application number (NDA216340).",
           "x-comma-separated": true
         },
         "partner": {
