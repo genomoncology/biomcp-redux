@@ -1,3 +1,4 @@
+use super::biomarker::names;
 use super::date::{key, row_date};
 use biodata::{CompanionDiagnosticRelation, PartialDate};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
@@ -24,8 +25,6 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         Find::Exact(KeyKind::Id, id.as_str())
     } else if let Some(id) = query.drug_application() {
         Find::Exact(KeyKind::Xref, id.as_str())
-    } else if let Some(value) = query.biomarker() {
-        Find::Exact(KeyKind::Symbol, value.as_str())
     } else {
         Find::Exact(KeyKind::Band, "all")
     };
@@ -77,7 +76,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
             source: Source::FdaCdx,
             record: None,
             field: "table_1.biomarker".into(),
-            code: ProblemCode::ValueUnknown,
+            code: ProblemCode::FilterUnsupported,
         });
     }
     Ok(Search {
@@ -296,5 +295,5 @@ fn matches(row: &CompanionDiagnosticRelation, query: &DiagnosticSearch) -> bool 
         .is_none_or(|q| drugs.iter().any(|v| &v.id == q))
         && query
             .biomarker()
-            .is_none_or(|q| biomarker == Some(q.as_str()))
+            .is_none_or(|q| biomarker.is_some_and(|cell| names(cell, q.as_str())))
 }
