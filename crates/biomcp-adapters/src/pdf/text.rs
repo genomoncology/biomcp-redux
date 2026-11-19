@@ -92,59 +92,15 @@ pub fn whole(
             }
             Err(error) => return Err(error),
         };
-    if !bytes.starts_with(b"%PDF-") {
-        return Err(error(spec.source, Reason::NotPdf));
-    }
     let deadline = leg.local_deadline();
-    let check = || {
-        if deadline.expired() {
-            Err(error(spec.source, Reason::DeadlineExceeded))
-        } else {
-            Ok(())
-        }
-    };
-    check()?;
-    let document = lopdf::Document::load_mem_with_options(
-        &bytes,
-        lopdf::LoadOptions::with_max_decompressed_size(MAX_EXPANDED_BYTES),
-    )
-    .map_err(|issue| match issue {
-        lopdf::Error::Decompress(lopdf::DecompressError::MemoryLimitExceeded { .. }) => {
-            error(spec.source, Reason::TooLarge)
-        }
-        _ => error(spec.source, Reason::BadReply),
-    })?;
-    check()?;
-    let pages = document.get_pages();
-    result.pages = Some(pages.len() as u32);
-    if pages.len() > MAX_PAGES {
-        result.state = PdfTextState::TooLarge;
+    let read = super::embedded(&bytes, MAX_PAGES, &|| deadline.expired())
+        .map_err(|reason| error(spec.source, reason))?;
+    result.pages = read.pages;
+    result.state = read.state;
+    if result.state != PdfTextState::Text {
         return Ok((result, String::new()));
     }
-    let mut text = String::new();
-    for page in pages.values() {
-        check()?;
-        let part = match super::words::page(&document, *page, MAX_EXPANDED_BYTES) {
-            Ok(part) => part,
-            Err(lopdf::Error::Decompress(lopdf::DecompressError::MemoryLimitExceeded {
-                ..
-            })) => {
-                result.state = PdfTextState::TooLarge;
-                return Ok((result, String::new()));
-            }
-            Err(_) => return Err(error(spec.source, Reason::BadReply)),
-        };
-        if text.len().saturating_add(part.len()) > MAX_EXPANDED_BYTES {
-            result.state = PdfTextState::TooLarge;
-            return Ok((result, String::new()));
-        }
-        text.push_str(&part);
-    }
-    check()?;
-    if text.trim().is_empty() {
-        return Ok((result, String::new()));
-    }
-    result.state = PdfTextState::Text;
+    let text = read.text;
     result.total = fragment_starts(&text).len() as u32;
     Ok((result, text))
 }
