@@ -23,6 +23,44 @@ pub(crate) fn other_name(schema: &Value, name: &str) -> Option<&'static str> {
     })
 }
 
+/// The one help line that names the options paging this command's lists.
+pub(crate) fn help_line(schema: &Value) -> Option<String> {
+    let has = |field: &str| schema.pointer(&format!("/properties/{field}")).is_some();
+    let flag = |field: &str| format!("--{}", field.replace('_', "-"));
+    let mut names: Vec<_> = PAIRS
+        .iter()
+        .filter(|(list, section)| has(list) || has(section))
+        .map(|(list, _)| flag(list))
+        .collect();
+    if has("page") {
+        names.push(flag("page"));
+    }
+    if names.is_empty() {
+        return None;
+    }
+    let names = names.join(" and ");
+    let others: Vec<_> = PAIRS
+        .iter()
+        .filter(|(_, section)| has(section) || other_name(schema, section).is_some())
+        .map(|(_, section)| flag(section))
+        .collect();
+    let same = if others.len() == 1 {
+        "is the same option"
+    } else {
+        "are the same options"
+    };
+    let others = others.join(" and ");
+    Some(if has("limit") && has("section_limit") {
+        format!(
+            "Paging: {names} page the named section, else the candidates; {others} page the section."
+        )
+    } else if others.is_empty() {
+        format!("Paging: {names}.")
+    } else {
+        format!("Paging: {names}; {others} {same}.")
+    })
+}
+
 /// Move each paging value onto the field this command reads it from.
 pub(crate) fn rename(schema: &Value, fields: &mut Map<String, Value>) {
     let has = |field: &str| schema.pointer(&format!("/properties/{field}")).is_some();

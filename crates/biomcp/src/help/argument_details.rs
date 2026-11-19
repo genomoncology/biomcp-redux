@@ -72,6 +72,10 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 SOURCE_OPTIONS
             });
         }
+        if let Some(line) = schema.as_ref().and_then(crate::grammar::paging::help_line) {
+            command.description.push('\n');
+            command.description.push_str(&line);
+        }
     }
 }
 /// One sentence per option that names the option, so no option repeats another's.
