@@ -36,7 +36,7 @@ struct Fields<I = Text> {
         deserialize_with = "super::gene::present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = crate::HELD_PAGE_MAX)))]
     limit: Option<u32>,
     /// Assertions to skip in source order.
     #[serde(default)]
@@ -58,7 +58,7 @@ impl TryFrom<Fields> for VariantAssertionsGet {
         if fields.input.namespace() == VariantNamespace::Unsupported {
             return Err(super::gene::QueryInvalid::new(&["input"]));
         }
-        if fields.limit.is_some_and(|n| !(1..=50).contains(&n)) {
+        if fields.limit.is_some_and(|n| !(1..=crate::HELD_PAGE_MAX).contains(&n)) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
         if fields.kind.is_some() && fields.source != AssertionSource::Clinvar {
@@ -181,7 +181,7 @@ impl VariantAssertionsGet {
             crate::VariantId::Ca(_) => AssertionSource::Erepo,
             _ => return Err(crate::QueryInvalid::new(&["input", "source"])),
         };
-        if !(1..=50).contains(&limit) {
+        if !(1..=crate::HELD_PAGE_MAX).contains(&limit) {
             return Err(crate::QueryInvalid::new(&["limit"]));
         }
         let kind = kind.filter(|_| source == AssertionSource::Clinvar);
@@ -214,7 +214,7 @@ impl VariantAssertionsGet {
     pub fn page(mut self, limit: u32, offset: u32) -> Result<Self, super::gene::QueryInvalid> {
         self.0.limit = Some(limit);
         self.0.offset = offset;
-        if !(1..=50).contains(&limit) {
+        if !(1..=crate::HELD_PAGE_MAX).contains(&limit) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
         Ok(self)

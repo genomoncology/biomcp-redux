@@ -38,7 +38,7 @@ struct GetFields<I = Text> {
         deserialize_with = "super::super::gene::present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = crate::HELD_PAGE_MAX)))]
     section_limit: Option<u32>,
     /// Zero-based native row or fragment offset.
     #[serde(default)]
@@ -82,7 +82,7 @@ impl TryFrom<GetFields> for DiagnosticGet {
             }
         };
         validate_source(&v)?;
-        if v.section_limit.is_some_and(|v| !(1..=50).contains(&v)) {
+        if v.section_limit.is_some_and(|v| !(1..=crate::HELD_PAGE_MAX).contains(&v)) {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         Ok(Self {

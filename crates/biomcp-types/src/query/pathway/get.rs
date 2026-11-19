@@ -1,5 +1,5 @@
 use super::{
-    PathwayId, PathwaySection, QueryInvalid, Text, default_limit, native_id, reactome, valid_limit,
+    PathwayId, PathwaySection, QueryInvalid, Text, default_limit, native_id, reactome,
 };
 use serde::{Deserialize, Serialize};
 #[doc = " Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, \
@@ -28,7 +28,7 @@ struct GetFields {
     section: Option<PathwaySection>,
     /// Bounded initial section size; each all section has its own first page.
     #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     section_limit: u32,
     /// Native relation offset for a selected genes or events section.
     #[serde(default)]
@@ -56,7 +56,7 @@ impl TryFrom<GetFields> for PathwayGet {
             v.section,
             Some(PathwaySection::Genes | PathwaySection::Events)
         );
-        if !valid_limit(v.section_limit) {
+        if !(1..=crate::HELD_PAGE_MAX).contains(&v.section_limit) {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         if v.section == Some(PathwaySection::Events) && !reactome(&v.id) {

@@ -1,4 +1,8 @@
 //! Shared pagination operations preserve selectors and page sizes.
+
+/// The most rows one page takes from a list held whole, a stored copy or a whole record
+/// (1061): the source is not asked again, and 200 narrow rows stay near 60 KB.
+pub const HELD_PAGE_MAX: u32 = 200;
 /// A checked query with an independent page offset and optional retained context.
 pub trait Paged: Clone {
     /// Native offset for offset-capable queries; unit for restart-only queries.

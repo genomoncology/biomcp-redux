@@ -16,9 +16,9 @@ macro_rules! relation {
             #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
             accession: UniProtIsoform,
             $($(#[$meta])* $field: $ty,)*
-            /// Five rows by default, at most 25.
+            /// Five rows by default, at most 200.
             #[serde(default = "limit")]
-            #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 25)))]
+            #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
             limit: u32,
             /// Native or retained page offset.
             #[serde(default)]
@@ -32,7 +32,7 @@ macro_rules! relation {
         impl TryFrom<$fields> for $name {
             type Error = QueryInvalid;
             fn try_from(v: $fields) -> Result<Self, QueryInvalid> {
-                if !(1..=25).contains(&v.limit) { return Err(QueryInvalid::new(&["limit"])); }
+                if !(1..=crate::HELD_PAGE_MAX).contains(&v.limit) { return Err(QueryInvalid::new(&["limit"])); }
                 $(if !($check)(&v) { return Err(QueryInvalid::new(&["position", "accession"])); })?
                 Ok(Self(v))
             }

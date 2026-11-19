@@ -886,7 +886,7 @@
           "default": 5,
           "description": "Maximum records in each selected section.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },

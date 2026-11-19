@@ -65,9 +65,9 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
     /// Named section page size, refused on an identity-only card.
-    /// At most 50 rows, or 200 for Drugs@FDA approvals.
+    /// At most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     section_limit: Option<u32>,
     /// Named section continuation, refused on an identity-only card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -173,7 +173,20 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     }
     let approvals = fields.source == Some(DrugSource::Drugsfda)
         && fields.section.as_ref() == [DrugSection::Approvals];
-    let most = if approvals { MAX_APPROVALS_LIMIT } else { 50 };
+    // A section held whole pages up to the held cap; one the source pages keeps its own 50 (1061).
+    let held = !fields.section.is_empty()
+        && fields.section.iter().all(|section| {
+            matches!(
+                section,
+                DrugSection::Approvals
+                    | DrugSection::Interactions
+                    | DrugSection::Label
+                    | DrugSection::Regulatory
+                    | DrugSection::Xrefs
+                    | DrugSection::EssentialMedicines
+            )
+        });
+    let most = if held { crate::HELD_PAGE_MAX } else { 50 };
     if fields
         .section_limit
         .is_some_and(|n| !(1..=most).contains(&n))
@@ -218,8 +231,6 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     }
     Ok(())
 }
-/// The most Drugs@FDA submission rows one approvals page returns.
-const MAX_APPROVALS_LIMIT: u32 = 200;
 fn validate_window(fields: &GetFields, approvals: bool) -> Result<(), QueryInvalid> {
     let window = [
         ("decision_from", fields.decision_from),

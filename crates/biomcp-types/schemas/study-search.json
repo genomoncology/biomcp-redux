@@ -38,7 +38,7 @@
       "default": 5,
       "description": "Maximum headers per page.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 200,
       "minimum": 1,
       "type": "integer"
     },
