@@ -47,7 +47,12 @@ pub(super) fn get<'a>(
     );
     if unresolved && out.status() == Status::Partial {
         // The asked sections wait for one candidate; `resolution` says so.
-        status::missing(&mut out, "/result/resolution", Source::MyVariant, None);
+        status::missing(
+            &mut out,
+            biodata::text!("/result/resolution"),
+            Source::MyVariant,
+            None,
+        );
     }
     out.body = super::reply(
         query,

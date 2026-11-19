@@ -176,14 +176,12 @@ pub(crate) fn empty(body: ReplyData) -> Outcome {
 /// Name missing data that no source row or `unavailable` marker states, and make the item partial.
 pub(crate) fn missing(
     out: &mut Outcome,
-    at: &str,
+    at: biodata::Text,
     source: Source,
     reason: Option<biomcp_types::Reason>,
 ) {
-    if let Ok(at) = at.parse() {
-        out.incomplete
-            .push(biomcp_types::Incomplete { at, source, reason });
-    }
+    out.incomplete
+        .push(biomcp_types::Incomplete { at, source, reason });
 }
 
 /// Start a body whose successful local construction is already an answer.
