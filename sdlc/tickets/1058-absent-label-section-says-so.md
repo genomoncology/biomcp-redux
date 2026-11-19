@@ -1,6 +1,7 @@
 # 1058 — absent-label-section-says-so
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 160ee6bdd1ea607aba194d9af2b9c01f8c8a78d9
 
 Milestone: 7
 

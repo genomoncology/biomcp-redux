@@ -3386,6 +3386,8 @@ Options:
       --label-section <label_section>
           Exact openFDA SPL fields.
           Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+          The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
+          A section the label lacks, or a name openFDA does not use, lists the sections the label has.
           Only with --source openfda-label.
 
       --offline[=<offline>]
@@ -3454,6 +3456,8 @@ Source ID or complete brand or generic name; WHO references retain source spaces
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
+A section the label lacks, or a name openFDA does not use, lists the sections the label has.
 Only with --source openfda-label. Value form: string; example: --label-section indications_and_usage.
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
