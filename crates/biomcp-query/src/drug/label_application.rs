@@ -3,8 +3,8 @@ use super::resolve::{carry, within};
 use crate::Action;
 use crate::{Ctx, Outcome, status};
 use biomcp_types::{
-    DrugGet, DrugSearch, DrugSection, DrugSource, ReplyData, Request, SourceState, StepKind,
-    UsageError,
+    DrugGet, DrugSearch, DrugSection, DrugSource, QueryInvalid, ReplyData, Request, Source,
+    SourceNotice, SourceState, StepKind, UsageError,
 };
 
 /// openFDA's largest page; a longer list pages on from the reply's next step.
@@ -42,11 +42,13 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         } if page.total == Some(1) => page.items.first().map(|label| label.id.clone()),
         _ => None,
     };
-    let Some(label) = label
-        .filter(|_| !found.dropped && found.sources.iter().all(|s| s.state == SourceState::Ok))
-    else {
-        if query.sections().contains(&DrugSection::Label) {
-            read_labels(&mut found);
+    let read = !found.dropped && found.sources.iter().all(|s| s.state == SourceState::Ok);
+    let none = matches!(&found.body, ReplyData::DrugPage { body: Some(page), .. } if page.total == Some(0));
+    let Some(label) = label.filter(|_| read) else {
+        if read && none {
+            no_label(cx, query, &mut found);
+        } else {
+            choices(queries, &mut found);
         }
         return vec![found];
     };
@@ -67,8 +69,17 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         .collect()
 }
 
-/// Each label offered to choose from is offered as a label read, since a label was asked for.
-fn read_labels(found: &mut Outcome) {
+/// Each label offered to choose from is offered as the read that was asked for: the same
+/// sections, label headings and section paging, of that one label.
+fn choices(queries: &[DrugGet], found: &mut Outcome) {
+    let Some(query) = queries.first() else {
+        return;
+    };
+    let headings: Vec<&str> = queries
+        .iter()
+        .filter_map(|query| query.label_section())
+        .map(|heading| heading.as_str())
+        .collect();
     for step in &mut found.next {
         if step.0 != StepKind::Disambiguate {
             continue;
@@ -78,11 +89,49 @@ fn read_labels(found: &mut Outcome) {
             ..
         } = &mut step.1
         {
-            // A label read of an SPL set the search just offered is always a valid request.
-            match get.for_section(DrugSection::Label) {
-                Ok(label) => *get = label,
+            // The search just offered this SPL set, so the same read of it is a valid request.
+            match asked(query, &headings, get) {
+                Ok(read) => *get = read,
                 Err(_) => continue,
             }
         }
+    }
+}
+
+fn asked(query: &DrugGet, headings: &[&str], label: &DrugGet) -> Result<DrugGet, QueryInvalid> {
+    let read = query.with_native_id(label.native_input()?)?;
+    match headings {
+        [_, _, ..] => read.for_label(
+            biodata::Text::new(&headings.join(","))
+                .map_err(|_| QueryInvalid::new(&["label_section"]))?,
+        ),
+        _ => Ok(read),
+    }
+}
+
+/// openFDA lists no label under the application: say so, and offer the application's
+/// Drugs@FDA approvals in place of a step that would repeat this read.
+fn no_label(cx: &Ctx<'_>, query: &DrugGet, found: &mut Outcome) {
+    status::item(found, false, false, false);
+    if let Some(source) = found.sources.first_mut() {
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: "openFDA lists no label under this application number.".into(),
+            retry_after_seconds: None,
+        });
+    }
+    found.next.clear();
+    let approvals = query
+        .native_input()
+        .and_then(|id| DrugGet::new(id, DrugSource::Drugsfda))
+        .and_then(|get| get.for_section(DrugSection::Approvals));
+    if let Some(approvals) = crate::next::checked(approvals, Source::Drugsfda, &mut found.problems)
+    {
+        found.next.push(crate::next::Step::run(
+            StepKind::Section,
+            &[Source::Drugsfda],
+            Request::GetDrug(approvals),
+            cx.fresh,
+        ));
     }
 }
