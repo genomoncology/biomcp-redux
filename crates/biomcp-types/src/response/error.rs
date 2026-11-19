@@ -81,6 +81,8 @@ singleton! {
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
  ArgumentCombination => "error.option is not accepted with the other options as given; valid_values names every option involved",
+ ArgumentSectionUnknown => "unknown section: error.option is not a section of this record; valid_values lists them",
+ ArgumentSectionNotId => "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; write an ID in capitals",
  FieldsUnknown => "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
  FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named \
  sections instead",
@@ -131,8 +133,7 @@ singleton! {
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
         AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
             reactions for native outcomes; the old hospitalization and disability mappings were wrong",
-        AdverseFrom => "renamed; use: --received-from",
-        AdverseTo => "renamed; use: --received-to",
+        AdverseFrom => "renamed; use: --received-from", AdverseTo => "renamed; use: --received-to",
         // Preserve the published error/1 literal; active guidance uses AdverseSeriousChoices.
         AdverseSeriousChoices => "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
         AdverseFilter => "this adverse-event filter is not supported",
@@ -236,8 +237,7 @@ singleton! {
         DiseaseOnset => "dropped; clinical-course fields are not an onset filter",
         DiseaseNoFallback => "retired; disease search never falls back or rewrites a zero result",
         DiseaseLimit => "use: --limit", OffsetPastText => "--offset is past the end of this text; valid_values gives its offsets in characters",
-        DiseaseJson => "use: --format json",
-        DiseaseFresh => "use: --fresh to bypass cached replies",
+        DiseaseJson => "use: --format json", DiseaseFresh => "use: --fresh to bypass cached replies",
         DiseaseOntologySelector => "use: search disease <TEXT> --source ols --ontology <mondo|doid|ncit>; mesh is not supported",
         DiseasePathways => "dropped; no disease-to-pathway gene fanout",
         DiseaseDiagnostics => "dropped; no disease diagnostic catalog fanout",
