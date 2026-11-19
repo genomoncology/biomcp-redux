@@ -405,3 +405,66 @@ fn every_command_help_page_says_each_generated_sentence_once() -> Check {
     );
     Ok(())
 }
+
+/// Every option that takes a value, given none in any spelling (long, one-letter, alias, or an
+/// empty inline value on a query option), says its value is missing and offers a next step (1064).
+#[test]
+fn every_value_option_given_no_value_says_so() -> Result<(), String> {
+    let root = super::root().map_err(|_| "grammar unavailable")?;
+    let mut failures = Vec::new();
+    for (verb, entity, _) in super::command_paths() {
+        let Some(command) = root
+            .find_subcommand(verb)
+            .and_then(|command| command.find_subcommand(entity))
+        else {
+            continue;
+        };
+        for argument in command.get_arguments() {
+            let takes = argument.get_action().takes_values()
+                && argument
+                    .get_num_args()
+                    .is_some_and(|range| range.min_values() > 0);
+            if !takes || argument.is_positional() {
+                continue;
+            }
+            let identity = argument
+                .get_long()
+                .map_or_else(|| argument.get_id().to_string(), |long| format!("--{long}"));
+            let mut flags = Vec::new();
+            super::context::spellings(command, &argument.to_string(), &mut flags);
+            // Global options keep their own parsers; every query option refuses an empty value.
+            let inline: Vec<String> = flags
+                .iter()
+                .filter(|_| !argument.is_global_set())
+                .map(|flag| format!("{flag}="))
+                .collect();
+            for flag in flags.iter().chain(&inline) {
+                let args = [verb, entity, flag.as_str()].map(std::ffi::OsString::from);
+                let outcome = super::parse(&root, &args);
+                let named = match &outcome {
+                    Err(super::ParseInvalid {
+                        usage: Some(biomcp_types::UsageError::Arguments(refusal)),
+                        ..
+                    }) => {
+                        // An empty inline value of an alias, such as --query= for the text
+                        // positional, is refused on the field the alias fills.
+                        (refusal.argument.as_deref() == Some(identity.as_str())
+                            || flag.ends_with('=') && refusal.argument.is_some())
+                            && refusal.message == Some(biomcp_types::ErrorMessage::ArgumentNoValue)
+                            && !refusal.next.is_empty()
+                    }
+                    _ => false,
+                };
+                if !named {
+                    let usage = outcome.err().map(|invalid| format!("{:?}", invalid.usage));
+                    failures.push(format!("{verb} {entity} {flag}: {usage:?}"));
+                }
+            }
+        }
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
+}

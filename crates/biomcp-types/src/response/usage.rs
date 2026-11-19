@@ -118,12 +118,15 @@ impl UsageError {
             next: Vec::new(),
         })
     }
-    /// Refuse a character offset past the end of a text.
-    pub fn offset_past_text() -> Self {
+    /// Refuse a character offset past the end of a text of `length` characters.
+    pub fn offset_past_text(length: usize) -> Self {
         Self::Arguments(UsageArguments {
             argument: Some("--offset".into()),
             message: Some(crate::ErrorMessage::OffsetPastText),
-            ..UsageArguments::default()
+            valid_values: crate::Text::new(&format!("integer >= 0 <= {length}"))
+                .ok()
+                .map(|bound| Box::from([bound])),
+            next: Vec::new(),
         })
     }
     /// Name a grammar-owned argument.

@@ -81,8 +81,8 @@ fn fetch(
                     sources: vec![own_source],
                 };
                 // A character offset is a text position, not a row, so past the text it is refused.
-                if !page::valid(query, &snapshot) {
-                    out.body = ReplyData::Usage(biomcp_types::UsageError::offset_past_text());
+                if let Some(length) = page::past_text(query, &snapshot) {
+                    out.body = ReplyData::Usage(biomcp_types::UsageError::offset_past_text(length));
                     return Ok(());
                 }
                 let pool = if query.sections().is_empty() {
@@ -257,8 +257,8 @@ fn restore(
     if snapshot.detail.card.nct_id != id {
         return Err(CacheError::Internal.into());
     }
-    if !page::valid(query, &snapshot) {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("--offset"));
+    if let Some(length) = page::past_text(query, &snapshot) {
+        out.body = ReplyData::Usage(biomcp_types::UsageError::offset_past_text(length));
         return Ok(());
     }
     let version = snapshot.version.clone();

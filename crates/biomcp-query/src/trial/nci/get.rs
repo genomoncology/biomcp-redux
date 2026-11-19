@@ -125,8 +125,8 @@ fn restore(
     if snapshot.detail.card.nct_id != id {
         return Err(CacheError::Internal.into());
     }
-    if !page::valid(q, &snapshot) {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("--offset"));
+    if let Some(length) = page::past_text(q, &snapshot) {
+        out.body = ReplyData::Usage(biomcp_types::UsageError::offset_past_text(length));
         return Ok(());
     }
     out.sources = snapshot.sources.clone();

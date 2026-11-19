@@ -115,7 +115,10 @@
       "is_error": true,
       "expect": {
         "/error/option": "--offset",
-        "/error/message": "--offset is past the end of this text, which it counts in characters from zero; use a smaller offset, or none to start at the beginning"
+        "/error/valid_values": [
+          "integer >= 0 <= 2063"
+        ],
+        "/error/message": "--offset is past the end of this text; valid_values gives the offsets it has, counted in characters from zero"
       }
     }
   ]

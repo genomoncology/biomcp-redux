@@ -14,7 +14,8 @@ use biomcp_types::{
 };
 
 /// A character offset must fall inside the text; a record offset past the end is an empty page.
-pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
+/// The text length an offset is past, when it is past the end of the eligibility text.
+pub(super) fn past_text(query: &TrialGet, snapshot: &Snapshot) -> Option<usize> {
     let d = &snapshot.detail;
     match query.sections().first() {
         Some(TrialSection::Eligibility) => {
@@ -23,9 +24,9 @@ pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
                 .as_ref()
                 .and_then(|e| e.criteria.as_ref())
                 .map_or(0, |s| s.as_str().chars().count());
-            query.offset() as usize <= total
+            (query.offset() as usize > total).then_some(total)
         }
-        _ => true,
+        _ => None,
     }
 }
 pub(super) fn render(

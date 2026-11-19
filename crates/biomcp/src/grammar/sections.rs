@@ -45,7 +45,7 @@ fn refusal(path: (&str, &str), schema: &Value, candidate: &Value) -> Option<supe
         argument: None,
         usage: Some(UsageError::Arguments(UsageArguments {
             argument: Some(argument.into()),
-            message: Some(ErrorMessage::ArgumentGuidance),
+            message: Some(ErrorMessage::ArgumentValue),
             valid_values: super::validation::accepted(schema, property),
             next,
         })),

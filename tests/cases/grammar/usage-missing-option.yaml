@@ -13,7 +13,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--source",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "required option missing: add error.option with a value valid_values accepts",
         "/error/valid_values/*": {
           "includes_all_of": [
             "openfda-label",
