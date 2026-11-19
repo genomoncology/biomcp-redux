@@ -1,6 +1,6 @@
 //! Embedded text of PDF bytes already in hand, bounded by pages and expanded size.
 use super::page::{Halt, too_large};
-use biomcp_types::{PdfTextState, Reason};
+use biomcp_types::{PdfMissing, PdfTextState, Reason};
 
 /// The text read from one PDF; `text` is empty unless `state` is text, so gibberish is never
 /// returned as text.
@@ -12,6 +12,8 @@ pub struct Embedded {
     pub state: PdfTextState,
     /// The whole embedded text, pages in order.
     pub text: String,
+    /// Why a partial read may miss text.
+    pub missing: Option<PdfMissing>,
 }
 
 /// Read every page's embedded text from `bytes`, refusing more than `max_pages` pages or
@@ -26,6 +28,7 @@ pub fn embedded(
         pages: None,
         state: PdfTextState::NoText,
         text: String::new(),
+        missing: None,
     };
     if !bytes.starts_with(b"%PDF-") {
         return Err(Reason::NotPdf);
@@ -38,17 +41,31 @@ pub fn embedded(
         }
     };
     check()?;
-    let document = lopdf::Document::load_mem_with_options(
-        bytes,
-        lopdf::LoadOptions::with_max_decompressed_size(limit),
-    )
-    .map_err(|issue| {
-        if too_large(&issue) {
-            Reason::TooLarge
-        } else {
-            Reason::BadReply
+    match super::scan::loadable(bytes) {
+        Ok(()) => {}
+        Err(super::scan::Refusal::TooLarge) => {
+            result.state = PdfTextState::TooLarge;
+            return Ok(result);
         }
-    })?;
+        Err(super::scan::Refusal::Irregular) => {
+            result.state = PdfTextState::Damaged;
+            return Ok(result);
+        }
+    }
+    let mut options =
+        lopdf::LoadOptions::with_max_decompressed_size(super::scan::LOAD_STREAM_BYTES);
+    options.strict = true;
+    let mut document = match lopdf::Document::load_mem_with_options(bytes, options) {
+        Ok(document) => document,
+        Err(issue) if too_large(&issue) => return Err(Reason::TooLarge),
+        Err(_) => {
+            // Loading is strict, so lopdf repairs nothing: a file it refuses is damaged.
+            result.state = PdfTextState::Damaged;
+            return Ok(result);
+        }
+    };
+    check()?;
+    super::cmap::bound(&mut document);
     check()?;
     let pages = document.get_pages();
     result.pages = Some(u32::try_from(pages.len()).unwrap_or(u32::MAX));
@@ -67,7 +84,10 @@ pub fn embedded(
                 result.state = PdfTextState::TooLarge;
                 return Ok(result);
             }
-            Err(Halt::Pdf(_)) => return Err(Reason::BadReply),
+            Err(Halt::Pdf(_)) => {
+                result.state = PdfTextState::Damaged;
+                return Ok(result);
+            }
         };
         if text.len().saturating_add(part.text.len()) > limit {
             result.state = PdfTextState::TooLarge;
@@ -91,8 +111,9 @@ fn settle(
     mut result: Embedded,
     mut text: String,
     unsound: &[(usize, usize)],
-    mut skipped: bool,
+    skipped: bool,
 ) -> Embedded {
+    let mut cut = false;
     // Only text shown in a composite font without a character map is judged; text read
     // through a map or a declared one-byte encoding is not, since tables, part numbers and
     // other languages are not gibberish. Gibberish is cut out and the rest is partial, unless
@@ -109,10 +130,16 @@ fn settle(
             return result;
         }
         text = kept;
-        skipped = true;
+        cut = true;
     }
     if !text.trim().is_empty() {
-        result.state = if skipped {
+        result.missing = match (cut, skipped) {
+            (true, true) => Some(PdfMissing::Both),
+            (true, false) => Some(PdfMissing::Gibberish),
+            (false, true) => Some(PdfMissing::Skipped),
+            (false, false) => None,
+        };
+        result.state = if result.missing.is_some() {
             PdfTextState::Partial
         } else {
             PdfTextState::Text

@@ -21,6 +21,7 @@ The design work for label change history (ticket 1066) ran BioMCP's reader over 
 
 - Starts from: the reader in `crates/` that reads FDA letters and device documents with `lopdf`; its `words.rs` is at 296 of 300 allowed lines and must be split first. The reader comparison numbers are in `sdlc/planning/label-section-change-history.md` on branch `ticket/1066-label-section-change-history`.
 - PM decision, 2026-11-19: fix BioMCP's own reader; add no new PDF library. A second library recovered the same seven documents and none of the garbled ones.
+- PM ruling, 2026-11-19: keep strict loading. A damaged PDF is refused, and the refusal must say the file is damaged (not too large, not garbled), so a caller knows to fetch it another way.
 - PM decision, 2026-11-19: the garbled check must be conservative in one direction: it may let odd text through, but it must never mark readable English text as garbled. Say how it decides and show its result on all 80 labels.
 
 ## Keeps

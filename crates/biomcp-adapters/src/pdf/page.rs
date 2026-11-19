@@ -4,7 +4,7 @@
 //! own content stream finds only the "Reference ID" footer: four Rinvoq labels did (1068).
 //! A form brings its own `/Resources` or uses those of the stream that paints it (PDF
 //! 32000-1 §8.10.1). Forms nest at most [`DEPTH`] deep, which also ends a form that paints
-//! itself; a page draws at most [`DRAWS`] forms; every content stream and character map counts
+//! itself; a page draws at most [`DRAWS`] forms; every content stream counts
 //! against one expanded-size limit; and the deadline is checked at each form draw and every
 //! [`CHECK_EVERY`] operations. A form that cannot be read is skipped and the page keeps the rest
 //! of its text, marked as possibly missing some.
@@ -81,7 +81,6 @@ pub(super) fn page<'a>(
     for (name, font) in document.get_page_fonts(page)? {
         fonts.insert(name, walk.font(font)?);
     }
-    let content = Content::decode(&bytes)?;
     let (own, inherited) = document.get_page_resources(page)?;
     let mut xobjects = XObjects::new();
     let inherited = inherited
@@ -94,7 +93,7 @@ pub(super) fn page<'a>(
             xobjects.entry(name).or_insert(object);
         }
     }
-    walk.stream(&content, &fonts, &xobjects, 0)?;
+    walk.stream(&bytes, &fonts, &xobjects, 0)?;
     let skipped = walk.skipped;
     let (text, unsound) = walk.reader.finish();
     Ok(PageText {
@@ -130,7 +129,24 @@ pub(super) const fn too_large(issue: &lopdf::Error) -> bool {
 }
 
 impl<'a> Walk<'a, '_> {
+    /// Walk a content stream one piece of whole operations at a time.
     fn stream(
+        &mut self,
+        bytes: &[u8],
+        fonts: &Fonts<'a>,
+        xobjects: &XObjects<'a>,
+        depth: usize,
+    ) -> Result<(), Halt> {
+        let (pieces, dropped) = super::chunks::pieces(bytes);
+        self.skipped |= dropped;
+        for piece in pieces {
+            let content = Content::decode(piece)?;
+            self.apply_all(&content, fonts, xobjects, depth)?;
+        }
+        Ok(())
+    }
+
+    fn apply_all(
         &mut self,
         content: &Content,
         fonts: &Fonts<'a>,
@@ -192,7 +208,6 @@ impl<'a> Walk<'a, '_> {
             form.content.clone()
         };
         self.charge(bytes.len())?;
-        let content = Content::decode(&bytes)?;
         let resources =
             entry(&form.dict, b"Resources").and_then(|value| dictionary(self.document, value));
         let own_fonts = match resources.map(|r| named(self.document, r, b"Font")) {
@@ -209,7 +224,7 @@ impl<'a> Walk<'a, '_> {
         self.reader.enter_form(matrix);
         let fonts = own_fonts.as_ref().unwrap_or(fonts);
         let xobjects = own_xobjects.as_ref().unwrap_or(xobjects);
-        let result = self.stream(&content, fonts, xobjects, depth + 1);
+        let result = self.stream(&bytes, fonts, xobjects, depth + 1);
         self.reader.leave_form();
         result
     }
@@ -223,12 +238,9 @@ impl<'a> Walk<'a, '_> {
         Ok(())
     }
 
-    /// A font from the document's cache, its character map charged against the limit.
+    /// A font from the document's cache.
     fn font(&mut self, font: &'a Dictionary) -> lopdf::Result<Rc<Font<'a>>> {
-        let before = self.cache.bytes;
-        let read = self.cache.font(self.document, font, self.left)?;
-        self.charge(self.cache.bytes.saturating_sub(before))?;
-        Ok(read)
+        self.cache.font(self.document, font, self.left)
     }
 
     fn fonts(&mut self, entries: &[(&'a [u8], &'a Object)]) -> lopdf::Result<Fonts<'a>> {

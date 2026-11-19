@@ -125,6 +125,18 @@ pub(crate) fn item(out: &mut Outcome, found: bool, identity_failed: bool, unavai
     );
 }
 
+/// Decide an item read from one PDF: partial when its text is unavailable or may miss some,
+/// with the reader's notice on the source that served it.
+pub(crate) fn pdf_item(out: &mut Outcome, source: Source, text: &biomcp_types::PdfText) {
+    let partial = text.state == biomcp_types::PdfTextState::Partial;
+    item(out, true, false, !text.state.readable() || partial);
+    if let Some(notice) = biomcp_adapters::pdf::missing_notice(text)
+        && let Some(outcome) = out.sources.iter_mut().find(|s| s.source == source)
+    {
+        outcome.notices.push(notice);
+    }
+}
+
 /// Combine the independently classified items in one get.
 pub(crate) fn get(out: &mut Outcome, items: impl Iterator<Item = Status>) {
     out.status = status(items);

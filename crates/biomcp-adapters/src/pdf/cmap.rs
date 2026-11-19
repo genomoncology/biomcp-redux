@@ -1,31 +1,42 @@
-//! Each font's decoding, read once per document, with bounded `/ToUnicode` maps.
+//! Each font's decoding, read once per document, and the bound on `/ToUnicode` maps.
 //!
 //! A page that draws a form many times would otherwise read the form's fonts at every draw.
 //! lopdf also builds a reverse table entry for every code a map covers, so one range over
-//! every four-byte code would take billions of steps. Before lopdf reads any map, this module
-//! counts the codes it covers; a map over [`MAP_CODES`], or past the document's
-//! [`DOCUMENT_CODES`] or [`MAP_BYTES`], is not read, and its font decodes as if it had none.
-//! A real FDA map covers at most 65,536 codes in about 6 KiB.
+//! every four-byte code would take billions of steps and gigabytes, inside lopdf where the
+//! time limit cannot stop it. Which maps lopdf reads depends on its own encoding rules, which
+//! two reviews got around (1068). So [`bound`] counts every `/ToUnicode` stream the loaded
+//! document names, whatever refers to it, before any page is read, and removes each map over
+//! [`MAP_CODES`] codes or not plainly written, and every map once the document's maps pass
+//! [`DOCUMENT_CODES`] codes or [`MAP_BYTES`] bytes. lopdf can then read only bounded maps. A
+//! font whose map was removed decodes as it would without one.
 //!
 //! lopdf parses a map's PostScript header strictly. One PDF writer puts `def` inside the
 //! `/CIDSystemInfo` dictionary, so lopdf drops the whole map and decodes each two-byte glyph ID
 //! of an `Identity-H` font as a Latin-1 byte: "7KHUH" for "There". Sixteen FDA labels and
 //! letters read so, and fifty more had such stretches (1069). The map's code ranges and
-//! mappings are well formed, so they are copied in order under a plain header, within the same
-//! bounds, and read again; the copy is used only if lopdf accepts it.
+//! mappings are well formed, so they are copied in order under a plain header and read again;
+//! the copy is used only if lopdf accepts it. It holds only sections [`bound`] already counted,
+//! so it covers no more codes than the map it copies.
 //!
 //! A composite font decoded without a character map gives glyph IDs, not characters. Its text
 //! is unsound, and only unsound text is judged for gibberish (1068).
 use super::fonts::{Widths, entry, widths};
-use lopdf::{Dictionary, Document, Encoding, Object, Stream};
-use std::{collections::BTreeMap, rc::Rc};
+use lopdf::{Dictionary, Document, Encoding, Object, ObjectId, Stream};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    rc::Rc,
+};
 
-/// Most codes one map may cover.
+/// Most codes one map may cover; the largest map in 164 FDA labels and letters read on
+/// 2026-11-19 covered 65,536.
 pub(super) const MAP_CODES: u64 = 1 << 17;
-/// Most codes the maps of one document may cover together.
+/// Most codes the maps of one document may cover together; lopdf keeps about 80 bytes for
+/// each. The most in one FDA document was 983,552.
 pub(super) const DOCUMENT_CODES: u64 = 1 << 21;
-/// Most bytes of maps one document may read.
-pub(super) const MAP_BYTES: usize = 1 << 20;
+/// Most bytes of maps one document may hold; the most in one FDA document was 1,402,222.
+pub(super) const MAP_BYTES: usize = 4 << 20;
+/// Deepest reference chain followed to a map.
+const CHAIN: usize = 8;
 /// The bfrange section, whose entries span codes.
 const RANGES: (&str, &str) = ("beginbfrange", "endbfrange");
 const CHARS: (&str, &str) = ("beginbfchar", "endbfchar");
@@ -34,6 +45,63 @@ const KEPT: [(&str, &str); 3] = [("begincodespacerange", "endcodespacerange"), C
 const HEADER: &str =
     "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /Rebuilt def\n";
 const FOOTER: &str = "endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n";
+
+/// Remove every `/ToUnicode` map over the bounds from `document`; how many were removed.
+pub(super) fn bound(document: &mut Document) -> usize {
+    let mut maps = BTreeSet::new();
+    let mut pending: Vec<&Object> = document.objects.values().collect();
+    while let Some(object) = pending.pop() {
+        match object {
+            Object::Dictionary(dictionary) => named(dictionary, document, &mut maps, &mut pending),
+            Object::Stream(stream) => named(&stream.dict, document, &mut maps, &mut pending),
+            Object::Array(items) => pending.extend(items.iter()),
+            _ => {}
+        }
+    }
+    let (mut codes, mut bytes, mut removed) = (0u64, 0usize, 0usize);
+    for id in maps {
+        let Some(Object::Stream(stream)) = document.objects.get(&id) else {
+            continue;
+        };
+        let size = stream
+            .get_plain_content_with_limit(MAP_BYTES)
+            .map(|raw| (raw.len(), covered(&String::from_utf8_lossy(&raw))));
+        let kept = size.is_ok_and(|(length, count)| {
+            let count = count.unwrap_or(u64::MAX);
+            codes = codes.saturating_add(count);
+            bytes = bytes.saturating_add(length);
+            count <= MAP_CODES && codes <= DOCUMENT_CODES && bytes <= MAP_BYTES
+        });
+        if !kept {
+            document.objects.insert(id, Object::Null);
+            removed += 1;
+        }
+    }
+    removed
+}
+
+/// Note the stream `dictionary`'s `/ToUnicode` names, and queue its values to search.
+fn named<'d>(
+    dictionary: &'d Dictionary,
+    document: &Document,
+    maps: &mut BTreeSet<ObjectId>,
+    pending: &mut Vec<&'d Object>,
+) {
+    for (key, value) in dictionary.iter() {
+        if key.as_slice() == b"ToUnicode" {
+            let mut target = value;
+            for _ in 0..CHAIN {
+                let Object::Reference(id) = target else { break };
+                maps.insert(*id);
+                match document.objects.get(id) {
+                    Some(next) => target = next,
+                    None => break,
+                }
+            }
+        }
+        pending.push(value);
+    }
+}
 
 /// A font's decoding, glyph widths, and whether its decoding gives characters.
 pub(super) struct Font<'a> {
@@ -47,9 +115,6 @@ pub(super) struct Font<'a> {
 #[derive(Default)]
 pub(super) struct Cache<'a> {
     fonts: BTreeMap<usize, Rc<Font<'a>>>,
-    /// Map bytes read so far.
-    pub(super) bytes: usize,
-    codes: u64,
 }
 
 impl<'a> Cache<'a> {
@@ -65,7 +130,12 @@ impl<'a> Cache<'a> {
             return Ok(Rc::clone(known));
         }
         let composite = matches!(font.get(b"Subtype"), Ok(Object::Name(name)) if name == b"Type0");
-        let encoding = self.encoding(document, font, limit)?;
+        // [`bound`] already removed every map over the bounds.
+        let encoding = font.get_font_encoding_with_limit(document, limit)?;
+        let encoding = match encoding {
+            Encoding::UnicodeMapEncoding(_) => encoding,
+            refused => rebuild(document, font, limit)?.unwrap_or(refused),
+        };
         // lopdf falls back to a one-byte table, and a withheld map to WinAnsi.
         let fallback = matches!(
             encoding,
@@ -79,74 +149,25 @@ impl<'a> Cache<'a> {
         self.fonts.insert(key, Rc::clone(&read));
         Ok(read)
     }
-
-    /// The encoding lopdf gives, unless the character map it would read is over a bound.
-    fn encoding(
-        &mut self,
-        document: &'a Document,
-        font: &'a Dictionary,
-        limit: usize,
-    ) -> lopdf::Result<Encoding<'a>> {
-        let named = match entry(font, b"Encoding") {
-            Some(Object::Name(name)) => Some(name.as_slice()),
-            Some(_) => Some(&b""[..]),
-            None => None,
-        };
-        let identity = named.is_some_and(|name| name.starts_with(b"Identity-"));
-        let map = font
-            .get_deref(b"ToUnicode", document)
-            .and_then(Object::as_stream);
-        // lopdf reads the map only for an Identity font or one without an encoding.
-        let (Ok(map), true) = (map, named.is_none() || identity) else {
-            return font.get_font_encoding_with_limit(document, limit);
-        };
-        let raw = map.get_plain_content_with_limit(limit.min(MAP_BYTES))?;
-        let codes = covered(&String::from_utf8_lossy(&raw));
-        self.bytes = self.bytes.saturating_add(raw.len());
-        self.codes = self.codes.saturating_add(codes);
-        if codes > MAP_CODES || self.codes > DOCUMENT_CODES || self.bytes > MAP_BYTES {
-            return Ok(Encoding::SimpleEncoding(b"WinAnsiEncoding"));
-        }
-        let encoding = font.get_font_encoding_with_limit(document, limit)?;
-        if !identity || matches!(encoding, Encoding::UnicodeMapEncoding(_)) {
-            return Ok(encoding);
-        }
-        let Some(text) = rebuilt(&String::from_utf8_lossy(&raw)) else {
-            return Ok(encoding);
-        };
-        self.bytes = self.bytes.saturating_add(text.len());
-        if self.bytes > MAP_BYTES {
-            return Ok(encoding);
-        }
-        let mut copy = font.clone();
-        copy.set(
-            "ToUnicode",
-            Object::Stream(Stream::new(Dictionary::new(), text.into_bytes())),
-        );
-        match copy.get_font_encoding_with_limit(document, limit)? {
-            Encoding::UnicodeMapEncoding(map) => Ok(Encoding::UnicodeMapEncoding(map)),
-            _ => Ok(encoding),
-        }
-    }
 }
 
 /// How many codes a map's sections cover: each bfchar entry once, each bfrange every code it
-/// spans. One pass.
-pub(super) fn covered(text: &str) -> u64 {
+/// spans; none when a section is not regular, so it is never read. One pass.
+pub(super) fn covered(text: &str) -> Option<u64> {
     let mut codes = 0u64;
     for (section, ranges) in [(CHARS, false), (RANGES, true)] {
         let mut rest = text;
         while let Some(at) = rest.find(section.0) {
             let body = &rest[at + section.0.len()..];
             let end = body.find(section.1).unwrap_or(body.len());
-            codes = codes.saturating_add(entries(&body[..end], ranges));
+            codes = codes.saturating_add(entries(&body[..end], ranges)?);
             rest = &body[end..];
         }
     }
-    codes
+    Some(codes)
 }
 
-fn entries(body: &str, ranges: bool) -> u64 {
+fn entries(body: &str, ranges: bool) -> Option<u64> {
     let mut values = Vec::new();
     let mut array = false;
     for token in body.split(['<', '>']).map(str::trim) {
@@ -159,16 +180,19 @@ fn entries(body: &str, ranges: bool) -> u64 {
             values.push(hex(token));
         }
     }
-    if !ranges {
-        return values.len() as u64 / 2;
+    let width = if ranges { 3 } else { 2 };
+    if !values.len().is_multiple_of(width) {
+        return None;
     }
-    values
-        .chunks(3)
-        .map(|entry| match entry {
-            [Some(low), Some(high), _] => high.saturating_sub(*low).saturating_add(1),
-            _ => 0,
-        })
-        .fold(0u64, u64::saturating_add)
+    let mut codes = 0u64;
+    for entry in values.chunks(width) {
+        codes = codes.saturating_add(match entry {
+            [Some(low), Some(high), _] => high.checked_sub(*low)?.saturating_add(1),
+            [Some(_), _] => 1,
+            _ => return None,
+        });
+    }
+    Some(codes)
 }
 
 /// A hexadecimal code, whitespace ignored; none when a character is not a hex digit.
@@ -183,6 +207,36 @@ fn hex(token: &str) -> Option<u64> {
                     .saturating_add(u64::from(c.to_digit(16)?)),
             )
         })
+}
+
+/// The decoding of an Identity font whose map lopdf refused, read again from the map's own
+/// sections under a plain header; none when there is no such map or lopdf refuses the copy.
+fn rebuild<'a>(
+    document: &'a Document,
+    font: &'a Dictionary,
+    limit: usize,
+) -> lopdf::Result<Option<Encoding<'a>>> {
+    let identity = matches!(entry(font, b"Encoding"), Some(Object::Name(name)) if name.starts_with(b"Identity-"));
+    let map = match entry(font, b"ToUnicode") {
+        Some(Object::Reference(id)) if identity => document.objects.get(id),
+        _ => None,
+    };
+    let Some(Object::Stream(map)) = map else {
+        return Ok(None);
+    };
+    let raw = map.get_plain_content_with_limit(limit.min(MAP_BYTES))?;
+    let Some(text) = rebuilt(&String::from_utf8_lossy(&raw)) else {
+        return Ok(None);
+    };
+    let mut copy = font.clone();
+    copy.set(
+        "ToUnicode",
+        Object::Stream(Stream::new(Dictionary::new(), text.into_bytes())),
+    );
+    Ok(match copy.get_font_encoding_with_limit(document, limit)? {
+        Encoding::UnicodeMapEncoding(map) => Some(Encoding::UnicodeMapEncoding(map)),
+        _ => None,
+    })
 }
 
 /// The map's code-space, bfchar and bfrange sections, in their order, under a header lopdf

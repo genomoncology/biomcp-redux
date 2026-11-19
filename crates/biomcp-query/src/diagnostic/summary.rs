@@ -40,16 +40,14 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
             });
     let error = match result {
         Ok((document, Some((find, text)))) => {
-            let unavailable = !document.state.readable();
-            status::item(&mut out, true, false, unavailable);
+            status::pdf_item(&mut out, q.source().source(), &document);
             let body = found(cx, q, document, find.as_str(), &text, &mut out);
             out.body = body;
             None
         }
         Ok((document, None)) => {
             let returned = u32::from(document.text.is_some());
-            let unavailable = !document.state.readable();
-            status::item(&mut out, true, false, unavailable);
+            status::pdf_item(&mut out, q.source().source(), &document);
             out.page = Some(PageInfo {
                 offset: q.section_offset(),
                 returned,

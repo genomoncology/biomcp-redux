@@ -4506,7 +4506,8 @@
         "no-text",
         "too-large",
         "garbled",
-        "partial"
+        "partial",
+        "damaged"
       ],
       "type": "string"
     },
