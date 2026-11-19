@@ -9,7 +9,7 @@
 //!
 //! A composite font decoded without a character map gives glyph IDs, not characters. Its text
 //! is unsound, and only unsound text is judged for gibberish (1068).
-use super::fonts::{Widths, widths};
+use super::fonts::{Widths, entry, widths};
 use lopdf::{Dictionary, Document, Encoding, Object};
 use std::{collections::BTreeMap, rc::Rc};
 
@@ -75,10 +75,10 @@ impl<'a> Cache<'a> {
         font: &'a Dictionary,
         limit: usize,
     ) -> lopdf::Result<Encoding<'a>> {
-        let named = match font.get(b"Encoding") {
-            Ok(Object::Name(name)) => Some(name.as_slice()),
-            Ok(_) => Some(&b""[..]),
-            Err(_) => None,
+        let named = match entry(font, b"Encoding") {
+            Some(Object::Name(name)) => Some(name.as_slice()),
+            Some(_) => Some(&b""[..]),
+            None => None,
         };
         let identity = named.is_some_and(|name| name.starts_with(b"Identity-"));
         let map = font
@@ -125,7 +125,7 @@ fn entries(body: &str, ranges: bool) -> u64 {
         } else if token.contains(']') {
             array = false;
         } else if !token.is_empty() && !array {
-            values.push(u64::from_str_radix(&token.replace(char::is_whitespace, ""), 16).ok());
+            values.push(hex(token));
         }
     }
     if !ranges {
@@ -138,4 +138,18 @@ fn entries(body: &str, ranges: bool) -> u64 {
             _ => 0,
         })
         .fold(0u64, u64::saturating_add)
+}
+
+/// A hexadecimal code, whitespace ignored; none when a character is not a hex digit.
+fn hex(token: &str) -> Option<u64> {
+    token
+        .chars()
+        .filter(|c| !c.is_whitespace())
+        .try_fold(0u64, |value, c| {
+            Some(
+                value
+                    .saturating_mul(16)
+                    .saturating_add(u64::from(c.to_digit(16)?)),
+            )
+        })
 }

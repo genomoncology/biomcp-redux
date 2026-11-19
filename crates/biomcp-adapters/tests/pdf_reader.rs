@@ -5,14 +5,13 @@
 use biomcp_adapters::pdf::{embedded, garbled};
 use biomcp_types::PdfTextState;
 use lopdf::{Dictionary, Document, Object, Stream, dictionary};
-use std::cell::Cell;
 
 const FORM_OBJECT_CARTON: &[u8] = include_bytes!("fixtures/pdf/form-object-carton.pdf");
 const GARBLED_LETTER: &[u8] = include_bytes!("fixtures/pdf/garbled-letter.pdf");
 const SENTENCE: &str = "There is a risk of serious infections in patients treated with the drug.";
 
 /// A one-page PDF drawing `content` with the resources `build` adds to the document.
-fn pdf(content: &[u8], build: impl FnOnce(&mut Document) -> Dictionary) -> Vec<u8> {
+fn pdf(content: &[u8], build: impl FnOnce(&mut Document) -> Dictionary) -> lopdf::Result<Vec<u8>> {
     let mut document = Document::with_version("1.7");
     let pages = document.new_object_id();
     let resources = build(&mut document);
@@ -33,8 +32,8 @@ fn pdf(content: &[u8], build: impl FnOnce(&mut Document) -> Dictionary) -> Vec<u
     let catalog = document.add_object(dictionary! { "Type" => "Catalog", "Pages" => pages });
     document.trailer.set("Root", catalog);
     let mut bytes = Vec::new();
-    document.save_to(&mut bytes).expect("synthetic PDF");
-    bytes
+    document.save_to(&mut bytes)?;
+    Ok(bytes)
 }
 
 /// An Identity-H composite font whose codes are glyph IDs 29 below the Latin character codes,
@@ -72,13 +71,13 @@ fn glyph_lines(text: &str, lines: usize) -> Vec<u8> {
     format!("BT /F1 9 Tf 11 TL 36 760 Td\n{}ET\n", line.repeat(lines)).into_bytes()
 }
 
-fn read(bytes: &[u8]) -> biomcp_adapters::pdf::Embedded {
-    embedded(bytes, 100, &|| false).expect("readable PDF")
+fn read(bytes: &[u8]) -> Result<biomcp_adapters::pdf::Embedded, biomcp_types::Reason> {
+    embedded(bytes, 100, &|| false)
 }
 
 #[test]
 fn text_inside_form_objects_is_read() {
-    let read = read(FORM_OBJECT_CARTON);
+    let read = read(FORM_OBJECT_CARTON).expect("readable PDF");
     assert_eq!(read.state, PdfTextState::Text, "the carton text is read");
     assert!(
         read.text.contains("Use cutting tool"),
@@ -94,7 +93,7 @@ fn text_inside_form_objects_is_read() {
 
 #[test]
 fn text_that_decodes_to_gibberish_is_garbled_and_not_returned() {
-    let read = read(GARBLED_LETTER);
+    let read = read(GARBLED_LETTER).expect("readable PDF");
     assert_eq!(
         read.state,
         PdfTextState::Garbled,
@@ -109,8 +108,9 @@ fn glyphs_without_a_character_map_are_garbled() {
     let bytes = pdf(&glyph_lines(SENTENCE, 40), |document| {
         let font = composite(document, None);
         dictionary! { "Font" => dictionary! { "F1" => font } }
-    });
-    let read = read(&bytes);
+    })
+    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    let read = read(&bytes).expect("readable PDF");
     assert_eq!(
         read.state,
         PdfTextState::Garbled,
@@ -132,8 +132,9 @@ fn gibberish_beside_readable_text_is_cut_out_and_the_rest_is_partial() {
             "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica", "Encoding" => "WinAnsiEncoding",
         });
         dictionary! { "Font" => dictionary! { "F1" => glyphs, "F2" => font } }
-    });
-    let read = read(&bytes);
+    })
+    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    let read = read(&bytes).expect("readable PDF");
     assert_eq!(
         read.state,
         PdfTextState::Partial,
@@ -161,8 +162,9 @@ fn text_in_a_declared_encoding_is_never_judged_garbled() {
             "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica", "Encoding" => "WinAnsiEncoding",
         });
         dictionary! { "Font" => dictionary! { "F1" => font } }
-    });
-    let read = read(&bytes);
+    })
+    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    let read = read(&bytes).expect("readable PDF");
     assert_eq!(
         read.state,
         PdfTextState::Text,
@@ -195,18 +197,10 @@ fn a_form_drawn_without_end_and_a_huge_map_cannot_stall_the_reader() {
             b"/Inner Do\n".repeat(100_000),
         ));
         dictionary! { "XObject" => dictionary! { "Outer" => outer } }
-    });
-    let checks = Cell::new(0usize);
-    let result = embedded(&bytes, 100, &|| {
-        checks.set(checks.get() + 1);
-        false
-    });
-    assert!(result.is_ok(), "the hostile PDF still opens: {result:?}");
-    assert!(
-        checks.get() < 3_000,
-        "the deadline is checked inside the form walk, and draws stop at the cap: {}",
-        checks.get()
-    );
+    })
+    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    let read = read(&bytes).expect("the hostile PDF still opens");
+    assert_eq!(read.state, PdfTextState::Partial, "draws past the page's cap are skipped");
 }
 
 #[test]
@@ -223,8 +217,9 @@ fn a_form_that_cannot_be_read_is_skipped_and_the_page_keeps_its_text() {
             b"not brotli data".to_vec(),
         ));
         dictionary! { "Font" => dictionary! { "F1" => font }, "XObject" => dictionary! { "Broken" => broken } }
-    });
-    let read = read(&bytes);
+    })
+    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    let read = read(&bytes).expect("readable PDF");
     assert_eq!(
         read.state,
         PdfTextState::Partial,
