@@ -1,162 +1,190 @@
-//! Bounds on what lopdf expands while it loads a document, checked on the raw bytes first.
+//! What lopdf builds while it loads a document, measured on the raw bytes before it loads.
 //!
-//! lopdf decompresses every object stream and cross-reference stream while loading, each
-//! against [`LOAD_STREAM_BYTES`], and keeps every object they hold, but sets no bound on how
-//! many there are, and the time limit cannot interrupt the load. Before loading, each such
-//! stream is found in the raw bytes and expanded here: a plain Flate stream counts what it
-//! expands to, and any other filter counts [`LOAD_STREAM_BYTES`]. A document whose streams
-//! expand past [`LOAD_BYTES`] together, or that names more than [`OBJECT_STREAMS`] object
-//! streams or [`XREF_STREAMS`] cross-reference streams, is refused. Names are read with their
-//! `#xx` escapes decoded, as lopdf reads them, so an escaped `/Obj#53tm` still counts.
-//! Over 223 FDA labels and letters read on 2026-11-19 the most were 390 object streams, 5
-//! cross-reference streams, 186,751 bytes in one object stream and 3,807,424 in all.
+//! lopdf parses every object the cross-reference sections list, at the offset listed, and
+//! expands every object stream with every object its index lists, keeping them all; nothing
+//! interrupts a load. It does not check that entries point at distinct objects: 200 entries at
+//! one 4 MB array took 17 s and 50 GB, and an object stream whose index lists one array 100
+//! times took 3 GB from 1,271 bytes (1068). So before loading, [`loadable`] reads every section
+//! (see [`super::xref`]) and measures every object listed: each must end before the next listed
+//! offset, a stream's data must run exactly its `/Length`, and an object stream's index must
+//! list its objects in order, each ending before the next. Then each byte is parsed once, and
+//! the document is refused when it holds more than [`OBJECTS`] objects, counting those inside
+//! arrays and dictionaries, or its object and cross-reference streams expand past
+//! [`LOAD_BYTES`] together. The load is strict, so lopdf repairs nothing: a repair reads
+//! offsets not measured here. All 164 FDA labels and letters read on 2026-11-19 load strictly
+//! as they load leniently, and the most objects any held was 1,523,047.
+
+use super::lexer::{header, integer, measure, skip_space};
+use super::xref::{Table, payload, small_dictionary};
+use lopdf::{Dictionary, Object, Stream};
 
 /// Most bytes one object or cross-reference stream may expand to while loading.
 pub(super) const LOAD_STREAM_BYTES: usize = 1 << 20;
-/// Most object streams a document may name.
-pub(super) const OBJECT_STREAMS: usize = 1024;
-/// Most cross-reference streams a document may name.
-pub(super) const XREF_STREAMS: usize = 32;
 /// Most bytes all object and cross-reference streams may expand to together.
 pub(super) const LOAD_BYTES: usize = 16 << 20;
-/// Most bytes between a stream's type and its `stream` keyword.
-const DICTIONARY: usize = 4096;
-/// Filters other than Flate, whose streams count as [`LOAD_STREAM_BYTES`].
-const OTHER_FILTERS: [&[u8]; 7] = [
-    b"LZWDecode",
-    b"RunLengthDecode",
-    b"ASCII85Decode",
-    b"ASCIIHexDecode",
-    b"BrotliDecode",
-    b"CCITTFaxDecode",
-    b"Crypt",
-];
+/// Most objects a document may hold, those inside arrays and dictionaries included; lopdf
+/// keeps about 120 bytes for each.
+pub(super) const OBJECTS: usize = 4 << 20;
+/// Longest object a stream's `/Length` may refer to.
+const LENGTH_OBJECT: usize = 64;
 
-/// Whether the streams lopdf expands at load stay within the bounds.
-pub(super) fn loadable(bytes: &[u8]) -> bool {
-    let (mut objects, mut xrefs, mut expanded) = (0usize, 0usize, 0usize);
-    // Whether the current object names another filter, how far objects were sought, and how
-    // far streams were measured, so each byte is searched about once.
-    let (mut other, mut sought, mut measured) = (false, 0usize, 0usize);
-    let mut at = 0;
-    while let Some(slash) = find(bytes, at, b"/") {
-        let start = slash + 1;
-        let end = bytes
-            .get(start..)
-            .and_then(|rest| rest.iter().position(|b| delimiter(*b)))
-            .map_or(bytes.len(), |length| start + length);
-        while let Some(begun) = find(bytes.get(..slash).unwrap_or_default(), sought, b" obj") {
-            other = false;
-            sought = begun + 1;
-        }
-        sought = sought.max(slash.saturating_sub(3));
-        let name = decoded(bytes.get(start..end).unwrap_or_default());
-        other |= OTHER_FILTERS.contains(&name.as_slice());
-        let stream = match name.as_slice() {
-            b"ObjStm" => {
-                objects += 1;
-                true
-            }
-            b"XRef" => {
-                xrefs += 1;
-                true
-            }
-            _ => false,
-        };
-        if stream && end >= measured {
-            let left = LOAD_BYTES.saturating_sub(expanded);
-            let (size, until) = size(bytes, end, left);
-            expanded = expanded.saturating_add(if other { LOAD_STREAM_BYTES } else { size });
-            measured = until;
-        }
-        if objects > OBJECT_STREAMS || xrefs > XREF_STREAMS || expanded > LOAD_BYTES {
-            return false;
-        }
-        at = end.max(start);
-    }
-    true
+/// Why a document is not loaded.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) enum Refusal {
+    /// It holds more than the bounds allow.
+    TooLarge,
+    /// Its objects overlap or its sections do not read, so lopdf's work cannot be measured.
+    Irregular,
 }
 
-/// The first `needle` in `bytes` at or after `from`.
-fn find(bytes: &[u8], from: usize, needle: &[u8]) -> Option<usize> {
-    bytes
-        .get(from..)?
-        .windows(needle.len())
-        .position(|window| window == needle)
-        .map(|at| from + at)
-}
-
-/// What the stream after `from` expands to as Flate, up to `left` bytes, and where it ends; a
-/// stream that does not inflate, or whose keyword is not within [`DICTIONARY`] bytes, counts
-/// [`LOAD_STREAM_BYTES`].
-fn size(bytes: &[u8], from: usize, left: usize) -> (usize, usize) {
-    let window = bytes
-        .get(..from.saturating_add(DICTIONARY).min(bytes.len()))
-        .unwrap_or_default();
-    let Some(keyword) = find(window, from, b"stream") else {
-        return (LOAD_STREAM_BYTES, from);
+/// Whether lopdf may load `bytes` within the bounds.
+pub(super) fn loadable(bytes: &[u8]) -> Result<(), Refusal> {
+    let table = super::xref::read(bytes, LOAD_STREAM_BYTES).ok_or(Refusal::Irregular)?;
+    let mut listed: Vec<(usize, u64)> = table.entries.iter().map(|(n, at)| (*at, *n)).collect();
+    listed.sort_unstable();
+    listed.dedup();
+    let mut measured = Measured {
+        objects: listed.len(),
+        expanded: table.expanded,
     };
-    let mut start = keyword + b"stream".len();
-    start += usize::from(bytes.get(start) == Some(&b'\r'));
-    start += usize::from(bytes.get(start) == Some(&b'\n'));
-    let end = find(bytes, start, b"endstream").unwrap_or(bytes.len());
-    let content = bytes.get(start..end).unwrap_or_default().to_vec();
-    let stream = lopdf::Stream::new(lopdf::dictionary! { "Filter" => "FlateDecode" }, content);
-    let size = match stream.decompressed_content_with_limit(left.min(LOAD_STREAM_BYTES)) {
-        Ok(expanded) if !expanded.is_empty() => expanded.len(),
-        _ => LOAD_STREAM_BYTES,
-    };
-    (size, end)
-}
-
-/// PDF 32000-1 §7.2.2: whitespace and delimiters end a name.
-const fn delimiter(byte: u8) -> bool {
-    matches!(
-        byte,
-        b'\0'
-            | b'\t'
-            | b'\n'
-            | b'\x0c'
-            | b'\r'
-            | b' '
-            | b'('
-            | b')'
-            | b'<'
-            | b'>'
-            | b'['
-            | b']'
-            | b'{'
-            | b'}'
-            | b'/'
-            | b'%'
-    )
-}
-
-/// A name's bytes with each `#xx` escape decoded (PDF 32000-1 §7.3.5).
-fn decoded(name: &[u8]) -> Vec<u8> {
-    let mut out = Vec::with_capacity(name.len());
-    let mut index = 0;
-    while let Some(byte) = name.get(index) {
-        let digit = |at: usize| name.get(at).copied().and_then(hex);
-        let escape = (*byte == b'#')
-            .then(|| Some(digit(index + 1)? * 16 + digit(index + 2)?))
-            .flatten();
-        if let Some(value) = escape {
-            out.push(value);
-            index += 3;
-        } else {
-            out.push(*byte);
-            index += 1;
+    for (index, (offset, _)) in listed.iter().enumerate() {
+        let next = listed.get(index + 1).map_or(bytes.len(), |(at, _)| *at);
+        let end = indirect(bytes, *offset, &table, &mut measured)?;
+        if end > next {
+            return Err(Refusal::Irregular);
+        }
+        if measured.objects > OBJECTS || measured.expanded > LOAD_BYTES {
+            return Err(Refusal::TooLarge);
         }
     }
-    out
+    Ok(())
 }
 
-const fn hex(byte: u8) -> Option<u8> {
-    match byte {
-        b'0'..=b'9' => Some(byte - b'0'),
-        b'a'..=b'f' => Some(byte - b'a' + 10),
-        b'A'..=b'F' => Some(byte - b'A' + 10),
-        _ => None,
+/// What the objects measured so far hold.
+struct Measured {
+    objects: usize,
+    expanded: usize,
+}
+
+/// Where the indirect object at `offset` ends, its stream data and object stream included.
+fn indirect(
+    bytes: &[u8],
+    offset: usize,
+    table: &Table,
+    measured: &mut Measured,
+) -> Result<usize, Refusal> {
+    let (_, body) = header(bytes, offset).ok_or(Refusal::Irregular)?;
+    let (end, count) = measure(bytes, body).ok_or(Refusal::Irregular)?;
+    measured.objects = measured.objects.saturating_add(count);
+    let starts_dictionary = bytes
+        .get(skip_space(bytes, body)..)
+        .is_some_and(|rest| rest.starts_with(b"<<"));
+    let Some(data) = payload(bytes, end).filter(|_| starts_dictionary) else {
+        return Ok(end);
+    };
+    let (dictionary, _) = small_dictionary(bytes, body).ok_or(Refusal::Irregular)?;
+    let length = length(bytes, &dictionary, table).ok_or(Refusal::Irregular)?;
+    let data_end = data.checked_add(length).ok_or(Refusal::Irregular)?;
+    let mut after = data_end;
+    match bytes.get(after..).unwrap_or_default() {
+        [b'\r', b'\n', ..] => after += 2,
+        [b'\n' | b'\r', ..] => after += 1,
+        _ => {}
     }
+    if !bytes.get(after..).unwrap_or_default().starts_with(b"endstream") {
+        return Err(Refusal::Irregular);
+    }
+    if dictionary.has_type(b"ObjStm") {
+        let raw = bytes.get(data..data_end).ok_or(Refusal::Irregular)?;
+        object_stream(dictionary, raw.to_vec(), measured)?;
+    }
+    Ok(after + b"endstream".len())
+}
+
+/// A stream's `/Length`, direct or held in a short integer object.
+fn length(bytes: &[u8], dictionary: &Dictionary, table: &Table) -> Option<usize> {
+    let number = match dictionary.get(b"Length").ok()? {
+        Object::Integer(length) => return usize::try_from(*length).ok(),
+        Object::Reference((number, _)) => u64::from(*number),
+        _ => return None,
+    };
+    let mut values = table
+        .entries
+        .iter()
+        .filter(|(listed, _)| *listed == number)
+        .map(|(_, offset)| {
+            let (_, body) = header(bytes, *offset)?;
+            let at = skip_space(bytes, body);
+            let (value, end) = integer(bytes, at)?;
+            (end - at <= LENGTH_OBJECT).then_some(value)
+        });
+    let first = values.next()??;
+    values
+        .all(|value| value == Some(first))
+        .then(|| usize::try_from(first).ok())?
+}
+
+/// Check an object stream's index and count its objects (PDF 32000-1 §7.5.7).
+fn object_stream(dictionary: Dictionary, raw: Vec<u8>, measured: &mut Measured) -> Result<(), Refusal> {
+    let first = dictionary
+        .get(b"First")
+        .and_then(Object::as_i64)
+        .ok()
+        .and_then(|first| usize::try_from(first).ok())
+        .ok_or(Refusal::Irregular)?;
+    let content = Stream::new(dictionary, raw)
+        .decompressed_content_with_limit(LOAD_STREAM_BYTES)
+        .map_err(|issue| {
+            if super::page::too_large(&issue) {
+                Refusal::TooLarge
+            } else {
+                Refusal::Irregular
+            }
+        })?;
+    measured.expanded = measured.expanded.saturating_add(content.len());
+    let index = content.get(..first).ok_or(Refusal::Irregular)?;
+    let mut starts = Vec::new();
+    let (mut at, mut previous) = (skip_space(index, 0), None);
+    while at < index.len() {
+        let (_, next) = integer(index, at).ok_or(Refusal::Irregular)?;
+        let (offset, next) = integer(index, skip_space(index, next)).ok_or(Refusal::Irregular)?;
+        let offset = usize::try_from(offset).map_err(|_| Refusal::Irregular)?;
+        if previous.is_some_and(|previous| offset <= previous) {
+            return Err(Refusal::Irregular);
+        }
+        previous = Some(offset);
+        starts.push(first.checked_add(offset).ok_or(Refusal::Irregular)?);
+        at = skip_space(index, next);
+    }
+    measured.objects = measured.objects.saturating_add(starts.len());
+    for (index, start) in starts.iter().enumerate() {
+        let next = starts.get(index + 1).copied().unwrap_or(content.len());
+        let (end, count) = measure(&content, *start).ok_or(Refusal::Irregular)?;
+        if end > next {
+            return Err(Refusal::Irregular);
+        }
+        measured.objects = measured.objects.saturating_add(count);
+    }
+    Ok(())
+}
+
+/// Throwaway (1068): what a document holds, for sizing the bounds on the corpus.
+#[doc(hidden)]
+pub fn measured(bytes: &[u8]) -> String {
+    let Some(table) = super::xref::read(bytes, LOAD_STREAM_BYTES) else {
+        return "xref unread".to_owned();
+    };
+    let mut listed: Vec<(usize, u64)> = table.entries.iter().map(|(n, at)| (*at, *n)).collect();
+    listed.sort_unstable();
+    listed.dedup();
+    let mut measured = Measured { objects: listed.len(), expanded: table.expanded };
+    for (index, (offset, _)) in listed.iter().enumerate() {
+        let next = listed.get(index + 1).map_or(bytes.len(), |(at, _)| *at);
+        match indirect(bytes, *offset, &table, &mut measured) {
+            Ok(end) if end <= next => {}
+            Ok(end) => return format!("overlap at {offset} end {end} next {next}"),
+            Err(refusal) => return format!("{refusal:?} at {offset}"),
+        }
+    }
+    format!("objects {} expanded {} entries {}", measured.objects, measured.expanded, listed.len())
 }

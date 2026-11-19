@@ -8,6 +8,8 @@
 //! of two million numbers, is left out and reported; every inline image (`BI` … `EI`) is left
 //! out silently, since it draws no text.
 
+use super::lexer::{delimiter, skip_line, skip_past, skip_regular, skip_string, whitespace};
+
 /// Bytes after which a piece ends at the next operator.
 pub(super) const PIECE: usize = 64 << 10;
 /// Longest operation kept.
@@ -22,12 +24,12 @@ pub(super) fn pieces(content: &[u8]) -> (Vec<&[u8]>, bool) {
     while let Some(&byte) = content.get(at) {
         match byte {
             b'%' => at = skip_line(content, at),
-            b'(' => at = skip_string(content, at),
+            b'(' => at = skip_string(content, at).unwrap_or(content.len()),
             b'<' if content.get(at + 1) == Some(&b'<') => {
                 depth += 1;
                 at += 2;
             }
-            b'<' => at = skip_past(content, at, b'>'),
+            b'<' => at = skip_past(content, at, b'>').unwrap_or(content.len()),
             b'>' if content.get(at + 1) == Some(&b'>') => {
                 depth = depth.saturating_sub(1);
                 at += 2;
@@ -74,64 +76,12 @@ pub(super) fn pieces(content: &[u8]) -> (Vec<&[u8]>, bool) {
     (pieces, dropped)
 }
 
-const fn whitespace(byte: u8) -> bool {
-    matches!(byte, b'\0' | b'\t' | b'\n' | b'\x0c' | b'\r' | b' ')
-}
-
-const fn delimiter(byte: u8) -> bool {
-    matches!(
-        byte,
-        b'(' | b')' | b'<' | b'>' | b'[' | b']' | b'{' | b'}' | b'/' | b'%'
-    )
-}
-
 /// Numbers and the keywords `true`, `false` and `null` are operands, not operators.
 fn operand(token: &[u8]) -> bool {
     matches!(token, b"true" | b"false" | b"null")
         || token
             .iter()
             .all(|byte| byte.is_ascii_digit() || matches!(byte, b'+' | b'-' | b'.'))
-}
-
-fn skip_regular(content: &[u8], from: usize) -> usize {
-    content
-        .get(from..)
-        .and_then(|rest| rest.iter().position(|b| whitespace(*b) || delimiter(*b)))
-        .map_or(content.len(), |length| from + length)
-}
-
-fn skip_line(content: &[u8], from: usize) -> usize {
-    content
-        .get(from..)
-        .and_then(|rest| rest.iter().position(|b| matches!(b, b'\r' | b'\n')))
-        .map_or(content.len(), |length| from + length)
-}
-
-fn skip_past(content: &[u8], from: usize, end: u8) -> usize {
-    content
-        .get(from..)
-        .and_then(|rest| rest.iter().position(|b| *b == end))
-        .map_or(content.len(), |length| from + length + 1)
-}
-
-/// Past a literal string, its balanced parentheses and backslash escapes included.
-fn skip_string(content: &[u8], from: usize) -> usize {
-    let (mut depth, mut at) = (0usize, from);
-    while let Some(&byte) = content.get(at) {
-        match byte {
-            b'\\' => at += 1,
-            b'(' => depth += 1,
-            b')' => {
-                depth = depth.saturating_sub(1);
-                if depth == 0 {
-                    return at + 1;
-                }
-            }
-            _ => {}
-        }
-        at += 1;
-    }
-    content.len()
 }
 
 /// Past an inline image's `EI` keyword, which follows whitespace and ends at a delimiter.

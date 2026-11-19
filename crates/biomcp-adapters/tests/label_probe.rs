@@ -16,6 +16,7 @@ fn label_probe() {
     names.sort();
     for path in names {
         let bytes = fs::read(&path).expect("read");
+        println!("MEASURED {} {}", path.display(), biomcp_adapters::pdf::measured(&bytes));
         let start = Instant::now();
         let read = biomcp_adapters::pdf::embedded(&bytes, 100_000, &|| false);
         let secs = start.elapsed().as_secs_f64();

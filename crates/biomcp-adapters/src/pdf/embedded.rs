@@ -41,14 +41,17 @@ pub fn embedded(
         }
     };
     check()?;
-    if !super::scan::loadable(bytes) {
-        result.state = PdfTextState::TooLarge;
-        return Ok(result);
+    match super::scan::loadable(bytes) {
+        Ok(()) => {}
+        Err(super::scan::Refusal::TooLarge) => {
+            result.state = PdfTextState::TooLarge;
+            return Ok(result);
+        }
+        Err(super::scan::Refusal::Irregular) => return Err(Reason::BadReply),
     }
-    let mut document = lopdf::Document::load_mem_with_options(
-        bytes,
-        lopdf::LoadOptions::with_max_decompressed_size(super::scan::LOAD_STREAM_BYTES),
-    )
+    let mut options = lopdf::LoadOptions::with_max_decompressed_size(super::scan::LOAD_STREAM_BYTES);
+    options.strict = true;
+    let mut document = lopdf::Document::load_mem_with_options(bytes, options)
     .map_err(|issue| {
         if too_large(&issue) {
             Reason::TooLarge
