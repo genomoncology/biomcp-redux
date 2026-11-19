@@ -52,12 +52,17 @@
             "at": "/sources/1",
             "source": "europepmc",
             "reason": "deadline-exceeded"
+          },
+          {
+            "at": "/result/items/0/license_not_checked",
+            "source": "europepmc",
+            "reason": "deadline-exceeded"
           }
         ]
       },
       "max_bytes": 2219
     }
   ],
-  "verified": "Synthetic Europe PMC delay; see tests/replies/article/search/pubmed-access-timeout/README.md. The ceiling is the measured 1,929-byte page (j42494) plus 15 percent. It fails on base 876387841. 2026-11-19 (1072): the step asks for --license-lookup, whose 10-second budget the 12-second synthetic delay still passes; NCBI's open-access reply was recorded live. 1059: a failed source row makes the reply partial, and `incomplete` names it at the top; this step expected `complete` on base.",
+  "verified": "Synthetic Europe PMC delay; see tests/replies/article/search/pubmed-access-timeout/README.md. The ceiling is the measured 1,929-byte page (j42494) plus 15 percent. It fails on base 876387841. 2026-11-19 (1072): the step asks for --license-lookup, whose 10-second budget the 12-second synthetic delay still passes; NCBI's open-access reply was recorded live. 1059: a failed source row makes the reply partial, and `incomplete` names it at the top; this step expected `complete` on base. 1059 review: the entry at the first unchecked licence names the failed lookup beside its source row.",
   "harvest": "biomed-agent-bench msl persona: which papers may be shared"
 }
