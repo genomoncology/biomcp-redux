@@ -1,25 +1,35 @@
-//! Each font's decoding, read once per document, with a second reading of a `/ToUnicode` map
-//! lopdf refuses (1069).
+//! Each font's decoding, read once per document, with bounded `/ToUnicode` maps and a second
+//! reading of a map lopdf refuses (1069).
 //!
 //! lopdf parses a ToUnicode CMap's PostScript header strictly. One PDF writer puts `def` inside
 //! the `/CIDSystemInfo` dictionary, so lopdf drops the whole map and decodes each two-byte glyph
 //! ID of an `Identity-H` font as a Latin-1 byte: "7KHUH" for "There". Sixteen FDA labels and
 //! letters read so, and fifty more had such stretches. The code ranges and mappings themselves
 //! are well formed, so they are copied in one pass under a plain header and read again by lopdf;
-//! the result is used only if lopdf accepts it. Rebuilt maps share one per-document budget of
-//! [`REBUILT_BYTES`], so a document of many hostile maps costs at most that much more parsing.
+//! the result is used only if lopdf accepts it.
+//!
+//! lopdf also builds a reverse table entry for every code a map covers, so one range over every
+//! four-byte code would take billions of steps. Before lopdf reads any map, this module counts
+//! the codes it covers; a map over [`MAP_CODES`], or past the document's [`DOCUMENT_CODES`] or
+//! [`MAP_BYTES`], is not read, and its font decodes as if it had none. A real FDA map covers at
+//! most 65,536 codes in about 6 KiB.
 use super::fonts::{Widths, widths};
 use lopdf::{Dictionary, Document, Encoding, Object, Stream};
 use std::{collections::BTreeMap, rc::Rc};
 
-/// Most bytes of rebuilt maps one document may parse; a real FDA map is about 6 KiB.
-pub(super) const REBUILT_BYTES: usize = 1 << 20;
-/// Sections whose code ranges and mappings are copied.
+/// Most codes one map may cover.
+pub(super) const MAP_CODES: u64 = 1 << 17;
+/// Most codes the maps of one document may cover together.
+pub(super) const DOCUMENT_CODES: u64 = 1 << 21;
+/// Most bytes of maps, as found and as rebuilt, one document may read.
+pub(super) const MAP_BYTES: usize = 1 << 20;
+/// Sections whose code ranges and mappings are kept.
 const SECTIONS: [(&str, &str); 3] = [
     ("begincodespacerange", "endcodespacerange"),
     ("beginbfchar", "endbfchar"),
     ("beginbfrange", "endbfrange"),
 ];
+const RANGES: usize = 2;
 const HEADER: &str =
     "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /Rebuilt def\n";
 const FOOTER: &str = "endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n";
@@ -32,7 +42,15 @@ pub(super) type Font<'a> = Rc<(Encoding<'a>, Option<Widths>)>;
 #[derive(Default)]
 pub(super) struct Cache<'a> {
     fonts: BTreeMap<usize, Font<'a>>,
-    rebuilt: usize,
+    bytes: usize,
+    codes: u64,
+}
+
+/// One kept section: which of [`SECTIONS`], its entry count as written, and its entries.
+struct Section {
+    which: usize,
+    count: String,
+    body: String,
 }
 
 impl<'a> Cache<'a> {
@@ -47,10 +65,7 @@ impl<'a> Cache<'a> {
         if let Some(known) = self.fonts.get(&key) {
             return Ok(Rc::clone(known));
         }
-        let read = Rc::new((
-            self.encoding(document, font, limit)?,
-            widths(document, font),
-        ));
+        let read = Rc::new((self.encoding(document, font, limit)?, widths(document, font)));
         self.fonts.insert(key, Rc::clone(&read));
         Ok(read)
     }
@@ -61,27 +76,40 @@ impl<'a> Cache<'a> {
         font: &'a Dictionary,
         limit: usize,
     ) -> lopdf::Result<Encoding<'a>> {
+        let named = match font.get(b"Encoding") {
+            Ok(Object::Name(name)) => Some(name.as_slice()),
+            Ok(_) => Some(&b""[..]),
+            Err(_) => None,
+        };
+        let identity = named.is_some_and(|name| name.starts_with(b"Identity-"));
+        let Ok(map) = font.get_deref(b"ToUnicode", document).and_then(Object::as_stream) else {
+            return font.get_font_encoding_with_limit(document, limit);
+        };
+        // lopdf reads the map only for an Identity font or one without an encoding.
+        if named.is_some() && !identity {
+            return font.get_font_encoding_with_limit(document, limit);
+        }
+        let raw = map.get_plain_content_with_limit(limit)?;
+        let parts = sections(&raw);
+        let codes = covered(&parts);
+        self.bytes = self.bytes.saturating_add(raw.len());
+        self.codes = self.codes.saturating_add(codes);
+        if codes > MAP_CODES || self.codes > DOCUMENT_CODES || self.bytes > MAP_BYTES {
+            return Ok(Encoding::SimpleEncoding(b"WinAnsiEncoding"));
+        }
         let encoding = font.get_font_encoding_with_limit(document, limit)?;
-        let identity = matches!(font.get(b"Encoding"), Ok(Object::Name(name)) if name.starts_with(b"Identity-"));
         if !identity || matches!(encoding, Encoding::UnicodeMapEncoding(_)) {
             return Ok(encoding);
         }
-        let Ok(map) = font
-            .get_deref(b"ToUnicode", document)
-            .and_then(Object::as_stream)
-        else {
+        let Some(text) = rebuilt(&parts) else {
             return Ok(encoding);
         };
-        let left = REBUILT_BYTES.saturating_sub(self.rebuilt);
-        let Some(text) = rebuilt(&map.get_plain_content_with_limit(limit)?, left) else {
+        self.bytes = self.bytes.saturating_add(text.len());
+        if self.bytes > MAP_BYTES {
             return Ok(encoding);
-        };
-        self.rebuilt += text.len();
+        }
         let mut copy = font.clone();
-        copy.set(
-            "ToUnicode",
-            Object::Stream(Stream::new(Dictionary::new(), text)),
-        );
+        copy.set("ToUnicode", Object::Stream(Stream::new(Dictionary::new(), text)));
         match copy.get_font_encoding_with_limit(document, limit)? {
             Encoding::UnicodeMapEncoding(map) => Ok(Encoding::UnicodeMapEncoding(map)),
             _ => Ok(encoding),
@@ -89,13 +117,12 @@ impl<'a> Cache<'a> {
     }
 }
 
-/// The map's code-space, bfchar and bfrange sections, in their order, under a header lopdf
-/// accepts; none when there are none or the copy would pass `budget` bytes. One pass.
-pub(super) fn rebuilt(raw: &[u8], budget: usize) -> Option<Vec<u8>> {
+/// The map's code-space, bfchar and bfrange sections, in their order, in one pass.
+fn sections(raw: &[u8]) -> Vec<Section> {
     let text = String::from_utf8_lossy(raw).replace('\r', "\n");
     let next = |from: usize, open: &str| text[from..].find(open).map(|at| from + at);
     let mut found: Vec<Option<usize>> = SECTIONS.iter().map(|(open, _)| next(0, open)).collect();
-    let mut out = String::from(HEADER);
+    let mut kept = Vec::new();
     let mut from = 0;
     while let Some((which, at)) = found
         .iter()
@@ -105,17 +132,14 @@ pub(super) fn rebuilt(raw: &[u8], budget: usize) -> Option<Vec<u8>> {
     {
         let (open, close) = SECTIONS[which];
         let start = at + open.len();
-        let end = next(start, close)?;
+        let Some(end) = next(start, close) else { break };
         let before = text[from..at].trim_end();
-        let count = &before[before
-            .rfind(char::is_whitespace)
-            .map_or(0, |space| space + 1)..];
-        let body = text[start..end].trim();
-        let grown = out.len() + count.len() + open.len() + body.len() + close.len() + 3;
-        if grown + FOOTER.len() > budget {
-            return None;
-        }
-        out.push_str(&format!("{count} {open}\n{body}\n{close}\n"));
+        let count = &before[before.rfind(char::is_whitespace).map_or(0, |space| space + 1)..];
+        kept.push(Section {
+            which,
+            count: count.to_owned(),
+            body: text[start..end].trim().to_owned(),
+        });
         from = end + close.len();
         for (slot, (open, _)) in found.iter_mut().zip(SECTIONS) {
             if slot.is_some_and(|at| at < from) {
@@ -123,5 +147,50 @@ pub(super) fn rebuilt(raw: &[u8], budget: usize) -> Option<Vec<u8>> {
             }
         }
     }
-    (out.len() > HEADER.len()).then(|| [out.as_str(), FOOTER].concat().into_bytes())
+    kept
+}
+
+/// How many codes the sections map: each bfchar entry once, each bfrange every code it spans.
+fn covered(parts: &[Section]) -> u64 {
+    let mut codes = 0u64;
+    for part in parts {
+        let mut values = Vec::new();
+        let mut array = false;
+        for token in part.body.split(['<', '>']).map(str::trim) {
+            if let Some(rest) = token.strip_prefix('[') {
+                array = true;
+                values.push(None);
+                if rest.contains(']') {
+                    array = false;
+                }
+            } else if token.contains(']') {
+                array = false;
+            } else if !token.is_empty() && !array {
+                values.push(u64::from_str_radix(&token.replace(char::is_whitespace, ""), 16).ok());
+            }
+        }
+        codes = codes.saturating_add(if part.which == RANGES {
+            values
+                .chunks(3)
+                .map(|entry| match entry {
+                    [Some(low), Some(high), _] => high.saturating_sub(*low).saturating_add(1),
+                    _ => 0,
+                })
+                .fold(0u64, u64::saturating_add)
+        } else {
+            values.len() as u64 / 2
+        });
+    }
+    codes
+}
+
+/// The sections under a header lopdf accepts; none when there are none.
+fn rebuilt(parts: &[Section]) -> Option<Vec<u8>> {
+    let mut out = String::from(HEADER);
+    for part in parts {
+        let (open, close) = SECTIONS[part.which];
+        out.push_str(&format!("{} {open}\n{}\n{close}\n", part.count, part.body));
+    }
+    out.push_str(FOOTER);
+    (!parts.is_empty()).then(|| out.into_bytes())
 }
