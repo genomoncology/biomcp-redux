@@ -21,6 +21,7 @@ Both refusals blame a value that is fine, so an agent that follows them cannot f
 - Starts from: Seen on main be96d8d40 (1.0.0), Linux, 2026-11-19, while agents used the command line build on real tasks.
 - `get trial NCT04613596 --lat 41.1 --lon -80.65` replies `usage.arguments`, `option: --lat`, with the valid value described as "Bounded nonempty text...". The same call with the word `locations` after the ID works and gives each site's miles.
 - `get drug mobocertinib markets --source drugsfda` replies "option is missing or invalid; choose an accepted value" beside a list of accepted values that includes `drugsfda`. Help says `markets` takes a name and no source.
+- The `markets --source drugsfda` refusal was seen again on 2026-11-19: another agent hit it for twelve drugs in a row and went to openFDA directly.
 - PM decision, 2026-11-19: for the trial call, add `locations` when `--lat` and `--lon` are given with no section, since that is the only thing the caller can mean. For the drug call, refuse and name the cause.
 
 ## Keeps

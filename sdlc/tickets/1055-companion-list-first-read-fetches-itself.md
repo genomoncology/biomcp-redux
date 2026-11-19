@@ -20,6 +20,7 @@ Ian, 2026-11-19: "the agent shouldn't have to sync anything with regards to BioM
 
 - Starts from: Seen on main be96d8d40 (1.0.0), Linux, 2026-11-19, while agents used the command line build on real tasks. The first call replied `{"status":"failed",...,"sources":[{"source":"fda-cdx","state":"syncing","reason":"syncing"}],"next":[{"kind":"sync","args":["sync","fda-cdx"]}]}`. `biomcp sync fda-cdx` then reported 244 rows and 181,000 bytes, and the same search answered.
 - HGNC and ClinGen already fetch on read under `auto_sync_max_bytes`; the stored tables do not (ticket 0280 records the two rules). This list is 181 KB.
+- `get disease MONDO:0007947 prevalence --source orphadata` fails the same way, with a `next` step of `sync orphadata`.
 - PM, 2026-11-19: the developer says in the ticket which other stored sources are small enough to fetch on first read the same way, and does those too or says why not.
 
 ## Keeps
