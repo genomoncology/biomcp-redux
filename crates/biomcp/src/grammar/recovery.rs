@@ -153,29 +153,6 @@ fn is_help(step: &Step) -> bool {
         .is_some_and(|word| word.as_ref() == "help")
 }
 
-/// Restart an unbound trial page without discarding its selection or source filters.
-pub(super) fn trial_first_page(
-    via: Rewrite,
-    path: (&str, &str),
-    value: &Value,
-    cause: &biomcp_types::QueryInvalid,
-) -> Option<Step> {
-    if !matches!(
-        cause.message(),
-        Some(
-            biomcp_types::ErrorMessage::TrialSectionPool
-                | biomcp_types::ErrorMessage::TrialSearchCursor
-        )
-    ) {
-        return None;
-    }
-    let mut first = value.clone();
-    first
-        .as_object_mut()?
-        .insert("offset".into(), Value::from(0));
-    checked(via, path, first)
-}
-
 /// A request refused before any source is read, for one argument with named valid values:
 /// when the call already asks for something and exactly one valid value passes the check,
 /// that call replaces help. When several pass, or the call names nothing but the command,
