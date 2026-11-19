@@ -55,7 +55,9 @@ biodata::wire_enum! {
         /// Unread: the embedded text could not be decoded and reads as gibberish, so none is returned.
         Garbled => "garbled",
         /// Embedded text was read, but a part of a page could not be read, so some text may be missing.
-        Partial => "partial"
+        Partial => "partial",
+        /// Unread: the file is damaged or its structure is irregular; fetch it another way.
+        Damaged => "damaged"
     }
 }
 impl PdfTextState {

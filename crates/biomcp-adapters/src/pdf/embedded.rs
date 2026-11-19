@@ -47,18 +47,23 @@ pub fn embedded(
             result.state = PdfTextState::TooLarge;
             return Ok(result);
         }
-        Err(super::scan::Refusal::Irregular) => return Err(Reason::BadReply),
+        Err(super::scan::Refusal::Irregular) => {
+            result.state = PdfTextState::Damaged;
+            return Ok(result);
+        }
     }
     let mut options =
         lopdf::LoadOptions::with_max_decompressed_size(super::scan::LOAD_STREAM_BYTES);
     options.strict = true;
-    let mut document = lopdf::Document::load_mem_with_options(bytes, options).map_err(|issue| {
-        if too_large(&issue) {
-            Reason::TooLarge
-        } else {
-            Reason::BadReply
+    let mut document = match lopdf::Document::load_mem_with_options(bytes, options) {
+        Ok(document) => document,
+        Err(issue) if too_large(&issue) => return Err(Reason::TooLarge),
+        Err(_) => {
+            // Loading is strict, so lopdf repairs nothing: a file it refuses is damaged.
+            result.state = PdfTextState::Damaged;
+            return Ok(result);
         }
-    })?;
+    };
     check()?;
     super::cmap::bound(&mut document);
     check()?;
@@ -79,7 +84,10 @@ pub fn embedded(
                 result.state = PdfTextState::TooLarge;
                 return Ok(result);
             }
-            Err(Halt::Pdf(_)) => return Err(Reason::BadReply),
+            Err(Halt::Pdf(_)) => {
+                result.state = PdfTextState::Damaged;
+                return Ok(result);
+            }
         };
         if text.len().saturating_add(part.text.len()) > limit {
             result.state = PdfTextState::TooLarge;

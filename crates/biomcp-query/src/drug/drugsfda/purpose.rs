@@ -85,6 +85,13 @@ fn read(
                 None,
             ));
         }
+        Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Damaged => {
+            return Ok(unavailable(
+                "The linked FDA letter's PDF is damaged and was not read; its supplement purpose is unavailable.",
+                Some(document),
+                None,
+            ));
+        }
         Ok(pdf) => pdf.text.as_deref().and_then(|text| purpose(text, row)),
         Err(error @ RequestError::Source(_)) => {
             return Ok(unavailable(

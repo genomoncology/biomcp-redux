@@ -306,6 +306,11 @@ fn raw_pdf(
     out
 }
 
+/// Whether the reader refuses `bytes` as a damaged file, read but not too large or garbled.
+fn damaged(bytes: &[u8]) -> bool {
+    read(bytes).is_ok_and(|read| read.state == PdfTextState::Damaged)
+}
+
 /// Each object listed once, at its own offset.
 fn as_written(_: &[u8], offsets: &[usize]) -> Vec<(usize, usize)> {
     offsets
@@ -328,7 +333,7 @@ fn a_table_listing_one_object_many_times_is_refused_before_loading() {
         listed.extend((7..1007).map(|number| (number, offsets[5])));
         listed
     });
-    assert!(matches!(read(&repeated), Err(Reason::BadReply)));
+    assert!(damaged(&repeated), "refused as damaged");
     // An entry inside another object's string parses that object's rest again.
     bodies.push(format!("(7 0 obj [{}])", "0 ".repeat(100_000)).into_bytes());
     let inside = raw_pdf(&bodies, |file, offsets| {
@@ -340,7 +345,7 @@ fn a_table_listing_one_object_many_times_is_refused_before_loading() {
         listed.push((8, nested + 1));
         listed
     });
-    assert!(matches!(read(&inside), Err(Reason::BadReply)));
+    assert!(damaged(&inside));
 }
 
 /// An object stream, object 6, holding a 200 KB array that its index lists `times` times.
@@ -366,15 +371,9 @@ fn an_object_stream_listing_one_object_many_times_is_refused_before_loading() {
     // 100 listings of one array in an object stream took 3 GB from 1,271 bytes.
     let fine = read(&object_stream_pdf(1, "ObjStm")).expect("readable PDF");
     assert_eq!(fine.state, PdfTextState::Text);
-    assert!(matches!(
-        read(&object_stream_pdf(1000, "ObjStm")),
-        Err(Reason::BadReply)
-    ));
+    assert!(damaged(&object_stream_pdf(1000, "ObjStm")));
     // lopdf reads names with their #xx escapes decoded, and so does the measuring.
-    assert!(matches!(
-        read(&object_stream_pdf(1000, "Obj#53tm")),
-        Err(Reason::BadReply)
-    ));
+    assert!(damaged(&object_stream_pdf(1000, "Obj#53tm")));
 }
 
 #[test]
@@ -399,6 +398,23 @@ fn documents_holding_too_much_for_lopdf_to_build_are_refused_before_loading() {
     }
     let streams = read(&raw_pdf(&bodies, as_written)).expect("refused, not failed");
     assert_eq!(streams.state, PdfTextState::TooLarge);
+}
+
+#[test]
+fn a_damaged_file_is_refused_as_damaged_not_repaired() {
+    let whole = raw_pdf(&page_bodies(), as_written);
+    assert_eq!(
+        read(&whole).expect("readable PDF").state,
+        PdfTextState::Text
+    );
+    let cut = whole.get(..whole.len() / 2).expect("half");
+    assert!(damaged(cut), "a file cut short is damaged");
+    let (head, rest) = whole.split_at(b"%PDF-1.7\n".len());
+    let shifted = [head, b"0000".as_slice(), rest].concat();
+    assert!(
+        damaged(&shifted),
+        "a table whose offsets miss their objects is not repaired"
+    );
 }
 
 #[test]

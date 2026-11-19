@@ -107,12 +107,26 @@ pub fn whole(
     Ok((result, text))
 }
 
-/// The reply notice for a partial read: what was cut or skipped, so text may be missing.
+/// The reply notice for a partial read, saying what was cut or skipped, or for a damaged file,
+/// saying to fetch it another way.
 pub fn missing_notice(text: &PdfText) -> Option<SourceNotice> {
-    if text.state != PdfTextState::Partial {
-        return None;
-    }
-    let message = match text.missing {
+    let message = match (text.state, text.missing) {
+        (PdfTextState::Damaged, _) => concat!(
+            "This PDF is damaged: its structure is broken or irregular, and BioMCP does not ",
+            "repair damaged PDFs, so none of its text was read. Fetch the document another way."
+        ),
+        (PdfTextState::Partial, missing) => partial_message(missing),
+        _ => return None,
+    };
+    Some(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: message.into(),
+        retry_after_seconds: None,
+    })
+}
+
+const fn partial_message(missing: Option<PdfMissing>) -> &'static str {
+    match missing {
         Some(PdfMissing::Gibberish) => {
             "Text this document draws in a font without a usable character map read as gibberish and was cut out, so some of its text is missing."
         }
@@ -126,10 +140,5 @@ pub fn missing_notice(text: &PdfText) -> Option<SourceNotice> {
             )
         }
         None => "Some of this document's text could not be read, so text may be missing.",
-    };
-    Some(SourceNotice::RequestGuidance {
-        data_date: None,
-        message: message.into(),
-        retry_after_seconds: None,
-    })
+    }
 }
