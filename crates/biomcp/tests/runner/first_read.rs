@@ -88,7 +88,7 @@ fn words(args: &[&str]) -> Vec<String> {
 /// Without a sync, the first companion search answers; over the size limit it still asks.
 fn companion(limit: Option<u64>) -> Check {
     let extra = limit.map_or_else(|| json!({}), |max| json!({"auto_sync_max_bytes": max}));
-    let (env, _stub) = live("www.fda.gov", "diagnostic/fda-cdx-synthetic/fda-cdx", extra)?;
+    let (env, stub) = live("www.fda.gov", "diagnostic/fda-cdx-synthetic/fda-cdx", extra)?;
     let search = words(&[
         "search",
         "diagnostic",
@@ -98,6 +98,7 @@ fn companion(limit: Option<u64>) -> Check {
         "KRAS",
     ]);
     let reply = invoke(&env, search, if limit.is_some() { 4 } else { 0 })?;
+    stub.finish()?;
     let answered = reply.get("status") == Some(&json!("complete"))
         && reply.pointer("/sources/0/state") == Some(&json!("ok"))
         && reply
@@ -146,7 +147,7 @@ fn offline() -> Check {
 
 /// Without a sync, the first prevalence read fetches both Orphadata files and answers.
 fn prevalence() -> Check {
-    let (env, _stub) = live(
+    let (env, stub) = live(
         "www.orphadata.com",
         "disease/orphadata-synthetic/orphadata",
         json!({}),
@@ -160,6 +161,7 @@ fn prevalence() -> Check {
         "orphadata",
     ]);
     let reply = invoke(&env, get, 0)?;
+    stub.finish()?;
     if reply.get("status") != Some(&json!("complete"))
         || reply.pointer("/result/items/0/prevalence/1/value") != Some(&json!("1.5"))
     {
