@@ -76,6 +76,17 @@ fn write_hostile() {
         false,
     );
     save(maps_doc(40), "maps-40x131k.pdf", false);
+    let mut objects = page_doc(vec![b"BT ET".to_vec()], 0);
+    objects.add_object(Object::Array(vec![Object::Integer(0); 1_040_000]));
+    save(objects, "objects-1m.pdf", false);
+    let mut strings = page_doc(vec![b"BT ET".to_vec()], 0);
+    strings.add_object(Object::Array(vec![
+        Object::string_literal(
+            "x".repeat(20 << 20)
+        );
+        1
+    ]));
+    save(strings, "string-20mib.pdf", false);
 }
 
 fn maps_doc(fonts: usize) -> Document {

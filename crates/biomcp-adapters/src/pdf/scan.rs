@@ -12,7 +12,7 @@
 //! arrays and dictionaries, or its object and cross-reference streams expand past
 //! [`LOAD_BYTES`] together. The load is strict, so lopdf repairs nothing: a repair reads
 //! offsets not measured here. All 164 FDA labels and letters read on 2026-11-19 load strictly
-//! as they load leniently, and the most objects any held was 1,523,047.
+//! as they load leniently, and read the same text.
 
 use super::lexer::{header, integer, measure, skip_space};
 use super::xref::{Table, payload, small_dictionary};
@@ -23,8 +23,8 @@ pub(super) const LOAD_STREAM_BYTES: usize = 1 << 20;
 /// Most bytes all object and cross-reference streams may expand to together.
 pub(super) const LOAD_BYTES: usize = 16 << 20;
 /// Most objects a document may hold, those inside arrays and dictionaries included; lopdf
-/// keeps about 120 bytes for each.
-pub(super) const OBJECTS: usize = 4 << 20;
+/// keeps about 120 bytes for each. The most in one FDA document was 588,311.
+pub(super) const OBJECTS: usize = 1 << 20;
 /// Longest object a stream's `/Length` may refer to.
 const LENGTH_OBJECT: usize = 64;
 
@@ -39,7 +39,7 @@ pub(super) enum Refusal {
 
 /// Whether lopdf may load `bytes` within the bounds.
 pub(super) fn loadable(bytes: &[u8]) -> Result<(), Refusal> {
-    let table = super::xref::read(bytes, LOAD_STREAM_BYTES).ok_or(Refusal::Irregular)?;
+    let table = super::xref::read(bytes, LOAD_STREAM_BYTES)?;
     let mut listed: Vec<(usize, u64)> = table.entries.iter().map(|(n, at)| (*at, *n)).collect();
     listed.sort_unstable();
     listed.dedup();
@@ -91,7 +91,11 @@ fn indirect(
         [b'\n' | b'\r', ..] => after += 1,
         _ => {}
     }
-    if !bytes.get(after..).unwrap_or_default().starts_with(b"endstream") {
+    if !bytes
+        .get(after..)
+        .unwrap_or_default()
+        .starts_with(b"endstream")
+    {
         return Err(Refusal::Irregular);
     }
     if dictionary.has_type(b"ObjStm") {
@@ -125,7 +129,11 @@ fn length(bytes: &[u8], dictionary: &Dictionary, table: &Table) -> Option<usize>
 }
 
 /// Check an object stream's index and count its objects (PDF 32000-1 §7.5.7).
-fn object_stream(dictionary: Dictionary, raw: Vec<u8>, measured: &mut Measured) -> Result<(), Refusal> {
+fn object_stream(
+    dictionary: Dictionary,
+    raw: Vec<u8>,
+    measured: &mut Measured,
+) -> Result<(), Refusal> {
     let first = dictionary
         .get(b"First")
         .and_then(Object::as_i64)
@@ -133,7 +141,7 @@ fn object_stream(dictionary: Dictionary, raw: Vec<u8>, measured: &mut Measured) 
         .and_then(|first| usize::try_from(first).ok())
         .ok_or(Refusal::Irregular)?;
     let content = Stream::new(dictionary, raw)
-        .decompressed_content_with_limit(LOAD_STREAM_BYTES)
+        .get_plain_content_with_limit(LOAD_STREAM_BYTES)
         .map_err(|issue| {
             if super::page::too_large(&issue) {
                 Refusal::TooLarge
@@ -171,13 +179,17 @@ fn object_stream(dictionary: Dictionary, raw: Vec<u8>, measured: &mut Measured) 
 /// Throwaway (1068): what a document holds, for sizing the bounds on the corpus.
 #[doc(hidden)]
 pub fn measured(bytes: &[u8]) -> String {
-    let Some(table) = super::xref::read(bytes, LOAD_STREAM_BYTES) else {
-        return "xref unread".to_owned();
+    let table = match super::xref::read(bytes, LOAD_STREAM_BYTES) {
+        Ok(table) => table,
+        Err(refusal) => return format!("xref {refusal:?}"),
     };
     let mut listed: Vec<(usize, u64)> = table.entries.iter().map(|(n, at)| (*at, *n)).collect();
     listed.sort_unstable();
     listed.dedup();
-    let mut measured = Measured { objects: listed.len(), expanded: table.expanded };
+    let mut measured = Measured {
+        objects: listed.len(),
+        expanded: table.expanded,
+    };
     for (index, (offset, _)) in listed.iter().enumerate() {
         let next = listed.get(index + 1).map_or(bytes.len(), |(at, _)| *at);
         match indirect(bytes, *offset, &table, &mut measured) {
@@ -186,5 +198,10 @@ pub fn measured(bytes: &[u8]) -> String {
             Err(refusal) => return format!("{refusal:?} at {offset}"),
         }
     }
-    format!("objects {} expanded {} entries {}", measured.objects, measured.expanded, listed.len())
+    format!(
+        "objects {} expanded {} entries {}",
+        measured.objects,
+        measured.expanded,
+        listed.len()
+    )
 }

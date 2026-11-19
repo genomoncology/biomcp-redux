@@ -3,7 +3,7 @@
 //! and text decoded without a character map that reads as gibberish is reported as garbled,
 //! never returned (1068).
 use biomcp_adapters::pdf::{embedded, garbled};
-use biomcp_types::PdfTextState;
+use biomcp_types::{PdfTextState, Reason};
 use lopdf::{Dictionary, Document, Object, Stream, dictionary};
 
 const FORM_OBJECT_CARTON: &[u8] = include_bytes!("fixtures/pdf/form-object-carton.pdf");
@@ -71,7 +71,7 @@ fn glyph_lines(text: &str, lines: usize) -> Vec<u8> {
     format!("BT /F1 9 Tf 11 TL 36 760 Td\n{}ET\n", line.repeat(lines)).into_bytes()
 }
 
-fn read(bytes: &[u8]) -> Result<biomcp_adapters::pdf::Embedded, biomcp_types::Reason> {
+fn read(bytes: &[u8]) -> Result<biomcp_adapters::pdf::Embedded, Reason> {
     embedded(bytes, 100, &|| false)
 }
 
@@ -253,35 +253,178 @@ fn a_huge_map_is_never_read_however_the_encoding_is_named() {
 }
 
 /// A one-page PDF whose resources carry `count` copies of the name `name`.
-fn names_pdf(name: &str, count: usize) -> lopdf::Result<Vec<u8>> {
-    let names: Vec<Object> = (0..count)
-        .map(|_| Object::Name(name.as_bytes().to_vec()))
-        .collect();
-    pdf(b"BT ET", |_| dictionary! { "Names" => names })
+/// The bodies of a one-page PDF that draws [`SENTENCE`] in Helvetica, objects 1 to 5.
+fn page_bodies() -> Vec<Vec<u8>> {
+    let content = format!("BT /F1 9 Tf 72 700 Td ({SENTENCE}) Tj ET");
+    [
+        "<< /Type /Catalog /Pages 2 0 R >>".to_owned(),
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_owned(),
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R \
+         /Resources << /Font << /F1 5 0 R >> >> >>"
+            .to_owned(),
+        format!(
+            "<< /Length {} >>\nstream\n{content}\nendstream",
+            content.len()
+        ),
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"
+            .to_owned(),
+    ]
+    .map(String::into_bytes)
+    .to_vec()
+}
+
+/// A PDF written byte by byte, so its table can list what lopdf's writer never would. Object
+/// `n` is `bodies[n - 1]`; `listed` maps the file so far and each object's offset to the
+/// table's entries, object number and offset.
+fn raw_pdf(
+    bodies: &[Vec<u8>],
+    listed: impl FnOnce(&[u8], &[usize]) -> Vec<(usize, usize)>,
+) -> Vec<u8> {
+    let mut out = b"%PDF-1.7\n".to_vec();
+    let mut offsets = Vec::new();
+    for (index, body) in bodies.iter().enumerate() {
+        offsets.push(out.len());
+        out.extend(format!("{} 0 obj\n", index + 1).bytes());
+        out.extend(body);
+        out.extend(b"\nendobj\n");
+    }
+    let entries: std::collections::BTreeMap<usize, usize> =
+        listed(&out, &offsets).into_iter().collect();
+    let size = entries.keys().max().map_or(1, |number| number + 1);
+    let xref = out.len();
+    out.extend(format!("xref\n0 {size}\n").bytes());
+    for number in 0..size {
+        let entry = entries.get(&number).map_or_else(
+            || "0000000000 65535 f\r\n".to_owned(),
+            |offset| format!("{offset:010} 00000 n\r\n"),
+        );
+        out.extend(entry.bytes());
+    }
+    out.extend(
+        format!("trailer\n<< /Size {size} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n").bytes(),
+    );
+    out
+}
+
+/// Each object listed once, at its own offset.
+fn as_written(_: &[u8], offsets: &[usize]) -> Vec<(usize, usize)> {
+    offsets
+        .iter()
+        .enumerate()
+        .map(|(index, offset)| (index + 1, *offset))
+        .collect()
 }
 
 #[test]
-fn documents_naming_too_many_load_time_streams_are_refused_before_loading() {
-    let plain = names_pdf("ObjStm", 1025).expect("synthetic PDF");
-    // lopdf writes names plainly; escape each one as an attacker could.
-    let objects = String::from_utf8_lossy(&plain)
-        .replace("/ObjStm", "/Obj#53tm")
+fn a_table_listing_one_object_many_times_is_refused_before_loading() {
+    // lopdf parses every entry at its offset. 200 entries at one 4 MB array took 17 s and
+    // 50 GB; here 1,000 entries at a 200 KB array would build 100 million objects.
+    let mut bodies = page_bodies();
+    bodies.push(format!("[{}]", "0 ".repeat(100_000)).into_bytes());
+    let fine = read(&raw_pdf(&bodies, as_written)).expect("readable PDF");
+    assert_eq!(fine.state, PdfTextState::Text, "the PDF built here reads");
+    let repeated = raw_pdf(&bodies, |_, offsets| {
+        let mut listed = as_written(&[], offsets);
+        listed.extend((7..1007).map(|number| (number, offsets[5])));
+        listed
+    });
+    assert!(matches!(read(&repeated), Err(Reason::BadReply)));
+    // An entry inside another object's string parses that object's rest again.
+    bodies.push(format!("(7 0 obj [{}])", "0 ".repeat(100_000)).into_bytes());
+    let inside = raw_pdf(&bodies, |file, offsets| {
+        let mut listed = as_written(&[], offsets);
+        let nested = file
+            .windows(8)
+            .rposition(|w| w == b"(7 0 obj")
+            .expect("nested header");
+        listed.push((8, nested + 1));
+        listed
+    });
+    assert!(matches!(read(&inside), Err(Reason::BadReply)));
+}
+
+/// An object stream, object 6, holding a 200 KB array that its index lists `times` times.
+fn object_stream_pdf(times: usize, kind: &str) -> Vec<u8> {
+    let index: String = (10..10 + times)
+        .map(|number| format!("{number} 0 "))
+        .collect();
+    let content = format!("{index}[{}]", "0 ".repeat(100_000));
+    let mut bodies = page_bodies();
+    bodies.push(
+        format!(
+            "<< /Type /{kind} /N {times} /First {} /Length {} >>\nstream\n{content}\nendstream",
+            index.len(),
+            content.len()
+        )
+        .into_bytes(),
+    );
+    raw_pdf(&bodies, as_written)
+}
+
+#[test]
+fn an_object_stream_listing_one_object_many_times_is_refused_before_loading() {
+    // 100 listings of one array in an object stream took 3 GB from 1,271 bytes.
+    let fine = read(&object_stream_pdf(1, "ObjStm")).expect("readable PDF");
+    assert_eq!(fine.state, PdfTextState::Text);
+    assert!(matches!(
+        read(&object_stream_pdf(1000, "ObjStm")),
+        Err(Reason::BadReply)
+    ));
+    // lopdf reads names with their #xx escapes decoded, and so does the measuring.
+    assert!(matches!(
+        read(&object_stream_pdf(1000, "Obj#53tm")),
+        Err(Reason::BadReply)
+    ));
+}
+
+#[test]
+fn documents_holding_too_much_for_lopdf_to_build_are_refused_before_loading() {
+    // About 120 bytes each: over a million objects, or 18 MiB of object streams.
+    let mut bodies = page_bodies();
+    bodies.push(format!("[{}]", "0 ".repeat(1 << 20)).into_bytes());
+    let objects = read(&raw_pdf(&bodies, as_written)).expect("refused, not failed");
+    assert_eq!(objects.state, PdfTextState::TooLarge);
+    let mut bodies = page_bodies();
+    for _ in 0..18 {
+        let mut stream = Stream::new(dictionary! {}, vec![b' '; (1 << 20) - 16]);
+        stream.compress().expect("compressible");
+        let mut body = format!(
+            "<< /Type /ObjStm /N 0 /First 0 /Filter /FlateDecode /Length {} >>\nstream\n",
+            stream.content.len()
+        )
         .into_bytes();
-    assert_eq!(
-        read(&objects).expect("refused, not failed").state,
-        PdfTextState::TooLarge,
-        "escaped names count"
-    );
-    let xrefs = names_pdf("XRef", 33).expect("synthetic PDF");
-    assert_eq!(
-        read(&xrefs).expect("refused, not failed").state,
-        PdfTextState::TooLarge
-    );
-    let fine = names_pdf("ObjStm", 10).expect("synthetic PDF");
-    assert_eq!(
-        read(&fine).expect("readable PDF").state,
-        PdfTextState::NoText
-    );
+        body.extend(&stream.content);
+        body.extend(b"\nendstream");
+        bodies.push(body);
+    }
+    let streams = read(&raw_pdf(&bodies, as_written)).expect("refused, not failed");
+    assert_eq!(streams.state, PdfTextState::TooLarge);
+}
+
+#[test]
+fn a_chain_of_too_many_cross_reference_sections_is_refused() {
+    let written = raw_pdf(&page_bodies(), as_written);
+    let table = written
+        .windows(6)
+        .rposition(|w| w == b"\nxref\n")
+        .expect("table")
+        + 1;
+    let end = written
+        .windows(9)
+        .rposition(|w| w == b"startxref")
+        .expect("startxref");
+    let (mut file, mut previous) = (written.get(..end).expect("head").to_vec(), table);
+    for _ in 0..40 {
+        let at = file.len();
+        let section = format!(
+            "xref\n0 1\n0000000000 65535 f\r\ntrailer\n<< /Size 6 /Root 1 0 R /Prev {previous} >>\n"
+        );
+        file.extend(section.bytes());
+        previous = at;
+    }
+    file.extend(format!("startxref\n{previous}\n%%EOF\n").bytes());
+    let read = read(&file).expect("refused, not failed");
+    assert_eq!(read.state, PdfTextState::TooLarge);
 }
 
 fn helvetica(document: &mut Document) -> Dictionary {

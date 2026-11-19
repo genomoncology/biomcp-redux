@@ -152,7 +152,8 @@ fn scalar(bytes: &[u8], from: usize) -> Option<(Object, usize)> {
         let reference = integer(bytes, skip_space(bytes, after)).and_then(|(generation, at)| {
             let at = skip_space(bytes, at);
             let id = (u32::try_from(number).ok()?, u16::try_from(generation).ok()?);
-            (bytes.get(at..skip_regular(bytes, at)) == Some(b"R".as_slice())).then_some((id, at + 1))
+            (bytes.get(at..skip_regular(bytes, at)) == Some(b"R".as_slice()))
+                .then_some((id, at + 1))
         });
         if let Some((id, at)) = reference {
             return Some((Object::Reference(id), at));
@@ -160,7 +161,9 @@ fn scalar(bytes: &[u8], from: usize) -> Option<(Object, usize)> {
         return Some((Object::Integer(i64::try_from(number).ok()?), after));
     }
     let text = std::str::from_utf8(token).ok()?;
-    text.parse::<f32>().ok().map(|real| (Object::Real(real), end))
+    text.parse::<f32>()
+        .ok()
+        .map(|real| (Object::Real(real), end))
 }
 
 /// The object at `from`, built, and where it ends; for the small dictionaries the measuring
