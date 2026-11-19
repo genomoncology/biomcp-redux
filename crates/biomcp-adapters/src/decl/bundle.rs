@@ -10,7 +10,7 @@ pub enum BundleReply {
     /// The two WikiPathways catalogs have their own receipt schema.
     WikiPathways(Result<Mapped<WikiPathwaysSync>, RequestError>),
 }
-/// One explicitly synchronized local catalog.
+/// One local catalog: fetched on a live first read, refreshed only by explicit sync.
 #[derive(Debug)]
 pub struct BundleDecl {
     /// Public command word.

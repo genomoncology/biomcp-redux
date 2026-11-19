@@ -137,7 +137,7 @@
           "sync",
           "wikipathways"
         ],
-        "/result/commands/0/description": "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
+        "/result/commands/0/description": "Replace WikiPathways search/get metadata catalogs atomically; reads fetch missing catalogs, never refresh them. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
         "/result/commands/0/examples": {
           "count": 1
         },

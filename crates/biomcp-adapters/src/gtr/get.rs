@@ -20,7 +20,7 @@ pub struct Record {
     /// Stored snapshot identity.
     pub info: BundleInfo,
 }
-/// Read one exact accession/version; no latest-version fallback or implicit synchronization.
+/// Read one exact accession/version; no latest-version fallback, and no refresh of the stored pair.
 pub fn get(
     leg: &Leg<'_>,
     query: &DiagnosticGet,

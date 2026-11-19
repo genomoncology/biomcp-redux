@@ -22,6 +22,7 @@ pub(super) fn apply(
         source.retrieved_count = Some(returned);
     }
     out.page = Some(page(query.offset(), returned, total));
+    nameless(&items, out);
     for item in &items {
         if let Some(get) = crate::next::checked(
             DrugGet::new(item.id.clone(), DrugSource::OpenfdaLabel),
@@ -62,4 +63,29 @@ pub(super) fn headers(
             Ok(header)
         })
         .collect()
+}
+
+/// Say plainly which rows have no name, since their labels state none (1060).
+fn nameless(items: &[biomcp_types::DrugHeader], out: &mut Outcome) {
+    let ids: Vec<String> = items
+        .iter()
+        .filter(|item| item.name.is_none())
+        .map(|item| item.id.to_string())
+        .collect();
+    let Some(first) = ids.first() else {
+        return;
+    };
+    let message = format!(
+        "No drug name: openFDA gives none and the label's own text marks none for {}. Read one with: get drug {first} --source openfda-label",
+        ids.join(", ")
+    );
+    if let Some(source) = out.sources.first_mut() {
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: message.into(),
+                retry_after_seconds: None,
+            });
+    }
 }

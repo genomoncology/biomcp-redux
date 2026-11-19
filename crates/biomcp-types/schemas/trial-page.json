@@ -2418,7 +2418,7 @@
         },
         "phase": {
           "$ref": "#/$defs/Reply_TrialPhaseFilter",
-          "description": "Native phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
+          "description": "Native phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV."
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",

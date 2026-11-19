@@ -1,0 +1,38 @@
+{
+  "projection": "None: every openFDA reply is kept whole as biomcp --record wrote it.",
+  "sha256": "SHA-256 of each reply body serialized as compact JSON without ASCII escaping",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.application_number.exact%3A%22NDA021748%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "f28f007d2738b1a6af0def460d416cbbc19874847cc037b08feffebba5152c19",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-19",
+      "note": "recorded live by scripts/capture_branch.py in pm job j43011"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%220b8bf078-34c2-4f45-9012-38a8ac082b01%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "db99800802dc4d5aea9f25f06e47cc73288a77d9740bb8b227d4ffaacab03ea7",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-19",
+      "note": "recorded live by scripts/capture_branch.py in pm job j43011"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.application_number.exact%3A%22NDA216340%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "b5fc21702eb60878dc7dae9af044be56fca89415eae035bb60be5052a4fbe0c1",
+      "status": 200,
+      "kept_whole": true,
+      "retrieved": "2026-11-19",
+      "note": "recorded live by scripts/capture_branch.py in pm job j43011"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.application_number.exact%3A%22ANDA090543%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "73b53b0713492ddc987a4e8ab1e37185e181a531922607330405c0acce305400",
+      "status": 404,
+      "kept_whole": true,
+      "retrieved": "2026-11-19",
+      "note": "recorded live by scripts/capture_branch.py in pm job j43053; openFDA answers an application with no label with 404 NOT_FOUND"
+    }
+  ]
+}

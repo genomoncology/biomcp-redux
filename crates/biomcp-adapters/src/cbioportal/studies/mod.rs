@@ -1,4 +1,4 @@
-//! Complete checked catalog replacement; reads never synchronize.
+//! Complete checked catalog replacement; reads never refresh a stored catalog.
 mod context;
 mod raw;
 mod resource;
