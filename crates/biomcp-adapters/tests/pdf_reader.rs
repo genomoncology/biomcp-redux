@@ -209,7 +209,7 @@ fn a_form_drawn_without_end_and_a_huge_map_cannot_stall_the_reader() {
 
 /// A one-glyph-pair page in a composite font whose `/Encoding` entry is `encoding` and whose
 /// character map has one range over 16,777,216 codes mapped from "A".
-fn huge_map_pdf(encoding: impl FnOnce(&mut Document) -> Object) -> Vec<u8> {
+fn huge_map_pdf(encoding: impl FnOnce(&mut Document) -> Object) -> lopdf::Result<Vec<u8>> {
     let map = "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /Huge def\n\
         1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n\
         1 beginbfrange\n<00000000> <00FFFFFF> <0041>\nendbfrange\n\
@@ -228,7 +228,6 @@ fn huge_map_pdf(encoding: impl FnOnce(&mut Document) -> Object) -> Vec<u8> {
         });
         dictionary! { "Font" => dictionary! { "F1" => font } }
     })
-    .expect("synthetic PDF")
 }
 
 #[test]
@@ -243,6 +242,7 @@ fn a_huge_map_is_never_read_however_the_encoding_is_named() {
     let by_dictionary = huge_map_pdf(|_| dictionary! { "BaseEncoding" => "Identity-H" }.into());
     let direct = huge_map_pdf(|_| Object::Name(b"Identity-H".to_vec()));
     for bytes in [by_reference, by_dictionary, direct] {
+        let bytes = bytes.expect("synthetic PDF");
         let read = read(&bytes).expect("readable PDF");
         assert!(
             !read.text.contains("AB"),
@@ -253,27 +253,27 @@ fn a_huge_map_is_never_read_however_the_encoding_is_named() {
 }
 
 /// A one-page PDF whose resources carry `count` copies of the name `name`.
-fn names_pdf(name: &str, count: usize) -> Vec<u8> {
+fn names_pdf(name: &str, count: usize) -> lopdf::Result<Vec<u8>> {
     let names: Vec<Object> = (0..count)
         .map(|_| Object::Name(name.as_bytes().to_vec()))
         .collect();
-    pdf(b"BT ET", |_| dictionary! { "Names" => names }).expect("synthetic PDF")
+    pdf(b"BT ET", |_| dictionary! { "Names" => names })
 }
 
 #[test]
 fn documents_naming_too_many_load_time_streams_are_refused_before_loading() {
-    let objects = names_pdf("Obj#53tm", 1025);
+    let objects = names_pdf("Obj#53tm", 1025).expect("synthetic PDF");
     assert_eq!(
         read(&objects).expect("refused, not failed").state,
         PdfTextState::TooLarge,
         "escaped names count"
     );
-    let xrefs = names_pdf("XRef", 33);
+    let xrefs = names_pdf("XRef", 33).expect("synthetic PDF");
     assert_eq!(
         read(&xrefs).expect("refused, not failed").state,
         PdfTextState::TooLarge
     );
-    let fine = names_pdf("ObjStm", 10);
+    let fine = names_pdf("ObjStm", 10).expect("synthetic PDF");
     assert_eq!(
         read(&fine).expect("readable PDF").state,
         PdfTextState::NoText
