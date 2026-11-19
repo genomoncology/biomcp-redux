@@ -163,9 +163,8 @@ fn scalar(bytes: &[u8], from: usize) -> Read<(Object, usize)> {
     let generation = skip_space(bytes, after);
     let generation_end = skip_regular(bytes, generation);
     let keyword = skip_space(bytes, generation_end);
-    let digits = bytes.get(generation..generation_end).unwrap_or_default();
-    if !digits.is_empty()
-        && digits.iter().all(u8::is_ascii_digit)
+    let digits = bytes.get(generation..generation_end);
+    if digits.is_some_and(|digits| !digits.is_empty() && digits.iter().all(u8::is_ascii_digit))
         && bytes.get(keyword..skip_regular(bytes, keyword)) == Some(b"R".as_slice())
     {
         let (generation, _) = integer(bytes, generation)?;
