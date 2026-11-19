@@ -21,6 +21,16 @@ The caller is usually an agent that pays per token for everything a reply holds,
 
 - Starts from: the search-row `--fields` handling and its "always kept" fields; ticket 1061's proposal in `sdlc/planning/1061-lists-page-one-way.md`, which has the measured sizes.
 - PM decision, 2026-11-19: identifiers and anything a `next` step needs are always kept, as on search rows. The reply says which fields were asked for.
+- PM rulings on the proposal (`sdlc/planning/1071-fields-choose-columns-in-sections.md`), 2026-11-19:
+  1. Paths: dotted paths into objects, for sections and for searches, spelled as the reply spells them.
+  2. Always kept: required and identifier keys, and for a path the required keys of each object it passes through. Next-call links are built before narrowing and carry `--fields`.
+  3. Echo: an optional `fields` list on the reply; a reply without `--fields` is unchanged.
+  4. Several sections in one call: a section that has none of the chosen names stays whole. A name no requested section has is refused. The refusal's `valid_values` holds only the requested sections' field names.
+  5. Refusal wording as proposed, following the fixed-message design from ticket 1064.
+  6. Schema: only the new optional `fields`; narrowed replies validate against today's schemas, and a general test proves it for every command switched on.
+  7. Roll out trial, drug and pathway first, all in this ticket if the mechanism is schema-driven; a command that needs special handling is listed and left for a follow-up.
+  8. Help: one short line per command saying `--fields` narrows rows and takes paths, within each MCP tool description's limit, and one worked example in `help examples` using a section agents use, such as trial locations with distance.
+  Not in this ticket: required per-row attribution, the opentargets regulatory context, text outside the rows, GTR from the build machine.
 
 ## Keeps
 
