@@ -125,7 +125,7 @@
         "--fields chooses columns of search rows only; drop --fields and read the record's named sections instead",
         "no saved result has this name; --pool and --snapshot take only a name from a reply's next step; run the suggested command",
         "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the suggested first-page command, then follow its next command",
-        "--offset is past the end of this text, which it counts in characters from zero; use a smaller offset, or none to start at the beginning",
+        "--offset is past the end of this text; valid_values gives the offsets it has, counted in characters from zero",
         "ClinicalTrials.gov search reaches at most 5000 rows by --offset; to go deeper, follow --next-page from a reply's next step",
         "get article takes 1 to 20 IDs per call; split a longer list into several calls",
         "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label --label-section indications_and_usage",
