@@ -38,6 +38,8 @@ pub(super) fn checked(
         (message, None)
     } else if !given(name) {
         (ErrorMessage::ArgumentMissing, None)
+    } else if value.get(name).and_then(Value::as_str) == Some("") {
+        (ErrorMessage::ArgumentNoValue, None)
     } else if named.len() > 1 {
         (ErrorMessage::ArgumentCombination, Some(options()?))
     } else {

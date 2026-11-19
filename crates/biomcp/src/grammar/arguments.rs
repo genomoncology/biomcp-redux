@@ -131,6 +131,10 @@ impl TypedValueParser for QueryValueParser {
                 ContextKind::Usage,
                 ContextValue::StyledStr(command.clone().render_usage()),
             );
+            // An empty value echoes nothing, and lets the refusal say the value is missing.
+            if value.is_empty() {
+                error.insert(ContextKind::InvalidValue, ContextValue::String(value));
+            }
             return Err(error);
         }
         Ok(value)
