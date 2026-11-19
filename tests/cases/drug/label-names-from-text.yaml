@@ -3,7 +3,7 @@
   "live_check": "Public PIK3CA indication page and three public set_id replies trimmed to identity, product, display panel and indications fields, plus a synthetic control query; no live calls",
   "verified": "tests/replies/drug/label-names-from-text/provenance.json records the public page's URL and retained fields and declares the synthetic control.",
   "replay": "drug/label-names-from-text",
-  "story": "A label search row whose label lacks openFDA's harmonized names shows the drug's name only where the label's own display panel or indications section prints the product data's leading words whole, ended by an opening parenthesis or the end of the text with at most one registered or trademark sign before it; otherwise, as for a brand printed alone or a store brand, the row has no name, never its set ID or a cut-short name, and the page names those rows and how to read them.",
+  "story": "A label search row whose label lacks openFDA's harmonized names shows the drug's name only where a display panel text prints the product data's leading words whole, ended by an opening parenthesis with at most one registered or trademark sign before it, or as the whole text; the indications section is never read. Otherwise, as for a brand printed alone, a store brand or a name stated only in the indications, the row has no name, never its set ID or a cut-short name, and the page names those rows and how to read them.",
   "steps": [
     {
       "run": [
@@ -43,14 +43,18 @@
       "expect": {
         "/status": "complete",
         "/page/returned": 2,
-        "/result/items/0/name": "Zylotra Max",
         "/result/items/1/id": "88888888-8888-4888-8888-888888888888",
         "/result/items/1": {
           "omits": [
             "name"
           ]
         },
-        "/sources/0/notices/0/message": "No drug name: openFDA gives none and the label's own text marks none for 88888888-8888-4888-8888-888888888888. Read one with: get drug 88888888-8888-4888-8888-888888888888 --source openfda-label"
+        "/sources/0/notices/0/message": "No drug name: openFDA gives none and the label's own text marks none for 77777777-7777-4777-8777-777777777777, 88888888-8888-4888-8888-888888888888. Read one with: get drug 77777777-7777-4777-8777-777777777777 --source openfda-label",
+        "/result/items/0": {
+          "omits": [
+            "name"
+          ]
+        }
       }
     },
     {

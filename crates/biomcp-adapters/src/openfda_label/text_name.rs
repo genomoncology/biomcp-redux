@@ -11,24 +11,22 @@ const LOOSE: [char; 13] = [
 ];
 
 impl Record {
-    /// The longest run of leading product-data words, no word twice, that the display panel or
-    /// indications section prints whole, in any letter case, ended by an opening parenthesis or the
-    /// end of that text, with at most one ® or ™ directly before that end, as in
-    /// `IBRANCE ® (palbociclib)` or `Itovebi™ (inavolisib)`. Any other stop gives no name, because a
-    /// name cut there can be a brand alone or another product, as in `Vicks® VapoRub`.
+    /// The longest run of leading product-data words, no word twice, that a display panel text
+    /// prints whole, in any letter case, ended by an opening parenthesis with at most one ® or ™
+    /// directly before it, as in `IBRANCE ® (palbociclib)` or `Itovebi™ (inavolisib)`, or that is
+    /// the whole of that text. Any other stop gives no name, because a name cut there can be a
+    /// brand alone or another product, as in `Vicks® VapoRub`. The indications section is never
+    /// read, because it names the drug family, such as ZYPREXA for ZYPREXA Zydis.
     pub(super) fn text_name(&self) -> Result<Option<Text>, RequestError> {
         let Some(product) = self.product_name().0 else {
             return Ok(None);
         };
-        let printed: Vec<Vec<Token>> = [
-            "package_label_principal_display_panel",
-            "indications_and_usage",
-        ]
-        .into_iter()
-        .filter_map(|heading| self.parts(heading))
-        .flatten()
-        .map(|part| tokens(part))
-        .collect();
+        let printed: Vec<Vec<Token>> = self
+            .parts("package_label_principal_display_panel")
+            .into_iter()
+            .flatten()
+            .map(|part| tokens(part))
+            .collect();
         let raw: Vec<&str> = product.as_str().split_whitespace().collect();
         let mut run: Vec<String> = Vec::new();
         let mut shown = 0;
@@ -68,15 +66,15 @@ enum Token {
     Open,
 }
 
-/// Whether the text ends the name at this position: an opening parenthesis or the text's end,
-/// after at most one mark.
-fn ends(text: &[Token], at: usize) -> bool {
+/// Whether the text ends a name that starts at `start` at position `at`: an opening parenthesis
+/// after at most one mark, or the text's end when the name is the whole text.
+fn ends(text: &[Token], start: usize, at: usize) -> bool {
     let at = if text.get(at) == Some(&Token::Mark) {
         at + 1
     } else {
         at
     };
-    text.get(at).is_none_or(|next| *next == Token::Open)
+    text.get(at).map_or(start == 0, |next| *next == Token::Open)
 }
 
 /// Whether any printed text holds the run, and whether one such place ends the name.
@@ -90,7 +88,7 @@ fn find(printed: &[Vec<Token>], run: &[String]) -> (bool, bool) {
                 .all(|(token, word)| matches!(token, Token::Word(w) if w == word));
             if same {
                 found = true;
-                if ends(text, at + run.len()) {
+                if ends(text, at, at + run.len()) {
                     return (true, true);
                 }
             }
