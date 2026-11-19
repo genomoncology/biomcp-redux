@@ -30,7 +30,7 @@
       "default": 10,
       "description": "Maximum papers on one page.",
       "format": "uint32",
-      "maximum": 200,
+      "maximum": 50,
       "minimum": 1,
       "type": "integer"
     },
