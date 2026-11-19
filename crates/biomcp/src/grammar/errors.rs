@@ -238,7 +238,7 @@ pub(super) fn parse_invalid(
         };
         let fixed = corrected.is_some();
         super::recovery::next(&mut arguments, corrected);
-        if fixed && !registered_argument {
+        if fixed && !registered_argument && !only_dropped {
             shorten(&mut arguments);
         }
         return super::ParseInvalid {
@@ -571,7 +571,7 @@ fn lenient(root: &Command, path: &[&str], strict: bool) -> Command {
         })
 }
 
-/// An unknown option whose next step is the fixed call lists only the options that call
+/// An unknown option whose next step respells it as the command takes it lists only the options that call
 /// uses, since the whole option list would only repeat help; a call that uses none, such
 /// as one with the text as its positional query, needs no list.
 fn shorten(arguments: &mut UsageArguments) {
