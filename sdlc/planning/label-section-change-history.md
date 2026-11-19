@@ -34,6 +34,21 @@ Out of 81 label documents, measured with poppler's text extraction, which was us
 
 PDF library: BioMCP already reads FDA letters and device PDFs with `lopdf` (MIT) and its own word assembler (`biomcp-adapters/src/pdf`). That needs no new library or outside tool. It refuses PDFs over 100 pages, and the newest Keytruda (202 pages) and Opdivo (191 pages) labels are over that, so the reader should stop once the section ends. Its text order and speed on label PDFs are untested and are the build's first check. Speed matters because a pure-code reader like pypdf took up to 25 s, and each source call has a 15 s deadline.
 
+## Reader check (PM ruling 2, 2026-11-19)
+
+BioMCP's own `lopdf` reader was run, in release mode in a pm job, over the same 80 label PDFs plus 14 letters. A second Rust library, `pdf-extract` 0.12.1 (MIT), was run beside it. Each reader's text was compared with poppler's, using shared six-word phrases. Sections were found with heading rules that work inside a line, because BioMCP's reader runs headings into the surrounding text.
+
+| | poppler (design) | BioMCP `lopdf` reader | `pdf-extract` |
+|---|---|---|---|
+| Time per label: median, maximum | 0.07 s, about 1 s | 0.014 s, 0.15 s (202 pages: 0.11 s) | 0.05 s, 0.76 s |
+| Labels with text whose text is mostly lost (of 78) | 0 | 14: 7 with the body inside form objects the reader skips (all four Rinvoq versions before 2021-12-02 among them), 7 with fonts decoded as gibberish (7 Xeljanz and Olumiant versions) | 10, all with gibberish fonts (the same Xeljanz and Olumiant versions) |
+| Warnings and Precautions found (of 72) | 72 | 57 | 61 |
+| Adverse Reactions found (of 72) | 72 | 49 | 53 |
+| Boxed warning found (of 36) | 36 | 23 | 26 |
+| Proof first matches found (of 5) | 5 | 4: Livalo's postmarketing match was missed | 4: Livalo's match was missed |
+
+Speed is not a concern. Accuracy is: about one label in six cannot be read. Because many of those unread labels sit just before a Proof match, three of the five Proof answers would degrade to "on or before" the date. `pdf-extract` also adds 279 lines to `Cargo.lock`, including a second version of `lopdf`. The build is stopped here for a PM ruling.
+
 ## Command and reply
 
 `get drug NDA207924 label-history --source drugsfda --label-section boxed_warning --find "major adverse cardiovascular"`
