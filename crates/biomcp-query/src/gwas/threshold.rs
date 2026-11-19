@@ -107,7 +107,8 @@ fn read(
             .push(status::source(Source::Gwas, leg.finish(), Some(error)));
         return Err(error);
     }
-    if q.pool().is_none() && q.offset() != 0 || q.pool().is_some() && cx.fresh {
+    // An offset without a pool walks a new threshold copy to that row (1061).
+    if q.pool().is_some() && cx.fresh {
         restart(q, out, false);
         return Ok(());
     }
@@ -125,15 +126,13 @@ fn read(
         }
         None => (Saved::default(), None),
     };
-    if q.offset() as usize > saved.rows.len() {
-        restart(q, out, false);
-        return Ok(());
-    }
     let needed = q.offset().saturating_add(q.limit()) as usize;
-    if !saved.done && saved.rows.len() < needed {
+    out.sources = saved.sources.clone();
+    // Walk on until the page is full or the threshold ends; a page past the end stays empty.
+    while !saved.done && saved.rows.len() < needed {
         let result = gwas::search(&leg, &q.at_offset(saved.received));
         let error = result.as_ref().err().copied();
-        let mut incoming = status::source(Source::Gwas, leg.finish(), error);
+        let mut incoming = status::source(Source::Gwas, leg.take_report(), error);
         if let Ok(page) = &result {
             incoming.retrieved_count = Some(page.rows.len() as u32);
             incoming.count = Some(page.total);
@@ -146,8 +145,6 @@ fn read(
         } else {
             saved.sources = vec![incoming];
         }
-        out.sources = saved.sources.clone();
-    } else {
         out.sources = saved.sources.clone();
     }
     let size = saved.rows.len() as u32;
