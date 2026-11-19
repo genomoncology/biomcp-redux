@@ -1,0 +1,76 @@
+{
+  "verified": "tests/replies/drug/label-application/provenance.json records the live openFDA replies of 2026-11-19 (job j43011): openfda.application_number NDA216340 holds one label, KRAZATI's SPL set 0b8bf078-34c2-4f45-9012-38a8ac082b01; NDA021748 holds two, Glumetza fb832474-88d9-4e29-95cd-fbc446944cc4 and Metformin hydrochloride 74d32a8a-c4c2-4dbb-b376-eea3f8fa64d7. On base 1.0.0 (be96d8d40) both gets were refused with usage.",
+  "live_check": "public",
+  "feature": "drug-label",
+  "story": "A label get takes the FDA application number that Drugs@FDA approvals and label replies print: NDA216340 reads KRAZATI's one label, and NDA021748, which two labels share, lists both to choose from with a label read for each. Before 1063 the number was taken for a drug name and refused (agent runs on 1.0.0, 2026-11-19).",
+  "replay": "drug/label-application",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA216340",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "NDA216340",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "0b8bf078-34c2-4f45-9012-38a8ac082b01",
+        "/result/identity/application_numbers": [
+          "NDA216340"
+        ],
+        "/result/label/data/heading": "indications_and_usage"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA021748",
+        "label",
+        "--source",
+        "openfda-label"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/schema": "biomcp.drug-page/8",
+        "/page/total": 2,
+        "/result/items/*/id": [
+          "fb832474-88d9-4e29-95cd-fbc446944cc4",
+          "74d32a8a-c4c2-4dbb-b376-eea3f8fa64d7"
+        ],
+        "/next/0/args": [
+          "get",
+          "drug",
+          "fb832474-88d9-4e29-95cd-fbc446944cc4",
+          "label",
+          "--source",
+          "openfda-label"
+        ],
+        "/next/1/args": [
+          "get",
+          "drug",
+          "74d32a8a-c4c2-4dbb-b376-eea3f8fa64d7",
+          "label",
+          "--source",
+          "openfda-label"
+        ]
+      }
+    }
+  ]
+}

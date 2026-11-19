@@ -1026,6 +1026,11 @@
         "not-applicable",
         "1/2",
         "2/3",
+        "EARLY_PHASE1",
+        "PHASE1",
+        "PHASE2",
+        "PHASE3",
+        "PHASE4",
         "NA",
         "0",
         "I",
@@ -1046,7 +1051,13 @@
             "4",
             "not-applicable",
             "1/2",
-            "2/3"
+            "2/3",
+            "EARLY_PHASE1",
+            "PHASE1",
+            "PHASE2",
+            "PHASE3",
+            "PHASE4",
+            "NA"
           ],
           "nci": [
             "NA",
@@ -5290,7 +5301,7 @@
         },
         "phase": {
           "$ref": "#/$defs/TrialPhaseFilter",
-          "description": "Native phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
+          "description": "Native phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or a phase as its rows print it, such as PHASE3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
         },
         "query": {
           "$ref": "#/$defs/Text",

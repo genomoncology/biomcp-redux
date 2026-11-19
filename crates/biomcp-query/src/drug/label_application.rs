@@ -1,7 +1,11 @@
 //! An FDA application number gets the openFDA label filed under it, or lists its labels (1063).
 use super::resolve::{carry, within};
 use crate::{Ctx, Outcome, status};
-use biomcp_types::{DrugGet, DrugSearch, DrugSource, ReplyData, SourceState, UsageError};
+use crate::Action;
+use biomcp_types::{
+    DrugGet, DrugSearch, DrugSection, DrugSource, ReplyData, Request, SourceState, StepKind,
+    UsageError,
+};
 
 /// openFDA's largest page; a longer list pages on from the reply's next step.
 const LABELS: u32 = 50;
@@ -29,7 +33,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
             "input".into(),
         )))];
     };
-    let found = super::search(&within(cx, deadline.remaining()), &search);
+    let mut found = super::search(&within(cx, deadline.remaining()), &search);
     let label = match &found.body {
         ReplyData::DrugPage {
             body: Some(page), ..
@@ -39,6 +43,9 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let Some(label) = label.filter(|_| {
         !found.dropped && found.sources.iter().all(|s| s.state == SourceState::Ok)
     }) else {
+        if query.sections().contains(&DrugSection::Label) {
+            read_labels(&mut found);
+        }
         return vec![found];
     };
     let Ok(resolved) = queries
@@ -55,4 +62,19 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
             out
         })
         .collect()
+}
+
+/// Each label offered to choose from is offered as a label read, since a label was asked for.
+fn read_labels(found: &mut Outcome) {
+    for step in &mut found.next {
+        if step.0 == StepKind::Disambiguate
+            && let Action::Run {
+                request: Request::GetDrug(get),
+                ..
+            } = &mut step.1
+            && let Ok(label) = get.for_section(DrugSection::Label)
+        {
+            *get = label;
+        }
+    }
 }
