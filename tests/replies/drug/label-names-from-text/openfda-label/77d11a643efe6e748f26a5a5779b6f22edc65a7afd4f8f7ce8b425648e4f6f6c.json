@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=indications_and_usage%3A%22synthetic%20nameless%22&limit=10&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"meta\":{\"results\":{\"skip\":0,\"limit\":10,\"total\":2}},\"results\":[{\"id\":\"77777777-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"set_id\":\"77777777-7777-4777-8777-777777777777\",\"version\":\"1\",\"effective_time\":\"20261001\",\"openfda\":{},\"spl_product_data_elements\":[\"Zylotra Max zylotrinib ZYLOTRINIB ZYLOTRINIB LACTOSE\"],\"indications_and_usage\":[\"1 INDICATIONS AND USAGE ZYLOTRA MAX is indicated for synthetic nameless disease.\"]},{\"id\":\"88888888-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"set_id\":\"88888888-8888-4888-8888-888888888888\",\"version\":\"1\",\"effective_time\":\"20260901\",\"openfda\":{},\"spl_product_data_elements\":[\"Quorvex quorvenib QUORVENIB QUORVENIB\"],\"package_label_principal_display_panel\":[\"PRINCIPAL DISPLAY PANEL 30 tablets Rx only\"],\"indications_and_usage\":[\"1 INDICATIONS AND USAGE This synthetic label is indicated for synthetic nameless disease.\"]}]}"
+      }
+    }
+  ]
+}
