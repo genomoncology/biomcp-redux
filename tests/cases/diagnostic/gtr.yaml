@@ -9,7 +9,7 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 320,
+      "max_bytes": 403,
       "expect": {
         "/schema": "biomcp.sync/8",
         "/result/rows": 21,
@@ -195,5 +195,6 @@
         "/result/duplicate_identities": 1
       }
     }
-  ]
+  ],
+  "verified": " 1059: the partial reply now carries `incomplete`; step 1 measured 350 bytes in j43186 and its ceiling adds 15 percent."
 }

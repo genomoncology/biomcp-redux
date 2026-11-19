@@ -31,8 +31,8 @@
         "/result/items/0/sections/pdf/reason": "disabled",
         "/result/items/0/sections/tldr/state": "skipped"
       },
-      "max_bytes": 5123
+      "max_bytes": 5931
     }
   ],
-  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities. Measured all reply 4454 bytes; ceiling ceil(4454 * 1.15)=5123; no comparable 0.9 preprint command exists. Combined-source integration disables Semantic Scholar explicitly; its skipped notice preserves DOI-based TLDR support without another public request."
+  "verified": "2026-10-24 actual core and JATS capture. Replay contains only Europe PMC requests and parity runs share those exact request identities. Measured all reply 4454 bytes; ceiling ceil(4454 * 1.15)=5123; no comparable 0.9 preprint command exists. Combined-source integration disables Semantic Scholar explicitly; its skipped notice preserves DOI-based TLDR support without another public request. 1059: the partial reply now carries `incomplete`; step 1 measured 5,157 bytes in j43186 and its ceiling adds 15 percent."
 }
