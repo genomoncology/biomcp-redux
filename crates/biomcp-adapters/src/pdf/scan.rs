@@ -17,7 +17,7 @@
 use super::fonts::entry;
 use super::lexer::{Read, header, integer, measure, skip_space};
 use super::xref::{index, payload, small_dictionary, whole};
-use Refusal::{Irregular, TooLarge};
+use Refusal::{Expired, Irregular, TooLarge};
 use lopdf::{Dictionary, Object, Stream};
 use std::collections::BTreeMap;
 
