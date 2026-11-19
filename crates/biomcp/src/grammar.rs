@@ -17,6 +17,7 @@ pub(crate) use positional::candidate;
 mod options;
 pub(crate) use options::{first_page, options, section_page};
 mod recovery;
+mod repeated;
 pub(crate) use recovery::prepared;
 mod sections;
 mod tree;

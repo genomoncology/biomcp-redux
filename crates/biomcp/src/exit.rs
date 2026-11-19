@@ -75,7 +75,9 @@ pub(crate) fn reference() -> String {
             .collect::<Vec<_>>()
             .join(", ");
         text.push_str(&format!(
-            "Error codes: {codes}. Source problems and reasons appear in their reply fields."
+            "Error codes: {codes}. Source problems and reasons appear in their reply fields. \
+             A usage.arguments message says whether error.option was missing, unknown, repeated or given a value \
+             it does not accept; valid_values shows what it accepts."
         ));
     }
     text

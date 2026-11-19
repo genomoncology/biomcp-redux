@@ -90,7 +90,7 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
     };
     Some(UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some("section".into()),
-        message: None,
+        message: Some(biomcp_types::ErrorMessage::ArgumentMissing),
         valid_values: Some(values.into()),
         next: vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,

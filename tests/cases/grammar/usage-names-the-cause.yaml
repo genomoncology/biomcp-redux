@@ -1,0 +1,99 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "A refusal says whether its option was repeated, unknown or given a value it does not accept, describes a free-text option by its own meaning rather than the shared text type, and offers a call that works: a comma-separated option given twice is offered once with its values joined, and a field name inside a search row's field is offered as that field.",
+  "harvest": "Agent runs on 1.0.0 (be96d8d40), 2026-11-19: 22 of 222 calls refused with one missing-or-invalid sentence.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Aimovig",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "warnings_and_cautions",
+        "--label-section",
+        "adverse_reactions"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--label-section",
+        "/error/message": "option repeated: give error.option once, in the form valid_values shows",
+        "/error/valid_values": [
+          "Exact openFDA SPL fields. Separate several with commas."
+        ],
+        "/next/0/args": {
+          "includes_all_of": [
+            "--label-section",
+            "warnings_and_cautions,adverse_reactions"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--disease",
+        "Fanconi anemia"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--disease",
+        "/error/message": "unknown option: this command has no error.option; valid_values lists the options it takes",
+        "/error/valid_values": {
+          "includes_all_of": [
+            "--band",
+            "--region"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "BRAF",
+        "--fields",
+        "title,authors,journal,year"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--fields",
+        "/error/message": "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
+        "/error/valid_values": {
+          "includes": "header"
+        },
+        "/next/0/args/0": "--fields=header",
+        "/next": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "lung cancer"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "input",
+        "/error/message": "value not accepted: give error.option a value valid_values accepts"
+      }
+    }
+  ]
+}

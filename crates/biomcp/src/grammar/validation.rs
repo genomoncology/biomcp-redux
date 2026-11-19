@@ -10,7 +10,12 @@ pub(super) fn schema(verb: &str, entity: &str) -> Option<Value> {
     serde_json::from_str(crate::schema::find(id)?).ok()
 }
 
-pub(super) fn checked(verb: &str, entity: &str, cause: &QueryInvalid) -> Option<UsageArguments> {
+pub(super) fn checked(
+    verb: &str,
+    entity: &str,
+    value: &Value,
+    cause: &QueryInvalid,
+) -> Option<UsageArguments> {
     let schema = schema(verb, entity)?;
     let (name, property) = cause.arguments().iter().find_map(|name| {
         schema
@@ -25,7 +30,13 @@ pub(super) fn checked(verb: &str, entity: &str, cause: &QueryInvalid) -> Option<
     };
     Some(UsageArguments {
         argument: Some(argument.into()),
-        message: cause.message(),
+        message: cause
+            .message()
+            .or(Some(if value.get(name).is_none_or(Value::is_null) {
+                biomcp_types::ErrorMessage::ArgumentMissing
+            } else {
+                biomcp_types::ErrorMessage::ArgumentValue
+            })),
         valid_values: choices(name).or_else(|| accepted(&schema, property)),
         next: vec![help([verb, entity])],
     })
@@ -94,6 +105,18 @@ pub(super) fn accepted(schema: &Value, property: &Value) -> Option<Box<[biodata:
             }
         }
         vec![form]
+    } else if plain_text(property) {
+        // The shared text type's description says nothing about this option; its own does.
+        let own = property.get("description").and_then(Value::as_str);
+        let mut form = own
+            .and_then(|text| text.lines().next())
+            .unwrap_or("text")
+            .trim()
+            .to_owned();
+        if property.get("x-comma-separated").is_some() {
+            form.push_str(" Separate several with commas.");
+        }
+        vec![form]
     } else {
         let description = value
             .get("description")
@@ -118,4 +141,14 @@ pub(super) fn accepted(schema: &Value, property: &Value) -> Option<Box<[biodata:
         .map(|form| biodata::Text::new(&form).ok())
         .collect::<Option<Vec<_>>>()
         .map(Into::into)
+}
+
+/// Whether a property is the shared bounded text type, directly, nullable or as list items.
+fn plain_text(property: &Value) -> bool {
+    property.get("$ref").and_then(Value::as_str) == Some("#/$defs/Text")
+        || property
+            .get("anyOf")
+            .and_then(Value::as_array)
+            .is_some_and(|choices| choices.iter().any(plain_text))
+        || property.get("items").is_some_and(plain_text)
 }
