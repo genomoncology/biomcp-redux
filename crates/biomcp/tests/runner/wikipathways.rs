@@ -1,4 +1,4 @@
-//! Feature pathway-wikipathways: explicit atomic catalog replacement and stored-only reads.
+//! Feature pathway-wikipathways: explicit atomic catalog replacement and reads that never refresh stored catalogs.
 use super::launch::Environment;
 use super::pathway_budgets as budgets;
 mod concurrent;

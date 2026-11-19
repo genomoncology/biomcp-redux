@@ -1,4 +1,4 @@
-//! Feature study-catalog: stored literal search never synchronizes implicitly.
+//! Feature study-catalog: stored literal search never refreshes the stored catalog.
 use super::required_contract;
 use super::{configuration::invoke, launch::Environment};
 use crate::runner::transcript::trial as transcript_trial;
