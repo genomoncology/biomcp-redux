@@ -214,7 +214,7 @@ fn summaries_reply(
 }
 
 mod query;
-pub use query::{resolve_ids, search_dois, search_query};
+pub use query::{open_access, resolve_ids, search_dois, search_query};
 
 /// Complete source policy and command declaration.
 pub(crate) mod decl;

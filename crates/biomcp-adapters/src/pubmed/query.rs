@@ -134,3 +134,29 @@ pub fn resolve_ids(
         .esearchresult
         .idlist)
 }
+
+/// PMIDs of `ids` in PubMed Central's open-access subset, from one ESearch with NCBI's
+/// `"pubmed pmc open access"[filter]`. Rows not returned are not in that subset.
+pub fn open_access(
+    leg: &Leg<'_>,
+    ids: &[Pmid],
+    email: Option<&Secret>,
+) -> Result<Vec<Pmid>, RequestError> {
+    let group = ids
+        .iter()
+        .map(|id| format!("{id}[uid]"))
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    let term = format!("({group}) AND \"pubmed pmc open access\"[filter]");
+    let inputs = Some(biomcp_fetch::Identities {
+        namespace: "pmid".into(),
+        ids: ids.iter().map(ToString::to_string).collect(),
+    });
+    let found =
+        super::search_ids_with_inputs(leg, &term, biomcp_types::ArticleSort::Date, email, inputs)?;
+    Ok(found
+        .ids
+        .into_iter()
+        .filter(|id| ids.contains(id))
+        .collect())
+}

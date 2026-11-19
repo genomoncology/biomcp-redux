@@ -56,15 +56,21 @@ pub struct ArticleItem {
     /// iCite citing-paper count, only under citation ordering.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cited_by: Option<u64>,
-    /// Europe PMC open-access flag; absent when no source states one. Not a licence.
+    /// Open-access flag from `open_access_source`; the two sources define open access differently. Not a licence.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub open_access: Option<bool>,
-    /// True on a search row whose open-access status no source stated.
+    /// `pubmed`: in PubMed Central's open-access subset, per NCBI's filter; `europepmc`: Europe PMC's flag.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open_access_source: Option<crate::Source>,
+    /// True on a search row whose open-access flag was not checked or could not be read.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub open_access_unknown: bool,
+    pub open_access_not_checked: bool,
     /// License Europe PMC states for the paper, even when it is not open access.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub license: Option<biodata::License>,
+    /// True on a search row whose licence was not checked; only the Europe PMC lookup reads licences.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub license_not_checked: bool,
     /// Record-owned text was not admitted under the current use policy.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text_withheld: Option<WithheldArticleText>,
