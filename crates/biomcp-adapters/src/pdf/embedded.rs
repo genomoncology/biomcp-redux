@@ -56,7 +56,7 @@ pub fn embedded(
         result.state = PdfTextState::TooLarge;
         return Ok(result);
     }
-    let (mut text, mut unsound, mut skipped) = (String::new(), String::new(), false);
+    let (mut text, mut unsound, mut skipped) = (String::new(), Vec::new(), false);
     let mut fonts = super::cmap::Cache::default();
     for page in pages.values() {
         check()?;
@@ -73,16 +73,35 @@ pub fn embedded(
             result.state = PdfTextState::TooLarge;
             return Ok(result);
         }
+        let at = text.len();
+        unsound.extend(
+            part.unsound
+                .iter()
+                .map(|(start, end)| (at + start, at + end)),
+        );
         text.push_str(&part.text);
-        unsound.push_str(&part.unsound);
         skipped |= part.skipped;
     }
     check()?;
-    // Text read through a character map or a declared one-byte encoding is never judged:
-    // tables, part numbers and other languages are not gibberish.
-    if super::garbled::garbled(&unsound) {
-        result.state = PdfTextState::Garbled;
-    } else if !text.trim().is_empty() {
+    // Only text shown in a composite font without a character map is judged; text read
+    // through a map or a declared one-byte encoding is not, since tables, part numbers and
+    // other languages are not gibberish. Gibberish is cut out and the rest is partial, unless
+    // gibberish was most of the text.
+    let shown: Vec<&str> = unsound
+        .iter()
+        .filter_map(|(start, end)| text.get(*start..*end))
+        .collect();
+    let judged = shown.join(" ");
+    if super::garbled::garbled(&judged) {
+        let kept = without(&text, &unsound);
+        if kept.trim().len() < judged.len() {
+            result.state = PdfTextState::Garbled;
+            return Ok(result);
+        }
+        text = kept;
+        skipped = true;
+    }
+    if !text.trim().is_empty() {
         result.state = if skipped {
             PdfTextState::Partial
         } else {
@@ -91,4 +110,17 @@ pub fn embedded(
         result.text = text;
     }
     Ok(result)
+}
+
+/// `text` without the byte `spans`, which are in order and do not overlap.
+fn without(text: &str, spans: &[(usize, usize)]) -> String {
+    let mut kept = String::with_capacity(text.len());
+    let mut from = 0;
+    for (start, end) in spans {
+        kept.push_str(text.get(from..*start).unwrap_or_default());
+        kept.push(' ');
+        from = *end;
+    }
+    kept.push_str(text.get(from..).unwrap_or_default());
+    kept
 }

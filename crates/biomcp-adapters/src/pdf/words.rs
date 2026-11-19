@@ -40,8 +40,8 @@ struct End {
 #[derive(Default)]
 pub(super) struct Reader {
     text: String,
-    /// Text shown in fonts decoded without a character map.
-    unsound: String,
+    /// Byte spans of `text` shown in fonts decoded without a character map.
+    unsound: Vec<(usize, usize)>,
     state: State,
     saved: Vec<State>,
     line: Matrix,
@@ -79,8 +79,8 @@ impl Reader {
         }
     }
 
-    /// The page's text, ending any line an `ET` left waiting, and its unsound text.
-    pub(super) fn finish(mut self) -> (String, String) {
+    /// The page's text, ending any line an `ET` left waiting, and its unsound spans.
+    pub(super) fn finish(mut self) -> (String, Vec<(usize, usize)>) {
         if self.pending {
             self.newline();
         }
@@ -225,10 +225,10 @@ impl Reader {
         {
             self.text.push(' ');
         }
+        let at = self.text.len();
         self.text.push_str(&shown);
         if !font.sound {
-            self.unsound.push_str(&shown);
-            self.unsound.push(' ');
+            self.unsound.push((at, self.text.len()));
         }
         self.matrix = start.moved(advance, 0.0);
         let page = self.matrix.times(self.state.ctm);

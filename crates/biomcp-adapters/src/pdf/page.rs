@@ -38,11 +38,11 @@ impl From<lopdf::Error> for Halt {
     }
 }
 
-/// One page's text, the text shown in fonts without a character map, and whether a form was
-/// skipped, so text may be missing.
+/// One page's text, the byte spans of it shown in fonts without a character map, and whether
+/// a form was skipped, so text may be missing.
 pub(super) struct PageText {
     pub(super) text: String,
-    pub(super) unsound: String,
+    pub(super) unsound: Vec<(usize, usize)>,
     pub(super) skipped: bool,
 }
 

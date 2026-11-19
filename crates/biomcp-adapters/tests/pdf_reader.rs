@@ -120,6 +120,37 @@ fn glyphs_without_a_character_map_are_garbled() {
 }
 
 #[test]
+fn gibberish_beside_readable_text_is_cut_out_and_the_rest_is_partial() {
+    let english: String = (0..60)
+        .map(|n| format!("({n} {SENTENCE}) Tj T* "))
+        .collect();
+    let mut content = format!("BT /F2 9 Tf 11 TL 36 760 Td {english}ET\n").into_bytes();
+    content.extend(glyph_lines(SENTENCE, 30));
+    let bytes = pdf(&content, |document| {
+        let glyphs = composite(document, None);
+        let font = document.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica", "Encoding" => "WinAnsiEncoding",
+        });
+        dictionary! { "Font" => dictionary! { "F1" => glyphs, "F2" => font } }
+    });
+    let read = read(&bytes);
+    assert_eq!(
+        read.state,
+        PdfTextState::Partial,
+        "the gibberish stretch is missing"
+    );
+    assert!(
+        read.text.contains("59 There is a risk"),
+        "readable text is kept"
+    );
+    assert!(
+        !read.text.contains("7KHUH"),
+        "gibberish is never returned: {}",
+        read.text
+    );
+}
+
+#[test]
 fn text_in_a_declared_encoding_is_never_judged_garbled() {
     let table: String = (0..600)
         .map(|n| format!("{n}.{} {}-{:03} ", n % 7, n * 13, n % 997))
