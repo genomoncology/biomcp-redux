@@ -28,12 +28,12 @@ pub(super) fn run(
             return super::response(fetch, request, result, fresh, globals, encoding);
         }
         local |= result.local.is_some();
-        statuses.push(result.status());
         let (meta, body) = super::finished(fetch, &request, result, fresh, globals, encoding)?;
         parts.push(
             body.visit(Part {
                 meta,
                 identity: &mut identity,
+                statuses: &mut statuses,
             })
             .ok_or_else(|| io::Error::other("drug section reply"))?,
         );
@@ -54,7 +54,9 @@ pub(super) fn run(
         identity,
         parts: parts.into(),
     };
-    encoding.encode(Envelope::new(status, echoed, Some(body)), exit)
+    let mut envelope = Envelope::new(status, echoed, Some(body));
+    crate::incomplete::settle(&mut envelope, Vec::new());
+    encoding.encode(envelope, exit)
 }
 
 /// Absent or failed only when every part is; partial when any part failed or is partial.
@@ -93,6 +95,8 @@ fn sectioned(body: &ReplyData) -> bool {
 struct Part<'a> {
     meta: ResponseMeta,
     identity: &'a mut Option<DrugHeader>,
+    /// Each part's status after the envelope owner settled it.
+    statuses: &'a mut Vec<Status>,
 }
 impl Part<'_> {
     fn wrap<B, P>(
@@ -105,6 +109,7 @@ impl Part<'_> {
         B: ReplyBody<Query = DrugGet> + DrugSectionBody<Part = P>,
     {
         let envelope = self.meta.envelope(query.clone(), body);
+        self.statuses.push(envelope.status);
         let (identity, result) = match envelope.result.map(|body| body.split(&query)) {
             Some((identity, part)) => (Some(identity), Some(part)),
             None => (None, None),

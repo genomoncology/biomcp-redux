@@ -3,8 +3,17 @@
 use biomcp_types::{Envelope, Incomplete, ResponseBody, Source, SourceState, Status};
 use serde_json::Value;
 
-/// Result nodes whose `state` marks requested data that could not be read.
-const MISSING_STATES: [&str; 2] = ["unavailable", "no-text"];
+/// Result nodes whose `state` marks requested data that could not be read, including source rows
+/// nested in a multi-part reply.
+const MISSING_STATES: [&str; 7] = [
+    "unavailable",
+    "no-text",
+    "too-large",
+    "skipped",
+    "failed",
+    "stale",
+    "syncing",
+];
 
 /// Downgrade a `complete` reply beside a failed source row, then list what a `partial` reply is
 /// missing: failed source rows, result nodes marked missing, and the command's own entries.
@@ -40,7 +49,48 @@ pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Inc
             found.push(item);
         }
     }
+    if found.is_empty() {
+        found = problems(&envelope.problems);
+    }
+    if found.is_empty() {
+        found = notices(&envelope.sources);
+    }
     envelope.incomplete = found;
+}
+
+/// A record or field the source sent but BioMCP refused: one entry per source and code.
+fn problems(problems: &[biomcp_types::Problem]) -> Vec<Incomplete> {
+    let mut seen = Vec::new();
+    let mut found = Vec::new();
+    for (index, problem) in problems.iter().enumerate() {
+        if seen.contains(&(problem.source, problem.code)) {
+            continue;
+        }
+        seen.push((problem.source, problem.code));
+        let reason = match problem.code {
+            biomcp_types::ProblemCode::CollectionIncomplete => biomcp_types::Reason::TooLarge,
+            biomcp_types::ProblemCode::FilterUnsupported => biomcp_types::Reason::Unsupported,
+            _ => biomcp_types::Reason::BadReply,
+        };
+        found.extend(entry(
+            format!("/problems/{index}"),
+            problem.source,
+            Some(reason),
+        ));
+    }
+    found
+}
+
+/// A source's own notice is the only statement of what a short read left out.
+fn notices(sources: &[biomcp_types::SourceOutcome]) -> Vec<Incomplete> {
+    sources
+        .iter()
+        .enumerate()
+        .filter_map(|(index, row)| {
+            let last = row.notices.len().checked_sub(1)?;
+            entry(format!("/sources/{index}/notices/{last}"), row.source, None)
+        })
+        .collect()
 }
 
 fn entry(at: String, source: Source, reason: Option<biomcp_types::Reason>) -> Option<Incomplete> {
