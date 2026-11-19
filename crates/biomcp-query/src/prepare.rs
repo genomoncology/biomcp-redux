@@ -28,8 +28,8 @@ fn disease_unsupported(action: &Action) -> bool {
 fn search_supported(source: DiseaseSource) -> bool {
     matches!(source, DiseaseSource::Ols | DiseaseSource::Seer)
 }
-/// Whether this source serves the ID and section. OLS holds only its own ontologies' IDs, so an ID of
-/// another namespace would come back not found.
+/// Whether this source serves the ID and section, so a refusal never offers a source that would come back
+/// not found. OLS holds only its own ontologies' IDs.
 fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &str) -> bool {
     match source {
         DiseaseSource::Ols => {
@@ -50,10 +50,14 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
                     )
                 )
         }
-        DiseaseSource::Monarch => matches!(
-            section,
-            Some(DiseaseSection::Genes | DiseaseSection::Phenotypes)
-        ),
+        // Monarch holds MONDO IDs; another ID is read through the MONDO record that cross-references it.
+        DiseaseSource::Monarch => {
+            biomcp_adapters::mydisease::supported_id(id)
+                && matches!(
+                    section,
+                    Some(DiseaseSection::Genes | DiseaseSection::Phenotypes)
+                )
+        }
         DiseaseSource::Seer => matches!(
             section,
             Some(DiseaseSection::Incidence | DiseaseSection::Survival)

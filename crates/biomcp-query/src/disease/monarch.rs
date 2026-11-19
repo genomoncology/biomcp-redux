@@ -7,10 +7,28 @@ use biomcp_types::{
     DiseaseGenes, DiseaseGet, DiseasePhenotypes, DiseaseSection, GeneGet, GeneInput, Reason,
     ReplyData, Request, Source, StepKind,
 };
-/// Read one native association page without identity choice or cross-source joins.
+/// Read one native association page for a MONDO ID, or for the MONDO record that MyDisease finds
+/// cross-referencing another ID, without other cross-source joins.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
+    let mut mapped = None;
+    let mut out = empty(body(query, Vec::new(), Box::default(), None));
+    let id = if id.as_str().starts_with("MONDO:") {
+        id.clone()
+    } else {
+        match super::mydisease::mondo(cx, query, id, deadline, &mut out) {
+            Some(mondo) => {
+                mapped = Some(out);
+                mondo
+            }
+            None => {
+                command.finish(deadline.remaining());
+                return out;
+            }
+        }
+    };
+    let id = &id;
     let leg = cx.fetch.leg(&monarch::SPEC, deadline).fresh(cx.fresh);
     let reply = monarch::associations(&leg, query, id);
     // An empty page reads the same for an unknown disease; only the entity read tells them apart.
@@ -26,6 +44,11 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         .copied()
         .or(held.flatten().filter(|e| !unknown(e)));
     let mut out = empty(body(query, Vec::new(), Box::default(), None));
+    // The MyDisease read that named the MONDO record stays first, with its mapping notice.
+    if let Some(resolved) = mapped {
+        out.sources = resolved.sources;
+        out.problems = resolved.problems;
+    }
     out.sources
         .push(status::source(Source::Monarch, leg.finish(), error));
     out.local = error.and_then(status::local);

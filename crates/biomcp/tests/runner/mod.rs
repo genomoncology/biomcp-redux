@@ -52,6 +52,7 @@ mod diagnostic_cdx;
 mod diagnostic_retirements;
 mod diagnostic_who;
 mod disease_monarch;
+mod disease_next;
 mod drug_approvals;
 mod drug_civic;
 mod drug_civic_fixtures;
@@ -276,6 +277,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(argument_recovery::trials());
     trials.extend(enum_case::trials());
+    trials.extend(disease_next::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
     trials.extend(article_pools::trials());

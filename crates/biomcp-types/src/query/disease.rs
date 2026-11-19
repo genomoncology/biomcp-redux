@@ -124,7 +124,7 @@ struct GetFields<I = Text> {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology", extend("default" = "mondo")))]
+    #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology"))]
     ontology: Option<DiseaseOntology>,
     /// One named section; absent means identity card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -257,6 +257,17 @@ fn orphadata_id(id: &str) -> bool {
             && local.bytes().all(|b| b.is_ascii_digit())
     })
 }
+/// A known disease namespace in its published letter case, since sources match prefixes exactly.
+fn canonical(id: &str) -> String {
+    const PREFIXES: [&str; 7] = ["MONDO", "DOID", "NCIT", "OMIM", "ORPHA", "Orphanet", "HP"];
+    match id.split_once(':') {
+        Some((prefix, local)) => PREFIXES
+            .iter()
+            .find(|known| known.eq_ignore_ascii_case(prefix))
+            .map_or_else(|| id.to_owned(), |known| format!("{known}:{local}")),
+        None => id.to_owned(),
+    }
+}
 /// Bind the record to a SEER site or an ontology concept, naming the real fault.
 fn get_id(v: &GetFields<Text>, statistic: bool) -> Result<DiseaseId, QueryInvalid> {
     Ok(if v.source == DiseaseSource::Seer {
@@ -275,7 +286,7 @@ fn get_id(v: &GetFields<Text>, statistic: bool) -> Result<DiseaseId, QueryInvali
                 .with_message(crate::ErrorMessage::DiseaseStatistic));
         }
         DiseaseId::Concept(
-            v.id.as_str()
+            canonical(v.id.as_str())
                 .parse()
                 .map_err(|_| QueryInvalid::new(&["source", "id", "section"]))?,
         )
