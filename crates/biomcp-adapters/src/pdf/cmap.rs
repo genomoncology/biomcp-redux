@@ -9,7 +9,7 @@
 //!
 //! A composite font decoded without a character map gives glyph IDs, not characters. Its text
 //! is unsound, and only unsound text is judged for gibberish (1068).
-use super::fonts::{Widths, entry, widths};
+use super::fonts::{Widths, widths};
 use lopdf::{Dictionary, Document, Encoding, Object};
 use std::{collections::BTreeMap, rc::Rc};
 

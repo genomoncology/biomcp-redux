@@ -262,7 +262,11 @@ fn names_pdf(name: &str, count: usize) -> lopdf::Result<Vec<u8>> {
 
 #[test]
 fn documents_naming_too_many_load_time_streams_are_refused_before_loading() {
-    let objects = names_pdf("Obj#53tm", 1025).expect("synthetic PDF");
+    let plain = names_pdf("ObjStm", 1025).expect("synthetic PDF");
+    // lopdf writes names plainly; escape each one as an attacker could.
+    let objects = String::from_utf8_lossy(&plain)
+        .replace("/ObjStm", "/Obj#53tm")
+        .into_bytes();
     assert_eq!(
         read(&objects).expect("refused, not failed").state,
         PdfTextState::TooLarge,
