@@ -123,5 +123,10 @@ fn show(name: &str) -> io::Result<String> {
             name == stem || name == slug || numeric.as_deref() == Some(number)
         })
         .map(|(_, text)| (*text).to_owned())
-        .ok_or_else(|| io::Error::other("unknown skill; use biomcp skill list"))
+        .ok_or_else(|| {
+            io::Error::other(
+                "unknown skill: no worked example has this name; `biomcp skill` alone prints the \
+                 overview, and `biomcp skill list` names the examples, as in `biomcp skill treatment-lookup`",
+            )
+        })
 }

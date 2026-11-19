@@ -130,7 +130,7 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "value not accepted: give error.option a value valid_values accepts",
         "/error/option": "--offset",
         "/next/0/args": [
           "help",
@@ -155,7 +155,7 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "value not accepted: give error.option a value valid_values accepts",
         "/error/option": "--section-limit",
         "/next/0/args": [
           "help",
@@ -180,7 +180,7 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "value not accepted: give error.option a value valid_values accepts",
         "/error/option": "--section-offset",
         "/next/0/args": [
           "help",
