@@ -294,7 +294,7 @@ pub(super) fn failed(source: SourceOutcome, out: &mut Outcome) {
     {
         status::missing(out, at, source.source, source.reason);
     }
-    if out.status == biomcp_types::Status::Complete {
+    if out.status() == biomcp_types::Status::Complete {
         crate::status::item(out, true, false, true);
     }
 }
