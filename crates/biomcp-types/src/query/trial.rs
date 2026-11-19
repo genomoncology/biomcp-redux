@@ -115,7 +115,8 @@ struct Fields {
     #[cfg_attr(feature = "schema", schemars(with = "TrialStatusFilter"))]
     status: Option<TrialStatusFilter>,
     #[doc = "Native phase.\n\
-        Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV."]
+        Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, \
+        or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
