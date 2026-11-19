@@ -99,6 +99,10 @@ const EXCEPTIONS: &[(&str, &str)] = &[
         "Time nested drug commands on the shared clock they charge (1038)",
     ),
     (
+        "crates/biomcp-query/src/drug/label_application.rs",
+        "Time nested drug commands on the shared clock they charge (1038)",
+    ),
+    (
         "crates/biomcp-query/src/drug/search_names.rs",
         "Time nested drug commands on the shared clock they charge (1038)",
     ),

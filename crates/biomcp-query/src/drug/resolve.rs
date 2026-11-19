@@ -160,6 +160,12 @@ fn chosen_name(
             .collect(),
     };
     annotate(&mut out.body, resolution);
+    carry(discovery, &mut out);
+    out
+}
+
+/// Keep the lookup's problems and source reads on the record it chose.
+pub(super) fn carry(discovery: &Outcome, out: &mut Outcome) {
     out.problems.extend(discovery.problems.iter().cloned());
     for source in &discovery.sources {
         if let Some(existing) = out.sources.iter_mut().find(|s| s.source == source.source) {
@@ -168,7 +174,6 @@ fn chosen_name(
             out.sources.push(source.clone());
         }
     }
-    out
 }
 
 #[expect(

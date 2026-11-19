@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.application_number.exact%3A%22ANDA090543%22&limit=50&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1795109678,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 518,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No matches found!"
+  }
+}
+      }
+    }
+  ]
+}
