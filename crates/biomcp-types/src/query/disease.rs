@@ -112,13 +112,13 @@ pub struct DiseaseGet {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "GetFields"))]
 struct GetFields<I = Text> {
-    /// Exact ontology CURIE or a SEER site code or name.
+    /// Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: I,
     /// Default MyDisease; no automatic fallback.
     #[serde(default = "get_source")]
     source: DiseaseSource,
-    /// One OLS ontology.
+    /// One OLS ontology; default the one the ID's prefix names, else MONDO.
     #[serde(
         default,
         deserialize_with = "present",
@@ -218,7 +218,9 @@ impl TryFrom<GetFields> for DiseaseGet {
             return Err(QueryInvalid::new(&["section", "interval"]));
         }
         if v.source == DiseaseSource::Ols {
-            v.ontology.get_or_insert_with(DiseaseOntology::default);
+            // An OLS read looks the ID up in one ontology, so default to the one the ID names.
+            v.ontology
+                .get_or_insert_with(|| DiseaseOntology::of(id.as_str()).unwrap_or_default());
         }
         v.section_limit.get_or_insert(match (v.source, v.section) {
             (DiseaseSource::Monarch, Some(DiseaseSection::Genes)) => 2,

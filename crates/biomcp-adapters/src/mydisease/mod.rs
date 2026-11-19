@@ -74,21 +74,40 @@ const LABELS: biomcp_fetch::Endpoint = SPEC
     .idempotent()
     .fresh(Freshness::Days(7));
 const LABEL_FIELDS: &str = "mondo.mondo,mondo.label,disease_ontology.doid,disease_ontology.name";
-/// Whether an identifier belongs to the publisher's implemented exact namespaces.
+/// Whether an identifier is a MONDO concept or one that MyDisease resolves through a MONDO cross-reference.
 pub fn supported_id(id: &str) -> bool {
     id.split_once(':').is_some_and(|(namespace, local)| {
-        matches!(namespace, "MONDO" | "DOID")
-            && !local.is_empty()
-            && local.bytes().all(|v| v.is_ascii_digit())
-    })
+        namespace == "MONDO" && !local.is_empty() && local.bytes().all(|v| v.is_ascii_digit())
+    }) || xref(id).is_some()
 }
 
-/// Read one exact MONDO or DOID annotation, with no search, fallback or fanout.
+/// The MONDO cross-reference field that names this identifier, with the identifier in that field's spelling.
+/// MyDisease reads DOID, OMIM and Orphanet identifiers as the MONDO record that states them.
+pub(super) fn xref(id: &str) -> Option<(&'static str, String)> {
+    let (namespace, local) = id.split_once(':')?;
+    if local.is_empty() || !local.bytes().all(|v| v.is_ascii_digit()) {
+        return None;
+    }
+    match namespace {
+        "DOID" => Some(("doid", id.to_owned())),
+        _ if namespace.eq_ignore_ascii_case("OMIM") => Some(("omim", format!("OMIM:{local}"))),
+        _ if ["ORPHA", "Orphanet"]
+            .iter()
+            .any(|prefix| prefix.eq_ignore_ascii_case(namespace)) =>
+        {
+            Some(("orphanet", format!("ORPHANET:{local}")))
+        }
+        _ => None,
+    }
+}
+
+/// Read one exact MONDO annotation, or the MONDO annotation that cross-references a DOID, OMIM or Orphanet
+/// identifier, with no search, fallback or fanout.
 pub fn get(leg: &Leg<'_>, id: &Curie) -> Result<Record, RequestError> {
-    let identifier = id.to_string();
-    if !supported_id(&identifier) {
+    if !supported_id(id.as_str()) {
         return Err(InputError::Path.into());
     }
+    let identifier = xref(id.as_str()).map_or_else(|| id.to_string(), |(_, spelling)| spelling);
     let fields = crate::disease_sources::components::allowed_fields(leg, FIELDS)?;
     let endpoint = GET.clone().with_segments(&[PathSegment::new(&identifier)?]);
     let (raw, metadata) = leg

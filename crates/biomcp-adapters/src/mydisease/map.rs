@@ -74,15 +74,18 @@ fn endpoint(component: &native::Component) -> DiseaseEndpoint {
     }
 }
 fn xref_id(value: &native::Reference) -> Option<Curie> {
-    let prefix = value.field.to_ascii_uppercase();
-    let native = value.value.as_str();
+    xref_spelling(&value.field, &value.value).parse().ok()
+}
+/// A cross-reference value as a CURIE spelling, its namespace named by the field when the value omits it.
+pub(super) fn xref_spelling(field: &str, native: &str) -> String {
+    let prefix = field.to_ascii_uppercase();
     if native
         .split_once(':')
         .is_some_and(|(p, _)| p.eq_ignore_ascii_case(&prefix))
     {
-        native.parse().ok()
+        native.to_owned()
     } else {
-        format!("{prefix}:{native}").parse().ok()
+        format!("{prefix}:{native}")
     }
 }
 pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, RequestError> {
@@ -122,13 +125,17 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
     }
     let value = &mut mapped.value;
     if record.requested_id != record.returned_id {
+        // The alias is the MONDO cross-reference row that resolved the requested identifier.
+        let (field, spelling) =
+            super::xref(record.requested_id.as_str()).ok_or(InputError::Serialization)?;
+        let predicate = format!("mydisease:mondo.xrefs.{field}");
         value.card.alias = value
             .xrefs
             .iter()
             .find(|r| {
                 r.subject.id == record.returned_id
-                    && r.object.id == record.requested_id
-                    && r.predicate.to_string() == "mydisease:mondo.xrefs.doid"
+                    && r.object.id.as_str().eq_ignore_ascii_case(&spelling)
+                    && r.predicate.as_str() == predicate
             })
             .cloned();
         if value.card.alias.is_none() {

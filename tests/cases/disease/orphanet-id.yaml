@@ -1,0 +1,85 @@
+{
+  "feature": "disease-mydisease",
+  "live_check": "public",
+  "story": "A caller gives an Orphanet or OMIM number and reads the MONDO record that cross-references it, with the cross-reference used; a refused ID offers only steps that run.",
+  "verified": "MyDisease MONDO CC BY 4.0 replies for ORPHANET:115 and OMIM:121050 and the OLS NCIt (CC BY 4.0) term NCIT:C34807, recorded live on 2026-11-19 with no key.",
+  "replay": "disease/orphanet-id",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "disease",
+        "ORPHA:115"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/requested_id": "ORPHA:115",
+        "/result/returned_id": "MONDO:0007363",
+        "/result/concept/label": "congenital contractural arachnodactyly",
+        "/result/alias/predicate": "mydisease:mondo.xrefs.orphanet",
+        "/result/alias/object/id": "ORPHANET:115"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "OMIM:121050"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/returned_id": "MONDO:0007363",
+        "/result/alias/predicate": "mydisease:mondo.xrefs.omim",
+        "/result/alias/object/id": "OMIM:121050"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "NCIT:C34807"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/valid_values": [
+          "ols"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/ontology": "ncit",
+        "/result/concept/label": "Marfan Syndrome"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "ICD10CM:Q87.4"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--source",
+        "/next/0/args": [
+          "help",
+          "get",
+          "disease"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/schema": "biomcp.help/7"
+      }
+    }
+  ]
+}

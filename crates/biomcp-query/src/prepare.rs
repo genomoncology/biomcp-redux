@@ -28,12 +28,17 @@ fn disease_unsupported(action: &Action) -> bool {
 fn search_supported(source: DiseaseSource) -> bool {
     matches!(source, DiseaseSource::Ols | DiseaseSource::Seer)
 }
+/// Whether this source serves the ID and section. OLS holds only its own ontologies' IDs, so an ID of
+/// another namespace would come back not found.
 fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &str) -> bool {
     match source {
-        DiseaseSource::Ols => matches!(
-            section,
-            None | Some(DiseaseSection::Synonyms | DiseaseSection::Xrefs)
-        ),
+        DiseaseSource::Ols => {
+            biomcp_types::DiseaseOntology::of(id).is_some()
+                && matches!(
+                    section,
+                    None | Some(DiseaseSection::Synonyms | DiseaseSection::Xrefs)
+                )
+        }
         DiseaseSource::MyDisease => {
             biomcp_adapters::mydisease::supported_id(id)
                 && matches!(

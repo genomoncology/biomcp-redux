@@ -1,0 +1,1 @@
+Unchanged public replies recorded live on 2026-11-19 with no key: MyDisease's `GET /v1/disease/ORPHANET:115` and `GET /v1/disease/OMIM:121050`, each answered with the MONDO:0007363 document whose `mondo.xrefs` state those codes (MONDO CC BY 4.0), and OLS's NCIt term NCIT:C34807 (NCIt CC BY 4.0).

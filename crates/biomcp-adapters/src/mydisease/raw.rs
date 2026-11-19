@@ -45,20 +45,9 @@ impl Document {
             mondo.is_some_and(|c| c.id == self.id) || doid.is_some_and(|c| c.id == self.id);
         primary
             && (self.id == *id
-                || (id.to_string().starts_with("DOID:")
-                    && mondo.is_some_and(|c| {
-                        c.xrefs
-                            .as_ref()
-                            .and_then(|xrefs| match xrefs { Field::Value(v) => v.get("doid"), Field::Invalid(_) => None })
-                            .is_some_and(|values| match values {
-                                OneOrMany::One(value) => {
-                                    matches!(value, Field::Value(v) if v.as_str().parse::<Curie>().ok().as_ref() == Some(id))
-                                }
-                                OneOrMany::Many(values) => values
-                                    .iter()
-                                    .any(|v| matches!(v, Field::Value(v) if v.as_str().parse::<Curie>().ok().as_ref() == Some(id))),
-                            })
-                    })))
+                || super::xref(id.as_str()).is_some_and(|(field, spelling)| {
+                    mondo.is_some_and(|c| c.states(field, &spelling))
+                }))
     }
 }
 #[derive(Debug, Deserialize)]
@@ -76,6 +65,22 @@ pub(super) struct Component {
     pub is_obsolete: Option<crate::raw::Field<bool>>,
     pub consider: Option<Field<Box<[Field<Curie>]>>>,
     pub replaced_by: Option<Field<Box<[Field<Curie>]>>>,
+}
+impl Component {
+    /// Whether this component's cross-reference field states the identifier, in either native spelling.
+    fn states(&self, field: &str, spelling: &str) -> bool {
+        let Some(Field::Value(xrefs)) = &self.xrefs else {
+            return false;
+        };
+        let values: &[Field<String>] = match xrefs.get(field) {
+            Some(OneOrMany::One(value)) => std::slice::from_ref(value),
+            Some(OneOrMany::Many(values)) => values,
+            None => return false,
+        };
+        values.iter().any(|value| {
+            matches!(value, Field::Value(v) if super::map::xref_spelling(field, v).eq_ignore_ascii_case(spelling))
+        })
+    }
 }
 
 /// Batch reply for direct-parent labels; each hit names the query it answers.

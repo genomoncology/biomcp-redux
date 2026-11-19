@@ -36,3 +36,13 @@ selector!(DiseaseSource, "An explicit disease source without fallback.", Ols, {O
 // The sources disease search advertises; Orphadata only reads a known concept's prevalence.
 #[cfg(feature = "schema")]
 selector!(DiseaseSearchSource, "An explicit disease search source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer});
+impl DiseaseOntology {
+    /// The ontology whose prefix the ID carries, in any letter case.
+    pub fn of(id: &str) -> Option<Self> {
+        let (prefix, _) = id.split_once(':')?;
+        Self::ALL
+            .iter()
+            .copied()
+            .find(|ontology| ontology.as_str().eq_ignore_ascii_case(prefix))
+    }
+}
