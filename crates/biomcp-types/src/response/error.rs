@@ -80,7 +80,6 @@ singleton! {
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
  ArgumentCombination => "error.option is not accepted with the other options as given; valid_values names every option involved",
- ArgumentOneOf => "required option missing: add one of the options in valid_values",
  FieldsUnknown => "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
  FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named \
  sections instead",
@@ -341,8 +340,7 @@ singleton! {
             and request its explicit source sections.",
         PathwayArticles => "use: search article <text>; a matching title does not establish pathway article linkage.",
         PathwayTrials => "use: search trial --gene <gene>; pathway-name trial search is retired.",
-        PathwayHelp => "use: help search pathway; help get pathway",
-        DrugArticles => "use: search article --drug <drug>", Pathway => "moved to the pathway entity",
+        PathwayHelp => "use: help search pathway; help get pathway", DrugArticles => "use: search article --drug <drug>", Pathway => "moved to the pathway entity",
         Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression", Drug => "moved to the drug entity",
  Diagnostic => "moved to the diagnostic entity",
  PoolExpired => "pool expired; restart the search",

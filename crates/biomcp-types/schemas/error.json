@@ -120,7 +120,6 @@
         "value not accepted: give error.option a value valid_values accepts",
         "option repeated: give error.option once, in the form valid_values shows",
         "error.option is not accepted with the other options as given; valid_values names every option involved",
-        "required option missing: add one of the options in valid_values",
         "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
         "--fields chooses columns of search rows only; drop --fields and read the record's named sections instead",
         "no saved result has this name; --pool and --snapshot take only a name from a reply's next step; run the suggested command",

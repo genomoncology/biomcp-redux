@@ -3,7 +3,8 @@
   "live_check": "local-only validation; no source requests",
   "story": "A typed tool call refused for its arguments names the cause: a field the action does not take is an unknown option, and one field given under two of its names is repeated.",
   "config": {
-    "mcp_tool_mode": "typed"
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
   },
   "steps": [
     {
