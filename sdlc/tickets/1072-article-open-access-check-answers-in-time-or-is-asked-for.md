@@ -1,6 +1,7 @@
 # 1072 — article-open-access-check-answers-in-time-or-is-asked-for
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 78a4c424daaa970a591a5eb3bbc3667700773b23
 
 Milestone: 7
 
