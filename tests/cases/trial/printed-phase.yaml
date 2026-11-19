@@ -1,0 +1,44 @@
+{
+  "live_check": "public",
+  "feature": "trial-search",
+  "story": "A registry search takes a phase as the registry's rows print it: --phase PHASE3 finds the same trials as --phase 3. Before 1063 it was refused with a list of other spellings, though BioMCP's own trial rows print phases: [\"PHASE3\"] (agent runs on 1.0.0, 2026-11-19).",
+  "replay": "trial/row-fields",
+  "verified": "The same recorded registry page as trial/row-fields.yaml, whose --phase 3 search returns these three trials of 22; PHASE3 sends the identical request.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--phase",
+        "PHASE3",
+        "--limit",
+        "3"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--phase",
+        "phase3",
+        "--limit",
+        "3"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/phase": "3",
+        "/page/total": 22,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT01974752",
+            "NCT00000124",
+            "NCT02843386"
+          ]
+        }
+      }
+    }
+  ]
+}

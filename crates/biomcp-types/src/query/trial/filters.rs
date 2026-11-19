@@ -93,7 +93,7 @@ impl TrialPhaseFilter {
 fn filter_schema<A: schemars::JsonSchema, B: schemars::JsonSchema>(
     printed: &[&str],
 ) -> schemars::Schema {
-    let mut values: Vec<serde_json::Value> = Vec::new();
+    let mut values = Vec::new();
     let mut by_source = schemars::json_schema!({});
     for (source, schema, extra) in [
         (TrialSource::Ctgov, schemars::schema_for!(A), printed),
