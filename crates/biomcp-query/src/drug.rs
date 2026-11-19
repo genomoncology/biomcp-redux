@@ -6,6 +6,7 @@ mod civic;
 mod ddinter;
 mod drugsfda;
 mod ema;
+mod label_application;
 mod label_choice;
 pub(crate) mod markets;
 mod name_fit;
@@ -105,6 +106,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     // The WHO eEML resolves its own names: its search page names each medicine.
     let mut out = if query.source() == DrugSource::WhoEml {
         who_eml::get(cx, query)
+    } else if query.is_label_application() {
+        label_application::get(cx, query)
     } else if query.is_name() {
         aliases::get(cx, query)
     } else {
@@ -122,6 +125,8 @@ pub(crate) fn get_parts(cx: &Ctx<'_>, parts: &[DrugGet]) -> Vec<Outcome> {
         .is_some_and(|p| p.source() == DrugSource::WhoEml)
     {
         parts.iter().map(|part| who_eml::get(cx, part)).collect()
+    } else if parts.first().is_some_and(DrugGet::is_label_application) {
+        label_application::get_parts(cx, parts)
     } else if parts.first().is_some_and(DrugGet::is_name) {
         aliases::get_parts(cx, parts)
     } else {

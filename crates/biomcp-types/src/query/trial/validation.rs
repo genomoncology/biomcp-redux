@@ -26,6 +26,7 @@ impl TryFrom<Fields> for TrialSearch {
                 return Err(QueryInvalid::new(&["condition_id", "source"]));
             }
         }
+        f.phase = f.phase.map(|phase| phase.for_source(f.source));
         validate_source_filters(&f)?;
         validate_biomarker(&f)?;
         validate_alternatives(&f)?;

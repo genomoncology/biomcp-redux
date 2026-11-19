@@ -289,6 +289,18 @@ impl DrugGet {
     pub fn is_name(&self) -> bool {
         self.native_id == NativeDrugId::Name
     }
+    /// Whether an openFDA label get names an FDA application number, as Drugs@FDA and label
+    /// replies print it, rather than a drug name.
+    pub fn is_label_application(&self) -> bool {
+        self.is_name()
+            && self.source() == DrugSource::OpenfdaLabel
+            && self
+                .fields
+                .input
+                .as_str()
+                .parse::<DrugId>()
+                .is_ok_and(|id| DrugSource::Drugsfda.accepts(&id))
+    }
     /// Preserve section selectors while replacing a resolved name with its native ID.
     pub fn with_native_id(&self, input: DrugId) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();

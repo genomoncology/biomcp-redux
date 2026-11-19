@@ -1,0 +1,58 @@
+//! An FDA application number gets the openFDA label filed under it, or lists its labels (1063).
+use super::resolve::{carry, within};
+use crate::{Ctx, Outcome, status};
+use biomcp_types::{DrugGet, DrugSearch, DrugSource, ReplyData, SourceState, UsageError};
+
+/// openFDA's largest page; a longer list pages on from the reply's next step.
+const LABELS: u32 = 50;
+
+pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    let mut out = get_parts(cx, std::slice::from_ref(query));
+    out.pop()
+        .unwrap_or_else(|| status::empty(ReplyData::Usage(UsageError::argument("input".into()))))
+}
+
+/// Get every part from the application's one label, or answer once with the labels to choose
+/// from when it has none or several.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
+pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
+    let Some(query) = queries.first() else {
+        return Vec::new();
+    };
+    let deadline = cx.fetch.deadline(cx.budget);
+    let Ok(search) = DrugSearch::named(query.input().clone(), DrugSource::OpenfdaLabel, LABELS)
+    else {
+        return vec![status::empty(ReplyData::Usage(UsageError::argument(
+            "input".into(),
+        )))];
+    };
+    let found = super::search(&within(cx, deadline.remaining()), &search);
+    let label = match &found.body {
+        ReplyData::DrugPage {
+            body: Some(page), ..
+        } if page.total == Some(1) => page.items.first().map(|label| label.id.clone()),
+        _ => None,
+    };
+    let Some(label) = label.filter(|_| {
+        !found.dropped && found.sources.iter().all(|s| s.state == SourceState::Ok)
+    }) else {
+        return vec![found];
+    };
+    let Ok(resolved) = queries
+        .iter()
+        .map(|query| query.with_native_id(label.clone()))
+        .collect::<Result<Vec<_>, _>>()
+    else {
+        return vec![super::rejected_input(query.source(), "input", found)];
+    };
+    super::selected_parts(&within(cx, deadline.remaining()), &resolved)
+        .into_iter()
+        .map(|mut out| {
+            carry(&found, &mut out);
+            out
+        })
+        .collect()
+}
