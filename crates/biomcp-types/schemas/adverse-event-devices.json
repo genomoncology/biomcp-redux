@@ -485,6 +485,17 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "JSON pointer into this reply, such as `/sources/1` or a record's field."
         },
+        "code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ProblemCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The refused record's own problem code, when a problem is the cause."
+        },
         "reason": {
           "anyOf": [
             {
@@ -494,7 +505,7 @@
               "type": "null"
             }
           ],
-          "description": "Why, when a typed reason is known."
+          "description": "Why, when a typed source reason is known."
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",

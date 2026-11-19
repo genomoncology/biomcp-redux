@@ -202,10 +202,21 @@ fn article_sequence(environment: &Environment, globals: &[String]) -> Result<(),
             .chain(std::iter::once(vec![25, 26]))
         {
             for id in &batch {
+                // This checks pools and command epochs; concurrent pages can run NCBI's
+                // open-access check out of time, which makes a reply partial (1059).
+                let args = [
+                    "search",
+                    "article",
+                    "AKT1 E17K",
+                    "--limit",
+                    "2",
+                    "--fresh",
+                    "--no-access-lookup",
+                ];
                 let frame = mcp::request(
                     json!(id),
                     "tools/call",
-                    json!({"name":"biomcp","arguments":{"args":["search","article","AKT1 E17K","--limit","2","--fresh"]}}),
+                    json!({"name":"biomcp","arguments":{"args":args}}),
                 );
                 serde_json::to_writer(&mut stdin, &frame).map_err(|e| e.to_string())?;
                 stdin.write_all(b"\n").map_err(|e| e.to_string())?;
