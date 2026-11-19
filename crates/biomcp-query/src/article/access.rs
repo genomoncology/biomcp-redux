@@ -289,9 +289,12 @@ pub(super) fn failed(source: SourceOutcome, out: &mut Outcome) {
         let row = page.items.iter().position(|i| i.license_not_checked);
         ("license_not_checked", row)
     };
-    if let Some(row) = row
-        && let Ok(at) = biodata::Text::new(&format!("/result/items/{row}/{field}"))
-    {
+    if let Some(row) = row {
+        // Should the pointer ever be refused as text, the entry names the rows as a whole.
+        let at = match biodata::Text::new(&format!("/result/items/{row}/{field}")) {
+            Ok(at) => at,
+            Err(_) => biodata::text!("/result/items"),
+        };
         status::missing(out, at, source.source, source.reason);
     }
     if out.status() == biomcp_types::Status::Complete {

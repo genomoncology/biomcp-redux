@@ -144,11 +144,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         return outcomes;
     };
     evidence.append(&mut out, query.source());
-    // Not finding the record is an answer only when every name lookup answered (1059).
-    let lookup_failed = evidence.sources.iter().any(|s| {
-        s.state == biomcp_types::SourceState::Failed
-            && s.reason != Some(biomcp_types::Reason::NotFound)
-    });
+    let lookup_failed = evidence.lookup_failed();
     let Some(stated) = stated else {
         if lookup_failed {
             status::item(&mut out, false, true, false);
@@ -216,6 +212,13 @@ struct Evidence {
     local: Option<biomcp_fetch::RequestError>,
 }
 impl Evidence {
+    /// Not finding the record is an answer only when every name lookup answered (1059).
+    fn lookup_failed(&self) -> bool {
+        self.sources.iter().any(|s| {
+            s.state == biomcp_types::SourceState::Failed
+                && s.reason != Some(biomcp_types::Reason::NotFound)
+        })
+    }
     fn append(&self, out: &mut Outcome, selected: DrugSource) {
         for source in &self.sources {
             // MyChem component metadata cannot replace the selected source's native outcome.
