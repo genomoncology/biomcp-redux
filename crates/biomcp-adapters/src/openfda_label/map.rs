@@ -30,21 +30,18 @@ impl RawRecord {
                 .cloned()
                 .map(Into::into)
                 .collect(),
-            // Display order: brand, generic, then the native SPL set ID.
-            // Product-data paragraphs remain in the original label sections.
-            name: Some(
-                self.openfda
-                    .brand_name
-                    .iter()
-                    .flatten()
-                    .next()
-                    .or_else(|| self.openfda.generic_name.iter().flatten().next())
-                    .cloned()
-                    .map(Into::into)
-                    .unwrap_or(self.set_id.to_string().parse().map_err(|_| {
-                        biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
-                    })?),
-            ),
+            // Display order: brand, generic, then the product name the label's own text
+            // prints; a label with none has no name, never its set ID as one (1060).
+            name: self
+                .openfda
+                .brand_name
+                .iter()
+                .flatten()
+                .next()
+                .or_else(|| self.openfda.generic_name.iter().flatten().next())
+                .cloned()
+                .map(Into::into)
+                .or_else(|| self.text_name()),
             identity_level: DrugIdentityLevel::SplSet,
             r#type: None,
             url: Some(self.url()?),
