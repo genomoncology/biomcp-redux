@@ -115,7 +115,7 @@ struct SearchFields {
     received_to: Option<PartialDate>,
     /// Report headers, reaction terms or VAERS rows; default five.
     #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::SEARCH_PAGE_MAX)))]
     limit: u32,
     /// Report row offset; counts need zero. VAERS needs its snapshot.
     #[serde(default)]
@@ -194,7 +194,7 @@ impl SearchFields {
         if self.source != AdverseEventSource::Faers && !self.drug.is_empty() {
             return Err(QueryInvalid::new(&["source", "drug"]));
         }
-        if !(1..=50).contains(&self.limit) {
+        if !(1..=crate::SEARCH_PAGE_MAX).contains(&self.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(())

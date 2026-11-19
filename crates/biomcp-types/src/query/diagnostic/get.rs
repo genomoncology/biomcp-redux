@@ -82,7 +82,9 @@ impl TryFrom<GetFields> for DiagnosticGet {
             }
         };
         validate_source(&v)?;
-        if v.section_limit.is_some_and(|v| !(1..=crate::HELD_PAGE_MAX).contains(&v)) {
+        if v.section_limit
+            .is_some_and(|v| !(1..=crate::HELD_PAGE_MAX).contains(&v))
+        {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         Ok(Self {

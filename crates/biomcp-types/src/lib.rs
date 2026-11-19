@@ -18,7 +18,7 @@ mod paged;
 pub use latin::latin_base;
 mod openfda;
 pub use openfda::{openfda_phrase, openfda_words};
-pub use paged::{HELD_PAGE_MAX, Paged};
+pub use paged::{HELD_PAGE_MAX, Paged, SEARCH_PAGE_MAX};
 mod research;
 pub use research::{
     ResearchEnvelope, ResearchFetch, ResearchHit, ResearchSearch, ResearchSearchMetadata,

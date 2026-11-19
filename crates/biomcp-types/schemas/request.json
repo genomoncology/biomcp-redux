@@ -1467,7 +1467,7 @@
           "default": 10,
           "description": "Ten award rows by default, one to fifty.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },
@@ -2775,7 +2775,7 @@
           "default": 5,
           "description": "Rows per native page.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },
@@ -3440,7 +3440,7 @@
           "default": 5,
           "description": "Report headers, reaction terms or VAERS rows; default five.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },
@@ -4800,9 +4800,9 @@
         },
         "limit": {
           "default": 10,
-          "description": "Native candidates per page, default 10, maximum 50; all candidates remain candidates.",
+          "description": "Native candidates per page, default 10, maximum 100; all candidates remain candidates.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },

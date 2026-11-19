@@ -34,7 +34,7 @@
       "default": 10,
       "description": "Ten award rows by default, one to fifty.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 100,
       "minimum": 1,
       "type": "integer"
     },

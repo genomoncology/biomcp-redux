@@ -1,6 +1,4 @@
-use super::{
-    PathwayId, PathwaySection, QueryInvalid, Text, default_limit, native_id, reactome,
-};
+use super::{PathwayId, PathwaySection, QueryInvalid, Text, default_limit, native_id, reactome};
 use serde::{Deserialize, Serialize};
 #[doc = " Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, \
     Reactome events or bounded all sections. Membership names a source and release; it \

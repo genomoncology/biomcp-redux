@@ -21,7 +21,7 @@ struct Fields {
     source: EdgeSource,
     /// Maximum papers on one page.
     #[serde(default = "limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
     /// Number of pool items to skip.
     #[serde(default)]
@@ -45,7 +45,7 @@ impl TryFrom<Fields> for ArticleEdges {
         if matches!(v.pmid, ArticleInput::EuropePmc(_)) {
             return Err(QueryInvalid::new(&["pmid"]));
         }
-        if !(1..=crate::HELD_PAGE_MAX).contains(&v.limit) {
+        if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
         if v.source == EdgeSource::Icite && !matches!(v.pmid, ArticleInput::Pmid(_)) {

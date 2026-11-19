@@ -58,7 +58,10 @@ impl TryFrom<Fields> for VariantAssertionsGet {
         if fields.input.namespace() == VariantNamespace::Unsupported {
             return Err(super::gene::QueryInvalid::new(&["input"]));
         }
-        if fields.limit.is_some_and(|n| !(1..=crate::HELD_PAGE_MAX).contains(&n)) {
+        if fields
+            .limit
+            .is_some_and(|n| !(1..=crate::HELD_PAGE_MAX).contains(&n))
+        {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
         if fields.kind.is_some() && fields.source != AssertionSource::Clinvar {
