@@ -1,6 +1,7 @@
 # 1063 — accept-registry-spellings-and-application-ids
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e684770c9fbfd71d4cefd8bd8817dc12379c54ef
 
 Milestone: 7
 

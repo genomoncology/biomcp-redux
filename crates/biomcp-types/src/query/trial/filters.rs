@@ -1,5 +1,5 @@
 use super::TrialSource;
-use crate::{NciPhaseFilter, TrialStatus};
+use crate::{NciPhaseFilter, TrialPhase, TrialStatus};
 use serde::{Deserialize, Serialize};
 
 // Publisher OpenAPI components.parameters.current_trial_status, checked 2026-10-29.
@@ -51,7 +51,9 @@ impl TrialStatusFilter {
 }
 
 /// Source-qualified phase input with the source checked by TrialSearch.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+/// Registry rows print phases as PHASE3 or EARLY_PHASE1, so those spellings read back as the
+/// same registry filter (1063).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 #[serde(untagged)]
 pub enum TrialPhaseFilter {
     /// ClinicalTrials.gov vocabulary.
@@ -59,7 +61,29 @@ pub enum TrialPhaseFilter {
     /// NCI vocabulary.
     Nci(NciPhaseFilter),
 }
+impl<'de> Deserialize<'de> for TrialPhaseFilter {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let text = String::deserialize(deserializer)?;
+        text.parse()
+            .map(Self::Registry)
+            .or_else(|_| text.parse().map(Self::Nci))
+            .or_else(|_| {
+                text.parse()
+                    .map(|phase| Self::Registry(PhaseFilter::printed(phase)))
+            })
+            .map_err(|_| serde::de::Error::custom("unknown trial phase"))
+    }
+}
 impl TrialPhaseFilter {
+    /// The registry prints NA for not applicable, which NCI also spells NA.
+    pub(super) fn for_source(self, source: TrialSource) -> Self {
+        match (self, source) {
+            (Self::Nci(NciPhaseFilter::NotApplicable), TrialSource::Ctgov) => {
+                Self::Registry(PhaseFilter::NotApplicable)
+            }
+            (phase, _) => phase,
+        }
+    }
     pub(super) fn valid_for(&self, source: TrialSource) -> bool {
         matches!(
             (self, source),
@@ -150,6 +174,17 @@ biodata::wire_enum! {
     }
 }
 impl PhaseFilter {
+    /// The filter a printed registry phase reads back as.
+    const fn printed(phase: TrialPhase) -> Self {
+        match phase {
+            TrialPhase::Early1 => Self::Early1,
+            TrialPhase::Phase1 => Self::One,
+            TrialPhase::Phase2 => Self::Two,
+            TrialPhase::Phase3 => Self::Three,
+            TrialPhase::Phase4 => Self::Four,
+            TrialPhase::NotApplicable => Self::NotApplicable,
+        }
+    }
     /// Exact registry phases required together.
     pub fn phases(self) -> &'static [crate::TrialPhase] {
         use crate::TrialPhase as P;

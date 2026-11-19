@@ -33,7 +33,7 @@ const SET: biomcp_fetch::BundleSet<raw::Native> = biomcp_fetch::BundleSet {
     format: biomcp_fetch::RowFormat::NativeCsv {
         max_bytes: 2 * 1024 * 1024,
     },
-    // Local expiry policy, not a WHO publication cadence. Reads never synchronize.
+    // Local expiry policy, not a WHO publication cadence. Reads never refresh a stored copy.
     fresh: biomcp_fetch::Freshness::Days(1),
     row: std::marker::PhantomData,
 };

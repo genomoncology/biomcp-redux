@@ -18,7 +18,7 @@ pub struct Search {
     /// Identity conflicts, undated rows and unsupported group-table biomarker evaluation.
     pub problems: Vec<Problem>,
 }
-/// Search source-owned fields without synchronizing or parsing clinical text.
+/// Search source-owned fields without refreshing the stored list or parsing clinical text.
 pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, RequestError> {
     let invalid_reply = biomcp_fetch::bad_reply(biomcp_types::Source::FdaCdx, None);
     let find = if let Some(id) = query.device_id() {

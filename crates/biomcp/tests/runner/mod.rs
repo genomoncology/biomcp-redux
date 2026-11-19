@@ -90,6 +90,7 @@ mod source_pacing;
 mod source_status;
 tool_only! { mod negative_cases; }
 use biomcp_test_support::network_stub;
+mod first_read;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
@@ -364,6 +365,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
     trials.extend(orphadata_sync::trials());
+    trials.extend(first_read::trials());
     trials.extend(source_text::trials());
     trials
 }

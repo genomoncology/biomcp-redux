@@ -247,7 +247,7 @@ fn bundle(server: &support::Server) -> Bundle<Medicine> {
     }
 }
 #[test]
-fn json_bundle_reads_never_sync_and_failed_replacements_keep_old_rows() {
+fn stored_json_reads_never_refresh_and_failed_replacements_keep_old_rows() {
     let server = support::Server::new();
     let b = bundle(&server);
     let dir = tempfile::tempdir().unwrap();
@@ -255,7 +255,6 @@ fn json_bundle_reads_never_sync_and_failed_replacements_keep_old_rows() {
     let leg = f
         .leg(b.spec, f.deadline(Duration::from_secs(5)))
         .fresh(true);
-    assert!(leg.stored_rows(&b, Find::Words("Tibsovo")).is_err());
     let body =
         r#"{"meta":{"timestamp":"2026-10-24T18:22:32Z"},"data":[{"id":"old","name":"Tibsovo"}]}"#;
     std::thread::scope(|s| {

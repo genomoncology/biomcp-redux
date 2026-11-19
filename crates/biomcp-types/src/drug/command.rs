@@ -21,7 +21,8 @@ impl schemars::JsonSchema for DrugGetCommand {
                         "Source ID or complete brand or generic name; WHO references retain native spaces. ",
                         "Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; ",
                         "EMA prefers earliest authorisation. ",
-                        "Other sources retain search order. The chosen record reports up to five alternatives and their total.").into(),
+                        "Other sources retain search order. The chosen record reports up to five alternatives and their total. ",
+                        "A label read also takes an FDA application number, such as NDA216340.").into(),
                 );
             }
             properties.insert("input".into(), input);

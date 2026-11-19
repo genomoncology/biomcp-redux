@@ -70,6 +70,20 @@ impl Fetch {
     /// Download and check every part, then atomically replace the complete stored set.
     pub fn sync_set<R: Row>(&self, set: &BundleSet<R>) -> Result<BundleInfo, RequestError> {
         let leg = self.sync_leg(set.spec);
+        let mut info = leg.publish_set(set, None)?;
+        info.downloaded_bytes = leg.finish().downloaded_bytes;
+        Ok(info)
+    }
+}
+impl crate::Leg<'_> {
+    /// Publish a whole set within this leg's deadline. An automatic first read passes its
+    /// byte ceiling; a set over it, or out of time, stays missing and answers `syncing`.
+    fn publish_set<R: Row>(
+        &self,
+        set: &BundleSet<R>,
+        auto: Option<u64>,
+    ) -> Result<BundleInfo, RequestError> {
+        let leg = self;
         let bundle = set.stored();
         leg.bundle_source(&bundle)?;
         let cache = leg.bundle_cache()?;
@@ -82,7 +96,22 @@ impl Fetch {
         for part in set.parts {
             let format = part.format.unwrap_or(set.format);
             let streamed = matches!(format, RowFormat::StreamedXml { .. });
-            let body = part_body(&leg, set, part, format)?;
+            let ceiling = auto.map(|max| max.saturating_sub(bytes));
+            if ceiling == Some(0) {
+                return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
+            }
+            let body = match part_body(leg, set, part, format, ceiling) {
+                Err(RequestError::Source(error))
+                    if auto.is_some()
+                        && matches!(
+                            error.reason,
+                            biomcp_types::Reason::TooLarge | biomcp_types::Reason::DeadlineExceeded
+                        ) =>
+                {
+                    return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
+                }
+                result => result?,
+            };
             bytes = bytes.saturating_add(body.len() as u64);
             if !streamed {
                 held = held.saturating_add(body.len() as u64);
@@ -132,9 +161,7 @@ impl Fetch {
             retrieved_at: Some(crate::cache::now()),
         };
         cache.publish(&bundle, None, &metadata, Some(&complete), leg.budget())?;
-        let mut info = store::info(&bundle, &metadata);
-        info.downloaded_bytes = leg.finish().downloaded_bytes;
-        Ok(info)
+        Ok(store::info(&bundle, &metadata))
     }
 }
 /// Read one part's checked body. A streamed part is decoded once, after download,
@@ -144,12 +171,14 @@ fn part_body<R: Row>(
     set: &BundleSet<R>,
     part: &BundlePart,
     format: RowFormat,
+    ceiling: Option<u64>,
 ) -> Result<Vec<u8>, RequestError> {
     let limit = match format {
         RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
         RowFormat::StreamedXml { max_bytes, .. } => max_bytes.min(super::MAX_STREAMED_BYTES),
         _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
-    };
+    }
+    .min(ceiling.unwrap_or(u64::MAX));
     let endpoint = set.spec.get(part.path).bytes(limit).fresh(Freshness::Never);
     let check = |body: &[u8]| {
         let parsed = parse::part_rows::<R>(body, format, part.name)
@@ -190,12 +219,20 @@ fn append_part(
     Ok(())
 }
 impl crate::Leg<'_> {
-    /// Read one validated complete set without downloading or synchronizing any part.
+    /// Read one validated complete set; a stored set is never refreshed on read. With no
+    /// set and no publisher, a live reader fetches it once within `auto_sync_max_bytes`.
     pub fn stored_set_rows<R: Row>(
         &self,
         set: &BundleSet<R>,
         find: super::Find<'_>,
     ) -> Result<(Vec<SetRow<R>>, BundleInfo), RequestError> {
-        self.stored_rows(&set.stored(), find)
+        let max = self
+            .fetch
+            .config
+            .auto_sync_max_bytes
+            .min(super::MAX_BUNDLE_BYTES);
+        self.name_busy(self.read_stored_rows(&set.stored(), find, || {
+            self.publish_set(set, Some(max)).map(drop)
+        }))
     }
 }

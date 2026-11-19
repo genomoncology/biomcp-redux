@@ -12,7 +12,7 @@ pub struct Search {
     /// Exact stored source snapshot.
     pub info: BundleInfo,
 }
-/// Match the native marker and manufacturer cells and the year window; reads never download or synchronize.
+/// Match the native marker and manufacturer cells and the year window; reads never refresh the stored export.
 pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Search, RequestError> {
     let (rows, info) = leg.stored_set_rows(&SET, Find::Prefix(KeyKind::Id, ""))?;
     if q.bundle_revision()

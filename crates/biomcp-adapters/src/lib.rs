@@ -86,7 +86,7 @@ pub mod drug_sources;
 pub mod chembl;
 pub mod ddinter;
 pub mod drugsfda;
-/// EMA medicines bundle with explicit synchronization.
+/// EMA medicines bundle, fetched on first read and refreshed by explicit synchronization.
 pub mod ema;
 /// MyChem literal native candidate and document identity adapter.
 pub mod mychem;
