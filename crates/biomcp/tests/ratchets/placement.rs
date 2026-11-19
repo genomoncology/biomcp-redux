@@ -239,6 +239,7 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-adapters/tests/pdf_reader.rs",
         "Read trimmed real FDA PDFs drawn through form objects or misdecoding fonts, and judge the garbled-text check on short synthetic text.",
     ),
+    (
         "crates/biomcp-adapters/tests/pmc_body.rs",
         "Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON.",
     ),
