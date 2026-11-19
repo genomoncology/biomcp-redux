@@ -1,0 +1,32 @@
+{
+  "method": "GET",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease/ORPHANET%3A183530?fields=mondo%2Cdisease_ontology",
+  "exchanges": [
+    {
+      "fetched": 1795112626,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_id": "MONDO:0015960",
+          "_version": 1,
+          "mondo": {
+            "is_obsolete": true,
+            "label": "obsolete rare genetic developmental defect during embryogenesis",
+            "mondo": "MONDO:0015960",
+            "replaced_by": "MONDO:0021147",
+            "xrefs": {
+              "orphanet": [
+                "183530"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
