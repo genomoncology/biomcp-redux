@@ -351,7 +351,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(phenotype::trials());
     trials.extend(drug_next::trials());
     trials.extend(drug_approvals::trials());
-    trials.extend(offset_walks::trials());
     trials.extend(nci::trials());
     trials.extend(drug_civic::trials());
     trials.push(citation_values::trial());
@@ -371,6 +370,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(disease_next::trials());
     trials.extend(first_read::trials());
     trials.extend(source_text::trials());
+    trials.extend(offset_walks::trials());
     trials
 }
 

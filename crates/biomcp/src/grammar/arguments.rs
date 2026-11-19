@@ -88,7 +88,9 @@ fn aliases(
     }
     if super::paging::both(schema) {
         for (candidate, list) in super::paging::CANDIDATES {
-            let property = &schema["properties"][list];
+            let property = schema
+                .pointer(&format!("/properties/{list}"))
+                .unwrap_or(&Value::Null);
             command = command.arg(value_argument(
                 Arg::new(candidate)
                     .long(candidate.replace('_', "-"))

@@ -93,7 +93,7 @@
           "integer >= 0 <= 5000",
           "--next-page"
         ],
-        "/error/message": "ClinicalTrials.gov search reaches at most 5000 rows by --offset; to go deeper, follow --next-page from a reply's next step"
+        "/error/message": "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper"
       }
     },
     {

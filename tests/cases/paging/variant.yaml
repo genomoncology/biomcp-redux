@@ -77,6 +77,28 @@
       }
     },
     {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "clinvar",
+        "--limit",
+        "2",
+        "--candidate-limit",
+        "1",
+        "--candidate-offset",
+        "1"
+      ],
+      "expect": {
+        "/query/limit": 1,
+        "/query/offset": 1,
+        "/query/section_limit": 2,
+        "/page/offset": 1,
+        "/page/returned": 1,
+        "/page/total": 3
+      }
+    },
+    {
       "mcp_call": {
         "name": "variant",
         "arguments": {

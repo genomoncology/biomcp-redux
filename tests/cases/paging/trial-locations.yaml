@@ -118,7 +118,7 @@
         "/error/valid_values": [
           "integer >= 0 <= 2063"
         ],
-        "/error/message": "--offset is past the end of this text; valid_values gives the offsets it has, counted in characters from zero"
+        "/error/message": "--offset is past the end of this text; valid_values gives its offsets in characters"
       }
     }
   ]

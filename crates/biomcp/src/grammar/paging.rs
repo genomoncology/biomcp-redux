@@ -70,9 +70,11 @@ pub(crate) fn help_line(schema: &Value) -> Option<String> {
 pub(crate) const CANDIDATES: [(&str, &str); 2] =
     [("candidate_limit", "limit"), ("candidate_offset", "offset")];
 
-/// Read the candidate options a parsed `get variant` call gave; `None` for a malformed value.
-pub(crate) fn candidates(
+/// Read the candidate options a parsed `get variant` call gave, then move every paging value
+/// onto its field; `None` for a malformed value.
+pub(crate) fn read(
     matches: &clap::ArgMatches,
+    schema: &Value,
     fields: &mut Map<String, Value>,
 ) -> Option<()> {
     for (candidate, _) in CANDIDATES {
@@ -80,6 +82,7 @@ pub(crate) fn candidates(
             fields.insert(candidate.into(), value.parse::<u64>().ok()?.into());
         }
     }
+    rename(schema, fields);
     Some(())
 }
 

@@ -463,8 +463,7 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ParseI
         }
     }
     split_sections(&mut result, schema)?;
-    paging::candidates(matches, &mut result).ok_or_else(ParseInvalid::default)?;
-    paging::rename(schema, &mut result);
+    paging::read(matches, schema, &mut result).ok_or_else(ParseInvalid::default)?;
     choices::canonicalize(&mut result, schema);
     Ok(Value::Object(result))
 }

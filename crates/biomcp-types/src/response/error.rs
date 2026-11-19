@@ -88,10 +88,6 @@ singleton! {
  step; run the suggested command",
  OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \
  suggested first-page command, then follow its next command",
- OffsetPastText => "--offset is past the end of this text; valid_values gives the offsets it has, counted in \
- characters from zero",
- TrialOffsetDeep => "ClinicalTrials.gov search reaches at most 5000 rows by --offset; to go deeper, follow \
- --next-page from a reply's next step",
  ArticleGetLimit => "get article takes 1 to 20 IDs per call; split a longer list into several calls",
  LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
  --label-section indications_and_usage",
@@ -240,7 +236,7 @@ singleton! {
         DiseasePhenotypeFilter => "deferred; no proved native HPO-ID disease filter",
         DiseaseOnset => "dropped; clinical-course fields are not an onset filter",
         DiseaseNoFallback => "retired; disease search never falls back or rewrites a zero result",
-        DiseaseLimit => "use: --limit",
+        DiseaseLimit => "use: --limit", OffsetPastText => "--offset is past the end of this text; valid_values gives its offsets in characters",
         DiseaseJson => "use: --format json",
         DiseaseFresh => "use: --fresh to bypass cached replies",
         DiseaseOntologySelector => "use: search disease <TEXT> --source ols --ontology <mondo|doid|ncit>; mesh is not supported",
@@ -330,7 +326,7 @@ singleton! {
         ProteinUnreviewed => "--include-unreviewed is not yet supported because no unreviewed positive was captured",
         ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein \
             products; use: get protein <ACCESSION> complexes", // Unsent since 1029; kept for the 1.0 schema.
-        StudyList => "use: search study",
+        StudyList => "use: search study", TrialOffsetDeep => "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper",
         StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
             whole-study analytical installs are retired",
         StudyMutationProfile => "the mutations section reads only a mutation profile of this study; choose \
