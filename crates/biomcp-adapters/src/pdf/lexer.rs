@@ -1,7 +1,11 @@
 //! The PDF object syntax (PDF 32000-1 §7.2 and §7.3) read straight from bytes, so a document
 //! can be measured before lopdf loads it, and a content stream cut before lopdf decodes it.
 
+use super::scan::Refusal::{self, Irregular};
 use lopdf::{Dictionary, Object, StringFormat};
+
+/// A reading that lopdf would refuse or read differently is irregular.
+pub(super) type Read<T> = Result<T, Refusal>;
 
 /// The nesting lopdf reads before it refuses an object.
 const DEPTH: usize = 100;
@@ -78,105 +82,125 @@ pub(super) fn skip_space(bytes: &[u8], from: usize) -> usize {
 }
 
 /// The unsigned integer at `from`, and where it ends.
-pub(super) fn integer(bytes: &[u8], from: usize) -> Option<(u64, usize)> {
+pub(super) fn integer(bytes: &[u8], from: usize) -> Read<(u64, usize)> {
     let end = skip_regular(bytes, from);
-    let token = bytes.get(from..end).filter(|token| !token.is_empty())?;
-    let value = token.iter().try_fold(0u64, |value, byte| {
-        let digit = char::from(*byte).to_digit(10)?;
-        value.checked_mul(10)?.checked_add(u64::from(digit))
-    })?;
-    Some((value, end))
+    let token = bytes.get(from..end).filter(|token| !token.is_empty());
+    let value = token
+        .ok_or(Irregular)?
+        .iter()
+        .try_fold(0u64, |value, byte| {
+            let digit = char::from(*byte).to_digit(10)?;
+            value.checked_mul(10)?.checked_add(u64::from(digit))
+        });
+    Ok((value.ok_or(Irregular)?, end))
 }
 
 /// Past the header `N G obj` of an indirect object at `from`, with its object number.
-pub(super) fn header(bytes: &[u8], from: usize) -> Option<(u64, usize)> {
+pub(super) fn header(bytes: &[u8], from: usize) -> Read<(u64, usize)> {
     let (number, at) = integer(bytes, skip_space(bytes, from))?;
     let (_, at) = integer(bytes, skip_space(bytes, at))?;
     let at = skip_space(bytes, at);
     let end = skip_regular(bytes, at);
-    (bytes.get(at..end) == Some(b"obj".as_slice())).then_some((number, end))
+    if bytes.get(at..end) == Some(b"obj".as_slice()) {
+        Ok((number, end))
+    } else {
+        Err(Irregular)
+    }
 }
 
 /// Where the object at `from` ends and how many objects it holds, counted without building
-/// them; `None` when lopdf would not read one object there.
-pub(super) fn measure(bytes: &[u8], from: usize) -> Option<(usize, usize)> {
+/// them; refused when lopdf would not read one object there.
+pub(super) fn measure(bytes: &[u8], from: usize) -> Read<(usize, usize)> {
     measure_within(bytes, from, DEPTH)
 }
 
-fn measure_within(bytes: &[u8], from: usize, depth: usize) -> Option<(usize, usize)> {
+fn measure_within(bytes: &[u8], from: usize, depth: usize) -> Read<(usize, usize)> {
     let at = skip_space(bytes, from);
-    let rest = bytes.get(at..)?;
-    let close = match rest.first()? {
-        _ if depth == 0 => return None,
+    let rest = bytes.get(at..).unwrap_or_default();
+    let close = match rest.first().ok_or(Irregular)? {
+        _ if depth == 0 => return Err(Irregular),
         b'<' if rest.starts_with(b"<<") => b">>".as_slice(),
         b'[' => b"]".as_slice(),
-        b'<' => return Some((skip_past(bytes, at, b'>')?, 1)),
-        b'(' => return Some((skip_string(bytes, at)?, 1)),
-        b'/' => return Some((skip_regular(bytes, at + 1), 1)),
-        byte if delimiter(*byte) => return None,
+        b'<' => return Ok((skip_past(bytes, at, b'>').ok_or(Irregular)?, 1)),
+        b'(' => return Ok((skip_string(bytes, at).ok_or(Irregular)?, 1)),
+        b'/' => return Ok((skip_regular(bytes, at + 1), 1)),
+        byte if delimiter(*byte) => return Err(Irregular),
         _ => return scalar(bytes, at).map(|(_, end)| (end, 1)),
     };
     // Each opening delimiter is as long as its closing one.
     let (mut at, mut count) = (at + close.len(), 1usize);
     loop {
         at = skip_space(bytes, at);
-        if bytes.get(at..)?.starts_with(close) {
-            return Some((at + close.len(), count));
+        let rest = bytes
+            .get(at..)
+            .filter(|rest| !rest.is_empty())
+            .ok_or(Irregular)?;
+        if rest.starts_with(close) {
+            return Ok((at + close.len(), count));
         }
         let (end, inner) = measure_within(bytes, at, depth - 1)?;
         at = end;
-        count = count.checked_add(inner)?;
+        count = count.saturating_add(inner);
     }
 }
 
 /// A number, keyword or reference at `from`, and where it ends.
-fn scalar(bytes: &[u8], from: usize) -> Option<(Object, usize)> {
+fn scalar(bytes: &[u8], from: usize) -> Read<(Object, usize)> {
     let end = skip_regular(bytes, from);
-    let token = bytes.get(from..end).filter(|token| !token.is_empty())?;
-    match token {
-        b"true" => return Some((Object::Boolean(true), end)),
-        b"false" => return Some((Object::Boolean(false), end)),
-        b"null" => return Some((Object::Null, end)),
-        _ => {}
-    }
-    if let Some((number, after)) = integer(bytes, from) {
-        let reference = integer(bytes, skip_space(bytes, after)).and_then(|(generation, at)| {
-            let at = skip_space(bytes, at);
-            let id = (u32::try_from(number).ok()?, u16::try_from(generation).ok()?);
-            (bytes.get(at..skip_regular(bytes, at)) == Some(b"R".as_slice()))
-                .then_some((id, at + 1))
-        });
-        if let Some((id, at)) = reference {
-            return Some((Object::Reference(id), at));
+    let token = bytes.get(from..end).filter(|token| !token.is_empty());
+    match token.ok_or(Irregular)? {
+        b"true" => return Ok((Object::Boolean(true), end)),
+        b"false" => return Ok((Object::Boolean(false), end)),
+        b"null" => return Ok((Object::Null, end)),
+        token if token.iter().all(u8::is_ascii_digit) => {}
+        token => {
+            let text = std::str::from_utf8(token).map_err(|_| Irregular)?;
+            let real = text.parse::<f32>().map_err(|_| Irregular)?;
+            return Ok((Object::Real(real), end));
         }
-        return Some((Object::Integer(i64::try_from(number).ok()?), after));
     }
-    let text = std::str::from_utf8(token).ok()?;
-    text.parse::<f32>()
-        .ok()
-        .map(|real| (Object::Real(real), end))
+    let (number, after) = integer(bytes, from)?;
+    let generation = skip_space(bytes, after);
+    let generation_end = skip_regular(bytes, generation);
+    let keyword = skip_space(bytes, generation_end);
+    let digits = bytes.get(generation..generation_end).unwrap_or_default();
+    if !digits.is_empty()
+        && digits.iter().all(u8::is_ascii_digit)
+        && bytes.get(keyword..skip_regular(bytes, keyword)) == Some(b"R".as_slice())
+    {
+        let (generation, _) = integer(bytes, generation)?;
+        let id = (
+            u32::try_from(number).map_err(|_| Irregular)?,
+            u16::try_from(generation).map_err(|_| Irregular)?,
+        );
+        return Ok((Object::Reference(id), keyword + 1));
+    }
+    Ok((
+        Object::Integer(i64::try_from(number).map_err(|_| Irregular)?),
+        after,
+    ))
 }
 
 /// The object at `from`, built, and where it ends; for the small dictionaries the measuring
 /// reads, never for a whole document.
-pub(super) fn object(bytes: &[u8], from: usize) -> Option<(Object, usize)> {
+pub(super) fn object(bytes: &[u8], from: usize) -> Read<(Object, usize)> {
     object_within(bytes, from, DEPTH)
 }
 
-fn object_within(bytes: &[u8], from: usize, depth: usize) -> Option<(Object, usize)> {
+fn object_within(bytes: &[u8], from: usize, depth: usize) -> Read<(Object, usize)> {
     let at = skip_space(bytes, from);
-    let rest = bytes.get(at..)?;
-    match rest.first()? {
-        _ if depth == 0 => None,
+    let rest = bytes.get(at..).unwrap_or_default();
+    match rest.first().ok_or(Irregular)? {
+        _ if depth == 0 => Err(Irregular),
         b'<' if rest.starts_with(b"<<") => {
             let (mut dictionary, mut at) = (Dictionary::new(), at + 2);
             loop {
                 at = skip_space(bytes, at);
-                if bytes.get(at..)?.starts_with(b">>") {
-                    return Some((Object::Dictionary(dictionary), at + 2));
+                if bytes.get(at..).unwrap_or_default().starts_with(b">>") {
+                    return Ok((Object::Dictionary(dictionary), at + 2));
                 }
                 let (Object::Name(key), end) = object_within(bytes, at, depth - 1)? else {
-                    return None;
+                    return Err(Irregular);
                 };
                 let (value, end) = object_within(bytes, end, depth - 1)?;
                 dictionary.set(key, value);
@@ -187,8 +211,8 @@ fn object_within(bytes: &[u8], from: usize, depth: usize) -> Option<(Object, usi
             let (mut items, mut at) = (Vec::new(), at + 1);
             loop {
                 at = skip_space(bytes, at);
-                if bytes.get(at..)?.starts_with(b"]") {
-                    return Some((Object::Array(items), at + 1));
+                if bytes.get(at..).unwrap_or_default().starts_with(b"]") {
+                    return Ok((Object::Array(items), at + 1));
                 }
                 let (item, end) = object_within(bytes, at, depth - 1)?;
                 items.push(item);
@@ -197,14 +221,15 @@ fn object_within(bytes: &[u8], from: usize, depth: usize) -> Option<(Object, usi
         }
         b'(' | b'<' => {
             let (end, _) = measure_within(bytes, at, 1)?;
-            let raw = bytes.get(at + 1..end - 1)?.to_vec();
-            Some((Object::String(raw, StringFormat::Literal), end))
+            let raw = bytes.get(at + 1..end - 1).ok_or(Irregular)?.to_vec();
+            Ok((Object::String(raw, StringFormat::Literal), end))
         }
         b'/' => {
             let end = skip_regular(bytes, at + 1);
-            Some((Object::Name(decoded(bytes.get(at + 1..end)?)), end))
+            let name = bytes.get(at + 1..end).ok_or(Irregular)?;
+            Ok((Object::Name(decoded(name)), end))
         }
-        byte if delimiter(*byte) => None,
+        byte if delimiter(*byte) => Err(Irregular),
         _ => scalar(bytes, at),
     }
 }

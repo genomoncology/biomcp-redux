@@ -14,8 +14,10 @@
 //! offsets not measured here. All 164 FDA labels and letters read on 2026-11-19 load strictly
 //! as they load leniently, and read the same text.
 
-use super::lexer::{header, integer, measure, skip_space};
-use super::xref::{Table, payload, small_dictionary};
+use super::fonts::entry;
+use super::lexer::{Read, header, integer, measure, skip_space};
+use super::xref::{Table, index, payload, small_dictionary, whole};
+use Refusal::{Irregular, TooLarge};
 use lopdf::{Dictionary, Object, Stream};
 
 /// Most bytes one object or cross-reference stream may expand to while loading.
@@ -38,7 +40,7 @@ pub(super) enum Refusal {
 }
 
 /// Whether lopdf may load `bytes` within the bounds.
-pub(super) fn loadable(bytes: &[u8]) -> Result<(), Refusal> {
+pub(super) fn loadable(bytes: &[u8]) -> Read<()> {
     let table = super::xref::read(bytes, LOAD_STREAM_BYTES)?;
     let mut listed: Vec<(usize, u64)> = table.entries.iter().map(|(n, at)| (*at, *n)).collect();
     listed.sort_unstable();
@@ -51,10 +53,10 @@ pub(super) fn loadable(bytes: &[u8]) -> Result<(), Refusal> {
         let next = listed.get(index + 1).map_or(bytes.len(), |(at, _)| *at);
         let end = indirect(bytes, *offset, &table, &mut measured)?;
         if end > next {
-            return Err(Refusal::Irregular);
+            return Err(Irregular);
         }
         if measured.objects > OBJECTS || measured.expanded > LOAD_BYTES {
-            return Err(Refusal::TooLarge);
+            return Err(TooLarge);
         }
     }
     Ok(())
@@ -67,14 +69,9 @@ struct Measured {
 }
 
 /// Where the indirect object at `offset` ends, its stream data and object stream included.
-fn indirect(
-    bytes: &[u8],
-    offset: usize,
-    table: &Table,
-    measured: &mut Measured,
-) -> Result<usize, Refusal> {
-    let (_, body) = header(bytes, offset).ok_or(Refusal::Irregular)?;
-    let (end, count) = measure(bytes, body).ok_or(Refusal::Irregular)?;
+fn indirect(bytes: &[u8], offset: usize, table: &Table, measured: &mut Measured) -> Read<usize> {
+    let (_, body) = header(bytes, offset)?;
+    let (end, count) = measure(bytes, body)?;
     measured.objects = measured.objects.saturating_add(count);
     let starts_dictionary = bytes
         .get(skip_space(bytes, body)..)
@@ -82,9 +79,10 @@ fn indirect(
     let Some(data) = payload(bytes, end).filter(|_| starts_dictionary) else {
         return Ok(end);
     };
-    let (dictionary, _) = small_dictionary(bytes, body).ok_or(Refusal::Irregular)?;
-    let length = length(bytes, &dictionary, table).ok_or(Refusal::Irregular)?;
-    let data_end = data.checked_add(length).ok_or(Refusal::Irregular)?;
+    let (dictionary, _) = small_dictionary(bytes, body)?;
+    let data_end = data
+        .checked_add(length(bytes, &dictionary, table)?)
+        .ok_or(Irregular)?;
     let mut after = data_end;
     match bytes.get(after..).unwrap_or_default() {
         [b'\r', b'\n', ..] => after += 2,
@@ -96,21 +94,20 @@ fn indirect(
         .unwrap_or_default()
         .starts_with(b"endstream")
     {
-        return Err(Refusal::Irregular);
+        return Err(Irregular);
     }
     if dictionary.has_type(b"ObjStm") {
-        let raw = bytes.get(data..data_end).ok_or(Refusal::Irregular)?;
+        let raw = bytes.get(data..data_end).ok_or(Irregular)?;
         object_stream(dictionary, raw.to_vec(), measured)?;
     }
     Ok(after + b"endstream".len())
 }
 
-/// A stream's `/Length`, direct or held in a short integer object.
-fn length(bytes: &[u8], dictionary: &Dictionary, table: &Table) -> Option<usize> {
-    let number = match dictionary.get(b"Length").ok()? {
-        Object::Integer(length) => return usize::try_from(*length).ok(),
-        Object::Reference((number, _)) => u64::from(*number),
-        _ => return None,
+/// A stream's `/Length`, direct or held in a short integer object that every section agrees on.
+fn length(bytes: &[u8], dictionary: &Dictionary, table: &Table) -> Read<usize> {
+    let number = match entry(dictionary, b"Length") {
+        Some(Object::Reference((number, _))) => u64::from(*number),
+        direct => return index(whole(direct)?),
     };
     let mut values = table
         .entries
@@ -120,56 +117,54 @@ fn length(bytes: &[u8], dictionary: &Dictionary, table: &Table) -> Option<usize>
             let (_, body) = header(bytes, *offset)?;
             let at = skip_space(bytes, body);
             let (value, end) = integer(bytes, at)?;
-            (end - at <= LENGTH_OBJECT).then_some(value)
+            if end - at <= LENGTH_OBJECT {
+                Ok(value)
+            } else {
+                Err(Irregular)
+            }
         });
-    let first = values.next()??;
-    values
-        .all(|value| value == Some(first))
-        .then(|| usize::try_from(first).ok())?
+    let first = values.next().ok_or(Irregular)??;
+    for value in values {
+        if value? != first {
+            return Err(Irregular);
+        }
+    }
+    index(first)
 }
 
 /// Check an object stream's index and count its objects (PDF 32000-1 §7.5.7).
-fn object_stream(
-    dictionary: Dictionary,
-    raw: Vec<u8>,
-    measured: &mut Measured,
-) -> Result<(), Refusal> {
-    let first = dictionary
-        .get(b"First")
-        .and_then(Object::as_i64)
-        .ok()
-        .and_then(|first| usize::try_from(first).ok())
-        .ok_or(Refusal::Irregular)?;
+fn object_stream(dictionary: Dictionary, raw: Vec<u8>, measured: &mut Measured) -> Read<()> {
+    let first = index(whole(entry(&dictionary, b"First"))?)?;
     let content = Stream::new(dictionary, raw)
         .get_plain_content_with_limit(LOAD_STREAM_BYTES)
         .map_err(|issue| {
             if super::page::too_large(&issue) {
-                Refusal::TooLarge
+                TooLarge
             } else {
-                Refusal::Irregular
+                Irregular
             }
         })?;
     measured.expanded = measured.expanded.saturating_add(content.len());
-    let index = content.get(..first).ok_or(Refusal::Irregular)?;
+    let listing = content.get(..first).ok_or(Irregular)?;
     let mut starts = Vec::new();
-    let (mut at, mut previous) = (skip_space(index, 0), None);
-    while at < index.len() {
-        let (_, next) = integer(index, at).ok_or(Refusal::Irregular)?;
-        let (offset, next) = integer(index, skip_space(index, next)).ok_or(Refusal::Irregular)?;
-        let offset = usize::try_from(offset).map_err(|_| Refusal::Irregular)?;
+    let (mut at, mut previous) = (skip_space(listing, 0), None);
+    while at < listing.len() {
+        let (_, next) = integer(listing, at)?;
+        let (offset, next) = integer(listing, skip_space(listing, next))?;
+        let offset = index(offset)?;
         if previous.is_some_and(|previous| offset <= previous) {
-            return Err(Refusal::Irregular);
+            return Err(Irregular);
         }
         previous = Some(offset);
-        starts.push(first.checked_add(offset).ok_or(Refusal::Irregular)?);
-        at = skip_space(index, next);
+        starts.push(first.checked_add(offset).ok_or(Irregular)?);
+        at = skip_space(listing, next);
     }
     measured.objects = measured.objects.saturating_add(starts.len());
-    for (index, start) in starts.iter().enumerate() {
-        let next = starts.get(index + 1).copied().unwrap_or(content.len());
-        let (end, count) = measure(&content, *start).ok_or(Refusal::Irregular)?;
+    for (position, start) in starts.iter().enumerate() {
+        let next = starts.get(position + 1).copied().unwrap_or(content.len());
+        let (end, count) = measure(&content, *start)?;
         if end > next {
-            return Err(Refusal::Irregular);
+            return Err(Irregular);
         }
         measured.objects = measured.objects.saturating_add(count);
     }

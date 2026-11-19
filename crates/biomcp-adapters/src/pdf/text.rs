@@ -120,7 +120,10 @@ pub fn missing_notice(text: &PdfText) -> Option<SourceNotice> {
             "A part of a page in this document could not be read and was skipped, so some of its text may be missing."
         }
         Some(PdfMissing::Both) => {
-            "Text in a font without a usable character map read as gibberish and was cut out, and a part of a page could not be read, so some of this document's text is missing."
+            concat!(
+                "Text in a font without a usable character map read as gibberish and was cut out, ",
+                "and a part of a page could not be read, so some of this document's text is missing."
+            )
         }
         None => "Some of this document's text could not be read, so text may be missing.",
     };
