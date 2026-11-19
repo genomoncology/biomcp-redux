@@ -8,10 +8,11 @@
 //! starts a word gap or a line away from where the last one ended, as poppler's `pdftotext`
 //! decides, and keeps lopdf's line break at `ET` unless the next text object runs on in the
 //! same word. A font without glyph widths keeps lopdf's space after each `TJ` array.
-use super::fonts::{Widths, number};
+use super::cmap::Font;
+use super::fonts::number;
 use super::state::{Matrix, State};
-use lopdf::{Encoding, Object};
-use std::collections::BTreeMap;
+use lopdf::Object;
+use std::{collections::BTreeMap, rc::Rc};
 
 /// A gap wider than this share of the font size is a word break: poppler's `pdftotext`
 /// default, and the tenth of an em of lopdf's `TJ` kerning rule.
@@ -22,7 +23,7 @@ const LINE_GAP: f32 = 0.5;
 const KERNING_SPACE: f32 = -100.0;
 
 /// A content stream's fonts by resource name, with their encodings and glyph widths.
-pub(super) type Fonts<'a> = BTreeMap<Vec<u8>, (Encoding<'a>, Option<Widths>)>;
+pub(super) type Fonts<'a> = BTreeMap<Vec<u8>, Rc<Font<'a>>>;
 
 /// Where on the page the last shown glyph ended and the font height there. Without widths
 /// the end is unknown, and `array` keeps lopdf's space after a `TJ` array.
@@ -39,6 +40,8 @@ struct End {
 #[derive(Default)]
 pub(super) struct Reader {
     text: String,
+    /// Text shown in fonts decoded without a character map.
+    unsound: String,
     state: State,
     saved: Vec<State>,
     line: Matrix,
@@ -76,12 +79,12 @@ impl Reader {
         }
     }
 
-    /// The page's text, ending any line an `ET` left waiting.
-    pub(super) fn finish(mut self) -> String {
+    /// The page's text, ending any line an `ET` left waiting, and its unsound text.
+    pub(super) fn finish(mut self) -> (String, String) {
         if self.pending {
             self.newline();
         }
-        self.text
+        (self.text, self.unsound)
     }
 
     pub(super) fn apply(
@@ -173,9 +176,10 @@ impl Reader {
 
     /// Show strings and `TJ` adjustments, after a space when the pen moved a word gap away.
     fn show(&mut self, operands: &[Object], fonts: &Fonts<'_>) -> lopdf::Result<()> {
-        let Some((encoding, widths)) = fonts.get(&self.state.font) else {
+        let Some(font) = fonts.get(&self.state.font) else {
             return Ok(());
         };
+        let (encoding, widths) = (&font.encoding, &font.widths);
         let start = self.matrix;
         let mut shown = String::new();
         let mut advance = 0.0;
@@ -222,6 +226,10 @@ impl Reader {
             self.text.push(' ');
         }
         self.text.push_str(&shown);
+        if !font.sound {
+            self.unsound.push_str(&shown);
+            self.unsound.push(' ');
+        }
         self.matrix = start.moved(advance, 0.0);
         let page = self.matrix.times(self.state.ctm);
         self.end = Some(End {

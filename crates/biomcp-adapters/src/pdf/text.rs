@@ -97,7 +97,7 @@ pub fn whole(
         .map_err(|reason| error(spec.source, reason))?;
     result.pages = read.pages;
     result.state = read.state;
-    if result.state != PdfTextState::Text {
+    if !result.state.readable() {
         return Ok((result, String::new()));
     }
     let text = read.text;

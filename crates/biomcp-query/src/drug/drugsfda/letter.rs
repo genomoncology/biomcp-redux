@@ -2,7 +2,7 @@
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda, pdf};
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{DrugFdaSubmission, DrugGet, PageInfo, PdfTextState, Request, Source, StepKind};
+use biomcp_types::{DrugFdaSubmission, DrugGet, PageInfo, Request, Source, StepKind};
 pub(super) fn select(
     cx: &Ctx<'_>,
     query: &DrugGet,
@@ -60,7 +60,7 @@ pub(super) fn select(
     }
     let text = result?;
     let returned = u32::from(text.text.is_some());
-    status::item(out, true, false, text.state != PdfTextState::Text);
+    status::item(out, true, false, !text.state.readable());
     out.page = Some(PageInfo {
         offset,
         returned,

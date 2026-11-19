@@ -39,6 +39,15 @@ biodata::wire_enum! {
         /// The PDF exceeds the byte, page or expanded-text bound.
         TooLarge => "too-large",
         /// Unread: the embedded text could not be decoded and reads as gibberish, so none is returned.
-        Garbled => "garbled"
+        Garbled => "garbled",
+        /// Embedded text was read, but a part of a page could not be read, so some text may be missing.
+        Partial => "partial"
+    }
+}
+impl PdfTextState {
+    /// Whether text was read and is returned.
+    #[must_use]
+    pub fn readable(&self) -> bool {
+        matches!(self, Self::Text | Self::Partial)
     }
 }

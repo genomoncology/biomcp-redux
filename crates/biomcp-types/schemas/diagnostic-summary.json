@@ -268,7 +268,8 @@
         "text",
         "no-text",
         "too-large",
-        "garbled"
+        "garbled",
+        "partial"
       ],
       "type": "string"
     },

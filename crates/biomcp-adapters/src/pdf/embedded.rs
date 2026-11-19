@@ -1,4 +1,5 @@
 //! Embedded text of PDF bytes already in hand, bounded by pages and expanded size.
+use super::page::{Halt, too_large};
 use biomcp_types::{PdfTextState, Reason};
 
 /// The text read from one PDF; `text` is empty unless `state` is text, so gibberish is never
@@ -55,36 +56,39 @@ pub fn embedded(
         result.state = PdfTextState::TooLarge;
         return Ok(result);
     }
-    let mut text = String::new();
+    let (mut text, mut unsound, mut skipped) = (String::new(), String::new(), false);
+    let mut fonts = super::cmap::Cache::default();
     for page in pages.values() {
         check()?;
-        let part = match super::page::page(&document, *page, limit) {
+        let part = match super::page::page(&document, *page, limit, &mut fonts, expired) {
             Ok(part) => part,
-            Err(issue) if too_large(&issue) => {
+            Err(Halt::Expired) => return Err(Reason::DeadlineExceeded),
+            Err(Halt::Pdf(issue)) if too_large(&issue) => {
                 result.state = PdfTextState::TooLarge;
                 return Ok(result);
             }
-            Err(_) => return Err(Reason::BadReply),
+            Err(Halt::Pdf(_)) => return Err(Reason::BadReply),
         };
-        if text.len().saturating_add(part.len()) > limit {
+        if text.len().saturating_add(part.text.len()) > limit {
             result.state = PdfTextState::TooLarge;
             return Ok(result);
         }
-        text.push_str(&part);
+        text.push_str(&part.text);
+        unsound.push_str(&part.unsound);
+        skipped |= part.skipped;
     }
     check()?;
-    if super::garbled::garbled(&text) {
+    // Text read through a character map or a declared one-byte encoding is never judged:
+    // tables, part numbers and other languages are not gibberish.
+    if super::garbled::garbled(&unsound) {
         result.state = PdfTextState::Garbled;
     } else if !text.trim().is_empty() {
-        result.state = PdfTextState::Text;
+        result.state = if skipped {
+            PdfTextState::Partial
+        } else {
+            PdfTextState::Text
+        };
         result.text = text;
     }
     Ok(result)
-}
-
-const fn too_large(issue: &lopdf::Error) -> bool {
-    matches!(
-        issue,
-        lopdf::Error::Decompress(lopdf::DecompressError::MemoryLimitExceeded { .. })
-    )
 }

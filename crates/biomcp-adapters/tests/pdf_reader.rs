@@ -1,14 +1,84 @@
-//! BioMCP's PDF reader on real FDA PDFs: text drawn by form XObjects is read, and text that
-//! decodes to gibberish is reported as garbled, never returned (1068).
+//! BioMCP's PDF reader on real FDA PDFs and on small PDFs built here: text drawn by form
+//! XObjects is read, hostile forms and maps cannot buy unbounded work, a bad form is skipped,
+//! and text decoded without a character map that reads as gibberish is reported as garbled,
+//! never returned (1068).
 use biomcp_adapters::pdf::{embedded, garbled};
 use biomcp_types::PdfTextState;
+use lopdf::{Dictionary, Document, Object, Stream, dictionary};
+use std::cell::Cell;
 
 const FORM_OBJECT_CARTON: &[u8] = include_bytes!("fixtures/pdf/form-object-carton.pdf");
 const GARBLED_LETTER: &[u8] = include_bytes!("fixtures/pdf/garbled-letter.pdf");
+const SENTENCE: &str = "There is a risk of serious infections in patients treated with the drug.";
+
+/// A one-page PDF drawing `content` with the resources `build` adds to the document.
+fn pdf(content: &[u8], build: impl FnOnce(&mut Document) -> Dictionary) -> Vec<u8> {
+    let mut document = Document::with_version("1.7");
+    let pages = document.new_object_id();
+    let resources = build(&mut document);
+    let contents = document.add_object(Stream::new(Dictionary::new(), content.to_vec()));
+    let page = document.add_object(dictionary! {
+        "Type" => "Page",
+        "Parent" => pages,
+        "MediaBox" => vec![0.into(), 0.into(), 612.into(), 792.into()],
+        "Contents" => contents,
+        "Resources" => resources,
+    });
+    document.objects.insert(
+        pages,
+        Object::Dictionary(
+            dictionary! { "Type" => "Pages", "Kids" => vec![page.into()], "Count" => 1 },
+        ),
+    );
+    let catalog = document.add_object(dictionary! { "Type" => "Catalog", "Pages" => pages });
+    document.trailer.set("Root", catalog);
+    let mut bytes = Vec::new();
+    document.save_to(&mut bytes).expect("synthetic PDF");
+    bytes
+}
+
+/// An Identity-H composite font whose codes are glyph IDs 29 below the Latin character codes,
+/// as the FDA labels that misread were, with `map` as its character map when given.
+fn composite(document: &mut Document, map: Option<Vec<u8>>) -> Object {
+    let descendant = document.add_object(dictionary! {
+        "Type" => "Font", "Subtype" => "CIDFontType2", "BaseFont" => "Synthetic", "DW" => 500,
+        "CIDSystemInfo" => dictionary! { "Registry" => Object::string_literal("Adobe"),
+            "Ordering" => Object::string_literal("Identity"), "Supplement" => 0 },
+    });
+    let mut font = dictionary! {
+        "Type" => "Font", "Subtype" => "Type0", "BaseFont" => "Synthetic",
+        "Encoding" => "Identity-H", "DescendantFonts" => vec![descendant.into()],
+    };
+    if let Some(map) = map {
+        font.set(
+            "ToUnicode",
+            document.add_object(Stream::new(Dictionary::new(), map)),
+        );
+    }
+    document.add_object(font).into()
+}
+
+/// Lines of `text` in the composite font, each word its own string so word gaps show.
+fn glyph_lines(text: &str, lines: usize) -> Vec<u8> {
+    let words: Vec<String> = text
+        .split(' ')
+        .map(|word| {
+            word.chars()
+                .map(|c| format!("{:04X}", u32::from(c) - 29))
+                .collect()
+        })
+        .collect();
+    let line = format!("[<{}>] TJ T*\n", words.join("> -400 <"));
+    format!("BT /F1 9 Tf 11 TL 36 760 Td\n{}ET\n", line.repeat(lines)).into_bytes()
+}
+
+fn read(bytes: &[u8]) -> biomcp_adapters::pdf::Embedded {
+    embedded(bytes, 100, &|| false).expect("readable PDF")
+}
 
 #[test]
 fn text_inside_form_objects_is_read() {
-    let read = embedded(FORM_OBJECT_CARTON, 100, &|| false).expect("readable PDF");
+    let read = read(FORM_OBJECT_CARTON);
     assert_eq!(read.state, PdfTextState::Text, "the carton text is read");
     assert!(
         read.text.contains("Use cutting tool"),
@@ -24,14 +94,116 @@ fn text_inside_form_objects_is_read() {
 
 #[test]
 fn text_that_decodes_to_gibberish_is_garbled_and_not_returned() {
-    let read = embedded(GARBLED_LETTER, 100, &|| false).expect("readable PDF");
+    let read = read(GARBLED_LETTER);
     assert_eq!(
         read.state,
         PdfTextState::Garbled,
-        "the letter's font decodes wrongly"
+        "the letter's fonts decode wrongly"
     );
     assert!(read.text.is_empty(), "gibberish is never returned as text");
     assert_eq!(read.pages, Some(5), "the letter still opened");
+}
+
+#[test]
+fn glyphs_without_a_character_map_are_garbled() {
+    let bytes = pdf(&glyph_lines(SENTENCE, 40), |document| {
+        let font = composite(document, None);
+        dictionary! { "Font" => dictionary! { "F1" => font } }
+    });
+    let read = read(&bytes);
+    assert_eq!(
+        read.state,
+        PdfTextState::Garbled,
+        "nothing names the glyphs"
+    );
+    assert!(read.text.is_empty(), "gibberish is never returned as text");
+}
+
+#[test]
+fn text_in_a_declared_encoding_is_never_judged_garbled() {
+    let table: String = (0..600)
+        .map(|n| format!("{n}.{} {}-{:03} ", n % 7, n * 13, n % 997))
+        .collect();
+    let content = format!("BT /F1 9 Tf 36 760 Td ({table}) Tj ET");
+    let bytes = pdf(content.as_bytes(), |document| {
+        let font = document.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica", "Encoding" => "WinAnsiEncoding",
+        });
+        dictionary! { "Font" => dictionary! { "F1" => font } }
+    });
+    let read = read(&bytes);
+    assert_eq!(
+        read.state,
+        PdfTextState::Text,
+        "a numeric table is text, not gibberish"
+    );
+}
+
+#[test]
+fn a_form_drawn_without_end_and_a_huge_map_cannot_stall_the_reader() {
+    // One outer form draws an empty inner form 100,000 times; the inner form's font carries a
+    // character map of about 245 KB. Fonts are read once and draws stop at the page's cap.
+    let entries: String = (0..15_000u32)
+        .map(|code| format!("<{code:04X}> <0041>\n"))
+        .collect();
+    let map = format!(
+        "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /Hostile def\n\
+         1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n15000 beginbfchar\n{entries}endbfchar\n\
+         endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n"
+    );
+    let bytes = pdf(b"/Outer Do", |document| {
+        let font = composite(document, Some(map.into_bytes()));
+        let inner = document.add_object(Stream::new(
+            dictionary! { "Type" => "XObject", "Subtype" => "Form", "BBox" => vec![0.into(), 0.into(), 1.into(), 1.into()],
+                "Resources" => dictionary! { "Font" => dictionary! { "F1" => font } } },
+            Vec::new(),
+        ));
+        let outer = document.add_object(Stream::new(
+            dictionary! { "Type" => "XObject", "Subtype" => "Form", "BBox" => vec![0.into(), 0.into(), 1.into(), 1.into()],
+                "Resources" => dictionary! { "XObject" => dictionary! { "Inner" => inner } } },
+            b"/Inner Do\n".repeat(100_000),
+        ));
+        dictionary! { "XObject" => dictionary! { "Outer" => outer } }
+    });
+    let checks = Cell::new(0usize);
+    let result = embedded(&bytes, 100, &|| {
+        checks.set(checks.get() + 1);
+        false
+    });
+    assert!(result.is_ok(), "the hostile PDF still opens: {result:?}");
+    assert!(
+        checks.get() < 3_000,
+        "the deadline is checked inside the form walk, and draws stop at the cap: {}",
+        checks.get()
+    );
+}
+
+#[test]
+fn a_form_that_cannot_be_read_is_skipped_and_the_page_keeps_its_text() {
+    let words = SENTENCE.split(' ').collect::<Vec<_>>().join(") Tj ( ");
+    let content = format!("BT /F1 9 Tf 36 760 Td ({words}) Tj ET /Broken Do");
+    let bytes = pdf(content.as_bytes(), |document| {
+        let font = document.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica", "Encoding" => "WinAnsiEncoding",
+        });
+        let broken = document.add_object(Stream::new(
+            dictionary! { "Type" => "XObject", "Subtype" => "Form", "Filter" => "BrotliDecode",
+            "BBox" => vec![0.into(), 0.into(), 1.into(), 1.into()] },
+            b"not brotli data".to_vec(),
+        ));
+        dictionary! { "Font" => dictionary! { "F1" => font }, "XObject" => dictionary! { "Broken" => broken } }
+    });
+    let read = read(&bytes);
+    assert_eq!(
+        read.state,
+        PdfTextState::Partial,
+        "text may be missing where the form was"
+    );
+    assert!(
+        read.text.contains("serious"),
+        "the page's own text is kept: {}",
+        read.text
+    );
 }
 
 #[test]
