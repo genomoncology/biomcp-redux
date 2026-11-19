@@ -22,6 +22,7 @@ mod admit;
 mod map;
 mod page;
 mod raw;
+mod text_name;
 mod wire;
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
