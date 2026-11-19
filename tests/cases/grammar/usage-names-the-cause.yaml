@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "A refusal says whether its option was repeated, unknown or given a value it does not accept, describes a free-text option by its own meaning rather than the shared text type, and offers a call that works: a comma-separated option given twice is offered once with its values joined, and a field name inside a search row's field is offered as that field.",
+  "story": "A refusal says whether its option was repeated, unknown or given a value it does not accept, describes a free-text option by its own meaning rather than the shared text type, and offers a call that works: a comma-separated option given twice is offered once with its values joined, and a field name inside a search row's field is offered as that field. An option given with no value is named as missing, and next is the call without it. A help next step runs.",
   "harvest": "Agent runs on 1.0.0 (be96d8d40), 2026-11-19: 22 of 222 calls refused with one missing-or-invalid sentence.",
   "steps": [
     {
@@ -48,13 +48,29 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--disease",
-        "/error/message": "unknown option: this command has no error.option; valid_values lists the options it takes",
+        "/error/message": "unknown option: this command has no error.option; run next, or use an option valid_values lists",
         "/error/valid_values": {
           "includes_all_of": [
             "--band",
             "--region"
           ]
-        }
+        },
+        "/next/0/args": [
+          "help",
+          "search",
+          "gene"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/schema": "biomcp.help/7",
+        "/result/commands/0/command": [
+          "search",
+          "gene"
+        ]
       }
     },
     {
@@ -92,7 +108,49 @@
       "is_error": true,
       "expect": {
         "/error/option": "input",
-        "/error/message": "value not accepted: give error.option a value valid_values accepts"
+        "/error/message": "value not accepted: give error.option a value valid_values accepts",
+        "/next/0/args": [
+          "help",
+          "get",
+          "trial"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/schema": "biomcp.help/7",
+        "/result/commands/0/command": [
+          "get",
+          "trial"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--limit"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--limit",
+        "/error/message": "required option missing: add error.option with a value valid_values accepts",
+        "/next/0/args": {
+          "includes_all_of": [
+            "search",
+            "trial",
+            "--condition",
+            "melanoma"
+          ],
+          "excludes": "--limit"
+        }
       }
     }
   ]

@@ -5,29 +5,6 @@ use clap::{
     error::{ContextKind, ContextValue, ErrorKind},
 };
 
-// The parser's usage context names its own command, including when parsing stopped
-// before matches could be returned. Never recover that path from caller argv.
-fn command_context<'a>(root: &'a Command, error: &clap::Error) -> (&'a Command, Vec<&'a str>) {
-    let usage = error
-        .get(ContextKind::Usage)
-        .map(ToString::to_string)
-        .unwrap_or_default();
-    let mut words = usage
-        .split_whitespace()
-        .skip_while(|word| *word != root.get_name());
-    words.next();
-    let mut command = root;
-    let mut path = Vec::new();
-    for word in words {
-        let Some(child) = command.find_subcommand(word) else {
-            break;
-        };
-        path.push(child.get_name());
-        command = child;
-    }
-    (command, path)
-}
-
 fn invalid_argument<'a>(
     command: &'a Command,
     path: &[&str],
@@ -79,6 +56,9 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
         if let Some(argument) = invalid_argument(command, path, error) {
             let message = match error.kind() {
                 ErrorKind::MissingRequiredArgument => ErrorMessage::ArgumentMissing,
+                ErrorKind::InvalidValue if super::context::valueless(error) => {
+                    ErrorMessage::ArgumentMissing
+                }
                 ErrorKind::ArgumentConflict if super::repeated::is(error) => {
                     ErrorMessage::ArgumentRepeated
                 }
@@ -229,7 +209,7 @@ pub(super) fn parse_invalid(
     error: &clap::Error,
     args: &[std::ffi::OsString],
 ) -> super::ParseInvalid {
-    let (command, path) = command_context(root, error);
+    let (command, path) = super::context::command(root, error, args);
     let spelling = match error.get(ContextKind::InvalidArg) {
         Some(ContextValue::String(spelling)) if error.kind() == ErrorKind::UnknownArgument => {
             Some(spelling.as_str())
@@ -242,6 +222,11 @@ pub(super) fn parse_invalid(
         let corrected = if registered_argument {
             parser_correction(root, &path, error, args)
                 .or_else(|| super::repeated::joined(root, &path, error, args))
+                .or_else(|| {
+                    let step = super::context::without(root, &path, error, args);
+                    only_dropped = step.is_some();
+                    step
+                })
         } else {
             spelling.and_then(|spelling| {
                 flag_fix(root, &path, spelling, args).or_else(|| {
@@ -251,7 +236,11 @@ pub(super) fn parse_invalid(
                 })
             })
         };
+        let fixed = corrected.is_some();
         super::recovery::next(&mut arguments, corrected);
+        if fixed && !registered_argument {
+            shorten(&mut arguments);
+        }
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
@@ -580,4 +569,23 @@ fn lenient(root: &Command, path: &[&str], strict: bool) -> Command {
                 .ignore_errors(true)
                 .mut_subcommand(entity, |command| command.ignore_errors(true))
         })
+}
+
+/// An unknown option whose next step is the fixed call lists only the options that call
+/// uses, since the whole option list would only repeat help; a call that uses none, such
+/// as one with the text as its positional query, needs no list.
+fn shorten(arguments: &mut UsageArguments) {
+    let (Some(values), Some(step)) = (&arguments.valid_values, arguments.next.first()) else {
+        return;
+    };
+    let used: Vec<_> = values
+        .iter()
+        .filter(|value| {
+            step.args
+                .iter()
+                .any(|word| word.split('=').next() == Some(value.as_str()))
+        })
+        .cloned()
+        .collect();
+    arguments.valid_values = (!used.is_empty()).then(|| used.into());
 }

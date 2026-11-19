@@ -1,0 +1,47 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "A typed tool call refused for its arguments names the cause: a field the action does not take is an unknown option, and one field given under two of its names is repeated.",
+  "config": {
+    "mcp_tool_mode": "typed"
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF",
+            "disease": "x"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "disease",
+        "/error/message": "unknown option: this command has no error.option; run next, or use an option valid_values lists"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF",
+            "input": "BRAF"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": "option repeated: give error.option once, in the form valid_values shows"
+      }
+    }
+  ]
+}
