@@ -26,7 +26,7 @@
           "search",
           "pathway"
         ],
-        "/result/commands/0/description": "Search human biological pathways. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: id, name, revision, species, version. Choose some with --fields a,b (typed: fields list); always kept: id, species.",
+        "/result/commands/0/description": "Search human biological pathways. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: id, name, revision, species, version. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: id, species.",
         "/result/commands/0/examples": {
           "count": 1
         },

@@ -3,6 +3,9 @@ use super::catalog::front_map::ENTITY_TOOLS;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
+/// The typed `fields` list, for search, subcommand and section rows alike (1071).
+const FIELDS: &str = "Row columns to keep, or a.b inside one; help names them";
+
 pub(in crate::mcp) struct Catalog {
     pub(super) tools: Vec<Value>,
     commands: Vec<Value>,
@@ -143,14 +146,14 @@ fn entity(
         }
         properties.insert((*action).into(), input);
     }
-    // A search action keeps only the named row fields; the help line lists them.
+    // Any list action keeps only the named row fields; help lists a search's names.
     if actions
         .iter()
         .any(|(_, _, command)| command.path.0 == "search")
     {
         properties.insert(
             "fields".into(),
-            json!({"type":"array","items":{"type":"string"}}),
+            json!({"type":"array","items":{"type":"string"},"description":FIELDS}),
         );
     }
     let sources = actions

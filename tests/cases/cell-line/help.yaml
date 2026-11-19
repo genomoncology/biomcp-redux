@@ -17,7 +17,7 @@
             "--exclude-derived"
           ]
         },
-        "/result/commands/0/description": "Search cell lines by name or identifier. Sources: cellosaurus.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: accession, category, diseases, name, species, variations. Choose some with --fields a,b (typed: fields list); always kept: accession, diseases, species.",
+        "/result/commands/0/description": "Search cell lines by name or identifier. Sources: cellosaurus.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: accession, category, diseases, name, species, variations. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: accession, diseases, species.",
         "/result/commands/0/examples": {
           "count": 1
         },

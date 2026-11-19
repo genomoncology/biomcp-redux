@@ -199,11 +199,15 @@ fn only_sections(description: &str) -> Vec<&str> {
         .filter(|word| !word.is_empty() && *word != "or")
         .collect()
 }
-/// Search help names the row fields a caller may choose.
+/// Search help names the row fields a caller may choose; a get with section rows says how.
 fn fields_line(commands: &mut [HelpCommand], path: &[String]) {
     if let [verb, entity] = path
-        && let Some(line) = crate::fields::help_line(verb, entity)
         && let Some(command) = commands.iter_mut().find(|command| command.command == path)
+        && let Some(line) = crate::fields::help_line(
+            verb,
+            entity,
+            &command.sections.iter().map(|section| section.word.clone()).collect::<Vec<_>>(),
+        )
     {
         command.description.push('\n');
         command.description.push_str(&line);

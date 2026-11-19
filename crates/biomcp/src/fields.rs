@@ -1,147 +1,55 @@
-//! Chosen fields: one generic filter keeps named top-level keys of each search row.
+//! Chosen fields: one generic filter keeps named columns, or dotted paths inside them, of
+//! each row of a search, a subcommand's list or a named section.
 //!
-//! The row is `result.items[]` of the reply schema. Its required fields and the whole
-//! envelope always stay, and so do identifier properties (`x-identifier`), so identifiers
-//! and source attribution survive narrowing.
+//! Rows come from the reply schema (`rows`). Each row always keeps its required and
+//! identifier (`x-identifier`) keys, at every level a path narrows, and the envelope and the
+//! card stay whole, so a narrowed reply validates against the same schema.
+mod narrow;
+mod rows;
+
 use biomcp_query::Action;
 use biomcp_types::{ErrorMessage, Request, Source, Step, StepKind, UsageArguments, UsageError};
+use rows::{Call, List, Row};
 use serde_json::Value;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    io,
-};
+use std::{collections::BTreeSet, io};
 
-/// Names a search row offers, and those it always keeps (required or identifier).
-#[derive(Debug, Default)]
-struct Row {
-    names: BTreeSet<String>,
-    required: BTreeSet<String>,
-    /// Each name one level inside a field, with the first field that holds it.
-    inner: BTreeMap<String, String>,
+fn schema(id: &str) -> Option<Value> {
+    serde_json::from_str(crate::schema::find(id)?).ok()
 }
 
-fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
-    node.get("$ref")
-        .and_then(Value::as_str)
-        .and_then(|reference| root.pointer(reference.trim_start_matches('#')))
-        .map_or(node, |target| resolve(target, root))
-}
-
-/// Whether a property is an identifier object, directly or as a nullable variant.
-fn identifier(node: &Value, root: &Value) -> bool {
-    let node = resolve(node, root);
-    node.get("x-identifier") == Some(&Value::Bool(true))
-        || node
-            .get("anyOf")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .any(|branch| identifier(branch, root))
-}
-
-/// Collect a row's properties across its variants; a nullable wrapper adds none.
-/// Identifier properties are always kept, like required ones, so an optional row
-/// identity (such as an article's key) survives narrowing.
-fn collect(node: &Value, root: &Value, row: &mut Row) {
-    let node = resolve(node, root);
-    if let Some(fields) = node.get("properties").and_then(Value::as_object) {
-        row.names.extend(fields.keys().cloned());
-        for (name, property) in fields {
-            for inner in inner_names(property, root) {
-                row.inner.entry(inner).or_insert_with(|| name.clone());
-            }
-        }
-        row.required.extend(
-            fields
-                .iter()
-                .filter(|(_, property)| identifier(property, root))
-                .map(|(name, _)| name.clone()),
-        );
-    }
-    row.required.extend(
-        node.get("required")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter_map(Value::as_str)
-            .map(str::to_owned),
-    );
-    for key in ["anyOf", "oneOf", "allOf"] {
-        for branch in node
-            .get(key)
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-        {
-            collect(branch, root, row);
-        }
-    }
-}
-
-/// The property names of one field's object, across its nullable or variant branches.
-fn inner_names(node: &Value, root: &Value) -> Vec<String> {
-    let node = resolve(node, root);
-    let own = node.get("properties").and_then(Value::as_object);
-    let branches = ["anyOf", "oneOf"]
+/// The row lists of every reply this call's command can give.
+fn call_lists(call: &Call) -> Vec<List> {
+    let Some((_, _, id)) = crate::grammar::command_paths()
         .into_iter()
-        .filter_map(|key| node.get(key).and_then(Value::as_array))
-        .flatten()
-        .filter_map(|branch| resolve(branch, root).get("properties")?.as_object());
-    own.into_iter()
-        .chain(branches)
-        .flat_map(|fields| fields.keys().cloned())
+        .find(|path| (path.0, path.1) == (call.verb.as_str(), call.entity.as_str()))
+    else {
+        return Vec::new();
+    };
+    crate::schema::replies(id, &call.verb, &call.entity)
+        .iter()
+        .filter_map(|reply| schema(reply))
+        .flat_map(|schema| rows::lists(&schema, call))
         .collect()
 }
 
-/// The row of one reply schema, when its result carries `items`.
-fn row(schema: &Value) -> Option<Row> {
-    let mut items = Row::default();
-    let result = resolve(schema.pointer("/properties/result")?, schema);
-    let branches = std::iter::once(result).chain(
-        result
-            .get("anyOf")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .map(|branch| resolve(branch, schema)),
-    );
-    let mut found = false;
-    for body in branches {
-        if let Some(list) = body.pointer("/properties/items") {
-            let list = resolve(list, schema);
-            if let Some(item) = list.get("items") {
-                collect(item, schema, &mut items);
-                found = true;
-            }
-        }
+fn union(lists: Vec<List>) -> Row {
+    let mut row = Row::default();
+    for list in lists {
+        row.extend(list.row);
     }
-    found.then_some(items)
+    row
 }
 
+/// The rows of one reply schema's `result.items`, for a search or subcommand.
 fn reply_row(id: &str) -> Option<Row> {
-    let schema: Value = serde_json::from_str(crate::schema::find(id)?).ok()?;
-    row(&schema)
+    let call = Call::default();
+    let lists = rows::lists(&schema(id)?, &call);
+    (!lists.is_empty()).then(|| union(lists))
 }
 
 /// Every row name any reply of this search can carry.
 fn search_row(verb: &str, entity: &str) -> Row {
-    let mut union = Row::default();
-    let Some((_, _, id)) = crate::grammar::command_paths()
-        .into_iter()
-        .find(|path| (path.0, path.1) == (verb, entity))
-    else {
-        return union;
-    };
-    for reply in crate::schema::replies(id, verb, entity) {
-        if let Some(row) = reply_row(&reply) {
-            union.names.extend(row.names);
-            union.required.extend(row.required);
-            for (inner, field) in row.inner {
-                union.inner.entry(inner).or_insert(field);
-            }
-        }
-    }
-    union
+    union(call_lists(&Call::of(verb, entity, &[])))
 }
 
 fn help_step(path: (&str, &str)) -> Step {
@@ -152,7 +60,13 @@ fn help_step(path: (&str, &str)) -> Step {
     }
 }
 
-/// Refuse chosen fields outside an entity search, and names its rows do not carry.
+/// Whether every chosen name reaches a row of this call.
+fn fits(request: &Request, fields: &[String]) -> bool {
+    let row = union(call_lists(&Call::new(request)));
+    !row.names.is_empty() && fields.iter().all(|name| row.knows(name))
+}
+
+/// Refuse chosen fields on a call without rows, and names its rows do not carry.
 pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     let fields = &parsed.globals.fields;
     if fields.is_empty() || parsed.help.is_some() {
@@ -162,16 +76,16 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
         Some(Action::Run { request, .. }) => (request, request.path()),
         _ => return Err(UsageError::argument("--fields".into())),
     };
-    if path.0 != "search" {
+    let row = union(call_lists(&Call::new(request)));
+    if row.names.is_empty() {
         return Err(UsageError::Arguments(UsageArguments {
             argument: Some("--fields".into()),
-            message: Some(biomcp_types::ErrorMessage::FieldsSearchOnly),
+            message: Some(ErrorMessage::FieldsRowsOnly),
             next: vec![help_step(path)],
             ..Default::default()
         }));
     }
-    let row = search_row(path.0, path.1);
-    if !row.names.is_empty() && fields.iter().all(|name| row.names.contains(name)) {
+    if fields.iter().all(|name| row.knows(name)) {
         return source_check(parsed, request, path);
     }
     // A selected source's own row, so the suggested call keeps only names it carries.
@@ -185,24 +99,26 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     Err(UsageError::Arguments(UsageArguments {
         argument: Some("--fields".into()),
         message: Some(ErrorMessage::FieldsUnknown),
-        valid_values: row
-            .names
-            .iter()
-            .map(|name| biodata::Text::new(name).ok())
-            .collect::<Option<Vec<_>>>()
-            .map(Into::into),
+        valid_values: texts(&row.names).map(Into::into),
         next,
     }))
+}
+
+fn texts(names: &BTreeSet<String>) -> Option<Vec<biodata::Text>> {
+    names
+        .iter()
+        .map(|name| biodata::Text::new(name).ok())
+        .collect()
 }
 
 /// The same call with each chosen field the row lacks moved to its nearest, or dropped.
 fn kept_step(parsed: &crate::grammar::Parsed, row: &Row) -> Vec<Step> {
     let mut chosen: Vec<&str> = Vec::new();
     for name in &parsed.globals.fields {
-        let field = if row.names.contains(name) {
+        let field = if row.knows(name) {
             Some(name)
         } else {
-            nearest(row, name).or_else(|| row.inner.get(name))
+            nearest(row, name).or_else(|| row.inner(name))
         };
         if let Some(field) = field.filter(|field| !chosen.contains(&field.as_str())) {
             chosen.push(field.as_str());
@@ -243,16 +159,11 @@ fn source_rows(verb: &str, entity: &str) -> Vec<(&'static str, Row)> {
         return biomcp_types::AdverseEventHeader::ROW_FIELDS
             .iter()
             .map(|(source, names)| {
-                let keep = |name: &String| names.contains(&name.as_str());
+                let keep = |name: &&String| names.contains(&name.split('.').next().unwrap_or_default());
                 let row = Row {
-                    names: union.names.iter().filter(|n| keep(n)).cloned().collect(),
-                    required: union.required.iter().filter(|n| keep(n)).cloned().collect(),
-                    inner: union
-                        .inner
-                        .iter()
-                        .filter(|(_, field)| keep(field))
-                        .map(|(n, f)| (n.clone(), f.clone()))
-                        .collect(),
+                    names: union.names.iter().filter(keep).cloned().collect(),
+                    paths: union.paths.iter().filter(keep).cloned().collect(),
+                    kept: union.kept.iter().filter(keep).cloned().collect(),
                 };
                 (source.as_str(), row)
             })
@@ -291,7 +202,7 @@ fn source_check(
     else {
         return Ok(());
     };
-    if fields.iter().all(|name| row.names.contains(name)) {
+    if fields.iter().all(|name| row.knows(name)) {
         return Ok(());
     }
     let mut next = kept_step(parsed, &row);
@@ -302,42 +213,55 @@ fn source_check(
         source,
         message: ErrorMessage::FieldsUnknown,
         option: "--fields".into(),
-        valid_values: row
-            .names
-            .iter()
-            .filter_map(|name| biodata::Text::new(name).ok())
-            .collect(),
+        valid_values: texts(&row.names).unwrap_or_default(),
         next,
     })
 }
 
-/// Keep only the chosen and required keys of each row of a finished reply.
-pub(crate) fn project(value: &mut Value, fields: &[String]) -> io::Result<()> {
-    let Some(id) = value.get("schema").and_then(Value::as_str) else {
+/// The names a call chose and the rows they narrow, kept for its finished reply.
+#[derive(Clone, Debug)]
+pub(crate) struct Chosen {
+    pub(crate) names: Vec<String>,
+    call: Call,
+}
+
+impl Chosen {
+    pub(crate) fn new(request: &Request, names: &[String]) -> Option<Self> {
+        (!names.is_empty()).then(|| Self {
+            names: names.to_vec(),
+            call: Call::new(request),
+        })
+    }
+}
+
+/// Narrow each row list of a finished reply that offers a chosen name.
+pub(crate) fn project(value: &mut Value, chosen: &Chosen) -> io::Result<()> {
+    let Some(schema) = value
+        .get("schema")
+        .and_then(Value::as_str)
+        .and_then(schema)
+    else {
         return Ok(());
     };
-    let Some(row) = reply_row(id) else {
-        return Ok(());
-    };
-    for item in value
-        .pointer_mut("/result/items")
-        .and_then(Value::as_array_mut)
-        .into_iter()
-        .flatten()
-    {
-        if let Some(item) = item.as_object_mut() {
-            item.retain(|key, _| row.required.contains(key) || fields.contains(key));
-        }
+    for list in rows::lists(&schema, &chosen.call) {
+        narrow::list(value, &list, &chosen.names);
     }
     Ok(())
 }
 
-/// The one help line naming a search's row fields; none for other commands.
-pub(crate) fn help_line(verb: &str, entity: &str) -> Option<String> {
-    if verb != "search" {
-        return None;
+const CHOOSE: &str = "Choose some with --fields a,b or a dotted path a.b (typed: fields list)";
+
+/// The one help line on choosing row fields: a search or subcommand names its row fields,
+/// and a get whose sections have rows says how to narrow them.
+pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option<String> {
+    if verb == "get" {
+        let call = Call::of(verb, entity, sections);
+        return (!call_lists(&call).is_empty()).then(|| {
+            "--fields a,b keeps only those columns of a named section's rows, or a dotted path inside one \
+             (event.status); identifiers stay, and a wrong name is refused with the section's names."
+                .to_owned()
+        });
     }
-    let choose = "Choose some with --fields a,b (typed: fields list)";
     let sources = source_rows(verb, entity);
     if !sources.is_empty() {
         let rows = sources
@@ -345,18 +269,19 @@ pub(crate) fn help_line(verb: &str, entity: &str) -> Option<String> {
             .map(|(source, row)| format!("{source}: {}", listed(row)))
             .collect::<Vec<_>>()
             .join("; ");
-        return Some(format!("Fields by --source: {rows}. {choose}."));
+        return Some(format!("Fields by --source: {rows}. {CHOOSE}."));
     }
     let row = search_row(verb, entity);
     if row.names.is_empty() {
         return None;
     }
-    let kept = if row.required.is_empty() {
+    let required = row.required().cloned().collect::<BTreeSet<_>>();
+    let kept = if required.is_empty() {
         String::new()
     } else {
-        format!("; always kept: {}", joined(&row.required))
+        format!("; always kept: {}", joined(&required))
     };
-    Some(format!("Fields: {}. {choose}{kept}.", joined(&row.names)))
+    Some(format!("Fields: {}. {CHOOSE}{kept}.", joined(&row.names)))
 }
 
 fn joined(names: &BTreeSet<String>) -> String {
@@ -366,16 +291,18 @@ fn joined(names: &BTreeSet<String>) -> String {
 /// A row's names, then those it always keeps.
 fn listed(row: &Row) -> String {
     let names = joined(&row.names);
-    if row.required.is_empty() {
+    let required = row.required().cloned().collect::<BTreeSet<_>>();
+    if required.is_empty() {
         return names;
     }
-    format!("{names} (always kept: {})", joined(&row.required))
+    format!("{names} (always kept: {})", joined(&required))
 }
 
-/// Paging, sort, restart and fresh steps of a search keep the caller's fields.
-pub(crate) fn carried(step: &Step) -> bool {
+/// Paging, sort, restart and fresh steps keep the caller's fields when that call's rows
+/// carry them all, so a section page keeps them and a text section's page does not.
+pub(crate) fn carried(kind: StepKind, action: &Action, fields: &[String]) -> bool {
     matches!(
-        step.kind,
+        kind,
         StepKind::Page | StepKind::Sort | StepKind::Restart | StepKind::Fresh
-    ) && step.args.first().is_some_and(|word| &**word == "search")
+    ) && matches!(action, Action::Run { request, .. } if fits(request, fields))
 }

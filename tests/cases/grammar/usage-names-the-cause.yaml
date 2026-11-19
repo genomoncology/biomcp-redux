@@ -87,11 +87,11 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--fields",
-        "/error/message": "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
+        "/error/message": "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it",
         "/error/valid_values": {
           "includes": "header"
         },
-        "/next/0/args/0": "--fields=header",
+        "/next/0/args/0": "--fields=header.title,header.journal",
         "/next": {
           "count": 1
         }
