@@ -83,6 +83,16 @@ pub fn embedded(
         skipped |= part.skipped;
     }
     check()?;
+    Ok(settle(result, text, &unsound, skipped))
+}
+
+/// The read's state and text once every page is read.
+fn settle(
+    mut result: Embedded,
+    mut text: String,
+    unsound: &[(usize, usize)],
+    mut skipped: bool,
+) -> Embedded {
     // Only text shown in a composite font without a character map is judged; text read
     // through a map or a declared one-byte encoding is not, since tables, part numbers and
     // other languages are not gibberish. Gibberish is cut out and the rest is partial, unless
@@ -93,10 +103,10 @@ pub fn embedded(
         .collect();
     let judged = shown.join(" ");
     if super::garbled::garbled(&judged) {
-        let kept = without(&text, &unsound);
+        let kept = without(&text, unsound);
         if kept.trim().len() < judged.len() {
             result.state = PdfTextState::Garbled;
-            return Ok(result);
+            return result;
         }
         text = kept;
         skipped = true;
@@ -109,7 +119,7 @@ pub fn embedded(
         };
         result.text = text;
     }
-    Ok(result)
+    result
 }
 
 /// `text` without the byte `spans`, which are in order and do not overlap.
