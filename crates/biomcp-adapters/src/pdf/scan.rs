@@ -175,33 +175,3 @@ fn object_stream(
     }
     Ok(())
 }
-
-/// Throwaway (1068): what a document holds, for sizing the bounds on the corpus.
-#[doc(hidden)]
-pub fn measured(bytes: &[u8]) -> String {
-    let table = match super::xref::read(bytes, LOAD_STREAM_BYTES) {
-        Ok(table) => table,
-        Err(refusal) => return format!("xref {refusal:?}"),
-    };
-    let mut listed: Vec<(usize, u64)> = table.entries.iter().map(|(n, at)| (*at, *n)).collect();
-    listed.sort_unstable();
-    listed.dedup();
-    let mut measured = Measured {
-        objects: listed.len(),
-        expanded: table.expanded,
-    };
-    for (index, (offset, _)) in listed.iter().enumerate() {
-        let next = listed.get(index + 1).map_or(bytes.len(), |(at, _)| *at);
-        match indirect(bytes, *offset, &table, &mut measured) {
-            Ok(end) if end <= next => {}
-            Ok(end) => return format!("overlap at {offset} end {end} next {next}"),
-            Err(refusal) => return format!("{refusal:?} at {offset}"),
-        }
-    }
-    format!(
-        "objects {} expanded {} entries {}",
-        measured.objects,
-        measured.expanded,
-        listed.len()
-    )
-}

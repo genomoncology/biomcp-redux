@@ -82,9 +82,7 @@ fn section(bytes: &[u8], offset: usize, limit: usize, table: &mut Table) -> Opti
     let end = start.checked_add(usize::try_from(*length).ok()?)?;
     let content = bytes.get(start..end)?.to_vec();
     let expanded = Stream::new(dictionary.clone(), content).get_plain_content_with_limit(limit);
-    table.over = expanded
-        .as_ref()
-        .is_err_and(|issue| super::page::too_large(issue));
+    table.over = expanded.as_ref().is_err_and(super::page::too_large);
     let expanded = expanded.ok()?;
     table.expanded = table.expanded.saturating_add(expanded.len());
     stream_entries(&dictionary, &expanded, table)?;

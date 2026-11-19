@@ -17,15 +17,6 @@ pub(super) const fn delimiter(byte: u8) -> bool {
     )
 }
 
-/// The first `needle` in `bytes` at or after `from`.
-pub(super) fn find(bytes: &[u8], from: usize, needle: &[u8]) -> Option<usize> {
-    bytes
-        .get(from..)?
-        .windows(needle.len())
-        .position(|window| window == needle)
-        .map(|at| from + at)
-}
-
 /// Past a run of regular characters.
 pub(super) fn skip_regular(bytes: &[u8], from: usize) -> usize {
     bytes
