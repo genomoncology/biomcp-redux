@@ -114,7 +114,8 @@ pub(super) fn read(
         return Err(e);
     }
     let (limit, offset, selected) = q.window();
-    if selected.is_none() && offset != 0 || selected.is_some() && cx.fresh {
+    // An offset without a pool reads the current copy, or starts one, as a first page does (1061).
+    if selected.is_some() && cx.fresh {
         restart(q, out, false);
         return Ok(());
     }
@@ -131,10 +132,6 @@ pub(super) fn read(
         return Ok(());
     }
     let total = saved.total();
-    if offset as u64 > total {
-        restart(q, out, false);
-        return Ok(());
-    }
     let returned = limit.min(total.saturating_sub(offset.into()) as u32);
     saved.member_steps(q, offset, limit, cx, deadline, out)?;
     saved.render(q, offset, limit, out)?;

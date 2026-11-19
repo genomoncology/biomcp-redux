@@ -178,10 +178,6 @@ fn read(
     }
     let total = q.render(entry, out);
     let (limit, offset, _) = q.window();
-    if offset as usize > total {
-        restart(q, out, false);
-        return Ok(());
-    }
     let returned = limit.min(total.saturating_sub(offset as usize) as u32);
     out.page = Some(PageInfo {
         offset,

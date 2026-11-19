@@ -236,14 +236,17 @@ fn command_call(
     let input = arguments::input(&schema);
     let forms = forms::forms(verb, &schema);
     let mut values = values.clone();
-    let refused = forms::normalize(&mut values, &forms, &input)
-        .err()
-        .or_else(|| {
-            (!validation::valid(&input, &values)).then(|| forms::Refused {
-                argument: refusal::unknown(&input, &values).unwrap_or_else(|| action.into()),
-                valid: refusal::names(&input, &forms),
-            })
-        });
+    let normalized = forms::normalize(&mut values, &forms, &input);
+    // Either paging name reaches the field the command reads it from (1061).
+    if let Some(fields) = values.as_object_mut() {
+        crate::grammar::paging::rename(&schema, fields);
+    }
+    let refused = normalized.err().or_else(|| {
+        (!validation::valid(&input, &values)).then(|| forms::Refused {
+            argument: refusal::unknown(&input, &values).unwrap_or_else(|| action.into()),
+            valid: refusal::names(&input, &forms),
+        })
+    });
     if let Some(refused) = refused {
         let mut error = refusal::arguments(&refused, &["help", verb, entity])?;
         let args = arguments::cli(

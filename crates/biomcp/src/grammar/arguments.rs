@@ -86,6 +86,13 @@ fn aliases(
             command = command.mut_arg(alias.argument, |argument| argument.short(alias.short));
         }
     }
+    for (list, section) in super::paging::PAIRS {
+        for (name, field) in [(list, section), (section, list)] {
+            if super::paging::other_name(schema, name) == Some(field) {
+                command = command.mut_arg(field, |argument| argument.alias(name.replace('_', "-")));
+            }
+        }
+    }
     Ok(command)
 }
 
