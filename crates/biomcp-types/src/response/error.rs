@@ -102,8 +102,7 @@ singleton! {
  SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",
  SavedNoteUnknown => "no saved note has this ID; biomcp saved show lists the notes",
  SavedAccount => "saved work in hosted mode needs a signed-in account; sign in to save searches, lists and notes",
- HostedKey => "add the source key in your account settings",
- UnknownCommand => "unknown command; use the suggested help command",
+ HostedKey => "add the source key in your account settings", UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
 
         GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; \
@@ -261,7 +260,7 @@ singleton! {
         DiseaseDrugs => "use: search drug --source chembl --indication <TEXT>; no disease synonym expansion",
         DiseaseLabelSearch => "use: search drug --source openfda-label --indication <TEXT>; no disease synonym expansion",
         PhenotypeSet => "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch",
-        PhenotypeHelp => "use: help phenotype",
+        PhenotypeHelp => "use: help phenotype", TrialOffsetDeep => "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper",
         PhenotypeHpoSearch => "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
         PhenotypeSetOptions => "--group, --metric and --search-mode rank genes or diseases for HP IDs only; give the text \
             as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes",
@@ -299,6 +298,8 @@ singleton! {
         DrugSafety => "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugShortage => "shortage is not yet supported in the cancer-care drug slice.",
         DrugAll => "all is not supported: select one named source section.",
+        DrugMarketsSource => "markets takes a drug name alone, with no --source or other option, and reads each market's own \
+            source; drop error.option, as in: get drug <NAME> markets",
         DrugInteractions => "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         DrugTrials => "use: search trial --intervention <text>; no inferred aliases",
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
@@ -326,8 +327,7 @@ singleton! {
         ProteinUnreviewed => "--include-unreviewed is not yet supported because no unreviewed positive was captured",
         ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein \
             products; use: get protein <ACCESSION> complexes", // Unsent since 1029; kept for the 1.0 schema.
-        StudyList => "use: search study", TrialOffsetDeep => "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper",
-        StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
+        StudyList => "use: search study", StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
             whole-study analytical installs are retired",
         StudyMutationProfile => "the mutations section reads only a mutation profile of this study; choose \
             --molecular-profile from valid_values",

@@ -1380,7 +1380,7 @@
         },
         "lat": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first."
+          "description": "Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read."
         },
         "limit": {
           "default": 10,

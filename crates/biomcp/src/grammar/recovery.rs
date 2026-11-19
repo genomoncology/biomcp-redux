@@ -139,6 +139,24 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
+/// Drug markets takes a name alone, so its fix is the same call without the options it refused.
+pub(super) fn markets(
+    via: Rewrite,
+    path: (&str, &str),
+    value: &Value,
+    cause: &biomcp_types::QueryInvalid,
+) -> Option<Step> {
+    if cause.message() != Some(biomcp_types::ErrorMessage::DrugMarketsSource) {
+        return None;
+    }
+    let mut candidate = value.clone();
+    let fields = candidate.as_object_mut()?;
+    for name in cause.arguments() {
+        fields.remove(name.as_ref());
+    }
+    checked(via, path, candidate)
+}
+
 /// A certain correction replaces help: the refusal's only step is the call to run.
 pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<Step>) {
     if let Some(step) = corrected {

@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "trial-sites",
-  "story": "Given a point, a trial's site rows give each site's straight-line miles and come nearest first across pages, with a site lacking coordinates last; without a point the sites keep source order and carry no distance.",
+  "story": "Given a point, a trial's site rows give each site's straight-line miles and come nearest first across pages, with a site lacking coordinates last; without a point the sites keep source order and carry no distance. A point with no section reads the locations section, since distances are all it can ask for.",
   "replay": "trial/get/NCT00627419",
   "verified": "Reuses the public registry reply for NCT00627419 that the actual CLI recorded on 2026-11-11 (tests/replies/trial/get/README.md). It lists 17 sites; the first in source order, Arizona Cancer Center, has no geoPoint. Expected miles are haversine distances from 39.96,-83.00 (Columbus, Ohio) to each site's registry geoPoint with an Earth radius of 3958.8 miles, rounded to 0.1, computed independently in Python: Gabrail Cancer Center, Canton 103.17; Univ. of Pittsburgh 161.97; Indiana Univ. 168.00; The Angeles Clinic, Los Angeles 1973.59. Persona runs 2026-11-10, 2026-11-12 and 2026-11-16 sorted these by hand (ticket 1042).",
   "steps": [
@@ -135,11 +135,13 @@
         "--lon",
         "-83.00"
       ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
       "expect": {
-        "/error/code": "usage.arguments"
+        "/status": "complete",
+        "/query/section": [
+          "locations"
+        ],
+        "/result/items/0/sections/locations/data/items/0/facility": "Gabrail Cancer Center",
+        "/result/items/0/sections/locations/data/items/0/distance_mi": 103.2
       }
     }
   ]
