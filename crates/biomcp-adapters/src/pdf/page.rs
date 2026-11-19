@@ -139,7 +139,7 @@ impl<'a> Walk<'a, '_> {
     ) -> Result<(), Halt> {
         for operation in &content.operations {
             self.operations += 1;
-            if self.operations % CHECK_EVERY == 0 && (self.expired)() {
+            if self.operations.is_multiple_of(CHECK_EVERY) && (self.expired)() {
                 return Err(Halt::Expired);
             }
             if operation.operator != "Do" {
