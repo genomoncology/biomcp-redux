@@ -12,6 +12,23 @@ fn kind(e: &lopdf::Result<Encoding>) -> &'static str {
     }
 }
 
+fn rebuilt(raw: &[u8]) -> Vec<u8> {
+    let text = String::from_utf8_lossy(raw).replace('\r', "\n");
+    let mut body = String::new();
+    for (open, close) in [("begincodespacerange", "endcodespacerange"), ("beginbfchar", "endbfchar"), ("beginbfrange", "endbfrange")] {
+        let mut rest = text.as_str();
+        while let Some(at) = rest.find(open) {
+            let head = &rest[..at];
+            let count = head.trim_end().rsplit(|c: char| c.is_whitespace()).next().unwrap_or("0");
+            let after = &rest[at + open.len()..];
+            let Some(end) = after.find(close) else { break };
+            body.push_str(&format!("{count} {open}\n{}\n{close}\n", after[..end].trim()));
+            rest = &after[end + close.len()..];
+        }
+    }
+    format!("/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /Rebuilt def\n{body}endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n").into_bytes()
+}
+
 fn with(doc: &Document, font: &Dictionary, bytes: Vec<u8>) -> &'static str {
     let mut f = font.clone();
     f.set("ToUnicode", Object::Stream(Stream::new(Dictionary::new(), bytes)));
@@ -41,8 +58,9 @@ fn probe() {
             trimmed.push(b'\n');
             let both: Vec<u8> = trimmed.iter().map(|b| if *b == b'\r' { b'\n' } else { *b }).collect();
             let head = String::from_utf8_lossy(&raw[..raw.len().min(160)]).replace('\r', "\\r").replace('\n', "\\n");
+            let rb = with(&doc, font, rebuilt(&raw));
             println!(
-                "FONT {} {id:?} {base} enc={enc} now={now} lf={} trim={} both={} len={} head={head}",
+                "FONT {} {id:?} {base} enc={enc} now={now} rebuilt={rb} lf={} trim={} both={} len={} head={head}",
                 path.file_name().unwrap().to_string_lossy(),
                 with(&doc, font, lf),
                 with(&doc, font, trimmed),
