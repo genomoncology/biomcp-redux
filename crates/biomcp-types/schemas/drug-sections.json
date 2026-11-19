@@ -4504,7 +4504,8 @@
       "enum": [
         "text",
         "no-text",
-        "too-large"
+        "too-large",
+        "garbled"
       ],
       "type": "string"
     },

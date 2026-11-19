@@ -78,6 +78,13 @@ fn read(
         None => pdf::read(leg, &drugsfda::DOCUMENTS, url, 0),
     };
     let evidence = match extracted {
+        Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Garbled => {
+            return Ok(unavailable(
+                "The linked FDA letter's text could not be decoded (it reads as gibberish); its supplement purpose is unavailable.",
+                Some(document),
+                None,
+            ));
+        }
         Ok(pdf) => pdf.text.as_deref().and_then(|text| purpose(text, row)),
         Err(error @ RequestError::Source(_)) => {
             return Ok(unavailable(

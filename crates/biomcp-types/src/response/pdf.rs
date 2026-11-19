@@ -37,6 +37,8 @@ biodata::wire_enum! {
         /// No embedded text was found; scans require OCR outside this reader.
         NoText => "no-text",
         /// The PDF exceeds the byte, page or expanded-text bound.
-        TooLarge => "too-large"
+        TooLarge => "too-large",
+        /// Unread: the embedded text could not be decoded and reads as gibberish, so none is returned.
+        Garbled => "garbled"
     }
 }
