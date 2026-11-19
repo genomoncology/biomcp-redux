@@ -56,9 +56,10 @@ pub fn embedded(
         return Ok(result);
     }
     let mut text = String::new();
+    let mut fonts = super::cmap::Cache::default();
     for page in pages.values() {
         check()?;
-        let part = match super::page::page(&document, *page, limit) {
+        let part = match super::page::page(&document, *page, limit, &mut fonts) {
             Ok(part) => part,
             Err(issue) if too_large(&issue) => {
                 result.state = PdfTextState::TooLarge;

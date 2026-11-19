@@ -5,7 +5,8 @@
 //! A form brings its own `/Resources` or uses those of the stream that paints it (PDF
 //! 32000-1 §8.10.1). Forms nest at most [`DEPTH`] deep, which also ends a form that paints
 //! itself, and every content stream counts against one expanded-size limit.
-use super::fonts::{array, dictionary, entry, resolve, widths};
+use super::cmap::Cache;
+use super::fonts::{array, dictionary, entry, resolve};
 use super::state::Matrix;
 use super::words::{Fonts, Reader};
 use lopdf::{Dictionary, Document, Object, ObjectId, Stream, content::Content};
@@ -17,18 +18,23 @@ const DEPTH: usize = 8;
 type XObjects<'a> = BTreeMap<&'a [u8], &'a Object>;
 
 /// One page's walk: the document, the expanded bytes left, and the text so far.
-struct Walk<'a> {
+struct Walk<'a, 'c> {
     document: &'a Document,
+    cache: &'c mut Cache<'a>,
     left: usize,
     reader: Reader,
 }
 
 /// Embedded text of one page, its expanded content bounded by `limit` bytes.
-pub(super) fn page(document: &Document, page: ObjectId, limit: usize) -> lopdf::Result<String> {
+pub(super) fn page<'a>(
+    document: &'a Document,
+    page: ObjectId,
+    limit: usize,
+    cache: &mut Cache<'a>,
+) -> lopdf::Result<String> {
     let mut fonts = BTreeMap::new();
     for (name, font) in document.get_page_fonts(page)? {
-        let encoding = super::cmap::encoding(document, font, limit)?;
-        fonts.insert(name, (encoding, widths(document, font)));
+        fonts.insert(name, cache.font(document, font, limit)?);
     }
     let bytes = document.get_page_content_with_limit(page, limit)?;
     let content = Content::decode(&bytes)?;
@@ -46,6 +52,7 @@ pub(super) fn page(document: &Document, page: ObjectId, limit: usize) -> lopdf::
     }
     let mut walk = Walk {
         document,
+        cache,
         left: limit.saturating_sub(bytes.len()),
         reader: Reader::default(),
     };
@@ -70,7 +77,7 @@ fn named<'a>(
         .unwrap_or_default()
 }
 
-impl<'a> Walk<'a> {
+impl<'a> Walk<'a, '_> {
     fn stream(
         &mut self,
         content: &Content,
@@ -144,14 +151,14 @@ impl<'a> Walk<'a> {
         result
     }
 
-    fn fonts(&self, entries: &[(&'a [u8], &'a Object)]) -> lopdf::Result<Fonts<'a>> {
+    fn fonts(&mut self, entries: &[(&'a [u8], &'a Object)]) -> lopdf::Result<Fonts<'a>> {
         let mut fonts = BTreeMap::new();
         for (name, value) in entries {
             let Some(font) = dictionary(self.document, value) else {
                 continue;
             };
-            let encoding = super::cmap::encoding(self.document, font, self.left)?;
-            fonts.insert(name.to_vec(), (encoding, widths(self.document, font)));
+            let read = self.cache.font(self.document, font, self.left)?;
+            fonts.insert(name.to_vec(), read);
         }
         Ok(fonts)
     }

@@ -8,9 +8,10 @@
 //! starts a word gap or a line away from where the last one ended, as poppler's `pdftotext`
 //! decides, and keeps lopdf's line break at `ET` unless the next text object runs on in the
 //! same word. A font without glyph widths keeps lopdf's space after each `TJ` array.
-use super::fonts::{Widths, number};
+use super::cmap::Font;
+use super::fonts::number;
 use super::state::{Matrix, State};
-use lopdf::{Encoding, Object};
+use lopdf::Object;
 use std::collections::BTreeMap;
 
 /// A gap wider than this share of the font size is a word break: poppler's `pdftotext`
@@ -22,7 +23,7 @@ const LINE_GAP: f32 = 0.5;
 const KERNING_SPACE: f32 = -100.0;
 
 /// A content stream's fonts by resource name, with their encodings and glyph widths.
-pub(super) type Fonts<'a> = BTreeMap<Vec<u8>, (Encoding<'a>, Option<Widths>)>;
+pub(super) type Fonts<'a> = BTreeMap<Vec<u8>, Font<'a>>;
 
 /// Where on the page the last shown glyph ended and the font height there. Without widths
 /// the end is unknown, and `array` keeps lopdf's space after a `TJ` array.
@@ -173,9 +174,10 @@ impl Reader {
 
     /// Show strings and `TJ` adjustments, after a space when the pen moved a word gap away.
     fn show(&mut self, operands: &[Object], fonts: &Fonts<'_>) -> lopdf::Result<()> {
-        let Some((encoding, widths)) = fonts.get(&self.state.font) else {
+        let Some(font) = fonts.get(&self.state.font) else {
             return Ok(());
         };
+        let (encoding, widths) = &**font;
         let start = self.matrix;
         let mut shown = String::new();
         let mut advance = 0.0;
