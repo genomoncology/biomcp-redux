@@ -64,7 +64,7 @@ pub(super) fn loadable(bytes: &[u8], expired: &dyn Fn() -> bool) -> Read<()> {
         expanded: table.expanded,
     };
     for (index, (offset, _)) in listed.iter().enumerate() {
-        if index % CHECK_EVERY == 0 && expired() {
+        if index.is_multiple_of(CHECK_EVERY) && expired() {
             return Err(Expired);
         }
         let next = listed.get(index + 1).map_or(bytes.len(), |(at, _)| *at);

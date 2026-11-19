@@ -46,7 +46,7 @@ pub(super) fn bound(document: &mut Document, expired: &dyn Fn() -> bool) -> Resu
     let mut walked = 0usize;
     while let Some(object) = pending.pop() {
         walked += 1;
-        if walked % CHECK_EVERY == 0 && expired() {
+        if walked.is_multiple_of(CHECK_EVERY) && expired() {
             return Err(Reason::DeadlineExceeded);
         }
         match object {
@@ -58,7 +58,7 @@ pub(super) fn bound(document: &mut Document, expired: &dyn Fn() -> bool) -> Resu
     }
     let (mut codes, mut bytes, mut removed, mut spent) = (0u64, 0usize, 0usize, false);
     for (count, id) in maps.into_iter().enumerate() {
-        if count % CHECK_EVERY == 0 && expired() {
+        if count.is_multiple_of(CHECK_EVERY) && expired() {
             return Err(Reason::DeadlineExceeded);
         }
         let Some(Object::Stream(stream)) = document.objects.get(&id) else {
