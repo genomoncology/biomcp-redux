@@ -52,9 +52,9 @@ fn execute(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    // Reconstructing a mixed admitted offset would require walking prior native pages.
-    // Continue only from retained source positions; fresh restarts begin at zero.
-    if q.offset() > 0 && (q.pool().is_none() || cx.fresh || q.fresh()) {
+    // A mixed admitted offset is reached by walking the earlier pages of a new copy (1061);
+    // a retained copy continues only from its own positions, and a fresh one begins at zero.
+    if q.offset() > 0 && q.pool().is_some() && (cx.fresh || q.fresh()) {
         expired(q, out);
         return Ok(());
     }
@@ -72,7 +72,7 @@ fn execute(
             expired(q, out);
             return Ok(());
         }
-        None => initial(cx, q, deadline, out),
+        None => walk(cx, q, deadline, out),
     };
     if !replay {
         advance(cx, q, deadline, &mut saved, out);
@@ -136,6 +136,20 @@ fn expired(q: &PathwaySearch, out: &mut Outcome) {
         &super::next::search(q),
         run(Request::SearchPathway(q.restart())),
     ));
+}
+/// A new copy advanced through the pages before the caller's offset.
+fn walk(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Outcome) -> Saved {
+    let mut saved = initial(cx, q, deadline, out);
+    let mut at = 0;
+    while at < q.offset() {
+        let earlier = q.at_offset(at).with_limit(q.offset() - at);
+        advance(cx, &earlier, deadline, &mut saved, out);
+        match saved.0.page.next_offset {
+            Some(next) if saved.0.page.returned > 0 => at = next,
+            _ => break,
+        }
+    }
+    saved
 }
 fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Outcome) -> Saved {
     let mut saved = (page(q), vec![], 0, vec![], vec![], false);
