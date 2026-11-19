@@ -1,4 +1,5 @@
-//! Features diagnostic-cdx and disease-orphadata: a live first read fetches a missing small list.
+//! Features diagnostic-cdx and disease-orphadata: a live first read fetches a missing small list;
+//! an offline one never fetches.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -13,6 +14,9 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         super::transcript::trial("diagnostic-cdx/over-limit-first-read-asks-for-sync", || {
             companion(Some(1000)).map_err(Into::into)
+        }),
+        super::transcript::trial("diagnostic-cdx/offline-first-read-never-fetches", || {
+            offline().map_err(Into::into)
         }),
         super::transcript::trial("disease-orphadata/first-read-fetches-the-files", || {
             prevalence().map_err(Into::into)
@@ -106,6 +110,35 @@ fn companion(limit: Option<u64>) -> Check {
     if limit.is_none() && !answered || limit.is_some() && !asks {
         return Err(format!(
             "first companion read with limit {limit:?}: {reply}"
+        ));
+    }
+    Ok(())
+}
+
+/// Offline, a first companion search asks for a sync and no request reaches the publisher.
+fn offline() -> Check {
+    let (env, stub) = live(
+        "www.fda.gov",
+        "diagnostic/fda-cdx-synthetic/fda-cdx",
+        json!({}),
+    )?;
+    let search = words(&[
+        "--offline",
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--biomarker",
+        "KRAS",
+    ]);
+    let reply = invoke(&env, search, 4)?;
+    let requests = stub.finish()?;
+    if reply.pointer("/sources/0/state") != Some(&json!("syncing"))
+        || reply.pointer("/next/0/args") != Some(&json!(["sync", "fda-cdx"]))
+        || !requests.is_empty()
+    {
+        return Err(format!(
+            "offline first read fetched or answered: {reply}; {requests:?}"
         ));
     }
     Ok(())

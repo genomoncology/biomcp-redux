@@ -36,7 +36,7 @@ The `value.unknown` membership and method problems identify facts the structured
 
 ## Orphanet prevalence
 
-`get disease MONDO:0016512 prevalence --source orphadata` reads Orphanet's prevalence estimates, average age of onset and type of inheritance from a local copy of two Orphadata files, `en_product9_prev.xml` and `en_product9_ages.xml`. Run `sync orphadata` to install or refresh them; reads never download. A MONDO or DOID concept reaches Orphanet only through the Orphanet cross-references MONDO states for it, which the reply lists under `links`; BioMCP adds no name or ontology matching. A MONDO Orphanet link can name a related or broader Orphanet entity, such as a clinical subtype, so each item carries Orphanet's own label and disorder type. A concept without an Orphanet link returns no rows and marks `orphadata` skipped with `no-join-id`. `Orphanet:2322` reads one disorder directly.
+`get disease MONDO:0016512 prevalence --source orphadata` reads Orphanet's prevalence estimates, average age of onset and type of inheritance from a local copy of two Orphadata files, `en_product9_prev.xml` and `en_product9_ages.xml`. Run `sync orphadata` to install or refresh them; a live first read fetches a missing copy under `auto_sync_max_bytes`, reads never refresh a stored copy, and offline and replay never fetch. A MONDO or DOID concept reaches Orphanet only through the Orphanet cross-references MONDO states for it, which the reply lists under `links`; BioMCP adds no name or ontology matching. A MONDO Orphanet link can name a related or broader Orphanet entity, such as a clinical subtype, so each item carries Orphanet's own label and disorder type. A concept without an Orphanet link returns no rows and marks `orphadata` skipped with `no-join-id`. `Orphanet:2322` reads one disorder directly.
 
 Each estimate keeps Orphanet's type, qualification, class, mean value, geography, source text and validation status as published, with PubMed IDs taken from the source text. The mean value is per 100,000 people for a value-and-class estimate and a count for cases or families; a class-only estimate has no value. BioMCP neither pools nor ranks estimates. The reply records the file release date and version.
 
@@ -127,7 +127,7 @@ The observed total counts the complete received collection and does not claim a 
 
 ## WHO diagnostic cards
 
-Each row retains its whole name, code, assay format, manufacturer, marker, regulatory-version text and prequalification year. Reads use the stored export and never synchronize it. WHO cards have no section command. WHO terms reserve commercial and substantial reproduction rights; `--disable-sources noncommercial` disables stored cards, searches and synchronization.
+Each row retains its whole name, code, assay format, manufacturer, marker, regulatory-version text and prequalification year. Reads use the stored export: a live first read fetches a missing copy under `auto_sync_max_bytes`, reads never refresh a stored copy, and offline and replay never fetch. WHO cards have no section command. WHO terms reserve commercial and substantial reproduction rights; `--disable-sources noncommercial` disables stored cards, searches and synchronization.
 
 ## PMA submissions and supplements
 
@@ -153,7 +153,7 @@ openFDA answers HTTP 400 to `! # $ ; ? ^ | ~`, the backtick and every character 
 
 ## WHO finished products
 
-Reads never download. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is noncommercial and links WHO's copyright policy.
+Reads use the stored export: a live first read fetches a missing copy under `auto_sync_max_bytes`, reads never refresh a stored copy, and offline and replay never fetch. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is noncommercial and links WHO's copyright policy.
 
 ## WHO essential medicines
 
@@ -161,7 +161,7 @@ Reads never download. Results preserve native combined INN, dosage-form and stre
 
 ## WHO diagnostic search
 
-Both selectors match literal whole words in their native columns, ignore case and combine on the same source row. Search returns five product headers by default and groups repeated code rows by exact WHO Product ID. Reads never download or synchronize. A WHO listing does not establish FDA authorization or clinical suitability.
+Both selectors match literal whole words in their native columns, ignore case and combine on the same source row. Search returns five product headers by default and groups repeated code rows by exact WHO Product ID. Reads use the stored export: a live first read fetches a missing copy under `auto_sync_max_bytes`, reads never refresh a stored copy, and offline and replay never fetch. A WHO listing does not establish FDA authorization or clinical suitability.
 
 ## Study metadata
 
@@ -213,7 +213,7 @@ Each source keeps its own outcome and release dates. Composite reads never reque
 
 ## GenCC submissions
 
-`get gene ODC1 gencc` reads the local GenCC bundle by HGNC identity. Run `sync gencc` to install or refresh it. Reads keep stale rows and mark the source stale. Health checks report publisher reachability and local bundle readiness separately.
+`get gene ODC1 gencc` reads the local GenCC bundle by HGNC identity. A live first read fetches a missing bundle under `auto_sync_max_bytes`; run `sync gencc` to refresh it. Reads never refresh a stored copy, offline and replay never fetch, and reads keep stale rows and mark the source stale. Health checks report publisher reachability and local bundle readiness separately.
 
 Each record keeps GenCC's submission ID, version, submitter, disease, inheritance, classification and dates in file order. BioMCP neither merges submissions nor ranks classifications. An empty section means the stored export contains no matching rows.
 

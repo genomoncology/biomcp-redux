@@ -43,7 +43,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, Re
         .sync_set(&SET)
         .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
-/// Literal whole-word names and therapeutic areas and inclusive native dates; read never downloads
+/// Literal whole-word names and therapeutic areas and inclusive native dates; a read never refreshes the stored export
 /// or resolves synonyms.
 pub fn search(
     leg: &Leg<'_>,

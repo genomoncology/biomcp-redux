@@ -16,7 +16,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     key: None,
 };
 pub(crate) static BUNDLE: crate::decl::BundleDecl = crate::decl::BundleDecl {
-    help: "Replace WikiPathways search/get metadata catalogs atomically; reads never sync. \
+    help: "Replace WikiPathways search/get metadata catalogs atomically; reads fetch missing catalogs, never refresh them. \
         Membership names a source and release; it implies no therapy, response or actionability. \
         No enrichment is calculated.",
     name: "wikipathways",
