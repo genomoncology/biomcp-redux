@@ -3,8 +3,7 @@ use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{fda_pma, pdf};
 use biomcp_types::{
-    DiagnosticGet, DiagnosticSummary, PageInfo, PdfText, PdfTextHit, PdfTextState, ReplyBody,
-    Request, StepKind,
+    DiagnosticGet, DiagnosticSummary, PageInfo, PdfText, PdfTextHit, ReplyBody, Request, StepKind,
 };
 /// Escaped bytes of one found passage, half a fragment: enough to reach a numbered table set
 /// below the heading that matched (P150047's Table 15 ends 1,741 bytes after its heading).
@@ -41,7 +40,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
             });
     let error = match result {
         Ok((document, Some((find, text)))) => {
-            let unavailable = document.state != PdfTextState::Text;
+            let unavailable = !document.state.readable();
             status::item(&mut out, true, false, unavailable);
             let body = found(cx, q, document, find.as_str(), &text, &mut out);
             out.body = body;
@@ -49,7 +48,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
         }
         Ok((document, None)) => {
             let returned = u32::from(document.text.is_some());
-            let unavailable = document.state != PdfTextState::Text;
+            let unavailable = !document.state.readable();
             status::item(&mut out, true, false, unavailable);
             out.page = Some(PageInfo {
                 offset: q.section_offset(),

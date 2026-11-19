@@ -4,24 +4,57 @@
 //! own content stream finds only the "Reference ID" footer: four Rinvoq labels did (1068).
 //! A form brings its own `/Resources` or uses those of the stream that paints it (PDF
 //! 32000-1 §8.10.1). Forms nest at most [`DEPTH`] deep, which also ends a form that paints
-//! itself, and every content stream counts against one expanded-size limit.
-use super::cmap::Cache;
+//! itself; a page draws at most [`DRAWS`] forms; every content stream and character map counts
+//! against one expanded-size limit; and the deadline is checked at each form draw and every
+//! [`CHECK_EVERY`] operations. A form that cannot be read is skipped and the page keeps the rest
+//! of its text, marked as possibly missing some.
+use super::cmap::{Cache, Font};
 use super::fonts::{array, dictionary, entry, resolve};
 use super::state::Matrix;
 use super::words::{Fonts, Reader};
 use lopdf::{Dictionary, Document, Object, ObjectId, Stream, content::Content};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, rc::Rc};
 
 /// Deepest form nesting read; deeper forms are skipped.
 const DEPTH: usize = 8;
+/// Most form draws read on one page; later ones are skipped.
+pub(super) const DRAWS: usize = 2000;
+/// Operations between deadline checks.
+const CHECK_EVERY: usize = 4096;
 
 type XObjects<'a> = BTreeMap<&'a [u8], &'a Object>;
+
+/// Why a page's reading stopped.
+pub(super) enum Halt {
+    /// The deadline passed.
+    Expired,
+    /// The PDF failed to read, or passed the expanded-size limit.
+    Pdf(lopdf::Error),
+}
+
+impl From<lopdf::Error> for Halt {
+    fn from(issue: lopdf::Error) -> Self {
+        Self::Pdf(issue)
+    }
+}
+
+/// One page's text, the byte spans of it shown in fonts without a character map, and whether
+/// a form was skipped, so text may be missing.
+pub(super) struct PageText {
+    pub(super) text: String,
+    pub(super) unsound: Vec<(usize, usize)>,
+    pub(super) skipped: bool,
+}
 
 /// One page's walk: the document, the expanded bytes left, and the text so far.
 struct Walk<'a, 'c> {
     document: &'a Document,
     cache: &'c mut Cache<'a>,
+    expired: &'c dyn Fn() -> bool,
     left: usize,
+    draws: usize,
+    operations: usize,
+    skipped: bool,
     reader: Reader,
 }
 
@@ -31,12 +64,23 @@ pub(super) fn page<'a>(
     page: ObjectId,
     limit: usize,
     cache: &mut Cache<'a>,
-) -> lopdf::Result<String> {
-    let mut fonts = BTreeMap::new();
-    for (name, font) in document.get_page_fonts(page)? {
-        fonts.insert(name, cache.font(document, font, limit)?);
-    }
+    expired: &dyn Fn() -> bool,
+) -> Result<PageText, Halt> {
     let bytes = document.get_page_content_with_limit(page, limit)?;
+    let mut walk = Walk {
+        document,
+        cache,
+        expired,
+        left: limit.saturating_sub(bytes.len()),
+        draws: 0,
+        operations: 0,
+        skipped: false,
+        reader: Reader::default(),
+    };
+    let mut fonts = Fonts::new();
+    for (name, font) in document.get_page_fonts(page)? {
+        fonts.insert(name, walk.font(font)?);
+    }
     let content = Content::decode(&bytes)?;
     let (own, inherited) = document.get_page_resources(page)?;
     let mut xobjects = XObjects::new();
@@ -50,14 +94,14 @@ pub(super) fn page<'a>(
             xobjects.entry(name).or_insert(object);
         }
     }
-    let mut walk = Walk {
-        document,
-        cache,
-        left: limit.saturating_sub(bytes.len()),
-        reader: Reader::default(),
-    };
     walk.stream(&content, &fonts, &xobjects, 0)?;
-    Ok(walk.reader.finish())
+    let skipped = walk.skipped;
+    let (text, unsound) = walk.reader.finish();
+    Ok(PageText {
+        text,
+        unsound,
+        skipped,
+    })
 }
 
 /// The entries of one resource category, such as `/Font`, in a resources dictionary.
@@ -77,6 +121,14 @@ fn named<'a>(
         .unwrap_or_default()
 }
 
+/// Whether an error is the expanded-size limit, which ends the document, not one form.
+pub(super) const fn too_large(issue: &lopdf::Error) -> bool {
+    matches!(
+        issue,
+        lopdf::Error::Decompress(lopdf::DecompressError::MemoryLimitExceeded { .. })
+    )
+}
+
 impl<'a> Walk<'a, '_> {
     fn stream(
         &mut self,
@@ -84,22 +136,36 @@ impl<'a> Walk<'a, '_> {
         fonts: &Fonts<'a>,
         xobjects: &XObjects<'a>,
         depth: usize,
-    ) -> lopdf::Result<()> {
+    ) -> Result<(), Halt> {
         for operation in &content.operations {
-            if operation.operator == "Do" {
-                let form = match operation.operands.first() {
-                    Some(Object::Name(name)) => xobjects.get(name.as_slice()).copied(),
-                    _ => None,
-                };
-                if let Some(form) = form.and_then(|object| self.form(object))
-                    && depth < DEPTH
-                {
-                    self.form_text(form, fonts, xobjects, depth)?;
-                }
+            self.operations += 1;
+            if self.operations.is_multiple_of(CHECK_EVERY) && (self.expired)() {
+                return Err(Halt::Expired);
+            }
+            if operation.operator != "Do" {
+                self.reader
+                    .apply(&operation.operator, &operation.operands, fonts)?;
                 continue;
             }
-            self.reader
-                .apply(&operation.operator, &operation.operands, fonts)?;
+            let form = match operation.operands.first() {
+                Some(Object::Name(name)) => xobjects.get(name.as_slice()).copied(),
+                _ => None,
+            };
+            let Some(form) = form.and_then(|object| self.form(object)) else {
+                continue;
+            };
+            self.draws += 1;
+            if depth >= DEPTH || self.draws > DRAWS {
+                self.skipped = true;
+                continue;
+            }
+            if (self.expired)() {
+                return Err(Halt::Expired);
+            }
+            match self.form_text(form, fonts, xobjects, depth) {
+                Err(Halt::Pdf(issue)) if !too_large(&issue) => self.skipped = true,
+                other => other?,
+            }
         }
         Ok(())
     }
@@ -119,16 +185,13 @@ impl<'a> Walk<'a, '_> {
         fonts: &Fonts<'a>,
         xobjects: &XObjects<'a>,
         depth: usize,
-    ) -> lopdf::Result<()> {
+    ) -> Result<(), Halt> {
         let bytes = if entry(&form.dict, b"Filter").is_some() {
             form.decompressed_content_with_limit(self.left)?
         } else {
             form.content.clone()
         };
-        if bytes.len() > self.left {
-            return Err(lopdf::DecompressError::MemoryLimitExceeded { limit: self.left }.into());
-        }
-        self.left -= bytes.len();
+        self.charge(bytes.len())?;
         let content = Content::decode(&bytes)?;
         let resources =
             entry(&form.dict, b"Resources").and_then(|value| dictionary(self.document, value));
@@ -151,14 +214,30 @@ impl<'a> Walk<'a, '_> {
         result
     }
 
+    /// Spend `bytes` of the expanded-size limit.
+    fn charge(&mut self, bytes: usize) -> lopdf::Result<()> {
+        if bytes > self.left {
+            return Err(lopdf::DecompressError::MemoryLimitExceeded { limit: self.left }.into());
+        }
+        self.left -= bytes;
+        Ok(())
+    }
+
+    /// A font from the document's cache, its character map charged against the limit.
+    fn font(&mut self, font: &'a Dictionary) -> lopdf::Result<Rc<Font<'a>>> {
+        let before = self.cache.bytes;
+        let read = self.cache.font(self.document, font, self.left)?;
+        self.charge(self.cache.bytes.saturating_sub(before))?;
+        Ok(read)
+    }
+
     fn fonts(&mut self, entries: &[(&'a [u8], &'a Object)]) -> lopdf::Result<Fonts<'a>> {
         let mut fonts = BTreeMap::new();
         for (name, value) in entries {
             let Some(font) = dictionary(self.document, value) else {
                 continue;
             };
-            let read = self.cache.font(self.document, font, self.left)?;
-            fonts.insert(name.to_vec(), read);
+            fonts.insert(name.to_vec(), self.font(font)?);
         }
         Ok(fonts)
     }

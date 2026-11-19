@@ -14,7 +14,7 @@ The reply preserves the source URL, document metadata and license without granti
 
 ## FDA approval documents
 
-`get diagnostic P170019 summary --source fda-pma` reads FDA's published SSED. `get drug NDA021588 approvals --source drugsfda --document-id 64255` reads the native submission's approval letter. The reader returns mechanically extracted embedded text, without summaries or clinical interpretation. It admits at most 25 MiB, 100 pages, and 4 MiB of expanded stream or total text. Each continuation returns at most 6144 escaped text bytes. It reads text that a page draws through embedded form objects. `no-text` means no embedded text was found, including scanned documents; OCR is not run. When a font's character map has a header the PDF library refuses, the reader reads the map's own code ranges and mappings again. `garbled` means the embedded text still decodes to gibberish: a font has no character map at all, or maps its glyphs to the wrong characters, or its map is too large to read again. No text is returned. `too-large` reports a reader bound. Native document URLs and submission ownership remain visible.
+`get diagnostic P170019 summary --source fda-pma` reads FDA's published SSED. `get drug NDA021588 approvals --source drugsfda --document-id 64255` reads the native submission's approval letter. The reader returns mechanically extracted embedded text, without summaries or clinical interpretation. It admits at most 25 MiB, 100 pages, and 4 MiB of expanded stream or total text. Each continuation returns at most 6144 escaped text bytes. It reads text that a page draws through embedded form objects. `no-text` means no embedded text was found, including scanned documents; OCR is not run. When a font's character map has a header the PDF library refuses, the reader reads the map's own code ranges and mappings again. Text shown in a composite font with no character map, or one over the reader's bounds, gives glyph numbers, not characters; when that text reads as gibberish it is cut out. `garbled` means gibberish was most of the document, and no text is returned. `partial` means text was returned, but gibberish was cut out or a part of a page could not be read, so some text may be missing. `too-large` reports a reader bound. Native document URLs and submission ownership remain visible.
 
 Do not put patient names, identifiers or other private information in query text; source queries may be sent to public providers.
 
@@ -33,6 +33,10 @@ The `value.unknown` membership and method problems identify facts the structured
 ## Disease cross-reference links
 
 `get disease MONDO:0016512 xrefs --source ols --section-limit 50` shows publisher-supplied HTTP(S) links in `target_url`. The row's `attribution` identifies the MONDO record that states the cross-reference. BioMCP copies the target without opening it. The NORD link for `NORD:1318` leads to the Kabuki syndrome page, which lists All Things Kabuki. The old GARD query link on the same record does not establish a link to GARD's Kabuki syndrome page. [OLS MONDO record](https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?obo_id=MONDO:0016512) · [NORD Kabuki syndrome page](https://rarediseases.org/rare-diseases/kabuki-syndrome/)
+
+## Disease IDs read through MONDO
+
+`get disease ORPHA:115` and `get disease OMIM:121050` read the MONDO record whose cross-references state that code, and `alias` names the cross-reference row used. Gene and phenotype sections read Monarch for that MONDO record, and a MyDisease notice names the mapping. The mapping is MONDO's cross-reference, not Orphanet's own mapping relation, so the MONDO record may be broader than the code asked for, such as a group for a subtype code. A MONDO record that MONDO marks obsolete is still returned, with a notice naming any replacement MONDO gives.
 
 ## Orphanet prevalence
 

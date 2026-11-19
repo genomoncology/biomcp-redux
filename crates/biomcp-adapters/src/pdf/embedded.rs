@@ -1,4 +1,5 @@
 //! Embedded text of PDF bytes already in hand, bounded by pages and expanded size.
+use super::page::{Halt, too_large};
 use biomcp_types::{PdfTextState, Reason};
 
 /// The text read from one PDF; `text` is empty unless `state` is text, so gibberish is never
@@ -55,37 +56,81 @@ pub fn embedded(
         result.state = PdfTextState::TooLarge;
         return Ok(result);
     }
-    let mut text = String::new();
+    let (mut text, mut unsound, mut skipped) = (String::new(), Vec::new(), false);
     let mut fonts = super::cmap::Cache::default();
     for page in pages.values() {
         check()?;
-        let part = match super::page::page(&document, *page, limit, &mut fonts) {
+        let part = match super::page::page(&document, *page, limit, &mut fonts, expired) {
             Ok(part) => part,
-            Err(issue) if too_large(&issue) => {
+            Err(Halt::Expired) => return Err(Reason::DeadlineExceeded),
+            Err(Halt::Pdf(issue)) if too_large(&issue) => {
                 result.state = PdfTextState::TooLarge;
                 return Ok(result);
             }
-            Err(_) => return Err(Reason::BadReply),
+            Err(Halt::Pdf(_)) => return Err(Reason::BadReply),
         };
-        if text.len().saturating_add(part.len()) > limit {
+        if text.len().saturating_add(part.text.len()) > limit {
             result.state = PdfTextState::TooLarge;
             return Ok(result);
         }
-        text.push_str(&part);
+        let at = text.len();
+        unsound.extend(
+            part.unsound
+                .iter()
+                .map(|(start, end)| (at + start, at + end)),
+        );
+        text.push_str(&part.text);
+        skipped |= part.skipped;
     }
     check()?;
-    if super::garbled::garbled(&text) {
-        result.state = PdfTextState::Garbled;
-    } else if !text.trim().is_empty() {
-        result.state = PdfTextState::Text;
-        result.text = text;
-    }
-    Ok(result)
+    Ok(settle(result, text, &unsound, skipped))
 }
 
-const fn too_large(issue: &lopdf::Error) -> bool {
-    matches!(
-        issue,
-        lopdf::Error::Decompress(lopdf::DecompressError::MemoryLimitExceeded { .. })
-    )
+/// The read's state and text once every page is read.
+fn settle(
+    mut result: Embedded,
+    mut text: String,
+    unsound: &[(usize, usize)],
+    mut skipped: bool,
+) -> Embedded {
+    // Only text shown in a composite font without a character map is judged; text read
+    // through a map or a declared one-byte encoding is not, since tables, part numbers and
+    // other languages are not gibberish. Gibberish is cut out and the rest is partial, unless
+    // gibberish was most of the text.
+    let shown: Vec<&str> = unsound
+        .iter()
+        .filter_map(|(start, end)| text.get(*start..*end))
+        .collect();
+    let judged = shown.join(" ");
+    if super::garbled::garbled(&judged) {
+        let kept = without(&text, unsound);
+        if kept.trim().len() < judged.len() {
+            result.state = PdfTextState::Garbled;
+            return result;
+        }
+        text = kept;
+        skipped = true;
+    }
+    if !text.trim().is_empty() {
+        result.state = if skipped {
+            PdfTextState::Partial
+        } else {
+            PdfTextState::Text
+        };
+        result.text = text;
+    }
+    result
+}
+
+/// `text` without the byte `spans`, which are in order and do not overlap.
+fn without(text: &str, spans: &[(usize, usize)]) -> String {
+    let mut kept = String::with_capacity(text.len());
+    let mut from = 0;
+    for (start, end) in spans {
+        kept.push_str(text.get(from..*start).unwrap_or_default());
+        kept.push(' ');
+        from = *end;
+    }
+    kept.push_str(text.get(from..).unwrap_or_default());
+    kept
 }
