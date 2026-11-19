@@ -22,6 +22,7 @@ Ian, 2026-11-19: "the agent shouldn't have to sync anything with regards to BioM
 - HGNC and ClinGen already fetch on read under `auto_sync_max_bytes`; the stored tables do not (ticket 0280 records the two rules). This list is 181 KB.
 - `get disease MONDO:0007947 prevalence --source orphadata` fails the same way, with a `next` step of `sync orphadata`.
 - PM, 2026-11-19: the developer says in the ticket which other stored sources are small enough to fetch on first read the same way, and does those too or says why not.
+- Developer, 2026-11-19: the rule lives in the one stored read path (`stored_rows` and `stored_set_rows`), so every stored source now fetches a missing copy on a live first read, within the read deadline and `auto_sync_max_bytes` (32 MiB default), as HGNC does. Stored sizes measured on a synced machine: who-ivd 81 KB, who-pq 130 KB, fda-cdx 180 KB, cbioportal-studies 588 KB, ema 6.8 MB, ddinter 13 MB, orphadata 23 MB, gencc 27 MB; wikipathways and ema referrals are small. All are under the limit and fetch themselves. GTR (60 MB) is over it and still answers `syncing` with `sync gtr`. GenCC has an 8 s read deadline, so on a slow link its first read may run out of time and answer `syncing` as before. The reply has no field for a source's size, so the README and cautions state the limit and name GTR; adding a size to the reply is a schema change left out here.
 
 ## Keeps
 
