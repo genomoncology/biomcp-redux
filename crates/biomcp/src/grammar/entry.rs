@@ -346,7 +346,7 @@ fn checked_section(entity: &str, section: &str) -> Result<(), super::ParseInvali
         usage: Some(biomcp_types::UsageError::Arguments(
             biomcp_types::UsageArguments {
                 argument: Some("section".into()),
-                message: Some(biomcp_types::ErrorMessage::ArgumentGuidance),
+                message: Some(biomcp_types::ErrorMessage::ArgumentValue),
                 valid_values: words,
                 next: vec![super::validation::help(["get", entity])],
             },
