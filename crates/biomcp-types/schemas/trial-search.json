@@ -77,11 +77,6 @@
         "not-applicable",
         "1/2",
         "2/3",
-        "EARLY_PHASE1",
-        "PHASE1",
-        "PHASE2",
-        "PHASE3",
-        "PHASE4",
         "NA",
         "0",
         "I",
@@ -102,13 +97,7 @@
             "4",
             "not-applicable",
             "1/2",
-            "2/3",
-            "EARLY_PHASE1",
-            "PHASE1",
-            "PHASE2",
-            "PHASE3",
-            "PHASE4",
-            "NA"
+            "2/3"
           ],
           "nci": [
             "NA",

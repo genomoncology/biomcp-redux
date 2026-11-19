@@ -93,24 +93,16 @@ impl TrialPhaseFilter {
 }
 
 #[cfg(feature = "schema")]
-fn filter_schema<A: schemars::JsonSchema, B: schemars::JsonSchema>(
-    printed: &[&str],
-) -> schemars::Schema {
+fn filter_schema<A: schemars::JsonSchema, B: schemars::JsonSchema>() -> schemars::Schema {
     let mut values = Vec::new();
     let mut by_source = schemars::json_schema!({});
-    for (source, schema, extra) in [
-        (TrialSource::Ctgov, schemars::schema_for!(A), printed),
-        (TrialSource::Nci, schemars::schema_for!(B), &[][..]),
+    for (source, schema) in [
+        (TrialSource::Ctgov, schemars::schema_for!(A)),
+        (TrialSource::Nci, schemars::schema_for!(B)),
     ] {
         if let Some(choices) = schema.get("enum").and_then(|value| value.as_array()) {
-            let mut choices = choices.clone();
-            choices.extend(extra.iter().map(|value| (*value).into()));
-            for choice in &choices {
-                if !values.contains(choice) {
-                    values.push(choice.clone());
-                }
-            }
-            by_source.insert(source.as_str().into(), choices.into());
+            values.extend(choices.iter().cloned());
+            by_source.insert(source.as_str().into(), choices.clone().into());
         }
     }
     schemars::json_schema!({
@@ -126,7 +118,7 @@ impl schemars::JsonSchema for TrialStatusFilter {
         "TrialStatusFilter".into()
     }
     fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-        filter_schema::<TrialStatus, NciStatusFilter>(&[])
+        filter_schema::<TrialStatus, NciStatusFilter>()
     }
 }
 #[cfg(feature = "schema")]
@@ -135,7 +127,7 @@ impl schemars::JsonSchema for TrialPhaseFilter {
         "TrialPhaseFilter".into()
     }
     fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-        filter_schema::<PhaseFilter, NciPhaseFilter>(&PhaseFilter::PRINTED.map(TrialPhase::as_str))
+        filter_schema::<PhaseFilter, NciPhaseFilter>()
     }
 }
 biodata::wire_enum! {
@@ -182,16 +174,6 @@ biodata::wire_enum! {
     }
 }
 impl PhaseFilter {
-    /// Every phase as registry rows print it.
-    #[cfg(feature = "schema")]
-    const PRINTED: [TrialPhase; 6] = [
-        TrialPhase::Early1,
-        TrialPhase::Phase1,
-        TrialPhase::Phase2,
-        TrialPhase::Phase3,
-        TrialPhase::Phase4,
-        TrialPhase::NotApplicable,
-    ];
     /// The filter a printed registry phase reads back as.
     const fn printed(phase: TrialPhase) -> Self {
         match phase {

@@ -22,7 +22,7 @@
         "--condition",
         "uveal melanoma",
         "--phase",
-        "phase3",
+        "PHASE3",
         "--limit",
         "3"
       ],
