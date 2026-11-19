@@ -146,7 +146,7 @@
       ],
       "exit": 2,
       "expect": {
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command"
+        "/error/message": "value not accepted: give error.option a value valid_values accepts"
       }
     }
   ]

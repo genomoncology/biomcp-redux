@@ -5,29 +5,6 @@ use clap::{
     error::{ContextKind, ContextValue, ErrorKind},
 };
 
-// The parser's usage context names its own command, including when parsing stopped
-// before matches could be returned. Never recover that path from caller argv.
-fn command_context<'a>(root: &'a Command, error: &clap::Error) -> (&'a Command, Vec<&'a str>) {
-    let usage = error
-        .get(ContextKind::Usage)
-        .map(ToString::to_string)
-        .unwrap_or_default();
-    let mut words = usage
-        .split_whitespace()
-        .skip_while(|word| *word != root.get_name());
-    words.next();
-    let mut command = root;
-    let mut path = Vec::new();
-    for word in words {
-        let Some(child) = command.find_subcommand(word) else {
-            break;
-        };
-        path.push(child.get_name());
-        command = child;
-    }
-    (command, path)
-}
-
 fn invalid_argument<'a>(
     command: &'a Command,
     path: &[&str],
@@ -74,66 +51,82 @@ fn excess_positional<'a>(
 }
 
 fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option<UsageArguments> {
-    let (argument, valid_values) = if let Some(argument) = invalid_argument(command, path, error) {
-        let identity = argument
-            .get_long()
-            .map_or_else(|| argument.get_id().to_string(), |name| format!("--{name}"));
-        let schema = path
-            .first()
-            .zip(path.get(1))
-            .and_then(|(verb, entity)| super::validation::schema(verb, entity));
-        let values = schema
-            .as_ref()
-            .and_then(|schema| {
-                super::validation::accepted(
-                    schema,
-                    schema.get("properties")?.get(argument.get_id().as_str())?,
-                )
-            })
-            .or_else(|| {
-                let values: Vec<_> = argument
-                    .get_value_parser()
-                    .possible_values()?
-                    .map(|value| biodata::Text::new(value.get_name()).ok())
-                    .collect::<Option<_>>()?;
-                (!values.is_empty()).then(|| values.into())
-            })
-            .or_else(|| {
-                let form = if argument.get_action().takes_values() {
-                    "one value"
-                } else {
-                    "a flag without a value"
-                };
-                Some(vec![biodata::Text::new(form).ok()?].into())
-            });
-        (identity, values)
-    } else if error.kind() == ErrorKind::UnknownArgument {
-        let ContextValue::String(spelling) = error.get(ContextKind::InvalidArg)? else {
+    use biomcp_types::ErrorMessage;
+    let (argument, valid_values, message) =
+        if let Some(argument) = invalid_argument(command, path, error) {
+            let message = match error.kind() {
+                _ if super::context::valueless(error) => ErrorMessage::ArgumentNoValue,
+                ErrorKind::MissingRequiredArgument => ErrorMessage::ArgumentMissing,
+                ErrorKind::ArgumentConflict if super::repeated::is(error) => {
+                    ErrorMessage::ArgumentRepeated
+                }
+                ErrorKind::ArgumentConflict => ErrorMessage::ArgumentCombination,
+                _ => ErrorMessage::ArgumentValue,
+            };
+            let identity = argument
+                .get_long()
+                .map_or_else(|| argument.get_id().to_string(), |name| format!("--{name}"));
+            let schema = path
+                .first()
+                .zip(path.get(1))
+                .and_then(|(verb, entity)| super::validation::schema(verb, entity));
+            let values = schema
+                .as_ref()
+                .and_then(|schema| {
+                    super::validation::accepted(
+                        schema,
+                        schema.get("properties")?.get(argument.get_id().as_str())?,
+                    )
+                })
+                .or_else(|| {
+                    let values: Vec<_> = argument
+                        .get_value_parser()
+                        .possible_values()?
+                        .map(|value| biodata::Text::new(value.get_name()).ok())
+                        .collect::<Option<_>>()?;
+                    (!values.is_empty()).then(|| values.into())
+                })
+                .or_else(|| {
+                    let form = if argument.get_action().takes_values() {
+                        "one value"
+                    } else {
+                        "a flag without a value"
+                    };
+                    Some(vec![biodata::Text::new(form).ok()?].into())
+                });
+            let values = match message {
+                ErrorMessage::ArgumentCombination => super::repeated::together(error).or(values),
+                _ => values,
+            };
+            (identity, values, message)
+        } else if error.kind() == ErrorKind::UnknownArgument {
+            let ContextValue::String(spelling) = error.get(ContextKind::InvalidArg)? else {
+                return None;
+            };
+            // Only retain an option name supplied by the parser. Never echo values,
+            // including an inline value or an unexpected positional operand.
+            let spelling = spelling.split('=').next()?;
+            if !spelling.starts_with('-')
+                || !spelling
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '-')
+            {
+                return None;
+            }
+            let values = command
+                .get_arguments()
+                .filter(|argument| !argument.is_hide_set())
+                .filter_map(|argument| argument.get_long())
+                .map(|name| biodata::Text::new(&format!("--{name}")).ok())
+                .collect::<Option<Vec<_>>>()?;
+            let message = ErrorMessage::ArgumentUnknown;
+            (spelling.to_owned(), Some(values.into()), message)
+        } else {
             return None;
         };
-        // Only retain an option name supplied by the parser. Never echo values,
-        // including an inline value or an unexpected positional operand.
-        let spelling = spelling.split('=').next()?;
-        if !spelling.starts_with('-')
-            || !spelling
-                .chars()
-                .all(|c| c.is_ascii_alphanumeric() || c == '-')
-        {
-            return None;
-        }
-        let values = command
-            .get_arguments()
-            .filter(|argument| !argument.is_hide_set())
-            .filter_map(|argument| argument.get_long())
-            .map(|name| biodata::Text::new(&format!("--{name}")).ok())
-            .collect::<Option<Vec<_>>>()?;
-        (spelling.to_owned(), Some(values.into()))
-    } else {
-        return None;
-    };
     Some(UsageArguments {
         argument: Some(argument.into()),
-        message: None,
+        message: Some(message),
         valid_values,
         next: vec![super::validation::help(path.iter().copied())],
     })
@@ -214,7 +207,7 @@ pub(super) fn parse_invalid(
     error: &clap::Error,
     args: &[std::ffi::OsString],
 ) -> super::ParseInvalid {
-    let (command, path) = command_context(root, error);
+    let (command, path) = super::context::command(root, error, args);
     let spelling = match error.get(ContextKind::InvalidArg) {
         Some(ContextValue::String(spelling)) if error.kind() == ErrorKind::UnknownArgument => {
             Some(spelling.as_str())
@@ -226,6 +219,12 @@ pub(super) fn parse_invalid(
         let mut only_dropped = false;
         let corrected = if registered_argument {
             parser_correction(root, &path, error, args)
+                .or_else(|| super::repeated::joined(root, &path, error, args))
+                .or_else(|| {
+                    let step = super::context::without(root, &path, error, args);
+                    only_dropped = step.is_some();
+                    step
+                })
         } else {
             spelling.and_then(|spelling| {
                 flag_fix(root, &path, spelling, args).or_else(|| {
@@ -235,7 +234,11 @@ pub(super) fn parse_invalid(
                 })
             })
         };
+        let fixed = corrected.is_some();
         super::recovery::next(&mut arguments, corrected);
+        if fixed && !registered_argument && !only_dropped {
+            shorten(&mut arguments);
+        }
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
@@ -288,7 +291,7 @@ pub(super) fn checked_invalid(
     value: &serde_json::Value,
     cause: &biomcp_types::QueryInvalid,
 ) -> super::ParseInvalid {
-    let usage = super::validation::checked(verb, entity, cause)
+    let usage = super::validation::checked(verb, entity, value, cause)
         .map(|mut arguments| {
             let names: Vec<_> = cause.arguments().iter().map(AsRef::as_ref).collect();
             let corrected = super::recovery::trial_first_page(via, (verb, entity), value, cause)
@@ -564,4 +567,23 @@ fn lenient(root: &Command, path: &[&str], strict: bool) -> Command {
                 .ignore_errors(true)
                 .mut_subcommand(entity, |command| command.ignore_errors(true))
         })
+}
+
+/// An unknown option whose next step respells it as the command takes it lists only the options that call
+/// uses, since the whole option list would only repeat help; a call that uses none, such
+/// as one with the text as its positional query, needs no list.
+fn shorten(arguments: &mut UsageArguments) {
+    let (Some(values), Some(step)) = (&arguments.valid_values, arguments.next.first()) else {
+        return;
+    };
+    let used: Vec<_> = values
+        .iter()
+        .filter(|value| {
+            step.args
+                .iter()
+                .any(|word| word.split('=').next() == Some(value.as_str()))
+        })
+        .cloned()
+        .collect();
+    arguments.valid_values = (!used.is_empty()).then(|| used.into());
 }

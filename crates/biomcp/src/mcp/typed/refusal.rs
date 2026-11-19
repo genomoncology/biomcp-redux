@@ -117,13 +117,13 @@ pub(super) fn arguments(
     Some(biomcp_types::UsageError::Arguments(
         biomcp_types::UsageArguments {
             argument: Some(refused.argument.as_str().into()),
+            message: Some(refused.cause),
             valid_values: (!valid.is_empty()).then(|| valid.into()),
             next: vec![biomcp_types::Step {
                 kind: biomcp_types::StepKind::Configure,
                 args: help.iter().copied().map(Box::from).collect(),
                 options: Default::default(),
             }],
-            ..Default::default()
         },
     ))
 }

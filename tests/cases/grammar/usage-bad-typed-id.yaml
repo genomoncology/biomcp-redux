@@ -14,7 +14,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "input",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "value not accepted: give error.option a value valid_values accepts",
         "/error/valid_values": [
           "Canonical ClinicalTrials.gov identifier."
         ],
