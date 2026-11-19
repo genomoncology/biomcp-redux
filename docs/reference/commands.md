@@ -2017,7 +2017,7 @@ Options:
       --phase <phase>
           Source phase; help search trial
           Source phase.
-          Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or a phase as its rows print it, such as PHASE3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
+          Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
           ClinicalTrials.gov only: registry sex facet; help search trial
@@ -2125,7 +2125,7 @@ ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; u
 - `--offset`: Page offset.
 Zero-based offset of the first row in this continuation page. Value form: integer; example: --offset 0.
 - `--phase`: Source phase.
-Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or a phase as its rows print it, such as PHASE3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
+Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
 - `query`: Trial text.
 General registry discovery text.
 Form: search trial QUERY; not --query.
