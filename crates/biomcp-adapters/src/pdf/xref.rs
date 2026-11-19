@@ -42,16 +42,59 @@ pub(super) fn index(value: u64) -> Read<usize> {
     usize::try_from(value).map_err(|_| Irregular)
 }
 
+/// Where the first section starts, found as lopdf 0.47 finds it (`Reader::get_xref_start`):
+/// the last `%%EOF` in the final 1,024 bytes once trailing whitespace is trimmed, and the last
+/// `startxref` in the 25 bytes before it. A file with anything but whitespace after that
+/// `%%EOF`, or whose `startxref` line is not exactly `startxref`, its number and `%%EOF`, is
+/// refused, so this reading and lopdf's cannot pick different sections (1068 third review).
+fn start(bytes: &[u8]) -> Read<u64> {
+    let end = bytes
+        .iter()
+        .rposition(|byte| !matches!(byte, b' ' | b'\t' | b'\n' | b'\r' | b'\0' | b'\x0c'))
+        .map_or(0, |at| at + 1);
+    let seek = end.saturating_sub(1024);
+    let eof = bytes
+        .get(seek..end)
+        .and_then(|tail| tail.windows(5).rposition(|w| w == b"%%EOF"))
+        .map(|at| seek + at)
+        .filter(|at| *at > 25 && at + 5 == end)
+        .ok_or(Irregular)?;
+    let keyword = bytes
+        .get(eof - 25..eof)
+        .and_then(|window| window.windows(9).rposition(|w| w == b"startxref"))
+        .ok_or(Irregular)?
+        + eof
+        - 25;
+    let mut at = keyword + b"startxref".len();
+    at += usize::from(bytes.get(at) == Some(&b' '));
+    at = line_end(bytes, at)?;
+    while bytes.get(at) == Some(&b' ') {
+        at += 1;
+    }
+    let (start, mut at) = integer(bytes, at)?;
+    while bytes.get(at) == Some(&b' ') {
+        at += 1;
+    }
+    if line_end(bytes, at)? == eof {
+        Ok(start)
+    } else {
+        Err(Irregular)
+    }
+}
+
+/// Past the end of line at `at`.
+fn line_end(bytes: &[u8], at: usize) -> Read<usize> {
+    match bytes.get(at..).unwrap_or_default() {
+        [b'\r', b'\n', ..] => Ok(at + 2),
+        [b'\n' | b'\r', ..] => Ok(at + 1),
+        _ => Err(Irregular),
+    }
+}
+
 /// Every section of the document.
 pub(super) fn read(bytes: &[u8], stream_limit: usize) -> Read<Table> {
     let mut table = Table::default();
-    let tail = bytes.len().saturating_sub(1100);
-    let keyword = bytes
-        .get(tail..)
-        .and_then(|end| end.windows(9).rposition(|w| w == b"startxref"))
-        .ok_or(Irregular)?
-        + tail;
-    let (start, _) = integer(bytes, skip_space(bytes, keyword + 9))?;
+    let start = start(bytes)?;
     let (mut queue, mut seen) = (vec![start], BTreeSet::new());
     while let Some(offset) = queue.pop() {
         let offset = index(offset)?;

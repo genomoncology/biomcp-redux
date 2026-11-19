@@ -41,12 +41,13 @@ pub fn embedded(
         }
     };
     check()?;
-    match super::scan::loadable(bytes) {
+    match super::scan::loadable(bytes, expired) {
         Ok(()) => {}
         Err(super::scan::Refusal::TooLarge) => {
             result.state = PdfTextState::TooLarge;
             return Ok(result);
         }
+        Err(super::scan::Refusal::Expired) => return Err(Reason::DeadlineExceeded),
         Err(super::scan::Refusal::Irregular) => {
             result.state = PdfTextState::Damaged;
             return Ok(result);
@@ -65,7 +66,7 @@ pub fn embedded(
         }
     };
     check()?;
-    super::cmap::bound(&mut document);
+    super::cmap::bound(&mut document, expired)?;
     check()?;
     let pages = document.get_pages();
     result.pages = Some(u32::try_from(pages.len()).unwrap_or(u32::MAX));
@@ -132,7 +133,8 @@ fn settle(
         text = kept;
         cut = true;
     }
-    if !text.trim().is_empty() {
+    // A skipped part may have held all the text, so it is partial, never no-text.
+    if !text.trim().is_empty() || skipped {
         result.missing = match (cut, skipped) {
             (true, true) => Some(PdfMissing::Both),
             (true, false) => Some(PdfMissing::Gibberish),
