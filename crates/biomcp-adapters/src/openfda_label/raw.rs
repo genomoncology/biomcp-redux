@@ -65,45 +65,6 @@ impl Record {
         }
         (name, problems.list)
     }
-    /// The product name in the label's own text, for a label without harmonized names: the
-    /// longest run of leading product-data words that the display panel or indications section
-    /// also prints, word for word in any letter case; `None` when neither prints the first word.
-    pub(super) fn text_name(&self) -> Result<Option<Text>, biomcp_fetch::RequestError> {
-        let Some(product) = self.product_name().0 else {
-            return Ok(None);
-        };
-        let printed: Vec<Vec<String>> = [
-            "package_label_principal_display_panel",
-            "indications_and_usage",
-        ]
-        .into_iter()
-        .filter_map(|heading| self.parts(heading))
-        .flatten()
-        .map(|part| words(part).filter(|word| !word.is_empty()).collect())
-        .collect();
-        let leading: Vec<String> = words(product.as_str()).collect();
-        let Some(shown) = (1..=leading.len())
-            .take_while(|n| {
-                leading.get(..*n).is_some_and(|run| {
-                    printed
-                        .iter()
-                        .any(|text| text.windows(*n).any(|w| w == run))
-                })
-            })
-            .last()
-        else {
-            return Ok(None);
-        };
-        let name = product
-            .as_str()
-            .split_whitespace()
-            .take(shown)
-            .collect::<Vec<_>>();
-        // Leading words of admitted text always admit; a failure is a broken reply, not no name.
-        crate::native_text::admit(&name.join(" "))
-            .map(Some)
-            .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))
-    }
     /// Admit each recent major changes element, naming any that cannot be admitted.
     pub(super) fn recent_major_changes(&self) -> (Box<[Text]>, Vec<biomcp_types::Problem>) {
         let mut problems = crate::mapped::Problems {
@@ -146,12 +107,4 @@ impl Item for Record {
     fn check(&self) -> Result<(), BadReply> {
         Record::check(self)
     }
-}
-/// Each whitespace-separated word in lower case, without trademark marks or trailing
-/// punctuation, so `IBRANCE,` and `Itovebi™` read as the product data's `Ibrance` and `Itovebi`.
-fn words(text: &str) -> impl Iterator<Item = String> + '_ {
-    text.split_whitespace().map(|word| {
-        word.trim_matches(['™', '®', ',', ';', ':', '.'])
-            .to_lowercase()
-    })
 }
