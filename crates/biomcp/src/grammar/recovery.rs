@@ -139,7 +139,7 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
-/// Drug markets reads each market's own source, so its fix is the same call without `--source`.
+/// Drug markets takes a name alone, so its fix is the same call without the options it refused.
 pub(super) fn markets(
     via: Rewrite,
     path: (&str, &str),
@@ -150,7 +150,10 @@ pub(super) fn markets(
         return None;
     }
     let mut candidate = value.clone();
-    candidate.as_object_mut()?.remove("source");
+    let fields = candidate.as_object_mut()?;
+    for name in cause.arguments() {
+        fields.remove(name.as_ref());
+    }
     checked(via, path, candidate)
 }
 

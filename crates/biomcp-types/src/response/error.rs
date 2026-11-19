@@ -298,7 +298,8 @@ singleton! {
         DrugSafety => "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugShortage => "shortage is not yet supported in the cancer-care drug slice.",
         DrugAll => "all is not supported: select one named source section.",
-        DrugMarketsSource => "markets reads each market's own source and takes no --source; drop it, as in: get drug <NAME> markets",
+        DrugMarketsSource => "markets takes a drug name alone, with no --source or other option, and reads each market's own \
+            source; drop error.option, as in: get drug <NAME> markets",
         DrugInteractions => "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         DrugTrials => "use: search trial --intervention <text>; no inferred aliases",
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
@@ -326,8 +327,7 @@ singleton! {
         ProteinUnreviewed => "--include-unreviewed is not yet supported because no unreviewed positive was captured",
         ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein \
             products; use: get protein <ACCESSION> complexes", // Unsent since 1029; kept for the 1.0 schema.
-        StudyList => "use: search study",
-        StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
+        StudyList => "use: search study", StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
             whole-study analytical installs are retired",
         StudyMutationProfile => "the mutations section reads only a mutation profile of this study; choose \
             --molecular-profile from valid_values",

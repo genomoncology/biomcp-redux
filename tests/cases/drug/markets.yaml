@@ -289,7 +289,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--source",
-        "/error/message": "markets reads each market's own source and takes no --source; drop it, as in: get drug <NAME> markets",
+        "/error/message": "markets takes a drug name alone, with no --source or other option, and reads each market's own source; drop error.option, as in: get drug <NAME> markets",
         "/next/0/args": [
           "get",
           "drug",
@@ -311,7 +311,7 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/error/message": "markets reads each market's own source and takes no --source; drop it, as in: get drug <NAME> markets",
+        "/error/message": "markets takes a drug name alone, with no --source or other option, and reads each market's own source; drop error.option, as in: get drug <NAME> markets",
         "/next/0/args": [
           "get",
           "drug",

@@ -5317,7 +5317,7 @@
         "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         "shortage is not yet supported in the cancer-care drug slice.",
         "all is not supported: select one named source section.",
-        "markets reads each market's own source and takes no --source; drop it, as in: get drug <NAME> markets",
+        "markets takes a drug name alone, with no --source or other option, and reads each market's own source; drop error.option, as in: get drug <NAME> markets",
         "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         "use: search trial --intervention <text>; no inferred aliases",
         "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
@@ -5380,7 +5380,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1057, 2026-11-19: against the 1.0.0 baseline, get drug NAME markets with --source says markets takes no --source and names the call without it."
+      "review": "Ticket 1057, 2026-11-19: against the 1.0.0 baseline, get drug NAME markets with --source or another option says markets takes a name alone and names the call without that option."
     }
   ],
   "required_removals": [
