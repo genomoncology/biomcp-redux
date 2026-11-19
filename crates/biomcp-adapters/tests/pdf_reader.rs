@@ -109,7 +109,7 @@ fn glyphs_without_a_character_map_are_garbled() {
         let font = composite(document, None);
         dictionary! { "Font" => dictionary! { "F1" => font } }
     })
-    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    .expect("synthetic PDF");
     let read = read(&bytes).expect("readable PDF");
     assert_eq!(
         read.state,
@@ -133,7 +133,7 @@ fn gibberish_beside_readable_text_is_cut_out_and_the_rest_is_partial() {
         });
         dictionary! { "Font" => dictionary! { "F1" => glyphs, "F2" => font } }
     })
-    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    .expect("synthetic PDF");
     let read = read(&bytes).expect("readable PDF");
     assert_eq!(
         read.state,
@@ -163,7 +163,7 @@ fn text_in_a_declared_encoding_is_never_judged_garbled() {
         });
         dictionary! { "Font" => dictionary! { "F1" => font } }
     })
-    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    .expect("synthetic PDF");
     let read = read(&bytes).expect("readable PDF");
     assert_eq!(
         read.state,
@@ -198,9 +198,13 @@ fn a_form_drawn_without_end_and_a_huge_map_cannot_stall_the_reader() {
         ));
         dictionary! { "XObject" => dictionary! { "Outer" => outer } }
     })
-    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    .expect("synthetic PDF");
     let read = read(&bytes).expect("the hostile PDF still opens");
-    assert_eq!(read.state, PdfTextState::Partial, "draws past the page's cap are skipped");
+    assert_eq!(
+        read.state,
+        PdfTextState::Partial,
+        "draws past the page's cap are skipped"
+    );
 }
 
 #[test]
@@ -218,7 +222,7 @@ fn a_form_that_cannot_be_read_is_skipped_and_the_page_keeps_its_text() {
         ));
         dictionary! { "Font" => dictionary! { "F1" => font }, "XObject" => dictionary! { "Broken" => broken } }
     })
-    .expect("synthetic PDF").expect(\"synthetic PDF\");
+    .expect("synthetic PDF");
     let read = read(&bytes).expect("readable PDF");
     assert_eq!(
         read.state,
