@@ -1685,13 +1685,15 @@
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
         " A source repeats one exact identity with incompatible records.",
-        " A source record without a usable identity was left off the page; each problem names one such record."
+        " A source record without a usable identity was left off the page; each problem names one such record.",
+        " The asked filter cannot read the records the field names, so they were not searched and may hold matches the page leaves out."
       ],
       "x-extensible-enum": [
         "value.unknown",
         "collection.incomplete",
         "identity.conflict",
-        "record.declined"
+        "record.declined",
+        "filter.unsupported"
       ]
     },
     "Reply_Reason": {

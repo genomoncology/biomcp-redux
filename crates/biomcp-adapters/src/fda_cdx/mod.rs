@@ -1,4 +1,5 @@
 //! Stored FDA companion diagnostic tables with source-owned association selectors.
+mod biomarker;
 mod bundle;
 mod date;
 mod html;

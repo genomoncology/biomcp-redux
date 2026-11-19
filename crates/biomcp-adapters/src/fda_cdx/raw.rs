@@ -25,15 +25,11 @@ impl Row for Native {
         let mut exact = vec![(KeyKind::Band, "all".into())];
         let (device_ids, applications) = match &self.relation {
             CompanionDiagnosticRelation::Individual {
-                cells,
                 device_ids,
                 drug_applications,
                 ..
-            } => {
-                exact.push((KeyKind::Symbol, cells.biomarker.text.clone()));
-                (device_ids, drug_applications)
             }
-            CompanionDiagnosticRelation::Group {
+            | CompanionDiagnosticRelation::Group {
                 device_ids,
                 drug_applications,
                 ..

@@ -1,7 +1,7 @@
 {
   "feature": "diagnostic-cdx",
   "live_check": "public",
-  "story": "The existing exact drug application reads the original FDA companion diagnostic association rows.",
+  "story": "The existing exact drug application reads the original FDA companion diagnostic association rows. A biomarker reads every individual-table row whose cell names it whole, in any case, including a cell with trailing no-break spaces and one listing several biomarkers (1056), and names the unsearched group table.",
   "verified": "Captured2026-10-30 from https://www.fda.gov/medical-devices/in-vitro-diagnostics/list-fda-authorized-companion-diagnostic-devices-in-vitro-and-imaging-tools. FDA-authored government tables are public domain unless otherwise noted under https://www.fda.gov/about-fda/about-website/website-policies#linking. Complete captured page and both tables contain no copyright/license/third-party/proprietary/rights notice; permissionsHash occurs only in site script metadata. Git body consists only of the two unchanged table substrings in original order, separated by one newline; site assets/footer/manufacturer documents/linked third-party content excluded. Original page SHA256 d5eea3fcc78417aeadf367341ed78627ca03f035fbd93fd798ac30d2fd813722; projected table SHA256 de4aa79fb8d42da163aea942122f2495b8be97bf0cb9858bb93118258c8bd989. Original request/headers/page retained outside Git in native-fda-trial archive.",
   "replay": "diagnostic/native-cdx",
   "steps": [
@@ -28,6 +28,23 @@
         "/result/items/0/device_ids/0": "P150013/S032",
         "/result/items/0/drug_applications/0/id": "BLA125514"
       }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--biomarker", "PIK3CA", "--limit", "50"],
+      "expect": {
+        "/page/total": 7,
+        "/result/items/*/index": {"count": 7},
+        "/problems/0/field": "table_1.biomarker",
+        "/problems/0/code": "filter.unsupported"
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--biomarker", "pik3ca", "--limit", "50"],
+      "expect": {"/page/total": 7}
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--biomarker", "PIK3C"],
+      "expect": {"/page/total": 0}
     }
   ]
 }
