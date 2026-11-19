@@ -174,7 +174,7 @@ fn text_in_a_declared_encoding_is_never_judged_garbled() {
 
 #[test]
 fn a_form_drawn_without_end_and_a_huge_map_cannot_stall_the_reader() {
-    // One outer form draws an empty inner form 100,000 times; the inner form's font carries a
+    // One outer form draws a one-glyph inner form 100,000 times; the inner form's font carries a
     // character map of about 245 KB. Fonts are read once and draws stop at the page's cap.
     let entries: String = (0..15_000u32)
         .map(|code| format!("<{code:04X}> <0041>\n"))
@@ -189,7 +189,7 @@ fn a_form_drawn_without_end_and_a_huge_map_cannot_stall_the_reader() {
         let inner = document.add_object(Stream::new(
             dictionary! { "Type" => "XObject", "Subtype" => "Form", "BBox" => vec![0.into(), 0.into(), 1.into(), 1.into()],
                 "Resources" => dictionary! { "Font" => dictionary! { "F1" => font } } },
-            Vec::new(),
+            b"BT /F1 9 Tf <0001> Tj ET".to_vec(),
         ));
         let outer = document.add_object(Stream::new(
             dictionary! { "Type" => "XObject", "Subtype" => "Form", "BBox" => vec![0.into(), 0.into(), 1.into(), 1.into()],
