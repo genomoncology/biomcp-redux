@@ -31,7 +31,7 @@ pub(super) fn command<'a>(
         command = child;
     }
     if path.is_empty()
-        && let Some(found) = stripped(error, args).and_then(|args| parsed(root, &args))
+        && let Some(found) = stripped(root, error, args).and_then(|args| parsed(root, &args))
     {
         return found;
     }
@@ -40,8 +40,10 @@ pub(super) fn command<'a>(
 
 /// Whether the parser refused an option for coming with no value at all.
 pub(super) fn valueless(error: &clap::Error) -> bool {
-    error.kind() == ErrorKind::InvalidValue
-        && matches!(error.get(ContextKind::InvalidValue), Some(ContextValue::String(value)) if value.is_empty())
+    matches!(
+        error.kind(),
+        ErrorKind::InvalidValue | ErrorKind::ValueValidation
+    ) && matches!(error.get(ContextKind::InvalidValue), Some(ContextValue::String(value)) if value.is_empty())
 }
 
 /// The call without the option given no value, when the registry's checked constructor
@@ -53,7 +55,7 @@ pub(super) fn without(
     args: &[OsString],
 ) -> Option<biomcp_types::Step> {
     let [verb, entity] = path else { return None };
-    let args = stripped(error, args)?;
+    let args = stripped(root, error, args)?;
     let matches = root
         .clone()
         .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
@@ -68,24 +70,53 @@ pub(super) fn without(
     super::recovery::checked(declaration.via, (verb, entity), value)
 }
 
-/// The caller's words without the last spelling of the valueless option.
-fn stripped(error: &clap::Error, args: &[OsString]) -> Option<Vec<OsString>> {
+/// The caller's words without the last spelling of the valueless option: its long or
+/// one-letter form or an alias, alone or with an empty inline value.
+fn stripped(root: &Command, error: &clap::Error, args: &[OsString]) -> Option<Vec<OsString>> {
     if !valueless(error) {
         return None;
     }
     let Some(ContextValue::String(spelling)) = error.get(ContextKind::InvalidArg) else {
         return None;
     };
-    let flag = spelling.split_whitespace().next()?;
-    let inline = format!("{flag}=");
+    let mut flags = Vec::new();
+    spellings(root, spelling, &mut flags);
     let index = args.iter().enumerate().rposition(|(index, word)| {
+        let word = word.to_str().unwrap_or_default();
         let next = args.get(index + 1).and_then(|word| word.to_str());
-        word.to_str() == Some(inline.as_str())
-            || word.to_str() == Some(flag) && next.is_none_or(|next| next.starts_with('-'))
+        flags.iter().any(|flag| {
+            word.strip_prefix(flag.as_str()) == Some("=")
+                || word == flag && next.is_none_or(|next| next.starts_with('-'))
+        })
     })?;
     let mut args = args.to_vec();
     args.remove(index);
     Some(args)
+}
+
+/// Every way a caller writes the refused option, on any command that declares it.
+pub(super) fn spellings(command: &Command, spelling: &str, flags: &mut Vec<String>) {
+    for argument in command
+        .get_arguments()
+        .filter(|argument| argument.to_string() == spelling)
+    {
+        let longs = argument
+            .get_long()
+            .into_iter()
+            .chain(argument.get_all_aliases().into_iter().flatten());
+        let shorts = argument
+            .get_short()
+            .into_iter()
+            .chain(argument.get_all_short_aliases().into_iter().flatten());
+        flags.extend(
+            longs
+                .map(|long| format!("--{long}"))
+                .chain(shorts.map(|short| format!("-{short}"))),
+        );
+    }
+    for child in command.get_subcommands() {
+        spellings(child, spelling, flags);
+    }
 }
 
 /// The command path the parser reads from the call, ignoring its other mistakes, such as a

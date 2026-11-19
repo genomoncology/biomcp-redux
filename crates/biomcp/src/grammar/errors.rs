@@ -55,10 +55,8 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
     let (argument, valid_values, message) =
         if let Some(argument) = invalid_argument(command, path, error) {
             let message = match error.kind() {
+                _ if super::context::valueless(error) => ErrorMessage::ArgumentNoValue,
                 ErrorKind::MissingRequiredArgument => ErrorMessage::ArgumentMissing,
-                ErrorKind::InvalidValue if super::context::valueless(error) => {
-                    ErrorMessage::ArgumentMissing
-                }
                 ErrorKind::ArgumentConflict if super::repeated::is(error) => {
                     ErrorMessage::ArgumentRepeated
                 }

@@ -406,9 +406,10 @@ fn every_command_help_page_says_each_generated_sentence_once() -> Check {
     Ok(())
 }
 
-/// Every option that takes a value, given none, is named as missing with a next step (1064).
+/// Every option that takes a value, given none in any spelling (long, one-letter, alias, or an
+/// empty inline value), says its value is missing and offers a next step (1064).
 #[test]
-fn every_value_option_given_no_value_is_named_missing() -> Result<(), String> {
+fn every_value_option_given_no_value_says_so() -> Result<(), String> {
     let root = super::root().map_err(|_| "grammar unavailable")?;
     let mut failures = Vec::new();
     for (verb, entity, _) in super::command_paths() {
@@ -423,26 +424,33 @@ fn every_value_option_given_no_value_is_named_missing() -> Result<(), String> {
                 && argument
                     .get_num_args()
                     .is_some_and(|range| range.min_values() > 0);
-            let Some(long) = argument.get_long().filter(|_| takes) else {
+            if !takes || argument.is_positional() {
                 continue;
-            };
-            let flag = format!("--{long}");
-            let args = [verb, entity, flag.as_str()].map(std::ffi::OsString::from);
-            let outcome = super::parse(&root, &args);
-            let named = match &outcome {
-                Err(super::ParseInvalid {
-                    usage: Some(biomcp_types::UsageError::Arguments(refusal)),
-                    ..
-                }) => {
-                    refusal.argument.as_deref() == Some(flag.as_str())
-                        && refusal.message == Some(biomcp_types::ErrorMessage::ArgumentMissing)
-                        && !refusal.next.is_empty()
+            }
+            let identity = argument
+                .get_long()
+                .map_or_else(|| argument.get_id().to_string(), |long| format!("--{long}"));
+            let mut flags = Vec::new();
+            super::context::spellings(command, &argument.to_string(), &mut flags);
+            let inline: Vec<String> = flags.iter().map(|flag| format!("{flag}=")).collect();
+            for flag in flags.iter().chain(&inline) {
+                let args = [verb, entity, flag.as_str()].map(std::ffi::OsString::from);
+                let outcome = super::parse(&root, &args);
+                let named = match &outcome {
+                    Err(super::ParseInvalid {
+                        usage: Some(biomcp_types::UsageError::Arguments(refusal)),
+                        ..
+                    }) => {
+                        refusal.argument.as_deref() == Some(identity.as_str())
+                            && refusal.message == Some(biomcp_types::ErrorMessage::ArgumentNoValue)
+                            && !refusal.next.is_empty()
+                    }
+                    _ => false,
+                };
+                if !named {
+                    let usage = outcome.err().map(|invalid| format!("{:?}", invalid.usage));
+                    failures.push(format!("{verb} {entity} {flag}: {usage:?}"));
                 }
-                _ => false,
-            };
-            if !named {
-                let usage = outcome.err().map(|invalid| format!("{:?}", invalid.usage));
-                failures.push(format!("{verb} {entity} {flag}: {usage:?}"));
             }
         }
     }
