@@ -100,8 +100,8 @@ fn read(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     if cx.fetch.disabled(Source::Gwas) {
+        let leg = cx.fetch.leg(&gwas::SPEC, deadline);
         let error = biomcp_fetch::SourceError::disabled(Source::Gwas).into();
         out.sources
             .push(status::source(Source::Gwas, leg.finish(), Some(error)));
@@ -130,9 +130,10 @@ fn read(
     out.sources = saved.sources.clone();
     // Walk on until the page is full or the threshold ends; a page past the end stays empty.
     while !saved.done && saved.rows.len() < needed {
+        let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
         let result = gwas::search(&leg, &q.at_offset(saved.received));
         let error = result.as_ref().err().copied();
-        let mut incoming = status::source(Source::Gwas, leg.take_report(), error);
+        let mut incoming = status::source(Source::Gwas, leg.finish(), error);
         if let Ok(page) = &result {
             incoming.retrieved_count = Some(page.rows.len() as u32);
             incoming.count = Some(page.total);
