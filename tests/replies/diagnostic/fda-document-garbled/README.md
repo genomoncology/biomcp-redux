@@ -1,0 +1,1 @@
+Unchanged public replies recorded 2026-11-19 by `biomcp --record`: the openFDA Drugs@FDA application for NDA208065 and FDA's supplement 21 approval letter PDF (document 65680, SHA-256 d99477c759dd8111f4a49be1d1d75082a26d3b219e68c771ff52f071621a9a74), whose font decodes to gibberish.

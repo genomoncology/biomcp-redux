@@ -1,0 +1,4 @@
+Real FDA PDFs for the PDF reader's cases (ticket 1068), fetched from accessdata.fda.gov on 2026-11-19.
+
+- `form-object-carton.pdf`: page 8 of the Rinvoq (NDA 211675) supplement 29 label, https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/211675Orig1s029lbl.pdf (source SHA-256 09c767f4b5ec3a8f9de28af072509de9bc997427789966ffc4e83875efc41bec). The page was copied out unchanged with pypdf to keep the fixture small; its text sits in form XObjects, and its own content stream only paints them.
+- `garbled-letter.pdf`: the Tagrisso (NDA 208065) supplement 21 approval letter, unchanged, https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/208065Orig1s021ltr.pdf (SHA-256 d99477c759dd8111f4a49be1d1d75082a26d3b219e68c771ff52f071621a9a74). Its font decodes "NDA 208065" as "1'$ 6833", so the reader must report it as garbled.

@@ -236,6 +236,14 @@ const ALLOWED: &[(&str, &str)] = &[
         "Read legacy serialized adapter values through the public storage type without a source request.",
     ),
     (
+        "crates/biomcp-adapters/tests/pdf_reader.rs",
+        "Read trimmed real FDA PDFs drawn through form objects or misdecoding fonts, and judge the garbled-text check on short synthetic text.",
+    ),
+    (
+        "crates/biomcp-adapters/tests/pdf_structure.rs",
+        "Refuse PDFs written here whose tables list one object many times, that hold too much to load, or that are damaged.",
+    ),
+    (
         "crates/biomcp-adapters/tests/pmc_body.rs",
         "Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON.",
     ),
