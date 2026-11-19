@@ -298,6 +298,7 @@ singleton! {
         DrugSafety => "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugShortage => "shortage is not yet supported in the cancer-care drug slice.",
         DrugAll => "all is not supported: select one named source section.",
+        DrugMarketsSource => "markets reads each market's own source and takes no --source; drop it, as in: get drug <NAME> markets",
         DrugInteractions => "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         DrugTrials => "use: search trial --intervention <text>; no inferred aliases",
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
@@ -342,8 +343,7 @@ singleton! {
         PathwayTrials => "use: search trial --gene <gene>; pathway-name trial search is retired.",
         PathwayHelp => "use: help search pathway; help get pathway",
         DrugArticles => "use: search article --drug <drug>", Pathway => "moved to the pathway entity",
-        Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression",
-        Drug => "moved to the drug entity",
+        Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression", Drug => "moved to the drug entity",
  Diagnostic => "moved to the diagnostic entity",
  PoolExpired => "pool expired; restart the search",
  PoolMismatch => "pool selectors do not match this search"

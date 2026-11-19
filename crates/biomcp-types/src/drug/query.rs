@@ -163,7 +163,11 @@ impl TryFrom<GetFields> for DrugGet {
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     // The markets section is its own request, with no source and no other section.
     if fields.section.contains(&DrugSection::Markets) {
-        return Err(QueryInvalid::new(&["section", "source"]));
+        let invalid = QueryInvalid::new(&["section", "source"]);
+        return Err(match fields.source {
+            Some(_) => invalid.with_message(crate::ErrorMessage::DrugMarketsSource),
+            None => invalid,
+        });
     }
     if fields.document_id.is_some()
         && (fields.source != Some(DrugSource::Drugsfda)

@@ -139,6 +139,21 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
+/// Drug markets reads each market's own source, so its fix is the same call without `--source`.
+pub(super) fn markets(
+    via: Rewrite,
+    path: (&str, &str),
+    value: &Value,
+    cause: &biomcp_types::QueryInvalid,
+) -> Option<Step> {
+    if cause.message() != Some(biomcp_types::ErrorMessage::DrugMarketsSource) {
+        return None;
+    }
+    let mut candidate = value.clone();
+    candidate.as_object_mut()?.remove("source");
+    checked(via, path, candidate)
+}
+
 /// A certain correction replaces help: the refusal's only step is the call to run.
 pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<Step>) {
     if let Some(step) = corrected {
