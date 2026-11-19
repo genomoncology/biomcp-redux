@@ -200,7 +200,7 @@ pub use drug::{
     DrugRegulatoryPart, DrugSearch, DrugSection, DrugSectionBody, DrugSectionPart,
     DrugSectionReply, DrugSections, DrugSource, DrugTargets, DrugTargetsPart, DrugWhoCard,
     DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart, OPENFDA_LABEL_HEADINGS,
-    WhoDateStatus,
+    WhoDateStatus, openfda_label_field,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
