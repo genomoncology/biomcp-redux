@@ -27,7 +27,7 @@ struct Walk<'a> {
 pub(super) fn page(document: &Document, page: ObjectId, limit: usize) -> lopdf::Result<String> {
     let mut fonts = BTreeMap::new();
     for (name, font) in document.get_page_fonts(page)? {
-        let encoding = font.get_font_encoding_with_limit(document, limit)?;
+        let encoding = super::cmap::encoding(document, font, limit)?;
         fonts.insert(name, (encoding, widths(document, font)));
     }
     let bytes = document.get_page_content_with_limit(page, limit)?;
@@ -150,7 +150,7 @@ impl<'a> Walk<'a> {
             let Some(font) = dictionary(self.document, value) else {
                 continue;
             };
-            let encoding = font.get_font_encoding_with_limit(self.document, self.left)?;
+            let encoding = super::cmap::encoding(self.document, font, self.left)?;
             fonts.insert(name.to_vec(), (encoding, widths(self.document, font)));
         }
         Ok(fonts)
