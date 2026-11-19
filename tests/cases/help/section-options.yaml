@@ -77,7 +77,7 @@
         "variant",
         "clinvar"
       ],
-      "max_bytes": 3518,
+      "max_bytes": 3700,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -94,7 +94,9 @@
           "section",
           "--section-limit",
           "--section-offset",
-          "--tumor-type"
+          "--tumor-type",
+          "--candidate-limit",
+          "--candidate-offset"
         ]
       }
     },
@@ -105,7 +107,7 @@
         "variant",
         "population"
       ],
-      "max_bytes": 3091,
+      "max_bytes": 3400,
       "expect": {
         "/schema": "biomcp.help/7",
         "/status": "complete",
@@ -121,7 +123,9 @@
           "section",
           "--section-limit",
           "--section-offset",
-          "--tumor-type"
+          "--tumor-type",
+          "--candidate-limit",
+          "--candidate-offset"
         ]
       }
     },

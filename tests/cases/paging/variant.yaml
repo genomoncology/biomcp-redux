@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "list-paging",
-  "story": "On get variant, --limit and --offset page the named section when one is named and the matching variants otherwise; the query names the field that took them, and each list keeps its own page: the envelope page counts candidates, the section's page counts its rows.",
+  "story": "On get variant, --limit and --offset page the named section when one is named and the matching variants otherwise; the query names the field that took them, and each list keeps its own page: the envelope page counts candidates, the section's page counts its rows. With a section named, --candidate-limit and --candidate-offset page the candidates, and the next candidates keep the section.",
   "replay": "paging/variant",
   "verified": "Recorded live MyVariant and ClinVar replies for rs113488022 on 2026-11-19: three candidates, one with eight ClinVar records. PM decision 2026-11-19 (1061).",
   "steps": [
@@ -44,6 +44,36 @@
         "/page/returned": 1,
         "/page/total": 3,
         "/query/section_offset": 0
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "clinvar",
+        "--limit",
+        "2",
+        "--candidate-limit",
+        "1"
+      ],
+      "expect": {
+        "/query/limit": 1,
+        "/query/section_limit": 2,
+        "/page/returned": 1,
+        "/page/total": 3,
+        "/next/2/args": [
+          "get",
+          "variant",
+          "rs113488022",
+          "clinvar",
+          "--candidate-limit",
+          "1",
+          "--candidate-offset",
+          "1",
+          "--limit",
+          "2"
+        ]
       }
     },
     {

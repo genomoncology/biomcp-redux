@@ -79,7 +79,7 @@
           "includes_all_of": [
             "11111111-1111-1111-1111-111111111111",
             "dosage_and_administration",
-            "--section-offset",
+            "--offset",
             "1"
           ],
           "excludes": "boxed_warning"

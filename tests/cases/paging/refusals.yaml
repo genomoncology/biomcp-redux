@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic",
   "feature": "list-paging",
-  "story": "A paging word a command does not take is refused with the paging options it does take, and help says in one line which options page the command.",
+  "story": "A paging word a command does not take is refused with the paging options it does take, named --limit and --offset wherever those page the command; a ClinicalTrials.gov offset deeper than the ID walk reaches is refused before any request and names --next-page; help says in one line which options page the command.",
   "steps": [
     {
       "run": [
@@ -19,8 +19,8 @@
       "expect": {
         "/error/option": "--page",
         "/error/valid_values": [
-          "--section-limit",
-          "--section-offset"
+          "--limit",
+          "--offset"
         ]
       }
     },
@@ -78,6 +78,42 @@
     },
     {
       "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--offset",
+        "5001"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--offset",
+        "/error/valid_values": [
+          "integer >= 0 <= 5000",
+          "--next-page"
+        ],
+        "/error/message": "ClinicalTrials.gov search reaches at most 5000 rows by --offset; to go deeper, follow --next-page from a reply's next step"
+      }
+    },
+    {
+      "run": [
+        "help",
+        "search",
+        "trial",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent."
+          ]
+        }
+      }
+    },
+    {
+      "run": [
         "help",
         "get",
         "drug",
@@ -103,7 +139,7 @@
       "expect": {
         "": {
           "includes_all_of": [
-            "Paging: --limit and --offset page the named section, else the candidates; --section-limit and --section-offset page the section."
+            "Paging: --limit and --offset page the named section, else the candidates; --candidate-limit and --candidate-offset page the candidates when a section is named."
           ]
         }
       }

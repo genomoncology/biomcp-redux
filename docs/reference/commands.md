@@ -2027,8 +2027,8 @@ Options:
           ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page.
 
       --offset <offset>
-          Page offset.
-          Zero-based offset of the first row in this continuation page.
+          Rows to skip.
+          Zero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent.
 
       --phase <phase>
           Source phase; help search trial
@@ -2139,8 +2139,8 @@ Headers per page; NCI applies its own lower publisher limit. Value form: integer
 ClinicalTrials.gov only: radius center longitude in degrees. Value form: string; example: --lon -71.0589.
 - `--next-page`: Page token.
 ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string; example: --next-page <next-page> (syntax; replace the placeholder with your retained value).
-- `--offset`: Page offset.
-Zero-based offset of the first row in this continuation page. Value form: integer; example: --offset 0.
+- `--offset`: Rows to skip.
+Zero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent. Value form: integer; example: --offset 0.
 - `--phase`: Source phase.
 Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
 - `query`: Trial text.
@@ -3850,12 +3850,18 @@ Options:
           Tumor
           Explicit tumor context for keyed OncoKB annotation.
 
+      --candidate-limit <candidate_limit>
+          The candidates' --limit when a section is named.
+
+      --candidate-offset <candidate_offset>
+          The candidates' --offset when a section is named.
+
 ```
 
 Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
-Paging: --limit and --offset page the named section, else the candidates; --section-limit and --section-offset page the section.
+Paging: --limit and --offset page the named section, else the candidates; --candidate-limit and --candidate-offset page the candidates when a section is named.
 
 - `--build`: Assembly
 MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build. Value form: string; example: --build GRCh37.
@@ -3892,6 +3898,8 @@ Form: get variant INPUT SECTION...; not --section.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer; example: --section-offset 0.
 - `--tumor-type`: Tumor
 Explicit tumor context for keyed OncoKB annotation. Value form: string; example: --tumor-type Melanoma.
+- `--candidate-limit`: The candidates' --limit when a section is named. Value form: string; example: --candidate-limit <candidate-limit> (syntax; replace the placeholder with your retained value).
+- `--candidate-offset`: The candidates' --offset when a section is named. Value form: string; example: --candidate-offset <candidate-offset> (syntax; replace the placeholder with your retained value).
 
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 

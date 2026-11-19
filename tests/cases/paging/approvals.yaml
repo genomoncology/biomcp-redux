@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "list-paging",
-  "story": "An approval history pages to its end with --limit and --offset, the same options a search takes; --section-limit and --section-offset still work, and a page past the end is empty with the total.",
+  "story": "An approval history pages to its end with --limit and --offset, the same options a search takes; --section-limit and --section-offset still work, and a page past the end is empty with the total. The next page is offered as --limit and --offset.",
   "replay": "paging/approvals",
   "verified": "Recorded live openFDA Drugs@FDA replies for NDA022363 on 2026-11-19: 15 submissions. On main be96d8d40 --limit and --offset were refused as usage (1061).",
   "steps": [
@@ -20,7 +20,19 @@
         "/status": "complete",
         "/page/offset": 0,
         "/page/returned": 10,
-        "/page/total": 15
+        "/page/total": 15,
+        "/next/1/args": [
+          "get",
+          "drug",
+          "NDA022363",
+          "approvals",
+          "--limit",
+          "10",
+          "--offset",
+          "10",
+          "--source",
+          "drugsfda"
+        ]
       }
     },
     {
