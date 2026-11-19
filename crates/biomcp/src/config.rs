@@ -215,7 +215,7 @@ pub(crate) fn request_defaults(
     request: &biomcp_types::Request,
 ) -> Result<biomcp_types::Request, ConfigError> {
     let file = configured(settings)?;
-    // `article_access_lookup: false` makes every article search skip the Europe PMC lookup.
+    // `article_access_lookup: false` makes every article search skip the NCBI open-access lookup.
     if let biomcp_types::Request::SearchArticle(query) = request
         && file.and_then(|file| file.article_access_lookup) == Some(false)
     {

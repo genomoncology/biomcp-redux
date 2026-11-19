@@ -168,11 +168,18 @@ fn apply_open(
         Ok(open) => open,
         Err(error) => {
             let mut source = status::source(Source::PubMed, report, Some(error));
-            source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: "Rows were read; the open-access lookup failed, so rows say open_access_not_checked.".into(),
-                retry_after_seconds: None,
-            });
+            let message = if source.reason == Some(biomcp_types::Reason::BadReply) {
+                "Rows were read; NCBI's open-access reply could not be used or did not apply its open-access filter, so rows say open_access_not_checked."
+            } else {
+                "Rows were read; the open-access lookup failed, so rows say open_access_not_checked."
+            };
+            source
+                .notices
+                .push(biomcp_types::SourceNotice::RequestGuidance {
+                    data_date: None,
+                    message: message.into(),
+                    retry_after_seconds: None,
+                });
             return Ok(Some(source));
         }
     };

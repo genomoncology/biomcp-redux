@@ -263,6 +263,13 @@ fn check_article_reply(
     Ok(())
 }
 
+/// Row fields the seed fills from NCBI and the offline searches cannot (1072).
+const ACCESS_FIELDS: [&str; 3] = [
+    "open_access",
+    "open_access_source",
+    "open_access_not_checked",
+];
+
 fn article_processes() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let case = env.root().join("case");
@@ -281,18 +288,26 @@ fn article_processes() -> Result<(), String> {
         "--exact-term",
     ];
     let initial = invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
-    // Rows compare by identity: the seed reads NCBI's open-access flags, while the offline
-    // searches below cannot, so their access fields differ by design (1072).
-    let keys = |items: Option<&Value>| -> Option<Vec<Value>> {
+    // Whole rows compare without their access fields: the seed reads NCBI's open-access flags,
+    // while the offline searches below cannot, so only those fields differ by design (1072).
+    let rows = |items: Option<&Value>| -> Option<Vec<Value>> {
         Some(
             items?
                 .as_array()?
                 .iter()
-                .map(|item| item["key"].clone())
+                .map(|item| {
+                    let mut item = item.clone();
+                    if let Some(row) = item.as_object_mut() {
+                        for field in ACCESS_FIELDS {
+                            row.remove(field);
+                        }
+                    }
+                    item
+                })
                 .collect(),
         )
     };
-    let expected = keys(initial.pointer("/result/items")).ok_or("items missing")?;
+    let expected = rows(initial.pointer("/result/items")).ok_or("items missing")?;
     let parent = env.root().join("cache/biomcp");
     fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
     let file = parent.join(format!(
@@ -325,7 +340,7 @@ fn article_processes() -> Result<(), String> {
     })?;
     let mut pools = std::collections::BTreeSet::new();
     for reply in replies {
-        if keys(reply.pointer("/result/items")).as_ref() != Some(&expected) {
+        if rows(reply.pointer("/result/items")).as_ref() != Some(&expected) {
             return Err("concurrent ordinary-cache search lost items".into());
         }
         let pool = reply
@@ -338,7 +353,7 @@ fn article_processes() -> Result<(), String> {
         }
         let mut args: Vec<String> = base.iter().map(|v| (*v).into()).collect();
         args.extend(["--offline".into(), "--pool".into(), pool.into()]);
-        if keys(invoke(&env, args, 0)?.pointer("/result/items")).as_ref() != Some(&expected) {
+        if rows(invoke(&env, args, 0)?.pointer("/result/items")).as_ref() != Some(&expected) {
             return Err("published snapshot changed".into());
         }
     }
