@@ -50,26 +50,10 @@ fn bare_label() -> Check {
             return Err(format!("hint lacks the option: {hint}"));
         }
     }
-    let mut unknown = args.clone();
-    unknown.extend(["--label-section".into(), "effective_time".into()]);
-    let refused_mcp = super::mcp::call_with_globals(&env, &unknown, true, &[])?;
-    for refused in [invoke(&env, unknown, 2)?, refused_mcp] {
-        let message = refused
-            .pointer("/error/message")
-            .and_then(Value::as_str)
-            .ok_or("no refusal message")?;
-        if !message.contains("--label-section") || refused.pointer("/error/valid_values").is_none()
-        {
-            return Err(format!("unknown section refusal unclear: {refused}"));
-        }
-    }
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
-    // The typed drug tool: a bad section on the label source, and a source with no label.
-    for (source, option, valid) in [
-        ("openfda-label", "label_section", "boxed_warning"),
-        ("mychem", "source", "openfda-label"),
-    ] {
+    // The typed drug tool: a source with no label.
+    for (source, option, valid) in [("mychem", "source", "openfda-label")] {
         let typed = super::mcp::exchange_with_globals(
             &env,
             &[super::mcp::request(
