@@ -22,7 +22,10 @@ pub(super) fn check(reply: &Value) -> Result<(), String> {
         .map_or(&[][..], Vec::as_slice);
     for entry in listed {
         let at = entry.get("at").and_then(Value::as_str).unwrap_or_default();
-        if !at.starts_with('/') || reply.pointer(at).is_none() {
+        // The research fetch tool's metadata is the reply without `result`, which it renders as
+        // text, so only there can a `/result` pointer go unchecked.
+        let moved = reply.get("result").is_none() && at.starts_with("/result/");
+        if !at.starts_with('/') || (!moved && reply.pointer(at).is_none()) {
             return Err(format!(
                 "status words: incomplete entry {at:?} points at nothing in the reply"
             ));
