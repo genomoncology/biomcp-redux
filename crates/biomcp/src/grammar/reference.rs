@@ -446,7 +446,10 @@ fn every_value_option_given_no_value_says_so() -> Result<(), String> {
                         usage: Some(biomcp_types::UsageError::Arguments(refusal)),
                         ..
                     }) => {
-                        refusal.argument.as_deref() == Some(identity.as_str())
+                        // An empty inline value of an alias, such as --query= for the text
+                        // positional, is refused on the field the alias fills.
+                        (refusal.argument.as_deref() == Some(identity.as_str())
+                            || flag.ends_with('=') && refusal.argument.is_some())
                             && refusal.message == Some(biomcp_types::ErrorMessage::ArgumentNoValue)
                             && !refusal.next.is_empty()
                     }
