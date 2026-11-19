@@ -27,9 +27,10 @@ const SECTIONS: [&str; 8] = [
 ];
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![super::transcript::trial("disease-mydisease/refusal-steps-run", || {
-        run().map_err(Into::into)
-    })]
+    vec![super::transcript::trial(
+        "disease-mydisease/refusal-steps-run",
+        || run().map_err(Into::into),
+    )]
 }
 
 fn run() -> Result<(), String> {
@@ -38,7 +39,10 @@ fn run() -> Result<(), String> {
     let globals = env.globals(Some(&replay), false);
     let mut failures = Vec::new();
     let mut followed = 0;
-    for id in IDS.iter().flat_map(|id| [(*id).to_owned(), id.to_lowercase()]) {
+    for id in IDS
+        .iter()
+        .flat_map(|id| [(*id).to_owned(), id.to_lowercase()])
+    {
         let reads = std::iter::once(None).chain(SECTIONS.iter().map(Some));
         for section in reads {
             let mut args = vec!["get".to_owned(), "disease".to_owned(), id.clone()];
@@ -93,7 +97,10 @@ fn cli(
     globals: &[String],
 ) -> Result<(Option<i32>, Value), String> {
     let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &launch::arguments(args, globals))
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &launch::arguments(args, globals),
+        )
         .output()
         .map_err(|e| e.to_string())?;
     let reply = serde_json::from_slice(&output.stdout).unwrap_or(Value::Null);

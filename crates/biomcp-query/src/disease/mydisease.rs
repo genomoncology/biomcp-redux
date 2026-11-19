@@ -190,7 +190,10 @@ fn notices(out: &mut Outcome, card: &biomcp_types::DiseaseCard, mapping: bool) {
             .map(ToString::to_string)
             .collect();
         messages.push(if replacement.is_empty() {
-            format!("MONDO marks {} obsolete and names no replacement.", card.returned_id)
+            format!(
+                "MONDO marks {} obsolete and names no replacement.",
+                card.returned_id
+            )
         } else {
             format!(
                 "MONDO marks {} obsolete and names {} as its replacement.",
@@ -199,13 +202,17 @@ fn notices(out: &mut Outcome, card: &biomcp_types::DiseaseCard, mapping: bool) {
             )
         });
     }
-    if let Some(source) = out.sources.iter_mut().find(|s| s.source == Source::MyDisease) {
-        source
-            .notices
-            .extend(messages.into_iter().map(|message| biomcp_types::SourceNotice::RequestGuidance {
+    if let Some(source) = out
+        .sources
+        .iter_mut()
+        .find(|s| s.source == Source::MyDisease)
+    {
+        source.notices.extend(messages.into_iter().map(|message| {
+            biomcp_types::SourceNotice::RequestGuidance {
                 data_date: None,
                 message: message.into(),
                 retry_after_seconds: None,
-            }));
+            }
+        }));
     }
 }

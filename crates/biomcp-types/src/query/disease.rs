@@ -257,14 +257,18 @@ fn orphadata_id(id: &str) -> bool {
             && local.bytes().all(|b| b.is_ascii_digit())
     })
 }
-/// A known disease namespace in its published letter case, since sources match prefixes exactly.
+/// A known disease namespace in its published letter case, with an uppercase local part, since sources
+/// match IDs exactly.
 fn canonical(id: &str) -> String {
     const PREFIXES: [&str; 7] = ["MONDO", "DOID", "NCIT", "OMIM", "ORPHA", "Orphanet", "HP"];
     match id.split_once(':') {
         Some((prefix, local)) => PREFIXES
             .iter()
             .find(|known| known.eq_ignore_ascii_case(prefix))
-            .map_or_else(|| id.to_owned(), |known| format!("{known}:{local}")),
+            .map_or_else(
+                || id.to_owned(),
+                |known| format!("{known}:{}", local.to_ascii_uppercase()),
+            ),
         None => id.to_owned(),
     }
 }

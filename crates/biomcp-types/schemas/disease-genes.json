@@ -587,7 +587,6 @@
         },
         "ontology": {
           "$ref": "#/$defs/Reply_DiseaseOntology",
-          "default": "mondo",
           "description": "One OLS ontology; default the ID's own, else mondo."
         },
         "period": {

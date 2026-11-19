@@ -61,10 +61,11 @@ pub(super) struct Component {
     #[serde(alias = "synonyms")]
     pub synonym: Option<Field<BTreeMap<String, OneOrMany<Field<NativeText>>>>>,
     pub xrefs: Option<Field<BTreeMap<String, OneOrMany<Field<String>>>>>,
-    pub parents: Option<Field<Box<[Field<Curie>]>>>,
+    // MyDisease writes a one-item list as a bare value.
+    pub parents: Option<Field<OneOrMany<Field<Curie>>>>,
     pub is_obsolete: Option<crate::raw::Field<bool>>,
-    pub consider: Option<Field<Box<[Field<Curie>]>>>,
-    pub replaced_by: Option<Field<Box<[Field<Curie>]>>>,
+    pub consider: Option<Field<OneOrMany<Field<Curie>>>>,
+    pub replaced_by: Option<Field<OneOrMany<Field<Curie>>>>,
 }
 impl Component {
     /// Whether this component's cross-reference field states the identifier, with or without its namespace.

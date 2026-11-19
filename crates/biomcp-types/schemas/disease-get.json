@@ -97,7 +97,6 @@
     },
     "ontology": {
       "$ref": "#/$defs/DiseaseOntology",
-      "default": "mondo",
       "description": "One OLS ontology; default the ID's own, else mondo; help get disease\nOne OLS ontology; default the ID's own, else mondo."
     },
     "period": {
