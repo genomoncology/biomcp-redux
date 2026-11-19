@@ -3385,7 +3385,7 @@ Options:
 
       --label-section <label_section>
           Exact openFDA SPL fields.
-          Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+          Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions. A section the label lacks, or a name openFDA does not use, lists the sections the label has.
           Only with --source openfda-label.
 
       --offline[=<offline>]
@@ -3453,7 +3453,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
-Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions. A section the label lacks, or a name openFDA does not use, lists the sections the label has.
 Only with --source openfda-label. Value form: string; example: --label-section indications_and_usage.
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.

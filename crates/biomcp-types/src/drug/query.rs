@@ -73,7 +73,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
     #[doc = "Exact openFDA SPL fields."]
-    /// Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+    /// Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions. A section the label lacks, or a name openFDA does not use, lists the sections the label has.
     /// Only with --source openfda-label.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]

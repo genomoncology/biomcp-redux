@@ -199,10 +199,10 @@ fn add(fields: &mut Map<String, Value>, schema: &Value, section: &str) -> Option
     Some(())
 }
 
-/// The one label heading a word names exactly or begins.
+/// The one label heading a word names exactly, by field or printed-label name, or begins.
 fn heading(word: &str) -> Option<&'static str> {
     let headings = biomcp_types::OPENFDA_LABEL_HEADINGS;
-    if let Some(exact) = headings.iter().find(|heading| **heading == word) {
+    if let Some(exact) = biomcp_types::openfda_label_field(word) {
         return Some(exact);
     }
     let prefix = format!("{word}_");

@@ -58,5 +58,25 @@ pub use name_match::DrugNameMatch;
 mod label_headings;
 pub use label_headings::OPENFDA_LABEL_HEADINGS;
 
+/// Section names the printed label uses where openFDA files the section under another field,
+/// as (printed name, openFDA field).
+const PRINTED_LABEL_HEADINGS: [(&str, &str); 1] =
+    [("warnings_and_precautions", "warnings_and_cautions")];
+
+/// The openFDA label field a section name reads: the field of that name, or the field the
+/// printed label's name for the section is filed under.
+pub fn openfda_label_field(name: &str) -> Option<&'static str> {
+    OPENFDA_LABEL_HEADINGS
+        .iter()
+        .find(|heading| **heading == name)
+        .or_else(|| {
+            PRINTED_LABEL_HEADINGS
+                .iter()
+                .find(|(printed, _)| *printed == name)
+                .map(|(_, field)| field)
+        })
+        .copied()
+}
+
 /// Default submission page size for a native Drugs@FDA application.
 pub const DEFAULT_DRUG_APPROVALS_LIMIT: u32 = 10;
