@@ -10,7 +10,7 @@
 use biomcp_fetch::{CacheError, Fetch, FetchConfig, Mode, ReplayCache, RequestError};
 use biomcp_query::{Ctx, Outcome};
 use biomcp_test_support::recordings as recording_support;
-use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, Source, Status};
+use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, Status};
 use std::{path::PathBuf, time::Duration};
 fn recordings(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -294,7 +294,9 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
             fit_deadline: biomcp_query::FIT_DEADLINE,
             ncbi_email: None,
         },
-        &Request::SearchArticle(query(None, 0)),
+        // The NCBI open-access lookup is a third NCBI request with its own spacing; this contract
+        // counts the search and title read only.
+        &Request::SearchArticle(query(None, 0).without_access_lookup()),
     );
     page(out);
 }
@@ -423,9 +425,7 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     let repeated = run(&offline, query(Some(id.as_str()), 0), false);
     assert_eq!(repeated.local, None);
     assert_eq!(repeated.status(), Status::Partial);
-    // The optional access lookup failure belongs to the live read only.
-    assert_eq!(first.sources[1].source, Source::EuropePmc);
-    assert_eq!(repeated.sources, first.sources[..1]);
+    assert_eq!(repeated.sources, first.sources);
     let ReplyData::ArticlePage {
         body: Some(body), ..
     } = repeated.body

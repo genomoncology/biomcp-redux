@@ -3752,7 +3752,7 @@
         },
         "id": {
           "$ref": "#/$defs/Text",
-          "description": "Exact ontology CURIE or a SEER site code or name.",
+          "description": "Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.",
           "x-positional": 0
         },
         "interval": {
@@ -3768,8 +3768,7 @@
         },
         "ontology": {
           "$ref": "#/$defs/DiseaseOntology",
-          "default": "mondo",
-          "description": "One OLS ontology."
+          "description": "One OLS ontology; default the ID's own, else mondo."
         },
         "period": {
           "anyOf": [
@@ -5803,6 +5802,10 @@
           "$ref": "#/$defs/Text",
           "description": "PubMed/Europe PMC journal words.\nPubMed and Europe PMC only: journal words sent to the source's journal field."
         },
+        "license_lookup": {
+          "description": "Read licences from Europe PMC.\nAlso ask Europe PMC for each row's licence and open-access flag; slow, often several seconds.",
+          "type": "boolean"
+        },
         "limit": {
           "default": 10,
           "description": "Maximum page length.",
@@ -5812,7 +5815,7 @@
           "type": "integer"
         },
         "no_access_lookup": {
-          "description": "Skip the access lookup.\nDo not ask Europe PMC for each row's open-access flag and license.",
+          "description": "Skip the open-access lookup.\nDo not ask NCBI which rows are in PubMed Central's open-access subset.",
           "type": "boolean"
         },
         "no_preprints": {

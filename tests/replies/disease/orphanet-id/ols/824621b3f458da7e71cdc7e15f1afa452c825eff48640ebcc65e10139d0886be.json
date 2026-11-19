@@ -1,0 +1,146 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms?obo_id=NCIT%3AC34807",
+  "exchanges": [
+    {
+      "fetched": 1795109677,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_embedded": {
+            "terms": [
+              {
+                "iri": "http://purl.obolibrary.org/obo/NCIT_C34807",
+                "lang": "en",
+                "description": [
+                  "A genetic syndrome inherited as an autosomal dominant trait. It is caused by mutations in the FBN1 gene. It is characterized by tall stature, elongated extremities, mitral valve prolapse, aortic dilatation, aortic dissection, and subluxation of the lens."
+                ],
+                "synonyms": [
+                  "Marfan Syndrome",
+                  "Marfan syndrome",
+                  "Marfan's Syndrome"
+                ],
+                "annotation": {
+                  "ALT_DEFINITION": [
+                    "A genetic syndrome inherited as an autosomal dominant trait. It is caused by mutations in the FBN1 gene. It is characterized by tall stature, elongated extremities, mitral valve prolapse, aortic dilatation, aortic dissection, and subluxation of the lens. Diagnosis is made based on the 2010 Revised Ghent Nosology for Marfan syndrome.",
+                    "An autosomal dominant condition caused by mutation(s) in the FBN1 gene, encoding fibrillin-1. This condition is characterized by tall stature, disproportionately long limbs, arachnodactyly, and hyperextensible joints; additional features may include scoliosis, kyphosis, pectus excavatum/carinatum, mitral valve prolapse, aortic dilatation, aortic dissection, and upward subluxation of one or both ocular lens."
+                  ],
+                  "Contributing_Source": [
+                    "ACC/AHA",
+                    "Cellosaurus",
+                    "NICHD"
+                  ],
+                  "Legacy Concept Name": [
+                    "Marfan_s_Syndrome"
+                  ],
+                  "Preferred_Name": [
+                    "Marfan Syndrome"
+                  ],
+                  "Related_To_Genetic_Biomarker": [
+                    "http://purl.obolibrary.org/obo/NCIT_C75336"
+                  ],
+                  "Semantic_Type": [
+                    "Disease or Syndrome"
+                  ],
+                  "UMLS_CUI": [
+                    "C0024796"
+                  ],
+                  "code": [
+                    "C34807"
+                  ]
+                },
+                "label": "Marfan Syndrome",
+                "ontology_name": "ncit",
+                "ontology_prefix": "NCIT",
+                "ontology_iri": "http://purl.obolibrary.org/obo/ncit.owl",
+                "is_obsolete": false,
+                "term_replaced_by": null,
+                "is_defining_ontology": true,
+                "has_children": false,
+                "is_root": false,
+                "short_form": "NCIT_C34807",
+                "obo_id": "NCIT:C34807",
+                "in_subset": [
+                  "NCIT_C118467",
+                  "NCIT_C118468",
+                  "NCIT_C165258",
+                  "NCIT_C167409",
+                  "NCIT_C90259",
+                  "NCIT_C99147"
+                ],
+                "obo_definition_citation": null,
+                "obo_xref": null,
+                "obo_synonym": [
+                  {
+                    "name": "Marfan Syndrome",
+                    "scope": "hasExactSynonym",
+                    "type": null,
+                    "xrefs": []
+                  },
+                  {
+                    "name": "Marfan syndrome",
+                    "scope": "hasExactSynonym",
+                    "type": null,
+                    "xrefs": []
+                  },
+                  {
+                    "name": "Marfan's Syndrome",
+                    "scope": "hasExactSynonym",
+                    "type": null,
+                    "xrefs": []
+                  }
+                ],
+                "is_preferred_root": false,
+                "_links": {
+                  "self": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807?lang=en"
+                  },
+                  "parents": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807/parents"
+                  },
+                  "ancestors": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807/ancestors"
+                  },
+                  "hierarchicalParents": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807/hierarchicalParents"
+                  },
+                  "hierarchicalAncestors": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807/hierarchicalAncestors"
+                  },
+                  "jstree": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807/jstree"
+                  },
+                  "graph": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807/graph"
+                  },
+                  "Disease_Has_Molecular_Abnormality": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_R106"
+                  },
+                  "Disease_Mapped_To_Gene": {
+                    "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_C34807/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FNCIT_R176"
+                  }
+                }
+              }
+            ]
+          },
+          "_links": {
+            "self": {
+              "href": "http://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms?obo_id=NCIT%3AC34807"
+            }
+          },
+          "page": {
+            "size": 1,
+            "totalElements": 1,
+            "totalPages": 1,
+            "number": 0
+          }
+        }
+      }
+    }
+  ]
+}

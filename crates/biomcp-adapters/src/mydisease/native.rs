@@ -115,7 +115,7 @@ pub(super) fn component(name: &'static str, raw: super::raw::Component) -> Compo
     }
 }
 fn ids(
-    values: Option<crate::raw::Field<Box<[crate::raw::Field<Curie>]>>>,
+    values: Option<crate::raw::Field<crate::raw::OneOrMany<crate::raw::Field<Curie>>>>,
     field: &str,
     problems: &mut crate::mapped::Problems,
 ) -> Option<Box<[Curie]>> {
@@ -123,7 +123,7 @@ fn ids(
         .and_then(|values| problems.required(field, values.value()))
         .map(|values| {
             values
-                .into_vec()
+                .values()
                 .into_iter()
                 .filter_map(|v| problems.optional(field, Some(v.value().ok_or(()))))
                 .collect()

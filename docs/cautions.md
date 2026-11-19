@@ -8,6 +8,10 @@ Keep cache and store folders on a local disk, or a local Docker named volume. Sh
 
 CLI saves require `--replace` for existing files. Stdio MCP allows new-file saves and refuses `--save` with `--replace` before provider requests or file changes. HTTP server calls refuse saves. CLI and stdio MCP saves belong to the caller and create no download directory or saved-file registry.
 
+## Article open-access flags
+
+A `search article` row's `open_access` comes from the source named in `open_access_source`. By default it is `pubmed`: BioMCP sends one NCBI request per page with the filter that, in [PubMed Central's words](https://pmc.ncbi.nlm.nih.gov/tools/openftlist/), finds "all Open Access Subset articles" in PubMed, and the subset "includes journal articles and preprints that are made available under Creative Commons or similar licenses that allow more liberal redistribution and reuse than a traditionally copyrighted work." With `--license-lookup`, or on a row Europe PMC itself returned, it is `europepmc`: Europe PMC's own `isOpenAccess` flag, which follows Europe PMC's definition, not PubMed Central's. On 440 papers from 44 searches on 2026-11-19, the two disagreed on 92: NCBI listed 90 as open access that Europe PMC did not, mostly recent deposits Europe PMC had not yet indexed, and Europe PMC flagged 2 that NCBI did not. BioMCP does not decide which is right. Only the Europe PMC lookup reads licences, so a row without one says `license_not_checked`; "not checked" never means "no licence". License terms vary: read the article's own license statement before reuse.
+
 ## Trial documents
 
 The reply preserves the source URL, document metadata and license without granting reuse rights. Documents are downloaded as bounded PDF bytes and never read as text.
@@ -33,6 +37,10 @@ The `value.unknown` membership and method problems identify facts the structured
 ## Disease cross-reference links
 
 `get disease MONDO:0016512 xrefs --source ols --section-limit 50` shows publisher-supplied HTTP(S) links in `target_url`. The row's `attribution` identifies the MONDO record that states the cross-reference. BioMCP copies the target without opening it. The NORD link for `NORD:1318` leads to the Kabuki syndrome page, which lists All Things Kabuki. The old GARD query link on the same record does not establish a link to GARD's Kabuki syndrome page. [OLS MONDO record](https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?obo_id=MONDO:0016512) · [NORD Kabuki syndrome page](https://rarediseases.org/rare-diseases/kabuki-syndrome/)
+
+## Disease IDs read through MONDO
+
+`get disease ORPHA:115` and `get disease OMIM:121050` read the MONDO record whose cross-references state that code, and `alias` names the cross-reference row used. Gene and phenotype sections read Monarch for that MONDO record, and a MyDisease notice names the mapping. The mapping is MONDO's cross-reference, not Orphanet's own mapping relation, so the MONDO record may be broader than the code asked for, such as a group for a subtype code. A MONDO record that MONDO marks obsolete is still returned, with a notice naming any replacement MONDO gives.
 
 ## Orphanet prevalence
 
@@ -262,7 +270,7 @@ Search rows carry the same classification. One exact enforcement request per pag
 
 The MAUDE next step selects the recall's product code across manufacturers. Recall records and adverse-event reports remain separate source facts. Neither establishes product-specific harm or clinical suitability.
 
-openFDA label search first tries exact brand and generic fields, then word matches, then indication wording, then other label text. The first field query with native results supplies every page and its total. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand or generic value, falling back to the native SPL set ID when neither is available. Product-data paragraphs remain in the original label sections.
+openFDA label search first tries exact brand and generic fields, then word matches, then indication wording, then other label text. The first field query with native results supplies every page and its total. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand or generic value. A label without either, which openFDA leaves for some labels, takes the leading words of its own product data only where a display panel text prints them whole, ended by an opening parenthesis with at most one ® or ™ directly before it, or as the whole of that text. The indications section is never read, because it names the drug family, such as ZYPREXA for ZYPREXA Zydis. A plain-text (R) or (TM) reads as ® or ™, not as an opening parenthesis. Known limits: a name can drop a salt the panel prints after the parenthesis, such as Terbinafine for Terbinafine Hydrochloride from "terbinafine (equivalent to ...", and can drop a trailing bracketed word, such as Kogenate FS Antihemophilic Factor without (Recombinant). Otherwise, as for a brand printed alone before more product words, the row has no `name`, never its set ID or a cut-short name, and a search page notice lists those rows and how to read them. Product-data paragraphs remain in the original label sections.
 
 `search drug --indication "pancreatic cancer" --source openfda-label` searches only the label's native `indications_and_usage` field. It preserves the phrase without disease synonym expansion or clinical inference. An optional name query further narrows that same search. Results remain SPL label identities in source order, with the source total; follow `get drug` and the label section to read the original wording. Drugs@FDA does not support this filter.
 

@@ -112,19 +112,19 @@ pub struct DiseaseGet {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "GetFields"))]
 struct GetFields<I = Text> {
-    /// Exact ontology CURIE or a SEER site code or name.
+    /// Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: I,
     /// Default MyDisease; no automatic fallback.
     #[serde(default = "get_source")]
     source: DiseaseSource,
-    /// One OLS ontology.
+    /// One OLS ontology; default the ID's own, else mondo.
     #[serde(
         default,
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology", extend("default" = "mondo")))]
+    #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology"))]
     ontology: Option<DiseaseOntology>,
     /// One named section; absent means identity card only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -218,7 +218,9 @@ impl TryFrom<GetFields> for DiseaseGet {
             return Err(QueryInvalid::new(&["section", "interval"]));
         }
         if v.source == DiseaseSource::Ols {
-            v.ontology.get_or_insert_with(DiseaseOntology::default);
+            // An OLS read looks the ID up in one ontology, so default to the one the ID names.
+            v.ontology
+                .get_or_insert_with(|| DiseaseOntology::of(id.as_str()).unwrap_or_default());
         }
         v.section_limit.get_or_insert(match (v.source, v.section) {
             (DiseaseSource::Monarch, Some(DiseaseSection::Genes)) => 2,
@@ -255,6 +257,21 @@ fn orphadata_id(id: &str) -> bool {
             && local.bytes().all(|b| b.is_ascii_digit())
     })
 }
+/// A known disease namespace in its published letter case, with an uppercase local part, since sources
+/// match IDs exactly.
+fn canonical(id: &str) -> String {
+    const PREFIXES: [&str; 7] = ["MONDO", "DOID", "NCIT", "OMIM", "ORPHA", "Orphanet", "HP"];
+    match id.split_once(':') {
+        Some((prefix, local)) => PREFIXES
+            .iter()
+            .find(|known| known.eq_ignore_ascii_case(prefix))
+            .map_or_else(
+                || id.to_owned(),
+                |known| format!("{known}:{}", local.to_ascii_uppercase()),
+            ),
+        None => id.to_owned(),
+    }
+}
 /// Bind the record to a SEER site or an ontology concept, naming the real fault.
 fn get_id(v: &GetFields<Text>, statistic: bool) -> Result<DiseaseId, QueryInvalid> {
     Ok(if v.source == DiseaseSource::Seer {
@@ -273,7 +290,7 @@ fn get_id(v: &GetFields<Text>, statistic: bool) -> Result<DiseaseId, QueryInvali
                 .with_message(crate::ErrorMessage::DiseaseStatistic));
         }
         DiseaseId::Concept(
-            v.id.as_str()
+            canonical(v.id.as_str())
                 .parse()
                 .map_err(|_| QueryInvalid::new(&["source", "id", "section"]))?,
         )

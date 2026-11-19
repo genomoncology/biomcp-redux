@@ -58,7 +58,7 @@ pub fn associations(leg: &Leg<'_>, query: &DiseaseGet, id: &Curie) -> Result<Pag
     let args = [
         (
             if genes { "object" } else { "subject" },
-            Arg::Text(query.id().as_str()),
+            Arg::Text(id.as_str()),
         ),
         (
             if genes {

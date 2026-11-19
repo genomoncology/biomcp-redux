@@ -134,7 +134,7 @@ Flag fields override file fields for that source. Other fields and sources remai
 
 `drug_search_name_limit` sets the most names one trial or article search sends for a drug, as a positive whole number. Omit it to use the [built-in limit](../crates/biomcp-query/src/context.rs). A capped search keeps the typed name, the record's preferred name and the shortest other names, and its reply says how many it left out. ClinicalTrials.gov refuses a name of more than 12 words, so a trial search also leaves those out and counts them.
 
-`article_access_lookup` set to `false` stops `search article` pages from asking Europe PMC for each row's open-access flag and license; rows then say `open_access_unknown`. It defaults to `true`. `--no-access-lookup` skips the lookup for one search. The lookup runs beside the PubMed title read and waits at most 3 seconds; when it fails or runs out of time, the page names Europe PMC with that state and offers a fresh retry.
+`article_access_lookup` set to `false` stops `search article` pages from asking NCBI which rows are in PubMed Central's open-access subset; rows then say `open_access_not_checked`. It defaults to `true`. `--no-access-lookup` skips the lookup for one search. The lookup is one NCBI request per page, sent beside the PubMed title read under NCBI's request pacing, and waits at most 3 seconds. `--license-lookup` also asks Europe PMC for each row's licence and its own open-access flag, waiting at most 10 seconds; without it, rows say `license_not_checked`. When a lookup fails or runs out of time, the page names its source with that state and offers a fresh retry.
 
 ## MCP reply form
 

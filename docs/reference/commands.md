@@ -1727,19 +1727,19 @@ Options:
           PubMed/Europe PMC journal words.
           PubMed and Europe PMC only: journal words sent to the source's journal field.
 
-      --limit <limit>
-          Maximum page length.
-
-      --no-access-lookup[=<no_access_lookup>]
-          Skip the access lookup.
-          Do not ask Europe PMC for each row's open-access flag and license.
+      --license-lookup[=<license_lookup>]
+          Read licences from Europe PMC.
+          Also ask Europe PMC for each row's licence and open-access flag; slow, often several seconds.
 
           [default: false]
           [possible values: true, false]
 
-      --no-preprints[=<no_preprints>]
-          Exclude preprints.
-          PubMed and Europe PMC only: exclude preprints using the source's own filter.
+      --limit <limit>
+          Maximum page length.
+
+      --no-access-lookup[=<no_access_lookup>]
+          Skip the open-access lookup.
+          Do not ask NCBI which rows are in PubMed Central's open-access subset.
 
           [default: false]
           [possible values: true, false]
@@ -1752,6 +1752,13 @@ Options:
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+      --no-preprints[=<no_preprints>]
+          Exclude preprints.
+          PubMed and Europe PMC only: exclude preprints using the source's own filter.
 
           [default: false]
           [possible values: true, false]
@@ -1834,9 +1841,11 @@ Available for command sources except LitVar. Value form: string; example: --drug
 Gene input; PubMed resolves it through HGNC. Value form: string; example: --gene NF2.
 - `--journal`: PubMed/Europe PMC journal words.
 PubMed and Europe PMC only: journal words sent to the source's journal field. Value form: string; example: --journal 'journal words'.
+- `--license-lookup`: Read licences from Europe PMC.
+Also ask Europe PMC for each row's licence and open-access flag; slow, often several seconds. Value form: boolean; example: --license-lookup.
 - `--limit`: Maximum page length. Value form: integer; example: --limit 5.
-- `--no-access-lookup`: Skip the access lookup.
-Do not ask Europe PMC for each row's open-access flag and license. Value form: boolean; example: --no-access-lookup.
+- `--no-access-lookup`: Skip the open-access lookup.
+Do not ask NCBI which rows are in PubMed Central's open-access subset. Value form: boolean; example: --no-access-lookup.
 - `--no-preprints`: Exclude preprints.
 PubMed and Europe PMC only: exclude preprints using the source's own filter. Value form: boolean; example: --no-preprints.
 - `--offset`: Number of pool items to skip. Value form: integer; example: --offset 5.
@@ -3211,7 +3220,7 @@ Usage: biomcp get disease [OPTIONS] <id> [section]
 
 Arguments:
   <id>
-          Exact ontology CURIE or a SEER site code or name.
+          Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
 
   [section]
           One named section; absent means identity card only; help get disease
@@ -3236,8 +3245,8 @@ Options:
           Survival-only interval code.
 
       --ontology <ontology>
-          One OLS ontology; help get disease
-          One OLS ontology.
+          One OLS ontology; default the ID's own, else mondo; help get disease
+          One OLS ontology; default the ID's own, else mondo.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3284,10 +3293,10 @@ Options apply to every listed source unless their description restricts them.
 
 - `--age-range`: Source age-range code. Value form: string; example: --age-range 1.
 - `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string; example: --dataset 4.
-- `id`: Exact ontology CURIE or a SEER site code or name.
+- `id`: Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
 Form: get disease ID SECTION; not --id.
 - `--interval`: Survival-only interval code. Value form: string; example: --interval 5.
-- `--ontology`: One OLS ontology. Value form: string; example: --ontology mondo.
+- `--ontology`: One OLS ontology; default the ID's own, else mondo. Value form: string; example: --ontology mondo.
 - `--period`: Incidence-only source period code. Value form: string; example: --period 5.
 - `--race`: Source race code. Value form: string; example: --race 1.
 - `section`: One named section; absent means identity card only… (full rule with the sections).

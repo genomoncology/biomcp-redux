@@ -85,8 +85,8 @@ pub(super) fn read<'a>(
         .filter_map(|r| r.item.pmid)
         .collect();
     // Titles and the access lookup need only the page's PMIDs, so they run together (1046).
-    let lookup = super::access::wanted(cx, query, &rows);
-    let reads = super::access::read(cx, store.deadline(), &missing, &lookup);
+    let wanted = super::access::wanted(cx, query, &rows);
+    let reads = super::access::read(cx, store.deadline(), &missing, &wanted);
     store.set_deadline(consume(store.deadline(), reads.elapsed, Duration::ZERO));
     if let Some((result, report)) = reads.summaries {
         match result {
@@ -127,13 +127,12 @@ pub(super) fn read<'a>(
             }
         }
     }
-    let failed_lookup = match reads.access {
-        Some((result, report)) => super::access::apply(store, id, &mut rows, result, report, out)?,
-        None => None,
-    };
+    let (failed_lookups, answered) =
+        super::access::settle(store, id, &mut rows, (reads.open, reads.access), out)?;
     filter_stored_text(cx, store, id, &mut rows, out)?;
+    super::access::mark_licenses(query, &mut rows, &answered);
     finish(query, pool, rows, out);
-    if let Some(source) = failed_lookup {
+    for source in failed_lookups {
         super::access::failed(source, out);
         if !out.next.iter().any(|step| step.0 == StepKind::Fresh) {
             query.retry(Some(pool.info.id.clone()), out);
@@ -264,7 +263,8 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     let items = rows
         .into_iter()
         .map(|mut r| {
-            r.item.open_access_unknown = search && r.item.open_access.is_none();
+            r.item.open_access_not_checked = search && r.item.open_access.is_none();
+            r.item.license_not_checked &= search;
             r.item
         })
         .collect();
