@@ -112,9 +112,9 @@ pub use response::{
 };
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{
-    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, ResponseBody,
-    Section, SourceOutcome, SourceRecord, SourceState, SourceStatus, SourceStatusView, Status,
-    Step, StepKind,
+    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, Incomplete, ItemStatus, PageInfo,
+    ResponseBody, Section, SourceOutcome, SourceRecord, SourceState, SourceStatus,
+    SourceStatusView, Status, Step, StepKind,
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{

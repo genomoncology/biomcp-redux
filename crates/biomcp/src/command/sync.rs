@@ -101,6 +101,7 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
         .iter()
         .map(|step| crate::spell::step(step.0, &step.1))
         .collect::<Result<Vec<_>, _>>()?;
+    crate::incomplete::settle(&mut envelope, Vec::new());
     encoding.encode(
         envelope,
         if local {

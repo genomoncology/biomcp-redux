@@ -64,7 +64,7 @@ pub use gene::{GeneCards, GeneItem, GenePage};
 pub use page::{PageInfo, PoolInfo};
 pub use section::{Section, SourceRecord};
 pub use source::{CacheProblem, SourceNotice, SourceOutcome, SourceState};
-pub use status::{ItemStatus, Status};
+pub use status::{Incomplete, ItemStatus, Status};
 pub use step::{Step, StepKind};
 
 pub use gene::{SyncQuery, SyncResult};
