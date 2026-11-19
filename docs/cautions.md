@@ -103,13 +103,13 @@ A FAERS card, drug row or reaction row keeps every source code and puts the word
 
 ## Local bundles
 
-HGNC and ClinGen reads can synchronize absent or stale bundles under `auto_sync_max_bytes`. Offline mode never synchronizes. EMA, GTR, WHO and cBioPortal studies read explicitly synchronized stored bundles and never synchronize on read. Missing stored bundles offer an explicit sync command; stale stored rows remain readable with a stale marker. A hosted server answers from its stored copy past the refresh date without the stale marker, and the reply states the date that copy was retrieved.
+HGNC and ClinGen reads can synchronize absent or stale bundles under `auto_sync_max_bytes`. Other stored sources, such as EMA, WHO, FDA companion diagnostics, Orphadata and cBioPortal studies, fetch a missing bundle on a live first read under the same limit and never refresh a stored one on read. Offline mode and replay never download. A missing bundle over the limit, such as GTR, offers an explicit sync command; stale stored rows remain readable with a stale marker. A hosted server answers from its stored copy past the refresh date without the stale marker, and the reply states the date that copy was retrieved.
 
 EMA's medicines file holds some `?` characters where a symbol such as `≥` was lost before publication, as in `?10 g/dl`. They cannot be told from a real question mark, so EMA indications show them as published.
 
 ## GTR search
 
-Diagnostic reads use the stored pair and never synchronize it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
+Diagnostic reads use the stored pair and never refresh it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
 
 Each resolved row carries `gene_count`, the distinct symbols in the test's native genes cell (1 for a single-gene test, hundreds for an exome-scale one), its native `method_categories`, and the laboratory's state, postcode and country. `url` is the test's GTR page. Search rows do not carry the laboratory's street, city, directors or order link; the test's card does. A page holds at most 50 rows, so a gene with a few hundred tests takes a few pages: `page.total` gives the count and the reply offers the next page.
 
@@ -165,7 +165,7 @@ Both selectors match literal whole words in their native columns, ignore case an
 
 ## Study metadata
 
-Text matches literally and case-insensitively in native study IDs, names and descriptions; cancer-type codes remain case-sensitive. Reads never synchronize. Missing or stale copies offer an explicit sync command. Returned page commands retain the catalog revision and every selector. cBioPortal uses ODbL with original-study attribution unless otherwise noted; individual studies may restrict commercial use. The catalog contains metadata only. File references preserve repository blob size and native LICENSE links without downloading data files. Source counts keep their native names. No frequency, denominator, survival or comparison is calculated. Gene-count rows and patient totals remain deferred because the source lacks a gene-row filter.
+Text matches literally and case-insensitively in native study IDs, names and descriptions; cancer-type codes remain case-sensitive. A live first read fetches a missing catalog; reads never refresh a stored one, and stale copies offer an explicit sync command. Returned page commands retain the catalog revision and every selector. cBioPortal uses ODbL with original-study attribution unless otherwise noted; individual studies may restrict commercial use. The catalog contains metadata only. File references preserve repository blob size and native LICENSE links without downloading data files. Source counts keep their native names. No frequency, denominator, survival or comparison is calculated. Gene-count rows and patient totals remain deferred because the source lacks a gene-row filter.
 
 ## Phenotype sections
 

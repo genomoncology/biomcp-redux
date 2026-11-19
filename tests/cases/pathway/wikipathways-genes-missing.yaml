@@ -1,7 +1,7 @@
 {
   "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "pathway-wikipathways-genes",
-  "story": "A WikiPathways genes request accepts the exact WP identifier and requests its missing metadata catalog without calling a provider.",
+  "story": "Offline, a WikiPathways genes request accepts the exact WP identifier and requests its missing metadata catalog without calling a provider.",
   "steps": [
     {
       "run": [
@@ -10,6 +10,7 @@
         "WP382",
         "genes"
       ],
+      "offline": true,
       "exit": 4,
       "expect": {
         "/sources/0/source": "wikipathways",

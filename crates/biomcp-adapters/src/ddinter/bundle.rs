@@ -53,7 +53,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, Re
         .sync_set(&PAIRS)
         .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
-/// Discover literal native candidates from stored rows; never synchronize on a read.
+/// Discover literal native candidates from stored rows; a read never refreshes them.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
     let (rows, _) = leg.stored_set_rows(&PAIRS, Find::Words(query))?;
     Ok(super::candidates(rows, query))

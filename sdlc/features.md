@@ -66,7 +66,7 @@ drug-markets: One drug name gives one row per market, Drugs@FDA, EMA and WHO pre
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access. Explicit OLS disease cross-references keep a publisher-supplied HTTP(S) link in `target_url` when available.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
 disease-seer: Find native SEER sites by name or code, report all required selectors together, and page labeled incidence or annual survival within the source deadline.
-disease-orphadata: A caller reads Orphanet prevalence estimates, age of onset and inheritance for an Orphanet code, or for a MONDO or DOID concept through its stated Orphanet links, from a synchronized local copy of Orphadata's files; a concept without an Orphanet link says so.
+disease-orphadata: A caller reads Orphanet prevalence estimates, age of onset and inheritance for an Orphanet code, or for a MONDO or DOID concept through its stated Orphanet links, from a local copy of Orphadata's files that a first live read fetches itself; a concept without an Orphanet link says so.
 drug-who-eml: One drug name gives its WHO Model List of Essential Medicines listings read live from the WHO eEML, one per indication with core or complementary list, section, date added, Committee decisions, therapeutic alternatives and the Committee's recommendation text; a drug listed only as an alternative shows the listed medicine's listings.
 drug-ddinter: Explicit synchronization replaces all eight native pair files atomically, and stored-only search and interaction pages retain native identity, level, order, provenance and content revision.
 disease-monarch: Read native gene and phenotype association rows with their endpoints, evidence, provenance and component terms, without causal inference.
@@ -80,7 +80,7 @@ adverse-event-search: Search a FAERS drug name together with its bounded source-
 cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference.
 maude-reports: Search native device phrases, manufacturer phrases, exact product codes, product problem phrases and event types and read exact native cards, device rows and complete narratives with source terms and independent count units.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference.
-diagnostic-cdx: Explicitly synchronize both FDA companion tables and search whole physical association rows using their own checked identifiers.
+diagnostic-cdx: Search whole physical association rows of both FDA companion tables using their own checked identifiers; a first live search fetches a missing list itself, and a list over `auto_sync_max_bytes` asks for `sync fda-cdx`.
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests.
 adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports.
 clinpgx-annotations: Read independent bounded ClinPGx annotation collections and exact base records without clinical inference.
