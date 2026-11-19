@@ -111,7 +111,7 @@ fn annual_window(value: &Value, refused: bool) -> Check {
         .and_then(Value::as_array)
         .is_some_and(|args| {
             args.windows(2)
-                .any(|pair| pair == [json!("--section-offset"), json!("1")])
+                .any(|pair| pair == [json!("--offset"), json!("1")])
         })
     {
         return Err("annual native window did not advance".into());
@@ -188,7 +188,7 @@ pub(super) fn study(directory: &Path, registry: &Registry) -> Check {
             .ok_or("study native continuation")?;
         if !continuation
             .windows(2)
-            .any(|pair| pair == [json!("--section-offset"), json!("1")])
+            .any(|pair| pair == [json!("--offset"), json!("1")])
         {
             return Err("study native offset changed".into());
         }
@@ -274,7 +274,7 @@ pub(super) fn chembl(directory: &Path, registry: &Registry) -> Check {
                             .and_then(Value::as_array)
                             .is_some_and(|args| {
                                 args.windows(2)
-                                    .any(|pair| pair == [json!("--section-offset"), json!("1")])
+                                    .any(|pair| pair == [json!("--offset"), json!("1")])
                             })
                 })
             })
