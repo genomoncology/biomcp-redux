@@ -1,6 +1,7 @@
 # 1056 — companion-list-biomarker-filter-misses-rows
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 80f9bc7a91bed5e18daeaecdc38d0001e78aab3b
 
 Milestone: 7
 
