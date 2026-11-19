@@ -69,7 +69,8 @@
           "EX-66"
         ]
       },
-      "exit": 4
+      "exit": 4,
+      "is_error": true
     }
   ],
   "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks."

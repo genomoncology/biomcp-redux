@@ -14,7 +14,7 @@ A `search article` row's `open_access` comes from the source named in `open_acce
 
 ## Partial replies and drug-name lookups
 
-A reply is `complete` only when every source in `sources` answered or was skipped on purpose. A failed, stale or syncing source makes it `partial`, and `incomplete`, right after `status`, lists each missing thing with its source, its reason and a pointer to the detail in the reply. This holds for lookups a command makes by itself: when `search article` or `search trial` widens a drug name through MyChem or ChEMBL and that lookup fails, the reply is `partial`, because names the search should have sent may be missing. `--exact-term` skips the lookup.
+A reply is `complete` only when every source in `sources` answered or was skipped on purpose. A failed, stale or syncing source makes it `partial`, and `incomplete`, right after `status`, lists each missing thing with its source, its reason (or, for a record BioMCP refused, the problem's own `code`) and a pointer to the detail in the reply. A source the caller disabled is not missing data: it leaves the reply `complete` and adds no entry. A get that finds nothing while a lookup that could have resolved the name failed says `failed`, not `absent`. When an article search's open-access or licence check fails, the search's own source row stays as the search left it and carries a notice naming the check, and the reply is `partial` with an entry at the first unchecked row. This holds for lookups a command makes by itself: when `search article` or `search trial` widens a drug name through MyChem or ChEMBL and that lookup fails, the reply is `partial`, because names the search should have sent may be missing. `--exact-term` skips the lookup.
 
 ## Trial documents
 
