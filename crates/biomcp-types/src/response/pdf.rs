@@ -19,6 +19,20 @@ pub struct PdfText {
     /// Verbatim extracted text in document order; omitted when unavailable or when a find returns passages.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
+    /// Why a partial read may miss text, for the reply's notice; not serialized.
+    #[serde(skip)]
+    #[cfg_attr(feature = "schema", schemars(skip))]
+    pub missing: Option<PdfMissing>,
+}
+/// Why a partial PDF read may miss text.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PdfMissing {
+    /// Text drawn in a font without a usable character map read as gibberish and was cut out.
+    Gibberish,
+    /// A part of a page could not be read and was skipped.
+    Skipped,
+    /// Both.
+    Both,
 }
 /// One verbatim passage that contains the found text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -207,6 +207,79 @@ fn a_form_drawn_without_end_and_a_huge_map_cannot_stall_the_reader() {
     );
 }
 
+/// A one-glyph-pair page in a composite font whose `/Encoding` entry is `encoding` and whose
+/// character map has one range over 16,777,216 codes mapped from "A".
+fn huge_map_pdf(encoding: impl FnOnce(&mut Document) -> Object) -> Vec<u8> {
+    let map = "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /Huge def\n\
+        1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n\
+        1 beginbfrange\n<00000000> <00FFFFFF> <0041>\nendbfrange\n\
+        endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n";
+    pdf(b"BT /F1 9 Tf 36 760 Td <00000001> Tj ET", |document| {
+        let encoding = encoding(document);
+        let descendant = document.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "CIDFontType2", "BaseFont" => "Huge",
+            "CIDSystemInfo" => dictionary! { "Registry" => Object::string_literal("Adobe"),
+                "Ordering" => Object::string_literal("Identity"), "Supplement" => 0 },
+        });
+        let map = document.add_object(Stream::new(Dictionary::new(), map.as_bytes().to_vec()));
+        let font = document.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type0", "BaseFont" => "Huge", "Encoding" => encoding,
+            "DescendantFonts" => vec![descendant.into()], "ToUnicode" => map,
+        });
+        dictionary! { "Font" => dictionary! { "F1" => font } }
+    })
+    .expect("synthetic PDF")
+}
+
+#[test]
+fn a_huge_map_is_never_read_however_the_encoding_is_named() {
+    // The second review's bypasses: an encoding that refers to /Identity-H, and an encoding
+    // dictionary based on it; lopdf reads the map in both, so it must be counted first.
+    let by_reference = huge_map_pdf(|document| {
+        document
+            .add_object(Object::Name(b"Identity-H".to_vec()))
+            .into()
+    });
+    let by_dictionary = huge_map_pdf(|_| dictionary! { "BaseEncoding" => "Identity-H" }.into());
+    let direct = huge_map_pdf(|_| Object::Name(b"Identity-H".to_vec()));
+    for bytes in [by_reference, by_dictionary, direct] {
+        let read = read(&bytes).expect("readable PDF");
+        assert!(
+            !read.text.contains("AB"),
+            "the 16,777,216-code map was not read: {:?}",
+            read.text
+        );
+    }
+}
+
+/// A one-page PDF whose resources carry `count` copies of the name `name`.
+fn names_pdf(name: &str, count: usize) -> Vec<u8> {
+    let names: Vec<Object> = (0..count)
+        .map(|_| Object::Name(name.as_bytes().to_vec()))
+        .collect();
+    pdf(b"BT ET", |_| dictionary! { "Names" => names }).expect("synthetic PDF")
+}
+
+#[test]
+fn documents_naming_too_many_load_time_streams_are_refused_before_loading() {
+    let objects = names_pdf("Obj#53tm", 1025);
+    assert_eq!(
+        read(&objects).expect("refused, not failed").state,
+        PdfTextState::TooLarge,
+        "escaped names count"
+    );
+    let xrefs = names_pdf("XRef", 33);
+    assert_eq!(
+        read(&xrefs).expect("refused, not failed").state,
+        PdfTextState::TooLarge
+    );
+    let fine = names_pdf("ObjStm", 10);
+    assert_eq!(
+        read(&fine).expect("readable PDF").state,
+        PdfTextState::NoText
+    );
+}
+
 #[test]
 fn a_form_that_cannot_be_read_is_skipped_and_the_page_keeps_its_text() {
     let words = SENTENCE.split(' ').collect::<Vec<_>>().join(") Tj ( ");

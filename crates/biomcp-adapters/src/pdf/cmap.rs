@@ -68,54 +68,48 @@ impl<'a> Cache<'a> {
         Ok(read)
     }
 
-    /// The encoding lopdf gives, unless the character map it would read is over a bound.
+    /// The encoding lopdf gives, unless the font's character map is over a bound. Any
+    /// `/ToUnicode` stream is counted before lopdf is called, whatever the font's encoding
+    /// says, so no reading rule of lopdf's can reach an uncounted map.
     fn encoding(
         &mut self,
         document: &'a Document,
         font: &'a Dictionary,
         limit: usize,
     ) -> lopdf::Result<Encoding<'a>> {
-        let named = match entry(font, b"Encoding") {
-            Some(Object::Name(name)) => Some(name.as_slice()),
-            Some(_) => Some(&b""[..]),
-            None => None,
-        };
-        let identity = named.is_some_and(|name| name.starts_with(b"Identity-"));
-        let map = font
+        if let Ok(map) = font
             .get_deref(b"ToUnicode", document)
-            .and_then(Object::as_stream);
-        // lopdf reads the map only for an Identity font or one without an encoding.
-        let (Ok(map), true) = (map, named.is_none() || identity) else {
-            return font.get_font_encoding_with_limit(document, limit);
-        };
-        let raw = map.get_plain_content_with_limit(limit.min(MAP_BYTES))?;
-        let codes = covered(&String::from_utf8_lossy(&raw));
-        self.bytes = self.bytes.saturating_add(raw.len());
-        self.codes = self.codes.saturating_add(codes);
-        if codes > MAP_CODES || self.codes > DOCUMENT_CODES || self.bytes > MAP_BYTES {
-            return Ok(Encoding::SimpleEncoding(b"WinAnsiEncoding"));
+            .and_then(Object::as_stream)
+        {
+            let raw = map.get_plain_content_with_limit(limit.min(MAP_BYTES))?;
+            let codes = covered(&String::from_utf8_lossy(&raw)).unwrap_or(u64::MAX);
+            self.bytes = self.bytes.saturating_add(raw.len());
+            self.codes = self.codes.saturating_add(codes);
+            if codes > MAP_CODES || self.codes > DOCUMENT_CODES || self.bytes > MAP_BYTES {
+                return Ok(Encoding::SimpleEncoding(b"WinAnsiEncoding"));
+            }
         }
         font.get_font_encoding_with_limit(document, limit)
     }
 }
 
 /// How many codes a map's sections cover: each bfchar entry once, each bfrange every code it
-/// spans. One pass.
-pub(super) fn covered(text: &str) -> u64 {
+/// spans; none when a section is not regular, so it is never read. One pass.
+pub(super) fn covered(text: &str) -> Option<u64> {
     let mut codes = 0u64;
     for (section, ranges) in [(CHARS, false), (RANGES, true)] {
         let mut rest = text;
         while let Some(at) = rest.find(section.0) {
             let body = &rest[at + section.0.len()..];
             let end = body.find(section.1).unwrap_or(body.len());
-            codes = codes.saturating_add(entries(&body[..end], ranges));
+            codes = codes.saturating_add(entries(&body[..end], ranges)?);
             rest = &body[end..];
         }
     }
-    codes
+    Some(codes)
 }
 
-fn entries(body: &str, ranges: bool) -> u64 {
+fn entries(body: &str, ranges: bool) -> Option<u64> {
     let mut values = Vec::new();
     let mut array = false;
     for token in body.split(['<', '>']).map(str::trim) {
@@ -128,16 +122,19 @@ fn entries(body: &str, ranges: bool) -> u64 {
             values.push(hex(token));
         }
     }
-    if !ranges {
-        return values.len() as u64 / 2;
+    let width = if ranges { 3 } else { 2 };
+    if !values.len().is_multiple_of(width) {
+        return None;
     }
-    values
-        .chunks(3)
-        .map(|entry| match entry {
-            [Some(low), Some(high), _] => high.saturating_sub(*low).saturating_add(1),
-            _ => 0,
-        })
-        .fold(0u64, u64::saturating_add)
+    let mut codes = 0u64;
+    for entry in values.chunks(width) {
+        codes = codes.saturating_add(match entry {
+            [Some(low), Some(high), _] => high.checked_sub(*low)?.saturating_add(1),
+            [Some(_), _] => 1,
+            _ => return None,
+        });
+    }
+    Some(codes)
 }
 
 /// A hexadecimal code, whitespace ignored; none when a character is not a hex digit.

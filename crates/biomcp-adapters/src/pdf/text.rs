@@ -1,6 +1,6 @@
 //! FDA-published PDF text; article downloads retain their existing behavior.
 use biomcp_fetch::{Leg, RequestError, SourceSpec};
-use biomcp_types::{PdfText, PdfTextState, Reason, Source, SourceNotice};
+use biomcp_types::{PdfMissing, PdfText, PdfTextState, Reason, Source, SourceNotice};
 /// Maximum pages admitted before extracting text.
 pub const MAX_PAGES: usize = 100;
 /// Maximum expanded stream or total extracted text size.
@@ -77,6 +77,7 @@ pub fn whole(
         offset: 0,
         total: 0,
         text: None,
+        missing: None,
     };
     // FDA's historical document links use HTTP; retain that published spelling in the reply.
     let https = url
@@ -97,10 +98,35 @@ pub fn whole(
         .map_err(|reason| error(spec.source, reason))?;
     result.pages = read.pages;
     result.state = read.state;
+    result.missing = read.missing;
     if !result.state.readable() {
         return Ok((result, String::new()));
     }
     let text = read.text;
     result.total = fragment_starts(&text).len() as u32;
     Ok((result, text))
+}
+
+/// The reply notice for a partial read: what was cut or skipped, so text may be missing.
+pub fn missing_notice(text: &PdfText) -> Option<SourceNotice> {
+    if text.state != PdfTextState::Partial {
+        return None;
+    }
+    let message = match text.missing {
+        Some(PdfMissing::Gibberish) => {
+            "Text this document draws in a font without a usable character map read as gibberish and was cut out, so some of its text is missing."
+        }
+        Some(PdfMissing::Skipped) => {
+            "A part of a page in this document could not be read and was skipped, so some of its text may be missing."
+        }
+        Some(PdfMissing::Both) => {
+            "Text in a font without a usable character map read as gibberish and was cut out, and a part of a page could not be read, so some of this document's text is missing."
+        }
+        None => "Some of this document's text could not be read, so text may be missing.",
+    };
+    Some(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: message.into(),
+        retry_after_seconds: None,
+    })
 }

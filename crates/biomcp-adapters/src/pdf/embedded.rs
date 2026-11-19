@@ -1,6 +1,6 @@
 //! Embedded text of PDF bytes already in hand, bounded by pages and expanded size.
 use super::page::{Halt, too_large};
-use biomcp_types::{PdfTextState, Reason};
+use biomcp_types::{PdfMissing, PdfTextState, Reason};
 
 /// The text read from one PDF; `text` is empty unless `state` is text, so gibberish is never
 /// returned as text.
@@ -12,6 +12,8 @@ pub struct Embedded {
     pub state: PdfTextState,
     /// The whole embedded text, pages in order.
     pub text: String,
+    /// Why a partial read may miss text.
+    pub missing: Option<PdfMissing>,
 }
 
 /// Read every page's embedded text from `bytes`, refusing more than `max_pages` pages or
@@ -26,6 +28,7 @@ pub fn embedded(
         pages: None,
         state: PdfTextState::NoText,
         text: String::new(),
+        missing: None,
     };
     if !bytes.starts_with(b"%PDF-") {
         return Err(Reason::NotPdf);
@@ -38,9 +41,13 @@ pub fn embedded(
         }
     };
     check()?;
+    if !super::scan::loadable(bytes) {
+        result.state = PdfTextState::TooLarge;
+        return Ok(result);
+    }
     let document = lopdf::Document::load_mem_with_options(
         bytes,
-        lopdf::LoadOptions::with_max_decompressed_size(limit),
+        lopdf::LoadOptions::with_max_decompressed_size(super::scan::LOAD_STREAM_BYTES),
     )
     .map_err(|issue| {
         if too_large(&issue) {
@@ -91,8 +98,9 @@ fn settle(
     mut result: Embedded,
     mut text: String,
     unsound: &[(usize, usize)],
-    mut skipped: bool,
+    skipped: bool,
 ) -> Embedded {
+    let mut cut = false;
     // Only text shown in a composite font without a character map is judged; text read
     // through a map or a declared one-byte encoding is not, since tables, part numbers and
     // other languages are not gibberish. Gibberish is cut out and the rest is partial, unless
@@ -109,10 +117,16 @@ fn settle(
             return result;
         }
         text = kept;
-        skipped = true;
+        cut = true;
     }
     if !text.trim().is_empty() {
-        result.state = if skipped {
+        result.missing = match (cut, skipped) {
+            (true, true) => Some(PdfMissing::Both),
+            (true, false) => Some(PdfMissing::Gibberish),
+            (false, true) => Some(PdfMissing::Skipped),
+            (false, false) => None,
+        };
+        result.state = if result.missing.is_some() {
             PdfTextState::Partial
         } else {
             PdfTextState::Text

@@ -60,7 +60,7 @@ pub(super) fn select(
     }
     let text = result?;
     let returned = u32::from(text.text.is_some());
-    status::item(out, true, false, !text.state.readable());
+    status::pdf_item(out, Source::Drugsfda, &text);
     out.page = Some(PageInfo {
         offset,
         returned,
