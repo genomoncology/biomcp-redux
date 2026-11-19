@@ -74,18 +74,15 @@ fn endpoint(component: &native::Component) -> DiseaseEndpoint {
     }
 }
 fn xref_id(value: &native::Reference) -> Option<Curie> {
-    xref_spelling(&value.field, &value.value).parse().ok()
-}
-/// A cross-reference value as a CURIE spelling, its namespace named by the field when the value omits it.
-pub(super) fn xref_spelling(field: &str, native: &str) -> String {
-    let prefix = field.to_ascii_uppercase();
+    let prefix = value.field.to_ascii_uppercase();
+    let native = value.value.as_str();
     if native
         .split_once(':')
         .is_some_and(|(p, _)| p.eq_ignore_ascii_case(&prefix))
     {
-        native.to_owned()
+        native.parse().ok()
     } else {
-        format!("{prefix}:{native}")
+        format!("{prefix}:{native}").parse().ok()
     }
 }
 pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, RequestError> {

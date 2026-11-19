@@ -67,7 +67,7 @@ pub(super) struct Component {
     pub replaced_by: Option<Field<Box<[Field<Curie>]>>>,
 }
 impl Component {
-    /// Whether this component's cross-reference field states the identifier, in either native spelling.
+    /// Whether this component's cross-reference field states the identifier, with or without its namespace.
     fn states(&self, field: &str, spelling: &str) -> bool {
         let Some(Field::Value(xrefs)) = &self.xrefs else {
             return false;
@@ -78,7 +78,8 @@ impl Component {
             None => return false,
         };
         values.iter().any(|value| {
-            matches!(value, Field::Value(v) if super::map::xref_spelling(field, v).eq_ignore_ascii_case(spelling))
+            matches!(value, Field::Value(v)
+                if v.eq_ignore_ascii_case(spelling) || format!("{field}:{v}").eq_ignore_ascii_case(spelling))
         })
     }
 }

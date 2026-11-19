@@ -118,7 +118,7 @@ struct GetFields<I = Text> {
     /// Default MyDisease; no automatic fallback.
     #[serde(default = "get_source")]
     source: DiseaseSource,
-    /// One OLS ontology; default the one the ID's prefix names, else MONDO.
+    /// One OLS ontology; default the ID's own, else mondo.
     #[serde(
         default,
         deserialize_with = "present",

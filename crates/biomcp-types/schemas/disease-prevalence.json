@@ -221,7 +221,7 @@
         },
         "id": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact ontology CURIE or a SEER site code or name.",
+          "description": "Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.",
           "x-positional": 0
         },
         "interval": {
@@ -238,7 +238,7 @@
         "ontology": {
           "$ref": "#/$defs/Reply_DiseaseOntology",
           "default": "mondo",
-          "description": "One OLS ontology."
+          "description": "One OLS ontology; default the ID's own, else mondo."
         },
         "period": {
           "anyOf": [
