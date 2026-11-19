@@ -240,6 +240,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Read trimmed real FDA PDFs drawn through form objects or misdecoding fonts, and judge the garbled-text check on short synthetic text.",
     ),
     (
+        "crates/biomcp-adapters/tests/pdf_structure.rs",
+        "Refuse PDFs written byte by byte whose tables overlap, list one object many times, hold more than the loader may build, or are damaged, before any source request.",
+    ),
+    (
         "crates/biomcp-adapters/tests/pmc_body.rs",
         "Reconstruct complete source rows and retain JATS reference IDs and links omitted from command JSON.",
     ),
