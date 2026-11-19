@@ -3211,7 +3211,7 @@ Usage: biomcp get disease [OPTIONS] <id> [section]
 
 Arguments:
   <id>
-          Exact ontology CURIE or a SEER site code or name.
+          Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
 
   [section]
           One named section; absent means identity card only; help get disease
@@ -3236,8 +3236,8 @@ Options:
           Survival-only interval code.
 
       --ontology <ontology>
-          One OLS ontology; help get disease
-          One OLS ontology.
+          One OLS ontology; default the ID's own, else mondo; help get disease
+          One OLS ontology; default the ID's own, else mondo.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3284,10 +3284,10 @@ Options apply to every listed source unless their description restricts them.
 
 - `--age-range`: Source age-range code. Value form: string; example: --age-range 1.
 - `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string; example: --dataset 4.
-- `id`: Exact ontology CURIE or a SEER site code or name.
+- `id`: Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
 Form: get disease ID SECTION; not --id.
 - `--interval`: Survival-only interval code. Value form: string; example: --interval 5.
-- `--ontology`: One OLS ontology. Value form: string; example: --ontology mondo.
+- `--ontology`: One OLS ontology; default the ID's own, else mondo. Value form: string; example: --ontology mondo.
 - `--period`: Incidence-only source period code. Value form: string; example: --period 5.
 - `--race`: Source race code. Value form: string; example: --race 1.
 - `section`: One named section; absent means identity card only… (full rule with the sections).

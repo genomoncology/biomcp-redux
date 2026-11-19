@@ -122,13 +122,17 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
     }
     let value = &mut mapped.value;
     if record.requested_id != record.returned_id {
+        // The alias is the MONDO cross-reference row that resolved the requested identifier.
+        let (field, spelling) =
+            super::xref(record.requested_id.as_str()).ok_or(InputError::Serialization)?;
+        let predicate = format!("mydisease:mondo.xrefs.{field}");
         value.card.alias = value
             .xrefs
             .iter()
             .find(|r| {
                 r.subject.id == record.returned_id
-                    && r.object.id == record.requested_id
-                    && r.predicate.to_string() == "mydisease:mondo.xrefs.doid"
+                    && r.object.id.as_str().eq_ignore_ascii_case(&spelling)
+                    && r.predicate.as_str() == predicate
             })
             .cloned();
         if value.card.alias.is_none() {
