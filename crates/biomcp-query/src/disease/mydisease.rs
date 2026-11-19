@@ -38,6 +38,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
         out.problems.extend(label_problems);
+        notices(&mut out, &mapped.value.card, false);
         apply(&mut out, query, mapped.value);
     }
     if error.is_some() || label_error.is_none() {
@@ -113,8 +114,14 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
                     run(Request::GetDisease(query.with_section(*section))),
                 ));
             }
-            let step =
-                super::orphadata::step(&record.card.requested_id, &record.xrefs, &mut out.problems);
+            // Orphadata reads an Orphanet code itself; any other ID goes through the MONDO record's links.
+            let card = &record.card;
+            let id = if biomcp_adapters::orphadata::orpha_code(&card.requested_id).is_some() {
+                &card.requested_id
+            } else {
+                &card.returned_id
+            };
+            let step = super::orphadata::step(id, &record.xrefs, &mut out.problems);
             out.next.extend(step);
             out.body = (record.card).with_query(query.clone());
         }
@@ -130,4 +137,85 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
         }
     }
     crate::status::item(out, true, false, false);
+}
+
+/// The MONDO record MyDisease reads for a cross-referenced ID, with the MyDisease source and its notices
+/// recorded on `out`. None when the read failed or reached no MONDO record.
+pub(crate) fn mondo(
+    cx: &Ctx<'_>,
+    query: &DiseaseGet,
+    id: &biodata::Curie,
+    deadline: biomcp_fetch::Deadline<'_>,
+    out: &mut Outcome,
+) -> Option<biodata::Curie> {
+    let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);
+    let reply = mydisease::annotation(&leg, id);
+    let error = reply.as_ref().err().copied();
+    out.sources
+        .push(status::source(Source::MyDisease, leg.finish(), error));
+    out.local = error.and_then(status::local);
+    let mapped = match reply {
+        Ok(mapped) => mapped,
+        Err(_) => {
+            super::page::record_problem(out, query, Source::MyDisease);
+            return None;
+        }
+    };
+    out.include_refusals(mapped.refusals);
+    out.problems.extend(mapped.problems);
+    let card = mapped.value.card;
+    notices(out, &card, true);
+    if !card.returned_id.as_str().starts_with("MONDO:") {
+        crate::status::item(out, false, false, false);
+        return None;
+    }
+    Some(card.returned_id)
+}
+/// Plain MyDisease notices: the cross-reference that named a record read for another reply, and a
+/// cross-referenced record that MONDO marks obsolete.
+fn notices(out: &mut Outcome, card: &biomcp_types::DiseaseCard, mapping: bool) {
+    let Some(alias) = &card.alias else {
+        return;
+    };
+    let mut messages = Vec::new();
+    if mapping {
+        messages.push(format!(
+            "{} was read as {}, the MONDO record whose cross-reference {} states {}; a MONDO \
+             cross-reference may be broader than the code asked for.",
+            card.requested_id, card.returned_id, alias.predicate, alias.object.id
+        ));
+    }
+    if card.obsolete == Some(true) {
+        let replacement: Vec<String> = card
+            .replaced_by
+            .iter()
+            .flatten()
+            .map(ToString::to_string)
+            .collect();
+        messages.push(if replacement.is_empty() {
+            format!(
+                "MONDO marks {} obsolete and names no replacement.",
+                card.returned_id
+            )
+        } else {
+            format!(
+                "MONDO marks {} obsolete and names {} as its replacement.",
+                card.returned_id,
+                replacement.join(", ")
+            )
+        });
+    }
+    if let Some(source) = out
+        .sources
+        .iter_mut()
+        .find(|s| s.source == Source::MyDisease)
+    {
+        source.notices.extend(messages.into_iter().map(|message| {
+            biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: message.into(),
+                retry_after_seconds: None,
+            }
+        }));
+    }
 }
