@@ -34,7 +34,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
-    /// Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first.
+    /// Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read.
     #[serde(
         default,
         deserialize_with = "present",
@@ -60,7 +60,11 @@ fn default_limit() -> u32 {
 crate::query::validation::checked_query!(TrialGet, Fields);
 impl TryFrom<Fields> for TrialGet {
     type Error = QueryInvalid;
-    fn try_from(v: Fields) -> Result<Self, Self::Error> {
+    fn try_from(mut v: Fields) -> Result<Self, Self::Error> {
+        // A point with no section can only ask for the sites' distances (1057).
+        if v.lat.is_some() && v.lon.is_some() && v.section.is_empty() {
+            v.section = Box::new([TrialSection::Locations]);
+        }
         if v.source == TrialSource::Ctgov
             && v.section
                 .iter()

@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 // The fixed migration-message schema expands one enum of wire literals.
-#![recursion_limit = "256"]
+#![recursion_limit = "512"]
 use biodata::{
     AccessionBase, Attribution, Build, Chromosome, Concept, Curie, Cytoband, Doi, EnsemblGeneId,
     Error, EuropePmcId, Expression, ExpressionSyntax, FiniteNumber, GeneSymbol, HgncId, HgvsText,

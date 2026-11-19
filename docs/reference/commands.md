@@ -3633,7 +3633,7 @@ Options:
           [possible values: json, md]
 
       --lat <lat>
-          Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first.
+          Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -3683,7 +3683,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
 Form: get trial INPUT...; not --input.
-- `--lat`: Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first. Value form: string; example: --lat 39.96.
+- `--lat`: Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read. Value form: string; example: --lat 39.96.
 - `--limit`: Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
 - `--lon`: Longitude degrees; used with --lat. Value form: string; example: --lon -83.00.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer; example: --offset 0.
