@@ -62,7 +62,21 @@
         "package_label_principal_display_panel",
         "indications_and_usage"
       ]
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=set_id%3A%2208efc731-104b-12a6-e063-6394a90aca55%22&limit=1&sort=effective_time%3Adesc",
+      "fetched": 1795112526,
+      "retained_fields": [
+        "id",
+        "set_id",
+        "version",
+        "effective_time",
+        "openfda",
+        "spl_product_data_elements",
+        "package_label_principal_display_panel",
+        "indications_and_usage"
+      ]
     }
   ],
-  "local_reply_contract": "31add535826a23417c95051ad1387b2ba698df48f872fd044a6450c15461a93d.json keeps the public PIK3CA indication page's native rows, trimmed to the retained fields. 77d11a643efe6e748f26a5a5779b6f22edc65a7afd4f8f7ce8b425648e4f6f6c.json is a synthetic control: one label named only in its indications section, which now gets no name, and one whose product name appears in no other field. The Lithium bromatum (001cc8c5-3b3b-456f-8b62-46da8202ea49) and Kroger Baby Sunscreen (01a50047-0d07-41c5-b35b-129aab5b4afd) set_id replies keep the public bodies trimmed to the retained fields; their harmonized-set NOT_FOUND replies are as recorded. The Vicks VapoRub ADVANCED PLUS (0036d6fc-eed6-ee87-e063-6294a90a8022) set_id reply is kept the same way."
+  "local_reply_contract": "31add535826a23417c95051ad1387b2ba698df48f872fd044a6450c15461a93d.json keeps the public PIK3CA indication page's native rows, trimmed to the retained fields. 77d11a643efe6e748f26a5a5779b6f22edc65a7afd4f8f7ce8b425648e4f6f6c.json is a synthetic control: one label named only in its indications section, which now gets no name, and one whose product name appears in no other field. The Lithium bromatum (001cc8c5-3b3b-456f-8b62-46da8202ea49) and Kroger Baby Sunscreen (01a50047-0d07-41c5-b35b-129aab5b4afd) set_id replies keep the public bodies trimmed to the retained fields; their harmonized-set NOT_FOUND replies are as recorded. The Vicks VapoRub ADVANCED PLUS (0036d6fc-eed6-ee87-e063-6294a90a8022) set_id reply is kept the same way. The HAWAIIAN TROPIC sunscreen (08efc731-104b-12a6-e063-6394a90aca55) set_id reply is kept the same way."
 }

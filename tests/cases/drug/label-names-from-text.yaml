@@ -1,6 +1,6 @@
 {
   "feature": "drug-label",
-  "live_check": "Public PIK3CA indication page and three public set_id replies trimmed to identity, product, display panel and indications fields, plus a synthetic control query; no live calls",
+  "live_check": "Public PIK3CA indication page and four public set_id replies trimmed to identity, product, display panel and indications fields, plus a synthetic control query; no live calls",
   "verified": "tests/replies/drug/label-names-from-text/provenance.json records the public page's URL and retained fields and declares the synthetic control.",
   "replay": "drug/label-names-from-text",
   "story": "A label search row whose label lacks openFDA's harmonized names shows the drug's name only where a display panel text prints the product data's leading words whole, ended by an opening parenthesis with at most one registered or trademark sign before it, or as the whole text; the indications section is never read. Otherwise, as for a brand printed alone, a store brand or a name stated only in the indications, the row has no name, never its set ID or a cut-short name, and the page names those rows and how to read them.",
@@ -104,6 +104,24 @@
       "expect": {
         "/status": "complete",
         "/result/header/id": "0036d6fc-eed6-ee87-e063-6294a90a8022",
+        "/result/header": {
+          "omits": [
+            "name"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "08efc731-104b-12a6-e063-6394a90aca55",
+        "--source",
+        "openfda-label"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/id": "08efc731-104b-12a6-e063-6394a90aca55",
         "/result/header": {
           "omits": [
             "name"

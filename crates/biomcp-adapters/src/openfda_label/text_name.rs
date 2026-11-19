@@ -100,6 +100,7 @@ fn find(printed: &[Vec<Token>], run: &[String]) -> (bool, bool) {
 /// Printed words in lower case without loose punctuation, with each mark and opening parenthesis
 /// its own token.
 fn tokens(text: &str) -> Vec<Token> {
+    let text = marks(text);
     let mut out = Vec::new();
     for piece in text.split_whitespace() {
         let mut word = String::new();
@@ -112,6 +113,28 @@ fn tokens(text: &str) -> Vec<Token> {
             }
         }
         push(&mut out, &mut word);
+    }
+    out
+}
+
+/// Plain-text marks in any letter case, `(R)` and `(TM)` as in `HAWAIIAN TROPIC(R)`, read as ®
+/// and ™, so their parenthesis never ends a name.
+fn marks(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(c) = rest.chars().next() {
+        let plain = [("(r)", '®'), ("(tm)", '™')]
+            .into_iter()
+            .find(|(spelled, _)| {
+                rest.get(..spelled.len())
+                    .is_some_and(|head| head.eq_ignore_ascii_case(spelled))
+            });
+        let (sign, width) = match plain {
+            Some((spelled, sign)) => (sign, spelled.len()),
+            None => (c, c.len_utf8()),
+        };
+        out.push(sign);
+        rest = rest.get(width..).unwrap_or_default();
     }
     out
 }
