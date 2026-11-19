@@ -21,12 +21,14 @@ pub(super) const ENTRIES: usize = 1 << 20;
 /// Most bytes a section dictionary may take.
 const DICTIONARY: usize = 64 << 10;
 
-/// The in-use entries of every section, as object number and byte offset, and the bytes their
-/// cross-reference streams expanded to.
+/// The in-use entries of every section, as object number and byte offset, the bytes their
+/// cross-reference streams expanded to, and the objects any section places in object streams.
 #[derive(Default)]
 pub(super) struct Table {
     pub(super) entries: Vec<(u64, usize)>,
     pub(super) expanded: usize,
+    /// Every object number any cross-reference stream lists as held in an object stream.
+    pub(super) compressed: BTreeSet<u64>,
 }
 
 /// A non-negative integer object.
@@ -240,6 +242,8 @@ fn stream_entries(dictionary: &Dictionary, content: &[u8], table: &mut Table) ->
                 table
                     .entries
                     .push((number, index(field(widths[0], widths[1]))?));
+            } else if kind == 2 {
+                table.compressed.insert(number);
             }
             if table.entries.len() > ENTRIES {
                 return Err(TooLarge);
