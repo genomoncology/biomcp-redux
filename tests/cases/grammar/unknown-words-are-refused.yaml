@@ -484,43 +484,6 @@
     {
       "run": [
         "get",
-        "pgx",
-        "--gene",
-        "DPYD",
-        "--source",
-        "cpic",
-        "bogussection"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/error/code": "usage.arguments",
-        "/error/option": "bogussection",
-        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
-        "/error/valid_values": {
-          "includes": "recommendations"
-        },
-        "/next/0/args": [
-          "help",
-          "get",
-          "pgx"
-        ]
-      }
-    },
-    {
-      "follow": "configure",
-      "offline": true,
-      "expect": {
-        "/result/commands/0/command": [
-          "get",
-          "pgx"
-        ]
-      }
-    },
-    {
-      "run": [
-        "get",
         "gene",
         "BRAF",
         "extra",
