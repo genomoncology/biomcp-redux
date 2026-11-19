@@ -191,13 +191,13 @@ fn a_label_page_whose_character_map_lopdf_refuses_reads_as_the_reference() {
 #[test]
 fn a_refused_map_with_many_sections_reads_and_one_over_the_bounds_does_not() {
     let many = glyph_pdf(refused_map(10_000, "<0100> <FFFF> <0100>")).expect("synthetic PDF");
-    let read = read(&many).expect("readable PDF");
+    let first = read(&many).expect("readable PDF");
     assert_eq!(
-        read.state,
+        first.state,
         PdfTextState::Text,
         "ten thousand sections still read"
     );
-    assert!(flat(&read.text).contains(SENTENCE), "{}", read.text);
+    assert!(flat(&first.text).contains(SENTENCE), "{}", first.text);
     let huge = glyph_pdf(refused_map(1, "<00000000> <FFFFFFFF> <0041>")).expect("synthetic PDF");
     let read = read(&huge).expect("readable PDF");
     assert_eq!(

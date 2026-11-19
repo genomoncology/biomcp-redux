@@ -199,7 +199,9 @@ fn rebuilt(text: &str) -> Option<String> {
         .filter_map(|(which, at)| at.map(|at| (which, at)))
         .min_by_key(|(_, at)| *at)
     {
-        let (open, close) = KEPT[which];
+        let Some((open, close)) = KEPT.get(which).copied() else {
+            break;
+        };
         let start = at + open.len();
         let Some(end) = next(start, close) else { break };
         let count = text[from..at]
