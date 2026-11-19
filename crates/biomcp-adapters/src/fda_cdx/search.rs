@@ -1,3 +1,4 @@
+use super::biomarker::names;
 use super::date::{key, row_date};
 use biodata::{CompanionDiagnosticRelation, PartialDate};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
@@ -295,15 +296,4 @@ fn matches(row: &CompanionDiagnosticRelation, query: &DiagnosticSearch) -> bool 
         && query
             .biomarker()
             .is_none_or(|q| biomarker.is_some_and(|cell| names(cell, q.as_str())))
-}
-/// Whether the cell names the asked biomarker whole, ignoring case and surrounding spaces, so
-/// PIK3CA matches "PIK3CA, AKT1, and PTEN" and "PIK3CA  " but not PIK3CA2 (1056).
-fn names(cell: &str, asked: &str) -> bool {
-    let (cell, asked) = (cell.to_uppercase(), asked.trim().to_uppercase());
-    let inside = |c: char| c.is_alphanumeric() || c == '-';
-    !asked.is_empty()
-        && cell.match_indices(asked.as_str()).any(|(at, _)| {
-            !cell[..at].chars().next_back().is_some_and(inside)
-                && !cell[at + asked.len()..].chars().next().is_some_and(inside)
-        })
 }
