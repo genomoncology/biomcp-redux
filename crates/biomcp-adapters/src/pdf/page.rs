@@ -4,7 +4,7 @@
 //! own content stream finds only the "Reference ID" footer: four Rinvoq labels did (1068).
 //! A form brings its own `/Resources` or uses those of the stream that paints it (PDF
 //! 32000-1 §8.10.1). Forms nest at most [`DEPTH`] deep, which also ends a form that paints
-//! itself; a page draws at most [`DRAWS`] forms; every content stream and character map counts
+//! itself; a page draws at most [`DRAWS`] forms; every content stream counts
 //! against one expanded-size limit; and the deadline is checked at each form draw and every
 //! [`CHECK_EVERY`] operations. A form that cannot be read is skipped and the page keeps the rest
 //! of its text, marked as possibly missing some.
@@ -238,12 +238,9 @@ impl<'a> Walk<'a, '_> {
         Ok(())
     }
 
-    /// A font from the document's cache, its character map charged against the limit.
+    /// A font from the document's cache.
     fn font(&mut self, font: &'a Dictionary) -> lopdf::Result<Rc<Font<'a>>> {
-        let before = self.cache.bytes;
-        let read = self.cache.font(self.document, font, self.left)?;
-        self.charge(self.cache.bytes.saturating_sub(before))?;
-        Ok(read)
+        self.cache.font(self.document, font, self.left)
     }
 
     fn fonts(&mut self, entries: &[(&'a [u8], &'a Object)]) -> lopdf::Result<Fonts<'a>> {

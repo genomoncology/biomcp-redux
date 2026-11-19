@@ -66,13 +66,44 @@ fn write_hostile() {
     .into_bytes();
     save(page_doc(vec![text; 100], 0), "text-100x4mib.pdf", false);
     save(
-        page_doc(vec![b"BT ET".to_vec()], 900_000),
-        "objstm-900k.pdf",
+        page_doc(vec![b"BT ET".to_vec()], 600_000),
+        "objstm-600k.pdf",
         true,
     );
     save(
-        page_doc(vec![b"BT ET".to_vec()], 2_000_000),
-        "objstm-2m.pdf",
-        true,
+        page_doc(vec![b"BT ET".to_vec()], 1_150_000),
+        "plain-1150k.pdf",
+        false,
     );
+    save(maps_doc(40), "maps-40x131k.pdf", false);
+}
+
+fn maps_doc(fonts: usize) -> Document {
+    let mut document = Document::with_version("1.7");
+    let pages = document.new_object_id();
+    let map = b"/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /M def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n1 beginbfrange\n<00000000> <0001FFFF> <0041>\nendbfrange\nendcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n".to_vec();
+    let mut entries = Dictionary::new();
+    let mut content = String::from("BT ");
+    for n in 0..fonts {
+        let descendant = document.add_object(dictionary! { "Type" => "Font", "Subtype" => "CIDFontType2", "BaseFont" => "M",
+            "CIDSystemInfo" => dictionary! { "Registry" => Object::string_literal("Adobe"), "Ordering" => Object::string_literal("Identity"), "Supplement" => 0 } });
+        let map = document.add_object(Stream::new(Dictionary::new(), map.clone()));
+        let font = document.add_object(dictionary! { "Type" => "Font", "Subtype" => "Type0", "BaseFont" => "M", "Encoding" => "Identity-H",
+            "DescendantFonts" => vec![descendant.into()], "ToUnicode" => map });
+        entries.set(format!("F{n}"), font);
+        content.push_str(&format!("/F{n} 9 Tf <00000001> Tj "));
+    }
+    content.push_str("ET");
+    let contents = document.add_object(Stream::new(Dictionary::new(), content.into_bytes()));
+    let page = document.add_object(dictionary! { "Type" => "Page", "Parent" => pages, "MediaBox" => vec![0.into(), 0.into(), 612.into(), 792.into()],
+        "Contents" => contents, "Resources" => dictionary! { "Font" => entries } });
+    document.objects.insert(
+        pages,
+        Object::Dictionary(
+            dictionary! { "Type" => "Pages", "Kids" => vec![page.into()], "Count" => 1 },
+        ),
+    );
+    let catalog = document.add_object(dictionary! { "Type" => "Catalog", "Pages" => pages });
+    document.trailer.set("Root", catalog);
+    document
 }

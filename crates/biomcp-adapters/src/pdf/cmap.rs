@@ -1,27 +1,92 @@
-//! Each font's decoding, read once per document, with bounded `/ToUnicode` maps.
+//! Each font's decoding, read once per document, and the bound on `/ToUnicode` maps.
 //!
 //! A page that draws a form many times would otherwise read the form's fonts at every draw.
 //! lopdf also builds a reverse table entry for every code a map covers, so one range over
-//! every four-byte code would take billions of steps. Before lopdf reads any map, this module
-//! counts the codes it covers; a map over [`MAP_CODES`], or past the document's
-//! [`DOCUMENT_CODES`] or [`MAP_BYTES`], is not read, and its font decodes as if it had none.
-//! A real FDA map covers at most 65,536 codes in about 6 KiB.
+//! every four-byte code would take billions of steps and gigabytes, inside lopdf where the
+//! time limit cannot stop it. Which maps lopdf reads depends on its own encoding rules, which
+//! two reviews got around (1068). So [`bound`] counts every `/ToUnicode` stream the loaded
+//! document names, whatever refers to it, before any page is read, and removes each map over
+//! [`MAP_CODES`] codes or not plainly written, and every map once the document's maps pass
+//! [`DOCUMENT_CODES`] codes or [`MAP_BYTES`] bytes. lopdf can then read only bounded maps. A
+//! font whose map was removed decodes as it would without one.
 //!
 //! A composite font decoded without a character map gives glyph IDs, not characters. Its text
 //! is unsound, and only unsound text is judged for gibberish (1068).
 use super::fonts::{Widths, widths};
-use lopdf::{Dictionary, Document, Encoding, Object};
-use std::{collections::BTreeMap, rc::Rc};
+use lopdf::{Dictionary, Document, Encoding, Object, ObjectId};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    rc::Rc,
+};
 
 /// Most codes one map may cover.
 pub(super) const MAP_CODES: u64 = 1 << 17;
 /// Most codes the maps of one document may cover together.
-pub(super) const DOCUMENT_CODES: u64 = 1 << 21;
-/// Most bytes of maps one document may read.
-pub(super) const MAP_BYTES: usize = 1 << 20;
+pub(super) const DOCUMENT_CODES: u64 = 1 << 22;
+/// Most bytes of maps one document may hold.
+pub(super) const MAP_BYTES: usize = 4 << 20;
+/// Deepest reference chain followed to a map.
+const CHAIN: usize = 8;
 /// The bfrange section, whose entries span codes.
 const RANGES: (&str, &str) = ("beginbfrange", "endbfrange");
 const CHARS: (&str, &str) = ("beginbfchar", "endbfchar");
+
+/// Remove every `/ToUnicode` map over the bounds from `document`; how many were removed.
+pub(super) fn bound(document: &mut Document) -> usize {
+    let mut maps = BTreeSet::new();
+    let mut pending: Vec<&Object> = document.objects.values().collect();
+    while let Some(object) = pending.pop() {
+        match object {
+            Object::Dictionary(dictionary) => named(dictionary, document, &mut maps, &mut pending),
+            Object::Stream(stream) => named(&stream.dict, document, &mut maps, &mut pending),
+            Object::Array(items) => pending.extend(items.iter()),
+            _ => {}
+        }
+    }
+    let (mut codes, mut bytes, mut removed) = (0u64, 0usize, 0usize);
+    for id in maps {
+        let Some(Object::Stream(stream)) = document.objects.get(&id) else {
+            continue;
+        };
+        let size = stream
+            .get_plain_content_with_limit(MAP_BYTES)
+            .map(|raw| (raw.len(), covered(&String::from_utf8_lossy(&raw))));
+        let kept = size.is_ok_and(|(length, count)| {
+            let count = count.unwrap_or(u64::MAX);
+            codes = codes.saturating_add(count);
+            bytes = bytes.saturating_add(length);
+            count <= MAP_CODES && codes <= DOCUMENT_CODES && bytes <= MAP_BYTES
+        });
+        if !kept {
+            document.objects.insert(id, Object::Null);
+            removed += 1;
+        }
+    }
+    removed
+}
+
+/// Note the stream `dictionary`'s `/ToUnicode` names, and queue its values to search.
+fn named<'d>(
+    dictionary: &'d Dictionary,
+    document: &Document,
+    maps: &mut BTreeSet<ObjectId>,
+    pending: &mut Vec<&'d Object>,
+) {
+    for (key, value) in dictionary.iter() {
+        if key.as_slice() == b"ToUnicode" {
+            let mut target = value;
+            for _ in 0..CHAIN {
+                let Object::Reference(id) = target else { break };
+                maps.insert(*id);
+                match document.objects.get(id) {
+                    Some(next) => target = next,
+                    None => break,
+                }
+            }
+        }
+        pending.push(value);
+    }
+}
 
 /// A font's decoding, glyph widths, and whether its decoding gives characters.
 pub(super) struct Font<'a> {
@@ -35,9 +100,6 @@ pub(super) struct Font<'a> {
 #[derive(Default)]
 pub(super) struct Cache<'a> {
     fonts: BTreeMap<usize, Rc<Font<'a>>>,
-    /// Map bytes read so far.
-    pub(super) bytes: usize,
-    codes: u64,
 }
 
 impl<'a> Cache<'a> {
@@ -53,7 +115,8 @@ impl<'a> Cache<'a> {
             return Ok(Rc::clone(known));
         }
         let composite = matches!(font.get(b"Subtype"), Ok(Object::Name(name)) if name == b"Type0");
-        let encoding = self.encoding(document, font, limit)?;
+        // [`bound`] already removed every map over the bounds.
+        let encoding = font.get_font_encoding_with_limit(document, limit)?;
         // lopdf falls back to a one-byte table, and a withheld map to WinAnsi.
         let fallback = matches!(
             encoding,
@@ -66,30 +129,6 @@ impl<'a> Cache<'a> {
         });
         self.fonts.insert(key, Rc::clone(&read));
         Ok(read)
-    }
-
-    /// The encoding lopdf gives, unless the font's character map is over a bound. Any
-    /// `/ToUnicode` stream is counted before lopdf is called, whatever the font's encoding
-    /// says, so no reading rule of lopdf's can reach an uncounted map.
-    fn encoding(
-        &mut self,
-        document: &'a Document,
-        font: &'a Dictionary,
-        limit: usize,
-    ) -> lopdf::Result<Encoding<'a>> {
-        if let Ok(map) = font
-            .get_deref(b"ToUnicode", document)
-            .and_then(Object::as_stream)
-        {
-            let raw = map.get_plain_content_with_limit(limit.min(MAP_BYTES))?;
-            let codes = covered(&String::from_utf8_lossy(&raw)).unwrap_or(u64::MAX);
-            self.bytes = self.bytes.saturating_add(raw.len());
-            self.codes = self.codes.saturating_add(codes);
-            if codes > MAP_CODES || self.codes > DOCUMENT_CODES || self.bytes > MAP_BYTES {
-                return Ok(Encoding::SimpleEncoding(b"WinAnsiEncoding"));
-            }
-        }
-        font.get_font_encoding_with_limit(document, limit)
     }
 }
 

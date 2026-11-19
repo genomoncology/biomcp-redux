@@ -45,7 +45,7 @@ pub fn embedded(
         result.state = PdfTextState::TooLarge;
         return Ok(result);
     }
-    let document = lopdf::Document::load_mem_with_options(
+    let mut document = lopdf::Document::load_mem_with_options(
         bytes,
         lopdf::LoadOptions::with_max_decompressed_size(super::scan::LOAD_STREAM_BYTES),
     )
@@ -56,6 +56,8 @@ pub fn embedded(
             Reason::BadReply
         }
     })?;
+    check()?;
+    super::cmap::bound(&mut document);
     check()?;
     let pages = document.get_pages();
     result.pages = Some(u32::try_from(pages.len()).unwrap_or(u32::MAX));
