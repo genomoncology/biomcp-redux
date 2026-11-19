@@ -85,6 +85,13 @@ fn read(
                 None,
             ));
         }
+        Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Refused => {
+            return Ok(unavailable(
+                "The linked FDA letter could not be read safely within BioMCP's memory or time limit; its supplement purpose is unavailable.",
+                Some(document),
+                None,
+            ));
+        }
         Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Damaged => {
             return Ok(unavailable(
                 "The linked FDA letter's PDF is damaged and was not read; its supplement purpose is unavailable.",

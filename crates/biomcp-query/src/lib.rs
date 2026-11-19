@@ -16,6 +16,10 @@ pub use status::{Outcome, sync_status};
 mod fan_out;
 
 pub mod health;
+/// A PDF read in a child process of the binary: its side of the exchange and its bounds (1075).
+pub mod pdf_child {
+    pub use biomcp_adapters::pdf::{MAX_BYTES, MAX_OUTPUT, serve};
+}
 
 pub mod trial;
 mod variant;

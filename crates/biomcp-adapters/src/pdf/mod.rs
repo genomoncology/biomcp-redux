@@ -1,4 +1,5 @@
 //! Publisher downloads and bounded FDA document embedded-text access.
+mod child;
 mod chunks;
 mod cmap;
 mod download;
@@ -13,6 +14,7 @@ mod state;
 mod text;
 mod words;
 mod xref;
+pub use child::{MAX_OUTPUT, serve};
 pub(crate) use download::pdf;
 pub use download::{MAX_BYTES, download, refused};
 pub use embedded::{Embedded, embedded};

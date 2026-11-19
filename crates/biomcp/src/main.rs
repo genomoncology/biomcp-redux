@@ -11,6 +11,7 @@ mod keys;
 mod mcp;
 mod output;
 mod paths;
+mod pdf_child;
 mod retired;
 mod save;
 mod saved;
@@ -26,11 +27,15 @@ mod view;
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
+    let arguments = config::arguments();
+    if let Some(cap) = pdf_child::requested(&arguments) {
+        return pdf_child::serve(cap);
+    }
     let root = match grammar::root() {
         Ok(root) => std::sync::Arc::new(root),
         Err(_) => return exit::failure(std::io::Error::other("command grammar unavailable")),
     };
-    let args = grammar::entity_first(&root, config::arguments());
+    let args = grammar::entity_first(&root, arguments);
     let parsed = grammar::parse(&root, &args);
     if let Ok(parsed) = &parsed
         && let Some(command) = &parsed.housekeeping

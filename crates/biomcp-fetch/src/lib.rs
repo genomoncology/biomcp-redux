@@ -27,6 +27,8 @@ pub use sqlite_diagnostic::SQLITE_DIAGNOSTICS;
 mod cache_request;
 mod containment;
 mod deadline;
+mod isolate;
+pub use isolate::{Contained, Isolate};
 mod declaration;
 mod destination;
 pub use destination::check_annotation_url;
@@ -152,6 +154,8 @@ pub struct FetchConfig {
     pub source_data_max_age_days: u32,
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biomcp_types::Source, Duration>,
+    /// Where hostile input is read outside this process; none reads it in this process.
+    pub isolate: Option<std::sync::Arc<dyn Isolate>>,
 }
 
 /// One blocking client shared across source legs.
@@ -540,6 +544,13 @@ impl Leg<'_> {
     /// Bind the source leg's remaining budget for cooperative local parsing.
     pub fn local_deadline(&self) -> LocalDeadline {
         self.budget().local()
+    }
+    /// Run `input` through the configured isolation, bounded by this leg's deadline and
+    /// cancellation; none when no isolation is configured and the caller reads in process.
+    pub fn isolated(&self, input: &[u8], max_output: usize) -> Option<Result<Vec<u8>, Contained>> {
+        let isolate = self.fetch.config.isolate.as_ref()?;
+        let deadline = self.local_deadline();
+        Some(isolate.run(input, max_output, &|| deadline.expired()))
     }
     /// Return this source leg's remaining real or virtual budget.
     pub fn remaining(&self) -> Duration {

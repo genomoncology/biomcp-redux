@@ -1609,7 +1609,8 @@
         "too-large",
         "garbled",
         "partial",
-        "damaged"
+        "damaged",
+        "refused"
       ],
       "type": "string"
     },
