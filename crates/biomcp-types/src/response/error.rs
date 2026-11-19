@@ -76,6 +76,7 @@ singleton! {
  // No longer sent since 1064, which names the cause; the 1.0 schema keeps the literal.
  ArgumentGuidance => "option is missing or invalid; choose an accepted value or form and use the suggested help command",
  ArgumentMissing => "required option missing: add error.option with a value valid_values accepts",
+ ArgumentNoValue => "option given without a value: give error.option a value valid_values accepts",
  ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
@@ -101,8 +102,7 @@ singleton! {
  SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",
  SavedNoteUnknown => "no saved note has this ID; biomcp saved show lists the notes",
  SavedAccount => "saved work in hosted mode needs a signed-in account; sign in to save searches, lists and notes",
- HostedKey => "add the source key in your account settings",
- UnknownCommand => "unknown command; use the suggested help command",
+ HostedKey => "add the source key in your account settings", UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
 
         GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; \

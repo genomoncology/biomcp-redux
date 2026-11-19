@@ -4691,6 +4691,7 @@
         "expected a supported command with checked arguments",
         "option is missing or invalid; choose an accepted value or form and use the suggested help command",
         "required option missing: add error.option with a value valid_values accepts",
+        "option given without a value: give error.option a value valid_values accepts",
         "unknown option: this command has no error.option; run next, or use an option valid_values lists",
         "value not accepted: give error.option a value valid_values accepts",
         "option repeated: give error.option once, in the form valid_values shows",
@@ -4923,7 +4924,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1064, 2026-11-19: against the 1.0.0 baseline, a usage refusal says whether its option was missing, unknown, repeated, not accepted beside another option, or given a value it does not accept, and a --fields refusal's next call puts each name it can place in the field that holds it; the old missing-or-invalid literal stays for replies already written."
+      "review": "Ticket 1064, 2026-11-19: against the 1.0.0 baseline, a usage refusal says whether its option was missing, given without a value, unknown, repeated, not accepted beside another option, or given a value it does not accept, and a --fields refusal's next call puts each name it can place in the field that holds it; the old missing-or-invalid literal stays for replies already written."
     },
     {
       "schemas": [
@@ -5147,6 +5148,7 @@
         "expected a supported command with checked arguments",
         "option is missing or invalid; choose an accepted value or form and use the suggested help command",
         "required option missing: add error.option with a value valid_values accepts",
+        "option given without a value: give error.option a value valid_values accepts",
         "unknown option: this command has no error.option; run next, or use an option valid_values lists",
         "value not accepted: give error.option a value valid_values accepts",
         "option repeated: give error.option once, in the form valid_values shows",

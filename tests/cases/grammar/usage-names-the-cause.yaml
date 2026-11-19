@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "A refusal says whether its option was repeated, unknown or given a value it does not accept, describes a free-text option by its own meaning rather than the shared text type, and offers a call that works: a comma-separated option given twice is offered once with its values joined, and a field name inside a search row's field is offered as that field. An option given with no value is named as missing, and next is the call without it. A help next step runs.",
+  "story": "A refusal says whether its option was repeated, unknown or given a value it does not accept, describes a free-text option by its own meaning rather than the shared text type, and offers a call that works: a comma-separated option given twice is offered once with its values joined, and a field name inside a search row's field is offered as that field. An option given with no value, in any spelling, says so, and next is the call without it. A help next step runs.",
   "harvest": "Agent runs on 1.0.0 (be96d8d40), 2026-11-19: 22 of 222 calls refused with one missing-or-invalid sentence.",
   "steps": [
     {
@@ -141,7 +141,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--limit",
-        "/error/message": "required option missing: add error.option with a value valid_values accepts",
+        "/error/message": "option given without a value: give error.option a value valid_values accepts",
         "/next/0/args": {
           "includes_all_of": [
             "search",
@@ -151,6 +151,45 @@
           ],
           "excludes": "--limit"
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "pathway",
+        "apoptosis",
+        "-l"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--limit",
+        "/error/message": "option given without a value: give error.option a value valid_values accepts",
+        "/next/0/args": {
+          "includes_all_of": [
+            "search",
+            "pathway",
+            "apoptosis"
+          ],
+          "excludes": "-l"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--limit="
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--limit",
+        "/error/message": "option given without a value: give error.option a value valid_values accepts"
       }
     }
   ]

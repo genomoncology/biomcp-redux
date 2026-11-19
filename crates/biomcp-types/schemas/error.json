@@ -116,6 +116,7 @@
         "expected a supported command with checked arguments",
         "option is missing or invalid; choose an accepted value or form and use the suggested help command",
         "required option missing: add error.option with a value valid_values accepts",
+        "option given without a value: give error.option a value valid_values accepts",
         "unknown option: this command has no error.option; run next, or use an option valid_values lists",
         "value not accepted: give error.option a value valid_values accepts",
         "option repeated: give error.option once, in the form valid_values shows",
