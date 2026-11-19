@@ -1,0 +1,29 @@
+{
+  "feature": "fda-document-text",
+  "live_check": "public",
+  "story": "An FDA letter whose character map the PDF library refuses over its header is read from the map's own sections, so the letter's text comes back as words instead of gibberish.",
+  "verified": "openFDA Drugs@FDA reply for NDA208065 (TAGRISSO) and its supplement 21 letter, document 65680, recorded 2026-11-19 by biomcp --record in pm job j43086. Before 1068 the reply returned gibberish such as \"1'$6 6833/(0(17$33529$/\" for \"NDA 208065/S-21 SUPPLEMENT APPROVAL\"; under 1068 it is garbled; under 1069 it reads.",
+  "replay": "diagnostic/fda-document-garbled",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA208065",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--document-id",
+        "65680"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/approvals/data/records/0/application_docs/0/id": "65680",
+        "/result/approvals/data/records/0/application_docs/0/text/state": "text",
+        "/result/approvals/data/records/0/application_docs/0/text/pages": 5,
+        "/result/approvals/data/records/0/supplement_purpose/message": "No complete supplement-purpose statement could be read from the linked FDA letter; no indication was inferred."
+      },
+      "max_bytes": 20000
+    }
+  ]
+}
