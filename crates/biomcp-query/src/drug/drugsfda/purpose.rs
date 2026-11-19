@@ -70,7 +70,7 @@ fn read(
         return Ok(unavailable(
             "No FDA approval letter is linked to this supplement.",
             None,
-            None,
+            Some(biomcp_types::Reason::NotFound),
         ));
     };
     let extracted = match document.text.as_ref() {
@@ -114,7 +114,7 @@ fn read(
         unavailable(
             "No complete supplement-purpose statement could be read from the linked FDA letter; no indication was inferred.",
             Some(document),
-            None,
+            Some(biomcp_types::Reason::NotStated),
         )
     })
 }

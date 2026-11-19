@@ -12,6 +12,10 @@ CLI saves require `--replace` for existing files. Stdio MCP allows new-file save
 
 A `search article` row's `open_access` comes from the source named in `open_access_source`. By default it is `pubmed`: BioMCP sends one NCBI request per page with the filter that, in [PubMed Central's words](https://pmc.ncbi.nlm.nih.gov/tools/openftlist/), finds "all Open Access Subset articles" in PubMed, and the subset "includes journal articles and preprints that are made available under Creative Commons or similar licenses that allow more liberal redistribution and reuse than a traditionally copyrighted work." With `--license-lookup`, or on a row Europe PMC itself returned, it is `europepmc`: Europe PMC's own `isOpenAccess` flag, which follows Europe PMC's definition, not PubMed Central's. On 440 papers from 44 searches on 2026-11-19, the two disagreed on 92: NCBI listed 90 as open access that Europe PMC did not, mostly recent deposits Europe PMC had not yet indexed, and Europe PMC flagged 2 that NCBI did not. BioMCP does not decide which is right. Only the Europe PMC lookup reads licences, so a row without one says `license_not_checked`; "not checked" never means "no licence". License terms vary: read the article's own license statement before reuse.
 
+## Partial replies and drug-name lookups
+
+A reply is `complete` only when every source in `sources` answered or was skipped on purpose. A failed, stale or syncing source makes it `partial`, and `incomplete`, right after `status`, lists each missing thing with its source, its reason and a pointer to the detail in the reply. This holds for lookups a command makes by itself: when `search article` or `search trial` widens a drug name through MyChem or ChEMBL and that lookup fails, the reply is `partial`, because names the search should have sent may be missing. `--exact-term` skips the lookup.
+
 ## Trial documents
 
 The reply preserves the source URL, document metadata and license without granting reuse rights. Documents are downloaded as bounded PDF bytes and never read as text.
