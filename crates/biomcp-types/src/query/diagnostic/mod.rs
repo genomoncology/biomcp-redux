@@ -115,7 +115,9 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
     drug_application: Option<FdaDrugApplication>,
-    #[doc = "Exact table-0 cell.\nExact table-0 biomarker cell; unsupported in the group table."]
+    #[doc = "Biomarker name in a cell.\nWhole name in the individual table's biomarker cell, any case, \
+    surrounding spaces ignored: PIK3CA matches \"PIK3CA, AKT1, and PTEN\", not PIK3CA2. \
+    The group table is not searched; problems name it as filter.unsupported."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
     biomarker: Option<Text>,
