@@ -64,14 +64,14 @@ pub(super) fn widths(document: &Document, font: &Dictionary) -> Option<Widths> {
 }
 
 /// A dictionary value, absent when the key is.
-fn entry<'a>(dictionary: &'a Dictionary, key: &[u8]) -> Option<&'a Object> {
+pub(super) fn entry<'a>(dictionary: &'a Dictionary, key: &[u8]) -> Option<&'a Object> {
     dictionary
         .iter()
         .find_map(|(name, value)| (name.as_slice() == key).then_some(value))
 }
 
 /// The object a value names, following references the file holds.
-fn resolve<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Object> {
+pub(super) fn resolve<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Object> {
     let mut object = object;
     for _ in 0..8 {
         match object {
@@ -95,14 +95,14 @@ fn resolved_number(document: &Document, object: &Object) -> Option<f32> {
     number(resolve(document, object)?)
 }
 
-fn array<'a>(document: &'a Document, object: &'a Object) -> Option<&'a [Object]> {
+pub(super) fn array<'a>(document: &'a Document, object: &'a Object) -> Option<&'a [Object]> {
     match resolve(document, object)? {
         Object::Array(items) => Some(items),
         _ => None,
     }
 }
 
-fn dictionary<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Dictionary> {
+pub(super) fn dictionary<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Dictionary> {
     match resolve(document, object)? {
         Object::Dictionary(dictionary) => Some(dictionary),
         _ => None,

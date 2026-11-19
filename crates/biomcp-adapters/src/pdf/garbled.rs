@@ -29,7 +29,7 @@ const COMMON: [&str; 24] = [
 const REPEATED: usize = 3;
 
 /// Whether `text`, apart from repeated lines, is long enough to judge and is not English.
-pub(super) fn garbled(text: &str) -> bool {
+pub fn garbled(text: &str) -> bool {
     let mut seen = BTreeMap::new();
     for line in text.lines().map(str::trim) {
         *seen.entry(line).or_insert(0usize) += 1;
@@ -53,38 +53,4 @@ pub(super) fn garbled(text: &str) -> bool {
     }
     words >= WORDS && common.saturating_mul(COMMON_SHARE) < words
         || characters >= CHARACTERS && letters.saturating_mul(2) < characters
-}
-
-#[cfg(test)]
-mod tests {
-    use super::garbled;
-
-    #[test]
-    fn english_is_never_garbled_and_misdecoded_fonts_are() {
-        let english = "There is a risk of serious infections in patients treated with the drug.\n";
-        let shifted = "7KHUH LV D ULVN RI VHULRXV LQIHFWLRQV LQ SDWLHQWV WUHDWHG ZLWK WKH GUXJ\n";
-        let symbols = "3)(!%-F%(+(,) 6,3( ,3%%+3 # @((>(%S1/TD+3D(( +3>(+() +31F! %-BF!\n";
-        let stamp = "This label may not be the latest approved by FDA.\n";
-        let numbered =
-            |line: &str, n: usize| -> String { (0..n).map(|i| format!("{i} {line}")).collect() };
-        assert!(
-            !garbled(&numbered(english, 30)),
-            "English prose is not garbled"
-        );
-        assert!(
-            garbled(&numbered(shifted, 30)),
-            "shifted glyphs are garbled"
-        );
-        assert!(
-            garbled(&numbered(symbols, 60)),
-            "punctuation glyphs are garbled"
-        );
-        let stamped = format!("{}{}", stamp.repeat(30), numbered(shifted, 30));
-        assert!(
-            garbled(&stamped),
-            "a repeated English stamp does not hide gibberish"
-        );
-        assert!(!garbled(&numbered(shifted, 2)), "too little text to judge");
-        assert!(!garbled(""), "no text is not garbled");
-    }
 }

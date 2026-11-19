@@ -5,7 +5,7 @@
 //! A form brings its own `/Resources` or uses those of the stream that paints it (PDF
 //! 32000-1 §8.10.1). Forms nest at most [`DEPTH`] deep, which also ends a form that paints
 //! itself, and every content stream counts against one expanded-size limit.
-use super::fonts::widths;
+use super::fonts::{array, dictionary, entry, resolve, widths};
 use super::state::Matrix;
 use super::words::{Fonts, Reader};
 use lopdf::{Dictionary, Document, Object, ObjectId, Stream, content::Content};
@@ -36,7 +36,8 @@ pub(super) fn page(document: &Document, page: ObjectId, limit: usize) -> lopdf::
     let mut xobjects = XObjects::new();
     let inherited = inherited
         .iter()
-        .filter_map(|id| document.get_dictionary(*id).ok());
+        .filter_map(|id| document.objects.get(id))
+        .filter_map(|object| dictionary(document, object));
     // The nearest resources come first, so their names win.
     for resources in own.into_iter().chain(inherited) {
         for (name, object) in named(document, resources, b"XObject") {
@@ -58,11 +59,8 @@ fn named<'a>(
     resources: &'a Dictionary,
     category: &[u8],
 ) -> Vec<(&'a [u8], &'a Object)> {
-    resources
-        .get(category)
-        .ok()
-        .and_then(|value| document.dereference(value).ok())
-        .and_then(|(_, value)| value.as_dict().ok())
+    entry(resources, category)
+        .and_then(|value| dictionary(document, value))
         .map(|entries| {
             entries
                 .iter()
@@ -101,11 +99,11 @@ impl<'a> Walk<'a> {
 
     /// The stream a `Do` names, when it is a form; images and broken references draw no text.
     fn form(&self, object: &'a Object) -> Option<&'a Stream> {
-        let (_, object) = self.document.dereference(object).ok()?;
-        let stream = object.as_stream().ok()?;
-        let subtype = stream.dict.get(b"Subtype").ok()?;
-        let (_, subtype) = self.document.dereference(subtype).ok()?;
-        (subtype.as_name().ok()? == b"Form").then_some(stream)
+        let Object::Stream(stream) = resolve(self.document, object)? else {
+            return None;
+        };
+        let subtype = resolve(self.document, entry(&stream.dict, b"Subtype")?)?;
+        matches!(subtype, Object::Name(name) if name == b"Form").then_some(stream)
     }
 
     fn form_text(
@@ -115,7 +113,7 @@ impl<'a> Walk<'a> {
         xobjects: &XObjects<'a>,
         depth: usize,
     ) -> lopdf::Result<()> {
-        let bytes = if form.dict.get(b"Filter").is_ok() {
+        let bytes = if entry(&form.dict, b"Filter").is_some() {
             form.decompressed_content_with_limit(self.left)?
         } else {
             form.content.clone()
@@ -125,12 +123,8 @@ impl<'a> Walk<'a> {
         }
         self.left -= bytes.len();
         let content = Content::decode(&bytes)?;
-        let resources = form
-            .dict
-            .get(b"Resources")
-            .ok()
-            .and_then(|value| self.document.dereference(value).ok())
-            .and_then(|(_, value)| value.as_dict().ok());
+        let resources =
+            entry(&form.dict, b"Resources").and_then(|value| dictionary(self.document, value));
         let own_fonts = match resources.map(|r| named(self.document, r, b"Font")) {
             Some(entries) if !entries.is_empty() => Some(self.fonts(&entries)?),
             _ => None,
@@ -139,10 +133,9 @@ impl<'a> Walk<'a> {
             .map(|r| named(self.document, r, b"XObject"))
             .filter(|entries| !entries.is_empty())
             .map(|entries| entries.into_iter().collect());
-        let matrix = form.dict.get(b"Matrix").ok().and_then(|value| match value {
-            Object::Array(items) => Matrix::from(items),
-            _ => None,
-        });
+        let matrix = entry(&form.dict, b"Matrix")
+            .and_then(|value| array(self.document, value))
+            .and_then(Matrix::from);
         self.reader.enter_form(matrix);
         let fonts = own_fonts.as_ref().unwrap_or(fonts);
         let xobjects = own_xobjects.as_ref().unwrap_or(xobjects);
@@ -154,7 +147,7 @@ impl<'a> Walk<'a> {
     fn fonts(&self, entries: &[(&'a [u8], &'a Object)]) -> lopdf::Result<Fonts<'a>> {
         let mut fonts = BTreeMap::new();
         for (name, value) in entries {
-            let Ok((_, Object::Dictionary(font))) = self.document.dereference(value) else {
+            let Some(font) = dictionary(self.document, value) else {
                 continue;
             };
             let encoding = font.get_font_encoding_with_limit(self.document, self.left)?;
