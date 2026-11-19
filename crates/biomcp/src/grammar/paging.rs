@@ -55,3 +55,21 @@ fn named(value: &Value) -> bool {
         _ => true,
     }
 }
+
+/// The paging options a command may have, and other words callers try for them.
+const OPTIONS: [&str; 5] = ["limit", "offset", "section-limit", "section-offset", "page"];
+const GUESSES: [&str; 5] = ["page-size", "per-page", "size", "skip", "rows"];
+
+/// Whether a refusal of `spelling` lists the option `name`. A paging word the command lacks is
+/// answered with the paging options it has, so the refusal names the working form; any other
+/// refused word, or a command without paging, lists every option.
+pub(crate) fn listed(command: &clap::Command, spelling: &str, name: &str) -> bool {
+    let word = spelling.trim_start_matches('-');
+    let paging = |name: &str| OPTIONS.contains(&name);
+    let pages = command
+        .get_arguments()
+        .filter(|argument| !argument.is_hide_set())
+        .filter_map(clap::Arg::get_long)
+        .any(paging);
+    !(pages && (paging(word) || GUESSES.contains(&word))) || paging(name)
+}
