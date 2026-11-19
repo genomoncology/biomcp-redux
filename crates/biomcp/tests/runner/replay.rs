@@ -281,7 +281,18 @@ fn article_processes() -> Result<(), String> {
         "--exact-term",
     ];
     let initial = invoke(&env, cached(&base, &case, Some(&fixture)), 0)?;
-    let expected = initial.pointer("/result/items").ok_or("items missing")?;
+    // Rows compare by identity: the seed reads NCBI's open-access flags, while the offline
+    // searches below cannot, so their access fields differ by design (1072).
+    let keys = |items: Option<&Value>| -> Option<Vec<Value>> {
+        Some(
+            items?
+                .as_array()?
+                .iter()
+                .map(|item| item["key"].clone())
+                .collect(),
+        )
+    };
+    let expected = keys(initial.pointer("/result/items")).ok_or("items missing")?;
     let parent = env.root().join("cache/biomcp");
     fs::create_dir_all(&parent).map_err(|e| e.to_string())?;
     let file = parent.join(format!(
@@ -314,7 +325,7 @@ fn article_processes() -> Result<(), String> {
     })?;
     let mut pools = std::collections::BTreeSet::new();
     for reply in replies {
-        if reply.pointer("/result/items") != Some(expected) {
+        if keys(reply.pointer("/result/items")).as_ref() != Some(&expected) {
             return Err("concurrent ordinary-cache search lost items".into());
         }
         let pool = reply
