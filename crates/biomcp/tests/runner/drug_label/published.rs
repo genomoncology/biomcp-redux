@@ -51,22 +51,29 @@ pub(super) fn sections() -> Check {
             "published but absent section must be empty with a complete source result".into(),
         );
     }
+    // A name openFDA does not use, or a record field that is no section, is absent from the
+    // label too: the reply names it and lists every section the record carries.
+    let mut names: Vec<_> = record
+        .as_object()
+        .ok_or("record")?
+        .iter()
+        .filter(|(_, v)| v.is_array())
+        .map(|(k, _)| json!(k))
+        .collect();
+    names.sort_unstable_by(|a, b| a.as_str().cmp(&b.as_str()));
     for heading in ["not_a_section", "openfda", "id"] {
-        let invalid = both(&env, args(record, heading, 0)?, 2)?;
-        let actual = invalid
-            .pointer("/error/valid_values")
-            .ok_or("section choices")?;
-        let mut names: Vec<_> = record
-            .as_object()
-            .ok_or("record")?
-            .iter()
-            .filter(|(_, v)| v.is_array())
-            .map(|(k, _)| k.as_str())
-            .collect();
-        names.sort_unstable();
-        let expected: Vec<_> = names.into_iter().map(|k| json!(k)).collect();
-        if actual != &json!(expected) {
-            return Err(format!("wrong record choices: {actual}"));
+        let unknown = both(&env, args(record, heading, 0)?, 0)?;
+        let hint = unknown
+            .pointer("/result/hint")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        if unknown.pointer("/result/label/state") != Some(&json!("empty"))
+            || !hint.contains(&format!("has no {heading} section"))
+        {
+            return Err(format!("unknown section not named absent: {unknown}"));
+        }
+        if unknown.pointer("/result/sections") != Some(&json!(names)) {
+            return Err(format!("wrong record sections: {unknown}"));
         }
     }
     if stub.finish()?.len() != 1 {

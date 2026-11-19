@@ -1,7 +1,7 @@
 {
   "live_check": "recorded only; synthetic label fixtures",
   "feature": "several-sections",
-  "story": "A drug read by name with three label headings states the drug and its name lookup once, keeps each part's own status, paging and next calls, and reads the name and the label record once; an unknown heading inside the list is refused as a usage error naming the record's headings.",
+  "story": "A drug read by name with three label headings states the drug and its name lookup once, keeps each part's own status, paging and next calls, and reads the name and the label record once; a name openFDA does not use inside the list is answered in its own part as absent from the label, listing the label's headings, beside the parts it does have.",
   "replay": "drug/several-sections-name",
   "config": {
     "disable_sources": [
@@ -95,17 +95,22 @@
         "--label-section",
         "boxed_warning,not_a_heading,adverse_reactions"
       ],
-      "exit": 2,
-      "is_error": true,
       "expect": {
-        "/error/code": "usage.arguments",
-        "/error/option": "--label-section",
-        "/error/valid_values/*": {
+        "/status": "complete",
+        "/result/parts/*/reply/status": [
+          "complete",
+          "complete",
+          "complete"
+        ],
+        "/result/parts/1/reply/result/label/state": "empty",
+        "/result/parts/1/reply/result/hint": "Example label's label (set 11111111-1111-1111-1111-111111111111, version 1) has no not_a_heading section; sections lists the sections it has, and label_section (--label-section on the command line) reads one",
+        "/result/parts/1/reply/result/sections": {
           "includes_all_of": [
             "boxed_warning",
             "adverse_reactions"
           ]
-        }
+        },
+        "/result/parts/2/reply/result/label/data/text": "Synthetic adverse reaction."
       }
     }
   ]

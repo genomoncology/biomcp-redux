@@ -1,0 +1,72 @@
+{
+  "feature": "drug-label",
+  "live_check": "public",
+  "story": "A caller asking Aimovig's label by the printed label's section name, warnings_and_precautions, reads openFDA's warnings_and_cautions field and is told which field was read; a section name openFDA does not use names the label found and lists the sections it has, instead of saying no record matched the drug.",
+  "verified": "openFDA label replies for Aimovig (SPL set b998ed05-94b0-47fd-b28f-cddd1e128fd8, version 25) recorded whole by biomcp --record on 2026-11-19; openFDA files section 5 under warnings_and_cautions. Before 1058 both reads replied absent with \"found no matching record for Aimovig\" while counting one record found.",
+  "replay": "drug/label-printed-names",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Aimovig",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "warnings_and_precautions"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/name": "AIMOVIG",
+        "/result/identity/id": "b998ed05-94b0-47fd-b28f-cddd1e128fd8",
+        "/result/label/state": "data",
+        "/result/label/data/heading": "warnings_and_cautions",
+        "/result/hint": "warnings_and_precautions is the printed label's name for this section; this reply reads openFDA's warnings_and_cautions field"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Aimovig",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "warnings_precautions"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/name": "AIMOVIG",
+        "/result/label/state": "empty",
+        "/result/hint": "AIMOVIG's label (set b998ed05-94b0-47fd-b28f-cddd1e128fd8, version 25) has no warnings_precautions section; sections lists the sections it has, and label_section (--label-section on the command line) reads one",
+        "/result/sections": {
+          "includes": "warnings_and_cautions"
+        }
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Aimovig",
+        "label",
+        "warnings_and_precautions"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "label",
+            "--label-section",
+            "warnings_and_cautions"
+          ]
+        }
+      }
+    }
+  ]
+}

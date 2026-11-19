@@ -2017,7 +2017,7 @@ Options:
       --phase <phase>
           Source phase; help search trial
           Source phase.
-          Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV.
+          Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
           ClinicalTrials.gov only: registry sex facet; help search trial
@@ -2125,7 +2125,7 @@ ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; u
 - `--offset`: Page offset.
 Zero-based offset of the first row in this continuation page. Value form: integer; example: --offset 0.
 - `--phase`: Source phase.
-Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
+Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
 - `query`: Trial text.
 General registry discovery text.
 Form: search trial QUERY; not --query.
@@ -3386,7 +3386,9 @@ Options:
       --label-section <label_section>
           Exact openFDA SPL fields.
           Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-          Only with --source openfda-label; input may also be an FDA application number (NDA216340).
+          The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
+          A section the label lacks, or a name openFDA does not use, lists the sections the label has.
+          Only with --source openfda-label.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3454,7 +3456,9 @@ Source ID or complete brand or generic name; WHO references retain source spaces
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-Only with --source openfda-label; input may also be an FDA application number (NDA216340). Value form: string; example: --label-section indications_and_usage.
+The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
+A section the label lacks, or a name openFDA does not use, lists the sections the label has.
+Only with --source openfda-label. Value form: string; example: --label-section indications_and_usage.
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
 Keeps only the pairs with that drug. A name DDInter does not use is tried under the
