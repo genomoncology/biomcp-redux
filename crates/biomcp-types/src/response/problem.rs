@@ -13,6 +13,9 @@ canonical_enum! {
         /// A source record without a usable identity was left off the page; each problem names
         /// one such record.
         RecordDeclined => "record.declined",
+        /// The asked filter cannot read the records the field names, so they were not searched
+        /// and may hold matches the page leaves out.
+        FilterUnsupported => "filter.unsupported",
     }
 }
 

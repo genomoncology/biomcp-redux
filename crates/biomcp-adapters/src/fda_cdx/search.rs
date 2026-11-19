@@ -24,8 +24,6 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         Find::Exact(KeyKind::Id, id.as_str())
     } else if let Some(id) = query.drug_application() {
         Find::Exact(KeyKind::Xref, id.as_str())
-    } else if let Some(value) = query.biomarker() {
-        Find::Exact(KeyKind::Symbol, value.as_str())
     } else {
         Find::Exact(KeyKind::Band, "all")
     };
@@ -77,7 +75,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
             source: Source::FdaCdx,
             record: None,
             field: "table_1.biomarker".into(),
-            code: ProblemCode::ValueUnknown,
+            code: ProblemCode::FilterUnsupported,
         });
     }
     Ok(Search {
@@ -296,5 +294,16 @@ fn matches(row: &CompanionDiagnosticRelation, query: &DiagnosticSearch) -> bool 
         .is_none_or(|q| drugs.iter().any(|v| &v.id == q))
         && query
             .biomarker()
-            .is_none_or(|q| biomarker == Some(q.as_str()))
+            .is_none_or(|q| biomarker.is_some_and(|cell| names(cell, q.as_str())))
+}
+/// Whether the cell names the asked biomarker whole, ignoring case and surrounding spaces, so
+/// PIK3CA matches "PIK3CA, AKT1, and PTEN" and "PIK3CA  " but not PIK3CA2 (1056).
+fn names(cell: &str, asked: &str) -> bool {
+    let (cell, asked) = (cell.to_uppercase(), asked.trim().to_uppercase());
+    let inside = |c: char| c.is_alphanumeric() || c == '-';
+    !asked.is_empty()
+        && cell.match_indices(asked.as_str()).any(|(at, _)| {
+            !cell[..at].chars().next_back().is_some_and(inside)
+                && !cell[at + asked.len()..].chars().next().is_some_and(inside)
+        })
 }
