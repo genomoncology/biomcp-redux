@@ -34,3 +34,11 @@ Agents read the status and move on. Two replies seen this week said something di
 ## Changes
 
 - Changes: the status functions or the two commands, their cases, and the status paragraph in the docs.
+
+## PM decisions
+
+- PM decision, 2026-11-19: adopt the rule in `sdlc/planning/status-words-proposal.md`. A reply is `complete` only when every source row answered or was skipped on purpose. Any failed, stale or syncing row makes an answered reply `partial`. `absent` and `failed` are unchanged. This deliberately reverses ticket 1046's choice: a status word a caller cannot trust is worse than an honest `partial`.
+- PM decision, 2026-11-19: every `partial` reply carries the `incomplete` list right after `status`. Each entry names the source and reason, points to the detail already in the reply, and stays one short line, because the caller is an agent paying per token. Add the `not-stated` reason code.
+- PM decision, 2026-11-19: enforce both rules in the one place where the reply is built. Add a check across every replayed reply that `complete` never sits beside a failed source and that every `partial` reply has an entry.
+- PM decision, 2026-11-19: ticket 1072 (article open-access check) is investigated and lands first, so the new rule does not turn ordinary article searches `partial` on the day it ships. Build 1059 on top of 1072 if they touch the same code.
+- PM decision, 2026-11-19: drug search name lookups (MyChem, ChEMBL) that fail make the reply `partial` under the new rule. That is correct; keep it and say so in `docs/cautions.md`.
