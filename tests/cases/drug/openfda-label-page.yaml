@@ -150,8 +150,22 @@
           "a4e409f7-20b4-4c80-8a6a-f95995ffad78",
           "58ce42c6-10bd-4bb4-bf89-eae8ed82c339"
         ],
-        "/result/items/*/name": {
-          "count": 10
+        "/result/items/0/name": "Imatinib Mesylate",
+        "/result/items/4/name": "Iclusig",
+        "/result/items/3": {
+          "omits": [
+            "name"
+          ]
+        },
+        "/result/items/5": {
+          "omits": [
+            "name"
+          ]
+        },
+        "/result/items/7": {
+          "omits": [
+            "name"
+          ]
         }
       }
     }

@@ -1,6 +1,7 @@
 # 1060 — label-search-rows-show-drug-name
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 71728276d19a58ec9474039a0541714c83b88474
 
 Milestone: 7
 

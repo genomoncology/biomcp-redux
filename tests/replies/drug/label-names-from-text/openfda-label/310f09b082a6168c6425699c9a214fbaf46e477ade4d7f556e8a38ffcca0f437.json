@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=set_id%3A%22001cc8c5-3b3b-456f-8b62-46da8202ea49%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"meta\":{\"results\":{\"skip\":0,\"limit\":1,\"total\":1}},\"results\":[{\"id\":\"dd80166d-cac5-3261-e053-2995a90aa412\",\"set_id\":\"001cc8c5-3b3b-456f-8b62-46da8202ea49\",\"version\":\"3\",\"effective_time\":\"20220425\",\"openfda\":{},\"spl_product_data_elements\":[\"Lithium bromatum LITHIUM BROMIDE SUCROSE LACTOSE LITHIUM BROMIDE LITHIUM CATION white\"],\"package_label_principal_display_panel\":[\"PRINCIPAL DISPLAY PANEL The OTC potency range of LITHIUM BROM is 3x–30x, 2c–30c, 200c, 1m, 10m, 50m, and CM. Availability is subject to change. All WHP single remedies are made to order; thus, the labels are printed on the same label stock as the orders are filled. ‘Bottle Size’ and ‘Potency’ vary on the label depending on customer choice. Standard bottle sizes for pellet-form remedies are 2 dram, 4 dram, 1 ounce, 2 ounce, and 4 ounce. Label\"],\"indications_and_usage\":[\"INDICATIONS Indications: LITHIUM BROM Sleeplessness\"]}]}"
+      }
+    }
+  ]
+}
