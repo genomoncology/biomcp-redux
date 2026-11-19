@@ -128,7 +128,8 @@ mod tests {
                 };
                 let flag = format!("--{long}");
                 let args = [verb, entity, flag.as_str()].map(std::ffi::OsString::from);
-                let named = match super::super::parse(&root, &args) {
+                let outcome = super::super::parse(&root, &args);
+                let named = match &outcome {
                     Err(super::super::ParseInvalid {
                         usage: Some(UsageError::Arguments(refusal)),
                         ..
@@ -140,7 +141,8 @@ mod tests {
                     _ => false,
                 };
                 if !named {
-                    failures.push(format!("{verb} {entity} {flag}"));
+                    let usage = outcome.err().map(|invalid| format!("{:?}", invalid.usage));
+                    failures.push(format!("{verb} {entity} {flag}: {usage:?}"));
                 }
             }
         }
