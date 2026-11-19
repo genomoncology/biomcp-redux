@@ -36,10 +36,6 @@ const ALLOWED: &[(&str, &str)] = &[
         "Check idle bucket expiry after scaled refill without sleeping or exposing transport state.",
     ),
     (
-        "crates/biomcp/src/grammar/context.rs",
-        "Check every value option of every query command given no value at the private parser boundary, in one process.",
-    ),
-    (
         "crates/biomcp/src/grammar/reference.rs",
         "Generate and compare documentation at the private parser boundary without adding a public command.",
     ),

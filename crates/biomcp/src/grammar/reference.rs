@@ -405,3 +405,50 @@ fn every_command_help_page_says_each_generated_sentence_once() -> Check {
     );
     Ok(())
 }
+
+/// Every option that takes a value, given none, is named as missing with a next step (1064).
+#[test]
+fn every_value_option_given_no_value_is_named_missing() -> Result<(), String> {
+    let root = super::root().map_err(|_| "grammar unavailable")?;
+    let mut failures = Vec::new();
+    for (verb, entity, _) in super::command_paths() {
+        let Some(command) = root
+            .find_subcommand(verb)
+            .and_then(|command| command.find_subcommand(entity))
+        else {
+            continue;
+        };
+        for argument in command.get_arguments() {
+            let takes = argument.get_action().takes_values()
+                && argument
+                    .get_num_args()
+                    .is_some_and(|range| range.min_values() > 0);
+            let Some(long) = argument.get_long().filter(|_| takes) else {
+                continue;
+            };
+            let flag = format!("--{long}");
+            let args = [verb, entity, flag.as_str()].map(std::ffi::OsString::from);
+            let outcome = super::parse(&root, &args);
+            let named = match &outcome {
+                Err(super::ParseInvalid {
+                    usage: Some(biomcp_types::UsageError::Arguments(refusal)),
+                    ..
+                }) => {
+                    refusal.argument.as_deref() == Some(flag.as_str())
+                        && refusal.message == Some(biomcp_types::ErrorMessage::ArgumentMissing)
+                        && !refusal.next.is_empty()
+                }
+                _ => false,
+            };
+            if !named {
+                let usage = outcome.err().map(|invalid| format!("{:?}", invalid.usage));
+                failures.push(format!("{verb} {entity} {flag}: {usage:?}"));
+            }
+        }
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
+}
