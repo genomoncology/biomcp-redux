@@ -48,10 +48,25 @@ pub(super) fn checked(
     Some(UsageArguments {
         argument: Some(identity(name, property).into()),
         message: Some(message),
-        valid_values: valid_values
-            .or_else(|| choices(name).or_else(|| accepted(&schema, property))),
+        // A refusal that says to drop the option lists nothing to choose for it (1057).
+        valid_values: valid_values.or_else(|| {
+            (!drops_option(message))
+                .then(|| choices(name).or_else(|| accepted(&schema, property)))
+                .flatten()
+        }),
         next: vec![help([verb, entity])],
     })
+}
+
+/// Fixed messages saying the command takes no such option here, so the fix is to drop it.
+fn drops_option(message: biomcp_types::ErrorMessage) -> bool {
+    use biomcp_types::ErrorMessage::{
+        DeviceRecallClassificationProductCode, DrugMarketsSource, PhenotypeSetOffset,
+    };
+    matches!(
+        message,
+        DrugMarketsSource | PhenotypeSetOffset | DeviceRecallClassificationProductCode
+    )
 }
 
 /// How a caller writes an argument: a positional by its name, an option as its flag.

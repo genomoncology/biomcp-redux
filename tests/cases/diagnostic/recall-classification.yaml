@@ -119,7 +119,12 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--product-code",
-        "/error/message": "--classification selects device enforcement records, which carry no product code; drop --product-code, or drop --classification and read each returned row's classification"
+        "/error/message": "--classification selects device enforcement records, which carry no product code; drop --product-code, or drop --classification and read each returned row's classification",
+        "/error": {
+          "omits": [
+            "valid_values"
+          ]
+        }
       }
     }
   ]
