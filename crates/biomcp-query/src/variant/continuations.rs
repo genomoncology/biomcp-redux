@@ -130,7 +130,7 @@ pub(super) fn next(
         next.push(crate::next::Step::run(
             StepKind::Page,
             &super::next_sources(fetch, query),
-            Request::GetVariant(query.at_offset(page.offset + page.returned)),
+            Request::GetVariant(candidates_page(query, page.offset + page.returned)),
             false,
         ));
     }
@@ -190,4 +190,15 @@ fn candidate_request(
     )?;
     let sources = super::next_sources(fetch, &query);
     Some((Request::GetVariant(query), sources))
+}
+
+/// The next candidates. With a named section, `--limit` and `--offset` page that section (1061),
+/// so the next candidates are read without it; each candidate's section is one step away.
+fn candidates_page(query: &VariantGet, offset: u32) -> VariantGet {
+    let next = query.at_offset(offset);
+    if query.sections().is_empty() {
+        next
+    } else {
+        next.with_sections(Box::default()).at_section_offset(0)
+    }
 }
