@@ -276,7 +276,7 @@ fn run_case_owned(
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(argument_recovery::trials());
-    trials.extend(enum_case::trials().into_iter().chain(disease_next::trials()));
+    trials.extend(enum_case::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
     trials.extend(article_pools::trials());
@@ -365,6 +365,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
     trials.extend(orphadata_sync::trials());
+    trials.extend(disease_next::trials());
     trials.extend(source_text::trials());
     trials
 }

@@ -154,9 +154,12 @@ pub(crate) fn mondo(
     out.sources
         .push(status::source(Source::MyDisease, leg.finish(), error));
     out.local = error.and_then(status::local);
-    let Ok(mapped) = reply else {
-        super::page::record_problem(out, query, Source::MyDisease);
-        return None;
+    let mapped = match reply {
+        Ok(mapped) => mapped,
+        Err(_) => {
+            super::page::record_problem(out, query, Source::MyDisease);
+            return None;
+        }
     };
     out.include_refusals(mapped.refusals);
     out.problems.extend(mapped.problems);
