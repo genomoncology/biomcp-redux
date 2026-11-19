@@ -32,8 +32,32 @@ fn state(env: &Environment, directory: &str, expected: &str) -> Check {
     }
     Ok(())
 }
+/// An unknown skill name says what was unknown and names a form that works (1064).
+fn unknown_name(env: &Environment) -> Check {
+    let args = ["skill".to_owned(), "overview".to_owned()];
+    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
+    let text = String::from_utf8_lossy(&output.stderr);
+    if output.status.code() != Some(5) || !text.contains("no worked example has this name") {
+        return Err(format!("unknown skill refusal changed: {output:?}").into());
+    }
+    let form = text
+        .split('`')
+        .rfind(|part| part.starts_with("biomcp skill "))
+        .ok_or("no form")?;
+    let words: Vec<String> = form.split(' ').skip(1).map(str::to_owned).collect();
+    if !env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &words)
+        .output()?
+        .status
+        .success()
+    {
+        return Err(format!("the refusal's form fails: {form}").into());
+    }
+    Ok(())
+}
 fn check() -> Check {
     let env = Environment::new()?;
+    unknown_name(&env)?;
     state(&env, "agent", "missing")?;
     run(&env, &["skill", "install", "agent"])?;
     state(&env, "agent", "current")?;

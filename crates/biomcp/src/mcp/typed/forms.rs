@@ -195,6 +195,8 @@ pub(super) fn unadvertise(input: &mut Value, schema: &Value) {
 pub(super) struct Refused {
     pub(super) argument: String,
     pub(super) valid: Vec<String>,
+    /// Why: left out, unknown, given under two names, or a value not accepted.
+    pub(super) cause: biomcp_types::ErrorMessage,
 }
 
 /// Move every accepted name onto its registry field and make a one-item list one value.
@@ -217,6 +219,7 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
                 return Err(Refused {
                     argument: form.advertised.into(),
                     valid: Vec::new(),
+                    cause: biomcp_types::ErrorMessage::ArgumentMissing,
                 });
             }
             continue;
@@ -225,6 +228,7 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
             return Err(Refused {
                 argument: second.into(),
                 valid: vec![form.advertised.into()],
+                cause: biomcp_types::ErrorMessage::ArgumentRepeated,
             });
         }
         let Some(mut value) = fields.remove(name) else {
@@ -245,6 +249,7 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
                 return Err(Refused {
                     argument: form.advertised.into(),
                     valid: vec!["one value per call".into()],
+                    cause: biomcp_types::ErrorMessage::ArgumentValue,
                 });
             }
         }
