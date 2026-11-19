@@ -76,7 +76,7 @@ singleton! {
  // No longer sent since 1064, which names the cause; the 1.0 schema keeps the literal.
  ArgumentGuidance => "option is missing or invalid; choose an accepted value or form and use the suggested help command",
  ArgumentMissing => "required option missing: add error.option with a value valid_values accepts",
- ArgumentUnknown => "unknown option: this command has no error.option; valid_values lists the options it takes",
+ ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
  ArgumentCombination => "error.option is not accepted with the other options as given; valid_values names every option involved",

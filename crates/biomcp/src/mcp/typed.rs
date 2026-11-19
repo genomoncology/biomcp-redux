@@ -260,9 +260,17 @@ fn command_call(
     let refused = forms::normalize(&mut values, &forms, &input)
         .err()
         .or_else(|| {
-            (!validation::valid(&input, &values)).then(|| forms::Refused {
-                argument: refusal::unknown(&input, &values).unwrap_or_else(|| action.into()),
-                valid: refusal::names(&input, &forms),
+            (!validation::valid(&input, &values)).then(|| {
+                let unknown = refusal::unknown(&input, &values);
+                forms::Refused {
+                    cause: if unknown.is_some() {
+                        ErrorMessage::ArgumentUnknown
+                    } else {
+                        ErrorMessage::ArgumentValue
+                    },
+                    argument: unknown.unwrap_or_else(|| action.into()),
+                    valid: refusal::names(&input, &forms),
+                }
             })
         });
     if let Some(refused) = refused {

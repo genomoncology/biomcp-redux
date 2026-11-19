@@ -117,12 +117,7 @@ pub(super) fn arguments(
     Some(biomcp_types::UsageError::Arguments(
         biomcp_types::UsageArguments {
             argument: Some(refused.argument.as_str().into()),
-            // A refusal with no values is a required argument left out.
-            message: Some(if valid.is_empty() {
-                biomcp_types::ErrorMessage::ArgumentMissing
-            } else {
-                biomcp_types::ErrorMessage::ArgumentValue
-            }),
+            message: Some(refused.cause),
             valid_values: (!valid.is_empty()).then(|| valid.into()),
             next: vec![biomcp_types::Step {
                 kind: biomcp_types::StepKind::Configure,

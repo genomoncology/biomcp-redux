@@ -1,6 +1,7 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod arguments;
 mod choices;
+mod context;
 pub(crate) use choices::ENUM_CASE_GUIDANCE;
 mod command_words;
 pub(crate) use command_words::canonical as canonical_command;

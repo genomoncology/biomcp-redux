@@ -26,17 +26,20 @@ pub(super) fn checked(
         .collect();
     let &(name, property) = named.first()?;
     let given = |name: &str| value.get(name).is_some_and(|value| !value.is_null());
+    let options = || {
+        named
+            .iter()
+            .map(|(name, property)| biodata::Text::new(&identity(name, property)).ok())
+            .collect::<Option<Vec<_>>>()
+            .map(Into::into)
+    };
     // Several named options mean the refusal is about how they go together.
     let (message, valid_values) = if let Some(message) = cause.message() {
         (message, None)
     } else if !given(name) {
         (ErrorMessage::ArgumentMissing, None)
     } else if named.len() > 1 {
-        let options = named
-            .iter()
-            .map(|(name, property)| biodata::Text::new(&identity(name, property)).ok())
-            .collect::<Option<Vec<_>>>()?;
-        (ErrorMessage::ArgumentCombination, Some(options.into()))
+        (ErrorMessage::ArgumentCombination, Some(options()?))
     } else {
         (ErrorMessage::ArgumentValue, None)
     };
