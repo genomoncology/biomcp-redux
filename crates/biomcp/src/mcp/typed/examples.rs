@@ -19,7 +19,7 @@ pub(crate) fn calls(root: &crate::grammar::Root) -> io::Result<Vec<(Value, Optio
             let call = example
                 .get("args")
                 .and_then(Value::as_array)
-                .and_then(|args| super::summary::translate(root, args, &catalog));
+                .and_then(|args| super::followups::call(root, args, &catalog));
             (example, call)
         })
         .collect())

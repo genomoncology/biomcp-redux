@@ -1,0 +1,90 @@
+{
+  "feature": "section-fields",
+  "live_check": "public",
+  "story": "A caller who names one column of a pathway's gene rows, as a section of the pathway or through the pathway genes command, gets each row's name with its reference and context count, which the schema requires, the gene pivots the reply offers, and the next page keeping the choice.",
+  "replay": "pathway/gene-products",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5693607",
+        "genes",
+        "--fields",
+        "name"
+      ],
+      "mcp": [
+        "get",
+        "pathway",
+        "R-HSA-5693607",
+        "genes",
+        "--fields",
+        "name"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "name"
+        ],
+        "/result/genes/data/items/0": {
+          "omits": [
+            "source_url",
+            "schema_class"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "pathway",
+        "genes",
+        "R-HSA-5693607",
+        "--limit",
+        "50",
+        "--fields",
+        "name"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "name"
+        ],
+        "/result/items/0": {
+          "omits": [
+            "source_url",
+            "schema_class"
+          ]
+        },
+        "/result/items": {
+          "count": 50
+        },
+        "/next/*/kind": {
+          "includes": "pivot"
+        },
+        "/next/*/args/0": {
+          "includes": "--fields=name"
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "name"
+        ],
+        "/result/page/offset": 50,
+        "/result/items": {
+          "count": 39
+        },
+        "/result/items/0": {
+          "omits": [
+            "source_url",
+            "schema_class"
+          ]
+        }
+      }
+    }
+  ],
+  "verified": "Reuses the pathway/gene-products recording (Reactome R-HSA-5693607 with 89 distinct references, and the HGNC rows for its 80 UniProt accessions); narrowing changes no source request."
+}

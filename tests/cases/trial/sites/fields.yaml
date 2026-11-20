@@ -1,0 +1,187 @@
+{
+  "feature": "section-fields",
+  "live_check": "public",
+  "story": "A caller who names the columns of a trial's site rows gets every site, nearest first and in the same order as the whole rows, with only those columns; the reply lists the chosen names, the card stays whole, the next page keeps the choice, a section with none of the names stays whole, and a name the sites lack is refused with the site row's names and the nearest call.",
+  "replay": "trial/get/NCT00627419",
+  "verified": "Reuses the public registry reply for NCT00627419 recorded on 2026-11-11 (tests/replies/trial/get/README.md), the same 17 sites and miles trial/sites/distance-nearest-first checks without --fields: Gabrail Cancer Center 103.2, Univ. of Pittsburgh Cancer Institute 162.0, Indiana Univ. Melvin and Bren Simon Cancer Center 168.0, The Angeles Clinic and Research Institute 1973.6, and Arizona Cancer Center last without coordinates. Narrowing changes no source request.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--lat",
+        "39.96",
+        "--lon",
+        "-83.00",
+        "--limit",
+        "20",
+        "--fields=facility,city,state,status,distance_mi"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--lat",
+        "39.96",
+        "--lon",
+        "-83.00",
+        "--limit",
+        "20",
+        "--fields=facility,city,state,status,distance_mi"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "facility",
+          "city",
+          "state",
+          "status",
+          "distance_mi"
+        ],
+        "/result/items/0/card/nct_id": "NCT00627419",
+        "/result/items/0/sections/locations/data/total": 17,
+        "/result/items/0/sections/locations/data/items": {
+          "count": 17
+        },
+        "/result/items/0/sections/locations/data/items/0/facility": "Gabrail Cancer Center",
+        "/result/items/0/sections/locations/data/items/0/distance_mi": 103.2,
+        "/result/items/0/sections/locations/data/items/1/facility": "Univ. of Pittsburgh Cancer Institute",
+        "/result/items/0/sections/locations/data/items/2/facility": "Indiana Univ. Melvin and Bren Simon Cancer Center",
+        "/result/items/0/sections/locations/data/items/15/facility": "The Angeles Clinic and Research Institute",
+        "/result/items/0/sections/locations/data/items/15/distance_mi": 1973.6,
+        "/result/items/0/sections/locations/data/items/16/facility": "Arizona Cancer Center",
+        "/result/items/0/sections/locations/data/items/0": {
+          "omits": [
+            "zip",
+            "country",
+            "coordinates",
+            "contacts"
+          ]
+        },
+        "/result/items/0/sections/locations/data/items/16": {
+          "omits": [
+            "distance_mi",
+            "coordinates",
+            "contacts"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--lat",
+        "39.96",
+        "--lon",
+        "-83.00",
+        "--fields",
+        "facility,distance_mi"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/items": {
+          "count": 10
+        },
+        "/result/items/0/sections/locations/data/items/0/facility": "Gabrail Cancer Center",
+        "/result/items/0/sections/locations/data/items/0": {
+          "omits": [
+            "city",
+            "status",
+            "contacts"
+          ]
+        },
+        "/next/*/args/0": {
+          "includes": "--fields=facility,distance_mi"
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "facility",
+          "distance_mi"
+        ],
+        "/result/items/0/sections/locations/data/offset": 10,
+        "/result/items/0/sections/locations/data/items": {
+          "count": 7
+        },
+        "/result/items/0/sections/locations/data/items/0/facility": "Dana-Farber Cancer Institute",
+        "/result/items/0/sections/locations/data/items/0/distance_mi": 642.2,
+        "/result/items/0/sections/locations/data/items/0": {
+          "omits": [
+            "city",
+            "status",
+            "contacts"
+          ]
+        },
+        "/result/items/0/sections/locations/data/items/6/facility": "Arizona Cancer Center"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "arms",
+        "--limit",
+        "2",
+        "--fields",
+        "facility"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/items/0": {
+          "omits": [
+            "city",
+            "state",
+            "status"
+          ]
+        },
+        "/result/items/0/sections/arms/data/items/0/record": "arm",
+        "/result/items/0/sections/arms/data/items/0/data/label": "1"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--fields",
+        "city,zipcode"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--fields",
+        "/error/message": "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it",
+        "/error/valid_values": [
+          "city",
+          "contacts",
+          "coordinates",
+          "country",
+          "distance_mi",
+          "facility",
+          "state",
+          "status",
+          "zip"
+        ],
+        "/next/0/args/0": "--fields=city,zip",
+        "/next": {
+          "count": 1
+        }
+      }
+    }
+  ]
+}

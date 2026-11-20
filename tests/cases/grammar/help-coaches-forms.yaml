@@ -1,7 +1,7 @@
 {
   "live_check": "local-only command help and validation; no source requests",
   "feature": "query-validation",
-  "story": "Help and errors steer the guesses a regulatory run made: a filter names the only sources that serve it, a section is a bare word after the ID, and unknown --fields names come back as the same call with the names the rows carry, a name inside a row field, such as a PMA header's decision_date, as that field, or the selected source's names when one is chosen.",
+  "story": "Help and errors steer the guesses a regulatory run made: a filter names the only sources that serve it, a section is a bare word after the ID, and unknown --fields names come back as the same call with the names the rows carry, a name inside a row field, such as a PMA header's decision_date, as its path in that field (header.decision_date), or the selected source's names when one is chosen.",
   "steps": [
     {
       "run": [
@@ -44,7 +44,7 @@
       "expect": {
         "/error/option": "--fields",
         "/next/0/args": [
-          "--fields=id,product_name,header",
+          "--fields=id,product_name,header.decision_date",
           "search",
           "diagnostic",
           "--name",
