@@ -93,35 +93,25 @@ impl crate::Leg<'_> {
         let mut bytes = 0_u64;
         // Streamed parts have their own ceiling; the shared one covers every other part.
         let mut held = 0_u64;
+        let max = auto.map(|_| {
+            self.fetch
+                .config
+                .auto_sync_max_bytes
+                .min(super::MAX_BUNDLE_BYTES)
+        });
         for (index, part) in set.parts.iter().enumerate() {
             let format = part.format.unwrap_or(set.format);
             let streamed = matches!(format, RowFormat::StreamedXml { .. });
-            let ceiling = auto.map(|_| {
-                self.fetch
-                    .config
-                    .auto_sync_max_bytes
-                    .min(super::MAX_BUNDLE_BYTES)
-                    .saturating_sub(bytes)
-            });
+            let ceiling = max.map(|max| max.saturating_sub(bytes));
             if ceiling == Some(0) {
                 return Err(leg.failure(biomcp_types::Reason::TooLarge, None).into());
             }
-            let record = |length| {
-                if let Some(size) = auto
-                    && index + 1 == set.parts.len()
-                {
+            let total = auto.filter(|_| index + 1 == set.parts.len());
+            let body = part_body(leg, set, part, format, ceiling, |length| {
+                if let Some(size) = total {
                     size.set(bytes.checked_add(length));
                 }
-            };
-            let body = part_body(
-                leg,
-                set,
-                part,
-                format,
-                ceiling,
-                auto.map(|_| &record as &dyn Fn(u64)),
-            )?;
-            record(body.len() as u64);
+            })?;
             bytes = bytes.saturating_add(body.len() as u64);
             if !streamed {
                 held = held.saturating_add(body.len() as u64);
@@ -187,7 +177,7 @@ fn part_body<R: Row>(
     part: &BundlePart,
     format: RowFormat,
     ceiling: Option<u64>,
-    part_length: Option<&dyn Fn(u64)>,
+    part_length: impl Fn(u64),
 ) -> Result<Vec<u8>, RequestError> {
     let limit = match format {
         RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
@@ -213,11 +203,13 @@ fn part_body<R: Row>(
         _ => read,
     };
     let mut read = read;
-    read.part_length = part_length;
-    Ok(leg
+    read.part_length = ceiling.map(|_| &part_length as &dyn Fn(u64));
+    let body = leg
         .call(&endpoint, crate::Input::Params(&[]), read)?
         .value
-        .0)
+        .0;
+    part_length(body.len() as u64);
+    Ok(body)
 }
 fn append_part(
     complete: &mut Vec<parse::Parsed>,

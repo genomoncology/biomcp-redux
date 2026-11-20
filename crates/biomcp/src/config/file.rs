@@ -270,3 +270,20 @@ pub(super) fn pacing(
         })
         .collect()
 }
+
+/// Apply the stored-source settings to the transport defaults.
+pub(super) fn bundle_settings(file: Option<&ConfigFile>) -> biomcp_fetch::FetchConfig {
+    let mut settings = biomcp_fetch::FetchConfig::default();
+    if let Some(file) = file {
+        if let Some(seconds) = file.auto_sync_retry_seconds {
+            settings.auto_sync_retry_seconds = seconds.get();
+        }
+        if let Some(bytes) = file.auto_sync_max_bytes {
+            settings.auto_sync_max_bytes = bytes;
+        }
+        if let Some(seconds) = file.sync_timeout_seconds {
+            settings.sync_budget = std::time::Duration::from_secs(seconds.get().into());
+        }
+    }
+    settings
+}

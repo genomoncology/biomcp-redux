@@ -126,7 +126,11 @@ fn backoff() -> Check {
         COMPANION,
         json!({"auto_sync_max_bytes":1000}),
     )?;
-    let size = bodies(COMPANION)?[0].1.len();
+    let size = bodies(COMPANION)?
+        .first()
+        .ok_or("missing companion recording")?
+        .1
+        .len();
     let mut replies = Vec::new();
     for _ in 0..3 {
         replies.push(invoke(&env, words(SEARCH), 4)?);

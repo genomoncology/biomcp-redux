@@ -98,16 +98,16 @@ impl Leg<'_> {
             if record { None } else { old.as_ref() },
         );
         if let Some(size) = size {
-            size.set(transfer.part.total);
+            size.set(
+                transfer
+                    .part
+                    .total
+                    .or(transfer.complete.then_some(transfer.part.bytes)),
+            );
         }
         if result.is_err() {
-            // Preserve this holder's file only if its fenced metadata update succeeds.
-            let cleanup = Deadline::start(Duration::from_secs(1), None);
-            if transfer.complete || transfer.part.total.is_some_and(|n| n > MAX_BUNDLE_BYTES) {
-                cache.discard(b.name, &holder, cleanup)?;
-            } else if cache.retain(b.name, &holder, &part, cleanup)? {
-                file.keep().map_err(|_| CacheError::Filesystem)?;
-            }
+            let discard = transfer.complete || part.total.is_some_and(|n| n > MAX_BUNDLE_BYTES);
+            finish_failed(cache, b.name, &holder, &part, file, discard)?;
         }
         match result {
             Err(RequestError::Source(error))
@@ -550,4 +550,22 @@ fn provenance(meta: &mut Meta, body: &[u8]) {
     let hex = super::bundle_sha256(body);
     meta.content_revision = Some(format!("sha256:{hex}"));
     meta.retrieved_at = crate::cache::timestamp();
+}
+
+/// Keep resumable bytes only after this holder stored their matching metadata.
+fn finish_failed(
+    cache: &crate::cache::Cache,
+    name: &str,
+    holder: &str,
+    part: &Part,
+    file: tempfile::NamedTempFile,
+    discard: bool,
+) -> Result<(), RequestError> {
+    let cleanup = Deadline::start(Duration::from_secs(1), None);
+    if discard {
+        cache.discard(name, holder, cleanup)?;
+    } else if cache.retain(name, holder, part, cleanup)? {
+        file.keep().map_err(|_| CacheError::Filesystem)?;
+    }
+    Ok(())
 }
