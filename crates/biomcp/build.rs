@@ -177,6 +177,7 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("drug/ddinter.yaml", 0),
     ("drug/ddinter.yaml", 2),
     ("drug/markets.yaml", 2),
+    ("drug/label-history-example.yaml", 0),
     ("disease/examples.yaml", 0),
     ("disease/examples.yaml", 1),
     ("disease/examples.yaml", 2),
