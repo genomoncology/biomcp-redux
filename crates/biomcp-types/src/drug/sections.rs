@@ -138,21 +138,16 @@ pub struct DrugApprovalsPart {
 /// Regulator events without the identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[serde(untagged)]
-pub enum DrugRegulatoryPart {
+pub struct DrugRegulatoryPart {
     /// EMA medicine events. Each indication is the publisher's web summary.
-    Events {
-        /// Original regulatory status, date roles and event records.
-        regulatory: Section<DrugRecords<AuthorizationEvent>>,
-        /// The publisher's description of each date role.
-        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-        date_roles: Box<[DateRoleLabel]>,
-    },
-    /// Independently sourced FDA application events for an Open Targets drug name.
-    Applications {
-        /// FDA lookup state and, when available, the original application facts.
-        regulatory_context: Section<DrugRegulatoryContext>,
-    },
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub regulatory: Option<Section<DrugRecords<AuthorizationEvent>>>,
+    /// The publisher's description of each date role.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub date_roles: Box<[DateRoleLabel]>,
+    /// FDA lookup state and application facts for an Open Targets drug name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub regulatory_context: Option<Section<DrugRegulatoryContext>>,
 }
 /// Interactions without the identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

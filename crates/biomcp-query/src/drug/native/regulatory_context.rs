@@ -3,8 +3,8 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda, received_date};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    DrugApprovals, DrugGet, DrugRecords, DrugRegulatoryContext, DrugRegulatoryPart, ReplyData,
-    Section, Source, SourceNotice,
+    DrugApprovals, DrugGet, DrugRecords, DrugRegulatoryContext, ReplyData, Section, Source,
+    SourceNotice,
 };
 const NOTICE: &str = concat!(
     "FDA application events are matched by drug name only. ",
@@ -63,7 +63,7 @@ pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out:
         body: Some(body), ..
     } = &mut out.body
     {
-        body.part = DrugRegulatoryPart::Applications { regulatory_context };
+        body.part.regulatory_context = Some(regulatory_context);
     }
     out.sources.push(source);
     status::item(out, true, false, false);

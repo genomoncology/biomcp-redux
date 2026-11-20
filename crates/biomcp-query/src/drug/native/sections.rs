@@ -131,8 +131,10 @@ pub(super) fn opentargets(
             crate::status::item(out, true, false, false);
             out.body = DrugRegulatory {
                 identity: header,
-                part: DrugRegulatoryPart::Applications {
-                    regulatory_context: Section::NotApplicable,
+                part: DrugRegulatoryPart {
+                    regulatory: None,
+                    date_roles: Box::default(),
+                    regulatory_context: Some(Section::NotApplicable),
                 },
             }
             .with_query(query.clone());

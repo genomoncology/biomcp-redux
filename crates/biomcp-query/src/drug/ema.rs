@@ -174,11 +174,7 @@ fn regulatory_page(
     mut body: biomcp_types::DrugRegulatory,
     out: &mut Outcome,
 ) -> biomcp_types::DrugRegulatory {
-    if let biomcp_types::DrugRegulatoryPart::Events {
-        regulatory: Section::Data { data, .. },
-        ..
-    } = &mut body.part
-    {
+    if let Some(Section::Data { data, .. }) = &mut body.part.regulatory {
         let offset = query.section_offset().unwrap_or(0);
         let total = data.records.len() as u64;
         data.records = data
