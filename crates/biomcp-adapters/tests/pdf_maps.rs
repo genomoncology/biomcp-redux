@@ -21,7 +21,7 @@ const REFUSED_HEADER: &str = "/CIDInit /ProcSet findresource begin\n12 dict begi
     /CMapName /Synthetic def\n";
 
 /// A one-page PDF of the sentence in an Identity-H font whose character map is `map`.
-fn glyph_pdf(map: &str) -> Vec<u8> {
+fn glyph_pdf(map: &str) -> lopdf::Result<Vec<u8>> {
     let words: Vec<String> = SENTENCE
         .split(' ')
         .map(|word| {
@@ -59,20 +59,20 @@ fn glyph_pdf(map: &str) -> Vec<u8> {
     let catalog = document.add_object(dictionary! { "Type" => "Catalog", "Pages" => pages });
     document.trailer.set("Root", catalog);
     let mut bytes = Vec::new();
-    document.save_to(&mut bytes).expect("synthetic PDF");
-    bytes
+    document.save_to(&mut bytes)?;
+    Ok(bytes)
 }
 
-fn state(header: &str, body: &str) -> PdfTextState {
-    let bytes = glyph_pdf(&format!("{header}{body}{FOOTER}"));
+fn state(header: &str, body: &str) -> Result<PdfTextState, String> {
+    let bytes = glyph_pdf(&format!("{header}{body}{FOOTER}")).map_err(|e| e.to_string())?;
     embedded(&bytes, 100, &|| false)
-        .expect("readable PDF")
-        .state
+        .map(|read| read.state)
+        .map_err(|reason| format!("{reason:?}"))
 }
 
 /// The map is not read: the font decodes without it, as glyph numbers, so the read is garbled.
 fn refused(header: &str, body: &str, why: &str) {
-    assert_eq!(state(header, body), PdfTextState::Garbled, "{why}");
+    assert_eq!(state(header, body), Ok(PdfTextState::Garbled), "{why}");
 }
 
 #[test]
@@ -99,12 +99,12 @@ fn comments_between_entries_leave_a_bounded_map_readable() {
     );
     assert_eq!(
         state(HEADER, &body),
-        PdfTextState::Text,
+        Ok(PdfTextState::Text),
         "comments are dropped, not misread"
     );
     assert_eq!(
         state(REFUSED_HEADER, &body),
-        PdfTextState::Text,
+        Ok(PdfTextState::Text),
         "the copy drops them too"
     );
 }
@@ -181,7 +181,7 @@ fn codes_a_map_leaves_unmapped_mark_the_read_partial() {
     // Only "T", "h" and "e" are mapped; lopdf gives U+FFFD for every other glyph.
     let body = "1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n\
         3 beginbfchar\n<0037> <0054>\n<004B> <0068>\n<0048> <0065>\nendbfchar\n";
-    let bytes = glyph_pdf(&format!("{HEADER}{body}{FOOTER}"));
+    let bytes = glyph_pdf(&format!("{HEADER}{body}{FOOTER}")).expect("synthetic PDF");
     let read = embedded(&bytes, 100, &|| false).expect("readable PDF");
     assert_eq!(
         read.state,
