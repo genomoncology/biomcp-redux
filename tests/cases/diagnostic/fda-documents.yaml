@@ -77,6 +77,25 @@
         "/result/document/state": "text"
       },
       "max_bytes": 9500
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P010013",
+        "summary",
+        "--source",
+        "fda-pma",
+        "--find",
+        "\u2265 150"
+      ],
+      "expect": {
+        "/page/returned": 1,
+        "/result/hits/0/text": {
+          "includes": "PBLAC score of \u2265 150 for 3 months prior to study enrollment; OR\nPBLAC score \u2265 150 for one month"
+        }
+      },
+      "max_bytes": 5000
     }
   ],
   "verified": "The expected P170019 text fragment preserves pinned lopdf spacing and matches the FDA SSED source (SHA-256 e2a018c7af76a5a63f4a428c8ffbb14473b4a76c9f8d12de85f561d943317d3f). Letter selection is independently bound to native ID, URL and its four PDF pages. No source text is normalized or summarized."
