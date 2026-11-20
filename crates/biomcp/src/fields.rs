@@ -8,4 +8,4 @@ mod narrow;
 mod rows;
 mod select;
 
-pub(crate) use select::{Chosen, carried, check, help_line, project};
+pub(crate) use select::{Chosen, carried, carry_to_correction, check, help_line, project};
