@@ -54,7 +54,10 @@ biodata::wire_enum! {
         /// Unread: reading went over BioMCP's memory or time limit.
         Refused => "refused",
         /// Unread: FDA refused the download or it failed.
-        NotFetched => "not-fetched"
+        NotFetched => "not-fetched",
+        /// Unread: the section holds private-use characters, which stand for symbols, digits or
+        /// letters the PDF's fonts do not name, and holds no searched text, so a miss proves nothing.
+        PrivateUse => "private-use"
     }
 }
 
@@ -158,6 +161,10 @@ pub struct LabelVersionMatch {
     /// At most two distinct sentences holding a searched text, each at most 400 characters,
     /// as the PDF's text gives them.
     pub sentences: Box<[Text]>,
+    /// True when the section's text holds private-use characters, which stand for symbols,
+    /// digits or letters the PDF's fonts do not name; a searched text with them may be missed.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub private_use: bool,
 }
 
 impl ResponseBody for DrugLabelHistory {

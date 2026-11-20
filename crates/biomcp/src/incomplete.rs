@@ -6,7 +6,7 @@ use serde_json::Value;
 /// Result nodes whose `state` marks requested data that could not be read, including source rows
 /// nested in a multi-part reply. A PDF whose text was cut short (`partial`), read as gibberish,
 /// damaged, or refused because its read was stopped at the memory or time limit counts (1075).
-const MISSING_STATES: [&str; 14] = [
+const MISSING_STATES: [&str; 15] = [
     "unavailable",
     "no-text",
     "too-large",
@@ -18,6 +18,7 @@ const MISSING_STATES: [&str; 14] = [
     "section-not-bounded",
     "older-format",
     "not-fetched",
+    "private-use",
     "skipped",
     "failed",
     "stale",

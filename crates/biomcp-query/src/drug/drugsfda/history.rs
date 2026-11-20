@@ -33,6 +33,7 @@ struct Version {
 /// What reading one version found.
 struct Opened {
     state: State,
+    private_use: bool,
     heading: Option<String>,
     sentences: Vec<String>,
 }
@@ -145,7 +146,13 @@ impl Search<'_, '_> {
             Found::Older => return state(State::OlderFormat),
         };
         let hits = label_text::hits(&section, self.finds);
+        let private_use = section
+            .chars()
+            .any(|c| ('\u{e000}'..='\u{f8ff}').contains(&c));
         let Some(&at) = hits.first() else {
+            if private_use {
+                return state(State::PrivateUse);
+            }
             return state(if partial {
                 State::Partial
             } else {
@@ -154,6 +161,7 @@ impl Search<'_, '_> {
         };
         Opened {
             state: State::Match,
+            private_use,
             heading: label_text::heading(&flat, &section, at),
             sentences: label_text::sentences(&section, &hits),
         }
@@ -218,6 +226,7 @@ impl Search<'_, '_> {
 fn state(state: State) -> Opened {
     Opened {
         state,
+        private_use: false,
         heading: None,
         sentences: Vec::new(),
     }
