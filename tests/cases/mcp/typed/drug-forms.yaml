@@ -84,7 +84,7 @@
         }
       },
       "expect": {
-        "/query/query": "imatinib",
+        "/query/input": "imatinib",
         "/query/source": "drugsfda",
         "/status": "failed"
       },
@@ -105,7 +105,7 @@
         }
       },
       "expect": {
-        "/query/query": "imatinib",
+        "/query/input": "imatinib",
         "/query/source": "drugsfda",
         "/status": "failed"
       },
@@ -124,7 +124,7 @@
         }
       },
       "expect": {
-        "/query/query": "imatinib",
+        "/query/input": "imatinib",
         "/query/source": "drugsfda",
         "/status": "failed"
       },
@@ -145,7 +145,7 @@
         }
       },
       "expect": {
-        "/query/query": "imatinib",
+        "/query/input": "imatinib",
         "/query/source": "drugsfda",
         "/status": "failed"
       },
@@ -166,7 +166,7 @@
         }
       },
       "expect": {
-        "/query/query": "imatinib",
+        "/query/input": "imatinib",
         "/query/source": "drugsfda",
         "/status": "failed"
       },
@@ -189,7 +189,7 @@
         }
       },
       "expect": {
-        "/query/query": "imatinib",
+        "/query/input": "imatinib",
         "/query/source": "drugsfda",
         "/status": "failed"
       },
