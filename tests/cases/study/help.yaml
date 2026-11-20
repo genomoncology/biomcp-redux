@@ -49,7 +49,7 @@
           "get",
           "study"
         ],
-        "/result/commands/0/description": "Get cancer genomics study details. Sources: cbioportal.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.\n--fields a,b keeps only those columns of a named section's rows, or a dotted path inside one (event.status); identifiers stay, and a wrong name is refused with the section's names.",
+        "/result/commands/0/description": "Get cancer genomics study details. Sources: cbioportal.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.\n--fields a,b keeps only those columns of a named section's rows; a.b names a value inside one.",
         "/result/commands/0/examples": {
           "count": 1
         },

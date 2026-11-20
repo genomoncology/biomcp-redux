@@ -249,8 +249,7 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
     if verb == "get" {
         let call = Call::of(verb, entity, sections);
         return (!call_lists(&call).is_empty()).then(|| {
-            "--fields a,b keeps only those columns of a named section's rows, or a dotted path inside one \
-             (event.status); identifiers stay, and a wrong name is refused with the section's names."
+            "--fields a,b keeps only those columns of a named section's rows; a.b names a value inside one."
                 .to_owned()
         });
     }
