@@ -38,12 +38,12 @@ struct End {
 
 /// Text shown so far and the state that places the next word.
 #[derive(Default)]
-pub(super) struct Reader {
+pub(super) struct Reader<'a> {
     text: String,
     /// Byte spans of `text` shown in fonts decoded without a character map.
     unsound: Vec<(usize, usize)>,
-    state: State,
-    saved: Vec<State>,
+    state: State<'a>,
+    saved: Vec<State<'a>>,
     line: Matrix,
     matrix: Matrix,
     end: Option<End>,
@@ -67,7 +67,7 @@ fn float(operands: &[Object], at: usize) -> f32 {
     operands.get(at).and_then(number).unwrap_or(0.0)
 }
 
-impl Reader {
+impl<'a> Reader<'a> {
     /// Draw a form XObject: its `/Matrix` maps form space into the current space until
     /// [`Reader::leave_form`], as `q`, `cm` and `Q` would (PDF 32000-1 §8.10.1).
     pub(super) fn enter_form(&mut self, matrix: Option<Matrix>) {
@@ -95,7 +95,7 @@ impl Reader {
         &mut self,
         operator: &str,
         operands: &[Object],
-        fonts: &Fonts<'_>,
+        fonts: &Fonts<'a>,
     ) -> lopdf::Result<()> {
         match operator {
             "BT" => {
@@ -127,8 +127,8 @@ impl Reader {
             "TL" => self.state.leading = float(operands, 0),
             "Tf" => {
                 self.state.font = match operands.first() {
-                    Some(Object::Name(name)) => name.clone(),
-                    _ => Vec::new(),
+                    Some(Object::Name(name)) => fonts.get(name).cloned(),
+                    _ => None,
                 };
                 self.state.size = float(operands, 1);
             }
@@ -145,16 +145,16 @@ impl Reader {
                 }
             }
             "T*" => self.next_line(),
-            "Tj" | "TJ" => self.show(operands, fonts)?,
+            "Tj" | "TJ" => self.show(operands)?,
             "'" => {
                 self.next_line();
-                self.show(operands, fonts)?;
+                self.show(operands)?;
             }
             "\"" => {
                 self.state.word_space = float(operands, 0);
                 self.state.char_space = float(operands, 1);
                 self.next_line();
-                self.show(operands.get(2..).unwrap_or_default(), fonts)?;
+                self.show(operands.get(2..).unwrap_or_default())?;
             }
             _ => {}
         }
@@ -179,8 +179,8 @@ impl Reader {
     }
 
     /// Show strings and `TJ` adjustments, after a space when the pen moved a word gap away.
-    fn show(&mut self, operands: &[Object], fonts: &Fonts<'_>) -> lopdf::Result<()> {
-        let Some(font) = fonts.get(&self.state.font) else {
+    fn show(&mut self, operands: &[Object]) -> lopdf::Result<()> {
+        let Some(font) = self.state.font.as_deref() else {
             return Ok(());
         };
         let (encoding, widths) = (&font.encoding, &font.widths);
@@ -218,6 +218,10 @@ impl Reader {
         if shown.is_empty() {
             return Ok(());
         }
+        self.unmapped |= matches!(encoding, lopdf::Encoding::UnicodeMapEncoding(_))
+            && shown.contains('\u{fffd}');
+        let sound = font.sound;
+        let measured = widths.is_some();
         let place = self.end.map_or(Place::Joined, |end| self.place(end));
         if std::mem::take(&mut self.pending) {
             if place != Place::Joined {
@@ -229,11 +233,9 @@ impl Reader {
         {
             self.text.push(' ');
         }
-        self.unmapped |= matches!(encoding, lopdf::Encoding::UnicodeMapEncoding(_))
-            && shown.contains('\u{fffd}');
         let at = self.text.len();
         self.text.push_str(&shown);
-        if !font.sound {
+        if !sound {
             self.unsound.push((at, self.text.len()));
         }
         self.matrix = start.moved(advance, 0.0);
@@ -242,7 +244,7 @@ impl Reader {
             x: page.e,
             y: page.f,
             height: self.height(),
-            measured: widths.is_some(),
+            measured,
             array,
         });
         Ok(())

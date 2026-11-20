@@ -56,7 +56,7 @@ struct Walk<'a, 'c> {
     draws: usize,
     operations: usize,
     skipped: bool,
-    reader: Reader,
+    reader: Reader<'a>,
 }
 
 /// Embedded text of one page, its expanded content bounded by `limit` bytes.

@@ -122,19 +122,28 @@ pub(super) struct Font<'a> {
     pub(super) encoding: Encoding<'a>,
     pub(super) widths: Option<Widths>,
     pub(super) sound: bool,
-    symbol: bool,
+    symbol: Option<SymbolEncoding>,
+}
+
+enum SymbolEncoding {
+    BuiltIn,
+    Mapped,
 }
 
 impl Font<'_> {
     /// Decode one string under this font and report any private-use Symbol glyph kept.
     pub(super) fn decode(&self, bytes: &[u8], shown: &mut String) -> lopdf::Result<bool> {
-        if self.symbol {
-            let mut decoded = String::new();
-            self.encoding.write_to_string(bytes, &mut decoded)?;
-            Ok(super::symbol::append(&decoded, shown))
-        } else {
-            self.encoding.write_to_string(bytes, shown)?;
-            Ok(false)
+        match self.symbol {
+            Some(SymbolEncoding::BuiltIn) => Ok(super::symbol::append_bytes(bytes, shown)),
+            Some(SymbolEncoding::Mapped) => {
+                let mut decoded = String::new();
+                self.encoding.write_to_string(bytes, &mut decoded)?;
+                Ok(super::symbol::append(&decoded, shown))
+            }
+            None => {
+                self.encoding.write_to_string(bytes, shown)?;
+                Ok(false)
+            }
         }
     }
 }
@@ -158,7 +167,20 @@ impl<'a> Cache<'a> {
         if let Some(known) = self.fonts.get(&key) {
             return Ok(Rc::clone(known));
         }
-        let composite = matches!(font.get(b"Subtype"), Ok(Object::Name(name)) if name == b"Type0");
+        let subtype = entry(font, b"Subtype")
+            .and_then(|value| super::fonts::resolve(document, value))
+            .and_then(|value| value.as_name().ok());
+        let composite = subtype == Some(b"Type0");
+        let symbol = super::symbol::is_symbol(document, font).then(|| {
+            if matches!(subtype, Some(b"Type1" | b"MMType1" | b"TrueType"))
+                && entry(font, b"Encoding").is_none()
+                && entry(font, b"ToUnicode").is_none()
+            {
+                SymbolEncoding::BuiltIn
+            } else {
+                SymbolEncoding::Mapped
+            }
+        });
         // [`bound`] already removed every map over the bounds.
         let encoding = font.get_font_encoding_with_limit(document, limit)?;
         let encoding = match encoding {
@@ -172,7 +194,7 @@ impl<'a> Cache<'a> {
         );
         let read = Rc::new(Font {
             sound: !(composite && fallback),
-            symbol: super::symbol::is_symbol(document, font),
+            symbol,
             widths: widths(document, font),
             encoding,
         });
