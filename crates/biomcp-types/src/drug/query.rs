@@ -213,22 +213,8 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
             "section_offset",
         ]));
     }
+    validate_history(fields)?;
     let history = fields.section.contains(&DrugSection::LabelHistory);
-    let unpaged = fields.section_limit.or(fields.section_offset).is_none();
-    let drugsfda = fields.source == Some(DrugSource::Drugsfda) && unpaged;
-    let options = (
-        &*fields.find,
-        fields.every_version,
-        fields.label_section.as_ref(),
-    );
-    if !super::history::valid(&fields.section, drugsfda, options) {
-        return Err(QueryInvalid::new(&[
-            "section",
-            "find",
-            "label_section",
-            "every_version",
-        ]));
-    }
     if fields.label_section.is_some() && !history && !fields.section.contains(&DrugSection::Label) {
         return Err(QueryInvalid::new(&["label_section", "section"]));
     }
@@ -256,6 +242,18 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
         return Err(QueryInvalid::new(&["source", "section"]));
     }
     Ok(())
+}
+fn validate_history(fields: &GetFields) -> Result<(), QueryInvalid> {
+    let unpaged = fields.section_limit.or(fields.section_offset).is_none();
+    let drugsfda = fields.source == Some(DrugSource::Drugsfda) && unpaged;
+    let options = (
+        &*fields.find,
+        fields.every_version,
+        fields.label_section.as_ref(),
+    );
+    super::history::valid(&fields.section, drugsfda, options)
+        .then_some(())
+        .ok_or_else(|| QueryInvalid::new(&["section", "find", "label_section"]))
 }
 fn validate_window(fields: &GetFields, approvals: bool) -> Result<(), QueryInvalid> {
     let window = [
