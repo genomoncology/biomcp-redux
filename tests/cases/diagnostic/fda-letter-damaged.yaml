@@ -1,0 +1,27 @@
+{
+  "feature": "fda-document-text",
+  "live_check": "Synthetic PDF; recorded only",
+  "story": "When an FDA document's PDF is damaged, the reader refuses it without repair, and the reply is partial with a notice saying the file is damaged and should be fetched another way.",
+  "verified": "Synthetic truncated letter PDF described in the replay README, replayed with the public openFDA reply for NDA208065 recorded 2026-11-19; the 2026-11-19 PM ruling requires a damaged file to be reported as damaged.",
+  "replay": "diagnostic/fda-letter-damaged",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA208065",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--document-id",
+        "65680"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/approvals/data/records/0/application_docs/0/text/state": "damaged",
+        "/sources/0/notices/1/message": "This PDF is damaged: its structure is broken or irregular, and BioMCP does not repair damaged PDFs, so none of its text was read. Fetch the document another way."
+      },
+      "max_bytes": 20000
+    }
+  ]
+}

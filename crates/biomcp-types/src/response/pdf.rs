@@ -19,6 +19,20 @@ pub struct PdfText {
     /// Verbatim extracted text in document order; omitted when unavailable or when a find returns passages.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
+    /// Why a partial read may miss text, for the reply's notice; not serialized.
+    #[serde(skip)]
+    #[cfg_attr(feature = "schema", schemars(skip))]
+    pub missing: Option<PdfMissing>,
+}
+/// Why a partial PDF read may miss text.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PdfMissing {
+    /// Text drawn in a font without a usable character map read as gibberish and was cut out.
+    Gibberish,
+    /// A part of a page could not be read and was skipped.
+    Skipped,
+    /// Both.
+    Both,
 }
 /// One verbatim passage that contains the found text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -37,6 +51,19 @@ biodata::wire_enum! {
         /// No embedded text was found; scans require OCR outside this reader.
         NoText => "no-text",
         /// The PDF exceeds the byte, page or expanded-text bound.
-        TooLarge => "too-large"
+        TooLarge => "too-large",
+        /// Unread: the embedded text could not be decoded and reads as gibberish, so none is returned.
+        Garbled => "garbled",
+        /// Embedded text was read, but a part of a page could not be read, so some text may be missing.
+        Partial => "partial",
+        /// Unread: the file is damaged or its structure is irregular; fetch it another way.
+        Damaged => "damaged"
+    }
+}
+impl PdfTextState {
+    /// Whether text was read and is returned.
+    #[must_use]
+    pub fn readable(&self) -> bool {
+        matches!(self, Self::Text | Self::Partial)
     }
 }

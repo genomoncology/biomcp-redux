@@ -8,10 +8,11 @@
 //! starts a word gap or a line away from where the last one ended, as poppler's `pdftotext`
 //! decides, and keeps lopdf's line break at `ET` unless the next text object runs on in the
 //! same word. A font without glyph widths keeps lopdf's space after each `TJ` array.
-use super::fonts::{Widths, number, widths};
+use super::cmap::Font;
+use super::fonts::number;
 use super::state::{Matrix, State};
-use lopdf::{Document, Encoding, Object, ObjectId, content::Content};
-use std::collections::BTreeMap;
+use lopdf::Object;
+use std::{collections::BTreeMap, rc::Rc};
 
 /// A gap wider than this share of the font size is a word break: poppler's `pdftotext`
 /// default, and the tenth of an em of lopdf's `TJ` kerning rule.
@@ -21,25 +22,8 @@ const LINE_GAP: f32 = 0.5;
 /// lopdf's `TJ` kerning rule: an adjustment below this many thousandths of an em is a space.
 const KERNING_SPACE: f32 = -100.0;
 
-/// Embedded text of one page, its expanded content bounded by `limit` bytes.
-pub(super) fn page(document: &Document, page: ObjectId, limit: usize) -> lopdf::Result<String> {
-    let mut fonts = BTreeMap::new();
-    for (name, font) in document.get_page_fonts(page)? {
-        let encoding = font.get_font_encoding_with_limit(document, limit)?;
-        fonts.insert(name, (encoding, widths(document, font)));
-    }
-    let content = Content::decode(&document.get_page_content_with_limit(page, limit)?)?;
-    let mut reader = Reader::default();
-    for operation in &content.operations {
-        reader.apply(&operation.operator, &operation.operands, &fonts)?;
-    }
-    if reader.pending {
-        reader.newline();
-    }
-    Ok(reader.text)
-}
-
-type Fonts<'a> = BTreeMap<Vec<u8>, (Encoding<'a>, Option<Widths>)>;
+/// A content stream's fonts by resource name, with their encodings and glyph widths.
+pub(super) type Fonts<'a> = BTreeMap<Vec<u8>, Rc<Font<'a>>>;
 
 /// Where on the page the last shown glyph ended and the font height there. Without widths
 /// the end is unknown, and `array` keeps lopdf's space after a `TJ` array.
@@ -52,9 +36,12 @@ struct End {
     array: bool,
 }
 
+/// Text shown so far and the state that places the next word.
 #[derive(Default)]
-struct Reader {
+pub(super) struct Reader {
     text: String,
+    /// Byte spans of `text` shown in fonts decoded without a character map.
+    unsound: Vec<(usize, usize)>,
     state: State,
     saved: Vec<State>,
     line: Matrix,
@@ -77,7 +64,30 @@ fn float(operands: &[Object], at: usize) -> f32 {
 }
 
 impl Reader {
-    fn apply(
+    /// Draw a form XObject: its `/Matrix` maps form space into the current space until
+    /// [`Reader::leave_form`], as `q`, `cm` and `Q` would (PDF 32000-1 §8.10.1).
+    pub(super) fn enter_form(&mut self, matrix: Option<Matrix>) {
+        self.saved.push(self.state.clone());
+        if let Some(matrix) = matrix {
+            self.state.ctm = matrix.times(self.state.ctm);
+        }
+    }
+
+    pub(super) fn leave_form(&mut self) {
+        if let Some(state) = self.saved.pop() {
+            self.state = state;
+        }
+    }
+
+    /// The page's text, ending any line an `ET` left waiting, and its unsound spans.
+    pub(super) fn finish(mut self) -> (String, Vec<(usize, usize)>) {
+        if self.pending {
+            self.newline();
+        }
+        (self.text, self.unsound)
+    }
+
+    pub(super) fn apply(
         &mut self,
         operator: &str,
         operands: &[Object],
@@ -166,9 +176,10 @@ impl Reader {
 
     /// Show strings and `TJ` adjustments, after a space when the pen moved a word gap away.
     fn show(&mut self, operands: &[Object], fonts: &Fonts<'_>) -> lopdf::Result<()> {
-        let Some((encoding, widths)) = fonts.get(&self.state.font) else {
+        let Some(font) = fonts.get(&self.state.font) else {
             return Ok(());
         };
+        let (encoding, widths) = (&font.encoding, &font.widths);
         let start = self.matrix;
         let mut shown = String::new();
         let mut advance = 0.0;
@@ -177,14 +188,18 @@ impl Reader {
             match operand {
                 Object::String(bytes, _) => {
                     encoding.write_to_string(bytes, &mut shown)?;
-                    advance += self.advance(bytes, widths.as_ref());
+                    advance += widths
+                        .as_ref()
+                        .map_or(0.0, |w| w.advance(bytes, &self.state));
                 }
                 Object::Array(items) => {
                     array = true;
                     for item in items {
                         if let Object::String(bytes, _) = item {
                             encoding.write_to_string(bytes, &mut shown)?;
-                            advance += self.advance(bytes, widths.as_ref());
+                            advance += widths
+                                .as_ref()
+                                .map_or(0.0, |w| w.advance(bytes, &self.state));
                         } else if let Some(adjust) = number(item) {
                             if adjust < KERNING_SPACE && !ends_blank(&shown) {
                                 shown.push(' ');
@@ -210,7 +225,11 @@ impl Reader {
         {
             self.text.push(' ');
         }
+        let at = self.text.len();
         self.text.push_str(&shown);
+        if !font.sound {
+            self.unsound.push((at, self.text.len()));
+        }
         self.matrix = start.moved(advance, 0.0);
         let page = self.matrix.times(self.state.ctm);
         self.end = Some(End {
@@ -221,36 +240,6 @@ impl Reader {
             array,
         });
         Ok(())
-    }
-
-    /// Horizontal text-space advance of one string, zero when the font has no widths.
-    fn advance(&self, bytes: &[u8], widths: Option<&Widths>) -> f32 {
-        let Some(widths) = widths else {
-            return 0.0;
-        };
-        let codes: Vec<u32> = if widths.two_byte {
-            bytes
-                .chunks(2)
-                .map(|pair| {
-                    pair.iter()
-                        .fold(0, |code, byte| code * 256 + u32::from(*byte))
-                })
-                .collect()
-        } else {
-            bytes.iter().map(|byte| u32::from(*byte)).collect()
-        };
-        let state = &self.state;
-        codes
-            .into_iter()
-            .map(|code| {
-                let word = if !widths.two_byte && code == 32 {
-                    state.word_space
-                } else {
-                    0.0
-                };
-                (widths.of(code) / 1000.0 * state.size + state.char_space + word) * state.scale
-            })
-            .sum()
     }
 
     /// The font size on the page, measured along the text's vertical axis.

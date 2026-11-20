@@ -267,7 +267,10 @@
       "enum": [
         "text",
         "no-text",
-        "too-large"
+        "too-large",
+        "garbled",
+        "partial",
+        "damaged"
       ],
       "type": "string"
     },

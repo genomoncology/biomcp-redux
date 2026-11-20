@@ -311,7 +311,7 @@ pub use coverage::{command_implicit_sources, command_section_component, command_
 #[cfg(feature = "schema")]
 pub use adverse_event::AdverseEventSearchCommand;
 
-pub use response::{PdfText, PdfTextHit, PdfTextState};
+pub use response::{PdfMissing, PdfText, PdfTextHit, PdfTextState};
 pub use response::{
     TrialAdverseEvents, TrialBaseline, TrialBaselineMeasure, TrialEnrollment, TrialEvent,
     TrialEventGroup, TrialEventStats, TrialFlowAchievement, TrialFlowDrop, TrialFlowMilestone,
