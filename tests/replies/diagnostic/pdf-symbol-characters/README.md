@@ -1,0 +1,1 @@
+Synthetic single-page PDF for the FDA document reader. Symbol and Wingdings share a ToUnicode map. The Symbol run includes an unassigned slot (FF) and an already-standard alpha. The Wingdings run repeats the private code for the Symbol up arrow. It must keep its own meaning.

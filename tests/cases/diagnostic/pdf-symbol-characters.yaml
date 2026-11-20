@@ -1,0 +1,25 @@
+{
+  "live_check": "Synthetic PDF reader boundary; authored PDF bytes, not an FDA source observation",
+  "feature": "fda-document-text",
+  "story": "The reader returns standard Symbol characters, keeps an unknown character and explains it, and preserves the same private code in another font.",
+  "replay": "diagnostic/pdf-symbol-characters",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P170019",
+        "summary",
+        "--source",
+        "fda-pma"
+      ],
+      "expect": {
+        "/result/document/text": "\u2191\u2265\u2264\u03bc%\u2022\uf0ff\u03b1\uf0ad\n",
+        "/sources/0/notices/*/message": {
+          "includes": "This PDF contains a Symbol-font character with no known standard equivalent. Its private-use code was kept."
+        }
+      },
+      "max_bytes": 2000
+    }
+  ]
+}
