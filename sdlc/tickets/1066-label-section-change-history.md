@@ -37,6 +37,7 @@ Agents asked "when did this warning enter the label" spend most of their tokens 
 - Keeps: BioMCP downloads and reads documents; it installs and runs no other tool automatically. If reading PDFs needs a library, the design names it and its license.
 - No fact is given without the document it came from. A document that could not be fetched or read is reported as such.
 - `approvals` keeps its present reply.
+- Label PDFs are fetched only from https://www.accessdata.fda.gov, as approval letters are: the download's source declaration admits no other origin, so a PDF the reader parses can come only from FDA's own site, and each read runs in the capped child process (1075) (PM, 2026-11-19).
 
 ## Defers
 
