@@ -168,7 +168,9 @@ def example_calls(root):
                 except json.JSONDecodeError as error:
                     raise ValueError(f"{name}:{number}: example call is not JSON: {error}") from error
                 action = call.get("action")
-                if sorted(call) != sorted(["action", action]) or not isinstance(call.get(action), dict):
+                # A typed call may also carry its tool's `fields` list beside the action (1071).
+                if (sorted(set(call) - {"fields"}) != sorted(["action", action]) or not isinstance(call.get(action), dict)
+                        or not isinstance(call.get("fields", []), list)):
                     raise ValueError(f"{name}:{number}: example call is not an action with one object named after it")
                 found.append((f"{name}:{number}", tools[-1], call))
     return found

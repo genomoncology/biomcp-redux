@@ -81,10 +81,8 @@ singleton! {
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
  ArgumentCombination => "error.option is not accepted with the other options as given; valid_values names every option involved",
- FieldsUnknown => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it \
- can place in the field that holds it",
- FieldsRowsOnly => "--fields chooses columns of the rows of a search or a named section; name a section with rows, \
- or drop --fields",
+ FieldsUnknown => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it",
+ FieldsRowsOnly => "--fields chooses columns of the rows of a search or a named section; name a section with rows, or drop --fields",
  SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next \
  step; run the suggested command",
  OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \
