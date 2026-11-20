@@ -193,6 +193,10 @@ pub(super) fn civic_id(value: &str) -> Option<std::num::NonZeroU32> {
 pub(super) fn inferred_source(sections: &[DrugSection]) -> DrugSource {
     let candidates: Vec<_> = DrugSource::ALL
         .into_iter()
+        // FDA context is an explicit Open Targets selection. Unqualified regulatory reads use EMA.
+        .filter(|source| {
+            *source != DrugSource::Opentargets || !sections.contains(&DrugSection::Regulatory)
+        })
         .filter(|source| {
             !sections.is_empty()
                 && sections
