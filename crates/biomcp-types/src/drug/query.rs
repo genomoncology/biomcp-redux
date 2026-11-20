@@ -168,6 +168,11 @@ impl TryFrom<GetFields> for DrugGet {
                 }
             }
         };
+        if source == DrugSource::FdaDsc && native_id == NativeDrugId::Name {
+            return Err(
+                QueryInvalid::new(&["input"]).with_message(crate::ErrorMessage::FdaDscGetId)
+            );
+        }
         validate_civic(&fields)?;
         Ok(Self { fields, native_id })
     }

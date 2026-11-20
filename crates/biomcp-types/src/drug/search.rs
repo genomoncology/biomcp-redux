@@ -41,6 +41,10 @@ struct SearchFields {
     /// exact names before word matches. openFDA labels search exact then word brand/generic names,
     /// then label text (including indications) when no names match; source matches need not be exact names.
     /// Harmonized recall names match but never become display names.
+    /// FDA safety communications search titles, linked drug names and available page text.
+    /// Zero matches does not establish that FDA issued no communication about this drug.
+    /// The reply counts the communications searched and how many had page text.
+    /// FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
         default,

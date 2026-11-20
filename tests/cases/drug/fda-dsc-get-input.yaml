@@ -1,0 +1,52 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "Reading a communication by drug name gives an input error with a working search command.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "tofacitinib",
+          "--source",
+          "fda-dsc"
+        ]
+      },
+      "exit": 2,
+      "is_error": true,
+      "mcp": [
+        "get",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc"
+      ]
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "drug",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "fda-dsc requires the communication UUID"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-//! FDA Drug Safety Communications: search by drug name or title words, read one by FDA's id.
+//! FDA Drug Safety Communications: search by drug name or text, read one by FDA's id.
 use super::empty;
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
@@ -6,20 +6,28 @@ use biomcp_adapters::fda_dsc as source;
 use biomcp_fetch::{LegReport, RequestError};
 use biomcp_types::{
     DrugGet, DrugSafetyCommunication, DrugSafetyCommunicationCard, DrugSafetyCommunicationPage,
-    DrugSearch, DrugSource, PageInfo, Paged, ReplyBody, Request, Source, StepKind,
+    DrugSafetyMatch, DrugSearch, DrugSource, PageInfo, Paged, ReplyBody, Request, Source, StepKind,
 };
 
-/// Communications whose title or linked drug names hold the name or one of its other names;
+/// Communications whose title, linked drug names or text hold the name or one of its other names;
 /// with no name, every communication, newest first.
 pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     let empty_page = DrugSafetyCommunicationPage {
         total: 0,
+        searched: None,
+        text_searched: None,
         list_starts: None,
         seed_date: None,
         items: Box::default(),
         hint: None,
     };
     let mut out = empty(empty_page.with_query(q.clone()));
+    if cx.fetch.disabled(Source::FdaDsc) {
+        let error = biomcp_fetch::SourceError::disabled(Source::FdaDsc);
+        finish(&mut out, LegReport::default(), Some(error.into()));
+        status::search(&mut out);
+        return out;
+    }
     let command = cx.fetch.source_command_deadline(&source::SPEC, cx.budget);
     let mut deadline = command.deadline();
     let widened: Option<super::widen::Saved<()>> =
@@ -75,10 +83,16 @@ fn answer(
     names: &[Text],
     out: &mut Outcome,
 ) {
+    let searched = found.items.len() as u64;
+    let text_searched = found.items.iter().filter(|row| row.text.is_some()).count() as u64;
+    let names: Vec<_> = names
+        .iter()
+        .map(|name| name.as_str().to_lowercase())
+        .collect();
     let matching: Vec<_> = found
         .items
         .into_iter()
-        .filter(|row| matches(row, names))
+        .filter_map(|row| matched(row, &names))
         .collect();
     let total = matching.len() as u64;
     let items: Box<[_]> = matching
@@ -116,10 +130,21 @@ fn answer(
     crate::status::item(out, returned != 0, false, false);
     out.body = DrugSafetyCommunicationPage {
         total,
+        searched: Some(searched),
+        text_searched: Some(text_searched),
         list_starts: found.list_starts,
         seed_date: Some(found.seed_date),
         items,
-        hint: found.hint,
+        hint: if returned == 0 || text_searched < searched {
+            let detail = found.hint.as_ref().map_or("", Text::as_str);
+            Text::new(&format!(
+                "Zero matches does not establish that FDA issued no communication about this drug. \
+                 Searched {searched} communications, with page text for {text_searched}. FDA index {}. {detail}",
+                source::index_url()
+            )).ok()
+        } else {
+            found.hint
+        },
     }
     .with_query(sent.clone());
 }
@@ -127,9 +152,6 @@ fn answer(
 /// One communication with its page's text, read live from www.fda.gov.
 pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
     let mut out = empty(DrugSafetyCommunicationCard::into_reply(q.clone(), None));
-    if q.is_name() {
-        return super::rejected_input(DrugSource::FdaDsc, "input", out);
-    }
     if !q.sections().is_empty() {
         return super::rejected_input(DrugSource::FdaDsc, "section", out);
     }
@@ -163,18 +185,31 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
     out
 }
 
-/// A name matches a whole word run in the title or one linked drug name, ignoring case; no
-/// name lists every communication.
-fn matches(row: &DrugSafetyCommunication, names: &[Text]) -> bool {
+/// Match whole word runs in each field and retain the places that matched.
+fn matched(row: source::SearchRow, names: &[String]) -> Option<DrugSafetyCommunication> {
+    let mut header = row.header;
     if names.is_empty() {
-        return true;
+        return Some(header);
     }
-    let fields = std::iter::once(row.title.as_str()).chain(row.drugs.iter().map(Text::as_str));
-    let fields: Vec<String> = fields.map(str::to_lowercase).collect();
-    names.iter().any(|name| {
-        let name = name.as_str().to_lowercase();
-        fields.iter().any(|field| whole(field, &name))
-    })
+    let matches = |field: &str| {
+        let field = field.to_lowercase();
+        names.iter().any(|name| whole(&field, name))
+    };
+    header.matched_in = [
+        (DrugSafetyMatch::Title, matches(header.title.as_str())),
+        (
+            DrugSafetyMatch::LinkedName,
+            header.drugs.iter().any(|drug| matches(drug.as_str())),
+        ),
+        (
+            DrugSafetyMatch::Text,
+            row.text.as_deref().is_some_and(matches),
+        ),
+    ]
+    .into_iter()
+    .filter_map(|(place, found)| found.then_some(place))
+    .collect();
+    (!header.matched_in.is_empty()).then_some(header)
 }
 
 fn whole(field: &str, name: &str) -> bool {
@@ -208,7 +243,7 @@ fn record_steps(fresh: bool, items: &[DrugSafetyCommunication], out: &mut Outcom
 }
 
 /// How the names were searched, for the one notice.
-const SEARCHED: &str = "titles and linked drug names";
+const SEARCHED: &str = "titles, linked drug names and page text";
 
 fn finish(out: &mut Outcome, report: LegReport, error: Option<RequestError>) {
     out.local = error.and_then(status::local);

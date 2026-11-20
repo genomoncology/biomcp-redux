@@ -60,6 +60,10 @@
           "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
           "--source",
           "fda-dsc"
+        ],
+        "/result/items/0/matched_in": [
+          "linked-name",
+          "text"
         ]
       }
     },
@@ -90,7 +94,8 @@
           "211675"
         ],
         "/result/header/page_read": true,
-        "/sources/0/state": "ok"
+        "/sources/0/state": "ok",
+        "/problems/0/field": "date"
       }
     },
     {

@@ -152,6 +152,13 @@ pub(super) fn fixed(
     let mut candidate = value.clone();
     let fields = candidate.as_object_mut()?;
     match cause.message()? {
+        biomcp_types::ErrorMessage::FdaDscGetId => {
+            return checked(
+                Rewrite::Direct,
+                ("search", "drug"),
+                serde_json::json!({"query": fields.get("input")?, "source": "fda-dsc"}),
+            );
+        }
         biomcp_types::ErrorMessage::DrugMarketsSource => {
             for name in cause.arguments() {
                 fields.remove(name.as_ref());

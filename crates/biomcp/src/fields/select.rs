@@ -202,6 +202,21 @@ fn kept_step(
 /// query alone fixes it.
 fn selected(request: &Request) -> Option<(Source, &'static str)> {
     match request {
+        Request::SearchDrug(query) => {
+            use biomcp_types::{
+                DrugFdaPage, DrugPage, DrugRecallPage, DrugSafetyCommunicationPage, DrugSource,
+                DrugWhoPage, ResponseBody,
+            };
+            let source = query.source();
+            let schema = match source {
+                DrugSource::FdaDsc => DrugSafetyCommunicationPage::SCHEMA,
+                DrugSource::FdaDrugRecall => DrugRecallPage::SCHEMA,
+                DrugSource::Drugsfda => DrugFdaPage::SCHEMA,
+                DrugSource::WhoPq => DrugWhoPage::SCHEMA,
+                _ => DrugPage::SCHEMA,
+            };
+            Some((source.source(), schema))
+        }
         Request::SearchTrial(query) => Some((
             query.source().source(),
             biomcp_query::trial::reply_schema(query.source()),

@@ -136,6 +136,14 @@ pub(super) fn tool(
         parts.push(plain(&format!("Other actions: {}.", others.join(", "))));
     }
     parts.push(plain(&format!("{not_for}.")));
+    if *name == "drug" && sources.contains("fda-dsc") {
+        parts.push(concat!(
+            "For fda-dsc get, use the communication UUID from search. ",
+            "Zero matches does not establish that FDA issued no communication about this drug. ",
+            "The reply counts communications searched and those with page text. ",
+            "FDA index https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications."
+        ).into());
+    }
     if *name == "diagnostic" && sources.contains("fda-cdx") {
         parts.push(crate::help::CDX_SHARED_FIELDS.trim_start().into());
     }

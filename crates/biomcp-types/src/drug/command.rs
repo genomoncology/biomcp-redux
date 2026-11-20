@@ -17,12 +17,13 @@ impl schemars::JsonSchema for DrugGetCommand {
             if let Some(object) = input.as_object_mut() {
                 object.insert(
                     "description".into(),
-                    concat!("Source ID, brand or generic name.\n",
+                    concat!("Source ID, brand or generic name (fda-dsc requires the communication UUID).\n",
                         "Source ID or complete brand or generic name; WHO references retain native spaces. ",
                         "Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; ",
                         "EMA prefers earliest authorisation. ",
                         "Other sources retain search order. The chosen record reports up to five alternatives and their total. ",
-                        "A label read also takes an FDA application number, such as NDA216340.").into(),
+                        "A label read also takes an FDA application number, such as NDA216340. ",
+                        "For fda-dsc, use the communication UUID from search drug NAME --source fda-dsc.").into(),
                 );
             }
             properties.insert("input".into(), input);

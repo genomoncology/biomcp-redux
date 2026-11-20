@@ -1,7 +1,7 @@
 //! FDA's index joined with the shipped seed; pages the seed lacks are read one at a time, only
 //! while FDA's 30-second spacing allows, and a row not yet read is kept, marked, never dropped.
 use super::page::{Listed, Page, index, page};
-use super::seed::{Seed, seed};
+use super::seed::{SearchRow, Seed, seed};
 use super::{INDEX_PATH, SITE, SPEC};
 use crate::{Mapped, Refusal};
 use biodata::{PartialDate, Text};
@@ -27,7 +27,7 @@ const PAGE_WAIT: Duration = Duration::from_secs(1);
 #[derive(Debug)]
 pub struct Communications {
     /// Rows from FDA's index, with seed rows FDA's index no longer lists.
-    pub items: Vec<DrugSafetyCommunication>,
+    pub items: Vec<SearchRow>,
     /// The oldest full date on FDA's index.
     pub list_starts: Option<PartialDate>,
     /// Index dates that are not full dates, and index dates a page contradicts.
@@ -54,7 +54,7 @@ fn list_hint(list_starts: Option<PartialDate>) -> Option<Text> {
     let starts = list_starts.map_or_else(|| "its first row".to_owned(), |d| d.to_string());
     crate::mapped::record(format!(
         "FDA's index lists communications from {starts}; for earlier ones FDA links an archived copy, which BioMCP does not read. \
-         A row matches by its title and the drug names its page links to Drugs@FDA. {TERMS}."
+         A row can match its title, a drug name linked to Drugs@FDA or the page text. {TERMS}."
     ))
 }
 
@@ -64,6 +64,9 @@ fn shipped() -> Result<Seed, RequestError> {
 
 /// FDA's index joined with the seed. Only a missing index with no seed is an error.
 pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
+    if leg.disabled_source(Source::FdaDsc) {
+        return Err(biomcp_fetch::SourceError::disabled(Source::FdaDsc).into());
+    }
     let Seed {
         date: seed_date,
         items: seeded,
@@ -88,34 +91,33 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
     let mut items: Vec<_> = listed
         .iter()
         .map(|listed| {
-            // A row the seed could not read is read again, as one FDA added later would be.
-            let known = seeded
-                .iter()
-                .find(|row| row.id == listed.id && row.page_read);
-            let read = match known {
-                Some(row) => Some(row.clone()),
-                None if spaced => None,
-                None => {
-                    let body = leg.dependency(&SPEC, PAGE_WAIT, |page_leg| {
-                        read_page(page_leg, &listed.path)
-                    });
-                    match body {
-                        Ok(page) => Some(with_page(listed, page)),
-                        // FDA's spacing or a failed read leaves this and later pages unread.
-                        Err(_) => {
-                            spaced = true;
-                            None
-                        }
+            let known = seeded.iter().find(|row| row.header.id == listed.id);
+            let (header, text) = match known.filter(|row| row.text.is_some()) {
+                Some(row) => (Some(row.header.clone()), row.text.clone()),
+                None => match leg.dependency(&SPEC, PAGE_WAIT, |page_leg| {
+                    read_page(page_leg, &listed.path, spaced)
+                }) {
+                    Ok(mut page) => {
+                        let text = std::mem::take(&mut page.text);
+                        (Some(with_page(listed, page)), Some(text))
                     }
-                }
+                    // After a deferred read, continue checking the cache.
+                    Err(_) => {
+                        spaced = true;
+                        (known.map(|row| row.header.clone()), None)
+                    }
+                },
             };
-            row(listed, read, &mut problems)
+            SearchRow {
+                header: row(listed, header, &mut problems),
+                text,
+            }
         })
         .collect();
     items.extend(
         seeded
             .iter()
-            .filter(|row| !listed.iter().any(|l| l.id == row.id))
+            .filter(|row| !listed.iter().any(|l| l.id == row.header.id))
             .cloned(),
     );
     newest_first(&mut items);
@@ -136,33 +138,26 @@ pub fn communication(
     id: &str,
 ) -> Result<Mapped<Option<(DrugSafetyCommunication, Text)>>, RequestError> {
     let seed = shipped()?;
-    let seeded = seed.items.iter().find(|row| row.id.as_str() == id);
-    let listed = match seeded {
-        Some(row) => Listed {
-            id: row.id.clone(),
-            title: row.title.clone(),
-            date_text: row.date.map(|d| d.to_string()).unwrap_or_default(),
-            date: row.date,
-            path: row
-                .url
-                .as_str()
-                .strip_prefix(SITE)
-                .unwrap_or_default()
-                .to_owned(),
-            url: row.url.clone(),
-        },
-        None => match read_index(leg)?.into_iter().find(|l| l.id.as_str() == id) {
-            Some(listed) => listed,
-            None => {
-                return Ok(Mapped {
-                    value: None,
-                    problems: Vec::new(),
-                    refusals: Refusal::None,
-                });
-            }
-        },
+    let current = read_index(leg);
+    let listed = current
+        .as_ref()
+        .ok()
+        .and_then(|rows| rows.iter().find(|row| row.id.as_str() == id).cloned())
+        .or_else(|| {
+            seed.items
+                .iter()
+                .find(|row| row.header.id.as_str() == id)
+                .map(|row| seed_listing(&row.header))
+        });
+    let Some(listed) = listed else {
+        current?;
+        return Ok(Mapped {
+            value: None,
+            problems: Vec::new(),
+            refusals: Refusal::None,
+        });
     };
-    let page = read_page(leg, &listed.path)?;
+    let page = read_page(leg, &listed.path, false)?;
     let text = crate::native_text::admit(&page.text).map_err(|_| malformed())?;
     let mut problems = Vec::new();
     let value = Some((
@@ -174,6 +169,22 @@ pub fn communication(
         problems,
         refusals: Refusal::None,
     })
+}
+
+fn seed_listing(row: &DrugSafetyCommunication) -> Listed {
+    Listed {
+        id: row.id.clone(),
+        title: row.title.clone(),
+        date_text: row.date.map(|date| date.to_string()).unwrap_or_default(),
+        date: row.date,
+        path: row
+            .url
+            .as_str()
+            .strip_prefix(SITE)
+            .unwrap_or_default()
+            .to_owned(),
+        url: row.url.clone(),
+    }
 }
 
 fn read_index(leg: &Leg<'_>) -> Result<Vec<Listed>, RequestError> {
@@ -190,7 +201,7 @@ fn read_index(leg: &Leg<'_>) -> Result<Vec<Listed>, RequestError> {
         .ok_or_else(malformed)
 }
 
-fn read_page(leg: &Leg<'_>, path: &str) -> Result<Page, RequestError> {
+fn read_page(leg: &Leg<'_>, path: &str, cache_only: bool) -> Result<Page, RequestError> {
     let segments = path
         .split('/')
         .filter(|s| !s.is_empty())
@@ -201,14 +212,9 @@ fn read_page(leg: &Leg<'_>, path: &str) -> Result<Page, RequestError> {
         return Err(malformed());
     }
     let endpoint = PAGE.clone().with_segments(&segments);
-    let body = leg
-        .call(
-            &endpoint,
-            Input::Params(&[]),
-            Read::bytes().document_media(DocumentMedia::Html),
-        )?
-        .value
-        .0;
+    let read = Read::bytes().document_media(DocumentMedia::Html);
+    let read = if cache_only { read.cache_only() } else { read };
+    let body = leg.call(&endpoint, Input::Params(&[]), read)?.value.0;
     page(&String::from_utf8_lossy(&body)).ok_or_else(malformed)
 }
 
@@ -224,6 +230,7 @@ fn with_page(listed: &Listed, page: Page) -> DrugSafetyCommunication {
         applications: page.applications.into(),
         drugs: page.drugs.into(),
         page_read: true,
+        matched_in: Box::default(),
     }
 }
 
@@ -243,6 +250,7 @@ fn row(
         applications: Box::default(),
         drugs: Box::default(),
         page_read: false,
+        matched_in: Box::default(),
     });
     row.title = listed.title.clone();
     row.url = listed.url.clone();
@@ -262,8 +270,8 @@ fn row(
     row
 }
 
-fn newest_first(items: &mut [DrugSafetyCommunication]) {
-    items.sort_by_key(|row| std::cmp::Reverse(row.issued.or(row.date).map(key)));
+fn newest_first(items: &mut [SearchRow]) {
+    items.sort_by_key(|row| std::cmp::Reverse(row.header.issued.or(row.header.date).map(key)));
 }
 
 fn key(date: PartialDate) -> (u16, u8, u8) {

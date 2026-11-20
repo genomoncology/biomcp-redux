@@ -1,6 +1,6 @@
 {
   "feature": "drug-fda-dsc",
-  "story": "When FDA's index cannot be read, `search drug NAME --source fda-dsc` still answers at once from the list BioMCP ships: the 2021-02-04 tofacitinib communication with its dates and address, the shipped list's date, and the source marked stale so the reply reads as partial.",
+  "story": "An index outage still allows matching the shipped titles and page text, with coverage shown and the source marked stale.",
   "live_check": "local-only shipped list; the replay holds no FDA reply on purpose",
   "replay": "drug/fda-dsc-no-index",
   "steps": [
@@ -24,14 +24,20 @@
       "expect": {
         "/schema": "biomcp.drug-safety-communications/1",
         "/status": "partial",
-        "/result/total": 1,
+        "/result/total": 2,
         "/result/seed_date": "2026-11-20",
-        "/result/items/0/id": "760e4ace-aa81-4112-8779-efb5725411df",
-        "/result/items/0/issued": "2021-02-04",
-        "/result/items/0/url": "https://www.fda.gov/drugs/drug-safety-and-availability/initial-safety-trial-results-find-increased-risk-serious-heart-related-problems-and-cancer-arthritis",
+        "/result/items/0/id": "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+        "/result/items/0/issued": "2021-09-01",
         "/result/items/0/page_read": true,
         "/sources/0/source": "fda-dsc",
-        "/sources/0/state": "stale"
+        "/sources/0/state": "stale",
+        "/result/items/0/matched_in": [
+          "text"
+        ],
+        "/result/items/1/matched_in": [
+          "title"
+        ],
+        "/result/searched": 44
       }
     }
   ]

@@ -86,7 +86,6 @@ fn selected_source_checks_its_native_identifier_grammar() {
         ("drugsfda", "NDA1"),
         ("ddinter", "1744"),
         ("who-eml", "dabigatran"),
-        ("fda-dsc", "tofacitinib"),
         ("civic", "0"),
         ("openfda-label", "not-a-uuid"),
     ] {

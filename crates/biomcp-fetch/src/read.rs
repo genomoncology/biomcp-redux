@@ -27,6 +27,7 @@ pub struct Read<'a, T> {
     octet_stream: Option<&'static str>,
     /// A bundle-set part records its bytes under the set's limits, not the ordinary binary cap.
     pub(crate) set_part: bool,
+    pub(crate) cache_only: bool,
     parse: fn(&[u8]) -> Option<T>,
     range_check: Option<&'a RangeCheck<'a, T>>,
 }
@@ -39,6 +40,12 @@ impl<T> std::fmt::Debug for Read<'_, T> {
     }
 }
 impl<'a, T: Reply> Read<'a, T> {
+    /// Use only a checked cache entry, even when transport is enabled.
+    pub fn cache_only(mut self) -> Self {
+        self.cache_only = true;
+        self
+    }
+
     /// Remove disallowed source fields before decoding, recording or cache admission.
     /// The same policy applies to existing cached bytes without refetching them.
     pub fn filter_body(mut self, filter: &'a BodyFilter<'a>) -> Self {
@@ -121,6 +128,7 @@ impl<'a, T: Reply> Read<'a, T> {
             diagnostic_inputs: None,
             octet_stream: None,
             set_part: false,
+            cache_only: false,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
@@ -152,6 +160,7 @@ impl<'a, T: Reply> Read<'a, T> {
             diagnostic_inputs: None,
             octet_stream: None,
             set_part: false,
+            cache_only: false,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
@@ -227,6 +236,7 @@ impl Read<'_, Probe> {
             json_absence: false,
             octet_stream: None,
             set_part: false,
+            cache_only: false,
             parse: |_| Some(Probe),
         }
     }
@@ -258,6 +268,7 @@ impl<'a> Read<'a, Bytes> {
             diagnostic_inputs: None,
             octet_stream: None,
             set_part: false,
+            cache_only: false,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,

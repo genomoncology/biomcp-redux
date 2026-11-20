@@ -198,10 +198,10 @@ pub use drug::{
     DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard, DrugRecallClassification,
     DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory,
     DrugRegulatoryContext, DrugRegulatoryPart, DrugSafetyCommunication,
-    DrugSafetyCommunicationCard, DrugSafetyCommunicationPage, DrugSearch, DrugSection,
-    DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections, DrugSource, DrugTargets,
-    DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart,
-    LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
+    DrugSafetyCommunicationCard, DrugSafetyCommunicationPage, DrugSafetyMatch, DrugSearch,
+    DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections, DrugSource,
+    DrugTargets, DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs,
+    DrugXrefsPart, LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
     OPENFDA_LABEL_HEADINGS, WhoDateStatus, openfda_label_field,
 };
 

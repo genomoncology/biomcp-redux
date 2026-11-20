@@ -311,6 +311,13 @@
           ],
           "description": "The date the communication's page states for itself, when the page was read."
         },
+        "matched_in": {
+          "description": "Places that matched the search name. Omitted on an unfiltered list or get.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugSafetyMatch"
+          },
+          "type": "array"
+        },
         "page_read": {
           "description": "False when the page has not been read yet, so `issued`, `updated`, `applications` and\n`drugs` are not known; the row then matches by its title only.",
           "type": "boolean"
@@ -378,6 +385,15 @@
         "header"
       ],
       "type": "object"
+    },
+    "Reply_DrugSafetyMatch": {
+      "description": "Where an FDA communication matched the requested name or one of its other names.",
+      "enum": [
+        "title",
+        "linked-name",
+        "text"
+      ],
+      "type": "string"
     },
     "Reply_DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",

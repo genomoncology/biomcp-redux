@@ -1,0 +1,40 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "Research search reports zero omitted records when no rows matched.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc",
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "search",
+        "arguments": {
+          "query": "drug syntheticonly --source fda-dsc --exact-term"
+        }
+      },
+      "expect": {
+        "/metadata/envelope/page/returned": 0,
+        "/metadata/envelope/page/total": 0,
+        "/metadata/envelope/result/searched": 44,
+        "/metadata/omitted_rows": 0,
+        "/metadata/envelope/result/text_searched": 3
+      }
+    },
+    {
+      "run": [
+        "help",
+        "search",
+        "drug",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "Zero matches does not establish that FDA issued no communication about this drug.",
+            "https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications"
+          ]
+        }
+      }
+    }
+  ]
+}

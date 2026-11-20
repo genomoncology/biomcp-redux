@@ -98,6 +98,13 @@
           ],
           "description": "The date the communication's page states for itself, when the page was read."
         },
+        "matched_in": {
+          "description": "Places that matched the search name. Omitted on an unfiltered list or get.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugSafetyMatch"
+          },
+          "type": "array"
+        },
         "page_read": {
           "description": "False when the page has not been read yet, so `issued`, `updated`, `applications` and\n`drugs` are not known; the row then matches by its title only.",
           "type": "boolean"
@@ -163,6 +170,15 @@
           ],
           "description": "The oldest date on FDA's index: FDA links an archived copy for earlier communications."
         },
+        "searched": {
+          "description": "Communications whose titles were searched.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "seed_date": {
           "anyOf": [
             {
@@ -173,6 +189,15 @@
             }
           ],
           "description": "The date of the list BioMCP ships; rows FDA added later come from FDA's index."
+        },
+        "text_searched": {
+          "description": "Communications whose page text was available to search.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "total": {
           "description": "Matching communications.",
@@ -185,6 +210,15 @@
         "total"
       ],
       "type": "object"
+    },
+    "Reply_DrugSafetyMatch": {
+      "description": "Where an FDA communication matched the requested name or one of its other names.",
+      "enum": [
+        "title",
+        "linked-name",
+        "text"
+      ],
+      "type": "string"
     },
     "Reply_DrugSearch": {
       "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
@@ -343,7 +377,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
+          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.\nFDA safety communications search titles, linked drug names and available page text.\nZero matches does not establish that FDA issued no communication about this drug.\nThe reply counts the communications searched and how many had page text.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
           "x-positional": 0
         },
         "reason": {

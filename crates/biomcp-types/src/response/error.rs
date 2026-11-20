@@ -281,6 +281,7 @@ singleton! {
         DrugRaw => "--raw is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugSafety => "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugShortage => "shortage is not yet supported in the cancer-care drug slice.", DrugAll => "all is not supported: select one named source section.",
+        FdaDscGetId => "Use the communication UUID from search drug NAME --source fda-dsc.",
         DrugMarketsSource => "markets takes a drug name and at most --source; drop error.option, as in: get drug <NAME> markets",
         DrugMarketsSourceUnknown => "markets reads one source per market: drugsfda (US), ema (EU) and who-pq (WHO prequalification); \
             give --source one of valid_values, or drop it to read every market",

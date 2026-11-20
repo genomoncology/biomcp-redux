@@ -4,6 +4,20 @@ use crate::ResponseBody;
 use biodata::{PartialDate, Text};
 use serde::{Deserialize, Serialize};
 
+/// Where an FDA communication matched the requested name or one of its other names.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["title", "linked-name", "text"])))]
+pub enum DrugSafetyMatch {
+    /// The title includes the name.
+    Title,
+    /// A Drugs@FDA link names the drug.
+    LinkedName,
+    /// The communication's text includes the name.
+    Text,
+}
+
 /// One FDA Drug Safety Communication, as FDA's index lists it and its page links it.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -33,6 +47,9 @@ pub struct DrugSafetyCommunication {
     /// False when the page has not been read yet, so `issued`, `updated`, `applications` and
     /// `drugs` are not known; the row then matches by its title only.
     pub page_read: bool,
+    /// Places that matched the search name. Omitted on an unfiltered list or get.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub matched_in: Box<[DrugSafetyMatch]>,
 }
 
 /// A bounded page of FDA Drug Safety Communications, newest first.
@@ -42,6 +59,12 @@ pub struct DrugSafetyCommunicationPage {
     // Totals come before the rows (0939).
     /// Matching communications.
     pub total: u64,
+    /// Communications whose titles were searched.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub searched: Option<u64>,
+    /// Communications whose page text was available to search.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub text_searched: Option<u64>,
     /// The oldest date on FDA's index: FDA links an archived copy for earlier communications.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub list_starts: Option<PartialDate>,

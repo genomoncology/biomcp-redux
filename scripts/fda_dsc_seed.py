@@ -4,9 +4,9 @@ Usage: python3 scripts/fda_dsc_seed.py BIOMCP_EXECUTABLE [SEED_FILE]
 
 It lists FDA's index with `search drug --source fda-dsc`, then reads each communication's page
 with `get drug ID --source fda-dsc`, 30 seconds apart as FDA's robots.txt asks (Crawl-Delay: 30),
-and writes each page's row, without its text, to the seed file. A page FDA does not serve ships
-unread, with its index title, date and address, and a later read retries it. A full run reads about 45 pages
-and takes about 23 minutes. It uses a throwaway cache, so every page is read fresh.
+and writes each page's row and visible text. If FDA refuses a request or the seed exceeds
+1.5 MB, the script reports the failure and leaves the previous seed in place. It uses a
+throwaway cache. A full run reads about 45 pages and takes about 23 minutes.
 """
 
 import datetime
@@ -15,6 +15,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import textwrap
 import time
 
 SEED = os.path.join(
@@ -27,6 +28,7 @@ SEED = os.path.join(
     "seed.json",
 )
 SPACING_SECONDS = 30
+MAX_BYTES = 1_500_000
 
 
 def run(executable, cache, *args):
@@ -54,18 +56,21 @@ def main(argv):
         for number, row in enumerate(rows):
             time.sleep(SPACING_SECONDS)
             got = run(executable, cache, "get", "drug", row["id"], "--source", "fda-dsc")
-            header = (got.get("result") or {}).get("header")
-            if got.get("status") != "complete" or not header:
-                # FDA's own link can be broken; the row ships unread and a later read retries it.
+            result = got.get("result") or {}
+            header = result.get("header")
+            if got.get("status") != "complete" or not header or not result.get("text"):
                 sys.stderr.write(f"{row['id']}: page not read: {json.dumps(got.get('sources'))}\n")
-                header = {key: value for key, value in row.items() if key in ("id", "title", "date", "url")}
-                header["page_read"] = False
+                return 1
+            header["text"] = textwrap.wrap(result["text"], width=120, break_long_words=False, break_on_hyphens=False)
             items.append(header)
             sys.stderr.write(f"{number + 1}/{len(rows)} {row['id']}\n")
     seed = {"date": datetime.date.today().isoformat(), "items": items}
-    with open(target, "w", encoding="utf-8") as handle:
-        json.dump(seed, handle, indent=1, ensure_ascii=False)
-        handle.write("\n")
+    content = (json.dumps(seed, indent=1, ensure_ascii=False) + "\n").encode()
+    if len(content) > MAX_BYTES:
+        sys.stderr.write(f"Seed would be {len(content):,} bytes (limit {MAX_BYTES:,}).\n")
+        return 1
+    with open(target, "wb") as handle:
+        handle.write(content)
     return 0
 
 

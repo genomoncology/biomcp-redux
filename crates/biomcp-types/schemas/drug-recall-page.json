@@ -333,7 +333,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
+          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.\nFDA safety communications search titles, linked drug names and available page text.\nZero matches does not establish that FDA issued no communication about this drug.\nThe reply counts the communications searched and how many had page text.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
           "x-positional": 0
         },
         "reason": {
