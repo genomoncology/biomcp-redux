@@ -44,13 +44,7 @@ pub(super) fn other_names() -> Result<(), String> {
             .map_err(|e| e.to_string())?;
         let reply: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
         if output.status.code() != Some(4) {
-            let mut probe = ["get", "drug", name, "--source", "mychem"].map(str::to_owned).to_vec();
-            probe.extend(env.globals(Some(&down), false));
-            let out = env.command(env!("CARGO_BIN_EXE_biomcp"), &probe).output().map_err(|e| e.to_string())?;
-            let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite")).map_err(|e| e.to_string())?;
-            let mut st = db.prepare("SELECT source, fresh_until, substr(url,1,80) FROM reply").map_err(|e| e.to_string())?;
-            let rows: Vec<String> = st.query_map([], |r| Ok(format!("{}|{}|{}", r.get::<_, String>(0)?, r.get::<_, i64>(1)?, r.get::<_, String>(2)?))).map_err(|e| e.to_string())?.filter_map(Result::ok).collect();
-            return Err(format!("{name} without MyChem: {reply}\nPROBE {}\nROWS {rows:#?}", String::from_utf8_lossy(&out.stdout)));
+            return Err(format!("{name} without MyChem: {reply}"));
         }
         unread(&reply, "mychem", "fresh")?;
     }

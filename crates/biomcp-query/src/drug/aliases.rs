@@ -145,19 +145,18 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     };
     evidence.append(&mut out, query.source());
     let lookup_failed = evidence.lookup_failed();
-    let Some(stated) = stated else {
-        if lookup_failed {
-            status::item(&mut out, false, true, false);
-            recovery(&mut out, query);
-        }
+    if stated.is_none() && !lookup_failed {
         return vec![out];
-    };
-    // A Usage reply discards source metadata, including the other-source hint.
+    }
+    // A Usage reply discards source metadata, including the other-source hint and a source the
+    // lookup could not use (1087).
     queries
         .iter()
         .map(|query| {
             let mut part = super::fork(&out, DrugCard::into_reply(query.clone(), None));
-            hint(&mut part, &stated, input, query.source(), cx.fresh);
+            if let Some(stated) = &stated {
+                hint(&mut part, stated, input, query.source(), cx.fresh);
+            }
             status::item(&mut part, false, lookup_failed, false);
             if lookup_failed {
                 recovery(&mut part, query);
