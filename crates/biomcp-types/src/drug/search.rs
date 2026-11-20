@@ -106,7 +106,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
-    mechanism: Option<Text>,
+    mechanism_of_action: Option<Text>,
     /// Label application types to keep; openFDA labels only.
     /// By openFDA application_number prefix; nda,bla leaves out generics (ANDA).
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -219,8 +219,8 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.indication.is_some() && fields.source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["indication", "source"]));
         }
-        if fields.mechanism.is_some() && fields.source != DrugSource::OpenfdaLabel {
-            return Err(QueryInvalid::new(&["mechanism", "source"]));
+        if fields.mechanism_of_action.is_some() && fields.source != DrugSource::OpenfdaLabel {
+            return Err(QueryInvalid::new(&["mechanism_of_action", "source"]));
         }
         if !fields.application_type.is_empty() && fields.source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["application_type", "source"]));
@@ -270,7 +270,7 @@ impl TryFrom<SearchFields> for DrugSearch {
             fields.source,
             fields.query.is_some()
                 || fields.indication.is_some()
-                || fields.mechanism.is_some()
+                || fields.mechanism_of_action.is_some()
                 || fields.applicant.is_some()
                 || (fields.source == DrugSource::WhoPq && who_filters),
             fields.firm.is_some()
@@ -327,7 +327,7 @@ impl DrugSearch {
             exact_term: false,
             name_snapshot: None,
             indication: None,
-            mechanism: None,
+            mechanism_of_action: None,
             application_type: Box::default(),
             source,
             limit,
@@ -397,8 +397,8 @@ impl DrugSearch {
         self.0.indication.as_ref()
     }
     /// Literal native Mechanism of Action phrase; never an inferred drug class.
-    pub fn mechanism(&self) -> Option<&Text> {
-        self.0.mechanism.as_ref()
+    pub fn mechanism_of_action(&self) -> Option<&Text> {
+        self.0.mechanism_of_action.as_ref()
     }
     /// openFDA label application types to keep; empty keeps every label.
     pub fn application_type(&self) -> &[LabelApplicationType] {

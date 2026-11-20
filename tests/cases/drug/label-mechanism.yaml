@@ -9,7 +9,7 @@
       "run": [
         "search",
         "drug",
-        "--mechanism",
+        "--mechanism-of-action",
         "Janus kinase",
         "--source",
         "openfda-label",
@@ -21,7 +21,7 @@
       "mcp": [
         "search",
         "drug",
-        "--mechanism",
+        "--mechanism-of-action",
         "Janus kinase",
         "--source",
         "openfda-label",
@@ -33,7 +33,7 @@
       "exit": 0,
       "expect": {
         "/status": "complete",
-        "/query/mechanism": "Janus kinase",
+        "/query/mechanism_of_action": "Janus kinase",
         "/query/application_type": [
           "nda",
           "bla"
@@ -60,7 +60,7 @@
       "run": [
         "search",
         "drug",
-        "--mechanism",
+        "--mechanism-of-action",
         "Janus kinase",
         "--source",
         "drugsfda"

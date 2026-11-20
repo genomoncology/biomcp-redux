@@ -32,7 +32,7 @@ pub fn scope(query: &biomcp_types::DrugSearch) -> Option<String> {
             literal(indication.as_str())
         ));
     }
-    if let Some(mechanism) = query.mechanism() {
+    if let Some(mechanism) = query.mechanism_of_action() {
         parts.push(format!(
             "mechanism_of_action:{}",
             literal(mechanism.as_str())

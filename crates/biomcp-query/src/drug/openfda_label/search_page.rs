@@ -60,7 +60,7 @@ pub(super) fn headers(
         .map(|record| {
             let mut header = record.header()?;
             header.matched_name = query.query().and_then(|name| record.name_match(name));
-            if let Some(mechanism) = query.mechanism() {
+            if let Some(mechanism) = query.mechanism_of_action() {
                 header.matched_sentence = record.sentence(MECHANISM, mechanism.as_str())?;
             }
             Ok(header)
@@ -74,7 +74,8 @@ const MECHANISM: &str = "mechanism_of_action";
 /// Say that a mechanism search matched the label's own wording only, and show the selector
 /// sent when no name narrowed it, since a class worded otherwise is silently absent (1086).
 pub(super) fn mechanism(query: &DrugSearch, out: &mut Outcome) {
-    let (Some(mechanism), Some(source)) = (query.mechanism(), out.sources.first_mut()) else {
+    let (Some(mechanism), Some(source)) = (query.mechanism_of_action(), out.sources.first_mut())
+    else {
         return;
     };
     if query.query().is_none() {

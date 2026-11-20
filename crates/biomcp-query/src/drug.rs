@@ -43,7 +43,7 @@ fn openfda_search(cx: &Ctx<'_>, query: &DrugSearch) -> Option<Outcome> {
             Source::OpenfdaLabel,
             vec![
                 ("--indication", query.indication()),
-                ("--mechanism", query.mechanism()),
+                ("--mechanism-of-action", query.mechanism_of_action()),
             ],
         ),
         _ => return None,
