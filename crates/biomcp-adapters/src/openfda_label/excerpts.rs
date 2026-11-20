@@ -79,7 +79,7 @@ impl Search {
         let Some((start, size)) = self
             .terms
             .iter()
-            .filter_map(|term| folded.find(term).map(|at| (at, term.len())))
+            .filter_map(|term| folded.find(term).map(|at| (at, term.chars().count())))
             .min()
         else {
             return;
@@ -164,10 +164,9 @@ fn context(text: &str) -> Box<str> {
     }
 }
 
-fn around(text: &str, start: usize, size: usize) -> Box<str> {
-    let prefix = text[..start].chars().count();
-    let matched = text[start..start + size].chars().count();
-    let skip = prefix.saturating_sub((EXCERPT_CHARS - matched) / 2);
+fn around(text: &str, start: usize, matched: usize) -> Box<str> {
+    let prefix = text.get(..start).map_or(0, |prefix| prefix.chars().count());
+    let skip = prefix.saturating_sub(EXCERPT_CHARS.saturating_sub(matched) / 2);
     let mut chars = text.chars().skip(skip);
     let excerpt = chars.by_ref().take(EXCERPT_CHARS).collect::<String>();
     let before = if skip > 0 { "…" } else { "" };

@@ -65,10 +65,12 @@ pub(super) fn batch(
     if ids.len() > MAX_LABELS || ids.iter().any(|id| !DrugSource::OpenfdaLabel.accepts(id)) {
         return Err(QueryInvalid::new(&["input"]));
     }
-    for (at, id) in ids.iter().enumerate() {
-        if ids[..at].contains(id) {
-            return Err(QueryInvalid::new(&["input"]));
-        }
+    let mut seen = std::collections::BTreeSet::new();
+    if !ids
+        .iter()
+        .all(|id| seen.insert(id.to_string().to_ascii_lowercase()))
+    {
+        return Err(QueryInvalid::new(&["input"]));
     }
     Ok(Some(ids.into()))
 }
