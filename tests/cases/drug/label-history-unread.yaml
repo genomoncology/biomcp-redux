@@ -22,8 +22,8 @@
         "/result/first/submission": "SUPPL 22",
         "/result/on_or_before": true
       },
-      "max_bytes": 3000
+      "max_bytes": 3500
     }
   ],
-  "verified": "The label-history-livalo capture with the SUPPL 20 label cut to 300 bytes, so it reads as damaged."
+  "verified": "The label-history-livalo capture of pm job j43445 with the SUPPL 20 label cut to 300 bytes, so it reads as damaged; the search then halves toward versions the capture does not hold, which read as not-fetched. The reply measured 3228 bytes in pm job j43452. The ticket's 3 KB limit binds the Proof drugs' replies (sdlc/tickets/1066-label-section-change-history.md line 32); this damaged-label reply carries four unread versions and a next step, so its ceiling is 3500."
 }
