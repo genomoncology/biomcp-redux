@@ -68,11 +68,12 @@ const PRODUCT_CODE_SOURCES: [crate::Source; 3] = [
 ];
 // Sources that answer this field; it stays offered while any of them is on.
 #[cfg(feature = "schema")]
-const NAME_SOURCES: [crate::Source; 4] = [
+const NAME_SOURCES: [crate::Source; 5] = [
     crate::Source::Gtr,
     crate::Source::FdaPma,
     crate::Source::Fda510k,
     crate::Source::FdaDeviceRecall,
+    crate::Source::FdaCdx,
 ];
 /// Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -165,7 +166,8 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
     classification: Option<crate::DrugRecallClassification>,
     #[doc = "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, \
-    ignoring letter case; hyphens and spaces in your text are optional."]
+    ignoring letter case; hyphens and spaces in your text are optional. FDA CDx: whole name, any case, in a row's diagnostic or drug cell; \
+    name_match says which."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = NAME_SOURCES)))]
     name: Option<Text>,
@@ -418,7 +420,7 @@ impl DiagnosticSearch {
         self.0.classification
     }
     /// Native device name phrase, device recall product description phrase or GTR test name text,
-    /// ignoring letter case; hyphens and spaces in your text are optional.
+    /// ignoring letter case; hyphens and spaces in your text are optional; FDA CDx diagnostic or drug cell name.
     pub fn name(&self) -> Option<&Text> {
         self.0.name.as_ref()
     }

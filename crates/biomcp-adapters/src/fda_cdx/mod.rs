@@ -5,6 +5,7 @@ mod date;
 mod html;
 mod identity;
 mod raw;
+mod row;
 mod search;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};

@@ -1,7 +1,7 @@
 use super::DiagnosticProductCodeCounts;
 use crate::{DiagnosticGet, DiagnosticSearch, DiagnosticSection, Problem, ResponseBody};
 use biodata::{
-    CompanionGroupCells, CompanionIndividualCells, DiagnosticDeviceId, DiagnosticDrugApplication,
+    DiagnosticDeviceId,
     GtrConditionRelation, GtrGeneRelation, GtrMethod, GtrTestId, PartialDate, PmaNumber,
     PmaSupplementCell, Text, WhoIvdProduct,
 };
@@ -362,8 +362,13 @@ page!(
     DiagnosticCompanion,
     CompanionDiagnosticRow,
     DiagnosticSearch,
-    "biomcp.diagnostic-companion/5",
-    "Whole distinct physical companion-table rows with cell-owned identifiers."
+    "biomcp.diagnostic-companion/6",
+    "Whole distinct physical companion-table rows, each cell's text stated once, with cell-owned identifiers.",
+    [
+    /// Immutable local snapshot revision every row of this page was read from, not a publisher row ID.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub snapshot: Option<Box<str>>,
+    ]
 );
 /// Compact exact PMA row identity; its native empty base cell is explicit.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -488,83 +493,3 @@ impl ResponseBody for DiagnosticSummary {
     type Query = DiagnosticGet;
 }
 
-/// A physical companion-table row; the two table layouts cannot acquire each other’s cells.
-/// Both kinds lead with the row date and shared cell names copied as text from FDA's original cells.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "kebab-case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum CompanionDiagnosticRow {
-    /// One complete native individual table row.
-    Individual {
-        /// Row date and shared names, ahead of FDA's own cells.
-        #[serde(flatten)]
-        shared: CompanionShared,
-        /// Immutable local snapshot revision, not a publisher row ID.
-        snapshot: Box<str>,
-        /// Zero-based physical data-row index in its table.
-        index: u32,
-        /// Whole cells keyed by this table’s exact headers.
-        cells: CompanionIndividualCells,
-        /// Device facts from this row’s own dedicated device cell only.
-        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-        device_ids: Box<[DiagnosticDeviceId]>,
-        /// Unambiguous typed applications owned by this row’s drug cell.
-        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-        drug_applications: Box<[DiagnosticDrugApplication]>,
-    },
-    /// One complete native group table row.
-    Group {
-        /// Row date and shared names, ahead of FDA's own cells.
-        #[serde(flatten)]
-        shared: CompanionShared,
-        /// Immutable local snapshot revision, not a publisher row ID.
-        snapshot: Box<str>,
-        /// Zero-based physical data-row index in its table.
-        index: u32,
-        /// Whole cells keyed by this table’s exact headers.
-        cells: CompanionGroupCells,
-        /// Device facts from this row’s own dedicated device cell only.
-        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-        device_ids: Box<[DiagnosticDeviceId]>,
-        /// Unambiguous typed applications owned by this row’s drug cell.
-        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-        drug_applications: Box<[DiagnosticDrugApplication]>,
-    },
-}
-/// Fields both FDA companion tables carry under one name.
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct CompanionShared {
-    /// Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub row_date: Option<PartialDate>,
-    /// Diagnostic name and manufacturer cell text, as one line: line breaks and runs of spaces read as one space, so both tables name a test alike.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub diagnostic: Option<Box<str>>,
-    /// Indication and sample type cell text, as one line.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub indication: Option<Box<str>>,
-    /// FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub device: Option<Box<str>>,
-    /// Drug cell text; in the group table, the drug group cell.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub drug: Option<Box<str>>,
-}
-impl CompanionDiagnosticRow {
-    /// Device IDs and drug applications owned by this row's cells.
-    pub fn identities(&self) -> (&[DiagnosticDeviceId], &[DiagnosticDrugApplication]) {
-        match self {
-            Self::Individual {
-                device_ids,
-                drug_applications,
-                ..
-            }
-            | Self::Group {
-                device_ids,
-                drug_applications,
-                ..
-            } => (device_ids, drug_applications),
-        }
-    }
-}

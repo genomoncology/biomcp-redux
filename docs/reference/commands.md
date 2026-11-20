@@ -1098,7 +1098,7 @@ Options:
 
 ```
 
-Search diagnostic laboratory tests and devices. FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug, before FDA's cells, whose headers differ by table. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
+Search diagnostic laboratory tests and devices. FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug; individual-table rows add biomarker and biomarker_details. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.

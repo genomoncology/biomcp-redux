@@ -134,12 +134,14 @@ pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), Query
         }
     }
     if !device_source(v) {
-        // GTR matches literal test names and device recalls their product description;
-        // other non-device sources have no name field.
+        // GTR matches literal test names, device recalls their product description and
+        // FDA CDx a row's diagnostic or drug cell; WHO has no name field.
         let name = v.name.is_some()
             && !matches!(
                 v.source,
-                DiagnosticSearchSource::Gtr | DiagnosticSearchSource::FdaDeviceRecall
+                DiagnosticSearchSource::Gtr
+                    | DiagnosticSearchSource::FdaDeviceRecall
+                    | DiagnosticSearchSource::FdaCdx
             );
         if name || v.decision_from.is_some() || v.decision_to.is_some() {
             return Err(QueryInvalid::new(&[
