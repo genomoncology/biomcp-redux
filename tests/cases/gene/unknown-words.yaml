@@ -1,0 +1,68 @@
+{
+  "live_check": "public",
+  "feature": "gene-identity",
+  "story": "A trailing word that is near no section is a gene ID in any letter case: one not found comes back absent and is named at the top of the reply beside the found card, without making the reply partial. A real symbol that names a section elsewhere, such as PDF, is read as an ID when given first.",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "bogussection"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/absent": [
+          "bogussection"
+        ],
+        "/result/items/0/status": "complete",
+        "/result/items/1/input": "bogussection",
+        "/result/items/1/status": "absent"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "kras"
+      ],
+      "expect": {
+        "/result/items/1/input": "kras",
+        "/result/items/1/answer/gene/symbol": "KRAS"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "PDF",
+        "BRAF"
+      ],
+      "expect": {
+        "/result/items/0/input": "PDF",
+        "/result/items/1/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "PDF"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "PDF",
+        "/next/0/args": [
+          "help",
+          "get",
+          "gene"
+        ]
+      }
+    }
+  ]
+}

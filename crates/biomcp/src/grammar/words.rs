@@ -173,6 +173,11 @@ fn first(
         return None;
     }
     let input = fields.get_mut("input")?.as_array_mut()?;
+    let others = if input.len() > 1 {
+        elsewhere()
+    } else {
+        Vec::new()
+    };
     let index = (1..input.len()).find(|index| {
         input
             .get(*index)
@@ -180,7 +185,7 @@ fn first(
             .is_some_and(|word| {
                 plain(word)
                     && !known(&sections, word)
-                    && (near(word, &sections).is_some() || elsewhere(word) || !is_id(word))
+                    && (near(word, &sections).is_some() || known(&others, word) || !is_id(word))
             })
     })?;
     let word = input.remove(index).as_str()?.to_owned();
@@ -204,18 +209,14 @@ fn known(sections: &[biodata::Text], word: &str) -> bool {
         .any(|section| section.as_str().eq_ignore_ascii_case(word))
 }
 
-/// Whether the word names a section of another get command, in any letter case.
-fn elsewhere(word: &str) -> bool {
-    static ALL: std::sync::OnceLock<Vec<biodata::Text>> = std::sync::OnceLock::new();
-    let all = ALL.get_or_init(|| {
-        super::command_paths()
-            .iter()
-            .filter(|(verb, _, _)| *verb == "get")
-            .filter_map(|(verb, entity, _)| sections(&super::validation::schema(verb, entity)?))
-            .flat_map(|list| list.into_vec())
-            .collect()
-    });
-    known(all, word)
+/// Every get command's sections, which a trailing word may name for another record.
+fn elsewhere() -> Vec<biodata::Text> {
+    super::command_paths()
+        .iter()
+        .filter(|(verb, _, _)| *verb == "get")
+        .filter_map(|(verb, entity, _)| sections(&super::validation::schema(verb, entity)?))
+        .flat_map(|list| list.into_vec())
+        .collect()
 }
 
 /// A section's spelling without case, dashes, underscores or a plural s.

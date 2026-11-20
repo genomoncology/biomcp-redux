@@ -1,21 +1,21 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "A word after a get command's ID that names no section is refused, never dropped or looked up: the refusal names the word in error.option, says whether it was read as a section rather than a second ID, lists the record's sections, and its next step runs. A near section is offered as the next call, never read in the word's place. Several IDs with sections still read as before (gene/sections/clingen-validity, protein/chembl-targets, trial/get/batch-failure-says-why).",
+  "story": "A word after a get command's ID that names no section of this record is refused, never dropped: a word in the section's place, a trailing word that is not an ID, or a trailing word near one of this record's section names (any letter case, dash, underscore or plural, or one or two edits) or naming another record's section. The refusal names the word in error.option, says when it was read as a section rather than a second ID, lists the record's sections, and its next step runs. A near section is offered as the next call, never read in the word's place. Any other trailing word is an ID (gene/unknown-words).",
   "steps": [
     {
       "run": [
         "get",
         "gene",
         "BRAF",
-        "bogussection"
+        "eligibility"
       ],
       "offline": true,
       "exit": 2,
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/option": "bogussection",
+        "/error/option": "eligibility",
         "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
         "/error/valid_values": {
           "includes": "pathways"
@@ -212,14 +212,14 @@
         "get",
         "protein",
         "P15056",
-        "bogussection"
+        "eligibility"
       ],
       "offline": true,
       "exit": 2,
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/option": "bogussection",
+        "/error/option": "eligibility",
         "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
         "/error/valid_values": {
           "includes": "domains"
@@ -486,28 +486,6 @@
         "get",
         "gene",
         "BRAF",
-        "extra",
-        "words",
-        "here"
-      ],
-      "offline": true,
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/error/option": "extra",
-        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
-        "/next/0/args": [
-          "help",
-          "get",
-          "gene"
-        ]
-      }
-    },
-    {
-      "run": [
-        "get",
-        "gene",
-        "BRAF",
         "pathwys"
       ],
       "offline": true,
@@ -520,6 +498,48 @@
           "includes_all_of": [
             "BRAF",
             "pathways"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "PATHWYS"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "PATHWYS",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "BRAF",
+            "pathways"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "clin-var"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "clin-var",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "BRAF",
+            "clinvar"
           ]
         }
       }
@@ -580,9 +600,6 @@
       "expect": {
         "/error/option": "extra",
         "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
-        "/error/valid_values": {
-          "includes": "phenotypes"
-        },
         "/next/0/args": [
           "help",
           "get",
