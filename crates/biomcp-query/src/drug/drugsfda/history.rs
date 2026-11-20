@@ -154,8 +154,18 @@ impl Search<'_, '_> {
         }
         let cleaned = label_text::clean(body);
         let flat = label_text::flatten(&cleaned);
-        let section = match label_sections::find(&cleaned, &flat, self.section) {
-            Found::Section(section) => section,
+        // A scan holds FDA's stamp alone, which the cleaning took out.
+        if flat
+            .chars()
+            .filter(|c| c.is_alphabetic())
+            .nth(200)
+            .is_none()
+        {
+            return state(State::NoText);
+        }
+        let (section, whole) = match label_sections::find(&flat, self.section) {
+            Found::Section(section) => (section, true),
+            Found::Title(title) => (title, false),
             Found::Absent if partial => return state(State::Partial),
             Found::Absent => return state(State::SectionAbsent),
             Found::Unbounded => return state(State::SectionNotBounded),
@@ -167,6 +177,9 @@ impl Search<'_, '_> {
             .chars()
             .any(|c| ('\u{e000}'..='\u{f8ff}').contains(&c));
         let Some(&at) = hits.first() else {
+            if !whole {
+                return state(State::SectionNotBounded);
+            }
             if private_use {
                 return state(State::PrivateUse);
             }

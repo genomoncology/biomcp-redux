@@ -4,24 +4,26 @@
 //! Labels in the 2006 format print `FULL PRESCRIBING INFORMATION: CONTENTS`, which lists every
 //! section by number and title in order, then the prescribing information itself. A heading in
 //! the body counts only when it names a listed section: its number and title (`6 ADVERSE
-//! REACTIONS`), its title alone where the PDF draws the number apart, or the listed title of its
-//! first subsection (`6.1 Clinical Studies Experience`); a listed subsection implies its section
-//! when the reader lost the section's own line. Headings are found in the list's order,
-//! each after the one before, so a table row such as `1.1 Rash 26 2` is never a heading. A
-//! section runs from its heading to the heading of the next listed section; when either is not
-//! found, the section is unread. A section is absent only when the list was read and lacks it
-//! and the body has no numbered heading for it.
-//! The boxed warning is the text between the body's start and section 1 when that text holds a
-//! warning; it is absent only when neither it, the highlights nor the list holds one.
+//! REACTIONS` or `6. ADVERSE REACTIONS`), its title alone where the PDF draws the number apart,
+//! or the listed title of its first subsection (`6.1 Clinical Studies Experience`); a listed
+//! subsection implies its section when the reader lost the section's own line. Headings are
+//! found in the list's order, each after the one before, so a table row such as `1.1 Rash 26 2`
+//! is never a heading. A section runs from its heading to the heading of the next listed
+//! section, with no numbered heading of another section between; otherwise it is unread. A
+//! section is absent only when the list was read and lacks it and the body has no numbered
+//! heading for it. The boxed warning is the text between the body's start and section 1 when
+//! that text holds a warning; it is absent only when neither it, the highlights nor the list
+//! holds one. When the box itself is unread, the list's title for it can still hold the text.
 //!
-//! Labels in the format used before 2006 have no numbered list: their plain headings (WARNINGS,
-//! ADVERSE REACTIONS) count only as whole lines, each found once, with no heading run into a
-//! paragraph before the next; otherwise the section is unread. A document is not a label only on positive evidence: no prescribing-information
-//! heading at all, and a title such as Instructions for Use or Medication Guide.
+//! Labels without a readable contents list, in the format used before 2006 or with the list's
+//! page lost, are read from their headings alone in [`super::label_plain`] (1082). A document is
+//! not a label only on positive evidence: no prescribing-information heading at all, and a
+//! title such as Instructions for Use or Medication Guide.
+use super::label_plain;
 use biomcp_types::LabelHistorySection;
 
 /// Top-level prescribing-information sections by number, their titles in capitals.
-const TITLES: [(u8, &[&str]); 17] = [
+pub(super) const TITLES: [(u8, &[&str]); 17] = [
     (1, &["INDICATIONS AND USAGE", "INDICATIONS & USAGE"]),
     (2, &["DOSAGE AND ADMINISTRATION"]),
     (3, &["DOSAGE FORMS AND STRENGTHS"]),
@@ -40,23 +42,6 @@ const TITLES: [(u8, &[&str]); 17] = [
     (16, &["HOW SUPPLIED"]),
     (17, &["PATIENT COUNSELING"]),
 ];
-/// Every plain heading of the format used before 2006.
-const OLD: [&str; 14] = [
-    "INDICATIONS AND USAGE",
-    "INDICATIONS",
-    "CONTRAINDICATIONS",
-    "WARNINGS",
-    "PRECAUTIONS",
-    "ADVERSE REACTIONS",
-    "DRUG ABUSE AND DEPENDENCE",
-    "OVERDOSAGE",
-    "DOSAGE AND ADMINISTRATION",
-    "HOW SUPPLIED",
-    "CLINICAL PHARMACOLOGY",
-    "DESCRIPTION",
-    "CLINICAL STUDIES",
-    "REFERENCES",
-];
 /// Titles that show a document is not prescribing information, in capitals.
 const NOT_LABEL: [&str; 6] = [
     "INSTRUCTIONS FOR USE",
@@ -70,7 +55,7 @@ const CONTENTS: [&str; 2] = [
     "FULL PRESCRIBING INFORMATION: CONTENTS",
     "FULL PRESCRIBING INFORMATION:CONTENTS",
 ];
-const FULL: &str = "FULL PRESCRIBING INFORMATION";
+pub(super) const FULL: &str = "FULL PRESCRIBING INFORMATION";
 
 /// What looking for a section found.
 #[derive(Debug, PartialEq, Eq)]
@@ -81,6 +66,9 @@ pub(super) enum Found {
     Absent,
     /// The section's bounds could not be found, so it is unread.
     Unbounded,
+    /// Only the boxed warning's title, as the contents list gives it, was read: a match in it
+    /// stands, a miss proves nothing.
+    Title(String),
     /// The document is not prescribing information.
     NotPrescribing,
     /// A label in the older format whose headings could not be found, so it is unread.
@@ -93,7 +81,7 @@ fn word(c: char) -> bool {
 
 /// Whether `needle` at `at` in `text` stands alone as a heading: nothing word-like touches it,
 /// it is not a number's tail, and it is not a cross-reference such as `ADVERSE REACTIONS (6.1)`.
-fn heading_at(text: &str, at: usize, needle: &str) -> bool {
+pub(super) fn heading_at(text: &str, at: usize, needle: &str) -> bool {
     let before = text.get(..at).and_then(|b| b.chars().last());
     let rest = text.get(at + needle.len()..).unwrap_or_default();
     let reference = rest
@@ -137,7 +125,8 @@ fn entry(block: &str, at: usize) -> Option<(u8, Option<u8>, &str)> {
     }
     let major = number(rest.get(..digits)?);
     let after = rest.get(digits..)?;
-    if let Some(tail) = after.strip_prefix(' ') {
+    // Some labels print `5. WARNINGS AND PRECAUTIONS` and `5.1. Serious Infections`.
+    if let Some(tail) = after.strip_prefix(' ').or_else(|| after.strip_prefix(". ")) {
         return Some((major, None, tail));
     }
     let minor_text = after.strip_prefix('.')?;
@@ -149,7 +138,9 @@ fn entry(block: &str, at: usize) -> Option<(u8, Option<u8>, &str)> {
         return None;
     }
     let minor = number(minor_text.get(..n)?);
-    Some((major, Some(minor), minor_text.get(n..)?.strip_prefix(' ')?))
+    let tail = minor_text.get(n..)?;
+    let tail = tail.strip_prefix(' ').or_else(|| tail.strip_prefix(". "))?;
+    Some((major, Some(minor), tail))
 }
 
 /// The first one to three words of a subsection title, as the contents list gives them.
@@ -235,9 +226,14 @@ fn placed(flat: &str, listed: &[Listed], body: usize) -> Vec<Option<usize>> {
     listed
         .iter()
         .map(|l| {
-            let mut forms = vec![format!("{} {}", l.number, l.title), l.title.to_owned()];
+            let mut forms = vec![
+                format!("{} {}", l.number, l.title),
+                format!("{}. {}", l.number, l.title),
+                l.title.to_owned(),
+            ];
             if let Some(first) = &l.first {
                 forms.push(format!("{}.1 {first}", l.number));
+                forms.push(format!("{}.1. {first}", l.number));
             }
             let at = forms
                 .iter()
@@ -262,7 +258,12 @@ fn listed_section(flat: &str, number: Option<u8>) -> Option<Found> {
         .find(FULL)
         .map(|at| start + marker + at)
     else {
-        return Some(Found::Unbounded);
+        // The body's own heading is missing, as when its first page is drawn as an image.
+        let block = flat.get(start + marker..).unwrap_or_default();
+        return Some(match number {
+            None => titled(block),
+            Some(number) => label_plain::numbered(flat, number),
+        });
     };
     let block = flat.get(start + marker..body).unwrap_or_default();
     let listed = listed(block);
@@ -292,11 +293,34 @@ fn listed_section(flat: &str, number: Option<u8>) -> Option<Found> {
         None => Some(flat.len()),
     };
     Some(match (begin, end) {
-        (Some(begin), Some(end)) if end > begin => {
+        // A numbered heading of another section between them means the list lost that section.
+        (Some(begin), Some(end))
+            if end > begin && !label_plain::crossed(flat, number, (begin, end)) =>
+        {
             Found::Section(flat.get(begin..end).unwrap_or_default().trim().to_owned())
         }
         _ => Found::Unbounded,
     })
+}
+
+/// The boxed warning's title as the contents list gives it, when the box itself is unread: the
+/// list's text from `WARNING` to section 1, holding no list entry.
+fn titled(block: &str) -> Found {
+    let head = block.trim_start_matches(['*', ' ']);
+    let end = ["1 INDICATIONS", "1. INDICATIONS"]
+        .iter()
+        .filter_map(|one| head.find(one))
+        .min();
+    let title = end
+        .and_then(|end| head.get(..end))
+        .unwrap_or_default()
+        .trim();
+    let clean = title.starts_with("WARNING") && title.len() <= 400;
+    if clean && !title.contains(|c: char| c.is_ascii_digit()) {
+        Found::Title(title.to_owned())
+    } else {
+        Found::Unbounded
+    }
 }
 
 /// The boxed warning: the warning between the body's start and section 1.
@@ -307,7 +331,7 @@ fn boxed(
     places: &[Option<usize>],
 ) -> Found {
     let Some(Some(one)) = (!listed.is_empty()).then(|| places.first().copied().flatten()) else {
-        return Found::Unbounded;
+        return titled(block);
     };
     let region = flat.get(body..one).unwrap_or_default();
     if let Some(at) = region.find("WARNING") {
@@ -318,59 +342,9 @@ fn boxed(
         .and_then(|at| block.get(..at))
         .unwrap_or(block);
     if flat.get(..contents).is_some_and(|h| h.contains("WARNING:")) || head.contains("WARNING") {
-        return Found::Unbounded;
+        return titled(block);
     }
     Found::Absent
-}
-
-/// A section of a label in the format used before 2006, from headings that are whole lines.
-fn old_section(lines: &[&str], section: LabelHistorySection) -> Found {
-    use LabelHistorySection as S;
-    let titles: &[&str] = match section {
-        S::IndicationsAndUsage => &["INDICATIONS AND USAGE", "INDICATIONS"],
-        S::Contraindications => &["CONTRAINDICATIONS"],
-        S::WarningsAndCautions => &["WARNINGS", "PRECAUTIONS"],
-        S::AdverseReactions => &["ADVERSE REACTIONS"],
-        _ => return Found::Older,
-    };
-    let heads: Vec<(usize, &str)> = lines
-        .iter()
-        .enumerate()
-        .filter(|(_, line)| OLD.contains(line))
-        .map(|(i, line)| (i, *line))
-        .collect();
-    let mut parts = Vec::new();
-    for title in titles {
-        let at: Vec<usize> = heads
-            .iter()
-            .filter(|(_, t)| t == title)
-            .map(|(i, _)| *i)
-            .collect();
-        let [start] = at[..] else { continue };
-        let Some(&(end, _)) = heads.iter().find(|(i, _)| *i > start) else {
-            return Found::Unbounded;
-        };
-        // A heading run into its paragraph inside the stretch leaves its end unknown.
-        let run_in = lines
-            .get(start + 1..end)
-            .unwrap_or_default()
-            .iter()
-            .any(|line| {
-                OLD.iter().any(|t| {
-                    line.strip_prefix(t)
-                        .is_some_and(|r| r.starts_with(' ') || r.starts_with(':'))
-                })
-            });
-        if run_in {
-            return Found::Unbounded;
-        }
-        parts.push(lines.get(start..end).unwrap_or_default().join(" "));
-    }
-    if parts.is_empty() {
-        Found::Older
-    } else {
-        Found::Section(parts.join(" "))
-    }
 }
 
 /// Whether a document without any prescribing-information heading names itself as another kind.
@@ -379,8 +353,8 @@ fn not_label(flat: &str) -> bool {
     NOT_LABEL.iter().any(|title| head.contains(title))
 }
 
-/// Find `section` in a label's cleaned text, whose lines are kept.
-pub(super) fn find(cleaned: &str, flat: &str, section: LabelHistorySection) -> Found {
+/// Find `section` in a label's cleaned text on one line.
+pub(super) fn find(flat: &str, section: LabelHistorySection) -> Found {
     use LabelHistorySection as S;
     let number = match section {
         S::BoxedWarning => None,
@@ -399,11 +373,10 @@ pub(super) fn find(cleaned: &str, flat: &str, section: LabelHistorySection) -> F
         || flat.contains("1 INDICATIONS AND USAGE")
         || flat.contains("5 WARNINGS AND PRECAUTIONS");
     if structured {
-        return Found::Unbounded;
+        return number.map_or(Found::Unbounded, |n| label_plain::numbered(flat, n));
     }
     if not_label(flat) {
         return Found::NotPrescribing;
     }
-    let lines: Vec<&str> = cleaned.lines().collect();
-    old_section(&lines, section)
+    label_plain::older(flat, section)
 }

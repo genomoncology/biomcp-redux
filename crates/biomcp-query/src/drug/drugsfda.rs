@@ -11,6 +11,7 @@ use biomcp_types::{
 mod approvals;
 mod history;
 mod history_reply;
+mod label_plain;
 mod label_sections;
 #[cfg(test)]
 mod label_sections_tests;

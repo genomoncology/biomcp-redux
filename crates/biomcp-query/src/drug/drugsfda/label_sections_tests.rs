@@ -1,6 +1,8 @@
 //! Section bounds on label text shaped like the 1066 review's wrong cases: table rows that look
 //! like subsections, headings whose number the PDF drew apart, boxed warnings the contents list
-//! leaves out, a label missing its first page, and documents that are not labels.
+//! leaves out, a label missing its first page, and documents that are not labels; and, for 1082,
+//! labels read from their headings alone, where a missed or repeated heading leaves a section
+//! unread and never runs it into the next.
 use super::label_sections::{Found, find};
 use super::label_text::{clean, flatten};
 use biomcp_types::LabelHistorySection as S;
@@ -12,8 +14,7 @@ const OMITTED: &str =
     "*Sections or subsections omitted from the full prescribing information are not listed.";
 
 fn found(text: &str, section: S) -> Found {
-    let cleaned = clean(text);
-    find(&cleaned, &flatten(&cleaned), section)
+    find(&flatten(&clean(text)), section)
 }
 
 fn section(text: &str, section: S) -> String {
@@ -152,19 +153,105 @@ fn a_boxed_warning_the_contents_list_leaves_out_is_read_from_the_body() {
 }
 
 #[test]
-fn a_label_missing_its_contents_is_unread_never_absent() {
-    // Olumiant's 2018 original as the reader gives it: page 1, with the box and contents, is gone.
+fn a_label_missing_its_contents_is_read_from_its_numbered_headings() {
+    // Olumiant's 2018 original as the reader gives it: page 1, with the box and contents, and page
+    // 3, with the box and section 1, are images; the list's last lines remain on page 2.
     let label = "This label may not be the latest approved by FDA. 2 14 CLINICAL STUDIES 16 HOW SUPPLIED \
         17 PATIENT COUNSELING INFORMATION * Sections or subsections omitted from the full prescribing \
         information are not listed. 4 CONTRAINDICATIONS None. 5 WARNINGS AND PRECAUTIONS 5.1 Serious \
-        Infections Serious and sometimes fatal infections.";
+        Infections Serious and sometimes fatal infections. 5.3 Thrombosis Thrombosis has occurred \
+        [see Adverse Reactions (6.1)]. 6 ADVERSE REACTIONS The most common reactions were nausea. \
+        7 DRUG INTERACTIONS Avoid probenecid. 8 USE IN SPECIFIC POPULATIONS Pregnancy data.";
+    let warnings = section(label, S::WarningsAndCautions);
+    assert!(
+        warnings.starts_with("5 WARNINGS AND PRECAUTIONS") && warnings.ends_with("(6.1)]."),
+        "{warnings}"
+    );
+    assert_eq!(
+        section(label, S::Contraindications),
+        "4 CONTRAINDICATIONS None."
+    );
+    // The box and section 1 are not in the text, and section 8 has no heading after it.
     for each in [
         S::BoxedWarning,
-        S::Contraindications,
-        S::WarningsAndCautions,
+        S::IndicationsAndUsage,
+        S::UseInSpecificPopulations,
     ] {
         assert_eq!(found(label, each), Found::Unbounded, "{each}");
     }
+    // A section whose next heading the reader lost is unread, never run into the one after.
+    let lost = label.replace("6 ADVERSE REACTIONS ", "");
+    assert_eq!(found(&lost, S::WarningsAndCautions), Found::Unbounded);
+    // A stretch of a contents list, whose body headings were lost, is no section.
+    let listed = "HIGHLIGHTS OF PRESCRIBING INFORMATION 4 CONTRAINDICATIONS 5 WARNINGS AND PRECAUTIONS \
+        5.1 Serious Infections 6 ADVERSE REACTIONS 6.1 Clinical Trials Experience Serious infections.";
+    assert_eq!(found(listed, S::WarningsAndCautions), Found::Unbounded);
+}
+
+/// Opzelura's 2025 contents list and body opening, numbered `1.` and `1.1.`.
+const DOTTED: &str = "FULL PRESCRIBING INFORMATION: CONTENTS* WARNING: SERIOUS INFECTIONS, MAJOR ADVERSE \
+    CARDIOVASCULAR EVENTS, AND THROMBOSIS 1. INDICATIONS AND USAGE 1.1. Atopic Dermatitis 2. DOSAGE AND \
+    ADMINISTRATION 4. CONTRAINDICATIONS 5. WARNINGS AND PRECAUTIONS 5.1. Serious Infections 6. ADVERSE \
+    REACTIONS 6.1. Clinical Trials Experience *Sections or subsections omitted from the full prescribing \
+    information are not listed. Reference ID: 5661016 2 FULL PRESCRIBING INFORMATION WARNING: SERIOUS \
+    INFECTIONS, MAJOR ADVERSE CARDIOVASCULAR EVENTS, AND THROMBOSIS Patients treated with oral Janus \
+    kinase inhibitors are at risk. 1. INDICATIONS AND USAGE 1.1. Atopic Dermatitis OPZELURA is indicated \
+    for atopic dermatitis. 2. DOSAGE AND ADMINISTRATION Apply twice daily. 4. CONTRAINDICATIONS None. \
+    5. WARNINGS AND PRECAUTIONS 5.1. Serious Infections Avoid use in active infection. 6. ADVERSE \
+    REACTIONS Nasopharyngitis was reported.";
+/// The box and the body's opening heading in [`DOTTED`].
+const DOTTED_BOX: &str = "2 FULL PRESCRIBING INFORMATION WARNING: SERIOUS INFECTIONS, MAJOR ADVERSE \
+    CARDIOVASCULAR EVENTS, AND THROMBOSIS Patients treated with oral Janus kinase inhibitors are at risk. ";
+
+#[test]
+fn a_contents_list_numbered_with_full_stops_bounds_its_sections() {
+    let boxed = section(DOTTED, S::BoxedWarning);
+    assert!(
+        boxed.starts_with("WARNING: SERIOUS") && boxed.ends_with("are at risk."),
+        "{boxed}"
+    );
+    assert_eq!(
+        section(DOTTED, S::WarningsAndCautions),
+        "5. WARNINGS AND PRECAUTIONS 5.1. Serious Infections Avoid use in active infection."
+    );
+}
+
+#[test]
+fn a_two_column_contents_list_never_runs_a_section_over_the_ones_it_lost() {
+    // Opzelura's 2026 list, read row by row across its two columns: sections 2 to 5 come after
+    // section 6, so the list in order gives section 1 and then section 6.
+    let listed = "1. INDICATIONS AND USAGE 1.1. Atopic Dermatitis 2. DOSAGE AND ADMINISTRATION 4. \
+        CONTRAINDICATIONS 5. WARNINGS AND PRECAUTIONS 5.1. Serious Infections 6. ADVERSE REACTIONS 6.1. \
+        Clinical Trials Experience *Sections";
+    let rows = "5.4. Major Adverse Cardiovascular Events (MACE) 1. INDICATIONS AND USAGE 6. ADVERSE \
+        REACTIONS 1.1. Atopic Dermatitis 6.1. Clinical Trials Experience 2. DOSAGE AND ADMINISTRATION 4. \
+        CONTRAINDICATIONS 5. WARNINGS AND PRECAUTIONS *Sections";
+    let interleaved = DOTTED.replace(listed, rows);
+    assert_ne!(interleaved, DOTTED, "the list was replaced");
+    let boxed = section(&interleaved, S::BoxedWarning);
+    assert!(boxed.ends_with("are at risk."), "{boxed}");
+    assert_eq!(
+        found(&interleaved, S::IndicationsAndUsage),
+        Found::Unbounded
+    );
+}
+
+#[test]
+fn a_box_drawn_as_an_image_is_read_only_through_its_listed_title() {
+    // Opzelura's 2021 original: the box and the body's own heading are on a page drawn as an image.
+    let label = DOTTED.replace(DOTTED_BOX, "");
+    assert_ne!(label, DOTTED, "the box was taken out");
+    let title = "WARNING: SERIOUS INFECTIONS, MAJOR ADVERSE CARDIOVASCULAR EVENTS, AND THROMBOSIS";
+    assert_eq!(
+        found(&label, S::BoxedWarning),
+        Found::Title(title.to_owned())
+    );
+    // A title the list's other column runs into is no title.
+    let mixed = label.replace(
+        "MAJOR ADVERSE CARDIOVASCULAR EVENTS, AND",
+        "5.4. Major Adverse Cardiovascular Events MAJOR ADVERSE CARDIOVASCULAR EVENTS, AND",
+    );
+    assert_eq!(found(&mixed, S::BoxedWarning), Found::Unbounded);
 }
 
 #[test]
@@ -178,24 +265,39 @@ fn only_a_document_that_names_another_kind_is_not_a_label() {
     assert_eq!(found(sparse, S::IndicationsAndUsage), Found::Older);
 }
 
+/// Lipitor's 2007 label as the reader gives it: headings run into their paragraphs, one behind
+/// a page number, with cross-references in capitals.
+const LIPITOR: &str = "DESCRIPTION Atorvastatin calcium is a synthetic agent (see CLINICAL PHARMACOLOGY). \
+    INDICATIONS AND USAGE LIPITOR is indicated as an adjunct to diet. CONTRAINDICATIONS Active liver \
+    disease. WARNINGS Liver Dysfunction Persistent elevations occurred (see DOSAGE AND ADMINISTRATION). \
+    Myopathy, see ADVERSE REACTIONS and PRECAUTIONS, Drug Interactions. PRECAUTIONS General Rule out \
+    secondary causes (see WARNINGS, Skeletal Muscle). 22 ADVERSE REACTIONS LIPITOR is generally \
+    well-tolerated. Musculoskeletal System: leg cramps, myasthenia. OVERDOSAGE There is no specific \
+    treatment. DOSAGE AND ADMINISTRATION Take once daily. HOW SUPPLIED Tablets.";
+
 #[test]
-fn older_labels_count_headings_only_as_whole_lines() {
-    let whole = "DESCRIPTION\nAtorvastatin calcium is a synthetic agent.\nWARNINGS\nLiver dysfunction \
-        has been reported.\nPRECAUTIONS\nGeneral: rule out secondary causes.\nADVERSE REACTIONS\n\
-        Myalgia was reported.\nOVERDOSAGE\nThere is no specific treatment.\n";
-    assert_eq!(
-        section(whole, S::AdverseReactions),
-        "ADVERSE REACTIONS Myalgia was reported."
+fn older_labels_are_bounded_by_the_heading_that_always_follows() {
+    let adverse = section(LIPITOR, S::AdverseReactions);
+    assert!(
+        adverse.starts_with("ADVERSE REACTIONS LIPITOR") && adverse.ends_with("myasthenia."),
+        "{adverse}"
     );
-    let warnings = section(whole, S::WarningsAndCautions);
-    assert!(warnings.starts_with("WARNINGS Liver") && warnings.contains("PRECAUTIONS General"));
-    assert_eq!(found(whole, S::BoxedWarning), Found::Older);
-    // Lipitor's 2005 label as the reader gives it: headings run into their paragraphs.
-    let inline = "DESCRIPTION Atorvastatin calcium.\n  CONTRAINDICATIONS  Active liver disease.\n";
-    assert_eq!(found(inline, S::Contraindications), Found::Older);
-    // A heading run into its paragraph inside a stretch leaves the stretch's end unknown.
-    let mixed = whole.replace("ADVERSE REACTIONS\nMyalgia", "ADVERSE REACTIONS Myalgia");
-    assert_eq!(found(&mixed, S::WarningsAndCautions), Found::Unbounded);
+    let warnings = section(LIPITOR, S::WarningsAndCautions);
+    assert!(
+        warnings.starts_with("WARNINGS Liver") && warnings.ends_with("Skeletal Muscle). 22"),
+        "warnings run through precautions to adverse reactions: {warnings}"
+    );
+    assert_eq!(
+        section(LIPITOR, S::Contraindications),
+        "CONTRAINDICATIONS Active liver disease."
+    );
+    assert_eq!(found(LIPITOR, S::BoxedWarning), Found::Older);
+    // A heading the reader lost leaves the section before it unread, never run into the next.
+    let lost = LIPITOR.replace("22 ADVERSE REACTIONS LIPITOR", "LIPITOR");
+    assert_eq!(found(&lost, S::WarningsAndCautions), Found::Unbounded);
+    // A heading printed twice leaves its section unread.
+    let twice = LIPITOR.replace("treatment. DOSAGE", "treatment. ADVERSE REACTIONS DOSAGE");
+    assert_eq!(found(&twice, S::AdverseReactions), Found::Unbounded);
 }
 
 /// Xeljanz's 2012 original label, unchanged: its contents list leaves out the boxed warning.
