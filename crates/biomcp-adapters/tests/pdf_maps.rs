@@ -77,10 +77,10 @@ fn refused(header: &str, body: &str, why: &str) {
 
 #[test]
 fn a_comment_cannot_hide_a_range_from_the_count() {
-    // The review's map: a `[` in a comment opened an array the count never closed, so it
-    // skipped the real range section; lopdf read all of it.
+    // The review's map: a comment in the code-space section names a range section and opens
+    // a `[` that never closes, so the count skipped the real range section; lopdf read it.
     let body = format!(
-        "1 begincodespacerange\n<0000> <FFFF> % [\nendcodespacerange\n\
+        "1 begincodespacerange\n<0000> <FFFF>\n%1 beginbfrange <00> <01> [\nendcodespacerange\n\
          2 beginbfrange\n{GLYPHS}\n{HIDDEN}\nendbfrange\n"
     );
     refused(HEADER, &body, "the commented map's hidden range is counted");

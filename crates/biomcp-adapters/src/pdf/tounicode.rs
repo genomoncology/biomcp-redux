@@ -99,8 +99,11 @@ enum Entry {
     Array(Vec<String>),
 }
 
-/// The map's sections in order, as (keywords, entries); none when one is not regular.
-fn sections(text: &str) -> Option<Vec<((&'static str, &'static str), Vec<Entry>)>> {
+/// A section's keywords and its entries.
+type Section = ((&'static str, &'static str), Vec<Entry>);
+
+/// The map's sections in order; none when one is not regular.
+fn sections(text: &str) -> Option<Vec<Section>> {
     let mut found = Vec::new();
     let mut tokens = tokens(text)?.into_iter();
     while let Some(token) = tokens.next() {
