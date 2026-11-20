@@ -62,6 +62,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     };
     if unanswered(&discovery, candidates.is_empty()) {
         status::item(&mut discovery, false, true, false);
+        super::aliases::recovery(&mut discovery, query);
         return vec![discovery];
     }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));

@@ -148,6 +148,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let Some(stated) = stated else {
         if lookup_failed {
             status::item(&mut out, false, true, false);
+            recovery(&mut out, query);
         }
         return vec![out];
     };
@@ -158,6 +159,9 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
             let mut part = super::fork(&out, DrugCard::into_reply(query.clone(), None));
             hint(&mut part, &stated, input, query.source(), cx.fresh);
             status::item(&mut part, false, lookup_failed, false);
+            if lookup_failed {
+                recovery(&mut part, query);
+            }
             part
         })
         .collect()
@@ -212,12 +216,10 @@ struct Evidence {
     local: Option<biomcp_fetch::RequestError>,
 }
 impl Evidence {
-    /// Not finding the record is an answer only when every name lookup answered (1059).
+    /// Not finding the record is an answer only when every name lookup read a current copy
+    /// (1059, 1087).
     fn lookup_failed(&self) -> bool {
-        self.sources.iter().any(|s| {
-            s.state == biomcp_types::SourceState::Failed
-                && s.reason != Some(biomcp_types::Reason::NotFound)
-        })
+        self.sources.iter().any(unread)
     }
     fn append(&self, out: &mut Outcome, selected: DrugSource) {
         for source in &self.sources {
@@ -393,6 +395,41 @@ pub(super) fn names(card: &DrugCard) -> Vec<&Text> {
         .chain(card.alternate_names.iter())
         .filter(|name| seen.insert(name.as_str().to_lowercase()))
         .collect()
+}
+
+/// A source read a lookup could not use: a stale copy, or a failed read other than "not found".
+fn unread(source: &SourceOutcome) -> bool {
+    source.state == SourceState::Stale
+        || source.state == SourceState::Failed && source.reason != Some(Reason::NotFound)
+}
+
+/// Offer the step that reads each source the lookup could not use again: the sync of a stored
+/// copy, otherwise the same call without cached replies (1087).
+pub(super) fn recovery(out: &mut Outcome, query: &DrugGet) {
+    let mut network = Vec::new();
+    for source in out.sources.iter().filter(|s| unread(s)).map(|s| s.source) {
+        let step = match crate::sources::bundles().find(|b| b.source() == source) {
+            Some(bundle) => {
+                crate::next::Step::new(StepKind::Sync, &[source], crate::Action::Sync { bundle })
+            }
+            None if !network.contains(&source) => {
+                network.push(source);
+                continue;
+            }
+            None => continue,
+        };
+        if !out.next.contains(&step) {
+            out.next.push(step);
+        }
+    }
+    if !network.is_empty() {
+        out.next.push(crate::next::Step::run(
+            StepKind::Fresh,
+            &network,
+            Request::GetDrug(query.clone()),
+            true,
+        ));
+    }
 }
 
 fn usable(out: &Outcome, source: DrugSource) -> bool {

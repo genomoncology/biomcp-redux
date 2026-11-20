@@ -185,12 +185,15 @@ fn ema(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     row
 }
 
-/// A source the market could not read, or one that answered without a record.
+/// A source the market could not read, including a stale copy that holds no such name (1087),
+/// or one that answered without a record.
 fn unanswered(mut row: DrugMarket, sub: &Outcome, source: Source) -> DrugMarket {
-    let failed = sub
-        .sources
-        .iter()
-        .find(|s| matches!(s.state, SourceState::Failed | SourceState::Syncing));
+    let failed = sub.sources.iter().find(|s| {
+        matches!(
+            s.state,
+            SourceState::Failed | SourceState::Syncing | SourceState::Stale
+        )
+    });
     if sub.status() == Status::Failed && (failed.is_some() || sub.local.is_some()) {
         row.state = DrugMarketState::Failed;
         row.reason = failed
