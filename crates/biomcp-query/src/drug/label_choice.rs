@@ -155,19 +155,21 @@ pub(super) fn recover(
     command.finish(remaining);
     if let Some(source) = discovery.sources.first_mut() {
         source.notices.extend(attempt.notices);
-        if let Err(error) = &found {
-            source.notices.push(SourceNotice::RequestGuidance {
-                data_date: None,
-                message: format!(
-                    "Could not check application {application} for the original packager: {error}."
-                )
-                .into(),
-                retry_after_seconds: None,
-            });
-        }
     }
-    if let Ok(found) = found {
-        candidates.extend(found);
+    match found {
+        Ok(found) => candidates.extend(found),
+        Err(error) => {
+            if let Some(source) = discovery.sources.first_mut() {
+                source.notices.push(SourceNotice::RequestGuidance {
+                    data_date: None,
+                    message: format!(
+                        "Could not check application {application} for the original packager: {error}."
+                    )
+                    .into(),
+                    retry_after_seconds: None,
+                });
+            }
+        }
     }
 }
 

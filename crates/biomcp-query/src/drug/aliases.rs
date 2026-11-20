@@ -180,8 +180,13 @@ fn label_fallback(
     input: &Text,
     evidence: &mut Evidence,
 ) -> Option<Vec<Outcome>> {
+    let search = crate::next::checked(
+        DrugSearch::named(input.clone(), DrugSource::Drugsfda, 50),
+        biomcp_types::Source::Drugsfda,
+        &mut evidence.problems,
+    )?;
     let (lookup, application) =
-        super::resolve::brand_application(&within(cx, deadline.remaining()), input)?;
+        super::resolve::brand_application(&within(cx, deadline.remaining()), &search);
     evidence.sources.extend(lookup.sources);
     evidence.problems.extend(lookup.problems);
     evidence.local = evidence.local.or(lookup.local);
@@ -190,6 +195,7 @@ fn label_fallback(
         &within(cx, deadline.remaining()),
         queries,
         &application,
+        &mut evidence.problems,
     )?;
     for out in &mut found {
         notice(

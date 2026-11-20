@@ -1,6 +1,6 @@
 //! Resolve complete source names before the unchanged native-ID path.
 use crate::{Ctx, Outcome, status};
-use biodata::{DrugId, Text};
+use biodata::DrugId;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource, ReplyData,
@@ -374,17 +374,15 @@ fn fda(cx: &Ctx<'_>, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     )
 }
 /// A literal brand match to one distinct application can verify an otherwise unresolved label.
-pub(super) fn brand_application(cx: &Ctx<'_>, name: &Text) -> Option<(Outcome, Option<DrugId>)> {
-    let query = DrugSearch::named(name.clone(), DrugSource::Drugsfda, 50).ok()?;
-    let (out, candidates) = fda(cx, &query);
+pub(super) fn brand_application(cx: &Ctx<'_>, query: &DrugSearch) -> (Outcome, Option<DrugId>) {
+    let (out, candidates) = fda(cx, query);
     let mut matches = candidates.into_iter().filter(|(rank, _)| rank.0 == 0);
-    let id = matches.next().map(|(_, header)| header.id);
-    let id = id.filter(|id| {
+    let id = matches.next().map(|(_, header)| header.id).filter(|id| {
         !unanswered(&out, true)
             && out.local.is_none()
             && matches.all(|(_, header)| header.id == *id)
     });
-    Some((out, id))
+    (out, id)
 }
 /// Read MyChem's free-text pages until one holds a drug record of the exact name. Its ranking can
 /// place that record past looser matches and product-only records, so a page without one is no

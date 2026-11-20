@@ -23,12 +23,18 @@ pub(super) fn fallback(
     cx: &Ctx<'_>,
     queries: &[DrugGet],
     application: &DrugId,
+    problems: &mut Vec<biomcp_types::Problem>,
 ) -> Option<Vec<Outcome>> {
     let resolved = queries
         .iter()
-        .map(|query| query.with_native_id(application.clone()))
-        .collect::<Result<Vec<_>, _>>()
-        .ok()?;
+        .map(|query| {
+            crate::next::checked(
+                query.with_native_id(application.clone()),
+                Source::OpenfdaLabel,
+                problems,
+            )
+        })
+        .collect::<Option<Vec<_>>>()?;
     let found = get_parts(cx, &resolved);
     let application = application.to_string();
     found
