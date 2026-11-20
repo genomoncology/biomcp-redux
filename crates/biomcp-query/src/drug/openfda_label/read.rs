@@ -41,12 +41,14 @@ fn read(cx: &Ctx<'_>, queries: &[DrugGet], deadline: Deadline<'_>) -> Vec<Outcom
         }
     };
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
-    let result = source::get(&leg, &id);
-    let error = result.as_ref().err().copied();
+    let (page, error) = match source::get(&leg, &id) {
+        Ok(page) => (Some(page), None),
+        Err(error) => (None, Some(error)),
+    };
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
-    if let Ok(page) = result {
+    if let Some(page) = page {
         out.problems.extend(page.problems);
         out.include_refusals(page.window.refusals());
         crate::status::item(&mut out, true, false, false);

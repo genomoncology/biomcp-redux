@@ -50,7 +50,10 @@ pub(in crate::drug) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         let items = search_page::headers(&page.window.rows, query)?;
         Ok(page.window.with_rows(items))
     });
-    let error = result.as_ref().err().copied();
+    let (window, error) = match result {
+        Ok(window) => (Some(window), None),
+        Err(error) => (None, Some(error)),
+    };
     out.local = error.and_then(status::local);
     let remaining = leg.command_remaining();
     out.sources
@@ -60,11 +63,11 @@ pub(in crate::drug) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         query,
         expanded.as_ref(),
         deadline,
-        result.is_ok(),
+        window.is_some(),
         &mut out,
     );
     disclosure(&mut out, discovery.free_text);
-    if let Ok(window) = result {
+    if let Some(window) = window {
         let total = window.total().unwrap_or(0);
         search_page::apply(cx, &sent, window, total, &mut out);
     }
