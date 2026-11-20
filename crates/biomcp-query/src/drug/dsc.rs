@@ -137,11 +137,14 @@ fn answer(
         items,
         hint: if returned == 0 || text_searched < searched {
             let detail = found.hint.as_ref().map_or("", Text::as_str);
-            Text::new(&format!(
+            match Text::new(&format!(
                 "Zero matches does not establish that FDA issued no communication about this drug. \
                  Searched {searched} communications, with page text for {text_searched}. FDA index {}. {detail}",
                 source::index_url()
-            )).ok()
+            )) {
+                Ok(hint) => Some(hint),
+                Err(_) => found.hint,
+            }
         } else {
             found.hint
         },

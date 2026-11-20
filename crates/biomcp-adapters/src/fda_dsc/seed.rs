@@ -17,8 +17,7 @@ pub struct SearchRow {
 struct SeedRow {
     #[serde(flatten)]
     header: DrugSafetyCommunication,
-    #[serde(default)]
-    text: Vec<String>,
+    text: Option<Vec<String>>,
 }
 
 #[derive(Debug)]
@@ -41,7 +40,10 @@ pub(super) fn seed() -> Result<Seed, serde_json::Error> {
         .into_iter()
         .map(|row| SearchRow {
             header: row.header,
-            text: (!row.text.is_empty()).then(|| row.text.join(" ")),
+            text: row
+                .text
+                .filter(|lines| !lines.is_empty())
+                .map(|lines| lines.join(" ")),
         })
         .collect();
     Ok(Seed { date, items })

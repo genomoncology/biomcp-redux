@@ -139,16 +139,16 @@ pub fn communication(
 ) -> Result<Mapped<Option<(DrugSafetyCommunication, Text)>>, RequestError> {
     let seed = shipped()?;
     let current = read_index(leg);
-    let listed = current
-        .as_ref()
-        .ok()
-        .and_then(|rows| rows.iter().find(|row| row.id.as_str() == id).cloned())
-        .or_else(|| {
-            seed.items
-                .iter()
-                .find(|row| row.header.id.as_str() == id)
-                .map(|row| seed_listing(&row.header))
-        });
+    let from_index = match &current {
+        Ok(rows) => rows.iter().find(|row| row.id.as_str() == id).cloned(),
+        Err(_) => None, // Try the shipped row and retain the index error for unknown IDs.
+    };
+    let listed = from_index.or_else(|| {
+        seed.items
+            .iter()
+            .find(|row| row.header.id.as_str() == id)
+            .map(|row| seed_listing(&row.header))
+    });
     let Some(listed) = listed else {
         current?;
         return Ok(Mapped {

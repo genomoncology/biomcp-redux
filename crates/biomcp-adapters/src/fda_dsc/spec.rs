@@ -9,6 +9,11 @@ pub(crate) const SITE: &str = "https://www.fda.gov";
 pub(crate) const INDEX_PATH: &str =
     "/drugs/drug-safety-and-availability/drug-safety-communications";
 
+/// FDA's index address, for callers checking search coverage.
+pub fn index_url() -> String {
+    format!("{SITE}{INDEX_PATH}")
+}
+
 /// FDA's website policies: "Unless otherwise noted, the contents of the FDA website
 /// (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain
 /// and may be republished, reprinted and otherwise used freely by anyone without the need to
