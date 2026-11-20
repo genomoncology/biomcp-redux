@@ -35,7 +35,8 @@
           "text"
         ],
         "/result/items/1/matched_in": [
-          "title"
+          "title",
+          "text"
         ],
         "/result/searched": 44
       }
