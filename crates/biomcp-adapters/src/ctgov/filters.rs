@@ -158,7 +158,7 @@ fn quote(value: &str) -> String {
 }
 
 /// Exact expression sent to the registry's general text search, when used.
-pub(super) fn text(query: &TrialSearch, gene: Option<&str>) -> Option<String> {
+pub(super) fn search_term(query: &TrialSearch, gene: Option<&str>) -> Option<String> {
     let mut text = Vec::new();
     if let Some(value) = query.query() {
         text.push(value.as_str().to_owned());

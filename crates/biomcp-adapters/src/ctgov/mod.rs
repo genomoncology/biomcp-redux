@@ -94,7 +94,7 @@ fn name_parameters(
         }
     }
     filters::name_parameters(query, broader_names, &mut p);
-    if let Some(term) = filters::text(query, gene) {
+    if let Some(term) = filters::search_term(query, gene) {
         p.insert("query.term".into(), term);
     }
     if let Some(status) = query.status() {

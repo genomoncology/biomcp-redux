@@ -116,7 +116,7 @@ fn wrap_page(mut page: ctgov::SearchPage) -> Result<ctgov::SearchPage, RequestEr
 
 /// Explain the scope of a total produced by the registry's general text search.
 pub fn text_search_notice(query: &TrialSearch, gene: Option<&str>) -> Option<SourceNotice> {
-    super::filters::text(query, gene).map(|term| {
+    super::filters::search_term(query, gene).map(|term| {
         guidance(format!(
             "ClinicalTrials.gov general text (query.term={term:?}). The total counts this search's matches. \
              Use --acronym or --official-title to search those fields."
