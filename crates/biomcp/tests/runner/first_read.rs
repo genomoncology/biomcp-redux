@@ -213,7 +213,7 @@ fn offline() -> Check {
     Ok(())
 }
 
-/// Without a sync, the first prevalence read fetches both Orphadata files and answers.
+/// Two first readers share the same complete pair of Orphadata files.
 fn prevalence() -> Check {
     let (env, stub) = live(
         "www.orphadata.com",
@@ -228,12 +228,22 @@ fn prevalence() -> Check {
         "--source",
         "orphadata",
     ]);
-    let reply = invoke(&env, get, 0)?;
-    stub.finish()?;
-    if reply.get("status") != Some(&json!("complete"))
-        || reply.pointer("/result/items/0/prevalence/1/value") != Some(&json!("1.5"))
-    {
-        return Err(format!("first prevalence read did not answer: {reply}"));
+    let read = || invoke(&env, get.clone(), 0);
+    let (one, two) = std::thread::scope(|scope| {
+        let other = scope.spawn(read);
+        (read(), other.join())
+    });
+    let requests = stub.finish()?;
+    for reply in [one?, two.map_err(|_| "second reader panicked")??] {
+        if requests.len() != 2
+            || reply.get("status") != Some(&json!("complete"))
+            || reply.pointer("/result/items/0/prevalence/1/value") != Some(&json!("1.5"))
+        {
+            return Err(format!(
+                "two first readers made {} requests: {reply}",
+                requests.len()
+            ));
+        }
     }
     Ok(())
 }
