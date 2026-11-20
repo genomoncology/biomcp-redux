@@ -122,6 +122,14 @@ fn refused(value: &Value, took: Duration) -> Check {
     {
         return Err(format!("refusal notice missing: {notices:?}").into());
     }
+    let at = "/result/approvals/data/records/0/application_docs/0/text";
+    let listed = value
+        .get("incomplete")
+        .and_then(Value::as_array)
+        .ok_or("incomplete list")?;
+    if !listed.iter().any(|item| item.get("at") == Some(&json!(at))) {
+        return Err(format!("refused read missing from incomplete: {listed:?}").into());
+    }
     if took > Duration::from_secs(SECONDS) + SLACK {
         return Err(format!("read took {took:?}, over the {SECONDS} s limit").into());
     }

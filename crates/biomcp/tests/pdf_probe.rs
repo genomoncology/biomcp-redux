@@ -80,7 +80,11 @@ fn pdf_probe() {
         total_in += best_in;
         total_child += best_child;
         added.push(best_child - best_in);
-        println!("PROBE {} bytes={} in={best_in:.1}ms child={best_child:.1}ms", path.display(), bytes.len());
+        println!(
+            "PROBE {} bytes={} in={best_in:.1}ms child={best_child:.1}ms",
+            path.display(),
+            bytes.len()
+        );
     }
     added.sort_by(f64::total_cmp);
     let n = added.len();
