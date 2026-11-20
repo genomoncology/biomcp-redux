@@ -111,11 +111,13 @@ struct GetFields {
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history."]
+    #[doc = "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. \
+        Only with section label-history."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
     find: Box<[Text]>,
-    #[doc = "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. Only with section label-history."]
+    #[doc = "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. \
+        Only with section label-history."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     every_version: bool,
     #[doc = "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only."]

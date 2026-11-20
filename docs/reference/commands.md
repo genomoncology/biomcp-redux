@@ -3405,7 +3405,7 @@ Options:
 
       --every-version[=<every_version>]
           Read every version.
-          Label history reads every version in order, up to its read bound, instead of halving.
+          Label history reads every version in order, up to its read bound, instead of halving. Only with section label-history.
 
           [default: false]
           [possible values: true, false]
@@ -3436,7 +3436,7 @@ Options:
 
       --find <find>...
           Label text; OR.
-          Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR.
+          Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3449,8 +3449,9 @@ Options:
           Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
           The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
           A section the label lacks, or a name openFDA does not use, lists the sections the label has.
-          With --source openfda-label, or one of boxed_warning, indications_and_usage, contraindications, warnings_and_cautions,
-          adverse_reactions, drug_interactions or use_in_specific_populations for drugsfda label-history.
+          Only with --source openfda-label. For drugsfda label-history, one of boxed_warning, indications_and_usage,
+          contraindications, warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
+          Only with section label-history.
 
       --partner <partner>
           Interaction partner.
@@ -3494,7 +3495,7 @@ Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string; examp
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
 and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Value form: string; example: --document-id 64255.
 - `--every-version`: Read every version.
-Label history reads every version in order, up to its read bound, instead of halving. Value form: boolean; example: --every-version.
+Label history reads every version in order, up to its read bound, instead of halving. Only with section label-history. Value form: boolean; example: --every-version.
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
@@ -3505,7 +3506,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
 - `--find`: Label text; OR.
-Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Value form: repeatable values (repeat the flag); example: --find Raynaud.
+Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history. Value form: repeatable values (repeat the flag); example: --find Raynaud.
 - `input`: Source ID, brand or generic name.
 Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
@@ -3513,8 +3514,9 @@ Form: get drug INPUT SECTION...; not --input.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
 The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
 A section the label lacks, or a name openFDA does not use, lists the sections the label has.
-With --source openfda-label, or one of boxed_warning, indications_and_usage, contraindications, warnings_and_cautions,
-adverse_reactions, drug_interactions or use_in_specific_populations for drugsfda label-history. Value form: string; example: --label-section indications_and_usage.
+Only with --source openfda-label. For drugsfda label-history, one of boxed_warning, indications_and_usage,
+contraindications, warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
+Only with section label-history. Value form: string; example: --label-section indications_and_usage.
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
 Keeps only the pairs with that drug. A name DDInter does not use is tried under the
