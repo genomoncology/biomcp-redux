@@ -100,26 +100,29 @@ pub(super) struct Stored {
     pub(super) row: PurpleBookPresentation,
 }
 impl Stored {
-    fn reference_keys(&self) -> impl Iterator<Item = &str> {
-        [
-            self.row.reference_name.as_ref(),
-            self.row.reference_proper_name.as_ref(),
-        ]
-        .into_iter()
-        .chain(self.row.reference_bla.iter().map(DrugId::as_str))
-        .chain(self.row.reference_bla_candidates.iter().map(DrugId::as_str))
+    fn reference_blas(&self) -> impl Iterator<Item = &DrugId> {
+        self.row
+            .reference_bla
+            .iter()
+            .chain(self.row.reference_bla_candidates.iter())
     }
     pub(super) fn matches(&self, query: &str) -> bool {
-        self.reference_keys()
-            .any(|key| key.eq_ignore_ascii_case(query))
+        self.row.reference_name.eq_ignore_ascii_case(query)
+            || self.row.reference_proper_name.eq_ignore_ascii_case(query)
+            || self
+                .reference_blas()
+                .any(|bla| bla.to_string().eq_ignore_ascii_case(query))
     }
 }
 impl Row for Stored {
     fn keys(&self) -> Keys {
+        let names = [&self.row.reference_name, &self.row.reference_proper_name];
         Keys {
-            exact: self
-                .reference_keys()
-                .map(|key| (KeyKind::Xref, key.into()))
+            exact: names
+                .into_iter()
+                .cloned()
+                .chain(self.reference_blas().map(|bla| bla.to_string().into()))
+                .map(|key| (KeyKind::Xref, key))
                 .collect(),
             words: Vec::new(),
         }
@@ -174,12 +177,15 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
             references
                 .entry(name_key(&row.name, &row.proper_name))
                 .or_default()
-                .insert(bla.as_str().to_owned(), bla.clone());
+                .insert(row.bla.clone(), bla.clone());
         }
     }
     if references.is_empty() {
         return Err(BadReply);
     }
+    rows.sort_unstable_by(|(_, a), (_, b)| {
+        (&a.bla, &a.product_number).cmp(&(&b.bla, &b.product_number))
+    });
     let mut biosimilars = Vec::new();
     for (bla, row) in rows {
         if row.license_type.as_ref() == "351(a)" {
@@ -194,10 +200,6 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
     if biosimilars.is_empty() {
         return Err(BadReply);
     }
-    biosimilars.sort_unstable_by(|a, b| {
-        (a.row.bla.as_str(), &a.row.product_number)
-            .cmp(&(b.row.bla.as_str(), &b.row.product_number))
-    });
     Ok(Release {
         month,
         date,
@@ -223,7 +225,7 @@ fn parse_bla(number: &str) -> Result<DrugId, BadReply> {
 fn presentation(
     bla: DrugId,
     row: Native,
-    candidates: Option<&BTreeMap<String, DrugId>>,
+    candidates: Option<&BTreeMap<Box<str>, DrugId>>,
 ) -> Result<PurpleBookPresentation, BadReply> {
     let license_type = row.license_type.parse().map_err(|_| BadReply)?;
     if row.name.is_empty() || row.reference_name.is_empty() || row.reference_proper_name.is_empty()
