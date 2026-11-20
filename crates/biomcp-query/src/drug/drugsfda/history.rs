@@ -448,9 +448,23 @@ fn reply(
             .map(|(at, _)| *at)
     });
     let span = first.map_or(0..0, |first| before.map_or(0, |b| b + 1)..first);
-    let on_or_before = span
-        .clone()
-        .any(|at| search.get(at).is_none_or(Opened::gap));
+    // Halving rests on an assumption; a version after the earliest readable one, read to test it,
+    // that could not be read leaves an earlier appearance, later removed, open.
+    let halved = matches!(path, Path::Halved(_) | Path::Returned);
+    let earliest = search
+        .opened
+        .iter()
+        .find(|(_, o)| o.usable())
+        .map_or(0, |(at, _)| *at);
+    let untested = halved
+        && search
+            .opened
+            .range(earliest..first.unwrap_or(0))
+            .any(|(_, o)| o.gap());
+    let on_or_before = untested
+        || span
+            .clone()
+            .any(|at| search.get(at).is_none_or(Opened::gap));
     let not_opened = search.versions.len() - search.opened.len();
     let matched = match first {
         Some(at) => matched(search, at)?,
