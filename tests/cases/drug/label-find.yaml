@@ -1,0 +1,78 @@
+{
+  "feature": "drug-label",
+  "live_check": "recorded only; synthetic label fixtures",
+  "story": "Search a current label across its text page boundaries and cite its exact revision. In a batch, search selected sections for each label, return a matching table row with its header, and distinguish no match from a missing section.",
+  "replay": "drug/label-find",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "clinical_studies",
+        "--find",
+        "study-189"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "clinical_studies",
+        "--find",
+        "study-189"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "11111111-1111-1111-1111-111111111111",
+        "/result/label/data/label/attribution/record": "11111111-1111-1111-1111-111111111113",
+        "/result/label/data/text": "",
+        "/result/label/data/search/excerpts/0/text": {
+          "includes": "STUDY-189 met its endpoint.",
+          "excludes": "An unrelated paragraph."
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111,22222222-2222-2222-2222-222222222222",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "clinical_studies,clinical_studies_table",
+        "--find",
+        "study-189"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "11111111-1111-1111-1111-111111111111",
+        "/result/parts/*/reply/input": [
+          "11111111-1111-1111-1111-111111111111",
+          "11111111-1111-1111-1111-111111111111",
+          "22222222-2222-2222-2222-222222222222",
+          "22222222-2222-2222-2222-222222222222"
+        ],
+        "/result/parts/1/reply/result/label/data/search/excerpts/0/text": "STUDY-189 | Met endpoint",
+        "/result/parts/1/reply/result/label/data/search/excerpts/0/table_header": "Trial | Outcome",
+        "/result/parts/2/reply/identity/id": "22222222-2222-2222-2222-222222222222",
+        "/result/parts/2/reply/result/label/data/search/excerpts": [],
+        "/result/parts/3/reply/result/label/state": "empty",
+        "/result/parts/3/reply/result/hint": {
+          "includes": "has no clinical_studies_table section"
+        }
+      }
+    }
+  ]
+}
