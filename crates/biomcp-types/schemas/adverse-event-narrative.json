@@ -1108,6 +1108,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
+    "absent": {
+      "description": "IDs a get of several did not find while it found others; each item says so too.",
+      "items": {
+        "$ref": "#/$defs/Reply_Text"
+      },
+      "type": "array"
+    },
     "incomplete": {
       "description": "What a `partial` reply is missing; present only on `partial` replies.",
       "items": {
