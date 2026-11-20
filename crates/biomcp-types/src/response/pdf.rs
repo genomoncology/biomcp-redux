@@ -57,7 +57,9 @@ biodata::wire_enum! {
         /// Embedded text was read, but a part of a page could not be read, so some text may be missing.
         Partial => "partial",
         /// Unread: the file is damaged or its structure is irregular; fetch it another way.
-        Damaged => "damaged"
+        Damaged => "damaged",
+        /// Unread: reading went over the memory or time limit and was stopped, so it could not be read safely.
+        Refused => "refused"
     }
 }
 impl PdfTextState {

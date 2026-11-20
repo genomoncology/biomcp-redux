@@ -105,6 +105,7 @@ mod pathway_commands;
 mod pathway_get_pages;
 mod pathway_sections;
 mod pdf;
+mod pdf_child;
 mod pgx_retirements;
 mod phenotype;
 mod process;
@@ -380,6 +381,7 @@ fn retained_source_trials() -> Vec<Trial> {
 fn transcript_trials() -> Vec<Trial> {
     let mut trials = call_queue::trials();
     trials.extend(hosted_cancel::trials());
+    trials.extend(pdf_child::trials());
     trials.extend([
         transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
             article_save::check().map_err(Into::into)

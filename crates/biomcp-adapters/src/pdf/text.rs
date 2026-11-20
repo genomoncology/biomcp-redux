@@ -94,7 +94,7 @@ pub fn whole(
             Err(error) => return Err(error),
         };
     let deadline = leg.local_deadline();
-    let read = super::embedded(&bytes, MAX_PAGES, &|| deadline.expired())
+    let read = super::child::read(leg, &bytes, &|| deadline.expired())
         .map_err(|reason| error(spec.source, reason))?;
     result.pages = read.pages;
     result.state = read.state;
@@ -114,6 +114,10 @@ pub fn missing_notice(text: &PdfText) -> Option<SourceNotice> {
         (PdfTextState::Damaged, _) => concat!(
             "This PDF is damaged: its structure is broken or irregular, and BioMCP does not ",
             "repair damaged PDFs, so none of its text was read. Fetch the document another way."
+        ),
+        (PdfTextState::Refused, _) => concat!(
+            "This PDF could not be read safely: reading it went over BioMCP's memory or time limit ",
+            "and was stopped, so none of its text was read. Fetch the document another way."
         ),
         (PdfTextState::Partial, missing) => partial_message(missing),
         _ => return None,
