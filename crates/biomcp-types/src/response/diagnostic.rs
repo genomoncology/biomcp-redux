@@ -1,9 +1,8 @@
-use super::DiagnosticProductCodeCounts;
+use super::{CompanionDiagnosticRow, DiagnosticProductCodeCounts};
 use crate::{DiagnosticGet, DiagnosticSearch, DiagnosticSection, Problem, ResponseBody};
 use biodata::{
-    DiagnosticDeviceId,
-    GtrConditionRelation, GtrGeneRelation, GtrMethod, GtrTestId, PartialDate, PmaNumber,
-    PmaSupplementCell, Text, WhoIvdProduct,
+    GtrConditionRelation, GtrGeneRelation, GtrMethod, GtrTestId, PmaNumber, PmaSupplementCell,
+    Text, WhoIvdProduct,
 };
 use serde::{Deserialize, Serialize};
 
