@@ -123,7 +123,7 @@ Commands:
   diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Exact discovery text or an explicit SEER catalog page.
-  drug           Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+  drug           Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference product name or BLA and returns FDA biosimilar presentations.
   gene           Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
@@ -1409,7 +1409,7 @@ Form: search disease TEXT; not --text.
 ## biomcp search drug
 
 ```text
-Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference product name or BLA and returns FDA biosimilar presentations.
 
 Usage: biomcp search drug [OPTIONS] [query]
 
@@ -1461,6 +1461,9 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --device <device>
+          Exact FDA Purple Book product presentation, ignoring case (e.g. Autoinjector).
+
       --exact-term[=<exact_term>]
           Search the typed name only.
           openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
@@ -1485,9 +1488,6 @@ Options:
           Search the source Indications and Usage field without disease synonym expansion.
           An optional name query further narrows the same source search.
 
-      --initiated-from <initiated_from>
-          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1499,6 +1499,9 @@ Options:
 
           [default: false]
           [possible values: true, false]
+
+      --initiated-from <initiated_from>
+          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 
       --initiated-to <initiated_to>
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
@@ -1553,13 +1556,16 @@ Options:
       --status <status>
           Exact recall status.
 
+      --strength <strength>
+          Exact FDA Purple Book strength cell, ignoring case and spaces.
+
       --therapeutic-area <therapeutic_area>
           WHO PQ therapeutic area.
           Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology.
 
 ```
 
-Search drugs and medicines by name, source label indication or mechanism of action. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-eml, who-pq.
+Search drugs and medicines by name, source label indication or mechanism of action. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, purple-book, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
@@ -1575,6 +1581,7 @@ falls in the window; BioMCP reads every match and counts the kept ones. Value fo
 - `--approved-to`: Original approval to, inclusive; Drugs@FDA only.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --approved-to 2023; only with --source drugsfda.
 - `--classification`: Source FDA classification; drug recalls only. Value form: string; example: --classification 'Class II'; only with --source fda-drug-recall.
+- `--device`: Exact FDA Purple Book product presentation, ignoring case (e.g. Autoinjector). Value form: string; example: --device Autoinjector; only with --source purple-book.
 - `--exact-term`: Search the typed name only.
 openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
 the drug's other names by default; this searches only the name as typed. Other sources search the name as typed. Value form: boolean; example: --exact-term.
@@ -1619,6 +1626,7 @@ Omit it for the source's own order. Value form: string; example: --sort newest; 
 
 After an empty name lookup, existing sources may supply aliases. Value form: string; example: --source ema.
 - `--status`: Exact recall status. Value form: string; example: --status Ongoing; only with --source fda-drug-recall.
+- `--strength`: Exact FDA Purple Book strength cell, ignoring case and spaces. Value form: string; example: --strength 50MG/ML; only with --source purple-book.
 - `--therapeutic-area`: WHO PQ therapeutic area.
 Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology. Value form: string; example: --therapeutic-area oncology; only with --source who-pq.
 
@@ -3491,7 +3499,7 @@ Options:
 
 ```
 
-Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-eml, who-pq.
+Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, purple-book, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
@@ -5833,9 +5841,12 @@ Arguments:
           Local source bundle to synchronize.
 
           [default: hgnc]
-          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx, orphadata]
+          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx, orphadata, purple-book]
 
 Options:
+      --file <PATH>
+          Import a manually downloaded FDA Purple Book monthly CSV. Purple Book only.
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
@@ -5867,9 +5878,11 @@ Options:
 
 Synchronize a local source bundle. Set sync_timeout_seconds in config.json to change its time limit (default 120).
 Listed choices accept any letter case; replies use their listed spelling.
+Options are local to the command and independent of source selection.
 
 - `bundle`: Local source bundle to synchronize.
 Form: sync BUNDLE; not --bundle.
+- `--file`: Import a manually downloaded FDA Purple Book monthly CSV. Purple Book only. Value form: string; example: --file <file> (syntax; replace the placeholder with your retained value).
 
 ## biomcp skill
 
@@ -9710,6 +9723,7 @@ Commands:
   who-ivd
   fda-cdx
   orphadata
+  purple-book
 
 Options:
       --format <format>
@@ -10198,6 +10212,44 @@ Options:
 ```
 
 Describe help sync orphadata.
+
+
+## biomcp help sync purple-book
+
+```text
+Usage: biomcp help sync purple-book [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help sync purple-book.
 
 
 ## biomcp help skill

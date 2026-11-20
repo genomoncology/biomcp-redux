@@ -524,7 +524,8 @@
         "drugsfda",
         "ema",
         "ddinter",
-        "who-eml"
+        "who-eml",
+        "purple-book"
       ],
       "type": "string"
     },
@@ -3921,6 +3922,18 @@
           "const": "search-drug",
           "type": "string"
         },
+        "device": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact FDA Purple Book product presentation, ignoring case (e.g. Autoinjector).",
+          "x-required-component": "purple-book"
+        },
         "exact_term": {
           "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
           "type": "boolean"
@@ -4075,6 +4088,18 @@
           ],
           "description": "Literal recall status.",
           "x-required-component": "fda-drug-recall"
+        },
+        "strength": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact FDA Purple Book strength cell, ignoring case and spaces.",
+          "x-required-component": "purple-book"
         },
         "therapeutic_area": {
           "$ref": "#/$defs/Text",

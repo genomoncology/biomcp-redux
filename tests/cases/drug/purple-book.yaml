@@ -3,6 +3,29 @@
   "story": "The dated FDA roster preserves separate designations and dates for each presentation of one biosimilar application.",
   "steps": [
     {
+      "run": ["help", "sync", "purple-book"],
+      "expect": {
+        "/result/commands/0/command": ["sync", "purple-book"]
+      }
+    },
+    {
+      "run": ["help", "sync", "purple-book", "--unknown-option"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": ["sync", "purple-book", "--file"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--file"
+      }
+    },
+    {
       "offline": true,
       "run": ["search", "drug", "Enbrel", "--source", "purple-book"],
       "mcp": ["search", "drug", "Enbrel", "--source", "purple-book"],

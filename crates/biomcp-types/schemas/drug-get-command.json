@@ -101,7 +101,8 @@
         "drugsfda",
         "ema",
         "ddinter",
-        "who-eml"
+        "who-eml",
+        "purple-book"
       ],
       "type": "string"
     },

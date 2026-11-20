@@ -47,7 +47,8 @@
         "drugsfda",
         "ema",
         "ddinter",
-        "who-eml"
+        "who-eml",
+        "purple-book"
       ],
       "type": "string"
     },
@@ -76,7 +77,7 @@
   "$id": "biomcp.drug-search/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
+  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference product name or BLA and returns FDA biosimilar presentations.",
   "properties": {
     "applicant": {
       "anyOf": [
@@ -134,6 +135,18 @@
       ],
       "description": "Native FDA classification; drug recalls only; help search drug\nNative FDA classification; drug recalls only.",
       "x-required-component": "fda-drug-recall"
+    },
+    "device": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Exact FDA Purple Book product presentation, ignoring case (e.g. Autoinjector).",
+      "x-required-component": "purple-book"
     },
     "exact_term": {
       "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
@@ -289,6 +302,18 @@
       ],
       "description": "Literal recall status.",
       "x-required-component": "fda-drug-recall"
+    },
+    "strength": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Exact FDA Purple Book strength cell, ignoring case and spaces.",
+      "x-required-component": "purple-book"
     },
     "therapeutic_area": {
       "$ref": "#/$defs/Text",

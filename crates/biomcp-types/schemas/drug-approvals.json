@@ -1179,7 +1179,8 @@
         "drugsfda",
         "ema",
         "ddinter",
-        "who-eml"
+        "who-eml",
+        "purple-book"
       ]
     },
     "Reply_IdentifierNamespace": {
@@ -1667,6 +1668,7 @@
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
+        " FDA Purple Book biologic product roster.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -1746,6 +1748,7 @@
         "fda-510k",
         "fda-device-recall",
         "fda-drug-recall",
+        "purple-book",
         "cpic",
         "clinpgx",
         "cbioportal",
