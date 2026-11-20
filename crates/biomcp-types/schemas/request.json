@@ -4968,6 +4968,10 @@
       "additionalProperties": false,
       "description": "Search clinical trials.",
       "properties": {
+        "acronym": {
+          "$ref": "#/$defs/Text",
+          "description": "Acronym.\nClinicalTrials.gov only: search the registry acronym field."
+        },
         "age": {
           "description": "Age in years.\nClinicalTrials.gov only; unstated source bounds count as no limit.",
           "format": "uint32",
@@ -5306,6 +5310,10 @@
           "$ref": "#/$defs/Text",
           "description": "Page token.\nClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page."
         },
+        "official_title": {
+          "$ref": "#/$defs/Text",
+          "description": "Official title text.\nClinicalTrials.gov only: search the registry official title field."
+        },
         "offset": {
           "default": 0,
           "description": "Rows to skip.\nZero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent.",
@@ -5319,7 +5327,7 @@
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Trial text.\nGeneral registry discovery text.",
+          "description": "Trial text.\nClinicalTrials.gov general text. Total counts its matches. Use --acronym or --official-title to search those fields.",
           "x-positional": 0
         },
         "sex": {
