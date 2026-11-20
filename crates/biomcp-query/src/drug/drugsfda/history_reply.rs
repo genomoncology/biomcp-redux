@@ -82,50 +82,46 @@ pub(super) fn answer(
 pub(super) fn method(path: Path, search: &Search<'_, '_>) -> String {
     let count = search.versions.len();
     let read = search.opened.len();
-    let assumption = "This assumes text, once added to the section, stays in every later version";
-    let spread =
-        "both lack the text, so the reads left went to versions spread evenly between them";
+    let assumption = "This assumes text, once added, stays in later versions";
     let mut said = match path {
         Path::Halved(earlier) => format!(
-            "Read the oldest and newest of {count} label versions, then halved between them: {read} \
-             PDFs read, at most {MOST_READS} per call. {assumption}; the oldest read lacked it and \
-             the newest had it. The reads left went to versions spread before the first match{}.",
+            "Read the oldest and newest of {count} versions and halved between them, then spread \
+             the reads left before the first match{}: {read} PDFs read, at most {MOST_READS} per \
+             call. {assumption}.",
             if earlier {
-                "; one held the text, so the search halved toward it"
+                "; one held the text, so it halved toward that one"
             } else {
-                ", and none read held it"
+                "; none held it"
             }
         ),
         Path::Present => format!(
-            "Read the oldest and newest of {count} label versions: {read} PDFs read. The oldest \
-             version read already has the text, and so does the newest."
+            "Read the oldest and newest of {count} versions: both have the text; {read} PDFs read."
         ),
         Path::Absent => format!(
-            "Read the oldest and newest of {count} label versions; {spread}, and none holds it: \
-             {read} PDFs read, at most {MOST_READS} per call. --every-version reads every version \
-             in order."
+            "Read the oldest and newest of {count} versions; both lack the text, and none of the \
+             versions spread between them holds it: {read} PDFs read, at most {MOST_READS} per \
+             call. --every-version reads every version."
         ),
         Path::Returned => format!(
-            "Read the oldest and newest of {count} label versions; {spread}, and one holds it, so \
-             the search halved between the oldest and that version: {read} PDFs read, at most \
-             {MOST_READS} per call. {assumption} up to that version."
+            "Read the oldest and newest of {count} versions; both lack the text, but a version \
+             spread between them holds it, so it halved between the oldest and that one: {read} \
+             PDFs read, at most {MOST_READS} per call. {assumption} up to that one."
         ),
         Path::Removed => format!(
-            "The oldest version read has the text and the newest does not, so it was removed at \
-             some point and halving would not hold; read the versions in order instead: {read} of \
-             {count} read, at most {MOST_READS} per call."
+            "The oldest version read has the text and the newest does not, so halving would not \
+             hold; read in order: {read} of {count}, at most {MOST_READS} per call."
         ),
         Path::Every(from) => format!(
-            "Read the versions in order from version {} of {count}, as --every-version asks: \
-             {read} read, at most {MOST_READS} per call.",
+            "Read in order from version {} of {count}, as --every-version asks: {read} read, at \
+             most {MOST_READS} per call.",
             from + 1
         ),
         Path::Unreadable => format!("Tried {read} of {count} label versions; none could be read."),
     };
     if search.stopped {
         said.push_str(&format!(
-            " The call stopped at that bound with {} of {count} versions not opened; the next step \
-             continues with --every-version.",
+            " It stopped at the bound with {} of {count} versions not opened; the next step \
+             continues.",
             count - read
         ));
     }
