@@ -1,12 +1,14 @@
 """Measure recorded BioMCP replies. Input: BIOMCP_TRANSCRIPT_DIR from make cases, or CLI JSON files.
 
 python3 sdlc/planning/1076-measure.py INPUT... > measurements.tsv
+python3 sdlc/planning/1076-measure.py --rank < measurements.tsv > ranked.tsv
 No source calls. The output contains locations, field names and UTF-8 byte counts only.
 """
 import csv
 import json
+import re
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 
 
@@ -47,12 +49,16 @@ def payload(frame):
     return body
 
 
-def executions(record):
+def executions(record, counts):
     for run in record.get("executions", []):
         if not isinstance(run, dict):
             continue
         if "stdout" in run:
-            yield from documents(bytes(run["stdout"]))
+            counts["process_outputs"] += 1
+            frames = list(documents(bytes(run["stdout"])))
+            if not frames:
+                counts["non_json_outputs"] += 1
+            yield from frames
         elif "reply" in run:
             yield run["reply"]
         elif "jsonrpc" in run:
@@ -70,7 +76,7 @@ def replies(inputs, counts):
                 counts["marked_uncaptured"] += int(record["uncaptured"])
             elif "executions" in record:
                 counts["execution_records"] += 1
-                for index, frame in enumerate(executions(record)):
+                for index, frame in enumerate(executions(record, counts)):
                     reply = payload(frame)
                     if isinstance(reply, dict):
                         yield f"{record['key']}#{index}", reply
@@ -170,6 +176,19 @@ def family(reply):
     return "protocol/" + next(iter(sorted(reply)), "empty")
 
 
+# Measure named, stable fields separately from incidental equal values on the same page.
+CANDIDATES = {
+    ("variant-card", "result.candidates.*.sections.conservation.data.scores"): {"subject", "attribution"},
+    ("cell-line-xrefs", "result.items.items"): {"category", "namespace"},
+    ("drug-approvals", "result.approvals.data.records"): {"event.attribution", "event.record"},
+    ("article-page", "result.items"): {"open_access_source", "license_not_checked"},
+    ("protein-features", "result.items"): {"attribution", "source_coordinates", "feature.protein"},
+    ("diagnostic-genes", "result.items"): {"test_id", "test_type"},
+    ("diagnostic-conditions", "result.items"): {"test_id", "test_type"},
+    ("drug-indications", "result.indications.data.records"): {"attribution", "drug"},
+}
+
+
 def measure(name, reply, write, counts):
     total = size(reply)
     schema = family(reply)
@@ -197,13 +216,38 @@ def measure(name, reply, write, counts):
         counts["lists_10_plus"] += 1
         fields = list(constants(rows))
         if fields:
+            stem = schema.split("/")[0].removeprefix("biomcp.")
+            pattern = display("*" if isinstance(key, int) else key for key in path)
+            wanted = CANDIDATES.get((stem, pattern), set())
+            subset = [(p, v) for p, v in fields if display(p) in wanted]
+            if subset:
+                emit("candidate", display(path), ",".join(display(p) for p, _ in subset), len(rows), move(rows, subset))
             for field in fields:
                 emit("field", display(path), display(field[0]), len(rows), move(rows, [field]))
             emit("together", display(path), ",".join(display(p) for p, _ in fields), len(rows), move(rows, fields))
 
 
+def ranked(records, write):
+    """Order alternative changes by total bytes. Combine several lists in one reply first."""
+    groups = defaultdict(Counter)
+    for row in records:
+        if row["kind"] in {"field", "together", "candidate", "component", "outside", "rowless"}:
+            path = re.sub(r"(?<=\.)[0-9]+(?=\.|$)", "*", row["path"])
+            field = row["field"] if row["kind"] == "field" else ""
+            key = row["kind"], row["schema"], path, field
+            groups[key][row["reply_id"]] += int(row["bytes"])
+    write(("kind", "schema", "path", "field", "replies", "cases", "total_bytes", "min_per_reply", "max_per_reply"))
+    for key, counts in sorted(groups.items(), key=lambda group: (-sum(group[1].values()), group[0])):
+        values = counts.values()
+        cases = {re.sub(r"/(?:step|[0-9a-f]{64})/\d+$", "", name.rsplit("#", 1)[0]) for name in counts}
+        write((*key, len(counts), len(cases), sum(values), min(values), max(values)))
+
+
 if __name__ == "__main__":
     writer = csv.writer(sys.stdout, delimiter="\t", lineterminator="\n")
+    if sys.argv[1:] == ["--rank"]:
+        ranked(csv.DictReader(sys.stdin, delimiter="\t"), writer.writerow)
+        sys.exit(0)
     writer.writerow(("kind", "schema", "reply_id", "reply_bytes", "path", "field", "rows", "bytes"))
     counts = Counter()
     for name, reply in replies(sys.argv[1:], counts):
