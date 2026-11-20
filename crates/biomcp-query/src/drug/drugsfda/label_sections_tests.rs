@@ -145,7 +145,9 @@ fn a_boxed_warning_the_contents_list_leaves_out_is_read_from_the_body() {
         "{boxed}"
     );
     // The highlights name a box the body does not show: the box is unread, never absent.
-    let missing = label.replace("FULL PRESCRIBING INFORMATION WARNING: SERIOUS INFECTIONS AND MALIGNANCY Patients treated with XELJANZ are at increased risk for serious infections.", "FULL PRESCRIBING INFORMATION");
+    let shown = "FULL PRESCRIBING INFORMATION WARNING: SERIOUS INFECTIONS AND MALIGNANCY \
+                 Patients treated with XELJANZ are at increased risk for serious infections.";
+    let missing = label.replace(shown, "FULL PRESCRIBING INFORMATION");
     assert_eq!(found(&missing, S::BoxedWarning), Found::Unbounded);
 }
 
