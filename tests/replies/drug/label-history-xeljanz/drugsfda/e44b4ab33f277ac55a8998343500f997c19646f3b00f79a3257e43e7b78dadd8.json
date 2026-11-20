@@ -4,10 +4,10 @@
   "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2021/203214s031lbl.pdf",
   "exchanges": [
     {
-      "fetched": 1795142813,
+      "fetched": 1795149460,
       "status": 200,
       "content_type": "application/pdf",
-      "delay_ms": 353,
+      "delay_ms": 318,
       "retry_after_ms": null,
       "body": {
         "kind": "sidecar",

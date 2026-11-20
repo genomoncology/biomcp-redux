@@ -4,10 +4,10 @@
   "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA203214%22&limit=1",
   "exchanges": [
     {
-      "fetched": 1795142810,
+      "fetched": 1795149457,
       "status": 200,
       "content_type": "application/json; charset=utf-8",
-      "delay_ms": 305,
+      "delay_ms": 534,
       "retry_after_ms": null,
       "body": {
         "kind": "json",

@@ -27,10 +27,11 @@
         "/result/before/submission": "SUPPL 15",
         "/result/before/approved": "2022-10-03",
         "/result/before/state": "no-match",
-        "/result/read/4/state": "not-prescribing-information"
+        "/result/read/7/state": "not-prescribing-information",
+        "/result/read/9/state": "not-prescribing-information"
       },
       "max_bytes": 3000
     }
   ],
-  "verified": "2026-11-19 capture in pm job j43418 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured reply was 2576 bytes; the 3000-byte ceiling is the ticket's limit."
+  "verified": "2026-11-19 capture in pm job j43445 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured live reply was 2848 bytes; the 3000-byte ceiling is the ticket's limit."
 }

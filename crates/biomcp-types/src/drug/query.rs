@@ -71,7 +71,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     section_limit: Option<u32>,
-    /// Named section continuation, refused on an identity-only card.
+    /// Named section continuation, refused on an identity-only card; label-history --every-version starts at this version.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
     #[doc = "Exact openFDA SPL fields."]

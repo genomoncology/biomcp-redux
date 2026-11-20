@@ -4,10 +4,10 @@
   "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2022/211675s004lbl.pdf",
   "exchanges": [
     {
-      "fetched": 1795142816,
+      "fetched": 1795149456,
       "status": 200,
       "content_type": "application/pdf",
-      "delay_ms": 290,
+      "delay_ms": 273,
       "retry_after_ms": null,
       "body": {
         "kind": "sidecar",

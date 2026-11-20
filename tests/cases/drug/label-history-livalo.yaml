@@ -31,5 +31,5 @@
       "max_bytes": 3000
     }
   ],
-  "verified": "2026-11-19 capture in pm job j43418 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured reply was 2240 bytes; the 3000-byte ceiling is the ticket's limit."
+  "verified": "2026-11-19 capture in pm job j43445 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured live reply was 2512 bytes; the 3000-byte ceiling is the ticket's limit."
 }
