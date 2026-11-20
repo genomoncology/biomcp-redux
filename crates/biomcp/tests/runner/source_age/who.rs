@@ -29,16 +29,30 @@ pub(super) fn market() -> Check {
 
     let stale = command(&env, &miss, &offline, 4)?;
     stale_failure(&stale, "who-pq", Some("failed"))?;
-    expect_market(&stale, "failed")?;
-    if stale.pointer("/result/markets/0/matches") != Some(&json!(0))
-        || action(&stale, "sync")? != ["sync", "who-pq"]
-    {
-        return Err(format!("WHO PQ miss lost its count or sync step: {stale}"));
+    if action(&stale, "sync")? != ["sync", "who-pq"] {
+        return Err(format!("WHO PQ miss lost its sync step: {stale}"));
     }
 
     let stale = command(&env, &found, &offline, 0)?;
     stale_failure(&stale, "who-pq", Some("partial"))?;
-    expect_market(&stale, "found")
+    expect_market(&stale, "found")?;
+
+    // With a current EMA hit, the partial all-markets reply also shows the WHO row.
+    command(
+        &env,
+        &["sync".into(), "ema".into()],
+        &env.globals(Some(&replay), false),
+        0,
+    )?;
+    let mixed = ["get", "drug", "imatinib", "markets"].map(str::to_owned);
+    let mixed = command(&env, &mixed, &offline, 0)?;
+    stale_failure(&mixed, "who-pq", Some("partial"))?;
+    if mixed.pointer("/result/markets/2/state") != Some(&json!("failed"))
+        || mixed.pointer("/result/markets/2/matches") != Some(&json!(0))
+    {
+        return Err(format!("WHO PQ lost its failed row or count: {mixed}"));
+    }
+    Ok(())
 }
 
 pub(super) fn essential_medicines() -> Check {
@@ -61,6 +75,12 @@ pub(super) fn essential_medicines() -> Check {
     if !fresh.iter().any(|arg| arg == "--fresh") {
         return Err(format!("WHO eEML miss has no fresh read: {stale}"));
     }
+    let stale = command(&env, &found, &offline, 0)?;
+    stale_failure(&stale, "who-eml", Some("partial"))?;
+    if stale.pointer("/result/identity/id") != Some(&json!("479")) {
+        return Err(format!("stale WHO eEML hit lost its medicine: {stale}"));
+    }
+
     let current = command(&env, &fresh, &recorded, 1)?;
     if current.get("query") != stale.get("query")
         || current.pointer("/sources/0/state") != Some(&json!("ok"))
@@ -68,12 +88,6 @@ pub(super) fn essential_medicines() -> Check {
         return Err(format!(
             "WHO eEML fresh read did not repeat the lookup: {current}"
         ));
-    }
-
-    let stale = command(&env, &found, &offline, 0)?;
-    stale_failure(&stale, "who-eml", Some("partial"))?;
-    if stale.pointer("/result/identity/id") != Some(&json!("479")) {
-        return Err(format!("stale WHO eEML hit lost its medicine: {stale}"));
     }
     Ok(())
 }
