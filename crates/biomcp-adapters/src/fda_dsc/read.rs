@@ -138,19 +138,15 @@ pub fn communication(
     id: &str,
 ) -> Result<Mapped<Option<(DrugSafetyCommunication, Text)>>, RequestError> {
     let seed = shipped()?;
-    let current = read_index(leg);
-    let from_index = match &current {
-        Ok(rows) => rows.iter().find(|row| row.id.as_str() == id).cloned(),
-        Err(_) => None, // Try the shipped row and retain the index error for unknown IDs.
+    let current = read_index(leg).map(|rows| rows.into_iter().find(|row| row.id.as_str() == id));
+    let listed = match current {
+        Ok(Some(row)) => Some(row),
+        unresolved => match seed.items.iter().find(|row| row.header.id.as_str() == id) {
+            Some(row) => Some(seed_listing(&row.header)),
+            None => unresolved?,
+        },
     };
-    let listed = from_index.or_else(|| {
-        seed.items
-            .iter()
-            .find(|row| row.header.id.as_str() == id)
-            .map(|row| seed_listing(&row.header))
-    });
     let Some(listed) = listed else {
-        current?;
         return Ok(Mapped {
             value: None,
             problems: Vec::new(),
