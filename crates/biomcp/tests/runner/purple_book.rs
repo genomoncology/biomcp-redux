@@ -1,11 +1,11 @@
 //! Feature drug-purple-book: a failed manual update leaves the active FDA release readable.
-use super::{launch::Environment, trial_get::command};
+use crate::runner::{launch, launch::Environment, transcript_trial, trial_get::command};
 use libtest_mimic::Trial;
 use serde_json::Value;
 use std::fs;
 
 pub(super) fn trial() -> Trial {
-    super::transcript_trial("drug-purple-book/manual-release-import", || {
+    transcript_trial("drug-purple-book/manual-release-import", || {
         import().map_err(|error| error.to_string().into())
     })
 }
@@ -26,8 +26,7 @@ fn import() -> Result<(), Box<dyn std::error::Error>> {
         .into());
     }
     let file = env.root().join("monthly.csv");
-    let release =
-        fs::read_to_string(super::launch::fixtures().join("fixtures/purple-book/newer.csv"))?;
+    let release = fs::read_to_string(launch::fixtures().join("fixtures/purple-book/newer.csv"))?;
     fs::write(&file, &release)?;
     sync.extend(["--file".into(), "monthly.csv".into()]);
     let imported = command(&env, &sync, &offline, 0)?;

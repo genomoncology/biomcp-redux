@@ -44,7 +44,7 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         ]),
         Action::SyncPurpleBookFile { path } => Ok(vec![
             "sync".into(),
-            biomcp_types::Source::PurpleBook.as_str().into(),
+            biomcp_query::Bundle::PURPLE_BOOK.name().into(),
             "--file".into(),
             path.to_string_lossy().into_owned(),
         ]),

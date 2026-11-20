@@ -19,10 +19,15 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
 };
 
 static BUNDLE: BundleDecl = BundleDecl {
-    name: SPEC.source.as_str(),
+    name: read::NAME,
     help: read::HELP,
     source: SPEC.source,
     order: 12,
     sync: |fetch| read::sync_file(fetch, None),
     state: |leg| read::probe(leg).map(|()| biomcp_types::LocalBundleState::Fresh),
 };
+
+impl crate::decl::Bundle {
+    /// Synchronize a local FDA Purple Book snapshot.
+    pub const PURPLE_BOOK: Self = Self(&BUNDLE);
+}

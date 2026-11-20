@@ -9,6 +9,7 @@ use biomcp_types::{DrugSearch, PurpleBookPresentation, Reason, Source, SourceNot
 use std::{marker::PhantomData, path::Path, time::Duration};
 
 const SOURCE: Source = Source::PurpleBook;
+pub(super) const NAME: &str = "purple-book";
 const PATH: &str = "/downloads";
 const MAX_FILE_BYTES: u64 = 4 * 1024 * 1024;
 pub(super) const HELP: &str = "FDA does not allow automatic download. Download the monthly CSV from \
@@ -28,7 +29,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 const BUNDLE: Bundle<Stored> = Bundle {
     spec: &SPEC,
-    name: SOURCE.as_str(),
+    name: NAME,
     path: PATH,
     format: RowFormat::NativeCsv {
         max_bytes: MAX_FILE_BYTES,

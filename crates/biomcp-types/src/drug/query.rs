@@ -133,9 +133,6 @@ impl TryFrom<GetFields> for DrugGet {
         let source = fields
             .source
             .unwrap_or_else(|| inferred_source(&fields.section));
-        if source == DrugSource::PurpleBook {
-            return Err(QueryInvalid::new(&["source"]));
-        }
         (fields.source, fields.input) = (Some(source), source.listed_case(fields.input));
         validate_sections(&fields)?;
         let native_id = if !fields
@@ -177,7 +174,9 @@ impl TryFrom<GetFields> for DrugGet {
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     // The markets section is its own request, with no other section.
-    if fields.section.contains(&DrugSection::Markets) {
+    if fields.section.contains(&DrugSection::Markets)
+        || fields.source == Some(DrugSource::PurpleBook)
+    {
         return Err(QueryInvalid::new(&["section", "source"]));
     }
     if fields.document_id.is_some()

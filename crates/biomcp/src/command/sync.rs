@@ -19,11 +19,9 @@ pub(super) fn run_file(
     path: &std::path::Path,
     encoding: Encoding,
 ) -> io::Result<Outcome> {
-    let bundle = Bundle::named(biomcp_types::Source::PurpleBook.as_str())
-        .ok_or_else(|| io::Error::other("Purple Book synchronization declaration is missing"))?;
     finish_bundle(
         fetch,
-        bundle,
+        Bundle::PURPLE_BOOK,
         encoding,
         biomcp_query::sources::sync_purple_book(fetch, Some(path)),
     )
