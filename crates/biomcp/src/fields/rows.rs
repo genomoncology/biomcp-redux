@@ -140,10 +140,13 @@ fn objects(node: &Value, root: &Value) -> bool {
 }
 
 /// Whether a node is an identifier object, directly or as a nullable variant.
+/// Identifier keys, and flags marked `x-kept` that change what the row means (1065).
 fn identifier(node: &Value, root: &Value) -> bool {
-    variants(node, root)
-        .iter()
-        .any(|branch| branch.get("x-identifier") == Some(&Value::Bool(true)))
+    variants(node, root).iter().any(|branch| {
+        ["x-identifier", "x-kept"]
+            .iter()
+            .any(|key| branch.get(*key) == Some(&Value::Bool(true)))
+    })
 }
 
 fn join(prefix: &str, name: &str) -> String {

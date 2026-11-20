@@ -29,10 +29,11 @@ pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     }) {
         return Err("invalid source-component annotation".into());
     }
-    if object
-        .get("x-identifier")
-        .is_some_and(|value| value != &Value::Bool(true))
-    {
+    if ["x-identifier", "x-kept"].iter().any(|key| {
+        object
+            .get(*key)
+            .is_some_and(|value| value != &Value::Bool(true))
+    }) {
         return Err("unsupported identifier annotation".into());
     }
     if object.get("x-extensible-enum").is_some_and(|value| {

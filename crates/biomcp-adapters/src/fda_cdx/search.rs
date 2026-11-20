@@ -100,7 +100,7 @@ fn page(
             if !whole {
                 conflicts.extend(undated(&row));
             }
-            super::row::reply(row.0, row.1, query.name().map(|v| v.as_str()))
+            super::row::reply(row.0, row.1, query)
         })
         .collect();
     (items, total, conflicts)

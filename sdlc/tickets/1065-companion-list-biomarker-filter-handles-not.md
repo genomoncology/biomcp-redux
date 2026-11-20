@@ -1,6 +1,7 @@
 # 1065 — companion-list-biomarker-filter-handles-not
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0620c3894765097b8ffc7a72937ddb5b13841cf3
 
 Milestone: 7
 

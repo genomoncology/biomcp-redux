@@ -20,6 +20,12 @@ pub enum CompanionDiagnosticRow {
         /// FDA's "Biomarker(s) (Details)" cell text.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         biomarker_details: Option<Box<str>>,
+        /// With `--biomarker`: true when the biomarker cell names it only as "Not NAME", such as
+        /// "Not MSI-High", so the row is for patients without it; absent otherwise, and kept
+        /// whatever `--fields` names (1065).
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+        #[cfg_attr(feature = "schema", schemars(extend("x-kept" = true)))]
+        biomarker_negated: bool,
         /// Row position, links, name match and the identifiers this row's cells own.
         #[serde(flatten)]
         owned: CompanionOwned,
