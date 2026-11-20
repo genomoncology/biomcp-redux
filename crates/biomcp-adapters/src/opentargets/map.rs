@@ -275,10 +275,7 @@ pub fn card(header: DrugHeader, fetched: Option<i64>) -> biomcp_types::DrugCard 
         version: None,
         updated: None,
         retrieved: crate::drug_sources::received_date(fetched),
-        available_sections: Box::new([
-            biomcp_types::DrugSection::Targets,
-            biomcp_types::DrugSection::Indications,
-        ]),
+        available_sections: biomcp_types::DrugSource::Opentargets.sections().into(),
         next: Box::default(),
     }
 }

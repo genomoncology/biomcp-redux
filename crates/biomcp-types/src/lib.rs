@@ -191,17 +191,17 @@ pub use drug::{
     DrugCivicStreams, DrugEssentialMedicineDecision, DrugEssentialMedicineListing,
     DrugEssentialMedicines, DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient,
     DrugFdaLatestSubmission, DrugFdaOriginalApproval, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
-    DrugFdaSort, DrugFdaSubmission, DrugFdaSupplementPurpose, DrugGet, DrugHeader, DrugIndications,
-    DrugIndicationsPart, DrugInteractions, DrugInteractionsPart, DrugLabel, DrugLabelFragment,
-    DrugLabelHistory, DrugLabelPart, DrugLabelText, DrugLevelCount, DrugMarket, DrugMarketState,
-    DrugMarkets, DrugMarketsGet, DrugNameMatch, DrugNameResolution, DrugNameSelector,
-    DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard, DrugRecallClassification,
-    DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory,
-    DrugRegulatoryContext, DrugRegulatoryPart, DrugSearch, DrugSection, DrugSectionBody,
-    DrugSectionPart, DrugSectionReply, DrugSections, DrugSource, DrugTargets, DrugTargetsPart,
-    DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart,
-    LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
-    OPENFDA_LABEL_HEADINGS, WhoDateStatus, openfda_label_field,
+    DrugFdaSort, DrugFdaSubmission, DrugFdaSupplementPurpose, DrugGet, DrugHeader,
+    DrugIndicationRow, DrugIndications, DrugIndicationsPart, DrugInteractions,
+    DrugInteractionsPart, DrugLabel, DrugLabelFragment, DrugLabelHistory, DrugLabelPart,
+    DrugLabelText, DrugLevelCount, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet,
+    DrugNameMatch, DrugNameResolution, DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing,
+    DrugPage, DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
+    DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugRegulatoryPart,
+    DrugSearch, DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections,
+    DrugSource, DrugTargets, DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow,
+    DrugXrefs, DrugXrefsPart, LabelHistorySection, LabelVersion, LabelVersionMatch,
+    LabelVersionState, OPENFDA_LABEL_HEADINGS, WhoDateStatus, openfda_label_field,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
@@ -236,12 +236,12 @@ pub use query::{
 };
 pub use response::{
     CompanionColumn, CompanionDiagnosticRow, CompanionLinks, CompanionOwned, CompanionShared,
-    DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
-    DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage,
-    DiagnosticProductCodeCount, DiagnosticProductCodeCounts, DiagnosticRegulatory,
-    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSummary,
-    DiagnosticSupplements, GtrCard, GtrHeader, GtrLabAddress, GtrLabCertification, GtrNameMatch,
-    GtrNativeStatus,
+    DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditionRow,
+    DiagnosticConditions, DiagnosticGeneRow, DiagnosticGenes, DiagnosticLaboratory,
+    DiagnosticMethods, DiagnosticPage, DiagnosticProductCodeCount, DiagnosticProductCodeCounts,
+    DiagnosticRegulatory, DiagnosticRegulatoryField, DiagnosticRegulatoryFragment,
+    DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader, GtrLabAddress,
+    GtrLabCertification, GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{

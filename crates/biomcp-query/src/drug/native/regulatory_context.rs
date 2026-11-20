@@ -1,10 +1,10 @@
-//! Independent FDA facts beside Open Targets phases; no indication correspondence is inferred.
+//! Read independent FDA application facts for an Open Targets drug name.
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda, received_date};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    DrugApprovals, DrugGet, DrugRecords, DrugRegulatoryContext, ReplyData, Section, Source,
-    SourceNotice,
+    DrugApprovals, DrugGet, DrugRecords, DrugRegulatoryContext, DrugRegulatoryPart, ReplyData,
+    Section, Source, SourceNotice,
 };
 const NOTICE: &str = concat!(
     "FDA application events are matched by drug name only. ",
@@ -13,14 +13,13 @@ const NOTICE: &str = concat!(
 );
 
 pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out: &mut Outcome) {
-    let Some(name) = (match &out.body {
-        ReplyData::DrugIndications {
-            body: Some(body), ..
-        } if matches!(&body.indications, Section::Data { data, .. } if !data.records.is_empty()) => {
-            body.identity.name.clone()
-        }
-        _ => None,
-    }) else {
+    let ReplyData::DrugRegulatory {
+        body: Some(body), ..
+    } = &out.body
+    else {
+        return;
+    };
+    let Some(name) = body.identity.name.clone() else {
         return;
     };
     let limit = query.section_limit().unwrap_or(10);
@@ -30,7 +29,7 @@ pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out:
         Some(&name),
         None,
         limit,
-        0,
+        query.section_offset().unwrap_or(0),
         drugsfda::Order::default(),
     );
     let error = reply.as_ref().err().copied();
@@ -40,27 +39,31 @@ pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out:
         message: NOTICE.into(),
         retry_after_seconds: None,
     });
-    match reply {
-        Ok(page) => {
-            source.count = Some(page.total);
-            source.retrieved_count = Some(page.records.len() as u32);
-            out.problems.extend(page.problems.iter().cloned());
-            out.include_refusals(page.refusals);
-            match context(page, &name, limit) {
-                Ok(context) => {
-                    if let ReplyData::DrugIndications {
-                        body: Some(body), ..
-                    } = &mut out.body
-                    {
-                        body.regulatory_context = Some(context);
-                    }
-                }
-                Err(error) => {
-                    out.local = status::local(error);
-                }
-            }
+    let result = reply.and_then(|page| {
+        source.count = Some(page.total);
+        source.retrieved_count = Some(page.records.len() as u32);
+        out.problems.extend(page.problems.iter().cloned());
+        out.include_refusals(page.refusals);
+        context(page, &name, limit)
+    });
+    let regulatory_context = match result {
+        Ok(data) => Section::Data {
+            source: Source::Drugsfda,
+            data,
+        },
+        Err(error) => {
+            out.local = out.local.or_else(|| status::local(error));
+            Section::unavailable(
+                Source::Drugsfda,
+                status::reason(error).unwrap_or(biomcp_types::Reason::Unavailable),
+            )
         }
-        Err(error) => out.local = out.local.or_else(|| status::local(error)),
+    };
+    if let ReplyData::DrugRegulatory {
+        body: Some(body), ..
+    } = &mut out.body
+    {
+        body.part = DrugRegulatoryPart::Applications { regulatory_context };
     }
     out.sources.push(source);
     status::item(out, true, false, false);

@@ -37,11 +37,7 @@
       "expect": {
         "/status": "partial",
         "/sources/1/state": "failed",
-        "/result": {
-          "omits": [
-            "regulatory_context"
-          ]
-        }
+        "/result/regulatory_context/state": "unavailable"
       }
     }
   ]

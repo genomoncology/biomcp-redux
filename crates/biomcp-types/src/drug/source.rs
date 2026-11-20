@@ -111,7 +111,7 @@ impl DrugSource {
         match self {
             Self::Mychem => &[Xrefs],
             Self::Chembl => &[Targets, Indications, Xrefs],
-            Self::Opentargets => &[Targets, Indications],
+            Self::Opentargets => &[Targets, Indications, Regulatory],
             Self::Civic => &[Civic],
             Self::OpenfdaLabel => &[Label],
             Self::Drugsfda => &[Approvals, LabelHistory],

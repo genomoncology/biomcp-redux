@@ -1,5 +1,9 @@
 # Which reply fields are worth moving to the list?
 
+## PM decision, 2026-11-20
+
+Use the existing `regulatory` section for FDA context from an Open Targets drug. The indications reply points to it. Move only provenance and identity shared by construction for the selected drug, UniProt entry or versioned GTR test. The rankings below remain evidence for later work.
+
 **I recommend changing five lists.** Sharing the fields below saved 214,441 bytes across 106 recorded replies in a reversible model. Each original row could be reconstructed exactly. FDA regulatory context needs a separate decision about how an application identifies its products.
 
 | Recommended list and shared fields | Replies / distinct cases | Net bytes saved | Bytes per reply |

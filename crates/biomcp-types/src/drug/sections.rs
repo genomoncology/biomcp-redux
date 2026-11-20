@@ -1,13 +1,13 @@
 //! Several named drug sections read in one call: the drug once, then one part per section.
 use super::{
     DateRoleLabel, DrugApprovals, DrugCivic, DrugCivicStreams, DrugFdaProduct, DrugFdaSubmission,
-    DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel, DrugLabelText,
-    DrugLevelCount, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
+    DrugGet, DrugHeader, DrugIndications, DrugIndicationsPart, DrugInteractions, DrugLabel,
+    DrugLabelText, DrugLevelCount, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets,
+    DrugXrefs,
 };
 use crate::{CacheProblem, PageInfo, Problem, ResponseBody, Section, SourceOutcome, Status, Step};
 use biodata::{
-    AuthorizationEvent, DrugIdentityRelation, DrugIndicationClaim, DrugInteractionClaim,
-    DrugTargetRelation, Text,
+    AuthorizationEvent, DrugIdentityRelation, DrugInteractionClaim, DrugTargetRelation, Text,
 };
 use serde::{Deserialize, Serialize};
 
@@ -94,16 +94,6 @@ pub struct DrugTargetsPart {
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub targets: Section<DrugRecords<DrugTargetRelation>>,
 }
-/// Indications without the identity.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct DrugIndicationsPart {
-    /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub indications: Section<DrugRecords<DrugIndicationClaim>>,
-    /// Independent FDA application events found by the source's drug-name lookup.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub regulatory_context: Option<DrugRegulatoryContext>,
-}
 /// CIViC context without the identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -148,14 +138,21 @@ pub struct DrugApprovalsPart {
 /// Regulator events without the identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct DrugRegulatoryPart {
-    /// Existing typed section state, preserving empty, unavailable and skipped outcomes. For EMA,
-    /// each record's `indication` is EMA's medicines-data `therapeutic_indication`: the web summary
-    /// shown on the EPAR page, not the SmPC section 4.1 text, whose wording can differ.
-    pub regulatory: Section<DrugRecords<AuthorizationEvent>>,
-    /// The source's own published description of each date role in these records.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub date_roles: Box<[DateRoleLabel]>,
+#[serde(untagged)]
+pub enum DrugRegulatoryPart {
+    /// EMA medicine events. Each indication is the publisher's web summary.
+    Events {
+        /// Original regulatory status, date roles and event records.
+        regulatory: Section<DrugRecords<AuthorizationEvent>>,
+        /// The publisher's description of each date role.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+        date_roles: Box<[DateRoleLabel]>,
+    },
+    /// Independently sourced FDA application events for an Open Targets drug name.
+    Applications {
+        /// FDA lookup state and, when available, the original application facts.
+        regulatory_context: Section<DrugRegulatoryContext>,
+    },
 }
 /// Interactions without the identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -201,18 +198,7 @@ impl DrugSectionBody for DrugTargets {
 impl DrugSectionBody for DrugIndications {
     type Part = DrugIndicationsPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
-        let Self {
-            identity,
-            indications,
-            regulatory_context,
-        } = self;
-        (
-            identity,
-            DrugIndicationsPart {
-                indications,
-                regulatory_context,
-            },
-        )
+        (self.identity, self.part)
     }
 }
 impl DrugSectionBody for DrugCivic {
@@ -268,18 +254,7 @@ impl DrugSectionBody for DrugApprovals {
 impl DrugSectionBody for DrugRegulatory {
     type Part = DrugRegulatoryPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
-        let Self {
-            identity,
-            regulatory,
-            date_roles,
-        } = self;
-        (
-            identity,
-            DrugRegulatoryPart {
-                regulatory,
-                date_roles,
-            },
-        )
+        (self.identity, self.part)
     }
 }
 impl DrugSectionBody for DrugInteractions {
@@ -305,6 +280,6 @@ impl DrugSectionBody for DrugInteractions {
 }
 
 impl ResponseBody for DrugSections {
-    const SCHEMA: &'static str = "biomcp.drug-sections/2";
+    const SCHEMA: &'static str = "biomcp.drug-sections/3";
     type Query = DrugGet;
 }

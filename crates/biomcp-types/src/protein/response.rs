@@ -1,11 +1,11 @@
 use super::{
-    ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinFeaturesQuery, ProteinGet,
-    ProteinInput, ProteinRelationQuery, ProteinSearch, ProteinSection, ProteinSequenceQuery,
+    ProteinComplexMembersQuery, ProteinDomainsQuery, ProteinGet, ProteinInput,
+    ProteinRelationQuery, ProteinSearch, ProteinSection, ProteinSequenceQuery,
 };
 use crate::{ItemStatus, ResponseBody, Section};
 use biodata::{
-    ProteinAudit, ProteinComplexHeader, ProteinComplexMember, ProteinDomainMatch, ProteinFeature,
-    ProteinFunction, ProteinHeader, ProteinIsoform, ProteinSequence, ProteinStructureRef, Text,
+    ProteinAudit, ProteinComplexHeader, ProteinComplexMember, ProteinDomainMatch, ProteinFunction,
+    ProteinHeader, ProteinIsoform, ProteinSequence, ProteinStructureRef, Text,
 };
 use serde::{Deserialize, Serialize};
 
@@ -24,21 +24,6 @@ pub const COORDINATE_NOTE: &str = "Spans are zero-based interbase, half-open [st
 /// The coordinate note when a reply holds at least one span.
 pub fn coordinate_note(spans: bool) -> Option<Box<str>> {
     spans.then(|| COORDINATE_NOTE.into())
-}
-/// Native UniProt feature rows, preserving exact labels and uncertain bounds.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct ProteinFeatures {
-    /// Whole native rows in source order; totals apply only to this collection.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub items: Box<[ProteinFeature]>,
-    /// How to read the spans above; present when any row is returned.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub coordinate_note: Option<Box<str>>,
-}
-impl ResponseBody for ProteinFeatures {
-    const SCHEMA: &'static str = "biomcp.protein-features/6";
-    type Query = ProteinFeaturesQuery;
 }
 /// Whole native rows with the independent unfiltered source count.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -115,7 +100,7 @@ pub struct ProteinCard {
     pub coordinate_note: Option<Box<str>>,
 }
 impl ResponseBody for ProteinCard {
-    const SCHEMA: &'static str = "biomcp.protein-card/12";
+    const SCHEMA: &'static str = "biomcp.protein-card/13";
     type Query = ProteinGet;
 }
 /// One requested identity and its source outcome, without first-hit selection.
@@ -148,7 +133,7 @@ pub struct ProteinCardItem {
 pub struct ProteinSections {
     /// Requested UniProt feature page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub features: Option<Section<ProteinSectionPage<ProteinFeature>>>,
+    pub features: Option<Section<super::ProteinFeaturePage>>,
     /// Requested InterPro match page.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub domains: Option<Section<ProteinDomains>>,

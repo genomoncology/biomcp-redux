@@ -20,17 +20,16 @@ mod search;
 mod source;
 pub use query::{DrugGet, DrugSection};
 pub use response::{
-    DateRoleLabel, DrugApprovals, DrugCard, DrugCivic, DrugHeader, DrugIndications,
-    DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugLevelCount,
-    DrugNameResolution, DrugPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets,
-    DrugXrefs,
+    DateRoleLabel, DrugApprovals, DrugCard, DrugCivic, DrugHeader, DrugInteractions, DrugLabel,
+    DrugLabelFragment, DrugLabelText, DrugLevelCount, DrugNameResolution, DrugPage, DrugRecords,
+    DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
 };
 pub use search::{DrugFdaSort, DrugSearch};
 mod sections;
 pub use sections::{
-    DrugApprovalsPart, DrugCivicPart, DrugIndicationsPart, DrugInteractionsPart, DrugLabelPart,
-    DrugRegulatoryPart, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections,
-    DrugTargetsPart, DrugXrefsPart,
+    DrugApprovalsPart, DrugCivicPart, DrugInteractionsPart, DrugLabelPart, DrugRegulatoryPart,
+    DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections, DrugTargetsPart,
+    DrugXrefsPart,
 };
 
 pub use source::DrugSource;
@@ -84,3 +83,6 @@ pub fn openfda_label_field(name: &str) -> Option<&'static str> {
 
 /// Default submission page size for a native Drugs@FDA application.
 pub const DEFAULT_DRUG_APPROVALS_LIMIT: u32 = 10;
+
+mod indication;
+pub use indication::{DrugIndicationRow, DrugIndications, DrugIndicationsPart};

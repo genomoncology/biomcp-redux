@@ -1,8 +1,8 @@
 use super::{DrugGet, DrugSearch, DrugSection, DrugSource};
 use crate::{ResponseBody, Section, Step};
 use biodata::{
-    AuthorizationEvent, DrugId, DrugIdentityLevel, DrugIdentityRelation, DrugIndicationClaim,
-    DrugInteractionClaim, DrugLabelReference, DrugTargetRelation, PartialDate, Text,
+    DrugId, DrugIdentityLevel, DrugIdentityRelation, DrugInteractionClaim, DrugLabelReference,
+    DrugTargetRelation, PartialDate, Text,
 };
 use serde::{Deserialize, Serialize};
 /// One source candidate, without authorization, targets, label text or interactions.
@@ -185,18 +185,6 @@ pub struct DrugTargets {
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub targets: Section<DrugRecords<DrugTargetRelation>>,
 }
-/// Source-native indication wording, populations and combinations.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct DrugIndications {
-    /// Selected native identity, checked independently of section facts.
-    pub identity: DrugHeader,
-    /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub indications: Section<DrugRecords<DrugIndicationClaim>>,
-    /// Independent FDA application events found by the source's drug-name lookup.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub regulatory_context: Option<DrugRegulatoryContext>,
-}
 /// Native FDA events beside phase facts, without an indication-level assertion.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -216,44 +204,9 @@ pub struct DrugRegulatoryContext {
 pub struct DrugCivic {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
-    /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub civic: Section<super::DrugCivicStreams>,
-}
-/// Explicit native application/product history without a global approval flag.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct DrugApprovals {
-    /// Selected native identity, checked independently of section facts.
-    pub identity: DrugHeader,
-    /// Native products, filtered only by an explicit product number; independent of submissions.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub products: Box<[super::DrugFdaProduct]>,
-    /// Native FDA dataset last_updated date, independent of submission dates and retrieval.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub source_updated: Option<crate::SourceUpdated>,
-    /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
-    pub approvals: Section<DrugRecords<super::DrugFdaSubmission>>,
-    /// Presentation order of application submissions, without interpreting their statuses.
-    pub order: Box<str>,
-}
-impl DrugApprovals {
-    /// Shared order descriptor for every approvals page.
-    pub const ORDER: &'static str =
-        "submission status date descending, then submission number descending; missing dates last";
-}
-/// Source-scoped regulator events preserving date roles and original status.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct DrugRegulatory {
-    /// Selected native identity, checked independently of section facts.
-    pub identity: DrugHeader,
-    /// Existing typed section state, preserving empty, unavailable and skipped outcomes. For EMA,
-    /// each record's `indication` is EMA's medicines-data `therapeutic_indication`: the web summary
-    /// shown on the EPAR page, not the SmPC section 4.1 text, whose wording can differ.
-    pub regulatory: Section<DrugRecords<AuthorizationEvent>>,
-    /// The source's own published description of each date role in these records.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub date_roles: Box<[DateRoleLabel]>,
+    /// The source-specific contents of the regulatory section.
+    #[serde(flatten)]
+    pub part: super::DrugRegulatoryPart,
 }
 /// One native date role with the source's own published description of it.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -313,10 +266,6 @@ impl ResponseBody for DrugTargets {
     const SCHEMA: &'static str = "biomcp.drug-targets/9";
     type Query = DrugGet;
 }
-impl ResponseBody for DrugIndications {
-    const SCHEMA: &'static str = "biomcp.drug-indications/9";
-    type Query = DrugGet;
-}
 impl ResponseBody for DrugCivic {
     const SCHEMA: &'static str = "biomcp.drug-civic/12";
     type Query = DrugGet;
@@ -326,7 +275,7 @@ impl ResponseBody for DrugApprovals {
     type Query = DrugGet;
 }
 impl ResponseBody for DrugRegulatory {
-    const SCHEMA: &'static str = "biomcp.drug-regulatory/7";
+    const SCHEMA: &'static str = "biomcp.drug-regulatory/8";
     type Query = DrugGet;
 }
 impl ResponseBody for DrugInteractions {

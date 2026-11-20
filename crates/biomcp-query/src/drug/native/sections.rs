@@ -4,7 +4,8 @@ use biomcp_adapters::{NativeWindow, chembl, opentargets};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugHeader, DrugIndications, DrugRecords, DrugSection, DrugTargets, PageInfo, Request,
+    DrugGet, DrugHeader, DrugIndicationRow, DrugIndications, DrugIndicationsPart, DrugRecords,
+    DrugRegulatory, DrugRegulatoryPart, DrugSection, DrugSource, DrugTargets, PageInfo, Request,
     Section, Source, StepKind,
 };
 #[path = "collection_page.rs"]
@@ -126,6 +127,16 @@ pub(super) fn opentargets(
             let window = collection::page(&mut collection, offset, limit);
             indications(out, query, header, window, meta.fetched, fresh);
         }
+        [DrugSection::Regulatory] => {
+            crate::status::item(out, true, false, false);
+            out.body = DrugRegulatory {
+                identity: header,
+                part: DrugRegulatoryPart::Applications {
+                    regulatory_context: Section::NotApplicable,
+                },
+            }
+            .with_query(query.clone());
+        }
         _ => {
             crate::status::item(out, true, false, false);
             out.body = (opentargets::card(header, meta.fetched)).with_query(query.clone());
@@ -139,10 +150,14 @@ fn card_next(out: &mut Outcome, query: &DrugGet, fresh: bool, xrefs: bool) {
     for section in [
         DrugSection::Targets,
         DrugSection::Indications,
-        DrugSection::Xrefs,
+        if xrefs {
+            DrugSection::Xrefs
+        } else {
+            DrugSection::Regulatory
+        },
     ]
     .into_iter()
-    .filter(|s| *s != DrugSection::Xrefs || xrefs)
+    .filter(|s| query.source().sections().contains(s))
     {
         if let Some(get) = crate::next::checked(
             query.for_section(section),
@@ -244,12 +259,29 @@ fn indications(
     fetched: Option<i64>,
     fresh: bool,
 ) {
-    let indications = page(out, query, window, fetched, fresh);
-    out.body = (DrugIndications {
-        regulatory_context: None,
+    let shared = query.source() == DrugSource::Opentargets;
+    // Open Targets constructs every claim's attribution from the same drug record.
+    let indication_attribution = if shared {
+        window.rows.first().map(|row| row.attribution.clone())
+    } else {
+        None
+    };
+    let regulatory_context = (shared && identity.name.is_some())
+        .then(|| "FDA application events by drug name: request the regulatory section.".into());
+    let mut window = window;
+    let rows = std::mem::take(&mut window.rows)
+        .into_iter()
+        .map(|row| DrugIndicationRow::from_claim(row, !shared))
+        .collect();
+    let indications = page(out, query, window.with_rows(rows), fetched, fresh);
+    out.body = DrugIndications {
         identity,
-        indications,
-    })
+        part: DrugIndicationsPart {
+            indication_attribution,
+            regulatory_context,
+            indications,
+        },
+    }
     .with_query(query.clone());
 }
 

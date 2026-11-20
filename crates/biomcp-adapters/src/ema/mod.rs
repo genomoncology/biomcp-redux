@@ -162,16 +162,18 @@ pub fn regulatory(
         }
         DrugRegulatory {
             identity: map::header(&row, &mut problems),
-            date_roles: date_roles.into(),
-            regulatory: Section::Data {
-                source: Source::Ema,
-                data: DrugRecords {
-                    records: vec![event].into(),
-                    offset: 0,
-                    total: Some(1),
-                    truncated: None,
-                    version: problems.field("_bundle_meta.timestamp", row.meta.timestamp),
-                    retrieved: None,
+            part: biomcp_types::DrugRegulatoryPart::Events {
+                date_roles: date_roles.into(),
+                regulatory: Section::Data {
+                    source: Source::Ema,
+                    data: DrugRecords {
+                        records: vec![event].into(),
+                        offset: 0,
+                        total: Some(1),
+                        truncated: None,
+                        version: problems.field("_bundle_meta.timestamp", row.meta.timestamp),
+                        retrieved: None,
+                    },
                 },
             },
         }
@@ -185,11 +187,10 @@ pub fn regulatory(
 /// Where an EMA regulatory reply's European Commission decision date came from, or, when it has
 /// none, why the date EMA's medicines file names `european_commission_decision_date` is not it.
 pub fn decision_date_notice(body: &DrugRegulatory) -> Option<Box<str>> {
-    let role = |name: &str| {
-        body.date_roles
-            .iter()
-            .find(|label| label.role.as_str() == name)
+    let biomcp_types::DrugRegulatoryPart::Events { date_roles, .. } = &body.part else {
+        return None;
     };
+    let role = |name: &str| date_roles.iter().find(|label| label.role.as_str() == name);
     if let Some(label) = role(referrals::DECISION_ROLE) {
         let record = label
             .procedure
