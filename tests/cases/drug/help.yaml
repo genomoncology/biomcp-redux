@@ -44,6 +44,7 @@
           "civic",
           "label",
           "approvals",
+          "label-history",
           "regulatory",
           "interactions",
           "markets",
@@ -64,7 +65,7 @@
           ]
         }
       },
-      "max_bytes": 9379
+      "max_bytes": 10900
     },
     {
       "run": [

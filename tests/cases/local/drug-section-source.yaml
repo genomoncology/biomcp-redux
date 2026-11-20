@@ -16,8 +16,24 @@
       "expect": {
         "/error/option": "section",
         "/error/valid_values": [
-          "approvals"
+          "approvals",
+          "label-history"
         ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA000001",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--every-version"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/option": "every_version"
       }
     }
   ]

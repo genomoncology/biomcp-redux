@@ -5,8 +5,9 @@
 //! top-level section number and its title in capitals, such as `5 WARNINGS AND PRECAUTIONS`, or
 //! its first subsection, such as `5.1 Myopathy`. A section ends at the next titled heading of
 //! another section, or at the first subsection or capitalized title of a later section, since
-//! the sections run in order and table rows can look like an earlier section's subsection. The last heading with at least 200 characters under it is the section
-//! itself, which passes over the highlights and the contents. The boxed warning is the last
+//! the sections run in order and table rows can look like an earlier section's subsection. The
+//! last heading with at least 200 characters under it is the section itself, which passes over
+//! the highlights and the contents. The boxed warning is the last
 //! `WARNING:` block before section 1. Labels in the format used before 2006 have plain headings
 //! (WARNINGS, PRECAUTIONS, ADVERSE REACTIONS) and no boxed-warning heading. FDA's stamp, page
 //! numbers and reference IDs are taken out, and words hyphenated across lines are joined.
