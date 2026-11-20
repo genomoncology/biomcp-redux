@@ -32,7 +32,9 @@
         "/result/identity/application_numbers/0": "BLA761059",
         "/result/identity/name_resolution/total": 3,
         "/result/identity/name_resolution/alternatives/0/args/2": "ef25af7e-6267-409a-8d68-de51eb48812a",
-        "/result/identity/name_resolution/alternatives/1/args/2": "f7f9da92-ff5d-4260-b4bd-e3f6993a36ae"
+        "/result/identity/name_resolution/alternatives/1/args/2": "f7f9da92-ff5d-4260-b4bd-e3f6993a36ae",
+        "/result/identity/name": "Adalimumab-bwwd",
+        "/result/label/data/text": "Synthetic packaging for Adalimumab-bwwd."
       }
     },
     {

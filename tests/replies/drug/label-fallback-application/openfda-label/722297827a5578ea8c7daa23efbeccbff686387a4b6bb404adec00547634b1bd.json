@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "openfda-label",
-  "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22a12b89aa-05eb-4d3c-9448-2c21721c2f06%22&limit=1&sort=effective_time%3Adesc",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%225cde907d-6747-0e62-db25-1718ee717fe7%22&limit=1&sort=effective_time%3Adesc",
   "exchanges": [
     {
       "fetched": 1795132800,
@@ -21,16 +21,16 @@
           },
           "results": [
             {
-              "set_id": "a12b89aa-05eb-4d3c-9448-2c21721c2f06",
-              "id": "a12b89aa-05eb-4d3c-9448-2c21721c2f06",
+              "set_id": "5cde907d-6747-0e62-db25-1718ee717fe7",
+              "id": "5cde907d-6747-0e62-db25-1718ee717fe7",
               "version": "1",
               "effective_time": "20261120",
               "openfda": {
                 "brand_name": [
-                  "Hulio"
+                  "Adalimumab"
                 ],
                 "generic_name": [
-                  "ADALIMUMAB"
+                  "ADALIMUMAB-FKJP"
                 ],
                 "application_number": [
                   "BLA761154"

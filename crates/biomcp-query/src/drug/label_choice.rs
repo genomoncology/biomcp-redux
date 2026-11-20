@@ -136,11 +136,10 @@ pub(super) fn candidates(leg: &Leg<'_>, name: &Text) -> Result<NativePage, Reque
 /// same application. Multiple possible applications give no basis for recovering one holder.
 pub(super) fn recover(
     cx: &Ctx<'_>,
-    name: &Text,
     candidates: &mut Vec<(Rank, DrugHeader)>,
     discovery: &mut Outcome,
 ) {
-    let Some(application) = repackaged_application(candidates) else {
+    let Some(application) = repackaged_application(candidates).cloned() else {
         return;
     };
     let command = cx.fetch.command_deadline(cx.budget);
@@ -148,7 +147,7 @@ pub(super) fn recover(
         .fetch
         .leg(&source::SPEC, command.deadline())
         .fresh(cx.fresh);
-    let found = original_packagers(&leg, name, application, &mut discovery.problems);
+    let found = original_packagers(&leg, &application, &mut discovery.problems);
     let remaining = leg.command_remaining();
     let error = found.as_ref().err().copied();
     let attempt = status::source(DrugSource::OpenfdaLabel.source(), leg.finish(), error);
@@ -157,7 +156,23 @@ pub(super) fn recover(
         source.notices.extend(attempt.notices);
     }
     match found {
-        Ok(found) => candidates.extend(found),
+        Ok(mut found) => {
+            if !found.is_empty() {
+                found.sort_by(|a, b| a.0.cmp(&b.0));
+                found.append(candidates);
+                *candidates = found;
+                if let Some(source) = discovery.sources.first_mut() {
+                    source.notices.push(SourceNotice::RequestGuidance {
+                        data_date: None,
+                        message: format!(
+                            "The brand search found repackaged copies; checked application {application} for the original packager's label."
+                        )
+                        .into(),
+                        retry_after_seconds: None,
+                    });
+                }
+            }
+        }
         Err(error) => {
             if let Some(source) = discovery.sources.first_mut() {
                 source.notices.push(SourceNotice::RequestGuidance {
@@ -195,7 +210,6 @@ fn repackaged_application(candidates: &[(Rank, DrugHeader)]) -> Option<&Text> {
 
 fn original_packagers(
     leg: &Leg<'_>,
-    name: &Text,
     application: &Text,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<Vec<(Rank, DrugHeader)>, RequestError> {
@@ -205,9 +219,11 @@ fn original_packagers(
         let page = source::search(leg, application, 50, offset).page?;
         problems.extend(page.problems);
         for row in &page.window.rows {
-            if row.choice().original && row.exact_name_match(name) == Some(DrugNameMatch::Brand) {
+            if row.choice().original {
                 let header = row.header()?;
                 if header.application_numbers.contains(application) {
+                    // The input matched the brand on the copies; the application links the
+                    // original, whose own published name may be generic.
                     originals.push((rank(DrugNameMatch::Brand, row), header));
                 }
             }

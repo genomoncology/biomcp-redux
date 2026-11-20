@@ -69,15 +69,14 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         status::item(&mut discovery, false, true, false);
         return vec![discovery];
     }
+    candidates.sort_by(|a, b| a.0.cmp(&b.0));
     if query.source() == DrugSource::OpenfdaLabel {
         super::label_choice::recover(
             &within(cx, deadline.remaining()),
-            query.input(),
             &mut candidates,
             &mut discovery,
         );
     }
-    candidates.sort_by(|a, b| a.0.cmp(&b.0));
     let mut seen = std::collections::BTreeSet::new();
     candidates.retain(|(_, header)| seen.insert(header.id.to_string()));
     let Some((rank, selected)) = candidates.first() else {
