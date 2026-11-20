@@ -122,17 +122,17 @@ fn texts(names: &BTreeSet<String>) -> Option<Vec<biodata::Text>> {
 }
 
 /// openFDA's Drugs@FDA names, and the Drugs@FDA download's, for values the approvals row
-/// holds under its own names.
+/// holds under its own names; a document's values are inside its application_docs list.
 const SOURCE_NAMES: &[(&str, &str)] = &[
     ("submission_type", "event.kind"),
     ("submission_status", "event.status"),
     ("submission_status_date", "event.dates"),
     ("action_date", "event.dates"),
     ("submission_class", "submission_class_code_description"),
-    ("doc_type", "application_docs.type"),
-    ("doc_date", "application_docs.date"),
-    ("doc_url", "application_docs.url"),
-    ("doc_id", "application_docs.id"),
+    ("doc_type", "application_docs"),
+    ("doc_date", "application_docs"),
+    ("doc_url", "application_docs"),
+    ("doc_id", "application_docs"),
 ];
 
 /// The row field a chosen name stands for: itself, a source's name for it, the one field

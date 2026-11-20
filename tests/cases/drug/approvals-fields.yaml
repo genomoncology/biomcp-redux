@@ -1,7 +1,7 @@
 {
   "feature": "section-fields",
   "live_check": "Synthetic two-submission page; recorded only",
-  "story": "A caller who names dotted paths inside a drug's approval rows gets each submission with those event values, the event's own record and attribution and the row's submission number, which the schema requires, and nothing else of the row. A caller who names openFDA's own Drugs@FDA fields is refused, and the suggested call puts each in the field that holds it (submission_type in event.kind, submission_class in submission_class_code_description, action_date in event.dates, doc_type in application_docs.type); a name with no such field is listed as unplaced.",
+  "story": "A caller who names dotted paths inside a drug's approval rows gets each submission with those event values, the event's own record and attribution and the row's submission number, which the schema requires, and nothing else of the row. A caller who names openFDA's own Drugs@FDA fields is refused, and the suggested call puts each in the field that holds it (submission_type in event.kind, submission_class in submission_class_code_description, action_date in event.dates, doc_type in application_docs); a name with no such field is listed as unplaced.",
   "replay": "drug/approvals-page",
   "steps": [
     {
@@ -84,7 +84,7 @@
           "submission_public_notes"
         ],
         "/next/0/args": [
-          "--fields=submission_number,event.kind,submission_class_code_description,event.dates,application_docs.type",
+          "--fields=submission_number,event.kind,submission_class_code_description,event.dates,application_docs",
           "get",
           "drug",
           "BLA761445",
