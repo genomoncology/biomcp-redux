@@ -22,7 +22,7 @@ impl schemars::JsonSchema for DrugGetCommand {
                         "Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; ",
                         "EMA prefers earliest authorisation. ",
                         "Other sources retain search order. The chosen record reports up to five alternatives and their total. ",
-                        "Label reads accept FDA application numbers. With --find, batch up to five comma-separated SPL set IDs.").into(),
+                        "A label read also takes an FDA application number, such as NDA216340.").into(),
                 );
             }
             properties.insert("input".into(), input);

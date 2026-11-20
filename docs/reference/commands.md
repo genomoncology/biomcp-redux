@@ -3371,7 +3371,7 @@ Usage: biomcp get drug [OPTIONS] <input> [section]...
 Arguments:
   <input>
           Source ID, brand or generic name.
-          Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. Label reads accept FDA application numbers. With --find, batch up to five comma-separated SPL set IDs. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+          Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 
   [section]...
           Source sections; help get drug
@@ -3451,7 +3451,7 @@ Options:
 
       --find <find>...
           Label text; OR.
-          Exact text; repeat for OR. Current label: name up to five sections, two excerpts each. Ignores case and whitespace breaks; label-history also ignores hyphenation.
+          Exact text; repeat for OR. Ignore case and whitespace breaks; history also ignores hyphenation. Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs. Only with section label or label-history.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3521,9 +3521,9 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
 - `--find`: Label text; OR.
-Exact text; repeat for OR. Current label: name up to five sections, two excerpts each. Ignores case and whitespace breaks; label-history also ignores hyphenation. Value form: repeatable values (repeat the flag); example: --find vasculitis.
+Exact text; repeat for OR. Ignore case and whitespace breaks; history also ignores hyphenation. Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs. Only with section label or label-history. Value form: repeatable values (repeat the flag); example: --find vasculitis.
 - `input`: Source ID, brand or generic name.
-Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. Label reads accept FDA application numbers. With --find, batch up to five comma-separated SPL set IDs. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.

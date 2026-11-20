@@ -81,8 +81,9 @@ struct GetFields {
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "Label text; OR.\nLiteral text; repeat for OR. Current label: name up to five sections, two excerpts each. \
-        Ignores case and whitespace breaks; label-history also ignores hyphenation."]
+    #[doc = "Label text; OR.\nLiteral text; repeat for OR. Ignore case and whitespace breaks; history also ignores hyphenation. \
+        Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs. \
+        Only with section label or label-history."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
     find: Box<[Text]>,
