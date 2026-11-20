@@ -75,7 +75,8 @@
       "expect": {
         "/page/total": 5,
         "/result/items/*/biomarker": ["MSI-High", "MSI-High", "MSI-High", "Not MSI-High", "Microsatellite stable/MSS (Not MSI-High)"],
-        "/result/items/*/biomarker_negated": [true, true],
+        "/result/items/0": {"omits": ["biomarker_negated"]},
+        "/result/items/2": {"omits": ["biomarker_negated"]},
         "/result/items/3/biomarker_negated": true,
         "/result/items/4/biomarker_negated": true
       }
