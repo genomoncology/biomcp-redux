@@ -318,6 +318,7 @@ pub(super) fn check(
     )?;
     offsets::check(stdout, step)?;
     offsets::check_order(stdout, step)?;
+    parsed.as_ref().map_or(Ok(()), super::status_words::check)?;
     if expectations.is_empty() && step.max_tokens.is_none() {
         return Ok(());
     }

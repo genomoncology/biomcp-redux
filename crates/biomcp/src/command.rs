@@ -254,6 +254,7 @@ struct ResponseMeta {
     local_error: Option<biomcp_types::CacheProblem>,
     sources: Vec<biomcp_types::SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
+    incomplete: Vec<biomcp_types::Incomplete>,
     next: Vec<biomcp_types::Step>,
     page: Option<biomcp_types::PageInfo>,
     exit: crate::exit::Status,
@@ -292,6 +293,7 @@ impl ResponseMeta {
         envelope.next = self.next;
         envelope.page = self.page;
         envelope.local_error = self.local_error;
+        crate::incomplete::settle(&mut envelope, self.incomplete);
         envelope
     }
 }
@@ -342,6 +344,7 @@ fn finished(
         page: result.page,
         sources: result.sources,
         problems: result.problems,
+        incomplete: result.incomplete,
         fields: crate::fields::Chosen::new(request, &globals.fields),
     };
     Ok((meta, result.body))

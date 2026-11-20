@@ -16,6 +16,7 @@ mod article_save_reply;
 mod assertions;
 mod author_pools;
 pub(super) mod case_main;
+mod status_words;
 tool_only! { pub(super) mod cell_line; }
 tool_only! { mod disease_mydisease; }
 tool_only! { mod disease_ols; }

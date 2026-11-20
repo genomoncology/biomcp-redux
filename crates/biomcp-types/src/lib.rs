@@ -112,9 +112,9 @@ pub use response::{
 };
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{
-    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, ResponseBody,
-    Section, SourceOutcome, SourceRecord, SourceState, SourceStatus, SourceStatusView, Status,
-    Step, StepKind,
+    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, Incomplete, ItemStatus, PageInfo,
+    ResponseBody, Section, SourceOutcome, SourceRecord, SourceState, SourceStatus,
+    SourceStatusView, Status, Step, StepKind,
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{
@@ -311,7 +311,7 @@ pub use coverage::{command_implicit_sources, command_section_component, command_
 #[cfg(feature = "schema")]
 pub use adverse_event::AdverseEventSearchCommand;
 
-pub use response::{PdfText, PdfTextHit, PdfTextState};
+pub use response::{PdfMissing, PdfText, PdfTextHit, PdfTextState};
 pub use response::{
     TrialAdverseEvents, TrialBaseline, TrialBaselineMeasure, TrialEnrollment, TrialEvent,
     TrialEventGroup, TrialEventStats, TrialFlowAchievement, TrialFlowDrop, TrialFlowMilestone,

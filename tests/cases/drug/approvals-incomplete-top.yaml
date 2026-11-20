@@ -1,0 +1,35 @@
+{
+  "feature": "drug-approvals",
+  "story": "An approvals reply that returns every record but cannot read one supplement's purpose from FDA's letter says at its top which record is incomplete and why, so a reader learns what partial means without reading every record.",
+  "live_check": "public",
+  "replay": "drug/approvals-incomplete-top",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA216340",
+        "approvals",
+        "--source",
+        "drugsfda"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 4,
+        "/page/returned": 4,
+        "/incomplete": [
+          {
+            "at": "/result/approvals/data/records/2/supplement_purpose",
+            "source": "drugsfda",
+            "reason": "not-stated"
+          }
+        ],
+        "/result/approvals/data/records/2/submission_number": "5",
+        "/result/approvals/data/records/2/supplement_purpose/state": "unavailable",
+        "/sources/0/state": "ok"
+      },
+      "max_bytes": 5600
+    }
+  ],
+  "verified": "2026-11-19 capture with biomcp 1.0.0 --record of the Drugs@FDA application and the S-005 approval letter (document 79124), whose text states no complete supplement-purpose sentence BioMCP can read. On base 66a5e8c67 the reply is partial with no incomplete list and no reason on the record. The ceiling is the measured reply plus 15 percent."
+}

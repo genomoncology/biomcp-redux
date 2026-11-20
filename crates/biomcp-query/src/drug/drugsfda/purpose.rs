@@ -70,7 +70,7 @@ fn read(
         return Ok(unavailable(
             "No FDA approval letter is linked to this supplement.",
             None,
-            None,
+            Some(biomcp_types::Reason::NotFound),
         ));
     };
     let extracted = match document.text.as_ref() {
@@ -78,6 +78,20 @@ fn read(
         None => pdf::read(leg, &drugsfda::DOCUMENTS, url, 0),
     };
     let evidence = match extracted {
+        Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Garbled => {
+            return Ok(unavailable(
+                "The linked FDA letter's text could not be decoded (it reads as gibberish); its supplement purpose is unavailable.",
+                Some(document),
+                None,
+            ));
+        }
+        Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Damaged => {
+            return Ok(unavailable(
+                "The linked FDA letter's PDF is damaged and was not read; its supplement purpose is unavailable.",
+                Some(document),
+                None,
+            ));
+        }
         Ok(pdf) => pdf.text.as_deref().and_then(|text| purpose(text, row)),
         Err(error @ RequestError::Source(_)) => {
             return Ok(unavailable(
@@ -114,7 +128,7 @@ fn read(
         unavailable(
             "No complete supplement-purpose statement could be read from the linked FDA letter; no indication was inferred.",
             Some(document),
-            None,
+            Some(biomcp_types::Reason::NotStated),
         )
     })
 }

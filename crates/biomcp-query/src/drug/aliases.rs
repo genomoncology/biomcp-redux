@@ -144,7 +144,11 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         return outcomes;
     };
     evidence.append(&mut out, query.source());
+    let lookup_failed = evidence.lookup_failed();
     let Some(stated) = stated else {
+        if lookup_failed {
+            status::item(&mut out, false, true, false);
+        }
         return vec![out];
     };
     // A Usage reply discards source metadata, including the other-source hint.
@@ -153,7 +157,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         .map(|query| {
             let mut part = super::fork(&out, DrugCard::into_reply(query.clone(), None));
             hint(&mut part, &stated, input, query.source(), cx.fresh);
-            status::item(&mut part, false, false, false);
+            status::item(&mut part, false, lookup_failed, false);
             part
         })
         .collect()
@@ -208,6 +212,13 @@ struct Evidence {
     local: Option<biomcp_fetch::RequestError>,
 }
 impl Evidence {
+    /// Not finding the record is an answer only when every name lookup answered (1059).
+    fn lookup_failed(&self) -> bool {
+        self.sources.iter().any(|s| {
+            s.state == biomcp_types::SourceState::Failed
+                && s.reason != Some(biomcp_types::Reason::NotFound)
+        })
+    }
     fn append(&self, out: &mut Outcome, selected: DrugSource) {
         for source in &self.sources {
             // MyChem component metadata cannot replace the selected source's native outcome.
