@@ -9,6 +9,8 @@ use biomcp_types::{
     Request, Source, SourceState, SourceStatus, StepKind,
 };
 mod approvals;
+mod history;
+mod label_text;
 mod letter;
 mod purpose;
 /// How the names were searched, for the one notice.
@@ -273,7 +275,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         };
         if let Some(row) = page.records.first() {
             label_steps(cx, row, &mut out);
-            if is_approvals {
+            if query.sections() == [DrugSection::LabelHistory] {
+                if let Err(error) = history::select(cx, query, row, deadline, &mut out) {
+                    fail(&mut out, error);
+                }
+            } else if is_approvals {
                 if let Err(error) = approvals::select(
                     cx,
                     query,
@@ -319,6 +325,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out
 }
 fn empty_get(query: &DrugGet) -> (bool, Outcome) {
+    if query.sections() == [DrugSection::LabelHistory] {
+        return (false, history::empty(query));
+    }
     let is_approvals = query.sections() == [DrugSection::Approvals];
     let out = empty(if is_approvals {
         biomcp_types::DrugApprovals::into_reply(query.clone(), None)

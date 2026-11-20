@@ -172,13 +172,16 @@ fn same() -> Check {
     let cap = (1024_u64 << 20).to_string();
     let env = Environment::new()?;
     for path in pdfs {
-        let bytes = fs::read(&path)?;
+        let mut bytes = b"100\n".to_vec();
+        bytes.extend(fs::read(&path)?);
+        let input = env.root().join("input");
+        fs::write(&input, &bytes)?;
         let mut command = env.command(
             env!("CARGO_BIN_EXE_biomcp"),
             &["__pdf-read".into(), cap.clone()],
         );
         command
-            .stdin(fs::File::open(&path)?)
+            .stdin(fs::File::open(&input)?)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
         let child = command.spawn()?;

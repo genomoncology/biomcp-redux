@@ -105,8 +105,8 @@ impl DrugSource {
     /// Named disclosures actually served by this source's exact-ID endpoint.
     pub fn sections(self) -> &'static [super::DrugSection] {
         use super::DrugSection::{
-            Approvals, Civic, EssentialMedicines, Indications, Interactions, Label, Regulatory,
-            Targets, Xrefs,
+            Approvals, Civic, EssentialMedicines, Indications, Interactions, Label, LabelHistory,
+            Regulatory, Targets, Xrefs,
         };
         match self {
             Self::Mychem => &[Xrefs],
@@ -114,7 +114,7 @@ impl DrugSource {
             Self::Opentargets => &[Targets, Indications],
             Self::Civic => &[Civic],
             Self::OpenfdaLabel => &[Label],
-            Self::Drugsfda => &[Approvals],
+            Self::Drugsfda => &[Approvals, LabelHistory],
             Self::Ema => &[Regulatory],
             Self::Ddinter => &[Interactions],
             Self::WhoEml => &[EssentialMedicines],

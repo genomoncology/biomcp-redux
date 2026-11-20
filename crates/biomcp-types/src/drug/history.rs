@@ -1,5 +1,5 @@
 //! When text first appears in a named section of a drug's US label, read from the label PDFs
-//! Drugs@FDA archives for each approved supplement.
+//! Drugs@FDA archives for each approved supplement (1066).
 use super::{DrugGet, DrugHeader};
 use crate::ResponseBody;
 use biodata::{PartialDate, Text};
@@ -25,63 +25,83 @@ biodata::canonical_enum! {
     }
 }
 
-biodata::canonical_enum! {
+biodata::wire_enum! {
     /// What reading one label version found.
-    LabelVersionState, SourceUnknown {
+    LabelVersionState {
         /// The section holds a searched text.
         Match => "match",
         /// The section was read and holds none of the searched texts.
-        NoMatch => "no_match",
-        /// The label has no such section.
-        SectionAbsent => "section_absent",
-        /// Unread: the PDF has no embedded text, such as a scan.
-        NoText => "no_text",
-        /// Unread: the document is not prescribing information, such as Instructions for Use alone.
-        NotPrescribingInformation => "not_prescribing_information",
+        NoMatch => "no-match",
+        /// The label was read and has no such section.
+        SectionAbsent => "section-absent",
+        /// The document was read and is not prescribing information, such as Instructions for Use
+        /// alone; it is not a label version and is passed over.
+        NotPrescribingInformation => "not-prescribing-information",
         /// Unread: a heading names the section but its end was not found.
-        SectionNotBounded => "section_not_bounded",
+        SectionNotBounded => "section-not-bounded",
         /// Unread: a label in the format used before 2006, which has no such heading.
-        OlderFormat => "older_format",
-        /// Unread: the document is not a PDF, such as an HTML page.
-        NotPdf => "not_pdf",
-        /// Unread: over BioMCP's size bounds.
-        TooLarge => "too_large",
+        OlderFormat => "older-format",
+        /// Unread: the PDF has no embedded text, such as a scan.
+        NoText => "no-text",
+        /// Unread: over BioMCP's PDF bounds.
+        TooLarge => "too-large",
+        /// Unread: the PDF's text reads as gibberish.
+        Garbled => "garbled",
+        /// Unread: a part of a page could not be read and the rest holds no searched text.
+        Partial => "partial",
+        /// Unread: the PDF is damaged.
+        Damaged => "damaged",
+        /// Unread: reading went over BioMCP's memory or time limit.
+        Refused => "refused",
         /// Unread: FDA refused the download or it failed.
-        NotFetched => "not_fetched",
-        /// Unread: the PDF could not be parsed.
-        Unreadable => "unreadable",
+        NotFetched => "not-fetched"
     }
 }
 
 impl LabelVersionState {
-    /// Whether the section's text was read, with or without a match.
+    /// Whether the version was read well enough to say whether it holds the text.
     pub fn read(self) -> bool {
-        matches!(self, Self::Match | Self::NoMatch | Self::SectionAbsent)
+        matches!(
+            self,
+            Self::Match | Self::NoMatch | Self::SectionAbsent | Self::NotPrescribingInformation
+        )
     }
 }
 
-/// The versions of one section of an application's label in which searched text first appears.
+/// The version of one section of an application's label in which searched text first appears.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugLabelHistory {
     /// The Drugs@FDA application.
     pub identity: DrugHeader,
+    /// The section searched.
+    pub section: LabelHistorySection,
+    /// The answer in one sentence: where the text first appears, or that no version read has it.
+    pub answer: Text,
+    /// How versions were chosen, and the assumption the answer rests on when it rests on one.
+    pub method: Text,
     /// Label versions Drugs@FDA lists for the application: one per distinct label PDF.
     pub versions: u32,
-    /// How versions were chosen and what the answer assumes.
-    pub method: Text,
     /// The earliest version read whose section holds a searched text; absent when none does.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub first: Option<LabelVersionMatch>,
     /// The latest version before `first` whose section was read and holds no searched text.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub before: Option<LabelVersion>,
-    /// True when an unread version lies between `before` and `first`, so the text appeared
-    /// on or before `first`'s date rather than on it.
+    /// True when a version between `before` and `first` was not read, so the text appeared on
+    /// or before `first`'s date rather than on it.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub on_or_before: bool,
+    /// Versions between `before` and `first` that were never opened, because the call's read
+    /// bound or time limit ran out.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub not_opened: u32,
     /// Every version opened, oldest first, with what reading it found.
     pub read: Box<[LabelVersion]>,
+}
+
+fn is_zero(value: &u32) -> bool {
+    *value == 0
 }
 
 /// One label version: the supplement whose approval it came with.
@@ -112,10 +132,12 @@ pub struct LabelVersionMatch {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub letter: Option<Text>,
-    /// The subsection heading above the first match, such as `6.2 Postmarketing Experience`.
+    /// The subsection heading above the first match, as the label's contents name it, such as
+    /// `6.2 Postmarketing Experience`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub heading: Option<Text>,
-    /// At most two distinct sentences holding a searched text, each at most 400 characters.
+    /// At most two distinct sentences holding a searched text, each at most 400 characters,
+    /// as the PDF's text gives them.
     pub sentences: Box<[Text]>,
 }
 
