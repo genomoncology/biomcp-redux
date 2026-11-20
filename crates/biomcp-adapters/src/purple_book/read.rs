@@ -2,11 +2,11 @@
 use super::decode::{Release, ReleaseMonth, Stored, decode};
 use crate::decl::BundleReply;
 use biomcp_fetch::{
-    BadReply, Bundle, CacheError, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError,
-    RowFormat, SourceError, SourceSpec,
+    Bundle, CacheError, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,
+    SourceError, SourceSpec,
 };
 use biomcp_types::{DrugSearch, PurpleBookPresentation, Reason, Source, SourceNotice};
-use std::{io::Read, marker::PhantomData, path::Path, sync::OnceLock, time::Duration};
+use std::{io::Read, marker::PhantomData, path::Path, time::Duration};
 
 const SOURCE: Source = Source::PurpleBook;
 const PATH: &str = "/downloads";
@@ -38,27 +38,29 @@ const BUNDLE: Bundle<Stored> = Bundle {
     row: PhantomData,
 };
 
-fn seed() -> Result<&'static Release, RequestError> {
-    static SEED: OnceLock<Result<Release, BadReply>> = OnceLock::new();
-    SEED.get_or_init(|| decode(include_bytes!("seed.csv")))
-        .as_ref()
-        .map_err(|_| biomcp_fetch::bad_reply(SOURCE, None))
+fn seed() -> Result<Release, RequestError> {
+    decode(include_bytes!("seed.csv")).map_err(|_| biomcp_fetch::bad_reply(SOURCE, None))
 }
 
-fn snapshot(
-    leg: &Leg<'_>,
-    key: &str,
-) -> Result<(&'static Release, Option<(Vec<Stored>, ReleaseMonth)>), RequestError> {
-    let seed = seed()?;
+struct Selected {
+    rows: Vec<Stored>,
+    month: ReleaseMonth,
+}
+
+fn snapshot(leg: &Leg<'_>, key: &str) -> Result<Selected, RequestError> {
     let stored = leg.manual_rows(&BUNDLE, Find::Exact(KeyKind::Xref, key))?;
-    let stored = if let Some((rows, info)) = stored {
+    let seed = seed()?;
+    if let Some((rows, info)) = stored {
         let date = info.data_date.as_deref().ok_or(CacheError::Encoding)?;
         let month = ReleaseMonth::from_key(date).ok_or(CacheError::Encoding)?;
-        (month > seed.month).then_some((rows, month))
-    } else {
-        None
-    };
-    Ok((seed, stored))
+        if month > seed.month {
+            return Ok(Selected { rows, month });
+        }
+    }
+    Ok(Selected {
+        rows: seed.rows,
+        month: seed.month,
+    })
 }
 
 pub(super) fn probe(leg: &Leg<'_>) -> Result<(), RequestError> {
@@ -78,14 +80,10 @@ pub fn search(
     } else {
         upper
     };
-    let (seed, stored) = snapshot(leg, &key)?;
-    let (rows, release): (&[Stored], _) = match &stored {
-        Some((rows, month)) => (rows, month),
-        None => (&seed.rows, &seed.month),
-    };
+    let snapshot = snapshot(leg, &key)?;
     let strength = query.strength().map(|value| strength_key(value.as_str()));
     let device = query.device();
-    let matches = rows.iter().filter(|stored| {
+    let matches = snapshot.rows.into_iter().filter(|stored| {
         stored.matches(&key)
             && strength.as_ref().is_none_or(|strength| {
                 stored
@@ -103,8 +101,8 @@ pub fn search(
             })
     });
     Ok((
-        release.label(),
-        matches.map(|stored| stored.row.clone()).collect(),
+        snapshot.month.label(),
+        matches.map(|stored| stored.row).collect(),
     ))
 }
 
@@ -136,9 +134,7 @@ pub fn sync_file(fetch: &Fetch, path: Option<&Path>) -> BundleReply {
             )
         }
         Err((error, message)) => {
-            let month = snapshot(&leg, "").ok().map(|(seed, stored)| {
-                stored.map_or_else(|| seed.month.label(), |(_, month)| month.label())
-            });
+            let month = snapshot(&leg, "").ok().map(|active| active.month.label());
             (Err(error), message, month)
         }
     };

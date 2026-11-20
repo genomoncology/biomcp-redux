@@ -27,6 +27,7 @@ const MONTHS: [&str; 12] = [
 pub(super) struct ReleaseMonth {
     year: u16,
     month: usize,
+    name: &'static str,
 }
 impl ReleaseMonth {
     fn from_title(title: &str) -> Option<Self> {
@@ -40,13 +41,16 @@ impl ReleaseMonth {
     }
     fn new(year: &str, month: usize) -> Option<Self> {
         let year: u16 = year.parse().ok()?;
-        ((1900..=9999).contains(&year) && (1..=12).contains(&month)).then_some(Self { year, month })
+        let name = MONTHS.get(month.checked_sub(1)?)?;
+        (1900..=9999)
+            .contains(&year)
+            .then_some(Self { year, month, name })
     }
     fn key(&self) -> String {
         format!("{:04}-{:02}", self.year, self.month)
     }
     pub(super) fn label(&self) -> Box<str> {
-        format!("{} {}", MONTHS[self.month - 1], self.year).into()
+        format!("{} {}", self.name, self.year).into()
     }
 }
 
