@@ -25,6 +25,7 @@ mod sections;
 mod tree;
 pub(crate) use tree::Root;
 mod validation;
+mod words;
 pub(crate) use arguments::boolean_argument;
 use arguments::command_for;
 mod local;
@@ -462,7 +463,7 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ParseI
             result.insert(alias.field.into(), Value::String(text.clone()));
         }
     }
-    split_sections(&mut result, schema)?;
+    words::split_sections(&mut result, schema)?;
     paging::read(matches, schema, &mut result).ok_or_else(ParseInvalid::default)?;
     choices::canonicalize(&mut result, schema);
     Ok(Value::Object(result))
@@ -509,42 +510,6 @@ impl Globals {
     }
 }
 
-fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(), ParseInvalid> {
-    for (name, property) in properties(schema)? {
-        if property.get("x-trailing-section") != Some(&Value::Bool(true))
-            || result.contains_key(name)
-        {
-            continue;
-        }
-        let item = property.get("items").ok_or_else(ParseInvalid::default)?;
-        let item = item
-            .get("$ref")
-            .and_then(Value::as_str)
-            .and_then(|s| schema.pointer(s.trim_start_matches('#')))
-            .unwrap_or(item);
-        let words = item
-            .get("enum")
-            .and_then(Value::as_array)
-            .ok_or_else(ParseInvalid::default)?;
-        let Some(input) = result.get_mut("input").and_then(Value::as_array_mut) else {
-            return Err(ParseInvalid::default());
-        };
-        let mut split = input.len();
-        while split > 1
-            && input
-                .get(split - 1)
-                .is_some_and(|value| choices::matching(value, words).is_some())
-        {
-            split -= 1;
-        }
-        let section = input.split_off(split);
-        if !section.is_empty() {
-            result.insert(name.clone(), Value::Array(section));
-        }
-    }
-    Ok(())
-}
-
 fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ParseInvalid> {
     let value = request_arguments(verb, entity, matches)?;
     let command = biomcp_types::COMMANDS
@@ -555,11 +520,15 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     if let Some(invalid) = sections::label(verb, entity, &value) {
         return Err(invalid);
     }
-    rewrite::request(command.via, verb, entity, value.clone()).map_err(|cause| {
-        sections::fix(verb, entity, &value)
+    // A trailing word given with --section is an ID; without it, a section-shaped one is a section.
+    let explicit = matches.try_get_raw("section").ok().flatten().is_some();
+    match rewrite::request(command.via, verb, entity, value.clone()) {
+        Ok(request) => words::unknown(verb, entity, &value, explicit).map_or(Ok(request), Err),
+        Err(cause) => Err(sections::fix(verb, entity, &value)
+            .or_else(|| words::unknown(verb, entity, &value, explicit))
             .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause))
-            .unwrap_or_else(|| errors::checked_invalid(command.via, verb, entity, &value, &cause))
-    })
+            .unwrap_or_else(|| errors::checked_invalid(command.via, verb, entity, &value, &cause))),
+    }
 }
 
 pub(crate) fn request_arguments(

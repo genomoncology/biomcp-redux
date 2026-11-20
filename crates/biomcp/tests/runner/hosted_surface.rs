@@ -9,6 +9,8 @@ use serde_json::{Value, json};
 
 #[path = "hosted_surface/components.rs"]
 mod components;
+#[path = "hosted_surface/near_sections.rs"]
+mod near_sections;
 
 type Check = Result<(), String>;
 
@@ -25,6 +27,7 @@ fn check() -> Check {
         for (claim, result) in [
             ("continuation", continuation(mode)),
             ("components", components::check(mode)),
+            ("near sections", near_sections::check(mode)),
             ("surface", surface(mode)),
         ] {
             if let Err(error) = result {

@@ -294,6 +294,7 @@ impl ResponseMeta {
         envelope.page = self.page;
         envelope.local_error = self.local_error;
         crate::incomplete::settle(&mut envelope, self.incomplete);
+        envelope.absent = reply::absent(&envelope);
         envelope
     }
 }

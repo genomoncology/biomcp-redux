@@ -246,7 +246,7 @@ fn typed_order<'a>(
 }
 
 // Bound comparisons of untrusted text while keeping allocation proportional to known names.
-fn distance(input: &str, known: &str) -> usize {
+pub(super) fn distance(input: &str, known: &str) -> usize {
     let mut row: Vec<_> = (1..=known.len()).collect();
     let mut result = known.len();
     for (index, left) in input.chars().take(128).enumerate() {

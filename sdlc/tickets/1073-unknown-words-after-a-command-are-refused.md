@@ -1,12 +1,13 @@
 # 1073 — unknown-words-after-a-command-are-refused
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 719c80eedf993973bfdfb68c7280e0204ca2f767
 
 Milestone: 7
 
 ## Outcome
 
-A word BioMCP does not understand is refused, never dropped. `biomcp get gene BRAF bogussection` and `biomcp get gene BRAF extra words here` say which word was not understood and list the sections the record has, and exit as a usage error.
+A word after a get command's ID is never dropped. A word in a section's place that names no section, a trailing word near one of the record's sections or naming another record's section, and an ID after a trailing section are refused as usage: the refusal names the word (when it is plain), lists the record's sections, says when the word was read as a section rather than an ID, and offers a next call that passes every check, or help. Any other trailing word is an ID in any letter case; when a get of several IDs finds some and not others, the reply names the ones not found in a top-level `absent` list. `biomcp get gene BRAF pathwys` is refused with `get gene BRAF pathways` as its next call; `biomcp get gene BRAF bogussection` replies `complete` with `absent: ["bogussection"]`.
 
 ## Why
 
@@ -33,3 +34,14 @@ Found by the review of ticket 1064 on 2026-11-19, on main before that change: bo
 ## Changes
 
 - Changes: the `get` argument handling for each entity, cases, help where it lists sections.
+
+## Decisions
+
+- PM decision, 2026-11-19 (after the first build): letter case never decides ID or section; `get gene BRAF egfr` and typed `id: ["braf","egfr"]` keep working. A trailing word after the first ID is, in this order and without a request: (a) a section when it matches one of this entity's sections in any case; (b) refused as an unknown section when it is near one of them or matches another entity's section name, with the near section as the next call when that call checks; (c) otherwise an ID in any case. A real symbol caught by (b) is read as an ID when given first or with `--section`.
+- Near match as built: the same spelling up to letter case, dashes, underscores and one plural s; or the single nearest section within one edit of a name of five to seven letters, or two edits of a name of eight or more. Names under five letters (such as `all`, `cna`, `pdf`) match only by spelling, so ALK is not read as `all`.
+- Collision check, 2026-11-19, over the HGNC complete set (symbols, previous symbols and aliases, 103,579 words) and human UniProt entry names and gene names (378,219 words): for gene, ARMS (alias) and PDF (approved symbol) name other records' sections and prostein (alias) is near `protein`; for protein, also CNA, isoform and protein from UniProt gene-name fields. No UniProt entry name collides. Each still reads as an ID given first or with `--section`.
+- PM decision, 2026-11-19: a word near nothing is an ID; when a get of several IDs finds some and not others, the reply names the IDs not found in a top-level `absent` list after `status`. It does not make the reply `partial`: an absent ID is an answer, not a failed source. It sits beside 1059's `incomplete` rather than in it, because `incomplete` entries name a source that failed and mean `partial`.
+- PM decision, 2026-11-19: a refusal names the word only when it is plain (letters, digits, dash and underscore, up to 64 characters), as unknown option names already are; other text is never repeated, as the error envelope requires.
+- Typed `id: "BRAF bogussection"` is one ID with a space, sent as one lookup; its reply is `absent` at the top. It is not split, because some IDs, such as drug names, hold spaces.
+- PM decision, 2026-11-19: pgx keeps its retirement guidance for unknown section words.
+- PM decision, 2026-11-20 (review): once a word after the first ID names a section exactly, every later word is a section; an ID after a section is refused and the refusal says to put IDs before sections, with the call that does so. A suggested call passes every check a run makes before reading a source; one that needs a source is offered with the one source that fits, else help. A hosted refusal lists and suggests only sections whose sources are on and always keeps a working next step. A badly formed second ID keeps its malformed-ID refusal. A typed refusal says to set the section field.

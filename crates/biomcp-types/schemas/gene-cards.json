@@ -965,7 +965,7 @@
           "x-positional": 0
         },
         "section": {
-          "description": "Requested section words, preserving caller order and repetitions.\nTrailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.",
+          "description": "Requested section words, preserving caller order and repetitions.\nTrailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.\nA later word near a section name, or naming another record's section, is refused; give such an ID first or use --section.",
           "items": {
             "$ref": "#/$defs/Reply_GeneSectionWord"
           },
@@ -3864,6 +3864,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
+    "absent": {
+      "description": "IDs a get of several did not find while it found others; each item says so too.",
+      "items": {
+        "$ref": "#/$defs/Reply_Text"
+      },
+      "type": "array"
+    },
     "fields": {
       "description": "The row fields the caller chose with `--fields`, as given; absent without them.\nEach row keeps those, its required keys and identifiers; other keys are left out.",
       "items": {

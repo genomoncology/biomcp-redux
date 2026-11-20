@@ -19,7 +19,10 @@
         },
         "/result/items/0/status": "complete",
         "/result/items/1/status": "absent",
-        "/result/items/2/status": "failed"
+        "/result/items/2/status": "failed",
+        "/absent": [
+          "NCT01811710"
+        ]
       }
     }
   ]
