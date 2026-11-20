@@ -27,10 +27,8 @@ pub(super) fn request(
             }
         }
         Rewrite::GetDrug => {
-            if value.get("source").and_then(Value::as_str) == Some("who-pq") {
-                decode_query(value).map(Request::GetWhoMedicine)
-            } else if markets(&value) {
-                // The markets section takes a name alone, so any other option is named as refused.
+            if markets(&value) {
+                // The markets section takes a name and at most a source, so any other option is refused.
                 let refused: Vec<&str> = value
                     .as_object()
                     .into_iter()
@@ -43,6 +41,8 @@ pub(super) fn request(
                         .with_message(biomcp_types::ErrorMessage::DrugMarketsSource));
                 }
                 decode_query(value).map(Request::GetDrugMarkets)
+            } else if value.get("source").and_then(Value::as_str) == Some("who-pq") {
+                decode_query(value).map(Request::GetWhoMedicine)
             } else {
                 decode_query(value).map(Request::GetDrug)
             }
@@ -91,7 +91,7 @@ pub(super) fn request(
 }
 
 /// The only fields the markets request takes; section help lists no other option for it.
-pub(crate) const MARKETS_FIELDS: &[&str] = &["input", "section"];
+pub(crate) const MARKETS_FIELDS: &[&str] = &["input", "section", "source"];
 
 /// A drug get whose sections name markets is the markets request, which refuses anything else.
 fn markets(value: &Value) -> bool {

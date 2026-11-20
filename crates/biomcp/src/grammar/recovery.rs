@@ -139,20 +139,27 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
-/// Drug markets takes a name alone, so its fix is the same call without the options it refused.
-pub(super) fn markets(
+/// A refusal whose fixed message names its one fix: drug markets takes a name and at most a
+/// source, so the same call without the options it refused; a label-history offset needs
+/// every version, so the same call reading every version from that offset.
+pub(super) fn fixed(
     via: Rewrite,
     path: (&str, &str),
     value: &Value,
     cause: &biomcp_types::QueryInvalid,
 ) -> Option<Step> {
-    if cause.message() != Some(biomcp_types::ErrorMessage::DrugMarketsSource) {
-        return None;
-    }
     let mut candidate = value.clone();
     let fields = candidate.as_object_mut()?;
-    for name in cause.arguments() {
-        fields.remove(name.as_ref());
+    match cause.message()? {
+        biomcp_types::ErrorMessage::DrugMarketsSource => {
+            for name in cause.arguments() {
+                fields.remove(name.as_ref());
+            }
+        }
+        biomcp_types::ErrorMessage::LabelHistoryOffset => {
+            fields.insert("every_version".into(), Value::Bool(true));
+        }
+        _ => return None,
     }
     checked(via, path, candidate)
 }

@@ -1,6 +1,6 @@
 {
   "feature": "drug-markets",
-  "story": "One call gives dolutegravir's row in each market: Drugs@FDA NDA204790 first approved 2013-08-12, EMA EMEA/H/C/002753 (Tivicay) authorised 2014-01-16 and WHO SYN201 (a synthetic WHO row) prequalified 2013-09-22, each with its own number, status, date role, record URL, source, match count and choice rule, and no date joined across markets. Imatinib has FDA and EMA rows (Glivec, the earliest of 8 EMA matches), and its WHO row says WHO lists no product under that name, with 0 matches. Lamivudine matches several records in every market (FDA 138, EMA 4, WHO 16); its EMA row is Epivir (EMEA/H/C/000107), the earliest authorised of the four (1996-08-08), not the first in the file's order (Lamivudine Teva Pharma B.V., 2009-12-10); its WHO row is the first in export order of three rows tied on the earliest date; and each market keeps its list call within the five next steps. Markets takes no --source, and a call with one is refused with that cause and the call without it.",
+  "story": "One call gives dolutegravir's row in each market: Drugs@FDA NDA204790 first approved 2013-08-12, EMA EMEA/H/C/002753 (Tivicay) authorised 2014-01-16 and WHO SYN201 (a synthetic WHO row) prequalified 2013-09-22, each with its own number, status, date role, record URL, source, match count and choice rule, and no date joined across markets. Imatinib has FDA and EMA rows (Glivec, the earliest of 8 EMA matches), and its WHO row says WHO lists no product under that name, with 0 matches. Lamivudine matches several records in every market (FDA 138, EMA 4, WHO 16); its EMA row is Epivir (EMEA/H/C/000107), the earliest authorised of the four (1996-08-08), not the first in the file's order (Lamivudine Teva Pharma B.V., 2009-12-10); its WHO row is the first in export order of three rows tied on the earliest date; and each market keeps its list call within the five next steps. --source drugsfda, ema or who-pq reads only that market, and its row is the same as in the call that reads every market; a source no market reads is refused with the three that do, and any other option is refused with the call without it.",
   "live_check": "public",
   "verified": "Drugs@FDA replies recorded unchanged 2026-11-13 with biomcp --record; the WHO PQ finished-product export is synthetic, in the export's shape with invented references, applicants, strengths and dates, because WHO PQ is noncommercial; the EMA medicines and referrals files recorded the same day are trimmed to the dolutegravir, imatinib and lamivudine medicines and one referral. Details are in tests/replies/drug/markets/README.md.",
   "replay": "drug/markets",
@@ -282,25 +282,113 @@
         "dolutegravir",
         "markets",
         "--source",
+        "drugsfda"
+      ],
+      "expect": {
+        "/schema": "biomcp.drug-markets/2",
+        "/status": "complete",
+        "/query/source": "drugsfda",
+        "/result/markets/*/source": [
+          "drugsfda"
+        ],
+        "/result/markets/*/state": [
+          "found"
+        ],
+        "/result/markets/*/record": [
+          "NDA204790"
+        ],
+        "/result/markets/0/name": "TIVICAY",
+        "/result/markets/0/holder": "VIIV HLTHCARE",
+        "/result/markets/0/status": [
+          "Discontinued",
+          "Prescription"
+        ],
+        "/result/markets/0/first_approval/role": "submission_status_date",
+        "/result/markets/0/first_approval/date": "2013-08-12",
+        "/result/markets/0/url": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=204790",
+        "/result/markets/0/matches": 29,
+        "/result/markets/0/choice": "exact brand before generic; NDA/BLA before ANDA, then earliest approval",
+        "/sources/*/source": [
+          "drugsfda"
+        ]
+      },
+      "mcp": [
+        "get",
+        "drug",
+        "dolutegravir",
+        "markets",
+        "--source",
+        "drugsfda"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "dolutegravir",
+        "markets",
+        "--source",
         "ema"
       ],
-      "exit": 2,
-      "is_error": true,
       "expect": {
-        "/error/code": "usage.arguments",
-        "/error/option": "--source",
-        "/error/message": "markets takes a drug name alone, with no --source or other option, and reads each market's own source; drop error.option, as in: get drug <NAME> markets",
-        "/next/0/args": [
-          "get",
-          "drug",
-          "dolutegravir",
-          "markets"
+        "/schema": "biomcp.drug-markets/2",
+        "/status": "complete",
+        "/query/source": "ema",
+        "/result/markets/*/source": [
+          "ema"
         ],
-        "/error": {
-          "omits": [
-            "valid_values"
-          ]
-        }
+        "/result/markets/*/state": [
+          "found"
+        ],
+        "/result/markets/*/record": [
+          "EMEA/H/C/002753"
+        ],
+        "/result/markets/0/name": "Tivicay",
+        "/result/markets/0/holder": "ViiV Healthcare BV",
+        "/result/markets/0/status": [
+          "Authorised"
+        ],
+        "/result/markets/0/first_approval/role": "marketing_authorisation_date",
+        "/result/markets/0/first_approval/date": "2014-01-16",
+        "/result/markets/0/url": "https://www.ema.europa.eu/en/medicines/human/EPAR/tivicay",
+        "/result/markets/0/matches": 1,
+        "/result/markets/0/choice": "exact brand before generic, then earliest marketing authorisation; source search order among equals",
+        "/sources/*/source": [
+          "ema"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "dolutegravir",
+        "markets",
+        "--source",
+        "who-pq"
+      ],
+      "expect": {
+        "/schema": "biomcp.drug-markets/2",
+        "/status": "complete",
+        "/query/source": "who-pq",
+        "/result/markets/*/source": [
+          "who-pq"
+        ],
+        "/result/markets/*/state": [
+          "found"
+        ],
+        "/result/markets/*/record": [
+          "SYN201"
+        ],
+        "/result/markets/0/holder": "Synthetic Applicant G",
+        "/result/markets/0/first_approval/role": "date_of_prequalification",
+        "/result/markets/0/first_approval/date": "2013-09-22",
+        "/result/markets/0/url": "https://extranet.who.int/prequal/medicines/syn201",
+        "/result/markets/0/matches": 13,
+        "/result/markets/0/choice": "earliest Date of Prequalification among WHO rows whose INN, dosage form and strength cell names the input; export order on a tie; undated rows last",
+        "/sources/*/source": [
+          "who-pq"
+        ]
       }
     },
     {
@@ -310,24 +398,52 @@
         "mobocertinib",
         "markets",
         "--source",
-        "drugsfda"
+        "chembl"
       ],
       "offline": true,
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/error/message": "markets takes a drug name alone, with no --source or other option, and reads each market's own source; drop error.option, as in: get drug <NAME> markets",
+        "/error/code": "usage.arguments",
+        "/error/option": "--source",
+        "/error/message": "markets reads one source per market: drugsfda (US), ema (EU) and who-pq (WHO prequalification); give --source one of valid_values, or drop it to read every market",
+        "/error/valid_values": [
+          "drugsfda",
+          "ema",
+          "who-pq"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "mobocertinib",
+        "markets",
+        "--source",
+        "drugsfda",
+        "--section-limit",
+        "5"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/message": "markets takes a drug name and at most --source; drop error.option, as in: get drug <NAME> markets",
         "/next/0/args": [
           "get",
           "drug",
           "mobocertinib",
-          "markets"
+          "markets",
+          "--source",
+          "drugsfda"
         ],
         "/error": {
           "omits": [
             "valid_values"
           ]
-        }
+        },
+        "/error/option": "--section-limit"
       }
     }
   ]

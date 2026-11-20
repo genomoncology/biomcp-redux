@@ -81,6 +81,17 @@ pub enum UsageError {
         /// Native discovery commands.
         next: Vec<crate::Step>,
     },
+    /// Chosen `--fields` names that a call's rows do not carry.
+    FieldsUnknown {
+        /// The source whose rows were checked, when the query fixes one.
+        source: Option<crate::Source>,
+        /// The rows' field names.
+        valid_values: Box<[crate::Text]>,
+        /// Chosen field names with no field to place them in; the next call leaves them out.
+        unplaced: Box<[crate::Text]>,
+        /// The same call with each name it can place in its field, or help.
+        next: Vec<crate::Step>,
+    },
     /// Checked selectors differ from the retained pool.
     PoolMismatch {
         /// Checked restart command.

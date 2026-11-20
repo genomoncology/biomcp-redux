@@ -19,9 +19,12 @@ struct Fields {
     /// Complete brand or generic name, looked up in each market's source on its own.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: Text,
-    /// The markets section, alone; it takes no source.
+    /// The markets section, alone.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
+    /// One market's source, to read only that market: drugsfda, ema or who-pq.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    source: Option<DrugSource>,
 }
 crate::query::validation::checked_query!(DrugMarketsGet, Fields);
 impl TryFrom<Fields> for DrugMarketsGet {
@@ -30,24 +33,38 @@ impl TryFrom<Fields> for DrugMarketsGet {
         if fields.section.as_ref() != [DrugSection::Markets] {
             return Err(QueryInvalid::new(&["section"]));
         }
+        if fields
+            .source
+            .is_some_and(|source| !Self::SOURCES.contains(&source))
+        {
+            return Err(QueryInvalid::new(&["source"])
+                .with_message(crate::ErrorMessage::DrugMarketsSourceUnknown));
+        }
         Ok(Self(fields))
     }
 }
 impl DrugMarketsGet {
+    /// Each market's own source, in reply order.
+    pub const SOURCES: [DrugSource; 3] = [DrugSource::Drugsfda, DrugSource::Ema, DrugSource::WhoPq];
     /// The name every market looks up.
     pub fn input(&self) -> &Text {
         &self.0.input
+    }
+    /// Whether this call reads the market whose source this is: every market, or the one named.
+    pub fn reads(&self, source: DrugSource) -> bool {
+        self.0.source.is_none_or(|chosen| chosen == source)
     }
     /// Look up one name in every market.
     pub fn new(input: Text) -> Self {
         Self(Fields {
             input,
             section: vec![DrugSection::Markets].into(),
+            source: None,
         })
     }
 }
 
-/// One row per market, always in the order drugsfda, ema, who-pq.
+/// One row per market read, in the order drugsfda, ema, who-pq; `--source` reads one market.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugMarkets {

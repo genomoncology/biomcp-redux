@@ -165,7 +165,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--fields",
-        "/error/message": "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it",
+        "/error/message": "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it; error.unplaced lists the names it cannot place",
         "/error/valid_values": [
           "city",
           "contacts",
@@ -180,6 +180,11 @@
         "/next/0/args/0": "--fields=city,zip",
         "/next": {
           "count": 1
+        },
+        "/error": {
+          "omits": [
+            "unplaced"
+          ]
         }
       }
     }
