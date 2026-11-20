@@ -66,7 +66,9 @@ impl Leg<'_> {
                     {
                         return Ok(());
                     }
-                    leg.sync_bundle(&bundle, true)?.published(&leg).map(|_| ())
+                    leg.sync_bundle(&bundle, true, None)?
+                        .published(&leg)
+                        .map(|_| ())
                 });
                 if let Err(error) = result
                     && !cancellation.is_cancelled()

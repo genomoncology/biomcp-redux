@@ -11,6 +11,10 @@ const GENERATED_PROTO: &str = "crates/biomcp-adapters/src/alphagenome/proto.rs";
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/src/bundle/first.rs",
+        "The synchronous response reader reports length to its own first fetch",
+    ),
+    (
         "crates/biomcp-fetch/tests/transport/tls_builds.rs",
         "Count TLS configuration builds on one isolated test thread",
     ),

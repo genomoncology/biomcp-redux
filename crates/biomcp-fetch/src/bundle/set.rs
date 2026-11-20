@@ -81,7 +81,7 @@ impl crate::Leg<'_> {
     fn publish_set<R: Row>(
         &self,
         set: &BundleSet<R>,
-        auto: Option<u64>,
+        auto: Option<&super::first::Size>,
     ) -> Result<BundleInfo, RequestError> {
         let leg = self;
         let bundle = set.stored();
@@ -93,25 +93,25 @@ impl crate::Leg<'_> {
         let mut bytes = 0_u64;
         // Streamed parts have their own ceiling; the shared one covers every other part.
         let mut held = 0_u64;
-        for part in set.parts {
+        let max = auto.map(|_| {
+            self.fetch
+                .config
+                .auto_sync_max_bytes
+                .min(super::MAX_BUNDLE_BYTES)
+        });
+        for (index, part) in set.parts.iter().enumerate() {
             let format = part.format.unwrap_or(set.format);
             let streamed = matches!(format, RowFormat::StreamedXml { .. });
-            let ceiling = auto.map(|max| max.saturating_sub(bytes));
+            let ceiling = max.map(|max| max.saturating_sub(bytes));
             if ceiling == Some(0) {
-                return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
+                return Err(leg.failure(biomcp_types::Reason::TooLarge, None).into());
             }
-            let body = match part_body(leg, set, part, format, ceiling) {
-                Err(RequestError::Source(error))
-                    if auto.is_some()
-                        && matches!(
-                            error.reason,
-                            biomcp_types::Reason::TooLarge | biomcp_types::Reason::DeadlineExceeded
-                        ) =>
-                {
-                    return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
+            let total = auto.filter(|_| index + 1 == set.parts.len());
+            let body = part_body(leg, set, part, format, ceiling, |length| {
+                if let Some(size) = total {
+                    size.set(bytes.checked_add(length));
                 }
-                result => result?,
-            };
+            })?;
             bytes = bytes.saturating_add(body.len() as u64);
             if !streamed {
                 held = held.saturating_add(body.len() as u64);
@@ -141,12 +141,6 @@ impl crate::Leg<'_> {
         if set.parts.is_empty() || leg.budget().expired() {
             return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
         }
-        let hex: String = revision
-            .finalize()
-            .iter()
-            .map(|byte| format!("{byte:02x}"))
-            .collect();
-        let content_revision = format!("sha256:{hex}");
         let metadata = store::Meta {
             rejections,
             bytes,
@@ -157,7 +151,10 @@ impl crate::Leg<'_> {
             // Publisher HTTP validators never hold a computed set digest.
             etag: None,
             modified: None,
-            content_revision: Some(content_revision),
+            content_revision: Some(format!(
+                "sha256:{}",
+                super::digest_hex(&revision.finalize())
+            )),
             retrieved_at: Some(crate::cache::now()),
         };
         cache.publish(&bundle, None, &metadata, Some(&complete), leg.budget())?;
@@ -172,6 +169,7 @@ fn part_body<R: Row>(
     part: &BundlePart,
     format: RowFormat,
     ceiling: Option<u64>,
+    part_length: impl Fn(u64),
 ) -> Result<Vec<u8>, RequestError> {
     let limit = match format {
         RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
@@ -196,10 +194,14 @@ fn part_body<R: Row>(
         RowFormat::Document { media } => read.document_media(media),
         _ => read,
     };
-    Ok(leg
+    let mut read = read;
+    read.part_length = ceiling.map(|_| &part_length as &dyn Fn(u64));
+    let body = leg
         .call(&endpoint, crate::Input::Params(&[]), read)?
         .value
-        .0)
+        .0;
+    part_length(body.len() as u64);
+    Ok(body)
 }
 fn append_part(
     complete: &mut Vec<parse::Parsed>,
@@ -226,13 +228,8 @@ impl crate::Leg<'_> {
         set: &BundleSet<R>,
         find: super::Find<'_>,
     ) -> Result<(Vec<SetRow<R>>, BundleInfo), RequestError> {
-        let max = self
-            .fetch
-            .config
-            .auto_sync_max_bytes
-            .min(super::MAX_BUNDLE_BYTES);
-        self.name_busy(self.read_stored_rows(&set.stored(), find, || {
-            self.publish_set(set, Some(max)).map(drop)
+        self.name_busy(self.read_stored_rows(&set.stored(), find, |size| {
+            self.publish_set(set, Some(size)).map(drop)
         }))
     }
 }
