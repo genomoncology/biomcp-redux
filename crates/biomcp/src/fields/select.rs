@@ -216,7 +216,11 @@ fn kept_step(
 /// The source a search query selects, with the reply schema of its rows, when the
 /// query alone fixes it.
 fn selected(request: &Request) -> Option<(Source, &'static str)> {
+    use biomcp_types::ResponseBody;
     match request {
+        Request::SearchDrug(query) if query.source() == biomcp_types::DrugSource::PurpleBook => {
+            Some((Source::PurpleBook, biomcp_types::DrugPurpleBookPage::SCHEMA))
+        }
         Request::SearchTrial(query) => Some((
             query.source().source(),
             biomcp_query::trial::reply_schema(query.source()),

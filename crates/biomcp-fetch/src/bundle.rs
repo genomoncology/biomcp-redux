@@ -8,11 +8,11 @@ mod read;
 pub(crate) mod refresh;
 mod replay;
 mod set;
+pub(crate) mod store;
 mod streamed;
 mod transfer;
-pub use set::{BundlePart, BundleSet, SetRow};
-pub(crate) mod store;
 use crate::{Fetch, Freshness, RequestError, SourceSpec};
+pub use set::{BundlePart, BundleSet, SetRow};
 use std::marker::PhantomData;
 /// Maximum unencoded published bundle size.
 pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
@@ -227,7 +227,7 @@ impl BundleSync {
     }
 }
 impl Fetch {
-    /// Configured time limit for one explicit bundle synchronization and each read it makes.
+    /// Configured time limit for one explicit bundle synchronization.
     pub fn sync_budget(&self) -> std::time::Duration {
         self.config.sync_budget
     }

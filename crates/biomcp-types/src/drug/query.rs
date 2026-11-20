@@ -173,7 +173,6 @@ impl TryFrom<GetFields> for DrugGet {
     }
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
-    // The markets section is its own request, with no other section.
     if fields.section.contains(&DrugSection::Markets)
         || fields.source == Some(DrugSource::PurpleBook)
     {
@@ -187,7 +186,6 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     }
     let approvals = fields.source == Some(DrugSource::Drugsfda)
         && fields.section.as_ref() == [DrugSection::Approvals];
-    // A section held whole pages up to the held cap; one the source pages keeps its own 50 (1061).
     let held = !fields.section.is_empty()
         && fields.section.iter().all(|section| {
             matches!(
