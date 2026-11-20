@@ -1,0 +1,169 @@
+{
+  "verified": "The fixture provenance records all five projected openFDA pages from 2026-11-20 with original body hashes. The complete set contains 15 NDA or BLA labels. Jakafi, whose label says 'Janus Associated Kinases', is absent from this recording.",
+  "live_check": "Projected openFDA replies from 2026-11-20; local replay only, excluded from provider live checks.",
+  "feature": "drug-label-mechanism",
+  "story": "An agent listing a drug class asks for the labels whose own Mechanism of Action field says 'Janus kinase', keeping only NDA and BLA labels so generics do not fill the page. Each row gives the brand, its application numbers and the label sentence that matched, and the reply says the match is on label wording only, so labels wording the mechanism differently are not returned. Before 1086, agents wrote their own openFDA queries for about ten turns each, and a plain name search fell back to label text, mixed in 20 generics and did not say which field matched (2026-11-20 traced runs).",
+  "replay": "drug/label-mechanism",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--mechanism-of-action",
+        "Janus kinase",
+        "--source",
+        "openfda-label",
+        "--application-type",
+        "nda,bla",
+        "--limit",
+        "3"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "--mechanism-of-action",
+        "Janus kinase",
+        "--source",
+        "openfda-label",
+        "--application-type",
+        "nda,bla",
+        "--limit",
+        "3"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/mechanism_of_action": "Janus kinase",
+        "/query/application_type": [
+          "nda",
+          "bla"
+        ],
+        "/page/total": 15,
+        "/page/returned": 3,
+        "/result/items/0/name": "Anzupgo",
+        "/result/items/0/application_numbers": [
+          "NDA219155"
+        ],
+        "/result/items/0/matched_sentence": "12.1 Mechanism of Action Delgocitinib, a Janus kinase (JAK) inhibitor, inhibits the activity of JAK1, JAK2, JAK3, and tyrosine kinase 2 (TYK2).",
+        "/result/items/1/name": "XELJANZ XR, XELJANZ",
+        "/result/items/1/application_numbers": [
+          "NDA208246",
+          "NDA203214",
+          "NDA213082"
+        ],
+        "/result/items/1/matched_sentence": "12.1 Mechanism of Action Tofacitinib is a Janus kinase (JAK) inhibitor.",
+        "/sources/0/term": "mechanism_of_action:\"Janus kinase\" AND openfda.application_number:(NDA* OR BLA*)",
+        "/sources/0/notices/1/message": "The search uses \"Janus kinase\" in the mechanism_of_action field only. Labels without that field or with different wording are excluded. No synonyms or drug class inference are used. Totals count matching labels. When present, matched_sentence quotes the label."
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--mechanism-of-action",
+        "Janus kinase",
+        "--source",
+        "openfda-label",
+        "--application-type",
+        "nda,bla",
+        "--limit",
+        "3"
+      ],
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 5
+      },
+      "expect": {
+        "/page/total": 15,
+        "/result/items": {
+          "count": 15
+        },
+        "/result/items/0/id": "a59bf36e-6f04-4b47-b385-8040c95f040c",
+        "/result/items/1/id": "cf74ba2f-afc5-4baa-8594-979c889a5831",
+        "/result/items/2/id": "5023a17b-e96a-67d4-e063-6394a90a14a7",
+        "/result/items/3/id": "16c12a56-4550-414b-ac9d-b785b41fea6b",
+        "/result/items/4/id": "866e9f35-9035-4581-a4b1-75a621ab55cf",
+        "/result/items/5/id": "68e3d6b2-7838-4d2d-a417-09d919b43e13",
+        "/result/items/6/id": "a603f231-d09e-4bad-ad5e-b55f865da095",
+        "/result/items/7/id": "3f6d6fcd-e9f9-42c8-bfa2-bb2cfc9ed258",
+        "/result/items/8/id": "9583405d-53a0-49dc-88eb-5e6384ebabcb",
+        "/result/items/9/id": "4a672fd1-eb7b-4aa9-9b23-845e4b5dc400",
+        "/result/items/10/id": "24da5509-6631-4795-9d42-273faecd08e7",
+        "/result/items/11/id": "2966aec7-2ef0-923c-d8ff-fe1a957bf095",
+        "/result/items/12/id": "ff4d7258-5068-4cdf-9692-8cae04c3198e",
+        "/result/items/13/id": "1882f799-61b0-4813-965a-4910c4ae419c",
+        "/result/items/14/id": "6b2f9446-fb23-4741-b73a-5a2f993733c3"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--mechanism-of-action",
+        "Janus kinase",
+        "--source",
+        "drugsfda",
+        "--application-type",
+        "nda,bla",
+        "--limit",
+        "3"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--mechanism-of-action",
+        "/error/valid_values": [
+          "openfda-label"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/source": "openfda-label",
+        "/query/mechanism_of_action": "Janus kinase",
+        "/query/application_type": [
+          "nda",
+          "bla"
+        ],
+        "/page/total": 15,
+        "/page/returned": 3
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "imatinib",
+        "--exact-term",
+        "--application-type",
+        "nda"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--application-type",
+        "/error/valid_values": [
+          "openfda-label"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "exit": 4,
+      "expect": {
+        "/query/query": "imatinib",
+        "/query/application_type": [
+          "nda"
+        ],
+        "/query/source": "openfda-label",
+        "/query/exact_term": true,
+        "/sources/0/reason": "offline"
+      }
+    }
+  ]
+}

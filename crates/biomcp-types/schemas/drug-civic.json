@@ -1457,6 +1457,10 @@
           ],
           "description": "Complete native name fields matching the search input; omitted outside label searches."
         },
+        "matched_sentence": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "The label sentence holding the searched mechanism wording; openFDA label mechanism searches only."
+        },
         "name": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Original source display name."

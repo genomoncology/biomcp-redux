@@ -35,11 +35,11 @@ pub(super) fn components(
     }
     (hit.id, problems.field("_version", hit.version), rows)
 }
-
 fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> {
     Ok(DrugHeader {
         name_resolution: None,
         matched_name: None,
+        matched_sentence: None,
         id: id.parse().map_err(|_| BadReply)?,
         source: DrugSource::Mychem,
         version: None,
