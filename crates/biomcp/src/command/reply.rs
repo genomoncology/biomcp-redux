@@ -86,7 +86,7 @@ fn data<T>(section: Option<Section<T>>) -> Option<T> {
 /// status, so it names none here.
 pub(super) fn absent<B: biomcp_types::ResponseBody>(
     envelope: &biomcp_types::Envelope<B>,
-) -> Vec<biomcp_types::Text> {
+) -> Vec<biodata::Text> {
     use serde_json::Value;
     if matches!(envelope.status, biomcp_types::Status::Absent) {
         return Vec::new();
@@ -103,6 +103,6 @@ pub(super) fn absent<B: biomcp_types::ResponseBody>(
         .flatten()
         .filter(|item| item.get("status").and_then(Value::as_str) == Some("absent"))
         .filter_map(|item| item.get("input")?.as_str())
-        .filter_map(|input| biomcp_types::Text::new(input).ok())
+        .filter_map(|input| biodata::Text::new(input).ok())
         .collect()
 }
