@@ -43,7 +43,8 @@
         "drugsfda",
         "ema",
         "ddinter",
-        "who-eml"
+        "who-eml",
+        "fda-dsc"
       ],
       "type": "string"
     },

@@ -36,7 +36,7 @@ pub struct DrugSearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Drug name phrase.
-    /// FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
+    /// FDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
     /// Drugs@FDA searches brands and ingredients,
     /// exact names before word matches. openFDA labels search exact then word brand/generic names,
     /// then label text (including indications) when no names match; source matches need not be exact names.
@@ -54,7 +54,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
     /// Search the typed name only.
-    /// openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+    /// openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
     /// the drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,

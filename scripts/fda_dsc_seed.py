@@ -40,12 +40,17 @@ def main(argv):
         return 2
     executable, target = argv[1], argv[2] if len(argv) == 3 else SEED
     with tempfile.TemporaryDirectory() as cache:
-        listed = run(executable, cache, "search", "drug", "--source", "fda-dsc", "--limit", "200")
-        if listed.get("status") != "complete":
-            sys.stderr.write(f"index not read: {json.dumps(listed.get('sources'))}\n")
-            return 1
+        rows = []
+        while True:
+            listed = run(executable, cache, "search", "drug", "--source", "fda-dsc", "--limit", "50", "--offset", str(len(rows)))
+            if listed.get("status") != "complete":
+                sys.stderr.write(f"index not read: {json.dumps(listed)[:2000]}\n")
+                return 1
+            rows.extend(listed["result"].get("items", []))
+            if not listed["result"].get("items") or len(rows) >= listed["result"]["total"]:
+                break
         items = []
-        for number, row in enumerate(listed["result"]["items"]):
+        for number, row in enumerate(rows):
             time.sleep(SPACING_SECONDS)
             got = run(executable, cache, "get", "drug", row["id"], "--source", "fda-dsc")
             header = (got.get("result") or {}).get("header")
@@ -53,7 +58,7 @@ def main(argv):
                 sys.stderr.write(f"{row['id']}: page not read: {json.dumps(got.get('sources'))}\n")
                 return 1
             items.append(header)
-            sys.stderr.write(f"{number + 1}/{len(listed['result']['items'])} {row['id']}\n")
+            sys.stderr.write(f"{number + 1}/{len(rows)} {row['id']}\n")
     seed = {"date": datetime.date.today().isoformat(), "items": items}
     with open(target, "w", encoding="utf-8") as handle:
         json.dump(seed, handle, indent=1, ensure_ascii=False)

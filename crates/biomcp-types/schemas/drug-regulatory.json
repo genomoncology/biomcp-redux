@@ -834,7 +834,8 @@
         "drugsfda",
         "ema",
         "ddinter",
-        "who-eml"
+        "who-eml",
+        "fda-dsc"
       ]
     },
     "Reply_IdentifierNamespace": {
@@ -1260,6 +1261,7 @@
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
+        " FDA Drug Safety Communications web pages.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -1339,6 +1341,7 @@
         "fda-510k",
         "fda-device-recall",
         "fda-drug-recall",
+        "fda-dsc",
         "cpic",
         "clinpgx",
         "cbioportal",
