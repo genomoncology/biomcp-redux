@@ -3506,7 +3506,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
 - `--find`: Label text; OR.
-Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history. Value form: repeatable values (repeat the flag); example: --find Raynaud.
+Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history. Value form: repeatable values (repeat the flag); example: --find vasculitis.
 - `input`: Source ID, brand or generic name.
 Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
@@ -3516,7 +3516,7 @@ The printed label's warnings_and_precautions reads openFDA's warnings_and_cautio
 A section the label lacks, or a name openFDA does not use, lists the sections the label has.
 For drugsfda label-history, one of boxed_warning, indications_and_usage, contraindications,
 warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
-Only with section label or label-history. Value form: string; example: --label-section indications_and_usage.
+Only with section label or label-history. Value form: string; example: --label-section warnings_and_cautions.
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
 Keeps only the pairs with that drug. A name DDInter does not use is tried under the
