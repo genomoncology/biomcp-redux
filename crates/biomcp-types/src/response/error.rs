@@ -1,6 +1,7 @@
 //! The fixed schema usage response, including its checked wire literals.
-use crate::UsageError;
 use serde::{Deserialize, Serialize};
+
+mod usage;
 
 // One literal defines both serde and schema, including the fixed message.
 macro_rules! singleton {
@@ -87,13 +88,18 @@ singleton! {
  ArgumentSectionNotIdTyped => "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; \
  to read it as an ID, give it first or set the section field",
  ArgumentIdAfterSection => "error.option follows a section word and is not a section; put IDs before sections",
- FieldsUnknown => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it",
+ FieldsUnknown => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field \
+ that holds it; error.unplaced lists the names it cannot place",
  FieldsRowsOnly => "--fields does not narrow this call yet; it narrows search rows and some sections' rows; drop --fields to read it whole",
  SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next \
  step; run the suggested command",
  OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \
  suggested first-page command, then follow its next command",
  ArticleGetLimit => "get article takes 1 to 20 IDs per call; split a longer list into several calls",
+ LabelHistoryOffset => "--offset needs --every-version: label-history pages only while it reads every version; add --every-version, or drop \
+ --offset (also spelled --section-offset)",
+ LabelHistorySectionUnknown => "label-history reads only the label sections in valid_values; give --label-section one of them, or read another \
+ section with: get drug <NAME> label --label-section NAME",
  LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
  --label-section indications_and_usage",
  McpSync => "sync is unavailable over MCP; run it from the command line",
@@ -297,8 +303,9 @@ singleton! {
         DrugSafety => "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugShortage => "shortage is not yet supported in the cancer-care drug slice.",
         DrugAll => "all is not supported: select one named source section.",
-        DrugMarketsSource => "markets takes a drug name alone, with no --source or other option, and reads each market's own \
-            source; drop error.option, as in: get drug <NAME> markets",
+        DrugMarketsSource => "markets takes a drug name and at most --source; drop error.option, as in: get drug <NAME> markets",
+        DrugMarketsSourceUnknown => "markets reads one source per market: drugsfda (US), ema (EU) and who-pq (WHO prequalification); \
+            give --source one of valid_values, or drop it to read every market",
         DrugInteractions => "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         DrugTrials => "use: search trial --intervention <text>; no inferred aliases",
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
@@ -363,6 +370,9 @@ struct ErrorDetail {
     valid_values: Option<Box<[crate::Text]>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     count: Option<u64>,
+    /// Chosen `--fields` names with no field to place them in, which the next call leaves out.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    unplaced: Option<Box<[crate::Text]>>,
     code: ErrorCode,
     message: ErrorMessage,
 }
@@ -380,88 +390,6 @@ pub struct ErrorEnvelope {
     /// Typed restart when a snapshot cannot answer this query.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub next: Vec<super::Step>,
-}
-
-impl From<crate::UsageError> for ErrorEnvelope {
-    fn from(usage: crate::UsageError) -> Self {
-        let mut out = Self::empty(
-            ErrorStatus::Usage,
-            ErrorCode::Arguments,
-            ErrorMessage::Arguments,
-        );
-        match usage {
-            UsageError::Arguments(arguments) => out.next = out.error.arguments(arguments),
-            UsageError::Schema => {
-                out.error.code = ErrorCode::SchemaUsage;
-                out.error.message = ErrorMessage::SchemaUsage;
-            }
-            UsageError::UnknownCommand { next } => {
-                out.error.code = ErrorCode::UnknownCommand;
-                out.error.message = ErrorMessage::UnknownCommand;
-                out.next = vec![next];
-            }
-            UsageError::Retired(message, next) => out.retired(message, next),
-            UsageError::McpUnavailable(message) => {
-                out.error.code = ErrorCode::McpUnavailable;
-                out.error.message = message;
-            }
-            UsageError::HostedKey(source) => {
-                out.error.code = ErrorCode::McpUnavailable;
-                out.error.message = ErrorMessage::HostedKey;
-                out.error.source = Some(source);
-            }
-            UsageError::McpResultTooBroad { cap } => {
-                out.error.code = ErrorCode::TooBroad;
-                out.error.message = ErrorMessage::McpResultTooBroad;
-                out.error.count = Some(cap);
-            }
-            UsageError::BiomarkerTooBroad => {
-                out.error.code = ErrorCode::TooBroad;
-                out.error.message = ErrorMessage::BiomarkerTooBroad;
-                out.error.source = Some(crate::Source::Nci);
-            }
-            UsageError::OrganizationTooBroad => {
-                out.error.code = ErrorCode::TooBroad;
-                out.error.message = ErrorMessage::OrganizationTooBroad;
-                out.error.source = Some(crate::Source::Nci);
-            }
-            UsageError::UnsupportedAdverseEvent => {}
-            UsageError::TextPositionError(option) => out.error.option = Some(option.into()),
-            UsageError::TrialContinuationRejected => {
-                out.error
-                    .trial_continuation(ErrorMessage::TrialContinuationRejected);
-            }
-            UsageError::TrialContinuationUnavailable => {
-                out.error
-                    .trial_continuation(ErrorMessage::TrialContinuationUnavailable);
-            }
-            UsageError::ArticlePartRange { input, last } => out.article_part_range(input, last),
-            UsageError::UnsupportedTrialFilter { source, option } => {
-                out.error.filter(source, option.as_str())
-            }
-            UsageError::UnsupportedFilter { source, option } => {
-                out.error.filter(source, option.as_str())
-            }
-            UsageError::NciDiseaseError => out.error.message = ErrorMessage::NciDisease,
-            UsageError::VariantQueryPolicyError => {
-                out.error.message = ErrorMessage::VariantQueryPolicy
-            }
-            UsageError::PdfSaveRefused(link) => out.error.url = Some(link.url),
-            UsageError::ArticleSaveRefused(url) => out.error.url = Some(url),
-            UsageError::TooManyPmids { count } => {
-                out.error.code = ErrorCode::TooManyPmids;
-                out.error.message = ErrorMessage::TooManyPmids;
-                out.error.count = Some(count);
-            }
-            selector @ UsageError::SourceSelector { .. } => out.source_selector(selector),
-            UsageError::PoolMismatch { restart } => {
-                out.error.code = ErrorCode::PoolMismatch;
-                out.error.message = ErrorMessage::PoolMismatch;
-                out.next = vec![restart];
-            }
-        }
-        out
-    }
 }
 
 impl ErrorEnvelope {
@@ -545,6 +473,7 @@ impl ErrorEnvelope {
                 option: None,
                 valid_values: None,
                 count: None,
+                unplaced: None,
                 code,
                 message,
             },
@@ -574,11 +503,11 @@ impl ErrorDetail {
     }
     fn source_selector(
         &mut self,
-        source: crate::Source,
+        source: impl Into<Option<crate::Source>>,
         option: Box<str>,
         values: Box<[crate::Text]>,
     ) {
-        self.source = Some(source);
+        self.source = source.into();
         self.option = Some(option);
         self.valid_values = Some(values);
     }

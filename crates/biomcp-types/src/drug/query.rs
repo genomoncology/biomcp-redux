@@ -27,7 +27,7 @@ biodata::canonical_enum! {
         /// no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions
         /// section has that text.
         Interactions => "interactions",
-        /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
+        /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; --source names one market.
         Markets => "markets",
         /// Essential Medicines List listings from the eEML: core or complementary, section, indication,
         /// date added, therapeutic alternatives and Expert Committee text; five per default page.
@@ -173,7 +173,7 @@ impl TryFrom<GetFields> for DrugGet {
     }
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
-    // The markets section is its own request, with no source and no other section.
+    // The markets section is its own request, with no other section.
     if fields.section.contains(&DrugSection::Markets) {
         return Err(QueryInvalid::new(&["section", "source"]));
     }

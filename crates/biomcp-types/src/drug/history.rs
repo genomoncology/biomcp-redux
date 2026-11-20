@@ -94,6 +94,20 @@ pub(super) fn checked(
     (limit, offset): (Option<u32>, Option<u32>),
     options: (&[Text], bool, Option<&Text>),
 ) -> Result<(), crate::QueryInvalid> {
+    // A label history alone names its own cause: an offset without every version, or a
+    // section it does not read.
+    if sections == [super::DrugSection::LabelHistory] {
+        if offset.is_some() && !options.1 {
+            return Err(
+                crate::QueryInvalid::new(&["section_offset", "every_version"])
+                    .with_message(crate::ErrorMessage::LabelHistoryOffset),
+            );
+        }
+        if options.2.is_some() && section(options.2).is_none() {
+            return Err(crate::QueryInvalid::new(&["label_section"])
+                .with_message(crate::ErrorMessage::LabelHistorySectionUnknown));
+        }
+    }
     let paged = limit.is_some() || offset.is_some() && !options.1;
     if !valid(sections, drugsfda && !paged, options) {
         return Err(crate::QueryInvalid::new(&[

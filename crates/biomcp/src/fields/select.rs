@@ -91,16 +91,27 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     let row = selected(request)
         .and_then(|(_, id)| reply_row(id))
         .unwrap_or(row);
-    let mut next = kept_step(parsed, &row);
+    Err(unknown(parsed, &row, None, path))
+}
+
+/// The refusal of chosen names a row lacks: its field names, the same call with each name it
+/// can place in its field, and the names it cannot place.
+fn unknown(
+    parsed: &crate::grammar::Parsed,
+    row: &Row,
+    source: Option<Source>,
+    path: (&str, &str),
+) -> UsageError {
+    let (mut next, unplaced) = kept_step(parsed, row);
     if next.is_empty() {
         next.push(help_step(path));
     }
-    Err(UsageError::Arguments(UsageArguments {
-        argument: Some("--fields".into()),
-        message: Some(ErrorMessage::FieldsUnknown),
-        valid_values: texts(&row.names).map(Into::into),
+    UsageError::FieldsUnknown {
+        source,
+        valid_values: texts(&row.names).unwrap_or_default().into(),
+        unplaced,
         next,
-    }))
+    }
 }
 
 fn texts(names: &BTreeSet<String>) -> Option<Vec<biodata::Text>> {
@@ -110,32 +121,73 @@ fn texts(names: &BTreeSet<String>) -> Option<Vec<biodata::Text>> {
         .collect()
 }
 
-/// The same call with each chosen field the row lacks moved to its nearest, or dropped.
-fn kept_step(parsed: &crate::grammar::Parsed, row: &Row) -> Vec<Step> {
+/// openFDA's Drugs@FDA names, and the Drugs@FDA download's, for values the approvals row
+/// holds under its own names.
+const SOURCE_NAMES: &[(&str, &str)] = &[
+    ("submission_type", "event.kind"),
+    ("submission_status", "event.status"),
+    ("submission_status_date", "event.dates"),
+    ("action_date", "event.dates"),
+    ("submission_class", "submission_class_code_description"),
+    ("doc_type", "application_docs.type"),
+    ("doc_date", "application_docs.date"),
+    ("doc_url", "application_docs.url"),
+    ("doc_id", "application_docs.id"),
+];
+
+/// The row field a chosen name stands for: itself, a source's name for it, the one field
+/// that contains it or that it contains, or a dotted path ending in it.
+fn placed<'a>(row: &'a Row, name: &'a String) -> Option<&'a str> {
+    if row.knows(name) {
+        return Some(name);
+    }
+    let source = SOURCE_NAMES
+        .iter()
+        .find(|(source, field)| source == name && row.knows(field));
+    source.map(|(_, field)| *field).or_else(|| {
+        nearest(row, name)
+            .or_else(|| row.inner(name))
+            .map(String::as_str)
+    })
+}
+
+/// A field name as a caller writes one; only such a name is said back.
+fn spelled(name: &str) -> Option<biodata::Text> {
+    let plain = name.len() <= 64
+        && name
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'.');
+    plain.then(|| biodata::Text::new(name).ok()).flatten()
+}
+
+/// The same call with each chosen field the row lacks moved to the field that holds it, and
+/// the names it cannot place. A name that cannot be said back leaves only help.
+fn kept_step(parsed: &crate::grammar::Parsed, row: &Row) -> (Vec<Step>, Box<[biodata::Text]>) {
     let mut chosen: Vec<&str> = Vec::new();
+    let mut unplaced = Vec::new();
     for name in &parsed.globals.fields {
-        let field = if row.knows(name) {
-            Some(name)
-        } else {
-            nearest(row, name).or_else(|| row.inner(name))
-        };
-        if let Some(field) = field.filter(|field| !chosen.contains(&field.as_str())) {
-            chosen.push(field.as_str());
+        match placed(row, name) {
+            Some(field) if !chosen.contains(&field) => chosen.push(field),
+            Some(_) => {}
+            None => unplaced.push(spelled(name)),
         }
     }
+    let Some(unplaced) = unplaced.into_iter().collect::<Option<Box<[_]>>>() else {
+        return (Vec::new(), Box::default());
+    };
     if chosen.is_empty() {
-        return Vec::new();
+        return (Vec::new(), unplaced);
     }
     let Some(action) = &parsed.action else {
-        return Vec::new();
+        return (Vec::new(), unplaced);
     };
     let Ok(mut step) = crate::spell::step(StepKind::Configure, action) else {
-        return Vec::new();
+        return (Vec::new(), unplaced);
     };
     let mut args = step.args.into_vec();
     args.insert(0, format!("--fields={}", chosen.join(",")).into());
     step.args = args.into();
-    vec![step]
+    (vec![step], unplaced)
 }
 
 /// The source a search query selects, with the reply schema of its rows, when the
@@ -205,17 +257,7 @@ fn source_check(
     if fields.iter().all(|name| row.knows(name)) {
         return Ok(());
     }
-    let mut next = kept_step(parsed, &row);
-    if next.is_empty() {
-        next.push(help_step(path));
-    }
-    Err(UsageError::SourceSelector {
-        source,
-        message: ErrorMessage::FieldsUnknown,
-        option: "--fields".into(),
-        valid_values: texts(&row.names).unwrap_or_default().into(),
-        next,
-    })
+    Err(unknown(parsed, &row, Some(source), path))
 }
 
 /// The names a call chose and the rows they narrow, kept for its finished reply.

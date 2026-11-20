@@ -51,21 +51,26 @@ pub(super) fn checked(
         // A refusal that says to drop the option lists nothing to choose for it (1057).
         valid_values: valid_values.or_else(|| {
             (!drops_option(message))
-                .then(|| choices(name).or_else(|| accepted(&schema, property)))
+                .then(|| choices(name, message).or_else(|| accepted(&schema, property)))
                 .flatten()
         }),
         next: vec![help([verb, entity])],
     })
 }
 
-/// Fixed messages saying the command takes no such option here, so the fix is to drop it.
+/// Fixed messages saying the command takes no such option here, or not without another, so
+/// the fix is to drop it or add what it needs, and there is no value to choose.
 fn drops_option(message: biomcp_types::ErrorMessage) -> bool {
     use biomcp_types::ErrorMessage::{
-        DeviceRecallClassificationProductCode, DrugMarketsSource, PhenotypeSetOffset,
+        DeviceRecallClassificationProductCode, DrugMarketsSource, LabelHistoryOffset,
+        PhenotypeSetOffset,
     };
     matches!(
         message,
-        DrugMarketsSource | PhenotypeSetOffset | DeviceRecallClassificationProductCode
+        DrugMarketsSource
+            | PhenotypeSetOffset
+            | DeviceRecallClassificationProductCode
+            | LabelHistoryOffset
     )
 }
 
@@ -78,10 +83,19 @@ fn identity(name: &str, property: &Value) -> String {
     }
 }
 
-/// Name the real choices of a free-text argument whose schema carries only a type description.
-fn choices(name: &str) -> Option<Box<[biodata::Text]>> {
-    let values: &[&str] = match name {
-        "label_section" => &biomcp_types::OPENFDA_LABEL_HEADINGS,
+/// Name the real choices of an argument whose shared schema lists more, or only a type
+/// description: the markets' sources, the sections label-history reads, or label headings.
+fn choices(name: &str, message: biomcp_types::ErrorMessage) -> Option<Box<[biodata::Text]>> {
+    use biomcp_types::ErrorMessage::{DrugMarketsSourceUnknown, LabelHistorySectionUnknown};
+    let values: Vec<&str> = match (name, message) {
+        (_, DrugMarketsSourceUnknown) => biomcp_types::DrugMarketsGet::SOURCES
+            .map(biomcp_types::DrugSource::as_str)
+            .into(),
+        (_, LabelHistorySectionUnknown) => biomcp_types::LabelHistorySection::ALL
+            .iter()
+            .map(|&section| section.into())
+            .collect(),
+        ("label_section", _) => biomcp_types::OPENFDA_LABEL_HEADINGS.into(),
         _ => return None,
     };
     values

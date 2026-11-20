@@ -131,7 +131,7 @@ fn section_help(
     let sources = biomcp_types::command_section_sources("get", entity, section, &candidates)
         .unwrap_or_default();
     let names = sources.iter().map(ToString::to_string).collect::<Vec<_>>();
-    // The markets section is its own request, which takes a name and no other option.
+    // The markets section is its own request, which takes a name and at most a source.
     let alone = entity == "drug" && section == "markets";
     if alone {
         command.arguments.retain(|argument| {
