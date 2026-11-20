@@ -18,11 +18,21 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
     let mut out = status::empty(DrugMarkets::into_reply(query.clone(), None));
     let deadline = cx.fetch.deadline(cx.budget);
     let name = query.input();
-    let markets = [
-        fda(&within(cx, deadline.remaining()), name, &mut out),
-        ema(&within(cx, deadline.remaining()), name, &mut out),
-        super::who::market(&within(cx, deadline.remaining()), name, &mut out),
-    ];
+    // `--source` reads only that market; its row is the same as in a call that reads them all.
+    let mut markets = Vec::new();
+    if query.reads(DrugSource::Drugsfda) {
+        markets.push(fda(&within(cx, deadline.remaining()), name, &mut out));
+    }
+    if query.reads(DrugSource::Ema) {
+        markets.push(ema(&within(cx, deadline.remaining()), name, &mut out));
+    }
+    if query.reads(DrugSource::WhoPq) {
+        markets.push(super::who::market(
+            &within(cx, deadline.remaining()),
+            name,
+            &mut out,
+        ));
+    }
     status::get(
         &mut out,
         markets.iter().map(|market| match market.state {

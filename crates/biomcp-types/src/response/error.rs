@@ -66,13 +66,11 @@ singleton! {
  WhoSearchArguments => "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
  WhoSearchFilters => "WHO PQ search requires a name, --therapeutic-area or a --prequalified-from/--prequalified-to date range",
  WhoIvdYears => "WHO IVD publishes only the prequalification year; give --prequalified-from/--prequalified-to as YYYY",
- SourceSelector => "choose one of the source selector values",
- UnsupportedFilter => "a selected source does not support the requested filters",
+ SourceSelector => "choose one of the source selector values", UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
  McpResultTooBroad => "MCP tool result exceeds the character cap in error.count; narrow \
  --limit or --section-limit, select one source or section, or fetch one exact record",
- SchemaUsage => "use biomcp schema to list known artifact IDs",
- Arguments => "expected a supported command with checked arguments",
+ SchemaUsage => "use biomcp schema to list known artifact IDs", Arguments => "expected a supported command with checked arguments",
  // No longer sent since 1064, which names the cause; the 1.0 schema keeps the literal.
  ArgumentGuidance => "option is missing or invalid; choose an accepted value or form and use the suggested help command",
  ArgumentMissing => "required option missing: add error.option with a value valid_values accepts",
@@ -87,20 +85,23 @@ singleton! {
  ArgumentSectionNotIdTyped => "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; \
  to read it as an ID, give it first or set the section field",
  ArgumentIdAfterSection => "error.option follows a section word and is not a section; put IDs before sections",
- FieldsUnknown => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it",
+ FieldsUnknown => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field \
+ that holds it; error.unplaced lists the names it cannot place",
  FieldsRowsOnly => "--fields does not narrow this call yet; it narrows search rows and some sections' rows; drop --fields to read it whole",
  SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next \
  step; run the suggested command",
  OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \
  suggested first-page command, then follow its next command",
  ArticleGetLimit => "get article takes 1 to 20 IDs per call; split a longer list into several calls",
+ LabelHistoryOffset => "--offset needs --every-version: label-history pages only while it reads every version; add --every-version, or drop \
+ --offset (also spelled --section-offset)",
+ LabelHistorySectionUnknown => "label-history reads only the label sections in valid_values; give --label-section one of them, or read another \
+ section with: get drug <NAME> label --label-section NAME",
  LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
  --label-section indications_and_usage",
  McpSync => "sync is unavailable over MCP; run it from the command line",
- McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
- McpKey => "key is unavailable over MCP; run it from the command line",
- McpHosted => "this command is unavailable in hosted mode",
- HostedHttp => "hosted mode runs only over HTTP behind the hosting front end; add --http",
+ McpStoreClean => "store clean is unavailable over MCP; run it from the command line", McpKey => "key is unavailable over MCP; run it from the command line",
+ McpHosted => "this command is unavailable in hosted mode", HostedHttp => "hosted mode runs only over HTTP behind the hosting front end; add --http",
  SavedRecordUnknown => "no saved search or list has this name; biomcp saved show lists the names",
  SavedNameTaken => "a saved search or list already has this name; choose another name or delete it with biomcp saved \
  delete NAME",
@@ -150,8 +151,7 @@ singleton! {
         VaersFilter => "VAERS does not support FAERS filters; use search adverse-event TEXT --source faers for drug reports",
         VaersGet => "VAERS has no individual report get; use search adverse-event MMR --source vaers",
         AdverseVersion => "multi-version get is unproven", AdverseOutcomes => "use the card seriousness flags and the reactions section",
-        AdverseConcomitant => "renamed; use: drugs",
-        AdverseSection => "choose a named adverse-event section",
+        AdverseConcomitant => "renamed; use: drugs", AdverseSection => "choose a named adverse-event section",
         DiagnosticSearchSources => "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
         DiagnosticRecallSources => "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
             choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
@@ -159,24 +159,20 @@ singleton! {
             choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
         DiagnosticType => "use: --type",
         DiagnosticCondition => "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
-        DiagnosticManufacturer => "manufacturer and laboratory selectors are deferred",
-        DiagnosticSection => "name one diagnostic section per request",
+        DiagnosticManufacturer => "manufacturer and laboratory selectors are deferred", DiagnosticSection => "name one diagnostic section per request",
         DiagnosticRegulatory => "use: get diagnostic ID --source fda-pma; search diagnostic --source fda-cdx --device-id ID",
         DiagnosticWhoMarker => "use: search diagnostic --source who-ivd --marker TEXT",
         DiagnosticWhoType => "WHO type search is deferred; use: search diagnostic --source who-ivd --marker TEXT",
         DiagnosticPma => "free-text PMA search is deferred; use: get diagnostic P-NUMBER --source fda-pma",
         Diagnostic510k => "free-text 510(k) search is deferred; use: get diagnostic K-NUMBER --source fda-510k",
-        DiagnosticGtrSync => "use: biomcp sync gtr", DiagnosticWhoSync => "use: biomcp sync who-ivd",
-        DiagnosticList => "use: biomcp help diagnostic",
+        DiagnosticGtrSync => "use: biomcp sync gtr", DiagnosticWhoSync => "use: biomcp sync who-ivd", DiagnosticList => "use: biomcp help diagnostic",
         PgxGene => "use: search pgx --gene <SYMBOL> --source cpic",
         PgxGet => "use: get pgx --gene <SYMBOL> [recommendations|guidelines|diplotype|annotations] --source <SOURCE>",
         PgxText => "drug-text and guideline-text search are dropped; use search pgx --gene <SYMBOL> --source cpic",
         PgxSelector => "this PGx selector is not yet supported; --drug-id is supported only on recommendations",
         PgxInteractions => "use: search pgx --gene <SYMBOL> --source cpic; get pgx --gene <SYMBOL> --source cpic",
-        PgxFrequencies => "frequency pages are deferred because no harvested question needs them",
-        PgxSection => "name one PGx section per request",
-        PgxSectionLimit => "use: --section-limit",
-        PgxSectionOffset => "use: --section-offset",
+        PgxFrequencies => "frequency pages are deferred because no harvested question needs them", PgxSection => "name one PGx section per request",
+        PgxSectionLimit => "use: --section-limit", PgxSectionOffset => "use: --section-offset",
         PgxSource => "choose --source cpic for search, the gene card, recommendations, guidelines or diplotype; annotations requires --source clinpgx",
         PgxPhenotype => "--phenotype filters one drug's CPIC recommendation table; add --drug-id, such as --drug-id RxNorm:32968",
         PgxDrugId => "--drug-id takes CPIC's drug key, not a drug name, such as --drug-id RxNorm:32968 for clopidogrel; \
@@ -187,18 +183,15 @@ singleton! {
         VariantIdentifier => "get variant needs an rsID, CAid, ClinVar Variation ID or reference-qualified HGVS; chromosome \
             notation needs --build; use search variant --gene BRAF --protein V600E or \
             search variant --gene PTEN --coding c.333G>T for gene shorthand",
-        VariantBuild => "renamed; use: --build",
-        VariantProtein => "renamed; use: --protein with --gene",
-        VariantPredict => "renamed; use: get variant <ID> predict",
-        VariantPopulation => "use: variant population <ID> --detail",
+        VariantBuild => "renamed; use: --build", VariantProtein => "renamed; use: --protein with --gene",
+        VariantPredict => "renamed; use: get variant <ID> predict", VariantPopulation => "use: variant population <ID> --detail",
         VariantStructure => "deferred; use: get gene <SYMBOL> protein",
         VariantOncokb => "use: get variant <ID> oncokb --build <GRCh37|GRCh38> --tumor-type <TEXT>; requires your oncokb key",
         VariantErepo => "use: variant assertions <CAid> --source erepo; select --assertion <PCERid> --version <VERSION> for details; no gene-wide fallback",
         VariantNormalize => "use: variant normalize --source <car|mutalyzer|variantvalidator|all> --hgvs <TEXT>; VariantValidator and all require --build",
         VariantRecurrence => "use: variant recurrence <ID> --source cbioportal --gene <SYMBOL> --study <ID> --profile <ID> \
             --sample-set <ID>; no default cohort",
-        VariantCgi => "deferred; no proved current CGI section",
-        VariantCspec => "deferred until a harvested question requires variant cspec",
+        VariantCgi => "deferred; no proved current CGI section", VariantCspec => "deferred until a harvested question requires variant cspec",
         VariantRawQuery => "--query takes MyVariant query syntax and needs --source myvariant; for a gene and change use \
             --gene <SYMBOL> --coding <CHANGE> or --protein <CHANGE>",
         VariantQueryPolicy => "raw --query cannot enforce disabled source component terms; use declared protein or region \
@@ -222,24 +215,19 @@ singleton! {
         DiagnosticClassificationNameAscii => "--classification-name needs ASCII text with a letter or digit, such as e for é, \
             because openFDA refuses any non-ASCII character in a phrase",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
-        TrialVariant => "retired; use: --variant for explicit discovery text",
-        TrialSince => "renamed; use: --updated-since",
-        TrialUntil => "renamed; use: --updated-until",
-        TrialResults => "renamed; use: --has-results",
+        TrialVariant => "retired; use: --variant for explicit discovery text", TrialSince => "renamed; use: --updated-since",
+        TrialUntil => "renamed; use: --updated-until", TrialResults => "renamed; use: --has-results",
         TrialPage => "renamed; use: --next-page with the opaque registry cursor",
         TrialNoExpansion => "retired; registry discovery never invents chemical aliases",
         TrialBatch => "use: get trial <NCT>... [sections]; --mode and --pdf are article-only",
         VariantTrials => "use: search trial --variant <text> for literal discovery; no eligibility judgment",
-        DiseaseText => "use: search disease <TEXT>; source text stays literal",
-        DiseaseInheritance => "dropped; no clinical inheritance phrase expansion",
-        DiseasePhenotypeFilter => "deferred; no proved native HPO-ID disease filter",
-        DiseaseOnset => "dropped; clinical-course fields are not an onset filter",
+        DiseaseText => "use: search disease <TEXT>; source text stays literal", DiseaseInheritance => "dropped; no clinical inheritance phrase expansion",
+        DiseasePhenotypeFilter => "deferred; no proved native HPO-ID disease filter", DiseaseOnset => "dropped; clinical-course fields are not an onset filter",
         DiseaseNoFallback => "retired; disease search never falls back or rewrites a zero result",
         DiseaseLimit => "use: --limit", OffsetPastText => "--offset is past the end of this text; valid_values gives its offsets in characters",
         DiseaseJson => "use: --format json", DiseaseFresh => "use: --fresh to bypass cached replies",
         DiseaseOntologySelector => "use: search disease <TEXT> --source ols --ontology <mondo|doid|ncit>; mesh is not supported",
-        DiseasePathways => "dropped; no disease-to-pathway gene fanout",
-        DiseaseDiagnostics => "dropped; no disease diagnostic catalog fanout",
+        DiseasePathways => "dropped; no disease-to-pathway gene fanout", DiseaseDiagnostics => "dropped; no disease diagnostic catalog fanout",
         DiseaseVariants => "dropped; use exact variant commands without disease fanout",
         DiseaseModels => "dropped; model-organism evidence is outside this disease slice",
         DiseasePrevalence => "dropped; prevalence is not SEER incidence or survival",
@@ -269,23 +257,19 @@ singleton! {
             each ID with the next steps",
         PhenotypeSetUnknown => "Monarch has no term for an HP ID in this set and would rank without it; check each ID with \
             the next steps, or rank only the IDs Monarch knows",
-        DiseaseHelp => "use: help search disease; help get disease",
-        DiseaseTrials => "use: search trial --condition <text>; NCI requires an NCIt identifier",
+        DiseaseHelp => "use: help search disease; help get disease", DiseaseTrials => "use: search trial --condition <text>; NCI requires an NCIt identifier",
         CellLineAllPaging => "all returns default first pages; use get cell-line <ID> <section> with --section-limit and --section-offset to page one section",
         CellLineDrugResponse => "PharmacoDB drug response is deferred until it publishes a data reuse grant",
         CellLineExpression => "gene cell-lines is deferred until an exact HPA cell identity join exists",
         DrugCellLines => "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
         CvxUnavailable => "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
 
-        EmaSync => "renamed; use: biomcp sync ema",
-        DdinterSync => "renamed; use: biomcp sync ddinter",
+        EmaSync => "renamed; use: biomcp sync ema", DdinterSync => "renamed; use: biomcp sync ddinter",
 
-        WhoPqSync => "renamed; use: biomcp sync who-pq",
-        DrugQuery => "renamed; use: search drug <TEXT> --source <SOURCE>",
+        WhoPqSync => "renamed; use: biomcp sync who-pq", DrugQuery => "renamed; use: search drug <TEXT> --source <SOURCE>",
         DrugMechanism => "--mechanism is retired: semantic mechanism expansion is not supported; select a drug identity and read targets.",
         DrugPartnerSearch => "--interactions is retired: use get drug <ID> interactions --source ddinter.",
-        DrugRegion => "--region is retired: select an explicit --source.",
-        DrugWhoRegion => "--region who is retired: use --source who-pq.",
+        DrugRegion => "--region is retired: select an explicit --source.", DrugWhoRegion => "--region who is retired: use --source who-pq.",
         DrugProductType => "--product-type is retired: WHO prequalification is outside this question bank.",
         // Retain the old error/4 wire value for legacy artifact deserialization.
         DrugUnproved => "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; \
@@ -295,28 +279,23 @@ singleton! {
         DrugName => "--name is retired: use search drug <TEXT> --source <SOURCE> and select a native identity.",
         DrugRaw => "--raw is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugSafety => "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
-        DrugShortage => "shortage is not yet supported in the cancer-care drug slice.",
-        DrugAll => "all is not supported: select one named source section.",
-        DrugMarketsSource => "markets takes a drug name alone, with no --source or other option, and reads each market's own \
-            source; drop error.option, as in: get drug <NAME> markets",
+        DrugShortage => "shortage is not yet supported in the cancer-care drug slice.", DrugAll => "all is not supported: select one named source section.",
+        DrugMarketsSource => "markets takes a drug name and at most --source; drop error.option, as in: get drug <NAME> markets",
+        DrugMarketsSourceUnknown => "markets reads one source per market: drugsfda (US), ema (EU) and who-pq (WHO prequalification); \
+            give --source one of valid_values, or drop it to read every market",
         DrugInteractions => "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         DrugTrials => "use: search trial --intervention <text>; no inferred aliases",
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
         Gene => "use: get gene <gene>", GeneSearch => "use: search gene <query>", Pathways => "use: get gene <gene> pathways",
-        Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
-        Drugs => "use: search drug --target <gene>",
-        Variant => "moved to the variant entity", LocusGroup => "use: --locus-group",
-        AuthorHelp => "use: help author; help search author; help get author",
+        Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>", Drugs => "use: search drug --target <gene>",
+        Variant => "moved to the variant entity", LocusGroup => "use: --locus-group", AuthorHelp => "use: help author; help search author; help get author",
         AuthorDeferred => "topic ranking, coauthors and cross-provider merging are not supported; use: search author TEXT or search article",
-        AuthorOrcidSearch => "ORCID name search is not supported; use: search author TEXT or search article",
-        ArticleText => "use: search article <text>",
+        AuthorOrcidSearch => "ORCID name search is not supported; use: search author TEXT or search article", ArticleText => "use: search article <text>",
         ScoreBlends => "no score blends in 1.0; each source keeps its own order",
         ArticlePdf => "use: get article <id> pdf", Since => "use: --since", Until => "use: --until",
-        CitationSort => "use: --sort citations", GeneOption => "use: --gene",
-        DiseaseOption => "use: --disease", AuthorOption => "use: --author",
+        CitationSort => "use: --sort citations", GeneOption => "use: --gene", DiseaseOption => "use: --disease", AuthorOption => "use: --author",
         Supplements => "use: supplements", Supplement => "use: article supplement <id> <file>",
-        Fulltext => "use: fulltext", ArticlePart => "use: article text <id> --part <n>",
-        SupplementFind => "use: article supplement <id> <file> --find <text>",
+        Fulltext => "use: fulltext", ArticlePart => "use: article text <id> --part <n>", SupplementFind => "use: article supplement <id> <file> --find <text>",
         Annotations => "use: get article <id> annotations", ArticleBatch => "use: get article <id>...",
         VariantArticles => "use: search article --variant <variant>", DiseaseArticles => "use: search article --disease <disease>",
         ProteinQuery => "use: search protein <TEXT>; the positional query stays unchanged",
@@ -332,19 +311,16 @@ singleton! {
             --molecular-profile from valid_values",
         StudyCalculate => "local calculations are dropped by the entity boundary ruling; use: get study ID and the source study page",
         StudyCharts => "charts are retired", StudyDirectory => "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",
-        PathwayText => "use: search pathway <text>",
-        PathwayClass => "--type is retired: the accepted pathway class is enforced and needs no filter.",
+        PathwayText => "use: search pathway <text>", PathwayClass => "--type is retired: the accepted pathway class is enforced and needs no filter.",
         PathwayKegg => "KEGG pathways are dropped; use a Reactome R-HSA-… or WikiPathways WP… ID.",
         PathwayEnrich => "Gene-set enrichment is dropped; an agent can call g:Profiler itself.",
         PathwayDrugs => "use: get pathway ID genes; reverse gene-to-drug search is not supported; select a drug identity \
             and request its explicit source sections.",
         PathwayArticles => "use: search article <text>; a matching title does not establish pathway article linkage.",
-        PathwayTrials => "use: search trial --gene <gene>; pathway-name trial search is retired.",
-        PathwayHelp => "use: help search pathway; help get pathway",
+        PathwayTrials => "use: search trial --gene <gene>; pathway-name trial search is retired.", PathwayHelp => "use: help search pathway; help get pathway",
         DrugArticles => "use: search article --drug <drug>", Pathway => "moved to the pathway entity",
         Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression", Drug => "moved to the drug entity",
- Diagnostic => "moved to the diagnostic entity",
- PoolExpired => "pool expired; restart the search",
+ Diagnostic => "moved to the diagnostic entity", PoolExpired => "pool expired; restart the search",
  PoolMismatch => "pool selectors do not match this search"
     }
 }
@@ -363,6 +339,9 @@ struct ErrorDetail {
     valid_values: Option<Box<[crate::Text]>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     count: Option<u64>,
+    /// Chosen `--fields` names with no field to place them in, which the next call leaves out.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    unplaced: Option<Box<[crate::Text]>>,
     code: ErrorCode,
     message: ErrorMessage,
 }
@@ -454,6 +433,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.count = Some(count);
             }
             selector @ UsageError::SourceSelector { .. } => out.source_selector(selector),
+            fields @ UsageError::FieldsUnknown { .. } => out.fields_unknown(fields),
             UsageError::PoolMismatch { restart } => {
                 out.error.code = ErrorCode::PoolMismatch;
                 out.error.message = ErrorMessage::PoolMismatch;
@@ -461,6 +441,25 @@ impl From<crate::UsageError> for ErrorEnvelope {
             }
         }
         out
+    }
+}
+
+impl ErrorEnvelope {
+    /// Chosen `--fields` names a call's rows lack, the names it cannot place and the call with the rest.
+    fn fields_unknown(&mut self, usage: UsageError) {
+        if let UsageError::FieldsUnknown {
+            source,
+            valid_values,
+            unplaced,
+            next,
+        } = usage
+        {
+            self.error
+                .source_selector(source, "--fields".into(), valid_values);
+            self.error.message = ErrorMessage::FieldsUnknown;
+            self.error.unplaced = (!unplaced.is_empty()).then_some(unplaced);
+            self.next = next;
+        }
     }
 }
 
@@ -545,6 +544,7 @@ impl ErrorEnvelope {
                 option: None,
                 valid_values: None,
                 count: None,
+                unplaced: None,
                 code,
                 message,
             },
@@ -574,11 +574,11 @@ impl ErrorDetail {
     }
     fn source_selector(
         &mut self,
-        source: crate::Source,
+        source: impl Into<Option<crate::Source>>,
         option: Box<str>,
         values: Box<[crate::Text]>,
     ) {
-        self.source = Some(source);
+        self.source = source.into();
         self.option = Some(option);
         self.valid_values = Some(values);
     }

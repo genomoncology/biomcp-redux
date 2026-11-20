@@ -3541,7 +3541,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `label-history`: The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.
 - `regulatory`: Source-scoped regulator events.
 - `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.
-- `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
+- `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; --source names one market.
 - `essential-medicines`: Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page.
 
 ## biomcp get gene
