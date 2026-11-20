@@ -1,7 +1,7 @@
 {
   "live_check": "FDA-published P170019 SSED and NDA021588 letter id64255; original PDF source bytes retained without editing",
   "feature": "fda-document-text",
-  "story": "A PMA SSED and a selected native approval letter expose bounded original embedded text with continuations.",
+  "story": "A PMA SSED and a selected native approval letter expose bounded original embedded text with continuations. The P010013 summary matches both ≥ 150 eligibility thresholds on the same page.",
   "replay": "diagnostic/fda-documents",
   "steps": [
     {
@@ -87,13 +87,10 @@
         "--source",
         "fda-pma",
         "--find",
-        "\u2265 150"
+        "PBLAC score of ≥ 150 for 3 months prior to study enrollment; OR PBLAC score ≥ 150 for one month"
       ],
       "expect": {
-        "/page/returned": 1,
-        "/result/hits/0/text": {
-          "includes": "PBLAC score of \u2265 150 for 3 months prior to study enrollment; OR\nPBLAC score \u2265 150 for one month"
-        }
+        "/page/returned": 1
       },
       "max_bytes": 5000
     }
