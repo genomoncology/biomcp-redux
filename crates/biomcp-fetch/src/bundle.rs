@@ -270,10 +270,11 @@ pub fn decode_bundle_document<T: serde::de::DeserializeOwned>(
 /// Compute a catalog receipt hash from the complete checked native bytes.
 pub fn bundle_sha256(body: &[u8]) -> String {
     use sha2::{Digest, Sha256};
-    Sha256::digest(body)
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect()
+    digest_hex(&Sha256::digest(body))
+}
+
+fn digest_hex(digest: &[u8]) -> String {
+    digest.iter().map(|b| format!("{b:02x}")).collect()
 }
 
 impl DocumentMedia {

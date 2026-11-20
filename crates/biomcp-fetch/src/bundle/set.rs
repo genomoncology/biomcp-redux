@@ -151,7 +151,10 @@ impl crate::Leg<'_> {
             // Publisher HTTP validators never hold a computed set digest.
             etag: None,
             modified: None,
-            content_revision: Some(format!("sha256:{:x}", revision.finalize())),
+            content_revision: Some(format!(
+                "sha256:{}",
+                super::digest_hex(&revision.finalize())
+            )),
             retrieved_at: Some(crate::cache::now()),
         };
         cache.publish(&bundle, None, &metadata, Some(&complete), leg.budget())?;
