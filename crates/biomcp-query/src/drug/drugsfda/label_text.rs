@@ -401,3 +401,19 @@ pub(super) fn heading(flat: &str, section: &str, at: usize) -> Option<String> {
         });
     Some(entry.unwrap_or(number))
 }
+
+#[cfg(test)]
+mod probe {
+    #[test]
+    fn probe_livalo() {
+        let t = std::fs::read_to_string("/tmp/biomcp-1066-probe.txt").unwrap();
+        let flat = super::clean(&t);
+        let marks = super::headings(&flat);
+        eprintln!("PROBE marks {:?}", marks.iter().filter(|m| m.2 >= 5 && m.2 <= 8).collect::<Vec<_>>());
+        eprintln!("PROBE myas {:?} len {}", flat.find("myasthenia"), flat.len());
+        match super::find(&flat, biomcp_types::LabelHistorySection::AdverseReactions) {
+            super::Found::Section(s) => eprintln!("PROBE section {} {:?} hits {:?}", s.len(), &s[..80], super::hits(&s, &[biodata::Text::from_source("myasthenia gravis").unwrap()])),
+            other => eprintln!("PROBE {other:?}"),
+        }
+    }
+}
