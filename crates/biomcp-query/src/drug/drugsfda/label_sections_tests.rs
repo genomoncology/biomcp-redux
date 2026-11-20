@@ -83,6 +83,23 @@ fn a_section_the_contents_list_leaves_out_is_absent_and_the_box_too() {
 }
 
 #[test]
+fn a_section_whose_list_line_the_reader_lost_is_implied_by_its_subsections() {
+    // Keytruda's 2021 label (S102): the reader lost the list's `1 INDICATIONS AND USAGE` line.
+    let label = keytruda().replace(
+        "CONTENTS* 1 INDICATIONS AND USAGE 1.1 Melanoma",
+        "CONTENTS* 1.1 Melanoma",
+    );
+    let indications = section(&label, S::IndicationsAndUsage);
+    assert!(
+        indications.contains("malignant pleural mesothelioma"),
+        "{indications}"
+    );
+    // A section the list lacks but the body heads is unread, never absent.
+    let lost = keytruda().replace(" 4 CONTRAINDICATIONS 5 WARNINGS", " 5 WARNINGS");
+    assert_eq!(found(&lost, S::Contraindications), Found::Unbounded);
+}
+
+#[test]
 fn a_heading_whose_number_is_drawn_apart_is_found_by_its_listed_title() {
     // Livalo's 2024 label: the body draws its section numbers apart from their titles.
     let label = format!(
@@ -174,6 +191,9 @@ fn older_labels_count_headings_only_as_whole_lines() {
     // Lipitor's 2005 label as the reader gives it: headings run into their paragraphs.
     let inline = "DESCRIPTION Atorvastatin calcium.\n  CONTRAINDICATIONS  Active liver disease.\n";
     assert_eq!(found(inline, S::Contraindications), Found::Older);
+    // A heading run into its paragraph inside a stretch leaves the stretch's end unknown.
+    let mixed = whole.replace("ADVERSE REACTIONS\nMyalgia", "ADVERSE REACTIONS Myalgia");
+    assert_eq!(found(&mixed, S::WarningsAndCautions), Found::Unbounded);
 }
 
 /// Xeljanz's 2012 original label, unchanged: its contents list leaves out the boxed warning.
@@ -203,4 +223,32 @@ fn a_real_label_reads_into_bounded_sections() -> Result<(), String> {
         "adverse reactions end at section 7"
     );
     Ok(())
+}
+
+#[test]
+#[ignore]
+fn throwaway_probe() {
+    let dir = std::path::Path::new("/tmp/biomcp-1066-probe");
+    let mut paths: Vec<_> = std::fs::read_dir(dir).unwrap().map(|e| e.unwrap().path()).filter(|p| p.extension().is_some_and(|x| x == "pdf")).collect();
+    paths.sort();
+    for path in paths {
+        let bytes = std::fs::read(&path).unwrap();
+        let read = biomcp_adapters::pdf::embedded(&bytes, 400, &|| false).unwrap();
+        println!("FILE {}", path.file_name().unwrap().to_string_lossy());
+        let cleaned = clean(&read.text);
+        let flat = flatten(&cleaned);
+        for s in [S::BoxedWarning, S::IndicationsAndUsage, S::Contraindications, S::WarningsAndCautions, S::AdverseReactions, S::DrugInteractions, S::UseInSpecificPopulations] {
+            match find(&cleaned, &flat, s) {
+                Found::Section(sec) => {
+                    let at = flat.find(&sec).unwrap_or(0);
+                    let end = at + sec.len();
+                    let head: String = sec.chars().take(70).collect();
+                    let tail: String = sec.chars().rev().take(50).collect::<Vec<_>>().into_iter().rev().collect();
+                    let next: String = flat.get(end..).unwrap_or("").chars().take(50).collect();
+                    println!("  section {s} len={} HEAD|{head}| TAIL|{tail}| NEXT|{next}|", sec.len());
+                }
+                other => println!("  {other:?} {s}"),
+            }
+        }
+    }
 }

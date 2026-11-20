@@ -5,16 +5,18 @@
 //! section by number and title in order, then the prescribing information itself. A heading in
 //! the body counts only when it names a listed section: its number and title (`6 ADVERSE
 //! REACTIONS`), its title alone where the PDF draws the number apart, or the listed title of its
-//! first subsection (`6.1 Clinical Studies Experience`). Headings are found in the list's order,
+//! first subsection (`6.1 Clinical Studies Experience`); a listed subsection implies its section
+//! when the reader lost the section's own line. Headings are found in the list's order,
 //! each after the one before, so a table row such as `1.1 Rash 26 2` is never a heading. A
 //! section runs from its heading to the heading of the next listed section; when either is not
-//! found, the section is unread. A section is absent only when the list was read and lacks it.
+//! found, the section is unread. A section is absent only when the list was read and lacks it
+//! and the body has no numbered heading for it.
 //! The boxed warning is the text between the body's start and section 1 when that text holds a
 //! warning; it is absent only when neither it, the highlights nor the list holds one.
 //!
 //! Labels in the format used before 2006 have no numbered list: their plain headings (WARNINGS,
-//! ADVERSE REACTIONS) count only as whole lines, each found once, and otherwise the section is
-//! unread. A document is not a label only on positive evidence: no prescribing-information
+//! ADVERSE REACTIONS) count only as whole lines, each found once, with no heading run into a
+//! paragraph before the next; otherwise the section is unread. A document is not a label only on positive evidence: no prescribing-information
 //! heading at all, and a title such as Instructions for Use or Medication Guide.
 use biomcp_types::LabelHistorySection;
 
@@ -182,6 +184,17 @@ fn listed(block: &str) -> Vec<Listed> {
             continue;
         };
         let last = found.last().map_or(0, |l| l.number);
+        // A subsection listed under a section whose own line the reader lost implies it.
+        if minor.is_some() && major > last && major <= last + 3 {
+            if let Some((_, titles)) = TITLES.iter().find(|(n, _)| *n == major) {
+                found.push(Listed {
+                    number: major,
+                    title: titles[0],
+                    first: (minor == Some(1)).then(|| title_words(tail)).flatten(),
+                });
+            }
+            continue;
+        }
         match minor {
             None if major > last => {
                 let title = TITLES
@@ -255,7 +268,15 @@ fn listed_section(flat: &str, number: Option<u8>) -> Option<Found> {
         return Some(boxed(flat, (start, block, body), &listed, &places));
     };
     let Some(i) = listed.iter().position(|l| l.number == number) else {
-        return Some(if listed.is_empty() {
+        // Absent only when the body has no heading for it either: the reader can lose a line.
+        let titles = TITLES
+            .iter()
+            .find(|(n, _)| *n == number)
+            .map_or(&[][..], |t| t.1);
+        let headed = titles
+            .iter()
+            .any(|t| heading_from(flat, &format!("{number} {t}"), body).is_some());
+        return Some(if listed.is_empty() || headed {
             Found::Unbounded
         } else {
             Found::Absent
@@ -325,6 +346,20 @@ fn old_section(lines: &[&str], section: LabelHistorySection) -> Found {
         let Some(&(end, _)) = heads.iter().find(|(i, _)| *i > start) else {
             return Found::Unbounded;
         };
+        // A heading run into its paragraph inside the stretch leaves its end unknown.
+        let run_in = lines
+            .get(start + 1..end)
+            .unwrap_or_default()
+            .iter()
+            .any(|line| {
+                OLD.iter().any(|t| {
+                    line.strip_prefix(t)
+                        .is_some_and(|r| r.starts_with(' ') || r.starts_with(':'))
+                })
+            });
+        if run_in {
+            return Found::Unbounded;
+        }
         parts.push(lines.get(start..end).unwrap_or_default().join(" "));
     }
     if parts.is_empty() {

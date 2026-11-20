@@ -242,6 +242,9 @@ impl Search<'_, '_> {
     /// Read versions spread evenly between `low` and `high` with the reads left; the earliest
     /// that holds the text.
     fn spread(&mut self, low: usize, high: usize) -> Option<usize> {
+        if high <= low + 1 {
+            return None;
+        }
         let left = MOST_READS.saturating_sub(self.opened.len());
         let picks: BTreeSet<usize> = (1..=left)
             .map(|step| low + step * (high - low) / (left + 1))
@@ -256,6 +259,31 @@ impl Search<'_, '_> {
             .range(low + 1..high)
             .find(|(_, o)| o.state == State::Match)
             .map(|(at, _)| *at)
+    }
+
+    /// The earliest usable version: the oldest, or, when it cannot be read, the earliest found by
+    /// halving toward the newest usable one, so older unreadable labels do not spend the reads.
+    fn earliest(&mut self) -> Option<usize> {
+        let count = self.versions.len();
+        if !self.open(0) {
+            return None;
+        }
+        if self.get(0).is_some_and(Opened::usable) {
+            return Some(0);
+        }
+        let (mut low, mut high) = (0, self.usable((1..count).rev())?);
+        while high - low > 1 {
+            let middle = (low + high) / 2;
+            if !self.open(middle) {
+                break;
+            }
+            if self.get(middle).is_some_and(Opened::usable) {
+                high = middle;
+            } else {
+                low = middle;
+            }
+        }
+        Some(high)
     }
 
     /// The latest usable version, the newest the search could read.
@@ -280,7 +308,9 @@ fn state(state: State) -> Opened {
 /// How the search went, for the reply's method.
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum Path {
-    Halved,
+    /// Halved; true when a version spread before the first match, read to test the assumption,
+    /// also held the text, so the search halved toward it.
+    Halved(bool),
     Present,
     /// Both ends lack the text and no version spread between them holds it.
     Absent,
@@ -294,7 +324,7 @@ pub(super) enum Path {
 /// Read the oldest and newest versions, then halve, spread or read in order as they decide.
 fn search(search: &mut Search<'_, '_>) -> (Path, Option<usize>) {
     let count = search.versions.len();
-    let Some(low) = search.usable(0..count) else {
+    let Some(low) = search.earliest() else {
         return (Path::Unreadable, None);
     };
     let high = search.usable((low + 1..count).rev());
@@ -305,7 +335,14 @@ fn search(search: &mut Search<'_, '_>) -> (Path, Option<usize>) {
         return (Path::Present, Some(low));
     }
     match high {
-        Some(high) if search.matches(high) => (Path::Halved, Some(search.halve(low, high).1)),
+        Some(high) if search.matches(high) => {
+            // The reads left test the assumption on versions spread before the first match.
+            let (before, first) = search.halve(low, high);
+            match search.spread(low, before) {
+                Some(earlier) => (Path::Halved(true), Some(search.halve(low, earlier).1)),
+                None => (Path::Halved(false), Some(first)),
+            }
+        }
         _ => match search.spread(low, high.unwrap_or(low)) {
             Some(held) => (Path::Returned, Some(search.halve(low, held).1)),
             None => (Path::Absent, None),

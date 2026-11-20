@@ -28,14 +28,15 @@ pub(super) fn answer(
         return if usable == 0 {
             format!(
                 "BioMCP could not tell: no label version could be read for its {section} section; \
-                 {unread} of {count} versions were not read."
+                 {unread} of {count} versions could not be read or were not opened."
             )
         } else if unread == 0 {
             format!("None of the {count} label versions has the text in its {section} section.")
         } else {
             format!(
                 "BioMCP could not tell: none of the {read} label versions read has the text in its \
-                 {section} section, but {unread} of {count} were not read, so it may be in one of them."
+                 {section} section, but {unread} of {count} could not be read or were not opened, so it \
+                 may be in one of them."
             )
         };
     };
@@ -85,10 +86,16 @@ pub(super) fn method(path: Path, search: &Search<'_, '_>) -> String {
     let spread =
         "both lack the text, so the reads left went to versions spread evenly between them";
     let mut said = match path {
-        Path::Halved => format!(
+        Path::Halved(earlier) => format!(
             "Read the oldest and newest of {count} label versions, then halved between them: {read} \
              PDFs read, at most {MOST_READS} per call. {assumption}; the oldest version read lacked \
-             it and the newest had it, as the assumption expects."
+             it and the newest had it, as the assumption expects. The reads left went to versions \
+             spread before the first match to test it{}.",
+            if earlier {
+                "; one held the text, so the search halved toward that one"
+            } else {
+                ", and none held the text"
+            }
         ),
         Path::Present => format!(
             "Read the oldest and newest of {count} label versions: {read} PDFs read. The oldest \
