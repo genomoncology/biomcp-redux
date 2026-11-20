@@ -118,7 +118,7 @@ struct SearchFields {
     drug_application: Option<FdaDrugApplication>,
     #[doc = "Biomarker name in a cell.\nWhole name in the individual table's biomarker cell, any case, \
     surrounding spaces ignored: PIK3CA matches \"PIK3CA, AKT1, and PTEN\", not PIK3CA2. \
-    A cell naming it only as \"Not NAME\", such as \"Not MSI-High\", is returned with biomarker_negated: true. \
+    A cell naming it only as \"Not NAME\", such as \"Not MSI-High\", is returned with biomarker_negated: true, kept whatever --fields names. \
     The group table is not searched; problems name it as filter.unsupported."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
