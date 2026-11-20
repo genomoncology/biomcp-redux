@@ -1,4 +1,6 @@
 //! Feature source-data-age: retained source dates survive paging and hosted restrictions.
+#[path = "source_age/names.rs"]
+mod names;
 #[path = "source_age/oncokb.rs"]
 mod oncokb;
 use super::super::{
@@ -29,6 +31,12 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         }),
         crate::runner::transcript::trial("source-data-age/stale-chembl-name", || {
             chembl_unfound().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/unread-other-names", || {
+            names::other_names().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/stale-market-unfound", || {
+            names::market().map_err(Into::into)
         }),
     ]
 }
