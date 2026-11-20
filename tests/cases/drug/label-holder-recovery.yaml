@@ -1,0 +1,65 @@
+{
+  "feature": "drug-name-get",
+  "story": "A brand lookup that finds only repackagers recovers the original packager from the same application and retains the copies as alternatives.",
+  "verified": "Authored synthetic replies model the reported requests. Packaging text and provider responses are synthetic.",
+  "live_check": "Local synthetic replay only.",
+  "replay": "drug/label-holder-recovery",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Hadlima",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "Hadlima",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "exit": 0,
+      "expect": {
+        "/result/identity/id": "c24655e5-796e-4127-b716-92f08d649c83",
+        "/result/identity/application_numbers/0": "BLA761059",
+        "/result/identity/name_resolution/total": 3,
+        "/result/identity/name_resolution/alternatives/0/args/2": "ef25af7e-6267-409a-8d68-de51eb48812a",
+        "/result/identity/name_resolution/alternatives/1/args/2": "f7f9da92-ff5d-4260-b4bd-e3f6993a36ae"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "ef25af7e-6267-409a-8d68-de51eb48812a",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "ef25af7e-6267-409a-8d68-de51eb48812a",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "exit": 0,
+      "expect": {
+        "/result/identity/id": "ef25af7e-6267-409a-8d68-de51eb48812a"
+      }
+    }
+  ]
+}
