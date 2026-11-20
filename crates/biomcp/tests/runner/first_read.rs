@@ -145,16 +145,26 @@ fn backoff() -> Check {
         ));
     }
     for reply in replies {
-        let notice = &reply["sources"][0]["notices"][0];
-        let message = notice["message"].as_str().unwrap_or_default();
-        if reply.pointer("/next/0/args") != Some(&json!(["sync", "fda-cdx"]))
-            || !message.contains("fetch")
-            || !message.contains("size limit")
-            || !message.contains(&format!("{size} bytes"))
-            || notice["retry_after_seconds"].as_u64().unwrap_or(0) == 0
-        {
-            return Err(format!("missing first-fetch guidance: {reply}"));
-        }
+        check_failure(&reply, "size limit", &format!("{size} bytes"))?;
+    }
+    Ok(())
+}
+
+fn check_failure(reply: &Value, cause: &str, size: &str) -> Check {
+    let message = reply
+        .pointer("/sources/0/notices/0/message")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let delay = reply
+        .pointer("/sources/0/notices/0/retry_after_seconds")
+        .and_then(Value::as_u64);
+    if !message.contains("fetch")
+        || !message.contains(cause)
+        || !message.contains(size)
+        || delay.unwrap_or(0) == 0
+        || reply.pointer("/next/0/args") != Some(&json!(["sync", "fda-cdx"]))
+    {
+        return Err(format!("missing first-fetch guidance: {reply}"));
     }
     Ok(())
 }
@@ -166,20 +176,14 @@ fn timeout() -> Check {
     let first = invoke(&env, words(SEARCH), 4)?;
     let again = invoke(&env, words(SEARCH), 4)?;
     let requests = stub.finish()?;
+    if requests.len() != 1 {
+        return Err(format!(
+            "expected one timed-out request, got {}",
+            requests.len()
+        ));
+    }
     for reply in [first, again] {
-        let notice = &reply["sources"][0]["notices"][0];
-        let message = notice["message"].as_str().unwrap_or_default();
-        if requests.len() != 1
-            || !message.contains("ran out of time")
-            || !message.contains("size: unknown")
-            || notice["retry_after_seconds"].as_u64().unwrap_or(0) == 0
-            || reply.pointer("/next/0/args") != Some(&json!(["sync", "fda-cdx"]))
-        {
-            return Err(format!(
-                "publisher saw {} requests; timeout reply: {reply}",
-                requests.len()
-            ));
-        }
+        check_failure(&reply, "ran out of time", "size: unknown")?;
     }
     Ok(())
 }
