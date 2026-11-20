@@ -2,6 +2,16 @@
 
 Recorded live with `biomcp --record` in pm job j43418 on 2026-11-19, from the Drugs@FDA API and FDA's archived label PDFs at https://www.accessdata.fda.gov. Each label PDF sidecar is replaced by a small synthetic PDF, written by `scripts/label_history_fixtures.py`, that shows in plain Helvetica the text BioMCP's own reader took from the original, so the cases test finding the section, the search and the reply on the real labels' text within the fixture budget. `label-history-unread` is `label-history-livalo` with the SUPPL 20 label cut to its first 300 bytes, so that version cannot be read.
 
+To rebuild a fixture, record the call with `biomcp ... --record DIR`, then write the reader's text for each recorded label PDF sidecar with BioMCP's own reader, which takes the page bound on its first input line and prints its text after one header line:
+
+```sh
+for f in DIR/drugsfda/*.bin; do
+  { printf '400\n'; cat "$f"; } | biomcp __pdf-read 1073741824 | tail -n +2 > "TEXT/$(basename "$f").txt"
+done
+python3 scripts/label_history_fixtures.py TEXT DIR
+```
+
+
 Each original label below is named by its FDA URL, SHA-256 and size.
 
 ## label-history-olumiant

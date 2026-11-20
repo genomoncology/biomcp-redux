@@ -176,30 +176,31 @@ fn older_labels_count_headings_only_as_whole_lines() {
     assert_eq!(found(inline, S::Contraindications), Found::Older);
 }
 
+/// Xeljanz's 2012 original label, unchanged: its contents list leaves out the boxed warning.
+const XELJANZ_2012: &[u8] =
+    include_bytes!("../../../../biomcp-adapters/tests/fixtures/pdf/label-xeljanz-2012.pdf");
+
 #[test]
-#[ignore]
-fn throwaway_probe() {
-    let dir = std::path::Path::new("/tmp/biomcp-1066-probe");
-    let mut paths: Vec<_> = std::fs::read_dir(dir).unwrap().map(|e| e.unwrap().path()).filter(|p| p.extension().is_some_and(|x| x == "pdf")).collect();
-    paths.sort();
-    for path in paths {
-        let bytes = std::fs::read(&path).unwrap();
-        let read = biomcp_adapters::pdf::embedded(&bytes, 400, &|| false).unwrap();
-        println!("FILE {}", path.file_name().unwrap().to_string_lossy());
-        let cleaned = clean(&read.text);
-        let flat = flatten(&cleaned);
-        for s in [S::BoxedWarning, S::IndicationsAndUsage, S::Contraindications, S::WarningsAndCautions, S::AdverseReactions, S::DrugInteractions, S::UseInSpecificPopulations] {
-            match find(&cleaned, &flat, s) {
-                Found::Section(sec) => {
-                    let at = flat.find(&sec).unwrap_or(0);
-                    let end = at + sec.len();
-                    let head: String = sec.chars().take(70).collect();
-                    let tail: String = sec.chars().rev().take(50).collect::<Vec<_>>().into_iter().rev().collect();
-                    let next: String = flat.get(end..).unwrap_or("").chars().take(50).collect();
-                    println!("  section {s} len={} HEAD|{head}| TAIL|{tail}| NEXT|{next}|", sec.len());
-                }
-                other => println!("  {other:?} {s}"),
-            }
-        }
-    }
+fn a_real_label_reads_into_bounded_sections() -> Result<(), String> {
+    let read = biomcp_adapters::pdf::embedded(XELJANZ_2012, 400, &|| false)
+        .map_err(|reason| format!("{reason:?}"))?;
+    assert_eq!(read.state, biomcp_types::PdfTextState::Text);
+    let text = |each| section(&read.text, each);
+    assert!(text(S::BoxedWarning).starts_with("WARNING: SERIOUS INFECTIONS AND MALIGNANCY"));
+    assert!(text(S::IndicationsAndUsage).starts_with("1 INDICATIONS AND USAGE"));
+    let adverse = text(S::AdverseReactions);
+    assert!(
+        adverse.starts_with("6 ADVERSE REACTIONS Because clinical studies"),
+        "{adverse}"
+    );
+    let interactions = text(S::DrugInteractions);
+    assert!(
+        interactions.starts_with("7 DRUG INTERACTIONS 7.1 Potent CYP3A4 Inhibitors"),
+        "{interactions}"
+    );
+    assert!(
+        !adverse.contains("Potent CYP3A4 Inhibitors"),
+        "adverse reactions end at section 7"
+    );
+    Ok(())
 }
