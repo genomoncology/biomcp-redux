@@ -55,6 +55,7 @@ fn excerpts(parts: &[String], terms: &[Text], table: bool) -> Result<DrugLabelMa
         }
     }
     Ok(DrugLabelMatches {
+        matched: !search.excerpts.is_empty(),
         excerpts: search.excerpts.into(),
         truncated: search.truncated,
     })

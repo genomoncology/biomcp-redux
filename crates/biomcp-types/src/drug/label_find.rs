@@ -79,7 +79,10 @@ pub(super) fn batch(
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugLabelMatches {
-    /// Matching paragraphs or table rows; an empty list means the readable section had no match.
+    /// Whether this readable section contains at least one of the requested phrases.
+    pub matched: bool,
+    /// Matching paragraphs or table rows.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub excerpts: Box<[DrugLabelExcerpt]>,
     /// The section had more matching paragraphs or rows than this reply carries.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]

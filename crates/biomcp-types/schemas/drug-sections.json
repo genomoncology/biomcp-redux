@@ -2466,11 +2466,15 @@
       "description": "Bounded excerpts from one readable current-label section.",
       "properties": {
         "excerpts": {
-          "description": "Matching paragraphs or table rows; an empty list means the readable section had no match.",
+          "description": "Matching paragraphs or table rows.",
           "items": {
             "$ref": "#/$defs/Reply_DrugLabelExcerpt"
           },
           "type": "array"
+        },
+        "matched": {
+          "description": "Whether this readable section contains at least one of the requested phrases.",
+          "type": "boolean"
         },
         "truncated": {
           "description": "The section had more matching paragraphs or rows than this reply carries.",
@@ -2478,7 +2482,7 @@
         }
       },
       "required": [
-        "excerpts"
+        "matched"
       ],
       "type": "object"
     },

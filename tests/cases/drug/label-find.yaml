@@ -35,7 +35,8 @@
         "/result/identity/id": "11111111-1111-1111-1111-111111111111",
         "/result/label/data/label/attribution/record": "11111111-1111-1111-1111-111111111113",
         "/result/label/data/text": "",
-        "/result/label/data/search/excerpts/0/text": "STUDY-189 met its endpoint."
+        "/result/label/data/search/excerpts/0/text": "STUDY-189 met its endpoint.",
+        "/result/label/data/search/matched": true
       },
       "max_bytes": 2600
     },
@@ -67,13 +68,18 @@
         "/result/parts/1/reply/result/label/data/search/excerpts/0/text": "STUDY-189 | Met endpoint",
         "/result/parts/1/reply/result/label/data/search/excerpts/0/table_header": "Trial | Outcome",
         "/result/parts/2/reply/identity/id": "22222222-2222-2222-2222-222222222222",
-        "/result/parts/2/reply/result/label/data/search/excerpts": [],
         "/result/parts/3/reply/result/label/state": "empty",
         "/result/parts/3/reply/result/hint": "Example label 2's label (set 22222222-2222-2222-2222-222222222222, version 1) has no clinical_studies_table section; sections lists the sections it has, and label_section (--label-section on the command line) reads one",
         "/result/parts/1/reply/result/label/data/search/excerpts": {
           "count": 1
         },
-        "/result/parts/1/reply/result/label/data/search/excerpts/0/table_caption": "Study outcomes"
+        "/result/parts/1/reply/result/label/data/search/excerpts/0/table_caption": "Study outcomes",
+        "/result/parts/2/reply/result/label/data/search/matched": false,
+        "/result/parts/2/reply/result/label/data/search": {
+          "omits": [
+            "excerpts"
+          ]
+        }
       },
       "max_bytes": 6100
     },
@@ -109,13 +115,18 @@
         "/result/parts/1/reply/result/label/data/search/excerpts/0/text": "STUDY-189 | Met endpoint",
         "/result/parts/1/reply/result/label/data/search/excerpts/0/table_header": "Trial | Outcome",
         "/result/parts/2/reply/identity/id": "22222222-2222-2222-2222-222222222222",
-        "/result/parts/2/reply/result/label/data/search/excerpts": [],
         "/result/parts/3/reply/result/label/state": "empty",
         "/result/parts/3/reply/result/hint": "Example label 2's label (set 22222222-2222-2222-2222-222222222222, version 1) has no clinical_studies_table section; sections lists the sections it has, and label_section (--label-section on the command line) reads one",
         "/result/parts/1/reply/result/label/data/search/excerpts": {
           "count": 1
         },
-        "/result/parts/1/reply/result/label/data/search/excerpts/0/table_caption": "Study outcomes"
+        "/result/parts/1/reply/result/label/data/search/excerpts/0/table_caption": "Study outcomes",
+        "/result/parts/2/reply/result/label/data/search/matched": false,
+        "/result/parts/2/reply/result/label/data/search": {
+          "omits": [
+            "excerpts"
+          ]
+        }
       },
       "max_bytes": 6100
     },
