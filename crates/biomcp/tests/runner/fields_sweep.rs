@@ -132,8 +132,7 @@ fn check(case: &case_data::Case, args: &[String]) -> Result<bool, String> {
             narrow.get("fields")
         ));
     }
-    let (part, full) = (&narrow["result"], &whole["result"]);
-    if !within(part, full) {
+    if !within(narrow.get("result"), whole.get("result")) {
         return Err("narrowed rows are not the whole rows, in order, with keys left out".into());
     }
     Ok(true)
@@ -144,14 +143,21 @@ const STAMPS: [&str; 1] = ["fetched"];
 
 /// Whether every object of `part` keeps only keys of the same object of `full`, with every
 /// list the same length in the same order.
-fn within(part: &Value, full: &Value) -> bool {
+fn within(part: Option<&Value>, full: Option<&Value>) -> bool {
+    match (part, full) {
+        (Some(part), Some(full)) => values(part, full),
+        (part, full) => part == full,
+    }
+}
+
+fn values(part: &Value, full: &Value) -> bool {
     match (part, full) {
         (Value::Object(part), Value::Object(full)) => part.iter().all(|(key, value)| {
             full.get(key)
-                .is_some_and(|whole| STAMPS.contains(&key.as_str()) || within(value, whole))
+                .is_some_and(|whole| STAMPS.contains(&key.as_str()) || values(value, whole))
         }),
         (Value::Array(part), Value::Array(full)) => {
-            part.len() == full.len() && part.iter().zip(full).all(|(part, full)| within(part, full))
+            part.len() == full.len() && part.iter().zip(full).all(|(part, full)| values(part, full))
         }
         _ => part == full,
     }
