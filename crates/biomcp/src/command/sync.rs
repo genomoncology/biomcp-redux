@@ -7,7 +7,42 @@ pub(super) fn run(
     bundle: Bundle,
     encoding: Encoding,
 ) -> io::Result<Outcome> {
-    match biomcp_query::sources::sync(fetch, bundle) {
+    finish_bundle(
+        fetch,
+        bundle,
+        encoding,
+        biomcp_query::sources::sync(fetch, bundle),
+    )
+}
+pub(super) fn run_file(
+    fetch: &biomcp_fetch::Fetch,
+    path: &std::path::Path,
+    encoding: Encoding,
+) -> io::Result<Outcome> {
+    let bundle = Bundle::named(biomcp_types::Source::PurpleBook.as_str())
+        .ok_or_else(|| io::Error::other("Purple Book synchronization declaration is missing"))?;
+    finish_bundle(
+        fetch,
+        bundle,
+        encoding,
+        biomcp_query::sources::sync_purple_book(fetch, Some(path)),
+    )
+}
+fn finish_bundle(
+    fetch: &biomcp_fetch::Fetch,
+    bundle: Bundle,
+    encoding: Encoding,
+    reply: biomcp_query::sources::BundleReply,
+) -> io::Result<Outcome> {
+    match reply {
+        biomcp_query::sources::BundleReply::Manual(result, notice) => finish(
+            bundle,
+            result,
+            false,
+            encoding,
+            Some(notice),
+            fetch.sync_budget(),
+        ),
         biomcp_query::sources::BundleReply::Standard(result, stale) => {
             let date_notice = result
                 .as_ref()

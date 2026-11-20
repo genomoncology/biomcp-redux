@@ -7,6 +7,11 @@ use biomcp_types::{LocalBundleState, Source, SyncResult, WikiPathwaysSync};
 pub enum BundleReply {
     /// Standard receipt and whether the last admitted catalog is stale.
     Standard(Result<Mapped<SyncResult>, RequestError>, bool),
+    /// A local import receipt and guidance naming the active publisher release.
+    Manual(
+        Result<Mapped<SyncResult>, RequestError>,
+        biomcp_types::SourceNotice,
+    ),
     /// The two WikiPathways catalogs have their own receipt schema.
     WikiPathways(Result<Mapped<WikiPathwaysSync>, RequestError>),
 }

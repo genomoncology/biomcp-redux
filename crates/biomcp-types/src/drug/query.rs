@@ -133,6 +133,9 @@ impl TryFrom<GetFields> for DrugGet {
         let source = fields
             .source
             .unwrap_or_else(|| inferred_source(&fields.section));
+        if source == DrugSource::PurpleBook {
+            return Err(QueryInvalid::new(&["source"]));
+        }
         (fields.source, fields.input) = (Some(source), source.listed_case(fields.input));
         validate_sections(&fields)?;
         let native_id = if !fields

@@ -235,6 +235,7 @@ pub(crate) fn execute(
         Action::Health => maintenance::health(fetch, crate::config::budget(settings), encoding),
         Action::KeyHelp(source) => key_help(source, encoding),
         Action::Sync { bundle } => sync::run(fetch, bundle, encoding),
+        Action::SyncPurpleBookFile { path } => sync::run_file(fetch, &path, encoding),
         Action::Run {
             request: Request::GetDrug(query),
             fresh,

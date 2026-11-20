@@ -12,6 +12,7 @@ pub(crate) mod markets;
 mod name_fit;
 mod next;
 mod openfda_label;
+pub(crate) mod purple_book;
 mod recall;
 mod resolve;
 pub(crate) mod search_names;

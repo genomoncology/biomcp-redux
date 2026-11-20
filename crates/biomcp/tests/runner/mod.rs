@@ -85,6 +85,7 @@ mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
 mod offset_walks;
+mod purple_book;
 mod recurrence;
 mod remote_tools;
 mod replay;

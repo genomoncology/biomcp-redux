@@ -299,13 +299,13 @@ impl Leg<'_> {
     }
 }
 
-fn decode<R: Row>(rows: Vec<String>) -> Result<Vec<R>, RequestError> {
+pub(super) fn decode<R: Row>(rows: Vec<String>) -> Result<Vec<R>, RequestError> {
     rows.into_iter()
         .map(|row| serde_json::from_str(&row).map_err(|_| crate::CacheError::Encoding.into()))
         .collect()
 }
 
-fn data_date<R: Row>(row: Option<String>) -> Result<Option<Box<str>>, RequestError> {
+pub(super) fn data_date<R: Row>(row: Option<String>) -> Result<Option<Box<str>>, RequestError> {
     row.map(|row| {
         serde_json::from_str::<R>(&row)
             .map(|row| row.data_date().map(Into::into))

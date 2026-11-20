@@ -48,7 +48,8 @@ impl LabelApplicationType {
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
     WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. \
-    Drugs@FDA accepts a name or an applicant. Other sources require a name."]
+    Drugs@FDA accepts a name or an applicant. Other sources require a name. \
+    Purple Book takes a reference product name or BLA and returns FDA biosimilar presentations."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -186,6 +187,14 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     therapeutic_area: Option<Text>,
 
+    /// Exact FDA Purple Book strength cell, ignoring case and spaces.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
+    strength: Option<Text>,
+    /// Exact FDA Purple Book product presentation, ignoring case (e.g. Autoinjector).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
+    device: Option<Text>,
     /// Selected source.
     ///
     /// After an empty name lookup, existing sources may supply aliases.
@@ -233,6 +242,11 @@ impl TryFrom<SearchFields> for DrugSearch {
         }
         if fields.sort.is_some() && fields.source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["sort", "source"]));
+        }
+        if (fields.strength.is_some() || fields.device.is_some())
+            && fields.source != DrugSource::PurpleBook
+        {
+            return Err(QueryInvalid::new(&["strength", "device", "source"]));
         }
         validate_approved(&fields)?;
         let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
@@ -345,6 +359,8 @@ impl DrugSearch {
             prequalified_from: None,
             prequalified_to: None,
             therapeutic_area: None,
+            strength: None,
+            device: None,
             name_selector: None,
         }
         .try_into()
@@ -388,6 +404,14 @@ fn selected_name<'de, D: serde::Deserializer<'de>>(
     super::DrugNameSelector::deserialize(d).map(Some)
 }
 impl DrugSearch {
+    /// Exact Purple Book strength cell.
+    pub fn strength(&self) -> Option<&Text> {
+        self.0.strength.as_ref()
+    }
+    /// Exact Purple Book device or other product presentation.
+    pub fn device(&self) -> Option<&Text> {
+        self.0.device.as_ref()
+    }
     /// Literal source query, without rewriting.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()

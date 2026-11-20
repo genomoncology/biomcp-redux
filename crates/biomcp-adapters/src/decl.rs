@@ -94,6 +94,7 @@ pub const fn decl(source: Source) -> &'static SourceDecl {
         Source::Chembl => &crate::chembl::decl::DECL,
         Source::Opentargets => &crate::opentargets::decl::DECL,
         Source::OpenfdaLabel => &crate::openfda_label::decl::DECL,
+        Source::PurpleBook => &crate::purple_book::decl::DECL,
         Source::FdaDrugRecall => &crate::fda_drug_recall::decl::DECL,
         Source::Drugsfda => &crate::drugsfda::decl::DECL,
         Source::Ema => &crate::ema::decl::DECL,

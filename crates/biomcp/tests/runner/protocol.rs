@@ -43,6 +43,7 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = typed_followups::trials();
+    trials.push(super::purple_book::trial());
     trials.extend(hosted_surface::trials());
     trials.extend(typed::trials());
     trials.extend(source_age::trials());
