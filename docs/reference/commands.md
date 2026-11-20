@@ -1568,7 +1568,7 @@ Paging: --limit and --offset.
 Matches source sponsor_name values starting with this text, ignoring letter case;
 no company-family or subsidiary inference. An optional name narrows the same search. Value form: string; example: --applicant 'ALNYLAM PHARMS INC'; only with --source drugsfda.
 - `--application-type`: Label application types to keep; openFDA labels only.
-By openFDA application_number prefix; nda,bla leaves out generics (ANDA). Value form: repeatable values (repeat the flag); example: --application-type 'nda,bla'; only with --source openfda-label.
+By openFDA application_number prefix; nda,bla leaves out generics (ANDA). Value form: repeatable values (repeat the flag); example: --application-type nda; only with --source openfda-label.
 - `--approved-from`: Original approval from, inclusive; Drugs@FDA only.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
 falls in the window; BioMCP reads every match and counts the kept ones. Value form: string; example: --approved-from 2024-01-01; only with --source drugsfda.
