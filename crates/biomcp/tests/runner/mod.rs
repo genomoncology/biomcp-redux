@@ -103,6 +103,7 @@ mod pathway_commands;
 mod pathway_get_pages;
 mod pathway_sections;
 mod pdf;
+mod pdf_child;
 mod pgx_retirements;
 mod phenotype;
 mod process;
@@ -351,6 +352,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(phenotype::trials());
     trials.extend(drug_next::trials());
     trials.extend(drug_approvals::trials());
+    trials.extend(pdf_child::trials());
     trials.extend(nci::trials());
     trials.extend(drug_civic::trials());
     trials.push(citation_values::trial());
