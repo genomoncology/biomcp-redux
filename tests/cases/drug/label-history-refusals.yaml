@@ -203,12 +203,11 @@
       "is_error": true,
       "expect": {
         "/error/option": "--section-limit",
-        "/error/message": "label-history uses a fixed read limit; drop --limit (also spelled --section-limit)",
-        "/error": {
-          "omits": [
-            "valid_values"
-          ]
-        }
+        "/error/message": "error.option is not accepted with the other options as given; valid_values names every option involved",
+        "/error/valid_values": [
+          "--section-limit",
+          "section"
+        ]
       }
     }
   ]

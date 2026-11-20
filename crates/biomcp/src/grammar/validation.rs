@@ -62,8 +62,8 @@ pub(super) fn checked(
 /// the fix is to drop it or add what it needs, and there is no value to choose.
 fn drops_option(message: biomcp_types::ErrorMessage) -> bool {
     use biomcp_types::ErrorMessage::{
-        DeviceRecallClassificationProductCode, DrugMarketsSource, LabelHistoryLimit,
-        LabelHistoryOffset, PhenotypeSetOffset,
+        DeviceRecallClassificationProductCode, DrugMarketsSource, LabelHistoryOffset,
+        PhenotypeSetOffset,
     };
     matches!(
         message,
@@ -71,7 +71,6 @@ fn drops_option(message: biomcp_types::ErrorMessage) -> bool {
             | PhenotypeSetOffset
             | DeviceRecallClassificationProductCode
             | LabelHistoryOffset
-            | LabelHistoryLimit
     )
 }
 

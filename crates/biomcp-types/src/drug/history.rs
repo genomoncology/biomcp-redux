@@ -98,13 +98,11 @@ pub(super) fn checked(
     // version, which also needs --find and a section, or a section it does not read (1081).
     if sections == [super::DrugSection::LabelHistory] {
         use crate::ErrorMessage::{
-            LabelHistoryLimit, LabelHistoryOffset, LabelHistoryOffsetIncomplete,
-            LabelHistoryOffsetSection, LabelHistorySectionUnknown,
+            LabelHistoryOffset, LabelHistoryOffsetIncomplete, LabelHistoryOffsetSection,
+            LabelHistorySectionUnknown,
         };
         if limit.is_some() {
-            return Err(
-                crate::QueryInvalid::new(&["section_limit"]).with_message(LabelHistoryLimit)
-            );
+            return Err(crate::QueryInvalid::new(&["section_limit", "section"]));
         }
         let offset = offset.is_some() && !options.1;
         let unknown = options.2.is_some() && section(options.2).is_none();

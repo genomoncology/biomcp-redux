@@ -91,7 +91,6 @@ singleton! {
  OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \
  suggested first-page command, then follow its next command",
  ArticleGetLimit => "get article takes 1 to 20 IDs per call; split a longer list into several calls",
- LabelHistoryLimit => "label-history uses a fixed read limit; drop --limit (also spelled --section-limit)",
  LabelHistoryOffset => "--offset needs --every-version: label-history pages only while it reads every version; add --every-version, or drop \
  --offset (also spelled --section-offset)",
  LabelHistorySectionUnknown => "label-history reads only the label sections in valid_values; give --label-section one of them, or read another \
