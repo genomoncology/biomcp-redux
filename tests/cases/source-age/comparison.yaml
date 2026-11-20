@@ -57,7 +57,41 @@
           "omits": [
             "indication"
           ]
-        }
+        },
+        "/result/regulatory_context/data/applications/0/products/0/product_number": "001"
+      },
+      "mcp": [
+        "get",
+        "drug",
+        "CHEMBL941",
+        "regulatory",
+        "--source",
+        "opentargets",
+        "--section-limit",
+        "1"
+      ]
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "CHEMBL941",
+        "--section",
+        "indications",
+        "--section",
+        "regulatory",
+        "--source",
+        "opentargets",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/result/identity/id": "CHEMBL941",
+        "/result/parts/0/reply/result/indications/data/records/0/stage/value": "PHASE_III",
+        "/result/parts/0/reply/sources": {
+          "count": 1
+        },
+        "/result/parts/1/reply/result/regulatory_context/data/applications/0/identity/id": "NDA999999"
       }
     }
   ]
