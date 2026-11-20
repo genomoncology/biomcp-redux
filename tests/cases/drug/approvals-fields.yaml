@@ -1,7 +1,7 @@
 {
   "feature": "section-fields",
   "live_check": "Synthetic two-submission page; recorded only",
-  "story": "A caller who names dotted paths inside a drug's approval rows gets each submission with those event values, the event's own record and attribution and the row's submission number, which the schema requires, and nothing else of the row. A caller who names openFDA's own Drugs@FDA fields is refused, and the suggested call puts each in the field that holds it (submission_type in event.kind, submission_class in submission_class_code_description, action_date in event.dates, doc_type in application_docs); a name with no such field is listed as unplaced.",
+  "story": "A caller who names dotted paths inside a drug's approval rows gets each submission with those event values, the event's own record and attribution and the row's submission number, which the schema requires, and nothing else of the row. A caller who names openFDA's own Drugs@FDA fields is refused, and the suggested call puts each in the field that holds it (submission_type in event.kind, submission_class in submission_class_code_description, action_date in event.dates, doc_type in application_docs); a name with no such field is listed as unplaced. A name that is not letters, digits, _ and . is not repeated, and the refusal says so while the suggested call keeps the names it can place (1081).",
   "replay": "drug/approvals-page",
   "steps": [
     {
@@ -85,6 +85,42 @@
         ],
         "/next/0/args": [
           "--fields=submission_number,event.kind,submission_class_code_description,event.dates,application_docs",
+          "get",
+          "drug",
+          "BLA761445",
+          "approvals",
+          "--source",
+          "drugsfda"
+        ],
+        "/next": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA761445",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--fields=submission_number,submission-type"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--fields",
+        "/error/message": "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it; error.unplaced lists the names it cannot place, but one that is not letters, digits, _ and . is not repeated",
+        "/error": {
+          "omits": [
+            "unplaced"
+          ]
+        },
+        "/next/0/args": [
+          "--fields=submission_number",
           "get",
           "drug",
           "BLA761445",

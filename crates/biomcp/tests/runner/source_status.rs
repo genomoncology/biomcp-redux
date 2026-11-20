@@ -84,7 +84,7 @@ fn diagnostic() -> Result<(), String> {
                 .and_then(Value::as_u64)
                 .unwrap_or(0)
                 == 0
-            || !problem(&value, "table_1.biomarker")
+            || !problem(&value, "group_table")
         {
             failures.push(format!("{mode}: {source}"));
         }

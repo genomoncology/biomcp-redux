@@ -94,18 +94,34 @@ pub(super) fn checked(
     (limit, offset): (Option<u32>, Option<u32>),
     options: (&[Text], bool, Option<&Text>),
 ) -> Result<(), crate::QueryInvalid> {
-    // A label history alone names its own cause: an offset without every version, or a
-    // section it does not read.
+    // A label history alone names every cause in one refusal: an offset without every
+    // version, which also needs --find and a section, or a section it does not read (1081).
     if sections == [super::DrugSection::LabelHistory] {
-        if offset.is_some() && !options.1 {
-            return Err(
-                crate::QueryInvalid::new(&["section_offset", "every_version"])
-                    .with_message(crate::ErrorMessage::LabelHistoryOffset),
-            );
-        }
-        if options.2.is_some() && section(options.2).is_none() {
-            return Err(crate::QueryInvalid::new(&["label_section"])
-                .with_message(crate::ErrorMessage::LabelHistorySectionUnknown));
+        use crate::ErrorMessage::{
+            LabelHistoryOffset, LabelHistoryOffsetIncomplete, LabelHistoryOffsetSection,
+            LabelHistorySectionUnknown,
+        };
+        let offset = offset.is_some() && !options.1;
+        let unknown = options.2.is_some() && section(options.2).is_none();
+        // Without --find, the refusal that names it also names the sections to choose from.
+        let incomplete = options.0.is_empty() || options.2.is_none();
+        let refused: Option<(&[&str], _)> = match (offset, unknown, incomplete) {
+            (true, true, false) => Some((
+                &["section_offset", "every_version", "label_section"],
+                LabelHistoryOffsetSection,
+            )),
+            (true, _, true) => Some((
+                &["section_offset", "every_version", "find", "label_section"],
+                LabelHistoryOffsetIncomplete,
+            )),
+            (true, false, false) => {
+                Some((&["section_offset", "every_version"], LabelHistoryOffset))
+            }
+            (false, true, _) => Some((&["label_section"], LabelHistorySectionUnknown)),
+            (false, false, _) => None,
+        };
+        if let Some((names, message)) = refused {
+            return Err(crate::QueryInvalid::new(names).with_message(message));
         }
     }
     let paged = limit.is_some() || offset.is_some() && !options.1;

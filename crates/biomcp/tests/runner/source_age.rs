@@ -21,6 +21,15 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         crate::runner::transcript::trial("source-data-age/hosted-stale-ema", || {
             hosted().map_err(Into::into)
         }),
+        crate::runner::transcript::trial("source-data-age/stale-ema-market", || {
+            market().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/stale-name-not-found", || {
+            unfound().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/stale-chembl-name", || {
+            chembl_unfound().map_err(Into::into)
+        }),
     ]
 }
 fn restored() -> Check {
@@ -85,7 +94,8 @@ fn legacy_snapshot(env: &Environment) -> Check {
         .map_err(|e| e.to_string())?;
     Ok(())
 }
-fn hosted() -> Check {
+/// A stored EMA copy past its refresh date.
+fn stale_ema() -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     command(
         &env,
@@ -97,7 +107,85 @@ fn hosted() -> Check {
         .map_err(|e| e.to_string())?;
     db.execute("UPDATE bundle SET fresh_until=0 WHERE name='ema'", [])
         .map_err(|e| e.to_string())?;
-    drop(db);
+    Ok(env)
+}
+/// A market read by name from a stale EMA copy finds its record and says the copy is stale,
+/// as the call that reads every market does, not that EMA has no record (1081).
+fn market() -> Check {
+    let env = stale_ema()?;
+    let args = ["get", "drug", "Glivec", "markets", "--source", "ema"].map(str::to_owned);
+    let reply = command(&env, &args, &env.globals(None, true), 0)?;
+    if reply.get("status") != Some(&json!("partial"))
+        || reply.pointer("/result/markets/0/state") != Some(&json!("found"))
+        || reply.pointer("/sources/0/state") != Some(&json!("stale"))
+    {
+        return Err(format!(
+            "stale EMA market was not a partial found row: {reply}"
+        ));
+    }
+    Ok(())
+}
+/// A name a stale lookup cannot find is a failed read naming the stale source, never a wrong
+/// input: a stale EMA copy, and expired ChEMBL replies with no network (1081).
+fn unfound() -> Check {
+    let env = stale_ema()?;
+    let args = [
+        "get",
+        "drug",
+        "zzznotadrug",
+        "regulatory",
+        "--source",
+        "ema",
+    ]
+    .map(str::to_owned);
+    stale_failure(
+        &command(&env, &args, &env.globals(None, true), 4)?,
+        "ema",
+        Some("failed"),
+    )
+}
+fn chembl_unfound() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let args = ["get", "drug", "EX-66", "--source", "chembl"].map(str::to_owned);
+    let replay = fixtures().join("replies/drug/source-aliases");
+    command(&env, &args, &env.globals(Some(&replay), false), 0)?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    db.execute("UPDATE reply SET fresh_until=0", [])
+        .map_err(|e| e.to_string())?;
+    // Expired replies with no network answer from the stale copy, or fail naming it.
+    let mut all = args.to_vec();
+    all.extend(env.globals(None, true));
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &all)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let reply: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if output.status.code() == Some(2) || reply.get("status") == Some(&json!("usage")) {
+        return Err(format!(
+            "stale ChEMBL lookup answered as wrong input: {reply}"
+        ));
+    }
+    stale_failure(&reply, "chembl", None)
+}
+fn stale_failure(reply: &Value, source: &str, status: Option<&str>) -> Check {
+    let stale = reply
+        .get("sources")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .any(|s| {
+            s.get("source") == Some(&json!(source)) && s.get("state") == Some(&json!("stale"))
+        });
+    if !stale || status.is_some_and(|status| reply.get("status") != Some(&json!(status))) {
+        return Err(format!(
+            "stale lookup lost its stale {source} source: {reply}"
+        ));
+    }
+    Ok(())
+}
+fn hosted() -> Check {
+    let env = stale_ema()?;
     let globals = env.globals(None, true);
     let (reply, _) = mcp::call_text_hosted(
         &env,

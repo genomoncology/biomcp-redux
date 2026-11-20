@@ -62,7 +62,7 @@
       "expect": {
         "/page/total": 7,
         "/result/items/*/index": {"count": 7},
-        "/problems/0/field": "table_1.biomarker",
+        "/problems/0/field": "group_table",
         "/problems/0/code": "filter.unsupported"
       }
     },
