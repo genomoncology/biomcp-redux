@@ -3,7 +3,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource, ReplyData,
-    Step, StepKind, UsageArguments, UsageError,
+    SourceState, Status, Step, StepKind, UsageArguments, UsageError,
 };
 use std::cmp::Reverse;
 
@@ -60,15 +60,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     } else {
         discover(cx, &search)
     };
-    // Stale stored rows still answer the name; the chosen record's read says they are stale (1081).
-    if discovery.dropped
-        || discovery.sources.iter().any(|s| {
-            !matches!(
-                s.state,
-                biomcp_types::SourceState::Ok | biomcp_types::SourceState::Stale
-            )
-        })
-    {
+    if unanswered(&discovery) {
         status::item(&mut discovery, false, true, false);
         return vec![discovery];
     }
@@ -105,19 +97,30 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     super::selected_parts(&within(cx, deadline.remaining()), &resolved)
         .into_iter()
         .map(|out| {
-            let mut out = chosen_name(query, rank.0, &candidates, &discovery, out);
-            let stale = out
-                .sources
-                .iter()
-                .any(|s| s.state == biomcp_types::SourceState::Stale);
-            if (unsettled || stale) && out.status() == biomcp_types::Status::Complete {
-                // A product-only answer, while later matches may hold the drug itself, or a
-                // name chosen from stale stored rows.
-                status::item(&mut out, true, false, true);
-            }
-            out
+            settled(
+                chosen_name(query, rank.0, &candidates, &discovery, out),
+                unsettled,
+            )
         })
         .collect()
+}
+
+/// Whether the name lookup did not answer. Stale stored rows still answer it; the chosen
+/// record's read says they are stale (1081).
+fn unanswered(discovery: &Outcome) -> bool {
+    let unread =
+        |s: &biomcp_types::SourceOutcome| !matches!(s.state, SourceState::Ok | SourceState::Stale);
+    discovery.dropped || discovery.sources.iter().any(unread)
+}
+
+/// A product-only answer, while later matches may hold the drug itself, or a record chosen
+/// from stale stored rows, is partial.
+fn settled(mut out: Outcome, unsettled: bool) -> Outcome {
+    let stale = out.sources.iter().any(|s| s.state == SourceState::Stale);
+    if (unsettled || stale) && out.status() == Status::Complete {
+        status::item(&mut out, true, false, true);
+    }
+    out
 }
 
 fn chosen_name(
