@@ -70,27 +70,25 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         return vec![discovery];
     }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));
-    if query.source() == DrugSource::OpenfdaLabel {
-        super::label_choice::recover(
-            &within(cx, deadline.remaining()),
-            &mut candidates,
-            &mut discovery,
-        );
-    }
+    let recovered = if query.source() == DrugSource::OpenfdaLabel {
+        super::label_choice::recover(cx, &deadline, queries, &mut candidates, &mut discovery)
+    } else {
+        None
+    };
     let mut seen = std::collections::BTreeSet::new();
     candidates.retain(|(_, header)| seen.insert(header.id.to_string()));
     let Some((rank, selected)) = candidates.first() else {
         return vec![unresolved(query, discovery)];
     };
-    let resolved = match queries
-        .iter()
-        .map(|query| query.with_native_id(selected.id.clone()))
-        .collect::<Result<Vec<_>, _>>()
-    {
-        Ok(resolved) => resolved,
+    let read = recovered.map_or_else(
+        || super::selected_as(&within(cx, deadline.remaining()), queries, &selected.id),
+        Ok,
+    );
+    let parts = match read {
+        Ok(parts) => parts,
         Err(_) => return vec![super::rejected_input(query.source(), "input", discovery)],
     };
-    super::selected_parts(&within(cx, deadline.remaining()), &resolved)
+    parts
         .into_iter()
         .map(|out| {
             settled(

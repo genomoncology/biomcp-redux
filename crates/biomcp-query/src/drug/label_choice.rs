@@ -1,10 +1,10 @@
 //! Choose one label when several share a drug name, and say which and why.
-use super::resolve::{NativePage, Rank};
+use super::resolve::{NativePage, Rank, within};
 use crate::{Ctx, Outcome, status};
 use biodata::{DrugId, Text};
 use biomcp_adapters::openfda_label::{self as source, LabelHolder, Record};
-use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::{DrugHeader, DrugNameMatch, DrugSource, SourceNotice};
+use biomcp_fetch::{Deadline, Leg, RequestError};
+use biomcp_types::{DrugGet, DrugHeader, DrugNameMatch, DrugSource, SourceNotice};
 use std::cmp::Reverse;
 
 /// The label ordering a name get applies, stated in every label name lookup.
@@ -136,18 +136,55 @@ pub(super) fn candidates(leg: &Leg<'_>, name: &Text) -> Result<NativePage, Reque
 /// same application. Multiple possible applications give no basis for recovering one holder.
 pub(super) fn recover(
     cx: &Ctx<'_>,
+    deadline: &Deadline<'_>,
+    queries: &[DrugGet],
     candidates: &mut Vec<(Rank, DrugHeader)>,
     discovery: &mut Outcome,
-) {
-    let Some(application) = repackaged_application(candidates).cloned() else {
-        return;
-    };
+) -> Option<Vec<Outcome>> {
+    let application = repackaged_application(candidates).cloned()?;
+    let mut holders = find_holders(&within(cx, deadline.remaining()), &application, discovery);
+    holders.sort_by(|a, b| a.0.cmp(&b.0));
+    let (_, holder) = holders.first()?;
+    let read = crate::next::checked(
+        super::selected_as(&within(cx, deadline.remaining()), queries, &holder.id),
+        DrugSource::OpenfdaLabel.source(),
+        &mut discovery.problems,
+    );
+    if let Some(read) = read.filter(|parts| {
+        parts
+            .iter()
+            .all(|out| super::label_application::verified_label(out, application.as_str()))
+    }) {
+        holders.append(candidates);
+        *candidates = holders;
+        disclose(
+            discovery,
+            format!(
+                "The brand search found repackaged copies; checked application {application} for the original packager's label."
+            ),
+        );
+        return Some(read);
+    }
+    disclose(
+        discovery,
+        format!(
+            "The holder label for {application} could not be read. The fallback label is a repackager's copy."
+        ),
+    );
+    None
+}
+
+fn find_holders(
+    cx: &Ctx<'_>,
+    application: &Text,
+    discovery: &mut Outcome,
+) -> Vec<(Rank, DrugHeader)> {
     let command = cx.fetch.command_deadline(cx.budget);
     let leg = cx
         .fetch
         .leg(&source::SPEC, command.deadline())
         .fresh(cx.fresh);
-    let found = original_packagers(&leg, &application, &mut discovery.problems);
+    let found = original_packagers(&leg, application, &mut discovery.problems);
     let remaining = leg.command_remaining();
     let error = found.as_ref().err().copied();
     let attempt = status::source(DrugSource::OpenfdaLabel.source(), leg.finish(), error);
@@ -156,35 +193,26 @@ pub(super) fn recover(
         source.notices.extend(attempt.notices);
     }
     match found {
-        Ok(mut found) => {
-            if !found.is_empty() {
-                found.sort_by(|a, b| a.0.cmp(&b.0));
-                found.append(candidates);
-                *candidates = found;
-                if let Some(source) = discovery.sources.first_mut() {
-                    source.notices.push(SourceNotice::RequestGuidance {
-                        data_date: None,
-                        message: format!(
-                            "The brand search found repackaged copies; checked application {application} for the original packager's label."
-                        )
-                        .into(),
-                        retry_after_seconds: None,
-                    });
-                }
-            }
-        }
+        Ok(found) => found,
         Err(error) => {
-            if let Some(source) = discovery.sources.first_mut() {
-                source.notices.push(SourceNotice::RequestGuidance {
-                    data_date: None,
-                    message: format!(
-                        "Could not check application {application} for the original packager: {error}."
-                    )
-                    .into(),
-                    retry_after_seconds: None,
-                });
-            }
+            disclose(
+                discovery,
+                format!(
+                    "Could not check application {application} for the original packager: {error}."
+                ),
+            );
+            Vec::new()
         }
+    }
+}
+
+fn disclose(discovery: &mut Outcome, message: String) {
+    if let Some(source) = discovery.sources.first_mut() {
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        });
     }
 }
 

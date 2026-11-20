@@ -40,19 +40,26 @@ pub(super) fn fallback(
     found
         .iter()
         .all(|out| match &out.body {
-            ReplyData::DrugLabel {
-                body: Some(body), ..
-            } => belongs(&body.identity, &application),
-            ReplyData::DrugCard {
-                body: Some(body), ..
-            } => belongs(&body.header, &application),
             // An application can have several labels. Keep the choice page and its follow-up calls.
             ReplyData::DrugPage { .. }
             | ReplyData::DrugCard { body: None, .. }
             | ReplyData::DrugLabel { body: None, .. } => true,
-            _ => false,
+            _ => verified_label(out, &application),
         })
         .then_some(found)
+}
+
+/// Check the identity returned by the SPL read, independently of the search result.
+pub(super) fn verified_label(out: &Outcome, application: &str) -> bool {
+    match &out.body {
+        ReplyData::DrugLabel {
+            body: Some(body), ..
+        } => belongs(&body.identity, application),
+        ReplyData::DrugCard {
+            body: Some(body), ..
+        } => belongs(&body.header, application),
+        _ => false,
+    }
 }
 
 fn belongs(header: &biomcp_types::DrugHeader, application: &str) -> bool {

@@ -148,6 +148,18 @@ fn selected_parts(cx: &Ctx<'_>, parts: &[DrugGet]) -> Vec<Outcome> {
     }
     parts.iter().map(|part| selected_get(cx, part)).collect()
 }
+/// Open a discovered native record with all the original section selectors.
+fn selected_as(
+    cx: &Ctx<'_>,
+    parts: &[DrugGet],
+    id: &biodata::DrugId,
+) -> Result<Vec<Outcome>, biomcp_types::QueryInvalid> {
+    let resolved = parts
+        .iter()
+        .map(|query| query.with_native_id(id.clone()))
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(selected_parts(cx, &resolved))
+}
 /// A new outcome with `body` that carries another's source reads, problems and status.
 fn fork(read: &Outcome, body: biomcp_types::ReplyData) -> Outcome {
     let mut out = empty(body);
