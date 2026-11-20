@@ -75,10 +75,10 @@ pub(super) fn essential_medicines() -> Check {
     if !fresh.iter().any(|arg| arg == "--fresh") {
         return Err(format!("WHO eEML miss has no fresh read: {stale}"));
     }
-    let stale = command(&env, &found, &offline, 0)?;
-    stale_failure(&stale, "who-eml", Some("partial"))?;
-    if stale.pointer("/result/identity/id") != Some(&json!("479")) {
-        return Err(format!("stale WHO eEML hit lost its medicine: {stale}"));
+    let stale_hit = command(&env, &found, &offline, 0)?;
+    stale_failure(&stale_hit, "who-eml", Some("partial"))?;
+    if stale_hit.pointer("/result/identity/id") != Some(&json!("479")) {
+        return Err(format!("stale WHO eEML hit lost its medicine: {stale_hit}"));
     }
 
     let current = command(&env, &fresh, &recorded, 1)?;
