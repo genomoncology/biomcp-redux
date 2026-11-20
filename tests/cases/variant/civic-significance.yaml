@@ -38,7 +38,7 @@
             "34",
             "--evidence-significance",
             "resistance",
-            "--section-limit",
+            "--limit",
             "2"
           ]
         }

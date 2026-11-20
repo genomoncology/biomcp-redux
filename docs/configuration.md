@@ -22,6 +22,8 @@ On Unix, BioMCP keeps its cache and stored collections in `$XDG_CACHE_HOME/biomc
 
 `reply_cache_max_bytes` caps the bytes of stored source replies, as a whole number of bytes; the default is [2 GiB](../crates/biomcp-fetch/src/cache.rs). Each reply counts its body, its URL and 64 bytes. The cap is checked each time a reply is stored: past it, expired replies are removed first, then the oldest, down to nine tenths of the cap, and the reply just stored stays. A reply larger than the whole cap is answered but not stored, and `0` stores no replies, which leaves offline mode and stale fallback nothing to serve. The cache file keeps its largest size and reuses the freed space. The 2 GiB default holds about 560 typical 3.6 MiB openFDA label pages, a tenth of a 20 GiB container disk. Stored collections from `sync` are not counted.
 
+`pdf_memory_limit_mib` caps the memory of the child process that reads each publisher PDF, in mebibytes of address space; the default is 1024. BioMCP reads every PDF in a child of its own binary and kills the child at the call's time limit; on Linux the system also stops the child at this cap, and either way the document is reported as `refused`. macOS does not enforce a memory cap on a process, so there the time limit alone bounds a read.
+
 Set `BIOMCP_SQLITE_DIAGNOSTICS` to an existing file to opt into bounded SQLite operation and numeric error-code diagnostics (up to 4096 bytes); it does not include queries or patient data.
 
 ### Docker
@@ -134,7 +136,7 @@ Flag fields override file fields for that source. Other fields and sources remai
 
 `drug_search_name_limit` sets the most names one trial or article search sends for a drug, as a positive whole number. Omit it to use the [built-in limit](../crates/biomcp-query/src/context.rs). A capped search keeps the typed name, the record's preferred name and the shortest other names, and its reply says how many it left out. ClinicalTrials.gov refuses a name of more than 12 words, so a trial search also leaves those out and counts them.
 
-`article_access_lookup` set to `false` stops `search article` pages from asking Europe PMC for each row's open-access flag and license; rows then say `open_access_unknown`. It defaults to `true`. `--no-access-lookup` skips the lookup for one search. The lookup runs beside the PubMed title read and waits at most 3 seconds; when it fails or runs out of time, the page names Europe PMC with that state and offers a fresh retry.
+`article_access_lookup` set to `false` stops `search article` pages from asking NCBI which rows are in PubMed Central's open-access subset; rows then say `open_access_not_checked`. It defaults to `true`. `--no-access-lookup` skips the lookup for one search. The lookup is one NCBI request per page, sent beside the PubMed title read under NCBI's request pacing, and waits at most 3 seconds. `--license-lookup` also asks Europe PMC for each row's licence and its own open-access flag, waiting at most 10 seconds; without it, rows say `license_not_checked`. When a lookup fails or runs out of time, the page names its source with that state and offers a fresh retry.
 
 ## MCP reply form
 

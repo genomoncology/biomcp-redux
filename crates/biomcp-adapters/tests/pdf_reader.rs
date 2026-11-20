@@ -364,6 +364,18 @@ fn helvetica(document: &mut Document) -> Dictionary {
 }
 
 #[test]
+fn a_page_whose_only_operation_is_too_long_is_partial_not_empty() {
+    let content = format!("BT /F1 9 Tf [{}] TJ ET\n", "0 ".repeat(1 << 19)).into_bytes();
+    let bytes = pdf(&content, helvetica).expect("synthetic PDF");
+    let read = read(&bytes).expect("readable PDF");
+    assert_eq!(
+        read.state,
+        PdfTextState::Partial,
+        "the left-out operation may have held text"
+    );
+}
+
+#[test]
 fn a_long_stream_is_read_in_pieces_and_an_oversized_operation_is_left_out() {
     // A MiB of one-byte operations took 300 MB to parse at once; a TJ array of half a
     // million numbers is one operation of 1 MiB.

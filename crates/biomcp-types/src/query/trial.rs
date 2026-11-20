@@ -241,7 +241,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     next_page: Option<Text>,
-    #[doc = "Page offset.\nZero-based offset of the first row in this continuation page."]
+    #[doc = "Rows to skip.\nZero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live \
+registry each time; --next-page goes deeper and keeps pages consistent."]
     #[serde(default)]
     offset: u32,
     #[doc = "Total.\nSource total only; no returned study rows."]
@@ -425,6 +426,15 @@ impl TrialSearch {
     /// Zero-based offset carried by continuation queries.
     pub fn offset(&self) -> u32 {
         self.0.offset
+    }
+    /// The deepest ClinicalTrials.gov row an offset reaches without a page token (1061).
+    ///
+    /// The registry pages only by token, so an offset walks its pages of IDs first, about 1.1
+    /// seconds per 1,000 rows (measured 2026-11-19); the 15-second deadline ran out near 14,000.
+    pub const OFFSET_WALK_MAX: u32 = 5_000;
+    /// Whether this ClinicalTrials.gov search asks for an offset the ID walk cannot reach in time.
+    pub fn offset_too_deep(&self) -> bool {
+        self.offset() > Self::OFFSET_WALK_MAX && self.next_page().is_none() && !self.count_only()
     }
     /// Source count without study rows.
     pub fn count_only(&self) -> bool {

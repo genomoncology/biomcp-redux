@@ -134,22 +134,27 @@
         "variant",
         "TP53 R249S",
         "--limit",
-        "1",
-        "clinvar"
+        "1"
       ],
       "expect": {
         "/schema": "biomcp.variant-card/16",
-        "/status": "partial",
+        "/status": "complete",
         "/result/resolution": "candidates",
         "/page/total": 2,
         "/page/returned": 1,
         "/result/candidates": {
           "count": 1
         },
-        "/next/0/args": {
-          "includes": "clinvar"
-        },
-        "/next/1/kind": "page"
+        "/next/1/kind": "page",
+        "/next/1/args": [
+          "get",
+          "variant",
+          "TP53 R249S",
+          "--limit",
+          "1",
+          "--offset",
+          "1"
+        ]
       }
     },
     {

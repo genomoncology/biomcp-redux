@@ -1465,9 +1465,9 @@
         },
         "limit": {
           "default": 10,
-          "description": "Ten award rows by default, one to fifty.",
+          "description": "Ten award rows by default, one to 100.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },
@@ -1954,9 +1954,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default, at most 25.",
+          "description": "Five rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 25,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -1997,9 +1997,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default, at most 25.",
+          "description": "Five rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 25,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2040,9 +2040,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default, at most 25.",
+          "description": "Five rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 25,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2080,9 +2080,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default, at most 25.",
+          "description": "Five rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 25,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2130,9 +2130,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default, at most 25.",
+          "description": "Five rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 25,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2169,9 +2169,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default, at most 25.",
+          "description": "Five rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 25,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2511,7 +2511,7 @@
           "default": 5,
           "description": "Bounded initial section size; each all section has its own first page.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2554,9 +2554,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five complete relation rows by default, at most fifty.",
+          "description": "Five complete relation rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2594,9 +2594,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five complete relation rows by default, at most fifty.",
+          "description": "Five complete relation rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2646,7 +2646,7 @@
           "default": 5,
           "description": "Maximum headers per page.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2730,7 +2730,7 @@
           "default": 5,
           "description": "Maximum records in each selected section.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -2775,7 +2775,7 @@
           "default": 5,
           "description": "Rows per native page.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },
@@ -3356,7 +3356,7 @@
         "section_limit": {
           "description": "Maximum native rows; omitted means five rows, or one regulatory fragment.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -3440,7 +3440,7 @@
           "default": 5,
           "description": "Report headers, reaction terms or VAERS rows; default five.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },
@@ -3634,7 +3634,7 @@
           "default": 5,
           "description": "Whole source rows per section page.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -4215,7 +4215,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
+          "description": "Named section page size, refused on an identity-only card.\nAt most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere.",
           "format": "uint32",
           "maximum": 200,
           "minimum": 1,
@@ -4347,7 +4347,7 @@
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -4413,7 +4413,7 @@
           "default": 10,
           "description": "Maximum rows per page.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -4799,9 +4799,9 @@
         },
         "limit": {
           "default": 10,
-          "description": "Native candidates per page, default 10, maximum 50; all candidates remain candidates.",
+          "description": "Native candidates per page, default 10, maximum 100; all candidates remain candidates.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },
@@ -4898,9 +4898,9 @@
         },
         "limit": {
           "default": 10,
-          "description": "Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.",
+          "description": "Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.",
           "format": "uint32",
-          "maximum": 100,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -5282,7 +5282,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Page offset.\nZero-based offset of the first row in this continuation page.",
+          "description": "Rows to skip.\nZero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -5802,6 +5802,10 @@
           "$ref": "#/$defs/Text",
           "description": "PubMed/Europe PMC journal words.\nPubMed and Europe PMC only: journal words sent to the source's journal field."
         },
+        "license_lookup": {
+          "description": "Read licences from Europe PMC.\nAlso ask Europe PMC for each row's licence and open-access flag; slow, often several seconds.",
+          "type": "boolean"
+        },
         "limit": {
           "default": 10,
           "description": "Maximum page length.",
@@ -5811,7 +5815,7 @@
           "type": "integer"
         },
         "no_access_lookup": {
-          "description": "Skip the access lookup.\nDo not ask Europe PMC for each row's open-access flag and license.",
+          "description": "Skip the open-access lookup.\nDo not ask NCBI which rows are in PubMed Central's open-access subset.",
           "type": "boolean"
         },
         "no_preprints": {
@@ -5966,7 +5970,7 @@
           "default": 10,
           "description": "Number of results per page.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },

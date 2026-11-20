@@ -19,7 +19,7 @@
           "search",
           "study"
         ],
-        "/result/commands/0/description": "Search cancer genomics studies in cBioPortal. Sources: cbioportal.\nOptions apply to every listed source unless their description restricts them.\nFields: allSampleCount, cancerTypeId, citation, name, pmids, referenceGenome, studyId. Choose some with --fields a,b (typed: fields list); always kept: studyId.",
+        "/result/commands/0/description": "Search cancer genomics studies in cBioPortal. Sources: cbioportal.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: allSampleCount, cancerTypeId, citation, name, pmids, referenceGenome, studyId. Choose some with --fields a,b (typed: fields list); always kept: studyId.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -49,7 +49,7 @@
           "get",
           "study"
         ],
-        "/result/commands/0/description": "Get cancer genomics study details. Sources: cbioportal.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.",
+        "/result/commands/0/description": "Get cancer genomics study details. Sources: cbioportal.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.",
         "/result/commands/0/examples": {
           "count": 1
         },

@@ -21,6 +21,7 @@
 //! A composite font decoded without a character map gives glyph IDs, not characters. Its text
 //! is unsound, and only unsound text is judged for gibberish (1068).
 use super::fonts::{Widths, entry, widths};
+use biomcp_types::Reason;
 use lopdf::{Dictionary, Document, Encoding, Object, ObjectId, Stream};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -35,6 +36,8 @@ pub(super) const MAP_CODES: u64 = 1 << 17;
 pub(super) const DOCUMENT_CODES: u64 = 1 << 21;
 /// Most bytes of maps one document may hold; the most in one FDA document was 1,402,222.
 pub(super) const MAP_BYTES: usize = 4 << 20;
+/// Objects or maps handled between checks of the time limit.
+const CHECK_EVERY: usize = 1024;
 /// Deepest reference chain followed to a map.
 const CHAIN: usize = 8;
 /// The bfrange section, whose entries span codes.
@@ -46,11 +49,19 @@ const HEADER: &str =
     "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /Rebuilt def\n";
 const FOOTER: &str = "endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n";
 
-/// Remove every `/ToUnicode` map over the bounds from `document`; how many were removed.
-pub(super) fn bound(document: &mut Document) -> usize {
+/// Remove every `/ToUnicode` map over the bounds from `document`, and how many were removed;
+/// `Err` once `expired` says the time limit passed. Each map expands to at most the bytes the
+/// document has left, and once the budget is spent every remaining map is removed without
+/// being expanded, so the pass expands at most [`MAP_BYTES`] in all (1068 third review).
+pub(super) fn bound(document: &mut Document, expired: &dyn Fn() -> bool) -> Result<usize, Reason> {
     let mut maps = BTreeSet::new();
     let mut pending: Vec<&Object> = document.objects.values().collect();
+    let mut walked = 0usize;
     while let Some(object) = pending.pop() {
+        walked += 1;
+        if walked.is_multiple_of(CHECK_EVERY) && expired() {
+            return Err(Reason::DeadlineExceeded);
+        }
         match object {
             Object::Dictionary(dictionary) => named(dictionary, document, &mut maps, &mut pending),
             Object::Stream(stream) => named(&stream.dict, document, &mut maps, &mut pending),
@@ -58,26 +69,36 @@ pub(super) fn bound(document: &mut Document) -> usize {
             _ => {}
         }
     }
-    let (mut codes, mut bytes, mut removed) = (0u64, 0usize, 0usize);
-    for id in maps {
+    let (mut codes, mut bytes, mut removed, mut spent) = (0u64, 0usize, 0usize, false);
+    for (count, id) in maps.into_iter().enumerate() {
+        if count.is_multiple_of(CHECK_EVERY) && expired() {
+            return Err(Reason::DeadlineExceeded);
+        }
         let Some(Object::Stream(stream)) = document.objects.get(&id) else {
             continue;
         };
-        let size = stream
-            .get_plain_content_with_limit(MAP_BYTES)
-            .map(|raw| (raw.len(), covered(&String::from_utf8_lossy(&raw))));
-        let kept = size.is_ok_and(|(length, count)| {
-            let count = count.unwrap_or(u64::MAX);
-            codes = codes.saturating_add(count);
-            bytes = bytes.saturating_add(length);
-            count <= MAP_CODES && codes <= DOCUMENT_CODES && bytes <= MAP_BYTES
-        });
+        let expanded =
+            (!spent).then(|| stream.get_plain_content_with_limit(MAP_BYTES.saturating_sub(bytes)));
+        let kept = match expanded {
+            Some(Ok(raw)) => {
+                let count = covered(&String::from_utf8_lossy(&raw)).unwrap_or(u64::MAX);
+                codes = codes.saturating_add(count);
+                bytes = bytes.saturating_add(raw.len());
+                spent |= codes > DOCUMENT_CODES;
+                count <= MAP_CODES && !spent
+            }
+            // A map that fails may have expanded up to the bytes left, so it spends them.
+            _ => {
+                spent = true;
+                false
+            }
+        };
         if !kept {
             document.objects.insert(id, Object::Null);
             removed += 1;
         }
     }
-    removed
+    Ok(removed)
 }
 
 /// Note the stream `dictionary`'s `/ToUnicode` names, and queue its values to search.

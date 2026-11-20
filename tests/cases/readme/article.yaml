@@ -50,59 +50,73 @@
         },
         "/result/items/0": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/1": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/2": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/3": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/4": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/5": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/6": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/7": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/8": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/result/items/9": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked"
           ]
         },
         "/next/1/args": [
           "get",
           "article",
           "33377972"
-        ]
+        ],
+        "/result/items/*/open_access_source": {
+          "equals": [
+            "pubmed",
+            "pubmed",
+            "pubmed",
+            "pubmed",
+            "pubmed",
+            "pubmed",
+            "pubmed",
+            "pubmed",
+            "pubmed",
+            "pubmed"
+          ]
+        }
       }
     }
   ],

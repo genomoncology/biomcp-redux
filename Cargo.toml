@@ -57,6 +57,7 @@ serde_ignored = "0.1.14"
 serde_json = { version = "1.0.154", features = ["float_roundtrip", "preserve_order", "raw_value"] }
 toml = { version = "1.1.8", default-features = false, features = ["parse", "serde", "std"] }
 tempfile = "3.27.0"
+rustix = { version = "1.1.5", default-features = false, features = ["std", "process"] }
 libtest-mimic = "0.8.2"
 # Test-only GFM reference renderer: source text in Markdown output must render inert.
 comrak = { version = "0.57.0", default-features = false }

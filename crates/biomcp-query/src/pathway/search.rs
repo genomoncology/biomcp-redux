@@ -157,7 +157,27 @@ fn fetch(
             leg.finish(),
             reply.as_ref().err().copied(),
         ));
-        let reply = reply?;
+        let mut reply = reply?;
+        // Reactome answers a start row past the end with no entries and no count, so the
+        // count comes from the first row and a page past the end keeps its total (1061).
+        if reply.total == 0 && q.offset() > 0 && !q.top_level() {
+            let leg = cx
+                .fetch
+                .leg(&reactome::SPEC, deadline)
+                .fresh(cx.fresh || q.fresh());
+            let count = reactome::search(&leg, &q.at_offset(0).with_limit(1));
+            let report = status::source(
+                Source::Reactome,
+                leg.finish(),
+                count.as_ref().err().copied(),
+            );
+            if count.is_err()
+                && let Some(source) = out.sources.last_mut()
+            {
+                *source = report;
+            }
+            reply.total = count?.total;
+        }
         out.include_refusals(reply.rows.refusals);
         out.problems.extend(reply.rows.problems);
         body.items = reply.rows.value.into();

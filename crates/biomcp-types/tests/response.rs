@@ -519,8 +519,8 @@ fn other_bounded_collections_state_their_totals_before_their_rows() -> Outcome {
     use biomcp_types::{ProteinComplexes, ProteinDomains};
     declared_first::<Capped<serde_json::Value>>(json!({"total":0}), &["total"], "items")?;
     declared_first::<TrialRecords<serde_json::Value>>(
-        json!({"offset":0,"total":0}),
-        &["offset", "total"],
+        json!({"offset":0,"total":0,"page":{"offset":0,"returned":0,"total":0}}),
+        &["offset", "total", "page"],
         "items",
     )?;
     declared_first::<GenePage>(json!({"regions_total":60}), &["regions_total"], "regions")?;

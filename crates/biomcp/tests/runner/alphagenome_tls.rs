@@ -127,7 +127,8 @@ fn successful(
     {
         return Err("Markdown lost native nonfinite scalar labels".into());
     }
-    if !markdown.contains("--section-offset") {
+    // With a section named, the section's next page is taught as --offset (1061).
+    if !markdown.contains("--offset") {
         return Err("Markdown omitted executable scorer paging".into());
     }
     if later.pointer(&format!("{SECTION}/data/scorers/0/rows/0/tensor_index"))

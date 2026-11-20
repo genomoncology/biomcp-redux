@@ -19,9 +19,9 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,
-    /// Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.
+    /// Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.
     #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     limit: u32,
     /// Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
     #[serde(default)]
@@ -75,7 +75,7 @@ impl TryFrom<Fields> for TrialGet {
         if !(1..=20).contains(&v.input.len()) {
             return Err(QueryInvalid::new(&["input"]));
         }
-        if !(1..=100).contains(&v.limit) {
+        if !(1..=200).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
         if (v.pool.is_some() || v.offset != 0)
@@ -98,10 +98,6 @@ impl TryFrom<Fields> for TrialGet {
                 }
             }
             _ => return Err(QueryInvalid::new(&["lat", "lon"])),
-        }
-        if v.offset != 0 && v.pool.is_none() {
-            return Err(QueryInvalid::new(&["offset", "pool"])
-                .with_message(crate::ErrorMessage::TrialSectionPool));
         }
         Ok(Self(v))
     }

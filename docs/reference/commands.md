@@ -219,6 +219,7 @@ Options:
 Search NCI biomarker concepts by name or synonym. Sources: nci.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--limit`: Maximum headers per local page. Value form: integer; example: --limit 5.
 - `--name`: Source partial name or synonym search. Value form: string; example: --name PD-L1.
@@ -284,6 +285,7 @@ Options:
 Search research paper authors. Sources: pubmed, semantic-scholar.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--limit`: Bounded source page size. Value form: integer; example: --limit 5.
 - `--offset`: Source offset. Value form: integer; example: --offset 0.
@@ -373,6 +375,7 @@ Options:
 Search clinical research organizations. Sources: nci.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--city`: Source organization city. Value form: string; example: --city Boston.
 - `--country`: Source organization country. Value form: string; example: --country 'United States'.
@@ -458,6 +461,7 @@ Options:
 
 Search cell lines by name or identifier. Sources: cellosaurus.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--disease`: Cellosaurus disease: NCIt name or ID, such as Melanoma or C3224 (melanoma); a name matches as a phrase, without narrower NCIt diseases. Value form: string; example: --disease Melanoma.
 - `--exclude-derived`: Leave out lines derived from a parent line; needs another search term. Value form: boolean; example: --exclude-derived.
@@ -561,6 +565,7 @@ Options:
 
 Search genetic associations in GWAS Catalog. Sources: gwas.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--extended-geneset`: Source extended gene set; requires gene. Value form: boolean; example: --extended-geneset.
 - `--gene`: Exact source mapped gene; legacy positional query aliases this field. Value form: string; example: --gene FGFR2.
@@ -640,6 +645,7 @@ Options:
 
 Search reviewed human proteins in UniProt. Sources: uniprot.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--gene`: Exact source gene field, without identifier inference. Value form: string; example: --gene BRAF.
 - `--limit`: Five rows by default; no more than 25. Value form: integer; example: --limit 25.
@@ -715,6 +721,7 @@ Options:
 Search human phenotypes in HPO. Sources: hpo, monarch, ols.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--group`: HP IDs only: rank genes, the default, or diseases. Value form: string; example: --group diseases.
 - `--limit`: Maximum source headers, default five. Value form: integer; example: --limit 3.
@@ -791,6 +798,7 @@ Options:
 Search human biological pathways. Sources: reactome, wikipathways.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--fresh`: Request a new retained observation. Value form: boolean; example: --fresh.
 - `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only. Value form: string; example: --gene HGNC:1097.
@@ -857,6 +865,7 @@ Options:
 
 Search cancer genomics studies in cBioPortal. Sources: cbioportal.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion. Value form: string; example: --cancer-type mixed.
 - `--limit`: Maximum headers per page. Value form: integer; example: --limit 1.
@@ -921,6 +930,7 @@ Options:
 Search pharmacogenomic gene and drug pairs. Sources: cpic.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--cpic-level`: Exact source level, including compound levels such as B/C. Value form: string; example: --cpic-level B/C.
 - `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
@@ -1091,6 +1101,7 @@ Options:
 Search diagnostic laboratory tests and devices. FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug, before FDA's cells, whose headers differ by table. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--aggregate`: Count by product code.
 Also counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page. Value form: string; example: --aggregate product-code; only with --source fda-510k.
@@ -1280,6 +1291,7 @@ Options:
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--aggregate`: Report counts.
 reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero. Value form: string; example: --aggregate reactions.
@@ -1385,6 +1397,7 @@ Options:
 Search diseases and their identifiers. Sources: monarch, mydisease, ols, seer.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--limit`: Maximum source rows on one page. Value form: integer; example: --limit 1.
 - `--offset`: Source row offset. Value form: integer; example: --offset 1.
@@ -1539,6 +1552,7 @@ Options:
 Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--applicant`: Applicant name start; Drugs@FDA only.
 Matches source sponsor_name values starting with this text, ignoring letter case;
@@ -1659,6 +1673,7 @@ Options:
 Search human genes by name, identifier or cytoband, and ClinGen dosage regions by cytoband or GRCh38 interval. Sources: clingen, hgnc.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--band`: A cytoband prefix. Also lists ClinGen dosage regions whose band span contains it, such as 15q12 in 15q11.2-q13.1. Value form: string; example: --band 9p21.3.
 - `--limit`: Number of results per page. Value form: integer; example: --limit 50.
@@ -1727,19 +1742,19 @@ Options:
           PubMed/Europe PMC journal words.
           PubMed and Europe PMC only: journal words sent to the source's journal field.
 
-      --limit <limit>
-          Maximum page length.
-
-      --no-access-lookup[=<no_access_lookup>]
-          Skip the access lookup.
-          Do not ask Europe PMC for each row's open-access flag and license.
+      --license-lookup[=<license_lookup>]
+          Read licences from Europe PMC.
+          Also ask Europe PMC for each row's licence and open-access flag; slow, often several seconds.
 
           [default: false]
           [possible values: true, false]
 
-      --no-preprints[=<no_preprints>]
-          Exclude preprints.
-          PubMed and Europe PMC only: exclude preprints using the source's own filter.
+      --limit <limit>
+          Maximum page length.
+
+      --no-access-lookup[=<no_access_lookup>]
+          Skip the open-access lookup.
+          Do not ask NCBI which rows are in PubMed Central's open-access subset.
 
           [default: false]
           [possible values: true, false]
@@ -1752,6 +1767,13 @@ Options:
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+      --no-preprints[=<no_preprints>]
+          Exclude preprints.
+          PubMed and Europe PMC only: exclude preprints using the source's own filter.
 
           [default: false]
           [possible values: true, false]
@@ -1820,6 +1842,7 @@ Options:
 Search research articles and biomedical papers. Sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--affiliation`: PubMed/Europe PMC affiliation words.
 PubMed and Europe PMC only: author affiliation words, such as an institution, sent to the source's affiliation field as one phrase. Value form: string; example: --affiliation 'Dana-Farber Cancer Institute'.
@@ -1834,9 +1857,11 @@ Available for command sources except LitVar. Value form: string; example: --drug
 Gene input; PubMed resolves it through HGNC. Value form: string; example: --gene NF2.
 - `--journal`: PubMed/Europe PMC journal words.
 PubMed and Europe PMC only: journal words sent to the source's journal field. Value form: string; example: --journal 'journal words'.
+- `--license-lookup`: Read licences from Europe PMC.
+Also ask Europe PMC for each row's licence and open-access flag; slow, often several seconds. Value form: boolean; example: --license-lookup.
 - `--limit`: Maximum page length. Value form: integer; example: --limit 5.
-- `--no-access-lookup`: Skip the access lookup.
-Do not ask Europe PMC for each row's open-access flag and license. Value form: boolean; example: --no-access-lookup.
+- `--no-access-lookup`: Skip the open-access lookup.
+Do not ask NCBI which rows are in PubMed Central's open-access subset. Value form: boolean; example: --no-access-lookup.
 - `--no-preprints`: Exclude preprints.
 PubMed and Europe PMC only: exclude preprints using the source's own filter. Value form: boolean; example: --no-preprints.
 - `--offset`: Number of pool items to skip. Value form: integer; example: --offset 5.
@@ -2011,8 +2036,8 @@ Options:
           ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page.
 
       --offset <offset>
-          Page offset.
-          Zero-based offset of the first row in this continuation page.
+          Rows to skip.
+          Zero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent.
 
       --phase <phase>
           Source phase; help search trial
@@ -2080,6 +2105,7 @@ Options:
 Search clinical trials. Sources: ctgov, nci.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--age`: Age in years.
 ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer; example: --age 18.
@@ -2122,8 +2148,8 @@ Headers per page; NCI applies its own lower publisher limit. Value form: integer
 ClinicalTrials.gov only: radius center longitude in degrees. Value form: string; example: --lon -71.0589.
 - `--next-page`: Page token.
 ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string; example: --next-page <next-page> (syntax; replace the placeholder with your retained value).
-- `--offset`: Page offset.
-Zero-based offset of the first row in this continuation page. Value form: integer; example: --offset 0.
+- `--offset`: Rows to skip.
+Zero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent. Value form: integer; example: --offset 0.
 - `--phase`: Source phase.
 Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
 - `query`: Trial text.
@@ -2194,7 +2220,7 @@ Options:
           Require the selected component's identifier field. Only source-proven mappings are offered.
 
       --limit <limit>
-          Source candidates per page, default 10, maximum 50; all candidates remain candidates.
+          Source candidates per page, default 10, maximum 100; all candidates remain candidates.
 
       --offset <offset>
           Source offset within this command's bounded result window; larger source totals remain visible.
@@ -2232,13 +2258,14 @@ Options:
 Search genetic variants by gene, change or region. Sources: myvariant.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly. Value form: string; example: --build GRCh37.
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Value form: string; example: --coding 'c.333G>T'.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Value form: string; example: --condition 'Carcinoma of colon (CRC)'.
 - `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector. Value form: string; example: --gene EGFR.
 - `--has`: Require the selected component's identifier field. Only source-proven mappings are offered. Value form: string; example: --has clinvar.
-- `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates. Value form: integer; example: --limit 50.
+- `--limit`: Source candidates per page, default 10, maximum 100; all candidates remain candidates. Value form: integer; example: --limit 50.
 - `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer; example: --offset 0.
 - `--protein`: Explicit substitution or synonymous change using checked amino-acid codes. Value form: string; example: --protein L858R.
 - `--query`: Gene and protein shorthand such as BRAF V600E. With --source myvariant this is raw MyVariant text, passed and echoed unchanged when component policy allows. Value form: string; example: --query CA123643.
@@ -2277,7 +2304,7 @@ Options:
           RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387.
 
       --limit <limit>
-          Ten award rows by default, one to fifty.
+          Ten award rows by default, one to 100.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -2307,11 +2334,12 @@ Options:
 
 Search NIH RePORTER research grants by topic, investigator, organization and fiscal year. Sources: nih-reporter.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--fiscal-year`: One NIH fiscal year, such as 2025; all years by default. Value form: integer; example: --fiscal-year 2025.
 - `--investigator`: Principal investigator name, such as "Pasi Janne". Each word matches any part of any investigator's name, so common names find other people; check the profile IDs. Value form: string; example: --investigator 'Pasi Janne'.
 - `--investigator-id`: RePORTER investigator profile ID from `investigators[].profile_id`, such as 1861387. Value form: integer; example: --investigator-id 14892358.
-- `--limit`: Ten award rows by default, one to fifty. Value form: integer; example: --limit 3.
+- `--limit`: Ten award rows by default, one to 100. Value form: integer; example: --limit 3.
 - `--offset`: Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep. Value form: integer; example: --offset 68.
 - `--organization`: Funded organization name or part of it, as RePORTER spells it, such as "DANA-FARBER". Value form: string; example: --organization DANA-FARBER.
 - `query`: Words that must all appear in the project title, abstract or terms, such as "KRAS G12C".
@@ -2530,6 +2558,7 @@ Options:
 Get cell line details and cross-references. Sources: cellosaurus.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `id`: One exact primary accession or qualified source ID.
 Form: get cell-line ID SECTION; not --id.
@@ -2603,6 +2632,7 @@ Options:
 Get GWAS Catalog associations or studies. Sources: gwas.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `id`: Qualified association ID or exact GCST study accession.
 Form: get gwas ID SECTION; not --id.
@@ -2670,6 +2700,7 @@ Options:
 Get protein details and source annotations. Sources: chembl, complex-portal, hgnc, interpro, string-db, uniprot.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit; --section-limit is the same option.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
 Form: get protein INPUT...; not --input.
@@ -2749,6 +2780,7 @@ Options:
 Get human phenotype details and relationships. Sources: hpo, monarch, ols.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `id`: Exact HP identifier.
 Form: get phenotype ID SECTION; not --id.
@@ -2830,6 +2862,7 @@ Options:
 Get human pathway details. Sources: reactome, wikipathways.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--fresh`: Request a new source observation. Value form: boolean; example: --fresh.
 - `--gene-products`: With the genes or all section: keep only gene-product references, as `pathway genes --gene-products` does. Value form: boolean; example: --gene-products.
@@ -2907,6 +2940,7 @@ Options:
 Get cancer genomics study details. Sources: cbioportal.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna. Value form: string; example: --gene BRAF.
 - `id`: Exact source study ID; no default or repair.
@@ -3003,6 +3037,7 @@ Options:
 Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string; example: --annotation-id <annotation-id> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
 - `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string; example: --diplotype '*1/*2A'; only with --source cpic.
@@ -3091,6 +3126,7 @@ Options:
 Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value).
 - `--find`: PMA summary: case-insensitive exact text to find; section offset then counts passages. Value form: string; example: --find 'Limit of Detection'.
@@ -3177,6 +3213,7 @@ Options:
 Get a drug, device or vaccine adverse event report. Sources: faers, maude.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--drug-index`: Absolute source-array index; required only for identifier sections. Value form: integer; example: --drug-index 0.
 - `id`: Published report ID with no source prefix.
@@ -3281,6 +3318,7 @@ Options:
 Get disease details and source statistics. Sources: monarch, mydisease, ols, orphadata, seer.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--age-range`: Source age-range code. Value form: string; example: --age-range 1.
 - `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string; example: --dataset 4.
@@ -3414,7 +3452,7 @@ Options:
 
       --section-limit <section_limit>
           Named section page size, refused on an identity-only card.
-          At most 50 rows, or 200 for Drugs@FDA approvals.
+          At most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere.
 
       --section-offset <section_offset>
           Named section continuation, refused on an identity-only card.
@@ -3428,6 +3466,7 @@ Options:
 Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--civic-cursor`: CIViC continuation.
 Source continuation cursor for that exact drug, profile and claim collection. Only with --source civic. Value form: string; example: --civic-cursor 0:A2.
@@ -3468,7 +3507,7 @@ Explicit source application product number, only for approvals. Only with --sour
 - `section`: Source sections.
 Form: get drug INPUT SECTION...; not --section.
 - `--section-limit`: Named section page size, refused on an identity-only card.
-At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer; example: --section-limit 2.
+At most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Named section continuation, refused on an identity-only card. Value form: integer; example: --section-offset 1.
 - `--source`: Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem. Value form: string; example: --source ema.
 
@@ -3639,7 +3678,7 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
-          Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.
+          Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.
 
       --lon <lon>
           Longitude degrees; used with --lat.
@@ -3680,11 +3719,12 @@ Options:
 Get clinical trial details. Sources: ctgov, nci.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
 Form: get trial INPUT...; not --input.
 - `--lat`: Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read. Value form: string; example: --lat 39.96.
-- `--limit`: Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
+- `--limit`: Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
 - `--lon`: Longitude degrees; used with --lat. Value form: string; example: --lon -83.00.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer; example: --offset 0.
 - `--pool`: Checked stored source record, supplied by a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
@@ -3819,11 +3859,18 @@ Options:
           Tumor
           Explicit tumor context for keyed OncoKB annotation.
 
+      --candidate-limit <candidate_limit>
+          The candidates' --limit when a section is named.
+
+      --candidate-offset <candidate_offset>
+          The candidates' --offset when a section is named.
+
 ```
 
 Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset page the named section, else the candidates; --candidate-limit and --candidate-offset page the candidates when a section is named.
 
 - `--build`: Assembly
 MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build. Value form: string; example: --build GRCh37.
@@ -3860,6 +3907,8 @@ Form: get variant INPUT SECTION...; not --section.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer; example: --section-offset 0.
 - `--tumor-type`: Tumor
 Explicit tumor context for keyed OncoKB annotation. Value form: string; example: --tumor-type Melanoma.
+- `--candidate-limit`: The candidates' --limit when a section is named. Value form: string; example: --candidate-limit <candidate-limit> (syntax; replace the placeholder with your retained value).
+- `--candidate-offset`: The candidates' --offset when a section is named. Value form: string; example: --candidate-offset <candidate-offset> (syntax; replace the placeholder with your retained value).
 
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
@@ -3981,6 +4030,7 @@ Options:
 List an author's research papers. Sources: orcid, semantic-scholar.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--full`: Legacy alias for details; normalized on construction. Value form: boolean; example: --full.
 - `id`: Exact qualified source record.
@@ -4153,7 +4203,7 @@ Options:
           [possible values: json, md]
 
       --limit <limit>
-          Five rows by default, at most 25.
+          Five rows by default, at most 200.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -4192,10 +4242,11 @@ Options:
 
 Get protein features by residue or region. Sources: uniprot.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein features ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--limit`: Five rows by default, at most 200. Value form: integer; example: --limit 1.
 - `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
 - `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `--position`: Source one-based residue; zero fails during deserialization. Value form: integer; example: --position 25.
@@ -4220,7 +4271,7 @@ Options:
           [possible values: json, md]
 
       --limit <limit>
-          Five rows by default, at most 25.
+          Five rows by default, at most 200.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -4253,10 +4304,11 @@ Options:
 
 Get protein isoforms and alternative products. Sources: uniprot.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein isoforms ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--limit`: Five rows by default, at most 200. Value form: integer; example: --limit 1.
 - `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
 - `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
@@ -4279,7 +4331,7 @@ Options:
           [possible values: json, md]
 
       --limit <limit>
-          Five rows by default, at most 25.
+          Five rows by default, at most 200.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -4315,10 +4367,11 @@ Options:
 
 Get protein domains and families from InterPro. Sources: interpro.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein domains ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--limit`: Five rows by default, at most 200. Value form: integer; example: --limit 1.
 - `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
 - `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `--type`: Exact source InterPro type, not a normalized domain label. Value form: string; example: --type <type> (syntax; replace the placeholder with your retained value).
@@ -4342,7 +4395,7 @@ Options:
           [possible values: json, md]
 
       --limit <limit>
-          Five rows by default, at most 25.
+          Five rows by default, at most 200.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -4375,10 +4428,11 @@ Options:
 
 List protein complexes containing a protein. Sources: complex-portal.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein complexes ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--limit`: Five rows by default, at most 200. Value form: integer; example: --limit 1.
 - `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
 - `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
@@ -4407,7 +4461,7 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
-          Five rows by default, at most 25.
+          Five rows by default, at most 200.
 
       --offset <offset>
           Source or retained page offset.
@@ -4437,11 +4491,12 @@ Options:
 
 List the members of a protein complex. Sources: complex-portal.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein complex-members ACCESSION; not --accession.
 - `--complex`: Exact complex whose source participants contain the anchor. Value form: string; example: --complex CPX-715.
-- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--limit`: Five rows by default, at most 200. Value form: integer; example: --limit 1.
 - `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
 - `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
@@ -4464,7 +4519,7 @@ Options:
           [possible values: json, md]
 
       --limit <limit>
-          Five rows by default, at most 25.
+          Five rows by default, at most 200.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -4497,10 +4552,11 @@ Options:
 
 Get protein structure references from PDB. Sources: uniprot.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein structures ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--limit`: Five rows by default, at most 200. Value form: integer; example: --limit 1.
 - `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
 - `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
@@ -4627,7 +4683,7 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
   -l, --limit <limit>
-          Five complete relation rows by default, at most fifty.
+          Five complete relation rows by default, at most 200.
 
       --offset <offset>
           Offset within the retained selected relation.
@@ -4658,13 +4714,14 @@ Options:
 List genes in a biological pathway. Sources: reactome, wikipathways.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `details`: Include every physical entity context for these references; never clips source text.
 Form: pathway genes ID DETAILS; not --details.
 - `--gene-products`: Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products. Value form: boolean; example: --gene-products.
 - `id`: Checked source-owned human pathway identity.
 Form: pathway genes ID DETAILS; not --id.
-- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 50.
+- `--limit`: Five complete relation rows by default, at most 200. Value form: integer; example: --limit 50.
 - `--offset`: Offset within the retained selected relation. Value form: integer; example: --offset 0.
 - `--pool`: Immutable relation snapshot. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
@@ -4687,7 +4744,7 @@ Options:
           [possible values: json, md]
 
   -l, --limit <limit>
-          Five complete relation rows by default, at most fifty.
+          Five complete relation rows by default, at most 200.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -4720,10 +4777,11 @@ Options:
 
 List events within a biological pathway. Sources: reactome.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `id`: Checked source-owned human pathway identity.
 Form: pathway events ID; not --id.
-- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 50.
+- `--limit`: Five complete relation rows by default, at most 200. Value form: integer; example: --limit 50.
 - `--offset`: Offset within the retained selected relation. Value form: integer; example: --offset 0.
 - `--pool`: Immutable relation snapshot. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
@@ -4846,6 +4904,7 @@ Options:
 
 Read a research article supplementary file. Sources: pmc-oa, pubmed.
 Options apply to every listed source unless their description restricts them.
+Paging: --offset.
 
 - `file`: Exact file name from the supplements section.
 Form: article supplement INPUT FILE; not --file.
@@ -4981,6 +5040,7 @@ Options:
 
 Get the abstract card by default, or explicitly read article body text. Sources: europepmc, pmc-oa, pubmed.
 Options apply to every listed source unless their description restricts them.
+Paging: --offset.
 
 - `--find`: Case-insensitive exact text to find. Value form: string; example: --find AXIN2.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
@@ -5050,6 +5110,7 @@ Options:
 List research papers citing an article. Sources: icite, pubmed, semantic-scholar.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--limit`: Maximum papers on one page. Value form: integer; example: --limit 1.
 - `--offset`: Number of pool items to skip. Value form: integer; example: --offset 0.
@@ -5119,6 +5180,7 @@ Options:
 List research papers referenced by an article. Sources: icite, pubmed, semantic-scholar.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--limit`: Maximum papers on one page. Value form: integer; example: --limit 1.
 - `--offset`: Number of pool items to skip. Value form: integer; example: --offset 112.
@@ -5190,6 +5252,7 @@ Options:
 
 Get research article citation evidence. Sources: pmc-oa, pubmed, semantic-scholar.
 Options apply to every listed source unless their description restricts them.
+Paging: --offset.
 
 - `cited`: Cited PMID, PMC identity or DOI.
 Form: article citation-evidence CITING CITED; not --cited.
@@ -5255,6 +5318,7 @@ Options:
 
 Get related research article recommendations. Sources: semantic-scholar.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--limit`: Maximum recommendations requested, in source order. Value form: integer; example: --limit 5.
 - `--negative`: Up to ten negative paper identities. Value form: repeatable values (repeat the flag); example: --negative 33433946.
@@ -5483,6 +5547,7 @@ Options:
 Get genetic variant assertions from ClinVar or ClinGen. Sources: clinvar, erepo.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--assertion`: Source assertion accession or document ID. Value form: string; example: --assertion PCER000001171.
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
@@ -5558,6 +5623,7 @@ Options:
 Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--build`: Explicit source assembly when required by identity input. Value form: string; example: --build GRCh38.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually. Value form: boolean; example: --detail.
@@ -5637,6 +5703,7 @@ Options:
 Get genetic variant observations in a cohort. Sources: cbioportal.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --page.
 
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
 - `--gene`: HGNC symbol resolved to the source's Entrez gene identifier. Value form: string; example: --gene BRAF.
@@ -5708,6 +5775,7 @@ Options:
 Normalize reference-qualified genetic variant HGVS. Sources: car, mutalyzer, variantvalidator.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
+Paging: --limit and --offset.
 
 - `--build`: Caller assembly; required when VariantValidator is selected. Value form: string; example: --build GRCh38.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.

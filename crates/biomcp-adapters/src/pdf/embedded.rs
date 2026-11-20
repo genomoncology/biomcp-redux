@@ -41,16 +41,9 @@ pub fn embedded(
         }
     };
     check()?;
-    match super::scan::loadable(bytes) {
-        Ok(()) => {}
-        Err(super::scan::Refusal::TooLarge) => {
-            result.state = PdfTextState::TooLarge;
-            return Ok(result);
-        }
-        Err(super::scan::Refusal::Irregular) => {
-            result.state = PdfTextState::Damaged;
-            return Ok(result);
-        }
+    if let Some(state) = refused(bytes, expired)? {
+        result.state = state;
+        return Ok(result);
     }
     let mut options =
         lopdf::LoadOptions::with_max_decompressed_size(super::scan::LOAD_STREAM_BYTES);
@@ -65,7 +58,7 @@ pub fn embedded(
         }
     };
     check()?;
-    super::cmap::bound(&mut document);
+    super::cmap::bound(&mut document, expired)?;
     check()?;
     let pages = document.get_pages();
     result.pages = Some(u32::try_from(pages.len()).unwrap_or(u32::MAX));
@@ -107,6 +100,16 @@ pub fn embedded(
 }
 
 /// The read's state and text once every page is read.
+/// The state of a document the measuring refuses before loading, if it does.
+fn refused(bytes: &[u8], expired: &dyn Fn() -> bool) -> Result<Option<PdfTextState>, Reason> {
+    match super::scan::loadable(bytes, expired) {
+        Ok(()) => Ok(None),
+        Err(super::scan::Refusal::TooLarge) => Ok(Some(PdfTextState::TooLarge)),
+        Err(super::scan::Refusal::Irregular) => Ok(Some(PdfTextState::Damaged)),
+        Err(super::scan::Refusal::Expired) => Err(Reason::DeadlineExceeded),
+    }
+}
+
 fn settle(
     mut result: Embedded,
     mut text: String,
@@ -132,7 +135,8 @@ fn settle(
         text = kept;
         cut = true;
     }
-    if !text.trim().is_empty() {
+    // A skipped part may have held all the text, so it is partial, never no-text.
+    if !text.trim().is_empty() || skipped {
         result.missing = match (cut, skipped) {
             (true, true) => Some(PdfMissing::Both),
             (true, false) => Some(PdfMissing::Gibberish),

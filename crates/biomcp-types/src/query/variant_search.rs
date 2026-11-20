@@ -203,9 +203,9 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantSearchField"))]
     has: Option<VariantSearchField>,
-    /// Native candidates per page, default 10, maximum 50; all candidates remain candidates.
+    /// Native candidates per page, default 10, maximum 100; all candidates remain candidates.
     #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::SEARCH_PAGE_MAX)))]
     limit: u32,
     /// Native offset within this command's bounded result window; larger native totals remain visible.
     #[serde(default)]
@@ -259,7 +259,7 @@ impl TryFrom<Fields> for VariantSearch {
                 "gene", "protein", "coding", "region", "build", "query", "source",
             ]));
         }
-        if !(1..=50).contains(&f.limit) {
+        if !(1..=crate::SEARCH_PAGE_MAX).contains(&f.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
         if f.offset >= Self::MAX_RESULTS {

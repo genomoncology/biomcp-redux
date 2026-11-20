@@ -1,0 +1,188 @@
+[
+ {
+  "name": "trial-locations",
+  "args": [
+   "get",
+   "trial",
+   "NCT03734029",
+   "locations"
+  ],
+  "replay": "trial/get/NCT03734029",
+  "small": 50,
+  "big": 200,
+  "items": "/result/items/0/sections/locations/data/items",
+  "page": "/result/items/0/sections/locations/data/page"
+ },
+ {
+  "name": "drug-approvals",
+  "args": [
+   "get",
+   "drug",
+   "NDA022363",
+   "approvals",
+   "--source",
+   "drugsfda"
+  ],
+  "replay": "paging/approvals",
+  "small": 4,
+  "big": 50,
+  "items": "/result/approvals/data/records",
+  "page": "/page"
+ },
+ {
+  "name": "get-pathway-genes",
+  "args": [
+   "get",
+   "pathway",
+   "R-HSA-5673001",
+   "genes"
+  ],
+  "replay": "pathway/sections",
+  "small": 50,
+  "big": 200,
+  "items": "/result/genes/data/items",
+  "page": "/result/genes/data/page"
+ },
+ {
+  "name": "pathway-genes",
+  "args": [
+   "pathway",
+   "genes",
+   "R-HSA-5673001"
+  ],
+  "replay": "pathway/sections",
+  "small": 50,
+  "big": 200,
+  "items": "/result/items",
+  "page": "/result/page"
+ },
+ {
+  "name": "get-pathway-events",
+  "args": [
+   "get",
+   "pathway",
+   "R-HSA-5673001",
+   "events"
+  ],
+  "replay": "pathway/sections",
+  "small": 10,
+  "big": 200,
+  "items": "/result/events/data/items",
+  "page": "/result/events/data/page"
+ },
+ {
+  "name": "pathway-events",
+  "args": [
+   "pathway",
+   "events",
+   "R-HSA-5673001"
+  ],
+  "replay": "pathway/sections",
+  "small": 10,
+  "big": 200,
+  "items": "/result/items",
+  "page": "/result/page"
+ },
+ {
+  "name": "search-trial",
+  "args": [
+   "search",
+   "trial",
+   "--condition",
+   "melanoma",
+   "--intervention",
+   "tebentafusp"
+  ],
+  "replay": "paging/walks/search-trial",
+  "small": 8,
+  "big": 100,
+  "items": "/result/items",
+  "page": "/page"
+ },
+ {
+  "name": "variant-candidates",
+  "args": [
+   "get",
+   "variant",
+   "TP53 R249S"
+  ],
+  "replay": "paging/walks/variant-candidates",
+  "small": 1,
+  "big": 50,
+  "items": "/result/candidates",
+  "page": "/page"
+ },
+ {
+  "name": "search-gwas",
+  "args": [
+   "search",
+   "gwas",
+   "--pubmed",
+   "17529967",
+   "--p-value",
+   "1e-10"
+  ],
+  "replay": "paging/walks/gwas",
+  "small": 1,
+  "big": 50,
+  "items": "/result/items",
+  "page": "/page"
+ },
+ {
+  "name": "search-pgx",
+  "args": [
+   "search",
+   "pgx",
+   "--gene",
+   "CYP2D6",
+   "--source",
+   "cpic"
+  ],
+  "replay": "paging/walks/pgx",
+  "small": 10,
+  "big": 100,
+  "items": "/result/items",
+  "page": "/result/page"
+ },
+ {
+  "name": "search-pathway",
+  "args": [
+   "search",
+   "pathway",
+   "MAPK"
+  ],
+  "replay": "paging/walks/pathway",
+  "small": 10,
+  "big": 50,
+  "items": "/result/items",
+  "page": "/result/page"
+ },
+ {
+  "name": "search-pathway-both",
+  "args": [
+   "search",
+   "pathway",
+   "MAPK",
+   "--source",
+   "reactome,wikipathways"
+  ],
+  "replay": "paging/walks/pathway-both",
+  "small": 10,
+  "big": 50,
+  "items": "/result/items",
+  "page": "/result/page"
+ },
+ {
+  "name": "protein-features",
+  "args": [
+   "protein",
+   "features",
+   "P01308"
+  ],
+  "replay": "paging/walks/protein-features",
+  "small": 10,
+  "big": 200,
+  "items": "/result/items",
+  "page": "/page"
+ }
+]

@@ -201,3 +201,117 @@ fn a_chain_of_too_many_cross_reference_sections_is_refused() {
     let read = read(&file).expect("refused, not failed");
     assert_eq!(read.state, PdfTextState::TooLarge);
 }
+
+#[test]
+fn a_file_whose_end_names_two_tables_is_damaged() {
+    // lopdf takes `startxref` from just before the last `%%EOF`; a second table named after it
+    // once made the measuring check a harmless table while lopdf loaded an attack (1068).
+    let mut file = raw_pdf(&page_bodies(), as_written);
+    assert_eq!(read(&file).expect("readable PDF").state, PdfTextState::Text);
+    let table = file
+        .windows(6)
+        .rposition(|w| w == b"\nxref\n")
+        .expect("table")
+        + 1;
+    file.extend(format!("startxref\n{table}\n").bytes());
+    assert!(damaged(&file), "data after the last %%EOF");
+    let padded = [raw_pdf(&page_bodies(), as_written), b"\n\0 \r\n".to_vec()].concat();
+    assert_eq!(
+        read(&padded).expect("readable PDF").state,
+        PdfTextState::Text,
+        "trailing space"
+    );
+}
+
+#[test]
+fn many_streams_sharing_one_length_object_are_measured_once_each() {
+    // Each indirect /Length once searched the whole table: 200,000 such streams took 21 s.
+    let mut bodies = page_bodies();
+    bodies.push(b"2".to_vec());
+    for _ in 0..20_000 {
+        bodies.push(b"<< /Length 6 0 R >>\nstream\nBT\nendstream".to_vec());
+    }
+    let read = read(&raw_pdf(&bodies, as_written)).expect("readable PDF");
+    assert_eq!(read.state, PdfTextState::Text);
+}
+
+#[test]
+fn maps_past_the_budget_are_removed_without_being_expanded() {
+    // 50,000 small maps that each expand to 4 MiB took 72 s when every one was expanded.
+    let mut map = Stream::new(dictionary! {}, vec![b' '; (4 << 20) - 1]);
+    map.compress().expect("compressible");
+    let mut bodies = page_bodies();
+    for index in 0..2_000 {
+        let map_number = 7 + 2 * index;
+        bodies.push(
+            format!("<< /Type /Font /Subtype /Type0 /BaseFont /M /Encoding /Identity-H /ToUnicode {map_number} 0 R >>")
+                .into_bytes(),
+        );
+        let mut body = format!(
+            "<< /Filter /FlateDecode /Length {} >>\nstream\n",
+            map.content.len()
+        )
+        .into_bytes();
+        body.extend(&map.content);
+        body.extend(b"\nendstream");
+        bodies.push(body);
+    }
+    let read = read(&raw_pdf(&bodies, as_written)).expect("readable PDF");
+    assert_eq!(read.state, PdfTextState::Text);
+    assert!(read.text.contains(SENTENCE));
+}
+
+#[test]
+fn a_length_object_a_newer_section_moves_into_an_object_stream_is_damaged() {
+    // An older table gives object 6, a stream's /Length, as 10; a newer cross-reference stream
+    // places it in an object stream holding 400,000. lopdf takes the newer: many such streams
+    // made it copy overlapping data, 2.48 GB from 925 KB (1068 fourth review). The data here
+    // reads either way, so only the measuring can refuse it.
+    let mut stream = b"<< /Length 6 0 R >>\nstream\n0123456789\nendstream\n".to_vec();
+    stream.resize(stream.len() + 400_000 - 21, b'x');
+    stream.extend(b"\nendstream");
+    let held = "6 0 400000";
+    let mut bodies = page_bodies();
+    bodies.push(b"10".to_vec());
+    bodies.push(stream);
+    bodies.push(
+        format!(
+            "<< /Type /ObjStm /N 1 /First 4 /Length {} >>\nstream\n{held}\nendstream",
+            held.len()
+        )
+        .into_bytes(),
+    );
+    let written = raw_pdf(&bodies, as_written);
+    assert_eq!(
+        read(&written).expect("readable PDF").state,
+        PdfTextState::Text,
+        "one table reads"
+    );
+    let table = written
+        .windows(6)
+        .rposition(|w| w == b"\nxref\n")
+        .expect("table")
+        + 1;
+    let end = written
+        .windows(9)
+        .rposition(|w| w == b"startxref")
+        .expect("startxref");
+    let mut file = written.get(..end).expect("head").to_vec();
+    let at = file.len();
+    let offset = u32::try_from(at).expect("small file").to_be_bytes();
+    let mut rows = vec![2, 0, 0, 0, 8, 0, 0];
+    rows.extend([1, offset[0], offset[1], offset[2], offset[3], 0, 0]);
+    file.extend(
+        format!(
+            "9 0 obj\n<< /Type /XRef /Size 10 /W [1 4 2] /Index [6 1 9 1] /Prev {table} /Root 1 0 R /Length {} >>\nstream\n",
+            rows.len()
+        )
+        .bytes(),
+    );
+    file.extend(&rows);
+    file.extend(format!("\nendstream\nendobj\nstartxref\n{at}\n%%EOF\n").bytes());
+    assert!(
+        damaged(&file),
+        "a length lopdf reads from an object stream is not measured"
+    );
+}

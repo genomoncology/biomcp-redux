@@ -96,7 +96,7 @@
           "label",
           "--label-section",
           "indications_and_usage,boxed_warning",
-          "--section-limit",
+          "--limit",
           "2",
           "--source",
           "openfda-label"
@@ -108,7 +108,7 @@
           "label",
           "--label-section",
           "indications_and_usage,boxed_warning",
-          "--section-limit",
+          "--limit",
           "2",
           "--source",
           "openfda-label"

@@ -54,7 +54,7 @@ struct SearchFields {
     cancer_type: Option<CbioportalCancerTypeId>,
     /// Maximum headers per page.
     #[serde(default = "limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     limit: u32,
     /// Zero-based offset in the checked snapshot.
     #[serde(default)]
@@ -70,7 +70,7 @@ impl TryFrom<SearchFields> for StudySearch {
         if v.text.is_none() && v.cancer_type.is_none() {
             return Err(QueryInvalid::new(&["text", "cancer_type"]));
         }
-        if !(1..=50).contains(&v.limit) {
+        if !(1..=crate::HELD_PAGE_MAX).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(Self(v))
@@ -134,7 +134,7 @@ struct GetFields {
     section: Option<StudySection>,
     /// Maximum records in each selected section.
     #[serde(default = "limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     section_limit: u32,
     /// Offset within one named section; all requires zero.
     #[serde(default)]
@@ -150,7 +150,7 @@ crate::query::validation::checked_query!(StudyGet, GetFields);
 impl TryFrom<GetFields> for StudyGet {
     type Error = QueryInvalid;
     fn try_from(v: GetFields) -> Result<Self, Self::Error> {
-        if !(1..=50).contains(&v.section_limit) {
+        if !(1..=crate::HELD_PAGE_MAX).contains(&v.section_limit) {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         if matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0 {

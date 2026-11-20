@@ -16,6 +16,7 @@ mod article_save_reply;
 mod assertions;
 mod author_pools;
 pub(super) mod case_main;
+mod status_words;
 tool_only! { pub(super) mod cell_line; }
 tool_only! { mod disease_mydisease; }
 tool_only! { mod disease_ols; }
@@ -82,6 +83,7 @@ mod mcp;
 mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
+mod offset_walks;
 mod recurrence;
 mod remote_tools;
 mod replay;
@@ -102,6 +104,7 @@ mod pathway_commands;
 mod pathway_get_pages;
 mod pathway_sections;
 mod pdf;
+mod pdf_child;
 mod pgx_retirements;
 mod phenotype;
 mod process;
@@ -369,12 +372,14 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(disease_next::trials());
     trials.extend(first_read::trials());
     trials.extend(source_text::trials());
+    trials.extend(offset_walks::trials());
     trials
 }
 
 fn transcript_trials() -> Vec<Trial> {
     let mut trials = call_queue::trials();
     trials.extend(hosted_cancel::trials());
+    trials.extend(pdf_child::trials());
     trials.extend([
         transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
             article_save::check().map_err(Into::into)

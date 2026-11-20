@@ -100,14 +100,15 @@ fn read(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     if cx.fetch.disabled(Source::Gwas) {
+        let leg = cx.fetch.leg(&gwas::SPEC, deadline);
         let error = biomcp_fetch::SourceError::disabled(Source::Gwas).into();
         out.sources
             .push(status::source(Source::Gwas, leg.finish(), Some(error)));
         return Err(error);
     }
-    if q.pool().is_none() && q.offset() != 0 || q.pool().is_some() && cx.fresh {
+    // An offset without a pool walks a new threshold copy to that row (1061).
+    if q.pool().is_some() && cx.fresh {
         restart(q, out, false);
         return Ok(());
     }
@@ -125,12 +126,15 @@ fn read(
         }
         None => (Saved::default(), None),
     };
-    if q.offset() as usize > saved.rows.len() {
-        restart(q, out, false);
-        return Ok(());
-    }
     let needed = q.offset().saturating_add(q.limit()) as usize;
-    if !saved.done && saved.rows.len() < needed {
+    out.sources = saved.sources.clone();
+    // One source page per call, as before; an offset given without a pool reads on until its
+    // page is full or the threshold ends, so a page short of the end is never empty (1061).
+    let walking = q.pool().is_none() && q.offset() > 0;
+    let mut read = false;
+    while !saved.done && saved.rows.len() < needed && (!read || walking) {
+        read = true;
+        let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
         let result = gwas::search(&leg, &q.at_offset(saved.received));
         let error = result.as_ref().err().copied();
         let mut incoming = status::source(Source::Gwas, leg.finish(), error);
@@ -146,8 +150,6 @@ fn read(
         } else {
             saved.sources = vec![incoming];
         }
-        out.sources = saved.sources.clone();
-    } else {
         out.sources = saved.sources.clone();
     }
     let size = saved.rows.len() as u32;

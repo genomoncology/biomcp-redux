@@ -215,7 +215,7 @@ pub(crate) fn request_defaults(
     request: &biomcp_types::Request,
 ) -> Result<biomcp_types::Request, ConfigError> {
     let file = configured(settings)?;
-    // `article_access_lookup: false` makes every article search skip the Europe PMC lookup.
+    // `article_access_lookup: false` makes every article search skip the NCBI open-access lookup.
     if let biomcp_types::Request::SearchArticle(query) = request
         && file.and_then(|file| file.article_access_lookup) == Some(false)
     {
@@ -359,6 +359,10 @@ fn fetch_using(
             |seconds| Duration::from_secs(seconds.get().into()),
         ),
         proxy: file.and_then(|file| file.proxy.clone()).map(Secret::new),
+        isolate: Some(crate::pdf_child::isolate(
+            executable().ok(),
+            file.and_then(|f| f.pdf_memory_limit_mib),
+        )),
         ..FetchConfig::default()
     })
     .map_err(|error| match error {

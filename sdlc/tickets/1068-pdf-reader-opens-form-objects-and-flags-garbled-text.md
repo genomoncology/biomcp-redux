@@ -1,6 +1,7 @@
 # 1068 — pdf-reader-opens-form-objects-and-flags-garbled-text
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 00ffb1c5933549b0fdc1e5b9cde9ea8bf34f70fd
 
 Milestone: 7
 

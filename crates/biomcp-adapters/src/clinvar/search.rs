@@ -62,7 +62,7 @@ impl Reply for Search {
             .collect();
         if page.error.is_some()
             || page.errorlist.is_some()
-            || page.idlist.len() > 50
+            || page.idlist.len() > biomcp_types::SEARCH_PAGE_MAX as usize
             || ids.len()
                 != page
                     .idlist

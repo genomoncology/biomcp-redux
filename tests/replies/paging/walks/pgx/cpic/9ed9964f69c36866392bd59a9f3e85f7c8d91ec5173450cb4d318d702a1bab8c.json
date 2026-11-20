@@ -1,0 +1,28 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.CYP2D6&order=pairid.asc&limit=10&offset=60",
+  "exchanges": [
+    {
+      "fetched": 1795125399,
+      "status": 206,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "60-69/79",
+      "delay_ms": 189,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"pairid":110340,"drugid":"RxNorm:1665509","drugname":"flibanserin","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":null,"pgxtesting":"Informative PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110342,"drugid":"RxNorm:4493","drugname":"fluoxetine","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19, CYP2B6, SLC6A4, HTR2A and Serotonin Reuptake Inhibitor Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251452","cpiclevel":"C","clinpgxlevel":"3","pgxtesting":"Actionable PGx","pmids":["37032427"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":110344,"drugid":"RxNorm:4637","drugname":"galantamine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":"3","pgxtesting":"No Clinical PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110362,"drugid":"RxNorm:6901","drugname":"methylphenidate","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":"3","pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110363,"drugid":"RxNorm:30125","drugname":"modafinil","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":null,"pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110377,"drugid":"RxNorm:7804","drugname":"oxycodone","genesymbol":"CYP2D6","guidelinename":"CYP2D6, OPRM1, COMT, and Opioids","guidelineurl":"https://www.clinpgx.org/guideline/PA166251454","cpiclevel":"C","clinpgxlevel":"2A","pgxtesting":null,"pmids":["33387367"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":110379,"drugid":"RxNorm:70561","drugname":"palonosetron","genesymbol":"CYP2D6","guidelinename":"CYP2D6 and Ondansetron and Tropisetron","guidelineurl":"https://www.clinpgx.org/guideline/PA166251457","cpiclevel":"C","clinpgxlevel":null,"pgxtesting":"No Clinical PGx","pmids":["41979467"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":110384,"drugid":"RxNorm:9068","drugname":"quinidine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":null,"pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110385,"drugid":"RxNorm:9071","drugname":"quinine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":null,"pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110393,"drugid":"RxNorm:36437","drugname":"sertraline","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19, CYP2B6, SLC6A4, HTR2A and Serotonin Reuptake Inhibitor Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251452","cpiclevel":"C","clinpgxlevel":"3","pgxtesting":null,"pmids":["37032427"],"usedforrecommendation":"No","provisional":false}]
+      }
+    }
+  ]
+}

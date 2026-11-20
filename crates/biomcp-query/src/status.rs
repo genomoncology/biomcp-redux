@@ -20,6 +20,8 @@ pub struct Outcome {
     pub next: Vec<crate::next::Step>,
     /// Local errors remain distinct even alongside useful answers.
     pub local: Option<RequestError>,
+    /// Missing data the reply marks nowhere else; the interface adds source rows and markers.
+    pub incomplete: Vec<biomcp_types::Incomplete>,
 }
 
 /// Entity-owned response parts without authority to assign an outcome status.
@@ -45,6 +47,7 @@ pub(crate) fn finish(items: impl IntoIterator<Item = Status>, parts: Parts) -> O
         next: parts.next,
         local: parts.local,
         dropped: parts.dropped,
+        incomplete: Vec::new(),
     };
     if out.status == Status::Complete {
         item(&mut out, true, false, false);
@@ -178,7 +181,23 @@ pub(crate) fn empty(body: ReplyData) -> Outcome {
         problems: Vec::new(),
         next: Vec::new(),
         local: None,
+        incomplete: Vec::new(),
     }
+}
+
+/// Name missing data that no source row or `unavailable` marker states, and make the item partial.
+pub(crate) fn missing(
+    out: &mut Outcome,
+    at: biodata::Text,
+    source: Source,
+    reason: Option<biomcp_types::Reason>,
+) {
+    out.incomplete.push(biomcp_types::Incomplete {
+        at,
+        source,
+        reason,
+        code: None,
+    });
 }
 
 /// Start a body whose successful local construction is already an answer.

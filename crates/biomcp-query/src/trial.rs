@@ -38,6 +38,10 @@ pub(crate) fn search_bound(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         return nci::search(cx, query);
     }
     let mut outcome = empty(query);
+    if query.offset_too_deep() {
+        outcome.body = ReplyData::Usage(biomcp_types::UsageError::offset_too_deep());
+        return outcome;
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     match continuation::restore(cx, query, deadline) {

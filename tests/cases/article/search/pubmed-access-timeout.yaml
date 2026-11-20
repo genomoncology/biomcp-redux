@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "article-search",
-  "story": "When Europe PMC does not answer the access lookup in time, the page stays complete, its rows say open_access_unknown, and Europe PMC is named with its timed-out state and a fresh retry, so a reader can tell an unchecked paper from one Europe PMC does not know.",
+  "story": "When the caller asks Europe PMC for licences and it does not answer in time, the page keeps its rows and NCBI's open-access flags, the rows say license_not_checked, and the reply is partial with Europe PMC named at its top, timed out, plus a fresh retry, so a reader can tell an unchecked licence from no licence without reading every row.",
   "replay": "article/search/pubmed-access-timeout",
   "steps": [
     {
@@ -13,20 +13,15 @@
         "--offset",
         "7",
         "--limit",
-        "2"
+        "2",
+        "--license-lookup"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items/*/pmid": {
           "equals": [
             "36970111",
             "42162665"
-          ]
-        },
-        "/result/items/*/open_access_unknown": {
-          "equals": [
-            true,
-            true
           ]
         },
         "/sources/*/source": {
@@ -39,11 +34,35 @@
         "/sources/1/reason": "deadline-exceeded",
         "/next/*/kind": {
           "includes": "fresh"
-        }
+        },
+        "/result/items/*/license_not_checked": {
+          "equals": [
+            true,
+            true
+          ]
+        },
+        "/result/items/*/open_access_source": {
+          "equals": [
+            "pubmed",
+            "pubmed"
+          ]
+        },
+        "/incomplete": [
+          {
+            "at": "/sources/1",
+            "source": "europepmc",
+            "reason": "deadline-exceeded"
+          },
+          {
+            "at": "/result/items/0/license_not_checked",
+            "source": "europepmc",
+            "reason": "deadline-exceeded"
+          }
+        ]
       },
-      "max_bytes": 2219
+      "max_bytes": 2788
     }
   ],
-  "verified": "Synthetic Europe PMC delay; see tests/replies/article/search/pubmed-access-timeout/README.md. The ceiling is the measured 1,929-byte page (j42494) plus 15 percent. It fails on base 876387841.",
+  "verified": "Synthetic Europe PMC delay; see tests/replies/article/search/pubmed-access-timeout/README.md. The ceiling is the measured 1,929-byte page (j42494) plus 15 percent. It fails on base 876387841. 2026-11-19 (1072): the step asks for --license-lookup, whose 10-second budget the 12-second synthetic delay still passes; NCBI's open-access reply was recorded live. 1059: a failed source row makes the reply partial, and `incomplete` names it at the top; this step expected `complete` on base. 1059 review: the entry at the first unchecked licence names the failed lookup beside its source row. Measured 2,424 bytes in j43241; the ceiling adds 15 percent.",
   "harvest": "biomed-agent-bench msl persona: which papers may be shared"
 }

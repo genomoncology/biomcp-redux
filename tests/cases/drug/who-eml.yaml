@@ -91,7 +91,7 @@
         "/next/0/kind": "page",
         "/next/0/args": {
           "includes_all_of": [
-            "--section-offset",
+            "--offset",
             "2"
           ]
         }

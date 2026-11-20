@@ -15,10 +15,11 @@
 //! as they load leniently, and read the same text.
 
 use super::fonts::entry;
-use super::lexer::{Read, header, integer, measure, skip_space};
-use super::xref::{Table, index, payload, small_dictionary, whole};
-use Refusal::{Irregular, TooLarge};
+use super::lexer::{Read, header, integer, measure, object, skip_space};
+use super::xref::{index, payload, small_dictionary, whole};
+use Refusal::{Expired, Irregular, TooLarge};
 use lopdf::{Dictionary, Object, Stream};
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Most bytes one object or cross-reference stream may expand to while loading.
 pub(super) const LOAD_STREAM_BYTES: usize = 1 << 20;
@@ -37,11 +38,30 @@ pub(super) enum Refusal {
     TooLarge,
     /// Its objects overlap or its sections do not read, so lopdf's work cannot be measured.
     Irregular,
+    /// The time limit passed while measuring.
+    Expired,
 }
 
-/// Whether lopdf may load `bytes` within the bounds.
-pub(super) fn loadable(bytes: &[u8]) -> Read<()> {
+/// Objects measured between checks of the time limit.
+const CHECK_EVERY: usize = 1024;
+
+/// Whether lopdf may load `bytes` within the bounds; `expired` stops the measuring.
+pub(super) fn loadable(bytes: &[u8], expired: &dyn Fn() -> bool) -> Read<()> {
     let table = super::xref::read(bytes, LOAD_STREAM_BYTES)?;
+    let mut offsets: BTreeMap<u64, Vec<usize>> = BTreeMap::new();
+    for (number, offset) in &table.entries {
+        offsets.entry(*number).or_default().push(*offset);
+    }
+    // A section that lists an object at the offset another lists is the same definition.
+    for listed in offsets.values_mut() {
+        listed.sort_unstable();
+        listed.dedup();
+    }
+    let mut lengths = Lengths {
+        offsets,
+        compressed: table.compressed.clone(),
+        known: BTreeMap::new(),
+    };
     let mut listed: Vec<(usize, u64)> = table.entries.iter().map(|(n, at)| (*at, *n)).collect();
     listed.sort_unstable();
     listed.dedup();
@@ -50,8 +70,11 @@ pub(super) fn loadable(bytes: &[u8]) -> Read<()> {
         expanded: table.expanded,
     };
     for (index, (offset, _)) in listed.iter().enumerate() {
+        if index.is_multiple_of(CHECK_EVERY) && expired() {
+            return Err(Expired);
+        }
         let next = listed.get(index + 1).map_or(bytes.len(), |(at, _)| *at);
-        let end = indirect(bytes, *offset, &table, &mut measured)?;
+        let end = indirect(bytes, *offset, &mut lengths, &mut measured)?;
         if end > next {
             return Err(Irregular);
         }
@@ -69,7 +92,12 @@ struct Measured {
 }
 
 /// Where the indirect object at `offset` ends, its stream data and object stream included.
-fn indirect(bytes: &[u8], offset: usize, table: &Table, measured: &mut Measured) -> Read<usize> {
+fn indirect(
+    bytes: &[u8],
+    offset: usize,
+    lengths: &mut Lengths,
+    measured: &mut Measured,
+) -> Read<usize> {
     let (_, body) = header(bytes, offset)?;
     let (end, count) = measure(bytes, body)?;
     measured.objects = measured.objects.saturating_add(count);
@@ -81,7 +109,7 @@ fn indirect(bytes: &[u8], offset: usize, table: &Table, measured: &mut Measured)
     };
     let (dictionary, _) = small_dictionary(bytes, body)?;
     let data_end = data
-        .checked_add(length(bytes, &dictionary, table)?)
+        .checked_add(lengths.of(bytes, &dictionary)?)
         .ok_or(Irregular)?;
     let mut after = data_end;
     match bytes.get(after..).unwrap_or_default() {
@@ -103,33 +131,44 @@ fn indirect(bytes: &[u8], offset: usize, table: &Table, measured: &mut Measured)
     Ok(after + b"endstream".len())
 }
 
-/// A stream's `/Length`, direct or held in a short integer object that every section agrees on.
-fn length(bytes: &[u8], dictionary: &Dictionary, table: &Table) -> Read<usize> {
-    let number = match entry(dictionary, b"Length") {
-        Some(Object::Reference((number, _))) => u64::from(*number),
-        direct => return index(whole(direct)?),
-    };
-    let mut values = table
-        .entries
-        .iter()
-        .filter(|(listed, _)| *listed == number)
-        .map(|(_, offset)| {
-            let (_, body) = header(bytes, *offset)?;
-            let at = skip_space(bytes, body);
-            let (value, end) = integer(bytes, at)?;
-            if end - at <= LENGTH_OBJECT {
-                Ok(value)
-            } else {
-                Err(Irregular)
-            }
-        });
-    let first = values.next().ok_or(Irregular)??;
-    for value in values {
-        if value? != first {
+/// Each object's offsets in every section, the objects any section places in an object stream,
+/// and the `/Length` values already read.
+struct Lengths {
+    offsets: BTreeMap<u64, Vec<usize>>,
+    compressed: BTreeSet<u64>,
+    known: BTreeMap<u64, usize>,
+}
+
+impl Lengths {
+    /// A stream's `/Length`, direct or held in another object. lopdf takes that object from the
+    /// newest section, which may place it in an object stream the measuring does not read: a
+    /// length of 10 here and 400,000 there once made lopdf copy overlapping data, 2.48 GB from
+    /// 925 KB (1068 fourth review). So the object must have exactly one definition in the file,
+    /// outside any object stream, and hold a plain integer; anything else is damaged. Each such
+    /// object is read once.
+    fn of(&mut self, bytes: &[u8], dictionary: &Dictionary) -> Read<usize> {
+        let number = match entry(dictionary, b"Length") {
+            Some(Object::Reference((number, _))) => u64::from(*number),
+            direct => return index(whole(direct)?),
+        };
+        if let Some(known) = self.known.get(&number) {
+            return Ok(*known);
+        }
+        if self.compressed.contains(&number) {
             return Err(Irregular);
         }
+        let [offset] = self.offsets.get(&number).map_or(&[][..], Vec::as_slice) else {
+            return Err(Irregular);
+        };
+        let (listed, body) = header(bytes, *offset)?;
+        let (value, end) = object(bytes, body)?;
+        if listed != number || end - skip_space(bytes, body) > LENGTH_OBJECT {
+            return Err(Irregular);
+        }
+        let length = index(whole(Some(&value))?)?;
+        self.known.insert(number, length);
+        Ok(length)
     }
-    index(first)
 }
 
 /// Check an object stream's index and count its objects (PDF 32000-1 §7.5.7).

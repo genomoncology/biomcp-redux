@@ -39,7 +39,7 @@ struct Fields<R: ResolverChoice = VariantResolver> {
     detail: bool,
     /// Maximum rows per page.
     #[serde(default = "limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     limit: u32,
     /// Native rows to skip.
     #[serde(default)]
@@ -53,7 +53,7 @@ impl TryFrom<Fields> for VariantPopulationQuery {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
         VariantGet::new(fields.input.clone(), fields.resolver, fields.build)?;
-        if !(1..=50).contains(&fields.limit) {
+        if !(1..=crate::HELD_PAGE_MAX).contains(&fields.limit) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
         Ok(Self(fields))
