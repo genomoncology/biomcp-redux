@@ -22,7 +22,7 @@
         "/result/approvals/data/records/0/application_docs/0/text/state": "garbled",
         "/result/approvals/data/records/0/application_docs/0/text/pages": 5,
         "/result/approvals/data/records/0/supplement_purpose/message": "The linked FDA letter's text could not be decoded (it reads as gibberish); its supplement purpose is unavailable.",
-        "/incomplete/0/at": "PROBE"
+        "/incomplete/0/at": "/result/approvals/data/records/0/application_docs/0/text"
       },
       "max_bytes": 20000
     }

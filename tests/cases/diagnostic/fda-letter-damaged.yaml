@@ -20,7 +20,7 @@
         "/status": "partial",
         "/result/approvals/data/records/0/application_docs/0/text/state": "damaged",
         "/sources/0/notices/1/message": "This PDF is damaged: its structure is broken or irregular, and BioMCP does not repair damaged PDFs, so none of its text was read. Fetch the document another way.",
-        "/incomplete/0/at": "PROBE"
+        "/incomplete/0/at": "/result/approvals/data/records/0/application_docs/0/text"
       },
       "max_bytes": 20000
     }

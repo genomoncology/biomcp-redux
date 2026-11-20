@@ -20,7 +20,7 @@
         "/status": "partial",
         "/result/approvals/data/records/0/application_docs/0/text/state": "partial",
         "/sources/0/notices/1/message": "A part of a page in this document could not be read and was skipped, so some of its text may be missing.",
-        "/incomplete/0/at": "PROBE"
+        "/incomplete/0/at": "/result/approvals/data/records/0/application_docs/0/text"
       },
       "max_bytes": 20000
     }
