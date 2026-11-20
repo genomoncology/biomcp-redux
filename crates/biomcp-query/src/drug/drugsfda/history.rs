@@ -388,7 +388,11 @@ pub(super) fn select(
     } else {
         search(&mut found)
     };
-    let first = first.filter(|_| !found.pdf_busy);
+    let (path, first) = if found.pdf_busy {
+        (Path::Unreadable, None)
+    } else {
+        (path, first)
+    };
     let body = reply(&found, row, section, path, first)?;
     // Versions left unread leave the answer open: the call stopped, or no version read has the
     // text while others were not read, or a version before the first match was not read.
