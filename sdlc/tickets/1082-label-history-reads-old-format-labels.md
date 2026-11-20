@@ -20,6 +20,8 @@ Ticket 1066 made the tool never state a date or an absence it has not establishe
 
 Also: when the oldest version is unreadable the search can pass over readable early versions (Tecentriq: truth S1, answer "on or before S18"); the third `--every-version` call for Xeljanz gives an "on or before" for its own five versions that misleads when read without the second call; and seven replies pass 3,000 bytes (largest 3,857).
 
+Added 2026-11-20 from three traced agent runs on main 5db190f8a: `biomcp get drug NDA215309 label-history --source drugsfda --label-section boxed_warning --find "major adverse cardiovascular"` marks three of Opzelura's five versions `section-not-bounded`, the original (2021) and the two newest (2025, 2026), and answers "on or before 2022-07-18". These are current-format labels. All three agents then fetched the original PDF and read it themselves. This ticket covers these too: say why the section could not be bounded, and fix it where the label has the heading.
+
 ## Proof
 
 - Proof: the five questions above give their earlier, exact answers, each checked against `pdftotext`.
