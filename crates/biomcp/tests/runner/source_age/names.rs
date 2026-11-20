@@ -36,21 +36,27 @@ pub(super) fn other_names() -> Result<(), String> {
             return Err(format!("{name} with every source current: {today}"));
         }
         expire_mychem(env.root())?;
-        let reply = command(&env, &args, &env.globals(Some(&down), false), 4)?;
+        let mut all = args.to_vec();
+        all.extend(env.globals(Some(&down), false));
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &all)
+            .output()
+            .map_err(|e| e.to_string())?;
+        let reply: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if output.status.code() != Some(4) {
+            return Err(format!("{name} without MyChem: {reply}"));
+        }
         unread(&reply, "mychem", "fresh")?;
     }
     Ok(())
 }
 
-/// A market read by name from a stale EMA copy that holds no such name is a failed row naming
-/// EMA, with the sync step, not a current absence.
+/// A market read by name from a stale EMA copy that holds no such name fails naming EMA, with
+/// the sync step, not a current absence.
 pub(super) fn market() -> Result<(), String> {
     let env = super::stale_ema()?;
     let args = ["get", "drug", "zzznotadrug", "markets", "--source", "ema"].map(str::to_owned);
     let reply = command(&env, &args, &env.globals(None, true), 4)?;
-    if reply.pointer("/result/markets/0/state") != Some(&json!("failed")) {
-        return Err(format!("stale EMA market row read as no record: {reply}"));
-    }
     unread(&reply, "ema", "sync")
 }
 
