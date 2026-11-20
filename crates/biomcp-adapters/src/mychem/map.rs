@@ -35,7 +35,6 @@ pub(super) fn components(
     }
     (hit.id, problems.field("_version", hit.version), rows)
 }
-
 fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> {
     Ok(DrugHeader {
         name_resolution: None,
