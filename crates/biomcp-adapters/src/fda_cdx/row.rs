@@ -38,7 +38,9 @@ pub(super) fn reply(
     date: Option<PartialDate>,
     name: Option<&str>,
 ) -> CompanionDiagnosticRow {
-    let name_match = name.map(|asked| name_match(&native.relation, asked)).unwrap_or_default();
+    let name_match = name
+        .map(|asked| name_match(&native.relation, asked))
+        .unwrap_or_default();
     let text = |cell: &DiagnosticCell| Some(cell.text.clone());
     match native.relation {
         CompanionDiagnosticRelation::Individual {

@@ -2,9 +2,7 @@ use super::biomarker::names;
 use super::date::{key, row_date};
 use biodata::{CompanionDiagnosticRelation, PartialDate};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
-use biomcp_types::{
-    CompanionDiagnosticRow, DiagnosticSearch, Problem, ProblemCode, Source,
-};
+use biomcp_types::{CompanionDiagnosticRow, DiagnosticSearch, Problem, ProblemCode, Source};
 use std::cmp::Ordering;
 /// Native physical association page from one stored complete snapshot.
 #[derive(Debug)]

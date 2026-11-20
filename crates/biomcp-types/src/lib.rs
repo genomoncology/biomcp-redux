@@ -236,12 +236,12 @@ pub use query::{
 };
 pub use response::{
     CompanionColumn, CompanionDiagnosticRow, CompanionLinks, CompanionOwned, CompanionShared,
-    DiagnosticCandidate, DiagnosticCard,
-    DiagnosticCompanion, DiagnosticConditions, DiagnosticGenes, DiagnosticLaboratory,
-    DiagnosticMethods, DiagnosticPage, DiagnosticProductCodeCount, DiagnosticProductCodeCounts,
-    DiagnosticRegulatory, DiagnosticRegulatoryField, DiagnosticRegulatoryFragment,
-    DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader, GtrLabAddress,
-    GtrLabCertification, GtrNameMatch, GtrNativeStatus,
+    DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
+    DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage,
+    DiagnosticProductCodeCount, DiagnosticProductCodeCounts, DiagnosticRegulatory,
+    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSummary,
+    DiagnosticSupplements, GtrCard, GtrHeader, GtrLabAddress, GtrLabCertification, GtrNameMatch,
+    GtrNativeStatus,
 };
 
 pub use response::{

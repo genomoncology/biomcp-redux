@@ -491,4 +491,3 @@ impl ResponseBody for DiagnosticSummary {
     const SCHEMA: &'static str = "biomcp.diagnostic-summary/2";
     type Query = DiagnosticGet;
 }
-
