@@ -1,0 +1,89 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "Acronym and official-title selectors search their own registry fields and narrow the returned names independently.",
+  "verified": "Public ClinicalTrials.gov API snapshots with native rows and totals captured on 2026-11-20. The replay matches each exact registry request.",
+  "replay": "trial/acronym-and-official-title",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--acronym",
+        "SURMOUNT",
+        "--limit",
+        "5",
+        "--fields=acronym,official_title,title"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 4,
+        "/result/items/*/nct_id": [
+          "NCT05412004",
+          "NCT04844918",
+          "NCT05556512",
+          "NCT05024032"
+        ],
+        "/result/items/0": {
+          "equals": {
+            "nct_id": "NCT05412004",
+            "acronym": "SURMOUNT-OSA",
+            "title": "Obstructive Sleep Apnea Master Protocol GPIF: A Study of Tirzepatide (LY3298176) in Participants With Obstructive Sleep Apnea",
+            "official_title": "A Master Protocol to Investigate the Efficacy and Safety of Tirzepatide Once Weekly in Participants Who Have Obstructive Sleep Apnea and Obesity: A Randomized, Double-Blind, Placebo-Controlled Trial"
+          }
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--official-title",
+        "Reduction of Morbidity and Mortality",
+        "--limit",
+        "5",
+        "--fields=official_title"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/*/nct_id": [
+          "NCT01391520",
+          "NCT00338260",
+          "NCT05556512"
+        ],
+        "/result/items/*/official_title": {
+          "equals": [
+            "A Phase III, Randomized, Double-Blind, Placebo-Controlled, Multicenter Study to Assess the Efficacy and Safety of Deferiprone in the Reduction of Morbidity and Mortality in Patients With Chronic Kidney Disease Undergoing Diagnostic or Interventional Cardiac Procedures and Receiving an Iodinated Radiocontrast Agent",
+            "A Triple-Blind, Parallel Study to Investigate the Effect of Losartan Versus Atenolol on the Reduction of Morbidity and Mortality in Hypertensive Patients With Left Ventricular Hypertrophy",
+            "A Phase 3, Randomized, Double-blind, Placebo-Controlled Study to Investigate the Effect of Tirzepatide on the Reduction of Morbidity and Mortality in Adults With Obesity"
+          ]
+        },
+        "/result/items/0": {
+          "omits": [
+            "title",
+            "acronym"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--acronym",
+        "SURMOUNT",
+        "--limit",
+        "5",
+        "--fields=acronym,official_title,title,unrelated_field"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/unplaced": [
+          "unrelated_field"
+        ],
+        "/next/0/args/0": "--fields=acronym,official_title,title"
+      }
+    }
+  ]
+}

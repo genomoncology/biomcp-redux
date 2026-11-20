@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 const FIELDS: &str = concat!(
     "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults",
     ",LeadSponsorName,StartDate,StartDateType,PrimaryCompletionDate,PrimaryCompletionDateType",
-    ",WhyStopped"
+    ",WhyStopped,Acronym,OfficialTitle"
 );
 
 pub(super) fn base_parameters(query: &TrialSearch) -> BTreeMap<String, String> {
@@ -70,6 +70,8 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
         );
     }
     for (field, value) in [
+        ("Acronym", query.acronym()),
+        ("OfficialTitle", query.official_title()),
         ("EligibilityCriteria", query.criteria()),
         (
             "LocationFacility",

@@ -39,6 +39,22 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
+    #[doc = "Acronym.\nClinicalTrials.gov only: search the registry acronym field."]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    acronym: Option<Text>,
+    #[doc = "Official title text.\nClinicalTrials.gov only: search the registry official title field."]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    official_title: Option<Text>,
     #[doc = "Disease; NCI needs NCIt.\nConditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); \
         use --condition-id for MONDO or DOID identifiers."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
@@ -310,6 +326,14 @@ impl TrialSearch {
     /// General registry discovery text.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()
+    }
+    /// Phrase to search in the registry acronym field.
+    pub fn acronym(&self) -> Option<&Text> {
+        self.0.acronym.as_ref()
+    }
+    /// Phrase to search in the registry official title field.
+    pub fn official_title(&self) -> Option<&Text> {
+        self.0.official_title.as_ref()
     }
     /// Condition alternatives joined with OR; NCI requires NCIt codes.
     pub fn condition(&self) -> &[Text] {
