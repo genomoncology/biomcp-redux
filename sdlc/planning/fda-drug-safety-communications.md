@@ -77,3 +77,10 @@ FDA's own list starts in 2020. The 2019 tofacitinib communications are reachable
 ## Potential signals from adverse event reports
 
 The same reader would cover them with a second row decoder. The index at `/drugs/fda-adverse-event-monitoring-system-aems/new-safety-information-or-potential-signals-serious-risks-identified-fda-adverse-event-monitoring` links one page per quarter (quarters from 2015 to 2026 on that page, older ones on an "Archived Quarterly Reports" page). Each quarter page holds one table with three columns: "Product Name: Trade (Active Ingredient) or Product Class", "New Safety Information or Potential Signal of a Serious Risk" and "Additional Information (as of ...)"; April - June 2026 has 24 rows. The index itself holds no signals, so this needs the same parts-from-the-first-part sync, about 40 pages. It is best filed as its own ticket after this one.
+
+## As built (after the PM's decisions of 2026-11-20)
+
+- BioMCP ships a seed, `crates/biomcp-adapters/src/fda_dsc/seed.json` (44 rows, 20 KB, read 2026-11-20), made by `scripts/fda_dsc_seed.py` with the source's own `get`, 30 seconds apart. No body text is shipped. One page FDA does not serve (its address answers 302 to `/core/install.php`) ships unread and is retried on read.
+- A search reads FDA's index (cached a day) and joins it with the seed. A row the seed lacks gets one page read only when FDA's 30-second spacing allows within one second; otherwise it is returned from the index with `page_read: false`. A read page is cached a month. With no index, the seed answers alone and the source is stale.
+- No stored bundle and no shared found-pages ability were needed: the seed plus the HTTP cache cover a first read and later additions.
+- Measured on the 43 pages read: only the JAK inhibitor page links drugs to Drugs@FDA, so `drugs` is usually empty and a drug search matches on titles after name widening. The four 2026 pages state no issue date in their text, so `issued` is absent and `date` comes from the index.
