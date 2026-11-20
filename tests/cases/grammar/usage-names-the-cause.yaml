@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "A refusal says whether its option was repeated, unknown or given a value it does not accept, describes a free-text option by its own meaning rather than the shared text type, and offers a call that works: a comma-separated option given twice is offered once with its values joined, and a field name inside a search row's field is offered as that field. An option given with no value, in any spelling, says so, and next is the call without it. A help next step runs.",
+  "story": "A refusal says whether its option was repeated, unknown or given a value it does not accept, describes a free-text option by its own meaning rather than the shared text type, and offers a call that works: a comma-separated option given twice is offered once with its values joined, and a field name inside a search row's field is offered as its path in that field. An option given with no value, in any spelling, says so, and next is the call without it. A help next step runs.",
   "harvest": "Agent runs on 1.0.0 (be96d8d40), 2026-11-19: 22 of 222 calls refused with one missing-or-invalid sentence.",
   "steps": [
     {
@@ -87,11 +87,11 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--fields",
-        "/error/message": "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
+        "/error/message": "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it",
         "/error/valid_values": {
           "includes": "header"
         },
-        "/next/0/args/0": "--fields=header",
+        "/next/0/args/0": "--fields=header.title,header.journal",
         "/next": {
           "count": 1
         }

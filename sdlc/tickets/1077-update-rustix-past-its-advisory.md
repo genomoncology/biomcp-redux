@@ -1,6 +1,7 @@
 # 1077 — update-rustix-past-its-advisory
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2c8f0b46a10882c5244853d39513ff26c2626182
 
 Milestone: 7
 

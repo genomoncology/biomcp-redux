@@ -1,0 +1,68 @@
+{
+  "feature": "section-fields",
+  "live_check": "Synthetic two-submission page; recorded only",
+  "story": "A caller who names dotted paths inside a drug's approval rows gets each submission with those event values, the event's own record and attribution and the row's submission number, which the schema requires, and nothing else of the row.",
+  "replay": "drug/approvals-page",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA761445",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--fields",
+        "event.status,event.dates"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "BLA761445",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--fields",
+        "event.status,event.dates"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "event.status",
+          "event.dates"
+        ],
+        "/result/approvals/data/records": {
+          "count": 2
+        },
+        "/result/approvals/data/records/*/event/status": [
+          "AP",
+          "AP"
+        ],
+        "/result/approvals/data/records/*/event/record": [
+          "BLA761445",
+          "BLA761445"
+        ],
+        "/result/approvals/data/records/*/submission_number": {
+          "includes_all_of": [
+            "1",
+            "2"
+          ]
+        },
+        "/result/approvals/data/records/0": {
+          "omits": [
+            "review_priority",
+            "submission_class_code",
+            "submission_class_code_description",
+            "application_docs"
+          ]
+        },
+        "/result/approvals/data/records/0/event": {
+          "omits": [
+            "kind"
+          ]
+        }
+      }
+    }
+  ],
+  "verified": "Reuses the drug/approvals-page recording (BLA761445, two approved submissions, numbers 1 and 2); narrowing changes no source request."
+}

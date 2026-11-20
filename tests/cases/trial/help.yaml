@@ -88,7 +88,7 @@
           "includes": "Optional intact source sections. Default cards only; diseases… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section outcomes."
         }
       },
-      "max_bytes": 4132,
+      "max_bytes": 4181,
       "run": [
         "help",
         "get",
