@@ -82,3 +82,18 @@ Each original label below is named by its FDA URL, SHA-256 and size.
 - https://www.accessdata.fda.gov/drugsatfda_docs/label/2024/022363s022lbl.pdf: sha256 1da833f39f3aaccb8cb634d89d1a4b40eb3ed071e4fff09fb50dadf9f9872f0a, 1360947 bytes
 - https://www.accessdata.fda.gov/drugsatfda_docs/label/2009/022363s000lbl.pdf: sha256 6a9dc8a9b1a0d3fb7afbdd0979d6c374aa12cf1c5429f8fa3db348462032fdd1, 534677 bytes
 - https://www.accessdata.fda.gov/drugsatfda_docs/label/2011/022363s006lbl.pdf: sha256 ada1d02ae5586c9cfb51780056aec761877cf169b74e5597c03355f90681c465, 813981 bytes
+
+## label-history-example
+
+The help example (ticket 1083), recorded in pm job j43461 on 2026-11-20.
+
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/208065s019lbl.pdf: sha256 ea1676aebab319898ffd0dbe8603edaf4b0dcf976d7ffff2ae4327853bfb719b, 1513278 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2016/208065s003lbl.pdf: sha256 d182038da8452199b0903d32d6d5ccfafa1f2278c0b89e51a9de08386d966e71, 490842 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2018/208065s011lbl.pdf: sha256 a305887fff45f7730b1c3338091e96f1d86cd7825432d47de3ee083c2c49e463, 895568 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/208065s007lbl.pdf: sha256 f96307aad730146cd2d14fa6672c148f0beeaedee4ba1ed5a6c98cc0453e9eb6, 679308 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/208065s013lbl.pdf: sha256 42288aafb9ac7317c03a568d89e854b7366f567b965951142c21dffb09fb25ec, 1222959 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2018/208065s008lbl.pdf: sha256 5e5aa00435d87510c86b720276f98609ff0335bb76ad0ed7cc9b8bd935a09fcf, 1102797 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/208065s000lbl.pdf: sha256 93589e8f9e985bca670f3f7a63173b002ecde773a532df18ef38f7bd4cae58e1, 397071 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/208065s016lbl.pdf: sha256 80e628eee7d2564d3093cb506865a1214026436099d4806a66a0dc3dc69a6eee, 1388276 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/208065s018lbl.pdf: sha256 a941c02b0c20c2c7ec3b4f9b0cdbb37fd6e3b4e16a62dc790500c0304052127e, 1219865 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/208065s035s036lbl.pdf: sha256 9642c55d3088ce9821fa41b9abc3725e3ea9f42530ee51beb859cd29a6274a83, 1519577 bytes

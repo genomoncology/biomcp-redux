@@ -1,6 +1,7 @@
 # 1083 — label-history-help-uses-a-neutral-example
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: eca20c9de50b29311e7705ce7934c6a841010373
 
 Milestone: 7
 
