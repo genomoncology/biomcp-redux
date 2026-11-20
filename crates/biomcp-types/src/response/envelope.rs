@@ -46,6 +46,10 @@ pub struct Envelope<T: ResponseBody> {
     /// Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<PageInfo>,
+    /// The row fields the caller chose with `--fields`, as given; absent without them.
+    /// Each row keeps those, its required keys and identifiers; other keys are left out.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub fields: Vec<String>,
     /// Answer when available.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<T>,
@@ -71,6 +75,7 @@ impl<T: ResponseBody> Envelope<T> {
             query,
             result,
             page: None,
+            fields: Vec::new(),
             sources: Vec::new(),
             problems: Vec::new(),
             next: Vec::new(),

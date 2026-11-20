@@ -87,9 +87,8 @@ singleton! {
  ArgumentSectionNotIdTyped => "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; \
  to read it as an ID, give it first or set the section field",
  ArgumentIdAfterSection => "error.option follows a section word and is not a section; put IDs before sections",
- FieldsUnknown => "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
- FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named \
- sections instead",
+ FieldsUnknown => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it",
+ FieldsRowsOnly => "--fields does not narrow this call yet; it narrows search rows and some sections' rows; drop --fields to read it whole",
  SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next \
  step; run the suggested command",
  OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \

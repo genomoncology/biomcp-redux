@@ -17,11 +17,16 @@ pub(super) fn next(
             {
                 spelled.options = crate::grammar::options(request);
             }
-            Ok(spelled)
+            let carried = if globals.fields.is_empty() {
+                Vec::new()
+            } else {
+                crate::fields::carried(step.0, &step.1, &globals.fields)
+            };
+            Ok((spelled, carried))
         })
         .collect::<Result<Vec<_>, serde_json::Error>>()?;
     if let Some(step) = adjust(request, result)? {
-        steps.push(step);
+        steps.push((step, Vec::new()));
     }
     Ok(source_steps(globals, steps))
 }
@@ -69,7 +74,7 @@ fn adjust(
 
 fn source_steps(
     globals: &crate::grammar::Globals,
-    steps: Vec<biomcp_types::Step>,
+    steps: Vec<(biomcp_types::Step, Vec<String>)>,
 ) -> Vec<biomcp_types::Step> {
     let mut prefix: Vec<Box<str>> = Vec::new();
     // A server call inherits its configuration, and refuses a call that names one.
@@ -87,18 +92,15 @@ fn source_steps(
             globals.disable_sources.join(",").into(),
         ]);
     }
-    let fields: Option<Box<str>> = (!globals.fields.is_empty())
-        .then(|| format!("--fields={}", globals.fields.join(",")).into());
-    if prefix.is_empty() && fields.is_none() {
-        return steps;
+    if prefix.is_empty() && globals.fields.is_empty() {
+        return steps.into_iter().map(|(step, _)| step).collect();
     }
     steps
         .into_iter()
-        .map(|mut step| {
-            let carried = crate::fields::carried(&step);
+        .map(|(mut step, carried)| {
             let mut args = step.args.into_vec();
-            if carried && let Some(fields) = &fields {
-                args.insert(0, fields.clone());
+            if !carried.is_empty() {
+                args.insert(0, format!("--fields={}", carried.join(",")).into());
             }
             args.splice(0..0, prefix.iter().cloned());
             step.args = args.into();

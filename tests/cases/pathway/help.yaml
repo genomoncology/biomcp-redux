@@ -26,7 +26,7 @@
           "search",
           "pathway"
         ],
-        "/result/commands/0/description": "Search human biological pathways. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: id, name, revision, species, version. Choose some with --fields a,b (typed: fields list); always kept: id, species.",
+        "/result/commands/0/description": "Search human biological pathways. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: id, name, revision, species, version. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: id, species.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -55,7 +55,7 @@
           "get",
           "pathway"
         ],
-        "/result/commands/0/description": "Get human pathway details. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.",
+        "/result/commands/0/description": "Get human pathway details. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.\n--fields a,b keeps only those columns of a named section's rows; a.b names a value inside one.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -91,7 +91,7 @@
           "pathway",
           "genes"
         ],
-        "/result/commands/0/description": "List genes in a biological pathway. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.",
+        "/result/commands/0/description": "List genes in a biological pathway. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: gene, name, node_id, participants, physical_context_count, reference, schema_class, source_url. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: physical_context_count, reference.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -118,13 +118,13 @@
           "pathway",
           "events"
         ],
-        "/result/commands/0/description": "List events within a biological pathway. Sources: reactome.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.",
+        "/result/commands/0/description": "List events within a biological pathway. Sources: reactome.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: db_id, id, kind, name, schema_class, source_url, version. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: db_id, kind.",
         "/result/commands/0/examples": {
           "count": 1
         },
         "/status": "complete"
       },
-      "max_bytes": 1322,
+      "max_bytes": 1345,
       "run": [
         "help",
         "pathway",
