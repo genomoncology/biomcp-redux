@@ -27,6 +27,9 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         crate::runner::transcript::trial("source-data-age/stale-name-not-found", || {
             unfound().map_err(Into::into)
         }),
+        crate::runner::transcript::trial("source-data-age/stale-chembl-name", || {
+            chembl_unfound().map_err(Into::into)
+        }),
     ]
 }
 fn restored() -> Check {
@@ -135,25 +138,37 @@ fn unfound() -> Check {
         "ema",
     ]
     .map(str::to_owned);
-    stale_failure(&command(&env, &args, &env.globals(None, true), 4)?, "ema")?;
+    stale_failure(
+        &command(&env, &args, &env.globals(None, true), 4)?,
+        "ema",
+        Some("failed"),
+    )
+}
+fn chembl_unfound() -> Check {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let args = ["get", "drug", "Test therapy", "--source", "chembl"].map(str::to_owned);
-    command(
-        &env,
-        &args,
-        &env.globals(Some(&fixtures().join("replies/drug/name-get")), false),
-        0,
-    )?;
+    let args = ["get", "drug", "EX-66", "--source", "chembl"].map(str::to_owned);
+    let replay = fixtures().join("replies/drug/source-aliases");
+    command(&env, &args, &env.globals(Some(&replay), false), 0)?;
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
     db.execute("UPDATE reply SET fresh_until=0", [])
         .map_err(|e| e.to_string())?;
-    stale_failure(
-        &command(&env, &args, &env.globals(None, true), 4)?,
-        "chembl",
-    )
+    // Expired replies with no network answer from the stale copy, or fail naming it.
+    let mut all = args.to_vec();
+    all.extend(env.globals(None, true));
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &all)
+        .output()
+        .map_err(|e| e.to_string())?;
+    let reply: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if output.status.code() == Some(2) || reply.get("status") == Some(&json!("usage")) {
+        return Err(format!(
+            "stale ChEMBL lookup answered as wrong input: {reply}"
+        ));
+    }
+    stale_failure(&reply, "chembl", None)
 }
-fn stale_failure(reply: &Value, source: &str) -> Check {
+fn stale_failure(reply: &Value, source: &str, status: Option<&str>) -> Check {
     let stale = reply
         .get("sources")
         .and_then(Value::as_array)
@@ -162,7 +177,7 @@ fn stale_failure(reply: &Value, source: &str) -> Check {
         .any(|s| {
             s.get("source") == Some(&json!(source)) && s.get("state") == Some(&json!("stale"))
         });
-    if !stale || reply.get("status") != Some(&json!("failed")) {
+    if !stale || status.is_some_and(|status| reply.get("status") != Some(&json!(status))) {
         return Err(format!(
             "stale lookup lost its stale {source} source: {reply}"
         ));
