@@ -49,10 +49,12 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
             return out;
         }
     };
-    if let Some(RequestError::Source(failure)) = found.index_error {
+    if let Some(failure) = found.index_error {
         // The shipped list answered without FDA's index: a stored copy, marked stale.
         report.stale = true;
-        report.failures.push(failure);
+        if let RequestError::Source(failure) = failure {
+            report.failures.push(failure);
+        }
     }
     let sent = super::widen::retain(cx, q, widened.as_ref(), deadline, true, &mut out);
     answer(cx.fresh, &sent, found, &names, &mut out);

@@ -1,1 +1,406 @@
-{"date":"2026-11-20","items":[]}
+{
+ "date": "2026-11-20",
+ "items": [
+  {
+   "id": "271f2fd1-0225-4579-94e9-cb14f06d5caf",
+   "title": "FDA Requires Safety Labeling Changes for Glucagon-Like Peptide-1 Receptor Agonists (GLP-1 RAs) Due to Potential Increased Risk of Rare But Serious Eye Condition",
+   "date": "2026-11-09",
+   "updated": "2026-11-09",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-requires-safety-labeling-changes-glucagon-peptide-1-receptor-agonists-glp-1-ras-due-potential",
+   "page_read": true
+  },
+  {
+   "id": "8a20165d-8e3c-44c0-8589-3a8f70a25bfe",
+   "title": "FDA Approves Additional Information in Labeling for Kybella (Deoxycholic Acid) Injection Warning of Adverse Reactions Associated with Unapproved Use",
+   "date": "2026-09-15",
+   "updated": "2026-09-15",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-approves-additional-information-labeling-kybella-deoxycholic-acid-injection-warning-adverse",
+   "page_read": true
+  },
+  {
+   "id": "cb9767c9-9d7f-4958-9878-d32b59a032c6",
+   "title": "FDA Adds Boxed Warning to Labeling for Ferric Carboxymaltose Injection (Injectafer) to Describe Risk of Low Phosphate Levels",
+   "date": "2026-09-01",
+   "updated": "2026-09-01",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-adds-boxed-warning-labeling-ferric-carboxymaltose-injection-injectafer-describe-risk-low",
+   "page_read": true
+  },
+  {
+   "id": "3a4381b3-4b2a-4335-be8c-7e868efe07a5",
+   "title": "FDA Approves Labeling Changes for Over-the-Counter (OTC) Weight Loss Drug alli (Orlistat) to Warn of Risk of Kidney Stones and Kidney Injury",
+   "date": "2026-06-10",
+   "updated": "2026-06-10",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-approves-labeling-changes-over-counter-otc-weight-loss-drug-alli-orlistat-warn-risk-kidney",
+   "page_read": true
+  },
+  {
+   "id": "0880d115-18d4-40a3-971a-49fc1824c6b5",
+   "title": "FDA Identifies Cases of Serious Liver Injury in Patients Taking Tavneos (avacopan) for Severe Active Anti-neutrophil Cytoplasmic Autoantibody (ANCA)-associated Vasculitis",
+   "date": "2026-03-31",
+   "issued": "2026-03-31",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-identifies-cases-serious-liver-injury-patients-taking-tavneos-avacopan-severe-active-anti",
+   "page_read": true
+  },
+  {
+   "id": "2c4b2b4b-7f43-4304-8475-0041993d9579",
+   "title": "FDA Is Requiring Warning about Vitamin B6 Deficiency and Associated Seizures for Drug Products Containing Carbidopa/Levodopa",
+   "date": "2026-03-20",
+   "issued": "2026-03-20",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-requiring-warning-about-vitamin-b6-deficiency-and-associated-seizures-drug-products-containing",
+   "page_read": true
+  },
+  {
+   "id": "44e02b30-a2a2-4f54-9e58-e3d4026c652b",
+   "title": "FDA Requests Removal of Suicidal Behavior and Ideation Warning from Glucagon-Like Peptide-1 Receptor Agonist (GLP-1 RA) Medications",
+   "date": "2026-01-13",
+   "issued": "2026-01-13",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-requests-removal-suicidal-behavior-and-ideation-warning-glucagon-peptide-1-receptor-agonist-glp",
+   "page_read": true
+  },
+  {
+   "id": "f834f536-e33d-438d-9b1d-e89a1996ca31",
+   "title": "FDA to recommend additional, earlier MRI monitoring for patients with Alzheimer’s disease taking Leqembi (lecanemab)",
+   "date": "2025-08-28",
+   "issued": "2025-08-28",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-recommend-additional-earlier-mri-monitoring-patients-alzheimers-disease-taking-leqembi-lecanemab",
+   "page_read": true
+  },
+  {
+   "id": "eb904d07-2b13-4ad8-b326-667982a402d0",
+   "title": "FDA removes risk evaluation and mitigation strategy (REMS) program for the antipsychotic drug Clozapine",
+   "date": "2025-08-27",
+   "issued": "2025-08-27",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-removes-risk-evaluation-and-mitigation-strategy-rems-program-antipsychotic-drug-clozapine",
+   "page_read": true
+  },
+  {
+   "id": "5bccb62c-279c-437d-86ed-70ebddac69e7",
+   "title": "FDA is requiring opioid pain medicine manufacturers to update prescribing information regarding long-term use",
+   "date": "2025-07-31",
+   "issued": "2025-07-31",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-requiring-opioid-pain-medicine-manufacturers-update-prescribing-information-regarding-long-term",
+   "page_read": true
+  },
+  {
+   "id": "a1e9d3cd-3a88-49a4-baf1-028f81ee3d98",
+   "title": "FDA requires expanded labeling about weight loss risk in patients younger than 6 years taking extended-release stimulants for ADHD",
+   "date": "2025-06-30",
+   "issued": "2025-06-30",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-requires-expanded-labeling-about-weight-loss-risk-patients-younger-6-years-taking-extended",
+   "page_read": true
+  },
+  {
+   "id": "ca1e546a-e1a8-4a4c-89d2-3af08204741d",
+   "title": "FDA adds warning about serious risk of heat-related complications with antinausea patch Transderm Scōp (scopolamine transdermal system)",
+   "date": "2025-06-18",
+   "issued": "2025-06-18",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-adds-warning-about-serious-risk-heat-related-complications-antinausea-patch-transderm-scop",
+   "page_read": true
+  },
+  {
+   "id": "083b823e-ec9c-4560-a85b-cc512ce271c8",
+   "title": "FDA requires warning about rare but severe itching after stopping long-term use of oral allergy medicines cetirizine or levocetirizine (Zyrtec, Xyzal, and other trade names)",
+   "date": "2025-05-16",
+   "issued": "2025-05-16",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-requires-warning-about-rare-severe-itching-after-stopping-long-term-use-oral-allergy-medicines",
+   "page_read": true
+  },
+  {
+   "id": "7da8f083-5dbf-4d57-a7ca-7ae8184dda7f",
+   "title": "FDA adds Boxed Warning about a rare but serious allergic reaction called anaphylaxis with the multiple sclerosis medicine glatiramer acetate (Copaxone, Glatopa)",
+   "date": "2025-01-22",
+   "issued": "2025-01-22",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-adds-boxed-warning-about-rare-serious-allergic-reaction-called-anaphylaxis-multiple-sclerosis",
+   "page_read": true
+  },
+  {
+   "id": "f70f5e7e-5109-49b5-a143-c8583bd5466d",
+   "title": "Serious liver injury being observed in patients without cirrhosis taking Ocaliva (obeticholic acid) to treat primary biliary cholangitis",
+   "date": "2024-12-12",
+   "issued": "2024-12-12",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/serious-liver-injury-being-observed-patients-without-cirrhosis-taking-ocaliva-obeticholic-acid-treat",
+   "page_read": true
+  },
+  {
+   "id": "b47fdab6-8df9-4d7a-ab72-a279b70366f5",
+   "title": "FDA adds warning about rare occurrence of serious liver injury with use of Veozah (fezolinetant) for hot flashes due to menopause",
+   "date": "2024-09-12",
+   "issued": "2024-09-12",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-adds-warning-about-rare-occurrence-serious-liver-injury-use-veozah-fezolinetant-hot-flashes-due",
+   "page_read": true
+  },
+  {
+   "id": "451e716b-2bd2-4d0c-861a-6404d5161294",
+   "title": "FDA adds Boxed Warning for increased risk of severe hypocalcemia in patients with advanced chronic kidney disease taking osteoporosis medicine Prolia (denosumab)",
+   "date": "2024-01-19",
+   "issued": "2024-01-19",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-adds-boxed-warning-increased-risk-severe-hypocalcemia-patients-advanced-chronic-kidney-disease",
+   "page_read": true
+  },
+  {
+   "id": "210b6d04-73ad-4a15-ad19-8cd6da99383c",
+   "title": "Update on FDA’s ongoing evaluation of reports of suicidal thoughts or actions in patients taking a certain type of medicines approved for type 2 diabetes and obesity",
+   "date": "2024-01-11",
+   "issued": "2024-01-11",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/update-fdas-ongoing-evaluation-reports-suicidal-thoughts-or-actions-patients-taking-certain-type",
+   "page_read": true
+  },
+  {
+   "id": "25772105-d48f-4c00-aabe-fa2c06d0838c",
+   "title": "FDA warns of rare but serious drug reaction to the antiseizure medicines levetiracetam (Keppra, Keppra XR, Elepsia XR, Spritam) and clobazam (Onfi, Sympazan)",
+   "date": "2023-11-28",
+   "issued": "2023-11-28",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-warns-rare-serious-drug-reaction-antiseizure-medicines-levetiracetam-keppra-keppra-xr-elepsia-xr",
+   "page_read": true
+  },
+  {
+   "id": "8e6f1681-8b65-4225-8271-5c76a1a9480e",
+   "title": "FDA updating warnings to improve safe use of prescription stimulants used to treat ADHD and other conditions",
+   "date": "2023-05-11",
+   "issued": "2023-05-11",
+   "updated": "2026-04-03",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-updating-warnings-improve-safe-use-prescription-stimulants-used-treat-adhd-and-other-conditions",
+   "page_read": true
+  },
+  {
+   "id": "6c07ade7-be7d-498d-980a-3743db52e6b9",
+   "title": "FDA updates prescribing information for all opioid pain medicines to provide additional guidance for safe use",
+   "date": "2023-04-13",
+   "issued": "2023-04-13",
+   "updated": "2023-04-13",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-updates-prescribing-information-all-opioid-pain-medicines-provide-additional-guidance-safe-use",
+   "page_read": true
+  },
+  {
+   "id": "5576aa06-16b3-419a-a120-e2eb406eff7d",
+   "title": "FDA warns about possible increased risk of death and serious side effects with cancer drug Copiktra (duvelisib)",
+   "date": "2022-06-30",
+   "issued": "2022-06-30",
+   "updated": "2022-07-14",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-warns-about-possible-increased-risk-death-and-serious-side-effects-cancer-drug-copiktra",
+   "page_read": true
+  },
+  {
+   "id": "95ba46f9-0b69-4d8a-b6b1-14b8df602724",
+   "title": "FDA approval of lymphoma medicine Ukoniq (umbralisib) is withdrawn due to safety concerns",
+   "date": "2022-06-01",
+   "issued": "2022-06-01",
+   "updated": "2022-06-07",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-approval-lymphoma-medicine-ukoniq-umbralisib-withdrawn-due-safety-concerns",
+   "page_read": true
+  },
+  {
+   "id": "3600da26-bf66-4463-bc9f-c6c969e51da0",
+   "title": "FDA recommends thyroid monitoring in babies and young children who receive injections of iodine-containing contrast media for medical imaging",
+   "date": "2022-03-30",
+   "issued": "2022-03-30",
+   "updated": "2023-04-26",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-recommends-thyroid-monitoring-babies-and-young-children-who-receive-injections-iodine-containing",
+   "page_read": true
+  },
+  {
+   "id": "b2ab1e95-ee7b-4f9c-9880-43e77e112a96",
+   "title": "FDA investigating possible increased risk of death with lymphoma medicine Ukoniq (umbralisib)",
+   "date": "2022-02-03",
+   "issued": "2022-02-03",
+   "updated": "2022-06-01",
+   "url": "https://www.fda.gov/drugs/development-approval-process-drugs/fda-investigating-possible-increased-risk-death-lymphoma-medicine-ukoniq-umbralisib",
+   "page_read": true
+  },
+  {
+   "id": "0e4a362c-2944-4433-a4a1-6eb726c35ef6",
+   "title": "FDA warns about dental problems with buprenorphine medicines dissolved in the mouth to treat opioid use disorder and pain",
+   "date": "2022-01-12",
+   "issued": "2022-01-12",
+   "updated": "2022-01-21",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-warns-about-dental-problems-buprenorphine-medicines-dissolved-mouth-treat-opioid-use-disorder",
+   "page_read": true
+  },
+  {
+   "id": "964db521-4442-4d7a-93ae-3ad9546a4c02",
+   "title": "FDA warns that getting alcohol-based hand sanitizer in the eyes can cause serious injury",
+   "date": "2021-11-02",
+   "issued": "2021-11-02",
+   "updated": "2021-11-09",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-warns-getting-alcohol-based-hand-sanitizer-eyes-can-cause-serious-injury",
+   "page_read": true
+  },
+  {
+   "id": "68aa2469-6b1d-4aba-a2d0-3e399322d2a6",
+   "title": "FDA requests removal of strongest warning against using cholesterol-lowering statins during pregnancy; still advises most pregnant patients should stop taking statins",
+   "date": "2021-07-20",
+   "issued": "2021-07-20",
+   "updated": "2021-08-30",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-requests-removal-strongest-warning-against-using-cholesterol-lowering-statins-during-pregnancy",
+   "page_read": true
+  },
+  {
+   "id": "0fc03d08-35bc-445c-ac70-4210b8b89453",
+   "title": "FDA warns that vapors from alcohol-based hand sanitizers can have side effects",
+   "date": "2021-06-16",
+   "issued": "2021-06-16",
+   "updated": "2021-06-16",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-warns-vapors-alcohol-based-hand-sanitizers-can-have-side-effects",
+   "page_read": true
+  },
+  {
+   "id": "f22cf7f8-6fe4-49e9-be5d-2ed7f81706d9",
+   "title": "Due to risk of serious liver injury, FDA restricts use of Ocaliva (obeticholic acid) in primary biliary cholangitis (PBC) patients with advanced cirrhosis",
+   "date": "2021-05-26",
+   "issued": "2021-05-26",
+   "updated": "2024-12-12",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/due-risk-serious-liver-injury-fda-restricts-use-ocaliva-obeticholic-acid-primary-biliary-cholangitis",
+   "page_read": true
+  },
+  {
+   "id": "19f8e082-1c53-466a-8814-d1f0185b2a18",
+   "title": "Studies show increased risk of heart rhythm problems with seizure and mental health medicine lamotrigine (Lamictal) in patients with heart disease",
+   "date": "2021-03-31",
+   "issued": "2021-03-31",
+   "updated": "2021-03-31",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/studies-show-increased-risk-heart-rhythm-problems-seizure-and-mental-health-medicine-lamotrigine",
+   "page_read": true
+  },
+  {
+   "id": "c8c1514d-d31f-4cb3-9b91-de4423f0ec77",
+   "title": "FDA warns that abuse and misuse of the nasal decongestant propylhexedrine causes serious harm",
+   "date": "2021-03-25",
+   "issued": "2021-03-25",
+   "updated": "2021-04-13",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-warns-abuse-and-misuse-nasal-decongestant-propylhexedrine-causes-serious-harm",
+   "page_read": true
+  },
+  {
+   "id": "760e4ace-aa81-4112-8779-efb5725411df",
+   "title": "Initial safety trial results find increased risk of serious heart-related problems and cancer with arthritis and ulcerative colitis medicine Xeljanz, Xeljanz XR (tofacitinib)",
+   "date": "2021-02-04",
+   "issued": "2021-02-04",
+   "updated": "2021-12-07",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/initial-safety-trial-results-find-increased-risk-serious-heart-related-problems-and-cancer-arthritis",
+   "page_read": true
+  },
+  {
+   "id": "ffe6b059-007d-42e9-9bf4-798270296092",
+   "title": "FDA recommends avoiding use of NSAIDs in pregnancy at 20 weeks or later because they can result in low amniotic fluid",
+   "date": "2020-10-15",
+   "issued": "2020-10-15",
+   "updated": "2023-01-27",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-recommends-avoiding-use-nsaids-pregnancy-20-weeks-or-later-because-they-can-result-low-amniotic",
+   "page_read": true
+  },
+  {
+   "id": "632f33bb-0019-49ef-adbb-d087413b3835",
+   "title": "FDA warns about serious problems with high doses of the allergy medicine diphenhydramine (Benadryl)",
+   "date": "2020-09-24",
+   "issued": "2020-09-24",
+   "updated": "2020-10-01",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-warns-about-serious-problems-high-doses-allergy-medicine-diphenhydramine-benadryl",
+   "page_read": true
+  },
+  {
+   "id": "6601ed65-dcde-4d76-a52f-8a567978bb9a",
+   "title": "FDA requiring Boxed Warning updated to improve safe use of benzodiazepine drug class",
+   "date": "2020-09-23",
+   "issued": "2020-09-23",
+   "updated": "2020-10-02",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-requiring-boxed-warning-updated-improve-safe-use-benzodiazepine-drug-class",
+   "page_read": true
+  },
+  {
+   "id": "d53f0eaa-3628-4fd4-89c4-87429225380a",
+   "title": "FDA removes Boxed Warning about risk of leg and foot amputations for the diabetes medicine canagliflozin (Invokana, Invokamet, Invokamet XR)",
+   "date": "2020-08-26",
+   "issued": "2020-08-26",
+   "updated": "2020-09-02",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-removes-boxed-warning-about-risk-leg-and-foot-amputations-diabetes-medicine-canagliflozin",
+   "page_read": true
+  },
+  {
+   "id": "09442f78-edbc-42b3-996b-713b65ab6f39",
+   "title": "FDA recommends health care professionals discuss naloxone with all patients when prescribing opioid pain relievers or medicines to treat opioid use disorder",
+   "date": "2020-07-23",
+   "issued": "2020-07-23",
+   "updated": "2020-07-23",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-recommends-health-care-professionals-discuss-naloxone-all-patients-when-prescribing-opioid-pain",
+   "page_read": true
+  },
+  {
+   "id": "bd524888-1b4f-4334-9410-e6b72f3dcbba",
+   "title": "FDA cautions against use of hydroxychloroquine or chloroquine for COVID-19 outside of the hospital setting or a clinical trial due to risk of heart rhythm problems",
+   "date": "2020-04-24",
+   "issued": "2020-04-24",
+   "updated": "2020-07-01",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-cautions-against-use-hydroxychloroquine-or-chloroquine-covid-19-outside-hospital-setting-or",
+   "page_read": true
+  },
+  {
+   "id": "f1ac22c4-1d8a-47f8-8612-589abcf0bcf5",
+   "title": "FDA requires Boxed Warning about serious mental health side effects for asthma and allergy drug montelukast (Singulair); advises restricting use for allergic rhinitis",
+   "date": "2020-03-04",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-requires-boxed-warning-about-serious-mental-health-side-effects-asthma-and-allergy-drug",
+   "page_read": false
+  },
+  {
+   "id": "819211ec-fb39-45c9-9b55-653b470a0c30",
+   "title": "FDA requests the withdrawal of the weight-loss drug Belviq, Belviq XR (lorcaserin) from the market",
+   "date": "2020-02-13",
+   "issued": "2020-02-13",
+   "updated": "2020-02-13",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-requests-withdrawal-weight-loss-drug-belviq-belviq-xr-lorcaserin-market",
+   "page_read": true
+  },
+  {
+   "id": "d92b723f-1f72-41bd-b505-a619e269d3b2",
+   "title": "FDA strengthens warning that untreated constipation caused by schizophrenia medicine clozapine (Clozaril) can lead to serious bowel problems",
+   "date": "2020-01-28",
+   "issued": "2020-01-28",
+   "updated": "2020-02-18",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/fda-strengthens-warning-untreated-constipation-caused-schizophrenia-medicine-clozapine-clozaril-can",
+   "page_read": true
+  },
+  {
+   "id": "af7af2e1-c69e-4cf4-9445-aeff36410247",
+   "title": "Safety clinical trial shows possible increased risk of cancer with weight-loss medicine Belviq, Belviq XR (lorcaserin)",
+   "date": "2020-01-14",
+   "issued": "2020-01-14",
+   "updated": "2020-02-13",
+   "url": "https://www.fda.gov/drugs/drug-safety-communications/safety-clinical-trial-shows-possible-increased-risk-cancer-weight-loss-medicine-belviq-belviq-xr",
+   "page_read": true
+  },
+  {
+   "id": "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+   "title": "FDA requires warnings about increased risk of serious heart-related events, cancer, blood clots, and death for JAK inhibitors that treat certain chronic inflammatory conditions",
+   "issued": "2021-09-01",
+   "updated": "2021-12-07",
+   "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-requires-warnings-about-increased-risk-serious-heart-related-events-cancer-blood-clots-and-death",
+   "applications": [
+    "203214",
+    "208246",
+    "207924",
+    "211675"
+   ],
+   "drugs": [
+    "Xeljanz",
+    "Xeljanz XR",
+    "Olumiant",
+    "Rinvoq"
+   ],
+   "page_read": true
+  }
+ ]
+}
