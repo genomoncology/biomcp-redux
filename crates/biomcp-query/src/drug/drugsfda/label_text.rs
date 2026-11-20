@@ -410,6 +410,7 @@ mod probe {
         let flat = super::clean(&t);
         let marks = super::headings(&flat);
         eprintln!("PROBE marks {:?}", marks.iter().filter(|m| m.2 >= 5 && m.2 <= 8).collect::<Vec<_>>());
+        for m in marks.iter().filter(|m| m.0 > 12000 && m.0 < 20000) { eprintln!("PROBE near {:?} {:?}", m, &flat[m.0.saturating_sub(40)..m.1 + 20]); }
         eprintln!("PROBE myas {:?} len {}", flat.find("myasthenia"), flat.len());
         match super::find(&flat, biomcp_types::LabelHistorySection::AdverseReactions) {
             super::Found::Section(s) => eprintln!("PROBE section {} {:?} hits {:?}", s.len(), &s[..80], super::hits(&s, &[biodata::Text::from_source("myasthenia gravis").unwrap()])),
