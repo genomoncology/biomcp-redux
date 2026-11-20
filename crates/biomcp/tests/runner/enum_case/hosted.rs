@@ -31,7 +31,7 @@ pub(super) fn hosted_sources(env: &Environment, failures: &mut Vec<String>) -> R
             tool.pointer("/inputSchema/properties/source/enum"),
         ) {
             let mut values = seed(verb, entity, &schema)?;
-            context(verb, entity, "source", &mut values)?;
+            context(verb, entity, "source", &schema, &mut values)?;
             values.insert("source".into(), json!(word));
             let call = request(
                 json!(2),

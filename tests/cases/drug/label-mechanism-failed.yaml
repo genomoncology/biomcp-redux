@@ -1,0 +1,36 @@
+{
+  "feature": "drug-label-mechanism",
+  "story": "A failed provider request describes the normalized wording without claiming any label matched.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "openfda-label",
+        "--mechanism-of-action",
+        "interferon \u03b3",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "--source",
+        "openfda-label",
+        "--mechanism-of-action",
+        "interferon \u03b3",
+        "--limit",
+        "1"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/term": "mechanism_of_action:\"interferon\"",
+        "/sources/0/notices/0/message": "The search uses \"interferon\" in the mechanism_of_action field only. Labels without that field or with different wording are excluded. No synonyms or drug class inference are used. Totals count matching labels. When present, matched_sentence quotes the label."
+      }
+    }
+  ],
+  "replay": "drug/label-mechanism"
+}

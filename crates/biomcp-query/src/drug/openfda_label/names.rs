@@ -14,23 +14,26 @@ pub(super) fn prepare<'a>(
     query: &DrugSearch,
     deadline: &mut Deadline<'a>,
 ) -> Result<Option<Saved>, RequestError> {
-    widen::prepare(cx, query, deadline, |names| {
-        NameGroup::new(names, query.indication()).is_some()
-    })
+    widen::prepare(cx, query, deadline, |names| group(names, query).is_some())
+}
+
+/// These names narrowed by the search's label-field and application scope.
+fn group(names: &[biodata::Text], query: &DrugSearch) -> Option<NameGroup> {
+    NameGroup::new(
+        names,
+        biomcp_adapters::openfda_label::scope(query).as_deref(),
+    )
 }
 
 /// The typed name's own group, which the search falls back to and steps by.
 pub(super) fn typed(query: &DrugSearch) -> Option<NameGroup> {
     let input = query.query()?;
-    NameGroup::new(std::slice::from_ref(input), query.indication())
+    group(std::slice::from_ref(input), query)
 }
 
 pub(super) fn search(leg: &biomcp_fetch::Leg<'_>, query: &DrugSearch, saved: &mut Saved) -> Search {
     let page = (query.limit(), query.offset());
-    let (Some(typed), Some(group)) = (
-        typed(query),
-        NameGroup::new(&saved.names, query.indication()),
-    ) else {
+    let (Some(typed), Some(group)) = (typed(query), group(&saved.names, query)) else {
         // Both were checked before the search, so only a damaged snapshot reaches this.
         return Search {
             page: Err(biomcp_fetch::CacheError::Snapshot.into()),
@@ -56,10 +59,10 @@ pub(super) fn search(leg: &biomcp_fetch::Leg<'_>, query: &DrugSearch, saved: &mu
 pub(super) fn finish(query: &DrugSearch, saved: Option<Saved>, out: &mut Outcome) {
     let Some(saved) = saved else { return };
     if saved.step == Some(NameStep::Names)
-        && let Some(group) = NameGroup::new(&saved.names, query.indication())
+        && let Some(named) = group(&saved.names, query)
         && let Some(source) = out.sources.first_mut()
     {
-        source.term = match group.term(NameStep::Names).parse() {
+        source.term = match named.term(NameStep::Names).parse() {
             Ok(term) => Some(term),
             // The selector was built from checked names, so only a local fault reaches this.
             Err(_) => {

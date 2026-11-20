@@ -1,0 +1,47 @@
+{
+  "projection": "Each label row keeps only id, set_id, version, effective_time, openfda and mechanism_of_action; meta is kept whole.",
+  "sha256": "SHA-256 of the original live reply body as received",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc",
+      "sha256": "fc54f24c0841ef68a78d56d0cb6e02de390704c8b1e061e54bf43b083d8eb450",
+      "status": 200,
+      "kept_whole": false,
+      "retrieved": "2026-11-20",
+      "note": "fetched live from openFDA on 2026-11-20; 15 matching NDA or BLA labels, the three newest returned"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc&skip=3",
+      "sha256": "6a73a0416e2eb640cc5ef86d5568e3e28c945723c25f8c33a612c886eacd276e",
+      "status": 200,
+      "kept_whole": false,
+      "retrieved": "2026-11-20",
+      "note": "Live openFDA page at offset 3"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc&skip=6",
+      "sha256": "08146894d0a4fa74309e77a6d6033f4320017ae6fb80d7c6169255b6c36d5372",
+      "status": 200,
+      "kept_whole": false,
+      "retrieved": "2026-11-20",
+      "note": "Live openFDA page at offset 6"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc&skip=9",
+      "sha256": "7f47afffb7093f6e182b2c23f1d28cd7231177ec1b04e268d6d187f9c67e4a27",
+      "status": 200,
+      "kept_whole": false,
+      "retrieved": "2026-11-20",
+      "note": "Live openFDA page at offset 9"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc&skip=12",
+      "sha256": "6c4b96510de9814d90138cfec0e65100f456a07b1e0b9ef270ccece5f1233c2a",
+      "status": 200,
+      "kept_whole": false,
+      "retrieved": "2026-11-20",
+      "note": "Live openFDA page at offset 12"
+    }
+  ],
+  "controls": "The name fallback control uses authored no-match responses and projects the first recorded label into a one-row response for the scoped text selector. It does not assert live search membership. The normalized-mechanism failure is an authored HTTP 400 response."
+}

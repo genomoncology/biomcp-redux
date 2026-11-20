@@ -1,0 +1,208 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc&skip=12",
+  "exchanges": [
+    {
+      "fetched": 1795206095,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-20",
+            "results": {
+              "skip": 12,
+              "limit": 3,
+              "total": 15
+            }
+          },
+          "results": [
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Deucravacitinib is an inhibitor of tyrosine kinase 2 (TYK2). TYK2 is a member of the Janus kinase (JAK) family. Deucravacitinib binds to the regulatory domain of TYK2, stabilizing an inhibitory interaction between the regulatory and the catalytic domains of the enzyme. This results in allosteric inhibition of receptor-mediated activation of TYK2 and its downstream activation of Signal Transducers and Activators of Transcription (STATs) as shown in cell-based assays. JAK kinases, including TYK2, function as pairs of homo- or heterodimers in the JAK-STAT pathways. TYK2 pairs with JAK1 to mediate multiple cytokine pathways and also pairs with JAK2 to transmit signals as shown in cell-based assays. The precise mechanism linking inhibition of TYK2 enzyme to treatment of moderate-to-severe plaque psoriasis or active psoriatric arthritis is not currently known."
+              ],
+              "set_id": "ff4d7258-5068-4cdf-9692-8cae04c3198e",
+              "id": "73204bef-9921-40ed-9230-ba35953c99c4",
+              "effective_time": "20260630",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "NDA214958"
+                ],
+                "brand_name": [
+                  "SOTYKTU"
+                ],
+                "generic_name": [
+                  "DEUCRAVACITINIB"
+                ],
+                "manufacturer_name": [
+                  "E.R. Squibb & Sons, L.L.C."
+                ],
+                "product_ndc": [
+                  "0003-0895"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DEUCRAVACITINIB"
+                ],
+                "rxcui": [
+                  "2612092",
+                  "2612098"
+                ],
+                "spl_id": [
+                  "73204bef-9921-40ed-9230-ba35953c99c4"
+                ],
+                "spl_set_id": [
+                  "ff4d7258-5068-4cdf-9692-8cae04c3198e"
+                ],
+                "package_ndc": [
+                  "0003-0895-11",
+                  "0003-0895-91"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000194043",
+                  "N0000194044"
+                ],
+                "pharm_class_epc": [
+                  "Tyrosine Kinase 2 Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Tyrosine Kinase 2 Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "N0A21N6RAU"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action LITFULO is a kinase inhibitor. Ritlecitinib irreversibly inhibits Janus kinase 3 (JAK3) and the tyrosine kinase expressed in hepatocellular carcinoma (TEC) kinase family by blocking the adenosine triphosphate (ATP) binding site. In cellular settings, ritlecitinib inhibits cytokine induced STAT phosphorylation mediated by JAK3-dependent receptors. Additionally, ritlecitinib inhibits signaling of immune receptors dependent on TEC kinase family members. The relevance of inhibition of specific JAK or TEC family enzymes to therapeutic effectiveness is not currently known."
+              ],
+              "set_id": "1882f799-61b0-4813-965a-4910c4ae419c",
+              "id": "6845750b-223c-45ae-bdf3-848d9cef0098",
+              "effective_time": "20260617",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "NDA215830"
+                ],
+                "brand_name": [
+                  "Litfulo"
+                ],
+                "generic_name": [
+                  "RITLECITINIB"
+                ],
+                "manufacturer_name": [
+                  "U.S. Pharmaceuticals"
+                ],
+                "product_ndc": [
+                  "63539-334"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RITLECITINIB TOSYLATE"
+                ],
+                "rxcui": [
+                  "2641601",
+                  "2641607"
+                ],
+                "spl_id": [
+                  "6845750b-223c-45ae-bdf3-848d9cef0098"
+                ],
+                "spl_set_id": [
+                  "1882f799-61b0-4813-965a-4910c4ae419c"
+                ],
+                "package_ndc": [
+                  "63539-334-28"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "EAG4T1459K"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action LITFULO is a kinase inhibitor. Ritlecitinib irreversibly inhibits Janus kinase 3 (JAK3) and the tyrosine kinase expressed in hepatocellular carcinoma (TEC) kinase family by blocking the adenosine triphosphate (ATP) binding site. In cellular settings, ritlecitinib inhibits cytokine induced STAT phosphorylation mediated by JAK3-dependent receptors. Additionally, ritlecitinib inhibits signaling of immune receptors dependent on TEC kinase family members. The relevance of inhibition of specific JAK or TEC family enzymes to therapeutic effectiveness is not currently known."
+              ],
+              "set_id": "6b2f9446-fb23-4741-b73a-5a2f993733c3",
+              "id": "d428acbb-25ff-407a-bf82-167e29901f74",
+              "effective_time": "20260617",
+              "version": "6",
+              "openfda": {
+                "application_number": [
+                  "NDA215830"
+                ],
+                "brand_name": [
+                  "Litfulo"
+                ],
+                "generic_name": [
+                  "RITLECITINIB"
+                ],
+                "manufacturer_name": [
+                  "Pfizer Laboratories Div Pfizer Inc"
+                ],
+                "product_ndc": [
+                  "0069-0334"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RITLECITINIB TOSYLATE"
+                ],
+                "rxcui": [
+                  "2641601",
+                  "2641607"
+                ],
+                "spl_id": [
+                  "d428acbb-25ff-407a-bf82-167e29901f74"
+                ],
+                "spl_set_id": [
+                  "6b2f9446-fb23-4741-b73a-5a2f993733c3"
+                ],
+                "package_ndc": [
+                  "0069-0334-28"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0300690334288"
+                ],
+                "unii": [
+                  "EAG4T1459K"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
