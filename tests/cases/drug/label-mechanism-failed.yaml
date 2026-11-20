@@ -24,6 +24,7 @@
         "1"
       ],
       "exit": 4,
+      "is_error": true,
       "expect": {
         "/status": "failed",
         "/sources/0/term": "mechanism_of_action:\"interferon\"",
