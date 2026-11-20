@@ -63,12 +63,29 @@
         "--mechanism-of-action",
         "Janus kinase",
         "--source",
-        "drugsfda"
+        "drugsfda",
+        "--application-type",
+        "nda,bla",
+        "--limit",
+        "3"
       ],
       "offline": true,
       "exit": 2,
       "expect": {
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/option": "--mechanism-of-action",
+        "/error/valid_values": ["openfda-label"]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/source": "openfda-label",
+        "/query/mechanism_of_action": "Janus kinase",
+        "/query/application_type": ["nda", "bla"],
+        "/page/total": 15,
+        "/page/returned": 3
       }
     },
     {
@@ -76,13 +93,28 @@
         "search",
         "drug",
         "imatinib",
+        "--exact-term",
         "--application-type",
         "nda"
       ],
       "offline": true,
       "exit": 2,
       "expect": {
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/option": "--application-type",
+        "/error/valid_values": ["openfda-label"]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "exit": 4,
+      "expect": {
+        "/query/query": "imatinib",
+        "/query/application_type": ["nda"],
+        "/query/source": "openfda-label",
+        "/query/exact_term": true,
+        "/sources/0/reason": "offline"
       }
     }
   ]
