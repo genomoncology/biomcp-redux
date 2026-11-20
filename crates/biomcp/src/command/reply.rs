@@ -80,3 +80,29 @@ fn data<T>(section: Option<Section<T>>) -> Option<T> {
         _ => None,
     }
 }
+
+/// The inputs whose items are absent beside items that were found, named at the top of the
+/// reply so a caller need not scan the items. A reply with every input absent says so in its
+/// status, so it names none here.
+pub(super) fn absent<B: biomcp_types::ResponseBody>(
+    envelope: &biomcp_types::Envelope<B>,
+) -> Vec<biomcp_types::Text> {
+    use serde_json::Value;
+    if matches!(envelope.status, biomcp_types::Status::Absent) {
+        return Vec::new();
+    }
+    let result = envelope
+        .result
+        .as_ref()
+        .and_then(|result| serde_json::to_value(result).ok());
+    result
+        .as_ref()
+        .and_then(|result| result.get("items"))
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter(|item| item.get("status").and_then(Value::as_str) == Some("absent"))
+        .filter_map(|item| item.get("input")?.as_str())
+        .filter_map(|input| biomcp_types::Text::new(input).ok())
+        .collect()
+}

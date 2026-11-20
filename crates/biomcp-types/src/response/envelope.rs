@@ -74,32 +74,6 @@ impl<T: ResponseBody> Envelope<T> {
     }
 }
 
-impl<T: ResponseBody> Envelope<T> {
-    /// Name, at the top, the inputs whose items are absent beside items that were found.
-    pub fn name_absent(&mut self) {
-        if matches!(self.status, Status::Absent) {
-            return;
-        }
-        let items = self
-            .result
-            .as_ref()
-            .and_then(|result| serde_json::to_value(result).ok())
-            .and_then(|mut result| result.get_mut("items").map(serde_json::Value::take));
-        self.absent = items
-            .as_ref()
-            .and_then(serde_json::Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter(|item| item.get("status").and_then(serde_json::Value::as_str) == Some("absent"))
-            .filter_map(|item| {
-                item.get("input")?
-                    .as_str()
-                    .and_then(|input| crate::Text::new(input).ok())
-            })
-            .collect();
-    }
-}
-
 fn read_schema<'de, D: Deserializer<'de>, T: ResponseBody>(
     deserializer: D,
 ) -> Result<String, D::Error> {
