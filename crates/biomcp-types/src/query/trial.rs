@@ -63,7 +63,7 @@ struct Fields {
     #[doc = "Exact condition.\nAsk ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_condition: bool,
-    /// Search typed drug names and variant text as written, without other names or spellings.
+    #[doc = "Exact terms.\nSearch typed drug names and variant text as written, without other names or spellings."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
     #[doc = "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma)."]
@@ -148,7 +148,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "StudyType"))]
     study_type: Option<StudyType>,
-    /// ClinicalTrials.gov only: registry sex facet.
+    #[doc = "Sex.\nClinicalTrials.gov only: registry sex facet."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",

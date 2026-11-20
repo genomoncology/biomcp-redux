@@ -485,7 +485,7 @@
       "type": "boolean"
     },
     "exact_term": {
-      "description": "Search typed drug names and variant text as written, without other names or spellings.",
+      "description": "Exact terms.\nSearch typed drug names and variant text as written, without other names or spellings.",
       "type": "boolean"
     },
     "facility": {
@@ -562,7 +562,7 @@
     },
     "sex": {
       "$ref": "#/$defs/TrialSex",
-      "description": "ClinicalTrials.gov only: registry sex facet; help search trial\nClinicalTrials.gov only: registry sex facet."
+      "description": "Sex; help search trial\nSex.\nClinicalTrials.gov only: registry sex facet."
     },
     "site_count": {
       "description": "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as registered, never merged.",

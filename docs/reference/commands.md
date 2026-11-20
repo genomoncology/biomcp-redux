@@ -1991,6 +1991,7 @@ Options:
           [possible values: true, false]
 
       --exact-term[=<exact_term>]
+          Exact terms.
           Search typed drug names and variant text as written, without other names or spellings.
 
           [default: false]
@@ -2053,7 +2054,8 @@ Options:
           Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
-          ClinicalTrials.gov only: registry sex facet; help search trial
+          Sex; help search trial
+          Sex.
           ClinicalTrials.gov only: registry sex facet.
 
       --site-count[=<site_count>]
@@ -2137,7 +2139,8 @@ ClinicalTrials.gov only: search registry eligibility text with other variant spe
 ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string; example: --distance 50mi.
 - `--exact-condition`: Exact condition.
 Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean; example: --exact-condition.
-- `--exact-term`: Search typed drug names and variant text as written, without other names or spellings. Value form: boolean; example: --exact-term.
+- `--exact-term`: Exact terms.
+Search typed drug names and variant text as written, without other names or spellings. Value form: boolean; example: --exact-term.
 - `--facility`: Facility.
 Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius. Value form: string; example: --facility 'Dana-Farber Cancer Institute'.
 - `--gene`: Gene symbol/ID.
@@ -2167,7 +2170,8 @@ Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2
 - `query`: Trial text.
 ClinicalTrials.gov general text. Total counts its matches. Use --acronym or --official-title to search those fields.
 Form: search trial QUERY; not --query.
-- `--sex`: ClinicalTrials.gov only: registry sex facet. Value form: string; example: --sex ALL.
+- `--sex`: Sex.
+ClinicalTrials.gov only: registry sex facet. Value form: string; example: --sex ALL.
 - `--site-count`: Site count.
 ClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as registered, never merged. Value form: boolean; example: --site-count.
 - `--source`: clinicaltrials/nci.
