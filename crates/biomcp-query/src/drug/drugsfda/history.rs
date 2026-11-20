@@ -383,6 +383,7 @@ fn matched(search: &Search<'_, '_>, at: usize) -> Result<Option<LabelVersionMatc
             .iter()
             .map(|s| text(s))
             .collect::<Result<_, _>>()?,
+        private_use: opened.private_use,
     }))
 }
 
