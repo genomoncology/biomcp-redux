@@ -49,6 +49,22 @@ pub(super) fn enrich(
     Ok(())
 }
 
+/// Why a letter in `state` gave no text to search, when it gave none.
+fn unread(state: biomcp_types::PdfTextState) -> Option<&'static str> {
+    Some(match state {
+        biomcp_types::PdfTextState::Garbled => {
+            "The linked FDA letter's text could not be decoded (it reads as gibberish); its supplement purpose is unavailable."
+        }
+        biomcp_types::PdfTextState::Refused => {
+            "The linked FDA letter could not be read safely within BioMCP's memory or time limit; its supplement purpose is unavailable."
+        }
+        biomcp_types::PdfTextState::Damaged => {
+            "The linked FDA letter's PDF is damaged and was not read; its supplement purpose is unavailable."
+        }
+        _ => return None,
+    })
+}
+
 fn read(
     leg: &biomcp_fetch::Leg<'_>,
     row: &DrugFdaSubmission,
@@ -78,28 +94,10 @@ fn read(
         None => pdf::read(leg, &drugsfda::DOCUMENTS, url, 0),
     };
     let evidence = match extracted {
-        Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Garbled => {
-            return Ok(unavailable(
-                "The linked FDA letter's text could not be decoded (it reads as gibberish); its supplement purpose is unavailable.",
-                Some(document),
-                None,
-            ));
-        }
-        Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Refused => {
-            return Ok(unavailable(
-                "The linked FDA letter could not be read safely within BioMCP's memory or time limit; its supplement purpose is unavailable.",
-                Some(document),
-                None,
-            ));
-        }
-        Ok(pdf) if pdf.state == biomcp_types::PdfTextState::Damaged => {
-            return Ok(unavailable(
-                "The linked FDA letter's PDF is damaged and was not read; its supplement purpose is unavailable.",
-                Some(document),
-                None,
-            ));
-        }
-        Ok(pdf) => pdf.text.as_deref().and_then(|text| purpose(text, row)),
+        Ok(pdf) => match unread(pdf.state) {
+            Some(message) => return Ok(unavailable(message, Some(document), None)),
+            None => pdf.text.as_deref().and_then(|text| purpose(text, row)),
+        },
         Err(error @ RequestError::Source(_)) => {
             return Ok(unavailable(
                 "The linked FDA letter could not be read; its supplement purpose is unavailable.",
