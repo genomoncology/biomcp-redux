@@ -9,7 +9,7 @@ pub(super) fn trials() -> impl Iterator<Item = Trial> {
         ("drug-name-get/holder-read-wrong-application", false),
     ]
     .into_iter()
-    .map(|(name, missing)| transcript::trial(name, move || fallback(missing)))
+    .map(|(name, missing)| transcript::trial(name, move || fallback(missing).map_err(Into::into)))
 }
 
 fn fallback(missing: bool) -> Result<(), Box<dyn std::error::Error>> {
@@ -55,7 +55,7 @@ fn fallback(missing: bool) -> Result<(), Box<dyn std::error::Error>> {
                 "/result/identity/name_resolution/alternatives/0/args/2": "f7f9da92-ff5d-4260-b4bd-e3f6993a36ae",
                 "/result/label/data/text": "Synthetic packaging for HADLIMA.",
                 "/sources/0/notices/*/message": {"includes":
-                    "The holder label for BLA761059 could not be read. The reply uses a repackager's copy."}
+                    "The holder label for BLA761059 could not be read. The fallback label is a repackager's copy."}
             }
         }]),
     )?;
