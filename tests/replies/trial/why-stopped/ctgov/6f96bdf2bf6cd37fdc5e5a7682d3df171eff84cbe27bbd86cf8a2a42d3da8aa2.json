@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle&filter.advanced=AREA%5BPhase%5DPHASE3&pageSize=3&query.cond=%28mesothelioma%29",
+  "exchanges": [
+    {
+      "fetched": 1794939299,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 132,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":28,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT04158141","briefTitle":"Testing the Addition of Targeted Radiation Therapy to Surgery and the Usual Chemotherapy Treatment (Pemetrexed and Cisplatin [or Carboplatin]) for Stage I-IIIA Malignant Pleural Mesothelioma"},"statusModule":{"overallStatus":"TERMINATED","whyStopped":"Permanent Administrative Closure","startDateStruct":{"date":"2020-01-29","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2023-11-20","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2026-07-13"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"NRG Oncology"}},"conditionsModule":{"conditions":["Pleural Biphasic Mesothelioma","Pleural Epithelioid Mesothelioma","Stage I Pleural Malignant Mesothelioma AJCC v8","Stage IA Pleural Malignant Mesothelioma AJCC v8","Stage IB Pleural Malignant Mesothelioma AJCC v8","Stage II Pleural Malignant Mesothelioma AJCC v8","Stage IIIA Pleural Malignant Mesothelioma AJCC v8"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Carboplatin"},{"name":"Cisplatin"},{"name":"Decortication"},{"name":"Intensity-Modulated Radiation Therapy"},{"name":"Pemetrexed"},{"name":"Pemetrexed Disodium"},{"name":"Pencil beam scanning proton therapy"},{"name":"Pleurectomy"}]}},"hasResults":true},
+{"protocolSection":{"identificationModule":{"nctId":"NCT00003034","briefTitle":"ONCONASE Plus Doxorubicin Versus Doxorubicin Alone For Patients With Malignant Pleural or Peritoneal Mesothelioma Who Have Had No More Than One Prior Chemotherapy Regimen"},"statusModule":{"overallStatus":"UNKNOWN","startDateStruct":{"date":"1997-05"},"primaryCompletionDateStruct":{"date":"2008-02","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2013-11-06"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Alfacell"}},"conditionsModule":{"conditions":["Malignant Mesothelioma"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"doxorubicin hydrochloride"},{"name":"ranpirnase"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT00004920","briefTitle":"Cisplatin With or Without Raltitrexed in Treating Patients With Malignant Mesothelioma of the Pleura"},"statusModule":{"overallStatus":"COMPLETED","startDateStruct":{"date":"1999-11"},"primaryCompletionDateStruct":{"date":"2003-01","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2012-07-18"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"European Organisation for Research and Treatment of Cancer - EORTC"}},"conditionsModule":{"conditions":["Malignant Mesothelioma"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"cisplatin"},{"name":"raltitrexed"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyV9C-4abumpOQJJxtYPmm3fYW"}
+      }
+    }
+  ]
+}

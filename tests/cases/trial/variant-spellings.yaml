@@ -70,7 +70,7 @@
         "/status": "complete",
         "/page/total": 260,
         "/sources/0/notices": {
-          "count": 1
+          "count": 2
         }
       }
     }
