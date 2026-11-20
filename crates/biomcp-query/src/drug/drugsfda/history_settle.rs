@@ -11,16 +11,16 @@ pub(super) struct Settled {
 pub(super) fn settle(search: &Search<'_, '_>) -> Settled {
     let mut before = None;
     let mut gap = false;
-    for at in 0..search.versions.len() {
+    for (at, version) in search.versions.iter().enumerate() {
         match search.get(at).map(|opened| opened.state) {
             Some(State::Match) => {
                 return Settled {
                     first: Some(at),
                     before,
-                    on_or_before: gap,
+                    on_or_before: gap || version.approved.is_none(),
                 };
             }
-            Some(State::NoMatch) => before = Some(at),
+            Some(State::NoMatch) if version.approved.is_some() => before = Some(at),
             Some(state) if state.read() => {}
             _ => gap = true,
         }
@@ -62,7 +62,7 @@ pub(super) fn holds(search: &Search<'_, '_>, reply: &DrugLabelHistory) -> bool {
                 && search
                     .versions
                     .get(at)
-                    .is_some_and(|v| stated.label.as_ref() == Some(&v.label))
+                    .is_some_and(|v| stated.label == v.label)
         };
     first.version.state == State::Match
         && same(&first.version, earliest, index)

@@ -23,7 +23,12 @@
         "/result/versions": 24,
         "/result/first/submission": "SUPPL 25",
         "/result/first/approved": "2001-06-08",
-        "/result/first/state": "match"
+        "/result/first/state": "match",
+        "/result/first": {
+          "omits": [
+            "heading"
+          ]
+        }
       },
       "max_bytes": 3000
     }

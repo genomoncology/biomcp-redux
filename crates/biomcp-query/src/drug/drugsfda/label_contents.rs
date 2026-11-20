@@ -54,25 +54,19 @@ fn entry(block: &str, at: usize) -> Option<(u8, Option<u8>, &str)> {
     Some((major, Some(minor), tail))
 }
 
-/// The first one to three words of a subsection title, as the contents list gives them.
-fn title_words(tail: &str) -> Option<String> {
-    let allowed = |c: char| c.is_alphanumeric() || ",'’-/&()".contains(c);
-    let words: Vec<&str> = tail
-        .split(' ')
-        .take(3)
-        .take_while(|w| !w.is_empty() && w.chars().all(allowed))
-        .collect();
-    let first = words.first()?;
-    first
-        .starts_with(|c: char| c.is_uppercase())
-        .then(|| words.join(" "))
-}
-
-/// A listed top-level section: its number, title and first subsection's title.
+/// A top-level section named by the contents list.
 struct Listed {
     number: u8,
     title: &'static str,
-    first: Option<String>,
+}
+
+impl Listed {
+    fn numbered(&self) -> [String; 2] {
+        [
+            format!("{} {}", self.number, self.title),
+            format!("{}. {}", self.number, self.title),
+        ]
+    }
 }
 
 /// The top-level sections the contents list names, in order.
@@ -96,7 +90,6 @@ fn listed(block: &str) -> Vec<Listed> {
                 found.push(Listed {
                     number: major,
                     title,
-                    first: (minor == Some(1)).then(|| title_words(tail)).flatten(),
                 });
             }
             continue;
@@ -116,13 +109,7 @@ fn listed(block: &str) -> Vec<Listed> {
                     found.push(Listed {
                         number: major,
                         title,
-                        first: None,
                     });
-                }
-            }
-            Some(1) if major == last => {
-                if let Some(listed) = found.last_mut().filter(|l| l.first.is_none()) {
-                    listed.first = title_words(tail);
                 }
             }
             _ => {}
@@ -137,15 +124,8 @@ fn placed(flat: &str, listed: &[Listed], body: usize) -> Vec<Option<usize>> {
     listed
         .iter()
         .map(|l| {
-            let mut forms = vec![
-                format!("{} {}", l.number, l.title),
-                format!("{}. {}", l.number, l.title),
-                l.title.to_owned(),
-            ];
-            if let Some(first) = &l.first {
-                forms.push(format!("{}.1 {first}", l.number));
-                forms.push(format!("{}.1. {first}", l.number));
-            }
+            let [plain, dotted] = l.numbered();
+            let forms = [plain, dotted, l.title.to_owned()];
             let at = forms
                 .iter()
                 .filter_map(|form| heading_from(flat, form, cursor))
@@ -158,25 +138,25 @@ fn placed(flat: &str, listed: &[Listed], body: usize) -> Vec<Option<usize>> {
         .collect()
 }
 
+fn contents(flat: &str) -> Option<(usize, usize)> {
+    CONTENTS
+        .iter()
+        .filter_map(|c| flat.find(c).map(|at| (at, at + c.len())))
+        .min()
+}
+
 /// A section of a 2006-format label, or none when the label has no contents list.
 pub(super) fn listed_section(flat: &str, number: Option<u8>) -> Option<Found> {
-    let (start, marker) = CONTENTS
-        .iter()
-        .filter_map(|c| flat.find(c).map(|at| (at, c.len())))
-        .min()?;
-    let Some(body) = flat
-        .get(start + marker..)?
-        .find(FULL)
-        .map(|at| start + marker + at)
-    else {
+    let (start, entries) = contents(flat)?;
+    let Some(body) = flat.get(entries..)?.find(FULL).map(|at| entries + at) else {
         // The body's own heading is missing, as when its first page is drawn as an image.
-        let block = flat.get(start + marker..).unwrap_or_default();
+        let block = flat.get(entries..).unwrap_or_default();
         return Some(match number {
             None => titled(block),
             Some(number) => label_plain::numbered(flat, number),
         });
     };
-    let block = flat.get(start + marker..body).unwrap_or_default();
+    let block = flat.get(entries..body).unwrap_or_default();
     let listed = listed(block);
     let body = body + FULL.len();
     let places = placed(flat, &listed, body);
@@ -184,25 +164,18 @@ pub(super) fn listed_section(flat: &str, number: Option<u8>) -> Option<Found> {
         return Some(boxed(flat, (start, block, body), &listed, &places));
     };
     let Some(i) = listed.iter().position(|l| l.number == number) else {
-        // Absent only when the body has no heading for it either: the reader can lose a line.
-        let titles = TITLES
-            .iter()
-            .find(|(n, _)| *n == number)
-            .map_or(&[][..], |t| t.1);
-        let headed = titles
-            .iter()
-            .any(|t| heading_from(flat, &format!("{number} {t}"), body).is_some());
-        return Some(if listed.is_empty() || headed {
-            Found::Unbounded
-        } else {
-            Found::Absent
-        });
+        return Some(
+            if block.contains(label_plain::OMITTED)
+                && bounded_omission(flat, number, &listed, &places)
+            {
+                Found::Absent
+            } else {
+                Found::Unbounded
+            },
+        );
     };
     let begin = places.get(i).copied().flatten();
-    let end = match listed.get(i + 1) {
-        Some(_) => places.get(i + 1).copied().flatten(),
-        None => Some(flat.len()),
-    };
+    let end = places.get(i + 1).copied().flatten();
     Some(match (begin, end) {
         // A numbered heading of another section between them means the list lost that section.
         (Some(begin), Some(end))
@@ -212,6 +185,34 @@ pub(super) fn listed_section(flat: &str, number: Option<u8>) -> Option<Found> {
         }
         _ => Found::Unbounded,
     })
+}
+
+/// The omitted section has no body when the immediately preceding section explicitly says
+/// "None." and the heading of the immediately following section starts right after it.
+fn bounded_omission(flat: &str, number: u8, listed: &[Listed], places: &[Option<usize>]) -> bool {
+    let Some(i) = listed.iter().position(|l| l.number + 1 == number) else {
+        return false;
+    };
+    let (Some(before), Some(after)) = (listed.get(i), listed.get(i + 1)) else {
+        return false;
+    };
+    if after.number != number + 1 {
+        return false;
+    }
+    let (Some(Some(start)), Some(Some(end))) = (places.get(i), places.get(i + 1)) else {
+        return false;
+    };
+    let Some(region) = flat.get(*start..*end) else {
+        return false;
+    };
+    before
+        .numbered()
+        .iter()
+        .any(|form| region.strip_prefix(form).map(str::trim) == Some("None."))
+        && after.numbered().iter().any(|form| {
+            flat.get(*end..).is_some_and(|tail| tail.starts_with(form))
+                && heading_at(flat, *end, form)
+        })
 }
 
 /// The boxed warning's title as the contents list gives it, when the box itself is unread: the
@@ -241,19 +242,57 @@ fn boxed(
     listed: &[Listed],
     places: &[Option<usize>],
 ) -> Found {
-    let Some(Some(one)) = (!listed.is_empty()).then(|| places.first().copied().flatten()) else {
+    let Some(Some(one)) =
+        (listed.first().is_some_and(|l| l.number == 1)).then(|| places.first().copied().flatten())
+    else {
         return titled(block);
     };
     let region = flat.get(body..one).unwrap_or_default();
     if let Some(at) = region.find("WARNING") {
         return Found::Section(region.get(at..).unwrap_or_default().trim().to_owned());
     }
-    let head = block
-        .find("1 INDICATIONS")
+    let head = ["1 INDICATIONS", "1. INDICATIONS"]
+        .into_iter()
+        .filter_map(|title| block.find(title))
+        .min()
         .and_then(|at| block.get(..at))
         .unwrap_or(block);
     if flat.get(..contents).is_some_and(|h| h.contains("WARNING:")) || head.contains("WARNING") {
         return titled(block);
     }
     Found::Absent
+}
+
+/// The nearest subsection before the hit whose full listed title also occurs in the section body.
+pub(super) fn subheading(flat: &str, section: &str, hit: usize) -> Option<String> {
+    let (_, start) = contents(flat)?;
+    let (block, _) = flat.get(start..)?.split_once(FULL)?;
+    let block = block.split('*').find(|part| !part.trim().is_empty())?;
+    let entries: Vec<_> = block
+        .char_indices()
+        .filter_map(|(at, _)| entry(block, at).map(|e| (at, e)))
+        .collect();
+    let hit = section.char_indices().nth(hit)?.0;
+    entries
+        .iter()
+        .enumerate()
+        .filter_map(|(i, &(_, (major, minor, tail)))| {
+            let minor = minor?;
+            let end = entries.get(i + 1).map_or(block.len(), |(at, _)| *at);
+            let start = block.len() - tail.len();
+            let title = block.get(start..end)?.trim();
+            if title.len() > 80 || !title.starts_with(char::is_uppercase) {
+                return None;
+            }
+            let heading = format!("{major}.{minor} {title}");
+            let dotted = format!("{major}.{minor}. {title}");
+            let at = [heading.as_str(), dotted.as_str()]
+                .into_iter()
+                .filter_map(|form| heading_from(section, form, 0))
+                .filter(|at| *at <= hit)
+                .max()?;
+            Some((at, heading))
+        })
+        .max_by_key(|(at, _)| *at)
+        .map(|(_, heading)| heading)
 }

@@ -86,14 +86,15 @@ pub(in crate::drug) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             order(query),
         ),
     };
-    let error = result.as_ref().err().copied();
-    let mut total = None;
-    let mut matched = None;
-    let mut read = None;
+    let (page, error) = match result {
+        Ok(page) => (Some(page), None),
+        Err(error) => (None, Some(error)),
+    };
+    let (mut total, mut matched, mut read) = (None, None, None);
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
-    if let Ok(page) = result {
+    if let Some(page) = page {
         out.include_refusals(page.refusals);
         total = Some(page.total);
         matched = page.matched;

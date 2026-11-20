@@ -30,6 +30,31 @@
         "/result/on_or_before": true
       },
       "max_bytes": 3000
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "drug",
+        "label-history"
+      ],
+      "expect": {
+        "/result/commands/0/examples/0": [
+          "get",
+          "drug",
+          "NDA208065",
+          "label-history",
+          "--source",
+          "drugsfda",
+          "--label-section",
+          "warnings_and_cautions",
+          "--find",
+          "vasculitis"
+        ],
+        "/result/commands/0/arguments/*/name": {
+          "excludes": "--section-limit"
+        }
+      }
     }
   ],
   "verified": "2026-11-20 capture in pm job j43461 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured live reply was 2624 bytes."

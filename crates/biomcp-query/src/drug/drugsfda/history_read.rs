@@ -5,7 +5,7 @@ use super::label_text;
 use biomcp_adapters::{drugsfda as source, pdf};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{LabelHistorySection, LabelVersionState as State, PdfTextState};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, btree_map::Entry};
 
 /// Most label PDFs one call reads: halving reads about log2(n) + 2 of n versions, 9 for
 /// Keytruda's 102, and reading in order stops here.
@@ -15,7 +15,7 @@ pub(crate) const MOST_READS: usize = 10;
 pub(super) struct Version {
     pub(super) approved: Option<biodata::PartialDate>,
     pub(super) submission: biodata::Text,
-    pub(super) label: biodata::Text,
+    pub(super) label: Option<biodata::Text>,
     pub(super) letter: Option<biodata::Text>,
 }
 
@@ -53,43 +53,65 @@ fn document(url: &str) -> &str {
 pub(super) fn versions(row: &source::Application) -> Result<Vec<Version>, RequestError> {
     let mut found: Vec<Version> = Vec::new();
     let (submissions, _) = row.submissions((None, None), 0, u32::MAX)?;
+    let mut linked = BTreeMap::new();
     for submission in submissions.iter() {
         let docs = submission.application_docs.as_deref().unwrap_or_default();
         let kind = submission.event.kind.as_ref().map_or("", |k| k.as_str());
         let name = format!("{kind} {}", submission.submission_number.as_str());
+        let approved = submission
+            .event
+            .status
+            .as_ref()
+            .filter(|status| status.as_str() == "AP")
+            .and_then(|_| submission.event.dates.first().map(|d| d.date));
+        let letter = of(docs, "Letter").find_map(|doc| doc.url.clone());
         for label in of(docs, "Label") {
-            found.push(Version {
-                approved: submission.event.dates.first().map(|d| d.date),
+            let version = Version {
+                approved,
                 submission: text(name.trim())?,
-                label,
-                letter: of(docs, "Letter").next(),
-            });
+                label: label.url.clone(),
+                letter: letter.clone(),
+            };
+            if let Some(url) = &label.url {
+                match linked.entry(document(url.as_str())) {
+                    Entry::Vacant(entry) => {
+                        entry.insert(version);
+                    }
+                    Entry::Occupied(mut entry) => {
+                        let rank = |v: &Version| (v.approved.is_none(), version_key(v));
+                        if rank(&version) < rank(entry.get()) {
+                            entry.insert(version);
+                        }
+                    }
+                }
+            } else {
+                found.push(version);
+            }
         }
     }
-    let number = |v: &Version| {
-        let n = v
-            .submission
-            .as_str()
-            .rsplit(' ')
-            .next()
-            .unwrap_or_default()
-            .trim_start_matches('0');
-        (n.len(), n.to_owned())
-    };
-    found.sort_by_cached_key(|v| (v.approved.map(|d| d.to_string()), number(v)));
-    let mut seen = BTreeSet::new();
-    found.retain(|v| seen.insert(document(v.label.as_str()).to_owned()));
+    found.extend(linked.into_values());
+    found.sort_by_cached_key(version_key);
     Ok(found)
 }
 
-/// The links of `docs` of one kind.
+fn version_key(v: &Version) -> (Option<String>, usize, String) {
+    let n = v
+        .submission
+        .as_str()
+        .rsplit(' ')
+        .next()
+        .unwrap_or_default()
+        .trim_start_matches('0');
+    (v.approved.map(|d| d.to_string()), n.len(), n.to_owned())
+}
+
+/// The documents of one kind, including those without a link.
 fn of<'a>(
     docs: &'a [biomcp_types::DrugFdaDocument],
     kind: &'a str,
-) -> impl Iterator<Item = biodata::Text> + 'a {
+) -> impl Iterator<Item = &'a biomcp_types::DrugFdaDocument> + 'a {
     docs.iter()
         .filter(move |d| d.r#type.as_ref().is_some_and(|t| t.as_str() == kind))
-        .filter_map(|d| d.url.clone())
 }
 
 pub(super) struct Search<'a, 'b> {
@@ -118,10 +140,13 @@ impl Search<'_, '_> {
             self.stopped = true;
             return false;
         }
-        let opened = match pdf::label(self.leg, &source::DOCUMENTS, &version.label) {
-            Err(_) => state(State::NotFetched),
-            Ok((text, body)) => self.searched(text.state, &body),
-        };
+        let opened = version.label.as_ref().map_or_else(
+            || state(State::NotFetched),
+            |url| match pdf::label(self.leg, &source::DOCUMENTS, url) {
+                Ok((text, body)) => self.searched(text.state, &body),
+                Err(_) => state(State::NotFetched),
+            },
+        );
         self.opened.insert(at, opened);
         true
     }
@@ -176,7 +201,7 @@ impl Search<'_, '_> {
         Opened {
             state: State::Match,
             private_use,
-            heading: label_text::heading(&flat, &section, at),
+            heading: super::label_contents::subheading(&flat, &section, at),
             sentences: label_text::sentences(&section, &hits),
         }
     }

@@ -39,20 +39,30 @@ impl Search<'_, '_> {
         {
             low = *at;
         }
+        let mut toward_match = false;
         while high - low > 1 {
             let middle = (low + high) / 2;
-            let next = (1..high - low)
-                .flat_map(|step| [middle + step / 2, middle.wrapping_sub(step / 2)])
+            // An unread midpoint gives no direction. Try halfway toward the known match
+            // before using more reads near that midpoint.
+            let nearer_match = middle + (high - middle) / 2;
+            let next = toward_match
+                .then_some(nearer_match)
+                .into_iter()
+                .chain(
+                    (1..high - low)
+                        .flat_map(|step| [middle + step / 2, middle.wrapping_sub(step / 2)]),
+                )
                 .filter(|at| low < *at && *at < high)
                 .find(|at| self.get(*at).is_none());
             let Some(at) = next else { break };
             if !self.open(at) {
                 break;
             }
+            toward_match = false;
             match self.get(at) {
                 Some(o) if o.state == State::Match => high = at,
                 Some(o) if o.usable() => low = at,
-                _ => {}
+                _ => toward_match = at == middle,
             }
         }
         low

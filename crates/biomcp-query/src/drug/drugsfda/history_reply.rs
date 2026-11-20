@@ -40,7 +40,7 @@ pub(super) fn reply(
     };
     let consistent = holds(search, &body);
     if consistent {
-        body.answer = text(&answer(&body))?;
+        body.answer = text(&answer(&body, path))?;
     } else {
         body.first = None;
         body.before = None;
@@ -56,7 +56,11 @@ fn version(search: &Search<'_, '_>, at: usize, link: bool) -> Option<LabelVersio
         approved: v.approved,
         submission: v.submission.clone(),
         state,
-        label: (link || !state.read()).then(|| v.label.clone()),
+        label: if link || !state.read() {
+            v.label.clone()
+        } else {
+            None
+        },
     })
 }
 
@@ -89,7 +93,7 @@ fn named(v: &LabelVersion) -> String {
     }
 }
 
-fn answer(body: &DrugLabelHistory) -> String {
+fn answer(body: &DrugLabelHistory, path: Path) -> String {
     let section = body.section;
     let Some(first) = &body.first else {
         let count = body.versions as usize;
@@ -115,7 +119,11 @@ fn answer(body: &DrugLabelHistory) -> String {
         };
     };
     let name = named(&first.version);
-    let mut said = if body.on_or_before {
+    let mut said = if first.version.approved.is_none() {
+        format!(
+            "Text in the {section} section of {name}. Its approval date and the first appearance are uncertain."
+        )
+    } else if body.on_or_before {
         format!("Text in {section} on or before {name}. Older labels remain unchecked.")
     } else if let Some(before) = &body.before {
         format!(
@@ -125,7 +133,12 @@ fn answer(body: &DrugLabelHistory) -> String {
     } else {
         format!("First found in the {section} section of {name}.")
     };
-    // Read directly from the checked list. A missing section is not a no-match.
+    let latest = if matches!(path, Path::Every(_)) {
+        "The latest label read on this page"
+    } else {
+        "The latest label read"
+    };
+    // Only a confirmed miss supports the claim that this label lacks the text.
     if let Some(newest) = body.read.iter().rev().find(|v| {
         matches!(
             v.state,
@@ -135,7 +148,7 @@ fn answer(body: &DrugLabelHistory) -> String {
         && let Some(last_match) = body.read.iter().rev().find(|v| v.state == State::Match)
     {
         said.push_str(&format!(
-            " The newest readable label, {}, lacks it. The last match read is {}.",
+            " {latest}, {}, lacks it. The last match read is {}.",
             named(newest),
             named(last_match)
         ));

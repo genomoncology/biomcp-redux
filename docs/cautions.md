@@ -28,10 +28,10 @@ Do not put patient names, identifiers or other private information in query text
 
 ## Label section history
 
-`get drug NDA208065 label-history --source drugsfda --label-section warnings_and_cautions --find vasculitis` says in which archived label version text first appears in one section of a drug's US prescribing information. It reads the label PDFs Drugs@FDA lists for each approved submission, fetched only from FDA's own site, with the same PDF reader and limits as approval letters, except that a label may have up to 400 pages. The same PDF listed under http and https, or with a `#page=` suffix, counts once. Matching is literal text, ignoring letter case, line breaks and hyphenation; `--find` may repeat, and any of its values counts.
+`get drug NDA208065 label-history --source drugsfda --label-section warnings_and_cautions --find vasculitis` says in which archived label version text first appears in one section of a drug's US prescribing information. It reads the label PDFs Drugs@FDA lists with submissions, fetched only from FDA's own site, with the same PDF reader and limits as approval letters, except that a label may have up to 400 pages. The same PDF listed under http and https, or with a `#page=` suffix, counts once. If several submissions list that PDF, the history uses the earliest dated approval when available. A label listed without a link remains unread. Matching is literal text, ignoring letter case, line breaks and hyphenation; `--find` may repeat, and any of its values counts.
 
 The default search starts from the oldest and newest versions. When the earliest readable label lacks the text and the newest has it,
-BioMCP halves the range and uses any remaining reads to look for earlier matches. Halving assumes that the text stays once added.
+BioMCP halves the range, probes toward the matching end when it cannot read the midpoint, and uses any remaining reads to look for earlier matches. Halving assumes that the text stays once added.
 The reply's `method` states the assumption when it guided the search. When both ends lack the text, the search samples versions between
 them and halves toward an earlier match if it finds one. When the earliest has the text and the newest does not, it reads in order.
 `--every-version` reads in order, and `--section-offset` continues it from a later version. Each page draws its answer from its own reads.
@@ -41,8 +41,10 @@ A call that stopped is `partial`, and its `next` step offers a continuation when
 Sections are found from the label's own contents list ("FULL PRESCRIBING INFORMATION: CONTENTS"): a heading in the body counts
 only when its number and title match a listed entry, in the list's order, so table rows that look like subsection numbers are
 never headings, and a section runs to the next listed heading only when no numbered heading of another section stands between
-them. A section is absent only when the list was read and lacks it and the body has no numbered heading for it. When the list is
-missing, the section is read from the body's numbered headings alone: it starts at its one heading and must end at the heading of
+them. A numbered section missing from the contents list is unread unless the neighboring body sections verify the omission.
+A boxed warning can be marked absent when the label's opening
+is bounded and shows no box. When the list is missing, the parser needs a marker that identifies the body, then it reads from
+the body's numbered headings: a section starts at its one heading and must end at the heading of
 the section that always follows it (5 WARNINGS AND PRECAUTIONS ends at 6 ADVERSE REACTIONS). Labels in the format used before 2006
 are read the same way from their unnumbered titles: WARNINGS must be followed by PRECAUTIONS and then ADVERSE REACTIONS, and a
 title after "see", inside parentheses or before a comma is a cross-reference, not a heading. A missed or repeated heading makes
@@ -54,7 +56,7 @@ kind of document, such as Instructions for Use or a Medication Guide. A version 
 private-use characters (symbols or digits the PDF's fonts do not name) and no match, is unread.
 
 The earliest version marked `match` supplies the date. If any older version was unreadable or unopened, the reply says "on or
-before" and is `partial`. When none of the versions read matches and some could not be read or were not opened, the reply says
+before" and is `partial`. A matching version without a dated approval leaves the first appearance uncertain. When none of the versions read matches and some could not be read or were not opened, the reply says
 BioMCP could not tell. Sentences are given as the PDF's text gives them, at most two and at most 300 characters each. BioMCP
 reports text and dates only; it does not judge what a label change means.
 

@@ -181,6 +181,35 @@
           "use_in_specific_populations"
         ]
       }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA022363",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "warnings_and_cautions",
+        "--find",
+        "myasthenia",
+        "--every-version",
+        "--limit",
+        "2"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--section-limit",
+        "/error/message": "label-history uses a fixed read limit; drop --limit (also spelled --section-limit)",
+        "/error": {
+          "omits": [
+            "valid_values"
+          ]
+        }
+      }
     }
   ]
 }

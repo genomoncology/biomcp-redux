@@ -25,7 +25,7 @@ const OLD: [&str; 10] = [
     "HOW SUPPLIED",
 ];
 /// The sentence that closes a 2006-format contents list.
-const OMITTED: &str = "omitted from the full prescribing information are not listed";
+pub(super) const OMITTED: &str = "omitted from the full prescribing information are not listed";
 
 /// Whether the heading-like `needle` at `at` is a cross-reference: after `and`, `or`, `the` or
 /// an upper-case `SEE`, inside an open parenthesis or bracket, or followed by punctuation or a
@@ -159,11 +159,17 @@ pub(super) fn numbered(flat: &str, number: u8) -> Found {
         8 => &[9, 10],
         _ => return Found::Unbounded,
     };
-    let from = [OMITTED, super::label_sections::FULL]
+    let Some(from) = [OMITTED, super::label_sections::FULL]
         .iter()
-        .filter_map(|marker| flat.rfind(marker).map(|at| at + marker.len()))
+        .filter_map(|marker| {
+            flat.rmatch_indices(marker)
+                .map(|(at, _)| at + marker.len())
+                .find(|&end| flat.get(end..).is_some_and(|rest| !rest.starts_with(':')))
+        })
         .max()
-        .unwrap_or(0);
+    else {
+        return Found::Unbounded;
+    };
     let mut titles = Vec::new();
     let mut numbers = Vec::new();
     for (n, names) in TITLES {

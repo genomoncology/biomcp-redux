@@ -4,14 +4,12 @@
 //! Labels in the 2006 format print `FULL PRESCRIBING INFORMATION: CONTENTS`, which lists every
 //! section by number and title in order, then the prescribing information itself. A heading in
 //! the body counts only when it names a listed section: its number and title (`6 ADVERSE
-//! REACTIONS` or `6. ADVERSE REACTIONS`), its title alone where the PDF draws the number apart,
-//! or the listed title of its first subsection (`6.1 Clinical Studies Experience`); a listed
-//! subsection implies its section when the reader lost the section's own line. Headings are
+//! REACTIONS` or `6. ADVERSE REACTIONS`), or its title alone where the PDF draws the number apart.
+//! A listed subsection can imply a missing contents entry. Headings are
 //! found in the list's order, each after the one before, so a table row such as `1.1 Rash 26 2`
 //! is never a heading. A section runs from its heading to the heading of the next listed
-//! section, with no numbered heading of another section between; otherwise it is unread. A
-//! section is absent only when the list was read and lacks it and the body has no numbered
-//! heading for it. The boxed warning is the text between the body's start and section 1 when
+//! section, with no numbered heading of another section between; otherwise it is unread.
+//! The boxed warning is the text between the body's start and section 1 when
 //! that text holds a warning; it is absent only when neither it, the highlights nor the list
 //! holds one. When the box itself is unread, the list's title for it can still hold the text.
 //!
@@ -59,7 +57,7 @@ pub(super) const FULL: &str = "FULL PRESCRIBING INFORMATION";
 pub(super) enum Found {
     /// The section's text, whitespace collapsed.
     Section(String),
-    /// The label's contents list was read and has no such section.
+    /// The bounded portion of the label shows the section is absent.
     Absent,
     /// The section's bounds could not be found, so it is unread.
     Unbounded,
@@ -116,8 +114,14 @@ pub(super) fn find(flat: &str, section: LabelHistorySection) -> Found {
     }
     let structured = flat.contains(FULL)
         || flat.contains("HIGHLIGHTS OF PRESCRIBING INFORMATION")
-        || flat.contains("1 INDICATIONS AND USAGE")
-        || flat.contains("5 WARNINGS AND PRECAUTIONS");
+        || [
+            "1 INDICATIONS AND USAGE",
+            "1. INDICATIONS AND USAGE",
+            "5 WARNINGS AND PRECAUTIONS",
+            "5. WARNINGS AND PRECAUTIONS",
+        ]
+        .iter()
+        .any(|heading| flat.contains(heading));
     if structured {
         return number.map_or(Found::Unbounded, |n| label_plain::numbered(flat, n));
     }

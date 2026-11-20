@@ -29,7 +29,8 @@
         "/result/before/state": "no-match",
         "/result/read/7/state": "not-prescribing-information",
         "/result/read/9/state": "not-prescribing-information",
-        "/result/on_or_before": true
+        "/result/on_or_before": true,
+        "/result/read/0/state": "section-absent"
       },
       "max_bytes": 3000
     }
