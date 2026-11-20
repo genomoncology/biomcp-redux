@@ -57,19 +57,14 @@ fn versions(row: &source::Application) -> Result<Vec<Version>, RequestError> {
     let (submissions, _) = row.submissions((None, None), 0, u32::MAX)?;
     for submission in submissions.iter() {
         let docs = submission.application_docs.as_deref().unwrap_or_default();
-        let of = |kind: &str| {
-            docs.iter()
-                .filter(move |d| d.r#type.as_ref().is_some_and(|t| t.as_str() == kind))
-                .filter_map(|d| d.url.clone())
-        };
         let kind = submission.event.kind.as_ref().map_or("", |k| k.as_str());
         let name = format!("{kind} {}", submission.submission_number.as_str());
-        for label in of("Label") {
+        for label in of(docs, "Label") {
             found.push(Version {
                 approved: submission.event.dates.first().map(|d| d.date),
                 submission: text(name.trim())?,
                 label,
-                letter: of("Letter").next(),
+                letter: of(docs, "Letter").next(),
             });
         }
     }
@@ -87,6 +82,16 @@ fn versions(row: &source::Application) -> Result<Vec<Version>, RequestError> {
     let mut seen = std::collections::BTreeSet::new();
     found.retain(|v| seen.insert(v.label.as_str().to_owned()));
     Ok(found)
+}
+
+/// The links of `docs` of one kind.
+fn of<'a>(
+    docs: &'a [biomcp_types::DrugFdaDocument],
+    kind: &'a str,
+) -> impl Iterator<Item = biodata::Text> + 'a {
+    docs.iter()
+        .filter(move |d| d.r#type.as_ref().is_some_and(|t| t.as_str() == kind))
+        .filter_map(|d| d.url.clone())
 }
 
 struct Search<'a, 'b> {
@@ -271,8 +276,9 @@ pub(super) fn select(
         }
     };
     let body = reply(&search, row, section, path, first)?;
-    merge(leg, out);
     let unread = search.opened.values().any(Opened::gap) || body.not_opened > 0;
+    drop(search);
+    merge(leg, out);
     if body.not_opened > 0 {
         status::missing(out, text("/result/not_opened")?, Source::Drugsfda, None);
     }
