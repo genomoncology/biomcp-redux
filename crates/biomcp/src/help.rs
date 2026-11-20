@@ -143,8 +143,15 @@ fn section_help(
         command.arguments.retain(|argument| {
             let only = only_sources(&argument.description);
             let sections = only_sections(&argument.description);
-            (only.is_empty() || only.iter().any(|source| sources.contains(source)))
-                && (sections.is_empty() || sections.contains(&section))
+            // An option that names both sources and sections serves either.
+            let by_source = only.iter().any(|source| sources.contains(source));
+            let by_section = sections.contains(&section);
+            match (only.is_empty(), sections.is_empty()) {
+                (true, true) => true,
+                (false, true) => by_source,
+                (true, false) => by_section,
+                (false, false) => by_source || by_section,
+            }
         });
         for argument in &mut command.arguments {
             if matches!(argument.name.as_str(), "--source" | "--sources") {

@@ -1,0 +1,778 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "A word after a get command's ID that names no section of this record is refused, never dropped: a word in the section's place, a trailing word that is not an ID, or a trailing word near one of this record's section names (any letter case, dash, underscore or plural, or one or two edits) or naming another record's section. The refusal names the word in error.option, says when it was read as a section rather than a second ID, lists the record's sections, and its next step runs. A near section is offered as the next call, never read in the word's place. Once a trailing word names a section, every later word must be one, so an ID after a section is refused with the call that puts it first. A suggested call passes every check a run makes, with the one source that serves it, or the step is help. Any other trailing word is an ID (gene/unknown-words).",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "eligibility"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "eligibility",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
+        "/error/valid_values": {
+          "includes": "pathways"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "gene"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "gene"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "population"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "variant"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "variant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0005105",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "phenotypes"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "disease"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "disease"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "imatinib",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "targets"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "drug"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "drug"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02576665",
+        "domains"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "domains",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "eligibility"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "trial"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "trial"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "22663011",
+        "domains"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "domains",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "annotations"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "article"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "article"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "P15056",
+        "eligibility"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "eligibility",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
+        "/error/valid_values": {
+          "includes": "domains"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "protein"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "protein"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5673001",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "genes"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "pathway"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "pathway"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0001250",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "synonyms"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "phenotype"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "Z-1192-03",
+        "--source",
+        "fda-device-recall",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "summary"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "diagnostic"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "diagnostic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "cell-line",
+        "CVCL_2119",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "identity"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "cell-line"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "cell-line"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "study",
+        "msk_impact_2017",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "mutations"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "study"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "study"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "10003300",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "reactions"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "adverse-event"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "adverse-event"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gwas",
+        "GCST000001",
+        "bogussection"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "bogussection",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/error/valid_values": {
+          "includes": "associations"
+        },
+        "/next/0/args": [
+          "help",
+          "get",
+          "gwas"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/result/commands/0/command": [
+          "get",
+          "gwas"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "pathwys"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "pathwys",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "BRAF",
+            "pathways"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "PATHWYS"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "PATHWYS",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "BRAF",
+            "pathways"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "clin-var"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "clin-var",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "BRAF",
+            "clinvar"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02576665",
+        "eligibilty"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "eligibilty",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/next/0/args": {
+          "includes_all_of": [
+            "NCT02576665",
+            "eligibility"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0005105",
+        "phenotyps"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "phenotyps",
+        "/next/0/args": {
+          "includes_all_of": [
+            "MONDO:0005105",
+            "phenotypes"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0005105",
+        "extra",
+        "words",
+        "here"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "extra",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/next/0/args": [
+          "help",
+          "get",
+          "disease"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0005105",
+        "genes",
+        "extra"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "extra",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/next/0/args": [
+          "help",
+          "get",
+          "disease"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "clinvar",
+        "bogus"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "bogus",
+        "/error/message": "error.option follows a section word and is not a section; put IDs before sections",
+        "/next/0/args": [
+          "get",
+          "gene",
+          "BRAF",
+          "bogus",
+          "clinvar"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "civic",
+        "EGFR"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "EGFR",
+        "/error/message": "error.option follows a section word and is not a section; put IDs before sections",
+        "/next/0/args": [
+          "get",
+          "gene",
+          "BRAF",
+          "EGFR",
+          "civic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "protein",
+        "P15056",
+        "domains",
+        "bogus"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "bogus",
+        "/error/message": "error.option follows a section word and is not a section; put IDs before sections",
+        "/next/0/args": {
+          "includes_all_of": [
+            "P15056",
+            "bogus",
+            "domains"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "BRAF",
+        "clinvar",
+        "pathwys"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "pathwys",
+        "/error/message": "unknown section: error.option is not a section of this record; valid_values lists them",
+        "/next/0/args": [
+          "get",
+          "gene",
+          "BRAF",
+          "clinvar",
+          "pathways"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02576665",
+        "NCT0257666"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "input",
+        "/error/message": "value not accepted: give error.option a value valid_values accepts"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "imatinib",
+        "target"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "target",
+        "/next/0/args": [
+          "help",
+          "get",
+          "drug"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0005105",
+        "phenotype"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "phenotype",
+        "/next/0/args": {
+          "includes_all_of": [
+            "phenotypes",
+            "monarch"
+          ]
+        }
+      }
+    }
+  ]
+}

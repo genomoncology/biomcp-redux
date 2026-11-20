@@ -26,8 +26,9 @@ pub(super) fn project(
     }
     let value = out.value_mut()?;
     help(value, cx)?;
-    recovery(value, cx)?;
+    let path = recovery(value, cx)?;
     next(value, cx, true);
+    keep_help(value, path);
     let required = match crate::grammar::parse(cx.root, args)
         .ok()
         .and_then(|parsed| parsed.action)
@@ -181,19 +182,55 @@ fn offered_argument(name: &str) -> bool {
     )
 }
 
-fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
+/// Whether a refusal names a word after a get command's ID; its valid values are sections.
+fn word_refusal(value: &Value) -> bool {
+    use biomcp_types::ErrorMessage::{
+        ArgumentIdAfterSection, ArgumentSectionNotId, ArgumentSectionNotIdTyped,
+        ArgumentSectionUnknown,
+    };
+    [
+        ArgumentSectionUnknown,
+        ArgumentSectionNotId,
+        ArgumentSectionNotIdTyped,
+        ArgumentIdAfterSection,
+    ]
+    .iter()
+    .any(|message| value.pointer("/error/message") == serde_json::to_value(message).ok().as_ref())
+}
+
+/// A word refusal whose corrected call named a section that is off keeps its help step.
+fn keep_help(value: &mut Value, path: Option<(&str, &str)>) {
+    if !word_refusal(value) || value.get("next").is_some() {
+        return;
+    }
+    if let Some((verb, entity)) = path
+        && let Some(fields) = value.as_object_mut()
+    {
+        fields.insert(
+            "next".into(),
+            json!([{"kind": "configure", "args": ["help", verb, entity]}]),
+        );
+    }
+}
+
+fn recovery(
+    value: &mut Value,
+    cx: Context<'_>,
+) -> io::Result<Option<(&'static str, &'static str)>> {
     let path = value
         .get("next")
         .and_then(Value::as_array)
         .into_iter()
         .flatten()
         .filter_map(|step| step.get("args").and_then(Value::as_array))
-        .find(|words| words.first() == Some(&json!("help")))
-        .and_then(|words| {
+        .find_map(|words| {
+            // A help step names its command after help; a corrected call names it first.
+            let skip = usize::from(words.first() == Some(&json!("help")));
             crate::grammar::command_paths()
                 .iter()
                 .find(|(verb, entity, _)| {
-                    words.get(1) == Some(&json!(verb)) && words.get(2) == Some(&json!(entity))
+                    words.get(skip) == Some(&json!(verb))
+                        && words.get(skip + 1) == Some(&json!(entity))
                 })
                 .copied()
         });
@@ -205,11 +242,17 @@ fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
         .as_ref()
         .map(|schema| super::typed::catalog::capability_excluded(schema, &excluded))
         .unwrap_or_else(|| excluded.clone());
-    let option = value
-        .pointer("/error/option")
-        .and_then(Value::as_str)
-        .unwrap_or_default()
-        .to_owned();
+    // A refused section word is named in error.option; its valid values are sections.
+    let word = word_refusal(value);
+    let option = if word {
+        "section"
+    } else {
+        value
+            .pointer("/error/option")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+    }
+    .to_owned();
     let field_allowed = schema
         .as_ref()
         .is_none_or(|schema| super::typed::catalog::argument_allowed(schema, &option, &excluded));
@@ -247,7 +290,7 @@ fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
             error.shift_remove("valid_values");
         }
     }
-    Ok(())
+    Ok(path.map(|(verb, entity, _)| (verb, entity)))
 }
 
 fn next(value: &mut Value, cx: Context<'_>, drop_empty: bool) {

@@ -3596,6 +3596,7 @@ Form: get gene INPUT...; not --input.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
+A later word near a section name, or naming another record's section, is refused; give such an ID first or use --section.
 
 - `protein`: Reviewed human proteins.
 - `civic`: CIViC gene curation.

@@ -1,6 +1,7 @@
 # 1075 — pdf-reads-run-in-a-capped-child-process
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d00df60558d20708a638acf4c3dca392ed475f56
 
 Milestone: 7
 

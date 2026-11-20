@@ -78,8 +78,9 @@ struct GetFields {
     /// Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
     /// The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
     /// A section the label lacks, or a name openFDA does not use, lists the sections the label has.
-    /// With --source openfda-label, or one of boxed_warning, indications_and_usage, contraindications, warnings_and_cautions,
-    /// adverse_reactions, drug_interactions or use_in_specific_populations for drugsfda label-history.
+    /// Only with --source openfda-label. For drugsfda label-history, one of boxed_warning, indications_and_usage,
+    /// contraindications, warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
+    /// Only with section label-history.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     label_section: Option<Text>,
@@ -110,11 +111,11 @@ struct GetFields {
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR."]
+    #[doc = "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
     find: Box<[Text]>,
-    #[doc = "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving."]
+    #[doc = "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. Only with section label-history."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     every_version: bool,
     #[doc = "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only."]

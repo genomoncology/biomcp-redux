@@ -113,7 +113,11 @@ fn bounded(
             Err(error) => return Err(error),
         };
     let deadline = leg.local_deadline();
+<<<<<<< HEAD
     let read = super::child::read(leg, &bytes, pages, &|| deadline.expired())
+=======
+    let read = super::child::read(leg, &bytes, &|| deadline.expired())
+>>>>>>> origin/main
         .map_err(|reason| error(spec.source, reason))?;
     result.pages = read.pages;
     result.state = read.state;

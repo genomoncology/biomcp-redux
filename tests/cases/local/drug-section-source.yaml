@@ -33,7 +33,7 @@
       ],
       "exit": 2,
       "expect": {
-        "/error/option": "every_version"
+        "/error/option": "section"
       }
     }
   ]
