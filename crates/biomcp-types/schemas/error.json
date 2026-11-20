@@ -129,6 +129,7 @@
         "option given without a value: give error.option a value valid_values accepts",
         "unknown option: this command has no error.option; run next, or use an option valid_values lists",
         "value not accepted: give error.option a value valid_values accepts",
+        "this command takes no text outside an option; next gives the words to error.option",
         "option repeated: give error.option once, in the form valid_values shows",
         "error.option is not accepted with the other options as given; valid_values names every option involved",
         "unknown section: error.option is not a section of this record; valid_values lists them",
@@ -136,12 +137,15 @@
         "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or set the section field",
         "error.option follows a section word and is not a section; put IDs before sections",
         "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it; error.unplaced lists the names it cannot place",
+        "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field that holds it; error.unplaced lists the names it cannot place, but one that is not letters, digits, _ and . is not repeated",
         "--fields does not narrow this call yet; it narrows search rows and some sections' rows; drop --fields to read it whole",
         "no saved result has this name; --pool and --snapshot take only a name from a reply's next step; run the suggested command",
         "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the suggested first-page command, then follow its next command",
         "get article takes 1 to 20 IDs per call; split a longer list into several calls",
         "--offset needs --every-version: label-history pages only while it reads every version; add --every-version, or drop --offset (also spelled --section-offset)",
         "label-history reads only the label sections in valid_values; give --label-section one of them, or read another section with: get drug <NAME> label --label-section NAME",
+        "--offset needs --every-version, and label-history also needs --find TEXT and --label-section with a section from valid_values; add what is missing, or drop --offset (also spelled --section-offset)",
+        "--offset needs --every-version, and label-history reads only the label sections in valid_values; add --every-version and give --label-section one of them, or read another section with: get drug <NAME> label --label-section NAME",
         "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label --label-section indications_and_usage",
         "sync is unavailable over MCP; run it from the command line",
         "store clean is unavailable over MCP; run it from the command line",
@@ -601,7 +605,7 @@
   },
   "$id": "biomcp.error/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "A versioned error response that never contains rejected caller values.",
+  "description": "A versioned error response. Of rejected caller values it repeats only `error.unplaced` names: letters, digits, `_` and `.`, up to 64 characters.",
   "properties": {
     "error": {
       "$ref": "#/$defs/Reply_ErrorDetail"

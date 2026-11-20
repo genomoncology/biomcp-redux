@@ -21,6 +21,9 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         crate::runner::transcript::trial("source-data-age/hosted-stale-ema", || {
             hosted().map_err(Into::into)
         }),
+        crate::runner::transcript::trial("source-data-age/stale-ema-market", || {
+            market().map_err(Into::into)
+        }),
     ]
 }
 fn restored() -> Check {
@@ -85,7 +88,8 @@ fn legacy_snapshot(env: &Environment) -> Check {
         .map_err(|e| e.to_string())?;
     Ok(())
 }
-fn hosted() -> Check {
+/// A stored EMA copy past its refresh date.
+fn stale_ema() -> Result<Environment, String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     command(
         &env,
@@ -97,7 +101,26 @@ fn hosted() -> Check {
         .map_err(|e| e.to_string())?;
     db.execute("UPDATE bundle SET fresh_until=0 WHERE name='ema'", [])
         .map_err(|e| e.to_string())?;
-    drop(db);
+    Ok(env)
+}
+/// A market read by name from a stale EMA copy finds its record and says the copy is stale,
+/// as the call that reads every market does, not that EMA has no record (1081).
+fn market() -> Check {
+    let env = stale_ema()?;
+    let args = ["get", "drug", "Glivec", "markets", "--source", "ema"].map(str::to_owned);
+    let reply = command(&env, &args, &env.globals(None, true), 0)?;
+    if reply.get("status") != Some(&json!("partial"))
+        || reply.pointer("/result/markets/0/state") != Some(&json!("found"))
+        || reply.pointer("/sources/0/state") != Some(&json!("stale"))
+    {
+        return Err(format!(
+            "stale EMA market was not a partial found row: {reply}"
+        ));
+    }
+    Ok(())
+}
+fn hosted() -> Check {
+    let env = stale_ema()?;
     let globals = env.globals(None, true);
     let (reply, _) = mcp::call_text_hosted(
         &env,

@@ -60,11 +60,14 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     } else {
         discover(cx, &search)
     };
+    // Stale stored rows still answer the name; the chosen record's read says they are stale (1081).
     if discovery.dropped
-        || discovery
-            .sources
-            .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
+        || discovery.sources.iter().any(|s| {
+            !matches!(
+                s.state,
+                biomcp_types::SourceState::Ok | biomcp_types::SourceState::Stale
+            )
+        })
     {
         status::item(&mut discovery, false, true, false);
         return vec![discovery];
@@ -103,8 +106,13 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         .into_iter()
         .map(|out| {
             let mut out = chosen_name(query, rank.0, &candidates, &discovery, out);
-            if unsettled && out.status() == biomcp_types::Status::Complete {
-                // A product-only answer, while later matches may hold the drug itself.
+            let stale = out
+                .sources
+                .iter()
+                .any(|s| s.state == biomcp_types::SourceState::Stale);
+            if (unsettled || stale) && out.status() == biomcp_types::Status::Complete {
+                // A product-only answer, while later matches may hold the drug itself, or a
+                // name chosen from stale stored rows.
                 status::item(&mut out, true, false, true);
             }
             out
