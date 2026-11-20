@@ -1,6 +1,6 @@
 //! Resolve complete source names before the unchanged native-ID path.
 use crate::{Ctx, Outcome, status};
-use biodata::DrugId;
+use biodata::{DrugId, Text};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource, ReplyData,
@@ -36,7 +36,6 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         return Vec::new();
     };
     let deadline = cx.fetch.deadline(cx.budget);
-    let name = query.input().to_string();
     let search = match DrugSearch::named(query.input().clone(), query.source(), 50) {
         Ok(search) => search,
         Err(_) => {
@@ -47,7 +46,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     };
     let mut unsettled = false;
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
-        fda(cx, &search)
+        fda(cx, query.input(), &search)
     } else if query.source() == DrugSource::OpenfdaLabel {
         native_names(
             cx,
@@ -82,23 +81,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let mut seen = std::collections::BTreeSet::new();
     candidates.retain(|(_, header)| seen.insert(header.id.to_string()));
     let Some((rank, selected)) = candidates.first() else {
-        discovery.body = ReplyData::Usage(UsageError::Arguments(UsageArguments {
-            argument: Some("input".into()),
-            next: vec![Step {
-                kind: StepKind::Disambiguate,
-                args: vec![
-                    "search".into(),
-                    "drug".into(),
-                    name.into(),
-                    "--source".into(),
-                    query.source().as_str().into(),
-                ]
-                .into(),
-                options: Default::default(),
-            }],
-            ..Default::default()
-        }));
-        return vec![discovery];
+        return vec![unresolved(query, discovery)];
     };
     let resolved = match queries
         .iter()
@@ -117,6 +100,26 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
             )
         })
         .collect()
+}
+
+fn unresolved(query: &DrugGet, mut discovery: Outcome) -> Outcome {
+    discovery.body = ReplyData::Usage(UsageError::Arguments(UsageArguments {
+        argument: Some("input".into()),
+        next: vec![Step {
+            kind: StepKind::Disambiguate,
+            args: vec![
+                "search".into(),
+                "drug".into(),
+                query.input().to_string().into(),
+                "--source".into(),
+                query.source().as_str().into(),
+            ]
+            .into(),
+            options: Default::default(),
+        }],
+        ..Default::default()
+    }));
+    discovery
 }
 
 /// Whether the name lookup did not answer. Stale rows answer only with a candidate, whose read
@@ -340,13 +343,7 @@ fn native_pages(
 /// Drugs@FDA and openFDA label name lookups read every page on purpose, unlike MyChem's
 /// 250-row cap: the ranking (NDA/BLA before ANDA, then earliest approval; labels by holder,
 /// then indications) needs the whole set, so a lookup answers whole or fails, never partly.
-fn fda(cx: &Ctx<'_>, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    let Some(name) = query.query() else {
-        return (
-            status::empty(biomcp_types::DrugPage::into_reply(query.clone(), None)),
-            Vec::new(),
-        );
-    };
+fn fda(cx: &Ctx<'_>, name: &Text, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     native_names(
         cx,
         query,
@@ -374,8 +371,12 @@ fn fda(cx: &Ctx<'_>, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     )
 }
 /// A literal brand match to one distinct application can verify an otherwise unresolved label.
-pub(super) fn brand_application(cx: &Ctx<'_>, query: &DrugSearch) -> (Outcome, Option<DrugId>) {
-    let (out, candidates) = fda(cx, query);
+pub(super) fn brand_application(
+    cx: &Ctx<'_>,
+    name: &Text,
+    query: &DrugSearch,
+) -> (Outcome, Option<DrugId>) {
+    let (out, candidates) = fda(cx, name, query);
     let mut matches = candidates.into_iter().filter(|(rank, _)| rank.0 == 0);
     let id = matches.next().map(|(_, header)| header.id).filter(|id| {
         !unanswered(&out, true)

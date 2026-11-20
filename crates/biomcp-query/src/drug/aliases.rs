@@ -151,19 +151,30 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         return outcomes;
     };
     evidence.append(&mut out, query.source());
-    let lookup_failed = evidence.lookup_failed();
     let Some(stated) = stated else {
-        if lookup_failed {
+        if evidence.lookup_failed() {
             status::item(&mut out, false, true, false);
         }
         return vec![out];
     };
+    unresolved_parts(cx, queries, input, &stated, &evidence, &out)
+}
+
+fn unresolved_parts(
+    cx: &Ctx<'_>,
+    queries: &[DrugGet],
+    input: &Text,
+    stated: &Stated,
+    evidence: &Evidence,
+    out: &Outcome,
+) -> Vec<Outcome> {
     // A Usage reply discards source metadata, including the other-source hint.
+    let lookup_failed = evidence.lookup_failed();
     queries
         .iter()
         .map(|query| {
-            let mut part = super::fork(&out, DrugCard::into_reply(query.clone(), None));
-            hint(&mut part, &stated, input, query.source(), cx.fresh);
+            let mut part = super::fork(out, DrugCard::into_reply(query.clone(), None));
+            hint(&mut part, stated, input, query.source(), cx.fresh);
             if let Some(name) = &evidence.label_candidate {
                 label_candidates(&mut part, input, name, cx.fresh);
             }
@@ -186,7 +197,7 @@ fn label_fallback(
         &mut evidence.problems,
     )?;
     let (lookup, application) =
-        super::resolve::brand_application(&within(cx, deadline.remaining()), &search);
+        super::resolve::brand_application(&within(cx, deadline.remaining()), input, &search);
     evidence.sources.extend(lookup.sources);
     evidence.problems.extend(lookup.problems);
     evidence.local = evidence.local.or(lookup.local);
