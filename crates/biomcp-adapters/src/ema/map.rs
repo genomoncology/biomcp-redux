@@ -80,6 +80,7 @@ pub(super) fn header(row: &raw::Medicine, problems: &mut crate::mapped::Problems
     DrugHeader {
         name_resolution: None,
         matched_name: None,
+        matched_sentence: None,
         id: row.id.clone(),
         source: DrugSource::Ema,
         name: {

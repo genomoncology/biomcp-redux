@@ -24,7 +24,7 @@ pub use response::{
     DrugLabelFragment, DrugLabelText, DrugLevelCount, DrugNameResolution, DrugPage, DrugRecords,
     DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
 };
-pub use search::{DrugFdaSort, DrugSearch};
+pub use search::{DrugFdaSort, DrugSearch, LabelApplicationType};
 mod sections;
 pub use sections::{
     DrugApprovalsPart, DrugCivicPart, DrugInteractionsPart, DrugLabelPart, DrugRegulatoryPart,

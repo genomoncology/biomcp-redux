@@ -1,0 +1,98 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=%28%22kinase%22%29%20AND%20mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%29&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1795197418,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-20",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Delgocitinib, a Janus kinase (JAK) inhibitor, inhibits the activity of JAK1, JAK2, JAK3, and tyrosine kinase 2 (TYK2). JAK signaling involves recruitment of signal transducers and activators of transcription (STATs) to cytokine receptors, and activation and subsequent localization of STATs to the nucleus, leading to the expression of cytokine-responsive genes to induce specific biological responses in target cells. The exact mechanism of action of delgocitinib in the treatment of moderate to severe CHE is currently not known."
+              ],
+              "set_id": "a59bf36e-6f04-4b47-b385-8040c95f040c",
+              "id": "b9b700de-082b-4a74-82de-f5d177e95a4d",
+              "effective_time": "20261113",
+              "version": "7",
+              "openfda": {
+                "application_number": [
+                  "NDA219155"
+                ],
+                "brand_name": [
+                  "Anzupgo"
+                ],
+                "generic_name": [
+                  "DELGOCITINIB"
+                ],
+                "manufacturer_name": [
+                  "LEO Pharma, Inc"
+                ],
+                "product_ndc": [
+                  "50222-280"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "TOPICAL"
+                ],
+                "substance_name": [
+                  "DELGOCITINIB"
+                ],
+                "rxcui": [
+                  "2721167",
+                  "2721172"
+                ],
+                "spl_id": [
+                  "b9b700de-082b-4a74-82de-f5d177e95a4d"
+                ],
+                "spl_set_id": [
+                  "a59bf36e-6f04-4b47-b385-8040c95f040c"
+                ],
+                "package_ndc": [
+                  "50222-280-91",
+                  "50222-280-30",
+                  "50222-280-99"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000190858",
+                  "N0000190857"
+                ],
+                "pharm_class_epc": [
+                  "Janus Kinase Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Janus Kinase Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "9L0Q8KK220"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

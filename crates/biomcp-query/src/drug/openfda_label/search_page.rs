@@ -58,11 +58,47 @@ pub(super) fn headers(
 ) -> Result<Vec<biomcp_types::DrugHeader>, RequestError> {
     rows.iter()
         .map(|record| {
-            let mut header = record.header()?;
+            let mut header = if let Some(mechanism) = query.mechanism_of_action() {
+                let mut header = record.mechanism_header()?;
+                header.matched_sentence = record.sentence(MECHANISM, mechanism.as_str())?;
+                header
+            } else {
+                record.header()?
+            };
             header.matched_name = query.query().and_then(|name| record.name_match(name));
             Ok(header)
         })
         .collect()
+}
+
+/// openFDA's Mechanism of Action field.
+const MECHANISM: &str = "mechanism_of_action";
+
+/// Describe the normalized mechanism search and its coverage even when no labels are returned.
+pub(super) fn mechanism(query: &DrugSearch, out: &mut Outcome) {
+    let (Some(mechanism), Some(source)) = (query.mechanism_of_action(), out.sources.first_mut())
+    else {
+        return;
+    };
+    if query.query().is_none() {
+        match source::scope(query).map(|scope| scope.parse()).transpose() {
+            Ok(term) => source.term = term,
+            // The selector holds the checked mechanism words, so only a local fault reaches this.
+            Err(_) => out.local = crate::status::local(biomcp_fetch::bad_reply(SOURCE, Some(200))),
+        }
+    }
+    let words = biomcp_types::openfda_words(mechanism.as_str());
+    let message = format!(
+        "The search uses \"{words}\" in the {MECHANISM} field only. Labels without that field or with different wording are excluded. \
+         No synonyms or drug class inference are used. Totals count matching labels. When present, matched_sentence quotes the label."
+    );
+    source
+        .notices
+        .push(biomcp_types::SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        });
 }
 
 /// Say plainly which rows have no name, since their labels state none (1060).
