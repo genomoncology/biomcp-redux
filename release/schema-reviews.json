@@ -6073,6 +6073,8 @@
         "error.option is not accepted with the other options as given; valid_values names every option involved",
         "unknown section: error.option is not a section of this record; valid_values lists them",
         "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
+        "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or set the section field",
+        "error.option follows a section word and is not a section; put IDs before sections",
         "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
         "--fields chooses columns of search rows only; drop --fields and read the record's named sections instead",
         "no saved result has this name; --pool and --snapshot take only a name from a reply's next step; run the suggested command",
@@ -6304,7 +6306,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1073, 2026-11-19: against the 1.0.0 baseline, a word after a get command's ID that names no section is refused by name with the record's sections, saying whether it was read as a section rather than a second ID."
+      "review": "Ticket 1073, 2026-11-19: against the 1.0.0 baseline, a word after a get command's ID that names no section is refused by name with the record's sections, saying whether it was read as a section rather than a second ID, or that IDs go before sections."
     }
   ],
   "required_removals": [

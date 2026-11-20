@@ -84,6 +84,9 @@ singleton! {
  ArgumentSectionUnknown => "unknown section: error.option is not a section of this record; valid_values lists them",
  ArgumentSectionNotId => "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; \
  to read it as an ID, give it first or use --section",
+ ArgumentSectionNotIdTyped => "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; \
+ to read it as an ID, give it first or set the section field",
+ ArgumentIdAfterSection => "error.option follows a section word and is not a section; put IDs before sections",
  FieldsUnknown => "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
  FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named \
  sections instead",
@@ -137,10 +140,8 @@ singleton! {
         AdverseFrom => "renamed; use: --received-from", AdverseTo => "renamed; use: --received-to",
         // Preserve the published error/1 literal; active guidance uses AdverseSeriousChoices.
         AdverseSeriousChoices => "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
-        AdverseFilter => "this adverse-event filter is not supported",
-        AdverseFaers => "renamed; use: --source faers",
-        AdverseMaude => "use: search adverse-event <TEXT> --source maude",
-        AdverseRecalls => "recalls are outside this entity",
+        AdverseFilter => "this adverse-event filter is not supported", AdverseFaers => "renamed; use: --source faers",
+        AdverseMaude => "use: search adverse-event <TEXT> --source maude", AdverseRecalls => "recalls are outside this entity",
         AdverseDeviceRecalls => "use: search diagnostic --source fda-device-recall; covers every medical device",
         AdverseSource => "choose --source faers or --source maude",
         VaersVaccineChoices => "supported vaccines are MMR and COVID19, or one exact native influenza code; use search \
@@ -149,8 +150,7 @@ singleton! {
             report may list several vaccines.",
         VaersFilter => "VAERS does not support FAERS filters; use search adverse-event TEXT --source faers for drug reports",
         VaersGet => "VAERS has no individual report get; use search adverse-event MMR --source vaers",
-        AdverseVersion => "multi-version get is unproven",
-        AdverseOutcomes => "use the card seriousness flags and the reactions section",
+        AdverseVersion => "multi-version get is unproven", AdverseOutcomes => "use the card seriousness flags and the reactions section",
         AdverseConcomitant => "renamed; use: drugs",
         AdverseSection => "choose a named adverse-event section",
         DiagnosticSearchSources => "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",

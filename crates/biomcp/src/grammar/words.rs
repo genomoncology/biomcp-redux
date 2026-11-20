@@ -33,14 +33,14 @@ pub(super) fn split_sections(
         let Some(input) = result.get_mut("input").and_then(Value::as_array_mut) else {
             return Err(ParseInvalid::default());
         };
-        let mut split = input.len();
-        while split > 1
-            && input
-                .get(split - 1)
+        // Once a word after the first ID names a section, every word after it is a section.
+        let Some(split) = (1..input.len()).find(|index| {
+            input
+                .get(*index)
                 .is_some_and(|value| choices::matching(value, words).is_some())
-        {
-            split -= 1;
-        }
+        }) else {
+            continue;
+        };
         let section = input.split_off(split);
         if !section.is_empty() {
             result.insert(name.clone(), Value::Array(section));
@@ -68,24 +68,77 @@ pub(super) fn unknown(
         .via;
     let is_id =
         |word: &str| super::rewrite::request(via, verb, entity, json!({"input": [word]})).is_ok();
-    let (word, candidate, trailing) = first(&schema, value, explicit, &is_id)?;
-    let candidate =
-        candidate.filter(|candidate| first(&schema, candidate, explicit, &is_id).is_none());
-    let message = if trailing && is_id(&word) {
-        ErrorMessage::ArgumentSectionNotId
-    } else {
-        ErrorMessage::ArgumentSectionUnknown
+    let (word, candidate, place) = first(&schema, value, explicit)?;
+    let candidate = candidate.filter(|candidate| first(&schema, candidate, explicit).is_none());
+    let message = match place {
+        Place::Trailing if is_id(&word) => ErrorMessage::ArgumentSectionNotId,
+        Place::AfterSection => ErrorMessage::ArgumentIdAfterSection,
+        Place::Trailing | Place::Section => ErrorMessage::ArgumentSectionUnknown,
     };
+    let next = candidate.and_then(|candidate| runs(via, (verb, entity), &schema, candidate));
     Some(ParseInvalid {
         usage: Some(UsageError::Arguments(refusal(
             (verb, entity),
             &schema,
             &word,
             message,
-            candidate.as_ref(),
+            next,
         )?)),
         ..ParseInvalid::default()
     })
+}
+
+/// Where the word not understood stood: in a section's place, trailing the first ID before
+/// any section, or after a trailing section word.
+enum Place {
+    Section,
+    Trailing,
+    AfterSection,
+}
+
+/// The corrected call when it passes every check a run makes before reading a source. A call
+/// that needs a source the caller did not name is offered with the one source that fits.
+fn runs(
+    via: biomcp_types::Rewrite,
+    path: (&str, &str),
+    schema: &Value,
+    candidate: Value,
+) -> Option<biomcp_types::Step> {
+    let check = |value: Value| {
+        let request = super::rewrite::request(via, path.0, path.1, value).ok()?;
+        biomcp_query::Action::Run {
+            request: request.clone(),
+            fresh: false,
+        }
+        .prepare()
+        .ok()?;
+        super::recovery::run(&request)
+    };
+    if let Some(step) = check(candidate.clone()) {
+        return Some(step);
+    }
+    if candidate.get("source").is_some() {
+        return None;
+    }
+    let property = schema.pointer("/properties/source")?;
+    let list = super::property_type(property) == Some("array");
+    let fits: Vec<_> = super::validation::accepted(schema, property)?
+        .iter()
+        .filter_map(|source| {
+            let mut value = candidate.clone();
+            let source = if list {
+                json!([source.as_str()])
+            } else {
+                json!(source.as_str())
+            };
+            value.as_object_mut()?.insert("source".into(), source);
+            check(value)
+        })
+        .collect();
+    match <[_; 1]>::try_from(fits) {
+        Ok([step]) => Some(step),
+        Err(_) => None,
+    }
 }
 
 /// Words past the ID and the one section a command takes, as in `get disease ID extra words
@@ -123,17 +176,15 @@ pub(super) fn excess(root: &Command, path: &[&str], args: &[OsString]) -> Option
     (usage.message == Some(ErrorMessage::ArgumentSectionUnknown)).then_some(usage)
 }
 
-/// The refusal: the word, the record's sections, and the call with a near section, or help.
+/// The refusal: the word, the record's sections, and the checked corrected call, or help.
 fn refusal(
     path: (&str, &str),
     schema: &Value,
     word: &str,
     message: ErrorMessage,
-    candidate: Option<&Value>,
+    next: Option<biomcp_types::Step>,
 ) -> Option<UsageArguments> {
-    let next = candidate
-        .and_then(|candidate| super::positional::complete(path, schema, candidate))
-        .unwrap_or_else(|| super::validation::help([path.0, path.1]));
+    let next = next.unwrap_or_else(|| super::validation::help([path.0, path.1]));
     Some(UsageArguments {
         argument: Some(word.into()),
         message: Some(message),
@@ -142,16 +193,12 @@ fn refusal(
     })
 }
 
-/// The first word not understood, the call with the nearest section in its place when one is
-/// near, and whether the word trailed the first ID.
-fn first(
-    schema: &Value,
-    value: &Value,
-    explicit: bool,
-    is_id: &dyn Fn(&str) -> bool,
-) -> Option<(String, Option<Value>, bool)> {
+/// The first word not understood, where it stood, and the corrected call: the nearest section
+/// in its place, or a word after a section moved before the sections.
+fn first(schema: &Value, value: &Value, explicit: bool) -> Option<(String, Option<Value>, Place)> {
     let property = schema.pointer("/properties/section")?;
     let sections = sections(schema)?;
+    let trailing = property.get("x-trailing-section") == Some(&json!(true)) && !explicit;
     let mut candidate = value.clone();
     let fields = candidate.as_object_mut()?;
     let given: Vec<&str> = match fields.get("section") {
@@ -161,15 +208,28 @@ fn first(
     };
     if let Some(index) = given.iter().position(|word| !known(&sections, word)) {
         let word = (*given.get(index)?).to_owned();
+        if !plain(&word) {
+            return None;
+        }
         let near = near(&word, &sections).map(|near| json!(near));
+        let place = if trailing && near.is_none() {
+            Place::AfterSection
+        } else {
+            Place::Section
+        };
+        let mut moved = None;
         match (fields.get_mut("section")?, near) {
             (Value::Array(items), Some(near)) => *items.get_mut(index)? = near,
             (section @ Value::String(_), Some(near)) => *section = near,
-            _ => return plain(&word).then_some((word, None, false)),
+            (Value::Array(items), None) if trailing => moved = Some(items.remove(index)),
+            _ => return Some((word, None, place)),
         }
-        return plain(&word).then_some((word, Some(candidate), false));
+        if let Some(moved) = moved {
+            fields.get_mut("input")?.as_array_mut()?.push(moved);
+        }
+        return Some((word, Some(candidate), place));
     }
-    if property.get("x-trailing-section") != Some(&json!(true)) || explicit {
+    if !trailing {
         return None;
     }
     let input = fields.get_mut("input")?.as_array_mut()?;
@@ -185,7 +245,7 @@ fn first(
             .is_some_and(|word| {
                 plain(word)
                     && !known(&sections, word)
-                    && (near(word, &sections).is_some() || known(&others, word) || !is_id(word))
+                    && (near(word, &sections).is_some() || known(&others, word))
             })
     })?;
     let word = input.remove(index).as_str()?.to_owned();
@@ -194,9 +254,9 @@ fn first(
         near(&word, &sections),
     ) {
         (Value::Array(items), Some(near)) => items.push(json!(near)),
-        _ => return Some((word, None, true)),
+        _ => return Some((word, None, Place::Trailing)),
     }
-    Some((word, Some(candidate), true))
+    Some((word, Some(candidate), Place::Trailing))
 }
 
 fn sections(schema: &Value) -> Option<Box<[biodata::Text]>> {
