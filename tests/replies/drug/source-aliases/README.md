@@ -4,4 +4,7 @@ All replies here are authored synthetic provider-shaped examples. Names, cross-s
 
 The `ddinter/` files copy the synthetic DDInter partitions from `drug/ddinter-synthetic` and add one invented pair, DDInter9001 with DDInter9030 "Canonical therapy", so a DDInter partner given as EX-66 resolves through the same aliases.
 
+The openFDA label name lookups for "Orphan code" and "Ambiguous therapy" return the HTTP 404 no-match envelope.
+A label lookup that cannot read MyChem's names has every other source current (1087).
+
 Synthetic: ddinter
