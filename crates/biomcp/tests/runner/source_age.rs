@@ -1,6 +1,8 @@
 //! Feature source-data-age: retained source dates survive paging and hosted restrictions.
 #[path = "source_age/oncokb.rs"]
 mod oncokb;
+#[path = "source_age/who.rs"]
+mod who;
 use super::super::{
     http::Server,
     launch::{Environment, fixtures},
@@ -20,6 +22,12 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         }),
         crate::runner::transcript::trial("source-data-age/hosted-stale-ema", || {
             hosted().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/stale-who-pq-market", || {
+            who::market().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/stale-who-eml-name", || {
+            who::essential_medicines().map_err(Into::into)
         }),
         crate::runner::transcript::trial("source-data-age/stale-ema-market", || {
             market().map_err(Into::into)
