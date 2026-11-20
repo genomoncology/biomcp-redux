@@ -155,13 +155,14 @@ pub(crate) fn isolate(
     executable: Option<PathBuf>,
     mebibytes: Option<NonZeroU64>,
     max_reads: Option<NonZeroU16>,
+    wait: Duration,
 ) -> std::sync::Arc<biomcp_fetch::Isolator> {
     let mebibytes = mebibytes.map_or(DEFAULT_MEMORY_MIB, NonZeroU64::get);
     let worker = Child {
         executable,
         cap: mebibytes * (1 << 20),
     };
-    std::sync::Arc::new(biomcp_fetch::Isolator::new(worker, max_reads))
+    std::sync::Arc::new(biomcp_fetch::Isolator::new(worker, max_reads, wait))
 }
 
 /// Runs PDF reads in a child of `executable` capped at `cap` bytes.

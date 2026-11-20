@@ -2,7 +2,13 @@
 
 use crate::{LocalDeadline, RequestError};
 use biomcp_types::{Reason, SourceNotice};
-use std::num::NonZeroU16;
+use std::{
+    future::Future,
+    num::NonZeroU16,
+    pin::pin,
+    task::{Context, Poll, Waker},
+    time::{Duration, Instant},
+};
 use tokio::sync::{Semaphore, SemaphorePermit};
 
 /// Runs one bounded task on bytes outside this process.
@@ -26,26 +32,58 @@ pub struct Contained;
 pub struct Isolator {
     worker: Box<dyn Isolate>,
     slots: Option<Semaphore>,
+    wait: Duration,
 }
 
 impl Isolator {
     /// Create a worker pool with an optional concurrency cap.
-    pub fn new(worker: impl Isolate + 'static, capacity: Option<NonZeroU16>) -> Self {
+    pub fn new(
+        worker: impl Isolate + 'static,
+        capacity: Option<NonZeroU16>,
+        wait: Duration,
+    ) -> Self {
         Self {
             worker: Box::new(worker),
             slots: capacity.map(|count| Semaphore::new(usize::from(count.get()))),
+            wait,
         }
     }
 
-    fn admit(&self) -> Option<IsolatedRead<'_>> {
+    fn admit(&self, deadline: &LocalDeadline) -> Option<IsolatedRead<'_>> {
         let slot = match &self.slots {
-            Some(slots) => Some(slots.try_acquire().ok()?),
+            Some(slots) => Some(acquire(slots, self.wait, deadline)?),
             None => None,
         };
         Some(IsolatedRead {
             worker: self.worker.as_ref(),
             _slot: slot,
         })
+    }
+}
+
+/// Keep one FIFO ticket while waiting. Poll in short slices to notice call cancellation.
+fn acquire<'a>(
+    slots: &'a Semaphore,
+    wait: Duration,
+    deadline: &LocalDeadline,
+) -> Option<SemaphorePermit<'a>> {
+    if let Ok(slot) = slots.try_acquire() {
+        return Some(slot);
+    }
+    // A short call still needs time to download and parse after getting its slot.
+    let limit = wait.min(deadline.remaining() / 2);
+    let entered = Instant::now();
+    let mut queued = pin!(slots.acquire());
+    let mut context = Context::from_waker(Waker::noop());
+    loop {
+        let remaining = limit.saturating_sub(entered.elapsed());
+        if remaining.is_zero() || deadline.expired() {
+            return None;
+        }
+        if let Poll::Ready(permit) = queued.as_mut().poll(&mut context) {
+            return permit.ok();
+        }
+        std::thread::park_timeout(remaining.min(Duration::from_millis(20)));
     }
 }
 
@@ -74,10 +112,10 @@ impl crate::Leg<'_> {
         let Some(isolator) = &self.fetch.config.isolate else {
             return Ok(None);
         };
-        if let Some(read) = isolator.admit() {
+        self.check_source()?;
+        if let Some(read) = isolator.admit(&self.local_deadline()) {
             return Ok(Some(read));
         }
-        self.check_source()?;
         let notice = SourceNotice::RequestGuidance {
             data_date: None,
             message: "The hosted server is reading as many PDFs as it can at once. Retry shortly."

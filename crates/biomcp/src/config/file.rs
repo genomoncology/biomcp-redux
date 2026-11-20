@@ -78,6 +78,7 @@ pub(crate) struct ConfigFile {
     pub(super) reply_cache_max_bytes: Option<u64>,
     pdf_memory_limit_mib: Option<std::num::NonZeroU64>,
     pdf_max_reads: Option<std::num::NonZeroU16>,
+    pdf_slot_wait_seconds: Option<u32>,
     pub(super) source_data_max_age_days: Option<u32>,
     pub(super) sync_timeout_seconds: Option<std::num::NonZeroU32>,
     pub(super) command_timeout_seconds: Option<std::num::NonZeroU32>,
@@ -223,6 +224,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
         reply_cache_max_bytes: take(&mut map, "reply_cache_max_bytes")?,
         pdf_memory_limit_mib: take(&mut map, "pdf_memory_limit_mib")?,
         pdf_max_reads: take(&mut map, "pdf_max_reads")?,
+        pdf_slot_wait_seconds: take(&mut map, "pdf_slot_wait_seconds")?,
         source_data_max_age_days: take(&mut map, "source_data_max_age_days")?,
         sync_timeout_seconds: take(&mut map, "sync_timeout_seconds")?,
         command_timeout_seconds: take(&mut map, "command_timeout_seconds")?,
@@ -254,10 +256,14 @@ pub(super) fn pdf_reader(
         file.and_then(|file| file.pdf_max_reads)
             .unwrap_or(crate::pdf_child::DEFAULT_HOSTED_READS)
     });
+    let wait = file
+        .and_then(|file| file.pdf_slot_wait_seconds)
+        .unwrap_or(30);
     crate::pdf_child::isolate(
         executable,
         file.and_then(|file| file.pdf_memory_limit_mib),
         max_reads,
+        std::time::Duration::from_secs(wait.into()),
     )
 }
 
