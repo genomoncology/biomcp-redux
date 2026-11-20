@@ -883,6 +883,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
+    "fields": {
+      "description": "The row fields the caller chose with `--fields`, as given; absent without them.\nEach row keeps those, its required keys and identifiers; other keys are left out.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
     "local_error": {
       "anyOf": [
         {
