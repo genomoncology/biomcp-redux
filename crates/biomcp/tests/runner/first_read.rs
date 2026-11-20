@@ -18,6 +18,10 @@ pub(super) fn trials() -> Vec<Trial> {
         super::transcript::trial("diagnostic-cdx/first-read-timeout-names-the-wait", || {
             timeout().map_err(Into::into)
         }),
+        super::transcript::trial(
+            "diagnostic-cdx/first-read-keeps-publisher-retry-after",
+            || publisher_retry_after().map_err(Into::into),
+        ),
         super::transcript::trial("diagnostic-cdx/offline-first-read-never-fetches", || {
             offline().map_err(Into::into)
         }),
@@ -184,6 +188,42 @@ fn timeout() -> Check {
     }
     for reply in [first, again] {
         check_failure(&reply, "ran out of time", "size: unknown")?;
+    }
+    Ok(())
+}
+
+fn publisher_retry_after() -> Check {
+    let stub = Stub::with_headers(
+        &["www.fda.gov"],
+        |_| "text/html",
+        |_| Ok(String::new()),
+        |_, bytes| bytes,
+        |_| 429,
+        |_| "Retry-After: 300\r\n".to_owned(),
+    )?;
+    let (env, stub) = configured(stub, json!({}))?;
+    let first = invoke(&env, words(SEARCH), 4)?;
+    let again = invoke(&env, words(SEARCH), 4)?;
+    let requests = stub.finish()?;
+    if requests.len() != 1 {
+        return Err(format!(
+            "expected one rate-limited request, got {}",
+            requests.len()
+        ));
+    }
+    for reply in [first, again] {
+        check_failure(
+            &reply,
+            "Publisher Retry-After was 300 seconds",
+            "size: unknown",
+        )?;
+        if reply
+            .pointer("/sources/0/notices/0/retry_after_seconds")
+            .and_then(Value::as_u64)
+            > Some(60)
+        {
+            return Err(format!("publisher delay replaced the local wait: {reply}"));
+        }
     }
     Ok(())
 }
