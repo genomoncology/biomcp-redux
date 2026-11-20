@@ -100,8 +100,7 @@ fn page(
             if !whole {
                 conflicts.extend(undated(&row));
             }
-            let asked = (query.name(), query.biomarker());
-            super::row::reply(row.0, row.1, (asked.0.map(|v| v.as_str()), asked.1.map(|v| v.as_str())))
+            super::row::reply(row.0, row.1, query)
         })
         .collect();
     (items, total, conflicts)
