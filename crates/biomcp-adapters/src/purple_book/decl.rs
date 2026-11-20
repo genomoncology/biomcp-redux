@@ -1,9 +1,9 @@
 //! The FDA Purple Book's terms, local health and manual synchronization declaration.
-use super::{SPEC, read};
+use super::read::{self, SPEC};
 use crate::decl::{BundleDecl, Guidance, Probe, SourceDecl};
 
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &SPEC,
+    spec: &crate::purple_book::read::SPEC,
     display: "FDA Purple Book",
     discovery_aliases: &[],
     registry_order: Some(65),

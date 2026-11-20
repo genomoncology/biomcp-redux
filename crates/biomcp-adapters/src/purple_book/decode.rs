@@ -30,21 +30,31 @@ pub(super) struct ReleaseMonth {
     name: &'static str,
 }
 impl ReleaseMonth {
-    fn from_title(title: &str) -> Option<Self> {
-        let (month, year) = title.strip_prefix(TITLE)?.split_once(' ')?;
-        let month = MONTHS.iter().position(|m| *m == month)? + 1;
+    fn from_title(title: &str) -> Result<Self, BadReply> {
+        let (month, year) = title
+            .strip_prefix(TITLE)
+            .and_then(|value| value.split_once(' '))
+            .ok_or(BadReply)?;
+        let month = MONTHS
+            .iter()
+            .position(|name| *name == month)
+            .ok_or(BadReply)?
+            + 1;
         Self::new(year, month)
     }
-    pub(super) fn from_key(key: &str) -> Option<Self> {
-        let (year, month) = key.split_once('-')?;
-        Self::new(year, month.parse().ok()?)
+    pub(super) fn from_key(key: &str) -> Result<Self, BadReply> {
+        let (year, month) = key.split_once('-').ok_or(BadReply)?;
+        Self::new(year, month.parse().map_err(|_| BadReply)?)
     }
-    fn new(year: &str, month: usize) -> Option<Self> {
-        let year: u16 = year.parse().ok()?;
-        let name = MONTHS.get(month.checked_sub(1)?)?;
-        (1900..=9999)
-            .contains(&year)
-            .then_some(Self { year, month, name })
+    fn new(year: &str, month: usize) -> Result<Self, BadReply> {
+        let year: u16 = year.parse().map_err(|_| BadReply)?;
+        let name = MONTHS
+            .get(month.checked_sub(1).ok_or(BadReply)?)
+            .ok_or(BadReply)?;
+        if !(1900..=9999).contains(&year) {
+            return Err(BadReply);
+        }
+        Ok(Self { year, month, name })
     }
     fn key(&self) -> String {
         format!("{:04}-{:02}", self.year, self.month)
@@ -78,7 +88,7 @@ struct Native {
     route: Option<Box<str>>,
     #[serde(rename = "Approval Date")]
     approval_date: Option<Box<str>>,
-    #[serde(rename = "Inter. Approval Date", default)]
+    #[serde(rename = "Inter. Approval Date")]
     interchangeability_date: Option<Box<str>>,
     #[serde(rename = "First Interchangeable Exclusivity Exp. Date")]
     first_interchangeable_exclusivity_expiration: Option<Box<str>>,
@@ -132,10 +142,7 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
         .from_reader(bytes);
     let mut records = reader.records();
     let title = records.next().ok_or(BadReply)?.map_err(csv_error)?;
-    let month = title
-        .get(0)
-        .and_then(ReleaseMonth::from_title)
-        .ok_or(BadReply)?;
+    let month = ReleaseMonth::from_title(title.get(0).ok_or(BadReply)?)?;
     let date = month.key();
     let mut headers = None;
     let mut full = false;

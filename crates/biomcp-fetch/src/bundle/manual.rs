@@ -3,8 +3,27 @@ use super::{Bundle, BundleInfo, Find, Row, parse::ParsedRows, read, store};
 use crate::{CacheError, Leg, RequestError};
 use biomcp_types::Reason;
 use serde::Serialize;
+use std::{io::Read, path::Path};
 
 impl Leg<'_> {
+    /// Read a bounded regular file provided explicitly for a local import.
+    pub fn read_manual_file(&self, path: &Path, max_bytes: u64) -> Result<Vec<u8>, RequestError> {
+        self.check_source()?;
+        let max_bytes = max_bytes.min(super::MAX_BUNDLE_BYTES);
+        let meta = path.metadata().map_err(|_| CacheError::Filesystem)?;
+        if !meta.is_file() || meta.len() > max_bytes {
+            return Err(CacheError::Limit.into());
+        }
+        let mut body = Vec::new();
+        std::fs::File::open(path)
+            .and_then(|file| file.take(max_bytes + 1).read_to_end(&mut body))
+            .map_err(|_| CacheError::Filesystem)?;
+        if body.len() as u64 > max_bytes {
+            return Err(CacheError::Limit.into());
+        }
+        Ok(body)
+    }
+
     /// Read matching imported rows and their date in one store snapshot, if present.
     /// This path never synchronizes, including in live, fresh and replay modes.
     pub fn manual_rows<R: Row>(

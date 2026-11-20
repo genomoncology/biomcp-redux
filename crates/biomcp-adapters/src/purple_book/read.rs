@@ -6,18 +6,17 @@ use biomcp_fetch::{
     SourceError, SourceSpec,
 };
 use biomcp_types::{DrugSearch, PurpleBookPresentation, Reason, Source, SourceNotice};
-use std::{io::Read, marker::PhantomData, path::Path, time::Duration};
+use std::{marker::PhantomData, path::Path, time::Duration};
 
 const SOURCE: Source = Source::PurpleBook;
 const PATH: &str = "/downloads";
-const DOWNLOAD: &str = "https://purplebooksearch.fda.gov/downloads";
 const MAX_FILE_BYTES: u64 = 4 * 1024 * 1024;
 pub(super) const HELP: &str = "FDA does not allow automatic download. Download the monthly CSV from \
     https://purplebooksearch.fda.gov/downloads and run biomcp sync purple-book --file PATH.";
 
 /// Local Purple Book source identity and attribution.
 pub static SPEC: SourceSpec = SourceSpec {
-    source: SOURCE,
+    source: Source::PurpleBook,
     base: "https://purplebooksearch.fda.gov",
     terms: crate::fda_cdx::SPEC.terms,
     quota: &crate::quotas::FDA_WEBSITE,
@@ -52,7 +51,7 @@ fn snapshot(leg: &Leg<'_>, key: &str) -> Result<Selected, RequestError> {
     let seed = seed()?;
     if let Some((rows, info)) = stored {
         let date = info.data_date.as_deref().ok_or(CacheError::Encoding)?;
-        let month = ReleaseMonth::from_key(date).ok_or(CacheError::Encoding)?;
+        let month = ReleaseMonth::from_key(date).map_err(|_| CacheError::Encoding)?;
         if month > seed.month {
             return Ok(Selected { rows, month });
         }
@@ -124,50 +123,50 @@ pub fn sync_file(fetch: &Fetch, path: Option<&Path>) -> BundleReply {
             |path| import(&leg, path),
         )
     };
-    let (result, guidance, month) = match result {
-        Ok(info) => {
-            let month = info.data_date.as_deref().and_then(ReleaseMonth::from_key);
-            (
-                Ok(crate::mapped::bundle_sync(SOURCE, info)),
-                "",
-                month.map(|m| m.label()),
-            )
-        }
-        Err((error, message)) => {
-            let month = snapshot(&leg, "").ok().map(|active| active.month.label());
-            (Err(error), message, month)
-        }
+    let (result, message, month) = match result {
+        Ok((info, month)) => (
+            Ok(crate::mapped::bundle_sync(SOURCE, info)),
+            "",
+            Some(month),
+        ),
+        Err((error, message)) => match snapshot(&leg, "") {
+            Ok(active) => (Err(error), message, Some(active.month.label())),
+            Err(_) if fetch.disabled(SOURCE) => (Err(error), message, None),
+            Err(_) => (
+                Err(error),
+                "The active release month could not be read.",
+                None,
+            ),
+        },
     };
-    BundleReply::Manual(result, notice(month.as_deref(), guidance))
+    BundleReply::Manual(result, notice(month.as_deref(), message))
 }
 
 fn import(
     leg: &Leg<'_>,
     path: &Path,
-) -> Result<biomcp_fetch::BundleInfo, (RequestError, &'static str)> {
+) -> Result<(biomcp_fetch::BundleInfo, Box<str>), (RequestError, &'static str)> {
     const UNREADABLE: &str = "The requested release file is unavailable or unreadable.";
     const INVALID: &str = "The requested release is unavailable because the file is not a valid complete FDA monthly Purple Book CSV.";
-    let meta = path
-        .metadata()
-        .map_err(|_| (CacheError::Filesystem.into(), UNREADABLE))?;
-    if !meta.is_file() || meta.len() > MAX_FILE_BYTES {
-        return Err((source_error(Reason::BadReply), INVALID));
-    }
-    let mut body = Vec::new();
-    std::fs::File::open(path)
-        .and_then(|file| file.take(MAX_FILE_BYTES + 1).read_to_end(&mut body))
-        .map_err(|_| (CacheError::Filesystem.into(), UNREADABLE))?;
-    if body.len() as u64 > MAX_FILE_BYTES {
-        return Err((source_error(Reason::BadReply), INVALID));
-    }
+    let body = leg
+        .read_manual_file(path, MAX_FILE_BYTES)
+        .map_err(|error| {
+            if error == RequestError::Cache(CacheError::Limit) {
+                (source_error(Reason::BadReply), INVALID)
+            } else {
+                (error, UNREADABLE)
+            }
+        })?;
     let release = decode(&body).map_err(|_| (source_error(Reason::BadReply), INVALID))?;
     let seed = seed().map_err(|error| (error, ""))?;
-    leg.import_manual_rows(&BUNDLE, &release.rows, body.len() as u64, &seed.date)
+    let info = leg
+        .import_manual_rows(&BUNDLE, &release.rows, body.len() as u64, &seed.date)
         .map_err(|error| (error, "The requested release could not be stored."))?
         .ok_or((
             source_error(Reason::Rejected),
             "The supplied release is not newer than the active snapshot.",
-        ))
+        ))?;
+    Ok((info, release.month.label()))
 }
 
 fn source_error(reason: Reason) -> RequestError {
@@ -190,7 +189,7 @@ pub fn notice(month: Option<&str>, guidance: &str) -> SourceNotice {
     SourceNotice::RequestGuidance {
         data_date: None,
         message: if guidance.is_empty() {
-            format!("{snapshot} FDA downloads: {DOWNLOAD}")
+            format!("{snapshot} FDA downloads: {}{PATH}", SPEC.base)
         } else {
             format!("{guidance} {snapshot}")
         }
