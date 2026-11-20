@@ -959,7 +959,7 @@ Options:
 
       --biomarker <biomarker>
           Biomarker name in a cell.
-          Whole name in the individual table's biomarker cell, any case, surrounding spaces ignored: PIK3CA matches "PIK3CA, AKT1, and PTEN", not PIK3CA2. The group table is not searched; problems name it as filter.unsupported.
+          Whole name in the individual table's biomarker cell, any case, surrounding spaces ignored: PIK3CA matches "PIK3CA, AKT1, and PTEN", not PIK3CA2. A cell naming it only as "Not NAME", such as "Not MSI-High", is returned with biomarker_negated: true. The group table is not searched; problems name it as filter.unsupported.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -1106,7 +1106,7 @@ Paging: --limit and --offset.
 - `--aggregate`: Count by product code.
 Also counts every matching record by FDA product code, up to openFDA's 1,000 codes, and says whether the counts sum to the total; fda-510k only, first page. Value form: string; example: --aggregate product-code; only with --source fda-510k.
 - `--biomarker`: Biomarker name in a cell.
-Whole name in the individual table's biomarker cell, any case, surrounding spaces ignored: PIK3CA matches "PIK3CA, AKT1, and PTEN", not PIK3CA2. The group table is not searched; problems name it as filter.unsupported. Value form: string; example: --biomarker KRAS; only with --source fda-cdx.
+Whole name in the individual table's biomarker cell, any case, surrounding spaces ignored: PIK3CA matches "PIK3CA, AKT1, and PTEN", not PIK3CA2. A cell naming it only as "Not NAME", such as "Not MSI-High", is returned with biomarker_negated: true. The group table is not searched; problems name it as filter.unsupported. Value form: string; example: --biomarker KRAS; only with --source fda-cdx.
 - `--bundle-revision`: Stored bundle revision.
 Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a.
 - `--classification`: FDA recall class.
