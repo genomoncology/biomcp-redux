@@ -64,8 +64,9 @@ pub(super) fn market() -> Result<(), String> {
 fn unreachable(record: &mut Value) {
     if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut)
         && let Some(mut failure) = exchanges.first().cloned()
+        && let Some(status) = failure.get_mut("status")
     {
-        failure["status"] = json!(500);
+        *status = json!(500);
         *exchanges = vec![failure.clone(), failure.clone(), failure];
     }
 }
