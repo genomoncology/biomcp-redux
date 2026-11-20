@@ -51,6 +51,8 @@ pub(super) struct Reader {
     pending: bool,
     /// A character map left a shown code unmapped, so lopdf gave U+FFFD for it: text is missing.
     pub(super) unmapped: bool,
+    /// A shown Symbol glyph had no known standard character and was kept.
+    pub(super) private_symbol: bool,
 }
 
 /// How the next shown text sits against the last: run on, a word gap away, or on another line.
@@ -189,7 +191,7 @@ impl Reader {
         for operand in operands {
             match operand {
                 Object::String(bytes, _) => {
-                    encoding.write_to_string(bytes, &mut shown)?;
+                    self.private_symbol |= font.decode(bytes, &mut shown)?;
                     advance += widths
                         .as_ref()
                         .map_or(0.0, |w| w.advance(bytes, &self.state));
@@ -198,7 +200,7 @@ impl Reader {
                     array = true;
                     for item in items {
                         if let Object::String(bytes, _) = item {
-                            encoding.write_to_string(bytes, &mut shown)?;
+                            self.private_symbol |= font.decode(bytes, &mut shown)?;
                             advance += widths
                                 .as_ref()
                                 .map_or(0.0, |w| w.advance(bytes, &self.state));

@@ -11,6 +11,7 @@ mod page;
 pub mod publisher;
 mod scan;
 mod state;
+mod symbol;
 mod text;
 mod tounicode;
 mod words;

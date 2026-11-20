@@ -122,6 +122,21 @@ pub(super) struct Font<'a> {
     pub(super) encoding: Encoding<'a>,
     pub(super) widths: Option<Widths>,
     pub(super) sound: bool,
+    symbol: bool,
+}
+
+impl Font<'_> {
+    /// Decode one string under this font and report any private-use Symbol glyph kept.
+    pub(super) fn decode(&self, bytes: &[u8], shown: &mut String) -> lopdf::Result<bool> {
+        if self.symbol {
+            let mut decoded = String::new();
+            self.encoding.write_to_string(bytes, &mut decoded)?;
+            Ok(super::symbol::append(&decoded, shown))
+        } else {
+            self.encoding.write_to_string(bytes, shown)?;
+            Ok(false)
+        }
+    }
 }
 
 /// Fonts already read in one document, by the address of their dictionary, which the loaded
@@ -157,6 +172,7 @@ impl<'a> Cache<'a> {
         );
         let read = Rc::new(Font {
             sound: !(composite && fallback),
+            symbol: super::symbol::is_symbol(document, font),
             widths: widths(document, font),
             encoding,
         });
