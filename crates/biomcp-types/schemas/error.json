@@ -309,7 +309,6 @@
         "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         "shortage is not yet supported in the cancer-care drug slice.",
         "all is not supported: select one named source section.",
-        "Use the communication UUID from search drug NAME --source fda-dsc.",
         "markets takes a drug name and at most --source; drop error.option, as in: get drug <NAME> markets",
         "markets reads one source per market: drugsfda (US), ema (EU) and who-pq (WHO prequalification); give --source one of valid_values, or drop it to read every market",
         "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
