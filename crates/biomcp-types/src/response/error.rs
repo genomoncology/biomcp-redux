@@ -82,7 +82,8 @@ singleton! {
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
  ArgumentCombination => "error.option is not accepted with the other options as given; valid_values names every option involved",
  ArgumentSectionUnknown => "unknown section: error.option is not a section of this record; valid_values lists them",
- ArgumentSectionNotId => "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; write an ID in capitals",
+ ArgumentSectionNotId => "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; \
+ to read it as an ID, give it first or use --section",
  FieldsUnknown => "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
  FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named \
  sections instead",
@@ -166,8 +167,7 @@ singleton! {
         DiagnosticWhoType => "WHO type search is deferred; use: search diagnostic --source who-ivd --marker TEXT",
         DiagnosticPma => "free-text PMA search is deferred; use: get diagnostic P-NUMBER --source fda-pma",
         Diagnostic510k => "free-text 510(k) search is deferred; use: get diagnostic K-NUMBER --source fda-510k",
-        DiagnosticGtrSync => "use: biomcp sync gtr",
-        DiagnosticWhoSync => "use: biomcp sync who-ivd",
+        DiagnosticGtrSync => "use: biomcp sync gtr", DiagnosticWhoSync => "use: biomcp sync who-ivd",
         DiagnosticList => "use: biomcp help diagnostic",
         PgxGene => "use: search pgx --gene <SYMBOL> --source cpic",
         PgxGet => "use: get pgx --gene <SYMBOL> [recommendations|guidelines|diplotype|annotations] --source <SOURCE>",

@@ -30,6 +30,9 @@ pub struct Envelope<T: ResponseBody> {
     schema: String,
     /// Overall outcome.
     pub status: Status,
+    /// IDs a get of several did not find while it found others; each item says so too.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub absent: Vec<crate::Text>,
     /// Bounded local cache or recording failure, independent of provider outcomes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub local_error: Option<super::CacheProblem>,
@@ -59,6 +62,7 @@ impl<T: ResponseBody> Envelope<T> {
         Self {
             schema: T::SCHEMA.to_owned(),
             status,
+            absent: Vec::new(),
             local_error: None,
             query,
             result,
@@ -67,6 +71,32 @@ impl<T: ResponseBody> Envelope<T> {
             problems: Vec::new(),
             next: Vec::new(),
         }
+    }
+}
+
+impl<T: ResponseBody> Envelope<T> {
+    /// Name, at the top, the inputs whose items are absent beside items that were found.
+    pub fn name_absent(&mut self) {
+        if matches!(self.status, Status::Absent) {
+            return;
+        }
+        let items = self
+            .result
+            .as_ref()
+            .and_then(|result| serde_json::to_value(result).ok())
+            .and_then(|mut result| result.get_mut("items").map(serde_json::Value::take));
+        self.absent = items
+            .as_ref()
+            .and_then(serde_json::Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter(|item| item.get("status").and_then(serde_json::Value::as_str) == Some("absent"))
+            .filter_map(|item| {
+                item.get("input")?
+                    .as_str()
+                    .and_then(|input| crate::Text::new(input).ok())
+            })
+            .collect();
     }
 }
 

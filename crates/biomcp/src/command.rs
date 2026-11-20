@@ -291,6 +291,7 @@ impl ResponseMeta {
         envelope.next = self.next;
         envelope.page = self.page;
         envelope.local_error = self.local_error;
+        envelope.name_absent();
         envelope
     }
 }

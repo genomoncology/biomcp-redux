@@ -122,7 +122,7 @@
         "option repeated: give error.option once, in the form valid_values shows",
         "error.option is not accepted with the other options as given; valid_values names every option involved",
         "unknown section: error.option is not a section of this record; valid_values lists them",
-        "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; write an ID in capitals",
+        "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
         "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
         "--fields chooses columns of search rows only; drop --fields and read the record's named sections instead",
         "no saved result has this name; --pool and --snapshot take only a name from a reply's next step; run the suggested command",

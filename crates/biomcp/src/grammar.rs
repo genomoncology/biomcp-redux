@@ -523,7 +523,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     // A trailing word given with --section is an ID; without it, a section-shaped one is a section.
     let explicit = matches.try_get_raw("section").ok().flatten().is_some();
     match rewrite::request(command.via, verb, entity, value.clone()) {
-        Ok(request) => words::trailing(verb, entity, &value, explicit).map_or(Ok(request), Err),
+        Ok(request) => words::unknown(verb, entity, &value, explicit).map_or(Ok(request), Err),
         Err(cause) => Err(sections::fix(verb, entity, &value)
             .or_else(|| words::unknown(verb, entity, &value, explicit))
             .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause))

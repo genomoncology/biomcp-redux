@@ -49,35 +49,43 @@ pub(super) fn split_sections(
     Ok(())
 }
 
-/// A call that checks, but whose trailing word after the first ID has a section's shape and
-/// names no section: it was read as a section, so the refusal says so.
-pub(super) fn trailing(
-    verb: &str,
-    entity: &str,
-    value: &Value,
-    explicit: bool,
-) -> Option<ParseInvalid> {
-    refuse(
-        (verb, entity),
-        value,
-        explicit,
-        ErrorMessage::ArgumentSectionNotId,
-    )
-}
-
-/// A refused call whose first word not understood is a section word that names no section.
+/// The first word not understood after a get command's ID: a section word that names no
+/// section, or a trailing word read as a section because it is near one of this record's
+/// sections or names another record's. Any other trailing word is an ID, in any letter case.
 pub(super) fn unknown(
     verb: &str,
     entity: &str,
     value: &Value,
     explicit: bool,
 ) -> Option<ParseInvalid> {
-    refuse(
-        (verb, entity),
-        value,
-        explicit,
-        ErrorMessage::ArgumentSectionUnknown,
-    )
+    if verb != "get" {
+        return None;
+    }
+    let schema = super::validation::schema(verb, entity)?;
+    let via = biomcp_types::COMMANDS
+        .iter()
+        .find(|command| (command.verb, command.entity) == (verb, entity))?
+        .via;
+    let is_id =
+        |word: &str| super::rewrite::request(via, verb, entity, json!({"input": [word]})).is_ok();
+    let (word, candidate, trailing) = first(&schema, value, explicit, &is_id)?;
+    let candidate =
+        candidate.filter(|candidate| first(&schema, candidate, explicit, &is_id).is_none());
+    let message = if trailing && is_id(&word) {
+        ErrorMessage::ArgumentSectionNotId
+    } else {
+        ErrorMessage::ArgumentSectionUnknown
+    };
+    Some(ParseInvalid {
+        usage: Some(UsageError::Arguments(refusal(
+            (verb, entity),
+            &schema,
+            &word,
+            message,
+            candidate.as_ref(),
+        )?)),
+        ..ParseInvalid::default()
+    })
 }
 
 /// Words past the ID and the one section a command takes, as in `get disease ID extra words
@@ -115,30 +123,6 @@ pub(super) fn excess(root: &Command, path: &[&str], args: &[OsString]) -> Option
     (usage.message == Some(ErrorMessage::ArgumentSectionUnknown)).then_some(usage)
 }
 
-fn refuse(
-    path: (&str, &str),
-    value: &Value,
-    explicit: bool,
-    message: ErrorMessage,
-) -> Option<ParseInvalid> {
-    if path.0 != "get" {
-        return None;
-    }
-    let schema = super::validation::schema(path.0, path.1)?;
-    let (word, candidate) = first(&schema, value, explicit)?;
-    let candidate = candidate.filter(|candidate| first(&schema, candidate, explicit).is_none());
-    Some(ParseInvalid {
-        usage: Some(UsageError::Arguments(refusal(
-            path,
-            &schema,
-            &word,
-            message,
-            candidate.as_ref(),
-        )?)),
-        ..ParseInvalid::default()
-    })
-}
-
 /// The refusal: the word, the record's sections, and the call with a near section, or help.
 fn refusal(
     path: (&str, &str),
@@ -158,9 +142,14 @@ fn refusal(
     })
 }
 
-/// The first word not understood, given as a section or trailing the first ID, and the call
-/// with the nearest section in its place when one is near.
-fn first(schema: &Value, value: &Value, explicit: bool) -> Option<(String, Option<Value>)> {
+/// The first word not understood, the call with the nearest section in its place when one is
+/// near, and whether the word trailed the first ID.
+fn first(
+    schema: &Value,
+    value: &Value,
+    explicit: bool,
+    is_id: &dyn Fn(&str) -> bool,
+) -> Option<(String, Option<Value>, bool)> {
     let property = schema.pointer("/properties/section")?;
     let sections = sections(schema)?;
     let mut candidate = value.clone();
@@ -170,35 +159,39 @@ fn first(schema: &Value, value: &Value, explicit: bool) -> Option<(String, Optio
         Some(Value::Array(items)) => items.iter().filter_map(Value::as_str).collect(),
         _ => Vec::new(),
     };
-    let index = given.iter().position(|word| !known(&sections, word));
-    let word = if let Some(index) = index {
+    if let Some(index) = given.iter().position(|word| !known(&sections, word)) {
         let word = (*given.get(index)?).to_owned();
         let near = near(&word, &sections).map(|near| json!(near));
         match (fields.get_mut("section")?, near) {
             (Value::Array(items), Some(near)) => *items.get_mut(index)? = near,
             (section @ Value::String(_), Some(near)) => *section = near,
-            _ => return plain(&word).then_some((word, None)),
+            _ => return plain(&word).then_some((word, None, false)),
         }
-        word
-    } else if property.get("x-trailing-section") == Some(&json!(true)) && !explicit {
-        let input = fields.get_mut("input")?.as_array_mut()?;
-        let index = (1..input.len()).find(|index| {
-            input
-                .get(*index)
-                .and_then(Value::as_str)
-                .is_some_and(|word| shaped(word) && !known(&sections, word))
-        })?;
-        let word = input.remove(index).as_str()?.to_owned();
-        let near = near(&word, &sections);
-        match (fields.entry("section").or_insert_with(|| json!([])), near) {
-            (Value::Array(items), Some(near)) => items.push(json!(near)),
-            _ => return plain(&word).then_some((word, None)),
-        }
-        word
-    } else {
+        return plain(&word).then_some((word, Some(candidate), false));
+    }
+    if property.get("x-trailing-section") != Some(&json!(true)) || explicit {
         return None;
-    };
-    plain(&word).then_some((word, Some(candidate)))
+    }
+    let input = fields.get_mut("input")?.as_array_mut()?;
+    let index = (1..input.len()).find(|index| {
+        input
+            .get(*index)
+            .and_then(Value::as_str)
+            .is_some_and(|word| {
+                plain(word)
+                    && !known(&sections, word)
+                    && (near(word, &sections).is_some() || elsewhere(word) || !is_id(word))
+            })
+    })?;
+    let word = input.remove(index).as_str()?.to_owned();
+    match (
+        fields.entry("section").or_insert_with(|| json!([])),
+        near(&word, &sections),
+    ) {
+        (Value::Array(items), Some(near)) => items.push(json!(near)),
+        _ => return Some((word, None, true)),
+    }
+    Some((word, Some(candidate), true))
 }
 
 fn sections(schema: &Value) -> Option<Box<[biodata::Text]>> {
@@ -211,8 +204,44 @@ fn known(sections: &[biodata::Text], word: &str) -> bool {
         .any(|section| section.as_str().eq_ignore_ascii_case(word))
 }
 
-/// The one section within two edits of the word, and nearer than every other.
+/// Whether the word names a section of another get command, in any letter case.
+fn elsewhere(word: &str) -> bool {
+    static ALL: std::sync::OnceLock<Vec<biodata::Text>> = std::sync::OnceLock::new();
+    let all = ALL.get_or_init(|| {
+        super::command_paths()
+            .iter()
+            .filter(|(verb, _, _)| *verb == "get")
+            .filter_map(|(verb, entity, _)| sections(&super::validation::schema(verb, entity)?))
+            .flat_map(|list| list.into_vec())
+            .collect()
+    });
+    known(all, word)
+}
+
+/// A section's spelling without case, dashes, underscores or a plural s.
+fn form(word: &str) -> String {
+    let word: String = word
+        .chars()
+        .filter(|c| !matches!(c, '-' | '_'))
+        .map(|c| c.to_ascii_lowercase())
+        .collect();
+    match word.strip_suffix('s') {
+        Some(stem) if word.len() > 3 => stem.to_owned(),
+        _ => word,
+    }
+}
+
+/// The section a word is near: the same spelling up to case, dashes, underscores and a plural
+/// s, or the one nearest within one edit of a name of five letters or more, or two edits of a
+/// name of eight or more. Shorter names are matched by spelling only, so no gene symbol such
+/// as ALK is read as `all`.
 fn near<'a>(word: &str, sections: &'a [biodata::Text]) -> Option<&'a str> {
+    if let Some(section) = sections
+        .iter()
+        .find(|section| form(section.as_str()) == form(word))
+    {
+        return Some(section.as_str());
+    }
     let word = word.to_ascii_lowercase();
     let mut scored: Vec<_> = sections
         .iter()
@@ -224,22 +253,20 @@ fn near<'a>(word: &str, sections: &'a [biodata::Text]) -> Option<&'a str> {
         })
         .collect();
     scored.sort_unstable();
+    let allowed = |name: &str| match name.len() {
+        8.. => 2,
+        5..=7 => 1,
+        _ => 0,
+    };
     match scored.as_slice() {
         [(distance, best), rest @ ..]
-            if *distance <= 2
-                && 3 * distance <= best.len()
+            if (1..=allowed(best)).contains(distance)
                 && rest.first().is_none_or(|(other, _)| other > distance) =>
         {
             Some(best)
         }
         _ => None,
     }
-}
-
-/// Lowercase letters and dashes, as every section word is spelled; an ID has a capital or digit.
-fn shaped(word: &str) -> bool {
-    word.starts_with(|c: char| c.is_ascii_lowercase())
-        && word.chars().all(|c| c.is_ascii_lowercase() || c == '-')
 }
 
 /// A word a refusal may name: short, of letters, digits, dashes and underscores only.

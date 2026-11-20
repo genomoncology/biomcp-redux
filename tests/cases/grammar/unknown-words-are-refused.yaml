@@ -16,7 +16,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "bogussection",
-        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; write an ID in capitals",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
         "/error/valid_values": {
           "includes": "pathways"
         },
@@ -220,7 +220,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "bogussection",
-        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; write an ID in capitals",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
         "/error/valid_values": {
           "includes": "domains"
         },
@@ -495,7 +495,7 @@
       "is_error": true,
       "expect": {
         "/error/option": "extra",
-        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; write an ID in capitals",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
         "/next/0/args": [
           "help",
           "get",
@@ -515,7 +515,7 @@
       "is_error": true,
       "expect": {
         "/error/option": "pathwys",
-        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; write an ID in capitals",
+        "/error/message": "unknown section: error.option was read as a section, not an ID; valid_values lists the sections; to read it as an ID, give it first or use --section",
         "/next/0/args": {
           "includes_all_of": [
             "BRAF",
