@@ -37,12 +37,12 @@ biodata::wire_enum! {
         /// The document names itself as another kind, such as Instructions for Use, and has no
         /// prescribing information; it is not a label version and is passed over.
         NotPrescribingInformation => "not-prescribing-information",
-        /// Unread: the section's bounds could not be found from the label's contents list.
+        /// Unread: the section's bounds could not be found from the label's contents list or its
+        /// headings.
         SectionNotBounded => "section-not-bounded",
-        /// Unread: a label in the format used before 2006 whose heading for the section is not a
-        /// whole line, or which has no such heading.
+        /// Unread: a label in the format used before 2006 with no heading for the section.
         OlderFormat => "older-format",
-        /// Unread: the PDF has no embedded text, such as a scan.
+        /// Unread: the PDF has no embedded text besides FDA's stamp, such as a scan.
         NoText => "no-text",
         /// Unread: over BioMCP's PDF bounds.
         TooLarge => "too-large",
