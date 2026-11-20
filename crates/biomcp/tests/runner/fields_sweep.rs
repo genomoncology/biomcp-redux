@@ -289,11 +289,11 @@ fn split(probe: &Probe, args: &[String], whole: &Value, code: Option<i32>) -> Re
                         ));
                     }
                 }
-                return Ok(());
+                return Ok(true);
             }
         }
     }
-    Ok(())
+    Ok(false)
 }
 
 /// Dotted paths into the objects of the first row under a section key.
