@@ -1,0 +1,234 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc&skip=6",
+  "exchanges": [
+    {
+      "fetched": 1795206095,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-20",
+            "results": {
+              "skip": 6,
+              "limit": 3,
+              "total": 15
+            }
+          },
+          "results": [
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Deuruxolitinib is a Janus kinase (JAK) inhibitor. JAKs mediate the signaling of a number of cytokines and growth factors that are important for hematopoiesis and immune function. JAK signaling involves recruitment of STATs (signal transducers and activators of transcription) to cytokine receptors, activation and subsequent localization of STATs to the nucleus leading to modulation of gene expression. In an in vitro kinase activity assay, deuruxolitinib had greater inhibitory potency for JAK1, JAK2 and TYK2 relative to JAK3. The relevance of inhibition of JAK enzymes to therapeutic effectiveness is not currently known."
+              ],
+              "set_id": "a603f231-d09e-4bad-ad5e-b55f865da095",
+              "id": "4f69c6c1-ae0d-4119-9d3a-53986983f840",
+              "effective_time": "20260928",
+              "version": "14",
+              "openfda": {
+                "application_number": [
+                  "NDA217900"
+                ],
+                "brand_name": [
+                  "LEQSELVI"
+                ],
+                "generic_name": [
+                  "DEURUXOLITINIB PHOSPHATE"
+                ],
+                "manufacturer_name": [
+                  "Sun Pharmaceutical Industries, Inc."
+                ],
+                "product_ndc": [
+                  "47335-108"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DEURUXOLITINIB PHOSPHATE"
+                ],
+                "rxcui": [
+                  "2716563",
+                  "2716569"
+                ],
+                "spl_id": [
+                  "4f69c6c1-ae0d-4119-9d3a-53986983f840"
+                ],
+                "spl_set_id": [
+                  "a603f231-d09e-4bad-ad5e-b55f865da095"
+                ],
+                "package_ndc": [
+                  "47335-108-86"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "8VJ43S4LCM"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action CIBINQO is a Janus kinase (JAK) inhibitor. Abrocitinib reversibly inhibits JAK1 by blocking the adenosine triphosphate (ATP) binding site. In a cell-free isolated enzyme assay, abrocitinib was selective for JAK1 over JAK2 (28-fold), JAK3 (>340-fold), and tyrosine kinase (TYK) 2 (43-fold), as well as the broader kinome. The relevance of inhibition of specific JAK enzymes to therapeutic effectiveness is not currently known. Both the parent compound and the active metabolites inhibit JAK1 activity in vitro with similar levels of selectivity."
+              ],
+              "set_id": "3f6d6fcd-e9f9-42c8-bfa2-bb2cfc9ed258",
+              "id": "3622e6fd-8126-42ff-bde8-a9cc6d1278de",
+              "effective_time": "20260909",
+              "version": "9",
+              "openfda": {
+                "application_number": [
+                  "NDA213871"
+                ],
+                "brand_name": [
+                  "Cibinqo"
+                ],
+                "generic_name": [
+                  "ABROCITINIB"
+                ],
+                "manufacturer_name": [
+                  "Pfizer Laboratories Div Pfizer Inc"
+                ],
+                "product_ndc": [
+                  "0069-0235",
+                  "0069-0335",
+                  "0069-0435"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "ABROCITINIB"
+                ],
+                "rxcui": [
+                  "2591481",
+                  "2591487",
+                  "2591489",
+                  "2591491",
+                  "2591493",
+                  "2591495"
+                ],
+                "spl_id": [
+                  "3622e6fd-8126-42ff-bde8-a9cc6d1278de"
+                ],
+                "spl_set_id": [
+                  "3f6d6fcd-e9f9-42c8-bfa2-bb2cfc9ed258"
+                ],
+                "package_ndc": [
+                  "0069-0235-30",
+                  "0069-0335-30",
+                  "0069-0435-30"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0300690235301",
+                  "0300690335308",
+                  "0300690435305"
+                ],
+                "nui": [
+                  "N0000190858",
+                  "N0000190857",
+                  "N0000185503"
+                ],
+                "pharm_class_epc": [
+                  "Janus Kinase Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Janus Kinase Inhibitors [MoA]",
+                  "P-Glycoprotein Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "73SM5SF3OR"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Interferon alfa belongs to the class of type I interferons, which exhibit their cellular effects in polycythemia vera and essential thrombocythemia in the bone marrow by binding to a transmembrane receptor termed interferon alfa receptor (IFNAR). Binding to IFNAR initiates a downstream signaling cascade through the activation of kinases, in particular Janus kinase 1 (JAK1) and tyrosine kinase 2 (TYK2) and activator of transcription (STAT) proteins. Nuclear translocation of STAT proteins controls distinct gene-expression programs and exhibits various cellular effects. The actions involved in the therapeutic effects of interferon alfa in polycythemia vera and essential thrombocythemia are not fully elucidated."
+              ],
+              "set_id": "9583405d-53a0-49dc-88eb-5e6384ebabcb",
+              "id": "801f0478-b00c-4e98-90c0-0a32201be6a2",
+              "effective_time": "20260825",
+              "version": "13",
+              "openfda": {
+                "application_number": [
+                  "BLA761166"
+                ],
+                "brand_name": [
+                  "BESREMi",
+                  "BESREMi Pen"
+                ],
+                "generic_name": [
+                  "ROPEGINTERFERON ALFA-2B"
+                ],
+                "manufacturer_name": [
+                  "PharmaEssentia USA"
+                ],
+                "product_ndc": [
+                  "73536-500",
+                  "73536-511"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "SUBCUTANEOUS"
+                ],
+                "substance_name": [
+                  "ROPEGINTERFERON ALFA-2B"
+                ],
+                "rxcui": [
+                  "2587064",
+                  "2587070",
+                  "2748665",
+                  "2748670"
+                ],
+                "spl_id": [
+                  "801f0478-b00c-4e98-90c0-0a32201be6a2"
+                ],
+                "spl_set_id": [
+                  "9583405d-53a0-49dc-88eb-5e6384ebabcb"
+                ],
+                "package_ndc": [
+                  "73536-500-01",
+                  "73536-511-01"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000193982",
+                  "M0023695"
+                ],
+                "pharm_class_epc": [
+                  "Interferon alfa-2b [EPC]"
+                ],
+                "pharm_class_cs": [
+                  "Interferon alfa-2b [CS]"
+                ],
+                "unii": [
+                  "981TME683S"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

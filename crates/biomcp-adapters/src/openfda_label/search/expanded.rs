@@ -28,7 +28,6 @@ pub struct NameGroup {
     words: String,
     indication: String,
     text: String,
-    scope: Option<String>,
 }
 
 impl NameGroup {
@@ -38,7 +37,10 @@ impl NameGroup {
         if names.is_empty() {
             return None;
         }
-        let scope = scope.map(str::to_owned);
+        let scoped = |selector: String| match scope {
+            Some(scope) => format!("({selector}) AND {scope}"),
+            None => selector,
+        };
         let join = |each: fn(&str) -> String| {
             names
                 .iter()
@@ -46,26 +48,17 @@ impl NameGroup {
                 .collect::<Vec<_>>()
                 .join(" OR ")
         };
-        let mut group = Self {
-            exact: join(names::exact),
-            words: join(words),
-            indication: join(|name| format!("indications_and_usage:{}", literal(name))),
-            text: join(literal),
-            scope,
+        let group = Self {
+            exact: scoped(join(names::exact)),
+            words: scoped(join(words)),
+            indication: scoped(join(|name| {
+                format!("indications_and_usage:{}", literal(name))
+            })),
+            text: scoped(join(literal)),
         };
-        group.exact = group.scoped(&group.exact);
-        group.words = group.scoped(&group.words);
-        group.indication = group.scoped(&group.indication);
         // The word-only request holds both name selectors, so it is the longest one sent.
         let longest = group.exact.len() + group.words.len() + "() AND NOT ()".len();
         (longest <= NAME_QUERY_MAX_BYTES).then_some(group)
-    }
-
-    fn scoped(&self, selector: &str) -> String {
-        match &self.scope {
-            Some(scope) => format!("({selector}) AND {scope}"),
-            None => selector.to_owned(),
-        }
     }
 
     /// The selector a reply shows for the step searched.
@@ -87,7 +80,7 @@ impl NameGroup {
         match step {
             NameStep::Names => names::union(leg, &self.exact, &self.words, limit, offset),
             NameStep::Indication => candidates(leg, &self.indication, limit, offset),
-            NameStep::Text => candidates(leg, &self.scoped(&self.text), limit, offset),
+            NameStep::Text => candidates(leg, &self.text, limit, offset),
         }
     }
 
@@ -96,7 +89,7 @@ impl NameGroup {
         let selector = match step {
             NameStep::Names => format!("({}) OR ({})", self.exact, self.words),
             NameStep::Indication => self.indication.clone(),
-            NameStep::Text => self.scoped(&self.text),
+            NameStep::Text => self.text.clone(),
         };
         Ok(candidates(leg, &selector, 1, 0)?
             .window

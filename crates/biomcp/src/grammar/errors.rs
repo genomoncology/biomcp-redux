@@ -331,6 +331,7 @@ pub(super) fn source_filter(
     entity: &str,
     value: &serde_json::Value,
     cause: &biomcp_types::QueryInvalid,
+    fields: &[String],
 ) -> Option<super::ParseInvalid> {
     if !cause
         .arguments()
@@ -382,7 +383,7 @@ pub(super) fn source_filter(
         } else {
             let sources: Vec<&str> = valid.iter().map(|source| source.as_str()).collect();
             let swapped =
-                super::recovery::source_swap(via, (verb, entity), &schema, value, &sources);
+                super::recovery::source_swap(via, (verb, entity), &schema, value, &sources, fields);
             match swapped.or_else(|| {
                 super::recovery::corrected(via, (verb, entity), &schema, value, &[name], true)
             }) {

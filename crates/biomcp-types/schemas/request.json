@@ -3858,7 +3858,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Search drugs and medicines by name or native label indication.",
+      "description": "Search drugs and medicines by name, native label indication or mechanism of action.",
       "properties": {
         "applicant": {
           "anyOf": [

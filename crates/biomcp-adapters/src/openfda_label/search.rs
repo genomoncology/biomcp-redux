@@ -167,7 +167,7 @@ fn discover(
             })?);
         return Ok(found);
     }
-    let selector = literal(name.as_str());
+    let selector = scoped(literal(name.as_str()));
     *free_text = Some(
         selector
             .parse()
@@ -175,7 +175,7 @@ fn discover(
     );
     // The publisher searched label text, so a matching passage need not name
     // this product. Preserve its candidates and mark exact name matches separately.
-    candidates(leg, &scoped(selector), limit, offset)
+    candidates(leg, &selector, limit, offset)
 }
 
 fn candidates(

@@ -1,0 +1,43 @@
+{
+  "feature": "drug-label-mechanism",
+  "story": "A source correction preserves the selected fields and page when switching to openFDA labels.",
+  "replay": "drug/label-mechanism",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--mechanism-of-action",
+        "Janus kinase",
+        "--source",
+        "drugsfda",
+        "--fields",
+        "matched_sentence,name",
+        "--limit",
+        "7",
+        "--offset",
+        "13"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/error/option": "--mechanism-of-action",
+        "/next/0/args": {
+          "equals": [
+            "--fields=matched_sentence,name",
+            "search",
+            "drug",
+            "--limit",
+            "7",
+            "--mechanism-of-action",
+            "Janus kinase",
+            "--offset",
+            "13",
+            "--source",
+            "openfda-label"
+          ]
+        }
+      }
+    }
+  ]
+}

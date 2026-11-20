@@ -58,11 +58,14 @@ pub(super) fn headers(
 ) -> Result<Vec<biomcp_types::DrugHeader>, RequestError> {
     rows.iter()
         .map(|record| {
-            let mut header = record.header()?;
-            header.matched_name = query.query().and_then(|name| record.name_match(name));
-            if let Some(mechanism) = query.mechanism_of_action() {
+            let mut header = if let Some(mechanism) = query.mechanism_of_action() {
+                let mut header = record.mechanism_header()?;
                 header.matched_sentence = record.sentence(MECHANISM, mechanism.as_str())?;
-            }
+                header
+            } else {
+                record.header()?
+            };
+            header.matched_name = query.query().and_then(|name| record.name_match(name));
             Ok(header)
         })
         .collect()
@@ -71,8 +74,7 @@ pub(super) fn headers(
 /// openFDA's Mechanism of Action field.
 const MECHANISM: &str = "mechanism_of_action";
 
-/// Say that a mechanism search matched the label's own wording only, and show the selector
-/// sent when no name narrowed it, since a class worded otherwise is silently absent (1086).
+/// Describe the normalized mechanism search and its coverage even when no labels are returned.
 pub(super) fn mechanism(query: &DrugSearch, out: &mut Outcome) {
     let (Some(mechanism), Some(source)) = (query.mechanism_of_action(), out.sources.first_mut())
     else {
@@ -85,9 +87,10 @@ pub(super) fn mechanism(query: &DrugSearch, out: &mut Outcome) {
             Err(_) => out.local = crate::status::local(biomcp_fetch::bad_reply(SOURCE, Some(200))),
         }
     }
+    let words = biomcp_types::openfda_words(mechanism.as_str());
     let message = format!(
-        "Matched the words \"{mechanism}\" in each label's own {MECHANISM} field only: no synonyms and no drug class \
-         inference, so labels that word the mechanism differently are not returned. matched_sentence quotes the label."
+        "The search uses \"{words}\" in the {MECHANISM} field only. Labels without that field or with different wording are excluded. \
+         No synonyms or drug class inference are used. Totals count matching labels. When present, matched_sentence quotes the label."
     );
     source
         .notices
