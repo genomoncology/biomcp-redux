@@ -387,7 +387,7 @@
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "find": {
-          "description": "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history.",
+          "description": "Label text; OR.\nLiteral text; repeat for OR. Current label: name up to five sections, two excerpts each. Ignores case and whitespace breaks; label-history also ignores hyphenation.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
