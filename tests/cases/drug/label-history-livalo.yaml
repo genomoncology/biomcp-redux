@@ -1,0 +1,35 @@
+{
+  "feature": "drug-label-history",
+  "story": "Livalo's Adverse Reactions first name myasthenia gravis in SUPPL 22, approved 2024-03-14, a section whose body headings lost their numbers in the PDF; the reply names the version before it, gives the matching sentences, and stays under 3 KB.",
+  "live_check": "public",
+  "replay": "drug/label-history-livalo",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA022363",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "adverse_reactions",
+        "--find",
+        "myasthenia gravis"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/section": "adverse_reactions",
+        "/result/versions": 12,
+        "/result/first/submission": "SUPPL 22",
+        "/result/first/approved": "2024-03-14",
+        "/result/first/state": "match",
+        "/result/before/submission": "SUPPL 20",
+        "/result/before/approved": "2022-11-09",
+        "/result/before/state": "no-match"
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "2026-11-19 capture in pm job j43418 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured reply was 2240 bytes; the 3000-byte ceiling is the ticket's limit."
+}

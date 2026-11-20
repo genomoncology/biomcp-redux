@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2009/022363s000lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795142823,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 607,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "be328129378698d589f8ef99393b0e8d8c0378870272de9cd420da946b40b798-0.bin"
+      }
+    }
+  ]
+}

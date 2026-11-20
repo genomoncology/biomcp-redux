@@ -1,0 +1,35 @@
+{
+  "feature": "drug-label-history",
+  "story": "Olumiant's boxed warning first names major adverse cardiovascular events in SUPPL 4, approved 2021-12-02, after FDA's JAK-inhibitor safety review; the reply names the version before it, gives the matching sentences, and stays under 3 KB.",
+  "live_check": "public",
+  "replay": "drug/label-history-olumiant",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA207924",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "boxed_warning",
+        "--find",
+        "major adverse cardiovascular"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/section": "boxed_warning",
+        "/result/versions": 9,
+        "/result/first/submission": "SUPPL 4",
+        "/result/first/approved": "2021-12-02",
+        "/result/first/state": "match",
+        "/result/before/submission": "SUPPL 2",
+        "/result/before/approved": "2020-07-08",
+        "/result/before/state": "no-match"
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "2026-11-19 capture in pm job j43418 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured reply was 2539 bytes; the 3000-byte ceiling is the ticket's limit."
+}

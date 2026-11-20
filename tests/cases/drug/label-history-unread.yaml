@@ -1,0 +1,29 @@
+{
+  "feature": "drug-label-history",
+  "story": "When the version just before the first match cannot be read, the reply says the text appeared on or before the match's date, never gives that date as exact, and is partial with the unread version in incomplete.",
+  "live_check": "synthetic",
+  "replay": "drug/label-history-unread",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA022363",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "adverse_reactions",
+        "--find",
+        "myasthenia gravis"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/first/submission": "SUPPL 22",
+        "/result/on_or_before": true
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "The label-history-livalo capture with the SUPPL 20 label cut to 300 bytes, so it reads as damaged."
+}

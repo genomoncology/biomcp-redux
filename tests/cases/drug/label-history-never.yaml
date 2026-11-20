@@ -1,0 +1,31 @@
+{
+  "feature": "drug-label-history",
+  "story": "When neither the oldest nor the newest label version holds the text, the reply says no version read has it, states the assumption that let it skip the versions between, and reads only two PDFs.",
+  "live_check": "public",
+  "replay": "drug/label-history-never",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA022363",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "boxed_warning",
+        "--find",
+        "myasthenia gravis"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/versions": 12,
+        "/result/read/0/state": "section-absent",
+        "/result/read/1/state": "section-absent",
+        "/result/answer": "None of the 2 label versions read has the text in its boxed_warning section."
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "2026-11-19 capture in pm job j43418 with --record, label PDFs replaced by synthetic PDFs of the reader's text. The measured reply was 1176 bytes."
+}

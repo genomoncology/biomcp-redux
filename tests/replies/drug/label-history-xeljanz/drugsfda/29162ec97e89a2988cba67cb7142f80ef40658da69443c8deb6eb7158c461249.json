@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2012/203214s000lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795142810,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 552,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "29162ec97e89a2988cba67cb7142f80ef40658da69443c8deb6eb7158c461249-0.bin"
+      }
+    }
+  ]
+}

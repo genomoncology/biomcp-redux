@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2021/211675s008lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795142816,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 208,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "d279c6232b9cd6ab9b8dd24d88d5cbdb79f92735548f03fbb9c2fde0cdcc0c61-0.bin"
+      }
+    }
+  ]
+}

@@ -1,0 +1,381 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA207924%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1795142807,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 368,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-18",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20220510",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "71033",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/207924Orig1s006lbl.pdf",
+              "date": "20220510",
+              "type": "Label"
+            },
+            {
+              "id": "71034",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2022/207924s006lbl.pdf#page=26",
+              "date": "20220510",
+              "type": "Medication Guide"
+            },
+            {
+              "id": "71035",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/207924Orig1s006ltr.pdf",
+              "date": "20220511",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20211202",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "69485",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/207924s004lbl.pdf",
+              "date": "20211207",
+              "type": "Label"
+            },
+            {
+              "id": "69501",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/207924Orig1s004ltr.pdf",
+              "date": "20211207",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20200708",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "63834",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/207924Orig1s002ltr.pdf",
+              "date": "20200709",
+              "type": "Letter"
+            },
+            {
+              "id": "63837",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/207924s002lbl.pdf",
+              "date": "20200709",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20260630",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "86439",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/207924Orig1s011ltr.pdf",
+              "date": "20260702",
+              "type": "Letter"
+            },
+            {
+              "id": "86501",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/207924s011lbl.pdf",
+              "date": "20260710",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "9",
+          "submission_status": "AP",
+          "submission_status_date": "20260925",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "87311",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/207924Orig1s009ltr.pdf",
+              "date": "20260929",
+              "type": "Letter"
+            },
+            {
+              "id": "87355",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/207924s009lbl.pdf",
+              "date": "20261006",
+              "type": "Label"
+            },
+            {
+              "id": "87356",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/207924s009lbl.pdf#page=32",
+              "date": "20261006",
+              "type": "Medication Guide"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20220613",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "71300",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/207924Orig1s007ltr.pdf",
+              "date": "20220614",
+              "type": "Letter"
+            },
+            {
+              "id": "71331",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/207924s007lbl.pdf",
+              "date": "20220615",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20191008",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "60506",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/207924Orig1s001ltr.pdf",
+              "date": "20191010",
+              "type": "Letter"
+            },
+            {
+              "id": "60519",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/207924s001lbl.pdf",
+              "date": "20191010",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20261009",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "87413",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/207924Orig1s010ltr.pdf",
+              "date": "20261013",
+              "type": "Letter"
+            },
+            {
+              "id": "87502",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/207924s010lbl.pdf",
+              "date": "20261021",
+              "type": "Label"
+            },
+            {
+              "id": "87503",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/207924s010lbl.pdf#page=33",
+              "date": "20261021",
+              "type": "Medication Guide"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20180531",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 1",
+          "submission_class_code_description": "Type 1 - New Molecular Entity",
+          "application_docs": [
+            {
+              "id": "54401",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/207924Orig1s000lbl.pdf",
+              "date": "20180601",
+              "type": "Label"
+            },
+            {
+              "id": "54403",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/207924Orig1s000ltr.pdf",
+              "date": "20180601",
+              "type": "Letter"
+            },
+            {
+              "id": "54749",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/207924Orig1s000TOC.html",
+              "date": "20180705",
+              "type": "Review"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA207924",
+      "sponsor_name": "ELI LILLY AND CO",
+      "openfda": {
+        "application_number": [
+          "NDA207924"
+        ],
+        "brand_name": [
+          "OLUMIANT"
+        ],
+        "generic_name": [
+          "BARICITINIB"
+        ],
+        "manufacturer_name": [
+          "Eli Lilly and Company"
+        ],
+        "product_ndc": [
+          "0002-4182",
+          "0002-4732",
+          "0002-4479"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "BARICITINIB"
+        ],
+        "rxcui": [
+          "2047241",
+          "2047247",
+          "2205472",
+          "2205474",
+          "2588561",
+          "2601725"
+        ],
+        "spl_id": [
+          "de2638c7-2667-4269-94ba-265076cce008"
+        ],
+        "spl_set_id": [
+          "866e9f35-9035-4581-a4b1-75a621ab55cf"
+        ],
+        "package_ndc": [
+          "0002-4182-30",
+          "0002-4182-61",
+          "0002-4732-30",
+          "0002-4479-30",
+          "0002-4479-61"
+        ],
+        "nui": [
+          "N0000190858",
+          "N0000190857"
+        ],
+        "pharm_class_epc": [
+          "Janus Kinase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Janus Kinase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "ISP4442I3Y"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "Yes",
+          "brand_name": "OLUMIANT",
+          "active_ingredients": [
+            {
+              "name": "BARICITINIB",
+              "strength": "1MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        },
+        {
+          "product_number": "003",
+          "reference_drug": "Yes",
+          "brand_name": "OLUMIANT",
+          "active_ingredients": [
+            {
+              "name": "BARICITINIB",
+              "strength": "4MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "OLUMIANT",
+          "active_ingredients": [
+            {
+              "name": "BARICITINIB",
+              "strength": "2MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    }
+  ]
+}
+      }
+    }
+  ]
+}

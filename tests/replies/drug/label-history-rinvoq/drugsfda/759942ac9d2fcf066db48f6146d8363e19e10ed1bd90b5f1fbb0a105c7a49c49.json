@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/218347Orig1s008,211675Orig1s034lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795142814,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 291,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "759942ac9d2fcf066db48f6146d8363e19e10ed1bd90b5f1fbb0a105c7a49c49-0.bin"
+      }
+    }
+  ]
+}
