@@ -1,7 +1,7 @@
 //! FDA's index joined with the shipped seed; pages the seed lacks are read one at a time, only
 //! while FDA's 30-second spacing allows, and a row not yet read is kept, marked, never dropped.
 use super::page::{Listed, Page, index, page};
-use super::seed::seed;
+use super::seed::{Seed, seed};
 use super::{INDEX_PATH, SITE, SPEC};
 use crate::{Mapped, Refusal};
 use biodata::{PartialDate, Text};
@@ -34,29 +34,54 @@ pub struct Communications {
     pub problems: Vec<Problem>,
     /// Why FDA's index could not be read; the rows are then the seed's alone.
     pub index_error: Option<RequestError>,
+    /// The day the shipped list was read from FDA.
+    pub seed_date: PartialDate,
+    /// What the list holds, where it starts and FDA's terms.
+    pub hint: Option<Text>,
 }
 
-/// The shipped seed's date.
-pub fn seed_date() -> Option<PartialDate> {
-    seed().map(|s| s.date)
+/// Where a communication's text comes from, and FDA's terms.
+pub fn text_hint() -> Option<Text> {
+    crate::mapped::record(format!(
+        "FDA's text as FDA wrote it, read from its page. {TERMS}."
+    ))
+}
+
+const TERMS: &str = "FDA's website content is public domain unless otherwise noted: \
+                     https://www.fda.gov/about-fda/about-website/website-policies";
+
+fn list_hint(list_starts: Option<PartialDate>) -> Option<Text> {
+    let starts = list_starts.map_or_else(|| "its first row".to_owned(), |d| d.to_string());
+    crate::mapped::record(format!(
+        "FDA's index lists communications from {starts}; for earlier ones FDA links an archived copy, which BioMCP does not read. \
+         A row matches by its title and the drug names its page links to Drugs@FDA. {TERMS}."
+    ))
+}
+
+fn shipped() -> Result<Seed, RequestError> {
+    seed().map_err(|_| malformed())
 }
 
 /// FDA's index joined with the seed. Only a missing index with no seed is an error.
 pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
-    let seeded = seed().map_or(&[][..], |s| s.items.as_slice());
+    let Seed {
+        date: seed_date,
+        items: seeded,
+    } = shipped()?;
     let listed = match read_index(leg) {
         Ok(listed) => listed,
-        Err(error) if !seeded.is_empty() => {
-            let mut items = seeded.to_vec();
+        Err(error) => {
+            let mut items = seeded;
             newest_first(&mut items);
             return Ok(Communications {
                 items,
                 list_starts: None,
                 problems: Vec::new(),
                 index_error: Some(error),
+                seed_date,
+                hint: list_hint(None),
             });
         }
-        Err(error) => return Err(error),
     };
     let mut problems = Vec::new();
     let mut spaced = false;
@@ -71,8 +96,14 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
                     let body = leg.dependency(&SPEC, PAGE_WAIT, |page_leg| {
                         read_page(page_leg, &listed.path)
                     });
-                    spaced = body.is_err();
-                    body.ok().map(|page| with_page(listed, page))
+                    match body {
+                        Ok(page) => Some(with_page(listed, page)),
+                        // FDA's spacing or a failed read leaves this and later pages unread.
+                        Err(_) => {
+                            spaced = true;
+                            None
+                        }
+                    }
                 }
             };
             row(listed, read, &mut problems)
@@ -91,6 +122,8 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
         list_starts,
         problems,
         index_error: None,
+        seed_date,
+        hint: list_hint(list_starts),
     })
 }
 
@@ -99,7 +132,8 @@ pub fn communication(
     leg: &Leg<'_>,
     id: &str,
 ) -> Result<Mapped<Option<(DrugSafetyCommunication, Text)>>, RequestError> {
-    let seeded = seed().and_then(|s| s.items.iter().find(|row| row.id.as_str() == id));
+    let seed = shipped()?;
+    let seeded = seed.items.iter().find(|row| row.id.as_str() == id);
     let listed = match seeded {
         Some(row) => Listed {
             id: row.id.clone(),
@@ -126,7 +160,7 @@ pub fn communication(
         },
     };
     let page = read_page(leg, &listed.path)?;
-    let text = crate::native_text::admit(&page.text).map_err(|_| bad_reply())?;
+    let text = crate::native_text::admit(&page.text).map_err(|_| malformed())?;
     let mut problems = Vec::new();
     let value = Some((
         row(&listed, Some(with_page(&listed, page)), &mut problems),
@@ -150,7 +184,7 @@ fn read_index(leg: &Leg<'_>) -> Result<Vec<Listed>, RequestError> {
         .0;
     index(&String::from_utf8_lossy(&body))
         .filter(|rows| !rows.is_empty())
-        .ok_or_else(bad_reply)
+        .ok_or_else(malformed)
 }
 
 fn read_page(leg: &Leg<'_>, path: &str) -> Result<Page, RequestError> {
@@ -161,7 +195,7 @@ fn read_page(leg: &Leg<'_>, path: &str) -> Result<Page, RequestError> {
         .collect::<Result<Vec<_>, _>>()
         .map_err(RequestError::Input)?;
     if !path.starts_with("/drugs/") || segments.is_empty() {
-        return Err(bad_reply());
+        return Err(malformed());
     }
     let endpoint = PAGE.clone().with_segments(&segments);
     let body = leg
@@ -172,17 +206,11 @@ fn read_page(leg: &Leg<'_>, path: &str) -> Result<Page, RequestError> {
         )?
         .value
         .0;
-    page(&String::from_utf8_lossy(&body)).ok_or_else(bad_reply)
+    page(&String::from_utf8_lossy(&body)).ok_or_else(malformed)
 }
 
 /// A row from a page just read, before the index's facts are laid over it.
 fn with_page(listed: &Listed, page: Page) -> DrugSafetyCommunication {
-    let texts = |values: Vec<String>| {
-        values
-            .iter()
-            .filter_map(|v| Text::from_source(v).ok())
-            .collect()
-    };
     DrugSafetyCommunication {
         id: listed.id.clone(),
         title: listed.title.clone(),
@@ -190,8 +218,8 @@ fn with_page(listed: &Listed, page: Page) -> DrugSafetyCommunication {
         issued: page.issued,
         updated: page.updated,
         url: listed.url.clone(),
-        applications: texts(page.applications),
-        drugs: texts(page.drugs),
+        applications: page.applications.into(),
+        drugs: page.drugs.into(),
         page_read: true,
     }
 }
@@ -243,6 +271,6 @@ fn key(date: PartialDate) -> (u16, u8, u8) {
     )
 }
 
-fn bad_reply() -> RequestError {
+fn malformed() -> RequestError {
     biomcp_fetch::bad_reply(Source::FdaDsc, None)
 }

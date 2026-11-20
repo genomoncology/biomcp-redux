@@ -1,7 +1,7 @@
 //! Source facts shared by discovery, health and commands.
 use crate::decl::{Guidance, Probe, SourceDecl};
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &super::SPEC,
+    spec: &super::spec::SPEC,
     display: "FDA Drug Safety Communications",
     discovery_aliases: &["DSC"],
     registry_order: Some(65),

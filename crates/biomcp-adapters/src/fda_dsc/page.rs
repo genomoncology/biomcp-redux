@@ -1,5 +1,5 @@
 //! FDA's index table and one communication page, read only where FDA marks them.
-use super::html::{attribute, date, text};
+use super::html::{attribute, date, visible};
 use biodata::{PartialDate, Text};
 
 /// One row of FDA's index table.
@@ -22,8 +22,8 @@ pub(super) struct Listed {
 pub(super) struct Page {
     pub issued: Option<PartialDate>,
     pub updated: Option<PartialDate>,
-    pub applications: Vec<String>,
-    pub drugs: Vec<String>,
+    pub applications: Vec<Text>,
+    pub drugs: Vec<Text>,
     pub text: String,
 }
 
@@ -55,12 +55,12 @@ pub(super) fn index(body: &str) -> Option<Vec<Listed>> {
             continue;
         };
         let inner = anchor.get(tag.len()..).unwrap_or_default();
-        let title = text(
+        let title = visible(
             inner
                 .get(..inner.find("</a>").unwrap_or(inner.len()))
                 .unwrap_or_default(),
         );
-        let date_text = text(&format!("<td{when}"));
+        let date_text = visible(&format!("<td{when}"));
         let (Ok(id), Ok(title), Ok(url)) = (
             Text::from_source(id),
             Text::from_source(&title),
@@ -85,7 +85,7 @@ pub(super) fn page(body: &str) -> Option<Page> {
     let start = body.find(MAIN)? + MAIN.len();
     let main = body.get(start..)?;
     let main = main.get(..main.find(CURRENT).unwrap_or(main.len()))?;
-    let words = text(main);
+    let words = visible(main);
     let mut out = Page {
         issued: issued(&words),
         updated: updated(body),
@@ -107,16 +107,17 @@ pub(super) fn page(body: &str) -> Option<Page> {
             continue;
         }
         let inner = anchor.get(tag.len() + 1..).unwrap_or_default();
-        let name = text(
+        let name = visible(
             inner
                 .get(..inner.find("</a>").unwrap_or(0))
                 .unwrap_or_default(),
         );
-        if !out.applications.contains(&number) {
-            out.applications.push(number);
-        }
-        if !name.is_empty() && !out.drugs.contains(&name) {
-            out.drugs.push(name);
+        // An empty link text names no drug; the application number still counts.
+        for (value, list) in [(number, &mut out.applications), (name, &mut out.drugs)] {
+            match Text::from_source(&value) {
+                Ok(value) if !list.contains(&value) => list.push(value),
+                Ok(_) | Err(_) => continue,
+            }
         }
     }
     out.text = words;

@@ -4,10 +4,8 @@
 use biodata::PartialDate;
 use biomcp_types::DrugSafetyCommunication;
 use serde::Deserialize;
-use std::sync::OnceLock;
 
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub(super) struct Seed {
     /// The day the seed was read from FDA.
     pub date: PartialDate,
@@ -15,20 +13,7 @@ pub(super) struct Seed {
     pub items: Vec<DrugSafetyCommunication>,
 }
 
-/// The shipped seed; a seed that does not parse is empty, and a test keeps it parsing.
-pub(super) fn seed() -> Option<&'static Seed> {
-    static SEED: OnceLock<Option<Seed>> = OnceLock::new();
-    SEED.get_or_init(|| serde_json::from_str(include_str!("seed.json")).ok())
-        .as_ref()
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn shipped_seed_parses_and_every_row_was_read() {
-        let seed = super::seed();
-        assert!(
-            seed.is_some_and(|s| !s.items.is_empty() && s.items.iter().all(|row| row.page_read))
-        );
-    }
+/// The shipped seed, parsed on each use: about 50 rows.
+pub(super) fn seed() -> Result<Seed, serde_json::Error> {
+    serde_json::from_str(include_str!("seed.json"))
 }

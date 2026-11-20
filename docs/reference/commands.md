@@ -1416,7 +1416,7 @@ Usage: biomcp search drug [OPTIONS] [query]
 Arguments:
   [query]
           Drug name phrase.
-          FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
+          FDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
           Drugs@FDA searches brands and ingredients,
           exact names before word matches. openFDA labels search exact then word brand/generic names,
           then label text (including indications) when no names match; source matches need not be exact names.
@@ -1458,7 +1458,7 @@ Options:
 
       --exact-term[=<exact_term>]
           Search the typed name only.
-          openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+          openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
           the drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
 
           [default: false]
@@ -1564,7 +1564,7 @@ falls in the window; BioMCP reads every match and counts the kept ones. Value fo
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --approved-to 2023; only with --source drugsfda.
 - `--classification`: Source FDA classification; drug recalls only. Value form: string; example: --classification 'Class II'; only with --source fda-drug-recall.
 - `--exact-term`: Search the typed name only.
-openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
 the drug's other names by default; this searches only the name as typed. Other sources search the name as typed. Value form: boolean; example: --exact-term.
 - `--expand-drug-names`: Accepted for one release; changes nothing.
 Sources that widen drug names do so by default. Value form: boolean; example: --expand-drug-names.
@@ -1586,7 +1586,7 @@ Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified
 - `--prequalified-to`: WHO PQ end date, inclusive.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `query`: Drug name phrase.
-FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
+FDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
 Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.

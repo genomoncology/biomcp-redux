@@ -145,6 +145,10 @@ const REVIEWED_ABSENCES: &[(&str, &str)] = &[
         "crates/biomcp-adapters/src/fda_cdx/date.rs",
         "date: year , Some ( month ) , Some ( day ) ) . ok ( )",
     ),
+    (
+        "crates/biomcp-adapters/src/fda_dsc/html.rs",
+        "date: year , Some ( month ) , Some ( day ) ) . ok ( )",
+    ),
 ];
 fn initial_entry(entry: &Site) -> bool {
     let identity = format!("{}\n{}", entry.path, entry.site);
