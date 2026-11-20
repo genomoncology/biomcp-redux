@@ -1,75 +1,11 @@
-//! Find one section of a label's prescribing information in the text BioMCP's PDF reader
-//! gives, and the sentences in it that hold a searched text (1066).
-//!
-//! The reader runs headings into the text around them, so a heading is found inside a line: a
-//! top-level section number and its title in capitals, such as `5 WARNINGS AND PRECAUTIONS`, or
-//! its first subsection, such as `5.1 Myopathy`. A section ends at the next titled heading of
-//! another section, or at the first subsection or capitalized title of a later section, since
-//! the sections run in order and table rows can look like an earlier section's subsection. The
-//! last heading with at least 200 characters under it is the section itself, which passes over
-//! the highlights and the contents. The boxed warning is the last
-//! `WARNING:` block before section 1. Labels in the format used before 2006 have plain headings
-//! (WARNINGS, PRECAUTIONS, ADVERSE REACTIONS) and no boxed-warning heading. FDA's stamp, page
-//! numbers and reference IDs are taken out, and words hyphenated across lines are joined.
-//! These rules were measured on 81 archived labels in the design note; new layouts may defeat
-//! them, and a section they cannot bound is reported as unread, never as absent.
-use biomcp_types::LabelHistorySection;
+//! Clean the text BioMCP's PDF reader gives for a label, and find the sentences in a section
+//! that hold a searched text (1066). FDA's stamp, page numbers and reference IDs are taken out,
+//! and words hyphenated across lines are joined. Sections are found in [`super::label_sections`].
 
-/// Top-level prescribing-information sections by number, their titles in capitals.
-const TITLES: [(u8, &[&str]); 17] = [
-    (1, &["INDICATIONS AND USAGE", "INDICATIONS & USAGE"]),
-    (2, &["DOSAGE AND ADMINISTRATION"]),
-    (3, &["DOSAGE FORMS AND STRENGTHS"]),
-    (4, &["CONTRAINDICATIONS"]),
-    (5, &["WARNINGS AND PRECAUTIONS"]),
-    (6, &["ADVERSE REACTIONS"]),
-    (7, &["DRUG INTERACTIONS"]),
-    (8, &["USE IN SPECIFIC POPULATIONS"]),
-    (9, &["DRUG ABUSE AND DEPENDENCE"]),
-    (10, &["OVERDOSAGE"]),
-    (11, &["DESCRIPTION"]),
-    (12, &["CLINICAL PHARMACOLOGY"]),
-    (13, &["NONCLINICAL TOXICOLOGY"]),
-    (14, &["CLINICAL STUDIES"]),
-    (15, &["REFERENCES"]),
-    (16, &["HOW SUPPLIED"]),
-    (17, &["PATIENT COUNSELING"]),
-];
-/// Plain headings of the format used before 2006, as (key, title).
-const OLD: [(u8, &str); 11] = [
-    (1, "INDICATIONS"),
-    (4, "CONTRAINDICATIONS"),
-    (51, "WARNINGS"),
-    (52, "PRECAUTIONS"),
-    (6, "ADVERSE REACTIONS"),
-    (90, "DRUG ABUSE AND DEPENDENCE"),
-    (91, "OVERDOSAGE"),
-    (92, "DOSAGE AND ADMINISTRATION"),
-    (93, "HOW SUPPLIED"),
-    (94, "CLINICAL PHARMACOLOGY"),
-    (95, "DESCRIPTION"),
-];
-/// Shortest text under a heading that counts as the section rather than a mention of it.
-const LEAST: usize = 200;
 const STAMP: &str = "This label may not be the latest approved by FDA. For current labeling information, \
     please visit https://www.fda.gov/drugsatfda";
 
-/// What looking for a section found.
-#[derive(Debug, PartialEq, Eq)]
-pub(super) enum Found {
-    /// The section's text, whitespace collapsed.
-    Section(String),
-    /// The label has no such section.
-    Absent,
-    /// A heading names the section but its end was not found.
-    Unbounded,
-    /// The document is not prescribing information.
-    NotPrescribing,
-    /// A label in the older format, which has no heading for this section.
-    Older,
-}
-
-/// The label's text cleaned and with whitespace collapsed to single spaces.
+/// The label's text cleaned, each line's whitespace collapsed and empty lines dropped.
 pub(super) fn clean(text: &str) -> String {
     let mut joined = String::with_capacity(text.len());
     let mut chars = text.chars().peekable();
@@ -90,7 +26,17 @@ pub(super) fn clean(text: &str) -> String {
             c => joined.push(c),
         }
     }
-    let flat = joined.split_whitespace().collect::<Vec<_>>().join(" ");
+    joined
+        .lines()
+        .map(|line| line.split_whitespace().collect::<Vec<_>>().join(" "))
+        .filter(|line| !line.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+/// Cleaned text on one line, without FDA's stamp, reference IDs or page numbers.
+pub(super) fn flatten(cleaned: &str) -> String {
+    let flat = cleaned.split_whitespace().collect::<Vec<_>>().join(" ");
     let flat = flat.replace(&STAMP.split_whitespace().collect::<Vec<_>>().join(" "), " ");
     let flat = strip_numbered(&flat, "Reference ID:", None);
     let flat = strip_numbered(&flat, "Page ", Some(" of "));
@@ -131,211 +77,6 @@ fn strip_numbered(text: &str, prefix: &str, middle: Option<&str>) -> String {
 
 fn word(c: char) -> bool {
     c.is_alphanumeric() || c == '_'
-}
-
-/// A heading in `flat`: start, end, section number, and whether it gives the title (`6 ADVERSE
-/// REACTIONS`) rather than the first subsection (`6.1 Clinical Studies`).
-type Mark = (usize, usize, u8, bool);
-
-/// Every top-level heading in `flat`, in order.
-fn headings(flat: &str) -> Vec<Mark> {
-    let mut found = Vec::new();
-    for (at, c) in flat.char_indices() {
-        let before = flat.get(..at).and_then(|b| b.chars().last());
-        if !c.is_ascii_digit() || before.is_some_and(|b| word(b) || matches!(b, '.' | '(' | '[')) {
-            continue;
-        }
-        let rest = flat.get(at..).unwrap_or_default();
-        let digits = rest.len() - rest.trim_start_matches(|c: char| c.is_ascii_digit()).len();
-        let Some((number, titles)) = rest
-            .get(..digits)
-            .and_then(|n| TITLES.iter().find(|(k, _)| k.to_string() == n))
-        else {
-            continue;
-        };
-        let after = rest.get(digits..).unwrap_or_default();
-        let titled = titles.iter().find_map(|title| {
-            let tail = after.strip_prefix(' ')?.strip_prefix(title)?;
-            (!tail.starts_with(word)).then_some(digits + 1 + title.len())
-        });
-        // The first subsection, such as `5.1 Myopathy`, also opens the section.
-        let first = after.strip_prefix(".1 ").and_then(|tail| {
-            let mut chars = tail.chars();
-            (chars.next()?.is_ascii_uppercase() && chars.next()?.is_ascii_lowercase())
-                .then_some(digits + 3)
-        });
-        if let Some(length) = titled.or(first) {
-            found.push((at, at + length, *number, titled.is_some()));
-        }
-    }
-    found
-}
-
-/// Where section `number`, opened at `end`, stops: at the next titled heading of another section,
-/// or at the first subsection or capitalized title of a later one. A table row such as
-/// `2.8 3.1 Constipation` reads as an earlier section's first subsection, and a heading whose
-/// number the PDF draws apart reads as its title alone, so neither of those ends a section.
-fn stop(flat: &str, marks: &[Mark], number: u8, end: usize) -> usize {
-    let marked = marks
-        .iter()
-        .find(|m| m.0 >= end && m.2 != number && (m.3 || m.2 > number))
-        .map_or(flat.len(), |m| m.0);
-    let rest = flat.get(end..marked).unwrap_or_default();
-    TITLES
-        .iter()
-        .filter(|(n, _)| *n > number)
-        .flat_map(|(_, titles)| titles.iter())
-        .filter_map(|title| bare(rest, title))
-        .min()
-        .map_or(marked, |at| end + at)
-}
-
-/// The first place `title` stands alone in `text`, not inside a longer word.
-fn bare(text: &str, title: &str) -> Option<usize> {
-    text.match_indices(title).map(|(at, _)| at).find(|at| {
-        let before = text.get(..*at).and_then(|b| b.chars().last());
-        let after = text.get(at + title.len()..).and_then(|a| a.chars().next());
-        before.is_none_or(|b| !b.is_alphabetic() && b != '-')
-            && after.is_none_or(|a| !a.is_alphabetic() && a != '-')
-    })
-}
-
-/// The text of section `number`, or why there is none.
-fn numbered(flat: &str, marks: &[Mark], number: u8) -> Found {
-    let mut good: Vec<(usize, usize)> = Vec::new();
-    let mut any = false;
-    for (start, end, _, _) in marks.iter().filter(|m| m.2 == number) {
-        any = true;
-        let stop = stop(flat, marks, number, *end);
-        if stop - start >= LEAST {
-            good.push((*start, stop));
-        }
-    }
-    let Some(&(_, stop)) = good.last() else {
-        return if any { Found::Unbounded } else { Found::Absent };
-    };
-    let start = good
-        .iter()
-        .filter(|g| g.1 == stop)
-        .map(|g| g.0)
-        .min()
-        .unwrap_or(stop);
-    Found::Section(flat.get(start..stop).unwrap_or_default().to_owned())
-}
-
-/// The boxed warning: the last `WARNING:` block before section 1's body.
-fn boxed(flat: &str, marks: &[Mark]) -> Found {
-    let has_box = flat.contains("WARNING: ") || flat.contains("WARNINGS: ");
-    let Found::Section(indications) = numbered(flat, marks, 1) else {
-        return if has_box {
-            Found::Unbounded
-        } else {
-            Found::Absent
-        };
-    };
-    let before = flat
-        .get(..flat.find(&indications).unwrap_or(0))
-        .unwrap_or_default();
-    let last = [before.rfind("WARNING: "), before.rfind("WARNINGS: ")]
-        .into_iter()
-        .flatten()
-        .max();
-    let Some(last) = last else {
-        return Found::Absent;
-    };
-    let block = before.get(last..).unwrap_or_default();
-    let contents = block.contains("FULL PRESCRIBING INFORMATION: CONTENTS")
-        || block.contains("FULL PRESCRIBING INFORMATION:CONTENTS")
-        || subsection_two(block);
-    if contents || block.len() < 100 {
-        return Found::Unbounded;
-    }
-    Found::Section(block.trim_end().to_owned())
-}
-
-/// Whether `block` holds a section-2 subsection number, which marks the contents.
-fn subsection_two(block: &str) -> bool {
-    block.match_indices("2.").any(|(at, _)| {
-        let before = block.get(..at).and_then(|b| b.chars().last());
-        let after = block.get(at + 2..).unwrap_or_default();
-        before.is_none_or(|b| !word(b))
-            && after.chars().next().is_some_and(|c| c.is_ascii_digit())
-            && after.chars().nth(1) == Some(' ')
-    })
-}
-
-/// Every plain older-format heading, as (start, end, key).
-fn old_headings(flat: &str) -> Vec<(usize, usize, u8)> {
-    let mut found = Vec::new();
-    for (key, title) in OLD {
-        for (at, _) in flat.match_indices(title) {
-            let before = flat.get(..at).and_then(|b| b.chars().last());
-            let after = flat.get(at + title.len()..).and_then(|a| a.chars().next());
-            if before.is_none_or(|b| !b.is_alphabetic())
-                && after.is_none_or(|a| !a.is_alphabetic() && a != ':')
-            {
-                found.push((at, at + title.len(), key));
-            }
-        }
-    }
-    found.sort_unstable();
-    found
-}
-
-/// An older-format section: the last heading with enough text before the next heading.
-fn old_section(flat: &str, marks: &[(usize, usize, u8)], key: u8) -> Option<String> {
-    let mut best = None;
-    for (start, end, _) in marks.iter().filter(|m| m.2 == key) {
-        let stop = marks
-            .iter()
-            .find(|m| m.2 != key && m.0 >= *end)
-            .map_or(flat.len(), |m| m.0);
-        if stop - start >= LEAST {
-            best = Some((*start, stop));
-        }
-    }
-    best.and_then(|(start, stop)| flat.get(start..stop))
-        .map(str::to_owned)
-}
-
-/// Find `section` in a label's cleaned text.
-pub(super) fn find(flat: &str, section: LabelHistorySection) -> Found {
-    use LabelHistorySection as S;
-    let marks = headings(flat);
-    let structured =
-        flat.contains("FULL PRESCRIBING INFORMATION") || marks.iter().any(|m| m.2 == 1 || m.2 == 5);
-    if structured {
-        let number = match section {
-            S::BoxedWarning => return boxed(flat, &marks),
-            S::IndicationsAndUsage => 1,
-            S::Contraindications => 4,
-            S::WarningsAndCautions => 5,
-            S::AdverseReactions => 6,
-            S::DrugInteractions => 7,
-            S::UseInSpecificPopulations => 8,
-        };
-        return numbered(flat, &marks, number);
-    }
-    if !flat.contains("INDICATIONS") && !flat.contains("CONTRAINDICATIONS") {
-        return Found::NotPrescribing;
-    }
-    let old = old_headings(flat);
-    let keys: &[u8] = match section {
-        S::IndicationsAndUsage => &[1],
-        S::Contraindications => &[4],
-        S::WarningsAndCautions => &[51, 52],
-        S::AdverseReactions => &[6],
-        _ => return Found::Older,
-    };
-    let parts: Vec<String> = keys
-        .iter()
-        .filter_map(|key| old_section(flat, &old, *key))
-        .collect();
-    if parts.is_empty() {
-        Found::Absent
-    } else {
-        Found::Section(parts.join(" "))
-    }
 }
 
 /// Fold text for matching: ASCII letters lower-cased, typographic apostrophes and quotes plain.

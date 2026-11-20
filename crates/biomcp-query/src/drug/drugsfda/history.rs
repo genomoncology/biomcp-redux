@@ -1,38 +1,43 @@
 //! The label version in which text first appears in one section, read from the label PDFs
 //! Drugs@FDA archives for each supplement (1066). It reports what the labels say and when, never
-//! why a label changed.
+//! why a label changed, and it says it could not tell rather than state a date or an absence it
+//! has not established.
 //!
 //! Versions are the application's distinct label PDFs, oldest first. The search reads the
-//! oldest and newest usable versions, then halves the versions between them. Halving assumes
-//! text once added stays in every later version; the reply says so whenever the answer rests on
-//! it. When the oldest version has the text and the newest does not, the assumption fails, so
-//! the versions are read in order instead. Every read goes through the capped PDF reader, and
-//! one call reads at most [`MOST_READS`] PDFs.
-use super::label_text::{self, Found};
+//! oldest and newest usable versions. When the oldest lacks the text and the newest has it, it
+//! halves the versions between them, which assumes text once added stays in every later version;
+//! the reply says so. When both lack it, it reads versions spread evenly between them with the
+//! reads left, and halves toward the first one that holds it. When the oldest has it and the
+//! newest does not, it reads in order. Every read goes through the capped PDF reader, one call
+//! reads at most [`MOST_READS`] PDFs, and a call that stops there says so and offers the step
+//! that continues.
+use super::history_reply::{answer, method, named};
+use super::label_sections::{self, Found};
+use super::label_text;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda as source, pdf};
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     DrugGet, DrugLabelHistory, LabelHistorySection, LabelVersion, LabelVersionMatch,
-    LabelVersionState as State, PdfTextState, ReplyBody, Source,
+    LabelVersionState as State, PdfTextState, ReplyBody, Request, Source, StepKind,
 };
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Most label PDFs one call reads: halving reads about log2(n) + 2 of n versions, 9 for
 /// Keytruda's 102, and reading in order stops here.
 pub(crate) const MOST_READS: usize = 10;
 
 /// One label version: a distinct label PDF and the supplement it came with.
-struct Version {
-    approved: Option<biodata::PartialDate>,
-    submission: biodata::Text,
+pub(super) struct Version {
+    pub(super) approved: Option<biodata::PartialDate>,
+    pub(super) submission: biodata::Text,
     label: biodata::Text,
     letter: Option<biodata::Text>,
 }
 
 /// What reading one version found.
-struct Opened {
-    state: State,
+pub(super) struct Opened {
+    pub(super) state: State,
     private_use: bool,
     heading: Option<String>,
     sentences: Vec<String>,
@@ -40,16 +45,24 @@ struct Opened {
 
 impl Opened {
     /// Read well enough to say whether the section holds the text.
-    fn usable(&self) -> bool {
+    pub(super) fn usable(&self) -> bool {
         matches!(
             self.state,
             State::Match | State::NoMatch | State::SectionAbsent
         )
     }
     /// Unread, so it may hide the change: not usable and not a document that is not a label.
-    fn gap(&self) -> bool {
+    pub(super) fn gap(&self) -> bool {
         !self.usable() && self.state != State::NotPrescribingInformation
     }
+}
+
+/// One document under the links Drugs@FDA gives it: without its scheme or a `#page=` part.
+fn document(url: &str) -> &str {
+    let url = url.split('#').next().unwrap_or(url);
+    url.strip_prefix("https://")
+        .or_else(|| url.strip_prefix("http://"))
+        .unwrap_or(url)
 }
 
 /// The application's label versions, oldest first, one per distinct PDF.
@@ -80,8 +93,8 @@ fn versions(row: &source::Application) -> Result<Vec<Version>, RequestError> {
         (n.len(), n.to_owned())
     };
     found.sort_by_cached_key(|v| (v.approved.map(|d| d.to_string()), number(v)));
-    let mut seen = std::collections::BTreeSet::new();
-    found.retain(|v| seen.insert(v.label.as_str().to_owned()));
+    let mut seen = BTreeSet::new();
+    found.retain(|v| seen.insert(document(v.label.as_str()).to_owned()));
     Ok(found)
 }
 
@@ -95,12 +108,14 @@ fn of<'a>(
         .filter_map(|d| d.url.clone())
 }
 
-struct Search<'a, 'b> {
+pub(super) struct Search<'a, 'b> {
     leg: &'a Leg<'b>,
-    versions: &'a [Version],
+    pub(super) versions: &'a [Version],
     finds: &'a [biodata::Text],
     section: LabelHistorySection,
-    opened: BTreeMap<usize, Opened>,
+    pub(super) opened: BTreeMap<usize, Opened>,
+    /// The read bound or the time limit stopped the search before it finished.
+    pub(super) stopped: bool,
 }
 
 impl Search<'_, '_> {
@@ -116,6 +131,7 @@ impl Search<'_, '_> {
         if self.opened.len() >= MOST_READS
             || self.leg.remaining() < std::time::Duration::from_secs(1)
         {
+            self.stopped = true;
             return false;
         }
         let opened = match pdf::label(self.leg, &source::DOCUMENTS, &version.label) {
@@ -136,8 +152,9 @@ impl Search<'_, '_> {
             PdfTextState::Damaged => return state(State::Damaged),
             PdfTextState::Refused => return state(State::Refused),
         }
-        let flat = label_text::clean(body);
-        let section = match label_text::find(&flat, self.section) {
+        let cleaned = label_text::clean(body);
+        let flat = label_text::flatten(&cleaned);
+        let section = match label_sections::find(&cleaned, &flat, self.section) {
             Found::Section(section) => section,
             Found::Absent if partial => return state(State::Partial),
             Found::Absent => return state(State::SectionAbsent),
@@ -167,11 +184,11 @@ impl Search<'_, '_> {
         }
     }
 
-    fn get(&self, at: usize) -> Option<&Opened> {
+    pub(super) fn get(&self, at: usize) -> Option<&Opened> {
         self.opened.get(&at)
     }
 
-    /// The first usable version from `from` toward `to`, opening as it goes.
+    /// The first usable version in `order`, opening as it goes.
     fn usable(&mut self, order: impl Iterator<Item = usize>) -> Option<usize> {
         for at in order {
             if !self.open(at) {
@@ -184,7 +201,7 @@ impl Search<'_, '_> {
         None
     }
 
-    fn matches(&self, at: usize) -> bool {
+    pub(super) fn matches(&self, at: usize) -> bool {
         self.get(at).is_some_and(|o| o.state == State::Match)
     }
 
@@ -209,16 +226,44 @@ impl Search<'_, '_> {
         (low, high)
     }
 
-    /// Read in order, within the bound; the first match.
-    fn in_order(&mut self) -> Option<usize> {
-        for at in 0..self.versions.len() {
+    /// Read in order from `from`, within the bound; the first match.
+    fn in_order(&mut self, from: usize) -> Option<usize> {
+        for at in from..self.versions.len() {
             if !self.open(at) {
                 break;
             }
         }
         self.opened
-            .iter()
+            .range(from..)
             .find(|(_, o)| o.state == State::Match)
+            .map(|(at, _)| *at)
+    }
+
+    /// Read versions spread evenly between `low` and `high` with the reads left; the earliest
+    /// that holds the text.
+    fn spread(&mut self, low: usize, high: usize) -> Option<usize> {
+        let left = MOST_READS.saturating_sub(self.opened.len());
+        let picks: BTreeSet<usize> = (1..=left)
+            .map(|step| low + step * (high - low) / (left + 1))
+            .filter(|at| low < *at && *at < high && self.get(*at).is_none())
+            .collect();
+        for at in picks {
+            if !self.open(at) {
+                break;
+            }
+        }
+        self.opened
+            .range(low + 1..high)
+            .find(|(_, o)| o.state == State::Match)
+            .map(|(at, _)| *at)
+    }
+
+    /// The latest usable version, the newest the search could read.
+    pub(super) fn newest(&self) -> Option<usize> {
+        self.opened
+            .iter()
+            .rev()
+            .find(|(_, o)| o.usable())
             .map(|(at, _)| *at)
     }
 }
@@ -233,13 +278,39 @@ fn state(state: State) -> Opened {
 }
 
 /// How the search went, for the reply's method.
-enum Path {
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum Path {
     Halved,
     Present,
+    /// Both ends lack the text and no version spread between them holds it.
     Absent,
+    /// Both ends lack the text and a version spread between them holds it.
+    Returned,
     Removed,
-    Every,
+    Every(usize),
     Unreadable,
+}
+
+/// Read the oldest and newest versions, then halve, spread or read in order as they decide.
+fn search(search: &mut Search<'_, '_>) -> (Path, Option<usize>) {
+    let count = search.versions.len();
+    let Some(low) = search.usable(0..count) else {
+        return (Path::Unreadable, None);
+    };
+    let high = search.usable((low + 1..count).rev());
+    if search.matches(low) {
+        if high.is_some_and(|high| !search.matches(high)) {
+            return (Path::Removed, search.in_order(0));
+        }
+        return (Path::Present, Some(low));
+    }
+    match high {
+        Some(high) if search.matches(high) => (Path::Halved, Some(search.halve(low, high).1)),
+        _ => match search.spread(low, high.unwrap_or(low)) {
+            Some(held) => (Path::Returned, Some(search.halve(low, held).1)),
+            None => (Path::Absent, None),
+        },
+    }
 }
 
 /// Answer one label-history get for the application in `row`.
@@ -254,49 +325,65 @@ pub(super) fn select(
     let section = section.unwrap_or(LabelHistorySection::BoxedWarning);
     let versions = versions(row)?;
     let leg = cx.fetch.leg(&source::DOCUMENTS, deadline).fresh(cx.fresh);
-    let mut search = Search {
+    let mut found = Search {
         leg: &leg,
         versions: &versions,
         finds,
         section,
         opened: BTreeMap::new(),
+        stopped: false,
     };
-    let last = versions.len().checked_sub(1);
     let (path, first) = if every {
-        let first = search.in_order();
-        (Path::Every, first)
+        let from = query.section_offset().unwrap_or(0) as usize;
+        (Path::Every(from), found.in_order(from))
     } else {
-        match search.usable(0..versions.len()) {
-            None => (Path::Unreadable, None),
-            Some(low) if search.matches(low) => {
-                let high = last.and_then(|last| search.usable((low + 1..=last).rev()));
-                if high.is_some_and(|high| !search.matches(high)) {
-                    (Path::Removed, search.in_order())
-                } else {
-                    (Path::Present, Some(low))
-                }
-            }
-            Some(low) => match last.and_then(|last| search.usable((low + 1..=last).rev())) {
-                Some(high) if search.matches(high) => {
-                    (Path::Halved, Some(search.halve(low, high).1))
-                }
-                _ => (Path::Absent, None),
-            },
-        }
+        search(&mut found)
     };
-    let body = reply(&search, row, section, path, first)?;
-    let unread = search.opened.values().any(Opened::gap) || body.not_opened > 0;
-    drop(search);
+    let body = reply(&found, row, section, path, first)?;
+    // Versions left unread leave the answer open: the call stopped, or no version read has the
+    // text while others were not read, or a version before the first match was not read.
+    let open = found.stopped || (first.is_none() && body.not_opened > 0) || body.on_or_before;
+    let unread = open || found.opened.values().any(Opened::gap);
+    let resume = resume(&found, path, first);
+    drop(found);
     merge(leg, out);
-    if body.not_opened > 0 {
+    if open && body.not_opened > 0 {
         status::missing(out, text("/result/not_opened")?, Source::Drugsfda, None);
+    }
+    if let Some(from) = resume.filter(|from| open && *from < versions.len()) {
+        let request = query.every_version_from(from as u32);
+        if let Some(request) = crate::next::checked(request, Source::Drugsfda, &mut out.problems) {
+            out.next.push(crate::next::Step::run(
+                StepKind::Page,
+                &[Source::Drugsfda],
+                Request::GetDrug(request),
+                cx.fresh,
+            ));
+        }
     }
     status::item(out, true, false, unread);
     out.body = body.with_query(query.clone());
     Ok(())
 }
 
-fn version(search: &Search<'_, '_>, at: usize, link: bool) -> Option<LabelVersion> {
+/// The version an `--every-version` call continues from: after the last version this call read
+/// in order, or after the last version read before an unread stretch.
+fn resume(search: &Search<'_, '_>, path: Path, first: Option<usize>) -> Option<usize> {
+    let last = search.opened.keys().next_back().map(|at| at + 1);
+    match path {
+        Path::Every(_) => last,
+        _ => Some(first.map_or(0, |first| {
+            search
+                .opened
+                .range(..first)
+                .rev()
+                .find(|(_, o)| o.usable())
+                .map_or(0, |(at, _)| at + 1)
+        })),
+    }
+}
+
+pub(super) fn version(search: &Search<'_, '_>, at: usize, link: bool) -> Option<LabelVersion> {
     let v = search.versions.get(at)?;
     let state = search.get(at)?.state;
     Some(LabelVersion {
@@ -306,13 +393,6 @@ fn version(search: &Search<'_, '_>, at: usize, link: bool) -> Option<LabelVersio
         label: (link || !search.get(at)?.usable() && state != State::NotPrescribingInformation)
             .then(|| v.label.clone()),
     })
-}
-
-fn named(v: &LabelVersion) -> String {
-    match v.approved {
-        Some(date) => format!("{}, approved {date}", v.submission.as_str()),
-        None => v.submission.as_str().to_owned(),
-    }
 }
 
 fn reply(
@@ -334,7 +414,7 @@ fn reply(
     let on_or_before = span
         .clone()
         .any(|at| search.get(at).is_none_or(Opened::gap));
-    let not_opened = span.filter(|at| search.get(*at).is_none()).count();
+    let not_opened = search.versions.len() - search.opened.len();
     let matched = match first {
         Some(at) => matched(search, at)?,
         None => None,
@@ -342,21 +422,22 @@ fn reply(
     let before_version = before.and_then(|at| version(search, at, true));
     let answer = answer(
         section,
-        matched.as_ref(),
-        before_version.as_ref(),
+        (matched.as_ref(), before_version.as_ref()),
         on_or_before,
         search,
+        first,
     );
     Ok(DrugLabelHistory {
         identity: row.header(),
         section,
         answer: text(&answer)?,
-        method: text(&method(&path, search))?,
+        method: text(&method(path, search))?,
         versions: search.versions.len() as u32,
         first: matched,
         before: before_version,
         on_or_before,
         not_opened: not_opened as u32,
+        stopped: search.stopped,
         read: search
             .opened
             .keys()
@@ -394,72 +475,6 @@ fn text(value: &str) -> Result<biodata::Text, RequestError> {
         .map_err(|_| biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)))
 }
 
-fn answer(
-    section: LabelHistorySection,
-    first: Option<&LabelVersionMatch>,
-    before: Option<&LabelVersion>,
-    on_or_before: bool,
-    search: &Search<'_, '_>,
-) -> String {
-    let Some(first) = first else {
-        let read = search.opened.values().filter(|o| o.usable()).count();
-        return if read == 0 {
-            format!("No label version could be read for its {section} section.")
-        } else {
-            format!("None of the {read} label versions read has the text in its {section} section.")
-        };
-    };
-    let found = format!(
-        "First found in the {section} section of {}",
-        named(&first.version)
-    );
-    match (before, on_or_before) {
-        (_, true) => format!(
-            "{found}; a version before it was not read, so the text appeared on or before {}.",
-            first
-                .version
-                .approved
-                .map_or("then".into(), |d| d.to_string())
-        ),
-        (Some(before), false) => format!(
-            "{found}; {}, the version before it, lacks it.",
-            named(before)
-        ),
-        (None, false) => format!("{found}, the first label version Drugs@FDA lists."),
-    }
-}
-
-fn method(path: &Path, search: &Search<'_, '_>) -> String {
-    let n = search.versions.len();
-    let read = search.opened.len();
-    let assumption = "This assumes text, once added to the section, stays in every later version";
-    match path {
-        Path::Halved => format!(
-            "Read the oldest and newest of {n} label versions, then halved between them: {read} \
-             PDFs read, at most {MOST_READS} per call. {assumption}; the oldest version read lacked \
-             it and the newest had it, as the assumption expects."
-        ),
-        Path::Present => format!(
-            "Read the oldest and newest of {n} label versions: {read} PDFs read. The oldest version \
-             read already has the text, and so does the newest."
-        ),
-        Path::Absent => format!(
-            "Read the oldest and newest of {n} label versions: {read} PDFs read; the newest lacks the \
-             text. {assumption}, so the versions between were not read."
-        ),
-        Path::Removed => format!(
-            "The oldest version read has the text and the newest does not, so it was removed at some \
-             point and halving would not hold; read the versions in order instead: {read} of {n} read, \
-             at most {MOST_READS} per call."
-        ),
-        Path::Every => format!(
-            "Read the versions in order, as --every-version asks: {read} of {n} read, at most \
-             {MOST_READS} per call."
-        ),
-        Path::Unreadable => format!("Tried {read} of {n} label versions; none could be read."),
-    }
-}
-
 /// Fold the document reads' report into the Drugs@FDA source row.
 fn merge(leg: Leg<'_>, out: &mut Outcome) {
     let report = status::source(Source::Drugsfda, leg.finish(), None);
@@ -475,4 +490,9 @@ fn merge(leg: Leg<'_>, out: &mut Outcome) {
 /// An empty label-history reply for a get that found no application.
 pub(super) fn empty(query: &DrugGet) -> Outcome {
     super::empty(DrugLabelHistory::into_reply(query.clone(), None))
+}
+
+/// A version's submission and date, for the reply's sentences.
+pub(super) fn label(search: &Search<'_, '_>, at: usize) -> Option<String> {
+    version(search, at, false).map(|v| named(&v))
 }

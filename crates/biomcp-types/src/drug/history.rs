@@ -32,14 +32,15 @@ biodata::wire_enum! {
         Match => "match",
         /// The section was read and holds none of the searched texts.
         NoMatch => "no-match",
-        /// The label was read and has no such section.
+        /// The label's contents list was read and has no such section.
         SectionAbsent => "section-absent",
-        /// The document was read and is not prescribing information, such as Instructions for Use
-        /// alone; it is not a label version and is passed over.
+        /// The document names itself as another kind, such as Instructions for Use, and has no
+        /// prescribing information; it is not a label version and is passed over.
         NotPrescribingInformation => "not-prescribing-information",
-        /// Unread: a heading names the section but its end was not found.
+        /// Unread: the section's bounds could not be found from the label's contents list.
         SectionNotBounded => "section-not-bounded",
-        /// Unread: a label in the format used before 2006, which has no such heading.
+        /// Unread: a label in the format used before 2006 whose heading for the section is not a
+        /// whole line, or which has no such heading.
         OlderFormat => "older-format",
         /// Unread: the PDF has no embedded text, such as a scan.
         NoText => "no-text",
@@ -74,7 +75,7 @@ impl LabelVersionState {
 /// Whether a get's label-history options fit together: the section alone, from Drugs@FDA and
 /// unpaged, with at least one text to find and one of its section names; `--every-version` only
 /// with it.
-pub(super) fn valid(
+fn valid(
     sections: &[super::DrugSection],
     drugsfda: bool,
     (find, every, section): (&[Text], bool, Option<&Text>),
@@ -83,6 +84,31 @@ pub(super) fn valid(
         return find.is_empty() && !every;
     }
     sections.len() == 1 && drugsfda && !find.is_empty() && self::section(section).is_some()
+}
+
+/// Refuse label-history options that do not fit together. `--every-version` continues from
+/// `--section-offset`; label history takes no other paging.
+pub(super) fn checked(
+    sections: &[super::DrugSection],
+    drugsfda: bool,
+    (limit, offset): (Option<u32>, Option<u32>),
+    options: (&[Text], bool, Option<&Text>),
+) -> Result<(), crate::QueryInvalid> {
+    let paged = limit.is_some() || offset.is_some() && !options.1;
+    if !valid(sections, drugsfda && !paged, options) {
+        return Err(crate::QueryInvalid::new(&[
+            "section",
+            "find",
+            "label_section",
+        ]));
+    }
+    // `--label-section` names an openFDA label field, or the section a label history reads.
+    let named = sections.contains(&super::DrugSection::Label)
+        || sections.contains(&super::DrugSection::LabelHistory);
+    if options.2.is_some() && !named {
+        return Err(crate::QueryInvalid::new(&["label_section", "section"]));
+    }
+    Ok(())
 }
 
 /// The label-history section a `--label-section` value names.
@@ -114,10 +140,14 @@ pub struct DrugLabelHistory {
     /// or before `first`'s date rather than on it.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub on_or_before: bool,
-    /// Versions between `before` and `first` that were never opened, because the call's read
-    /// bound or time limit ran out.
+    /// Versions this call never opened. Halving passes over versions on its stated assumption;
+    /// otherwise an unopened version leaves the answer open, and the reply is partial.
     #[serde(default, skip_serializing_if = "is_zero")]
     pub not_opened: u32,
+    /// True when the call stopped at its read bound or time limit before the search finished;
+    /// the reply's next step continues with `--every-version` and `--section-offset`.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub stopped: bool,
     /// Every version opened, oldest first, with what reading it found.
     pub read: Box<[LabelVersion]>,
 }

@@ -78,25 +78,25 @@ struct GetFields {
     /// Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
     /// The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
     /// A section the label lacks, or a name openFDA does not use, lists the sections the label has.
-    /// Only with --source openfda-label. For drugsfda label-history, one of boxed_warning, indications_and_usage,
-    /// contraindications, warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
-    /// Only with section label-history.
+    /// For drugsfda label-history, one of boxed_warning, indications_and_usage, contraindications,
+    /// warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
+    /// Only with section label or label-history.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     label_section: Option<Text>,
-    #[doc = "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda."]
+    #[doc = "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda. Only with section approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
-    #[doc = "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
+    #[doc = "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_from: Option<biodata::PartialDate>,
-    #[doc = "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
+    #[doc = "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_to: Option<biodata::PartialDate>,
     #[doc = "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages"]
-    /// and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda.
+    /// and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
     #[doc = "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic."]
@@ -215,11 +215,17 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
             "section_offset",
         ]));
     }
-    validate_history(fields)?;
-    let history = fields.section.contains(&DrugSection::LabelHistory);
-    if fields.label_section.is_some() && !history && !fields.section.contains(&DrugSection::Label) {
-        return Err(QueryInvalid::new(&["label_section", "section"]));
-    }
+    let history = (
+        &*fields.find,
+        fields.every_version,
+        fields.label_section.as_ref(),
+    );
+    super::history::checked(
+        &fields.section,
+        fields.source == Some(DrugSource::Drugsfda),
+        (fields.section_limit, fields.section_offset),
+        history,
+    )?;
     if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
         return Err(QueryInvalid::new(&["product_number", "section"]));
     }
@@ -244,18 +250,6 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
         return Err(QueryInvalid::new(&["source", "section"]));
     }
     Ok(())
-}
-fn validate_history(fields: &GetFields) -> Result<(), QueryInvalid> {
-    let unpaged = fields.section_limit.or(fields.section_offset).is_none();
-    let drugsfda = fields.source == Some(DrugSource::Drugsfda) && unpaged;
-    let options = (
-        &*fields.find,
-        fields.every_version,
-        fields.label_section.as_ref(),
-    );
-    super::history::valid(&fields.section, drugsfda, options)
-        .then_some(())
-        .ok_or_else(|| QueryInvalid::new(&["section", "find", "label_section"]))
 }
 fn validate_window(fields: &GetFields, approvals: bool) -> Result<(), QueryInvalid> {
     let window = [
@@ -525,6 +519,12 @@ impl DrugGet {
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
         fields.section_offset = Some(offset);
+        self.with_fields(fields)
+    }
+    /// Label history read in order from version `offset`, continuing a call that stopped.
+    pub fn every_version_from(&self, offset: u32) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        (fields.every_version, fields.section_offset) = (true, Some(offset));
         self.with_fields(fields)
     }
     /// Exact selected native label heading.
