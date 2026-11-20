@@ -1,9 +1,10 @@
 //! Page sources that expose name candidates through their ordinary search.
-use super::{NativePage, Rank, lookup_deadline, native_names, plain, within};
+use super::native::{NativePage, native_names, plain};
+use crate::drug::resolve::{Rank, lookup_deadline, within};
 use crate::{Ctx, Outcome};
 use biomcp_types::{DrugGet, DrugHeader, DrugNameMatch, DrugSearch, ReplyData, StepKind};
 
-pub(in crate::drug) fn discover(
+pub(in crate::drug::resolve) fn discover(
     cx: &Ctx<'_>,
     search: &DrugSearch,
 ) -> (Outcome, Vec<(Rank, DrugHeader)>) {
@@ -65,7 +66,7 @@ pub(in crate::drug) fn discover(
     (out, candidates)
 }
 
-pub(in crate::drug) fn ema(
+pub(in crate::drug::resolve) fn ema(
     cx: &Ctx<'_>,
     get: &DrugGet,
     query: &DrugSearch,

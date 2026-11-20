@@ -1,5 +1,10 @@
 //! Cross-source aliases for an empty drug search and ChEMBL's native synonym fallback.
-use super::{hint, lookup_deadline, notice, recovery, usable, with_aliases, within};
+use super::{
+    alias_lookup::{usable, with_aliases},
+    name_evidence::recovery,
+    named_get::{hint, notice},
+};
+use crate::drug::resolve::{lookup_deadline, within};
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_types::{DrugNameSelector, DrugSearch, DrugSource, Request};

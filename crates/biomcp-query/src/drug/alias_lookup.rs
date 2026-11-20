@@ -1,5 +1,6 @@
 //! Read candidate names from other sources and try each unique, literal alias.
-use super::{lookup_deadline, name_evidence::Evidence, within};
+use super::name_evidence::Evidence;
+use crate::drug::resolve::{lookup_deadline, within};
 use crate::{Ctx, Outcome, status};
 use biodata::{DrugId, Text};
 use biomcp_types::{DrugCard, DrugGet, DrugSource, Reason, ReplyData, SourceState, SourceStatus};
