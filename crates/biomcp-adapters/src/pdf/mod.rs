@@ -12,6 +12,7 @@ pub mod publisher;
 mod scan;
 mod state;
 mod text;
+mod tounicode;
 mod words;
 mod xref;
 pub use child::{MAX_OUTPUT, serve};

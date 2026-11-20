@@ -1,0 +1,223 @@
+This label may not be the latest approved by FDA.
+For current labeling information, please visit https://www.fda.gov/drugsatfda
+
+1
+HIGHLIGHTS OF PRESCRIBING INFORMATION
+These highlights do not include all the information needed to
+use OLUMIANT safely and effectively. See full prescribing
+information for OLUMIANT.
+OLUMIANT (baricitinib) tablets, for oral use
+Initial U.S. Approval: 2018
+
+•
+•
+
+•
+
+WARNING: SERIOUS INFECTIONS, MALIGNANCY, AND
+THROMBOSIS
+See full prescribing information for complete boxed warning.
+• Serious infections leading to hospitalization or death,
+including tuberculosis and bacterial, invasive fungal, viral,
+and other opportunistic infections, have occurred in patients
+receiving OLUMIANT. If a serious infection develops, interrupt
+OLUMIANT until the infection is controlled. (5.1)
+• Prior to starting OLUMIANT, test for latent tuberculosis; if
+positive, start treatment for tuberculosis prior to starting
+OLUMIANT. Monitor all patients for active tuberculosis during
+treatment, even if initial tuberculosis test is negative. (5.1)
+• Lymphoma and other malignancies have been observed in
+patients treated with OLUMIANT. (5.2)
+• Thrombosis, including deep venous thrombosis, pulmonary
+embolism, and arterial thrombosis, some fatal, have occurred
+in patients treated with OLUMIANT. Patients with symptoms
+of thrombosis should be evaluated promptly. (5.3)
+--------------------------RECENT MAJOR CHANGES--------------------------
+
+OLUMIANT may be used as monotherapy or in combination
+with methotrexate or other DMARDs. (2.1)
+Cytopenias: Avoid initiation or interrupt OLUMIANT in patients
+with anemia (hemoglobin <8 g/dL), lymphopenia (ALC <500
+cells/mm3) and neutropenia (ANC <1000 cells/mm3). (2.2, 2.3,
+5.5)
+Moderate Renal Impairment: Reduce dose to 1 mg once daily.
+(2.4)
+
+---------------------DOSAGE FORMS AND STRENGTHS------------------Tablets: 2 mg, 1 mg (3)
+---------------------------CONTRAINDICATIONS-------------------------------None.
+-----------------------WARNINGS AND PRECAUTIONS---------------------•
+Gastrointestinal Perforations: Use with caution in patients at
+risk. (5.4)
+•
+Laboratory Assessment: Monitor for changes in lymphocytes,
+neutrophils, hemoglobin, liver enzymes, and lipids. (5.5)
+•
+Vaccinations: Avoid use with live vaccines. (5.6)
+•
+Hypersensitivity: Serious reactions have been reported. (5.7)
+-----------------------------ADVERSE REACTIONS-----------------------------Adverse reactions (≥1%) include: upper respiratory tract infections,
+nausea, herpes simplex, and herpes zoster. (6.1)
+To report SUSPECTED ADVERSE REACTIONS, contact Eli Lilly
+and Company at 1-800-LillyRx (1-800-545-5979) or FDA at 1-800FDA-1088 or www.fda.gov/medwatch.
+
+Dosage and Administration: Dose Modifications in
+Patients with Renal or Hepatic Impairment, Dose
+Modifications Due to Drug Interactions (2.4, 2.5)
+
+10/2019
+
+------------------------------DRUG INTERACTIONS-----------------------------
+
+Warnings and Precautions, Hypersensitivity (5.7)
+
+07/2020
+
+The recommended dose of OLUMIANT in patients taking strong
+Organic Anion Transporter 3 (OAT3) inhibitors (e.g., probenecid) is
+1 mg once daily. (2.5, 7.1)
+
+OLUMIANT® is a Janus kinase (JAK) inhibitor indicated for the
+treatment of adult patients with moderately to severely active
+rheumatoid arthritis who have had an inadequate response to one or
+more TNF antagonist therapies. (1.1)
+
+------------------------USE IN SPECIFIC POPULATIONS-------------------•
+Hepatic Impairment: OLUMIANT is not recommended in
+patients with severe hepatic impairment. (2.4, 8.6)
+•
+Renal Impairment: OLUMIANT is not recommended in patients
+with severe renal impairment. (2.4, 8.7)
+
+Limitation of Use: Not recommended for use in combination with
+other JAK inhibitors, biologic DMARDs, or with potent
+immunosuppressants such as azathioprine and cyclosporine. (1.1)
+
+See 17 for PATIENT COUNSELING INFORMATION and FDAapproved Medication Guide.
+
+---------------------------INDICATIONS AND USAGE--------------------------
+
+----------------------DOSAGE AND ADMINISTRATION---------------------•
+The recommended dose of OLUMIANT is 2 mg once daily. (2.1)
+
+Revised: 07/2020
+
+FULL PRESCRIBING INFORMATION: CONTENTS*
+WARNING: SERIOUS INFECTIONS, MALIGNANCY, AND
+THROMBOSIS
+1
+
+INDICATIONS AND USAGE
+1.1
+Rheumatoid Arthritis
+
+2
+
+DOSAGE AND ADMINISTRATION
+2.1
+Dosage in Rheumatoid Arthritis
+2.2
+General Considerations for Administration
+2.3
+Dose Modifications Due to Serious Infections and
+Cytopenias
+2.4
+Dose Modifications in Patients with Renal or Hepatic
+Impairment
+2.5
+Dose Modifications Due to Drug Interactions
+
+3
+
+DOSAGE FORMS AND STRENGTHS
+
+4
+
+CONTRAINDICATIONS
+
+5
+
+WARNINGS AND PRECAUTIONS
+5.1
+Serious Infections
+5.2
+Malignancy and Lymphoproliferative Disorders
+5.3
+Thrombosis
+5.4
+Gastrointestinal Perforations
+5.5
+Laboratory Abnormalities
+5.6
+Vaccinations
+5.7
+Hypersensitivity
+
+6
+
+ADVERSE REACTIONS
+6.1
+Clinical Trials Experience
+6.2
+Postmarketing Experience
+
+Reference ID: 4637707
+
+7
+
+DRUG INTERACTIONS
+7.1
+Strong OAT3 Inhibitors
+7.2
+Other JAK Inhibitors or Biologic DMARDs
+
+8
+
+USE IN SPECIFIC POPULATIONS
+8.1
+Pregnancy
+8.2
+Lactation
+8.4
+Pediatric Use
+8.5
+Geriatric Use
+8.6
+Hepatic Impairment
+8.7
+Renal Impairment
+
+10
+
+OVERDOSAGE
+
+11
+
+DESCRIPTION
+
+12
+
+CLINICAL PHARMACOLOGY
+12.1 Mechanism of Action
+12.2 Pharmacodynamics
+12.3 Pharmacokinetics
+
+13
+
+NONCLINICAL TOXICOLOGY
+13.1 Carcinogenesis, Mutagenesis, Impairment of Fertility
+
+14
+
+CLINICAL STUDIES
+
+16
+
+HOW SUPPLIED/STORAGE AND HANDLING
+16.1 How Supplied
+16.2 Storage and Handling
+
+17
+
+PATIENT COUNSELING INFORMATION
+
+
