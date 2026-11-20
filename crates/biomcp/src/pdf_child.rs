@@ -33,6 +33,7 @@ pub(crate) const DEFAULT_HOSTED_READS: NonZeroU16 = NonZeroU16::MIN;
 const LONGEST_PAUSE: Duration = Duration::from_millis(20);
 
 /// Limits carried to the child along with the identity of its spawning process.
+#[derive(Debug)]
 pub(crate) struct ChildLimits {
     memory: u64,
     cpu_seconds: u64,

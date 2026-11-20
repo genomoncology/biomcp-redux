@@ -50,6 +50,7 @@ impl Isolator {
 }
 
 /// One admitted read. Keep it alive from before fetching the input until the worker is reaped.
+#[derive(Debug)]
 pub struct IsolatedRead<'a> {
     worker: &'a dyn Isolate,
     _slot: Option<SemaphorePermit<'a>>,
