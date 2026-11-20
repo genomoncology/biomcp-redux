@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "Wrong forms agents typed in the baseline are refused with the argument at fault and the call that works: a section under another name, a label heading or source typed as a section, a record word in the section's place, words split from one value, text where the command takes none, a source typed as an option, and a section the default source lacks.",
+  "story": "Wrong forms agents typed in the baseline are refused with the argument at fault and the call that works: a section under another name, a label heading or source typed as a section, a record word in the section's place, words split from one value, text where the command takes none (said as text outside an option, not a refused value, 1081), a source typed as an option, and a section the default source lacks.",
   "steps": [
     {
       "run": [
@@ -198,6 +198,7 @@
         "/status": "usage",
         "/error/code": "usage.arguments",
         "/error/option": "--name",
+        "/error/message": "this command takes no text outside an option; next gives the words to error.option",
         "/next/0/args": {
           "includes_all_of": [
             "--name",
@@ -206,6 +207,32 @@
             "fda-pma"
           ]
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "fulvestrant",
+        "--source",
+        "fda-cdx"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--name",
+        "/error/message": "this command takes no text outside an option; next gives the words to error.option",
+        "/next/0/args": [
+          "search",
+          "diagnostic",
+          "--name",
+          "fulvestrant",
+          "--source",
+          "fda-cdx"
+        ]
       }
     },
     {

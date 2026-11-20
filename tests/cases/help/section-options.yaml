@@ -1,7 +1,7 @@
 {
   "feature": "schema-discovery",
   "live_check": "local-only generated help; no source requests",
-  "story": "Section help lists only the options that section takes: help on the drug markets section offers the name and --source with the three market sources, and no approvals options, and leads with an example that reads markets; help on the variant clinvar and population sections offers no CIViC options, which only the civic section (or all) takes.",
+  "story": "Section help lists only the options that section takes: help on the drug markets section offers the name and --source with the three market sources, which without a source reads every market (1081), and no approvals options, and leads with an example that reads markets; help on the variant clinvar and population sections offers no CIViC options, which only the civic section (or all) takes.",
   "steps": [
     {
       "run": [
@@ -47,7 +47,8 @@
           "who-pq",
           "drugsfda",
           "ema"
-        ]
+        ],
+        "/result/commands/0/arguments/2/description": "One market's source, to read only that market; omit it to read every market. Value form: string; example: --source ema."
       }
     },
     {

@@ -134,10 +134,7 @@ fn section_help(
     // The markets section is its own request, which takes a name and at most a source.
     let alone = entity == "drug" && section == "markets";
     if alone {
-        command.arguments.retain(|argument| {
-            let field = argument.name.trim_start_matches("--").replace('-', "_");
-            crate::grammar::rewrite::MARKETS_FIELDS.contains(&field.as_str())
-        });
+        markets_arguments(&mut command.arguments);
     }
     if !sources.is_empty() {
         command.arguments.retain(|argument| {
@@ -178,6 +175,26 @@ fn section_help(
     compact(&mut commands);
     Ok(Some(Help { commands }))
 }
+
+/// The markets request's own arguments: a name and at most a source, which infers nothing and
+/// without a value reads every market (1081).
+fn markets_arguments(arguments: &mut Vec<HelpArgument>) {
+    arguments.retain(|argument| {
+        let field = argument.name.trim_start_matches("--").replace('-', "_");
+        crate::grammar::rewrite::MARKETS_FIELDS.contains(&field.as_str())
+    });
+    for argument in arguments.iter_mut().filter(|a| a.name == "--source") {
+        let form = argument
+            .description
+            .find("Value form")
+            .unwrap_or(argument.description.len());
+        argument.description = format!(
+            "One market's source, to read only that market; omit it to read every market. {}",
+            &argument.description[form..]
+        );
+    }
+}
+
 /// Sources an option names after "Only with --source", from the schema or the source fact.
 fn only_sources(description: &str) -> Vec<biomcp_types::Source> {
     description

@@ -89,6 +89,8 @@ pub enum UsageError {
         valid_values: Box<[crate::Text]>,
         /// Chosen field names with no field to place them in; the next call leaves them out.
         unplaced: Box<[crate::Text]>,
+        /// The refusal's text: `FieldsUnsaid` when `unplaced` leaves out a name it cannot repeat.
+        message: crate::ErrorMessage,
         /// The same call with each name it can place in its field, or help.
         next: Vec<crate::Step>,
     },

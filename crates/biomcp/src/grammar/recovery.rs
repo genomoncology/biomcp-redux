@@ -141,7 +141,8 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
 
 /// A refusal whose fixed message names its one fix: drug markets takes a name and at most a
 /// source, so the same call without the options it refused; a label-history offset needs
-/// every version, so the same call reading every version from that offset.
+/// every version, so the same call reading every version from that offset; a section
+/// label-history does not read is read from the label, when it is a label section (1081).
 pub(super) fn fixed(
     via: Rewrite,
     path: (&str, &str),
@@ -158,6 +159,14 @@ pub(super) fn fixed(
         }
         biomcp_types::ErrorMessage::LabelHistoryOffset => {
             fields.insert("every_version".into(), Value::Bool(true));
+        }
+        biomcp_types::ErrorMessage::LabelHistorySectionUnknown
+        | biomcp_types::ErrorMessage::LabelHistoryOffsetSection => {
+            let heading = fields.get("label_section").and_then(Value::as_str);
+            let heading = biomcp_types::openfda_label_field(heading?)?;
+            fields.retain(|name, _| name == "input");
+            fields.insert("section".into(), Value::Array(vec!["label".into()]));
+            fields.insert("label_section".into(), Value::from(heading));
         }
         _ => return None,
     }

@@ -1,5 +1,5 @@
 use super::DrugSection;
-use biodata::DrugId;
+use biodata::{DrugId, Text};
 use serde::{Deserialize, Serialize};
 /// One explicitly selected record source; omitted search source means MyChem.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -163,6 +163,24 @@ impl DrugSource {
                         .iter()
                         .all(|s| s.bytes().all(|b| b.is_ascii_hexdigit()))
             }
+        }
+    }
+}
+
+impl DrugSource {
+    /// An application number in any letter case, spelled as its source prints it, such as
+    /// NDA212526 for nda212526; any other input stays as typed (1081).
+    pub(super) fn listed_case(self, input: Text) -> Text {
+        let upper = input.as_str().to_ascii_uppercase();
+        let owner = match self {
+            Self::Drugsfda | Self::OpenfdaLabel => Self::Drugsfda,
+            Self::Ema => Self::Ema,
+            _ => return input,
+        };
+        let numbered = upper.parse::<DrugId>().is_ok_and(|id| owner.accepts(&id));
+        match Text::new(&upper) {
+            Ok(upper) if numbered => upper,
+            _ => input,
         }
     }
 }
