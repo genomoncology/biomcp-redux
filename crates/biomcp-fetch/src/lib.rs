@@ -28,7 +28,7 @@ mod cache_request;
 mod containment;
 mod deadline;
 mod isolate;
-pub use isolate::{Contained, Isolate};
+pub use isolate::{Contained, Isolate, IsolatedRead, Isolator};
 mod declaration;
 mod destination;
 pub use destination::check_annotation_url;
@@ -155,7 +155,7 @@ pub struct FetchConfig {
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biomcp_types::Source, Duration>,
     /// Where hostile input is read outside this process; none reads it in this process.
-    pub isolate: Option<std::sync::Arc<dyn Isolate>>,
+    pub isolate: Option<std::sync::Arc<Isolator>>,
 }
 
 /// One blocking client shared across source legs.

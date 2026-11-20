@@ -1,5 +1,5 @@
 //! Hosted FDA PDF admission, memory, and worker cleanup through real HTTP calls.
-use super::{http::Server, launch::Environment};
+use super::super::{self as runner, http::Server, launch::Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -18,10 +18,10 @@ const RECORDED: &str = "P170019";
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        super::transcript_trial("mcp-hosted/pdf-read-cap", || {
+        runner::transcript_trial("mcp-hosted/pdf-read-cap", || {
             capacity().map_err(|e| e.to_string().into())
         }),
-        super::transcript_trial("fda-document-text/pdf-worker-dies-with-server", || {
+        runner::transcript_trial("fda-document-text/pdf-worker-dies-with-server", || {
             parent_death().map_err(|e| e.to_string().into())
         }),
     ]
@@ -33,7 +33,7 @@ fn server() -> Result<(Server, Environment), Error> {
     let directory = replay.join("fda-pma");
     fs::create_dir_all(&directory)?;
     for name in ["pma-summary-find", "fda-documents"] {
-        let input = super::launch::fixtures()
+        let input = runner::launch::fixtures()
             .join("replies/diagnostic")
             .join(name)
             .join("fda-pma");
@@ -41,7 +41,9 @@ fn server() -> Result<(Server, Environment), Error> {
             let file = file?;
             let destination = directory.join(file.file_name());
             if name == "pma-summary-find" && file.path().extension().is_some_and(|e| e == "bin") {
-                fs::write(destination, b"%PDF-1.7\n%BIOMCP-TEST hang\n")?;
+                let mut pdf = b"%PDF-1.7\n%BIOMCP-TEST hang\n".to_vec();
+                pdf.resize(24 * 1024 * 1024, b' ');
+                fs::write(destination, pdf)?;
             } else {
                 fs::copy(file.path(), destination)?;
             }
@@ -59,7 +61,7 @@ fn server() -> Result<(Server, Environment), Error> {
 }
 
 fn request(id: u32, document: &str) -> String {
-    super::mcp::request(
+    runner::mcp::request(
         json!(id),
         "tools/call",
         json!({"name": "biomcp", "arguments": {
@@ -76,8 +78,8 @@ fn start_read(server: &Server) -> Result<TcpStream, Error> {
     write!(
         stream,
         "POST /mcp HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\n\
-         Accept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-11-25\r\n\
-         Connection: close\r\nContent-Length: {}\r\n\r\n{body}",
+         Accept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\n\
+         Mcp-Method: tools/call\r\nMcp-Name: biomcp\r\nConnection: close\r\nContent-Length: {}\r\n\r\n{body}",
         body.len()
     )?;
     Ok(stream)
@@ -118,8 +120,24 @@ fn until<T>(
     }
 }
 
+fn peak(pid: u32) -> Result<u64, Error> {
+    let status = fs::read_to_string(format!("/proc/{pid}/status"))?;
+    Ok(status
+        .lines()
+        .find_map(|line| line.strip_prefix("VmHWM:"))
+        .and_then(|line| line.split_whitespace().next())
+        .map(str::parse)
+        .transpose()?
+        .unwrap_or_default())
+}
+
 fn held_worker(server: &Server) -> Result<u32, Error> {
-    until("the held reader", || Ok(workers(server)?.first().copied()))
+    until("the worker to read the padded PDF", || {
+        let Some(pid) = workers(server)?.first().copied() else {
+            return Ok(None);
+        };
+        Ok((peak(pid)? >= 24 * 1024).then_some(pid))
+    })
 }
 
 fn content(reply: &Value) -> Result<&Value, Error> {
@@ -128,26 +146,36 @@ fn content(reply: &Value) -> Result<&Value, Error> {
         .ok_or_else(|| format!("missing tool reply: {reply}").into())
 }
 
+fn retry(reply: &Value) -> bool {
+    reply
+        .pointer("/sources/0/notices")
+        .and_then(Value::as_array)
+        .is_some_and(|notices| {
+            notices.iter().any(|notice| {
+                notice
+                    .get("message")
+                    .and_then(Value::as_str)
+                    .is_some_and(|message| {
+                        message.contains("hosted server") && message.contains("Retry shortly")
+                    })
+            })
+        })
+}
+
 fn capacity() -> Result<(), Error> {
     let (mut server, _replay) = server()?;
     let held = start_read(&server)?;
     let pid = held_worker(&server)?;
     let (_, overflow) = server.request("POST", "/mcp", &request(2, RECORDED))?;
     let overflow = content(&overflow)?;
-    if !overflow.to_string().to_ascii_lowercase().contains("retry") {
+    if !retry(overflow) {
         return Err(format!("read above the cap did not say to retry: {overflow}").into());
     }
     if workers(&server)? != [pid] {
         return Err("an extra worker started while the hosted PDF slot was held".into());
     }
-    let status = fs::read_to_string(format!("/proc/{pid}/status"))?;
-    let peak: u64 = status
-        .lines()
-        .find_map(|line| line.strip_prefix("VmHWM:"))
-        .and_then(|line| line.split_whitespace().next())
-        .ok_or("the held reader has no resident memory high-water mark")?
-        .parse()?;
-    if peak == 0 || peak >= 170 * 1024 {
+    let peak = peak(pid)?;
+    if peak >= 170 * 1024 {
         return Err(
             format!("one hosted reader peaked at {peak} KiB, expected under 170 MiB").into(),
         );
@@ -156,13 +184,17 @@ fn capacity() -> Result<(), Error> {
     until("the cancelled reader to be reaped", || {
         Ok(workers(&server)?.is_empty().then_some(()))
     })?;
-    let (_, resumed) = server.request("POST", "/mcp", &request(3, RECORDED))?;
-    let resumed = content(&resumed)?;
-    if resumed.pointer("/result/document/state") != Some(&json!("text")) {
-        return Err(
-            format!("after cancellation, the next read did not return text: {resumed}").into(),
-        );
-    }
+    until("the next PDF to return its text", || {
+        let (_, resumed) = server.request("POST", "/mcp", &request(3, RECORDED))?;
+        let resumed = content(&resumed)?;
+        if resumed.pointer("/result/document/state") == Some(&json!("text")) {
+            return Ok(Some(()));
+        }
+        if retry(resumed) {
+            return Ok(None);
+        }
+        Err(format!("after cancellation, the next read did not return text: {resumed}").into())
+    })?;
     server.stop()?;
     Ok(())
 }
@@ -170,25 +202,28 @@ fn capacity() -> Result<(), Error> {
 fn parent_death() -> Result<(), Error> {
     let (mut server, _replay) = server()?;
     let _held = start_read(&server)?;
-    let worker = Orphan(held_worker(&server)?);
+    let mut worker = Orphan(Some(held_worker(&server)?));
     server.child.kill()?;
     server.child.wait()?;
+    let pid = worker.0.ok_or("missing PDF reader PID")?;
     until("the reader to die with its server", || {
-        let status = fs::read_to_string(format!("/proc/{}/status", worker.0));
+        let status = fs::read_to_string(format!("/proc/{pid}/status"));
         match status {
             Ok(status) if status.lines().any(|line| line.starts_with("State:\tZ")) => Ok(Some(())),
             Ok(_) => Ok(None),
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(Some(())),
             Err(error) => Err(error.into()),
         }
-    })
+    })?;
+    worker.0 = None;
+    Ok(())
 }
 
 /// Clean up a worker when this test runs against a binary that leaves it behind.
-struct Orphan(u32);
+struct Orphan(Option<u32>);
 impl Drop for Orphan {
     fn drop(&mut self) {
-        if let Ok(pid) = i32::try_from(self.0) {
+        if let Some(pid) = self.0.and_then(|pid| i32::try_from(pid).ok()) {
             let _ = nix::sys::signal::kill(
                 nix::unistd::Pid::from_raw(pid),
                 nix::sys::signal::Signal::SIGKILL,

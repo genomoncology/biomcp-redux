@@ -359,10 +359,7 @@ fn fetch_using(
             |seconds| Duration::from_secs(seconds.get().into()),
         ),
         proxy: file.and_then(|file| file.proxy.clone()).map(Secret::new),
-        isolate: Some(crate::pdf_child::isolate(
-            executable().ok(),
-            file.and_then(|f| f.pdf_memory_limit_mib),
-        )),
+        isolate: Some(file::pdf_reader(file, globals.hosted, executable().ok())),
         ..FetchConfig::default()
     })
     .map_err(|error| match error {

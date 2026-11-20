@@ -5,8 +5,9 @@ Recorded live with `biomcp --record` in pm job j43445 on 2026-11-19, from the Dr
 To rebuild a fixture, record the call with `biomcp ... --record DIR`, then write the reader's text for each recorded label PDF sidecar with BioMCP's own reader, which takes the page bound on its first input line and prints its text after one header line:
 
 ```sh
+parent=$$
 for f in DIR/drugsfda/*.bin; do
-  { printf '400\n'; cat "$f"; } | biomcp __pdf-read 1073741824 | tail -n +2 > "TEXT/$(basename "$f").txt"
+  { printf '400\n'; cat "$f"; } | biomcp __pdf-read 1073741824 21 "$parent" | tail -n +2 > "TEXT/$(basename "$f").txt"
 done
 python3 scripts/label_history_fixtures.py TEXT DIR
 ```

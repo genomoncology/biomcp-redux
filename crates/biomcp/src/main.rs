@@ -30,7 +30,7 @@ use std::process::ExitCode;
 fn main() -> ExitCode {
     let arguments = config::arguments();
     match pdf_child::requested(&arguments) {
-        Some(cap) => pdf_child::serve(cap),
+        Some(limits) => pdf_child::serve(limits),
         None => run(arguments),
     }
 }
