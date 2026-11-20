@@ -67,7 +67,7 @@ fn versions(row: &source::Application) -> Result<Vec<Version>, RequestError> {
         for label in of("Label") {
             found.push(Version {
                 approved: submission.event.dates.first().map(|d| d.date),
-                submission: name.trim().into(),
+                submission: text(name.trim())?,
                 label,
                 letter: of("Letter").next(),
             });
@@ -270,11 +270,11 @@ pub(super) fn select(
             },
         }
     };
-    let body = reply(&search, row, section, path, first);
+    let body = reply(&search, row, section, path, first)?;
     merge(leg, out);
     let unread = search.opened.values().any(Opened::gap) || body.not_opened > 0;
     if body.not_opened > 0 {
-        status::missing(out, "/result/not_opened".into(), Source::Drugsfda, None);
+        status::missing(out, text("/result/not_opened")?, Source::Drugsfda, None);
     }
     status::item(out, true, false, unread);
     out.body = body.with_query(query.clone());
@@ -306,7 +306,7 @@ fn reply(
     section: LabelHistorySection,
     path: Path,
     first: Option<usize>,
-) -> DrugLabelHistory {
+) -> Result<DrugLabelHistory, RequestError> {
     let before = first.and_then(|first| {
         search
             .opened
@@ -320,15 +320,10 @@ fn reply(
         .clone()
         .any(|at| search.get(at).is_none_or(Opened::gap));
     let not_opened = span.filter(|at| search.get(*at).is_none()).count();
-    let matched = first.and_then(|at| {
-        let opened = search.get(at)?;
-        Some(LabelVersionMatch {
-            version: version(search, at, true)?,
-            letter: search.versions.get(at)?.letter.clone(),
-            heading: opened.heading.as_deref().map(Into::into),
-            sentences: opened.sentences.iter().map(|s| s.as_str().into()).collect(),
-        })
-    });
+    let matched = match first {
+        Some(at) => matched(search, at)?,
+        None => None,
+    };
     let before_version = before.and_then(|at| version(search, at, true));
     let answer = answer(
         section,
@@ -337,11 +332,11 @@ fn reply(
         on_or_before,
         search,
     );
-    DrugLabelHistory {
+    Ok(DrugLabelHistory {
         identity: row.header(),
         section,
-        answer: answer.as_str().into(),
-        method: method(&path, search).as_str().into(),
+        answer: text(&answer)?,
+        method: text(&method(&path, search))?,
         versions: search.versions.len() as u32,
         first: matched,
         before: before_version,
@@ -352,7 +347,34 @@ fn reply(
             .keys()
             .filter_map(|at| version(search, *at, Some(*at) == first || Some(*at) == before))
             .collect(),
-    }
+    })
+}
+
+/// The matching version with its heading and sentences.
+fn matched(search: &Search<'_, '_>, at: usize) -> Result<Option<LabelVersionMatch>, RequestError> {
+    let (Some(opened), Some(found), Some(version)) = (
+        search.get(at),
+        search.versions.get(at),
+        version(search, at, true),
+    ) else {
+        return Ok(None);
+    };
+    Ok(Some(LabelVersionMatch {
+        version,
+        letter: found.letter.clone(),
+        heading: opened.heading.as_deref().map(text).transpose()?,
+        sentences: opened
+            .sentences
+            .iter()
+            .map(|s| text(s))
+            .collect::<Result<_, _>>()?,
+    }))
+}
+
+/// Source text for the reply; text the reader gave is never empty where it is used.
+fn text(value: &str) -> Result<biodata::Text, RequestError> {
+    biodata::Text::from_source(value)
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)))
 }
 
 fn answer(
