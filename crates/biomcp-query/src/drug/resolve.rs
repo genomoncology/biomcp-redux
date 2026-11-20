@@ -1,5 +1,6 @@
 //! Resolve complete source names before the unchanged native-ID path.
 use crate::{Ctx, Outcome, status};
+use biodata::{DrugId, Text};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource, ReplyData,
@@ -46,7 +47,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     };
     let mut unsettled = false;
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
-        fda(cx, query, &search)
+        fda(cx, &search)
     } else if query.source() == DrugSource::OpenfdaLabel {
         label(cx, query, &search)
     } else if query.source() == DrugSource::Mychem {
@@ -326,13 +327,19 @@ fn native_pages(
 /// Drugs@FDA and openFDA label name lookups read every page on purpose, unlike MyChem's
 /// 250-row cap: the ranking (NDA/BLA before ANDA, then earliest approval; labels by holder,
 /// then indications) needs the whole set, so a lookup answers whole or fails, never partly.
-fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+fn fda(cx: &Ctx<'_>, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
+    let Some(name) = query.query() else {
+        return (
+            status::empty(biomcp_types::DrugPage::into_reply(query.clone(), None)),
+            Vec::new(),
+        );
+    };
     native_names(
         cx,
         query,
         &biomcp_adapters::drugsfda::SPEC,
         |leg, offset| {
-            let page = biomcp_adapters::drugsfda::search_names(leg, get.input(), 50, offset)?;
+            let page = biomcp_adapters::drugsfda::search_names(leg, name, 50, offset)?;
             let next = offset + page.records.len() as u32;
             Ok(NativePage {
                 read: None,
@@ -340,11 +347,10 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
                     .records
                     .iter()
                     .filter_map(|row| {
-                        row.name_rank(get.input().as_str())
-                            .map(|(name, app, date)| {
-                                let date = date.unwrap_or_else(|| "9999".into());
-                                (plain(name, app, date), row.header())
-                            })
+                        row.name_rank(name.as_str()).map(|(name, app, date)| {
+                            let date = date.unwrap_or_else(|| "9999".into());
+                            (plain(name, app, date), row.header())
+                        })
                     })
                     .collect(),
                 next_offset: (next > offset && u64::from(next) < page.total).then_some(next),
@@ -353,6 +359,19 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
             })
         },
     )
+}
+/// A literal brand match to one distinct application can verify an otherwise unresolved label.
+pub(super) fn brand_application(cx: &Ctx<'_>, name: &Text) -> Option<(Outcome, Option<DrugId>)> {
+    let query = DrugSearch::named(name.clone(), DrugSource::Drugsfda, 50).ok()?;
+    let (out, candidates) = fda(cx, &query);
+    let mut matches = candidates.into_iter().filter(|(rank, _)| rank.0 == 0);
+    let id = matches.next().map(|(_, header)| header.id);
+    let id = id.filter(|id| {
+        !unanswered(&out, true)
+            && out.local.is_none()
+            && matches.all(|(_, header)| header.id == *id)
+    });
+    Some((out, id))
 }
 fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let (out, mut candidates) = native_names(

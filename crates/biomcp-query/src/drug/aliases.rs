@@ -99,6 +99,13 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         input,
         query.source(),
         |stated, name, evidence| {
+            if query.source() == DrugSource::OpenfdaLabel {
+                if evidence.label_candidate.is_some() {
+                    return None;
+                }
+                evidence.label_candidate = Some(name.clone());
+                return label_fallback(cx, &deadline, queries, input, evidence);
+            }
             let retries = queries
                 .iter()
                 .map(|query| {
@@ -157,10 +164,68 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         .map(|query| {
             let mut part = super::fork(&out, DrugCard::into_reply(query.clone(), None));
             hint(&mut part, &stated, input, query.source(), cx.fresh);
+            if let Some(name) = &evidence.label_candidate {
+                label_candidates(&mut part, input, name, cx.fresh);
+            }
             status::item(&mut part, false, lookup_failed, false);
             part
         })
         .collect()
+}
+
+fn label_fallback(
+    cx: &Ctx<'_>,
+    deadline: &biomcp_fetch::Deadline<'_>,
+    queries: &[DrugGet],
+    input: &Text,
+    evidence: &mut Evidence,
+) -> Option<Vec<Outcome>> {
+    let (lookup, application) =
+        super::resolve::brand_application(&within(cx, deadline.remaining()), input)?;
+    evidence.sources.extend(lookup.sources);
+    evidence.problems.extend(lookup.problems);
+    evidence.local = evidence.local.or(lookup.local);
+    let application = application?;
+    let mut found = super::label_application::fallback(
+        &within(cx, deadline.remaining()),
+        queries,
+        &application,
+    )?;
+    for out in &mut found {
+        notice(
+            out,
+            DrugSource::OpenfdaLabel,
+            format!(
+                "openFDA did not resolve {input:?} by name. Drugs@FDA lists that brand under {application}; looked for its openFDA label by application.",
+                input = input.as_str(),
+            ),
+        );
+    }
+    Some(found)
+}
+
+fn label_candidates(out: &mut Outcome, input: &Text, name: &Text, fresh: bool) {
+    notice(
+        out,
+        DrugSource::OpenfdaLabel,
+        format!(
+            "openFDA did not resolve {input:?} by name. No label could be verified for its application. The name {name:?} may find candidates.",
+            input = input.as_str(),
+            name = name.as_str(),
+        ),
+    );
+    if let Some(search) = crate::next::checked(
+        DrugSearch::named(name.clone(), DrugSource::OpenfdaLabel, 10),
+        biomcp_types::Source::OpenfdaLabel,
+        &mut out.problems,
+    ) {
+        out.next.push(crate::next::Step::run(
+            StepKind::Disambiguate,
+            &[biomcp_types::Source::OpenfdaLabel],
+            Request::SearchDrug(search),
+            fresh,
+        ));
+    }
 }
 
 /// Retry a DDInter partner DDInter does not name under each exact name another source states
@@ -207,6 +272,7 @@ impl Aliased {
 
 #[derive(Default)]
 struct Evidence {
+    label_candidate: Option<Text>,
     sources: Vec<SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
     local: Option<biomcp_fetch::RequestError>,

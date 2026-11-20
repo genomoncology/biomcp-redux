@@ -2,6 +2,7 @@
 use super::resolve::{carry, within};
 use crate::Action;
 use crate::{Ctx, Outcome, status};
+use biodata::DrugId;
 use biomcp_types::{
     DrugGet, DrugSearch, DrugSection, DrugSource, QueryInvalid, ReplyData, Request, Source,
     SourceNotice, SourceState, StepKind, UsageError,
@@ -14,6 +15,45 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = get_parts(cx, std::slice::from_ref(query));
     out.pop()
         .unwrap_or_else(|| status::empty(ReplyData::Usage(UsageError::argument("input".into()))))
+}
+
+/// Resolve a brand miss through the independently verified application, checking the final label
+/// too because the application search and the SPL read are separate source requests.
+pub(super) fn fallback(
+    cx: &Ctx<'_>,
+    queries: &[DrugGet],
+    application: &DrugId,
+) -> Option<Vec<Outcome>> {
+    let resolved = queries
+        .iter()
+        .map(|query| query.with_native_id(application.clone()))
+        .collect::<Result<Vec<_>, _>>()
+        .ok()?;
+    let found = get_parts(cx, &resolved);
+    let application = application.to_string();
+    found
+        .iter()
+        .all(|out| match &out.body {
+            ReplyData::DrugLabel {
+                body: Some(body), ..
+            } => belongs(&body.identity, &application),
+            ReplyData::DrugCard {
+                body: Some(body), ..
+            } => belongs(&body.header, &application),
+            // An application can have several labels. Keep the choice page and its follow-up calls.
+            ReplyData::DrugPage { .. }
+            | ReplyData::DrugCard { body: None, .. }
+            | ReplyData::DrugLabel { body: None, .. } => true,
+            _ => false,
+        })
+        .then_some(found)
+}
+
+fn belongs(header: &biomcp_types::DrugHeader, application: &str) -> bool {
+    header
+        .application_numbers
+        .iter()
+        .any(|number| number.as_str() == application)
 }
 
 /// Get every part from the application's one label, or answer once with the labels to choose
