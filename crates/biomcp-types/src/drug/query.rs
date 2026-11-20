@@ -116,8 +116,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
     find: Box<[Text]>,
-    #[doc = "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. \
-        Only with section label-history."]
+    #[doc = "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. Only with section label-history."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     every_version: bool,
     #[doc = "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only."]
