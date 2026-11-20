@@ -83,7 +83,7 @@ pub(super) fn method(path: Path, search: &Search<'_, '_>) -> String {
     let count = search.versions.len();
     let read = search.opened.len();
     let assumption = "This assumes text, once added, stays in later versions";
-    let mut said = match path {
+    match path {
         Path::Halved(earlier) => format!(
             "Read the oldest and newest of {count} versions and halved between them, then spread \
              the reads left before the first match{}: {read} PDFs read, at most {MOST_READS} per \
@@ -117,13 +117,5 @@ pub(super) fn method(path: Path, search: &Search<'_, '_>) -> String {
             from + 1
         ),
         Path::Unreadable => format!("Tried {read} of {count} label versions; none could be read."),
-    };
-    if search.stopped {
-        said.push_str(&format!(
-            " It stopped at the bound with {} of {count} versions not opened; the next step \
-             continues.",
-            count - read
-        ));
     }
-    said
 }
