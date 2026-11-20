@@ -33,6 +33,37 @@
           }
         }
       }
+    },
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "drug": {
+              "id": "CHEMBL941",
+              "name": "Canonical therapy",
+              "indications": {
+                "rows": [
+                  {
+                    "maxClinicalStage": "PHASE_III",
+                    "disease": {
+                      "id": "EFO_9999999",
+                      "name": "Synthetic disease"
+                    }
+                  }
+                ]
+              },
+              "mechanismsOfAction": {
+                "rows": []
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "post": {

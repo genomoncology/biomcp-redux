@@ -145,7 +145,8 @@
         "/result/count_unit": "native-relation-rows",
         "/result/distinct_id_total": 2,
         "/result/test_id": "GTR000006692.3",
-        "/result/items/*": { "omits": ["test_id"] }
+        "/result/items/0": { "omits": ["test_id"] },
+        "/result/items/1": { "omits": ["test_id"] }
       }
     },
     {
@@ -164,7 +165,7 @@
         "/result/count_unit": "native-relation-rows",
         "/result/distinct_id_total": 1,
         "/result/test_id": "GTR000006692.3",
-        "/result/items/*": { "omits": ["test_id"] }
+        "/result/items/0": { "omits": ["test_id"] }
       }
     },
     {
