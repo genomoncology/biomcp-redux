@@ -75,10 +75,6 @@ fn strip_numbered(text: &str, prefix: &str, middle: Option<&str>) -> String {
     out
 }
 
-fn word(c: char) -> bool {
-    c.is_alphanumeric() || c == '_'
-}
-
 /// Fold text for matching: ASCII letters lower-cased, typographic apostrophes and quotes plain.
 /// Each character keeps its place, so a match's character index is the same in both.
 fn fold(text: &str) -> Vec<char> {
@@ -141,36 +137,4 @@ pub(super) fn sentences(section: &str, hits: &[usize]) -> Vec<String> {
         }
     }
     out
-}
-
-/// The subsection heading above character `at` of `section`, as the label's contents name it.
-pub(super) fn heading(flat: &str, section: &str, at: usize) -> Option<String> {
-    let before: String = section.chars().take(at).collect();
-    let number = before.match_indices('.').rev().find_map(|(dot, _)| {
-        let major = before.get(..dot)?;
-        let digits = major.len() - major.trim_end_matches(|c: char| c.is_ascii_digit()).len();
-        let start = dot - digits;
-        let minor = before.get(dot + 1..)?;
-        let n = minor.len() - minor.trim_start_matches(|c: char| c.is_ascii_digit()).len();
-        let lead = before.get(..start).and_then(|b| b.chars().last());
-        let opens = digits > 0
-            && n > 0
-            && minor.get(n..n + 1) == Some(" ")
-            && lead.is_none_or(|l| !word(l) && l != '.' && l != '(');
-        opens
-            .then(|| before.get(start..dot + 1 + n).map(str::to_owned))
-            .flatten()
-    })?;
-    // The contents list each subsection once: `6.2 Postmarketing Experience 7 DRUG ...`.
-    let entry = flat
-        .match_indices(&format!("{number} "))
-        .find_map(|(at, _)| {
-            let rest = flat.get(at + number.len() + 1..)?;
-            let stop = rest.char_indices().find(|(i, c)| {
-                c.is_ascii_digit() && rest.get(..*i).is_some_and(|b| b.ends_with(' '))
-            })?;
-            let title = rest.get(..stop.0)?.trim();
-            (title.len() <= 80 && !title.is_empty()).then(|| format!("{number} {title}"))
-        });
-    Some(entry.unwrap_or(number))
 }

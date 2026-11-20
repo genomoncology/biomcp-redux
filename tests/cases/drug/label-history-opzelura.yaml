@@ -1,0 +1,32 @@
+{
+  "feature": "drug-label-history",
+  "story": "Opzelura's original label draws its boxed warning as an image, and its later labels number their contents `1.` or list them in two columns; the original's contents-list title for the box names major adverse cardiovascular events, so the reply gives the original, approved 2021-09-21, and stays under 3 KB.",
+  "live_check": "public",
+  "replay": "drug/label-history-opzelura",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA215309",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "boxed_warning",
+        "--find",
+        "major adverse cardiovascular"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/section": "boxed_warning",
+        "/result/versions": 5,
+        "/result/first/submission": "ORIG 1",
+        "/result/first/approved": "2021-09-21",
+        "/result/first/state": "match"
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "2026-11-20 capture in pm job j43558 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md); the answer was checked against pdftotext on the original PDFs."
+}

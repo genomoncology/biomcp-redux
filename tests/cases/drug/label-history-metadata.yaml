@@ -1,0 +1,99 @@
+{
+  "feature": "drug-label-history",
+  "story": "Keep the dated PDF alias, preserve an unlinked label, name only approval dates, and scope a page summary to its reads.",
+  "live_check": "synthetic",
+  "replay": "drug/label-history-metadata",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA214012",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "indications_and_usage",
+        "--find",
+        "alias witness",
+        "--every-version"
+      ],
+      "expect": {
+        "/result/first/submission": "ORIG 1",
+        "/result/read/3/submission": "SUPPL 21",
+        "/result/read/3/approved": "2026-08-19",
+        "/result/versions": 4
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA214012",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "indications_and_usage",
+        "--find",
+        "late witness",
+        "--every-version"
+      ],
+      "expect": {
+        "/result/first/submission": "SUPPL 21",
+        "/result/read/2/submission": "SUPPL 2",
+        "/result/read/2/state": "not-fetched",
+        "/result/read/2": {
+          "omits": [
+            "label"
+          ]
+        },
+        "/result/on_or_before": true
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA214012",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "indications_and_usage",
+        "--find",
+        "status witness",
+        "--every-version"
+      ],
+      "expect": {
+        "/result/first/submission": "SUPPL 6",
+        "/result/first": {
+          "omits": [
+            "approved"
+          ]
+        },
+        "/result/on_or_before": true,
+        "/result/answer": "Text in the indications_and_usage section of SUPPL 6. Its approval date and the first appearance are uncertain. The latest label read on this page, SUPPL 21, approved 2026-08-19, lacks it. The last match read is SUPPL 6."
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA214012",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "indications_and_usage",
+        "--find",
+        "page witness",
+        "--every-version"
+      ],
+      "expect": {
+        "/result/answer": "First found in the indications_and_usage section of ORIG 1, approved 2021-12-22. The latest label read on this page, SUPPL 21, approved 2026-08-19, lacks it. The last match read is ORIG 1, approved 2021-12-22."
+      }
+    }
+  ],
+  "verified": "NDA214012 metadata from the sponsor-original-approval recording. SUPPL 2 lacks its link and SUPPL 6 has status TA in this replay. The label text is synthetic."
+}

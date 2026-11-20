@@ -1,6 +1,6 @@
 {
   "feature": "drug-label-history",
-  "story": "The help example: osimertinib's Warnings and Precautions first name cutaneous vasculitis in SUPPL 19, approved 2020-12-11; the reply names the version before it and stays under 3 KB.",
+  "story": "Osimertinib's SUPPL 19 is an upper bound for vasculitis even though SUPPL 18 was read and lacks it.",
   "live_check": "public",
   "replay": "drug/label-history-example",
   "steps": [
@@ -18,7 +18,7 @@
         "vasculitis"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/section": "warnings_and_cautions",
         "/result/versions": 22,
         "/result/first/submission": "SUPPL 19",
@@ -26,9 +26,35 @@
         "/result/first/state": "match",
         "/result/before/submission": "SUPPL 18",
         "/result/before/approved": "2020-12-09",
-        "/result/before/state": "no-match"
+        "/result/before/state": "no-match",
+        "/result/on_or_before": true
       },
       "max_bytes": 3000
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "drug",
+        "label-history"
+      ],
+      "expect": {
+        "/result/commands/0/examples/0": [
+          "get",
+          "drug",
+          "NDA208065",
+          "label-history",
+          "--source",
+          "drugsfda",
+          "--label-section",
+          "warnings_and_cautions",
+          "--find",
+          "vasculitis"
+        ],
+        "/result/commands/0/arguments/*/name": {
+          "excludes": "--section-limit"
+        }
+      }
     }
   ],
   "verified": "2026-11-20 capture in pm job j43461 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured live reply was 2624 bytes."

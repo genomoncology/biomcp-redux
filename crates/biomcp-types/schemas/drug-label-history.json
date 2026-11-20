@@ -417,7 +417,7 @@
       "properties": {
         "answer": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "The answer in one sentence: where the text first appears, or that no version read has it."
+          "description": "What the versions read establish about when the text appeared."
         },
         "before": {
           "anyOf": [
@@ -439,7 +439,7 @@
               "type": "null"
             }
           ],
-          "description": "The earliest version read whose section holds a searched text; absent when none does."
+          "description": "The earliest confirmed match read, if the reply can establish one."
         },
         "identity": {
           "$ref": "#/$defs/Reply_DrugHeader",
@@ -450,13 +450,13 @@
           "description": "How versions were chosen, and the assumption the answer rests on when it rests on one."
         },
         "not_opened": {
-          "description": "Versions this call never opened. Halving passes over versions on its stated assumption;\notherwise an unopened version leaves the answer open, and the reply is partial.",
+          "description": "Versions this call never opened. An unopened version leaves the answer open if it\nprecedes the earliest match or if no match was found.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
         },
         "on_or_before": {
-          "description": "True when a version between `before` and `first` was not read, so the text appeared on\nor before `first`'s date rather than on it.",
+          "description": "True when any version older than `first` was unreadable or unopened.\nThe first appearance could be earlier than `first`.",
           "type": "boolean"
         },
         "read": {

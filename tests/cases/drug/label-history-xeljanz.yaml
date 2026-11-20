@@ -1,6 +1,6 @@
 {
   "feature": "drug-label-history",
-  "story": "Xeljanz's boxed warning first names major adverse cardiovascular events in SUPPL 31, approved 2021-12-02; the reply names the version before it, gives the matching sentences, and stays under 3 KB.",
+  "story": "Xeljanz's SUPPL 31 is an upper bound for the boxed-warning text. The reply stays under 3 KB.",
   "live_check": "public",
   "replay": "drug/label-history-xeljanz",
   "steps": [
@@ -18,7 +18,7 @@
         "major adverse cardiovascular"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/section": "boxed_warning",
         "/result/versions": 25,
         "/result/first/submission": "SUPPL 31",
@@ -26,7 +26,8 @@
         "/result/first/state": "match",
         "/result/before/submission": "SUPPL 26",
         "/result/before/approved": "2020-09-25",
-        "/result/before/state": "no-match"
+        "/result/before/state": "no-match",
+        "/result/on_or_before": true
       },
       "max_bytes": 3000
     }

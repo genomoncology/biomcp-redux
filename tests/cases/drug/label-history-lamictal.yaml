@@ -1,0 +1,52 @@
+{
+  "feature": "drug-label-history",
+  "story": "Lamictal's later page gives an upper bound even when the page begins with a confirmed miss.",
+  "live_check": "synthetic",
+  "replay": "drug/label-history-lamictal",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA020241",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "warnings_and_cautions",
+        "--find",
+        "aseptic meningitis"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/first/submission": "SUPPL 10",
+        "/result/before/state": "no-match"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA020241",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "warnings_and_cautions",
+        "--find",
+        "aseptic meningitis",
+        "--every-version",
+        "--section-offset",
+        "2"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/first/submission": "SUPPL 30",
+        "/result/before/state": "no-match",
+        "/result/on_or_before": true,
+        "/result/answer": "Text in warnings_and_cautions on or before SUPPL 30, approved 2012-01-01. Older labels remain unchecked."
+      }
+    }
+  ],
+  "verified": "Synthetic application history and PDFs. The dates and label text are test data."
+}
