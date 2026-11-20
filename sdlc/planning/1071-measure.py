@@ -93,7 +93,7 @@ for name, args, fields in CASES:
         continue
     found = []
     lists(whole.get("result", {}), ["result"], found)
-    path, rows = max(found, key=lambda pair: size(pair[1]))
+    path, rows = max(found, key=lambda pair: (len(pair[1]), size(pair[1])))
     narrowed = narrow.get("result", {})
     for step in path.split("/")[1:]:
         narrowed = narrowed[int(step)] if isinstance(narrowed, list) else narrowed.get(step, {})
