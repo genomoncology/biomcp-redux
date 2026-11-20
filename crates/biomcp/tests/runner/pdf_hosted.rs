@@ -4,15 +4,18 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
     fs,
-    io::Write as _,
+    io::{Read as _, Write as _},
     net::TcpStream,
     thread,
     time::{Duration, Instant},
 };
 
+#[path = "pdf_hosted_history.rs"]
+mod history;
+
 type Error = Box<dyn std::error::Error>;
 const GUARD: Duration = Duration::from_secs(30);
-const BUDGET: u64 = 90;
+const BUDGET: u64 = 8;
 const HANGING: &str = "P150047";
 const RECORDED: &str = "P170019";
 
@@ -21,13 +24,23 @@ pub(super) fn trials() -> Vec<Trial> {
         runner::transcript_trial("mcp-hosted/pdf-read-cap", || {
             capacity().map_err(|e| e.to_string().into())
         }),
+        runner::transcript_trial("mcp-hosted/pdf-waits-for-a-short-read", || {
+            waits_for_release().map_err(|e| e.to_string().into())
+        }),
+        runner::transcript_trial("drug-label-history/pdf-busy-leaves-version-unread", || {
+            history::busy(false).map_err(|e| e.to_string().into())
+        }),
+        runner::transcript_trial(
+            "drug-label-history/pdf-busy-after-match-leaves-history-open",
+            || history::busy(true).map_err(|e| e.to_string().into()),
+        ),
         runner::transcript_trial("fda-document-text/pdf-worker-dies-with-server", || {
             parent_death().map_err(|e| e.to_string().into())
         }),
     ]
 }
 
-fn server() -> Result<(Server, Environment), Error> {
+fn server(oldest_on_hold: bool) -> Result<(Server, Environment), Error> {
     let env = Environment::new()?;
     let replay = env.root().join("replay");
     let directory = replay.join("fda-pma");
@@ -49,6 +62,7 @@ fn server() -> Result<(Server, Environment), Error> {
             }
         }
     }
+    history::fixtures(&replay, oldest_on_hold)?;
     let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"command_timeout_seconds": BUDGET})),
@@ -72,9 +86,12 @@ fn request(id: u32, document: &str) -> String {
 }
 
 fn start_read(server: &Server) -> Result<TcpStream, Error> {
+    send(server, &request(1, HANGING))
+}
+
+fn send(server: &Server, body: &str) -> Result<TcpStream, Error> {
     let address = server.address;
     let mut stream = TcpStream::connect(address)?;
-    let body = request(1, HANGING);
     write!(
         stream,
         "POST /mcp HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\n\
@@ -82,6 +99,7 @@ fn start_read(server: &Server) -> Result<TcpStream, Error> {
          Mcp-Method: tools/call\r\nMcp-Name: biomcp\r\nConnection: close\r\nContent-Length: {}\r\n\r\n{body}",
         body.len()
     )?;
+    stream.set_read_timeout(Some(GUARD))?;
     Ok(stream)
 }
 
@@ -163,10 +181,10 @@ fn retry(reply: &Value) -> bool {
 }
 
 fn capacity() -> Result<(), Error> {
-    let (mut server, _replay) = server()?;
+    let (mut server, _replay) = server(false)?;
     let held = start_read(&server)?;
     let pid = held_worker(&server)?;
-    let (_, overflow) = server.request("POST", "/mcp", &request(2, RECORDED))?;
+    let overflow = receive(send(&server, &request(2, RECORDED))?)?;
     let overflow = content(&overflow)?;
     if !retry(overflow) {
         return Err(format!("read above the cap did not say to retry: {overflow}").into());
@@ -199,8 +217,47 @@ fn capacity() -> Result<(), Error> {
     Ok(())
 }
 
+fn receive(mut stream: TcpStream) -> Result<Value, Error> {
+    let mut wire = String::new();
+    stream.read_to_string(&mut wire)?;
+    let (_, body) = wire.split_once("\r\n\r\n").ok_or("missing HTTP reply")?;
+    Ok(runner::mcp::readable(serde_json::from_str(body)?))
+}
+
+fn pending(stream: &TcpStream) -> Result<(), Error> {
+    stream.set_read_timeout(Some(Duration::from_millis(200)))?;
+    let result = stream.peek(&mut [0]);
+    stream.set_read_timeout(Some(GUARD))?;
+    match result {
+        Err(error)
+            if matches!(
+                error.kind(),
+                std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut
+            ) =>
+        {
+            Ok(())
+        }
+        other => Err(format!("request did not wait for the PDF slot: {other:?}").into()),
+    }
+}
+
+fn waits_for_release() -> Result<(), Error> {
+    let (mut server, _replay) = server(false)?;
+    let held = start_read(&server)?;
+    held_worker(&server)?;
+    let next = send(&server, &request(2, RECORDED))?;
+    pending(&next)?;
+    drop(held);
+    let reply = receive(next)?;
+    if content(&reply)?.pointer("/result/document/state") != Some(&json!("text")) {
+        return Err(format!("waiting read did not return text: {reply}").into());
+    }
+    server.stop()?;
+    Ok(())
+}
+
 fn parent_death() -> Result<(), Error> {
-    let (mut server, _replay) = server()?;
+    let (mut server, _replay) = server(false)?;
     let _held = start_read(&server)?;
     let mut worker = Orphan(Some(held_worker(&server)?));
     server.child.kill()?;

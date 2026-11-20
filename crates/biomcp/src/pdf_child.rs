@@ -85,6 +85,11 @@ pub(crate) fn serve(limits: ChildLimits) -> ExitCode {
 /// limit and the cap at work without a hostile file.
 #[cfg(debug_assertions)]
 fn exercise(bytes: &[u8]) {
+    #[cfg(target_os = "linux")]
+    if bytes.starts_with(b"%PDF-1.4\n%hold\n") {
+        use rustix::process::{Signal, getpid, kill_process};
+        let _ = kill_process(getpid(), Signal::STOP);
+    }
     if bytes.starts_with(b"%PDF-1.7\n%BIOMCP-TEST hang\n") {
         loop {
             std::thread::sleep(Duration::from_secs(1));
