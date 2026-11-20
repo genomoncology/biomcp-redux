@@ -1,6 +1,6 @@
 {
   "feature": "drug-label-history",
-  "story": "Aimovig's Warnings and Precautions first name Raynaud's phenomenon in SUPPL 26, approved 2025-03-21; SUPPL 22 and SUPPL 25 are Instructions for Use alone and are passed over; the reply names the version before it, gives the matching sentences, and stays under 3 KB.",
+  "story": "Aimovig's SUPPL 26 is an upper bound for Raynaud. Instructions for Use are excluded.",
   "live_check": "public",
   "replay": "drug/label-history-aimovig",
   "steps": [
@@ -18,7 +18,7 @@
         "Raynaud"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/section": "warnings_and_cautions",
         "/result/versions": 12,
         "/result/first/submission": "SUPPL 26",
@@ -28,7 +28,8 @@
         "/result/before/approved": "2022-10-03",
         "/result/before/state": "no-match",
         "/result/read/7/state": "not-prescribing-information",
-        "/result/read/9/state": "not-prescribing-information"
+        "/result/read/9/state": "not-prescribing-information",
+        "/result/on_or_before": true
       },
       "max_bytes": 3000
     }

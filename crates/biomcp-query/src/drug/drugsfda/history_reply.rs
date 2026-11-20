@@ -1,31 +1,105 @@
-//! The label-history reply's answer and method sentences (1066). An answer states a date or an
-//! absence only when the versions read establish it; otherwise it says BioMCP could not tell
-//! and how many versions were not read.
-use super::history::{MOST_READS, Path, Search, label};
-use biomcp_types::{LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState};
+//! Build the structured label-history reply and word only the claims it supports.
+use super::history::text;
+use super::history_read::{MOST_READS, Search};
+use super::history_search::Path;
+use super::history_settle::{holds, settle};
+use biomcp_adapters::drugsfda as source;
+use biomcp_fetch::RequestError;
+use biomcp_types::{
+    DrugLabelHistory, LabelHistorySection, LabelVersion, LabelVersionMatch,
+    LabelVersionState as State,
+};
+
+pub(super) fn reply(
+    search: &Search<'_, '_>,
+    row: &source::Application,
+    section: LabelHistorySection,
+    path: Path,
+) -> Result<(DrugLabelHistory, bool), RequestError> {
+    let settled = settle(search);
+    let mut body = DrugLabelHistory {
+        identity: row.header(),
+        section,
+        answer: text("BioMCP could not tell: the answer disagrees with the versions read.")?,
+        method: text(&method(path, search))?,
+        versions: search.versions.len() as u32,
+        first: settled
+            .first
+            .map(|at| matched(search, at))
+            .transpose()?
+            .flatten(),
+        before: settled.before.and_then(|at| version(search, at, true)),
+        on_or_before: settled.on_or_before,
+        not_opened: (search.versions.len() - search.opened.len()) as u32,
+        stopped: search.stopped,
+        read: search
+            .opened
+            .keys()
+            .filter_map(|&at| version(search, at, false))
+            .collect(),
+    };
+    let consistent = holds(search, &body);
+    if consistent {
+        body.answer = text(&answer(&body))?;
+    } else {
+        body.first = None;
+        body.before = None;
+        body.on_or_before = false;
+    }
+    Ok((body, consistent))
+}
+
+fn version(search: &Search<'_, '_>, at: usize, link: bool) -> Option<LabelVersion> {
+    let v = search.versions.get(at)?;
+    let state = search.get(at)?.state;
+    Some(LabelVersion {
+        approved: v.approved,
+        submission: v.submission.clone(),
+        state,
+        label: (link || !state.read()).then(|| v.label.clone()),
+    })
+}
+
+fn matched(search: &Search<'_, '_>, at: usize) -> Result<Option<LabelVersionMatch>, RequestError> {
+    let (Some(opened), Some(found), Some(version)) = (
+        search.get(at),
+        search.versions.get(at),
+        version(search, at, true),
+    ) else {
+        return Ok(None);
+    };
+    Ok(Some(LabelVersionMatch {
+        version,
+        letter: found.letter.clone(),
+        heading: opened.heading.as_deref().map(text).transpose()?,
+        sentences: opened
+            .sentences
+            .iter()
+            .map(|s| text(s))
+            .collect::<Result<_, _>>()?,
+        private_use: opened.private_use,
+    }))
+}
 
 /// A version's submission and its date.
-pub(super) fn named(v: &LabelVersion) -> String {
+fn named(v: &LabelVersion) -> String {
     match v.approved {
         Some(date) => format!("{}, approved {date}", v.submission.as_str()),
         None => v.submission.as_str().to_owned(),
     }
 }
 
-/// The answer in one or two sentences.
-pub(super) fn answer(
-    section: LabelHistorySection,
-    (first, before): (Option<&LabelVersionMatch>, Option<&LabelVersion>),
-    on_or_before: bool,
-    search: &Search<'_, '_>,
-    first_at: Option<usize>,
-) -> String {
-    let count = search.versions.len();
-    let read = search.opened.values().filter(|o| !o.gap()).count();
-    let unread = count - read;
-    let Some(first) = first else {
-        let usable = search.opened.values().filter(|o| o.usable()).count();
-        return if usable == 0 {
+fn answer(body: &DrugLabelHistory) -> String {
+    let section = body.section;
+    let Some(first) = &body.first else {
+        let count = body.versions as usize;
+        let read = body.read.iter().filter(|v| v.state.read()).count();
+        let unread = count - read;
+        let usable = body
+            .read
+            .iter()
+            .any(|v| matches!(v.state, State::NoMatch | State::SectionAbsent));
+        return if !usable {
             format!(
                 "BioMCP could not tell: no label version could be read for its {section} section; \
                  {unread} of {count} versions could not be read or were not opened."
@@ -40,82 +114,59 @@ pub(super) fn answer(
             )
         };
     };
-    let found = format!(
-        "First found in the {section} section of {}",
-        named(&first.version)
-    );
-    let mut said = match (before, on_or_before) {
-        (_, true) => format!(
-            "{found}; a version before it was not read, so the text appeared on or before {}.",
-            first
-                .version
-                .approved
-                .map_or("then".into(), |d| d.to_string())
-        ),
-        (Some(before), false) => format!(
-            "{found}; {}, the version before it, lacks it.",
+    let name = named(&first.version);
+    let mut said = if body.on_or_before {
+        format!("Text in {section} on or before {name}. Older labels remain unchecked.")
+    } else if let Some(before) = &body.before {
+        format!(
+            "First found in the {section} section of {name}. {} lacks it.",
             named(before)
-        ),
-        (None, false) => format!("{found}, the first label version Drugs@FDA lists."),
+        )
+    } else {
+        format!("First found in the {section} section of {name}.")
     };
-    if let (Some(newest), Some(at)) = (search.newest(), first_at)
-        && newest > at
-        && !search.matches(newest)
+    // Read directly from the checked list. A missing section is not a no-match.
+    if let Some(newest) = body.read.iter().rev().find(|v| {
+        matches!(
+            v.state,
+            State::Match | State::NoMatch | State::SectionAbsent
+        )
+    }) && newest.state == State::NoMatch
+        && let Some(last_match) = body.read.iter().rev().find(|v| v.state == State::Match)
     {
-        let held = search
-            .opened
-            .iter()
-            .rev()
-            .find(|(_, o)| o.state == LabelVersionState::Match)
-            .and_then(|(at, _)| label(search, *at));
         said.push_str(&format!(
-            " The newest version read, {}, lacks it, so the text was added and later removed; the \
-             last version read that holds it is {}.",
-            label(search, newest).unwrap_or_default(),
-            held.unwrap_or_default()
+            " The newest readable label, {}, lacks it. The last match read is {}.",
+            named(newest),
+            named(last_match)
         ));
     }
     said
 }
 
-/// How versions were chosen, and the assumption the answer rests on when it rests on one.
-pub(super) fn method(path: Path, search: &Search<'_, '_>) -> String {
+fn method(path: Path, search: &Search<'_, '_>) -> String {
     let count = search.versions.len();
     let read = search.opened.len();
-    let assumption = "This assumes text, once added, stays in later versions";
-    match path {
-        Path::Halved(earlier) => format!(
-            "Read the oldest and newest of {count} versions and halved between them, then spread \
-             the reads left before the first match{}: {read} PDFs read, at most {MOST_READS} per \
-             call. {assumption}.",
-            if earlier {
-                "; one held the text, so it halved toward that one"
-            } else {
-                "; none held it"
-            }
-        ),
-        Path::Present => format!(
-            "Read the oldest and newest of {count} versions: both have the text; {read} PDFs read."
-        ),
-        Path::Absent => format!(
-            "Read the oldest and newest of {count} versions; both lack the text, and none of the \
-             versions spread between them holds it: {read} PDFs read, at most {MOST_READS} per \
-             call. --every-version reads every version."
-        ),
-        Path::Returned => format!(
-            "Read the oldest and newest of {count} versions; both lack the text, but a version \
-             spread between them holds it, so it halved between the oldest and that one: {read} \
-             PDFs read, at most {MOST_READS} per call. {assumption} up to that one."
-        ),
-        Path::Removed => format!(
-            "The oldest version read has the text and the newest does not, so halving would not \
-             hold; read in order: {read} of {count}, at most {MOST_READS} per call."
-        ),
+    let strategy = match path {
+        Path::Halved(false) => "Halved and sampled earlier labels.".to_owned(),
+        Path::Halved(true) => {
+            "Halved, sampled earlier labels and halved toward an earlier match.".to_owned()
+        }
+        Path::Present => "Read from both ends.".to_owned(),
+        Path::Absent => "Read from both ends and sampled between them.".to_owned(),
+        Path::Returned => {
+            "Read from both ends, sampled between them and halved toward a match.".to_owned()
+        }
+        Path::Removed => "Read from both ends, then in order.".to_owned(),
         Path::Every(from) => format!(
-            "Read in order from version {} of {count}, as --every-version asks: {read} read, at \
-             most {MOST_READS} per call.",
+            "Read in order from version {}. This page uses only its own reads.",
             from + 1
         ),
-        Path::Unreadable => format!("Tried {read} of {count} label versions; none could be read."),
-    }
+        Path::Unreadable => "Looked for readable labels.".to_owned(),
+    };
+    let assumption = if matches!(path, Path::Halved(_) | Path::Returned) {
+        " Halving assumes text stays once added."
+    } else {
+        ""
+    };
+    format!("{strategy} {read}/{count} opened (limit {MOST_READS}).{assumption}")
 }

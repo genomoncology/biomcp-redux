@@ -1,6 +1,6 @@
 {
   "feature": "drug-label-history",
-  "story": "Livalo's Adverse Reactions first name myasthenia gravis in SUPPL 22, approved 2024-03-14, a section whose body headings lost their numbers in the PDF; the reply names the version before it, gives the matching sentences, and stays under 3 KB.",
+  "story": "Livalo's SUPPL 22 is an upper bound for myasthenia gravis. The section can be read despite missing heading numbers.",
   "live_check": "public",
   "replay": "drug/label-history-livalo",
   "steps": [
@@ -18,7 +18,7 @@
         "myasthenia gravis"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/section": "adverse_reactions",
         "/result/versions": 12,
         "/result/first/submission": "SUPPL 22",
@@ -26,7 +26,8 @@
         "/result/first/state": "match",
         "/result/before/submission": "SUPPL 20",
         "/result/before/approved": "2022-11-09",
-        "/result/before/state": "no-match"
+        "/result/before/state": "no-match",
+        "/result/on_or_before": true
       },
       "max_bytes": 3000
     }
