@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "article-search",
-  "story": "PubMed search rows say whether each paper is open access and give the license Europe PMC states, from one Europe PMC request for the page, so a reader can tell which papers may be shared.",
+  "story": "PubMed search rows say whether each paper is in PubMed Central's open-access subset, from one NCBI request for the page, and name that source; the licence comes only when the caller asks Europe PMC for it, so a reader can tell which papers may be shared and never reads an unchecked licence as none.",
   "replay": "article/search/pubmed-access-rights",
   "steps": [
     {
@@ -19,7 +19,7 @@
       "expect": {
         "/status": "complete",
         "/query/no_access_lookup": true,
-        "/result/items/*/open_access_unknown": {
+        "/result/items/*/open_access_not_checked": {
           "equals": [
             true,
             true
@@ -31,7 +31,7 @@
           ]
         }
       },
-      "max_bytes": 2035
+      "max_bytes": 2100
     },
     {
       "run": [
@@ -58,28 +58,82 @@
             false
           ]
         },
-        "/result/items/0/license": "cc_by_nc",
+        "/result/items/*/open_access_source": {
+          "equals": [
+            "pubmed",
+            "pubmed"
+          ]
+        },
+        "/result/items/*/license_not_checked": {
+          "equals": [
+            true,
+            true
+          ]
+        },
         "/result/items/0/header/pmcid": "PMC10031621",
-        "/result/items/1/license": "cc_by_nc_nd",
         "/result/items/0": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked",
+            "license"
           ]
         },
         "/result/items/1": {
           "omits": [
-            "open_access_unknown"
+            "open_access_not_checked",
+            "license"
           ]
         },
-        "/result/items/1/header": {
-          "omits": [
-            "pmcid"
+        "/sources/*/source": {
+          "equals": [
+            "pubmed"
           ]
         }
       },
-      "max_bytes": 2007
+      "max_bytes": 2100
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--exact-term",
+        "--offset",
+        "7",
+        "--limit",
+        "2",
+        "--license-lookup"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/license_lookup": true,
+        "/result/items/*/open_access": {
+          "equals": [
+            true,
+            false
+          ]
+        },
+        "/result/items/*/open_access_source": {
+          "equals": [
+            "europepmc",
+            "europepmc"
+          ]
+        },
+        "/result/items/0/license": "cc_by_nc",
+        "/result/items/1/license": "cc_by_nc_nd",
+        "/result/items/0": {
+          "omits": [
+            "license_not_checked"
+          ]
+        },
+        "/result/items/1": {
+          "omits": [
+            "license_not_checked"
+          ]
+        }
+      },
+      "max_bytes": 2100
     }
   ],
-  "verified": "2026-11-17 capture with biomcp --fresh --record in pm job j42460 of the PubMed search, the PubMed summaries for the page and the Europe PMC access lookup. Europe PMC states 36970111 (PMC10031621) isOpenAccess Y with license cc by-nc, and 42162665 isOpenAccess N with the publisher's cc by-nc-nd and no PMC copy. The Europe PMC reply keeps only each row's source, pmid, isOpenAccess and license. The ceiling is the measured 1,745-byte page plus 15 percent. Before 1046 the rows carry no open_access field.",
+  "verified": "2026-11-17 capture with biomcp --fresh --record in pm job j42460 of the PubMed search, the PubMed summaries for the page and the Europe PMC access lookup; Europe PMC states 36970111 (PMC10031621) isOpenAccess Y with license cc by-nc, and 42162665 isOpenAccess N with the publisher's cc by-nc-nd and no PMC copy, and its reply keeps only each row's source, pmid, isOpenAccess and license. 2026-11-19 (1072): NCBI's open-access ESearch for the page, BioMCP's exact request recorded live with Python, lists 36970111 and not 42162665. Before 1072 a default page asked Europe PMC and carried no open_access_source.",
   "harvest": "biomed-agent-bench msl persona: which papers may be shared"
 }

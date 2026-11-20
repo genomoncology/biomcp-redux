@@ -28,12 +28,17 @@ fn disease_unsupported(action: &Action) -> bool {
 fn search_supported(source: DiseaseSource) -> bool {
     matches!(source, DiseaseSource::Ols | DiseaseSource::Seer)
 }
+/// Whether this source serves the ID and section, so a refusal never offers a source that would come back
+/// not found. OLS holds only its own ontologies' IDs.
 fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &str) -> bool {
     match source {
-        DiseaseSource::Ols => matches!(
-            section,
-            None | Some(DiseaseSection::Synonyms | DiseaseSection::Xrefs)
-        ),
+        DiseaseSource::Ols => {
+            biomcp_types::DiseaseOntology::of(id).is_some()
+                && matches!(
+                    section,
+                    None | Some(DiseaseSection::Synonyms | DiseaseSection::Xrefs)
+                )
+        }
         DiseaseSource::MyDisease => {
             biomcp_adapters::mydisease::supported_id(id)
                 && matches!(
@@ -45,10 +50,14 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
                     )
                 )
         }
-        DiseaseSource::Monarch => matches!(
-            section,
-            Some(DiseaseSection::Genes | DiseaseSection::Phenotypes)
-        ),
+        // Monarch holds MONDO IDs; another ID is read through the MONDO record that cross-references it.
+        DiseaseSource::Monarch => {
+            biomcp_adapters::mydisease::supported_id(id)
+                && matches!(
+                    section,
+                    Some(DiseaseSection::Genes | DiseaseSection::Phenotypes)
+                )
+        }
         DiseaseSource::Seer => matches!(
             section,
             Some(DiseaseSection::Incidence | DiseaseSection::Survival)
@@ -90,7 +99,7 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
     };
     Some(UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some("section".into()),
-        message: None,
+        message: Some(biomcp_types::ErrorMessage::ArgumentMissing),
         valid_values: Some(values.into()),
         next: vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,

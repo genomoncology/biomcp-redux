@@ -2,6 +2,7 @@
 //! (sdlc/planning/saved-work.md, Commands). Each action is spelled as the command line's
 //! saved words, which `crate::saved_mcp` runs; `save_search` takes a search call in the form
 //! a reply's next steps use.
+use biomcp_types::ErrorMessage;
 use serde_json::{Map, Value, json};
 use std::ffi::OsString;
 
@@ -94,23 +95,38 @@ pub(super) fn parse(
         Some(Value::Null) | None => Map::new(),
         Some(_) => return None,
     };
-    let refuse = |argument: &str, valid: &[&str], catalog| {
+    let refuse_as = |argument: &str, valid: &[&str], catalog, message| {
         let valid = valid
             .iter()
             .map(|word| (*word).to_owned())
             .collect::<Vec<_>>();
-        Some(Err(super::rejected(argument, &valid, None, catalog)))
+        Some(Err(super::rejected(
+            argument, &valid, None, catalog, message,
+        )))
+    };
+    let refuse = |argument: &str, valid: &[&str], catalog| {
+        refuse_as(argument, valid, catalog, ErrorMessage::ArgumentValue)
     };
     let chosen = fields.get("action").and_then(Value::as_str);
     let Some(&(action, allowed)) = ACTIONS.iter().find(|(action, _)| Some(*action) == chosen)
     else {
-        return refuse("action", &ACTIONS.map(|(action, _)| action), catalog);
+        return refuse_as(
+            "action",
+            &ACTIONS.map(|(action, _)| action),
+            catalog,
+            super::cause(chosen),
+        );
     };
     if let Some(key) = fields
         .keys()
         .find(|key| key.as_str() != "action" && key.as_str() != action)
     {
-        return refuse(key, &["action", action], catalog);
+        return refuse_as(
+            key,
+            &["action", action],
+            catalog,
+            ErrorMessage::ArgumentUnknown,
+        );
     }
     let values = match fields.get(action) {
         Some(Value::Object(values)) => values.clone(),
@@ -119,11 +135,11 @@ pub(super) fn parse(
     };
     // Only the listed fields are read, so no call can name a path or anything else.
     if let Some(key) = values.keys().find(|key| !allowed.contains(&key.as_str())) {
-        return refuse(key, allowed, catalog);
+        return refuse_as(key, allowed, catalog, ErrorMessage::ArgumentUnknown);
     }
     let args = if action == "save_search" {
         let Some(name) = values.get("name").and_then(Value::as_str) else {
-            return refuse("name", allowed, catalog);
+            return refuse_as("name", allowed, catalog, ErrorMessage::ArgumentMissing);
         };
         let call = values.get("call").unwrap_or(&Value::Null);
         match search(context, name, call, read_only) {

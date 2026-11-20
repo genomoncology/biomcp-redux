@@ -16,6 +16,7 @@ mod article_save_reply;
 mod assertions;
 mod author_pools;
 pub(super) mod case_main;
+mod status_words;
 tool_only! { pub(super) mod cell_line; }
 tool_only! { mod disease_mydisease; }
 tool_only! { mod disease_ols; }
@@ -52,6 +53,7 @@ mod diagnostic_cdx;
 mod diagnostic_retirements;
 mod diagnostic_who;
 mod disease_monarch;
+mod disease_next;
 mod drug_approvals;
 mod drug_civic;
 mod drug_civic_fixtures;
@@ -81,6 +83,7 @@ mod mcp;
 mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
+mod offset_walks;
 mod recurrence;
 mod remote_tools;
 mod replay;
@@ -90,6 +93,7 @@ mod source_pacing;
 mod source_status;
 tool_only! { mod negative_cases; }
 use biomcp_test_support::network_stub;
+mod first_read;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
@@ -100,6 +104,7 @@ mod pathway_commands;
 mod pathway_get_pages;
 mod pathway_sections;
 mod pdf;
+mod pdf_child;
 mod pgx_retirements;
 mod phenotype;
 mod process;
@@ -364,13 +369,17 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
     trials.extend(orphadata_sync::trials());
+    trials.extend(disease_next::trials());
+    trials.extend(first_read::trials());
     trials.extend(source_text::trials());
+    trials.extend(offset_walks::trials());
     trials
 }
 
 fn transcript_trials() -> Vec<Trial> {
     let mut trials = call_queue::trials();
     trials.extend(hosted_cancel::trials());
+    trials.extend(pdf_child::trials());
     trials.extend([
         transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
             article_save::check().map_err(Into::into)

@@ -62,7 +62,7 @@ pub(super) fn fix(root: &Command, path: &[&str], args: &[OsString]) -> Option<Us
         };
         Some(UsageArguments {
             argument: Some(argument.into()),
-            message: Some(ErrorMessage::ArgumentGuidance),
+            message: Some(ErrorMessage::ArgumentValue),
             valid_values: super::validation::accepted(&schema, property),
             next,
         })

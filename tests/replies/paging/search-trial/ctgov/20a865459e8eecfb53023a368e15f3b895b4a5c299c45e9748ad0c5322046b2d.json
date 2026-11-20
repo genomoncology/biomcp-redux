@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped&pageSize=1&query.cond=%28melanoma%29&query.intr=%28%28%22IMCgp%20100%22%20OR%20%22IMCGP-100%22%20OR%20%22Imcgp100%22%20OR%20%22IMMTAC%20IMCGP100%22%20OR%20%22ImmTAC%20IMCgpgp%20100%22%20OR%20%22Kimmtrak%22%20OR%20%22tebentafusp%22%20OR%20%22Tebentafusp%20tebn%22%20OR%20%22Tebentafusp-tebn%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1795117188,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 65,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":20,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT02535078","briefTitle":"Phase 1b/2 Study of the Combination of IMCgp100 With Durvalumab and/or Tremelimumab in Advanced Cutaneous Melanoma"},"statusModule":{"overallStatus":"WITHDRAWN","startDateStruct":{"date":"2015-11","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2023-06-19","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2024-07-24"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Immunocore Ltd"}},"conditionsModule":{"conditions":["Malignant Melanoma"]},"designModule":{"phases":["PHASE1","PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Tebentafusp (IMCgp100)"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyUt27p6r-mpOQJJxubPGs3vYW"}
+      }
+    }
+  ]
+}

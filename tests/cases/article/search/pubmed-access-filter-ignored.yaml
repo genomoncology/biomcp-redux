@@ -1,0 +1,55 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "When NCBI answers the open-access check but says it did not recognise the open-access filter, the page does not read NCBI's list as the open-access subset: every row says open_access_not_checked, PubMed's search row stays ok and carries a notice naming the failed check, and the reply is partial with an incomplete entry at the first unchecked row, so a reader never takes an unfiltered list for open access or the search for failed.",
+  "replay": "article/search/pubmed-access-filter-ignored",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--exact-term",
+        "--offset",
+        "7",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/result/items/*/pmid": {
+          "equals": [
+            "36970111",
+            "42162665"
+          ]
+        },
+        "/result/items/*/open_access_not_checked": {
+          "equals": [
+            true,
+            true
+          ]
+        },
+        "/sources/0/source": "pubmed",
+        "/status": "partial",
+        "/sources/*/source": {
+          "equals": [
+            "pubmed"
+          ]
+        },
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/kind": {
+          "includes": "request-guidance"
+        },
+        "/incomplete": [
+          {
+            "at": "/result/items/0/open_access_not_checked",
+            "source": "pubmed",
+            "reason": "bad-reply"
+          }
+        ]
+      },
+      "max_bytes": 2457
+    }
+  ],
+  "verified": "Synthetic NCBI warning; see tests/replies/article/search/pubmed-access-filter-ignored/README.md. The ceiling is the measured 2,136-byte page (j43231) plus 15 percent. 2026-11-19 (1072). 1059 review: the failed check no longer marks the PubMed search row failed; the reply is partial and names the check.",
+  "harvest": "review of 1072: an ignored NCBI filter must not mark every row open access"
+}

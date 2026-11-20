@@ -1,6 +1,6 @@
 {
   "feature": "drug-native-sources",
-  "story": "A real failed authority leg survives earlier successful component metadata.",
+  "story": "A real failed authority leg survives earlier successful component metadata. A drug get that finds nothing while a name lookup that could have resolved it failed is failed, not absent (1059).",
   "verified": "All records, names and cross-source relations in this replay are authored synthetic regression witnesses.",
   "replay": "drug/source-aliases-review-evidence",
   "steps": [
@@ -31,7 +31,7 @@
         "/sources/0/state": "ok",
         "/sources/3/source": "chembl",
         "/sources/3/state": "failed",
-        "/status": "absent",
+        "/status": "failed",
         "/query/input": "EX-66",
         "/query/source": "opentargets",
         "/sources/0/notices/0/kind": "request-guidance",
@@ -45,7 +45,7 @@
           }
         }
       },
-      "exit": 1,
+      "exit": 4,
       "mcp_call": {
         "name": "drug",
         "arguments": {
@@ -55,7 +55,8 @@
             "source": "opentargets"
           }
         }
-      }
+      },
+      "is_error": true
     }
   ],
   "config": {

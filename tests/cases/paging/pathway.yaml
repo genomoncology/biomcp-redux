@@ -1,0 +1,118 @@
+{
+  "live_check": "public",
+  "feature": "list-paging",
+  "story": "A pathway's genes and events page with --limit and --offset on get and on the pathway subcommand alike, up to 200 rows, with no pool; a page past the end is empty with the total.",
+  "replay": "pathway/sections",
+  "verified": "Recorded Reactome relation for R-HSA-5673001: 332 distinct references and 81 events (tests/replies/pathway/sections/README.md). On main be96d8d40 get pathway refused --limit, and every nonzero offset without --pool was refused (1061).",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5673001",
+        "genes",
+        "--limit",
+        "200"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/genes/data/page/offset": 0,
+        "/result/genes/data/page/returned": 200,
+        "/result/genes/data/page/total": 332
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5673001",
+        "genes",
+        "--limit",
+        "200",
+        "--offset",
+        "200"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/genes/data/page/offset": 200,
+        "/result/genes/data/page/returned": 132,
+        "/result/genes/data/page/total": 332
+      }
+    },
+    {
+      "run": [
+        "pathway",
+        "genes",
+        "R-HSA-5673001",
+        "--limit",
+        "200",
+        "--offset",
+        "200"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/offset": 200,
+        "/result/page/returned": 132
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5673001",
+        "events",
+        "--limit",
+        "50",
+        "--offset",
+        "80"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/events/data/page/offset": 80,
+        "/result/events/data/page/returned": 1,
+        "/result/events/data/page/total": 81
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5673001",
+        "events",
+        "--limit",
+        "50",
+        "--offset",
+        "100"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/events/data/page/offset": 100,
+        "/result/events/data/page/returned": 0,
+        "/result/events/data/page/total": 81
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "R-HSA-5673001",
+            "section": "genes",
+            "limit": 200,
+            "offset": 200
+          }
+        }
+      },
+      "expect": {
+        "/query/section_limit": 200,
+        "/query/section_offset": 200,
+        "/result/genes/data/page/returned": 132
+      }
+    }
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
+}

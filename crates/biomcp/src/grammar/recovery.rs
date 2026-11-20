@@ -139,6 +139,24 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
+/// Drug markets takes a name alone, so its fix is the same call without the options it refused.
+pub(super) fn markets(
+    via: Rewrite,
+    path: (&str, &str),
+    value: &Value,
+    cause: &biomcp_types::QueryInvalid,
+) -> Option<Step> {
+    if cause.message() != Some(biomcp_types::ErrorMessage::DrugMarketsSource) {
+        return None;
+    }
+    let mut candidate = value.clone();
+    let fields = candidate.as_object_mut()?;
+    for name in cause.arguments() {
+        fields.remove(name.as_ref());
+    }
+    checked(via, path, candidate)
+}
+
 /// A certain correction replaces help: the refusal's only step is the call to run.
 pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<Step>) {
     if let Some(step) = corrected {
@@ -151,29 +169,6 @@ fn is_help(step: &Step) -> bool {
     step.args
         .first()
         .is_some_and(|word| word.as_ref() == "help")
-}
-
-/// Restart an unbound trial page without discarding its selection or source filters.
-pub(super) fn trial_first_page(
-    via: Rewrite,
-    path: (&str, &str),
-    value: &Value,
-    cause: &biomcp_types::QueryInvalid,
-) -> Option<Step> {
-    if !matches!(
-        cause.message(),
-        Some(
-            biomcp_types::ErrorMessage::TrialSectionPool
-                | biomcp_types::ErrorMessage::TrialSearchCursor
-        )
-    ) {
-        return None;
-    }
-    let mut first = value.clone();
-    first
-        .as_object_mut()?
-        .insert("offset".into(), Value::from(0));
-    checked(via, path, first)
 }
 
 /// A request refused before any source is read, for one argument with named valid values:

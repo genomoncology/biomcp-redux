@@ -51,7 +51,7 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, Re
     sync.value.downloaded_bytes += referrals.value.downloaded_bytes;
     Ok(sync)
 }
-/// Literal medicine-name candidates in native bundle order; never synchronize on reads.
+/// Literal medicine-name candidates in native bundle order; reads never refresh the bundle.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Words(query))?;
     let found = name_headers(&rows, query, false);
@@ -64,7 +64,7 @@ pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader
 /// A name match with its `marketing_authorisation_date`, absent when blank or unreadable.
 pub type Authorised = (DrugHeader, Option<biodata::PartialDate>);
 /// Resolve names from the existing local rows, including snapshots whose older word index omitted generic fields.
-/// Native ID lookup remains indexed; reads never synchronize or modify the stored snapshot.
+/// Native ID lookup remains indexed; reads never refresh or modify a stored snapshot.
 /// Each match comes with its authorisation date.
 pub fn search_names(
     leg: &Leg<'_>,

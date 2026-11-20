@@ -19,9 +19,9 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,
-    /// Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.
+    /// Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.
     #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     limit: u32,
     /// Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
     #[serde(default)]
@@ -34,7 +34,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
-    /// Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first.
+    /// Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read.
     #[serde(
         default,
         deserialize_with = "present",
@@ -60,7 +60,11 @@ fn default_limit() -> u32 {
 crate::query::validation::checked_query!(TrialGet, Fields);
 impl TryFrom<Fields> for TrialGet {
     type Error = QueryInvalid;
-    fn try_from(v: Fields) -> Result<Self, Self::Error> {
+    fn try_from(mut v: Fields) -> Result<Self, Self::Error> {
+        // A point with no section can only ask for the sites' distances (1057).
+        if v.lat.is_some() && v.lon.is_some() && v.section.is_empty() {
+            v.section = Box::new([TrialSection::Locations]);
+        }
         if v.source == TrialSource::Ctgov
             && v.section
                 .iter()
@@ -71,7 +75,7 @@ impl TryFrom<Fields> for TrialGet {
         if !(1..=20).contains(&v.input.len()) {
             return Err(QueryInvalid::new(&["input"]));
         }
-        if !(1..=100).contains(&v.limit) {
+        if !(1..=200).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
         if (v.pool.is_some() || v.offset != 0)
@@ -94,10 +98,6 @@ impl TryFrom<Fields> for TrialGet {
                 }
             }
             _ => return Err(QueryInvalid::new(&["lat", "lon"])),
-        }
-        if v.offset != 0 && v.pool.is_none() {
-            return Err(QueryInvalid::new(&["offset", "pool"])
-                .with_message(crate::ErrorMessage::TrialSectionPool));
         }
         Ok(Self(v))
     }

@@ -1,0 +1,28 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.CYP2D6&order=pairid.asc&limit=10&offset=10",
+  "exchanges": [
+    {
+      "fetched": 1795125397,
+      "status": 206,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "10-19/79",
+      "delay_ms": 182,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"pairid":110156,"drugid":"RxNorm:1547220","drugname":"eliglustat","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"A/B","clinpgxlevel":null,"pgxtesting":"Testing Required","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110160,"drugid":"RxNorm:2392230","drugname":"oliceridine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"A/B","clinpgxlevel":null,"pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110161,"drugid":"RxNorm:8331","drugname":"pimozide","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"A/B","clinpgxlevel":null,"pgxtesting":"Testing Required","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110163,"drugid":"RxNorm:10390","drugname":"tetrabenazine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"A/B","clinpgxlevel":null,"pgxtesting":"Testing Required","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110167,"drugid":"RxNorm:39786","drugname":"venlafaxine","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19, CYP2B6, SLC6A4, HTR2A and Serotonin Reuptake Inhibitor Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251452","cpiclevel":"B","clinpgxlevel":"1A","pgxtesting":"Informative PGx","pmids":["37032427"],"usedforrecommendation":"Yes","provisional":false}, 
+ {"pairid":110168,"drugid":"RxNorm:1455099","drugname":"vortioxetine","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19, CYP2B6, SLC6A4, HTR2A and Serotonin Reuptake Inhibitor Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251452","cpiclevel":"A","clinpgxlevel":"1A","pgxtesting":"Actionable PGx","pmids":["37032427"],"usedforrecommendation":"Yes","provisional":false}, 
+ {"pairid":110171,"drugid":"RxNorm:89013","drugname":"aripiprazole","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B","clinpgxlevel":"1A","pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110181,"drugid":"RxNorm:2597","drugname":"clomipramine","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19 and Tricyclic Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251445","cpiclevel":"B","clinpgxlevel":"1A","pgxtesting":"Informative PGx","pmids":["23486447","27997040"],"usedforrecommendation":"Yes","provisional":false}, 
+ {"pairid":110183,"drugid":"RxNorm:3247","drugname":"desipramine","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19 and Tricyclic Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251445","cpiclevel":"B","clinpgxlevel":"1A","pgxtesting":"Informative PGx","pmids":["23486447","27997040"],"usedforrecommendation":"Yes","provisional":false}, 
+ {"pairid":110187,"drugid":"RxNorm:3638","drugname":"doxepin","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19 and Tricyclic Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251445","cpiclevel":"B","clinpgxlevel":"1A","pgxtesting":"Informative PGx","pmids":["23486447","27997040"],"usedforrecommendation":"Yes","provisional":false}]
+      }
+    }
+  ]
+}

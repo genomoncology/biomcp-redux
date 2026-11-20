@@ -1,6 +1,6 @@
 //! FDA-published PDF text; article downloads retain their existing behavior.
 use biomcp_fetch::{Leg, RequestError, SourceSpec};
-use biomcp_types::{PdfText, PdfTextState, Reason, Source, SourceNotice};
+use biomcp_types::{PdfMissing, PdfText, PdfTextState, Reason, Source, SourceNotice};
 /// Maximum pages admitted before extracting text.
 pub const MAX_PAGES: usize = 100;
 /// Maximum expanded stream or total extracted text size.
@@ -77,6 +77,7 @@ pub fn whole(
         offset: 0,
         total: 0,
         text: None,
+        missing: None,
     };
     // FDA's historical document links use HTTP; retain that published spelling in the reply.
     let https = url
@@ -93,14 +94,55 @@ pub fn whole(
             Err(error) => return Err(error),
         };
     let deadline = leg.local_deadline();
-    let read = super::embedded(&bytes, MAX_PAGES, &|| deadline.expired())
+    let read = super::child::read(leg, &bytes, &|| deadline.expired())
         .map_err(|reason| error(spec.source, reason))?;
     result.pages = read.pages;
     result.state = read.state;
-    if result.state != PdfTextState::Text {
+    result.missing = read.missing;
+    if !result.state.readable() {
         return Ok((result, String::new()));
     }
     let text = read.text;
     result.total = fragment_starts(&text).len() as u32;
     Ok((result, text))
+}
+
+/// The reply notice for a partial read, saying what was cut or skipped, or for a damaged file,
+/// saying to fetch it another way.
+pub fn missing_notice(text: &PdfText) -> Option<SourceNotice> {
+    let message = match (text.state, text.missing) {
+        (PdfTextState::Damaged, _) => concat!(
+            "This PDF is damaged: its structure is broken or irregular, and BioMCP does not ",
+            "repair damaged PDFs, so none of its text was read. Fetch the document another way."
+        ),
+        (PdfTextState::Refused, _) => concat!(
+            "This PDF could not be read safely: reading it went over BioMCP's memory or time limit ",
+            "and was stopped, so none of its text was read. Fetch the document another way."
+        ),
+        (PdfTextState::Partial, missing) => partial_message(missing),
+        _ => return None,
+    };
+    Some(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: message.into(),
+        retry_after_seconds: None,
+    })
+}
+
+const fn partial_message(missing: Option<PdfMissing>) -> &'static str {
+    match missing {
+        Some(PdfMissing::Gibberish) => {
+            "Text this document draws in a font without a usable character map read as gibberish and was cut out, so some of its text is missing."
+        }
+        Some(PdfMissing::Skipped) => {
+            "A part of a page in this document could not be read and was skipped, so some of its text may be missing."
+        }
+        Some(PdfMissing::Both) => {
+            concat!(
+                "Text in a font without a usable character map read as gibberish and was cut out, ",
+                "and a part of a page could not be read, so some of this document's text is missing."
+            )
+        }
+        None => "Some of this document's text could not be read, so text may be missing.",
+    }
 }

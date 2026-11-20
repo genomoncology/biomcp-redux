@@ -1,0 +1,163 @@
+{
+  "method": "GET",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease/OMIM%3A121050?fields=mondo%2Cdisease_ontology",
+  "exchanges": [
+    {
+      "fetched": 1795109676,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_id": "MONDO:0007363",
+          "_version": 1,
+          "disease_ontology": {
+            "_license": "https://github.com/DiseaseOntology/HumanDiseaseOntology/blob/master/DO_LICENSE.txt",
+            "ancestors": [
+              "DOID:0050739",
+              "DOID:0050177",
+              "DOID:0080000",
+              "DOID:0050736",
+              "DOID:0050646",
+              "DOID:66",
+              "DOID:17",
+              "DOID:4",
+              "DOID:7",
+              "DOID:0080015",
+              "DOID:630"
+            ],
+            "children": [],
+            "def": "\"A distal arthrogryposis characterized by contractures, arachnodactyly, scoliosis, and crumpled ears that has_material_basis_in heterozygous mutation in the FBN2 gene on chromosome 5q23.3.\" [url:https\\://www.ncbi.nlm.nih.gov/pubmed/4552107, url:https\\://www.ncbi.nlm.nih.gov/pubmed/9106527, url:https\\://www.ncbi.nlm.nih.gov/pubmed/9714438]",
+            "descendants": [],
+            "doid": "DOID:0111595",
+            "name": "congenital contractural arachnodactyly",
+            "parents": [
+              "DOID:0050646",
+              "DOID:0050736",
+              "DOID:0080015"
+            ],
+            "synonyms": {
+              "exact": [
+                "arachnodactyly, contractural Beals type",
+                "Beals syndrome",
+                "Beals-Hecht syndrome",
+                "CCA",
+                "contractures, multiple with arachnodactyly",
+                "distal arthrogryposis type 9",
+                "ear anomalies-contractures-dysplasia of bone with kyphoscoliosis"
+              ]
+            },
+            "xrefs": {
+              "mesh": "C536211",
+              "mim": "121050",
+              "ncit": "C129865",
+              "ordo": "115",
+              "snomedct_us_2025_09_01": "205821003",
+              "umls_cui": "C0220668"
+            }
+          },
+          "mondo": {
+            "ancestors": [
+              "MONDO:0019755",
+              "MONDO:7770006",
+              "MONDO:0100545",
+              "MONDO:0019054",
+              "MONDO:0005395",
+              "MONDO:0003847",
+              "MONDO:0003939",
+              "MONDO:0002081",
+              "MONDO:0021147",
+              "MONDO:0017310",
+              "MONDO:0002320",
+              "MONDO:0023603",
+              "MONDO:0015225",
+              "MONDO:7770008",
+              "MONDO:0000001",
+              "MONDO:7770009",
+              "MONDO:0005071",
+              "MONDO:0700096",
+              "MONDO:0008779",
+              "MONDO:0019942",
+              "MONDO:7770007",
+              "MONDO:0003900"
+            ],
+            "definition": "Congenital contractural arachnodactyly (CCA, Beals syndrome) is a connective tissue disorder characterized by multiple flexion contractures, arachnodactyly, severe kyphoscoliosis, abnormal pinnae and muscular hypoplasia. [Orphanet:115]",
+            "has_material_basis_in_germline_mutation_in": {
+              "http": [
+                "http://identifiers.org/hgnc/3604"
+              ]
+            },
+            "label": "congenital contractural arachnodactyly",
+            "mondo": "MONDO:0007363",
+            "parents": [
+              "MONDO:0002320",
+              "MONDO:0008779",
+              "MONDO:0017310",
+              "MONDO:0019942"
+            ],
+            "synonym": {
+              "exact": [
+                "Beals syndrome",
+                "Beals-Hecht syndrome",
+                "CCA",
+                "CCA syndrome",
+                "distal arthrogryposis type 9"
+              ],
+              "related": [
+                "arachnodactyly, contractural Beals type",
+                "arthrogryposis, distal, type 9",
+                "contractures, multiple with arachnodactyly",
+                "DA9",
+                "Ear anomalies-contractures-dysplasia of bone with kyphoscoliosis"
+              ]
+            },
+            "xrefs": {
+              "doid": [
+                "DOID:0111595"
+              ],
+              "gard": [
+                "0005899"
+              ],
+              "icd11": [
+                "foundation:1376425921"
+              ],
+              "icd9": [
+                "759.89"
+              ],
+              "medgen": [
+                "67391"
+              ],
+              "mesh": [
+                "C536211"
+              ],
+              "nando": [
+                "2201026"
+              ],
+              "ncit": [
+                "C129865"
+              ],
+              "nord": [
+                "844"
+              ],
+              "omim": [
+                "121050"
+              ],
+              "orphanet": [
+                "115"
+              ],
+              "sctid": [
+                "205821003"
+              ],
+              "umls": [
+                "C0220668"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

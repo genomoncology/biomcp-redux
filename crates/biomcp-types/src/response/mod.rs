@@ -64,7 +64,7 @@ pub use gene::{GeneCards, GeneItem, GenePage};
 pub use page::{PageInfo, PoolInfo};
 pub use section::{Section, SourceRecord};
 pub use source::{CacheProblem, SourceNotice, SourceOutcome, SourceState};
-pub use status::{ItemStatus, Status};
+pub use status::{Incomplete, ItemStatus, Status};
 pub use step::{Step, StepKind};
 
 pub use gene::{SyncQuery, SyncResult};
@@ -211,7 +211,7 @@ pub use packet::ReplyData;
 pub use reply::{Reply, ReplyBody};
 
 mod pdf;
-pub use pdf::{PdfText, PdfTextHit, PdfTextState};
+pub use pdf::{PdfMissing, PdfText, PdfTextHit, PdfTextState};
 mod trial_results;
 pub use trial_results::{
     TrialAdverseEvents, TrialEnrollment, TrialEvent, TrialEventGroup, TrialEventStats,

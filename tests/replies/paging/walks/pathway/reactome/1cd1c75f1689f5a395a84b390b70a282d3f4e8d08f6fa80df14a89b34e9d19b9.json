@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "reactome",
+  "url": "https://reactome.org/ContentService/search/query?query=MAPK&rows=1&Start%20row=0&species=Homo%20sapiens&types=Pathway&types=TopLevelPathway&Force%20filters=true",
+  "exchanges": [
+    {
+      "fetched": 1795125404,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 51,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"results":[{"entries":[{"dbId":"9652817","stId":"R-HSA-9652817","id":"R-HSA-9652817","name":"Signaling by <span class=\"highlighting\" >MAPK</span> mutants","type":"Pathway","exactType":"Pathway","species":["Homo sapiens"],"summation":"Mutations in ERK proteins (MAPK1 and MAPK2) are rare, with mutations reported in ~8% of cervical cancers and 1.5% of head and neck squamous cell carcinomas (Ojesina et al, 2014; Cancer Genome Atlas, 2015; reviewed in Najafi et al, 2019). <span class=\"highlighting\" >MAPK</span> proteins with activating mutations are often still dependent on upstream phosphorylation by MAP2K proteins, but support sustained downstream signaling by virtue of being resistant to inactivating dephosphorylations (reviewed in Samatar and Poulikakos, 2014; Liu et al, 2018).","isDisease":true,"hasReferenceEntity":false,"hasEHLD":false,"disease":true}],"typeName":"Pathway","entriesCount":110,"rowCount":1}],"rowCount":1,"numberOfGroups":1,"numberOfMatches":110}
+      }
+    }
+  ]
+}

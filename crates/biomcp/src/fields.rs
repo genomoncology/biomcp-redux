@@ -6,13 +6,18 @@
 use biomcp_query::Action;
 use biomcp_types::{ErrorMessage, Request, Source, Step, StepKind, UsageArguments, UsageError};
 use serde_json::Value;
-use std::{collections::BTreeSet, io};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    io,
+};
 
 /// Names a search row offers, and those it always keeps (required or identifier).
 #[derive(Debug, Default)]
 struct Row {
     names: BTreeSet<String>,
     required: BTreeSet<String>,
+    /// Each name one level inside a field, with the first field that holds it.
+    inner: BTreeMap<String, String>,
 }
 
 fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
@@ -41,6 +46,11 @@ fn collect(node: &Value, root: &Value, row: &mut Row) {
     let node = resolve(node, root);
     if let Some(fields) = node.get("properties").and_then(Value::as_object) {
         row.names.extend(fields.keys().cloned());
+        for (name, property) in fields {
+            for inner in inner_names(property, root) {
+                row.inner.entry(inner).or_insert_with(|| name.clone());
+            }
+        }
         row.required.extend(
             fields
                 .iter()
@@ -66,6 +76,21 @@ fn collect(node: &Value, root: &Value, row: &mut Row) {
             collect(branch, root, row);
         }
     }
+}
+
+/// The property names of one field's object, across its nullable or variant branches.
+fn inner_names(node: &Value, root: &Value) -> Vec<String> {
+    let node = resolve(node, root);
+    let own = node.get("properties").and_then(Value::as_object);
+    let branches = ["anyOf", "oneOf"]
+        .into_iter()
+        .filter_map(|key| node.get(key).and_then(Value::as_array))
+        .flatten()
+        .filter_map(|branch| resolve(branch, root).get("properties")?.as_object());
+    own.into_iter()
+        .chain(branches)
+        .flat_map(|fields| fields.keys().cloned())
+        .collect()
 }
 
 /// The row of one reply schema, when its result carries `items`.
@@ -111,6 +136,9 @@ fn search_row(verb: &str, entity: &str) -> Row {
         if let Some(row) = reply_row(&reply) {
             union.names.extend(row.names);
             union.required.extend(row.required);
+            for (inner, field) in row.inner {
+                union.inner.entry(inner).or_insert(field);
+            }
         }
     }
     union
@@ -156,6 +184,7 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     }
     Err(UsageError::Arguments(UsageArguments {
         argument: Some("--fields".into()),
+        message: Some(ErrorMessage::FieldsUnknown),
         valid_values: row
             .names
             .iter()
@@ -163,7 +192,6 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
             .collect::<Option<Vec<_>>>()
             .map(Into::into),
         next,
-        ..Default::default()
     }))
 }
 
@@ -174,7 +202,7 @@ fn kept_step(parsed: &crate::grammar::Parsed, row: &Row) -> Vec<Step> {
         let field = if row.names.contains(name) {
             Some(name)
         } else {
-            nearest(row, name)
+            nearest(row, name).or_else(|| row.inner.get(name))
         };
         if let Some(field) = field.filter(|field| !chosen.contains(&field.as_str())) {
             chosen.push(field.as_str());
@@ -219,6 +247,12 @@ fn source_rows(verb: &str, entity: &str) -> Vec<(&'static str, Row)> {
                 let row = Row {
                     names: union.names.iter().filter(|n| keep(n)).cloned().collect(),
                     required: union.required.iter().filter(|n| keep(n)).cloned().collect(),
+                    inner: union
+                        .inner
+                        .iter()
+                        .filter(|(_, field)| keep(field))
+                        .map(|(n, f)| (n.clone(), f.clone()))
+                        .collect(),
                 };
                 (source.as_str(), row)
             })
@@ -266,7 +300,7 @@ fn source_check(
     }
     Err(UsageError::SourceSelector {
         source,
-        message: ErrorMessage::ArgumentGuidance,
+        message: ErrorMessage::FieldsUnknown,
         option: "--fields".into(),
         valid_values: row
             .names

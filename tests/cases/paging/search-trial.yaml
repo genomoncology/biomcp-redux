@@ -1,0 +1,88 @@
+{
+  "live_check": "public",
+  "feature": "list-paging",
+  "story": "A trial search pages to its end with --limit and --offset alone: an offset without a registry token reaches its row through the registry's own pages, and a page past the end is empty with the total.",
+  "replay": "paging/search-trial",
+  "verified": "Recorded live ClinicalTrials.gov and MyChem replies on 2026-11-19: melanoma with tebentafusp and its other names matched 20 trials. On main be96d8d40 an offset without --next-page was refused (1061).",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "tebentafusp",
+        "--limit",
+        "8"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 0,
+        "/page/returned": 8,
+        "/page/total": 20
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "tebentafusp",
+        "--limit",
+        "8",
+        "--offset",
+        "8"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 8,
+        "/page/returned": 8,
+        "/page/total": 20,
+        "/next/0/kind": "page"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "tebentafusp",
+        "--limit",
+        "8",
+        "--offset",
+        "16"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 16,
+        "/page/returned": 4,
+        "/page/total": 20
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "tebentafusp",
+        "--limit",
+        "8",
+        "--offset",
+        "24"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 24,
+        "/page/returned": 0,
+        "/page/total": 20
+      }
+    }
+  ]
+}

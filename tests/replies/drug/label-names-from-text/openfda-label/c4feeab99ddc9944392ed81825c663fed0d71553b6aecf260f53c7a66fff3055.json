@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=set_id%3A%220036d6fc-eed6-ee87-e063-6294a90a8022%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"meta\":{\"results\":{\"skip\":0,\"limit\":1,\"total\":1}},\"results\":[{\"id\":\"0b7644d3-9fd6-b562-e063-6294a90ae44b\",\"set_id\":\"0036d6fc-eed6-ee87-e063-6294a90a8022\",\"version\":\"6\",\"effective_time\":\"20231201\",\"openfda\":{},\"spl_product_data_elements\":[\"Vicks VapoRub ADVANCED PLUS Camphor, Eucalyptus oil, Menthol N-((ETHOXYCARBONYL)METHYL)-P-MENTHANE-3-CARBOXAMIDE PARAFFIN TURPENTINE OIL PETROLATUM THYMOL CEDAR LEAF OIL NUTMEG OIL EUCALYPTUS OIL EUCALYPTUS OIL MENTHOL, UNSPECIFIED FORM MENTHOL, UNSPECIFIED FORM CAMPHOR (SYNTHETIC) CAMPHOR (SYNTHETIC)\"],\"package_label_principal_display_panel\":[\"PRINCIPAL DISPLAY PANEL - 2.82 OZ (80 g) jar NEW VICKS ® VapoRub™ ADVANCED PLUS COUGH SUPPRESSANT TOPICAL ANALGESIC POWERFUL COUGH RELIEF VAPORS LAST UP TO 8 HOURS NET WT 2.82 OZ (80 g) OINTMENT 001\"],\"indications_and_usage\":[\"Uses • when applied to chest and throat, temporarily relieves cough due to minor throat and bronchial irritation associated with the common cold • when applied to muscles and joints, temporarily relieves minor aches and pains of muscles and joints\"]}]}"
+      }
+    }
+  ]
+}

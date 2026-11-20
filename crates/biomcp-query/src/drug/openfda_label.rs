@@ -256,18 +256,17 @@ fn select(
         return card(cx, query, record, fetched, out);
     }
     let recent_major_changes = recent(query, record, &mut out.problems);
-    let Some(heading) = query.label_section().map(|h| h.as_str()) else {
+    let Some(asked) = query.label_section().map(|h| h.as_str()) else {
         out.body = section_names(query, record, recent_major_changes)?;
         return Ok(());
     };
-    if !source::HEADINGS.contains(&heading) {
-        out.body = biomcp_types::ReplyData::Usage(invalid_heading(record)?);
+    // A name openFDA does not use is absent from this label like a field the label lacks.
+    let Some(heading) =
+        biomcp_types::openfda_label_field(asked).filter(|heading| record.has_heading(heading))
+    else {
+        out.body = absent_heading(query, record, asked, recent_major_changes)?;
         return Ok(());
-    }
-    if !record.has_heading(heading) {
-        out.body = absent_heading(query, record, heading, recent_major_changes)?;
-        return Ok(());
-    }
+    };
     let offset = query.section_offset().unwrap_or(0);
     let label = match record.label(heading, offset, fragment_limit(query), cx.label_bytes)? {
         Some(mut data) => {
@@ -304,7 +303,7 @@ fn select(
     out.body = (DrugLabel {
         identity: record.header()?,
         recent_major_changes,
-        hint: no_room(&label)?,
+        hint: no_room(&label)?.or(printed_name(asked, heading)?),
         label,
         sections: Box::default(),
     })
@@ -342,6 +341,18 @@ fn no_room(label: &Section<DrugLabelText>) -> Result<Option<biodata::Text>, Requ
         }
         _ => Ok(None),
     }
+}
+
+/// Name the openFDA field read when the caller asked by the printed label's name for it, so the
+/// reply says which field the text came from.
+fn printed_name(asked: &str, heading: &str) -> Result<Option<biodata::Text>, RequestError> {
+    if asked == heading {
+        return Ok(None);
+    }
+    format!("{asked} is the printed label's name for this section; this reply reads openFDA's {heading} field")
+        .parse()
+        .map(Some)
+        .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))
 }
 
 fn page(offset: u32, returned: u32, total: u64) -> PageInfo {
@@ -429,18 +440,4 @@ fn headings(record: &source::Record) -> Result<Box<[biodata::Text]>, RequestErro
         .collect::<Result<Vec<_>, _>>()
         .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))
         .map(Into::into)
-}
-
-fn invalid_heading(record: &source::Record) -> Result<biomcp_types::UsageError, RequestError> {
-    Ok(biomcp_types::UsageError::SourceSelector {
-        source: SOURCE,
-        message: biomcp_types::ErrorMessage::LabelSectionMissing,
-        option: "--label-section".into(),
-        valid_values: headings(record)?,
-        next: vec![biomcp_types::Step {
-            kind: StepKind::Configure,
-            args: ["help", "get", "drug"].map(Into::into).into(),
-            options: Default::default(),
-        }],
-    })
 }

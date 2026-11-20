@@ -126,14 +126,20 @@ fn retained(env: &Environment, first: &Value) -> Result<(), String> {
     if mismatch.pointer("/error/code") != Some(&json!("usage.pool_mismatch")) {
         return Err("section pool accepted another selector".into());
     }
-    call(
+    // A page past the end of a pooled collection is empty with its total (1061).
+    let past = call(
         env,
         None,
         &[
             "protein", "features", "P00533", "--limit", "1", "--pool", pool, "--offset", "100",
         ],
-        3,
+        0,
     )?;
+    if past.pointer("/page/returned") != Some(&json!(0))
+        || past.pointer("/page/offset") != Some(&json!(100))
+    {
+        return Err("a page past the end was not empty".into());
+    }
     let next = super::super::action(first, "page")?;
     let words: Vec<_> = next.iter().map(String::as_str).collect();
     let page = call(env, None, &words, 0)?;

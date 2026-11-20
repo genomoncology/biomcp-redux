@@ -43,7 +43,7 @@ struct SearchFields {
     cpic_level: Option<Text>,
     /// Rows per native page.
     #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::SEARCH_PAGE_MAX)))]
     limit: u32,
     /// Source offset.
     #[serde(default)]
@@ -56,7 +56,7 @@ impl TryFrom<SearchFields> for PgxSearch {
         if v.source != PgxSource::Cpic {
             return Err(QueryInvalid::new(&["source"]));
         }
-        if !(1..=50).contains(&v.limit) {
+        if !(1..=crate::SEARCH_PAGE_MAX).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
         Ok(Self(v))

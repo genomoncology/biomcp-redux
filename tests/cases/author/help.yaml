@@ -13,7 +13,7 @@
             "--pool"
           ]
         },
-        "/result/commands/0/description": "Search research paper authors. Sources: pubmed, semantic-scholar.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields: affiliations, counts, id, name. Choose some with --fields a,b (typed: fields list); always kept: id.",
+        "/result/commands/0/description": "Search research paper authors. Sources: pubmed, semantic-scholar.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: affiliations, counts, id, name. Choose some with --fields a,b (typed: fields list); always kept: id.",
         "/result/commands/0/examples": {
           "count": 1
         },

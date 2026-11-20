@@ -1,4 +1,4 @@
-use super::{PathwayId, QueryInvalid, Text, default_limit, native_id, reactome, valid_limit};
+use super::{PathwayId, QueryInvalid, Text, default_limit, native_id, reactome};
 use serde::{Deserialize, Serialize};
 /// Explicit full physical-context disclosure; omission keeps membership compact.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -17,9 +17,9 @@ macro_rules! fields {
             #[serde(with = "native_id")]
             #[cfg_attr(feature = "schema", schemars(with = "str", regex(pattern = $pattern), extend("x-positional" = 0)))]
             id: PathwayId,
-            /// Five complete relation rows by default, at most fifty.
+            /// Five complete relation rows by default, at most 200.
             #[serde(default = "default_limit")]
-            #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+            #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
             limit: u32,
             /// Offset within the retained selected relation.
             #[serde(default)]
@@ -54,7 +54,7 @@ macro_rules! relation {
         impl TryFrom<$fields> for $name {
             type Error = QueryInvalid;
             fn try_from(v: $fields) -> Result<Self, Self::Error> {
-                if !valid_limit(v.limit) { return Err(QueryInvalid::new(&["limit"])); }
+                if !(1..=crate::HELD_PAGE_MAX).contains(&v.limit) { return Err(QueryInvalid::new(&["limit"])); }
         $check(&v)?;
                 Ok(Self(v))
             }

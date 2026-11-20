@@ -179,20 +179,21 @@ impl Leg<'_> {
             Err(self.failure(biomcp_types::Reason::Syncing, None).into())
         }
     }
-    /// Read only the last validated local bundle, even when fresh or replay is selected.
-    /// A first live reader waits for an active publisher within its deadline.
-    /// Missing data without an active publisher still requires explicit synchronization.
+    /// Read the last validated local bundle; a stored copy is never refreshed on read.
+    /// A first live reader waits for an active publisher within its deadline. With no
+    /// copy and no publisher, a live reader fetches it once within `auto_sync_max_bytes`.
     pub fn stored_rows<R: Row>(
         &self,
         bundle: &Bundle<R>,
         find: Find<'_>,
     ) -> Result<(Vec<R>, BundleInfo), RequestError> {
-        self.name_busy(self.read_stored_rows(bundle, find))
+        self.name_busy(self.read_stored_rows(bundle, find, || self.sync_for_read(bundle).map(drop)))
     }
-    fn read_stored_rows<R: Row>(
+    pub(super) fn read_stored_rows<R: Row>(
         &self,
         bundle: &Bundle<R>,
         find: Find<'_>,
+        first: impl FnOnce() -> Result<(), RequestError>,
     ) -> Result<(Vec<R>, BundleInfo), RequestError> {
         self.bundle_source(bundle)?;
         let cache = self.bundle_cache()?;
@@ -212,6 +213,11 @@ impl Leg<'_> {
             waiting = true;
             snapshot = cache.stored_bundle(bundle.name, find, self.budget())?;
         }
+        // Offline and replay never fetch; a live first read fetches the missing copy (1055).
+        if snapshot.is_none() && matches!(self.fetch.mode, Mode::Live { .. }) {
+            first()?;
+            snapshot = cache.stored_bundle(bundle.name, find, self.budget())?;
+        }
         let store::StoredBundle { meta, rows, sample } =
             snapshot.ok_or_else(|| self.failure(biomcp_types::Reason::Syncing, None))?;
         let rows = decode(rows)?;
@@ -227,7 +233,7 @@ impl Leg<'_> {
     }
     // A busy store stays a local error, and the leg also names why the read stopped:
     // its deadline ran out, or another writer held the bundle store.
-    fn name_busy<T>(&self, result: Result<T, RequestError>) -> Result<T, RequestError> {
+    pub(super) fn name_busy<T>(&self, result: Result<T, RequestError>) -> Result<T, RequestError> {
         if matches!(result, Err(RequestError::Cache(crate::CacheError::Busy))) {
             let reason = if self.budget().expired() {
                 biomcp_types::Reason::DeadlineExceeded

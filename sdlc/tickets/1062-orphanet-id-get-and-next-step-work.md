@@ -1,6 +1,7 @@
 # 1062 — orphanet-id-get-and-next-step-work
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 38fdfd859e6c4f934a2b5e06aaf6cfea8205ab3e
 
 Milestone: 7
 
@@ -31,6 +32,7 @@ An agent given an Orphanet number was refused, followed the step BioMCP suggeste
 ## Defers
 
 - Defers: Orphanet's own mapping relation (exact, broader, narrower) if the held cross-references do not carry it; say so in the ticket.
+- Deferred, 2026-11-19: neither held cross-reference carries it. MyDisease's `mondo.xrefs` lists bare codes, and the OLS MONDO term's `hasDbXref` rows name their supporting source but no relation. The reply names the mapping in `alias` (the MONDO record's `mydisease:mondo.xrefs.orphanet`, `.omim` or `.doid` row) and states no exactness. In MyDisease on 2026-11-19 no Orphanet or OMIM code appeared on more than one MONDO record.
 
 ## Changes
 

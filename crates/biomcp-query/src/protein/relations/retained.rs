@@ -16,8 +16,9 @@ pub(super) fn load(
             .push(status::source(Source::UniProt, leg.finish(), Some(e)));
         return Err(e);
     }
-    let (_, offset, selected) = q.window();
-    if selected.is_none() && offset != 0 || selected.is_some() && cx.fresh {
+    let (_, _, selected) = q.window();
+    // An offset without a pool reads the current copy, or starts one, as a first page does (1061).
+    if selected.is_some() && cx.fresh {
         restart(q, out, false);
         return Ok(None);
     }

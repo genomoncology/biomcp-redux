@@ -823,7 +823,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nOnly with --source openfda-label.",
+          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nThe printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.\nA section the label lacks, or a name openFDA does not use, lists the sections the label has.\nOnly with --source openfda-label.",
           "x-comma-separated": true
         },
         "partner": {
@@ -859,7 +859,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
+          "description": "Named section page size, refused on an identity-only card.\nAt most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere.",
           "format": "uint32",
           "maximum": 200,
           "minimum": 1,
@@ -1500,6 +1500,46 @@
       "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
+    "Reply_Incomplete": {
+      "description": "One thing a `partial` reply is missing, pointing at the detail already in the reply.",
+      "properties": {
+        "at": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "JSON pointer into this reply, such as `/sources/1` or a record's field."
+        },
+        "code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ProblemCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The refused record's own problem code, when a problem is the cause."
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Why, when a typed source reason is known."
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "The source whose data is missing."
+        }
+      },
+      "required": [
+        "at",
+        "source"
+      ],
+      "type": "object"
+    },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
       "properties": {
@@ -1606,7 +1646,11 @@
       "enum": [
         "text",
         "no-text",
-        "too-large"
+        "too-large",
+        "garbled",
+        "partial",
+        "damaged",
+        "refused"
       ],
       "type": "string"
     },
@@ -1718,7 +1762,8 @@
         " The source was disabled.",
         " No recording matched the request.",
         " The source data was being synchronized.",
-        " Identity lacks the identifier required to join this source."
+        " Identity lacks the identifier required to join this source.",
+        " The source document was read but does not state the value."
       ],
       "x-extensible-enum": [
         "not-found",
@@ -1739,7 +1784,8 @@
         "disabled",
         "replay-miss",
         "syncing",
-        "no-join-id"
+        "no-join-id",
+        "not-stated"
       ]
     },
     "Reply_Section_DrugRecords_DrugFdaSubmission": {
@@ -2594,6 +2640,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
+    "incomplete": {
+      "description": "What a `partial` reply is missing; present only on `partial` replies.",
+      "items": {
+        "$ref": "#/$defs/Reply_Incomplete"
+      },
+      "type": "array"
+    },
     "local_error": {
       "anyOf": [
         {

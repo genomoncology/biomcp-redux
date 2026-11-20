@@ -1,6 +1,6 @@
 {
   "feature": "drug-approvals",
-  "story": "A drug's Drugs@FDA approvals take an inclusive status-date window, with the window and its count stated, and a whole application history of 128 submissions fits in one 200-row page; pages above 50 rows read no supplement letters and say so; other sources keep the 50-row limit.",
+  "story": "A drug's Drugs@FDA approvals take an inclusive status-date window, with the window and its count stated, and a whole application history of 128 submissions fits in one 200-row page; pages above 50 rows read no supplement letters and say so; sections a source pages itself, such as ChEMBL targets, keep the 50-row limit.",
   "live_check": "public",
   "verified": "Native openFDA Drugs@FDA reply for BLA125514 recorded 2026-11-13 with biomcp --record in pm job j39043; body unchanged. The whole-history page measured 90,461 bytes and the 2024-onward window 19,979 bytes in that job.",
   "replay": "drug/approvals-window",
@@ -150,9 +150,9 @@
         "get",
         "drug",
         "imatinib",
-        "xrefs",
+        "targets",
         "--source",
-        "mychem",
+        "chembl",
         "--section-limit",
         "60"
       ],

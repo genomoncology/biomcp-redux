@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 // The fixed migration-message schema expands one enum of wire literals.
-#![recursion_limit = "256"]
+#![recursion_limit = "512"]
 use biodata::{
     AccessionBase, Attribution, Build, Chromosome, Concept, Curie, Cytoband, Doi, EnsemblGeneId,
     Error, EuropePmcId, Expression, ExpressionSyntax, FiniteNumber, GeneSymbol, HgncId, HgvsText,
@@ -18,7 +18,7 @@ mod paged;
 pub use latin::latin_base;
 mod openfda;
 pub use openfda::{openfda_phrase, openfda_words};
-pub use paged::Paged;
+pub use paged::{HELD_PAGE_MAX, Paged, SEARCH_PAGE_MAX};
 mod research;
 pub use research::{
     ResearchEnvelope, ResearchFetch, ResearchHit, ResearchSearch, ResearchSearchMetadata,
@@ -112,9 +112,9 @@ pub use response::{
 };
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{
-    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, ResponseBody,
-    Section, SourceOutcome, SourceRecord, SourceState, SourceStatus, SourceStatusView, Status,
-    Step, StepKind,
+    EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, Incomplete, ItemStatus, PageInfo,
+    ResponseBody, Section, SourceOutcome, SourceRecord, SourceState, SourceStatus,
+    SourceStatusView, Status, Step, StepKind,
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{
@@ -200,7 +200,7 @@ pub use drug::{
     DrugRegulatoryPart, DrugSearch, DrugSection, DrugSectionBody, DrugSectionPart,
     DrugSectionReply, DrugSections, DrugSource, DrugTargets, DrugTargetsPart, DrugWhoCard,
     DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart, OPENFDA_LABEL_HEADINGS,
-    WhoDateStatus,
+    WhoDateStatus, openfda_label_field,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
@@ -311,7 +311,7 @@ pub use coverage::{command_implicit_sources, command_section_component, command_
 #[cfg(feature = "schema")]
 pub use adverse_event::AdverseEventSearchCommand;
 
-pub use response::{PdfText, PdfTextHit, PdfTextState};
+pub use response::{PdfMissing, PdfText, PdfTextHit, PdfTextState};
 pub use response::{
     TrialAdverseEvents, TrialBaseline, TrialBaselineMeasure, TrialEnrollment, TrialEvent,
     TrialEventGroup, TrialEventStats, TrialFlowAchievement, TrialFlowDrop, TrialFlowMilestone,

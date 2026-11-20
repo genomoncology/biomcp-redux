@@ -22,9 +22,11 @@ mod pair;
 mod phenotypes;
 mod raw;
 mod read;
+mod search;
 pub use pair::pair;
 pub use phenotypes::{PhenotypeList, drug_phenotypes};
-pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommendations, search};
+pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommendations};
+pub use search::search;
 
 /// Native gene collection shared by record reads and the bounded health probe.
 pub(crate) const GENE_PATH: &str = "/gene";

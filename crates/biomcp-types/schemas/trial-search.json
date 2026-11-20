@@ -538,14 +538,14 @@
     },
     "offset": {
       "default": 0,
-      "description": "Page offset.\nZero-based offset of the first row in this continuation page.",
+      "description": "Rows to skip.\nZero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent.",
       "format": "uint32",
       "minimum": 0,
       "type": "integer"
     },
     "phase": {
       "$ref": "#/$defs/TrialPhaseFilter",
-      "description": "Native phase; help search trial\nNative phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
+      "description": "Native phase; help search trial\nNative phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV."
     },
     "query": {
       "$ref": "#/$defs/Text",

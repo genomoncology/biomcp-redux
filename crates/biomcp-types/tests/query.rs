@@ -36,14 +36,14 @@ fn get_rejects_empty_and_oversized_batches_at_constructor_and_json_boundary() {
 }
 #[test]
 fn search_checks_selectors_and_page_bounds_at_both_entry_points() {
-    for limit in [0, 1, 10, 50, 51] {
+    for limit in [0, 1, 10, 200, 201] {
         assert_eq!(
             GeneSearch::new(Some(Text::new("BRAF").unwrap()), None, limit, u32::MAX).is_ok(),
-            (1..=50).contains(&limit)
+            (1..=200).contains(&limit)
         );
         assert_eq!(
             serde_json::from_value::<GeneSearch>(json!({"query":"BRAF", "limit":limit})).is_ok(),
-            (1..=50).contains(&limit)
+            (1..=200).contains(&limit)
         );
     }
     assert!(GeneSearch::new(None, None, 10, 0).is_err());

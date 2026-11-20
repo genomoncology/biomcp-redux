@@ -100,16 +100,21 @@ pub(super) fn read<T: serde::de::DeserializeOwned + Native>(
         problems: problems.list,
     })
 }
-/// Search exact gene pairs, preserving native level namespaces and row order.
-pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, RequestError> {
+/// Search exact gene pairs at `offset`, preserving native level namespaces and row order.
+pub(super) fn pairs(
+    leg: &Leg<'_>,
+    query: &PgxSearch,
+    offset: u32,
+    limit: u32,
+) -> Result<Page<PgxPair>, RequestError> {
     let gene = format!("eq.{}", query.gene());
     let level = query.cpic_level().map(|v| format!("eq.{}", v.as_str()));
     let mut args = vec![
         ("select", Arg::Text("*")),
         ("genesymbol", Arg::Text(&gene)),
         ("order", Arg::Text("pairid.asc")),
-        ("limit", Arg::Num(query.limit().into())),
-        ("offset", Arg::Num(query.offset().into())),
+        ("limit", Arg::Num(limit.into())),
+        ("offset", Arg::Num(offset.into())),
     ];
     if let Some(level) = &level {
         args.push(("cpiclevel", Arg::Text(level)));
@@ -118,8 +123,8 @@ pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, Request
         leg,
         "/pair_view",
         &args,
-        query.offset(),
-        query.limit(),
+        offset,
+        limit,
         false,
         |rows: &[PgxPair], _range| {
             rows.iter().all(|r| {

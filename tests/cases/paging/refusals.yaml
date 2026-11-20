@@ -1,0 +1,148 @@
+{
+  "live_check": "synthetic",
+  "feature": "list-paging",
+  "story": "A paging word a command does not take is refused with the paging options it does take, named --limit and --offset wherever those page the command; a ClinicalTrials.gov offset deeper than the ID walk reaches is refused before any request and names --next-page; help says in one line which options page the command.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA022363",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--page",
+        "2"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--page",
+        "/error/valid_values": [
+          "--limit",
+          "--offset"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "BRAF",
+        "--skip",
+        "3"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--skip",
+        "/error/valid_values": [
+          "--limit",
+          "--offset"
+        ]
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "recurrence",
+        "rs113488022",
+        "--offset",
+        "3"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--offset",
+        "/error/valid_values": [
+          "--limit",
+          "--page"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT03734029",
+        "locations",
+        "--limit",
+        "201"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--limit",
+        "/error/valid_values/0": "integer >= 1 <= 200"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--offset",
+        "5001"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--offset",
+        "/error/valid_values": [
+          "integer >= 0 <= 5000",
+          "--next-page"
+        ],
+        "/error/message": "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper"
+      }
+    },
+    {
+      "run": [
+        "help",
+        "search",
+        "trial",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent."
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "drug",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "Paging: --limit and --offset; --section-limit and --section-offset are the same options."
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "variant",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "Paging: --limit and --offset page the named section, else the candidates; --candidate-limit and --candidate-offset page the candidates when a section is named."
+          ]
+        }
+      }
+    }
+  ]
+}

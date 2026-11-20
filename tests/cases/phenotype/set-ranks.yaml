@@ -97,7 +97,7 @@
           "get",
           "disease",
           "MONDO:0010451",
-          "--section-limit",
+          "--limit",
           "5"
         ],
         "/next/2/args": [
@@ -268,7 +268,12 @@
       "expect": {
         "/status": "usage",
         "/error/option": "--offset",
-        "/error/message": "Monarch returns one ranked list of at most 50 rows for a set of HP IDs and has no further pages; drop --offset and raise --limit up to 50"
+        "/error/message": "Monarch returns one ranked list of at most 50 rows for a set of HP IDs and has no further pages; drop --offset and raise --limit up to 50",
+        "/error": {
+          "omits": [
+            "valid_values"
+          ]
+        }
       }
     },
     {

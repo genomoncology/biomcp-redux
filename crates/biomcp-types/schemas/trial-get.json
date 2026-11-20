@@ -72,13 +72,13 @@
     },
     "lat": {
       "$ref": "#/$defs/Text",
-      "description": "Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first."
+      "description": "Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read."
     },
     "limit": {
       "default": 10,
-      "description": "Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.",
+      "description": "Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.",
       "format": "uint32",
-      "maximum": 100,
+      "maximum": 200,
       "minimum": 1,
       "type": "integer"
     },

@@ -47,10 +47,6 @@ fn read(
             .push(status::source(Source::Vaers, leg.finish(), Some(error)));
         return Err(error);
     }
-    if q.offset() > 0 && q.snapshot().is_none() {
-        expired(q, out);
-        return Ok(());
-    }
     let (saved, snapshot) = if let Some(snapshot) = q.snapshot() {
         let saved: Option<Saved> =
             source_snapshot::read(cx, &key(q)?, snapshot.as_str(), deadline)?;

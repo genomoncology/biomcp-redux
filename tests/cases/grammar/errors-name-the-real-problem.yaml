@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "Usage errors name the real fault: a missing build rather than a valid source, SEER for incidence, the 20-ID article limit, a raw variant query without its source, a saved-result name BioMCP never issued, an offset without a saved result, and --fields on a get.",
+  "story": "Usage errors name the real fault: a missing build rather than a valid source, SEER for incidence, the 20-ID article limit, a raw variant query without its source, a saved-result name BioMCP never issued, a paging word the command lacks, answered with the paging options it takes, and --fields on a get.",
   "steps": [
     {
       "run": [
@@ -158,19 +158,19 @@
         "protein",
         "structures",
         "O75417",
-        "--limit",
-        "25",
-        "--offset",
-        "25"
+        "--page",
+        "2"
       ],
       "exit": 2,
       "is_error": true,
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/option": "--offset",
-        "/error/message": "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the suggested first-page command, then follow its next command",
-        "/next/0/kind": "restart"
+        "/error/option": "--page",
+        "/error/valid_values": [
+          "--limit",
+          "--offset"
+        ]
       }
     },
     {

@@ -73,7 +73,15 @@ singleton! {
  --limit or --section-limit, select one source or section, or fetch one exact record",
  SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
+ // No longer sent since 1064, which names the cause; the 1.0 schema keeps the literal.
  ArgumentGuidance => "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+ ArgumentMissing => "required option missing: add error.option with a value valid_values accepts",
+ ArgumentNoValue => "option given without a value: give error.option a value valid_values accepts",
+ ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
+ ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
+ ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
+ ArgumentCombination => "error.option is not accepted with the other options as given; valid_values names every option involved",
+ FieldsUnknown => "--fields takes top-level row fields from valid_values; next puts each name it can place in the field that holds it",
  FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named \
  sections instead",
  SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next \
@@ -94,8 +102,7 @@ singleton! {
  SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",
  SavedNoteUnknown => "no saved note has this ID; biomcp saved show lists the notes",
  SavedAccount => "saved work in hosted mode needs a signed-in account; sign in to save searches, lists and notes",
- HostedKey => "add the source key in your account settings",
- UnknownCommand => "unknown command; use the suggested help command",
+ HostedKey => "add the source key in your account settings", UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
 
         GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; \
@@ -127,7 +134,6 @@ singleton! {
         AdverseFrom => "renamed; use: --received-from",
         AdverseTo => "renamed; use: --received-to",
         // Preserve the published error/1 literal; active guidance uses AdverseSeriousChoices.
-
         AdverseSeriousChoices => "--serious accepts any, death, hospitalization, lifethreatening, disabling, congenital-anomaly or other",
         AdverseFilter => "this adverse-event filter is not supported",
         AdverseFaers => "renamed; use: --source faers",
@@ -135,8 +141,6 @@ singleton! {
         AdverseRecalls => "recalls are outside this entity",
         AdverseDeviceRecalls => "use: search diagnostic --source fda-device-recall; covers every medical device",
         AdverseSource => "choose --source faers or --source maude",
-
-
         VaersVaccineChoices => "supported vaccines are MMR and COVID19, or one exact native influenza code; use search \
             adverse-event influenza --source vaers to list influenza codes and labels",
         VaersInfluenzaCodes => "Choose one exact native influenza vaccine code; tables remain separate and are never summed. One \
@@ -147,8 +151,6 @@ singleton! {
         AdverseOutcomes => "use the card seriousness flags and the reactions section",
         AdverseConcomitant => "renamed; use: drugs",
         AdverseSection => "choose a named adverse-event section",
-
-
         DiagnosticSearchSources => "choose --source gtr, who-ivd or fda-cdx for search; choose --source gtr, who-ivd, fda-pma or fda-510k for exact get",
         DiagnosticRecallSources => "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
             choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
@@ -233,7 +235,7 @@ singleton! {
         DiseasePhenotypeFilter => "deferred; no proved native HPO-ID disease filter",
         DiseaseOnset => "dropped; clinical-course fields are not an onset filter",
         DiseaseNoFallback => "retired; disease search never falls back or rewrites a zero result",
-        DiseaseLimit => "use: --limit",
+        DiseaseLimit => "use: --limit", OffsetPastText => "--offset is past the end of this text; valid_values gives its offsets in characters",
         DiseaseJson => "use: --format json",
         DiseaseFresh => "use: --fresh to bypass cached replies",
         DiseaseOntologySelector => "use: search disease <TEXT> --source ols --ontology <mondo|doid|ncit>; mesh is not supported",
@@ -258,7 +260,7 @@ singleton! {
         DiseaseDrugs => "use: search drug --source chembl --indication <TEXT>; no disease synonym expansion",
         DiseaseLabelSearch => "use: search drug --source openfda-label --indication <TEXT>; no disease synonym expansion",
         PhenotypeSet => "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch",
-        PhenotypeHelp => "use: help phenotype",
+        PhenotypeHelp => "use: help phenotype", TrialOffsetDeep => "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper",
         PhenotypeHpoSearch => "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
         PhenotypeSetOptions => "--group, --metric and --search-mode rank genes or diseases for HP IDs only; give the text \
             as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes",
@@ -296,6 +298,8 @@ singleton! {
         DrugSafety => "safety is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
         DrugShortage => "shortage is not yet supported in the cancer-care drug slice.",
         DrugAll => "all is not supported: select one named source section.",
+        DrugMarketsSource => "markets takes a drug name alone, with no --source or other option, and reads each market's own \
+            source; drop error.option, as in: get drug <NAME> markets",
         DrugInteractions => "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         DrugTrials => "use: search trial --intervention <text>; no inferred aliases",
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
@@ -323,14 +327,12 @@ singleton! {
         ProteinUnreviewed => "--include-unreviewed is not yet supported because no unreviewed positive was captured",
         ProteinString => "STRING is deferred because its mapping returns one STRING ID for the two distinct CDKN2A protein \
             products; use: get protein <ACCESSION> complexes", // Unsent since 1029; kept for the 1.0 schema.
-        StudyList => "use: search study",
-        StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
+        StudyList => "use: search study", StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
             whole-study analytical installs are retired",
         StudyMutationProfile => "the mutations section reads only a mutation profile of this study; choose \
             --molecular-profile from valid_values",
         StudyCalculate => "local calculations are dropped by the entity boundary ruling; use: get study ID and the source study page",
-        StudyCharts => "charts are retired",
-        StudyDirectory => "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",
+        StudyCharts => "charts are retired", StudyDirectory => "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",
         PathwayText => "use: search pathway <text>",
         PathwayClass => "--type is retired: the accepted pathway class is enforced and needs no filter.",
         PathwayKegg => "KEGG pathways are dropped; use a Reactome R-HSA-… or WikiPathways WP… ID.",
@@ -341,10 +343,8 @@ singleton! {
         PathwayTrials => "use: search trial --gene <gene>; pathway-name trial search is retired.",
         PathwayHelp => "use: help search pathway; help get pathway",
         DrugArticles => "use: search article --drug <drug>", Pathway => "moved to the pathway entity",
-        Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression",
-        Drug => "moved to the drug entity",
+        Band => "use: --band", Dropped => "dropped in 1.0", Expression => "use: expression", Drug => "moved to the drug entity",
  Diagnostic => "moved to the diagnostic entity",
-
  PoolExpired => "pool expired; restart the search",
  PoolMismatch => "pool selectors do not match this search"
     }
@@ -489,7 +489,7 @@ impl ErrorEnvelope {
     }
     fn article_part_range(&mut self, input: crate::ArticleInput, last: u32) {
         self.error.option = Some("--part".into());
-        self.error.message = ErrorMessage::ArgumentGuidance;
+        self.error.message = ErrorMessage::ArgumentValue;
         self.error.count = Some(u64::from(last));
         self.error.valid_values = Some(if last == 0 {
             Box::default()
@@ -565,7 +565,7 @@ impl ErrorDetail {
         self.option = arguments.argument;
         self.message = arguments.message.unwrap_or_else(|| {
             if self.option.is_some() && arguments.valid_values.is_some() {
-                ErrorMessage::ArgumentGuidance
+                ErrorMessage::ArgumentValue
             } else {
                 ErrorMessage::Arguments
             }

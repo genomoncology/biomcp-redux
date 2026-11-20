@@ -89,6 +89,7 @@ const LAYERS: &[(&str, &[&str])] = &[
             "serde",
             "serde_json",
             "quick-xml",
+            "rustix",
         ],
     ),
 ];

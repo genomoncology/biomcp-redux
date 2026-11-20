@@ -8,20 +8,19 @@ use biomcp_types::{
     TrialGet, TrialSection, TrialSource,
 };
 const SECTION_BYTES: usize = 6000;
-pub(super) fn valid(q: &TrialGet, s: &Snapshot) -> bool {
+/// The length an offset is past, for text; a row list past its end is an empty page (1061).
+pub(super) fn past_text(q: &TrialGet, s: &Snapshot) -> Option<usize> {
     let n = match q.sections().first() {
         Some(TrialSection::Eligibility) => s
             .detail
             .eligibility
             .as_ref()
             .map_or(0, |e| e.unstructured.len()),
-        Some(TrialSection::Outcomes) => s.detail.outcomes.len(),
-        Some(TrialSection::Arms) => s.detail.arms.len(),
-        Some(TrialSection::Diseases) => s.detail.diseases.len(),
         Some(TrialSection::Summary) => s.detail.summary.as_ref().map_or(0, |s| s.chars().count()),
+        Some(TrialSection::Outcomes | TrialSection::Arms | TrialSection::Diseases) => return None,
         _ => 0,
     };
-    q.offset() as usize <= n
+    (q.offset() as usize > n).then_some(n)
 }
 pub(super) fn render(
     q: &TrialGet,

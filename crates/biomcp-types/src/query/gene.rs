@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 const MIN_INPUTS: usize = 1;
 const MAX_INPUTS: usize = 20;
 const MIN_LIMIT: u32 = 1;
-const MAX_LIMIT: u32 = 50;
+const MAX_LIMIT: u32 = crate::HELD_PAGE_MAX;
 
 pub use super::validation::QueryInvalid;
 

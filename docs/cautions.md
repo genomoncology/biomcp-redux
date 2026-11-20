@@ -8,13 +8,21 @@ Keep cache and store folders on a local disk, or a local Docker named volume. Sh
 
 CLI saves require `--replace` for existing files. Stdio MCP allows new-file saves and refuses `--save` with `--replace` before provider requests or file changes. HTTP server calls refuse saves. CLI and stdio MCP saves belong to the caller and create no download directory or saved-file registry.
 
+## Article open-access flags
+
+A `search article` row's `open_access` comes from the source named in `open_access_source`. By default it is `pubmed`: BioMCP sends one NCBI request per page with the filter that, in [PubMed Central's words](https://pmc.ncbi.nlm.nih.gov/tools/openftlist/), finds "all Open Access Subset articles" in PubMed, and the subset "includes journal articles and preprints that are made available under Creative Commons or similar licenses that allow more liberal redistribution and reuse than a traditionally copyrighted work." With `--license-lookup`, or on a row Europe PMC itself returned, it is `europepmc`: Europe PMC's own `isOpenAccess` flag, which follows Europe PMC's definition, not PubMed Central's. On 440 papers from 44 searches on 2026-11-19, the two disagreed on 92: NCBI listed 90 as open access that Europe PMC did not, mostly recent deposits Europe PMC had not yet indexed, and Europe PMC flagged 2 that NCBI did not. BioMCP does not decide which is right. Only the Europe PMC lookup reads licences, so a row without one says `license_not_checked`; "not checked" never means "no licence". License terms vary: read the article's own license statement before reuse.
+
+## Partial replies and drug-name lookups
+
+A reply is `complete` only when every source in `sources` answered or was skipped on purpose. A failed, stale or syncing source makes it `partial`, and `incomplete`, right after `status`, lists each missing thing with its source, its reason (or, for a record BioMCP refused, the problem's own `code`) and a pointer to the detail in the reply. A source the caller disabled is not missing data: a section skipped for that reason leaves the reply `complete` and adds no entry, as long as another section of the same record was read. When the disabled source was the only thing the caller asked that record for, the reply is `partial` and lists the section with reason `disabled`, so the caller sees it was not read rather than an empty answer. A get that finds nothing while a lookup that could have resolved the name failed says `failed`, not `absent`. When an article search's open-access or licence check fails, the search's own source row stays as the search left it and carries a notice naming the check, and the reply is `partial` with an entry at the first unchecked row. This holds for lookups a command makes by itself: when `search article` or `search trial` widens a drug name through MyChem or ChEMBL and that lookup fails, the reply is `partial`, because names the search should have sent may be missing. `--exact-term` skips the lookup.
+
 ## Trial documents
 
 The reply preserves the source URL, document metadata and license without granting reuse rights. Documents are downloaded as bounded PDF bytes and never read as text.
 
 ## FDA approval documents
 
-`get diagnostic P170019 summary --source fda-pma` reads FDA's published SSED. `get drug NDA021588 approvals --source drugsfda --document-id 64255` reads the native submission's approval letter. The reader returns mechanically extracted embedded text, without summaries or clinical interpretation. It admits at most 25 MiB, 100 pages, and 4 MiB of expanded stream or total text. Each continuation returns at most 6144 escaped text bytes. `no-text` means no embedded text was found, including scanned documents; OCR is not run. `too-large` reports a reader bound. Native document URLs and submission ownership remain visible.
+`get diagnostic P170019 summary --source fda-pma` reads FDA's published SSED. `get drug NDA021588 approvals --source drugsfda --document-id 64255` reads the native submission's approval letter. The reader returns mechanically extracted embedded text, without summaries or clinical interpretation. It admits at most 25 MiB, 100 pages, and 4 MiB of expanded stream or total text. Each continuation returns at most 6144 escaped text bytes. It reads text that a page draws through embedded form objects. `no-text` means no embedded text was found, including scanned documents; OCR is not run. When a font's character map has a header the PDF library refuses, the reader reads the map's own code ranges and mappings again. Text shown in a composite font with no character map, or one over the reader's bounds, gives glypyph numbers, not characters; when that text reads as gibberish it is cut out. `garbled` means gibberish was most of the document, and no text is returned. `partial` means text was returned, but gibberish was cut out or a part of a page could not be read, so some text may be missing. `too-large` reports a reader bound, including a document that holds over a million objects or whose cross-reference data is unusually large. `damaged` means the file is broken or irregular, for example cut short or with objects that overlap, so no text was read; BioMCP does not repair damaged PDFs, so fetch the document another way. An encrypted PDF that keeps its objects in object streams is also refused as `damaged`, because its object streams cannot be measured before they are decrypted. Each PDF is read in a separate process that is stopped at the call's time limit and, on Linux, at a memory cap (`pdf_memory_limit_mib`); `refused` means reading was stopped there, so the document could not be read safely and no text was returned. On macOS only the time limit applies. A document whose text state is anything but `text` makes the reply `partial`, and `incomplete` lists its text. Native document URLs and submission ownership remain visible.
 
 Do not put patient names, identifiers or other private information in query text; source queries may be sent to public providers.
 
@@ -34,9 +42,13 @@ The `value.unknown` membership and method problems identify facts the structured
 
 `get disease MONDO:0016512 xrefs --source ols --section-limit 50` shows publisher-supplied HTTP(S) links in `target_url`. The row's `attribution` identifies the MONDO record that states the cross-reference. BioMCP copies the target without opening it. The NORD link for `NORD:1318` leads to the Kabuki syndrome page, which lists All Things Kabuki. The old GARD query link on the same record does not establish a link to GARD's Kabuki syndrome page. [OLS MONDO record](https://www.ebi.ac.uk/ols4/api/ontologies/mondo/terms?obo_id=MONDO:0016512) · [NORD Kabuki syndrome page](https://rarediseases.org/rare-diseases/kabuki-syndrome/)
 
+## Disease IDs read through MONDO
+
+`get disease ORPHA:115` and `get disease OMIM:121050` read the MONDO record whose cross-references state that code, and `alias` names the cross-reference row used. Gene and phenotype sections read Monarch for that MONDO record, and a MyDisease notice names the mapping. The mapping is MONDO's cross-reference, not Orphanet's own mapping relation, so the MONDO record may be broader than the code asked for, such as a group for a subtype code. A MONDO record that MONDO marks obsolete is still returned, with a notice naming any replacement MONDO gives.
+
 ## Orphanet prevalence
 
-`get disease MONDO:0016512 prevalence --source orphadata` reads Orphanet's prevalence estimates, average age of onset and type of inheritance from a local copy of two Orphadata files, `en_product9_prev.xml` and `en_product9_ages.xml`. Run `sync orphadata` to install or refresh them; reads never download. A MONDO or DOID concept reaches Orphanet only through the Orphanet cross-references MONDO states for it, which the reply lists under `links`; BioMCP adds no name or ontology matching. A MONDO Orphanet link can name a related or broader Orphanet entity, such as a clinical subtype, so each item carries Orphanet's own label and disorder type. A concept without an Orphanet link returns no rows and marks `orphadata` skipped with `no-join-id`. `Orphanet:2322` reads one disorder directly.
+`get disease MONDO:0016512 prevalence --source orphadata` reads Orphanet's prevalence estimates, average age of onset and type of inheritance from a local copy of two Orphadata files, `en_product9_prev.xml` and `en_product9_ages.xml`. Run `sync orphadata` to install or refresh them; a live first read fetches a missing copy under `auto_sync_max_bytes`, reads never refresh a stored copy, and offline and replay never fetch. A MONDO or DOID concept reaches Orphanet only through the Orphanet cross-references MONDO states for it, which the reply lists under `links`; BioMCP adds no name or ontology matching. A MONDO Orphanet link can name a related or broader Orphanet entity, such as a clinical subtype, so each item carries Orphanet's own label and disorder type. A concept without an Orphanet link returns no rows and marks `orphadata` skipped with `no-join-id`. `Orphanet:2322` reads one disorder directly.
 
 Each estimate keeps Orphanet's type, qualification, class, mean value, geography, source text and validation status as published, with PubMed IDs taken from the source text. The mean value is per 100,000 people for a value-and-class estimate and a count for cases or families; a class-only estimate has no value. BioMCP neither pools nor ranks estimates. The reply records the file release date and version.
 
@@ -103,13 +115,13 @@ A FAERS card, drug row or reaction row keeps every source code and puts the word
 
 ## Local bundles
 
-HGNC and ClinGen reads can synchronize absent or stale bundles under `auto_sync_max_bytes`. Offline mode never synchronizes. EMA, GTR, WHO and cBioPortal studies read explicitly synchronized stored bundles and never synchronize on read. Missing stored bundles offer an explicit sync command; stale stored rows remain readable with a stale marker. A hosted server answers from its stored copy past the refresh date without the stale marker, and the reply states the date that copy was retrieved.
+HGNC and ClinGen reads can synchronize absent or stale bundles under `auto_sync_max_bytes`. Other stored sources, such as EMA, WHO, FDA companion diagnostics, Orphadata and cBioPortal studies, fetch a missing bundle on a live first read under the same limit and never refresh a stored one on read. Offline mode and replay never download. A missing bundle over the limit, such as GTR, offers an explicit sync command; stale stored rows remain readable with a stale marker. A hosted server answers from its stored copy past the refresh date without the stale marker, and the reply states the date that copy was retrieved.
 
 EMA's medicines file holds some `?` characters where a symbol such as `≥` was lost before publication, as in `?10 g/dl`. They cannot be told from a real question mark, so EMA indications show them as published.
 
 ## GTR search
 
-Diagnostic reads use the stored pair and never synchronize it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
+Diagnostic reads use the stored pair and never refresh it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
 
 Each resolved row carries `gene_count`, the distinct symbols in the test's native genes cell (1 for a single-gene test, hundreds for an exome-scale one), its native `method_categories`, and the laboratory's state, postcode and country. `url` is the test's GTR page. Search rows do not carry the laboratory's street, city, directors or order link; the test's card does. A page holds at most 50 rows, so a gene with a few hundred tests takes a few pages: `page.total` gives the count and the reply offers the next page.
 
@@ -127,7 +139,7 @@ The observed total counts the complete received collection and does not claim a 
 
 ## WHO diagnostic cards
 
-Each row retains its whole name, code, assay format, manufacturer, marker, regulatory-version text and prequalification year. Reads use the stored export and never synchronize it. WHO cards have no section command. WHO terms reserve commercial and substantial reproduction rights; `--disable-sources noncommercial` disables stored cards, searches and synchronization.
+Each row retains its whole name, code, assay format, manufacturer, marker, regulatory-version text and prequalification year. Reads use the stored export: a live first read fetches a missing copy under `auto_sync_max_bytes`, reads never refresh a stored copy, and offline and replay never fetch. WHO cards have no section command. WHO terms reserve commercial and substantial reproduction rights; `--disable-sources noncommercial` disables stored cards, searches and synchronization.
 
 ## PMA submissions and supplements
 
@@ -153,7 +165,7 @@ openFDA answers HTTP 400 to `! # $ ; ? ^ | ~`, the backtick and every character 
 
 ## WHO finished products
 
-Reads never download. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is noncommercial and links WHO's copyright policy.
+Reads use the stored export: a live first read fetches a missing copy under `auto_sync_max_bytes`, reads never refresh a stored copy, and offline and replay never fetch. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is noncommercial and links WHO's copyright policy.
 
 ## WHO essential medicines
 
@@ -161,11 +173,11 @@ Reads never download. Results preserve native combined INN, dosage-form and stre
 
 ## WHO diagnostic search
 
-Both selectors match literal whole words in their native columns, ignore case and combine on the same source row. Search returns five product headers by default and groups repeated code rows by exact WHO Product ID. Reads never download or synchronize. A WHO listing does not establish FDA authorization or clinical suitability.
+Both selectors match literal whole words in their native columns, ignore case and combine on the same source row. Search returns five product headers by default and groups repeated code rows by exact WHO Product ID. Reads use the stored export: a live first read fetches a missing copy under `auto_sync_max_bytes`, reads never refresh a stored copy, and offline and replay never fetch. A WHO listing does not establish FDA authorization or clinical suitability.
 
 ## Study metadata
 
-Text matches literally and case-insensitively in native study IDs, names and descriptions; cancer-type codes remain case-sensitive. Reads never synchronize. Missing or stale copies offer an explicit sync command. Returned page commands retain the catalog revision and every selector. cBioPortal uses ODbL with original-study attribution unless otherwise noted; individual studies may restrict commercial use. The catalog contains metadata only. File references preserve repository blob size and native LICENSE links without downloading data files. Source counts keep their native names. No frequency, denominator, survival or comparison is calculated. Gene-count rows and patient totals remain deferred because the source lacks a gene-row filter.
+Text matches literally and case-insensitively in native study IDs, names and descriptions; cancer-type codes remain case-sensitive. A live first read fetches a missing catalog; reads never refresh a stored one, and stale copies offer an explicit sync command. Returned page commands retain the catalog revision and every selector. cBioPortal uses ODbL with original-study attribution unless otherwise noted; individual studies may restrict commercial use. The catalog contains metadata only. File references preserve repository blob size and native LICENSE links without downloading data files. Source counts keep their native names. No frequency, denominator, survival or comparison is calculated. Gene-count rows and patient totals remain deferred because the source lacks a gene-row filter.
 
 ## Phenotype sections
 
@@ -213,7 +225,7 @@ Each source keeps its own outcome and release dates. Composite reads never reque
 
 ## GenCC submissions
 
-`get gene ODC1 gencc` reads the local GenCC bundle by HGNC identity. Run `sync gencc` to install or refresh it. Reads keep stale rows and mark the source stale. Health checks report publisher reachability and local bundle readiness separately.
+`get gene ODC1 gencc` reads the local GenCC bundle by HGNC identity. A live first read fetches a missing bundle under `auto_sync_max_bytes`; run `sync gencc` to refresh it. Reads never refresh a stored copy, offline and replay never fetch, and reads keep stale rows and mark the source stale. Health checks report publisher reachability and local bundle readiness separately.
 
 Each record keeps GenCC's submission ID, version, submitter, disease, inheritance, classification and dates in file order. BioMCP neither merges submissions nor ranks classifications. An empty section means the stored export contains no matching rows.
 
@@ -262,7 +274,7 @@ Search rows carry the same classification. One exact enforcement request per pag
 
 The MAUDE next step selects the recall's product code across manufacturers. Recall records and adverse-event reports remain separate source facts. Neither establishes product-specific harm or clinical suitability.
 
-openFDA label search first tries exact brand and generic fields, then word matches, then indication wording, then other label text. The first field query with native results supplies every page and its total. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand or generic value, falling back to the native SPL set ID when neither is available. Product-data paragraphs remain in the original label sections.
+openFDA label search first tries exact brand and generic fields, then word matches, then indication wording, then other label text. The first field query with native results supplies every page and its total. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand or generic value. A label without either, which openFDA leaves for some labels, takes the leading words of its own product data only where a display panel text prints them whole, ended by an opening parenthesis with at most one ® or ™ directly before it, or as the whole of that text. The indications section is never read, because it names the drug family, such as ZYPREXA for ZYPREXA Zydis. A plain-text (R) or (TM) reads as ® or ™, not as an opening parenthesis. Known limits: a name can drop a salt the panel prints after the parenthesis, such as Terbinafine for Terbinafine Hydrochloride from "terbinafine (equivalent to ...", and can drop a trailing bracketed word, such as Kogenate FS Antihemophilic Factor without (Recombinant). Otherwise, as for a brand printed alone before more product words, the row has no `name`, never its set ID or a cut-short name, and a search page notice lists those rows and how to read them. Product-data paragraphs remain in the original label sections.
 
 `search drug --indication "pancreatic cancer" --source openfda-label` searches only the label's native `indications_and_usage` field. It preserves the phrase without disease synonym expansion or clinical inference. An optional name query further narrows that same search. Results remain SPL label identities in source order, with the source total; follow `get drug` and the label section to read the original wording. Drugs@FDA does not support this filter.
 

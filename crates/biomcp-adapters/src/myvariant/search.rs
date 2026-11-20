@@ -33,7 +33,7 @@ impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
         if self.error.is_some()
             || self.success == Some(false)
-            || self.hits.len() > 50
+            || self.hits.len() > biomcp_types::SEARCH_PAGE_MAX as usize
             || self.hits.len() as u64 > self.total
         {
             return Err(BadReply);

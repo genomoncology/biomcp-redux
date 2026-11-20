@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=rs113488022&size=1000&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann%2Cchrom%2Chg19%2Chg38%2Cclingen.caid&assembly=hg38",
+  "exchanges": [
+    {
+      "fetched": 1795117303,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 259,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":6,"total":3,"max_score":12.36808,"hits":[{"_id":"chr7:g.140753336A>G","_score":12.36808,"chrom":"7","clingen":{"caid":"CA16602736"},"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":{"symbol":"BRAF"},"rsid":"rs113488022"},"hg38":{"end":140753336,"start":140753336},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":{"cdna":{"length":"2946","position":"1860"},"cds":{"length":"2301","position":"1799"},"effect":"missense_variant","feature_id":"NM_004333.4","feature_type":"transcript","gene_id":"BRAF","genename":"BRAF","hgvs_c":"c.1799T>C","hgvs_p":"p.Val600Ala","protein":{"length":"766","position":"600"},"putative_impact":"MODERATE","rank":"15","total":"18","transcript_biotype":"protein_coding"}}},{"_id":"chr7:g.140753336A>C","_score":1.465374,"chrom":"7","clingen":{"caid":"CA281998"},"clinvar":{"_license":"http://bit.ly/2SQdcI0","variant_id":40389},"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":{"symbol":"BRAF"},"rsid":"rs113488022"},"hg38":{"end":140753336,"start":140753336},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":{"cdna":{"length":"2946","position":"1860"},"cds":{"length":"2301","position":"1799"},"effect":"missense_variant","feature_id":"NM_004333.4","feature_type":"transcript","gene_id":"BRAF","genename":"BRAF","hgvs_c":"c.1799T>G","hgvs_p":"p.Val600Gly","protein":{"length":"766","position":"600"},"putative_impact":"MODERATE","rank":"15","total":"18","transcript_biotype":"protein_coding"}}},{"_id":"chr7:g.140753336A>T","_score":1.288517,"chrom":"7","clingen":{"caid":"CA123643"},"clinvar":{"_license":"http://bit.ly/2SQdcI0","variant_id":13961},"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":{"symbol":"BRAF"},"rsid":"rs113488022"},"hg38":{"end":140753336,"start":140753336},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":{"cdna":{"length":"2946","position":"1860"},"cds":{"length":"2301","position":"1799"},"effect":"missense_variant","feature_id":"NM_004333.4","feature_type":"transcript","gene_id":"BRAF","genename":"BRAF","hgvs_c":"c.1799T>A","hgvs_p":"p.Val600Glu","protein":{"length":"766","position":"600"},"putative_impact":"MODERATE","rank":"15","total":"18","transcript_biotype":"protein_coding"}}}]}
+      }
+    }
+  ]
+}

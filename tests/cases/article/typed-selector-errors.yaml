@@ -24,9 +24,12 @@
         "/status": "usage",
         "/error/code": "usage.arguments",
         "/error/option": "--part",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "error.option is not accepted with the other options as given; valid_values names every option involved",
         "/error/valid_values": [
-          "integer >= 1"
+          "--part",
+          "--find",
+          "--variant",
+          "--save"
         ],
         "/next": {
           "count": 1
@@ -56,9 +59,12 @@
         "/status": "usage",
         "/error/code": "usage.arguments",
         "/error/option": "--part",
-        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+        "/error/message": "error.option is not accepted with the other options as given; valid_values names every option involved",
         "/error/valid_values": [
-          "integer >= 1"
+          "--part",
+          "--find",
+          "--variant",
+          "--save"
         ],
         "/next": {
           "count": 1

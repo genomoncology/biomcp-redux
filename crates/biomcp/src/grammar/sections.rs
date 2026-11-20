@@ -45,7 +45,7 @@ fn refusal(path: (&str, &str), schema: &Value, candidate: &Value) -> Option<supe
         argument: None,
         usage: Some(UsageError::Arguments(UsageArguments {
             argument: Some(argument.into()),
-            message: Some(ErrorMessage::ArgumentGuidance),
+            message: Some(ErrorMessage::ArgumentValue),
             valid_values: super::validation::accepted(schema, property),
             next,
         })),
@@ -199,10 +199,10 @@ fn add(fields: &mut Map<String, Value>, schema: &Value, section: &str) -> Option
     Some(())
 }
 
-/// The one label heading a word names exactly or begins.
+/// The one label heading a word names exactly, by field or printed-label name, or begins.
 fn heading(word: &str) -> Option<&'static str> {
     let headings = biomcp_types::OPENFDA_LABEL_HEADINGS;
-    if let Some(exact) = headings.iter().find(|heading| **heading == word) {
+    if let Some(exact) = biomcp_types::openfda_label_field(word) {
         return Some(exact);
     }
     let prefix = format!("{word}_");

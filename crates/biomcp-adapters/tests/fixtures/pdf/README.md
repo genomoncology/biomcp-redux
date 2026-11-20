@@ -1,0 +1,6 @@
+PDFs for the PDF reader's cases (tickets 1068 and 1069). The real ones were fetched from accessdata.fda.gov on 2026-11-19; pages were copied out unchanged with pypdf to keep them small. Each `.txt` is the reference reading of the PDF beside it by poppler's `pdftotext` 24.02.0 with default options.
+
+- `form-object-carton.pdf`: page 8 of the Rinvoq (NDA 211675) supplement 29 label, https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/211675Orig1s029lbl.pdf (source SHA-256 09c767f4b5ec3a8f9de28af072509de9bc997427789966ffc4e83875efc41bec). Its text sits in form XObjects, and its own content stream only paints them.
+- `refused-map-letter.pdf`: the Tagrisso (NDA 208065) supplement 21 approval letter, unchanged, https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/208065Orig1s021ltr.pdf (SHA-256 d99477c759dd8111f4a49be1d1d75082a26d3b219e68c771ff52f071621a9a74). Its fonts' ToUnicode maps put `def` inside `/CIDSystemInfo`, which lopdf refuses; without them "NDA 208065" decoded as "1'$ 6833".
+- `refused-map-label-page.pdf`: page 1 of the Olumiant (NDA 207924) supplement 2 label of 2020-07-08, https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/207924s002lbl.pdf (source SHA-256 784ea9b311eed9214a6105130eabd05803036061b41ed03d5268be9f0c472152), with the same kind of map.
+- The synthetic PDFs of the other cases are built inside `pdf_reader.rs`.

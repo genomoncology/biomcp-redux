@@ -1,0 +1,28 @@
+{
+  "feature": "fda-document-text",
+  "live_check": "Synthetic PDF; recorded only",
+  "story": "When a part of an FDA document's page cannot be read, the reader keeps the rest of the text, and the reply is partial with a notice saying a part was skipped, never complete.",
+  "verified": "Synthetic letter PDF described in the replay README, replayed with the public openFDA reply for NDA208065 recorded 2026-11-19; before the second 1068 review the reply status was complete.",
+  "replay": "diagnostic/fda-letter-partial",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA208065",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--document-id",
+        "65680"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/approvals/data/records/0/application_docs/0/text/state": "partial",
+        "/sources/0/notices/1/message": "A part of a page in this document could not be read and was skipped, so some of its text may be missing.",
+        "/incomplete/0/at": "/result/approvals/data/records/0/application_docs/0/text"
+      },
+      "max_bytes": 20000
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.CYP2D6&order=pairid.asc&limit=10&offset=50",
+  "exchanges": [
+    {
+      "fetched": 1795125399,
+      "status": 206,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "50-59/79",
+      "delay_ms": 226,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"pairid":110290,"drugid":"RxNorm:8886","drugname":"protriptyline","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":null,"pgxtesting":"Informative PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110295,"drugid":"RxNorm:77492","drugname":"tamsulosin","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":null,"pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110296,"drugid":"RxNorm:10502","drugname":"thioridazine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"3","pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110297,"drugid":"RxNorm:10600","drugname":"timolol","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"3","pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110298,"drugid":"RxNorm:1918219","drugname":"valbenazine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":null,"pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110299,"drugid":"RxNorm:114176","drugname":"zuclopenthixol","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"B/C","clinpgxlevel":"1A","pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110324,"drugid":"RxNorm:136198","drugname":"darifenacin","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":null,"pgxtesting":"Informative PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}, 
+ {"pairid":110328,"drugid":"RxNorm:68091","drugname":"dolasetron","genesymbol":"CYP2D6","guidelinename":"CYP2D6 and Ondansetron and Tropisetron","guidelineurl":"https://www.clinpgx.org/guideline/PA166251457","cpiclevel":"C","clinpgxlevel":"4","pgxtesting":null,"pmids":["41979467"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":110329,"drugid":"RxNorm:72625","drugname":"duloxetine","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19, CYP2B6, SLC6A4, HTR2A and Serotonin Reuptake Inhibitor Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251452","cpiclevel":"C","clinpgxlevel":null,"pgxtesting":"Informative PGx","pmids":["37032427"],"usedforrecommendation":"No","provisional":false}, 
+ {"pairid":110337,"drugid":"RxNorm:797195","drugname":"fesoterodine","genesymbol":"CYP2D6","guidelinename":null,"guidelineurl":null,"cpiclevel":"C","clinpgxlevel":null,"pgxtesting":"Informative PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}]
+      }
+    }
+  ]
+}

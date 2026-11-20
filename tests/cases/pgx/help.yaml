@@ -18,7 +18,7 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Search pharmacogenomic gene and drug pairs. Sources: cpic.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields: clinpgxlevel, cpiclevel, drugid, drugname, genesymbol, guidelinename, guidelineurl, pairid, pgxtesting, pmids, provisional, usedforrecommendation. Choose some with --fields a,b (typed: fields list); always kept: genesymbol, pairid.",
+        "/result/commands/0/description": "Search pharmacogenomic gene and drug pairs. Sources: cpic.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: clinpgxlevel, cpiclevel, drugid, drugname, genesymbol, guidelinename, guidelineurl, pairid, pgxtesting, pmids, provisional, usedforrecommendation. Choose some with --fields a,b (typed: fields list); always kept: genesymbol, pairid.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",
@@ -51,7 +51,7 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.",
+        "/result/commands/0/description": "Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",

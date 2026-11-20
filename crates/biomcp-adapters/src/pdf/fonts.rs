@@ -26,6 +26,32 @@ impl Widths {
             .filter(|(_, (last, _))| code <= *last)
             .map_or(self.default, |(_, (_, width))| *width)
     }
+
+    /// Horizontal text-space advance of one shown string under the text state.
+    pub(super) fn advance(&self, bytes: &[u8], state: &super::state::State) -> f32 {
+        let codes: Vec<u32> = if self.two_byte {
+            bytes
+                .chunks(2)
+                .map(|pair| {
+                    pair.iter()
+                        .fold(0, |code, byte| code * 256 + u32::from(*byte))
+                })
+                .collect()
+        } else {
+            bytes.iter().map(|byte| u32::from(*byte)).collect()
+        };
+        codes
+            .into_iter()
+            .map(|code| {
+                let word = if !self.two_byte && code == 32 {
+                    state.word_space
+                } else {
+                    0.0
+                };
+                (self.of(code) / 1000.0 * state.size + state.char_space + word) * state.scale
+            })
+            .sum()
+    }
 }
 
 /// The widths a font dictionary gives, or none for a Type3 font or one without widths.
@@ -38,14 +64,14 @@ pub(super) fn widths(document: &Document, font: &Dictionary) -> Option<Widths> {
 }
 
 /// A dictionary value, absent when the key is.
-fn entry<'a>(dictionary: &'a Dictionary, key: &[u8]) -> Option<&'a Object> {
+pub(super) fn entry<'a>(dictionary: &'a Dictionary, key: &[u8]) -> Option<&'a Object> {
     dictionary
         .iter()
         .find_map(|(name, value)| (name.as_slice() == key).then_some(value))
 }
 
 /// The object a value names, following references the file holds.
-fn resolve<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Object> {
+pub(super) fn resolve<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Object> {
     let mut object = object;
     for _ in 0..8 {
         match object {
@@ -69,14 +95,14 @@ fn resolved_number(document: &Document, object: &Object) -> Option<f32> {
     number(resolve(document, object)?)
 }
 
-fn array<'a>(document: &'a Document, object: &'a Object) -> Option<&'a [Object]> {
+pub(super) fn array<'a>(document: &'a Document, object: &'a Object) -> Option<&'a [Object]> {
     match resolve(document, object)? {
         Object::Array(items) => Some(items),
         _ => None,
     }
 }
 
-fn dictionary<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Dictionary> {
+pub(super) fn dictionary<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Dictionary> {
     match resolve(document, object)? {
         Object::Dictionary(dictionary) => Some(dictionary),
         _ => None,

@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.CYP2D6&order=pairid.asc&limit=100&offset=400",
+  "exchanges": [
+    {
+      "fetched": 1795125396,
+      "status": 416,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "*/79",
+      "delay_ms": 420,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"code":"PGRST103","details":"An offset of 400 was requested, but there are only 79 rows.","hint":null,"message":"Requested range not satisfiable"}
+      }
+    }
+  ]
+}

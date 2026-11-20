@@ -57,7 +57,7 @@
       "default": 5,
       "description": "Bounded initial section size; each all section has its own first page.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 200,
       "minimum": 1,
       "type": "integer"
     },

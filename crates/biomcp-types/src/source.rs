@@ -201,6 +201,8 @@ canonical_enum! {
         Syncing => "syncing",
         /// Identity lacks the identifier required to join this source.
         NoJoinId => "no-join-id",
+        /// The source document was read but does not state the value.
+        NotStated => "not-stated",
     }
 }
 

@@ -76,6 +76,7 @@ pub(super) fn tool_result(
     super::protocol::tool_result(id, &completed.outcome, modern, form)
 }
 
+use biomcp_types::ErrorMessage;
 use serde_json::{Value, json};
 use std::io;
 
@@ -188,19 +189,39 @@ pub(super) fn parse(
     else {
         let actions = catalog.actions(tool);
         let section = action.and_then(|word| refusal::section(root, placed, word, &fields));
-        return Some(Err(rejected("action", &actions, section, catalog)));
+        return Some(Err(rejected(
+            "action",
+            &actions,
+            section,
+            catalog,
+            cause(action),
+        )));
     };
     if let Some(key) = fields
         .keys()
         .find(|key| !matches!(key.as_str(), "action" | "fields") && *key != action)
     {
         let valid = [String::from("action"), action.to_owned()];
-        return Some(Err(rejected(key, &valid, None, catalog)));
+        return Some(Err(rejected(
+            key,
+            &valid,
+            None,
+            catalog,
+            ErrorMessage::ArgumentUnknown,
+        )));
     }
     let chosen = match fields.get("fields").map(chosen_fields) {
         Some(Some(chosen)) => chosen,
         None => None,
-        Some(None) => return Some(Err(rejected("fields", &[], None, catalog))),
+        Some(None) => {
+            return Some(Err(rejected(
+                "fields",
+                &[],
+                None,
+                catalog,
+                ErrorMessage::ArgumentValue,
+            )));
+        }
     };
     let path = crate::grammar::command_paths()
         .into_iter()
@@ -236,14 +257,25 @@ fn command_call(
     let input = arguments::input(&schema);
     let forms = forms::forms(verb, &schema);
     let mut values = values.clone();
-    let refused = forms::normalize(&mut values, &forms, &input)
-        .err()
-        .or_else(|| {
-            (!validation::valid(&input, &values)).then(|| forms::Refused {
-                argument: refusal::unknown(&input, &values).unwrap_or_else(|| action.into()),
+    let normalized = forms::normalize(&mut values, &forms, &input);
+    // Either paging name reaches the field the command reads it from (1061).
+    if let Some(fields) = values.as_object_mut() {
+        crate::grammar::paging::rename(&schema, fields);
+    }
+    let refused = normalized.err().or_else(|| {
+        (!validation::valid(&input, &values)).then(|| {
+            let unknown = refusal::unknown(&input, &values);
+            forms::Refused {
+                cause: if unknown.is_some() {
+                    ErrorMessage::ArgumentUnknown
+                } else {
+                    ErrorMessage::ArgumentValue
+                },
+                argument: unknown.unwrap_or_else(|| action.into()),
                 valid: refusal::names(&input, &forms),
-            })
-        });
+            }
+        })
+    });
     if let Some(refused) = refused {
         let mut error = refusal::arguments(&refused, &["help", verb, entity])?;
         let args = arguments::cli(
@@ -285,6 +317,7 @@ fn rejected(
     valid: &[String],
     fix: Option<Vec<std::ffi::OsString>>,
     catalog: Catalog,
+    message: ErrorMessage,
 ) -> Rejected {
     let args = fix.unwrap_or_else(|| vec!["help".into()]);
     let step = biomcp_types::Step {
@@ -307,7 +340,7 @@ fn rejected(
             .collect::<Option<Vec<_>>>()
             .map(Into::into),
         next: vec![step],
-        ..Default::default()
+        message: Some(message),
     });
     Rejected {
         error,
@@ -315,6 +348,13 @@ fn rejected(
         command: None,
         catalog: Some(catalog),
     }
+}
+
+/// A required word left out is missing; one given but not accepted is a bad value.
+fn cause(given: Option<&str>) -> ErrorMessage {
+    given.map_or(ErrorMessage::ArgumentMissing, |_| {
+        ErrorMessage::ArgumentValue
+    })
 }
 
 pub(super) struct Rejected {

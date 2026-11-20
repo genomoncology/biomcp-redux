@@ -16,6 +16,7 @@ pub use status::{Outcome, sync_status};
 mod fan_out;
 
 pub mod health;
+pub mod pdf_child;
 
 pub mod trial;
 mod variant;
