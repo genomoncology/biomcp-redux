@@ -150,6 +150,12 @@ fn decode(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
     {
         return Err(ConfigError::field("drug_label_bytes"));
     }
+    if file
+        .pdf_memory_limit_mib
+        .is_some_and(|value| value.get() > crate::pdf_child::MAX_MEMORY_MIB)
+    {
+        return Err(ConfigError::field("pdf_memory_limit_mib"));
+    }
     if let Some(keys) = &file.keys {
         for key in keys.keys() {
             if !biomcp_query::sources::keys()
@@ -198,11 +204,6 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
                 .collect::<Result<BTreeMap<String, String>, ConfigError>>()
         })
         .transpose()?;
-    let pdf_memory_limit_mib: Option<std::num::NonZeroU64> =
-        take(&mut map, "pdf_memory_limit_mib")?;
-    if pdf_memory_limit_mib.is_some_and(|value| value.get() > crate::pdf_child::MAX_MEMORY_MIB) {
-        return Err(ConfigError::field("pdf_memory_limit_mib"));
-    }
     let file = ConfigFile {
         hosted_max_use: take(&mut map, "hosted_max_use")?,
         mcp_tool_mode: take(&mut map, "mcp_tool_mode")?,
@@ -220,7 +221,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
         keys,
         auto_sync_max_bytes: take(&mut map, "auto_sync_max_bytes")?,
         reply_cache_max_bytes: take(&mut map, "reply_cache_max_bytes")?,
-        pdf_memory_limit_mib,
+        pdf_memory_limit_mib: take(&mut map, "pdf_memory_limit_mib")?,
         pdf_max_reads: take(&mut map, "pdf_max_reads")?,
         source_data_max_age_days: take(&mut map, "source_data_max_age_days")?,
         sync_timeout_seconds: take(&mut map, "sync_timeout_seconds")?,

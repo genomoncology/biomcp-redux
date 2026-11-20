@@ -117,7 +117,7 @@ fn require_parent(_expected: u32) -> std::io::Result<()> {
 /// Lower this process's limits; the address-space cap only where the system enforces it.
 #[cfg(unix)]
 fn limit(cap: u64, cpu_seconds: u64) -> std::io::Result<()> {
-    use rustix::process::{Resource, Rlimit, setrlimit};
+    use rustix::process::{Resource, Rlimit, getrlimit, setrlimit};
     let set = |resource, value: u64| {
         setrlimit(
             resource,
@@ -131,7 +131,8 @@ fn limit(cap: u64, cpu_seconds: u64) -> std::io::Result<()> {
     set(Resource::As, cap)?;
     #[cfg(not(target_os = "linux"))]
     let _ = cap;
-    set(Resource::Cpu, cpu_seconds)?;
+    let inherited_cpu = getrlimit(Resource::Cpu).maximum.unwrap_or(cpu_seconds);
+    set(Resource::Cpu, cpu_seconds.min(inherited_cpu))?;
     let output = u64::try_from(biomcp_query::pdf_child::MAX_OUTPUT).unwrap_or(u64::MAX);
     set(Resource::Fsize, output)?;
     set(Resource::Core, 0)?;
