@@ -541,21 +541,6 @@ impl Leg<'_> {
         self.clock.iter().for_each(deadline::VirtualClock::follow);
         self.deadline.bind(self.clock.as_ref())
     }
-    /// Bind the source leg's remaining budget for cooperative local parsing.
-    pub fn local_deadline(&self) -> LocalDeadline {
-        self.budget().local()
-    }
-    /// Run `input` through the configured isolation, bounded by this leg's deadline and
-    /// cancellation; none when no isolation is configured and the caller reads in process.
-    pub fn isolated(&self, input: &[u8], max_output: usize) -> Option<Result<Vec<u8>, Contained>> {
-        let isolate = self.fetch.config.isolate.as_ref()?;
-        let deadline = self.local_deadline();
-        Some(isolate.run(input, max_output, &|| deadline.expired()))
-    }
-    /// Return this source leg's remaining real or virtual budget.
-    pub fn remaining(&self) -> Duration {
-        self.budget().remaining()
-    }
     /// Return the budget left on the deadline this leg was opened under, on this leg's clock.
     /// A command joins its replay time through this: the source's cap is not time spent (1034).
     pub fn command_remaining(&self) -> Duration {

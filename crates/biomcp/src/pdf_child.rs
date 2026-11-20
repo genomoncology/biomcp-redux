@@ -24,7 +24,7 @@ use std::{
 /// The hidden first argument that makes this binary a PDF-reading child.
 const CHILD: &str = "__pdf-read";
 /// The default address-space cap: real FDA labels peak near 160 MB resident (1068).
-pub(crate) const DEFAULT_MEMORY_MIB: u64 = 1024;
+const DEFAULT_MEMORY_MIB: u64 = 1024;
 /// Longest pause between checks on a running child.
 const LONGEST_PAUSE: Duration = Duration::from_millis(20);
 
@@ -103,6 +103,15 @@ fn limit(cap: u64) -> std::io::Result<()> {
 #[cfg(not(unix))]
 fn limit(_cap: u64) -> std::io::Result<()> {
     Ok(())
+}
+
+/// The configured PDF reader: children of `executable` capped at `mebibytes`, 1 GiB by default.
+pub(crate) fn isolate(
+    executable: Option<PathBuf>,
+    mebibytes: Option<std::num::NonZeroU64>,
+) -> std::sync::Arc<dyn biomcp_fetch::Isolate> {
+    let mebibytes = mebibytes.map_or(DEFAULT_MEMORY_MIB, std::num::NonZeroU64::get);
+    std::sync::Arc::new(Child::new(executable, mebibytes))
 }
 
 /// Runs PDF reads in a child of `executable` capped at `cap` bytes.

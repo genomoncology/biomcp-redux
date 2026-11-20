@@ -87,7 +87,7 @@ fn decoded(answer: &[u8]) -> Result<Result<Embedded, Reason>, Malformed> {
         _ => None,
     };
     let text =
-        String::from_utf8(text.get(1..).unwrap_or_default().to_vec()).map_err(|_| Malformed)?;
+        String::from_utf8(text.get(1..).ok_or(Malformed)?.to_vec()).map_err(|_| Malformed)?;
     Ok(Ok(Embedded {
         pages,
         state,

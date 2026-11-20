@@ -359,13 +359,10 @@ fn fetch_using(
             |seconds| Duration::from_secs(seconds.get().into()),
         ),
         proxy: file.and_then(|file| file.proxy.clone()).map(Secret::new),
-        isolate: Some(std::sync::Arc::new(crate::pdf_child::Child::new(
+        isolate: Some(crate::pdf_child::isolate(
             executable().ok(),
-            file.and_then(|file| file.pdf_memory_limit_mib).map_or(
-                crate::pdf_child::DEFAULT_MEMORY_MIB,
-                std::num::NonZeroU64::get,
-            ),
-        ))),
+            file.and_then(|f| f.pdf_memory_limit_mib),
+        )),
         ..FetchConfig::default()
     })
     .map_err(|error| match error {

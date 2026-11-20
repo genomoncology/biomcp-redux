@@ -18,3 +18,13 @@ pub trait Isolate: std::fmt::Debug + Send + Sync {
 /// it crashed, its output was too long, or it could not be started. One refusal covers all.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Contained;
+
+impl crate::Leg<'_> {
+    /// Run `input` through the configured isolation, bounded by this leg's deadline and
+    /// cancellation; none when no isolation is configured and the caller reads in process.
+    pub fn isolated(&self, input: &[u8], max_output: usize) -> Option<Result<Vec<u8>, Contained>> {
+        let isolate = self.fetch.config.isolate.as_ref()?;
+        let deadline = self.local_deadline();
+        Some(isolate.run(input, max_output, &|| deadline.expired()))
+    }
+}
