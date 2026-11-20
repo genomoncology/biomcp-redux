@@ -1,0 +1,33 @@
+{
+  "feature": "drug-label-history",
+  "story": "Lipitor's 2001 label, in the format used before 2006, runs its unnumbered headings into their paragraphs; its Adverse Reactions are bounded by OVERDOSAGE and already list myasthenia, so the reply gives SUPPL 25, approved 2001-06-08, and stays under 3 KB.",
+  "live_check": "public",
+  "replay": "drug/label-history-lipitor",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA020702",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "adverse_reactions",
+        "--find",
+        "myasthenia"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/section": "adverse_reactions",
+        "/result/versions": 24,
+        "/result/first/submission": "SUPPL 25",
+        "/result/first/approved": "2001-06-08",
+        "/result/first/state": "match",
+        "/result/on_or_before": false
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "2026-11-20 capture in pm job j43558 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md); the answer was checked against pdftotext on the original PDFs."
+}
