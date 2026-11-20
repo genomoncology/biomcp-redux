@@ -23,8 +23,7 @@
         "/result/versions": 5,
         "/result/first/submission": "ORIG 1",
         "/result/first/approved": "2021-09-21",
-        "/result/first/state": "match",
-        "/result/on_or_before": false
+        "/result/first/state": "match"
       },
       "max_bytes": 3000
     }
