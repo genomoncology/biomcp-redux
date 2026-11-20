@@ -344,6 +344,12 @@ fn fetch_using(
         cache,
         mode,
         replay_cache,
+        auto_sync_retry_seconds: file
+            .and_then(|file| file.auto_sync_retry_seconds)
+            .map_or_else(
+                || FetchConfig::default().auto_sync_retry_seconds,
+                std::num::NonZeroU32::get,
+            ),
         auto_sync_max_bytes: file
             .as_ref()
             .and_then(|file| file.auto_sync_max_bytes)

@@ -99,13 +99,14 @@ fn version_error(error: rusqlite::Error) -> CacheError {
 const TRANSPORT_OWNER: SchemaOwner = SchemaOwner {
     name: OWNER,
     version: VERSION,
-    migratable_versions: &[1, 2, 3, 4, 5],
+    migratable_versions: &[1, 2, 3, 4, 5, 6],
     tables: &[
         "reply",
         "reply_fresh",
         "reply_bytes",
         "bundle",
         "bundle_sync",
+        "bundle_first_read",
         "bundle_row",
         "bundle_key",
         "bundle_key_find",
@@ -177,6 +178,12 @@ impl Cache {
         check_owners(&tx, &[TRANSPORT_OWNER])?;
         create_reply_schema(&tx, version)?;
         crate::bundle::store::initialize(&tx)?;
+        tx.execute_batch(
+            "CREATE TABLE IF NOT EXISTS bundle_first_read(name TEXT PRIMARY KEY, until INTEGER NOT NULL, failure TEXT);
+             CREATE TRIGGER IF NOT EXISTS first_read_published AFTER INSERT ON bundle BEGIN
+                 DELETE FROM bundle_first_read WHERE name=NEW.name;
+             END;",
+        ).map_err(db_error)?;
         tx.execute(
             "INSERT INTO meta(owner,version) VALUES (?1,?2) ON CONFLICT(owner) DO UPDATE SET version=excluded.version",
             (OWNER, VERSION),

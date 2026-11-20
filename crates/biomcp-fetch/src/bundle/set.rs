@@ -81,7 +81,7 @@ impl crate::Leg<'_> {
     fn publish_set<R: Row>(
         &self,
         set: &BundleSet<R>,
-        auto: Option<u64>,
+        auto: Option<&super::first::Size>,
     ) -> Result<BundleInfo, RequestError> {
         let leg = self;
         let bundle = set.stored();
@@ -93,25 +93,35 @@ impl crate::Leg<'_> {
         let mut bytes = 0_u64;
         // Streamed parts have their own ceiling; the shared one covers every other part.
         let mut held = 0_u64;
-        for part in set.parts {
+        for (index, part) in set.parts.iter().enumerate() {
             let format = part.format.unwrap_or(set.format);
             let streamed = matches!(format, RowFormat::StreamedXml { .. });
-            let ceiling = auto.map(|max| max.saturating_sub(bytes));
+            let ceiling = auto.map(|_| {
+                self.fetch
+                    .config
+                    .auto_sync_max_bytes
+                    .min(super::MAX_BUNDLE_BYTES)
+                    .saturating_sub(bytes)
+            });
             if ceiling == Some(0) {
-                return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
+                return Err(leg.failure(biomcp_types::Reason::TooLarge, None).into());
             }
-            let body = match part_body(leg, set, part, format, ceiling) {
-                Err(RequestError::Source(error))
-                    if auto.is_some()
-                        && matches!(
-                            error.reason,
-                            biomcp_types::Reason::TooLarge | biomcp_types::Reason::DeadlineExceeded
-                        ) =>
+            let record = |length| {
+                if let Some(size) = auto
+                    && index + 1 == set.parts.len()
                 {
-                    return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
+                    size.set(bytes.checked_add(length));
                 }
-                result => result?,
             };
+            let body = part_body(
+                leg,
+                set,
+                part,
+                format,
+                ceiling,
+                auto.map(|_| &record as &dyn Fn(u64)),
+            )?;
+            record(body.len() as u64);
             bytes = bytes.saturating_add(body.len() as u64);
             if !streamed {
                 held = held.saturating_add(body.len() as u64);
@@ -137,6 +147,11 @@ impl crate::Leg<'_> {
                 rejection
             }));
             append_part(&mut complete, part, rows.rows)?;
+        }
+        if auto.is_some() && leg.budget().expired() {
+            return Err(leg
+                .failure(biomcp_types::Reason::DeadlineExceeded, None)
+                .into());
         }
         if set.parts.is_empty() || leg.budget().expired() {
             return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
@@ -172,6 +187,7 @@ fn part_body<R: Row>(
     part: &BundlePart,
     format: RowFormat,
     ceiling: Option<u64>,
+    part_length: Option<&dyn Fn(u64)>,
 ) -> Result<Vec<u8>, RequestError> {
     let limit = match format {
         RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
@@ -196,6 +212,8 @@ fn part_body<R: Row>(
         RowFormat::Document { media } => read.document_media(media),
         _ => read,
     };
+    let mut read = read;
+    read.part_length = part_length;
     Ok(leg
         .call(&endpoint, crate::Input::Params(&[]), read)?
         .value
@@ -226,13 +244,8 @@ impl crate::Leg<'_> {
         set: &BundleSet<R>,
         find: super::Find<'_>,
     ) -> Result<(Vec<SetRow<R>>, BundleInfo), RequestError> {
-        let max = self
-            .fetch
-            .config
-            .auto_sync_max_bytes
-            .min(super::MAX_BUNDLE_BYTES);
-        self.name_busy(self.read_stored_rows(&set.stored(), find, || {
-            self.publish_set(set, Some(max)).map(drop)
+        self.name_busy(self.read_stored_rows(&set.stored(), find, |size| {
+            self.publish_set(set, Some(size)).map(drop)
         }))
     }
 }

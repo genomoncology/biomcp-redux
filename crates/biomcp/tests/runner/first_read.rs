@@ -15,6 +15,9 @@ pub(super) fn trials() -> Vec<Trial> {
         super::transcript::trial("diagnostic-cdx/over-limit-first-read-asks-for-sync", || {
             backoff().map_err(Into::into)
         }),
+        super::transcript::trial("diagnostic-cdx/first-read-timeout-names-the-wait", || {
+            timeout().map_err(Into::into)
+        }),
         super::transcript::trial("diagnostic-cdx/offline-first-read-never-fetches", || {
             offline().map_err(Into::into)
         }),
@@ -69,6 +72,10 @@ fn live(host: &'static str, capture: &str, extra: Value) -> Result<(Environment,
                 .ok_or_else(|| format!("unexpected request: {r}"))
         },
     )?;
+    configured(stub, extra)
+}
+
+fn configured(stub: Stub, extra: Value) -> Result<(Environment, Stub), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     stub.retain(env.shared_root());
     let ca = env.root().join("ca.pem");
@@ -86,7 +93,14 @@ fn words(args: &[&str]) -> Vec<String> {
 }
 
 const COMPANION: &str = "diagnostic/fda-cdx-synthetic/fda-cdx";
-const SEARCH: &[&str] = &["search", "diagnostic", "--source", "fda-cdx", "--biomarker", "KRAS"];
+const SEARCH: &[&str] = &[
+    "search",
+    "diagnostic",
+    "--source",
+    "fda-cdx",
+    "--biomarker",
+    "KRAS",
+];
 
 fn companion() -> Check {
     let (env, stub) = live("www.fda.gov", COMPANION, json!({}))?;
@@ -107,7 +121,11 @@ fn companion() -> Check {
 
 /// Separate CLI readers share a failed first fetch and explicit sync can recover immediately.
 fn backoff() -> Check {
-    let (env, stub) = live("www.fda.gov", COMPANION, json!({"auto_sync_max_bytes":1000}))?;
+    let (env, stub) = live(
+        "www.fda.gov",
+        COMPANION,
+        json!({"auto_sync_max_bytes":1000}),
+    )?;
     let size = bodies(COMPANION)?[0].1.len();
     let mut replies = Vec::new();
     for _ in 0..3 {
@@ -117,7 +135,10 @@ fn backoff() -> Check {
     invoke(&env, words(SEARCH), 0)?;
     let requests = stub.finish()?;
     if requests.len() != 2 {
-        return Err(format!("expected one first fetch and one explicit sync, saw {} requests: {replies:?}", requests.len()));
+        return Err(format!(
+            "expected one first fetch and one explicit sync, saw {} requests: {replies:?}",
+            requests.len()
+        ));
     }
     for reply in replies {
         let notice = &reply["sources"][0]["notices"][0];
@@ -129,6 +150,31 @@ fn backoff() -> Check {
             || notice["retry_after_seconds"].as_u64().unwrap_or(0) == 0
         {
             return Err(format!("missing first-fetch guidance: {reply}"));
+        }
+    }
+    Ok(())
+}
+
+/// The publisher accepted the request but never sent headers, so its size is unknown.
+fn timeout() -> Check {
+    let stub = Stub::for_source_with_held_response("www.fda.gov", "text/html", |_| Ok(None))?;
+    let (env, stub) = configured(stub, json!({"command_timeout_seconds":2}))?;
+    let first = invoke(&env, words(SEARCH), 4)?;
+    let again = invoke(&env, words(SEARCH), 4)?;
+    let requests = stub.finish()?;
+    for reply in [first, again] {
+        let notice = &reply["sources"][0]["notices"][0];
+        let message = notice["message"].as_str().unwrap_or_default();
+        if requests.len() != 1
+            || !message.contains("ran out of time")
+            || !message.contains("size: unknown")
+            || notice["retry_after_seconds"].as_u64().unwrap_or(0) == 0
+            || reply.pointer("/next/0/args") != Some(&json!(["sync", "fda-cdx"]))
+        {
+            return Err(format!(
+                "publisher saw {} requests; timeout reply: {reply}",
+                requests.len()
+            ));
         }
     }
     Ok(())

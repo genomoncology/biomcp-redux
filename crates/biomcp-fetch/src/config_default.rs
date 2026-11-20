@@ -22,6 +22,7 @@ impl Default for FetchConfig {
             max_body: 8 * 1024 * 1024,
             source_deadlines: BTreeMap::new(),
             sync_budget: Duration::from_secs(120),
+            auto_sync_retry_seconds: 60,
             auto_sync_max_bytes: 32 * 1024 * 1024,
             reply_cache_max_bytes: crate::cache::REPLY_CACHE_MAX_BYTES,
             source_data_max_age_days: 365,
