@@ -1298,6 +1298,10 @@
           ],
           "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda."
         },
+        "every_version": {
+          "description": "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving.",
+          "type": "boolean"
+        },
         "evidence_level": {
           "description": "A–E\nNative CIViC evidence levels; repeat to include several levels.\nOnly with --source civic on get drug, and the civic section on get variant.",
           "items": {
@@ -1327,6 +1331,14 @@
           ],
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
+        "find": {
+          "description": "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "maxItems": 5,
+          "type": "array"
+        },
         "input": {
           "description": "Native source ID after name resolution, otherwise the requested name as given, spaces included.",
           "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
@@ -1341,7 +1353,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nThe printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.\nA section the label lacks, or a name openFDA does not use, lists the sections the label has.\nOnly with --source openfda-label.",
+          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nThe printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.\nA section the label lacks, or a name openFDA does not use, lists the sections the label has.\nWith --source openfda-label, or one of boxed_warning, indications_and_usage, contraindications, warnings_and_cautions,\nadverse_reactions, drug_interactions or use_in_specific_populations for drugsfda label-history.",
           "x-comma-separated": true
         },
         "partner": {
@@ -1650,6 +1662,7 @@
         " Native CIViC therapy evidence and profile context.",
         " One exact native label heading; label replies also name the application numbers and recent major changes.",
         " Native application and product history rows.",
+        " The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.",
         " Source-scoped regulator events.",
         " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
         " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.",
@@ -1662,6 +1675,7 @@
         "civic",
         "label",
         "approvals",
+        "label-history",
         "regulatory",
         "interactions",
         "markets",
