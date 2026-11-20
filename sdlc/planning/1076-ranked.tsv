@@ -1,0 +1,870 @@
+kind	schema	path	field	replies	cases	total_bytes	min_per_reply	max_per_reply
+rowless	protocol/$defs			425	10	1512397	571	23517
+component	protocol/$defs	$defs		355	10	635931	145	21575
+component	protocol/$defs	properties		356	8	620281	288	9615
+rowless	biomcp.error/4			1503	267	539281	107	3068
+together	protocol/_meta	tools		280	73	436366	1549	2431
+outside	biomcp.drug-label/8			45	17	413202	1189	28586
+component	biomcp.drug-label/8	result.label		40	16	360149	569	27723
+component	biomcp.error/4	error		1492	266	336878	54	2952
+outside	biomcp.trial-cards/11			97	32	278345	278	31739
+field	protocol/_meta	tools	inputSchema.$schema	280	73	261909	879	936
+outside	biomcp.variant-card/16			195	49	260598	345	4204
+outside	biomcp.trial-page/18			123	53	199885	649	16466
+component	biomcp.trial-page/18	sources		242	47	168949	76	15796
+rowless	biomcp.trial-page/18			174	27	126728	170	1753
+outside	biomcp.adverse-event-page/7			81	21	122297	654	2605
+outside	biomcp.drug-page/8			92	31	106823	372	3118
+component	biomcp.trial-cards/11	result.items		55	19	102778	1079	30277
+outside	biomcp.diagnostic-page/7			90	30	101195	444	1973
+outside	biomcp.article-page/11			85	43	90782	497	1997
+field	protocol/_meta	tools	annotations.openWorldHint	277	70	89748	324	324
+outside	biomcp.article-cards/10			45	19	85066	163	4008
+outside	biomcp.variant-population/14			7	5	77162	727	24833
+outside	biomcp.pathway-card/11			27	7	76431	1018	12871
+outside	biomcp.drug-approvals/9			48	21	76019	936	2182
+component	biomcp.drug-page/8	sources		256	52	75231	57	1533
+component	biomcp.variant-population/14	problems		13	11	73625	207	23347
+together	biomcp.gene-page/9	result.items		71	4	73131	982	3903
+rowless	biomcp.drug-page/8			202	37	72822	183	1391
+candidate	biomcp.variant-card/16	result.candidates.*.sections.conservation.data.scores		15	3	71685	4779	4779
+together	biomcp.variant-card/16	result.candidates.*.sections.conservation.data.scores		15	3	71685	4779	4779
+outside	biomcp.gene-cards/14			53	20	71515	157	10769
+component	biomcp.article-page/11	sources		111	26	71166	178	1266
+candidate	biomcp.cell-line-xrefs/7	result.items.items		48	1	69840	1351	1663
+together	biomcp.cell-line-xrefs/7	result.items.items		48	1	69840	1351	1663
+outside	biomcp.protein-card/12			54	16	69674	674	2421
+field	protocol/_meta	tools	inputSchema.type	280	73	66872	223	239
+outside	biomcp.pathway-genes/10			16	6	60683	1090	9062
+component	biomcp.error/4	next		409	93	60197	52	599
+rowless	biomcp.article-page/11			74	17	58528	159	1277
+outside	biomcp.variant-recurrence/12			51	16	58454	939	1639
+rowless	biomcp.drug-card/7			55	27	57597	185	3206
+outside	biomcp.pathway-page/9			40	9	54590	748	3950
+rowless	biomcp.variant-card/16			177	17	54313	211	458
+component	biomcp.article-cards/10	result.items		19	8	52685	666	3280
+component	biomcp.adverse-event-page/7	sources		113	22	52667	76	1037
+outside	biomcp.drug-sections/2			6	4	52575	3623	27758
+together	biomcp.diagnostic-page/7	result.items		10	4	52152	298	10689
+outside	biomcp.gwas-page/9			52	12	52102	346	1477
+rowless	research-fetch			19	8	49871	1469	3844
+together	biomcp.drug-approvals/9	result.approvals.data.records		12	5	48476	1134	15721
+component	biomcp.drug-sections/2	result.parts		6	4	48131	2734	27182
+field	biomcp.cell-line-xrefs/7	result.items.items	category	48	1	46224	919	1159
+rowless	biomcp.variant-population/14			58	24	45473	192	1599
+field	biomcp.variant-card/16	result.candidates.*.sections.conservation.data.scores	attribution	15	3	41985	2799	2799
+candidate	biomcp.drug-approvals/9	result.approvals.data.records		12	5	41512	873	13943
+component	biomcp.pathway-page/9	next		40	9	39845	445	3473
+outside	biomcp.study-page/6			31	7	39269	663	4722
+together	biomcp.trial-cards/11	result.items.*.sections.results.data.items		9	1	38205	3257	4482
+rowless	biomcp.sync/8			123	71	38145	149	1425
+rowless	biomcp.diagnostic-summary/2			15	7	37822	223	6904
+rowless	biomcp.drug-label/8			21	9	36463	283	2385
+component	biomcp.gene-cards/14	result.items		7	5	35316	721	9809
+component	research-fetch	text		19	8	34613	818	2670
+field	biomcp.drug-approvals/9	result.approvals.data.records	event.attribution	12	5	33406	684	11276
+rowless	biomcp.adverse-event-page/7			64	10	32653	211	922
+rowless	biomcp.adverse-event-identifiers/5			35	11	32435	527	1318
+together	biomcp.drug-fda-page/8	result.items		9	2	31971	1204	4483
+component	biomcp.diagnostic-summary/2	result.document		5	3	31350	6268	6271
+rowless	biomcp.study-card/8			49	10	30807	190	1328
+field	biomcp.variant-card/16	result.candidates.*.sections.conservation.data.scores	subject	15	3	28935	1929	1929
+component	biomcp.variant-card/16	result.candidates		29	11	28635	237	2693
+component	biomcp.variant-card/16	query		171	16	26772	63	217
+field	biomcp.gene-page/9	result.items	match	71	4	26135	343	1943
+outside	biomcp.author-page/6			37	16	25315	459	900
+outside	biomcp.diagnostic-companion/6			14	7	25264	762	6780
+outside	biomcp.drug-fda-page/8			19	6	24948	804	2011
+rowless	biomcp.adverse-event-faers-card/6			36	12	24696	230	2353
+component	biomcp.protein-card/12	next		65	19	24624	96	749
+rowless	biomcp.protein-card/12			39	9	23676	278	828
+outside	research-search			10	4	23579	795	5988
+component	research-search	metadata		10	4	23339	771	5964
+outside	biomcp.disease-card/7			16	4	23261	929	1682
+field	biomcp.cell-line-xrefs/7	result.items.items	namespace	48	1	22800	415	487
+rowless	biomcp.diagnostic-page/7			80	8	21930	187	569
+component	biomcp.drug-card/7	sources		37	18	21726	75	1406
+outside	biomcp.diagnostic-card/5			17	8	20842	403	2932
+outside	biomcp.variant-page/17			28	14	20646	370	1332
+rowless	biomcp.pathway-card/11			39	13	20142	199	1082
+rowless	biomcp.diagnostic-card/5			36	15	20045	204	2765
+component	biomcp.variant-population/14	result.population		29	15	19848	201	973
+rowless	protocol/_meta			9	7	19514	108	3980
+together	biomcp.article-page/11	result.items		26	5	19162	677	2237
+together	biomcp.pathway-page/9	result.items		28	2	19104	408	2328
+component	biomcp.protein-card/12	result.items		26	7	19076	632	1274
+field	biomcp.gene-page/9	result.items	locus_group	70	4	18464	262	324
+together	biomcp.protein-features/6	result.items		5	1	17998	1870	9888
+rowless	biomcp.article-text/8			20	5	17906	426	5941
+rowless	biomcp.pgx-annotations/6			49	8	17840	270	581
+component	protocol/_meta	instructions		7	6	17716	1959	3754
+rowless	biomcp.variant-assertions/9			38	12	17628	236	649
+field	biomcp.trial-cards/11	result.items.*.sections.results.data.items	data.assessmentType	9	1	17478	1614	1983
+candidate	biomcp.protein-features/6	result.items		5	1	17368	1870	9888
+outside	biomcp.protein-complex-members/5			23	3	16998	426	820
+component	biomcp.diagnostic-page/7	next		22	13	16975	267	1631
+field	biomcp.variant-population/14	problems	code	3	3	16946	5641	5664
+together	biomcp.variant-population/14	problems		3	3	16946	5641	5664
+component	biomcp.diagnostic-page/7	sources		94	11	16355	68	887
+together	biomcp.pathway-genes/10	problems		10	4	16150	879	2351
+outside	biomcp.drug-label-history/1			8	8	16082	1376	2287
+component	biomcp.pathway-card/11	next		12	8	15427	335	9528
+rowless	biomcp.drug-recall-page/5			23	5	15185	582	1738
+rowless	biomcp.variant-recurrence/12			32	6	15182	283	1008
+together	biomcp.article-supplement/8	result.content.data.rows		10	1	15180	858	2154
+together	biomcp.trial-cards/11	result.items.*.sections.locations.data.items		14	6	15100	217	5975
+outside	biomcp.drug-recall-page/5			15	5	14747	519	1716
+outside	biomcp.vaers-summary/6			10	2	14428	1276	1665
+outside	biomcp.nci-trial-cards/9			7	4	14173	408	2815
+candidate	biomcp.article-page/11	result.items		26	5	14036	496	1636
+outside	biomcp.article-edges/12			15	8	13897	526	1425
+component	biomcp.drug-label/8	result.sections		17	7	13589	721	899
+outside	biomcp.drug-markets/2			11	3	13454	379	1709
+rowless	biomcp.drug-fda-page/8			18	5	13374	407	999
+outside	biomcp.drug-interactions/9			11	5	13277	915	1769
+component	biomcp.adverse-event-page/7	result.source_query		15	3	13076	840	1073
+component	biomcp.study-page/6	sources		17	6	13008	82	3952
+field	biomcp.gene-page/9	result.items	location	71	4	12475	163	963
+outside	biomcp.protein-domains/9			20	5	12458	359	993
+field	biomcp.gene-page/9	result.items	status	71	4	12453	163	963
+field	biomcp.drug-fda-page/8	result.items	identity.identity_level	9	2	12365	285	1685
+together	biomcp.pathway-card/11	problems		9	3	12327	879	2351
+field	biomcp.protein-features/6	result.items	attribution	5	1	12282	1324	6986
+outside	biomcp.pathway-events/7			17	5	12227	519	887
+rowless	biomcp.gwas-page/9			23	5	11811	294	1218
+component	biomcp.drug-label/8	result.identity		16	10	11805	261	1496
+component	biomcp.variant-card/16	sources		73	13	11595	68	2408
+field	biomcp.help/7	result.commands.*.arguments	required	26	11	11492	170	578
+together	biomcp.help/7	result.commands.*.arguments		26	11	11492	170	578
+rowless	biomcp.gene-cards/14			48	11	11431	167	315
+together	biomcp.article-edges/12	result.items		21	6	11248	164	1080
+outside	biomcp.drug-civic/12			13	3	11239	648	1117
+field	biomcp.diagnostic-page/7	result.items	matched.relation.object_name	6	2	11020	458	2408
+field	biomcp.trial-cards/11	result.items.*.sections.results.data.items	data.sourceVocabulary	9	1	10998	1014	1248
+component	biomcp.article-text/8	result.content		14	4	10962	240	5729
+rowless	biomcp.disease-card/7			44	4	10962	232	292
+outside	biomcp.adverse-event-reactions/7			10	6	10960	904	1417
+component	biomcp.drug-fda-page/8	sources		19	5	10822	210	848
+component	biomcp.drug-recall-page/5	sources		26	5	10780	225	439
+field	biomcp.diagnostic-page/7	result.items	matched.relation.gene	6	2	10258	428	2261
+outside	biomcp.protein-features/6			14	4	10168	656	882
+outside	biomcp.drug-regulatory/7			8	5	10139	884	1604
+outside	biomcp.study-card/8			5	3	10047	1352	3153
+rowless	biomcp.trial-cards/11			47	9	10022	195	300
+rowless	biomcp.disease-survival/8			11	3	9871	776	935
+field	biomcp.pathway-page/9	result.items	species	28	2	9824	208	1208
+component	biomcp.drug-page/8	next		16	9	9818	236	1941
+outside	biomcp.pgx-recommendations/6			19	5	9775	372	660
+rowless	biomcp.article-pdf/7			19	10	9761	269	804
+outside	biomcp.adverse-event-devices/5			9	4	9758	936	1343
+rowless	biomcp.drug-targets/9			14	4	9705	212	843
+rowless	biomcp.nci-trial-page/11			31	5	9395	202	364
+field	biomcp.trial-cards/11	result.items.*.sections.results.data.items	record	8	1	9359	903	1208
+outside	biomcp.study-profiles/5			18	2	9195	373	998
+outside	biomcp.adverse-event-drugs/5			8	6	9123	653	1843
+outside	biomcp.pgx-annotations/6			14	2	8972	487	728
+rowless	biomcp.article-supplement/8			15	3	8871	207	851
+field	biomcp.pathway-page/9	result.items	id.namespace	28	2	8804	183	1103
+rowless	biomcp.phenotype-card/6			20	8	8677	211	1104
+outside	biomcp.nci-trial-page/11			15	6	8557	473	754
+component	biomcp.drug-page/8	query		135	9	8531	53	150
+outside	biomcp.protein-complexes/6			8	4	8349	556	1478
+outside	biomcp.drug-xrefs/6			10	3	8346	703	1229
+rowless	biomcp.variant-page/17			34	13	8178	201	316
+outside	biomcp.gene-page/9			21	7	8153	270	666
+component	biomcp.variant-card/16	next		19	13	8099	278	726
+component	biomcp.study-card/8	next		17	5	8097	465	525
+outside	biomcp.author-papers/7			14	5	8041	517	631
+rowless	biomcp.drug-indications/9			11	3	7842	579	758
+rowless	biomcp.phenotype-matches/2			26	1	7801	242	377
+field	biomcp.drug-approvals/9	result.approvals.data.records	event.record	12	5	7782	162	2640
+rowless	biomcp.study-page/6			22	7	7770	190	612
+rowless	biomcp.study-profiles/5			20	6	7742	226	550
+rowless	biomcp.pgx-recommendations/6			22	8	7681	245	614
+together	biomcp.pathway-events/7	result.items		13	3	7679	180	1813
+field	biomcp.diagnostic-page/7	result.items	identity_status	10	4	7568	273	1404
+outside	biomcp.organization-page/5			11	3	7528	430	873
+component	biomcp.adverse-event-identifiers/5	sources		27	9	7469	266	307
+rowless	biomcp.author-page/6			22	8	7396	227	667
+field	biomcp.diagnostic-page/7	result.items	matched.relation.native_medgen	6	2	7364	298	1624
+field	biomcp.trial-cards/11	result.items.*.sections.locations.data.items	country	14	6	7250	217	2050
+together	biomcp.pathway-genes/10	result.items		4	3	7230	1306	2909
+component	biomcp.study-card/8	sources		34	7	7225	58	346
+component	biomcp.drug-label/8	problems		5	1	7205	1441	1441
+field	biomcp.article-page/11	result.items	open_access_source	26	5	7178	253	853
+field	biomcp.drug-fda-page/8	result.items	original_approval.submission_number	8	2	7176	177	1137
+outside	biomcp.protein-page/6			11	5	7168	429	864
+outside	biomcp.disease-hierarchy/6			10	3	7028	534	735
+field	biomcp.drug-fda-page/8	result.items	identity.source	9	2	6950	150	950
+component	biomcp.sync/8	sources		60	39	6948	48	292
+field	biomcp.trial-cards/11	result.items.*.sections.locations.data.items	status	2	1	6924	3462	3462
+rowless	biomcp.article-cards/10			30	3	6899	176	329
+outside	biomcp.drug-indications/9			6	5	6851	693	2238
+rowless	protocol/$id			2	1	6842	3421	3421
+rowless	biomcp.pathway-page/9			25	8	6820	200	499
+outside	biomcp.disease-xrefs/6			13	4	6791	302	601
+field	biomcp.pathway-events/7	result.items	db_id.namespace	13	3	6779	180	1813
+component	biomcp.diagnostic-companion/6	next		2	1	6724	470	6254
+rowless	biomcp.gene-page/9			22	4	6681	228	397
+component	biomcp.drug-card/7	next		13	9	6674	275	1039
+outside	biomcp.drug-who-page/6			11	4	6629	386	1298
+component	biomcp.drug-markets/2	sources		9	3	6616	225	924
+outside	biomcp.disease-genes/10			13	4	6598	314	603
+outside	biomcp.phenotype-genes/8			12	4	6523	328	614
+rowless	biomcp.pgx-page/7			22	5	6522	198	553
+together	biomcp.pgx-page/7	result.items		8	1	6448	341	3170
+field	biomcp.article-page/11	result.items	license_not_checked	26	5	6416	226	766
+rowless	biomcp.study-sample-lists/5			14	5	6410	234	540
+outside	biomcp.cell-line-filtered-page/2			6	1	6377	576	1467
+outside	biomcp.cell-line-card/9			4	3	6242	1294	2136
+rowless	biomcp.article-edges/12			22	3	6216	211	619
+rowless	biomcp.cell-line-page/8			14	6	6034	198	775
+component	biomcp.author-page/6	next		24	11	6012	86	313
+outside	biomcp.variant-normalization/9			18	12	6004	229	552
+outside	biomcp.cell-line-page/8			9	6	5982	544	776
+outside	biomcp.study-sample-lists/5			11	5	5924	381	718
+outside	biomcp.pgx-page/7			9	2	5908	566	690
+rowless	biomcp.drug-interactions/9			8	4	5892	527	1596
+outside	biomcp.article-recommendations/11			8	4	5833	658	900
+outside	biomcp.gwas-ancestries/6			10	1	5830	378	748
+component	biomcp.pgx-annotations/6	sources		35	7	5778	80	393
+component	biomcp.variant-assertions/9	problems		32	6	5762	139	385
+outside	biomcp.help/7			55	13	5726	97	119
+field	biomcp.pathway-genes/10	problems	code	10	4	5695	305	834
+together	biomcp.nci-trial-cards/9	result.items.*.sections.diseases.data.items		10	2	5482	253	622
+component	biomcp.drug-card/7	result.header		17	8	5473	261	641
+rowless	biomcp.diagnostic-companion/6			21	6	5424	203	414
+component	biomcp.nci-trial-page/11	sources		29	4	5324	67	227
+component	biomcp.study-card/8	result.study		15	5	5315	346	367
+rowless	biomcp.disease-page/6			24	4	5262	213	220
+component	research-fetch	metadata		9	5	5190	493	674
+field	biomcp.pathway-genes/10	problems	field	10	4	5185	277	760
+rowless	biomcp.variant-normalization/9			22	3	5108	218	277
+field	biomcp.drug-approvals/9	result.approvals.data.records	event.status	12	5	5080	99	1751
+rowless	biomcp.pathway-genes/10			16	5	5051	166	582
+component	biomcp.study-page/6	next		12	3	5012	415	430
+component	biomcp.sync/8	problems		10	3	4998	74	1085
+field	biomcp.pathway-genes/10	problems	source	10	4	4930	263	723
+field	biomcp.diagnostic-page/7	result.items	matched.relation.test_type	6	2	4900	188	1085
+component	biomcp.pathway-genes/10	next		3	2	4874	401	2468
+component	biomcp.protein-complexes/6	next		6	3	4855	361	1041
+field	biomcp.article-supplement/8	result.content.data.rows	first_row	10	1	4846	247	511
+rowless	biomcp.pgx-card/5			13	4	4816	216	833
+component	biomcp.pgx-annotations/6	query		38	7	4792	112	192
+component	protocol/$id	x-enum-descriptions		2	1	4782	2391	2391
+component	biomcp.pgx-page/7	next		21	6	4747	86	370
+together	biomcp.drug-label/8	problems		5	1	4715	943	943
+field	biomcp.article-page/11	result.items	key.namespace	26	5	4684	164	584
+field	biomcp.diagnostic-page/7	result.items	matched.relation.mim_number	6	2	4676	178	1036
+outside	biomcp.author-paper-details/7			6	2	4676	762	814
+outside	biomcp.study-mutations/2			6	2	4613	721	834
+component	protocol/$defs	description		14	6	4585	251	404
+component	biomcp.drug-approvals/9	result.identity		6	2	4563	648	815
+rowless	biomcp.vaers-summary/6			19	3	4548	221	369
+outside	biomcp.disease-incidence/8			5	3	4506	764	966
+together	biomcp.trial-cards/11	result.items.*.sections.results.data.items.*.data.analyses		2	1	4506	2003	2503
+component	biomcp.nci-trial-cards/9	result.items		3	1	4452	1390	1670
+rowless	biomcp.biomarker-result/5			12	5	4430	225	804
+component	biomcp.disease-survival/8	problems		11	3	4420	338	416
+rowless	biomcp.cell-line-chembl/8			8	3	4406	300	689
+component	biomcp.diagnostic-card/5	next		12	6	4399	181	707
+together	biomcp.trial-cards/11	result.items		1	1	4355	4355	4355
+outside	biomcp.adverse-event-narrative/5			5	3	4338	705	1179
+rowless	biomcp.drug-xrefs/6			6	1	4338	723	723
+field	biomcp.pathway-card/11	problems	code	9	3	4332	305	834
+rowless	biomcp.wikipathways-sync/5			9	7	4287	178	634
+outside	biomcp.pgx-annotation/6			5	1	4265	853	853
+field	biomcp.health/7	result.sources	disabled	4	4	4216	1054	1054
+together	biomcp.health/7	result.sources		4	4	4216	1054	1054
+component	biomcp.pathway-card/11	result.events		11	4	4202	374	398
+outside	biomcp.disease-prevalence/2			5	3	4192	716	1237
+outside	biomcp.grant-page/1			6	1	4163	634	742
+together	biomcp.pathway-card/11	result.events.data.items		9	1	4153	180	1813
+rowless	biomcp.phenotype-synonyms/5			15	5	4098	203	313
+outside	biomcp.disease-survival/8			5	3	4093	781	869
+together	biomcp.drug-page/8	result.items		9	4	4059	451	451
+field	biomcp.drug-fda-page/8	result.items	latest_submission.status	8	2	4056	87	647
+component	biomcp.disease-card/7	query		44	4	4042	80	102
+field	biomcp.pathway-card/11	problems	field	9	3	3942	277	760
+rowless	protocol/capabilities			1	1	3879	3879	3879
+component	biomcp.protein-features/6	result.coordinate_note		13	3	3874	298	298
+rowless	protocol/missing			91	1	3852	41	49
+field	protocol/_meta	tools	annotations	3	3	3837	1279	1279
+component	biomcp.variant-recurrence/12	sources		22	4	3804	73	337
+component	biomcp.adverse-event-identifiers/5	problems		7	1	3794	542	542
+outside	biomcp.disease-sites/7			7	2	3787	413	785
+component	protocol/capabilities	instructions		1	1	3754	3754	3754
+field	biomcp.pathway-card/11	problems	source	9	3	3747	263	723
+component	biomcp.article-supplement/8	result.content		9	1	3674	147	488
+rowless	biomcp.protein-features/6			10	3	3633	207	445
+component	biomcp.author-page/6	sources		22	8	3632	88	499
+component	biomcp.variant-recurrence/12	query		24	3	3592	131	174
+component	biomcp.drug-xrefs/6	sources		6	1	3564	594	594
+rowless	biomcp.phenotype-search/6			14	4	3496	223	290
+rowless	biomcp.article-evidence/7			5	4	3491	510	1248
+component	biomcp.article-pdf/7	result.file		8	5	3490	70	586
+component	biomcp.drug-interactions/9	sources		8	3	3490	381	685
+field	biomcp.protein-features/6	result.items	source_coordinates	5	1	3484	370	2004
+component	biomcp.disease-card/7	sources		44	4	3480	74	84
+component	biomcp.gwas-page/9	query		21	5	3473	140	210
+field	biomcp.article-edges/12	result.items	key.namespace	21	6	3444	164	164
+component	biomcp.trial-cards/11	sources		45	7	3426	76	80
+together	biomcp.study-profiles/5	result.items		1	1	3423	3423	3423
+component	biomcp.article-cards/10	next		16	7	3368	64	671
+component	biomcp.drug-label-history/1	result.first		4	4	3322	714	870
+outside	biomcp.pgx-guidelines/5			7	1	3316	393	506
+together	biomcp.gwas-page/9	result.items		3	1	3316	443	2237
+together	biomcp.variant-card/16	result.candidates.*.transcripts		3	1	3292	823	1646
+component	biomcp.trial-page/18	next		8	5	3290	311	705
+outside	biomcp.phenotype-ancestors/2			8	5	3254	305	484
+field	biomcp.pathway-card/11	result.events.data.items	db_id.namespace	9	1	3253	180	1813
+field	biomcp.article-supplement/8	result.content.data.rows	sheet	10	1	3250	163	343
+component	biomcp.sync/8	result.snapshot		30	13	3240	108	108
+field	biomcp.article-edges/12	result.items	header.first_author	13	2	3146	242	242
+field	biomcp.article-edges/12	result.items	header.journal	13	2	3146	242	242
+outside	biomcp.study-samples/2			6	3	3117	374	575
+together	biomcp.saved/1	result.snapshots.*.rows		5	4	3090	299	1462
+component	biomcp.pgx-annotation/6	result.annotation		5	1	3065	613	613
+outside	biomcp.variant-assertions/9			8	3	2974	252	470
+field	biomcp.pgx-page/7	result.items	genesymbol	8	1	2966	181	1699
+field	biomcp.diagnostic-page/7	result.items	matched.kind	6	2	2962	111	657
+field	biomcp.pathway-genes/10	result.items	schema_class	2	1	2930	1085	1845
+together	biomcp.trial-page/18	result.items		9	7	2901	117	361
+together	biomcp.drug-who-page/6	result.items		2	2	2874	931	1943
+together	biomcp.diagnostic-companion/6	result.items		3	2	2861	283	1615
+component	biomcp.article-page/11	next		5	5	2844	179	1031
+rowless	biomcp.adverse-event-maude-card/5			4	3	2839	231	1314
+rowless	biomcp.pathway-events/7			8	4	2783	166	513
+component	biomcp.adverse-event-page/7	query		27	6	2750	57	174
+rowless	protocol/mcpServers			23	5	2742	111	120
+component	biomcp.author-page/6	result.literature		7	4	2702	386	386
+component	biomcp.gene-cards/14	next		26	9	2701	93	117
+outside	biomcp.pgx-diplotype/5			6	2	2676	446	446
+together	biomcp.disease-xrefs/6	result.items		1	1	2622	2622	2622
+field	biomcp.pathway-genes/10	result.items	physical_context_count	2	2	2612	1306	1306
+rowless	biomcp.phenotype-xrefs/5			9	4	2611	205	438
+component	biomcp.phenotype-card/6	next		8	6	2607	89	502
+component	biomcp.cell-line-page/8	sources		16	6	2587	75	234
+outside	biomcp.cell-line-chembl/8			4	3	2556	578	700
+field	biomcp.nci-trial-cards/9	result.items.*.sections.diseases.data.items	inclusion_indicator	10	2	2530	253	253
+outside	biomcp.article-supplement/8			4	4	2521	511	759
+field	biomcp.drug-who-page/6	result.items	product_type	2	2	2514	571	1943
+field	biomcp.pathway-genes/10	result.items.*.participants	db_id.namespace	2	2	2506	1253	1253
+together	biomcp.pathway-genes/10	result.items.*.participants		2	2	2506	1253	1253
+rowless	biomcp.orcid-works/9			9	3	2495	214	325
+component	biomcp.trial-cards/11	query		32	6	2479	65	150
+component	biomcp.drug-page/8	problems		3	2	2464	100	1441
+field	biomcp.pgx-page/7	result.items	pairid.namespace	8	1	2455	143	1454
+component	biomcp.author-papers/7	sources		12	5	2434	91	213
+component	biomcp.diagnostic-card/5	sources		26	8	2406	61	384
+outside	biomcp.diagnostic-supplements/4			4	2	2400	535	651
+component	protocol/mcpServers	mcpServers		23	5	2397	96	105
+component	biomcp.diagnostic-page/7	query		35	3	2375	55	81
+component	biomcp.article-cards/10	sources		30	3	2360	70	135
+field	biomcp.drug-label/8	problems	record	5	1	2315	463	463
+component	biomcp.cell-line-chembl/8	sources		11	5	2307	77	223
+field	biomcp.variant-card/16	result.candidates.*.identity.representations	source	14	9	2282	163	163
+together	biomcp.variant-card/16	result.candidates.*.identity.representations		14	9	2282	163	163
+rowless	biomcp.adverse-event-narrative/5			2	1	2258	1090	1168
+component	biomcp.pathway-card/11	result.genes		5	2	2224	442	455
+field	biomcp.article-supplement/8	result.content.data.rows	fragment.offset	10	1	2208	102	234
+rowless	biomcp.adverse-event-drugs/5			2	1	2196	1059	1137
+outside	biomcp.phenotype-search/6			5	4	2180	363	599
+outside	biomcp.registered-keys/6			24	9	2160	90	90
+together	biomcp.variant-assertions/9	result.assertions		3	1	2142	163	1600
+component	biomcp.drug-approvals/9	result.products		3	3	2140	528	806
+together	biomcp.variant-card/16	sources		7	3	2130	289	396
+rowless	biomcp.trial-document/8			5	3	2127	215	722
+rowless	protocol/metadata			1	1	2122	2122	2122
+outside	biomcp.drug-targets/9			3	2	2113	695	723
+component	protocol/metadata	metadata		1	1	2109	2109	2109
+outside	biomcp.protein-isoforms/5			6	3	2105	339	381
+outside	biomcp.protein-structures/6			6	3	2104	341	383
+component	biomcp.vaers-summary/6	next		3	1	2075	677	699
+component	biomcp.pgx-recommendations/6	query		19	6	2073	96	154
+outside	biomcp.orcid-works/9			3	2	2071	501	836
+field	biomcp.article-cards/10	result.items.*.sections.fulltext.data.parts	kind	10	3	2040	204	204
+together	biomcp.article-cards/10	result.items.*.sections.fulltext.data.parts		10	3	2040	204	204
+field	biomcp.drug-page/8	result.items	identity_level	9	4	2034	226	226
+field	biomcp.trial-cards/11	result.items.*.sections.results.data.items.*.data.analyses	nonInferiorityType	2	1	2006	1003	1003
+outside	biomcp.phenotype-matches/2			2	1	1995	983	1012
+rowless	protocol/code			31	5	1991	42	232
+component	biomcp.adverse-event-faers-card/6	query		24	5	1990	66	166
+field	biomcp.trial-cards/11	result.items	more	1	1	1978	1978	1978
+component	biomcp.gene-cards/14	sources		29	9	1972	68	68
+component	biomcp.variant-population/14	sources		22	5	1967	73	302
+rowless	biomcp.organization-page/5			8	2	1944	233	253
+component	biomcp.drug-regulatory/7	sources		4	3	1941	75	622
+rowless	biomcp.cell-line-names/6			8	2	1939	215	288
+component	biomcp.adverse-event-drugs/5	next		3	2	1926	642	642
+rowless	biomcp.nci-trial-cards/9			7	3	1926	224	312
+rowless	biomcp.protein-complex-members/5			5	1	1926	321	428
+rowless	biomcp.protein-domains/9			6	2	1922	192	366
+rowless	biomcp.biomarker-page/5			8	2	1920	230	250
+component	biomcp.drug-indications/9	sources		3	3	1886	573	735
+field	biomcp.drug-page/8	result.items	source	9	4	1872	208	208
+outside	biomcp.saved/1			23	6	1871	78	96
+rowless	biomcp.pgx-annotation/6			9	2	1839	192	303
+component	biomcp.pgx-annotations/6	next		11	3	1825	119	219
+component	biomcp.variant-page/17	query		25	6	1824	55	87
+together	biomcp.sync/8	problems		4	2	1822	433	478
+component	biomcp.gene-page/9	next		12	5	1817	96	309
+component	biomcp.pgx-recommendations/6	sources		16	6	1811	68	265
+outside	biomcp.drug-essential-medicines/1			2	2	1807	841	966
+rowless	biomcp.gwas-loci/5			6	1	1791	247	350
+component	biomcp.pathway-page/9	sources		21	7	1789	72	137
+component	biomcp.diagnostic-card/5	result.product_description		2	1	1784	892	892
+component	biomcp.disease-page/6	sources		24	4	1776	74	74
+field	biomcp.article-supplement/8	result.content.data.rows	fragment.first_row	5	1	1770	186	402
+component	biomcp.disease-page/6	query		24	4	1758	67	74
+field	biomcp.diagnostic-companion/6	next	kind	7	4	1756	148	418
+together	biomcp.diagnostic-companion/6	next		7	4	1756	148	418
+component	biomcp.adverse-event-faers-card/6	sources		23	4	1752	76	80
+component	biomcp.vaers-summary/6	sources		19	3	1748	76	228
+component	biomcp.variant-normalization/9	query		22	3	1748	70	87
+component	biomcp.trial-cards/11	next		3	2	1743	581	581
+component	biomcp.disease-prevalence/2	result.items		4	3	1737	411	504
+rowless	biomcp.cell-line-card/9			8	3	1736	196	283
+field	biomcp.gwas-page/9	result.items	publication	3	1	1699	233	1208
+outside	biomcp.disease-synonyms/6			4	2	1698	317	532
+component	biomcp.phenotype-card/6	result.term		6	5	1674	190	363
+rowless	biomcp.protein-page/6			7	3	1674	213	282
+field	biomcp.pathway-genes/10	result.items	reference.namespace	2	1	1654	607	1047
+component	biomcp.pathway-card/11	sources		23	6	1646	53	77
+outside	biomcp.phenotype-diseases/8			5	2	1627	314	341
+component	biomcp.pathway-card/11	query		23	6	1623	58	78
+component	biomcp.phenotype-matches/2	query		18	1	1609	77	101
+component	biomcp.variant-page/17	sources		22	3	1608	73	75
+together	biomcp.variant-card/16	result.candidates.*.sections.clinvar.data.assertions		1	1	1600	1600	1600
+field	biomcp.nci-trial-cards/9	result.items.*.sections.diseases.data.items	is_lead_disease	8	2	1592	199	199
+component	biomcp.article-edges/12	next		14	4	1590	70	294
+rowless	biomcp.grant-page/1			5	3	1578	198	625
+component	biomcp.adverse-event-faers-card/6	next		4	4	1564	391	391
+field	biomcp.saved/1	result.snapshots.*.rows	ref.as_of	5	4	1560	146	748
+rowless	biomcp.pgx-guidelines/5			6	2	1526	235	341
+outside	biomcp.adverse-event-faers-card/6			1	1	1516	1516	1516
+outside	biomcp.diagnostic-regulatory/4			3	1	1514	429	550
+component	biomcp.article-pdf/7	sources		9	5	1508	89	451
+rowless	biomcp.drug-civic/12			2	1	1502	739	763
+component	biomcp.pgx-card/5	next		8	4	1472	85	435
+component	biomcp.diagnostic-card/5	query		21	7	1471	55	95
+component	biomcp.drug-approvals/9	sources		3	2	1446	417	554
+component	biomcp.drug-card/7	problems		1	1	1441	1441	1441
+rowless	biomcp.store-clean/5			11	8	1441	131	131
+component	biomcp.diagnostic-companion/6	sources		20	5	1440	72	72
+field	biomcp.protein-features/6	result.items	feature.protein	5	1	1432	142	864
+component	biomcp.adverse-event-page/7	next		2	2	1428	532	896
+component	biomcp.cell-line-filtered-page/2	sources		3	1	1427	221	603
+field	biomcp.disease-xrefs/6	result.items	attribution	1	1	1426	1426	1426
+together	biomcp.study-sample-lists/5	result.items		1	1	1423	1423	1423
+field	biomcp.gwas-page/9	result.items	study	3	1	1419	193	1012
+component	biomcp.adverse-event-faers-card/6	result.seriousness		2	1	1411	690	721
+component	biomcp.drug-who-page/6	sources		6	3	1404	80	1004
+outside	biomcp.phenotype-synonyms/5			3	2	1400	407	535
+outside	biomcp.study-files/4			3	1	1389	463	463
+outside	biomcp.gwas-association/7			2	2	1384	685	699
+field	biomcp.saved/1	result.snapshots.*.rows	ref.entity	5	4	1380	128	664
+together	biomcp.variant-card/16	result.candidates.*.sections.civic.data.profiles.*.statements		2	1	1364	602	762
+rowless	biomcp.drug-who-page/6			5	2	1357	223	293
+component	biomcp.variant-normalization/9	sources		20	3	1356	67	73
+field	biomcp.nci-trial-cards/9	result.items.*.sections.eligibility.data.unstructured.items	inclusion_indicator	6	2	1356	226	226
+together	biomcp.nci-trial-cards/9	result.items.*.sections.eligibility.data.unstructured.items		6	2	1356	226	226
+field	biomcp.study-page/6	sources.*.notices	kind	3	1	1353	451	451
+together	biomcp.study-page/6	sources.*.notices		3	1	1353	451	451
+field	biomcp.variant-assertions/9	result.assertions	domain	3	1	1349	163	963
+field	biomcp.drug-approvals/9	result.approvals.data.records	event.kind	8	3	1344	108	348
+field	biomcp.variant-card/16	result.candidates.*.transcripts	component	3	1	1332	333	666
+rowless	biomcp.drug-who-card/4			6	1	1332	202	242
+component	biomcp.variant-recurrence/12	problems		2	2	1328	663	665
+rowless	biomcp.phenotype-hierarchy/6			3	2	1310	420	447
+field	biomcp.pathway-card/11	result.genes.data.items	physical_context_count	1	1	1306	1306	1306
+together	biomcp.pathway-card/11	result.genes.data.items		1	1	1306	1306	1306
+field	biomcp.article-supplement/8	result.content.data.rows	row	8	1	1304	79	175
+field	biomcp.trial-page/18	result.items	has_results	8	6	1304	163	163
+component	biomcp.phenotype-matches/2	next		13	1	1283	89	113
+component	biomcp.vaers-summary/6	query		17	2	1277	72	80
+rowless	biomcp.study-samples/2			4	3	1273	224	415
+rowless	biomcp.pgx-diplotype/5			5	2	1269	253	254
+field	biomcp.phenotype-matches/2	result.items	category	1	1	1257	1257	1257
+together	biomcp.phenotype-matches/2	result.items		1	1	1257	1257	1257
+component	biomcp.wikipathways-sync/5	result.get		6	4	1249	207	214
+component	biomcp.wikipathways-sync/5	result.search		6	4	1249	207	214
+field	biomcp.diagnostic-companion/6	result.items	kind	2	2	1246	283	963
+field	biomcp.trial-cards/11	result.items.*.sections.results.data.items.*.data.analyses	paramType	2	1	1246	623	623
+component	biomcp.diagnostic-supplements/4	next		4	2	1230	231	347
+component	biomcp.study-profiles/5	problems		2	1	1222	611	611
+component	biomcp.author-page/6	page		9	3	1215	135	135
+component	biomcp.diagnostic-summary/2	sources		8	2	1205	71	392
+field	biomcp.variant-card/16	sources	source	7	3	1204	172	172
+outside	biomcp.biomarker-page/5			1	1	1192	1192	1192
+component	biomcp.biomarker-page/5	next		5	3	1172	64	916
+field	biomcp.drug-label/8	problems	source	5	1	1165	233	233
+component	biomcp.grant-page/1	result.hint		3	1	1155	385	385
+component	biomcp.protein-page/6	next		4	1	1140	285	285
+rowless	biomcp.gwas-association/7			4	1	1140	237	333
+field	biomcp.diagnostic-companion/6	result.items	diagnostic	1	1	1139	1139	1139
+outside	biomcp.cell-line-identity/7			2	2	1122	561	561
+field	biomcp.variant-card/16	result.candidates.*.transcripts	source	3	1	1108	277	554
+component	biomcp.phenotype-search/6	sources		14	4	1092	78	78
+component	biomcp.nci-trial-page/11	query		14	2	1090	59	92
+field	biomcp.nci-trial-cards/9	result.items.*.sections.diseases.data.items	type	8	2	1088	136	136
+field	biomcp.pathway-card/11	result.pathway.references	db_id.namespace	4	3	1088	272	272
+together	biomcp.pathway-card/11	result.pathway.references		4	3	1088	272	272
+rowless	biomcp.drug-essential-medicines/1			5	2	1087	202	236
+field	biomcp.article-supplement/8	result.content.data.rows	fragment.text	3	1	1086	330	378
+component	biomcp.article-edges/12	sources		13	3	1081	69	173
+field	biomcp.drug-label/8	problems	code	5	1	1065	213	213
+component	protocol/code	message		30	5	1055	16	206
+component	biomcp.drug-recall-page/5	problems		1	1	1051	1051	1051
+component	biomcp.phenotype-card/6	sources		14	3	1044	74	78
+component	biomcp.pathway-page/9	query		15	5	1042	56	143
+component	biomcp.variant-page/17	problems		2	1	1022	511	511
+component	biomcp.biomarker-result/5	result.card		4	3	1021	238	265
+component	biomcp.phenotype-matches/2	sources		13	1	1014	78	78
+component	biomcp.article-evidence/7	sources		3	3	1010	139	713
+field	biomcp.drug-page/8	sources	state	10	7	1000	100	100
+together	biomcp.drug-page/8	sources		10	7	1000	100	100
+outside	biomcp.phenotype-card/6			1	1	999	999	999
+component	biomcp.drug-indications/9	result.regulatory_context		1	1	989	989	989
+component	biomcp.trial-document/8	result.file		2	1	986	493	493
+together	biomcp.nci-trial-cards/9	result.items.*.sections.arms.data.items		7	2	979	109	325
+together	biomcp.variant-population/14	result.groups		2	1	965	451	514
+field	biomcp.variant-card/16	result.candidates.*.sections.clinvar.data.assertions	domain	1	1	963	963	963
+component	biomcp.protein-features/6	page		7	2	961	135	139
+together	biomcp.drug-card/7	problems		1	1	943	943	943
+together	biomcp.drug-page/8	problems		1	1	943	943	943
+rowless	biomcp.author-paper-details/7			2	1	934	467	467
+component	biomcp.drug-recall-page/5	next		4	1	928	207	251
+together	biomcp.article-page/11	problems		1	1	921	921	921
+rowless	biomcp.drug-recall-card/4			1	1	917	917	917
+rowless	biomcp.cell-line-assay-count/7			2	1	914	457	457
+rowless	biomcp.protein-sequence/5			4	2	913	184	249
+component	biomcp.study-profiles/5	sources		9	3	908	81	260
+field	biomcp.drug-card/7	sources	state	9	5	900	100	100
+together	biomcp.drug-card/7	sources		9	5	900	100	100
+field	biomcp.sync/8	problems	code	4	2	898	213	236
+component	biomcp.phenotype-synonyms/5	query		10	5	896	74	152
+component	biomcp.pgx-recommendations/6	next		7	4	880	103	185
+rowless	biomcp.cell-line-filtered-page/2			1	1	876	876	876
+component	biomcp.pathway-genes/10	result.page		5	2	866	161	177
+field	biomcp.sync/8	problems	source	4	2	856	203	225
+rowless	biomcp.study-files/4			3	2	851	220	411
+outside	biomcp.gwas-loci/5			2	1	848	424	424
+component	biomcp.article-supplement/8	next		6	3	841	82	178
+component	biomcp.adverse-event-narrative/5	sources		3	2	839	266	307
+component	biomcp.cell-line-page/8	problems		4	2	836	209	209
+component	biomcp.cell-line-card/9	next		3	3	825	67	685
+field	biomcp.trial-cards/11	result.items.*.sections.locations.data.items	facility	2	1	824	412	412
+component	biomcp.cell-line-names/6	sources		9	3	821	75	221
+rowless	biomcp.drug-approvals/9			1	1	818	818	818
+component	biomcp.gene-page/9	sources		12	3	816	68	68
+component	biomcp.protein-isoforms/5	page		6	3	810	135	135
+component	biomcp.protein-structures/6	page		6	3	810	135	135
+rowless	biomcp.disease-prevalence/2			2	2	805	317	488
+component	biomcp.variant-page/17	next		2	1	804	402	402
+rowless	biomcp.study-copy-number/1			2	2	802	399	403
+component	biomcp.article-text/8	sources		3	1	798	266	266
+component	biomcp.variant-card/16	problems		5	2	772	105	345
+rowless	biomcp.disease-sites/7			3	2	771	197	377
+component	biomcp.article-evidence/7	next		3	2	766	215	336
+component	biomcp.gwas-association/7	next		4	3	766	98	285
+field	biomcp.nci-trial-cards/9	result.items.*.sections.arms.data.items	arm_index	7	2	763	109	109
+field	biomcp.variant-assertions/9	result.assertions	kind	2	1	759	139	620
+rowless	biomcp.phenotype-ancestors/2			3	2	759	205	316
+component	biomcp.pathway-genes/10	sources		11	4	754	49	76
+field	biomcp.disease-xrefs/6	result.items	subject	1	1	750	750	750
+rowless	biomcp.disease-genes/10			3	1	744	248	248
+rowless	biomcp.drug-markets/2			2	1	740	350	390
+outside	biomcp.cell-line-variants/8			1	1	737	737	737
+component	biomcp.pgx-annotation/6	sources		9	2	736	80	82
+field	biomcp.trial-page/18	result.items	status	4	3	724	181	181
+rowless	biomcp.key/6			4	2	720	180	180
+field	biomcp.variant-card/16	result.candidates.*.transcripts	gene	3	1	716	179	358
+component	biomcp.article-edges/12	problems		1	1	713	713	713
+outside	biomcp.phenotype-xrefs/5			2	2	709	305	404
+outside	biomcp.author-card/7			2	2	704	290	414
+field	biomcp.variant-card/16	sources	use	7	3	700	100	100
+component	biomcp.pgx-page/7	sources		10	4	688	68	70
+field	biomcp.study-profiles/5	result.items	molecularAlterationType	1	1	687	687	687
+field	biomcp.trial-cards/11	result.items.*.sections.results.data.items.*.data.analyses	ciPctValue	2	1	686	343	343
+component	biomcp.drug-markets/2	next		2	1	680	340	340
+rowless	biomcp.protein-complexes/6			2	1	678	306	372
+field	biomcp.study-profiles/5	result.items	description	1	1	671	671	671
+together	biomcp.drug-recall-page/5	problems		1	1	667	667	667
+component	biomcp.nci-trial-cards/9	next		1	1	664	664	664
+field	biomcp.article-edges/12	result.items	influential	4	2	652	163	163
+outside	biomcp.cell-line-names/6			1	1	652	652	652
+component	biomcp.pathway-events/7	result.page		4	1	651	162	163
+outside	biomcp.gwas-study-page/2			1	1	644	644	644
+component	biomcp.variant-assertions/9	sources		5	5	641	89	138
+field	biomcp.variant-card/16	result.candidates.*.sections.clinvar.data.assertions	kind	1	1	620	620	620
+component	biomcp.article-pdf/7	query		6	1	609	94	109
+component	biomcp.pgx-page/7	query		10	4	606	52	71
+component	biomcp.article-edges/12	query		10	2	602	58	69
+component	biomcp.cell-line-card/9	sources		8	3	600	75	75
+component	biomcp.gwas-loci/5	query		6	1	600	100	100
+rowless	biomcp.gwas-study/7			1	1	598	598	598
+component	biomcp.disease-incidence/8	problems		2	1	592	296	296
+component	biomcp.article-text/8	next		3	2	590	186	208
+rowless	protocol/servers			5	2	585	117	117
+field	biomcp.diagnostic-page/7	next	kind	2	2	582	203	379
+together	biomcp.diagnostic-page/7	next		2	2	582	203	379
+component	biomcp.study-profiles/5	query		8	2	578	71	76
+component	biomcp.study-sample-lists/5	problems		2	1	576	288	288
+component	biomcp.phenotype-hierarchy/6	next		3	2	574	176	199
+component	biomcp.adverse-event-devices/5	sources		2	2	573	266	307
+field	biomcp.protein-features/6	result.items	feature.kind	2	1	572	286	286
+component	biomcp.author-page/6	query		9	5	566	57	79
+rowless	biomcp.phenotype-diseases/8			2	1	565	244	321
+rowless	biomcp.saved/1			8	5	560	70	70
+component	biomcp.pgx-diplotype/5	query		5	2	556	111	112
+component	biomcp.pathway-events/7	result.header		4	1	552	138	138
+component	biomcp.pgx-guidelines/5	query		6	2	550	91	93
+rowless	biomcp.phenotype-genes/8			2	1	550	238	312
+component	biomcp.protein-page/6	sources		7	3	546	78	78
+field	biomcp.trial-cards/11	result.items	card.study_type	1	1	544	544	544
+field	biomcp.drug-page/8	next	kind	3	2	543	181	181
+together	biomcp.drug-page/8	next		3	2	543	181	181
+component	biomcp.adverse-event-drugs/5	problems		1	1	542	542	542
+outside	biomcp.diagnostic-methods/5			1	1	539	539	539
+component	biomcp.biomarker-page/5	sources		8	2	536	67	67
+component	biomcp.biomarker-result/5	sources		8	2	536	67	67
+component	biomcp.organization-page/5	sources		8	2	536	67	67
+component	biomcp.gwas-ancestries/6	query		4	1	532	94	172
+rowless	biomcp.article-recommendations/11			2	1	528	227	301
+component	biomcp.article-supplement/8	query		4	2	526	120	146
+component	protocol/servers	servers		5	2	525	105	105
+field	biomcp.variant-population/14	result.groups	filters	2	1	524	262	262
+rowless	biomcp.cell-line-identity/7			2	1	518	221	297
+rowless	biomcp.cell-line-variants/8			2	1	518	221	297
+rowless	biomcp.disease-phenotypes/10			2	1	516	258	258
+component	biomcp.study-card/8	query		8	4	514	55	104
+rowless	biomcp.cell-line-xrefs/7			2	1	503	215	288
+outside	biomcp.disease-page/6			1	1	497	497	497
+field	biomcp.study-profiles/5	result.items	showProfileInAnalysisTab	1	1	495	495	495
+component	biomcp.gene-page/9	query		7	1	493	64	73
+field	biomcp.trial-page/18	result.items	phases	3	2	489	163	163
+rowless	biomcp.protein-structures/6			2	1	485	209	276
+field	biomcp.trial-cards/11	result.items.*.sections.results.data.items.*.data.analyses	ciNumSides	1	1	483	483	483
+component	biomcp.phenotype-card/6	query		9	3	481	53	57
+component	biomcp.disease-card/7	next		1	1	480	480	480
+component	biomcp.drug-who-card/4	sources		6	1	480	80	80
+rowless	biomcp.protein-isoforms/5			2	1	479	207	272
+rowless	biomcp.gwas-ancestries/6			2	1	478	239	239
+component	biomcp.phenotype-search/6	query		8	3	472	59	59
+field	biomcp.variant-card/16	result.candidates.*.sections.civic.data.profiles.*.statements	record.namespace	2	1	472	192	280
+field	biomcp.diagnostic-page/7	result.items	classification	2	1	470	235	235
+rowless	biomcp.author-card/7			2	1	470	196	274
+component	biomcp.orcid-works/9	sources		6	3	468	78	78
+field	biomcp.drug-card/7	problems	record	1	1	463	463	463
+field	biomcp.drug-page/8	problems	record	1	1	463	463	463
+field	biomcp.study-sample-lists/5	result.items	description	1	1	463	463	463
+component	biomcp.adverse-event-maude-card/5	sources		3	2	459	76	307
+component	biomcp.orcid-works/9	next		5	3	459	83	97
+field	biomcp.diagnostic-companion/6	result.items	name_match	1	1	459	459	459
+outside	biomcp.phenotype-hierarchy/6			1	1	459	459	459
+component	biomcp.variant-population/14	query		8	1	456	57	57
+component	biomcp.nci-trial-cards/9	query		5	2	454	80	98
+field	biomcp.diagnostic-page/7	result.items	name_match	1	1	451	451	451
+component	biomcp.cell-line-assay-count/7	sources		2	1	446	223	223
+component	biomcp.diagnostic-summary/2	query		6	1	444	74	74
+field	biomcp.pathway-card/11	result.events.data.items	schema_class	2	1	434	217	217
+field	biomcp.pathway-events/7	result.items	schema_class	2	1	434	217	217
+rowless	biomcp.study-mutations/2			1	1	433	433	433
+rowless	protocol/action			4	2	433	105	116
+outside	biomcp.diagnostic-genes/6			1	1	432	432	432
+component	biomcp.adverse-event-maude-card/5	next		1	1	431	431	431
+field	biomcp.trial-cards/11	result.items	card.updated_kind	1	1	430	430	430
+component	biomcp.study-files/4	sources		3	2	422	81	260
+component	biomcp.study-sample-lists/5	sources		3	2	422	81	260
+component	biomcp.study-samples/2	sources		3	2	422	81	260
+component	biomcp.phenotype-synonyms/5	sources		6	3	421	51	74
+component	biomcp.pathway-genes/10	query		7	2	415	43	62
+field	biomcp.study-profiles/5	result.items	name	1	1	415	415	415
+field	biomcp.disease-xrefs/6	result.items	predicate	1	1	412	412	412
+field	biomcp.pgx-page/7	result.items	cpiclevel	3	1	399	127	145
+field	biomcp.diagnostic-page/7	result.items	header.firm	2	1	394	197	197
+component	biomcp.cell-line-filtered-page/2	result.variation_match		1	1	384	384	384
+field	biomcp.pathway-card/11	result.events.data.items	kind	3	1	381	127	127
+field	biomcp.pathway-events/7	result.items	kind	3	1	381	127	127
+field	biomcp.drug-fda-page/8	result.items	latest_submission.submission_type	2	1	372	186	186
+together	biomcp.grant-page/1	result.items		1	1	371	371	371
+component	biomcp.drug-essential-medicines/1	sources		5	2	367	55	78
+field	biomcp.study-profiles/5	result.items	datatype	1	1	367	367	367
+field	biomcp.study-profiles/5	result.items	studyId	1	1	367	367	367
+field	biomcp.study-sample-lists/5	result.items	category	1	1	367	367	367
+field	biomcp.trial-cards/11	result.items	status	1	1	363	363	363
+field	biomcp.pathway-page/9	next	kind	2	1	362	181	181
+together	biomcp.pathway-page/9	next		2	1	362	181	181
+component	biomcp.drug-targets/9	result.identity		2	1	356	178	178
+field	biomcp.drug-fda-page/8	result.items	latest_submission.submission_number	2	1	354	177	177
+component	biomcp.drug-interactions/9	result.hint		1	1	353	353	353
+field	biomcp.variant-card/16	result.candidates.*.sections.civic.data.profiles.*.statements	significance	1	1	353	353	353
+component	biomcp.adverse-event-identifiers/5	query		2	1	352	176	176
+component	biomcp.pgx-card/5	query		5	2	350	70	70
+component	biomcp.trial-page/18	query		5	3	349	64	81
+component	biomcp.pgx-diplotype/5	sources		5	2	348	68	70
+component	biomcp.pgx-guidelines/5	sources		5	2	348	68	70
+component	biomcp.disease-sites/7	next		1	1	347	347	347
+field	biomcp.article-page/11	problems	field	1	1	347	347	347
+field	biomcp.variant-population/14	result.groups	data_type	2	1	344	172	172
+field	biomcp.drug-who-page/6	result.items	therapeutic_area	1	1	343	343	343
+component	biomcp.drug-indications/9	result.identity		2	1	340	170	170
+component	biomcp.pgx-card/5	sources		5	2	340	68	68
+outside	biomcp.diagnostic-conditions/6			1	1	328	328	328
+outside	biomcp.disease-phenotypes/10			1	1	324	324	324
+rowless	protocol/current_version			7	2	324	43	54
+component	biomcp.drug-who-page/6	query		4	2	322	60	90
+field	biomcp.diagnostic-page/7	result.items	header.product_code	2	1	322	161	161
+field	biomcp.trial-cards/11	result.items	card.completion.kind	1	1	320	320	320
+field	biomcp.study-profiles/5	result.items	patientLevel	1	1	319	319	319
+component	biomcp.drug-recall-card/4	result.header		1	1	317	317	317
+component	biomcp.diagnostic-summary/2	next		2	2	316	158	158
+component	biomcp.gwas-loci/5	next		3	1	315	105	105
+component	biomcp.drug-essential-medicines/1	result.hint		1	1	313	313	313
+field	biomcp.trial-cards/11	result.items	card.primary_completion.kind	1	1	312	312	312
+component	biomcp.adverse-event-drugs/5	sources		1	1	307	307	307
+component	biomcp.adverse-event-reactions/7	sources		1	1	307	307	307
+component	biomcp.article-page/11	page		2	2	306	153	153
+field	biomcp.article-page/11	problems	code	1	1	305	305	305
+field	biomcp.variant-card/16	result.candidates.*.sections.civic.data.profiles.*.statements	direction	1	1	305	305	305
+rowless	biomcp.disease-incidence/8			1	1	305	305	305
+component	biomcp.grant-page/1	sources		4	2	304	76	76
+component	biomcp.phenotype-search/6	next		1	1	301	301	301
+component	biomcp.diagnostic-companion/6	query		5	3	297	55	72
+component	biomcp.article-page/11	query		3	3	294	75	144
+component	biomcp.disease-genes/10	query		3	1	288	96	96
+component	biomcp.phenotype-xrefs/5	query		4	3	288	71	75
+field	biomcp.diagnostic-page/7	result.items	header.status	2	1	286	143	143
+component	biomcp.orcid-works/9	query		4	2	280	55	75
+field	biomcp.trial-cards/11	result.items	sections.locations.source	1	1	279	279	279
+component	biomcp.cell-line-names/6	query		5	2	275	55	55
+field	biomcp.study-sample-lists/5	result.items	name	1	1	271	271	271
+field	biomcp.study-sample-lists/5	result.items	studyId	1	1	271	271	271
+component	biomcp.pathway-events/7	sources		4	3	269	49	76
+rowless	biomcp.drug-regulatory/7			1	1	264	264	264
+component	biomcp.diagnostic-card/5	result.header		1	1	260	260	260
+component	biomcp.study-mutations/2	sources		1	1	260	260	260
+component	biomcp.biomarker-result/5	next		4	2	256	64	64
+component	biomcp.biomarker-result/5	problems		1	1	256	256	256
+component	biomcp.organization-page/5	next		4	2	256	64	64
+field	biomcp.trial-cards/11	result.items.*.sections.references.data.items	kind	2	2	254	127	127
+together	biomcp.trial-cards/11	result.items.*.sections.references.data.items		2	2	254	127	127
+field	biomcp.pgx-page/7	result.items	usedforrecommendation	1	1	253	253	253
+field	biomcp.drug-who-page/6	next	kind	1	1	247	247	247
+together	biomcp.drug-who-page/6	next		1	1	247	247	247
+component	biomcp.adverse-event-reactions/7	result.components		1	1	239	239	239
+component	biomcp.phenotype-synonyms/5	next		3	1	237	79	79
+field	biomcp.article-page/11	problems	source	1	1	235	235	235
+component	biomcp.disease-genes/10	sources		3	1	234	78	78
+component	biomcp.trial-document/8	query		3	2	233	65	103
+field	biomcp.drug-card/7	problems	source	1	1	233	233	233
+field	biomcp.drug-page/8	problems	source	1	1	233	233	233
+component	biomcp.drug-approvals/9	next		1	1	232	232	232
+rowless	biomcp.author-papers/7			1	1	230	230	230
+component	biomcp.trial-document/8	sources		3	2	228	76	76
+field	biomcp.drug-recall-page/5	problems	source	1	1	226	226	226
+component	biomcp.cell-line-names/6	next		3	1	225	75	75
+component	biomcp.disease-prevalence/2	sources		2	2	221	81	140
+component	biomcp.drug-essential-medicines/1	query		3	2	220	72	74
+component	biomcp.study-mutations/2	next		1	1	217	217	217
+component	biomcp.protein-complex-members/5	problems		2	1	216	108	108
+field	biomcp.drug-card/7	problems	code	1	1	213	213	213
+field	biomcp.drug-page/8	problems	code	1	1	213	213	213
+component	biomcp.diagnostic-methods/5	next		1	1	212	212	212
+field	biomcp.drug-label-history/1	result.read	state	1	1	208	208	208
+field	biomcp.drug-recall-page/5	problems	code	1	1	208	208	208
+together	biomcp.drug-label-history/1	result.read		1	1	208	208	208
+component	biomcp.disease-page/6	next		1	1	207	207	207
+component	biomcp.gwas-loci/5	sources		3	1	204	68	68
+component	biomcp.disease-phenotypes/10	query		2	1	202	101	101
+field	biomcp.grant-page/1	result.items	organization.country	1	1	200	200	200
+field	biomcp.drug-recall-page/5	problems	field	1	1	199	199	199
+field	biomcp.nci-trial-cards/9	result.items.*.sections.arms.data.items	record	1	1	199	199	199
+component	biomcp.gwas-study/7	next		1	1	195	195	195
+component	biomcp.author-papers/7	next		1	1	194	194	194
+component	biomcp.wikipathways-sync/5	sources		3	3	190	57	76
+field	biomcp.article-edges/12	result.items	contexts	1	1	190	190	190
+field	biomcp.variant-card/16	result.candidates.*.sections.civic.data.profiles.*.statements	kind	1	1	183	183	183
+component	biomcp.article-recommendations/11	sources		2	1	178	89	89
+component	biomcp.pathway-genes/10	result.header		1	1	168	168	168
+component	biomcp.gwas-association/7	query		2	1	166	83	83
+field	biomcp.variant-recurrence/12	result.identity.representations	source	1	1	163	163	163
+together	biomcp.variant-recurrence/12	result.identity.representations		1	1	163	163	163
+component	biomcp.article-evidence/7	result.semantic_scholar		1	1	159	159	159
+component	biomcp.author-card/7	sources		2	1	156	78	78
+component	biomcp.disease-phenotypes/10	sources		2	1	156	78	78
+component	biomcp.protein-features/6	sources		2	1	156	78	78
+component	biomcp.protein-isoforms/5	sources		2	1	156	78	78
+component	biomcp.protein-sequence/5	sources		2	1	156	78	78
+component	biomcp.protein-structures/6	sources		2	1	156	78	78
+field	biomcp.grant-page/1	result.items	fiscal_year	1	1	154	154	154
+field	biomcp.pgx-page/7	result.items	provisional	1	1	154	154	154
+component	biomcp.disease-sites/7	problems		1	1	152	152	152
+component	biomcp.cell-line-identity/7	sources		2	1	150	75	75
+component	biomcp.cell-line-variants/8	sources		2	1	150	75	75
+component	biomcp.cell-line-xrefs/7	sources		2	1	150	75	75
+component	biomcp.disease-incidence/8	query		1	1	150	150	150
+component	biomcp.phenotype-ancestors/2	query		2	2	150	75	75
+component	biomcp.study-sample-lists/5	query		2	1	150	75	75
+component	protocol/_meta	_meta		2	2	148	74	74
+component	biomcp.adverse-event-maude-card/5	query		2	1	142	71	71
+component	biomcp.gwas-ancestries/6	sources		2	1	140	70	70
+component	biomcp.study-samples/2	query		2	1	140	70	70
+component	biomcp.disease-sites/7	sources		2	1	136	68	68
+component	biomcp.gwas-association/7	sources		2	1	136	68	68
+component	biomcp.nci-trial-cards/9	sources		2	2	136	67	69
+component	biomcp.study-files/4	query		2	1	136	68	68
+component	biomcp.protein-complex-members/5	page		1	1	135	135	135
+component	biomcp.protein-domains/9	page		1	1	135	135	135
+field	biomcp.trial-page/18	result.items	primary_completion.kind	1	1	131	131	131
+field	biomcp.gwas-page/9	result.items	exact_p_value.exponent	1	1	130	130	130
+component	biomcp.drug-label/8	query		1	1	129	129	129
+component	biomcp.phenotype-xrefs/5	sources		2	2	129	55	74
+component	biomcp.protein-sequence/5	result.sequence		2	1	128	64	64
+field	biomcp.trial-page/18	result.items	start.kind	1	1	117	117	117
+component	biomcp.disease-sites/7	query		2	1	112	56	56
+component	biomcp.disease-prevalence/2	query		1	1	105	105	105
+component	biomcp.pgx-annotation/6	next		1	1	102	102	102
+field	biomcp.article-page/11	sources	state	1	1	100	100	100
+field	biomcp.drug-interactions/9	sources	state	1	1	100	100	100
+field	biomcp.drug-who-page/6	sources	state	1	1	100	100	100
+field	biomcp.variant-card/16	sources	state	1	1	100	100	100
+together	biomcp.article-page/11	sources		1	1	100	100	100
+together	biomcp.drug-interactions/9	sources		1	1	100	100	100
+together	biomcp.drug-who-page/6	sources		1	1	100	100	100
+component	biomcp.pgx-guidelines/5	next		1	1	98	98	98
+component	protocol/code	data		1	1	92	92	92
+component	biomcp.protein-complexes/6	problems		1	1	86	86	86
+component	biomcp.drug-label/8	sources		1	1	84	84	84
+component	biomcp.protein-features/6	problems		1	1	82	82	82
+component	biomcp.author-card/7	next		1	1	80	80	80
+component	biomcp.phenotype-ancestors/2	next		1	1	80	80	80
+component	biomcp.protein-domains/9	problems		1	1	80	80	80
+component	biomcp.drug-targets/9	sources		1	1	79	79	79
+component	biomcp.cell-line-identity/7	next		1	1	78	78	78
+component	biomcp.cell-line-variants/8	next		1	1	78	78	78
+component	biomcp.disease-incidence/8	sources		1	1	78	78	78
+component	biomcp.phenotype-diseases/8	query		1	1	78	78	78
+component	biomcp.phenotype-diseases/8	sources		1	1	78	78	78
+component	biomcp.phenotype-genes/8	sources		1	1	78	78	78
+component	biomcp.protein-complexes/6	sources		1	1	78	78	78
+component	biomcp.article-recommendations/11	next		1	1	76	76	76
+component	biomcp.cell-line-xrefs/7	next		1	1	75	75	75
+component	biomcp.phenotype-genes/8	query		1	1	75	75	75
+component	biomcp.phenotype-ancestors/2	sources		1	1	74	74	74
+component	biomcp.protein-domains/9	sources		1	1	74	74	74
+component	biomcp.article-supplement/8	sources		1	1	70	70	70
+component	biomcp.cell-line-page/8	next		1	1	69	69	69
+component	biomcp.drug-regulatory/7	query		1	1	67	67	67
+component	biomcp.protein-sequence/5	next		1	1	67	67	67
+component	biomcp.author-papers/7	query		1	1	66	66	66
+component	biomcp.drug-targets/9	query		1	1	61	61	61
+component	biomcp.cell-line-identity/7	query		1	1	58	58	58
+component	biomcp.cell-line-variants/8	query		1	1	58	58	58
+component	biomcp.protein-page/6	query		1	1	57	57	57
+component	biomcp.cell-line-xrefs/7	query		1	1	55	55	55
+field	biomcp.variant-population/14	result.groups	ac	1	1	46	46	46
+component	biomcp.pathway-events/7	query		1	1	43	43	43
+component	protocol/current_version	state		1	1	18	18	18
+rowless	protocol/empty			1	1	2	2	2

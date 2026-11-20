@@ -1,6 +1,7 @@
 # 1076 — rows-do-not-repeat-what-the-reply-can-say-once
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9458eb00a24b316c34472379a8205ca19c96debb
 
 Milestone: 7
 
