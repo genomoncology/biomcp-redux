@@ -240,7 +240,7 @@ fn fail(out: &mut Outcome, error: biomcp_fetch::RequestError) {
     }
 }
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let (is_approvals, mut out) = empty_get(query);
+    let mut out = empty_get(query);
     if !query.supports_sections() {
         return unsupported(query.source(), out);
     }
@@ -275,22 +275,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         };
         if let Some(row) = page.records.first() {
             label_steps(cx, row, &mut out);
-            if query.sections() == [DrugSection::LabelHistory] {
-                if let Err(error) = history::select(cx, query, row, deadline, &mut out) {
-                    fail(&mut out, error);
-                }
-            } else if is_approvals {
-                if let Err(error) = approvals::select(
-                    cx,
-                    query,
-                    row,
-                    (page.metadata.fetched, page.updated),
-                    deadline,
-                    &mut out,
-                ) {
-                    fail(&mut out, error);
-                }
-            } else {
+            let metadata = (page.metadata.fetched, page.updated);
+            if !read_section(cx, query, row, metadata, deadline, &mut out) {
                 if let Some(request) = crate::next::checked(
                     query.for_section(DrugSection::Approvals),
                     biomcp_types::Source::Drugsfda,
@@ -324,17 +310,35 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn empty_get(query: &DrugGet) -> (bool, Outcome) {
+/// Read the approvals or label-history section of `row`; false for any other request.
+fn read_section(
+    cx: &Ctx<'_>,
+    query: &DrugGet,
+    row: &source::Application,
+    metadata: (Option<i64>, Option<biodata::PartialDate>),
+    deadline: biomcp_fetch::Deadline<'_>,
+    out: &mut Outcome,
+) -> bool {
+    let read = match query.sections() {
+        [DrugSection::LabelHistory] => history::select(cx, query, row, deadline, out),
+        [DrugSection::Approvals] => approvals::select(cx, query, row, metadata, deadline, out),
+        _ => return false,
+    };
+    if let Err(error) = read {
+        fail(out, error);
+    }
+    true
+}
+fn empty_get(query: &DrugGet) -> Outcome {
     if query.sections() == [DrugSection::LabelHistory] {
-        return (false, history::empty(query));
+        return history::empty(query);
     }
     let is_approvals = query.sections() == [DrugSection::Approvals];
-    let out = empty(if is_approvals {
+    empty(if is_approvals {
         biomcp_types::DrugApprovals::into_reply(query.clone(), None)
     } else {
         biomcp_types::DrugCard::into_reply(query.clone(), None)
-    });
-    (is_approvals, out)
+    })
 }
 
 fn label_steps(cx: &Ctx<'_>, row: &source::Application, out: &mut Outcome) {
