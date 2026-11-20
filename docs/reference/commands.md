@@ -3403,6 +3403,13 @@ Options:
           Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
           and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda.
 
+      --every-version[=<every_version>]
+          Read every version.
+          Label history reads every version in order, up to its read bound, instead of halving.
+
+          [default: false]
+          [possible values: true, false]
+
       --evidence-level <evidence_level>...
           A–E; help get drug
           A–E
@@ -3421,24 +3428,29 @@ Options:
           Source CIViC evidence status; omitted preserves the source's existing default.
           Only with --source civic on get drug, and the civic section on get variant.
 
-      --label-section <label_section>
-          Exact openFDA SPL fields.
-          Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-          The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
-          A section the label lacks, or a name openFDA does not use, lists the sections the label has.
-          Only with --source openfda-label.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
+      --find <find>...
+          Label text; OR.
+          Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR.
+
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --label-section <label_section>
+          Exact openFDA SPL fields.
+          Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+          The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
+          A section the label lacks, or a name openFDA does not use, lists the sections the label has.
+          With --source openfda-label, or one of boxed_warning, indications_and_usage, contraindications, warnings_and_cautions,
+          adverse_reactions, drug_interactions or use_in_specific_populations for drugsfda label-history.
 
       --partner <partner>
           Interaction partner.
@@ -3481,6 +3493,8 @@ Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string; examp
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
 and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Value form: string; example: --document-id 64255.
+- `--every-version`: Read every version.
+Label history reads every version in order, up to its read bound, instead of halving. Value form: boolean; example: --every-version.
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
@@ -3490,6 +3504,8 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 - `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
+- `--find`: Label text; OR.
+Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Value form: repeatable values (repeat the flag); example: --find Raynaud.
 - `input`: Source ID, brand or generic name.
 Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
@@ -3497,7 +3513,8 @@ Form: get drug INPUT SECTION...; not --input.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
 The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
 A section the label lacks, or a name openFDA does not use, lists the sections the label has.
-Only with --source openfda-label. Value form: string; example: --label-section indications_and_usage.
+With --source openfda-label, or one of boxed_warning, indications_and_usage, contraindications, warnings_and_cautions,
+adverse_reactions, drug_interactions or use_in_specific_populations for drugsfda label-history. Value form: string; example: --label-section indications_and_usage.
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
 Keeps only the pairs with that drug. A name DDInter does not use is tried under the
@@ -3519,6 +3536,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `civic`: Source CIViC therapy evidence and profile context.
 - `label`: One exact source label heading; label replies also name the application numbers and recent major changes.
 - `approvals`: Source application and product history rows.
+- `label-history`: The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.
 - `regulatory`: Source-scoped regulator events.
 - `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.
 - `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.

@@ -677,7 +677,7 @@
               "type": "null"
             }
           ],
-          "description": "The label PDF, given for the matching version, the version before it and unread versions.",
+          "description": "The label PDF: given on `first`, on `before` and on unread versions in `read`.",
           "format": "uri"
         },
         "state": {
@@ -729,7 +729,7 @@
               "type": "null"
             }
           ],
-          "description": "The label PDF, given for the matching version, the version before it and unread versions.",
+          "description": "The label PDF: given on `first`, on `before` and on unread versions in `read`.",
           "format": "uri"
         },
         "letter": {
@@ -749,7 +749,7 @@
           "type": "boolean"
         },
         "sentences": {
-          "description": "At most two distinct sentences holding a searched text, each at most 400 characters,\nas the PDF's text gives them.",
+          "description": "At most two distinct sentences holding a searched text, each at most 300 characters,\nas the PDF's text gives them.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
