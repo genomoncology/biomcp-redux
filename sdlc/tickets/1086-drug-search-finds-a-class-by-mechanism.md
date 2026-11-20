@@ -1,6 +1,7 @@
 # 1086 — drug-search-finds-a-class-by-mechanism
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: eb1273aefd4fd4f8056549efa499815fb372de9c
 
 Milestone: 7
 

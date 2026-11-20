@@ -45,6 +45,7 @@ pub(super) fn therapies(
                 identity_level: biodata::DrugIdentityLevel::Unknown,
                 name_resolution: None,
                 matched_name: None,
+                matched_sentence: None,
                 r#type: None,
                 version: None,
                 effective_date: None,

@@ -202,7 +202,7 @@ macro_rules! command_types {
                 "get", "disease", DiseaseGet, "disease-get", "biomcp.disease-get/3", DiseaseGet, "disease-get", "biomcp.disease-get/3",
                 "biomcp.disease-get/3", 35, Direct
             );
-            /// Search drugs and medicines by name or native label indication.
+            /// Search drugs and medicines by name, native label indication or mechanism of action.
             SearchDrug(DrugSearch) => (
                 "search", "drug", DrugSearch, "drug-search", "biomcp.drug-search/4", DrugSearch, "drug-search", "biomcp.drug-search/4",
                 "biomcp.drug-search/4", 36, Direct
