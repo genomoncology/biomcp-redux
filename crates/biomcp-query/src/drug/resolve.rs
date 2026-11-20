@@ -60,7 +60,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     } else {
         discover(cx, &search)
     };
-    if unanswered(&discovery) {
+    if unanswered(&discovery, candidates.is_empty()) {
         status::item(&mut discovery, false, true, false);
         return vec![discovery];
     }
@@ -105,11 +105,12 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         .collect()
 }
 
-/// Whether the name lookup did not answer. Stale stored rows still answer it; the chosen
-/// record's read says they are stale (1081).
-fn unanswered(discovery: &Outcome) -> bool {
-    let unread =
-        |s: &biomcp_types::SourceOutcome| !matches!(s.state, SourceState::Ok | SourceState::Stale);
+/// Whether the name lookup did not answer. Stale rows answer only with a candidate, whose read
+/// says they are stale; with none, the name may be missing only from the stale copy (1081).
+fn unanswered(discovery: &Outcome, none: bool) -> bool {
+    let unread = |s: &biomcp_types::SourceOutcome| {
+        s.state != SourceState::Ok && (none || s.state != SourceState::Stale)
+    };
     discovery.dropped || discovery.sources.iter().any(unread)
 }
 

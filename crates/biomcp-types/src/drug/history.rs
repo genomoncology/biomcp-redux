@@ -103,13 +103,14 @@ pub(super) fn checked(
         };
         let offset = offset.is_some() && !options.1;
         let unknown = options.2.is_some() && section(options.2).is_none();
+        // Without --find, the refusal that names it also names the sections to choose from.
         let incomplete = options.0.is_empty() || options.2.is_none();
         let refused: Option<(&[&str], _)> = match (offset, unknown, incomplete) {
-            (true, true, _) => Some((
+            (true, true, false) => Some((
                 &["section_offset", "every_version", "label_section"],
                 LabelHistoryOffsetSection,
             )),
-            (true, false, true) => Some((
+            (true, _, true) => Some((
                 &["section_offset", "every_version", "find", "label_section"],
                 LabelHistoryOffsetIncomplete,
             )),

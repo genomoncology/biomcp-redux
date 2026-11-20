@@ -24,6 +24,9 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         crate::runner::transcript::trial("source-data-age/stale-ema-market", || {
             market().map_err(Into::into)
         }),
+        crate::runner::transcript::trial("source-data-age/stale-name-not-found", || {
+            unfound().map_err(Into::into)
+        }),
     ]
 }
 fn restored() -> Check {
@@ -115,6 +118,53 @@ fn market() -> Check {
     {
         return Err(format!(
             "stale EMA market was not a partial found row: {reply}"
+        ));
+    }
+    Ok(())
+}
+/// A name a stale lookup cannot find is a failed read naming the stale source, never a wrong
+/// input: a stale EMA copy, and expired ChEMBL replies with no network (1081).
+fn unfound() -> Check {
+    let env = stale_ema()?;
+    let args = [
+        "get",
+        "drug",
+        "zzznotadrug",
+        "regulatory",
+        "--source",
+        "ema",
+    ]
+    .map(str::to_owned);
+    stale_failure(&command(&env, &args, &env.globals(None, true), 4)?, "ema")?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let args = ["get", "drug", "Test therapy", "--source", "chembl"].map(str::to_owned);
+    command(
+        &env,
+        &args,
+        &env.globals(Some(&fixtures().join("replies/drug/name-get")), false),
+        0,
+    )?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    db.execute("UPDATE reply SET fresh_until=0", [])
+        .map_err(|e| e.to_string())?;
+    stale_failure(
+        &command(&env, &args, &env.globals(None, true), 4)?,
+        "chembl",
+    )
+}
+fn stale_failure(reply: &Value, source: &str) -> Check {
+    let stale = reply
+        .get("sources")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .any(|s| {
+            s.get("source") == Some(&json!(source)) && s.get("state") == Some(&json!("stale"))
+        });
+    if !stale || reply.get("status") != Some(&json!("failed")) {
+        return Err(format!(
+            "stale lookup lost its stale {source} source: {reply}"
         ));
     }
     Ok(())
