@@ -86,12 +86,18 @@ fn identity(name: &str, property: &Value) -> String {
 /// Name the real choices of an argument whose shared schema lists more, or only a type
 /// description: the markets' sources, the sections label-history reads, or label headings.
 fn choices(name: &str, message: biomcp_types::ErrorMessage) -> Option<Box<[biodata::Text]>> {
-    use biomcp_types::ErrorMessage::{DrugMarketsSourceUnknown, LabelHistorySectionUnknown};
+    use biomcp_types::ErrorMessage::{
+        DrugMarketsSourceUnknown, LabelHistoryOffsetIncomplete, LabelHistoryOffsetSection,
+        LabelHistorySectionUnknown,
+    };
     let values: Vec<&str> = match (name, message) {
         (_, DrugMarketsSourceUnknown) => biomcp_types::DrugMarketsGet::SOURCES
             .map(biomcp_types::DrugSource::as_str)
             .into(),
-        (_, LabelHistorySectionUnknown) => biomcp_types::LabelHistorySection::ALL
+        (
+            _,
+            LabelHistorySectionUnknown | LabelHistoryOffsetSection | LabelHistoryOffsetIncomplete,
+        ) => biomcp_types::LabelHistorySection::ALL
             .iter()
             .map(|&section| section.into())
             .collect(),

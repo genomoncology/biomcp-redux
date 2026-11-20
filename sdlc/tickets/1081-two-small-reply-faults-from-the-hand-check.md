@@ -1,6 +1,7 @@
 # 1081 — two-small-reply-faults-from-the-hand-check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8615b581f45d47682c7b8f1632abba47fc069aff
 
 Milestone: 7
 
@@ -29,6 +30,7 @@ Added 2026-11-20 from the review of ticket 1085 (commit 2e137438b). None gives a
 
 - Proof: the lowercase call returns the same reply as the uppercase one.
 - Proof: the PIK3CA search has no `filter.unsupported` problem, or the ticket says what the note is for and its wording says that.
+- Note: the PIK3CA search keeps one `filter.unsupported` problem with field `group_table`. FDA's group table has no biomarker column, so `--biomarker` cannot search its rows; the problem says those rows were not searched and may hold matches the page leaves out, not that the filter failed.
 
 ## Starts from
 

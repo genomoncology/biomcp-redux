@@ -1,6 +1,6 @@
 {
   "feature": "drug-approvals",
-  "story": "Approvals return multiple submissions by default and respect configured and explicit page sizes.",
+  "story": "Approvals return multiple submissions by default and respect configured and explicit page sizes. An application number in lower case reads the same application, as its source prints it (1081).",
   "live_check": "Synthetic two-submission page; recorded only",
   "replay": "drug/approvals-page",
   "steps": [
@@ -30,6 +30,20 @@
       ],
       "expect": {
         "/page/returned": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "bla761445",
+        "approvals",
+        "--source",
+        "drugsfda"
+      ],
+      "expect": {
+        "/query/input": "BLA761445",
+        "/page/returned": 2
       }
     }
   ]

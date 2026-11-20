@@ -102,7 +102,7 @@ fn unknown(
     source: Option<Source>,
     path: (&str, &str),
 ) -> UsageError {
-    let (mut next, unplaced) = kept_step(parsed, row);
+    let (mut next, unplaced, unsaid) = kept_step(parsed, row);
     if next.is_empty() {
         next.push(help_step(path));
     }
@@ -110,6 +110,11 @@ fn unknown(
         source,
         valid_values: texts(&row.names).unwrap_or_default().into(),
         unplaced,
+        message: if unsaid {
+            ErrorMessage::FieldsUnsaid
+        } else {
+            ErrorMessage::FieldsUnknown
+        },
         next,
     }
 }
@@ -160,34 +165,37 @@ fn spelled(name: &str) -> Option<biodata::Text> {
     plain.then(|| biodata::Text::new(name).ok()).flatten()
 }
 
-/// The same call with each chosen field the row lacks moved to the field that holds it, and
-/// the names it cannot place. A name that cannot be said back leaves only help.
-fn kept_step(parsed: &crate::grammar::Parsed, row: &Row) -> (Vec<Step>, Box<[biodata::Text]>) {
+/// The same call with each chosen field the row lacks moved to the field that holds it, the
+/// names it cannot place, and whether it left out one of them it cannot repeat (1081).
+fn kept_step(
+    parsed: &crate::grammar::Parsed,
+    row: &Row,
+) -> (Vec<Step>, Box<[biodata::Text]>, bool) {
     let mut chosen: Vec<&str> = Vec::new();
     let mut unplaced = Vec::new();
+    let mut unsaid = false;
     for name in &parsed.globals.fields {
         match placed(row, name) {
             Some(field) if !chosen.contains(&field) => chosen.push(field),
             Some(_) => {}
-            None => unplaced.push(spelled(name)),
+            None => match spelled(name) {
+                Some(name) => unplaced.push(name),
+                None => unsaid = true,
+            },
         }
     }
-    let Some(unplaced) = unplaced.into_iter().collect::<Option<Box<[_]>>>() else {
-        return (Vec::new(), Box::default());
-    };
-    if chosen.is_empty() {
-        return (Vec::new(), unplaced);
-    }
-    let Some(action) = &parsed.action else {
-        return (Vec::new(), unplaced);
-    };
-    let Ok(mut step) = crate::spell::step(StepKind::Configure, action) else {
-        return (Vec::new(), unplaced);
-    };
-    let mut args = step.args.into_vec();
-    args.insert(0, format!("--fields={}", chosen.join(",")).into());
-    step.args = args.into();
-    (vec![step], unplaced)
+    let step = parsed
+        .action
+        .as_ref()
+        .filter(|_| !chosen.is_empty())
+        .and_then(|action| crate::spell::step(StepKind::Configure, action).ok())
+        .map(|mut step| {
+            let mut args = step.args.into_vec();
+            args.insert(0, format!("--fields={}", chosen.join(",")).into());
+            step.args = args.into();
+            step
+        });
+    (step.into_iter().collect(), unplaced.into(), unsaid)
 }
 
 /// The source a search query selects, with the reply schema of its rows, when the
