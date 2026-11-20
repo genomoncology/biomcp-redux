@@ -641,6 +641,15 @@
       "pattern": "^HP:[0-9]{7}$",
       "type": "string"
     },
+    "LabelApplicationType": {
+      "description": "An openFDA label's FDA application type, read from the prefix of openFDA's application_number.",
+      "enum": [
+        "nda",
+        "anda",
+        "bla"
+      ],
+      "type": "string"
+    },
     "LocusGroup": {
       "description": "HGNC locus group, separate from a missing source value.",
       "enum": [
@@ -3850,7 +3859,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Search drugs and medicines by name or native label indication.",
+      "description": "Search drugs and medicines by name, native label indication or mechanism of action.",
       "properties": {
         "applicant": {
           "anyOf": [
@@ -3863,6 +3872,15 @@
           ],
           "description": "Applicant name start; Drugs@FDA only.\nMatches native sponsor_name values starting with this text, ignoring letter case;\nno company-family or subsidiary inference. An optional name narrows the same search.",
           "x-required-component": "drugsfda"
+        },
+        "application_type": {
+          "description": "Label application types to keep; openFDA labels only.\nBy openFDA application_number prefix; nda,bla leaves out generics (ANDA).",
+          "items": {
+            "$ref": "#/$defs/LabelApplicationType"
+          },
+          "type": "array",
+          "x-comma-separated": true,
+          "x-required-component": "openfda-label"
         },
         "approved_from": {
           "anyOf": [
@@ -3961,6 +3979,11 @@
           "minimum": 1,
           "type": "integer"
         },
+        "mechanism_of_action": {
+          "$ref": "#/$defs/Text",
+          "description": "Literal label mechanism of action; openFDA labels only.\nSearch the source Mechanism of Action field for this wording; no synonyms or drug class\ninference, so labels wording the mechanism differently are not returned.",
+          "x-required-component": "openfda-label"
+        },
         "name_selector": {
           "$ref": "#/$defs/DrugNameSelector",
           "description": "ChEMBL name selector.\nOmit to search the preferred name.",
@@ -4010,7 +4033,7 @@
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.\nFDA safety communications search titles, linked drug names and available page text.\nZero matches does not establish that FDA issued no communication about this drug.\nThe reply counts the communications searched and how many had page text.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.\nFDA safety communications search titles, linked drug names and available page text.\nZero matches does not establish that FDA issued no communication about this drug.\nThe reply counts the communications searched and how many had page text.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
           "x-positional": 0
         },
         "reason": {

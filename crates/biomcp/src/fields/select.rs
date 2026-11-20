@@ -57,12 +57,27 @@ fn help_step(path: (&str, &str)) -> Step {
 
 /// The chosen names this call's rows know, in the caller's order.
 fn known(request: &Request, fields: &[String]) -> Vec<String> {
-    let row = union(call_lists(&Call::new(request)));
+    let row = selected(request)
+        .and_then(|(_, id)| reply_row(id))
+        .unwrap_or_else(|| union(call_lists(&Call::new(request))));
     fields
         .iter()
         .filter(|name| row.knows(name))
         .cloned()
         .collect()
+}
+
+/// Keep the selected fields that the corrected command can return.
+pub(crate) fn carry_to_correction(request: &Request, fields: &[String], step: &mut Step) {
+    if fields.is_empty() {
+        return;
+    }
+    let fields = known(request, fields);
+    if !fields.is_empty() {
+        let mut args = std::mem::take(&mut step.args).into_vec();
+        args.insert(0, format!("--fields={}", fields.join(",")).into());
+        step.args = args.into();
+    }
 }
 
 /// Refuse chosen fields on a call without rows, and names its rows do not carry.

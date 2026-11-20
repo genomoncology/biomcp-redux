@@ -1,6 +1,7 @@
 # 1089 — who-lookups-on-stale-data-do-not-say-absent
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a8861ac877d96faee94a7dda3149df136ffd7eeb
 
 Milestone: 7
 

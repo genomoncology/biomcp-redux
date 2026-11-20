@@ -31,6 +31,7 @@
         "/page/total": 0,
         "/page/returned": 0,
         "/status": "partial",
+        "/next/0/kind": "fresh",
         "/incomplete/*/source": {
           "equals": [
             "mychem",
@@ -62,11 +63,14 @@
         "/status": "failed",
         "/query/input": "EX-66",
         "/query/source": "opentargets",
-        "/sources/0/notices/0/kind": "request-guidance",
+        "/next/0/kind": "fresh",
         "/next/0/args": [
-          "search",
+          "get",
           "drug",
-          "EX-66"
+          "EX-66",
+          "--source",
+          "opentargets",
+          "--fresh"
         ]
       },
       "exit": 4,

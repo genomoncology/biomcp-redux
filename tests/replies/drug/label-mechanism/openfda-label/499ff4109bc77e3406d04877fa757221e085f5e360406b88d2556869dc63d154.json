@@ -1,0 +1,260 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc&skip=3",
+  "exchanges": [
+    {
+      "fetched": 1795206095,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-20",
+            "results": {
+              "skip": 3,
+              "limit": 3,
+              "total": 15
+            }
+          },
+          "results": [
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action CIBINQO is a Janus kinase (JAK) inhibitor. Abrocitinib reversibly inhibits JAK1 by blocking the adenosine triphosphate (ATP) binding site. In a cell-free isolated enzyme assay, abrocitinib was selective for JAK1 over JAK2 (28-fold), JAK3 (>340-fold), and tyrosine kinase (TYK) 2 (43-fold), as well as the broader kinome. The relevance of inhibition of specific JAK enzymes to therapeutic effectiveness is not currently known. Both the parent compound and the active metabolites inhibit JAK1 activity in vitro with similar levels of selectivity."
+              ],
+              "set_id": "16c12a56-4550-414b-ac9d-b785b41fea6b",
+              "id": "35616203-5825-49e5-938c-95c0ab85ad57",
+              "effective_time": "20261015",
+              "version": "7",
+              "openfda": {
+                "application_number": [
+                  "NDA213871"
+                ],
+                "brand_name": [
+                  "CIBINQO"
+                ],
+                "generic_name": [
+                  "ABROCITINIB"
+                ],
+                "manufacturer_name": [
+                  "U.S. Pharmaceuticals"
+                ],
+                "product_ndc": [
+                  "63539-236",
+                  "63539-336",
+                  "63539-436"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "ABROCITINIB"
+                ],
+                "rxcui": [
+                  "2591481",
+                  "2591487",
+                  "2591489",
+                  "2591491",
+                  "2591493",
+                  "2591495"
+                ],
+                "spl_id": [
+                  "35616203-5825-49e5-938c-95c0ab85ad57"
+                ],
+                "spl_set_id": [
+                  "16c12a56-4550-414b-ac9d-b785b41fea6b"
+                ],
+                "package_ndc": [
+                  "63539-236-14",
+                  "63539-336-14",
+                  "63539-436-14"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000190858",
+                  "N0000190857",
+                  "N0000185503"
+                ],
+                "pharm_class_epc": [
+                  "Janus Kinase Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Janus Kinase Inhibitors [MoA]",
+                  "P-Glycoprotein Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "73SM5SF3OR"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Baricitinib is a Janus kinase (JAK) inhibitor. JAKs are intracellular enzymes which transmit signals arising from cytokine or growth factor-receptor interactions on the cellular membrane to influence cellular processes of hematopoiesis and immune cell function. Within the signaling pathway, JAKs phosphorylate and activate Signal Transducers and Activators of Transcription (STATs) which modulate intracellular activity including gene expression. Baricitinib modulates the signaling pathway at the point of JAKs, preventing the phosphorylation and activation of STATs. JAK enzymes transmit cytokine signaling through their pairing (e.g., JAK1/JAK2, JAK1/JAK3, JAK1/TYK2, JAK2/JAK2, JAK2/TYK2). In cell-free isolated enzyme assays, baricitinib had greater inhibitory potency at JAK1, JAK2 and TYK2 relative to JAK3. In human leukocytes, baricitinib inhibited cytokine induced STAT phosphorylation mediated by JAK1/JAK2, JAK1/JAK3, JAK1/TYK2, or JAK2/TYK2 with comparable potencies. However, the relevance of inhibition of specific JAK enzymes to therapeutic effectiveness is not currently known."
+              ],
+              "set_id": "866e9f35-9035-4581-a4b1-75a621ab55cf",
+              "id": "de2638c7-2667-4269-94ba-265076cce008",
+              "effective_time": "20261009",
+              "version": "32",
+              "openfda": {
+                "application_number": [
+                  "NDA207924"
+                ],
+                "brand_name": [
+                  "Olumiant"
+                ],
+                "generic_name": [
+                  "BARICITINIB"
+                ],
+                "manufacturer_name": [
+                  "Eli Lilly and Company"
+                ],
+                "product_ndc": [
+                  "0002-4182",
+                  "0002-4732",
+                  "0002-4479"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "BARICITINIB"
+                ],
+                "rxcui": [
+                  "2047241",
+                  "2047247",
+                  "2205472",
+                  "2205474",
+                  "2588561",
+                  "2601725"
+                ],
+                "spl_id": [
+                  "de2638c7-2667-4269-94ba-265076cce008"
+                ],
+                "spl_set_id": [
+                  "866e9f35-9035-4581-a4b1-75a621ab55cf"
+                ],
+                "package_ndc": [
+                  "0002-4182-30",
+                  "0002-4182-61",
+                  "0002-4732-30",
+                  "0002-4479-30",
+                  "0002-4479-61"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0300024479302",
+                  "0300024182301",
+                  "0300024732308"
+                ],
+                "nui": [
+                  "N0000190858",
+                  "N0000190857"
+                ],
+                "pharm_class_epc": [
+                  "Janus Kinase Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Janus Kinase Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "ISP4442I3Y"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Tofacitinib is a Janus kinase (JAK) inhibitor. JAKs are intracellular enzymes which transmit signals arising from cytokine or growth factor-receptor interactions on the cellular membrane to influence cellular processes of hematopoiesis and immune cell function. Within the signaling pathway, JAKs phosphorylate and activate Signal Transducers and Activators of Transcription (STATs) which modulate intracellular activity including gene expression. Tofacitinib modulates the signaling pathway at the point of JAKs, preventing the phosphorylation and activation of STATs. JAK enzymes transmit cytokine signaling through pairing of JAKs (e.g., JAK1/JAK3, JAK1/JAK2, JAK1/TyK2, JAK2/JAK2). Tofacitinib inhibited the in vitro activities of JAK1/JAK2, JAK1/JAK3, and JAK2/JAK2 combinations with IC 50 of 406, 56, and 1377 nM, respectively. However, the relevance of specific JAK combinations to therapeutic effectiveness is not known."
+              ],
+              "set_id": "68e3d6b2-7838-4d2d-a417-09d919b43e13",
+              "id": "3874b975-cdc0-46fe-8b73-5e0346e3a178",
+              "effective_time": "20261006",
+              "version": "19",
+              "openfda": {
+                "application_number": [
+                  "NDA203214",
+                  "NDA213082",
+                  "NDA208246"
+                ],
+                "brand_name": [
+                  "XELJANZ",
+                  "XELJANZ XR"
+                ],
+                "generic_name": [
+                  "TOFACITINIB"
+                ],
+                "manufacturer_name": [
+                  "U.S. Pharmaceuticals"
+                ],
+                "product_ndc": [
+                  "63539-012",
+                  "63539-501",
+                  "63539-016",
+                  "63539-502",
+                  "63539-029"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "TOFACITINIB CITRATE"
+                ],
+                "rxcui": [
+                  "1357541",
+                  "1357547",
+                  "1741046",
+                  "1741049",
+                  "2048566",
+                  "2048568",
+                  "2273113",
+                  "2273115",
+                  "2478433",
+                  "2478437"
+                ],
+                "spl_id": [
+                  "3874b975-cdc0-46fe-8b73-5e0346e3a178"
+                ],
+                "spl_set_id": [
+                  "68e3d6b2-7838-4d2d-a417-09d919b43e13"
+                ],
+                "package_ndc": [
+                  "63539-012-02",
+                  "63539-501-14",
+                  "63539-501-30",
+                  "63539-016-02",
+                  "63539-502-30",
+                  "63539-029-01",
+                  "63539-029-02"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "O1FF4DIV0D"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

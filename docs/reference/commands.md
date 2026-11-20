@@ -123,7 +123,7 @@ Commands:
   diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Exact discovery text or an explicit SEER catalog page.
-  drug           Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+  drug           Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
   gene           Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
@@ -1409,14 +1409,14 @@ Form: search disease TEXT; not --text.
 ## biomcp search drug
 
 ```text
-Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
 
 Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
           Drug name phrase.
-          FDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
+          FDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
           Drugs@FDA searches brands and ingredients,
           exact names before word matches. openFDA labels search exact then word brand/generic names,
           then label text (including indications) when no names match; source matches need not be exact names.
@@ -1438,24 +1438,29 @@ Options:
           [default: json]
           [possible values: json, md]
 
+      --application-type <application_type>
+          Label application types to keep; openFDA labels only; help search drug
+          Label application types to keep; openFDA labels only.
+          By openFDA application_number prefix; nda,bla leaves out generics (ANDA).
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
       --approved-from <approved_from>
           Original approval from, inclusive; Drugs@FDA only.
           Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
           falls in the window; BioMCP reads every match and counts the kept ones.
 
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups. Example: --disable-sources civic.
-
       --approved-to <approved_to>
           Original approval to, inclusive; Drugs@FDA only.
           Accepts YYYY, YYYY-MM or YYYY-MM-DD.
 
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
       --classification <classification>
           Source FDA classification; drug recalls only; help search drug
           Source FDA classification; drug recalls only.
-
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -1487,9 +1492,6 @@ Options:
       --initiated-from <initiated_from>
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 
-      --initiated-to <initiated_to>
-          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1502,8 +1504,16 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --initiated-to <initiated_to>
+          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+
       --limit <limit>
           Source candidate rows per page.
+
+      --mechanism-of-action <mechanism_of_action>
+          Exact label mechanism of action; openFDA labels only.
+          Search the source Mechanism of Action field for this wording; no synonyms or drug class
+          inference, so labels wording the mechanism differently are not returned.
 
       --name-selector <name_selector>
           ChEMBL name selector; help search drug
@@ -1553,7 +1563,7 @@ Options:
 
 ```
 
-Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, fda-dsc, mychem, openfda-label, opentargets, who-eml, who-pq.
+Search drugs and medicines by name, source label indication or mechanism of action. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, fda-dsc, mychem, openfda-label, opentargets, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
@@ -1561,6 +1571,8 @@ Paging: --limit and --offset.
 - `--applicant`: Applicant name start; Drugs@FDA only.
 Matches source sponsor_name values starting with this text, ignoring letter case;
 no company-family or subsidiary inference. An optional name narrows the same search. Value form: string; example: --applicant 'ALNYLAM PHARMS INC'; only with --source drugsfda.
+- `--application-type`: Label application types to keep; openFDA labels only.
+By openFDA application_number prefix; nda,bla leaves out generics (ANDA). Value form: repeatable values (repeat the flag); example: --application-type nda; only with --source openfda-label.
 - `--approved-from`: Original approval from, inclusive; Drugs@FDA only.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
 falls in the window; BioMCP reads every match and counts the kept ones. Value form: string; example: --approved-from 2024-01-01; only with --source drugsfda.
@@ -1580,6 +1592,9 @@ An optional name query further narrows the same source search. Value form: strin
 - `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string; example: --initiated-from 2024-01-01; only with --source fda-drug-recall.
 - `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string; example: --initiated-to 2024-12-31; only with --source fda-drug-recall.
 - `--limit`: Source candidate rows per page. Value form: integer; example: --limit 1.
+- `--mechanism-of-action`: Exact label mechanism of action; openFDA labels only.
+Search the source Mechanism of Action field for this wording; no synonyms or drug class
+inference, so labels wording the mechanism differently are not returned. Value form: string; example: --mechanism-of-action 'Janus kinase'; only with --source openfda-label.
 - `--name-selector`: ChEMBL name selector.
 Omit to search the preferred name. Value form: string; example: --name-selector preferred; only with --source chembl.
 - `--name-snapshot`: Label name page token.
@@ -1590,7 +1605,7 @@ Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified
 - `--prequalified-to`: WHO PQ end date, inclusive.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `query`: Drug name phrase.
-FDA drug recalls, FDA safety communications, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
+FDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
 Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.

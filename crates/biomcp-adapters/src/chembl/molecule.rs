@@ -15,6 +15,7 @@ pub(super) fn header(row: &Molecule) -> Result<crate::Mapped<DrugHeader>, Error>
         source: DrugSource::Chembl,
         name_resolution: None,
         matched_name: None,
+        matched_sentence: None,
         name: problems.text("pref_name", row.pref_name.as_deref()),
         r#type: problems.checked_text("molecule_type", row.molecule_type.as_deref()),
         version: None,

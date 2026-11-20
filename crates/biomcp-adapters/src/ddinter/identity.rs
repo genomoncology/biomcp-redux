@@ -45,6 +45,7 @@ pub(super) fn header(identity: DrugIdentity) -> DrugHeader {
     DrugHeader {
         name_resolution: None,
         matched_name: None,
+        matched_sentence: None,
         id: identity.id,
         source: DrugSource::Ddinter,
         name: identity.name,
