@@ -352,7 +352,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(phenotype::trials());
     trials.extend(drug_next::trials());
     trials.extend(drug_approvals::trials());
-    trials.extend(pdf_child::trials());
     trials.extend(nci::trials());
     trials.extend(drug_civic::trials());
     trials.push(citation_values::trial());
@@ -379,6 +378,7 @@ fn retained_source_trials() -> Vec<Trial> {
 fn transcript_trials() -> Vec<Trial> {
     let mut trials = call_queue::trials();
     trials.extend(hosted_cancel::trials());
+    trials.extend(pdf_child::trials());
     trials.extend([
         transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
             article_save::check().map_err(Into::into)

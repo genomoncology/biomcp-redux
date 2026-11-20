@@ -28,9 +28,13 @@ use std::process::ExitCode;
 
 fn main() -> ExitCode {
     let arguments = config::arguments();
-    if let Some(cap) = pdf_child::requested(&arguments) {
-        return pdf_child::serve(cap);
+    match pdf_child::requested(&arguments) {
+        Some(cap) => pdf_child::serve(cap),
+        None => run(arguments),
     }
+}
+
+fn run(arguments: Vec<std::ffi::OsString>) -> ExitCode {
     let root = match grammar::root() {
         Ok(root) => std::sync::Arc::new(root),
         Err(_) => return exit::failure(std::io::Error::other("command grammar unavailable")),
