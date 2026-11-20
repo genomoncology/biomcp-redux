@@ -60,9 +60,14 @@ pub(super) fn fix(root: &Command, path: &[&str], args: &[OsString]) -> Option<Us
         } else {
             format!("--{}", name.replace('_', "-"))
         };
+        // Words a command takes only in an option are not a refused value of that option (1081).
+        let message = match single {
+            Some(_) => ErrorMessage::ArgumentValue,
+            None => ErrorMessage::ArgumentTextUnplaced,
+        };
         Some(UsageArguments {
             argument: Some(argument.into()),
-            message: Some(ErrorMessage::ArgumentValue),
+            message: Some(message),
             valid_values: super::validation::accepted(&schema, property),
             next,
         })

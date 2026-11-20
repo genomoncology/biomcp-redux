@@ -138,6 +138,21 @@ fn section_help(
             let field = argument.name.trim_start_matches("--").replace('-', "_");
             crate::grammar::rewrite::MARKETS_FIELDS.contains(&field.as_str())
         });
+        // Markets infers no source: without one it reads every market (1081).
+        for argument in command
+            .arguments
+            .iter_mut()
+            .filter(|a| a.name == "--source")
+        {
+            let form = argument
+                .description
+                .find("Value form")
+                .unwrap_or(argument.description.len());
+            argument.description = format!(
+                "One market's source, to read only that market; omit it to read every market. {}",
+                &argument.description[form..]
+            );
+        }
     }
     if !sources.is_empty() {
         command.arguments.retain(|argument| {

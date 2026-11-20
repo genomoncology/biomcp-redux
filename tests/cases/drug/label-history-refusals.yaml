@@ -1,7 +1,7 @@
 {
   "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "drug-label-history",
-  "story": "A label-history call refused before any source is read names its real cause: --offset without --every-version is refused with that cause and the same call reading every version from that offset, and a --label-section that label-history does not read is refused with the seven sections it reads.",
+  "story": "A label-history call refused before any source is read names every cause in one refusal: --offset without --every-version is refused with that cause and the same call reading every version from that offset; without --find or --label-section it also names those, with the seven sections; a --label-section that label-history does not read is refused with the seven sections it reads and the call that reads that section from the label, with --offset also named when given (1081).",
   "steps": [
     {
       "run": [
@@ -66,7 +66,91 @@
           "adverse_reactions",
           "drug_interactions",
           "use_in_specific_populations"
+        ],
+        "/next/0/args": {
+          "includes_all_of": [
+            "label",
+            "--label-section",
+            "clinical_pharmacology",
+            "NDA020702"
+          ],
+          "excludes": "label-history"
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA022363",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--offset",
+        "10"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--section-offset",
+        "/error/message": "--offset needs --every-version, and label-history also needs --find TEXT and --label-section with a section from valid_values; add what is missing, or drop --offset (also spelled --section-offset)",
+        "/error/valid_values": [
+          "boxed_warning",
+          "indications_and_usage",
+          "contraindications",
+          "warnings_and_cautions",
+          "adverse_reactions",
+          "drug_interactions",
+          "use_in_specific_populations"
+        ],
+        "/next/0/args": [
+          "help",
+          "get",
+          "drug"
         ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA020702",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "clinical_pharmacology",
+        "--find",
+        "fold",
+        "--offset",
+        "10"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--section-offset",
+        "/error/message": "--offset needs --every-version, and label-history reads only the label sections in valid_values; add --every-version and give --label-section one of them, or read another section with: get drug <NAME> label --label-section NAME",
+        "/error/valid_values": [
+          "boxed_warning",
+          "indications_and_usage",
+          "contraindications",
+          "warnings_and_cautions",
+          "adverse_reactions",
+          "drug_interactions",
+          "use_in_specific_populations"
+        ],
+        "/next/0/args": {
+          "includes_all_of": [
+            "label",
+            "--label-section",
+            "clinical_pharmacology"
+          ],
+          "excludes": "label-history"
+        }
       }
     }
   ]

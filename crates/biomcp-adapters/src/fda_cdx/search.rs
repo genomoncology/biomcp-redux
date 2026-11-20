@@ -65,7 +65,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         problems.push(Problem {
             source: Source::FdaCdx,
             record: None,
-            field: "table_1.biomarker".into(),
+            field: "group_table".into(),
             code: ProblemCode::FilterUnsupported,
         });
     }

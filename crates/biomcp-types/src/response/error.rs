@@ -35,15 +35,10 @@ singleton! {
 singleton! {
     /// Stable error codes for command usage, local failures and expired results.
     pub ErrorCode { SchemaUsage => "usage.schema",
- Arguments => "usage.arguments",
- McpUnavailable => "usage.mcp_unavailable",
- UnknownCommand => "usage.unknown_command",
- Retired => "usage.retired",
- Local => "local.failure",
- PoolExpired => "pool.expired",
- PoolMismatch => "usage.pool_mismatch",
- TooManyPmids => "usage.too_many_pmids",
- TooBroad => "usage.too_broad",
+ Arguments => "usage.arguments", McpUnavailable => "usage.mcp_unavailable",
+ UnknownCommand => "usage.unknown_command", Retired => "usage.retired",
+ Local => "local.failure", PoolExpired => "pool.expired", PoolMismatch => "usage.pool_mismatch",
+ TooManyPmids => "usage.too_many_pmids", TooBroad => "usage.too_broad",
  UnsupportedFilter => "usage.unsupported_filter" }
 }
 
@@ -77,6 +72,7 @@ singleton! {
  ArgumentNoValue => "option given without a value: give error.option a value valid_values accepts",
  ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
+ ArgumentTextUnplaced => "this command takes no text outside an option; next gives the words to error.option",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
  ArgumentCombination => "error.option is not accepted with the other options as given; valid_values names every option involved",
  ArgumentSectionUnknown => "unknown section: error.option is not a section of this record; valid_values lists them",
@@ -87,6 +83,8 @@ singleton! {
  ArgumentIdAfterSection => "error.option follows a section word and is not a section; put IDs before sections",
  FieldsUnknown => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field \
  that holds it; error.unplaced lists the names it cannot place",
+ FieldsUnsaid => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field \
+ that holds it; error.unplaced lists the names it cannot place, but one that is not letters, digits, _ and . is not repeated",
  FieldsRowsOnly => "--fields does not narrow this call yet; it narrows search rows and some sections' rows; drop --fields to read it whole",
  SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next \
  step; run the suggested command",
@@ -97,6 +95,10 @@ singleton! {
  --offset (also spelled --section-offset)",
  LabelHistorySectionUnknown => "label-history reads only the label sections in valid_values; give --label-section one of them, or read another \
  section with: get drug <NAME> label --label-section NAME",
+ LabelHistoryOffsetIncomplete => "--offset needs --every-version, and label-history also needs --find TEXT and --label-section with a section \
+ from valid_values; add what is missing, or drop --offset (also spelled --section-offset)",
+ LabelHistoryOffsetSection => "--offset needs --every-version, and label-history reads only the label sections in valid_values; add \
+ --every-version and give --label-section one of them, or read another section with: get drug <NAME> label --label-section NAME",
  LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
  --label-section indications_and_usage",
  McpSync => "sync is unavailable over MCP; run it from the command line",
@@ -105,8 +107,8 @@ singleton! {
  SavedRecordUnknown => "no saved search or list has this name; biomcp saved show lists the names",
  SavedNameTaken => "a saved search or list already has this name; choose another name or delete it with biomcp saved \
  delete NAME",
- SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",
- SavedNoteUnknown => "no saved note has this ID; biomcp saved show lists the notes",
+ SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged", SavedNoteUnknown => "no saved \
+ note has this ID; biomcp saved show lists the notes",
  SavedAccount => "saved work in hosted mode needs a signed-in account; sign in to save searches, lists and notes",
  HostedKey => "add the source key in your account settings", UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
@@ -156,8 +158,7 @@ singleton! {
         DiagnosticRecallSources => "choose --source gtr, who-ivd, fda-cdx or fda-device-recall for search; \
             choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
         DiagnosticSources => "choose --source gtr, fda-cdx, fda-pma, fda-510k, who-ivd or fda-device-recall for search; \
-            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get",
-        DiagnosticType => "use: --type",
+            choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get", DiagnosticType => "use: --type",
         DiagnosticCondition => "use: --condition-id MedGen:CUI with --source gtr; use an exact product card with --source who-ivd",
         DiagnosticManufacturer => "manufacturer and laboratory selectors are deferred", DiagnosticSection => "name one diagnostic section per request",
         DiagnosticRegulatory => "use: get diagnostic ID --source fda-pma; search diagnostic --source fda-cdx --device-id ID",
@@ -346,7 +347,7 @@ struct ErrorDetail {
     message: ErrorMessage,
 }
 
-/// A versioned error response that never contains rejected caller values.
+/// A versioned error response. Of rejected caller values it repeats only `error.unplaced` names: letters, digits, `_` and `.`, up to 64 characters.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ErrorEnvelope {
@@ -451,19 +452,18 @@ impl ErrorEnvelope {
             source,
             valid_values,
             unplaced,
+            message,
             next,
         } = usage
         {
             self.error
                 .source_selector(source, "--fields".into(), valid_values);
-            self.error.message = ErrorMessage::FieldsUnknown;
+            self.error.message = message;
             self.error.unplaced = (!unplaced.is_empty()).then_some(unplaced);
             self.next = next;
         }
     }
-}
 
-impl ErrorEnvelope {
     fn retired(&mut self, message: ErrorMessage, next: Vec<super::Step>) {
         self.error.code = ErrorCode::Retired;
         self.error.message = message;
