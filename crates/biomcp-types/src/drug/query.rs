@@ -213,21 +213,19 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
             "section_offset",
         ]));
     }
-    // A label history reads one Drugs@FDA label section for the --find texts, unpaged (1066).
     let history = fields.section.contains(&DrugSection::LabelHistory);
-    if history == fields.find.is_empty()
-        || (fields.every_version && !history)
-        || (history
-            && (fields.section.len() != 1
-                || fields.source != Some(DrugSource::Drugsfda)
-                || fields.section_limit.is_some()
-                || fields.section_offset.is_some()
-                || fields.label_section.as_ref().is_none_or(|section| {
-                    section
-                        .as_str()
-                        .parse::<super::LabelHistorySection>()
-                        .is_err()
-                })))
+    let paged = fields.section_limit.or(fields.section_offset).is_some();
+    let drugsfda = fields.source == Some(DrugSource::Drugsfda) && !paged;
+    if !super::history::valid(
+        &fields.section,
+        drugsfda,
+        &fields.find,
+        fields.every_version,
+    ) || history
+        && fields
+            .label_section
+            .as_ref()
+            .is_none_or(|s| s.as_str().parse::<super::LabelHistorySection>().is_err())
     {
         return Err(QueryInvalid::new(&[
             "section",

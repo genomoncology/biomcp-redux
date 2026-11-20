@@ -68,6 +68,21 @@ impl LabelVersionState {
     }
 }
 
+/// Whether a get's label-history options fit together: the section alone, from Drugs@FDA and
+/// unpaged, with at least one text to find; `--every-version` only with it.
+pub(super) fn valid(
+    sections: &[super::DrugSection],
+    drugsfda: bool,
+    find: &[Text],
+    every: bool,
+) -> bool {
+    let history = sections.contains(&super::DrugSection::LabelHistory);
+    if !history {
+        return find.is_empty() && !every;
+    }
+    sections.len() == 1 && drugsfda && !find.is_empty()
+}
+
 /// The version of one section of an application's label in which searched text first appears.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
