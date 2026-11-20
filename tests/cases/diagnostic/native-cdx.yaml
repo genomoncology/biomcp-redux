@@ -71,6 +71,16 @@
       "expect": {"/page/total": 7}
     },
     {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--biomarker", "MSI-High", "--limit", "50"],
+      "expect": {
+        "/page/total": 6,
+        "/result/items/*/biomarker": ["MSI-High", "MSI-High", "MSI-High", "MSI-High", "Not MSI-High", "Microsatellite stable/MSS (Not MSI-High)"],
+        "/result/items/*/biomarker_negated": [true, true],
+        "/result/items/4/biomarker_negated": true,
+        "/result/items/5/biomarker_negated": true
+      }
+    },
+    {
       "run": ["search", "diagnostic", "--source", "fda-cdx", "--biomarker", "PIK3C"],
       "expect": {"/page/total": 0}
     }
