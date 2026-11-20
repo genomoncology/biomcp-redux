@@ -146,9 +146,8 @@
             "status"
           ]
         },
-        "/result/items/0/sections/arms/data/items/0/data": {
-          "omits": []
-        }
+        "/result/items/0/sections/arms/data/items/0/record": "arm",
+        "/result/items/0/sections/arms/data/items/0/data/label": "1"
       }
     },
     {

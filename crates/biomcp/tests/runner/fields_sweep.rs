@@ -57,6 +57,7 @@ fn candidate(step: &case_data::Step) -> Option<&Vec<String>> {
         && step.walk.is_none()
         && step.follow.is_none()
         && !verb.starts_with('-')
+        && args.get(1).is_none_or(|entity| entity != "search")
         && !matches!(
             verb.as_str(),
             "search" | "help" | "schema" | "sync" | "skill" | "saved"
