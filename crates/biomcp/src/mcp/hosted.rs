@@ -205,11 +205,22 @@ fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
         .as_ref()
         .map(|schema| super::typed::catalog::capability_excluded(schema, &excluded))
         .unwrap_or_else(|| excluded.clone());
-    let option = value
-        .pointer("/error/option")
-        .and_then(Value::as_str)
-        .unwrap_or_default()
-        .to_owned();
+    // A refused section word is named in error.option; its valid values are sections.
+    let word = [
+        biomcp_types::ErrorMessage::ArgumentSectionUnknown,
+        biomcp_types::ErrorMessage::ArgumentSectionNotId,
+    ]
+    .iter()
+    .any(|message| value.pointer("/error/message") == serde_json::to_value(message).ok().as_ref());
+    let option = if word {
+        "section"
+    } else {
+        value
+            .pointer("/error/option")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+    }
+    .to_owned();
     let field_allowed = schema
         .as_ref()
         .is_none_or(|schema| super::typed::catalog::argument_allowed(schema, &option, &excluded));
