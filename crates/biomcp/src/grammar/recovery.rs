@@ -313,6 +313,7 @@ pub(super) fn source_swap(
     schema: &Value,
     value: &Value,
     valid: &[&str],
+    fields: &[String],
 ) -> Option<(Step, bool)> {
     let array = schema
         .pointer("/properties/source")
@@ -336,7 +337,9 @@ pub(super) fn source_swap(
         }
         .prepare()
         .ok()?;
-        run(&request)
+        let mut step = run(&request)?;
+        crate::fields::carry_to_correction(&request, fields, &mut step);
+        Some(step)
     });
     let only = passing.next()?;
     if passing.next().is_some() || !super::options::names_something(schema, value) {

@@ -1,0 +1,233 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1795197418,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-20",
+            "results": {
+              "skip": 0,
+              "limit": 3,
+              "total": 15
+            }
+          },
+          "results": [
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Delgocitinib, a Janus kinase (JAK) inhibitor, inhibits the activity of JAK1, JAK2, JAK3, and tyrosine kinase 2 (TYK2). JAK signaling involves recruitment of signal transducers and activators of transcription (STATs) to cytokine receptors, and activation and subsequent localization of STATs to the nucleus, leading to the expression of cytokine-responsive genes to induce specific biological responses in target cells. The exact mechanism of action of delgocitinib in the treatment of moderate to severe CHE is currently not known."
+              ],
+              "set_id": "a59bf36e-6f04-4b47-b385-8040c95f040c",
+              "id": "b9b700de-082b-4a74-82de-f5d177e95a4d",
+              "effective_time": "20261113",
+              "version": "7",
+              "openfda": {
+                "application_number": [
+                  "NDA219155"
+                ],
+                "brand_name": [
+                  "Anzupgo"
+                ],
+                "generic_name": [
+                  "DELGOCITINIB"
+                ],
+                "manufacturer_name": [
+                  "LEO Pharma, Inc"
+                ],
+                "product_ndc": [
+                  "50222-280"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "TOPICAL"
+                ],
+                "substance_name": [
+                  "DELGOCITINIB"
+                ],
+                "rxcui": [
+                  "2721167",
+                  "2721172"
+                ],
+                "spl_id": [
+                  "b9b700de-082b-4a74-82de-f5d177e95a4d"
+                ],
+                "spl_set_id": [
+                  "a59bf36e-6f04-4b47-b385-8040c95f040c"
+                ],
+                "package_ndc": [
+                  "50222-280-91",
+                  "50222-280-30",
+                  "50222-280-99"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000190858",
+                  "N0000190857"
+                ],
+                "pharm_class_epc": [
+                  "Janus Kinase Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Janus Kinase Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "9L0Q8KK220"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Tofacitinib is a Janus kinase (JAK) inhibitor. JAKs are intracellular enzymes which transmit signals arising from cytokine or growth factor-receptor interactions on the cellular membrane to influence cellular processes of hematopoiesis and immune cell function. Within the signaling pathway, JAKs phosphorylate and activate Signal Transducers and Activators of Transcription (STATs) which modulate intracellular activity including gene expression. Tofacitinib modulates the signaling pathway at the point of JAKs, preventing the phosphorylation and activation of STATs. JAK enzymes transmit cytokine signaling through pairing of JAKs (e.g., JAK1/JAK3, JAK1/JAK2, JAK1/TyK2, JAK2/JAK2). Tofacitinib inhibited the in vitro activities of JAK1/JAK2, JAK1/JAK3, and JAK2/JAK2 combinations with IC 50 of 406, 56, and 1377 nM, respectively. However, the relevance of specific JAK combinations to therapeutic effectiveness is not known."
+              ],
+              "set_id": "cf74ba2f-afc5-4baa-8594-979c889a5831",
+              "id": "4357a51c-e574-4cc6-96ef-9b9ee02aea1d",
+              "effective_time": "20261110",
+              "version": "56",
+              "openfda": {
+                "application_number": [
+                  "NDA208246",
+                  "NDA203214",
+                  "NDA213082"
+                ],
+                "brand_name": [
+                  "XELJANZ XR",
+                  "XELJANZ"
+                ],
+                "generic_name": [
+                  "TOFACITINIB"
+                ],
+                "manufacturer_name": [
+                  "Pfizer Laboratories Div Pfizer Inc"
+                ],
+                "product_ndc": [
+                  "0069-0501",
+                  "0069-1001",
+                  "0069-1002",
+                  "0069-0502",
+                  "0069-1029"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "TOFACITINIB CITRATE"
+                ],
+                "rxcui": [
+                  "1357541",
+                  "1357547",
+                  "1741046",
+                  "1741049",
+                  "2048566",
+                  "2048568",
+                  "2273113",
+                  "2273115",
+                  "2478433",
+                  "2478437"
+                ],
+                "spl_id": [
+                  "4357a51c-e574-4cc6-96ef-9b9ee02aea1d"
+                ],
+                "spl_set_id": [
+                  "cf74ba2f-afc5-4baa-8594-979c889a5831"
+                ],
+                "package_ndc": [
+                  "0069-1001-01",
+                  "0069-0501-30",
+                  "0069-1002-01",
+                  "0069-0502-30",
+                  "0069-1029-01",
+                  "0069-1029-02"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0300691002018",
+                  "0300691001011"
+                ],
+                "unii": [
+                  "O1FF4DIV0D"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Brepocitinib is a Janus kinase (JAK) and tyrosine kinase 2 (TYK2) inhibitor. In a cell-free isolated enzyme assay, brepocitinib had greater inhibitory potency at TYK2 and JAK1 than JAK2 (\u2265 3.4-fold) and JAK3 (\u2265 286-fold). The JAK family comprises cytoplasmic tyrosine kinases that mediate signal transduction of cytokine receptors to influence immune cell function. Within the signaling pathway, JAKs phosphorylate and activate signal transducers and activators of transcription (STATs) which modulate intracellular activity including gene expression. JAKs mediate cytokine signaling through hetero- or homodimeric pairing. In human cellular assays, brepocitinib inhibited signaling of TYK2- and JAK1-mediated cytokine-induced STAT phosphorylation, including signaling of TYK2/JAK1, TYK2/JAK2, JAK1/JAK3, and TYK2/JAK1/JAK2. The relevance of inhibition of specific JAK combinations to therapeutic effectiveness is not known."
+              ],
+              "set_id": "5023a17b-e96a-67d4-e063-6394a90a14a7",
+              "id": "b7cd7ed2-1181-4e4c-91be-4300e12ef62a",
+              "effective_time": "20261105",
+              "version": "4",
+              "openfda": {
+                "application_number": [
+                  "NDA220106"
+                ],
+                "brand_name": [
+                  "LISRAYA"
+                ],
+                "generic_name": [
+                  "BREPOCITINIB"
+                ],
+                "manufacturer_name": [
+                  "Priovant Therapeutics, Inc."
+                ],
+                "product_ndc": [
+                  "87211-030"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "BREPOCITINIB TOSYLATE"
+                ],
+                "rxcui": [
+                  "2751541",
+                  "2751547"
+                ],
+                "spl_id": [
+                  "b7cd7ed2-1181-4e4c-91be-4300e12ef62a"
+                ],
+                "spl_set_id": [
+                  "5023a17b-e96a-67d4-e063-6394a90a14a7"
+                ],
+                "package_ndc": [
+                  "87211-030-30"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0387211030300"
+                ],
+                "unii": [
+                  "C960DPP15O"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

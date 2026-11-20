@@ -1,0 +1,237 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc&skip=9",
+  "exchanges": [
+    {
+      "fetched": 1795206095,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-20",
+            "results": {
+              "skip": 9,
+              "limit": 3,
+              "total": 15
+            }
+          },
+          "results": [
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Momelotinib is an inhibitor of wild type Janus Kinase 1 and 2 (JAK1/JAK2) and mutant JAK2 V617F , which contribute to signaling of a number of cytokines and growth factors that are important for hematopoiesis and immune function. Momelotinib and its major human circulating metabolite, M21, have higher inhibitory activity for JAK2 compared to JAK3 and tyrosine kinase 2 (TYK2). Momelotinib and M21 additionally inhibit activin A receptor type 1 (ACVR1), also known as activin receptor like kinase 2 (ALK2), which produces subsequent inhibition of liver hepcidin expression and increased iron availability resulting in increased red blood cell production. MF is a myeloproliferative neoplasm associated with constitutive activation and dysregulated JAK signaling that contributes to inflammation and hyperactivation of ACVR1. JAK signaling recruits and activates STAT (signal transducers and activation of transcription) proteins resulting in nuclear localization and subsequent regulation of gene transcription."
+              ],
+              "set_id": "4a672fd1-eb7b-4aa9-9b23-845e4b5dc400",
+              "id": "3921e23f-5c82-4e00-9611-f017ff57c06e",
+              "effective_time": "20260720",
+              "version": "9",
+              "openfda": {
+                "application_number": [
+                  "NDA216873"
+                ],
+                "brand_name": [
+                  "Ojjaara"
+                ],
+                "generic_name": [
+                  "MOMELOTINIB"
+                ],
+                "manufacturer_name": [
+                  "GlaxoSmithKline LLC"
+                ],
+                "product_ndc": [
+                  "81864-101",
+                  "81864-103",
+                  "81864-102"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "MOMELOTINIB DIHYDROCHLORIDE MONOHYDRATE"
+                ],
+                "rxcui": [
+                  "2665210",
+                  "2665216",
+                  "2665218",
+                  "2665220",
+                  "2665222",
+                  "2665224"
+                ],
+                "spl_id": [
+                  "3921e23f-5c82-4e00-9611-f017ff57c06e"
+                ],
+                "spl_set_id": [
+                  "4a672fd1-eb7b-4aa9-9b23-845e4b5dc400"
+                ],
+                "package_ndc": [
+                  "81864-103-30",
+                  "81864-102-30",
+                  "81864-101-30"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0381864103305",
+                  "0381864102308",
+                  "0381864101301"
+                ],
+                "unii": [
+                  "LDX8893L5D"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Ruxolitinib, a Janus kinase (JAK) inhibitor, inhibits JAK1 and JAK2 which mediate the signaling of a number of cytokines and growth factors that are important for hematopoiesis and immune function. JAK signaling involves recruitment of STATs (signal transducers and activators of transcription) to cytokine receptors, activation and subsequent localization of STATs to the nucleus leading to modulation of gene expression. The relevance of inhibition of specific JAK enzymes to therapeutic effectiveness is not currently known."
+              ],
+              "set_id": "24da5509-6631-4795-9d42-273faecd08e7",
+              "id": "af30042b-ecb2-4e8b-82be-117685dff4ed",
+              "effective_time": "20260630",
+              "version": "14",
+              "openfda": {
+                "application_number": [
+                  "NDA215309"
+                ],
+                "brand_name": [
+                  "OPZELURA"
+                ],
+                "generic_name": [
+                  "RUXOLITINIB"
+                ],
+                "manufacturer_name": [
+                  "Incyte Corporation"
+                ],
+                "product_ndc": [
+                  "50881-007"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "TOPICAL"
+                ],
+                "substance_name": [
+                  "RUXOLITINIB PHOSPHATE"
+                ],
+                "rxcui": [
+                  "2570752",
+                  "2570757"
+                ],
+                "spl_id": [
+                  "af30042b-ecb2-4e8b-82be-117685dff4ed"
+                ],
+                "spl_set_id": [
+                  "24da5509-6631-4795-9d42-273faecd08e7"
+                ],
+                "package_ndc": [
+                  "50881-007-04",
+                  "50881-007-05",
+                  "50881-007-07",
+                  "50881-007-14"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "436LRU32H5"
+                ]
+              }
+            },
+            {
+              "mechanism_of_action": [
+                "12.1 Mechanism of Action Upadacitinib is a Janus kinase (JAK) inhibitor. JAKs are intracellular enzymes which transmit signals arising from cytokine or growth factor-receptor interactions on the cellular membrane to influence cellular processes of hematopoiesis and immune cell function. Within the signaling pathway, JAKs phosphorylate and activate signal transducers and activators of transcription (STATs) which modulate intracellular activity including gene expression. Upadacitinib modulates the signaling pathway at the point of JAKs, preventing the phosphorylation and activation of STATs. JAK enzymes transmit cytokine signaling through their pairing (e.g., JAK1/JAK2, JAK1/JAK3, JAK1/TYK2, JAK2/JAK2, JAK2/TYK2). In a cell-free isolated enzyme assay, upadacitinib had greater inhibitory potency at JAK1 and JAK2 relative to JAK3 and TYK2. In human leukocyte cellular assays, upadacitinib inhibited cytokine-induced STAT phosphorylation mediated by JAK1 and JAK1/JAK3 more potently than JAK2/JAK2 mediated STAT phosphorylation. The relevance of inhibition of specific JAK enzymes to therapeutic effectiveness is not currently known."
+              ],
+              "set_id": "2966aec7-2ef0-923c-d8ff-fe1a957bf095",
+              "id": "e17266e5-c861-46bf-9756-6447566101be",
+              "effective_time": "20260630",
+              "version": "101",
+              "openfda": {
+                "application_number": [
+                  "NDA211675",
+                  "NDA218347"
+                ],
+                "brand_name": [
+                  "Rinvoq"
+                ],
+                "generic_name": [
+                  "UPADACITINIB"
+                ],
+                "manufacturer_name": [
+                  "AbbVie Inc."
+                ],
+                "product_ndc": [
+                  "0074-1043",
+                  "0074-2306",
+                  "0074-2310",
+                  "0074-2320"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "UPADACITINIB"
+                ],
+                "rxcui": [
+                  "2196894",
+                  "2196900",
+                  "2590051",
+                  "2590054",
+                  "2596957",
+                  "2596960",
+                  "2681015",
+                  "2681019"
+                ],
+                "spl_id": [
+                  "e17266e5-c861-46bf-9756-6447566101be"
+                ],
+                "spl_set_id": [
+                  "2966aec7-2ef0-923c-d8ff-fe1a957bf095"
+                ],
+                "package_ndc": [
+                  "0074-2306-30",
+                  "0074-2306-70",
+                  "0074-2310-30",
+                  "0074-2310-20",
+                  "0074-1043-28",
+                  "0074-1043-14",
+                  "0074-2320-01",
+                  "0074-2320-70"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000190858",
+                  "N0000190857"
+                ],
+                "pharm_class_epc": [
+                  "Janus Kinase Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Janus Kinase Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "4RA0KN46E0"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

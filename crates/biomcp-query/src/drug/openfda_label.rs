@@ -47,9 +47,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let discovery = if let Some(saved) = expanded.as_mut() {
         names::search(&leg, query, saved)
     } else {
-        match (query.indication(), query.query()) {
-            (Some(indication), name) => {
-                source::search_indication(&leg, indication, name, query.limit(), query.offset())
+        match (source::scope(query), query.query()) {
+            (Some(scope), name) => {
+                source::search_scoped(&leg, &scope, name, query.limit(), query.offset())
             }
             (None, Some(name)) => source::search(&leg, name, query.limit(), query.offset()),
             (None, None) => return super::unsupported(query.source(), out),
@@ -73,6 +73,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         result.is_ok(),
         &mut out,
     );
+    search_page::mechanism(query, &mut out);
     disclosure(&mut out, discovery.free_text);
     if let Ok(window) = result {
         let total = window.total().unwrap_or(0);

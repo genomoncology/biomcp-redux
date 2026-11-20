@@ -326,7 +326,7 @@ pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseIn
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
-        let request = request(verb, entity, matches)?;
+        let request = request(verb, entity, matches, &globals.fields)?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -510,7 +510,12 @@ impl Globals {
     }
 }
 
-fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ParseInvalid> {
+fn request(
+    verb: &str,
+    entity: &str,
+    matches: &clap::ArgMatches,
+    fields: &[String],
+) -> Result<Request, ParseInvalid> {
     let value = request_arguments(verb, entity, matches)?;
     let command = biomcp_types::COMMANDS
         .iter()
@@ -526,7 +531,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         Ok(request) => words::unknown(verb, entity, &value, explicit).map_or(Ok(request), Err),
         Err(cause) => Err(sections::fix(verb, entity, &value)
             .or_else(|| words::unknown(verb, entity, &value, explicit))
-            .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause))
+            .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause, fields))
             .unwrap_or_else(|| errors::checked_invalid(command.via, verb, entity, &value, &cause))),
     }
 }
