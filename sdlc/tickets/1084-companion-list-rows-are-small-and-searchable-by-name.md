@@ -1,6 +1,7 @@
 # 1084 — companion-list-rows-are-small-and-searchable-by-name
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ddf2bad3f278df36f22d507efe66ee3cd02d054d
 
 Milestone: 7
 

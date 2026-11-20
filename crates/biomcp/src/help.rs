@@ -327,9 +327,9 @@ fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     format!("{summary}{note} Sources: {sources}.")
 }
 /// FDA spells the two companion tables' headers differently, so readers need the shared names (0959).
-/// The typed `diagnostic` tool says the same in its own description (0962, mcp/typed/description.rs).
-const CDX_SHARED_FIELDS: &str = " FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug, \
-    before FDA's cells, whose headers differ by table.";
+/// The typed `diagnostic` tool ends its own description with the same sentence (0962, mcp/typed/description.rs).
+pub(crate) const CDX_SHARED_FIELDS: &str = " FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug; \
+    individual-table rows add biomarker and biomarker_details.";
 
 fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for (command, description) in [

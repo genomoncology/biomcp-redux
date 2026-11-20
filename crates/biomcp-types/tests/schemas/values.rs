@@ -481,7 +481,6 @@ const LINKS: &[(&str, &[(&str, &str)])] = &[
     ("ClinGenValidity", &[("report_url", "uri")]),
     ("ComponentTerms", &[("url", "uri")]),
     ("DiagnosticCellLink", &[("href", "uri-reference")]),
-    ("DiagnosticDrugApplication", &[("url", "uri")]),
     ("DiagnosticPmaHeader", &[("url", "uri")]),
     ("DiseaseAssociationReference", &[("url", "uri")]),
     ("DrugFdaDocument", &[("url", "uri")]),

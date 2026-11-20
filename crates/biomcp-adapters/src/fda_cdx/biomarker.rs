@@ -1,4 +1,4 @@
-//! Whole biomarker names in an FDA companion biomarker cell.
+//! Whole names in an FDA companion cell: a biomarker, or a test or drug name (1084).
 /// Whether the cell names the asked biomarker whole, ignoring case and surrounding spaces, so
 /// PIK3CA matches "PIK3CA, AKT1, and PTEN" and "PIK3CA  " but not PIK3CA2 (1056).
 pub(super) fn names(cell: &str, asked: &str) -> bool {

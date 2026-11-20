@@ -2,9 +2,7 @@ use super::biomarker::names;
 use super::date::{key, row_date};
 use biodata::{CompanionDiagnosticRelation, PartialDate};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
-use biomcp_types::{
-    CompanionDiagnosticRow, CompanionShared, DiagnosticSearch, Problem, ProblemCode, Source,
-};
+use biomcp_types::{CompanionDiagnosticRow, DiagnosticSearch, Problem, ProblemCode, Source};
 use std::cmp::Ordering;
 /// Native physical association page from one stored complete snapshot.
 #[derive(Debug)]
@@ -38,16 +36,8 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     let snapshot = info.content_revision.as_deref().ok_or(invalid_reply)?;
     let mut matching = Vec::new();
     for row in rows {
-        let mut native = row.value;
+        let native = row.value;
         if matches(&native.relation, query) {
-            match &mut native.relation {
-                CompanionDiagnosticRelation::Individual {
-                    snapshot: value, ..
-                }
-                | CompanionDiagnosticRelation::Group {
-                    snapshot: value, ..
-                } => *value = snapshot.into(),
-            }
             let date = row_date(&device_cell(&native.relation).text);
             matching.push((native, date));
         }
@@ -110,7 +100,7 @@ fn page(
             if !whole {
                 conflicts.extend(undated(&row));
             }
-            shared_row(row)
+            super::row::reply(row.0, row.1, query.name().map(|v| v.as_str()))
         })
         .collect();
     (items, total, conflicts)
@@ -203,56 +193,6 @@ fn newest_first(
     };
     by_date.then_with(|| place(&a.0.relation).cmp(&place(&b.0.relation)))
 }
-/// FDA's tables break and pad one test's name differently; read it as one line (0994).
-fn line(t: &str) -> Option<Box<str>> {
-    Some(t.split_whitespace().collect::<Vec<_>>().join(" ").into())
-}
-/// FDA's original row with its date and the names both tables share.
-fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> CompanionDiagnosticRow {
-    let text = |cell: &biodata::DiagnosticCell| Some(cell.text.clone());
-    match native.relation {
-        CompanionDiagnosticRelation::Individual {
-            snapshot,
-            index,
-            cells,
-            device_ids,
-            drug_applications,
-        } => CompanionDiagnosticRow::Individual {
-            shared: CompanionShared {
-                row_date: date,
-                diagnostic: line(&cells.diagnostic.text),
-                indication: line(&cells.indication.text),
-                device: text(&cells.device),
-                drug: text(&cells.drug),
-            },
-            snapshot,
-            index,
-            cells,
-            device_ids,
-            drug_applications,
-        },
-        CompanionDiagnosticRelation::Group {
-            snapshot,
-            index,
-            cells,
-            device_ids,
-            drug_applications,
-        } => CompanionDiagnosticRow::Group {
-            shared: CompanionShared {
-                row_date: date,
-                diagnostic: line(&cells.diagnostic.text),
-                indication: line(&cells.indication.text),
-                device: text(&cells.device),
-                drug: text(&cells.drug_group),
-            },
-            snapshot,
-            index,
-            cells,
-            device_ids,
-            drug_applications,
-        },
-    }
-}
 fn changed_revision() -> RequestError {
     biomcp_fetch::SourceError {
         source: Source::FdaCdx,
@@ -296,4 +236,7 @@ fn matches(row: &CompanionDiagnosticRelation, query: &DiagnosticSearch) -> bool 
         && query
             .biomarker()
             .is_none_or(|q| biomarker.is_some_and(|cell| names(cell, q.as_str())))
+        && query
+            .name()
+            .is_none_or(|q| !super::row::name_match(row, q.as_str()).is_empty())
 }

@@ -26,11 +26,11 @@
       ],
       "max_bytes": 2100,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/5",
+        "/schema": "biomcp.diagnostic-companion/6",
         "/page/offset": 0,
         "/page/returned": 1,
         "/page/total": 1,
-        "/result/items/0/drug_applications/1/id": "BLA125084"
+        "/result/items/0/drug_applications/1": "BLA125084"
       }
     },
     {
@@ -48,7 +48,7 @@
       ],
       "max_bytes": 6012,
       "expect": {
-        "/schema": "biomcp.diagnostic-companion/5",
+        "/schema": "biomcp.diagnostic-companion/6",
         "/page/offset": 5,
         "/page/returned": 3,
         "/page/total": 8

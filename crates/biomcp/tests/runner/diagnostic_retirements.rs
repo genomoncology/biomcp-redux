@@ -38,9 +38,9 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         ("biomcp.diagnostic-card/5", "gtr-test", "partial") => "diagnostic-baseline-1559",
         ("biomcp.diagnostic-card/5", "who-ivd-product", "complete") => "diagnostic-baseline-2578",
         ("biomcp.diagnostic-card/5", "who-ivd-product", "partial") => "diagnostic-baseline-2576",
-        ("biomcp.diagnostic-companion/5", "", "complete") => "diagnostic-baseline-7879",
-        ("biomcp.diagnostic-companion/5", "", "failed") => "diagnostic-baseline-410",
-        ("biomcp.diagnostic-companion/5", "", "partial") => "diagnostic-baseline-7035",
+        ("biomcp.diagnostic-companion/6", "", "complete") => "diagnostic-baseline-7879",
+        ("biomcp.diagnostic-companion/6", "", "failed") => "diagnostic-baseline-410",
+        ("biomcp.diagnostic-companion/6", "", "partial") => "diagnostic-baseline-7035",
         // New GTR field-refusal views measured together by j21540.
         ("biomcp.diagnostic-page/7", "", "complete")
             if value.pointer("/query/source") == Some(&json!("gtr")) =>

@@ -104,7 +104,7 @@ fn spot_words(tools: &[Value]) -> Result<(), String> {
 /// itself, as CLI agents do from help, and only while fda-cdx is offered.
 fn cdx_shared_fields(env: &Environment, local: &[Value], hosted: &[Value]) -> Result<(), String> {
     const SENTENCE: &str = "FDA CDx rows of both tables start with row_date, diagnostic, \
-        indication, device and drug, before FDA's cells, whose headers differ by table.";
+        indication, device and drug; individual-table rows add biomarker and biomarker_details.";
     let description = |tools: &[Value]| {
         tools
             .iter()

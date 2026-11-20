@@ -173,6 +173,8 @@ pub use disease::{
 
 mod diagnostic;
 pub use diagnostic::*;
+mod diagnostic_companion;
+pub use diagnostic_companion::*;
 mod diagnostic_counts;
 pub use diagnostic_counts::*;
 

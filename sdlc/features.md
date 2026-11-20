@@ -82,7 +82,7 @@ adverse-event-search: Search a FAERS drug name together with its bounded source-
 cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference.
 maude-reports: Search native device phrases, manufacturer phrases, exact product codes, product problem phrases and event types and read exact native cards, device rows and complete narratives with source terms and independent count units.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference.
-diagnostic-cdx: Search whole physical association rows of both FDA companion tables using their own checked identifiers; a first live search fetches a missing list itself, and a list over `auto_sync_max_bytes` asks for `sync fda-cdx`.
+diagnostic-cdx: Search whole physical association rows of both FDA companion tables, each cell stated once, by their own checked identifiers or a test or drug name; a first live search fetches a missing list itself, and a list over `auto_sync_max_bytes` asks for `sync fda-cdx`.
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests.
 adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports.
 clinpgx-annotations: Read independent bounded ClinPGx annotation collections and exact base records without clinical inference.

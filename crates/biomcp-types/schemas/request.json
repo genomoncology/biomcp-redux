@@ -3225,12 +3225,13 @@
               "type": "null"
             }
           ],
-          "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional.",
+          "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional. FDA CDx: whole name, any case, in a row's diagnostic or drug cell; name_match says which.",
           "x-required-component": [
             "gtr",
             "fda-pma",
             "fda-510k",
-            "fda-device-recall"
+            "fda-device-recall",
+            "fda-cdx"
           ]
         },
         "offset": {

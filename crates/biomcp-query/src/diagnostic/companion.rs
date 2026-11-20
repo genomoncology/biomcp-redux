@@ -15,6 +15,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             items: Box::default(),
             count_unit: None,
             distinct_id_total: None,
+            snapshot: None,
         })
         .with_query(q.clone()),
     );
@@ -56,6 +57,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                 items: page.items,
                 count_unit: None,
                 distinct_id_total: None,
+                snapshot: page.info.content_revision.clone(),
             })
             .with_query(echo.clone());
             None
@@ -84,8 +86,8 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
 fn pivots(out: &mut Outcome, rows: &[biomcp_types::CompanionDiagnosticRow], fresh: bool) {
     let mut seen = HashSet::new();
     for row in rows {
-        let (devices, applications) = row.identities();
-        for device in devices {
+        let owned = row.owned();
+        for device in &owned.device_ids {
             if !(device.as_str().starts_with('P') || device.as_str().starts_with('K'))
                 || !seen.insert(device.as_str().to_owned())
             {
@@ -119,10 +121,10 @@ fn pivots(out: &mut Outcome, rows: &[biomcp_types::CompanionDiagnosticRow], fres
                 }
             }
         }
-        for application in applications {
-            if seen.insert(application.id.as_str().to_owned())
+        for application in &owned.drug_applications {
+            if seen.insert(application.as_str().to_owned())
                 && let Some(id) = crate::next::checked(
-                    application.id.as_str().parse(),
+                    application.as_str().parse(),
                     biomcp_types::Source::FdaCdx,
                     &mut out.problems,
                 )
