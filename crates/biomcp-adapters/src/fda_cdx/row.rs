@@ -36,11 +36,12 @@ pub(super) fn name_match(row: &CompanionDiagnosticRelation, asked: &str) -> Box<
 pub(super) fn reply(
     native: super::raw::Native,
     date: Option<PartialDate>,
-    name: Option<&str>,
+    (name, biomarker): (Option<&str>, Option<&str>),
 ) -> CompanionDiagnosticRow {
     let name_match = name
         .map(|asked| name_match(&native.relation, asked))
         .unwrap_or_default();
+    let negated = |cell: &DiagnosticCell| biomarker.is_some_and(|b| super::biomarker::negated(&cell.text, b));
     let text = |cell: &DiagnosticCell| Some(cell.text.clone());
     match native.relation {
         CompanionDiagnosticRelation::Individual {
@@ -59,6 +60,7 @@ pub(super) fn reply(
             },
             biomarker: text(&cells.biomarker),
             biomarker_details: text(&cells.details),
+            biomarker_negated: negated(&cells.biomarker),
             owned: CompanionOwned {
                 index,
                 links: CompanionLinks {
