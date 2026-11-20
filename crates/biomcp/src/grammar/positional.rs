@@ -161,7 +161,7 @@ pub(super) fn complete(path: (&str, &str), schema: &Value, value: &Value) -> Opt
 }
 
 /// The call's words without the positional words after its command, and those words.
-fn split(
+pub(super) fn split(
     root: &Command,
     command: &Command,
     verb: &str,

@@ -30,7 +30,10 @@
         "/result/items/1/card/header/counts/scope": "provider_record",
         "/result/items/1/card/header/counts/citation_count": 0,
         "/sources/0/state": "ok",
-        "/next/0/kind": "pivot"
+        "/next/0/kind": "pivot",
+        "/absent": [
+          "semantic-scholar:999"
+        ]
       },
       "full_output_bytes": true,
       "max_bytes": 1146

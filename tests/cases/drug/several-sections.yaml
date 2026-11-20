@@ -103,7 +103,7 @@
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/option": "section",
+        "/error/option": "notasection",
         "/error/valid_values/*": {
           "includes_all_of": [
             "targets",

@@ -43,6 +43,12 @@ pub(super) fn prepare_with_catalog(
         return Ok(());
     }
     let value = outcome.value_mut()?;
+    // A typed call names its sections in the section field, not with --section.
+    if let Some(message) = value.pointer_mut("/error/message")
+        && *message == json!(ErrorMessage::ArgumentSectionNotId)
+    {
+        *message = json!(ErrorMessage::ArgumentSectionNotIdTyped);
+    }
     if followups::project(context.root, value, advertised)?.is_empty()
         && value.get("status") == Some(&json!("usage"))
         && let Some(mut call) = summary::correction(context.root, value, args, advertised)

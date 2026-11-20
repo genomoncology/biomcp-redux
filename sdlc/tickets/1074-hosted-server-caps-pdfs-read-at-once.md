@@ -32,3 +32,9 @@ Ticket 1068 bounds what one PDF can cost: measured on 2026-11-19, about 0.3 seco
 ## Changes
 
 - Changes: the hosted server's PDF path, its config and docs.
+
+## Added from the ticket 1075 review, 2026-11-20
+
+- The reading child sets its own CPU-time limit, a little above the call's time limit, and on Linux asks to be killed when its parent dies. Today only the parent kills it, so a parent killed outright (a server restart) can leave a child looping; its memory stays capped. Proof: a test kills the parent mid-read and no child remains.
+- `pdf_memory_limit_mib` has an upper bound; today a very high value saturates to no cap.
+- PM note: the reader parses PDFs fetched only from https://www.accessdata.fda.gov (drug letters and device documents), so these are hardening, not open faults.

@@ -249,6 +249,7 @@ pub(super) fn parse_invalid(
     }
     if let Some(spelling) = spelling
         && let Some(arguments) = super::positional::fix(root, &path, args)
+            .or_else(|| super::words::excess(root, &path, args))
             .or_else(|| super::positional::unplaced(command, &path))
     {
         let mut arguments = arguments;
