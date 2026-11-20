@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-A word BioMCP does not understand is refused, never dropped. `biomcp get gene BRAF bogussection` and `biomcp get gene BRAF extra words here` say which word was not understood and list the sections the record has, and exit as a usage error.
+A word after a get command's ID is never dropped. A word in a section's place that names no section, a trailing word near one of the record's sections or naming another record's section, and an ID after a trailing section are refused as usage: the refusal names the word (when it is plain), lists the record's sections, says when the word was read as a section rather than an ID, and offers a next call that passes every check, or help. Any other trailing word is an ID in any letter case; when a get of several IDs finds some and not others, the reply names the ones not found in a top-level `absent` list. `biomcp get gene BRAF pathwys` is refused with `get gene BRAF pathways` as its next call; `biomcp get gene BRAF bogussection` replies `complete` with `absent: ["bogussection"]`.
 
 ## Why
 
@@ -43,3 +43,4 @@ Found by the review of ticket 1064 on 2026-11-19, on main before that change: bo
 - PM decision, 2026-11-19: a refusal names the word only when it is plain (letters, digits, dash and underscore, up to 64 characters), as unknown option names already are; other text is never repeated, as the error envelope requires.
 - Typed `id: "BRAF bogussection"` is one ID with a space, sent as one lookup; its reply is `absent` at the top. It is not split, because some IDs, such as drug names, hold spaces.
 - PM decision, 2026-11-19: pgx keeps its retirement guidance for unknown section words.
+- PM decision, 2026-11-20 (review): once a word after the first ID names a section exactly, every later word is a section; an ID after a section is refused and the refusal says to put IDs before sections, with the call that does so. A suggested call passes every check a run makes before reading a source; one that needs a source is offered with the one source that fits, else help. A hosted refusal lists and suggests only sections whose sources are on and always keeps a working next step. A badly formed second ID keeps its malformed-ID refusal. A typed refusal says to set the section field.
