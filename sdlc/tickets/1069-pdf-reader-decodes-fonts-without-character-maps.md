@@ -2,7 +2,8 @@
 
 The PDF reader reads the character maps lopdf refuses over their header. The fonts that read as gibberish do carry a character map (`/ToUnicode`); lopdf rejects the whole map because its PostScript header puts `def` inside `/CIDSystemInfo`, and then decodes each two-byte glyph ID as a Latin-1 byte.
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b78282e5cb0b1e35df03d7f163bf941e157fc7e8
 
 Milestone: 7
 
