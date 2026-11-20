@@ -204,6 +204,37 @@ pub struct DrugRegulatoryContext {
 pub struct DrugCivic {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
+    /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
+    pub civic: Section<super::DrugCivicStreams>,
+}
+/// Explicit native application/product history without a global approval flag.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugApprovals {
+    /// Selected native identity, checked independently of section facts.
+    pub identity: DrugHeader,
+    /// Native products, filtered only by an explicit product number; independent of submissions.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub products: Box<[super::DrugFdaProduct]>,
+    /// Native FDA dataset last_updated date, independent of submission dates and retrieval.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_updated: Option<crate::SourceUpdated>,
+    /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
+    pub approvals: Section<DrugRecords<super::DrugFdaSubmission>>,
+    /// Presentation order of application submissions, without interpreting their statuses.
+    pub order: Box<str>,
+}
+impl DrugApprovals {
+    /// Shared order descriptor for every approvals page.
+    pub const ORDER: &'static str =
+        "submission status date descending, then submission number descending; missing dates last";
+}
+/// Source-scoped regulator events preserving date roles and original status.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugRegulatory {
+    /// Selected native identity, checked independently of section facts.
+    pub identity: DrugHeader,
     /// The source-specific contents of the regulatory section.
     #[serde(flatten)]
     pub part: super::DrugRegulatoryPart,
