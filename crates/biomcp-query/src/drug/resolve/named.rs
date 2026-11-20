@@ -14,15 +14,27 @@ use std::cmp::Reverse;
 /// indications first, then a source key.
 pub(in crate::drug) type Rank = (u8, u8, u8, Reverse<u32>, String);
 pub(in crate::drug) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let mut out = get_parts(cx, std::slice::from_ref(query));
-    out.pop()
-        .unwrap_or_else(|| status::empty(ReplyData::Usage(UsageError::argument("input".into()))))
+    get_with_name_state(cx, query).0
+}
+
+/// Also report whether MyChem stopped reading before it settled the name.
+pub(in crate::drug) fn get_with_name_state(cx: &Ctx<'_>, query: &DrugGet) -> (Outcome, bool) {
+    let mut unsettled = false;
+    let mut out = resolve_parts(cx, std::slice::from_ref(query), &mut unsettled);
+    let out = out
+        .pop()
+        .unwrap_or_else(|| status::empty(ReplyData::Usage(UsageError::argument("input".into()))));
+    (out, unsettled)
 }
 
 /// Resolve the name of the first query once and get every query for the chosen record, so
 /// label headings of one name share one record read. A name that resolves to no record
 /// answers with one outcome for all.
 pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
+    resolve_parts(cx, queries, &mut false)
+}
+
+fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec<Outcome> {
     let Some(query) = queries.first() else {
         return Vec::new();
     };
@@ -36,14 +48,13 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
             )))];
         }
     };
-    let mut unsettled = false;
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
         name_pages::fda(cx, query, &search)
     } else if query.source() == DrugSource::OpenfdaLabel {
         name_pages::label(cx, query, &search)
     } else if query.source() == DrugSource::Mychem {
         let (out, candidates, stopped) = name_pages::mychem(cx, query, &search);
-        unsettled = stopped;
+        *unsettled = stopped;
         (out, candidates)
     } else if query.source() == DrugSource::Chembl {
         name_pages::chembl(cx, query, &search)
@@ -90,10 +101,11 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
     };
     selected_parts(&within(cx, deadline.remaining()), &resolved)
         .into_iter()
-        .map(|out| {
+        .zip(queries)
+        .map(|(out, query)| {
             let mut out = settled(
                 chosen_name(query, rank.0, &candidates, &discovery, out),
-                unsettled,
+                *unsettled,
             );
             if query.source() == DrugSource::Chembl
                 && out.sources.iter().any(|s| s.state == SourceState::Stale)

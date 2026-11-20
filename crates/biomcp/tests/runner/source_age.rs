@@ -39,6 +39,12 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         crate::runner::transcript::trial("source-data-age/name-recovery/capped-alias", || {
             name_recovery::capped_alias().map_err(Into::into)
         }),
+        crate::runner::transcript::trial("source-data-age/name-recovery/capped-product", || {
+            name_recovery::capped_product().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/name-recovery/short-chembl-copy", || {
+            name_recovery::short_chembl_copy().map_err(Into::into)
+        }),
         crate::runner::transcript::trial("source-data-age/name-recovery/deadline", || {
             name_recovery::deadline().map_err(Into::into)
         }),
@@ -47,6 +53,9 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         }),
         crate::runner::transcript::trial("source-data-age/name-recovery/chembl-match", || {
             name_recovery::chembl_match().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/name-recovery/chembl-sections", || {
+            name_recovery::chembl_sections().map_err(Into::into)
         }),
         crate::runner::transcript::trial("source-data-age/name-recovery/market-retry", || {
             name_recovery::market_retry().map_err(Into::into)

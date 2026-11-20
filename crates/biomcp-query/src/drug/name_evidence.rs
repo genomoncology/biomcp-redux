@@ -23,16 +23,28 @@ impl Evidence {
         ));
     }
 
-    pub(super) fn observe(&mut self, out: &Outcome, source: DrugSource) {
-        self.sources
-            .extend(out.sources.iter().cloned().map(|mut read| {
-                if out.dropped && read.source == source.source() && read.state == SourceState::Ok {
-                    read.set_status(SourceStatus::Failed(None));
-                }
-                read
-            }));
+    pub(super) fn observe(&mut self, out: &Outcome, source: DrugSource, unsettled: bool) {
+        self.observe_sources(
+            out.sources.iter().cloned(),
+            source,
+            unsettled || out.dropped,
+        );
         status::append(&mut self.problems, out.problems.iter().cloned());
         self.local = self.local.or(out.local);
+    }
+
+    pub(super) fn observe_sources(
+        &mut self,
+        reads: impl IntoIterator<Item = SourceOutcome>,
+        source: DrugSource,
+        unfinished: bool,
+    ) {
+        self.sources.extend(reads.into_iter().map(|mut read| {
+            if unfinished && read.source == source.source() && read.state == SourceState::Ok {
+                read.set_status(SourceStatus::Failed(None));
+            }
+            read
+        }));
     }
 
     pub(super) fn append(&self, out: &mut Outcome, selected: DrugSource) {

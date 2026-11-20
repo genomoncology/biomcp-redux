@@ -106,9 +106,9 @@ fn card(cx: &Ctx<'_>, input: &Text, source: DrugSource, evidence: &mut Evidence)
         source.source(),
         &mut evidence.problems,
     )?;
-    let out = super::super::resolve::get(cx, &query);
-    evidence.observe(&out, source);
-    if !usable(&out, source) || out.dropped {
+    let (out, unsettled) = super::super::resolve::get_with_name_state(cx, &query);
+    evidence.observe(&out, source, unsettled);
+    if unsettled || !usable(&out, source) || out.dropped {
         return None;
     }
     let ReplyData::DrugCard {
@@ -134,7 +134,7 @@ fn chembl(cx: &Ctx<'_>, input: &Text, evidence: &mut Evidence) -> Option<Stated>
         return None;
     }
     let copy = super::super::search_names::chembl_copy(cx, input);
-    evidence.sources.extend(copy.evidence);
+    evidence.observe_sources(copy.evidence, DrugSource::Mychem, copy.molecules.is_none());
     evidence.problems.extend(copy.problems);
     evidence.local = evidence.local.or(copy.error.and_then(status::local));
     let molecules = copy.molecules?;

@@ -117,7 +117,7 @@ fn retry_name(
             .all(|part| matches!(part.status(), Status::Absent | Status::Failed))
     {
         for part in &found {
-            evidence.observe(part, query.source());
+            evidence.observe(part, query.source(), false);
         }
         return None;
     }
