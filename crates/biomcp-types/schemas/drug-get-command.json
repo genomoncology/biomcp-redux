@@ -268,7 +268,7 @@
       "x-section-rule": "Named disclosures of the selected source, each its own part of one reply; empty means identity only."
     },
     "section_limit": {
-      "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
+      "description": "Named section page size, refused on an identity-only card.\nAt most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere.",
       "format": "uint32",
       "maximum": 200,
       "minimum": 1,

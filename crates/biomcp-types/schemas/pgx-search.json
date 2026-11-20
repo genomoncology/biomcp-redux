@@ -37,7 +37,7 @@
       "default": 5,
       "description": "Rows per native page.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 100,
       "minimum": 1,
       "type": "integer"
     },

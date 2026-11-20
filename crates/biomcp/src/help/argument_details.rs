@@ -72,6 +72,10 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 SOURCE_OPTIONS
             });
         }
+        if let Some(line) = schema.as_ref().and_then(crate::grammar::paging::help_line) {
+            command.description.push('\n');
+            command.description.push_str(&line);
+        }
     }
 }
 /// One sentence per option that names the option, so no option repeats another's.
@@ -125,6 +129,7 @@ pub(super) fn without_option_lines(description: &str) -> String {
                 LOCAL_OPTIONS,
             ]
             .contains(line)
+                && !line.starts_with(crate::grammar::paging::HELP_PREFIX)
         })
         .collect::<Vec<_>>()
         .join("\n")

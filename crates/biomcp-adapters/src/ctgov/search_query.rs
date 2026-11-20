@@ -31,6 +31,16 @@ pub fn search_query(
     {
         params.insert("query.cond".into(), format!("({condition})"));
     }
+    // An offset without a page token starts where the registry's own pages reach it (1061).
+    if query.offset() > 0 && query.next_page().is_none() && !query.count_only() {
+        match super::skip::start(leg, &params, query.offset()) {
+            Ok(super::skip::Start::Token(token)) => {
+                params.insert("pageToken".into(), token);
+            }
+            Ok(super::skip::Start::Ended(total)) => return (Ok(super::skip::ended(total)), None),
+            Err(error) => return (Err(error), None),
+        }
+    }
     let context_gene = gene.filter(|_| !query.count_only());
     let exact = [query.variant(), query.criteria()]
         .into_iter()

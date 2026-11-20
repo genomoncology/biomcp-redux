@@ -7149,7 +7149,7 @@
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },
@@ -8623,9 +8623,9 @@
         },
         "limit": {
           "default": 10,
-          "description": "Native candidates per page, default 10, maximum 50; all candidates remain candidates.",
+          "description": "Native candidates per page, default 10, maximum 100; all candidates remain candidates.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },

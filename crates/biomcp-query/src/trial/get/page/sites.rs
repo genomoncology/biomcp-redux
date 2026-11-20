@@ -3,9 +3,9 @@ use crate::Outcome;
 use biodata::{Text, TrialLocation};
 use biomcp_fetch::RequestError;
 use biomcp_types::{TrialContactRecord, TrialGet, TrialSection, TrialSections, TrialSite};
-/// Bytes for one locations page: room for the largest `--limit` (100) of typical sites,
+/// Bytes for one locations page: room for the largest `--limit` (200) of typical sites,
 /// so the page holds what the caller asked for.
-const LOCATIONS_BUDGET: usize = 60_000;
+const LOCATIONS_BUDGET: usize = 120_000;
 pub(super) fn render(
     query: &TrialGet,
     snapshot: &Snapshot,

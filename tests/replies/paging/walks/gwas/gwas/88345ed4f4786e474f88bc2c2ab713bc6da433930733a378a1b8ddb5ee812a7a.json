@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "gwas",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&page=2&pubmed_id=17529967&size=1&sort=p_value",
+  "exchanges": [
+    {
+      "fetched": 1795125386,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 310,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"_embedded":{"associations":[{"association_id":6112,"risk_frequency":"0.28","pvalue_description":"","pvalue_mantissa":7,"pvalue_exponent":-20,"multi_snp_haplotype":false,"snp_interaction":false,"range":"[1.10-1.16]","or_per_copy_num":1.13,"or_value":"1.13","beta":"-","p_value":7.0E-20,"efo_traits":[{"efo_id":"MONDO_0004989","efo_trait":"breast carcinoma"}],"reported_trait":["Breast cancer"],"accession_id":"GCST000035","locations":["5:56736057"],"mapped_genes":["C5orf67","MAP3K1"],"bg_efo_traits":[],"pubmed_id":"17529967","first_author":"Easton DF","ci_lower":1.1,"ci_upper":1.16,"snp_effect_allele":["rs889312-C"],"snp_allele":[{"rs_id":"rs889312","effect_allele":"C"}],"_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/6112"},"loci":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/6112/loci"},"snp":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs889312"}}}]},"_links":{"first":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=0&size=1&sort=p_value"},"prev":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=1&size=1&sort=p_value"},"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=2&size=1&sort=p_value"},"next":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=3&size=1&sort=p_value"},"last":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=5&size=1&sort=p_value"}},"page":{"size":1,"totalElements":6,"totalPages":6,"number":2}}
+      }
+    }
+  ]
+}

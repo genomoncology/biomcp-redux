@@ -62,9 +62,9 @@ struct Fields {
         schemars(with = "u32", range(min = 1985, max = 2100))
     )]
     fiscal_year: Option<u32>,
-    /// Ten award rows by default, one to fifty.
+    /// Ten award rows by default, one to 100.
     #[serde(default = "default_limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::SEARCH_PAGE_MAX)))]
     limit: u32,
     /// Award rows to skip in RePORTER's order; RePORTER pages at most 15,000 deep.
     #[serde(default)]
@@ -95,7 +95,7 @@ impl TryFrom<Fields> for GrantSearch {
         {
             return Err(QueryInvalid::new(&["fiscal_year"]));
         }
-        if !(1..=50).contains(&v.limit) {
+        if !(1..=crate::SEARCH_PAGE_MAX).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
         if v.offset > 14_999 {

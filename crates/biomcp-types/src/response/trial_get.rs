@@ -152,9 +152,29 @@ pub struct TrialRecords<T> {
     pub offset: u32,
     /// Original collection size.
     pub total: u32,
+    /// The page every list states: offset, rows returned and total (1061).
+    pub page: crate::PageInfo,
     /// Complete records in source order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[T]>,
+}
+impl<T> TrialRecords<T> {
+    /// One page of a collection, from its offset, its whole size and the records it holds.
+    pub fn new(offset: u32, total: u32, items: Box<[T]>) -> Self {
+        Self {
+            continuation: None,
+            offset,
+            total,
+            page: crate::PageInfo {
+                offset,
+                returned: items.len() as u32,
+                total: total.into(),
+                pool: None,
+                truncated: None,
+            },
+            items,
+        }
+    }
 }
 /// Source arm rows followed by source intervention rows, each in its native order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

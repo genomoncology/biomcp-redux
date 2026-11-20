@@ -235,7 +235,7 @@ singleton! {
         DiseasePhenotypeFilter => "deferred; no proved native HPO-ID disease filter",
         DiseaseOnset => "dropped; clinical-course fields are not an onset filter",
         DiseaseNoFallback => "retired; disease search never falls back or rewrites a zero result",
-        DiseaseLimit => "use: --limit",
+        DiseaseLimit => "use: --limit", OffsetPastText => "--offset is past the end of this text; valid_values gives its offsets in characters",
         DiseaseJson => "use: --format json",
         DiseaseFresh => "use: --fresh to bypass cached replies",
         DiseaseOntologySelector => "use: search disease <TEXT> --source ols --ontology <mondo|doid|ncit>; mesh is not supported",
@@ -260,7 +260,7 @@ singleton! {
         DiseaseDrugs => "use: search drug --source chembl --indication <TEXT>; no disease synonym expansion",
         DiseaseLabelSearch => "use: search drug --source openfda-label --indication <TEXT>; no disease synonym expansion",
         PhenotypeSet => "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch",
-        PhenotypeHelp => "use: help phenotype",
+        PhenotypeHelp => "use: help phenotype", TrialOffsetDeep => "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper",
         PhenotypeHpoSearch => "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
         PhenotypeSetOptions => "--group, --metric and --search-mode rank genes or diseases for HP IDs only; give the text \
             as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes",

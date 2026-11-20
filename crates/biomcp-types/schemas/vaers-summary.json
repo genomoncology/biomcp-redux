@@ -59,7 +59,7 @@
           "default": 5,
           "description": "Report headers, reaction terms or VAERS rows; default five.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },

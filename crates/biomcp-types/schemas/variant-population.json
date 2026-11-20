@@ -56,7 +56,7 @@
       "default": 10,
       "description": "Maximum rows per page.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 200,
       "minimum": 1,
       "type": "integer"
     },

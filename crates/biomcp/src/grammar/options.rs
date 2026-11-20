@@ -68,7 +68,7 @@ pub(crate) fn options(request: &Request) -> BTreeMap<Box<str>, Box<str>> {
         });
         if accepted {
             found.insert(
-                format!("--{}", name.replace('_', "-")).into(),
+                super::paging::flag(&schema, &value, name).into(),
                 placeholder.into(),
             );
         }

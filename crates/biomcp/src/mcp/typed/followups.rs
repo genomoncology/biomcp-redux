@@ -81,8 +81,12 @@ fn options_for(
     }
     let command = super::name(args.first()?.as_str()?, args.get(1)?.as_str()?);
     let mut typed = serde_json::Map::new();
+    let action = call.pointer("/arguments/action").and_then(Value::as_str);
+    let sectioned = action
+        .and_then(|action| call.pointer(&format!("/arguments/{action}/section")))
+        .is_some_and(|section| !section.is_null() && section != &serde_json::json!([]));
     for (option, placeholder) in options {
-        let field = option.trim_start_matches('-').replace('-', "_");
+        let field = paging_field(properties, sectioned, option.trim_start_matches('-'));
         let named = super::grouping::advertised(&command, &serde_json::json!({ field: null }));
         let Some(name) = named.as_object().and_then(|fields| fields.keys().next()) else {
             continue;
@@ -92,6 +96,25 @@ fn options_for(
         }
     }
     (!typed.is_empty()).then_some(Value::Object(typed))
+}
+
+/// The typed field a taught paging option stands for (1061): `--limit` and `--offset` page a
+/// section where only the section fields exist or a section is named, and the candidate names
+/// are the list fields.
+fn paging_field(properties: &Value, sectioned: bool, option: &str) -> String {
+    let field = option.replace('-', "_");
+    let section = format!("section_{field}");
+    let both = properties.get(&field).is_some() && properties.get(&section).is_some();
+    match field.strip_prefix("candidate_") {
+        Some(list) => list.into(),
+        None if matches!(field.as_str(), "limit" | "offset")
+            && properties.get(&section).is_some()
+            && (sectioned || !both) =>
+        {
+            section
+        }
+        None => field,
+    }
 }
 
 /// A carried `--fields=a,b` global becomes the typed call's `fields` list.

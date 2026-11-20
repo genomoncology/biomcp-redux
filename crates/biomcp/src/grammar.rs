@@ -16,6 +16,7 @@ mod metadata;
 mod positional;
 pub(crate) use positional::candidate;
 mod options;
+pub(crate) mod paging;
 pub(crate) use options::{first_page, options, section_page};
 mod recovery;
 mod repeated;
@@ -462,6 +463,7 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ParseI
         }
     }
     split_sections(&mut result, schema)?;
+    paging::read(matches, schema, &mut result).ok_or_else(ParseInvalid::default)?;
     choices::canonicalize(&mut result, schema);
     Ok(Value::Object(result))
 }

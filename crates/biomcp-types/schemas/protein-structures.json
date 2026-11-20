@@ -164,9 +164,9 @@
         },
         "limit": {
           "default": 5,
-          "description": "Five rows by default, at most 25.",
+          "description": "Five rows by default, at most 200.",
           "format": "uint32",
-          "maximum": 25,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },

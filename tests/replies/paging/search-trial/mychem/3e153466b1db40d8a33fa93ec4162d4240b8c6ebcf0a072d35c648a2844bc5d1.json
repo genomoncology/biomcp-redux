@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=%22tebentafusp%22%20OR%20drugbank.synonyms%3A%22tebentafusp%22%20OR%20gtopdb.synonyms%3A%22tebentafusp%22%20OR%20drugcentral.synonyms%3A%22tebentafusp%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22tebentafusp%22&size=50&fields=drugbank.name%2Cdrugbank.synonyms%2Cchembl.pref_name%2Cchembl.molecule_type%2Cchembl.molecule_synonyms%2Cdrugcentral.synonyms%2Cgtopdb.name%2Cgtopdb.type%2Cgtopdb.synonyms%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Copenfda.generic_name%2Copenfda.brand_name",
+  "exchanges": [
+    {
+      "fetched": 1795117149,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 271,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":2,"total":7,"max_score":46.082626,"hits":[{"_id":"N658GY6L3E","_score":46.082626,"drugbank":{"_license":"https://bit.ly/3Hikpvm","name":"Tebentafusp","synonyms":["Tebentafusp","Tebentafusp-tebn"]},"drugcentral":{"_license":"http://bit.ly/2SeEhUy","synonyms":["tebentafusp","tebentafusp-tebn","kimmtrak","IMCgp100","IMCgp 100","ImmTAC IMCgpgp 100"]},"unii":{"_license":"http://bit.ly/2Pg8Oo9","display_name":"TEBENTAFUSP","ingredient_type":"INGREDIENT SUBSTANCE"}},{"_id":"CHEMBL4297990","_score":31.938469,"chembl":{"_license":"http://bit.ly/2KAUCAm","molecule_synonyms":[{"molecule_synonym":"IMCgp 100","syn_type":"RESEARCH_CODE","synonyms":"IMCgp 100"},{"molecule_synonym":"IMCGP-100","syn_type":"RESEARCH_CODE","synonyms":"IMCGP-100"},{"molecule_synonym":"Imcgp100","syn_type":"OTHER","synonyms":"IMCGP100"},{"molecule_synonym":"IMCGP100","syn_type":"RESEARCH_CODE","synonyms":"IMCGP100"},{"molecule_synonym":"IMMTAC IMCGP100","syn_type":"RESEARCH_CODE","synonyms":"IMMTAC IMCGP100"},{"molecule_synonym":"ImmTAC IMCgpgp 100","syn_type":"RESEARCH_CODE","synonyms":"ImmTAC IMCgpgp 100"},{"molecule_synonym":"Kimmtrak","syn_type":"TRADE_NAME","synonyms":"Kimmtrak"},{"molecule_synonym":"Kimmtrak","syn_type":"OTHER","synonyms":"KIMMTRAK"},{"molecule_synonym":"Tebentafusp","syn_type":"ATC","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"EMA","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"FDA","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"INN","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"OTHER","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp","syn_type":"USAN","synonyms":"TEBENTAFUSP"},{"molecule_synonym":"Tebentafusp tebn","syn_type":"OTHER","synonyms":"TEBENTAFUSP TEBN"},{"molecule_synonym":"Tebentafusp-tebn","syn_type":"FDA","synonyms":"TEBENTAFUSP-TEBN"},{"molecule_synonym":"Tebentafusp-tebn","syn_type":"OTHER","synonyms":"TEBENTAFUSP-TEBN"}],"molecule_type":"Protein","pref_name":"TEBENTAFUSP"}},{"_id":"DB15283","_score":26.012222},{"_id":"80446-401","_score":23.346083,"ndc":{"_license":"https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking","nonproprietaryname":"TEBENTAFUSP","producttypename":"HUMAN PRESCRIPTION DRUG","proprietaryname":"KIMMTRAK"}},{"_id":"CHEBI:757417","_score":17.677717},{"_id":"C5573956","_score":16.797335},{"_id":"178103950","_score":7.91362,"gtopdb":{"_license":"https://www.guidetopharmacology.org/download.jsp","name":"tebentafusp","synonyms":"IMCgp100|Kimmtrak&reg;|tebentafusp-tebn","type":"antibody"}}]}
+      }
+    }
+  ]
+}

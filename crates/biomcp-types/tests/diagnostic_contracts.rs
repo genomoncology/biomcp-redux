@@ -403,7 +403,7 @@ fn regulatory_default_counts_one_fragment_and_explicit_limits_remain_explicit() 
     let base = json!({"source":"fda-pma","id":"P150013","section":"regulatory"});
     let get: DiagnosticGet = serde_json::from_value(base.clone()).unwrap();
     assert_eq!(get.section_limit(), 1);
-    for limit in [json!(0), json!(null), json!(51)] {
+    for limit in [json!(0), json!(null), json!(201)] {
         let mut bad = base.clone();
         bad["section_limit"] = limit;
         assert!(serde_json::from_value::<DiagnosticGet>(bad).is_err());

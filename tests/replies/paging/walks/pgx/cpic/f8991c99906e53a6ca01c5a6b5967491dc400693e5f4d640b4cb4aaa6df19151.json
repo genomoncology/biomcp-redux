@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.CYP2D6&order=pairid.asc&limit=1&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1795125395,
+      "status": 206,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "0-0/79",
+      "delay_ms": 149,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"pairid":110081,"drugid":"RxNorm:704","drugname":"amitriptyline","genesymbol":"CYP2D6","guidelinename":"CYP2D6, CYP2C19 and Tricyclic Antidepressants","guidelineurl":"https://www.clinpgx.org/guideline/PA166251445","cpiclevel":"A","clinpgxlevel":"1A","pgxtesting":"Informative PGx","pmids":["23486447","27997040"],"usedforrecommendation":"Yes","provisional":false}]
+      }
+    }
+  ]
+}

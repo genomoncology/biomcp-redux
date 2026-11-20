@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "gwas",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&page=0&pubmed_id=17529967&size=1&sort=p_value",
+  "exchanges": [
+    {
+      "fetched": 1795125383,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 500,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"_embedded":{"associations":[{"association_id":6110,"risk_frequency":"0.38","pvalue_description":"","pvalue_mantissa":2,"pvalue_exponent":-76,"multi_snp_haplotype":false,"snp_interaction":false,"range":"[1.23-1.30]","or_per_copy_num":1.26,"or_value":"1.26","beta":"-","p_value":2.0E-76,"efo_traits":[{"efo_id":"MONDO_0004989","efo_trait":"breast carcinoma"}],"reported_trait":["Breast cancer"],"accession_id":"GCST000035","locations":["10:121592803"],"mapped_genes":["FGFR2"],"bg_efo_traits":[],"pubmed_id":"17529967","first_author":"Easton DF","ci_lower":1.23,"ci_upper":1.3,"snp_effect_allele":["rs2981582-A"],"snp_allele":[{"rs_id":"rs2981582","effect_allele":"A"}],"_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/6110"},"loci":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/6110/loci"},"snp":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs2981582"}}}]},"_links":{"first":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=0&size=1&sort=p_value"},"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=0&size=1&sort=p_value"},"next":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=1&size=1&sort=p_value"},"last":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&pubmed_id=17529967&page=5&size=1&sort=p_value"}},"page":{"size":1,"totalElements":6,"totalPages":6,"number":0}}
+      }
+    }
+  ]
+}

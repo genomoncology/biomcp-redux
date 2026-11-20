@@ -85,7 +85,7 @@
     "section_limit": {
       "description": "Maximum native rows; omitted means five rows, or one regulatory fragment.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 200,
       "minimum": 1,
       "type": "integer"
     },

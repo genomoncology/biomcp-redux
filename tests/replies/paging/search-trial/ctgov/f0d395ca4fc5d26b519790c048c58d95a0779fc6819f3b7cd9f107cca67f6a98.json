@@ -1,0 +1,39 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId&pageSize=24&query.cond=%28melanoma%29&query.intr=%28%28%22IMCgp%20100%22%20OR%20%22IMCGP-100%22%20OR%20%22Imcgp100%22%20OR%20%22IMMTAC%20IMCGP100%22%20OR%20%22ImmTAC%20IMCgpgp%20100%22%20OR%20%22Kimmtrak%22%20OR%20%22tebentafusp%22%20OR%20%22Tebentafusp%20tebn%22%20OR%20%22Tebentafusp-tebn%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1795117195,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 228,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":20,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT02535078"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT07803562"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06246149"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT05315258"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT05549297"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT02570308"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT02889861"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT01209676"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT07057596"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06627244"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06414590"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT03070392"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT07203391"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT07063875"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06070012"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT04960891"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06626516"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT01211262"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT07276386"}}},
+{"protocolSection":{"identificationModule":{"nctId":"NCT05415072"}}}
+]}
+      }
+    }
+  ]
+}

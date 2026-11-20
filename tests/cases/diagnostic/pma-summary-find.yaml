@@ -82,7 +82,7 @@
           "summary",
           "--find",
           "LoD",
-          "--section-offset",
+          "--offset",
           "3",
           "--source",
           "fda-pma"

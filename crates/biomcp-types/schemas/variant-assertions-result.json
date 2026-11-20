@@ -3363,7 +3363,7 @@
         "limit": {
           "description": "Assertions per page; omitted uses the native source default.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": "integer"
         },

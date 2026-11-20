@@ -117,6 +117,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
                 .get_arguments()
                 .filter(|argument| !argument.is_hide_set())
                 .filter_map(|argument| argument.get_long())
+                .filter_map(|name| super::paging::listed(command, spelling, name))
                 .map(|name| biodata::Text::new(&format!("--{name}")).ok())
                 .collect::<Option<Vec<_>>>()?;
             let message = ErrorMessage::ArgumentUnknown;
@@ -294,9 +295,8 @@ pub(super) fn checked_invalid(
     let usage = super::validation::checked(verb, entity, value, cause)
         .map(|mut arguments| {
             let names: Vec<_> = cause.arguments().iter().map(AsRef::as_ref).collect();
-            let corrected = super::recovery::trial_first_page(via, (verb, entity), value, cause)
-                .or_else(|| super::recovery::markets(via, (verb, entity), value, cause))
-                .or_else(|| {
+            let corrected =
+                super::recovery::markets(via, (verb, entity), value, cause).or_else(|| {
                     super::validation::schema(verb, entity).and_then(|schema| {
                         super::recovery::corrected(
                             via,

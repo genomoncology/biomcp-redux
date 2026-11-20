@@ -15,11 +15,11 @@
 //! as they load leniently, and read the same text.
 
 use super::fonts::entry;
-use super::lexer::{Read, header, integer, measure, skip_space};
+use super::lexer::{Read, header, integer, measure, object, skip_space};
 use super::xref::{index, payload, small_dictionary, whole};
 use Refusal::{Expired, Irregular, TooLarge};
 use lopdf::{Dictionary, Object, Stream};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Most bytes one object or cross-reference stream may expand to while loading.
 pub(super) const LOAD_STREAM_BYTES: usize = 1 << 20;
@@ -52,8 +52,14 @@ pub(super) fn loadable(bytes: &[u8], expired: &dyn Fn() -> bool) -> Read<()> {
     for (number, offset) in &table.entries {
         offsets.entry(*number).or_default().push(*offset);
     }
+    // A section that lists an object at the offset another lists is the same definition.
+    for listed in offsets.values_mut() {
+        listed.sort_unstable();
+        listed.dedup();
+    }
     let mut lengths = Lengths {
         offsets,
+        compressed: table.compressed.clone(),
         known: BTreeMap::new(),
     };
     let mut listed: Vec<(usize, u64)> = table.entries.iter().map(|(n, at)| (*at, *n)).collect();
@@ -125,15 +131,21 @@ fn indirect(
     Ok(after + b"endstream".len())
 }
 
-/// Each object's offsets in every section, and the `/Length` values already read.
+/// Each object's offsets in every section, the objects any section places in an object stream,
+/// and the `/Length` values already read.
 struct Lengths {
     offsets: BTreeMap<u64, Vec<usize>>,
+    compressed: BTreeSet<u64>,
     known: BTreeMap<u64, usize>,
 }
 
 impl Lengths {
-    /// A stream's `/Length`, direct or held in a short integer object that every section
-    /// agrees on; each such object is read once.
+    /// A stream's `/Length`, direct or held in another object. lopdf takes that object from the
+    /// newest section, which may place it in an object stream the measuring does not read: a
+    /// length of 10 here and 400,000 there once made lopdf copy overlapping data, 2.48 GB from
+    /// 925 KB (1068 fourth review). So the object must have exactly one definition in the file,
+    /// outside any object stream, and hold a plain integer; anything else is damaged. Each such
+    /// object is read once.
     fn of(&mut self, bytes: &[u8], dictionary: &Dictionary) -> Read<usize> {
         let number = match entry(dictionary, b"Length") {
             Some(Object::Reference((number, _))) => u64::from(*number),
@@ -142,17 +154,18 @@ impl Lengths {
         if let Some(known) = self.known.get(&number) {
             return Ok(*known);
         }
-        let mut value = None;
-        for offset in self.offsets.get(&number).ok_or(Irregular)? {
-            let (_, body) = header(bytes, *offset)?;
-            let at = skip_space(bytes, body);
-            let (read, end) = integer(bytes, at)?;
-            if end - at > LENGTH_OBJECT || value.is_some_and(|value| value != read) {
-                return Err(Irregular);
-            }
-            value = Some(read);
+        if self.compressed.contains(&number) {
+            return Err(Irregular);
         }
-        let length = index(value.ok_or(Irregular)?)?;
+        let [offset] = self.offsets.get(&number).map_or(&[][..], Vec::as_slice) else {
+            return Err(Irregular);
+        };
+        let (listed, body) = header(bytes, *offset)?;
+        let (value, end) = object(bytes, body)?;
+        if listed != number || end - skip_space(bytes, body) > LENGTH_OBJECT {
+            return Err(Irregular);
+        }
+        let length = index(whole(Some(&value))?)?;
         self.known.insert(number, length);
         Ok(length)
     }

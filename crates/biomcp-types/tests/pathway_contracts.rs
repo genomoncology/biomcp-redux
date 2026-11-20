@@ -152,7 +152,7 @@ fn source_owned_sections_and_continuations_refuse_unavailable_relations() {
             .is_err()
     );
     for q in [
-        json!({"id":"R-HSA-5673001","limit":51}),
+        json!({"id":"R-HSA-5673001","limit":201}),
         json!({"id":"R-HSA-5673001","limit":0}),
     ] {
         assert!(serde_json::from_value::<PathwayGenesQuery>(q.clone()).is_err());
