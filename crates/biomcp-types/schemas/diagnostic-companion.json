@@ -21,18 +21,36 @@
       ],
       "type": "string"
     },
+    "Reply_CompanionColumn": {
+      "description": "A companion row cell that `--name` searches.",
+      "enum": [
+        "diagnostic",
+        "drug"
+      ],
+      "type": "string"
+    },
     "Reply_CompanionDiagnosticRow": {
-      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.\nBoth kinds lead with the row date and shared cell names copied as text from FDA's original cells.",
+      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.\nEach of FDA's cells is a named field holding its text once; both kinds lead with the row date\nand the names both tables share.",
       "oneOf": [
         {
           "description": "One complete native individual table row.",
           "properties": {
-            "cells": {
-              "$ref": "#/$defs/Reply_CompanionIndividualCells",
-              "description": "Whole cells keyed by this table’s exact headers."
+            "biomarker": {
+              "description": "FDA's \"Biomarker(s)\" cell text.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "biomarker_details": {
+              "description": "FDA's \"Biomarker(s) (Details)\" cell text.",
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "device": {
-              "description": "FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.",
+              "description": "FDA's device cell text: the device number and date (a PMA, 510(k) or De Novo number); not the test's name, which is in diagnostic.",
               "type": [
                 "string",
                 "null"
@@ -46,23 +64,23 @@
               "type": "array"
             },
             "diagnostic": {
-              "description": "Diagnostic name and manufacturer cell text, as one line: line breaks and runs of spaces read as one space, so both tables name a test alike.",
+              "description": "FDA's diagnostic name and manufacturer cell text, as one line: line breaks and runs of spaces read as one space, so both tables name a test alike.",
               "type": [
                 "string",
                 "null"
               ]
             },
             "drug": {
-              "description": "Drug cell text; in the group table, the drug group cell.",
+              "description": "FDA's drug cell text; in the group table, the drug group cell.",
               "type": [
                 "string",
                 "null"
               ]
             },
             "drug_applications": {
-              "description": "Unambiguous typed applications owned by this row’s drug cell.",
+              "description": "Unambiguous typed applications owned by this row’s drug cell; each one's link is in links.drug.",
               "items": {
-                "$ref": "#/$defs/Reply_DiagnosticDrugApplication"
+                "$ref": "#/$defs/Reply_FdaDrugApplication"
               },
               "type": "array"
             },
@@ -73,7 +91,7 @@
               "type": "integer"
             },
             "indication": {
-              "description": "Indication and sample type cell text, as one line.",
+              "description": "FDA's indication and sample type cell text, as one line.",
               "type": [
                 "string",
                 "null"
@@ -83,6 +101,17 @@
               "const": "individual",
               "type": "string"
             },
+            "links": {
+              "$ref": "#/$defs/Reply_CompanionLinks",
+              "description": "Links inside FDA's cells, under the name of the cell that holds them."
+            },
+            "name_match": {
+              "description": "The cells whose text holds the `--name` text; absent without `--name`.",
+              "items": {
+                "$ref": "#/$defs/Reply_CompanionColumn"
+              },
+              "type": "array"
+            },
             "row_date": {
               "anyOf": [
                 {
@@ -93,29 +122,19 @@
                 }
               ],
               "description": "Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems."
-            },
-            "snapshot": {
-              "description": "Immutable local snapshot revision, not a publisher row ID.",
-              "type": "string"
             }
           },
           "required": [
             "kind",
-            "snapshot",
-            "index",
-            "cells"
+            "index"
           ],
           "type": "object"
         },
         {
           "description": "One complete native group table row.",
           "properties": {
-            "cells": {
-              "$ref": "#/$defs/Reply_CompanionGroupCells",
-              "description": "Whole cells keyed by this table’s exact headers."
-            },
             "device": {
-              "description": "FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.",
+              "description": "FDA's device cell text: the device number and date (a PMA, 510(k) or De Novo number); not the test's name, which is in diagnostic.",
               "type": [
                 "string",
                 "null"
@@ -129,23 +148,23 @@
               "type": "array"
             },
             "diagnostic": {
-              "description": "Diagnostic name and manufacturer cell text, as one line: line breaks and runs of spaces read as one space, so both tables name a test alike.",
+              "description": "FDA's diagnostic name and manufacturer cell text, as one line: line breaks and runs of spaces read as one space, so both tables name a test alike.",
               "type": [
                 "string",
                 "null"
               ]
             },
             "drug": {
-              "description": "Drug cell text; in the group table, the drug group cell.",
+              "description": "FDA's drug cell text; in the group table, the drug group cell.",
               "type": [
                 "string",
                 "null"
               ]
             },
             "drug_applications": {
-              "description": "Unambiguous typed applications owned by this row’s drug cell.",
+              "description": "Unambiguous typed applications owned by this row’s drug cell; each one's link is in links.drug.",
               "items": {
-                "$ref": "#/$defs/Reply_DiagnosticDrugApplication"
+                "$ref": "#/$defs/Reply_FdaDrugApplication"
               },
               "type": "array"
             },
@@ -156,7 +175,7 @@
               "type": "integer"
             },
             "indication": {
-              "description": "Indication and sample type cell text, as one line.",
+              "description": "FDA's indication and sample type cell text, as one line.",
               "type": [
                 "string",
                 "null"
@@ -165,6 +184,17 @@
             "kind": {
               "const": "group",
               "type": "string"
+            },
+            "links": {
+              "$ref": "#/$defs/Reply_CompanionLinks",
+              "description": "Links inside FDA's cells, under the name of the cell that holds them."
+            },
+            "name_match": {
+              "description": "The cells whose text holds the `--name` text; absent without `--name`.",
+              "items": {
+                "$ref": "#/$defs/Reply_CompanionColumn"
+              },
+              "type": "array"
             },
             "row_date": {
               "anyOf": [
@@ -176,86 +206,62 @@
                 }
               ],
               "description": "Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems."
-            },
-            "snapshot": {
-              "description": "Immutable local snapshot revision, not a publisher row ID.",
-              "type": "string"
             }
           },
           "required": [
             "kind",
-            "snapshot",
-            "index",
-            "cells"
+            "index"
           ],
           "type": "object"
         }
       ]
     },
-    "Reply_CompanionGroupCells": {
-      "description": "Known native group-table cells keyed by their exact source headers.",
+    "Reply_CompanionLinks": {
+      "description": "Each cell's links in FDA's order; a cell without links is absent.",
       "properties": {
-        "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original drug_group cell."
+        "biomarker": {
+          "description": "Links in the individual table's biomarker cell.",
+          "items": {
+            "$ref": "#/$defs/Reply_DiagnosticCellLink"
+          },
+          "type": "array"
         },
-        "Diagnostic Name\n(Manufacturer)": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original diagnostic cell."
+        "biomarker_details": {
+          "description": "Links in the individual table's biomarker details cell.",
+          "items": {
+            "$ref": "#/$defs/Reply_DiagnosticCellLink"
+          },
+          "type": "array"
         },
-        "Indication(s) - Sample Type": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original indication cell."
+        "device": {
+          "description": "Links in the device cell.",
+          "items": {
+            "$ref": "#/$defs/Reply_DiagnosticCellLink"
+          },
+          "type": "array"
         },
-        "PMA (Approval Date)": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original device cell."
+        "diagnostic": {
+          "description": "Links in the diagnostic cell.",
+          "items": {
+            "$ref": "#/$defs/Reply_DiagnosticCellLink"
+          },
+          "type": "array"
+        },
+        "drug": {
+          "description": "Links in the drug cell.",
+          "items": {
+            "$ref": "#/$defs/Reply_DiagnosticCellLink"
+          },
+          "type": "array"
+        },
+        "indication": {
+          "description": "Links in the indication cell.",
+          "items": {
+            "$ref": "#/$defs/Reply_DiagnosticCellLink"
+          },
+          "type": "array"
         }
       },
-      "required": [
-        "Diagnostic Name\n(Manufacturer)",
-        "Indication(s) - Sample Type",
-        "PMA (Approval Date)",
-        "Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA"
-      ],
-      "type": "object"
-    },
-    "Reply_CompanionIndividualCells": {
-      "description": "Known native individual-table cells keyed by their exact source headers.",
-      "properties": {
-        "Biomarker(s)": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original biomarker cell."
-        },
-        "Biomarker(s) (Details)": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original details cell."
-        },
-        "Diagnostic Name (Manufacturer)": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original diagnostic cell."
-        },
-        "Drug Trade Name (Generic) NDA / BLA": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original drug cell."
-        },
-        "Indication - Sample Type": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original indication cell."
-        },
-        "PMA / 510(k) /\n513(f)(2) / HDE (Approval / Clearance / Grant Date)": {
-          "$ref": "#/$defs/Reply_DiagnosticCell",
-          "description": "Complete original device cell."
-        }
-      },
-      "required": [
-        "Diagnostic Name (Manufacturer)",
-        "Indication - Sample Type",
-        "Drug Trade Name (Generic) NDA / BLA",
-        "Biomarker(s)",
-        "Biomarker(s) (Details)",
-        "PMA / 510(k) /\n513(f)(2) / HDE (Approval / Clearance / Grant Date)"
-      ],
       "type": "object"
     },
     "Reply_DiagnosticAggregate": {
@@ -267,26 +273,6 @@
       "x-enum-descriptions": [
         "Matching 510(k) records by FDA product code, from openFDA's count facet."
       ]
-    },
-    "Reply_DiagnosticCell": {
-      "description": "Whole physical source-table cell and its own links.",
-      "properties": {
-        "links": {
-          "description": "Only links physically owned by this cell, in native order.",
-          "items": {
-            "$ref": "#/$defs/Reply_DiagnosticCellLink"
-          },
-          "type": "array"
-        },
-        "text": {
-          "description": "Original complete text, including empty strings and line breaks.",
-          "type": "string"
-        }
-      },
-      "required": [
-        "text"
-      ],
-      "type": "object"
     },
     "Reply_DiagnosticCellLink": {
       "description": "Source link without a name-based identity inference.",
@@ -310,7 +296,7 @@
       "type": "object"
     },
     "Reply_DiagnosticCompanion": {
-      "description": "Whole distinct physical companion-table rows with cell-owned identifiers.",
+      "description": "Whole distinct physical companion-table rows, each cell's text stated once, with cell-owned identifiers.",
       "properties": {
         "count_unit": {
           "anyOf": [
@@ -338,6 +324,13 @@
             "$ref": "#/$defs/Reply_CompanionDiagnosticRow"
           },
           "type": "array"
+        },
+        "snapshot": {
+          "description": "Immutable local snapshot revision every row of this page was read from, not a publisher row ID.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "type": "object"
@@ -358,25 +351,6 @@
       "description": "Source device identifier; DEN and H identifiers imply no executable get.",
       "pattern": "^(P[0-9]{6}(/S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2}))?|K[0-9]{6}|DEN[0-9]{6}|H[0-9]{6})$",
       "type": "string"
-    },
-    "Reply_DiagnosticDrugApplication": {
-      "description": "A typed drug application established by its own complete source cell and link.",
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/Reply_FdaDrugApplication",
-          "description": "Published NDA/BLA prefix and six digits."
-        },
-        "url": {
-          "description": "The same cell’s owned source URL.",
-          "format": "uri",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "url"
-      ],
-      "type": "object"
     },
     "Reply_DiagnosticSearch": {
       "description": "Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.",
@@ -661,12 +635,13 @@
               "type": "null"
             }
           ],
-          "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional.",
+          "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional. FDA CDx: whole name, any case, in a row's diagnostic or drug cell; name_match says which.",
           "x-required-component": [
             "gtr",
             "fda-pma",
             "fda-510k",
-            "fda-device-recall"
+            "fda-device-recall",
+            "fda-cdx"
           ]
         },
         "offset": {
@@ -1573,7 +1548,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-companion/5",
+  "$id": "biomcp.diagnostic-companion/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1650,7 +1625,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic-companion/5",
+      "const": "biomcp.diagnostic-companion/6",
       "type": "string"
     },
     "sources": {

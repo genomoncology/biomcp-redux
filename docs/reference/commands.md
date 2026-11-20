@@ -1064,7 +1064,7 @@ Options:
 
       --name <name>
           Source test or device name.
-          Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional.
+          Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional. FDA CDx: whole name, any case, in a row's diagnostic or drug cell; name_match says which.
 
       --offset <offset>
           Zero-based source result offset.
@@ -1147,7 +1147,7 @@ WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phra
 - `--marker`: WHO marker phrase.
 Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string; example: --marker HIV; only with --source who-ivd.
 - `--name`: Source test or device name.
-Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional. Value form: string; example: --name 'FoundationOne CDx'; only with --source gtr, fda-pma, fda-510k or fda-device-recall.
+Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional. FDA CDx: whole name, any case, in a row's diagnostic or drug cell; name_match says which. Value form: string; example: --name 'FoundationOne CDx'; only with --source gtr, fda-pma, fda-510k, fda-device-recall or fda-cdx.
 - `--offset`: Zero-based source result offset. Value form: integer; example: --offset 5.
 - `--prequalified-from`: WHO IVD year.
 First prequalification year included, YYYY; WHO publishes only the year. Value form: string; example: --prequalified-from 2023; only with --source who-ivd.
