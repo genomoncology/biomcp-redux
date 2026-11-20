@@ -99,7 +99,17 @@ impl Leg<'_> {
             .0
             .get()
             .map_or_else(|| "unknown".to_owned(), |n| format!("{n} bytes"));
-        let message = format!("The first-read fetch {reason}. Source size: {bytes}.");
+        let mut message = format!("The first-read fetch {reason}. Source size: {bytes}.");
+        // Local quota errors also carry a delay, but have no publisher response status.
+        if let RequestError::Source(source) = error
+            && source.status.is_some()
+            && let Some(delay) = source.retry_after
+        {
+            let seconds = delay
+                .as_secs()
+                .saturating_add(u64::from(delay.subsec_nanos() != 0));
+            message.push_str(&format!(" Publisher Retry-After was {seconds} seconds."));
+        }
         let until = now().saturating_add(self.fetch.config.auto_sync_retry_seconds.into());
         self.first_notice(message.clone(), until);
         // Persist the failure even when the download used all of its time.
