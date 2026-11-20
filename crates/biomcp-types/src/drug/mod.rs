@@ -29,7 +29,7 @@ pub use response::{
     DrugNameResolution, DrugPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets,
     DrugXrefs,
 };
-pub use search::{DrugFdaSort, DrugSearch};
+pub use search::{DrugFdaSort, DrugSearch, LabelApplicationType};
 mod sections;
 pub use sections::{
     DrugApprovalsPart, DrugCivicPart, DrugIndicationsPart, DrugInteractionsPart, DrugLabelPart,

@@ -1,4 +1,4 @@
-//! Source-scoped openFDA label identities, name discovery and literal indication search.
+//! Source-scoped openFDA label identities, name discovery and literal label-field search.
 use biomcp_fetch::{SourceSpec, Terms};
 use biomcp_types::Source;
 use std::time::Duration;
@@ -23,6 +23,7 @@ mod excerpts;
 mod map;
 mod page;
 mod raw;
+mod sentence;
 mod text_name;
 mod wire;
 use biodata::{DrugId, Text};
@@ -55,7 +56,7 @@ pub struct Page {
 use biomcp_types::openfda_phrase as literal;
 mod search;
 pub use search::{
-    NameGroup, NameStep, Search, search, search_expanded, search_indication, search_names,
+    NameGroup, NameStep, Search, scope, search, search_expanded, search_names, search_scoped,
 };
 fn normalize_name(value: &str) -> String {
     value

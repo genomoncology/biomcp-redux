@@ -51,6 +51,7 @@ impl Therapy {
         Some(DrugHeader {
             name_resolution: None,
             matched_name: None,
+            matched_sentence: None,
             id: cx.optional("id", Some(id.to_string().parse()))?,
             source: DrugSource::Civic,
             version: None,

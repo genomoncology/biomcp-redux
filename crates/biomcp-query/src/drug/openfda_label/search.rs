@@ -37,9 +37,9 @@ pub(in crate::drug) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let discovery = if let Some(saved) = expanded.as_mut() {
         names::search(&leg, query, saved)
     } else {
-        match (query.indication(), query.query()) {
-            (Some(indication), name) => {
-                source::search_indication(&leg, indication, name, query.limit(), query.offset())
+        match (source::scope(query), query.query()) {
+            (Some(scope), name) => {
+                source::search_scoped(&leg, &scope, name, query.limit(), query.offset())
             }
             (None, Some(name)) => source::search(&leg, name, query.limit(), query.offset()),
             (None, None) => return super::super::unsupported(query.source(), out),
@@ -66,6 +66,7 @@ pub(in crate::drug) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         window.is_some(),
         &mut out,
     );
+    search_page::mechanism(query, &mut out);
     disclosure(&mut out, discovery.free_text);
     if let Some(window) = window {
         let total = window.total().unwrap_or(0);

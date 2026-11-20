@@ -69,6 +69,10 @@
           ],
           "description": "Complete native name fields matching the search input; omitted outside label searches."
         },
+        "matched_sentence": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "The label sentence holding the searched mechanism wording; openFDA label mechanism searches only."
+        },
         "name": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Original source display name."
@@ -280,7 +284,7 @@
       ]
     },
     "Reply_DrugSearch": {
-      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
       "properties": {
         "applicant": {
           "anyOf": [
@@ -293,6 +297,15 @@
           ],
           "description": "Applicant name start; Drugs@FDA only.\nMatches native sponsor_name values starting with this text, ignoring letter case;\nno company-family or subsidiary inference. An optional name narrows the same search.",
           "x-required-component": "drugsfda"
+        },
+        "application_type": {
+          "description": "Label application types to keep; openFDA labels only.\nBy openFDA application_number prefix; nda,bla leaves out generics (ANDA).",
+          "items": {
+            "$ref": "#/$defs/Reply_LabelApplicationType"
+          },
+          "type": "array",
+          "x-comma-separated": true,
+          "x-required-component": "openfda-label"
         },
         "approved_from": {
           "anyOf": [
@@ -387,6 +400,11 @@
           "minimum": 1,
           "type": "integer"
         },
+        "mechanism_of_action": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Literal label mechanism of action; openFDA labels only.\nSearch the source Mechanism of Action field for this wording; no synonyms or drug class\ninference, so labels wording the mechanism differently are not returned.",
+          "x-required-component": "openfda-label"
+        },
         "name_selector": {
           "$ref": "#/$defs/Reply_DrugNameSelector",
           "description": "ChEMBL name selector.\nOmit to search the preferred name.",
@@ -436,7 +454,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase.\nFDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
+          "description": "Drug name phrase.\nFDA drug recalls, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
           "x-positional": 0
         },
         "reason": {
@@ -544,6 +562,15 @@
         "source"
       ],
       "type": "object"
+    },
+    "Reply_LabelApplicationType": {
+      "description": "An openFDA label's FDA application type, read from the prefix of openFDA's application_number.",
+      "enum": [
+        "nda",
+        "anda",
+        "bla"
+      ],
+      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",

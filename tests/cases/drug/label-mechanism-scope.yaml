@@ -1,0 +1,48 @@
+{
+  "feature": "drug-label-mechanism",
+  "story": "A named search that falls back to label text reports the selector sent to openFDA, including both filters.",
+  "replay": "drug/label-mechanism",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "openfda-label",
+        "kinase",
+        "--mechanism-of-action",
+        "Janus kinase",
+        "--application-type",
+        "nda",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/sources/0/term": "(\"kinase\") AND mechanism_of_action:\"Janus kinase\" AND openfda.application_number:(NDA*)"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "openfda-label",
+        "kinase",
+        "--mechanism-of-action",
+        "Janus kinase",
+        "--application-type",
+        "nda",
+        "--limit",
+        "1",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/sources/0/term": "(\"kinase\") AND mechanism_of_action:\"Janus kinase\" AND openfda.application_number:(NDA*)"
+      }
+    }
+  ]
+}

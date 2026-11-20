@@ -200,8 +200,9 @@ pub use drug::{
     DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugRegulatoryPart,
     DrugSearch, DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections,
     DrugSource, DrugTargets, DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow,
-    DrugXrefs, DrugXrefsPart, LabelHistorySection, LabelVersion, LabelVersionMatch,
-    LabelVersionState, OPENFDA_LABEL_HEADINGS, WhoDateStatus, openfda_label_field,
+    DrugXrefs, DrugXrefsPart, LabelApplicationType, LabelHistorySection, LabelVersion,
+    LabelVersionMatch, LabelVersionState, OPENFDA_LABEL_HEADINGS, WhoDateStatus,
+    openfda_label_field,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};

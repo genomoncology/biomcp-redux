@@ -93,8 +93,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "drug",
-        "Drugs and medicines by brand, generic or code name: targets, indications, FDA \
-         approvals, EMA status, label text, interactions and recalls",
+        "Drugs by brand, generic or code name, label indication or mechanism of action. \
+         Targets, FDA approvals, EMA status, label text, interactions and recalls",
         &[
             ("search", "search_drug", ""),
             ("get", "get_drug", ""),

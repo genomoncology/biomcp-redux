@@ -31,6 +31,7 @@ impl RawRecord {
         Ok(DrugHeader {
             name_resolution: None,
             matched_name: None,
+            matched_sentence: None,
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
             version: self.version.clone(),
@@ -163,6 +164,19 @@ impl Record {
     pub fn header(&self) -> Result<DrugHeader, RequestError> {
         self.0.header()
     }
+    /// Map a mechanism search row with all brands named by the same label.
+    pub fn mechanism_header(&self) -> Result<DrugHeader, RequestError> {
+        let mut header = self.0.header()?;
+        if let Some(brands) = &self.0.openfda.brand_name
+            && brands.len() > 1
+        {
+            let names: Vec<_> = brands.iter().map(|name| name.as_str()).collect();
+            header.name = Some(Text::from_source(&names.join(", ")).map_err(|_| {
+                biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+            })?);
+        }
+        Ok(header)
+    }
     /// Map the source card and original retrieval date.
     pub fn card(&self, retrieved: Option<PartialDate>) -> Result<DrugCard, RequestError> {
         self.0.card(retrieved)
@@ -222,6 +236,10 @@ impl Record {
                 .parts("indications_and_usage")
                 .map_or(0, numbered_indications),
         }
+    }
+    /// The first sentence of a heading that holds a phrase's words in order, as openFDA matches them.
+    pub fn sentence(&self, heading: &str, phrase: &str) -> Result<Option<Text>, RequestError> {
+        self.0.sentence(heading, phrase)
     }
     /// Preserve search's existing complete-name and spacing normalization.
     pub fn name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {

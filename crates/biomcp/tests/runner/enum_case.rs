@@ -193,7 +193,7 @@ fn parameter(
     let property = field(field(schema, "properties"), key);
     let array = resolved(property, schema).get("type") == Some(&json!("array"));
     let value = |text: &str| if array { json!([text]) } else { json!(text) };
-    context(verb, entity, key, &mut values)?;
+    context(verb, entity, key, schema, &mut values)?;
     values.insert(key.into(), value(canonical));
     let expected = cli(env, &argv(verb, entity, schema, &values))?;
     if expected.get("query").is_none() {
@@ -258,7 +258,7 @@ fn listed_value(
     word: &str,
 ) -> Result<(), String> {
     let mut values = seed(verb, entity, schema)?;
-    context(verb, entity, key, &mut values)?;
+    context(verb, entity, key, schema, &mut values)?;
     let property = field(field(schema, "properties"), key);
     if let Some(scope) = choice_node(property, schema).get("x-enum-by-field") {
         scope_for(scope, word, &mut values);
@@ -513,8 +513,19 @@ fn context(
     verb: &str,
     entity: &str,
     key: &str,
+    schema: &Value,
     values: &mut Map<String, Value>,
 ) -> Result<(), String> {
+    let properties = field(schema, "properties");
+    let source = resolved(field(properties, "source"), schema);
+    if let Some(component) = field(properties, key).get("x-required-component")
+        && source
+            .get("enum")
+            .and_then(Value::as_array)
+            .is_some_and(|choices| choices.contains(component))
+    {
+        values.insert("source".into(), component.clone());
+    }
     let extra = match (verb, entity, key) {
         ("get", "drug", key) if key == "civic_kind" || key.starts_with("evidence_") => {
             json!({"source":"civic", "section":["civic"], "civic_kind":"evidence"})
@@ -523,14 +534,8 @@ fn context(
             json!({"section":["civic"], "civic_kind":"evidence", "civic_profile":1})
         }
         ("get", "variant", "clinvar_kind") => json!({"section":["clinvar"]}),
-        ("get", "pgx", "kind") => json!({"source":"clinpgx", "section":"annotations"}),
+        ("get", "pgx", "kind") => json!({"section":"annotations"}),
         ("get", "disease", "ontology") => json!({"source":"ols"}),
-        ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),
-        ("search", "diagnostic", "classification") => json!({"source":"fda-device-recall"}),
-        ("search", "diagnostic", "sort") => json!({"source":"fda-cdx"}),
-        ("search", "diagnostic", "aggregate") => json!({"source":"fda-510k"}),
-        ("search", "drug", "name_selector") => json!({"source":"chembl"}),
-        ("search", "drug", "sort") => json!({"source":"drugsfda"}),
         ("search", "adverse-event", "section" | "sort") => {
             json!({"source":"vaers", "text":"COVID19"})
         }
