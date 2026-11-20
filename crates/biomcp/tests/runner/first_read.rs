@@ -10,10 +10,10 @@ type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     vec![
         super::transcript::trial("diagnostic-cdx/first-read-fetches-the-list", || {
-            companion(None).map_err(Into::into)
+            companion().map_err(Into::into)
         }),
         super::transcript::trial("diagnostic-cdx/over-limit-first-read-asks-for-sync", || {
-            companion(Some(1000)).map_err(Into::into)
+            backoff().map_err(Into::into)
         }),
         super::transcript::trial("diagnostic-cdx/offline-first-read-never-fetches", || {
             offline().map_err(Into::into)
@@ -85,19 +85,12 @@ fn words(args: &[&str]) -> Vec<String> {
     args.iter().map(|word| (*word).to_owned()).collect()
 }
 
-/// Without a sync, the first companion search answers; over the size limit it still asks.
-fn companion(limit: Option<u64>) -> Check {
-    let extra = limit.map_or_else(|| json!({}), |max| json!({"auto_sync_max_bytes": max}));
-    let (env, stub) = live("www.fda.gov", "diagnostic/fda-cdx-synthetic/fda-cdx", extra)?;
-    let search = words(&[
-        "search",
-        "diagnostic",
-        "--source",
-        "fda-cdx",
-        "--biomarker",
-        "KRAS",
-    ]);
-    let reply = invoke(&env, search, if limit.is_some() { 4 } else { 0 })?;
+const COMPANION: &str = "diagnostic/fda-cdx-synthetic/fda-cdx";
+const SEARCH: &[&str] = &["search", "diagnostic", "--source", "fda-cdx", "--biomarker", "KRAS"];
+
+fn companion() -> Check {
+    let (env, stub) = live("www.fda.gov", COMPANION, json!({}))?;
+    let reply = invoke(&env, words(SEARCH), 0)?;
     stub.finish()?;
     let answered = reply.get("status") == Some(&json!("complete"))
         && reply.pointer("/sources/0/state") == Some(&json!("ok"))
@@ -106,12 +99,37 @@ fn companion(limit: Option<u64>) -> Check {
             .and_then(Value::as_u64)
             .unwrap_or(0)
             > 0;
-    let asks = reply.pointer("/sources/0/state") == Some(&json!("syncing"))
-        && reply.pointer("/next/0/args") == Some(&json!(["sync", "fda-cdx"]));
-    if limit.is_none() && !answered || limit.is_some() && !asks {
-        return Err(format!(
-            "first companion read with limit {limit:?}: {reply}"
-        ));
+    if !answered {
+        return Err(format!("first companion read: {reply}"));
+    }
+    Ok(())
+}
+
+/// Separate CLI readers share a failed first fetch and explicit sync can recover immediately.
+fn backoff() -> Check {
+    let (env, stub) = live("www.fda.gov", COMPANION, json!({"auto_sync_max_bytes":1000}))?;
+    let size = bodies(COMPANION)?[0].1.len();
+    let mut replies = Vec::new();
+    for _ in 0..3 {
+        replies.push(invoke(&env, words(SEARCH), 4)?);
+    }
+    invoke(&env, words(&["sync", "fda-cdx"]), 0)?;
+    invoke(&env, words(SEARCH), 0)?;
+    let requests = stub.finish()?;
+    if requests.len() != 2 {
+        return Err(format!("expected one first fetch and one explicit sync, saw {} requests: {replies:?}", requests.len()));
+    }
+    for reply in replies {
+        let notice = &reply["sources"][0]["notices"][0];
+        let message = notice["message"].as_str().unwrap_or_default();
+        if reply.pointer("/next/0/args") != Some(&json!(["sync", "fda-cdx"]))
+            || !message.contains("fetch")
+            || !message.contains("size limit")
+            || !message.contains(&format!("{size} bytes"))
+            || notice["retry_after_seconds"].as_u64().unwrap_or(0) == 0
+        {
+            return Err(format!("missing first-fetch guidance: {reply}"));
+        }
     }
     Ok(())
 }
