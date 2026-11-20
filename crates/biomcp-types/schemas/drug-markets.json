@@ -157,7 +157,7 @@
       "type": "string"
     },
     "Reply_DrugMarkets": {
-      "description": "One row per market, always in the order drugsfda, ema, who-pq.",
+      "description": "One row per market read, in the order drugsfda, ema, who-pq; `--source` reads one market.",
       "properties": {
         "markets": {
           "description": "Each market's row from its own source; a market without a record says so.",
@@ -181,12 +181,23 @@
           "x-positional": 0
         },
         "section": {
-          "description": "The markets section, alone; it takes no source.",
+          "description": "The markets section, alone.",
           "items": {
             "$ref": "#/$defs/Reply_DrugSection"
           },
           "type": "array",
           "x-positional": 1
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugSource"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One market's source, to read only that market: drugsfda, ema or who-pq."
         }
       },
       "required": [
@@ -208,7 +219,7 @@
         " The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.",
         " Source-scoped regulator events.",
         " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
-        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.",
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; --source names one market.",
         " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
       ],
       "x-extensible-enum": [
