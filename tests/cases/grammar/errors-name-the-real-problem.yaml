@@ -186,7 +186,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--fields",
-        "/error/message": "--fields chooses columns of the rows of a search or a named section; name a section with rows, or drop --fields"
+        "/error/message": "--fields does not narrow this call yet; it narrows search rows and some sections' rows; drop --fields to read it whole"
       }
     }
   ]

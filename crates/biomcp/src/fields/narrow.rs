@@ -4,11 +4,12 @@ use super::rows::{List, Step};
 use serde_json::{Map, Value};
 use std::collections::BTreeSet;
 
-/// Narrow every row of one list that offers at least one chosen name; others stay whole.
+/// Narrow every row of one list that knows at least one chosen name or path whole; a list
+/// that knows none of them stays whole, even when it shares a path's first name.
 pub(super) fn list(value: &mut Value, list: &List, fields: &[String]) {
     let chosen = fields
         .iter()
-        .filter(|name| list.row.names.contains(head(name)))
+        .filter(|name| list.row.knows(name))
         .map(String::as_str)
         .collect::<Vec<_>>();
     if chosen.is_empty() {
@@ -19,10 +20,6 @@ pub(super) fn list(value: &mut Value, list: &List, fields: &[String]) {
             object(row, "", &chosen, &list.row.kept);
         }
     });
-}
-
-fn head(name: &str) -> &str {
-    name.split('.').next().unwrap_or(name)
 }
 
 /// Visit each value the steps reach.

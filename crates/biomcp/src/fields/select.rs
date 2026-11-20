@@ -55,10 +55,14 @@ fn help_step(path: (&str, &str)) -> Step {
     }
 }
 
-/// Whether every chosen name reaches a row of this call.
-fn fits(request: &Request, fields: &[String]) -> bool {
+/// The chosen names this call's rows know, in the caller's order.
+fn known(request: &Request, fields: &[String]) -> Vec<String> {
     let row = union(call_lists(&Call::new(request)));
-    !row.names.is_empty() && fields.iter().all(|name| row.knows(name))
+    fields
+        .iter()
+        .filter(|name| row.knows(name))
+        .cloned()
+        .collect()
 }
 
 /// Refuse chosen fields on a call without rows, and names its rows do not carry.
@@ -289,11 +293,19 @@ fn listed(row: &Row) -> String {
     format!("{names} (always kept: {})", joined(&required))
 }
 
-/// Paging, sort, restart and fresh steps keep the caller's fields when that call's rows
-/// carry them all, so a section page keeps them and a text section's page does not.
-pub(crate) fn carried(kind: StepKind, action: &Action, fields: &[String]) -> bool {
-    matches!(
-        kind,
-        StepKind::Page | StepKind::Sort | StepKind::Restart | StepKind::Fresh
-    ) && matches!(action, Action::Run { request, .. } if fits(request, fields))
+/// The chosen names a paging, sort, restart or fresh step keeps: those its own call's rows
+/// know, so a section's page keeps its own names and a step whose call takes none, such as
+/// a text section or a command without rows, carries no `--fields` it would refuse.
+pub(crate) fn carried(kind: StepKind, action: &Action, fields: &[String]) -> Vec<String> {
+    match action {
+        Action::Run { request, .. }
+            if matches!(
+                kind,
+                StepKind::Page | StepKind::Sort | StepKind::Restart | StepKind::Fresh
+            ) =>
+        {
+            known(request, fields)
+        }
+        _ => Vec::new(),
+    }
 }

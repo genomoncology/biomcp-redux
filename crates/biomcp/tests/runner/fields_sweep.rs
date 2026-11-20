@@ -1,6 +1,7 @@
 //! Every recorded get or subcommand case whose rows take `--fields` gives, with one chosen
-//! name, a reply that still validates against its schema and holds the same rows in the same
-//! order, each a part of its whole row (1071).
+//! name that is not always kept, a smaller reply that still validates against its schema and
+//! holds the same rows in the same order, each a part of its whole row; a call naming several
+//! sections, narrowed by a name only one of them knows, leaves the others exactly whole (1071).
 use super::{case_data, launch::Environment, response_cases};
 use serde_json::Value;
 use std::collections::BTreeSet;
@@ -13,6 +14,8 @@ pub(super) fn trial() -> libtest_mimic::Trial {
 
 /// Fewer distinct calls than this means the sweep lost its cases, not that all passed.
 const LEAST: usize = 20;
+/// The several-section calls whose untouched sections the sweep proves exactly whole.
+const LEAST_SPLITS: usize = 2;
 
 fn sweep() -> Result<(), String> {
     let root = super::launch::fixtures().join("cases");
@@ -21,6 +24,7 @@ fn sweep() -> Result<(), String> {
     paths.sort();
     let mut seen = BTreeSet::new();
     let mut narrowed = BTreeSet::new();
+    let mut splits = BTreeSet::new();
     for path in paths {
         let Ok(case) = case_data::read_case(&path) else {
             continue;
@@ -33,8 +37,13 @@ fn sweep() -> Result<(), String> {
                 continue;
             }
             let name = format!("{}: {}", path.display(), args.join(" "));
-            if check(&case, args).map_err(|error| format!("{name}: {error}"))? {
+            let (smaller, split) =
+                check(&case, args).map_err(|error| format!("{name}: {error}"))?;
+            if smaller {
                 narrowed.insert(shape(args));
+            }
+            if split {
+                splits.insert(shape(args));
             }
         }
     }
@@ -42,6 +51,12 @@ fn sweep() -> Result<(), String> {
         return Err(format!(
             "only {} calls narrowed: {narrowed:?}",
             narrowed.len()
+        ));
+    }
+    if splits.len() < LEAST_SPLITS {
+        return Err(format!(
+            "only {} several-section calls split: {splits:?}",
+            splits.len()
         ));
     }
     Ok(())
@@ -99,31 +114,86 @@ fn run(
     Ok((output.status.code(), value))
 }
 
-/// Run a call whole and with its first offered field; true when the call has rows.
-fn check(case: &case_data::Case, args: &[String]) -> Result<bool, String> {
-    let env = Environment::new().map_err(|error| error.to_string())?;
-    env.case_config(case).map_err(|error| error.to_string())?;
-    let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
-    let globals = env.globals(replay.as_deref(), false);
-    let asked = [&["--fields".to_owned(), "1071-none".to_owned()], args].concat();
-    let (_, refusal) = run(&env, &asked, &globals)?;
-    let Some(name) = refusal
-        .pointer("/error/valid_values/0")
-        .and_then(Value::as_str)
-    else {
-        return Ok(false);
-    };
-    let (code, whole) = run(&env, args, &globals)?;
+/// One recorded call run inside its case's replay.
+struct Probe {
+    env: Environment,
+    globals: Vec<String>,
+}
+
+impl Probe {
+    fn new(case: &case_data::Case) -> Result<Self, String> {
+        let env = Environment::new().map_err(|error| error.to_string())?;
+        env.case_config(case).map_err(|error| error.to_string())?;
+        let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
+        let globals = env.globals(replay.as_deref(), false);
+        Ok(Self { env, globals })
+    }
+
+    fn run(&self, fields: Option<&str>, args: &[String]) -> Result<(Option<i32>, Value), String> {
+        let mut asked = fields.map_or_else(Vec::new, |fields| {
+            vec!["--fields".to_owned(), fields.to_owned()]
+        });
+        asked.extend_from_slice(args);
+        run(&self.env, &asked, &self.globals)
+    }
+
+    /// The row names a call offers, from its refusal of a name no row has.
+    fn names(&self, args: &[String]) -> Result<Vec<String>, String> {
+        let (_, refusal) = self.run(Some("1071-none"), args)?;
+        Ok(refusal
+            .pointer("/error/valid_values")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+            .map(str::to_owned)
+            .collect())
+    }
+}
+
+/// How many offered names the sweep tries before it finds one that is not always kept.
+const TRIES: usize = 4;
+
+/// Run a call whole and with an offered name that makes its rows smaller, and split a call
+/// naming several sections; whether its rows got smaller, and whether it split.
+fn check(case: &case_data::Case, args: &[String]) -> Result<(bool, bool), String> {
+    let probe = Probe::new(case)?;
+    let names = probe.names(args)?;
+    if names.is_empty() {
+        return Ok((false, false));
+    }
+    let (code, whole) = probe.run(None, args)?;
     if !matches!(
         whole.get("status").and_then(Value::as_str),
         Some("complete" | "partial")
     ) {
-        return Ok(false);
+        return Ok((false, false));
     }
-    let asked = [&["--fields".to_owned(), name.to_owned()], args].concat();
-    let (narrow_code, narrow) = run(&env, &asked, &globals)?;
+    let mut smaller = false;
+    for name in names.iter().take(TRIES) {
+        let narrow = narrowed(&probe, args, name, code, &whole)?;
+        if size(narrow.get("result")) < size(whole.get("result")) {
+            smaller = true;
+            break;
+        }
+    }
+    let split = section_words(args).len() > 1 && split(&probe, args, &whole, code)?;
+    Ok((smaller, split))
+}
+
+/// The narrowed reply, checked: same exit, valid schema, the name echoed, the same rows.
+fn narrowed(
+    probe: &Probe,
+    args: &[String],
+    name: &str,
+    code: Option<i32>,
+    whole: &Value,
+) -> Result<Value, String> {
+    let (narrow_code, narrow) = probe.run(Some(name), args)?;
     if narrow_code != code {
-        return Err(format!("exit {narrow_code:?}, whole call {code:?}"));
+        return Err(format!(
+            "--fields {name}: exit {narrow_code:?}, whole call {code:?}"
+        ));
     }
     super::schema::Registry::embedded()?.validate(&narrow, args, true)?;
     if narrow.get("fields") != Some(&Value::from(vec![name])) {
@@ -133,9 +203,167 @@ fn check(case: &case_data::Case, args: &[String]) -> Result<bool, String> {
         ));
     }
     if !within(narrow.get("result"), whole.get("result")) {
-        return Err("narrowed rows are not the whole rows, in order, with keys left out".into());
+        return Err(format!(
+            "--fields {name}: narrowed rows are not the whole rows, in order, with keys left out"
+        ));
     }
-    Ok(true)
+    carried(probe, &narrow)?;
+    Ok(narrow)
+}
+
+/// Every next step that carries `--fields` is one its target takes, never a usage refusal.
+fn carried(probe: &Probe, reply: &Value) -> Result<(), String> {
+    let steps = reply
+        .get("next")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|step| step.get("args").and_then(Value::as_array))
+        .map(|args| {
+            args.iter()
+                .filter_map(Value::as_str)
+                .map(str::to_owned)
+                .collect::<Vec<_>>()
+        })
+        .filter(|args| args.iter().any(|arg| arg.starts_with("--fields")));
+    for args in steps {
+        let (_, value) = probe.run(None, &args)?;
+        let code = value
+            .pointer("/error/code")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        if code.starts_with("usage") {
+            return Err(format!("next step {} is refused: {code}", args.join(" ")));
+        }
+    }
+    Ok(())
+}
+
+fn size(value: Option<&Value>) -> usize {
+    value.map_or(0, |value| value.to_string().len())
+}
+
+/// The section words of a call: lowercase words after its identifier that are not option values.
+fn section_words(args: &[String]) -> Vec<String> {
+    shape(args).into_iter().skip(2).collect()
+}
+
+/// The same call naming only this one of its sections.
+fn alone(args: &[String], word: &str) -> Vec<String> {
+    let others = section_words(args);
+    let mut value = false;
+    let mut kept = Vec::new();
+    for (index, arg) in args.iter().enumerate() {
+        let option_value = std::mem::take(&mut value);
+        if arg.starts_with("--") {
+            value = !arg.contains('=');
+        }
+        if index < 3 || option_value || arg == word || !others.contains(arg) {
+            kept.push(arg.clone());
+        }
+    }
+    kept
+}
+
+/// For a call naming several sections: a name or path only one section knows narrows that
+/// section and leaves every other section exactly whole (1071 review: a path's first name
+/// alone must not narrow a section that lacks the path).
+fn split(probe: &Probe, args: &[String], whole: &Value, code: Option<i32>) -> Result<bool, String> {
+    let words = section_words(args);
+    for word in &words {
+        let mut candidates = paths(whole, word);
+        candidates.extend(probe.names(&alone(args, word))?);
+        for name in candidates.iter().take(TRIES * 2) {
+            let mut others = Vec::new();
+            for other in words.iter().filter(|other| *other != word) {
+                let (other_code, _) = probe.run(Some(name), &alone(args, other))?;
+                others.push(other_code != Some(0));
+            }
+            if others.iter().all(|refused| *refused) {
+                let narrow = narrowed(probe, args, name, code, whole)?;
+                for other in words.iter().filter(|other| *other != word) {
+                    let key = other.replace('-', "_");
+                    if under(whole, &key) != under(&narrow, &key) {
+                        return Err(format!(
+                            "--fields {name} changed section {other}, which lacks it"
+                        ));
+                    }
+                }
+                return Ok(());
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Dotted paths into the objects of the first row under a section key.
+fn paths(reply: &Value, word: &str) -> Vec<String> {
+    let key = word.replace('-', "_");
+    let Some(row) = under(reply, &key)
+        .into_iter()
+        .find_map(|section| first_row(&section))
+    else {
+        return Vec::new();
+    };
+    row.as_object()
+        .into_iter()
+        .flatten()
+        .flat_map(|(name, value)| {
+            value
+                .as_object()
+                .into_iter()
+                .flatten()
+                .map(move |(inner, _)| format!("{name}.{inner}"))
+        })
+        .collect()
+}
+
+fn first_row(value: &Value) -> Option<Value> {
+    match value {
+        Value::Array(items) if items.first().is_some_and(Value::is_object) => {
+            items.first().cloned()
+        }
+        Value::Array(items) => items.iter().find_map(first_row),
+        Value::Object(map) => map.values().find_map(first_row),
+        _ => None,
+    }
+}
+
+/// Every value under this key anywhere in the reply's result, without stamps.
+fn under(reply: &Value, key: &str) -> Vec<Value> {
+    fn walk(value: &Value, key: &str, out: &mut Vec<Value>) {
+        match value {
+            Value::Object(map) => {
+                for (name, inner) in map {
+                    if name == key {
+                        out.push(unstamped(inner));
+                    } else {
+                        walk(inner, key, out);
+                    }
+                }
+            }
+            Value::Array(items) => items.iter().for_each(|item| walk(item, key, out)),
+            _ => {}
+        }
+    }
+    let mut out = Vec::new();
+    if let Some(result) = reply.get("result") {
+        walk(result, key, &mut out);
+    }
+    out
+}
+
+fn unstamped(value: &Value) -> Value {
+    match value {
+        Value::Object(map) => Value::Object(
+            map.iter()
+                .filter(|(name, _)| !STAMPS.contains(&name.as_str()))
+                .map(|(name, inner)| (name.clone(), unstamped(inner)))
+                .collect(),
+        ),
+        Value::Array(items) => Value::Array(items.iter().map(unstamped).collect()),
+        other => other.clone(),
+    }
 }
 
 /// Values a second run may stamp anew.

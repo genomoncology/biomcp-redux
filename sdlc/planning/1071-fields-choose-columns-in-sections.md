@@ -70,4 +70,4 @@ Three findings. Required columns set the floor: protein features (attribution, 1
 
 Not measured: adverse-event drugs (refused: its rows are not a schema section, left for a follow-up), and GTR diagnostic search and genes (GTR fails from the build machine, as before).
 
-Left for a follow-up because they need special handling, not a schema section with rows: adverse-event get sections (drugs, reactions), drug markets, gene civic, clinvar, constraint and oncokb, variant population, article tldr, citations and pdf, protein sequence, cell-line sections, gwas associations, pathway summary, and `get trial X --lat/--lon` with no section word.
+Left for a follow-up because they need special handling, not a schema section with rows: adverse-event get sections (drugs, reactions), drug markets, gene civic, clinvar, constraint and oncokb, variant population, article tldr, citations and pdf, protein sequence, cell-line sections, gwas associations, and pathway summary. Each is refused with a message saying `--fields` does not narrow it yet. (`get trial X --lat --lon --fields ...` with no section word works: it serves locations.)
