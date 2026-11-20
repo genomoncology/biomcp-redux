@@ -34,6 +34,16 @@
     },
     {
       "run": [
+        "get", "drug", "CHEMBL941", "indications", "--source", "chembl",
+        "--section-limit", "1", "--section-offset", "0", "--fields", "stage.value"
+      ],
+      "expect": {
+        "/result/indications/data/records/0/stage/value": "3.0",
+        "/result/indications/data/records/0/attribution/source": "chembl"
+      }
+    },
+    {
+      "run": [
         "get",
         "drug",
         "CHEMBL1201585",

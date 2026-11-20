@@ -56,6 +56,7 @@ pub struct DrugIndicationRow {
     pub combination: Box<[DrugIdentity]>,
     /// Provenance of an individual claim when the source identifies it separately.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-kept" = true)))]
     pub attribution: Option<Attribution>,
 }
 

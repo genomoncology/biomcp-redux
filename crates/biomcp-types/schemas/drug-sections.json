@@ -2238,7 +2238,8 @@
               "type": "null"
             }
           ],
-          "description": "Provenance of an individual claim when the source identifies it separately."
+          "description": "Provenance of an individual claim when the source identifies it separately.",
+          "x-kept": true
         },
         "combination": {
           "description": "Native combination members.",
