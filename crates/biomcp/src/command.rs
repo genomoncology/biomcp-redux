@@ -258,7 +258,7 @@ struct ResponseMeta {
     next: Vec<biomcp_types::Step>,
     page: Option<biomcp_types::PageInfo>,
     exit: crate::exit::Status,
-    fields: Vec<String>,
+    fields: Option<crate::fields::Chosen>,
 }
 impl ResponseMeta {
     fn encode<B: biomcp_types::ResponseBody>(
@@ -267,11 +267,12 @@ impl ResponseMeta {
         body: Option<B>,
     ) -> io::Result<Outcome> {
         let (encoding, exit) = (self.encoding, self.exit);
-        let fields = std::mem::take(&mut self.fields);
-        let envelope = self.envelope(query, body);
-        if fields.is_empty() {
+        let fields = self.fields.take();
+        let mut envelope = self.envelope(query, body);
+        let Some(fields) = fields else {
             return encoding.encode(envelope, exit);
-        }
+        };
+        envelope.fields.clone_from(&fields.names);
         // Narrowing runs once on the finished reply, before Markdown and the MCP form.
         let mut value = serde_json::to_value(envelope)?;
         crate::fields::project(&mut value, &fields)?;
@@ -344,7 +345,7 @@ fn finished(
         sources: result.sources,
         problems: result.problems,
         incomplete: result.incomplete,
-        fields: globals.fields.clone(),
+        fields: crate::fields::Chosen::new(request, &globals.fields),
     };
     Ok((meta, result.body))
 }

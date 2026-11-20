@@ -1,0 +1,64 @@
+{
+  "feature": "section-fields",
+  "live_check": "public",
+  "story": "A dotted path narrows only the sections whose rows have that path: arms keep their labels while contacts, whose rows share the first name data but not data.label, stay whole with every name and affiliation. With two sections narrowed, each section's next page keeps only the names its own rows know, so page two stays narrowed.",
+  "replay": "trial/get/NCT02987543",
+  "verified": "Reuses the public registry reply for NCT02987543 recorded for trial/sites/NCT02987543 (tests/replies/trial/get/README.md): its first arm group is labelled Olaparib with a description, its first overall official is Johann de Bono, M.D., Ph.D. of The Institute of Cancer Research, United Kingdom, and it lists many Research Site locations. Narrowing changes no source request.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02987543",
+        "arms",
+        "contacts",
+        "--fields",
+        "data.label"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "data.label"
+        ],
+        "/result/items/0/sections/arms/data/items/0/data/label": "Olaparib",
+        "/result/items/0/sections/arms/data/items/0/data": {
+          "omits": [
+            "description"
+          ]
+        },
+        "/result/items/0/sections/contacts/data/items/0/data/name": "Johann de Bono, M.D., Ph.D.",
+        "/result/items/0/sections/contacts/data/items/0/data/affiliation": "The Institute of Cancer Research, United Kingdom"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02987543",
+        "locations",
+        "arms",
+        "--limit",
+        "1",
+        "--fields",
+        "facility,data.label"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/items/0": {
+          "omits": [
+            "city"
+          ]
+        },
+        "/result/items/0/sections/arms/data/items/0/data": {
+          "omits": [
+            "description"
+          ]
+        },
+        "/next/*/args/0": {
+          "includes": "--fields=facility",
+          "excludes": "--fields=facility,data.label"
+        }
+      }
+    }
+  ]
+}
