@@ -1,22 +1,19 @@
 //! Resolve complete source names before the unchanged native-ID path.
+use super::aliases::name_evidence::recovery;
 use crate::{Ctx, Outcome, status};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource, ReplyData,
-    SourceState, Status, Step, StepKind, UsageArguments, UsageError,
+    DrugCard, DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource,
+    ReplyData, Request, SourceState, Status, Step, StepKind, UsageArguments, UsageError,
 };
 use std::cmp::Reverse;
+
+#[path = "name_pages.rs"]
+mod name_pages;
 
 /// Name match, source tier, a label's original packager before repackagers, more numbered label
 /// indications first, then a source key.
 pub(super) type Rank = (u8, u8, u8, Reverse<u32>, String);
-/// The rank of a source without label packagers or numbered indications.
-fn plain(name: u8, tier: u8, key: String) -> Rank {
-    (name, tier, 0, Reverse(0), key)
-}
-/// Most MyChem rows a name get reads while looking for a drug record with an exact name.
-const MYCHEM_NAME_CAP: u32 = 250;
-
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = get_parts(cx, std::slice::from_ref(query));
     out.pop()
@@ -26,15 +23,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
 /// Resolve the name of the first query once and get every query for the chosen record, so
 /// label headings of one name share one record read. A name that resolves to no record
 /// answers with one outcome for all.
-#[expect(
-    clippy::disallowed_methods,
-    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
-)]
 pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let Some(query) = queries.first() else {
         return Vec::new();
     };
-    let deadline = cx.fetch.deadline(cx.budget);
+    let deadline = lookup_deadline(cx);
     let name = query.input().to_string();
     let search = match DrugSearch::named(query.input().clone(), query.source(), 50) {
         Ok(search) => search,
@@ -46,24 +39,25 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     };
     let mut unsettled = false;
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
-        fda(cx, query, &search)
+        name_pages::fda(cx, query, &search)
     } else if query.source() == DrugSource::OpenfdaLabel {
-        label(cx, query, &search)
+        name_pages::label(cx, query, &search)
     } else if query.source() == DrugSource::Mychem {
-        let (out, candidates, stopped) = mychem(cx, query, &search);
+        let (out, candidates, stopped) = name_pages::mychem(cx, query, &search);
         unsettled = stopped;
         (out, candidates)
     } else if query.source() == DrugSource::Chembl {
-        chembl(cx, query, &search)
+        name_pages::chembl(cx, query, &search)
     } else if query.source() == DrugSource::Ema {
-        ema(cx, query, &search)
+        name_pages::ema(cx, query, &search)
     } else {
-        discover(cx, &search)
+        name_pages::discover(cx, &search)
     };
     if unanswered(&discovery, candidates.is_empty()) {
-        status::item(&mut discovery, false, true, false);
-        super::aliases::recovery(&mut discovery, query);
-        return vec![discovery];
+        return queries
+            .iter()
+            .map(|query| failed_name(&discovery, query))
+            .collect();
     }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));
     let mut seen = std::collections::BTreeSet::new();
@@ -98,12 +92,26 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     super::selected_parts(&within(cx, deadline.remaining()), &resolved)
         .into_iter()
         .map(|out| {
-            settled(
+            let mut out = settled(
                 chosen_name(query, rank.0, &candidates, &discovery, out),
                 unsettled,
-            )
+            );
+            if query.source() == DrugSource::Chembl
+                && out.sources.iter().any(|s| s.state == SourceState::Stale)
+            {
+                recovery(&mut out, Request::GetDrug(query.clone()));
+            }
+            out
         })
         .collect()
+}
+
+/// A failed discovery keeps the caller's requested section and paging.
+fn failed_name(discovery: &Outcome, query: &DrugGet) -> Outcome {
+    let mut out = super::fork(discovery, DrugCard::into_reply(query.clone(), None));
+    status::item(&mut out, false, true, false);
+    recovery(&mut out, Request::GetDrug(query.clone()));
+    out
 }
 
 /// Whether the name lookup did not answer. Stale rows answer only with a candidate, whose read
@@ -189,368 +197,6 @@ pub(super) fn carry(discovery: &Outcome, out: &mut Outcome) {
     }
 }
 
-#[expect(
-    clippy::disallowed_methods,
-    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
-)]
-fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    let deadline = cx.fetch.deadline(cx.budget);
-    let mut query = search.clone();
-    let mut out = super::search(&within(cx, deadline.remaining()), &query);
-    let mut candidates = Vec::new();
-    let mut incomplete = false;
-    let mut problems = Vec::new();
-    loop {
-        incomplete |= out.dropped;
-        problems.append(&mut out.problems);
-        if let ReplyData::DrugPage {
-            body: Some(page), ..
-        } = &out.body
-        {
-            for header in &page.items {
-                let rank = match header.matched_name {
-                    Some(DrugNameMatch::Brand | DrugNameMatch::Both) => Some(0),
-                    Some(DrugNameMatch::Generic) => Some(1),
-                    _ if header.name.as_ref().is_some_and(|n| {
-                        search.query().is_some_and(|q| {
-                            biomcp_types::DrugNameMatch::generic_name(n.as_str(), q.as_str())
-                        })
-                    }) =>
-                    {
-                        Some(1)
-                    }
-                    _ => None,
-                };
-                if let Some(rank) = rank {
-                    candidates.push((plain(rank, 0, String::new()), header.clone()));
-                }
-            }
-        }
-        let Some(next_query) = out.next.iter().find_map(|step| match &step.1 {
-            crate::Action::Run {
-                request: biomcp_types::Request::SearchDrug(next),
-                ..
-            } if step.0 == StepKind::Page => Some(next.clone()),
-            _ => None,
-        }) else {
-            break;
-        };
-        query = next_query;
-        let next = super::search(&within(cx, deadline.remaining()), &query);
-        if next
-            .sources
-            .iter()
-            .any(|s| s.state != biomcp_types::SourceState::Ok)
-        {
-            out = next;
-            break;
-        }
-        out = next;
-    }
-    out.dropped |= incomplete;
-    out.problems.extend(problems);
-    (out, candidates)
-}
-
-/// Rows read through one page of a source's total, and whether the answer is among them.
-#[derive(Clone, Copy)]
-struct Read {
-    rows: u32,
-    total: u64,
-    settled: bool,
-}
-struct NativePage {
-    candidates: Vec<(Rank, DrugHeader)>,
-    /// How far a reader that may stop early has read, and whether it found its answer.
-    read: Option<Read>,
-    next_offset: Option<u32>,
-    problems: Vec<biomcp_types::Problem>,
-    refusals: biomcp_adapters::Refusal,
-}
-fn native_names(
-    cx: &Ctx<'_>,
-    query: &DrugSearch,
-    spec: &'static biomcp_fetch::SourceSpec,
-    read: impl Fn(&biomcp_fetch::Leg<'_>, u32) -> Result<NativePage, biomcp_fetch::RequestError>,
-) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    let (out, candidates, _) = native_pages(cx, query, spec, read);
-    (out, candidates)
-}
-/// Read pages until the reader stops, keeping how far a reader that may stop early got.
-fn native_pages(
-    cx: &Ctx<'_>,
-    query: &DrugSearch,
-    spec: &'static biomcp_fetch::SourceSpec,
-    read: impl Fn(&biomcp_fetch::Leg<'_>, u32) -> Result<NativePage, biomcp_fetch::RequestError>,
-) -> (Outcome, Vec<(Rank, DrugHeader)>, Option<Read>) {
-    let mut out = status::empty(biomcp_types::DrugPage::into_reply(query.clone(), None));
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
-    let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let mut candidates = Vec::new();
-    let mut offset = 0;
-    let mut error = None;
-    let mut examined = None;
-    loop {
-        match read(&leg, offset) {
-            Ok(page) => {
-                examined = page.read.map(|read| Read {
-                    settled: read.settled || examined.is_some_and(|seen: Read| seen.settled),
-                    ..read
-                });
-                out.include_refusals(page.refusals);
-                out.problems.extend(page.problems);
-                candidates.extend(page.candidates);
-                let Some(next) = page.next_offset else {
-                    break;
-                };
-                if next <= offset {
-                    error = Some(biomcp_fetch::InputError::Serialization.into());
-                    break;
-                }
-                offset = next;
-            }
-            Err(failure) => {
-                error = Some(failure);
-                break;
-            }
-        }
-    }
-    out.local = error.and_then(status::local);
-    let remaining = leg.command_remaining();
-    out.sources
-        .push(status::source(query.source().source(), leg.finish(), error));
-    status::search(&mut out);
-    command.finish(remaining);
-    (out, candidates, examined)
-}
-/// Drugs@FDA and openFDA label name lookups read every page on purpose, unlike MyChem's
-/// 250-row cap: the ranking (NDA/BLA before ANDA, then earliest approval; labels by holder,
-/// then indications) needs the whole set, so a lookup answers whole or fails, never partly.
-fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    native_names(
-        cx,
-        query,
-        &biomcp_adapters::drugsfda::SPEC,
-        |leg, offset| {
-            let page = biomcp_adapters::drugsfda::search_names(leg, get.input(), 50, offset)?;
-            let next = offset + page.records.len() as u32;
-            Ok(NativePage {
-                read: None,
-                candidates: page
-                    .records
-                    .iter()
-                    .filter_map(|row| {
-                        row.name_rank(get.input().as_str())
-                            .map(|(name, app, date)| {
-                                let date = date.unwrap_or_else(|| "9999".into());
-                                (plain(name, app, date), row.header())
-                            })
-                    })
-                    .collect(),
-                next_offset: (next > offset && u64::from(next) < page.total).then_some(next),
-                problems: page.problems,
-                refusals: page.refusals,
-            })
-        },
-    )
-}
-fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    let (out, mut candidates) = native_names(
-        cx,
-        query,
-        &biomcp_adapters::openfda_label::SPEC,
-        |leg, _| {
-            let mut out = NativePage {
-                read: None,
-                candidates: Vec::new(),
-                next_offset: None,
-                problems: Vec::new(),
-                refusals: biomcp_adapters::Refusal::None,
-            };
-            for page in biomcp_adapters::openfda_label::search_names(leg, get.input())? {
-                out.refusals.include(page.window.refusals());
-                out.problems.extend(page.problems);
-                for row in &page.window.rows {
-                    if let Some(matched) = row.exact_name_match(get.input()) {
-                        let rank = super::label_choice::rank(matched, row);
-                        out.candidates.push((rank, row.header()?));
-                    }
-                }
-            }
-            Ok(out)
-        },
-    );
-    super::label_choice::generic_name(&mut candidates);
-    (out, candidates)
-}
-
-/// Read MyChem's free-text pages until one holds a drug record of the exact name. Its ranking can
-/// place that record past looser matches and product-only records, so a page without one is no
-/// answer, but the read stops at a page cap. Also says whether it stopped before finding one.
-fn mychem(
-    cx: &Ctx<'_>,
-    get: &DrugGet,
-    query: &DrugSearch,
-) -> (Outcome, Vec<(Rank, DrugHeader)>, bool) {
-    let rows = super::search_names::NAME_ROWS;
-    let (mut out, mut candidates, examined) =
-        native_pages(cx, query, &biomcp_adapters::mychem::SPEC, |leg, offset| {
-            let (page, received, drug) =
-                biomcp_adapters::mychem::search_names(leg, get.input().as_str(), rows, offset)?;
-            let next = offset + received;
-            // The middle rank puts a record with drug rows of its own before a product-only one.
-            let candidates: Vec<_> = page
-                .value
-                .items
-                .iter()
-                .zip(drug)
-                .filter_map(|(header, drug)| {
-                    header.matched_name.map(|matched| {
-                        let rank = u8::from(matched == DrugNameMatch::Generic);
-                        (plain(rank, u8::from(!drug), String::new()), header.clone())
-                    })
-                })
-                .collect();
-            let settled = candidates.iter().any(|((_, product, ..), _)| *product == 0);
-            let more = received > 0
-                && page
-                    .value
-                    .total
-                    .is_some_and(|total| u64::from(next) < total);
-            Ok(NativePage {
-                read: page.value.total.map(|total| Read {
-                    rows: next,
-                    total,
-                    settled,
-                }),
-                next_offset: (!settled && more && next < MYCHEM_NAME_CAP).then_some(next),
-                candidates,
-                problems: page.problems,
-                refusals: page.refusals,
-            })
-        });
-    // A product-only record answers only when no record with drug rows matched.
-    if candidates.iter().any(|((_, product, ..), _)| *product == 0) {
-        candidates.retain(|((_, product, ..), _)| *product == 0);
-    }
-    let Some(Read { rows, total, .. }) =
-        examined.filter(|read| !read.settled && u64::from(read.rows) < read.total)
-    else {
-        return (out, candidates, false);
-    };
-    out.dropped |= candidates.is_empty();
-    if let Some(source) = out
-        .sources
-        .iter_mut()
-        .find(|s| s.source == biomcp_types::Source::Mychem)
-    {
-        source
-            .notices
-            .push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: format!(
-                    "Read the first {rows} of {total} matches without a drug record of that \
-                     exact name; later matches were not examined."
-                )
-                .into(),
-                retry_after_seconds: None,
-            });
-    }
-    (out, candidates, true)
-}
-#[expect(
-    clippy::disallowed_methods,
-    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
-)]
-fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    let deadline = cx.fetch.deadline(cx.budget);
-    let mut all = Vec::new();
-    let mut outcome: Option<Outcome> = None;
-    for selector in [
-        biomcp_types::DrugNameSelector::Preferred,
-        biomcp_types::DrugNameSelector::Synonym,
-    ] {
-        let (mut out, candidates) = native_names(
-            &within(cx, deadline.remaining()),
-            query,
-            &biomcp_adapters::chembl::SPEC,
-            |leg, offset| {
-                let (page, _) = biomcp_adapters::chembl::search(
-                    leg,
-                    get.input().as_str(),
-                    selector,
-                    50,
-                    offset,
-                )?;
-                let next_offset = page.window.next_offset();
-                let refusals = page.window.refusals();
-                let mut problems = page.problems;
-                let mut candidates = Vec::new();
-                for row in &page.window.rows {
-                    if let Some(matched) = row.name_match(get.input().as_str()) {
-                        let header = biomcp_adapters::chembl::molecule_header(row)
-                            .map_err(|_| biomcp_fetch::InputError::Serialization)?;
-                        problems.extend(header.problems);
-                        let rank = u8::from(matched == DrugNameMatch::Generic);
-                        candidates.push((plain(rank, 0, String::new()), header.value));
-                    }
-                }
-                Ok(NativePage {
-                    read: None,
-                    candidates,
-                    next_offset,
-                    problems,
-                    refusals,
-                })
-            },
-        );
-        if out.dropped
-            || out
-                .sources
-                .iter()
-                .any(|s| s.state != biomcp_types::SourceState::Ok)
-        {
-            return (out, Vec::new());
-        }
-        all.extend(candidates);
-        if let Some(previous) = &mut outcome {
-            out.problems.append(&mut previous.problems);
-        }
-        outcome = Some(out);
-    }
-    (
-        outcome.unwrap_or_else(|| {
-            status::empty(biomcp_types::DrugPage::into_reply(query.clone(), None))
-        }),
-        all,
-    )
-}
-
-fn ema(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    native_names(cx, query, &biomcp_adapters::ema::SPEC, |leg, _| {
-        let rows = biomcp_adapters::ema::search_names(leg, get.input().as_str())?;
-        let candidates = rows
-            .value
-            .into_iter()
-            .filter_map(|(header, authorised)| {
-                header.matched_name.map(|matched| {
-                    let rank = u8::from(matched == DrugNameMatch::Generic);
-                    let date = authorised.map_or_else(|| "9999".into(), |date| date.to_string());
-                    (plain(rank, 0, date), header)
-                })
-            })
-            .collect();
-        Ok(NativePage {
-            read: None,
-            candidates,
-            next_offset: None,
-            problems: rows.problems,
-            refusals: rows.refusals,
-        })
-    })
-}
-
 fn annotate(body: &mut ReplyData, resolution: DrugNameResolution) {
     let header = match body {
         ReplyData::DrugCard {
@@ -596,4 +242,13 @@ pub(super) fn within<'a>(cx: &Ctx<'a>, budget: std::time::Duration) -> Ctx<'a> {
         label_bytes: cx.label_bytes,
         fit_deadline: cx.fit_deadline,
     }
+}
+
+/// Track the time spent by nested source commands, which advance their own replay clocks.
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
+)]
+pub(super) fn lookup_deadline<'a>(cx: &Ctx<'a>) -> biomcp_fetch::Deadline<'a> {
+    cx.fetch.deadline(cx.budget)
 }

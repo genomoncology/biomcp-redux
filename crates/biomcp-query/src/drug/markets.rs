@@ -1,22 +1,23 @@
 //! One drug name looked up in each market's own source, one row per market. Each row keeps its
 //! source's record, status and date role; no record or date is joined across markets.
-use super::resolve::within;
+use super::resolve::{lookup_deadline, within};
 use crate::{Ctx, Outcome, status};
-use biodata::{AuthorizationDate, PartialDate, Text};
+use biodata::Text;
 use biomcp_adapters::drugsfda;
 use biomcp_types::{
     DrugGet, DrugHeader, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet, DrugSearch,
     DrugSection, DrugSource, ReplyBody, ReplyData, Request, Section, Source, SourceState, Status,
     StepKind,
 };
+use market_values::distinct;
+pub(super) use market_values::{dated, kept, row, text};
 
-#[expect(
-    clippy::disallowed_methods,
-    reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
-)]
+#[path = "market_values.rs"]
+mod market_values;
+
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
     let mut out = status::empty(DrugMarkets::into_reply(query.clone(), None));
-    let deadline = cx.fetch.deadline(cx.budget);
+    let deadline = lookup_deadline(cx);
     let name = query.input();
     // `--source` reads only that market; its row is the same as in a call that reads them all.
     let mut markets = Vec::new();
@@ -41,30 +42,18 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
             DrugMarketState::Failed => Status::Failed,
         }),
     );
-    // Syncs, then list calls, then record calls: the five-step cap never drops a list call.
-    out.next
-        .sort_by_key(|step| (step.0 != StepKind::Sync, step.0 != StepKind::Disambiguate));
+    super::aliases::name_evidence::recovery(&mut out, Request::GetDrugMarkets(query.clone()));
+    // Recovery first, then list calls, then record calls.
+    out.next.sort_by_key(|step| match step.0 {
+        StepKind::Sync | StepKind::Fresh => 0,
+        StepKind::Disambiguate => 1,
+        _ => 2,
+    });
     out.body = DrugMarkets {
         markets: markets.into(),
     }
     .with_query(query.clone());
     out
-}
-
-pub(super) fn row(source: DrugSource) -> DrugMarket {
-    DrugMarket {
-        source,
-        state: DrugMarketState::NoRecord,
-        record: None,
-        name: None,
-        holder: None,
-        status: Box::default(),
-        first_approval: None,
-        url: None,
-        matches: None,
-        choice: None,
-        reason: None,
-    }
 }
 
 fn fda(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
@@ -267,50 +256,5 @@ pub(super) fn alternatives(out: &mut Outcome, row: &DrugMarket, name: &Text, fre
             Request::SearchDrug(search),
             fresh,
         ));
-    }
-}
-
-fn distinct(values: impl Iterator<Item = Text>) -> Box<[Text]> {
-    let mut seen = Vec::new();
-    for value in values {
-        if !seen.contains(&value) {
-            seen.push(value);
-        }
-    }
-    seen.into()
-}
-
-pub(super) fn dated(
-    role: &str,
-    date: PartialDate,
-    source: Source,
-    out: &mut Outcome,
-) -> Option<AuthorizationDate> {
-    let role = kept(role.parse::<Text>(), source, "first_approval", out)?;
-    Some(AuthorizationDate { role, date })
-}
-
-pub(super) fn text(value: &str, source: Source, field: &str, out: &mut Outcome) -> Option<Text> {
-    kept(Text::new(value.trim()), source, field, out)
-}
-
-/// Keep a value the source supplied; a value that cannot be built is a problem on its field.
-pub(super) fn kept<T, E>(
-    result: Result<T, E>,
-    source: Source,
-    field: &str,
-    out: &mut Outcome,
-) -> Option<T> {
-    match result {
-        Ok(value) => Some(value),
-        Err(_) => {
-            out.problems.push(biomcp_types::Problem {
-                source,
-                record: None,
-                field: field.into(),
-                code: biomcp_types::ProblemCode::ValueUnknown,
-            });
-            None
-        }
     }
 }

@@ -1,4 +1,8 @@
 //! Feature source-data-age: retained source dates survive paging and hosted restrictions.
+#[path = "source_age/name_recovery.rs"]
+mod name_recovery;
+#[path = "source_age/named_calls.rs"]
+mod named_calls;
 #[path = "source_age/names.rs"]
 mod names;
 #[path = "source_age/oncokb.rs"]
@@ -32,6 +36,31 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         crate::runner::transcript::trial("source-data-age/stale-chembl-name", || {
             chembl_unfound().map_err(Into::into)
         }),
+        crate::runner::transcript::trial("source-data-age/name-recovery/capped-alias", || {
+            name_recovery::capped_alias().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/name-recovery/deadline", || {
+            name_recovery::deadline().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/name-recovery/label-headings", || {
+            name_recovery::label_headings().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/name-recovery/chembl-match", || {
+            name_recovery::chembl_match().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/name-recovery/market-retry", || {
+            name_recovery::market_retry().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/reported-drug-names/sti", || {
+            named_calls::sti().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial("source-data-age/reported-drug-names/markets", || {
+            named_calls::markets().map_err(Into::into)
+        }),
+        crate::runner::transcript::trial(
+            "source-data-age/reported-drug-names/blarcamesine",
+            || named_calls::blarcamesine().map_err(Into::into),
+        ),
         crate::runner::transcript::trial("source-data-age/unread-other-names", || {
             names::other_names().map_err(Into::into)
         }),

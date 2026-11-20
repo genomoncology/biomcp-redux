@@ -35,7 +35,7 @@ pub(super) fn other_names() -> Result<(), String> {
         if today.get("status") != Some(&json!("absent")) {
             return Err(format!("{name} with every source current: {today}"));
         }
-        expire_mychem(env.root())?;
+        expire(env.root(), "mychem")?;
         let mut all = args.to_vec();
         all.extend(env.globals(Some(&down), false));
         let output = env
@@ -61,7 +61,7 @@ pub(super) fn market() -> Result<(), String> {
 }
 
 /// Every recorded exchange becomes a server error, as when the source is unreachable.
-fn unreachable(record: &mut Value) {
+pub(super) fn unreachable(record: &mut Value) {
     if let Some(exchanges) = record.get_mut("exchanges").and_then(Value::as_array_mut)
         && let Some(mut failure) = exchanges.first().cloned()
         && let Some(status) = failure.get_mut("status")
@@ -71,17 +71,17 @@ fn unreachable(record: &mut Value) {
     }
 }
 
-fn expire_mychem(root: &Path) -> Result<(), String> {
+pub(super) fn expire(root: &Path, source: &str) -> Result<(), String> {
     let db = rusqlite::Connection::open(root.join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
-    db.execute("UPDATE reply SET fresh_until=0 WHERE source='mychem'", [])
+    db.execute("UPDATE reply SET fresh_until=0 WHERE source=?1", [source])
         .map_err(|e| e.to_string())?;
     Ok(())
 }
 
 /// The reply is neither a usage refusal nor an absence, lists the source as stale or failed,
 /// and offers a step of the given kind.
-fn unread(reply: &Value, source: &str, step: &str) -> Result<(), String> {
+pub(super) fn unread(reply: &Value, source: &str, step: &str) -> Result<(), String> {
     let rows = |key: &str| {
         reply
             .get(key)
@@ -100,7 +100,7 @@ fn unread(reply: &Value, source: &str, step: &str) -> Result<(), String> {
         .iter()
         .any(|s| s.get("kind") == Some(&json!(step)));
     let status = reply.get("status").and_then(Value::as_str);
-    if matches!(status, Some("usage" | "absent")) || !named || !offered {
+    if !matches!(status, Some("failed" | "partial")) || !named || !offered {
         return Err(format!(
             "lookup without a current {source} must fail naming it and offer {step}: {reply}"
         ));
