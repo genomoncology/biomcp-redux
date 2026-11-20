@@ -108,7 +108,12 @@ fn branches<'a>(node: &'a Value, root: &'a Value, out: &mut Vec<&'a Value>, dept
         return;
     }
     for key in ["anyOf", "oneOf", "allOf"] {
-        for branch in node.get(key).and_then(Value::as_array).into_iter().flatten() {
+        for branch in node
+            .get(key)
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
             branches(branch, root, out, depth + 1);
         }
     }
@@ -203,8 +208,16 @@ fn items(schema: &Value) -> Vec<List> {
             found = true;
         }
     }
-    let at = vec![Step::Key("result".into()), Step::Key("items".into()), Step::Each];
-    if found { vec![List { at, row }] } else { Vec::new() }
+    let at = vec![
+        Step::Key("result".into()),
+        Step::Key("items".into()),
+        Step::Each,
+    ];
+    if found {
+        vec![List { at, row }]
+    } else {
+        Vec::new()
+    }
 }
 
 /// Every section under the result, by its path and its key.
@@ -238,7 +251,12 @@ impl<'a> Walk<'a> {
 
     fn inside(&mut self, node: &'a Value, at: &[Step]) {
         for key in ["anyOf", "oneOf", "allOf"] {
-            for branch in node.get(key).and_then(Value::as_array).into_iter().flatten() {
+            for branch in node
+                .get(key)
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+            {
                 self.sections(branch, at);
             }
         }
@@ -294,7 +312,10 @@ fn section_lists(section: &Value, root: &Value, at: &[Step]) -> Vec<List> {
 
 /// The schema's name without its namespace and version, such as `drug-approvals`.
 fn stem(schema: &Value) -> &str {
-    let id = schema.get("$id").and_then(Value::as_str).unwrap_or_default();
+    let id = schema
+        .get("$id")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
     let id = id.split('/').next().unwrap_or_default();
     id.split_once('.').map_or(id, |(_, stem)| stem)
 }
@@ -321,10 +342,7 @@ pub(super) fn lists(schema: &Value, call: &Call) -> Vec<List> {
         matches!(at.last(), Some(Step::Key(name))
             if call.words.iter().any(|word| *word == key(name) || word == "all"))
     };
-    let chosen = found
-        .iter()
-        .filter(|(at, _)| named(at))
-        .collect::<Vec<_>>();
+    let chosen = found.iter().filter(|(at, _)| named(at)).collect::<Vec<_>>();
     let own = call
         .words
         .iter()
@@ -335,7 +353,11 @@ pub(super) fn lists(schema: &Value, call: &Call) -> Vec<List> {
         chosen
     };
     if chosen.is_empty() {
-        return if own && found.is_empty() { items(schema) } else { Vec::new() };
+        return if own && found.is_empty() {
+            items(schema)
+        } else {
+            Vec::new()
+        };
     }
     chosen
         .into_iter()

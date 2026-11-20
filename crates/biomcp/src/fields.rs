@@ -159,7 +159,8 @@ fn source_rows(verb: &str, entity: &str) -> Vec<(&'static str, Row)> {
         return biomcp_types::AdverseEventHeader::ROW_FIELDS
             .iter()
             .map(|(source, names)| {
-                let keep = |name: &&String| names.contains(&name.split('.').next().unwrap_or_default());
+                let keep =
+                    |name: &&String| names.contains(&name.split('.').next().unwrap_or_default());
                 let row = Row {
                     names: union.names.iter().filter(keep).cloned().collect(),
                     paths: union.paths.iter().filter(keep).cloned().collect(),
@@ -213,7 +214,7 @@ fn source_check(
         source,
         message: ErrorMessage::FieldsUnknown,
         option: "--fields".into(),
-        valid_values: texts(&row.names).unwrap_or_default(),
+        valid_values: texts(&row.names).unwrap_or_default().into(),
         next,
     })
 }
@@ -236,11 +237,7 @@ impl Chosen {
 
 /// Narrow each row list of a finished reply that offers a chosen name.
 pub(crate) fn project(value: &mut Value, chosen: &Chosen) -> io::Result<()> {
-    let Some(schema) = value
-        .get("schema")
-        .and_then(Value::as_str)
-        .and_then(schema)
-    else {
+    let Some(schema) = value.get("schema").and_then(Value::as_str).and_then(schema) else {
         return Ok(());
     };
     for list in rows::lists(&schema, &chosen.call) {

@@ -23,6 +23,7 @@ tool_only! { mod disease_seer; }
 mod execution;
 mod faers_names;
 mod faers_search;
+mod fields_sweep;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
@@ -354,6 +355,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(nci::trials());
     trials.extend(drug_civic::trials());
     trials.push(citation_values::trial());
+    trials.push(fields_sweep::trial());
     trials.extend(transcript_trials());
     trials
 }

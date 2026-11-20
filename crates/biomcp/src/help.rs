@@ -206,7 +206,11 @@ fn fields_line(commands: &mut [HelpCommand], path: &[String]) {
         && let Some(line) = crate::fields::help_line(
             verb,
             entity,
-            &command.sections.iter().map(|section| section.word.clone()).collect::<Vec<_>>(),
+            &command
+                .sections
+                .iter()
+                .map(|section| section.word.clone())
+                .collect::<Vec<_>>(),
         )
     {
         command.description.push('\n');
