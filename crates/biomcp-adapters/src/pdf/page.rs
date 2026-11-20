@@ -94,7 +94,8 @@ pub(super) fn page<'a>(
         }
     }
     walk.stream(&bytes, &fonts, &xobjects, 0)?;
-    let skipped = walk.skipped;
+    // Codes a character map leaves unmapped are text not read, as a skipped part is.
+    let skipped = walk.skipped || walk.reader.unmapped;
     let (text, unsound) = walk.reader.finish();
     Ok(PageText {
         text,

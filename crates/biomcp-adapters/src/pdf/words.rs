@@ -49,6 +49,8 @@ pub(super) struct Reader {
     end: Option<End>,
     /// An `ET` line break waiting to see whether the next text continues the same word.
     pending: bool,
+    /// A character map left a shown code unmapped, so lopdf gave U+FFFD for it: text is missing.
+    pub(super) unmapped: bool,
 }
 
 /// How the next shown text sits against the last: run on, a word gap away, or on another line.
@@ -225,6 +227,8 @@ impl Reader {
         {
             self.text.push(' ');
         }
+        self.unmapped |= matches!(encoding, lopdf::Encoding::UnicodeMapEncoding(_))
+            && shown.contains('\u{fffd}');
         let at = self.text.len();
         self.text.push_str(&shown);
         if !font.sound {
