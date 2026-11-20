@@ -240,6 +240,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Read trimmed real FDA PDFs drawn through form objects or misdecoding fonts, and judge the garbled-text check on short synthetic text.",
     ),
     (
+        "crates/biomcp-adapters/tests/pdf_maps.rs",
+        "Count or refuse character maps written here however they tokenise, and mark unmapped glyphs as missing text.",
+    ),
+    (
         "crates/biomcp-adapters/tests/pdf_structure.rs",
         "Refuse PDFs written here whose tables list one object many times, that hold too much to load, or that are damaged.",
     ),
