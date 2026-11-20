@@ -186,10 +186,14 @@ fn listed(block: &str) -> Vec<Listed> {
         let last = found.last().map_or(0, |l| l.number);
         // A subsection listed under a section whose own line the reader lost implies it.
         if minor.is_some() && major > last && major <= last + 3 {
-            if let Some((_, titles)) = TITLES.iter().find(|(n, _)| *n == major) {
+            if let Some(title) = TITLES
+                .iter()
+                .find(|(n, _)| *n == major)
+                .and_then(|(_, titles)| titles.first())
+            {
                 found.push(Listed {
                     number: major,
-                    title: titles[0],
+                    title,
                     first: (minor == Some(1)).then(|| title_words(tail)).flatten(),
                 });
             }

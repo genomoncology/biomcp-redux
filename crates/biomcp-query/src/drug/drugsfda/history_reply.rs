@@ -88,13 +88,12 @@ pub(super) fn method(path: Path, search: &Search<'_, '_>) -> String {
     let mut said = match path {
         Path::Halved(earlier) => format!(
             "Read the oldest and newest of {count} label versions, then halved between them: {read} \
-             PDFs read, at most {MOST_READS} per call. {assumption}; the oldest version read lacked \
-             it and the newest had it, as the assumption expects. The reads left went to versions \
-             spread before the first match to test it{}.",
+             PDFs read, at most {MOST_READS} per call. {assumption}; the oldest read lacked it and \
+             the newest had it. The reads left went to versions spread before the first match{}.",
             if earlier {
-                "; one held the text, so the search halved toward that one"
+                "; one held the text, so the search halved toward it"
             } else {
-                ", and none held the text"
+                ", and none read held it"
             }
         ),
         Path::Present => format!(
