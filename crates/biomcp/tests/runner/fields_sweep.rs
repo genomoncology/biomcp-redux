@@ -67,14 +67,13 @@ fn candidate(step: &case_data::Step) -> Option<&Vec<String>> {
     .then_some(args)
 }
 
-/// The command words and section words of a call, without its identifiers and values.
+/// The command words and section words of a call, without its identifiers, options and values.
 fn shape(args: &[String]) -> Vec<String> {
     let mut shape = args.iter().take(2).cloned().collect::<Vec<_>>();
     let mut value = false;
     for arg in args.iter().skip(3) {
         if arg.starts_with("--") {
             value = !arg.contains('=');
-            shape.push(arg.split('=').next().unwrap_or_default().to_owned());
         } else if !std::mem::take(&mut value)
             && arg.chars().all(|c| c.is_ascii_lowercase() || c == '-')
         {

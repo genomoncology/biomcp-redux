@@ -1,57 +1,54 @@
-"""Measure section row sizes for the 1071 proposal: whole reply, rows, and rows cut to a few columns.
+"""Measure 1071: each list's whole reply against the same call with --fields, both real replies.
 
-Usage: python3 1071-measure.py BIOMCP. Live sources. Bytes are the compact JSON reply.
-"Kept" is computed from the reply: each row keeps only the named keys; a dotted path keeps one inner value.
+Usage: python3 1071-measure.py BIOMCP [NAME...]. Live sources. Bytes are the compact JSON reply
+as printed. It also checks that the narrowed rows are the whole rows, in the same order,
+each with keys left out.
 """
 import json
 import subprocess
 import sys
 
 BIN = sys.argv[1]
-SKIP = {"next", "sources", "problems", "query"}
+ONLY = sys.argv[2:]
+SKIP = {"next", "sources", "problems", "query", "fields"}
 
-# (name, args, kept columns); "{id}" takes the first row id of the previous case.
+# (name, args, fields)
 CASES = [
-    ("trial search", "search trial --condition melanoma --limit 100", "nct_id,title,status"),
-    ("trial search fields", "--fields nct_id,title,status search trial --condition melanoma --limit 100", ""),
     ("trial locations", "get trial NCT04613596 locations --limit 100", "facility,city,state,status"),
     ("trial locations near", "get trial NCT04613596 locations --limit 100 --lat 39.96 --lon -83.00",
      "facility,city,state,status,distance_mi"),
-    ("trial arms", "get trial NCT04613596 arms --limit 20", "record,data.label,data.kind"),
-    ("drug approvals", "get drug NDA018936 approvals --source drugsfda --limit 50",
-     "submission_number,event.record,event.attribution,event.status,event.dates"),
-    ("drug label search", "search drug --indication cancer --source openfda-label --limit 50",
-     "id,source,identity_level,name,effective_date"),
-    ("drug label search fields",
-     "--fields name,effective_date search drug --indication cancer --source openfda-label --limit 50", ""),
-    ("drug targets", "get drug imatinib targets --source chembl --limit 50", ""),
-    ("drug indications", "get drug imatinib indications --source opentargets --limit 50", ""),
-    ("pathway genes", "get pathway R-HSA-162582 genes --limit 100", "reference,physical_context_count,gene,name"),
-    ("pathway events", "get pathway R-HSA-162582 events --limit 100", "kind,db_id,id,name"),
-    ("protein features", "protein features P15056 --limit 50",
-     "feature.protein,feature.span,feature.kind,attribution,source_coordinates"),
-    ("protein get features", "get protein P15056 features --limit 25", ""),
-    ("adverse event search", "search adverse-event --drug pembrolizumab --limit 50", "id,source,serious_label"),
-    ("adverse event drugs", "get adverse-event {id} drugs --source faers --limit 50", ""),
+    ("trial arms", "get trial NCT04613596 arms --limit 20", "data.label,data.kind"),
+    ("drug approvals", "get drug NDA018936 approvals --source drugsfda --limit 50", "event.status,event.dates"),
+    ("drug label search", "search drug --indication cancer --source openfda-label --limit 50", "name,effective_date"),
+    ("pathway genes", "get pathway R-HSA-162582 genes --limit 100", "name"),
+    ("pathway genes subcommand", "pathway genes R-HSA-162582 --limit 100", "name"),
+    ("pathway events", "get pathway R-HSA-162582 events --limit 100", "id,name"),
+    ("protein features", "protein features P15056 --limit 50", "feature.kind,feature.span"),
+    ("adverse event search", "search adverse-event --drug pembrolizumab --limit 50", "serious_label"),
+    ("adverse event drugs", "get adverse-event {id} drugs --source faers --limit 50",
+     "medicinalproduct,role_label,indication"),
     ("diagnostic search", "search diagnostic --gene BRAF --source gtr --limit 50",
-     "identity_status,header.id,header.name,header.laboratory.name"),
-    ("diagnostic genes", "get diagnostic GTR000273063.3 genes --source gtr --limit 50", ""),
-    ("diagnostic conditions", "get diagnostic GTR000273063.3 conditions --source gtr --limit 50", ""),
-    ("gene clingen", "get gene BRAF clingen", "mondo_id,mode_of_inheritance,disease,classification"),
-    ("gene gencc", "get gene BRAF gencc", "id,version,disease,classification,submitter"),
+     "header.name,header.laboratory.name"),
+    ("diagnostic genes", "get diagnostic GTR000509442.12 genes --source gtr --limit 50", "gene"),
+    ("gene clingen", "get gene BRAF clingen", "disease,classification"),
+    ("gene gencc", "get gene BRAF gencc", "disease,classification,submitter"),
 ]
 
 
-def size(value):
-    return len(json.dumps(value, separators=(",", ":")))
+def run(args):
+    out = subprocess.run([BIN] + args, capture_output=True, text=True, timeout=900).stdout
+    try:
+        return json.loads(out), len(out.encode())
+    except ValueError:
+        return {"_raw": out[:300]}, len(out.encode())
 
 
 def lists(node, path, found):
-    """Every list of objects under the result, with its path."""
+    """Every list of objects in the result, with its path."""
     if isinstance(node, list):
         if node and all(isinstance(item, dict) for item in node):
             found.append(("/".join(path), node))
-        for index, item in enumerate(node[:1]):
+        for index, item in enumerate(node):
             lists(item, path + [str(index)], found)
     elif isinstance(node, dict):
         for key, value in node.items():
@@ -59,69 +56,50 @@ def lists(node, path, found):
                 lists(value, path + [key], found)
 
 
-def cut(row, paths):
-    """The row with only the named keys; a dotted path keeps one value inside an object."""
-    kept = {}
-    for path in paths:
-        head, _, rest = path.partition(".")
-        if head not in row:
-            continue
-        if rest and isinstance(row[head], dict):
-            inner = cut(row[head], [rest])
-            if inner:
-                kept.setdefault(head, {}).update(inner)
-        else:
-            kept[head] = row[head]
-    return kept
+def within(part, full):
+    """Every object keeps only keys of the same whole object; every list keeps its length and order."""
+    if isinstance(part, dict) and isinstance(full, dict):
+        return all(key in full and (key == "fetched" or within(value, full[key])) for key, value in part.items())
+    if isinstance(part, list) and isinstance(full, list):
+        return len(part) == len(full) and all(within(p, f) for p, f in zip(part, full))
+    return part == full
+
+
+def size(value):
+    return len(json.dumps(value, separators=(",", ":")))
 
 
 def first_id(reply):
     found = []
     lists(reply.get("result", {}), ["result"], found)
     for _, rows in found:
-        row = rows[0].get("header", rows[0])
-        if isinstance(row, dict) and "id" in row:
-            return str(row["id"])
+        if "id" in rows[0]:
+            return str(rows[0]["id"])
     return ""
 
 
-def measure(name, args, kept, last):
-    args = args.replace("{id}", first_id(last)).split()
-    out = subprocess.run([BIN] + args, capture_output=True, text=True, timeout=900).stdout
-    try:
-        reply = json.loads(out)
-    except ValueError:
-        print(f"## {name}: not JSON: {out[:300]}")
-        return {}
-    print(f"## {name}: `{' '.join(args)}` -> {reply.get('schema')} {reply.get('status')} {len(out)} bytes")
-    if reply.get("error"):
-        print("   error:", json.dumps(reply["error"])[:400])
-    found = []
-    lists(reply.get("result", {}), ["result"], found)
-    found = [(path, rows) for path, rows in found if len(rows) > 1 or not found[1:]]
-    for path, rows in sorted(found, key=lambda pair: -size(pair[1]))[:3]:
-        print(f"   rows {path}: {len(rows)} rows, {size(rows)} bytes, {size(rows) // len(rows)} per row")
-    if not found:
-        return reply
-    path, rows = max(found, key=lambda pair: size(pair[1]))
-    keys = {}
-    for row in rows:
-        for key, value in row.items():
-            keys[key] = keys.get(key, 0) + size({key: value})
-    print("   bytes per row by key:", {key: total // len(rows) for key, total in keys.items()})
-    print("   sample row:", json.dumps(rows[0], separators=(",", ":"))[:700])
-    if kept:
-        narrow = [cut(row, kept.split(",")) for row in rows]
-        saved = size(rows) - size(narrow)
-        print(f"   kept {kept}: {size(narrow) // len(rows)} per row; reply {len(out)} -> {len(out) - saved}"
-              f" ({100 * (len(out) - saved) // len(out)}%); outside rows {len(out) - size(rows)}")
-    return reply
-
-
 last = {}
-for case in CASES:
-    try:
-        last = measure(*case, last) or last
-    except Exception as error:  # a slow or failing source must not stop the other cases
-        print(f"## {case[0]}: {error}")
+for name, args, fields in CASES:
+    if ONLY and name not in ONLY:
+        continue
+    args = args.replace("{id}", first_id(last)).split()
+    whole, whole_bytes = run(args)
+    narrow, narrow_bytes = run(args + ["--fields", fields])
+    last = whole
+    print(f"## {name}: `{' '.join(args)}` --fields {fields}")
+    if whole.get("status") not in ("complete", "partial") or narrow.get("status") not in ("complete", "partial"):
+        print(f"   not measured: whole {whole.get('status')} {json.dumps(whole.get('error', whole.get('_raw')))[:200]};"
+              f" narrow {narrow.get('status')} {json.dumps(narrow.get('error', narrow.get('_raw')))[:300]}")
+        continue
+    found = []
+    lists(whole.get("result", {}), ["result"], found)
+    path, rows = max(found, key=lambda pair: size(pair[1]))
+    narrowed = narrow.get("result", {})
+    for step in path.split("/")[1:]:
+        narrowed = narrowed[int(step)] if isinstance(narrowed, list) else narrowed.get(step, {})
+    same = within(narrow.get("result"), whole.get("result"))
+    print(f"   rows {path}: {len(rows)}; per row {size(rows) // len(rows)} -> {size(narrowed) // max(len(narrowed), 1)};"
+          f" reply {whole_bytes} -> {narrow_bytes} ({100 * narrow_bytes // whole_bytes}%);"
+          f" fields echo {narrow.get('fields')}; same rows in same order: {same}")
+    print("   first narrowed row:", json.dumps(narrowed[0] if narrowed else None, separators=(",", ":"))[:400])
     sys.stdout.flush()
