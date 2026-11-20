@@ -167,9 +167,11 @@ impl<'a> Cache<'a> {
         if let Some(known) = self.fonts.get(&key) {
             return Ok(Rc::clone(known));
         }
-        let subtype = entry(font, b"Subtype")
-            .and_then(|value| super::fonts::resolve(document, value))
-            .and_then(|value| value.as_name().ok());
+        let subtype = match entry(font, b"Subtype").and_then(|v| super::fonts::resolve(document, v))
+        {
+            Some(Object::Name(name)) => Some(name.as_slice()),
+            _ => None,
+        };
         let composite = subtype == Some(b"Type0");
         let symbol = super::symbol::is_symbol(document, font).then(|| {
             if matches!(subtype, Some(b"Type1" | b"MMType1" | b"TrueType"))
