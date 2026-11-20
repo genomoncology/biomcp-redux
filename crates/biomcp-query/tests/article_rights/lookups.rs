@@ -1,5 +1,5 @@
 //! Unfinished license lookups are reported as such and never stored as the answer.
-use super::{fixture, run};
+use super::{fixture, run, search};
 use biomcp_fetch::Fetch;
 use biomcp_types::{ArticleItem, ArticleSearch, Reason, ReplyData, Request, Status};
 use std::{
@@ -99,11 +99,12 @@ fn failed_lookup_pool_does_not_answer_a_new_search() {
         }
         fixture::response(request)
     });
-    let first = run(&fetch);
+    // The stub serves no NCBI open-access check, whose failure would keep the page partial (1059).
+    let first = search(&fetch, |query| query.without_access_lookup());
     assert_eq!(first.status(), Status::Partial);
     let pool = first.page.unwrap().pool.unwrap().id;
     *recovered.lock().unwrap() = true;
-    let second = run(&fetch);
+    let second = search(&fetch, |query| query.without_access_lookup());
     assert_eq!(
         second.status(),
         Status::Complete,

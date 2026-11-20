@@ -38,12 +38,22 @@ pub(super) fn get<'a>(
         ));
     }
     out.next = actions;
+    let unresolved = resolution == VariantResolution::Candidates && !query.sections().is_empty();
     status::item(
         &mut out,
         !body.items.is_empty() || resolution == VariantResolution::Candidates,
         resolution == VariantResolution::Unavailable,
-        resolution == VariantResolution::Candidates && !query.sections().is_empty(),
+        unresolved,
     );
+    if unresolved && out.status() == Status::Partial {
+        // The asked sections wait for one candidate; `resolution` says so.
+        status::missing(
+            &mut out,
+            biodata::text!("/result/resolution"),
+            Source::MyVariant,
+            None,
+        );
+    }
     out.body = super::reply(
         query,
         VariantCard {
