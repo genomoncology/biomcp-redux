@@ -82,7 +82,8 @@ pub(crate) fn serve(limits: ChildLimits) -> ExitCode {
 /// Test-only switch, compiled into debug builds only: a PDF whose second line is
 /// `%BIOMCP-TEST hang` never answers, and on Linux one whose second line is
 /// `%BIOMCP-TEST allocate` allocates until the cap stops it, so the trials can show the time
-/// limit and the cap at work without a hostile file.
+/// limit and the cap at work without a hostile file. On Linux, `%hold` pauses a valid test PDF
+/// until the test releases it, so a competing call can queue before that read finishes.
 #[cfg(debug_assertions)]
 fn exercise(bytes: &[u8]) {
     #[cfg(target_os = "linux")]

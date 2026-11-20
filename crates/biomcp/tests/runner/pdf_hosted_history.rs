@@ -93,7 +93,11 @@ pub(super) fn busy(after_match: bool) -> Result<(), Error> {
         || result
             .get("next")
             .and_then(serde_json::Value::as_array)
-            .is_some_and(|steps| !steps.is_empty())
+            .is_some_and(|steps| {
+                steps
+                    .iter()
+                    .any(|step| step.get("kind") == Some(&json!("page")))
+            })
         || body.get("stopped") != Some(&json!(true))
         || body.get("first").is_some()
         || result.get("status") != Some(&json!("partial"))
