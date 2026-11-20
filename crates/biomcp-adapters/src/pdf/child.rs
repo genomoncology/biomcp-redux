@@ -14,17 +14,11 @@ use serde_json::{Value, json};
 /// Most bytes a child's answer may hold: the whole text and its header.
 pub const MAX_OUTPUT: usize = super::MAX_EXPANDED_BYTES + 4096;
 
-<<<<<<< HEAD
 /// The child's side: read the PDF after the parent's first line, which gives the most pages
 /// to read, and encode the result for the parent.
 pub fn serve(input: &[u8]) -> Vec<u8> {
     let read = pages(input).and_then(|(pages, bytes)| super::embedded(bytes, pages, &|| false));
     let (header, text) = match read {
-=======
-/// The child's side: read `bytes` and encode the result for the parent.
-pub fn serve(bytes: &[u8]) -> Vec<u8> {
-    let (header, text) = match super::embedded(bytes, super::MAX_PAGES, &|| false) {
->>>>>>> origin/main
         Ok(read) => (
             json!({
                 "state": read.state,
@@ -41,7 +35,6 @@ pub fn serve(bytes: &[u8]) -> Vec<u8> {
     out
 }
 
-<<<<<<< HEAD
 /// The page bound the parent wrote on the input's first line, and the PDF after it.
 pub fn pages(input: &[u8]) -> Result<(usize, &[u8]), Reason> {
     let line = input
@@ -69,17 +62,6 @@ pub(super) fn read(
     input.extend_from_slice(bytes);
     match leg.isolated(&input, MAX_OUTPUT) {
         None => super::embedded(bytes, pages, expired),
-=======
-/// The parent's side: read `bytes` through the leg's isolation when there is one, in this
-/// process otherwise.
-pub(super) fn read(
-    leg: &biomcp_fetch::Leg<'_>,
-    bytes: &[u8],
-    expired: &dyn Fn() -> bool,
-) -> Result<Embedded, Reason> {
-    match leg.isolated(bytes, MAX_OUTPUT) {
-        None => super::embedded(bytes, super::MAX_PAGES, expired),
->>>>>>> origin/main
         Some(Ok(answer)) => decoded(&answer).unwrap_or_else(|Malformed| Ok(refused())),
         Some(Err(biomcp_fetch::Contained)) => Ok(refused()),
     }

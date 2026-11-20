@@ -21,12 +21,7 @@
         "/result/approvals/data/records/0/application_docs/0/id": "65680",
         "/result/approvals/data/records/0/application_docs/0/text/state": "text",
         "/result/approvals/data/records/0/application_docs/0/text/pages": 5,
-<<<<<<< HEAD:tests/cases/diagnostic/fda-letter-map-read-again.yaml
         "/result/approvals/data/records/0/supplement_purpose/message": "No complete supplement-purpose statement could be read from the linked FDA letter; no indication was inferred."
-=======
-        "/result/approvals/data/records/0/supplement_purpose/message": "The linked FDA letter's text could not be decoded (it reads as gibberish); its supplement purpose is unavailable.",
-        "/incomplete/0/at": "/result/approvals/data/records/0/application_docs/0/text"
->>>>>>> origin/main:tests/cases/diagnostic/fda-letter-garbled.yaml
       },
       "max_bytes": 20000
     }

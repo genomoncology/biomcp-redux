@@ -14,11 +14,7 @@ mod state;
 mod text;
 mod words;
 mod xref;
-<<<<<<< HEAD
 pub use child::{MAX_OUTPUT, pages, serve};
-=======
-pub use child::{MAX_OUTPUT, serve};
->>>>>>> origin/main
 pub(crate) use download::pdf;
 pub use download::{MAX_BYTES, download, refused};
 pub use embedded::{Embedded, embedded};

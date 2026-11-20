@@ -6,11 +6,7 @@ use serde_json::Value;
 /// Result nodes whose `state` marks requested data that could not be read, including source rows
 /// nested in a multi-part reply. A PDF whose text was cut short (`partial`), read as gibberish,
 /// damaged, or refused because its read was stopped at the memory or time limit counts (1075).
-<<<<<<< HEAD
 const MISSING_STATES: [&str; 15] = [
-=======
-const MISSING_STATES: [&str; 11] = [
->>>>>>> origin/main
     "unavailable",
     "no-text",
     "too-large",
@@ -18,14 +14,11 @@ const MISSING_STATES: [&str; 11] = [
     "partial",
     "damaged",
     "refused",
-<<<<<<< HEAD
     // A label version a label history could not read (1066).
     "section-not-bounded",
     "older-format",
     "not-fetched",
     "private-use",
-=======
->>>>>>> origin/main
     "skipped",
     "failed",
     "stale",
