@@ -214,19 +214,14 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
         ]));
     }
     let history = fields.section.contains(&DrugSection::LabelHistory);
-    let paged = fields.section_limit.or(fields.section_offset).is_some();
-    let drugsfda = fields.source == Some(DrugSource::Drugsfda) && !paged;
-    if !super::history::valid(
-        &fields.section,
-        drugsfda,
-        &fields.find,
+    let unpaged = fields.section_limit.or(fields.section_offset).is_none();
+    let drugsfda = fields.source == Some(DrugSource::Drugsfda) && unpaged;
+    let options = (
+        &*fields.find,
         fields.every_version,
-    ) || history
-        && fields
-            .label_section
-            .as_ref()
-            .is_none_or(|s| s.as_str().parse::<super::LabelHistorySection>().is_err())
-    {
+        fields.label_section.as_ref(),
+    );
+    if !super::history::valid(&fields.section, drugsfda, options) {
         return Err(QueryInvalid::new(&[
             "section",
             "find",
@@ -477,11 +472,7 @@ impl DrugGet {
     }
     /// A label history's texts, whether it reads every version, and its section.
     pub fn label_history(&self) -> (&[Text], bool, Option<super::LabelHistorySection>) {
-        let section = self
-            .fields
-            .label_section
-            .as_ref()
-            .and_then(|s| s.as_str().parse().ok());
+        let section = super::history::section(self.fields.label_section.as_ref());
         (&self.fields.find, self.fields.every_version, section)
     }
     /// The DDInter drug whose pairs with this drug the interactions section keeps.

@@ -69,18 +69,22 @@ impl LabelVersionState {
 }
 
 /// Whether a get's label-history options fit together: the section alone, from Drugs@FDA and
-/// unpaged, with at least one text to find; `--every-version` only with it.
+/// unpaged, with at least one text to find and one of its section names; `--every-version` only
+/// with it.
 pub(super) fn valid(
     sections: &[super::DrugSection],
     drugsfda: bool,
-    find: &[Text],
-    every: bool,
+    (find, every, section): (&[Text], bool, Option<&Text>),
 ) -> bool {
-    let history = sections.contains(&super::DrugSection::LabelHistory);
-    if !history {
+    if !sections.contains(&super::DrugSection::LabelHistory) {
         return find.is_empty() && !every;
     }
-    sections.len() == 1 && drugsfda && !find.is_empty()
+    sections.len() == 1 && drugsfda && !find.is_empty() && self::section(section).is_some()
+}
+
+/// The label-history section a `--label-section` value names.
+pub(super) fn section(value: Option<&Text>) -> Option<LabelHistorySection> {
+    value.and_then(|s| s.as_str().parse().ok())
 }
 
 /// The version of one section of an application's label in which searched text first appears.

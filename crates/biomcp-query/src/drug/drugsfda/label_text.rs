@@ -274,7 +274,7 @@ pub(super) fn find(flat: &str, section: LabelHistorySection) -> Found {
         flat.contains("FULL PRESCRIBING INFORMATION") || marks.iter().any(|m| m.2 == 1 || m.2 == 5);
     if structured {
         let number = match section {
-            S::BoxedWarning | S::SourceUnknown(_) => return boxed(flat, &marks),
+            S::BoxedWarning => return boxed(flat, &marks),
             S::IndicationsAndUsage => 1,
             S::Contraindications => 4,
             S::WarningsAndCautions => 5,
