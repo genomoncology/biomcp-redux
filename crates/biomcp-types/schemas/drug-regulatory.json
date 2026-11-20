@@ -314,6 +314,407 @@
       ],
       "type": "object"
     },
+    "Reply_DrugApprovals": {
+      "description": "Explicit native application/product history without a global approval flag.",
+      "properties": {
+        "approvals": {
+          "$ref": "#/$defs/Reply_Section_DrugRecords_DrugFdaSubmission",
+          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
+        },
+        "identity": {
+          "$ref": "#/$defs/Reply_DrugHeader",
+          "description": "Selected native identity, checked independently of section facts."
+        },
+        "order": {
+          "description": "Presentation order of application submissions, without interpreting their statuses.",
+          "type": "string"
+        },
+        "products": {
+          "description": "Native products, filtered only by an explicit product number; independent of submissions.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugFdaProduct"
+          },
+          "type": "array"
+        },
+        "source_updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_SourceUpdated"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native FDA dataset last_updated date, independent of submission dates and retrieval."
+        }
+      },
+      "required": [
+        "identity",
+        "approvals",
+        "order"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugFdaDocument": {
+      "description": "A native application document link, with embedded text only when its document ID is selected.",
+      "properties": {
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native document date, independent of event dates."
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Source document identifier."
+        },
+        "text": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PdfText"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded embedded letter text, present only when selected by document ID."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original document type."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original source URL.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugFdaIngredient": {
+      "description": "An unchanged native ingredient and strength, without local normalization.",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native ingredient name."
+        },
+        "strength": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Full source strength wording."
+        }
+      },
+      "type": "object"
+    },
+    "Reply_DrugFdaProduct": {
+      "description": "One explicit native product within the selected FDA application.",
+      "properties": {
+        "active_ingredients": {
+          "description": "Complete source-listed ingredient and strength pairs.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugFdaIngredient"
+          },
+          "type": "array"
+        },
+        "brand_name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source brand wording, without inferred ingredient equivalence."
+        },
+        "dosage_form": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native dosage form."
+        },
+        "marketing_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Product marketing status, independent of submission history."
+        },
+        "product_number": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Exact source product number, scoped by the response application."
+        },
+        "reference_drug": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original source reference-drug designation."
+        },
+        "reference_standard": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original source reference-standard designation when supplied."
+        },
+        "route": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native route; absent and null remain unavailable."
+        },
+        "te_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native therapeutic-equivalence code when supplied."
+        }
+      },
+      "required": [
+        "product_number"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugFdaProperty": {
+      "description": "A source-stated submission property, without interpretation.",
+      "properties": {
+        "code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original property code."
+        }
+      },
+      "type": "object"
+    },
+    "Reply_DrugFdaSubmission": {
+      "description": "One application-owned submission with common event facts and native FDA context.",
+      "properties": {
+        "application_docs": {
+          "description": "Native documents; document dates remain separate from the submission status date.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugFdaDocument"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "event": {
+          "$ref": "#/$defs/Reply_AuthorizationEvent",
+          "description": "Historical native status, type and status date; no product applicability is implied."
+        },
+        "review_priority": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original review priority."
+        },
+        "submission_class_code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native submission class code."
+        },
+        "submission_class_code_description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native submission class description."
+        },
+        "submission_number": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Original submission number, scoped by application and event kind."
+        },
+        "submission_property_type": {
+          "description": "Native property collection; missing stays missing and an empty list stays empty.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugFdaProperty"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "supplement_purpose": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugFdaSupplementPurpose"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal supplement purpose from its linked FDA letter; never a current-indication inference."
+        }
+      },
+      "required": [
+        "event",
+        "submission_number"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugFdaSupplementPurpose": {
+      "description": "FDA-letter evidence for an efficacy supplement, independent of the current product label.",
+      "oneOf": [
+        {
+          "description": "A complete source-stated purpose; may include several indications or other efficacy changes.",
+          "properties": {
+            "document_id": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "The document belongs to this submission in Drugs@FDA."
+            },
+            "state": {
+              "const": "stated",
+              "type": "string"
+            },
+            "text": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "FDA wording with PDF line wrapping normalized to spaces."
+            },
+            "url": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Published FDA letter URL.",
+              "format": "uri"
+            }
+          },
+          "required": [
+            "state",
+            "text",
+            "document_id",
+            "url"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Missing evidence does not mean the supplement has no indication.",
+          "properties": {
+            "document_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Selected native letter, when one was linked."
+            },
+            "message": {
+              "description": "What evidence is absent or could not be read.",
+              "type": "string"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Reason"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Actual download failure, when a request failed."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            },
+            "url": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Selected native letter URL, when supplied."
+            }
+          },
+          "required": [
+            "state",
+            "message"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "Reply_DrugGet": {
       "description": "A source-selected drug request echoed with a native ID after name resolution, otherwise with the name as given.",
       "properties": {
@@ -765,11 +1166,71 @@
       ],
       "type": "object"
     },
+    "Reply_DrugRecords_DrugFdaSubmission": {
+      "description": "One bounded native row page, without fabricating an unknown total.",
+      "properties": {
+        "offset": {
+          "description": "Source row offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "records": {
+          "description": "Native source rows in order.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugFdaSubmission"
+          },
+          "type": "array"
+        },
+        "retrieved": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Actual retrieval date, never substituted for source revision."
+        },
+        "total": {
+          "description": "Native total only when supplied.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "truncated": {
+          "description": "Native source truncation indicator.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dataset or bundle revision."
+        }
+      },
+      "required": [
+        "offset"
+      ],
+      "type": "object"
+    },
     "Reply_DrugRegulatory": {
       "description": "Source-scoped regulator events preserving date roles and original status.",
       "properties": {
         "date_roles": {
-          "description": "The source's own published description of each date role in these records.",
+          "description": "The publisher's description of each date role.",
           "items": {
             "$ref": "#/$defs/Reply_DateRoleLabel"
           },
@@ -780,13 +1241,63 @@
           "description": "Selected native identity, checked independently of section facts."
         },
         "regulatory": {
-          "$ref": "#/$defs/Reply_Section_DrugRecords_AuthorizationEvent",
-          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes. For EMA,\neach record's `indication` is EMA's medicines-data `therapeutic_indication`: the web summary\nshown on the EPAR page, not the SmPC section 4.1 text, whose wording can differ."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Section_DrugRecords_AuthorizationEvent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "EMA medicine events. Each indication is the publisher's web summary."
+        },
+        "regulatory_context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Section_DrugRegulatoryContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FDA lookup state and application facts for an Open Targets drug name."
         }
       },
       "required": [
-        "identity",
-        "regulatory"
+        "identity"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugRegulatoryContext": {
+      "description": "Native FDA events beside phase facts, without an indication-level assertion.",
+      "properties": {
+        "applications": {
+          "description": "Source-owned application identities, products and dated submission events.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugApprovals"
+          },
+          "type": "array"
+        },
+        "indications_linked": {
+          "description": "False: the indication claims and FDA events have not been linked.",
+          "type": "boolean"
+        },
+        "notice": {
+          "description": "Plain statement of the name-only relationship and independent source facts.",
+          "type": "string"
+        },
+        "total_applications": {
+          "description": "Native FDA application count for the drug-name lookup.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "indications_linked",
+        "notice",
+        "total_applications",
+        "applications"
       ],
       "type": "object"
     },
@@ -936,6 +1447,68 @@
       "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
+    "Reply_PdfText": {
+      "description": "One small contiguous source-text window, without summary or interpretation.",
+      "properties": {
+        "offset": {
+          "description": "Zero-based mechanical text-fragment offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pages": {
+          "description": "Native PDF pages when readable.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/Reply_PdfTextState",
+          "description": "Extraction outcome; no-text includes scanned PDFs and does not imply OCR."
+        },
+        "text": {
+          "description": "Verbatim extracted text in document order; omitted when unavailable or when a find returns passages.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "total": {
+          "description": "Number of fragments in the readable document.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Original FDA document URL.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "url",
+        "state",
+        "offset",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Reply_PdfTextState": {
+      "description": "Bounded PDF text reader outcome.",
+      "enum": [
+        "text",
+        "no-text",
+        "too-large",
+        "garbled",
+        "partial",
+        "damaged",
+        "refused"
+      ],
+      "type": "string"
+    },
     "Reply_PoolInfo": {
       "description": "Fixed lifetime and size of a stored search snapshot.",
       "properties": {
@@ -1078,6 +1651,238 @@
           "properties": {
             "data": {
               "$ref": "#/$defs/Reply_DrugRecords_AuthorizationEvent",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not-applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Reply_Section_DrugRecords_DrugFdaSubmission": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_DrugRecords_DrugFdaSubmission",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not-applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Reply_Section_DrugRegulatoryContext": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_DrugRegulatoryContext",
               "description": "Whole section data."
             },
             "source": {
@@ -1685,6 +2490,51 @@
       ],
       "type": "string"
     },
+    "Reply_SourceTimestamp": {
+      "description": "Checked source timestamp with its stated precision and offset.",
+      "properties": {
+        "timezone": {
+          "$ref": "#/$defs/Reply_SourceTimestampTimezone",
+          "description": "Whether the native timestamp includes a timezone."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_SourceTimestampValue",
+          "description": "Checked RFC 3339 source timestamp.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "value",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "Reply_SourceTimestampTimezone": {
+      "description": "Availability of timezone information in a native timestamp.",
+      "enum": [
+        "in-value",
+        "source-gave-none"
+      ],
+      "type": "string"
+    },
+    "Reply_SourceTimestampValue": {
+      "description": "RFC 3339 source text preserving offset and precision. The parser additionally validates the calendar day and UTC month-end position of leap seconds. Years follow PartialDate's 0001–9999 range.",
+      "pattern": "^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?([Zz]|[+-]([01][0-9]|2[0-3]):[0-5][0-9])(?![\\s\\S])",
+      "type": "string"
+    },
+    "Reply_SourceUpdated": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_PartialDate",
+          "description": "A source date keeps its year, month or day precision."
+        },
+        {
+          "$ref": "#/$defs/Reply_SourceTimestamp",
+          "description": "A source timestamp keeps its stated fractional precision and offset."
+        }
+      ],
+      "description": "Source update metadata preserving the date or timestamp supplied by its publisher."
+    },
     "Reply_Status": {
       "description": "Overall command outcome.",
       "enum": [
@@ -1757,7 +2607,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-regulatory/7",
+  "$id": "biomcp.drug-regulatory/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1834,7 +2684,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-regulatory/7",
+      "const": "biomcp.drug-regulatory/8",
       "type": "string"
     },
     "sources": {

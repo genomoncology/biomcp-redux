@@ -2,11 +2,13 @@
 
 ## PM decision, 2026-11-20
 
-Use the existing `regulatory` section for FDA context from an Open Targets drug. The indications reply points to it. Move only provenance and identity shared by construction for the selected drug, UniProt entry or versioned GTR test. The rankings below remain evidence for later work.
+Use the existing `regulatory` section for FDA context from an Open Targets drug. The indications reply points to it. Move only provenance and identity shared by construction for the selected drug, UniProt entry or versioned GTR test. The rankings and modeled alternatives below remain evidence for later work.
 
-**I recommend changing five lists.** Sharing the fields below saved 214,441 bytes across 106 recorded replies in a reversible model. Each original row could be reconstructed exactly. FDA regulatory context needs a separate decision about how an application identifies its products.
+## Original scan and proposal
 
-| Recommended list and shared fields | Replies / distinct cases | Net bytes saved | Bytes per reply |
+Sharing the fields below saved 214,441 bytes across 106 recorded replies in a reversible model. Each original row could be reconstructed exactly. FDA regulatory context needs a separate decision about how an application identifies its products.
+
+| Modeled list and shared fields | Replies / distinct cases | Net bytes saved | Bytes per reply |
 |---|---:|---:|---:|
 | Variant conservation scores, subject and attribution within each candidate allele | 15 / 3 | 71,685 | 4,779 |
 | Cell-line cross-references, category and namespace | 48 / 1 | 69,840 | 1,351–1,663 |
@@ -34,11 +36,11 @@ Outside the rows, 2,130 of 3,460 row-bearing replies crossed 25%. Another 4,596 
 | `get drug imatinib indications --source opentargets` | 10 | `drug`, `attribution` | 18,506 → 16,480 |
 | Same indications command with `--limit 50` | 50 | Same two fields | 64,809 → 53,703 |
 
-**FDA decision.** The default indications reply spent 12,566 bytes (68%) on FDA context. At 50 rows it spent 42,086 (65%). Moving constant application fields alone saves 2,242 and 4,537 bytes respectively. I recommend storing each distinct FDA product once inside `regulatory_context`, with ordered product indices per application and shared defaults for applications, products and submissions. The caller pays one in-reply lookup per product. The dated events, submitters and notice that the indications are unlinked stay in the same reply, as the source-age comparison case requires.
+**FDA context model.** The default indications reply spent 12,566 bytes (68%) on FDA context. At 50 rows it spent 42,086 (65%). Moving constant application fields alone saves 2,242 and 4,537 bytes respectively. The model stored each distinct FDA product once inside `regulatory_context`, with ordered product indices per application and shared defaults for applications, products and submissions. The caller pays one in-reply lookup per product. The dated events, submitters and notice that the indications are unlinked stay in the same reply, as the source-age comparison case requires.
 
-Applied only to FDA context, the model reduced it to 5,275 of 11,215 bytes (47%) and 21,995 of 44,718 (49%). Both expanded to the exact original FDA object. Approve this separately from shortening the indication rows, which would change those percentages. [FDA size model](1076-regulatory-context.py)
+Applied only to FDA context, the model reduced it to 5,275 of 11,215 bytes (47%) and 21,995 of 44,718 (49%). Both expanded to the exact original FDA object. Shortening the indication rows would change those percentages. [FDA size model](1076-regulatory-context.py)
 
-## Reply contract and proof after approval
+## Original proposal for reply shape and proof
 
 Put defaults before their list, scoped to that page. A row inherits an approved field by its exact path and carries its own differing value. If any row lacks the field, leave that column explicit so absence, false and an unchecked licence stay distinct. Use defaults only where they save bytes. Apply `--fields` to effective rows, keeping required attribution, identifiers and pivots.
 

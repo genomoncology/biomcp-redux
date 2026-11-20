@@ -2226,30 +2226,33 @@
       ],
       "type": "object"
     },
-    "Reply_DrugIndicationClaim": {
-      "description": "A source indication retaining its full population and combination wording.",
+    "Reply_DrugIndicationRow": {
+      "description": "One claim about the drug identified by the reply.",
       "properties": {
         "attribution": {
-          "$ref": "#/$defs/Reply_Attribution",
-          "description": "Native claim provenance."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Attribution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Provenance of an individual claim when the source identifies it separately."
         },
         "combination": {
-          "description": "Complete source-stated combination members, without local joins.",
+          "description": "Native combination members.",
           "items": {
             "$ref": "#/$defs/Reply_DrugIdentity"
           },
           "type": "array"
         },
         "disease_references": {
-          "description": "Independently labeled native disease identifiers, without cross-source normalization.",
+          "description": "Source-native disease references.",
           "items": {
             "$ref": "#/$defs/Reply_DrugDiseaseReference"
           },
           "type": "array"
-        },
-        "drug": {
-          "$ref": "#/$defs/Reply_DrugIdentity",
-          "description": "Source drug identity."
         },
         "indication": {
           "anyOf": [
@@ -2271,10 +2274,10 @@
               "type": "null"
             }
           ],
-          "description": "Population wording explicitly supplied separately."
+          "description": "Native population wording."
         },
         "references": {
-          "description": "Source-native supporting references.",
+          "description": "Native supporting references.",
           "items": {
             "$ref": "#/$defs/Reply_DrugNativeReference"
           },
@@ -2289,32 +2292,35 @@
               "type": "null"
             }
           ],
-          "description": "Source-stated development stage, separate from authorization events."
+          "description": "Source-native development stage."
         }
       },
-      "required": [
-        "drug",
-        "attribution"
-      ],
       "type": "object"
     },
     "Reply_DrugIndicationsPart": {
-      "description": "Indications without the identity.",
+      "description": "Indication facts for the reply's drug identity.",
       "properties": {
-        "indications": {
-          "$ref": "#/$defs/Reply_Section_DrugRecords_DrugIndicationClaim",
-          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
-        },
-        "regulatory_context": {
+        "indication_attribution": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_DrugRegulatoryContext"
+              "$ref": "#/$defs/Reply_Attribution"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Independent FDA application events found by the source's drug-name lookup."
+          "description": "Attribution shared by Open Targets indications. ChEMBL identifies each claim separately."
+        },
+        "indications": {
+          "$ref": "#/$defs/Reply_Section_DrugRecords_DrugIndicationRow",
+          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
+        },
+        "regulatory_context": {
+          "description": "The command for FDA application events matched independently by drug name.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -2977,7 +2983,7 @@
       ],
       "type": "object"
     },
-    "Reply_DrugRecords_DrugIndicationClaim": {
+    "Reply_DrugRecords_DrugIndicationRow": {
       "description": "One bounded native row page, without fabricating an unknown total.",
       "properties": {
         "offset": {
@@ -2989,7 +2995,7 @@
         "records": {
           "description": "Native source rows in order.",
           "items": {
-            "$ref": "#/$defs/Reply_DrugIndicationClaim"
+            "$ref": "#/$defs/Reply_DrugIndicationRow"
           },
           "type": "array"
         },
@@ -3194,20 +3200,35 @@
       "description": "Regulator events without the identity.",
       "properties": {
         "date_roles": {
-          "description": "The source's own published description of each date role in these records.",
+          "description": "The publisher's description of each date role.",
           "items": {
             "$ref": "#/$defs/Reply_DateRoleLabel"
           },
           "type": "array"
         },
         "regulatory": {
-          "$ref": "#/$defs/Reply_Section_DrugRecords_AuthorizationEvent",
-          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes. For EMA,\neach record's `indication` is EMA's medicines-data `therapeutic_indication`: the web summary\nshown on the EPAR page, not the SmPC section 4.1 text, whose wording can differ."
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Section_DrugRecords_AuthorizationEvent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "EMA medicine events. Each indication is the publisher's web summary."
+        },
+        "regulatory_context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Section_DrugRegulatoryContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FDA lookup state and application facts for an Open Targets drug name."
         }
       },
-      "required": [
-        "regulatory"
-      ],
       "type": "object"
     },
     "Reply_DrugSection": {
@@ -5553,14 +5574,14 @@
         }
       ]
     },
-    "Reply_Section_DrugRecords_DrugIndicationClaim": {
+    "Reply_Section_DrugRecords_DrugIndicationRow": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
         {
           "description": "The source returned data.",
           "properties": {
             "data": {
-              "$ref": "#/$defs/Reply_DrugRecords_DrugIndicationClaim",
+              "$ref": "#/$defs/Reply_DrugRecords_DrugIndicationRow",
               "description": "Whole section data."
             },
             "source": {
@@ -5793,6 +5814,122 @@
           "properties": {
             "data": {
               "$ref": "#/$defs/Reply_DrugRecords_DrugTargetRelation",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not-applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Reply_Section_DrugRegulatoryContext": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_DrugRegulatoryContext",
               "description": "Whole section data."
             },
             "source": {
@@ -8159,7 +8296,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.drug-sections/2",
+  "$id": "biomcp.drug-sections/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -8236,7 +8373,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.drug-sections/2",
+      "const": "biomcp.drug-sections/3",
       "type": "string"
     },
     "sources": {
