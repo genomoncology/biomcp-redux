@@ -137,7 +137,7 @@ pub struct LabelVersion {
     pub submission: Text,
     /// What reading this version found.
     pub state: LabelVersionState,
-    /// The label PDF, given for the matching version, the version before it and unread versions.
+    /// The label PDF: given on `first`, on `before` and on unread versions in `read`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub label: Option<Text>,
@@ -158,7 +158,7 @@ pub struct LabelVersionMatch {
     /// `6.2 Postmarketing Experience`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub heading: Option<Text>,
-    /// At most two distinct sentences holding a searched text, each at most 400 characters,
+    /// At most two distinct sentences holding a searched text, each at most 300 characters,
     /// as the PDF's text gives them.
     pub sentences: Box<[Text]>,
     /// True when the section's text holds private-use characters, which stand for symbols,

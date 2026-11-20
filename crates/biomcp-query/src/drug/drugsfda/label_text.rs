@@ -3,8 +3,9 @@
 //!
 //! The reader runs headings into the text around them, so a heading is found inside a line: a
 //! top-level section number and its title in capitals, such as `5 WARNINGS AND PRECAUTIONS`, or
-//! its first subsection, such as `5.1 Myopathy`. A section ends at the next top-level heading of
-//! another section. The last heading with at least 200 characters under it is the section
+//! its first subsection, such as `5.1 Myopathy`. A section ends at the next titled heading of
+//! another section, or at the first subsection or capitalized title of a later section, since
+//! the sections run in order and table rows can look like an earlier section's subsection. The last heading with at least 200 characters under it is the section
 //! itself, which passes over the highlights and the contents. The boxed warning is the last
 //! `WARNING:` block before section 1. Labels in the format used before 2006 have plain headings
 //! (WARNINGS, PRECAUTIONS, ADVERSE REACTIONS) and no boxed-warning heading. FDA's stamp, page
@@ -131,8 +132,12 @@ fn word(c: char) -> bool {
     c.is_alphanumeric() || c == '_'
 }
 
-/// Every top-level heading in `flat`, as (start, end, section number), in order.
-fn headings(flat: &str) -> Vec<(usize, usize, u8)> {
+/// A heading in `flat`: start, end, section number, and whether it gives the title (`6 ADVERSE
+/// REACTIONS`) rather than the first subsection (`6.1 Clinical Studies`).
+type Mark = (usize, usize, u8, bool);
+
+/// Every top-level heading in `flat`, in order.
+fn headings(flat: &str) -> Vec<Mark> {
     let mut found = Vec::new();
     for (at, c) in flat.char_indices() {
         let before = flat.get(..at).and_then(|b| b.chars().last());
@@ -159,22 +164,48 @@ fn headings(flat: &str) -> Vec<(usize, usize, u8)> {
                 .then_some(digits + 3)
         });
         if let Some(length) = titled.or(first) {
-            found.push((at, at + length, *number));
+            found.push((at, at + length, *number, titled.is_some()));
         }
     }
     found
 }
 
+/// Where section `number`, opened at `end`, stops: at the next titled heading of another section,
+/// or at the first subsection or capitalized title of a later one. A table row such as
+/// `2.8 3.1 Constipation` reads as an earlier section's first subsection, and a heading whose
+/// number the PDF draws apart reads as its title alone, so neither of those ends a section.
+fn stop(flat: &str, marks: &[Mark], number: u8, end: usize) -> usize {
+    let marked = marks
+        .iter()
+        .find(|m| m.0 >= end && m.2 != number && (m.3 || m.2 > number))
+        .map_or(flat.len(), |m| m.0);
+    let rest = flat.get(end..marked).unwrap_or_default();
+    TITLES
+        .iter()
+        .filter(|(n, _)| *n > number)
+        .flat_map(|(_, titles)| titles.iter())
+        .filter_map(|title| bare(rest, title))
+        .min()
+        .map_or(marked, |at| end + at)
+}
+
+/// The first place `title` stands alone in `text`, not inside a longer word.
+fn bare(text: &str, title: &str) -> Option<usize> {
+    text.match_indices(title).map(|(at, _)| at).find(|at| {
+        let before = text.get(..*at).and_then(|b| b.chars().last());
+        let after = text.get(at + title.len()..).and_then(|a| a.chars().next());
+        before.is_none_or(|b| !b.is_alphabetic() && b != '-')
+            && after.is_none_or(|a| !a.is_alphabetic() && a != '-')
+    })
+}
+
 /// The text of section `number`, or why there is none.
-fn numbered(flat: &str, marks: &[(usize, usize, u8)], number: u8) -> Found {
+fn numbered(flat: &str, marks: &[Mark], number: u8) -> Found {
     let mut good: Vec<(usize, usize)> = Vec::new();
     let mut any = false;
-    for (start, end, _) in marks.iter().filter(|m| m.2 == number) {
+    for (start, end, _, _) in marks.iter().filter(|m| m.2 == number) {
         any = true;
-        let stop = marks
-            .iter()
-            .find(|m| m.2 != number && m.0 >= *end)
-            .map_or(flat.len(), |m| m.0);
+        let stop = stop(flat, marks, number, *end);
         if stop - start >= LEAST {
             good.push((*start, stop));
         }
@@ -192,7 +223,7 @@ fn numbered(flat: &str, marks: &[(usize, usize, u8)], number: u8) -> Found {
 }
 
 /// The boxed warning: the last `WARNING:` block before section 1's body.
-fn boxed(flat: &str, marks: &[(usize, usize, u8)]) -> Found {
+fn boxed(flat: &str, marks: &[Mark]) -> Found {
     let has_box = flat.contains("WARNING: ") || flat.contains("WARNINGS: ");
     let Found::Section(indications) = numbered(flat, marks, 1) else {
         return if has_box {
@@ -344,7 +375,7 @@ pub(super) fn hits(section: &str, finds: &[biodata::Text]) -> Vec<usize> {
     found
 }
 
-/// At most two distinct sentences holding a hit, each cut to 400 characters.
+/// At most two distinct sentences holding a hit, each cut to 300 characters.
 pub(super) fn sentences(section: &str, hits: &[usize]) -> Vec<String> {
     let chars: Vec<char> = section.chars().collect();
     let mut out: Vec<String> = Vec::new();
@@ -357,8 +388,8 @@ pub(super) fn sentences(section: &str, hits: &[usize]) -> Vec<String> {
             .find(|i| chars.get(*i..*i + 2) == Some(&['.', ' ']))
             .map_or(chars.len(), |i| i + 1);
         let mut sentence: String = chars.get(start..end).unwrap_or_default().iter().collect();
-        if sentence.chars().count() > 400 {
-            sentence = sentence.chars().take(399).collect::<String>() + "…";
+        if sentence.chars().count() > 300 {
+            sentence = sentence.chars().take(299).collect::<String>() + "…";
         }
         if !out.contains(&sentence) {
             out.push(sentence);
@@ -400,21 +431,4 @@ pub(super) fn heading(flat: &str, section: &str, at: usize) -> Option<String> {
             (title.len() <= 80 && !title.is_empty()).then(|| format!("{number} {title}"))
         });
     Some(entry.unwrap_or(number))
-}
-
-#[cfg(test)]
-mod probe {
-    #[test]
-    fn probe_livalo() {
-        let t = std::fs::read_to_string("/tmp/biomcp-1066-probe.txt").unwrap();
-        let flat = super::clean(&t);
-        let marks = super::headings(&flat);
-        eprintln!("PROBE marks {:?}", marks.iter().filter(|m| m.2 >= 5 && m.2 <= 8).collect::<Vec<_>>());
-        for m in marks.iter().filter(|m| m.0 > 12000 && m.0 < 20000) { eprintln!("PROBE near {:?} {:?}", m, &flat[m.0.saturating_sub(40)..m.1 + 20]); }
-        eprintln!("PROBE myas {:?} len {}", flat.find("myasthenia"), flat.len());
-        match super::find(&flat, biomcp_types::LabelHistorySection::AdverseReactions) {
-            super::Found::Section(s) => eprintln!("PROBE section {} {:?} hits {:?}", s.len(), &s[..80], super::hits(&s, &[biodata::Text::from_source("myasthenia gravis").unwrap()])),
-            other => eprintln!("PROBE {other:?}"),
-        }
-    }
 }

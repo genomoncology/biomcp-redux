@@ -360,7 +360,8 @@ fn reply(
         read: search
             .opened
             .keys()
-            .filter_map(|at| version(search, *at, Some(*at) == first || Some(*at) == before))
+            // `first` and `before` carry their own links, so the list gives only unread ones.
+            .filter_map(|at| version(search, *at, false))
             .collect(),
     })
 }
