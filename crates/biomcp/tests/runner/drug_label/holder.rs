@@ -39,10 +39,16 @@ fn fallback(missing: bool) -> Result<(), Box<dyn std::error::Error>> {
                 return;
             };
             if missing {
-                reply["meta"]["results"]["total"] = json!(0);
-                reply["results"] = json!([]);
-            } else {
-                reply["results"][0]["openfda"]["application_number"] = json!(["BLA761219"]);
+                if let Some(total) = reply.pointer_mut("/meta/results/total") {
+                    *total = json!(0);
+                }
+                if let Some(rows) = reply.get_mut("results") {
+                    *rows = json!([]);
+                }
+            } else if let Some(application) =
+                reply.pointer_mut("/results/0/openfda/application_number")
+            {
+                *application = json!(["BLA761219"]);
             }
         },
         json!([{
