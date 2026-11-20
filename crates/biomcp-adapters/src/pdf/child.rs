@@ -20,15 +20,15 @@ pub fn serve(input: &[u8]) -> Vec<u8> {
     let read = pages(input).and_then(|(pages, bytes)| super::embedded(bytes, pages, &|| false));
     let (header, text) = match read {
         Ok(read) => {
-            let mut header = json!({
-                "state": read.state,
-                "pages": read.pages,
-                "missing": read.missing.map(missing_name),
-            });
+            let mut header = serde_json::Map::from_iter([
+                ("state".into(), json!(read.state)),
+                ("pages".into(), json!(read.pages)),
+                ("missing".into(), json!(read.missing.map(missing_name))),
+            ]);
             if read.private_symbol && read.state.readable() {
-                header["private_symbol"] = true.into();
+                header.insert("private_symbol".into(), true.into());
             }
-            (header, read.text)
+            (Value::Object(header), read.text)
         }
         Err(reason) => (json!({ "error": reason }), String::new()),
     };
@@ -117,7 +117,11 @@ fn decoded(answer: &[u8]) -> Result<Result<Embedded, Reason>, Malformed> {
         state,
         text,
         missing,
-        private_symbol: header.get("private_symbol").and_then(Value::as_bool) == Some(true),
+        private_symbol: match header.get("private_symbol") {
+            Some(Value::Bool(value)) => *value,
+            None => false,
+            _ => return Err(Malformed),
+        },
     }))
 }
 
