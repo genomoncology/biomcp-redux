@@ -25,6 +25,10 @@ pub struct DrugHeader {
     /// Complete native name fields matching the search input; omitted outside label searches.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub matched_name: Option<super::DrugNameMatch>,
+    /// The label sentence holding the searched mechanism wording; openFDA label mechanism searches only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub matched_sentence: Option<Text>,
     /// Native record type.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Text>,

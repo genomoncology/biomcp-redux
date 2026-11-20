@@ -200,7 +200,7 @@ pub use drug::{
     DrugRegulatoryContext, DrugRegulatoryPart, DrugSearch, DrugSection, DrugSectionBody,
     DrugSectionPart, DrugSectionReply, DrugSections, DrugSource, DrugTargets, DrugTargetsPart,
     DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart,
-    LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
+    LabelApplicationType, LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
     OPENFDA_LABEL_HEADINGS, WhoDateStatus, openfda_label_field,
 };
 

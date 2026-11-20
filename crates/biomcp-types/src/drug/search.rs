@@ -22,9 +22,32 @@ pub enum DrugFdaSort {
     /// original submission last. BioMCP reads the whole match set and orders it.
     OriginalApproval,
 }
+/// An openFDA label's FDA application type, read from the prefix of openFDA's application_number.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["nda", "anda", "bla"])))]
+pub enum LabelApplicationType {
+    /// New Drug Application.
+    Nda,
+    /// Abbreviated New Drug Application, the generics.
+    Anda,
+    /// Biologics License Application.
+    Bla,
+}
+impl LabelApplicationType {
+    /// The application_number prefix openFDA prints for this type.
+    pub fn prefix(self) -> &'static str {
+        match self {
+            Self::Nda => "NDA",
+            Self::Anda => "ANDA",
+            Self::Bla => "BLA",
+        }
+    }
+}
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
-    WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. \
+    WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. \
     Drugs@FDA accepts a name or an applicant. Other sources require a name."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -36,7 +59,7 @@ pub struct DrugSearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Drug name phrase.
-    /// FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
+    /// FDA drug recalls, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
     /// Drugs@FDA searches brands and ingredients,
     /// exact names before word matches. openFDA labels search exact then word brand/generic names,
     /// then label text (including indications) when no names match; source matches need not be exact names.
@@ -73,6 +96,23 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     indication: Option<Text>,
+    /// Literal label mechanism of action; openFDA labels only.
+    /// Search the source Mechanism of Action field for this wording; no synonyms or drug class
+    /// inference, so labels wording the mechanism differently are not returned.
+    #[serde(
+        default,
+        deserialize_with = "present_query",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
+    mechanism: Option<Text>,
+    /// Label application types to keep; openFDA labels only.
+    /// By openFDA application_number prefix; nda,bla leaves out generics (ANDA).
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
+    application_type: Box<[LabelApplicationType]>,
     /// Applicant name start; Drugs@FDA only.
     /// Matches native sponsor_name values starting with this text, ignoring letter case;
     /// no company-family or subsidiary inference. An optional name narrows the same search.
@@ -179,6 +219,12 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.indication.is_some() && fields.source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["indication", "source"]));
         }
+        if fields.mechanism.is_some() && fields.source != DrugSource::OpenfdaLabel {
+            return Err(QueryInvalid::new(&["mechanism", "source"]));
+        }
+        if !fields.application_type.is_empty() && fields.source != DrugSource::OpenfdaLabel {
+            return Err(QueryInvalid::new(&["application_type", "source"]));
+        }
         if fields.name_selector.is_some() && fields.source != DrugSource::Chembl {
             return Err(QueryInvalid::new(&["name_selector", "source"]));
         }
@@ -224,6 +270,7 @@ impl TryFrom<SearchFields> for DrugSearch {
             fields.source,
             fields.query.is_some()
                 || fields.indication.is_some()
+                || fields.mechanism.is_some()
                 || fields.applicant.is_some()
                 || (fields.source == DrugSource::WhoPq && who_filters),
             fields.firm.is_some()
@@ -280,6 +327,8 @@ impl DrugSearch {
             exact_term: false,
             name_snapshot: None,
             indication: None,
+            mechanism: None,
+            application_type: Box::default(),
             source,
             limit,
             offset: 0,
@@ -346,6 +395,14 @@ impl DrugSearch {
     /// Literal native Indications and Usage phrase; never an inferred indication.
     pub fn indication(&self) -> Option<&Text> {
         self.0.indication.as_ref()
+    }
+    /// Literal native Mechanism of Action phrase; never an inferred drug class.
+    pub fn mechanism(&self) -> Option<&Text> {
+        self.0.mechanism.as_ref()
+    }
+    /// openFDA label application types to keep; empty keeps every label.
+    pub fn application_type(&self) -> &[LabelApplicationType] {
+        &self.0.application_type
     }
     /// Start of a Drugs@FDA sponsor name, matched by the source without letter case.
     pub fn applicant(&self) -> Option<&Text> {

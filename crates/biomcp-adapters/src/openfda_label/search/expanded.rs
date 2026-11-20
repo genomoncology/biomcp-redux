@@ -32,13 +32,13 @@ pub struct NameGroup {
 }
 
 impl NameGroup {
-    /// The selectors for these names, narrowed by a literal indication; `None` when the longest
+    /// The selectors for these names, narrowed by a search's scope; `None` when the longest
     /// request would pass the bound. One name gives the same requests as its literal search.
-    pub fn new(names: &[Text], indication: Option<&Text>) -> Option<Self> {
+    pub fn new(names: &[Text], scope: Option<&str>) -> Option<Self> {
         if names.is_empty() {
             return None;
         }
-        let scope = indication.map(|i| format!("indications_and_usage:{}", literal(i.as_str())));
+        let scope = scope.map(str::to_owned);
         let join = |each: fn(&str) -> String| {
             names
                 .iter()

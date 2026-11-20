@@ -26,6 +26,7 @@ fn native_header(
     Ok(DrugHeader {
         name_resolution: None,
         matched_name: None,
+        matched_sentence: None,
         id: id.parse()?,
         source: DrugSource::Opentargets,
         name: field_text(&mut p.list, p.source, p.record.clone(), "name", name),

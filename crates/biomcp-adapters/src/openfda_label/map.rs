@@ -31,6 +31,7 @@ impl RawRecord {
         Ok(DrugHeader {
             name_resolution: None,
             matched_name: None,
+            matched_sentence: None,
             id: self.set_id.clone(),
             source: DrugSource::OpenfdaLabel,
             version: self.version.clone(),
@@ -222,6 +223,10 @@ impl Record {
                 .parts("indications_and_usage")
                 .map_or(0, numbered_indications),
         }
+    }
+    /// The first sentence of a heading that holds a phrase's words in order, as openFDA matches them.
+    pub fn sentence(&self, heading: &str, phrase: &str) -> Result<Option<Text>, RequestError> {
+        self.0.sentence(heading, phrase)
     }
     /// Preserve search's existing complete-name and spacing normalization.
     pub fn name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {

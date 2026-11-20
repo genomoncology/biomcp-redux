@@ -195,6 +195,7 @@ fn header(number: &str, name: Option<biodata::Text>) -> Result<DrugHeader, Reque
         name,
         identity_level: biodata::DrugIdentityLevel::Unknown,
         matched_name: None,
+        matched_sentence: None,
         r#type: None,
         version: None,
         effective_date: None,

@@ -1,4 +1,4 @@
-//! Literal indication search and unfielded recovery of labels without harmonized names.
+//! Literal indication and mechanism search and unfielded recovery of labels without harmonized names.
 //! Native application numbers remain exact, separate from brand or ingredient identity.
 //! Publisher fields: <https://open.fda.gov/apis/drug/label/searchable-fields/>.
 use super::{Page, literal, page};
@@ -22,19 +22,47 @@ pub fn search(leg: &Leg<'_>, name: &Text, limit: u32, offset: u32) -> Search {
     let page = discover(leg, name, limit, offset, &mut free_text, None);
     Search { page, free_text }
 }
-/// Search the label's own indication wording, optionally constrained by a name.
-pub fn search_indication(
+/// The selector that narrows every request of one search: the label's own indication and
+/// mechanism wording, each a literal phrase, and its application types by number prefix.
+pub fn scope(query: &biomcp_types::DrugSearch) -> Option<String> {
+    let mut parts = Vec::new();
+    if let Some(indication) = query.indication() {
+        parts.push(format!(
+            "indications_and_usage:{}",
+            literal(indication.as_str())
+        ));
+    }
+    if let Some(mechanism) = query.mechanism() {
+        parts.push(format!(
+            "mechanism_of_action:{}",
+            literal(mechanism.as_str())
+        ));
+    }
+    if !query.application_type().is_empty() {
+        let types: Vec<String> = query
+            .application_type()
+            .iter()
+            .map(|kind| format!("{}*", kind.prefix()))
+            .collect();
+        parts.push(format!(
+            "openfda.application_number:({})",
+            types.join(" OR ")
+        ));
+    }
+    (!parts.is_empty()).then(|| parts.join(" AND "))
+}
+/// Search within a scope, optionally constrained by a name.
+pub fn search_scoped(
     leg: &Leg<'_>,
-    indication: &Text,
+    scope: &str,
     name: Option<&Text>,
     limit: u32,
     offset: u32,
 ) -> Search {
-    let selector = format!("indications_and_usage:{}", literal(indication.as_str()));
     let mut free_text = None;
     let page = match name {
-        Some(name) => discover(leg, name, limit, offset, &mut free_text, Some(&selector)),
-        None => candidates(leg, &selector, limit, offset),
+        Some(name) => discover(leg, name, limit, offset, &mut free_text, Some(scope)),
+        None => candidates(leg, scope, limit, offset),
     };
     Search { page, free_text }
 }

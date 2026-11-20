@@ -1,0 +1,14 @@
+{
+  "projection": "Each label row keeps only id, set_id, version, effective_time, openfda and mechanism_of_action; meta is kept whole.",
+  "sha256": "SHA-256 of the original live reply body as received",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=mechanism_of_action%3A%22Janus%20kinase%22%20AND%20openfda.application_number%3A%28NDA%2A%20OR%20BLA%2A%29&limit=3&sort=effective_time%3Adesc",
+      "sha256": "fc54f24c0841ef68a78d56d0cb6e02de390704c8b1e061e54bf43b083d8eb450",
+      "status": 200,
+      "kept_whole": false,
+      "retrieved": "2026-11-20",
+      "note": "fetched live from openFDA on 2026-11-20; 15 matching NDA or BLA labels, the three newest returned"
+    }
+  ]
+}

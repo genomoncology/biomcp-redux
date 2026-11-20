@@ -60,9 +60,41 @@ pub(super) fn headers(
         .map(|record| {
             let mut header = record.header()?;
             header.matched_name = query.query().and_then(|name| record.name_match(name));
+            if let Some(mechanism) = query.mechanism() {
+                header.matched_sentence = record.sentence(MECHANISM, mechanism.as_str())?;
+            }
             Ok(header)
         })
         .collect()
+}
+
+/// openFDA's Mechanism of Action field.
+const MECHANISM: &str = "mechanism_of_action";
+
+/// Say that a mechanism search matched the label's own wording only, and show the selector
+/// sent when no name narrowed it, since a class worded otherwise is silently absent (1086).
+pub(super) fn mechanism(query: &DrugSearch, out: &mut Outcome) {
+    let (Some(mechanism), Some(source)) = (query.mechanism(), out.sources.first_mut()) else {
+        return;
+    };
+    if query.query().is_none() {
+        match source::scope(query).map(|scope| scope.parse()).transpose() {
+            Ok(term) => source.term = term,
+            // The selector holds the checked mechanism words, so only a local fault reaches this.
+            Err(_) => out.local = crate::status::local(biomcp_fetch::bad_reply(SOURCE, Some(200))),
+        }
+    }
+    let message = format!(
+        "Matched the words \"{mechanism}\" in each label's own {MECHANISM} field only: no synonyms and no drug class \
+         inference, so labels that word the mechanism differently are not returned. matched_sentence quotes the label."
+    );
+    source
+        .notices
+        .push(biomcp_types::SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        });
 }
 
 /// Say plainly which rows have no name, since their labels state none (1060).
