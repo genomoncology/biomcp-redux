@@ -156,3 +156,29 @@ fn sponsor_area(query: &TrialSearch) -> &'static str {
 fn quote(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
+
+/// Exact expression sent to the registry's general text search, when used.
+pub(super) fn text(query: &TrialSearch, gene: Option<&str>) -> Option<String> {
+    let mut text = Vec::new();
+    if let Some(value) = query.query() {
+        text.push(value.as_str().to_owned());
+    }
+    if let Some(value) = query.variant() {
+        text.push(value.as_str().to_owned());
+    }
+    if let Some(value) = gene {
+        text.push(value.to_owned());
+    }
+    if !query.keyword().is_empty() {
+        let keywords = if text.is_empty() {
+            super::alternatives(query.keyword())
+        } else {
+            for value in &mut text {
+                *value = format!("({value})");
+            }
+            format!("({})", super::alternatives(query.keyword()))
+        };
+        text.push(keywords);
+    }
+    (!text.is_empty()).then(|| text.join(" AND "))
+}

@@ -31,7 +31,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
     keyword: Box<[Text]>,
-    #[doc = "Trial text.\nGeneral registry discovery text."]
+    #[doc = "Trial text.\nClinicalTrials.gov general text. Total counts its matches. Use --acronym or --official-title to search those fields."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
