@@ -85,7 +85,15 @@ pub(super) fn busy(after_match: bool) -> Result<(), Error> {
         .get("read")
         .and_then(serde_json::Value::as_array)
         .map_or(0, Vec::len);
+    let unread = body.get("not_opened").and_then(serde_json::Value::as_u64);
+    let versions = body.get("versions").and_then(serde_json::Value::as_u64);
     if reads != usize::from(after_match)
+        || unread != versions.and_then(|count| count.checked_sub(reads as u64))
+        || after_match && body.pointer("/read/0/state") != Some(&json!("match"))
+        || result
+            .get("next")
+            .and_then(serde_json::Value::as_array)
+            .is_some_and(|steps| !steps.is_empty())
         || body.get("stopped") != Some(&json!(true))
         || body.get("first").is_some()
         || result.get("status") != Some(&json!("partial"))

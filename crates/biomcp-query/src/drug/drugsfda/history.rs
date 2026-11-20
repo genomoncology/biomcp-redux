@@ -116,11 +116,15 @@ pub(super) struct Search<'a, 'b> {
     pub(super) opened: BTreeMap<usize, Opened>,
     /// The read bound or the time limit stopped the search before it finished.
     pub(super) stopped: bool,
+    pdf_busy: bool,
 }
 
 impl Search<'_, '_> {
     /// Open version `at` once; false when the read bound or the time limit is spent.
     fn open(&mut self, at: usize) -> bool {
+        if self.pdf_busy {
+            return false;
+        }
         if self.opened.contains_key(&at) {
             return true;
         }
@@ -135,6 +139,13 @@ impl Search<'_, '_> {
             return false;
         }
         let opened = match pdf::label(self.leg, &source::DOCUMENTS, &version.label) {
+            Err(RequestError::Source(error))
+                if error.reason == biomcp_types::Reason::LocalQuota =>
+            {
+                self.pdf_busy = true;
+                self.stopped = true;
+                return false;
+            }
             Err(_) => state(State::NotFetched),
             Ok((text, body)) => self.searched(text.state, &body),
         };
@@ -369,6 +380,7 @@ pub(super) fn select(
         section,
         opened: BTreeMap::new(),
         stopped: false,
+        pdf_busy: false,
     };
     let (path, first) = if every {
         let from = query.section_offset().unwrap_or(0) as usize;
@@ -376,12 +388,15 @@ pub(super) fn select(
     } else {
         search(&mut found)
     };
+    let first = first.filter(|_| !found.pdf_busy);
     let body = reply(&found, row, section, path, first)?;
     // Versions left unread leave the answer open: the call stopped, or no version read has the
     // text while others were not read, or a version before the first match was not read.
     let open = found.stopped || (first.is_none() && body.not_opened > 0) || body.on_or_before;
     let unread = open || found.opened.values().any(Opened::gap);
-    let resume = resume(&found, path, first);
+    let resume = (!found.pdf_busy)
+        .then(|| resume(&found, path, first))
+        .flatten();
     drop(found);
     merge(leg, out);
     if open && body.not_opened > 0 {
@@ -471,18 +486,28 @@ fn reply(
         None => None,
     };
     let before_version = before.and_then(|at| version(search, at, true));
-    let answer = answer(
-        section,
-        (matched.as_ref(), before_version.as_ref()),
-        on_or_before,
-        search,
-        first,
-    );
+    let (answer, method) = if search.pdf_busy {
+        (
+            "BioMCP could not finish the label history because the hosted PDF reader was busy. Retry shortly.".to_owned(),
+            format!("Stopped when the next PDF slot was unavailable. {} of {} PDFs read.", search.opened.len(), search.versions.len()),
+        )
+    } else {
+        (
+            answer(
+                section,
+                (matched.as_ref(), before_version.as_ref()),
+                on_or_before,
+                search,
+                first,
+            ),
+            method(path, search),
+        )
+    };
     Ok(DrugLabelHistory {
         identity: row.header(),
         section,
         answer: text(&answer)?,
-        method: text(&method(path, search))?,
+        method: text(&method)?,
         versions: search.versions.len() as u32,
         first: matched,
         before: before_version,
