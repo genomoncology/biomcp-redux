@@ -5,6 +5,7 @@ use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 type Check = Result<(), String>;
+mod holder;
 mod names;
 mod published;
 
@@ -22,6 +23,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(names::trials());
+    trials.extend(holder::trials());
     trials
 }
 fn bare_label() -> Check {
