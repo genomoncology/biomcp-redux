@@ -52,7 +52,7 @@ impl Isolator {
 /// One admitted read. Keep it alive from before fetching the input until the worker is reaped.
 pub struct IsolatedRead<'a> {
     worker: &'a dyn Isolate,
-    _slot: Option<Slot<'a>>,
+    _slot: Option<SemaphorePermit<'a>>,
 }
 
 impl IsolatedRead<'_> {
@@ -90,6 +90,6 @@ impl crate::Leg<'_> {
         if !report.data_notices.contains(&notice) {
             report.data_notices.push(notice);
         }
-        Err(self.failure(Reason::Busy, None).into())
+        Err(self.failure(Reason::LocalQuota, None).into())
     }
 }
