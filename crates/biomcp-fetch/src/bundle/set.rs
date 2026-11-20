@@ -138,20 +138,9 @@ impl crate::Leg<'_> {
             }));
             append_part(&mut complete, part, rows.rows)?;
         }
-        if auto.is_some() && leg.budget().expired() {
-            return Err(leg
-                .failure(biomcp_types::Reason::DeadlineExceeded, None)
-                .into());
-        }
         if set.parts.is_empty() || leg.budget().expired() {
             return Err(leg.failure(biomcp_types::Reason::Syncing, None).into());
         }
-        let hex: String = revision
-            .finalize()
-            .iter()
-            .map(|byte| format!("{byte:02x}"))
-            .collect();
-        let content_revision = format!("sha256:{hex}");
         let metadata = store::Meta {
             rejections,
             bytes,
@@ -162,7 +151,7 @@ impl crate::Leg<'_> {
             // Publisher HTTP validators never hold a computed set digest.
             etag: None,
             modified: None,
-            content_revision: Some(content_revision),
+            content_revision: Some(format!("sha256:{:x}", revision.finalize())),
             retrieved_at: Some(crate::cache::now()),
         };
         cache.publish(&bundle, None, &metadata, Some(&complete), leg.budget())?;

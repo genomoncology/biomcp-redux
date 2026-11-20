@@ -23,6 +23,11 @@ struct Transfer<'a> {
     complete: bool,
     started: Instant,
 }
+impl Transfer<'_> {
+    fn known_size(&self) -> Option<u64> {
+        self.part.total.or(self.complete.then_some(self.part.bytes))
+    }
+}
 impl Leg<'_> {
     pub(super) fn sync_bundle<R: Row>(
         &self,
@@ -38,7 +43,8 @@ impl Leg<'_> {
         if matches!(self.fetch.mode, Mode::Replay { .. }) {
             return self.replay_bundle(b);
         }
-        let old = if matches!(self.fetch.mode, Mode::Record { .. }) {
+        let record = matches!(self.fetch.mode, Mode::Record { .. });
+        let old = if record {
             None
         } else {
             cache.bundle_info(b.name, self.budget())?
@@ -75,7 +81,6 @@ impl Leg<'_> {
             etag: None,
             total: None,
         };
-        let record = matches!(self.fetch.mode, Mode::Record { .. });
         resume(
             prior,
             &mut part,
@@ -91,19 +96,9 @@ impl Leg<'_> {
             complete: false,
             started: Instant::now(),
         };
-        let result = self.download(
-            b,
-            &url,
-            &mut transfer,
-            if record { None } else { old.as_ref() },
-        );
+        let result = self.download(b, &url, &mut transfer, old.as_ref());
         if let Some(size) = size {
-            size.set(
-                transfer
-                    .part
-                    .total
-                    .or(transfer.complete.then_some(transfer.part.bytes)),
-            );
+            size.set(transfer.known_size());
         }
         if result.is_err() {
             let discard = transfer.complete || part.total.is_some_and(|n| n > MAX_BUNDLE_BYTES);
