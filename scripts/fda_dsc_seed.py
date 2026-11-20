@@ -4,7 +4,8 @@ Usage: python3 scripts/fda_dsc_seed.py BIOMCP_EXECUTABLE [SEED_FILE]
 
 It lists FDA's index with `search drug --source fda-dsc`, then reads each communication's page
 with `get drug ID --source fda-dsc`, 30 seconds apart as FDA's robots.txt asks (Crawl-Delay: 30),
-and writes each page's row, without its text, to the seed file. A full run reads about 45 pages
+and writes each page's row, without its text, to the seed file. A page FDA does not serve ships
+unread, with its index title, date and address, and a later read retries it. A full run reads about 45 pages
 and takes about 23 minutes. It uses a throwaway cache, so every page is read fresh.
 """
 
@@ -55,8 +56,10 @@ def main(argv):
             got = run(executable, cache, "get", "drug", row["id"], "--source", "fda-dsc")
             header = (got.get("result") or {}).get("header")
             if got.get("status") != "complete" or not header:
+                # FDA's own link can be broken; the row ships unread and a later read retries it.
                 sys.stderr.write(f"{row['id']}: page not read: {json.dumps(got.get('sources'))}\n")
-                return 1
+                header = {key: value for key, value in row.items() if key in ("id", "title", "date", "url")}
+                header["page_read"] = False
             items.append(header)
             sys.stderr.write(f"{number + 1}/{len(rows)} {row['id']}\n")
     seed = {"date": datetime.date.today().isoformat(), "items": items}

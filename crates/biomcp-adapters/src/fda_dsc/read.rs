@@ -88,7 +88,10 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
     let mut items: Vec<_> = listed
         .iter()
         .map(|listed| {
-            let known = seeded.iter().find(|row| row.id == listed.id);
+            // A row the seed could not read is read again, as one FDA added later would be.
+            let known = seeded
+                .iter()
+                .find(|row| row.id == listed.id && row.page_read);
             let read = match known {
                 Some(row) => Some(row.clone()),
                 None if spaced => None,
