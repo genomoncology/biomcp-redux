@@ -462,9 +462,25 @@ fn all_eight_consumer_schemas_accept_their_source_owned_views() {
     );
     envelope::<DiagnosticCompanion>(
         json!({"source":"fda-cdx","drug_application":"NDA021335"}),
-        json!({"items":[companion(false),companion(true)]}),
+        json!({"snapshot":"synthetic-revision","items":[companion_row(false),companion_row(true)]}),
     );
     assert!(serde_json::from_value::<DiagnosticGenes>(json!({"items":[condition()]})).is_err());
+}
+
+/// A reply row states each cell once by name, its links by cell and bare application IDs (1084).
+#[cfg(feature = "schema")]
+fn companion_row(group: bool) -> Value {
+    let link = json!([{"href":"https://example.invalid/cell-owned","label":"NDA 021335"}]);
+    let mut row = json!({"kind":if group {"group"} else {"individual"},"row_date":"2026-07-01",
+        "diagnostic":"Synthetic test (Synthetic maker)","indication":"Synthetic indication - Tissue",
+        "device":"P150013/S020\n(07/01/2026)","drug":"Synthetic (synthetic) NDA 021335","index":7,
+        "links":{"device":link,"drug":link},"name_match":["drug"],"device_ids":["P150013/S020"],
+        "drug_applications":["NDA021335"]});
+    if !group {
+        row["biomarker"] = json!("KRAS");
+        row["biomarker_details"] = json!("KRAS wild-type");
+    }
+    row
 }
 
 #[test]
