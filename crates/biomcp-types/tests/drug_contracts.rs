@@ -588,11 +588,8 @@ fn drug_recall_name_omission_and_present_values_match_the_schema() {
         );
     }
     for source in biomcp_types::DrugSource::ALL {
-        // FDA drug recalls search filters alone; FDA safety communications list newest first.
-        if !matches!(
-            source,
-            biomcp_types::DrugSource::FdaDrugRecall | biomcp_types::DrugSource::FdaDsc
-        ) {
+        // Recalls search filters alone; safety communications list newest first.
+        if !matches!(source.as_str(), "fda-drug-recall" | "fda-dsc") {
             assert!(
                 serde_json::from_value::<DrugSearch>(json!({"source":source})).is_err(),
                 "{source}"
