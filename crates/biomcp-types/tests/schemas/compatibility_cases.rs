@@ -213,7 +213,12 @@ fn compatibility_checks_consumed_decimal_bounds_and_section_annotation() {
         new["maximum"] = json!(maximum);
         assert_eq!(check(&old, &new).is_ok(), expected);
     }
-    for name in ["x-trailing-section", "x-comma-separated", "x-identifier"] {
+    for name in [
+        "x-trailing-section",
+        "x-comma-separated",
+        "x-identifier",
+        "x-kept",
+    ] {
         let mut annotation =
             json!({"$id":"biodata.example/1","type":"array","items":{"type":"string"}});
         annotation[name] = json!(true);

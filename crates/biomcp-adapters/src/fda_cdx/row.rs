@@ -2,6 +2,7 @@
 use biodata::{CompanionDiagnosticRelation, DiagnosticCell, PartialDate};
 use biomcp_types::{
     CompanionColumn, CompanionDiagnosticRow, CompanionLinks, CompanionOwned, CompanionShared,
+    DiagnosticSearch,
 };
 
 /// FDA's tables break and pad one test's name differently; read it as one line (0994).
@@ -36,11 +37,16 @@ pub(super) fn name_match(row: &CompanionDiagnosticRelation, asked: &str) -> Box<
 pub(super) fn reply(
     native: super::raw::Native,
     date: Option<PartialDate>,
-    name: Option<&str>,
+    query: &DiagnosticSearch,
 ) -> CompanionDiagnosticRow {
-    let name_match = name
-        .map(|asked| name_match(&native.relation, asked))
+    let name_match = query
+        .name()
+        .map(|asked| name_match(&native.relation, asked.as_str()))
         .unwrap_or_default();
+    let biomarker = query.biomarker();
+    let negated = |cell: &DiagnosticCell| {
+        biomarker.is_some_and(|asked| super::biomarker::negated(&cell.text, asked.as_str()))
+    };
     let text = |cell: &DiagnosticCell| Some(cell.text.clone());
     match native.relation {
         CompanionDiagnosticRelation::Individual {
@@ -59,6 +65,7 @@ pub(super) fn reply(
             },
             biomarker: text(&cells.biomarker),
             biomarker_details: text(&cells.details),
+            biomarker_negated: negated(&cells.biomarker),
             owned: CompanionOwned {
                 index,
                 links: CompanionLinks {
