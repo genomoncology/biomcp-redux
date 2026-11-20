@@ -44,8 +44,7 @@
                 "Synthetic indication."
               ],
               "dosage_and_administration": [
-                "Synthetic dose, part one.",
-                "Synthetic dose, part two."
+                false
               ],
               "contraindications": [
                 "Synthetic contraindication."

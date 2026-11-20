@@ -145,6 +145,9 @@ pub struct DrugLabelText {
     pub remaining: Option<u64>,
     /// Original text slice, preserving whitespace and wording.
     pub text: Box<str>,
+    /// Present on a phrase search. The full section text and fragment page are omitted from the search.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub search: Option<super::DrugLabelMatches>,
     /// Original source reply retrieval date; absent for legacy captures without a timestamp.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub retrieved: Option<PartialDate>,

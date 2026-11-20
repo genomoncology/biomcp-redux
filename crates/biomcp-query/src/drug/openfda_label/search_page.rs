@@ -1,5 +1,5 @@
 //! Preserve native SPL membership, order and offset paging.
-use super::{SOURCE, page};
+use super::SOURCE;
 use crate::{Ctx, Outcome};
 use biomcp_adapters::openfda_label as source;
 use biomcp_fetch::RequestError;
@@ -21,7 +21,7 @@ pub(super) fn apply(
         source.count = Some(total);
         source.retrieved_count = Some(returned);
     }
-    out.page = Some(page(query.offset(), returned, total));
+    out.page = Some(crate::status::page_info(query.offset(), returned, total));
     nameless(&items, out);
     for item in &items {
         if let Some(get) = crate::next::checked(

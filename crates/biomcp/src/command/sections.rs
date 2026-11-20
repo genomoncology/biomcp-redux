@@ -6,7 +6,7 @@ use super::{Encoding, Outcome, ResponseMeta};
 use biomcp_types::{
     DrugApprovals, DrugCivic, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
     DrugRegulatory, DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections,
-    DrugTargets, DrugXrefs, Envelope, Reply, ReplyBody, ReplyData, Status, UsageError,
+    DrugTargets, DrugXrefs, Envelope, Reply, ReplyBody, ReplyData, Request, Status, UsageError,
 };
 use std::io;
 
@@ -22,16 +22,22 @@ pub(super) fn run(
     let mut identity = None;
     let mut statuses = Vec::new();
     let mut local = false;
-    let requested = query.parts().map_err(io::Error::other)?;
+    let batch = !query.label_batch().is_empty();
+    let requested = requested(query).map_err(io::Error::other)?;
     for (request, result) in super::run_parts(fetch, &requested, fresh, settings)? {
         if !sectioned(&result.body) {
             return super::response(fetch, request, result, fresh, globals, encoding);
         }
         local |= result.local.is_some();
+        let input = match &request {
+            Request::GetDrug(query) if batch => Some(query.input().clone()),
+            _ => None,
+        };
         let (meta, body) = super::finished(fetch, &request, result, fresh, globals, encoding)?;
         parts.push(
             body.visit(Part {
                 meta,
+                input,
                 identity: &mut identity,
                 statuses: &mut statuses,
             })
@@ -57,6 +63,19 @@ pub(super) fn run(
     let mut envelope = Envelope::new(status, echoed, Some(body));
     crate::incomplete::settle(&mut envelope, Vec::new());
     encoding.encode(envelope, exit)
+}
+
+/// Expand known SPL sets in caller order, retaining the same heading selection for each.
+fn requested(query: &DrugGet) -> Result<Vec<DrugGet>, biomcp_types::QueryInvalid> {
+    let parts = query.parts()?;
+    if query.label_batch().is_empty() {
+        return Ok(parts);
+    }
+    query
+        .label_batch()
+        .iter()
+        .flat_map(|id| parts.iter().map(|part| part.with_native_id(id.clone())))
+        .collect()
 }
 
 /// Absent or failed only when every part is; partial when any part failed or is partial.
@@ -94,6 +113,7 @@ fn sectioned(body: &ReplyData) -> bool {
 /// a part states its own identity only when it differs.
 struct Part<'a> {
     meta: ResponseMeta,
+    input: Option<biodata::Text>,
     identity: &'a mut Option<DrugHeader>,
     /// Each part's status after the envelope owner settled it.
     statuses: &'a mut Vec<Status>,
@@ -123,6 +143,7 @@ impl Part<'_> {
             (identity, _) => identity,
         };
         Some(variant(Box::new(DrugSectionReply {
+            input: self.input,
             status: envelope.status,
             local_error: envelope.local_error,
             identity,

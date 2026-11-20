@@ -19,6 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     command_budget: None,
 };
 mod admit;
+mod excerpts;
 mod map;
 mod page;
 mod raw;

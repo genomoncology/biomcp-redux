@@ -18,7 +18,11 @@ mod query;
 mod response;
 mod search;
 mod source;
-pub use query::{DrugGet, DrugSection};
+pub use query::DrugGet;
+mod section_name;
+pub use section_name::DrugSection;
+mod label_find;
+pub use label_find::{DrugLabelExcerpt, DrugLabelMatches};
 pub use response::{
     DateRoleLabel, DrugApprovals, DrugCard, DrugCivic, DrugHeader, DrugIndications,
     DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugLevelCount,
