@@ -18,7 +18,7 @@
           "author",
           "papers"
         ],
-        "/result/commands/0/description": "List an author's research papers. Sources: orcid, semantic-scholar.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.",
+        "/result/commands/0/description": "List an author's research papers. Sources: orcid, semantic-scholar.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.\nFields: abstract_text, authors, citation_count, doi, external_ids, fields_of_study, header, influential_citation_count, is_open_access, open_access_pdf, paper_id, pmcid, pmid, publication_date, publication_types, reference_count, title, venue, year. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: header, paper_id.",
         "/result/commands/0/examples": {
           "count": 1
         },

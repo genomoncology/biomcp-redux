@@ -48,3 +48,26 @@ Three findings. Required columns set the floor: protein features (attribution, 1
 - `--fields city,zipcode` on locations: refused with `FieldsUnknown`, `valid_values` the 9 location names, `next` the call with `zip`.
 - `get trial NCT04613596 --fields title` (no section): refused, reworded message.
 - A call without `--fields` is unchanged (existing cases hold); `search diagnostic --fields header.name` works on a search.
+
+## Built: re-measured with real replies
+
+2026-11-19, debug build of f67466d2d (main 40a804998 merged), pm job j43340, live sources, `1071-measure.py`. Each call ran whole and with `--fields`; "same rows" means every list in the result kept its length and order and every narrowed object holds only keys of the same whole object.
+
+| List (call) | rows | B/row whole -> narrowed | reply whole -> narrowed | same rows, same order |
+|---|---|---|---|---|
+| Trial locations (NCT04613596, 100) | 100 | 274 -> 114 | 30,551 -> 14,638 (47%) | yes |
+| same, `--lat 39.96 --lon -83.00`, + distance_mi | 100 | 293 -> 135 | 32,502 -> 16,835 (51%) | yes |
+| Trial arms, `data.label,data.kind` | 10 | 205 -> 71 | 4,906 -> 3,602 (73%) | yes |
+| Drug approvals (NDA018936, 50), `event.status,event.dates` | 50 | 648 -> 224 | 36,385 -> 15,232 (41%) | yes |
+| Drug label search (50), already worked | 50 | 300 -> 157 | 21,769 -> 14,675 (67%) | yes |
+| Pathway genes section (R-HSA-162582, 100), `name` | 100 | 222 -> 111 | 28,889 -> 17,842 (61%) | yes |
+| `pathway genes` subcommand, `name` | 100 | 222 -> 111 | 28,405 -> 17,358 (61%) | yes |
+| Pathway events (100), `id,name` | 100 | 250 -> 133 | 26,445 -> 14,727 (55%) | yes |
+| Protein features (P15056, 50), `feature.kind,feature.span` | 50 | 418 -> 324 | 21,834 -> 17,225 (78%) | yes |
+| Adverse-event search (50), already worked | 50 | 117 -> 61 | 11,192 -> 8,444 (75%) | yes |
+| Gene ClinGen validity (BRAF) | 4 | 366 -> 122 | 4,190 -> 3,252 (77%) | yes |
+| Gene GenCC (BRAF) | 23 | 376 -> 129 | 10,904 -> 5,278 (48%) | yes |
+
+Not measured: adverse-event drugs (refused: its rows are not a schema section, left for a follow-up), and GTR diagnostic search and genes (GTR fails from the build machine, as before).
+
+Left for a follow-up because they need special handling, not a schema section with rows: adverse-event get sections (drugs, reactions), drug markets, gene civic, clinvar, constraint and oncokb, variant population, article tldr, citations and pdf, protein sequence, cell-line sections, gwas associations, pathway summary, and `get trial X --lat/--lon` with no section word.

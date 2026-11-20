@@ -118,7 +118,7 @@
           "pathway",
           "events"
         ],
-        "/result/commands/0/description": "List events within a biological pathway. Sources: reactome.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.",
+        "/result/commands/0/description": "List events within a biological pathway. Sources: reactome.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: db_id, id, kind, name, schema_class, source_url, version. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: db_id, kind.",
         "/result/commands/0/examples": {
           "count": 1
         },
