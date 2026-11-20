@@ -41,14 +41,17 @@ pub(crate) fn serve(cap: u64) -> ExitCode {
     if limit(cap).is_err() {
         return ExitCode::FAILURE;
     }
-    let most = biomcp_query::pdf_child::MAX_BYTES.saturating_add(1);
+    // The PDF follows one short line giving its page bound.
+    let most = biomcp_query::pdf_child::MAX_BYTES.saturating_add(9);
     let mut bytes = Vec::new();
     let read = std::io::stdin().lock().take(most).read_to_end(&mut bytes);
     if read.is_err() || bytes.len() as u64 >= most {
         return ExitCode::FAILURE;
     }
     #[cfg(debug_assertions)]
-    exercise(&bytes);
+    if let Ok((_, pdf)) = biomcp_query::pdf_child::pages(&bytes) {
+        exercise(pdf);
+    }
     let answer = biomcp_query::pdf_child::serve(&bytes);
     let mut out = std::io::stdout().lock();
     match out.write_all(&answer).and_then(|()| out.flush()) {

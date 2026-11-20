@@ -3,6 +3,9 @@ use biomcp_fetch::{Leg, RequestError, SourceSpec};
 use biomcp_types::{PdfMissing, PdfText, PdfTextState, Reason, Source, SourceNotice};
 /// Maximum pages admitted before extracting text.
 pub const MAX_PAGES: usize = 100;
+/// Maximum pages of a label read for its history: Keytruda's label ran to 202 pages in 2026.
+/// Each page costs time and memory only within the call's time limit and the child's cap (1066).
+pub const LABEL_PAGES: usize = 400;
 /// Maximum expanded stream or total extracted text size.
 pub const MAX_EXPANDED_BYTES: usize = 4 * 1024 * 1024;
 /// Escaped JSON text bytes returned in one continuable fragment.
@@ -70,6 +73,22 @@ pub fn whole(
     spec: &'static SourceSpec,
     url: &biodata::Text,
 ) -> Result<(PdfText, String), RequestError> {
+    bounded(leg, spec, url, MAX_PAGES)
+}
+/// Read a label PDF's whole embedded text, admitting up to [`LABEL_PAGES`] pages.
+pub fn label(
+    leg: &Leg<'_>,
+    spec: &'static SourceSpec,
+    url: &biodata::Text,
+) -> Result<(PdfText, String), RequestError> {
+    bounded(leg, spec, url, LABEL_PAGES)
+}
+fn bounded(
+    leg: &Leg<'_>,
+    spec: &'static SourceSpec,
+    url: &biodata::Text,
+    pages: usize,
+) -> Result<(PdfText, String), RequestError> {
     let mut result = PdfText {
         url: url.clone(),
         pages: None,
@@ -94,7 +113,7 @@ pub fn whole(
             Err(error) => return Err(error),
         };
     let deadline = leg.local_deadline();
-    let read = super::child::read(leg, &bytes, &|| deadline.expired())
+    let read = super::child::read(leg, &bytes, pages, &|| deadline.expired())
         .map_err(|reason| error(spec.source, reason))?;
     result.pages = read.pages;
     result.state = read.state;

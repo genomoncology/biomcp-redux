@@ -18,6 +18,8 @@ biodata::canonical_enum! {
         Label => "label",
         /// Native application and product history rows.
         Approvals => "approvals",
+        /// The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.
+        LabelHistory => "label-history",
         /// Source-scoped regulator events.
         Regulatory => "regulatory",
         /// Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
@@ -69,30 +71,32 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     section_limit: Option<u32>,
-    /// Named section continuation, refused on an identity-only card.
+    /// Named section continuation, refused on an identity-only card; label-history --every-version starts at this version.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
     #[doc = "Exact openFDA SPL fields."]
     /// Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
     /// The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
     /// A section the label lacks, or a name openFDA does not use, lists the sections the label has.
-    /// Only with --source openfda-label.
+    /// For drugsfda label-history, one of boxed_warning, indications_and_usage, contraindications,
+    /// warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
+    /// Only with section label or label-history.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     label_section: Option<Text>,
-    #[doc = "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda."]
+    #[doc = "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda. Only with section approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
-    #[doc = "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
+    #[doc = "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_from: Option<biodata::PartialDate>,
-    #[doc = "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
+    #[doc = "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_to: Option<biodata::PartialDate>,
     #[doc = "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages"]
-    /// and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda.
+    /// and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
     #[doc = "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic."]
@@ -107,6 +111,14 @@ struct GetFields {
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
+    #[doc = "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. \
+        Only with section label-history."]
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
+    find: Box<[Text]>,
+    #[doc = "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. Only with section label-history."]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    every_version: bool,
     #[doc = "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only."]
     /// Keeps only the pairs with that drug. A name DDInter does not use is tried under the
     /// names other sources state for it, as the drug itself is.
@@ -203,9 +215,17 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
             "section_offset",
         ]));
     }
-    if fields.label_section.is_some() && !fields.section.contains(&DrugSection::Label) {
-        return Err(QueryInvalid::new(&["label_section", "section"]));
-    }
+    let history = (
+        &*fields.find,
+        fields.every_version,
+        fields.label_section.as_ref(),
+    );
+    super::history::checked(
+        &fields.section,
+        fields.source == Some(DrugSource::Drugsfda),
+        (fields.section_limit, fields.section_offset),
+        history,
+    )?;
     if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
         return Err(QueryInvalid::new(&["product_number", "section"]));
     }
@@ -358,6 +378,8 @@ impl DrugGet {
             civic_kind: None,
             civic_cursor: None,
             evidence_filter: Default::default(),
+            find: Box::default(),
+            every_version: false,
             partner: None,
         }
         .try_into()
@@ -442,6 +464,11 @@ impl DrugGet {
     pub fn section_offset(&self) -> Option<u32> {
         self.fields.section_offset
     }
+    /// A label history's texts, whether it reads every version, and its section.
+    pub fn label_history(&self) -> (&[Text], bool, Option<super::LabelHistorySection>) {
+        let section = super::history::section(self.fields.label_section.as_ref());
+        (&self.fields.find, self.fields.every_version, section)
+    }
     /// The DDInter drug whose pairs with this drug the interactions section keeps.
     pub fn partner(&self) -> Option<&Text> {
         self.fields.partner.as_ref()
@@ -492,6 +519,12 @@ impl DrugGet {
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
         fields.section_offset = Some(offset);
+        self.with_fields(fields)
+    }
+    /// Label history read in order from version `offset`, continuing a call that stopped.
+    pub fn every_version_from(&self, offset: u32) -> Result<Self, QueryInvalid> {
+        let mut fields = self.fields.clone();
+        (fields.every_version, fields.section_offset) = (true, Some(offset));
         self.with_fields(fields)
     }
     /// Exact selected native label heading.

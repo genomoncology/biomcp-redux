@@ -1,0 +1,32 @@
+{
+  "feature": "drug-label-history",
+  "story": "When no version read holds the text and some versions were not read, the reply says BioMCP could not tell rather than that the text is absent, is partial with the unopened versions counted, and offers --every-version as the next step; Livalo has no boxed warning, so every version read reports the section absent.",
+  "live_check": "public",
+  "replay": "drug/label-history-never",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA022363",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "boxed_warning",
+        "--find",
+        "myasthenia gravis"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/versions": 12,
+        "/result/read/0/state": "section-absent",
+        "/result/answer": "BioMCP could not tell: none of the 10 label versions read has the text in its boxed_warning section, but 2 of 12 could not be read or were not opened, so it may be in one of them.",
+        "/result/not_opened": 2,
+        "/next/1/kind": "page"
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "2026-11-19 capture in pm job j43445 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured live reply was 2165 bytes; the 3000-byte ceiling is the ticket's limit."
+}

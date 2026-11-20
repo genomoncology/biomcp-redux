@@ -1,0 +1,37 @@
+{
+  "feature": "drug-label-history",
+  "story": "Aimovig's Warnings and Precautions first name Raynaud's phenomenon in SUPPL 26, approved 2025-03-21; SUPPL 22 and SUPPL 25 are Instructions for Use alone and are passed over; the reply names the version before it, gives the matching sentences, and stays under 3 KB.",
+  "live_check": "public",
+  "replay": "drug/label-history-aimovig",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA761077",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "warnings_and_cautions",
+        "--find",
+        "Raynaud"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/section": "warnings_and_cautions",
+        "/result/versions": 12,
+        "/result/first/submission": "SUPPL 26",
+        "/result/first/approved": "2025-03-21",
+        "/result/first/state": "match",
+        "/result/before/submission": "SUPPL 15",
+        "/result/before/approved": "2022-10-03",
+        "/result/before/state": "no-match",
+        "/result/read/7/state": "not-prescribing-information",
+        "/result/read/9/state": "not-prescribing-information"
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "2026-11-19 capture in pm job j43445 with --record, label PDFs replaced by synthetic PDFs of the reader's text (tests/replies/drug/label-history-README.md). The measured live reply was 2848 bytes; the 3000-byte ceiling is the ticket's limit."
+}

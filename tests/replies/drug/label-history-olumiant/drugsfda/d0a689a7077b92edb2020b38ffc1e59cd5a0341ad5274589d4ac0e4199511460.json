@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2022/207924Orig1s006lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795149452,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 212,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "d0a689a7077b92edb2020b38ffc1e59cd5a0341ad5274589d4ac0e4199511460-0.bin"
+      }
+    }
+  ]
+}

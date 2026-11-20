@@ -174,6 +174,8 @@ impl Reply for Part<'_> {
             DrugSection::Markets => None,
             // The WHO eEML serves only this section, so it never shares a reply with another.
             DrugSection::EssentialMedicines => None,
+            // A label history reads one section alone, so it never shares a reply either.
+            DrugSection::LabelHistory => None,
         }
     }
     fn drug_xrefs(self, query: DrugGet, body: Option<DrugXrefs>) -> Self::Output {

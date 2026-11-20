@@ -41,6 +41,10 @@ pub use name_selector::DrugNameSelector;
 mod markets;
 pub use markets::{DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet};
 
+mod history;
+pub use history::{
+    DrugLabelHistory, LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
+};
 mod eml;
 pub use eml::{
     DrugEssentialMedicineDecision, DrugEssentialMedicineListing, DrugEssentialMedicines,

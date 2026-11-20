@@ -481,6 +481,11 @@ const ALLOWED: &[(&str, &str)] = &[
         "Find every match in synthetic long extracted lines at the private PMA summary passage cut, which a recorded document cannot shape on demand.",
     ),
     (
+        "crates/biomcp-query/src/drug/drugsfda/label_sections_tests.rs",
+        "Check label section bounds from the contents list on real label text and one real FDA label PDF at the private \
+        section finder, where table rows that look like headings must never end a section.",
+    ),
+    (
         "crates/biomcp-query/tests/gene_resolution.rs",
         "Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline.",
     ),
