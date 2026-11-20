@@ -2901,6 +2901,46 @@
       "type": "object",
       "x-identifier": true
     },
+    "Reply_Incomplete": {
+      "description": "One thing a `partial` reply is missing, pointing at the detail already in the reply.",
+      "properties": {
+        "at": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "JSON pointer into this reply, such as `/sources/1` or a record's field."
+        },
+        "code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ProblemCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The refused record's own problem code, when a problem is the cause."
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Why, when a typed source reason is known."
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "The source whose data is missing."
+        }
+      },
+      "required": [
+        "at",
+        "source"
+      ],
+      "type": "object"
+    },
     "Reply_Method": {
       "description": "Source-stated method or guideline.",
       "properties": {
@@ -3923,7 +3963,8 @@
         " The source was disabled.",
         " No recording matched the request.",
         " The source data was being synchronized.",
-        " Identity lacks the identifier required to join this source."
+        " Identity lacks the identifier required to join this source.",
+        " The source document was read but does not state the value."
       ],
       "x-extensible-enum": [
         "not-found",
@@ -3944,7 +3985,8 @@
         "disabled",
         "replay-miss",
         "syncing",
-        "no-join-id"
+        "no-join-id",
+        "not-stated"
       ]
     },
     "Reply_Region": {
@@ -8798,10 +8840,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
-    "absent": {
-      "description": "IDs a get of several did not find while it found others; each item says so too.",
+    "incomplete": {
+      "description": "What a `partial` reply is missing; present only on `partial` replies.",
       "items": {
-        "$ref": "#/$defs/Reply_Text"
+        "$ref": "#/$defs/Reply_Incomplete"
       },
       "type": "array"
     },

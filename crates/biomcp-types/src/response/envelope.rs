@@ -30,6 +30,9 @@ pub struct Envelope<T: ResponseBody> {
     schema: String,
     /// Overall outcome.
     pub status: Status,
+    /// What a `partial` reply is missing; present only on `partial` replies.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub incomplete: Vec<super::Incomplete>,
     /// IDs a get of several did not find while it found others; each item says so too.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub absent: Vec<crate::Text>,
@@ -62,6 +65,7 @@ impl<T: ResponseBody> Envelope<T> {
         Self {
             schema: T::SCHEMA.to_owned(),
             status,
+            incomplete: Vec::new(),
             absent: Vec::new(),
             local_error: None,
             query,

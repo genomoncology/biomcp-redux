@@ -13,6 +13,12 @@ steps:
       # The sh fence keeps '10.1000/a\.b'; removing the fence copy prints a.b.
       /text: |
         ````text
+        ## Incomplete
+
+        | At | Reason | Source |
+        | --- | --- | --- |
+        | /result/items/0/sections/fulltext | not-open | europepmc |
+
         ## Next
 
         **fresh:**

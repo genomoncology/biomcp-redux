@@ -82,6 +82,7 @@ impl Capture {
         stdout: &[u8],
         surface: &str,
     ) -> io::Result<()> {
+        super::status_words::check_output(stdout).map_err(io::Error::other)?;
         if let (Some(context), Some(key)) = (&self.context, &self.key) {
             let mut execution = json!({"args":self.args,"surface":surface,
                 "exit":status.code(),"stdout":stdout,"sequence_start":self.sequence_start,

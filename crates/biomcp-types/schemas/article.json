@@ -177,7 +177,8 @@
         " The source was disabled.",
         " No recording matched the request.",
         " The source data was being synchronized.",
-        " Identity lacks the identifier required to join this source."
+        " Identity lacks the identifier required to join this source.",
+        " The source document was read but does not state the value."
       ],
       "x-extensible-enum": [
         "not-found",
@@ -198,7 +199,8 @@
         "disabled",
         "replay-miss",
         "syncing",
-        "no-join-id"
+        "no-join-id",
+        "not-stated"
       ]
     },
     "Reply_Text": {
