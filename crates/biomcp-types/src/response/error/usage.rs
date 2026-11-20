@@ -74,20 +74,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.count = Some(count);
             }
             selector @ UsageError::SourceSelector { .. } => out.source_selector(selector),
-            UsageError::FieldsUnknown {
-                source,
-                valid_values,
-                unplaced,
-                next,
-            } => {
-                out.error
-                    .source_selector(source, "--fields".into(), valid_values);
-                (out.error.message, out.error.unplaced) = (
-                    ErrorMessage::FieldsUnknown,
-                    (!unplaced.is_empty()).then_some(unplaced),
-                );
-                out.next = next;
-            }
+            fields @ UsageError::FieldsUnknown { .. } => out.fields_unknown(fields),
             UsageError::PoolMismatch { restart } => {
                 out.error.code = ErrorCode::PoolMismatch;
                 out.error.message = ErrorMessage::PoolMismatch;
@@ -95,5 +82,25 @@ impl From<crate::UsageError> for ErrorEnvelope {
             }
         }
         out
+    }
+}
+
+impl ErrorEnvelope {
+    /// Chosen `--fields` names a call's rows lack: the rows' names, the names it cannot place
+    /// and the call with the rest placed.
+    fn fields_unknown(&mut self, usage: UsageError) {
+        if let UsageError::FieldsUnknown {
+            source,
+            valid_values,
+            unplaced,
+            next,
+        } = usage
+        {
+            self.error
+                .source_selector(source, "--fields".into(), valid_values);
+            self.error.message = ErrorMessage::FieldsUnknown;
+            self.error.unplaced = (!unplaced.is_empty()).then_some(unplaced);
+            self.next = next;
+        }
     }
 }
