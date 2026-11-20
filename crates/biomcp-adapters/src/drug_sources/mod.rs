@@ -11,6 +11,8 @@ pub use crate::ddinter::SPEC as DDINTER;
 pub use crate::drugsfda::SPEC as DRUGSFDA;
 /// Canonical EMA source declaration.
 pub use crate::ema::SPEC as EMA;
+/// Canonical FDA_DSC source declaration.
+pub use crate::fda_dsc::SPEC as FDA_DSC;
 /// Canonical MYCHEM source declaration.
 pub use crate::mychem::SPEC as MYCHEM;
 /// Canonical OPENFDA_LABEL source declaration.

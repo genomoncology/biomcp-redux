@@ -184,6 +184,10 @@ quotas! {
     /// and provider-domain policy search; retain conservative local ceiling.
     FDA_WEBSITE = Quota::new(SourceKey::declare("fda-website"), Rate::per_second(1), None, 1);
 
+    /// Checked 2026-11-20: https://www.fda.gov/robots.txt . "User-agent: *" with "Crawl-Delay: 30 # wait 30 seconds before starting a new URL
+    /// request"; Drug Safety Communication pages follow it.
+    FDA_DSC = Quota::new(SourceKey::declare("fda-dsc"), Rate::every_seconds(30), None, 1);
+
     /// Checked 2026-11-01: https://api.cpicpgx.org/ . No published numeric limit found in service documentation/terms and provider-domain policy search;
     /// retain conservative local ceiling.
     CPIC = Quota::new(SourceKey::declare("cpic"), Rate::per_second(1), None, 1);

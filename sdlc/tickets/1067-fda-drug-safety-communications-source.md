@@ -14,7 +14,8 @@ Two traced agent runs on 2026-11-19 each spent 6 to 9 turns finding one FDA drug
 
 ## Proof
 
-- Proof: a replayed case where a search for tofacitinib returns the communication dated 2021-09-01 that required boxed warning updates for JAK inhibitors, and the earlier ones dated 2021-02-04 and 2019, each with its date and address; it fails on the base commit, where the source does not exist.
+- Proof: a replayed case where a search for tofacitinib returns the communication dated 2021-09-01 that required boxed warning updates for JAK inhibitors and the earlier one dated 2021-02-04, each with its date and address; it fails on the base commit, where the source does not exist.
+- PM decision (2026-11-20): the 2019 communications are dropped from the Proof. FDA's own index starts on 2020-01-14 and links an Internet Archive copy for earlier ones; BioMCP uses no archive route and no hand-kept list. The reply says the list starts where FDA's index starts and that FDA links an archive for earlier ones. Design: `sdlc/planning/fda-drug-safety-communications.md`.
 
 ## Starts from
 

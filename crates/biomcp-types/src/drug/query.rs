@@ -246,7 +246,11 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     {
         return Err(QueryInvalid::new(&["source", "section"]));
     }
-    if fields.source == Some(DrugSource::FdaDrugRecall) && !fields.section.is_empty() {
+    if matches!(
+        fields.source,
+        Some(DrugSource::FdaDrugRecall | DrugSource::FdaDsc)
+    ) && !fields.section.is_empty()
+    {
         return Err(QueryInvalid::new(&["source", "section"]));
     }
     Ok(())

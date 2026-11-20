@@ -225,7 +225,9 @@ impl TryFrom<SearchFields> for DrugSearch {
             fields.query.is_some()
                 || fields.indication.is_some()
                 || fields.applicant.is_some()
-                || (fields.source == DrugSource::WhoPq && who_filters),
+                || (fields.source == DrugSource::WhoPq && who_filters)
+                // FDA's safety communications list newest first with no name.
+                || fields.source == DrugSource::FdaDsc,
             fields.firm.is_some()
                 || fields.classification.is_some()
                 || fields.status.is_some()
@@ -412,11 +414,12 @@ impl crate::Paged for DrugSearch {
 }
 
 /// Sources that search a typed drug name together with the drug's other names by default.
-const WIDENING: [DrugSource; 4] = [
+const WIDENING: [DrugSource; 5] = [
     DrugSource::OpenfdaLabel,
     DrugSource::Drugsfda,
     DrugSource::FdaDrugRecall,
     DrugSource::Ema,
+    DrugSource::FdaDsc,
 ];
 
 fn widens(fields: &SearchFields) -> bool {
