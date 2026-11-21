@@ -33,7 +33,7 @@ fn resolve(
         ));
         if let Ok(mapped) = mapped {
             for gene in mapped.value {
-                for &id in &gene.uniprot {
+                for id in gene.uniprot {
                     by_accession
                         .entry(id)
                         .and_modify(|matched| {
