@@ -51,6 +51,7 @@ const LAYERS: &[(&str, &[&str])] = &[
             "quick-xml",
             "thiserror",
             "calamine",
+            "caseless", // Full Unicode case folding for exact label phrase matching.
             "lopdf",
             "csv",
             "zip",

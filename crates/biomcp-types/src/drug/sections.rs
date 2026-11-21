@@ -11,12 +11,11 @@ use biodata::{
 };
 use serde::{Deserialize, Serialize};
 
-/// Several sections of one drug record in one reply: the drug once, then one part per section
-/// and label heading.
+/// Several sections of one drug or a current-label batch, one part per requested heading.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugSections {
-    /// The drug every part describes, with its name lookup; absent when no part found it.
+    /// The first identity read, with its name lookup when requested; absent when no part found a record.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub identity: Option<DrugHeader>,
     /// Parts in the caller's order.
@@ -53,6 +52,9 @@ pub enum DrugSectionPart {
 #[serde(bound(deserialize = "B: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", schemars(rename = "DrugSectionReply_{B}"))]
 pub struct DrugSectionReply<B> {
+    /// The requested SPL set ID for this part of a label batch, even when unread.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub input: Option<Text>,
     /// This part's outcome.
     pub status: Status,
     /// Bounded local cache failure, independent of provider outcomes.

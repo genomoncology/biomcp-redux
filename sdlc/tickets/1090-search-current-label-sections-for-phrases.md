@@ -1,6 +1,7 @@
 # 1090 — search-current-label-sections-for-phrases
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 751130d590d5ad6e74e3612144fdf56a4e429aea
 
 Milestone: 7
 
