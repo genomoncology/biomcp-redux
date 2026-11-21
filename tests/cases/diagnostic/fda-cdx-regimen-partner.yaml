@@ -3,7 +3,7 @@
   "live_check": "recorded only; reuses the FDA companion list replay",
   "story": "A lab director finds FDA companion rows that explicitly name a regimen partner even when the FDA row is indexed under a different drug application.",
   "replay": "diagnostic/cdx-group-join",
-  "config": {"mcp_tool_mode": "typed"},
+  "config": {"mcp_tool_mode": "typed", "mcp_typed_output_schema": true},
   "steps": [
     {
       "run": ["sync", "fda-cdx"],
