@@ -439,19 +439,6 @@
         " ClinGen and GenCC curations. Filters ignore case."
       ]
     },
-    "DiseaseSource": {
-      "description": "An explicit disease source without fallback.",
-      "enum": [
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "orphadata",
-        "clingen",
-        "gencc"
-      ],
-      "type": "string"
-    },
     "DrugFdaSort": {
       "description": "Drugs@FDA application order; omitted keeps the source's own order.",
       "enum": [
@@ -869,20 +856,6 @@
         " Every ancestor term up to the ontology root, from OLS."
       ]
     },
-    "PhenotypeSource": {
-      "description": "One independent term publisher.",
-      "enum": [
-        "hpo",
-        "monarch",
-        "ols"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Direct HPO term metadata.",
-        " Monarch term search and associations.",
-        " OLS ancestor lists for HP terms."
-      ]
-    },
     "PmaSupplement": {
       "description": "Explicit native PMA supplement selector; no invented base alias.",
       "pattern": "^S(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$",
@@ -962,6 +935,33 @@
       "description": " A dbSNP site identifier, never an allele join key.",
       "pattern": "^rs(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$",
       "type": "string"
+    },
+    "SharedDiseaseSource": {
+      "description": "An explicit disease source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "orphadata",
+        "clingen",
+        "gencc"
+      ],
+      "type": "string"
+    },
+    "SharedPhenotypeSource": {
+      "description": "One independent term publisher.",
+      "enum": [
+        "hpo",
+        "monarch",
+        "ols"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Direct HPO term metadata.",
+        " Monarch term search and associations.",
+        " OLS ancestor lists for HP terms."
+      ]
     },
     "SheetRows": {
       "description": "Inclusive original one-based row range. The parser additionally requires the end to be at least the start and fewer than 200 rows after it.",
@@ -2382,7 +2382,7 @@
           "description": "HP IDs only: hybrid (default) or slower full."
         },
         "source": {
-          "$ref": "#/$defs/PhenotypeSource",
+          "$ref": "#/$defs/SharedPhenotypeSource",
           "default": "monarch",
           "description": "Monarch only; HPO search is unsupported."
         },
@@ -2436,7 +2436,7 @@
           "description": "Retained exact source reply for local text and link pages; unsupported for diseases, genes and ancestors."
         },
         "source": {
-          "$ref": "#/$defs/PhenotypeSource",
+          "$ref": "#/$defs/SharedPhenotypeSource",
           "description": "HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes; OLS only for ancestors. Defaults to HPO for cards, synonyms and xrefs, OLS for ancestors, otherwise Monarch."
         }
       },
@@ -3897,7 +3897,7 @@
           "description": "Native sex code."
         },
         "source": {
-          "$ref": "#/$defs/DiseaseSource",
+          "$ref": "#/$defs/SharedDiseaseSource",
           "description": "Default MyDisease, or both sources for gene validity."
         },
         "submitter": {

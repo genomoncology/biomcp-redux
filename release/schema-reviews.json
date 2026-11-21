@@ -1542,6 +1542,20 @@
   ],
   "enum_transitions": [
     {
+      "schemas": ["biomcp.disease-search/1"],
+      "path": "/$defs/DiseaseSource/enum",
+      "from": ["ols", "mydisease", "monarch", "seer"],
+      "to": ["ols", "seer", "hpo"],
+      "review": "1125 PM ruling: disease search already refuses MyDisease and Monarch. Keep OLS and SEER, and retain the HPO annotation search added in 1099."
+    },
+    {
+      "schemas": ["biomcp.phenotype-search-query/1"],
+      "path": "/$defs/PhenotypeSource/enum",
+      "from": ["hpo", "monarch"],
+      "to": ["monarch"],
+      "review": "1125 PM ruling: Monarch owns phenotype search. HPO term search already returns a retirement message, and OLS is a phenotype get source."
+    },
+    {
       "schemas": [
         "biomcp.adverse-event-devices/4",
         "biomcp.adverse-event-drugs/4",
