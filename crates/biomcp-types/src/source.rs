@@ -145,6 +145,8 @@ canonical_enum! {
         FdaDrugRecall => "fda-drug-recall",
         /// FDA Drug Safety Communications web pages.
         FdaDsc => "fda-dsc",
+        /// FDA potential safety signals from quarterly reports.
+        FdaSafetySignals => "fda-safety-signals",
         /// FDA Purple Book biologic product roster.
         PurpleBook => "purple-book",
         /// Clinical Pharmacogenetics Implementation Consortium.

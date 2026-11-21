@@ -148,7 +148,10 @@ impl TryFrom<GetFields> for DrugGet {
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     if fields.section.contains(&DrugSection::Markets)
-        || fields.source == Some(DrugSource::PurpleBook)
+        || matches!(
+            fields.source,
+            Some(DrugSource::PurpleBook | DrugSource::FdaSafetySignals)
+        )
     {
         return Err(QueryInvalid::new(&["section", "source"]));
     }

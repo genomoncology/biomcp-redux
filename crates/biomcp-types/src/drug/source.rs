@@ -29,12 +29,14 @@ pub enum DrugSource {
     WhoEml,
     /// FDA Drug Safety Communications.
     FdaDsc,
+    /// FDA potential safety signals (search only).
+    FdaSafetySignals,
     /// FDA Purple Book biosimilar roster (search only).
     PurpleBook,
 }
 impl DrugSource {
     /// Every retained drug source; registry bindings use these canonical values.
-    pub const ALL: [Self; 13] = [
+    pub const ALL: [Self; 14] = [
         Self::WhoPq,
         Self::FdaDrugRecall,
         Self::Mychem,
@@ -47,6 +49,7 @@ impl DrugSource {
         Self::Ddinter,
         Self::WhoEml,
         Self::FdaDsc,
+        Self::FdaSafetySignals,
         Self::PurpleBook,
     ];
     /// Canonical source spelling, reusing an existing source identity when present.
@@ -68,6 +71,7 @@ impl DrugSource {
             Self::Ddinter => crate::Source::Ddinter,
             Self::WhoEml => crate::Source::WhoEml,
             Self::FdaDsc => crate::Source::FdaDsc,
+            Self::FdaSafetySignals => crate::Source::FdaSafetySignals,
             Self::PurpleBook => crate::Source::PurpleBook,
         }
     }
@@ -126,7 +130,11 @@ impl DrugSource {
             Self::Ema => &[Regulatory],
             Self::Ddinter => &[Interactions],
             Self::WhoEml => &[EssentialMedicines],
-            Self::WhoPq | Self::FdaDrugRecall | Self::FdaDsc | Self::PurpleBook => &[],
+            Self::WhoPq
+            | Self::FdaDrugRecall
+            | Self::FdaDsc
+            | Self::FdaSafetySignals
+            | Self::PurpleBook => &[],
         }
     }
 }
@@ -145,7 +153,7 @@ impl DrugSource {
         let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
         match self {
             Self::FdaDrugRecall => id.parse::<biodata::DrugRecallNumber>().is_ok(),
-            Self::WhoPq | Self::PurpleBook => false,
+            Self::WhoPq | Self::PurpleBook | Self::FdaSafetySignals => false,
             Self::Mychem => true,
             Self::Chembl | Self::Opentargets => id.strip_prefix("CHEMBL").is_some_and(digits),
             Self::Civic => civic_id(&id).is_some(),

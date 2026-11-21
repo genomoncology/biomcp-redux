@@ -1,0 +1,55 @@
+{
+  "feature": "drug-fda-safety-signals",
+  "story": "A first read finds quarterly FDA rows by product and by signal text without a sync.",
+  "replay": "drug/fda-safety-signals",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "examplemab",
+        "--source",
+        "fda-safety-signals"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "examplemab",
+        "--source",
+        "fda-safety-signals"
+      ],
+      "expect": {
+        "/page/total": 2,
+        "/result/items/0/product": "Drug class Example brand (examplemab)",
+        "/result/items/0/signal": "Example signal",
+        "/result/items/0/additional_information": "FDA is evaluating the need for regulatory action.",
+        "/result/items/0/quarter": "July - September 2026",
+        "/result/items/0/url": "https://www.fda.gov/drugs/fda-adverse-event-monitoring-system-aems/july-september-2026-new-safety-information",
+        "/result/items/1/quarter": "July - September 2026",
+        "/result/items/1/url": "https://www.fda.gov/drugs/fda-adverse-event-monitoring-system-aems/july-september-2026-new-safety-information",
+        "/result/items/1/signal": "Second signal",
+        "/result/caution": "The appearance of a drug or biological product on a quarterly report does not mean that FDA has concluded that the drug or biological product has the listed risk or that FDA has identified a causal relationship between the drug or biological product and the listed risk at the time the report is posted."
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "second signal",
+        "--source",
+        "fda-safety-signals"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "second signal",
+        "--source",
+        "fda-safety-signals"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/signal": "Second signal"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-safety-signals",
+  "url": "https://www.fda.gov/drugs/fda-adverse-event-monitoring-system-aems/july-september-2026-new-safety-information",
+  "exchanges": [
+    {
+      "fetched": 42,
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<table><thead><tr><th>Product Name: Trade (Active Ingredient) or Product Class</th><th>New Safety Information or Potential Signal of a Serious Risk</th><th>Additional Information</th></tr></thead><tbody>\n<tr><td>Drug class<ul><li>Example brand (examplemab)</li></ul></td><td>Example signal</td><td>FDA is evaluating the need for regulatory action.</td></tr>\n<tr><td>Example brand (examplemab)</td><td>Second signal</td><td>The labeling was updated.</td></tr>\n<tr><td>Unrelated product</td><td>Other signal</td><td>Follow-up.</td></tr></tbody></table>"
+      }
+    }
+  ]
+}

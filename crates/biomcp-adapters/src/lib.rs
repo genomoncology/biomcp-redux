@@ -122,8 +122,10 @@ pub mod maude;
 pub mod fda_cdx;
 /// FDA Drug Safety Communications from FDA's index and pages.
 pub mod fda_dsc;
+mod fda_html;
 /// openFDA PMA publisher policy.
 pub mod fda_pma;
+pub mod fda_signals;
 /// Diagnostic publisher declarations; command dispatch is not yet implemented.
 pub mod gtr;
 /// WHO export publisher policy.

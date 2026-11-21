@@ -48,7 +48,7 @@ impl LabelApplicationType {
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
     WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. \
-    Drugs@FDA accepts a name or an applicant. Other sources require a name. \
+    Drugs@FDA accepts a name or applicant. FDA safety signals accept a drug or report text. \
     Purple Book takes a reference name or BLA and summarizes biosimilars by product."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -62,9 +62,7 @@ struct SearchFields {
     /// Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
     /// Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
     /// Recall aliases match without replacing display names.
-    /// Safety communications match titles, linked drug names and page text. Counts show records searched and those with text.
-    /// Zero matches does not establish that FDA issued no communication about this drug.
-    /// FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
+    /// FDA safety communications match titles, linked names and available page text.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
         default,

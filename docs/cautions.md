@@ -1,5 +1,7 @@
 # Source and entity cautions
 
+FDA's quarterly `fda-safety-signals` search includes a shipped snapshot of FDA-hosted reports for first and offline reads. Reports linked only from external archives are outside its coverage. Each result page carries FDA's wording on causality and gives the snapshot date when shipped tables were used. Use `biomcp search drug ocrelizumab --source fda-safety-signals`.
+
 ## Cache and store storage
 
 Keep cache and store folders on a local disk, or a local Docker named volume. Sharing one cache between several processes through a Docker Desktop host bind mount or a network filesystem is unsupported and can lose cache writes. [SQLite WAL](https://www.sqlite.org/wal.html#overview) requires processes to share memory on the same host and does not support network filesystems. See [cache and store configuration](configuration.md#cache-and-store-folders) for folder selection and Docker storage.

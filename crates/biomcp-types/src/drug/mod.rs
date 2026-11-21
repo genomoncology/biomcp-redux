@@ -55,10 +55,12 @@ pub use history::{
     DrugLabelHistory, LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
 };
 mod dsc;
+mod safety_signal;
 pub use dsc::{
     DrugSafetyCommunication, DrugSafetyCommunicationCard, DrugSafetyCommunicationPage,
     DrugSafetyMatch,
 };
+pub use safety_signal::{DrugSafetySignal, DrugSafetySignalPage};
 mod eml;
 pub use eml::{
     DrugEssentialMedicineDecision, DrugEssentialMedicineListing, DrugEssentialMedicines,

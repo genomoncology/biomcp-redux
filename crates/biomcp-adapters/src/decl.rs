@@ -108,6 +108,7 @@ source_registry! {
     Source::Ema => &crate::ema::decl::DECL,
     Source::WhoPq => &crate::who_pq::decl::DECL,
     Source::WhoEml => &crate::who_eml::decl::DECL,
+    Source::FdaSafetySignals => &crate::fda_signals::decl::DECL,
     Source::FdaDsc => &crate::fda_dsc::decl::DECL,
     Source::Ddinter => &crate::ddinter::decl::DECL,
     Source::DrugbankOpen => &crate::mychem::decl::DRUGBANKOPEN,

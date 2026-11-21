@@ -87,6 +87,11 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::SearchDrug(query) if query.source() == biomcp_types::DrugSource::PurpleBook => {
             crate::drug::purple_book::search(cx, query)
         }
+        Request::SearchDrug(query)
+            if query.source() == biomcp_types::DrugSource::FdaSafetySignals =>
+        {
+            crate::drug::signals::search(cx, query)
+        }
         Request::SearchDrug(query) => crate::drug::search_with_aliases(cx, query),
         Request::GetDrug(query) => crate::drug::get(cx, query),
         Request::GetWhoMedicine(query) => crate::drug::who::get(cx, query),
