@@ -1,0 +1,88 @@
+{
+  "feature": "drug-label",
+  "story": "Drug get preserves the label heading, FDA application or biosimilar reference in the next command when it refuses a field or section.",
+  "replay": "drug/label-continues",
+  "steps": [
+    {
+      "run": ["get", "drug", "Keytruda", "label", "--source", "openfda-label", "--label-section", "clinical_studies", "--find", "KEYNOTE-189"],
+      "offline": true,
+      "exit": 4,
+      "expect": {
+        "/query/find": ["KEYNOTE-189"],
+        "/sources/0/reason": "offline"
+      }
+    },
+    {
+      "run": ["get", "drug", "Keytruda", "label", "--source", "openfda-label", "--label-section", "clinical_studies", "--fields=text"],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--fields",
+        "/error/message": {"includes": "label.data.text"},
+        "/error/unplaced": ["text"],
+        "/next/0/args": {"includes_all_of": ["get", "drug", "Keytruda", "label", "--source", "openfda-label", "--label-section", "clinical_studies"]}
+      }
+    },
+    {
+      "run": [
+        "get", "drug", "9333c79b-d487-4538-a9f0-71b91a02b287", "label",
+        "--source", "openfda-label", "--label-section", "clinical_studies", "--fields=text"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/valid_values": ["characters", "source_offset", "source_part"]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/result/label/data/heading": "clinical_studies",
+        "/result/label/data/text": {"includes": "KEYNOTE-189"}
+      }
+    },
+    {
+      "run": ["get", "drug", "BLA125057", "regulatory", "--source", "drugsfda"],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/source": "drugsfda",
+        "/error/option": "section",
+        "/error/message": {"includes": "regulatory"},
+        "/error/valid_values": ["approvals", "label-history"]
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "exit": 4,
+      "expect": {
+        "/query/input": "BLA125057",
+        "/query/source": "drugsfda",
+        "/query/section": ["approvals"],
+        "/sources/0/reason": "offline"
+      }
+    },
+    {
+      "run": ["get", "drug", "BLA125057", "biosimilars", "--source", "drugsfda"],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "biosimilars",
+        "/error/message": {"includes": "Purple Book"}
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/status": "complete",
+        "/query/query": "BLA125057",
+        "/query/source": "purple-book",
+        "/result/references/0/bla": "BLA125057",
+        "/page/total": 10
+      }
+    }
+  ]
+}
