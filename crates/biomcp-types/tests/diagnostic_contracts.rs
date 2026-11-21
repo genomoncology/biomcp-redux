@@ -446,8 +446,15 @@ fn all_eight_consumer_schemas_accept_their_source_owned_views() {
     let mut card = who();
     card["kind"] = json!("who-ivd-product");
     envelope::<DiagnosticCard>(json!({"source":"who-ivd","id":"0999-999-99"}), card);
-    envelope::<DiagnosticGenes>(get.clone(), json!({"items":[gene()]}));
-    envelope::<DiagnosticConditions>(get.clone(), json!({"items":[condition()]}));
+    let compact = |mut row: Value| {
+        let test_id = row
+            .as_object_mut()
+            .expect("test relation")
+            .remove("test_id");
+        json!({"test_id":test_id,"items":[row]})
+    };
+    envelope::<DiagnosticGenes>(get.clone(), compact(gene()));
+    envelope::<DiagnosticConditions>(get.clone(), compact(condition()));
     envelope::<DiagnosticMethods>(get, json!({"items":[method()]}));
     envelope::<DiagnosticRegulatory>(
         json!({"source":"fda-pma","id":"P150013","section":"regulatory"}),
@@ -464,7 +471,7 @@ fn all_eight_consumer_schemas_accept_their_source_owned_views() {
         json!({"source":"fda-cdx","drug_application":"NDA021335"}),
         json!({"snapshot":"synthetic-revision","items":[companion_row(false),companion_row(true)]}),
     );
-    assert!(serde_json::from_value::<DiagnosticGenes>(json!({"items":[condition()]})).is_err());
+    assert!(serde_json::from_value::<DiagnosticGenes>(compact(condition())).is_err());
 }
 
 /// A reply row states each cell once by name, its links by cell and bare application IDs (1084).

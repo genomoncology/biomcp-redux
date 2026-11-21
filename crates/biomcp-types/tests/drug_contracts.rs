@@ -481,7 +481,7 @@ fn changed_native_record_responses_publish_version_three_and_checked_target_sche
     use biodata::DrugTargetRelation;
     use biomcp_types::{DrugIndications, DrugInteractions, DrugTargets, ResponseBody};
     assert_eq!(DrugTargets::SCHEMA, "biomcp.drug-targets/9");
-    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/9");
+    assert_eq!(DrugIndications::SCHEMA, "biomcp.drug-indications/10");
     assert_eq!(DrugInteractions::SCHEMA, "biomcp.drug-interactions/9");
     let validator =
         jsonschema::draft202012::new(&schemars::schema_for!(DrugTargetRelation).to_value())

@@ -217,7 +217,8 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .ok_or("CLI rows missing")?;
     let search_cap = match args.get(1).map(String::as_str) {
         Some("article") => crate::runner::output_limit("research-measured-1732")?,
-        Some("trial") => crate::runner::output_limit("research-measured-8192")?,
+        // The full trial projection retains the registered acronym and official title (8,291 bytes in j43882).
+        Some("trial") => crate::runner::output_limit("research-measured-9535")?,
         _ => crate::runner::output_limit("research-measured-2864")?,
     };
     bounded(&wrapped, search_cap)?;

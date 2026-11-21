@@ -1931,12 +1931,12 @@ Usage: biomcp search trial [OPTIONS] [query]
 Arguments:
   [query]
           Trial text.
-          General registry discovery text.
+          ClinicalTrials.gov general text. Total counts its matches. Use --acronym or --official-title to search those fields.
 
 Options:
-      --age <age>
-          Age in years.
-          ClinicalTrials.gov only; unstated source bounds count as no limit.
+      --acronym <acronym>
+          Acronym.
+          ClinicalTrials.gov only: search the registry acronym field.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1944,31 +1944,35 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --biomarker-code <biomarker_code>
-          NCI NCIt code.
-          Exact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+      --age <age>
+          Age in years.
+          ClinicalTrials.gov only; unstated source bounds count as no limit.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --biomarker-code <biomarker_code>
+          NCI NCIt code.
+          Exact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility.
 
       --biomarker-use <biomarker_use>
           NCI criterion; help search trial
           NCI criterion.
           Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
       --condition <condition>...
           Disease; NCI needs NCIt.
           Conditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --condition-id <condition_id>
           MONDO/DOID/NCIT:C.
           Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma).
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
 
       --count-only[=<count_only>]
           Total.
@@ -1990,6 +1994,12 @@ Options:
           Radius, mi or km.
           ClinicalTrials.gov only: source distance with explicit mi or km units.
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --exact-condition[=<exact_condition>]
           Exact condition.
           Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
@@ -1997,20 +2007,15 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
 
       --exact-term[=<exact_term>]
+          Exact terms.
           Search typed drug names and variant text as written, without other names or spellings.
-
-          [default: false]
-          [possible values: true, false]
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -2058,6 +2063,10 @@ Options:
           Page token.
           ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page.
 
+      --official-title <official_title>
+          Official title text.
+          ClinicalTrials.gov only: search the registry official title field.
+
       --offset <offset>
           Rows to skip.
           Zero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent.
@@ -2068,7 +2077,8 @@ Options:
           Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
-          ClinicalTrials.gov only: registry sex facet; help search trial
+          Sex; help search trial
+          Sex.
           ClinicalTrials.gov only: registry sex facet.
 
       --site-count[=<site_count>]
@@ -2130,6 +2140,8 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
+- `--acronym`: Acronym.
+ClinicalTrials.gov only: search the registry acronym field. Value form: string; example: --acronym SURMOUNT.
 - `--age`: Age in years.
 ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer; example: --age 18.
 - `--biomarker-code`: NCI NCIt code.
@@ -2150,7 +2162,8 @@ ClinicalTrials.gov only: search registry eligibility text with other variant spe
 ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string; example: --distance 50mi.
 - `--exact-condition`: Exact condition.
 Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean; example: --exact-condition.
-- `--exact-term`: Search typed drug names and variant text as written, without other names or spellings. Value form: boolean; example: --exact-term.
+- `--exact-term`: Exact terms.
+Search typed drug names and variant text as written, without other names or spellings. Value form: boolean; example: --exact-term.
 - `--facility`: Facility.
 Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius. Value form: string; example: --facility 'Dana-Farber Cancer Institute'.
 - `--gene`: Gene symbol/ID.
@@ -2171,14 +2184,17 @@ Headers per page; NCI applies its own lower publisher limit. Value form: integer
 ClinicalTrials.gov only: radius center longitude in degrees. Value form: string; example: --lon -71.0589.
 - `--next-page`: Page token.
 ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string; example: --next-page <next-page> (syntax; replace the placeholder with your retained value).
+- `--official-title`: Official title text.
+ClinicalTrials.gov only: search the registry official title field. Value form: string; example: --official-title 'Reduction of Morbidity and Mortality'.
 - `--offset`: Rows to skip.
 Zero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent. Value form: integer; example: --offset 0.
 - `--phase`: Source phase.
 Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
 - `query`: Trial text.
-General registry discovery text.
+ClinicalTrials.gov general text. Total counts its matches. Use --acronym or --official-title to search those fields.
 Form: search trial QUERY; not --query.
-- `--sex`: ClinicalTrials.gov only: registry sex facet. Value form: string; example: --sex ALL.
+- `--sex`: Sex.
+ClinicalTrials.gov only: registry sex facet. Value form: string; example: --sex ALL.
 - `--site-count`: Site count.
 ClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as registered, never merged. Value form: boolean; example: --site-count.
 - `--source`: clinicaltrials/nci.

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2000/020634s000lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795149444,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "3b271a513e978b1a00aa7c2fd52e7ac8fa966c7047d5bb66234255c4030443e1-0.bin"
+      }
+    }
+  ]
+}

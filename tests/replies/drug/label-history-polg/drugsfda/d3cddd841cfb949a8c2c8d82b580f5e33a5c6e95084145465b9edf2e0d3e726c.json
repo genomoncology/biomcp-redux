@@ -1,0 +1,96 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA018723%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1795149444,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-18",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "application_number": "NDA018723",
+              "products": [
+                {
+                  "product_number": "001",
+                  "brand_name": "DEPAKOTE"
+                }
+              ],
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "19830101",
+                  "application_docs": [
+                    {
+                      "id": "100",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/1983/018723s000lbl.pdf",
+                      "date": "19830101",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "20",
+                  "submission_status": "AP",
+                  "submission_status_date": "20010101",
+                  "application_docs": [
+                    {
+                      "id": "101",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2001/018723s020lbl.pdf",
+                      "date": "20010101",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "40",
+                  "submission_status": "AP",
+                  "submission_status_date": "20020101",
+                  "application_docs": [
+                    {
+                      "id": "102",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2002/018723s040lbl.pdf",
+                      "date": "20020101",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "60",
+                  "submission_status": "AP",
+                  "submission_status_date": "20040101",
+                  "application_docs": [
+                    {
+                      "id": "103",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2004/018723s060lbl.pdf",
+                      "date": "20040101",
+                      "type": "Label"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

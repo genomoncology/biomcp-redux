@@ -108,6 +108,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Small source-attributed trial discovery record.",
   "properties": {
+    "acronym": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Source acronym, when registered."
+    },
     "conditions": {
       "$ref": "#/$defs/Reply_Capped_Text",
       "description": "Source condition names."
@@ -126,6 +137,17 @@
     "nct_id": {
       "$ref": "#/$defs/Reply_NctId",
       "description": "Exact registry identity."
+    },
+    "official_title": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Source official protocol title, when registered."
     },
     "phases": {
       "description": "Source phases; absent phases remain absent.",

@@ -28,6 +28,7 @@ pub struct Read<'a, T> {
     /// A bundle-set part records its bytes under the set's limits, not the ordinary binary cap.
     pub(crate) set_part: bool,
     pub(crate) cache_only: bool,
+    pub(crate) part_length: Option<&'a dyn Fn(u64)>,
     parse: fn(&[u8]) -> Option<T>,
     range_check: Option<&'a RangeCheck<'a, T>>,
 }
@@ -129,6 +130,7 @@ impl<'a, T: Reply> Read<'a, T> {
             octet_stream: None,
             set_part: false,
             cache_only: false,
+            part_length: None,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
@@ -161,6 +163,7 @@ impl<'a, T: Reply> Read<'a, T> {
             octet_stream: None,
             set_part: false,
             cache_only: false,
+            part_length: None,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
@@ -237,6 +240,7 @@ impl Read<'_, Probe> {
             octet_stream: None,
             set_part: false,
             cache_only: false,
+            part_length: None,
             parse: |_| Some(Probe),
         }
     }
@@ -269,6 +273,7 @@ impl<'a> Read<'a, Bytes> {
             octet_stream: None,
             set_part: false,
             cache_only: false,
+            part_length: None,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,

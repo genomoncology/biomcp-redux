@@ -1,0 +1,31 @@
+{
+  "feature": "drug-label-history",
+  "story": "A confirmed miss immediately before POLG was found cannot rule out a match in an older unreadable label.",
+  "live_check": "synthetic",
+  "replay": "drug/label-history-polg",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA018723",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "contraindications",
+        "--find",
+        "POLG"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/first/submission": "SUPPL 60",
+        "/result/before/submission": "SUPPL 40",
+        "/result/before/state": "no-match",
+        "/result/on_or_before": true,
+        "/result/answer": "Text in contraindications on or before SUPPL 60, approved 2004-01-01. Older labels remain unchecked."
+      }
+    }
+  ],
+  "verified": "Synthetic application history and PDFs. The dates and label text are test data."
+}

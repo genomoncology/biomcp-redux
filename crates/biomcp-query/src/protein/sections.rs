@@ -2,8 +2,8 @@
 use biodata::ProteinSequence;
 use biomcp_adapters::uniprot::Entry;
 use biomcp_types::{
-    ProteinFunctionResult, ProteinGet, ProteinSection, ProteinSectionPage, ProteinSections,
-    ProteinSequenceResult, Reason, Section, Source, SourceRecord,
+    ProteinFeaturePage, ProteinFunctionResult, ProteinGet, ProteinSection, ProteinSectionPage,
+    ProteinSections, ProteinSequenceResult, Reason, Section, Source, SourceRecord,
 };
 pub(super) const NAMES: [ProteinSection; 9] = [
     ProteinSection::Domains,
@@ -35,7 +35,7 @@ fn rows<T, B>(entry: &Entry, items: Vec<T>, wrap: impl FnOnce(Box<[T]>) -> B) ->
 pub(super) fn first(q: &ProteinGet, entry: &Entry) -> ProteinSections {
     let n = q.section_limit() as usize;
     ProteinSections {
-        features: wants(q, ProteinSection::Features).then(|| bounded(entry, &entry.features, n)),
+        features: wants(q, ProteinSection::Features).then(|| features(entry, n)),
         isoforms: wants(q, ProteinSection::Isoforms).then(|| bounded(entry, &entry.isoforms, n)),
         structures: wants(q, ProteinSection::Structures)
             .then(|| bounded(entry, &entry.structures, n)),
@@ -52,6 +52,24 @@ pub(super) fn first(q: &ProteinGet, entry: &Entry) -> ProteinSections {
         complexes: None,
         interactions: None,
         chembl: None,
+    }
+}
+fn features(entry: &Entry, limit: usize) -> Section<ProteinFeaturePage> {
+    let features =
+        biomcp_types::ProteinFeatures::for_entry(entry.features.iter().take(limit).cloned());
+    match features.attribution {
+        Some(attribution) => Section::Data {
+            source: Source::UniProt,
+            data: ProteinFeaturePage {
+                attribution,
+                items: features.items,
+                total: entry.features.len() as u64,
+            },
+        },
+        None => Section::Empty {
+            source: Source::UniProt,
+            record: SourceRecord::asked(Some("UniProt"), &entry.header.protein.accession),
+        },
     }
 }
 fn bounded<T: Clone>(entry: &Entry, items: &[T], limit: usize) -> Section<ProteinSectionPage<T>> {

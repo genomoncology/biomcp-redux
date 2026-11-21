@@ -162,17 +162,20 @@ pub fn regulatory(
         }
         DrugRegulatory {
             identity: map::header(&row, &mut problems),
-            date_roles: date_roles.into(),
-            regulatory: Section::Data {
-                source: Source::Ema,
-                data: DrugRecords {
-                    records: vec![event].into(),
-                    offset: 0,
-                    total: Some(1),
-                    truncated: None,
-                    version: problems.field("_bundle_meta.timestamp", row.meta.timestamp),
-                    retrieved: None,
-                },
+            part: biomcp_types::DrugRegulatoryPart {
+                regulatory_context: None,
+                date_roles: date_roles.into(),
+                regulatory: Some(Section::Data {
+                    source: Source::Ema,
+                    data: DrugRecords {
+                        records: vec![event].into(),
+                        offset: 0,
+                        total: Some(1),
+                        truncated: None,
+                        version: problems.field("_bundle_meta.timestamp", row.meta.timestamp),
+                        retrieved: None,
+                    },
+                }),
             },
         }
     });
@@ -186,7 +189,8 @@ pub fn regulatory(
 /// none, why the date EMA's medicines file names `european_commission_decision_date` is not it.
 pub fn decision_date_notice(body: &DrugRegulatory) -> Option<Box<str>> {
     let role = |name: &str| {
-        body.date_roles
+        body.part
+            .date_roles
             .iter()
             .find(|label| label.role.as_str() == name)
     };

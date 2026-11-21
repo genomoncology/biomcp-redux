@@ -1,6 +1,7 @@
 # 1082 — label-history-reads-old-format-labels
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: db304e9f1391f7c5496e647cd2723812b0a0bdf2
 
 Milestone: 7
 
