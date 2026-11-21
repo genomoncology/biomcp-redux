@@ -102,6 +102,7 @@
         "ema",
         "ddinter",
         "who-eml",
+        "fda-dsc",
         "purple-book"
       ],
       "type": "string"

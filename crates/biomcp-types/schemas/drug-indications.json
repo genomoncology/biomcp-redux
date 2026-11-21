@@ -906,6 +906,7 @@
         "ema",
         "ddinter",
         "who-eml",
+        "fda-dsc",
         "purple-book"
       ]
     },
@@ -1350,6 +1351,7 @@
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
+        " FDA Drug Safety Communications web pages.",
         " FDA Purple Book biologic product roster.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
@@ -1430,6 +1432,7 @@
         "fda-510k",
         "fda-device-recall",
         "fda-drug-recall",
+        "fda-dsc",
         "purple-book",
         "cpic",
         "clinpgx",

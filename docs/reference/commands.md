@@ -1416,11 +1416,15 @@ Usage: biomcp search drug [OPTIONS] [query]
 Arguments:
   [query]
           Drug name phrase.
-          FDA drug recalls, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
+          FDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
           Drugs@FDA searches brands and ingredients,
           exact names before word matches. openFDA labels search exact then word brand/generic names,
           then label text (including indications) when no names match; source matches need not be exact names.
           Harmonized recall names match but never become display names.
+          FDA safety communications search titles, linked drug names and available page text.
+          Zero matches does not establish that FDA issued no communication about this drug.
+          The reply counts the communications searched and how many had page text.
+          FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
 
 Options:
       --applicant <applicant>
@@ -1466,7 +1470,7 @@ Options:
 
       --exact-term[=<exact_term>]
           Search the typed name only.
-          openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+          openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
           the drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
 
           [default: false]
@@ -1571,7 +1575,7 @@ Options:
 
 ```
 
-Search drugs and medicines by name, source label indication or mechanism of action. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, purple-book, who-eml, who-pq.
+Search drugs and medicines by name, source label indication or mechanism of action. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, fda-dsc, mychem, openfda-label, opentargets, purple-book, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
@@ -1589,7 +1593,7 @@ Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --approved-to 
 - `--classification`: Source FDA classification; drug recalls only. Value form: string; example: --classification 'Class II'; only with --source fda-drug-recall.
 - `--device`: Purple Book device. Match its presentation cell, ignoring case; return presentations. Value form: string; example: --device Autoinjector; only with --source purple-book.
 - `--exact-term`: Search the typed name only.
-openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
 the drug's other names by default; this searches only the name as typed. Other sources search the name as typed. Value form: boolean; example: --exact-term.
 - `--expand-drug-names`: Accepted for one release; changes nothing.
 Sources that widen drug names do so by default. Value form: boolean; example: --expand-drug-names.
@@ -1615,11 +1619,15 @@ Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `--presentations`: Purple Book presentation rows, also selected by --strength or --device. Value form: boolean; example: --presentations; only with --source purple-book.
 - `query`: Drug name phrase.
-FDA drug recalls, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
+FDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
 Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
+FDA safety communications search titles, linked drug names and available page text.
+Zero matches does not establish that FDA issued no communication about this drug.
+The reply counts the communications searched and how many had page text.
+FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
 Form: search drug QUERY; not --query.
 - `--reason`: Recall reason phrase. Value form: string; example: --reason 'Lack of Sterility Assurance'; only with --source fda-drug-recall.
 - `--sort`: Drugs@FDA order.
@@ -3401,8 +3409,8 @@ Usage: biomcp get drug [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          Source ID, brand or generic name.
-          Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+          Source ID, brand or generic name (fda-dsc requires the communication UUID).
+          Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. For fda-dsc, use the communication UUID from search drug NAME --source fda-dsc. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 
   [section]...
           Source sections; help get drug
@@ -3522,7 +3530,7 @@ Options:
 
 ```
 
-Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, purple-book, who-eml, who-pq.
+Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, fda-dsc, mychem, openfda-label, opentargets, purple-book, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
@@ -3553,8 +3561,8 @@ Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
 - `--find`: Label text; OR.
 Exact text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history. Value form: repeatable values (repeat the flag); example: --find vasculitis.
-- `input`: Source ID, brand or generic name.
-Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+- `input`: Source ID, brand or generic name (fda-dsc requires the communication UUID).
+Source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. For fda-dsc, use the communication UUID from search drug NAME --source fda-dsc. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
