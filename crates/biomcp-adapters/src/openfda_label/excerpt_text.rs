@@ -21,10 +21,21 @@ pub(super) fn fold(
             Some((folded, at..at + ch.len_utf8()))
         })
         .flat_map(|(ch, span)| {
-            std::iter::once(ch)
-                .default_case_fold()
+            case_fold(ch)
+                .into_iter()
+                .flatten()
                 .map(move |folded| (folded, span.clone()))
         })
+}
+
+// A full Unicode fold expands one scalar into at most three. Store that expansion so
+// the position iterator can be copied when locating the end of a matched phrase.
+fn case_fold(ch: char) -> [Option<char>; 3] {
+    if ch.is_ascii() {
+        return [Some(ch.to_ascii_lowercase()), None, None];
+    }
+    let mut folded = std::iter::once(ch).default_case_fold();
+    std::array::from_fn(|_| folded.next())
 }
 
 fn dash(ch: char) -> char {
