@@ -8496,6 +8496,7 @@
         "required option missing: add error.option with a value valid_values accepts",
         "option given without a value: give error.option a value valid_values accepts",
         "unknown option: this command has no error.option; run next, or use an option valid_values lists",
+        "search gene does not take --source. It looks up HGNC names and aliases. For curation, use get gene SYMBOL and the source section.",
         "value not accepted: give error.option a value valid_values accepts",
         "this command takes no text outside an option; next gives the words to error.option",
         "option repeated: give error.option once, in the form valid_values shows",
@@ -8741,7 +8742,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged."
+      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged. Ticket 1113 adds specific guidance when gene search refuses ClinGen or GenCC as --source."
     },
     {
       "schemas": [
