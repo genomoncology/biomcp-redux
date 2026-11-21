@@ -88,8 +88,9 @@ fn replay_read() -> Result<(), String> {
         if record["url"]
             .as_str()
             .is_some_and(|url| url.ends_with(REFERRALS))
+            && let Some(status) = record.pointer_mut("/exchanges/0/status")
         {
-            record["exchanges"][0]["status"] = json!(403);
+            *status = json!(403);
         }
     })
     .map_err(|e| e.to_string())?;
