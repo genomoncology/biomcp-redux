@@ -53,12 +53,10 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
         if disease && let Some(found) = super::find(FLAGS, flag) {
             return Some(found);
         }
-        if flag == "--phenotype" {
-            if matches!(positional.as_slice(), ["get", "disease", ..]) {
-                return Some(ErrorMessage::DiseasePhenotypeFilter);
-            }
-            phenotype = true;
+        if flag == "--phenotype" && matches!(positional.as_slice(), ["get", "disease", ..]) {
+            return Some(ErrorMessage::DiseasePhenotypeFilter);
         }
+        phenotype |= flag == "--phenotype";
         hpo_release |= flag == "--hpo-release";
         if disease && flag == "--name" {
             option = Some(ErrorMessage::DiseaseName);

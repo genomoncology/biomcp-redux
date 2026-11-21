@@ -15,16 +15,30 @@
         "ols",
         "mydisease",
         "monarch",
-        "seer"
+        "seer",
+        "hpo"
       ],
+      "type": "string"
+    },
+    "HpId": {
+      "description": "Exact Human Phenotype Ontology identifier with seven decimal digits.",
+      "pattern": "^HP:[0-9]{7}$",
       "type": "string"
     }
   },
   "$id": "biomcp.disease-search/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Literal discovery text or an explicit SEER catalog page.",
+  "description": "Literal disease discovery, SEER site search, or intersection of positive annotations in a named HPO release.",
   "properties": {
+    "hpo_release": {
+      "description": "Required for --phenotype. Use the publisher's vYYYY-MM-DD release tag.",
+      "pattern": "^v[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "limit": {
       "default": 5,
       "description": "Maximum source rows on one page.",
@@ -45,10 +59,19 @@
       "default": "mondo",
       "description": "Exactly one ontology, default MONDO; help search disease\nExactly one ontology, default MONDO."
     },
+    "phenotype": {
+      "description": "HPO IDs to match together, including descendants. Repeat this option for each term.",
+      "items": {
+        "$ref": "#/$defs/HpId"
+      },
+      "maxItems": 20,
+      "type": "array",
+      "x-comma-separated": true
+    },
     "source": {
       "$ref": "#/$defs/DiseaseSearchSource",
       "default": "ols",
-      "description": "One explicit source, default OLS; help search disease\nOne explicit source, default OLS."
+      "description": "Defaults to HPO with --phenotype and OLS for text. Select; help search disease\nDefaults to HPO with --phenotype and OLS for text. Select SEER for site search."
     },
     "text": {
       "description": "Literal source search text; optional site-name filter for SEER.",
