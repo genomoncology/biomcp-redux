@@ -2,8 +2,8 @@
   "feature": "disease-orphadata",
   "live_check": "synthetic authored Orphadata reply",
   "story": "Read a saved Orphadata release's OMIM mappings from one ORPHA code, preserving exact and broader relationships, direction and release.",
-  "verified": "Synthetic product 1 XML with source-defined mapping labels. See tests/replies/disease/orphadata-xrefs/README.md.",
-  "replay": "disease/orphadata-xrefs",
+  "verified": "Synthetic product 1 XML with source-defined mapping labels. See tests/replies/disease/orphanet-id/orphadata/README.md.",
+  "replay": "disease/orphanet-id",
   "steps": [
     {
       "run": ["sync", "orphadata", "--xrefs"],

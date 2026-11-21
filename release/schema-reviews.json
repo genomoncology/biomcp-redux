@@ -8656,6 +8656,7 @@
         "prevalence comes only from --source orphadata for a MONDO, DOID or Orphanet ID; use: get disease <CURIE> prevalence --source orphadata",
         "Use --source with one of the listed sources for this disease ID and section.",
         "Add the prevalence section to use --source orphadata.",
+        "Add xrefs or prevalence to use --source orphadata.",
         "Add the genes or phenotypes section to use --source monarch.",
         "Add --source monarch to read the genes section.",
         "Add --source monarch to read the phenotypes section.",
@@ -8768,7 +8769,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged. Ticket 1112, 2026-11-21: add three drug get refusals that explain where label text appears, which Drugs@FDA section supplies approvals, and how to search Purple Book biosimilars. They keep the existing codes and provide corrected calls. The combined target also includes the gene get source refusal reviewed in ticket 1114. Ticket 1115, 2026-11-21: five disease get refusal messages name the supported sources or the required section. Ticket 1116 adds three phenotype get messages that explain HPO serves term records and point to Monarch for hierarchy, diseases, and genes. Ticket 1113 directs gene search callers to the disease curation lookup for ClinGen or GenCC."
+      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged. Ticket 1112, 2026-11-21: add three drug get refusals that explain where label text appears, which Drugs@FDA section supplies approvals, and how to search Purple Book biosimilars. They keep the existing codes and provide corrected calls. The combined target also includes the gene get source refusal reviewed in ticket 1114. Ticket 1115, 2026-11-21: five disease get refusal messages name the supported sources or the required section. Ticket 1116 adds three phenotype get messages that explain HPO serves term records and point to Monarch for hierarchy, diseases, and genes. Ticket 1113 directs gene search callers to the disease curation lookup for ClinGen or GenCC. Ticket 1100 names both Orphadata sections for an ORPHA ID and retains the prevalence guidance for MONDO and DOID IDs."
     },
     {
       "schemas": [

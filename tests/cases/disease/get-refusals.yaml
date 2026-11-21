@@ -1,5 +1,5 @@
 feature: disease-mydisease
-live_check: local validation and recorded MyDisease replies
+live_check: local validation, recorded MyDisease replies and synthetic Orphadata XML
 story: Disease get names the source and section requirements and offers a checked correction.
 replay: disease/orphanet-id
 steps:
@@ -9,27 +9,29 @@ steps:
     expect:
       /error/option: --source
       /error/message: Use --source with one of the listed sources for this disease ID and section.
-      /error/valid_values: [mydisease]
+      /error/valid_values: [mydisease, orphadata]
   - follow: configure
     expect:
       /status: complete
       /query/section: xrefs
       /query/source: mydisease
-  - run: [get, disease, "ORPHA:115", xrefs, --source, orphadata]
-    exit: 2
-    is_error: true
+  - run: [sync, orphadata, --xrefs]
     expect:
-      /error/message: Use --source with one of the listed sources for this disease ID and section.
-      /error/valid_values: [mydisease]
-      /next/0/args: [get, disease, "ORPHA:115", xrefs, --limit, "5"]
+      /status: complete
+  - run: [get, disease, "ORPHA:115", xrefs, --source, orphadata]
+    expect:
+      /status: complete
+      /query/source: orphadata
+      /result/items/0/subject/id: "ORPHA:115"
+      /result/items/0/object/id: "OMIM:900001"
   - run: [get, disease, "ORPHA:115", --source, orphadata]
     exit: 2
     is_error: true
     expect:
       /error/option: section
-      /error/message: Add the prevalence section to use --source orphadata.
-      /error/valid_values: [prevalence]
-      /next/0/args: [get, disease, "ORPHA:115", prevalence, --limit, "5", --source, orphadata]
+      /error/message: Add xrefs or prevalence to use --source orphadata.
+      /error/valid_values: [xrefs, prevalence]
+      /next/0/args: [help, get, disease]
   - run: [get, disease, "MONDO:0019391", genes]
     exit: 2
     is_error: true

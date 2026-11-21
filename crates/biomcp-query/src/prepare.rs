@@ -115,6 +115,7 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
     Some(UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some("section".into()),
         message: Some(match q.source() {
+            DiseaseSource::Orphadata if values.len() > 1 => ErrorMessage::DiseaseOrphaSection,
             DiseaseSource::Orphadata => ErrorMessage::DiseaseOrphadataSection,
             DiseaseSource::Monarch => ErrorMessage::DiseaseMonarchSection,
             _ => ErrorMessage::ArgumentMissing,
