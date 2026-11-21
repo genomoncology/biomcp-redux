@@ -35,12 +35,13 @@ pub(super) fn gene_search_source(
         })?;
     let section = [GeneSection::ClinGen, GeneSection::Gencc]
         .into_iter()
-        .find(|section| source.eq_ignore_ascii_case(section.as_str()))?;
+        .map(<&str>::from)
+        .find(|section| source.eq_ignore_ascii_case(section))?;
     Some(UsageArguments {
         argument: Some(FLAG.into()),
         message: Some(ErrorMessage::GeneSearchSource),
         valid_values: None,
-        next: vec![super::validation::help(["get", "gene", section.as_str()])],
+        next: vec![super::validation::help(["get", "gene", section])],
     })
 }
 
