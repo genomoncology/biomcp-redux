@@ -1,12 +1,12 @@
 //! Feature schema-discovery: an advertised publisher has a usable command form.
-use super::{launch::Environment, mcp};
+use crate::runner::{launch::Environment, mcp, transcript};
 use biomcp_types::{Help, HelpCommand, Source};
 use serde_json::{Value, json};
 
 type Check<T = ()> = Result<T, String>;
 
 pub(super) fn trial() -> libtest_mimic::Trial {
-    super::transcript::trial("schema-discovery/help-sources-validate-offline", || {
+    transcript::trial("schema-discovery/help-sources-validate-offline", || {
         check().map_err(Into::into)
     })
 }
@@ -220,6 +220,10 @@ fn selected_form(verb: &str, entity: &str, source: &str) -> &'static [&'static s
             "BRAF",
             "--study",
             "msk_impact_2017",
+            "--profile",
+            "msk_impact_2017_mutations",
+            "--sample-set",
+            "msk_impact_2017_all",
         ],
         ("variant", "normalize", _) => &["--hgvs", "NM_004333.6:c.1799T>A", "--build", "GRCh38"],
         _ => &[],
@@ -233,7 +237,7 @@ fn implicit_form(verb: &str, entity: &str, source: &str) -> Option<&'static [&'s
             &["orcid:0000-0002-1825-0097"]
         }
         ("get", "author", "semantic-scholar") | ("author", "papers", "semantic-scholar") => {
-            &["semantic-scholar:1741101"]
+            &["semantic-scholar:123"]
         }
         ("get", "cell-line", "cellosaurus") => &["CVCL_0030", "names"],
         ("get", "pathway", "reactome") => &["R-HSA-5673001", "summary"],

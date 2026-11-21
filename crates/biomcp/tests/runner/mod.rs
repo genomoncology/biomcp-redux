@@ -65,7 +65,6 @@ mod faers_get;
 mod gene_names;
 mod held_proxy;
 mod help_contract;
-mod help_sources;
 mod hgnc_sync;
 mod hosted_cancel;
 mod hosted_deadline;
@@ -280,14 +279,6 @@ fn run_case_owned(
     previous.ok_or_else(|| "case requires at least one step".into())
 }
 
-fn discovery_trials() -> [Trial; 3] {
-    [
-        help_contract::trial(),
-        help_sources::trial(),
-        word_order::trial(),
-    ]
-}
-
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(argument_recovery::trials());
@@ -350,7 +341,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pathway_commands::trials());
     trials.extend(gwas_search::trials());
     trials.extend(diagnostic_who::trials());
-    trials.extend(discovery_trials());
+    trials.extend(help_contract::trials());
     trials.extend([wikipathways::trial(), word_next::trial()]);
     trials.extend(variant_civic::trials());
     trials.extend(protein_domains::trials());
