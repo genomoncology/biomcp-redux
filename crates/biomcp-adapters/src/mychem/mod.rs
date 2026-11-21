@@ -76,7 +76,8 @@ pub fn search_names(
 }
 /// Number of native rows considered for promotion on default discovery.
 pub const RANKED_ROWS: u32 = 250;
-const RANK_FIELDS: &str = "drugbank.synonyms,chembl.molecule_synonyms.molecule_synonym,drugcentral.synonyms,gtopdb.synonyms,openfda.generic_name,openfda.brand_name";
+const RANK_FIELDS: &str = "drugbank.synonyms,chembl.molecule_synonyms.molecule_synonym,drugcentral.synonyms,\
+                    gtopdb.synonyms,openfda.generic_name,openfda.brand_name";
 /// Rank one fixed prefix before applying user offsets. Later rows retain the source order.
 pub fn search_ranked(
     leg: &Leg<'_>,
