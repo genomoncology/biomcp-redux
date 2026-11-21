@@ -85,7 +85,7 @@
         "ema"
       ],
       "expect": {
-        "/schema": "biomcp.drug-regulatory/7",
+        "/schema": "biomcp.drug-regulatory/8",
         "/status": "complete",
         "/result/identity/id": "EMEA/H/C/000406",
         "/result/regulatory/state": "data",

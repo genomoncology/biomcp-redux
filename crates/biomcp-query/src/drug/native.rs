@@ -145,6 +145,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         [DrugSection::Indications] => {
             biomcp_types::DrugIndications::into_reply(query.clone(), None)
         }
+        [DrugSection::Regulatory] => biomcp_types::DrugRegulatory::into_reply(query.clone(), None),
         [DrugSection::Xrefs] => biomcp_types::DrugXrefs::into_reply(query.clone(), None),
         _ => biomcp_types::DrugCard::into_reply(query.clone(), None),
     });
@@ -167,7 +168,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     finish(&mut out, leg, query.source().source(), error);
     if error.is_none()
         && query.source() == DrugSource::Opentargets
-        && query.sections() == [DrugSection::Indications]
+        && query.sections() == [DrugSection::Regulatory]
     {
         regulatory_context::attach(cx, query, deadline, &mut out);
     }

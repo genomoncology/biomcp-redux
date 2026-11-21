@@ -25,6 +25,13 @@ The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/plann
 - Article downloads use exact file selections and `--save PATH`. Text readers, PDFs and supplements have separate commands. HTTP MCP refuses file saves. Plain `serve --http` refuses `article pdf` and `trial document`, whose save is required, with a `usage.arguments` error naming `--save` before it asks any source.
 - Variant normalization uses `--source`, `--hgvs` and explicit builds. Variant source assertions, population and recurrence use their named commands. No source score becomes a clinical classification.
 
+
+## Drug indications, UniProt features and GTR relations
+
+Open Targets indication replies now give drug identity and attribution once. ChEMBL indication rows retain their own claim attribution. To retrieve FDA application events by drug name, replace `indications` with `regulatory` in the Open Targets command. The FDA lookup preserves the application events and their dates, and its reply explains the name-only match.
+
+UniProt feature lists put entry attribution before the rows. A feature still carries the sequence on which its coordinates are defined. GTR gene and condition replies give the exact versioned `test_id` once for the list. Use the new schema versions to locate these fields.
+
 ## Variant shorthand
 
 Use a gene symbol and protein substitution with `biomcp search variant "BRAF V600E"` or `biomcp get variant "BRAF V600E"`. With the typed MCP `variant` tool, send `{"action":"search","search":{"query":"BRAF V600E"}}` to search or `{"action":"get","get":{"id":"BRAF V600E"}}` to get a variant card.

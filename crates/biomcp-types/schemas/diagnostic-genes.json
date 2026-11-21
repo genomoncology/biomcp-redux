@@ -38,6 +38,58 @@
       ],
       "type": "string"
     },
+    "Reply_DiagnosticGeneRow": {
+      "description": "Native gene relation from the reply's test.",
+      "properties": {
+        "gene": {
+          "$ref": "#/$defs/Reply_GtrGeneReference",
+          "description": "Source-given GeneID and gene symbol."
+        },
+        "mim_number": {
+          "description": "Native MIM cell, including empty.",
+          "type": "string"
+        },
+        "native_gene_or_snomed_ct_id": {
+          "description": "Uninterpreted source ID when it is not a checked GeneID.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "native_medgen": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Independent native MedGen identity."
+        },
+        "object_name": {
+          "description": "Full source object name.",
+          "type": "string"
+        },
+        "test_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_GtrTestType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native source test type."
+        }
+      },
+      "required": [
+        "gene",
+        "mim_number",
+        "object_name"
+      ],
+      "type": "object"
+    },
     "Reply_DiagnosticGenes": {
       "description": "Native GTR gene relation rows without variant-coverage inference.",
       "properties": {
@@ -64,11 +116,18 @@
         "items": {
           "description": "Complete source-owned rows in native order; envelope totals count native rows.",
           "items": {
-            "$ref": "#/$defs/Reply_GtrGeneRelation"
+            "$ref": "#/$defs/Reply_DiagnosticGeneRow"
           },
           "type": "array"
+        },
+        "test_id": {
+          "$ref": "#/$defs/Reply_GtrTestId",
+          "description": "Exact owning test accession and version for every row."
         }
       },
+      "required": [
+        "test_id"
+      ],
       "type": "object"
     },
     "Reply_DiagnosticGet": {
@@ -199,63 +258,6 @@
           "description": "Native GeneID from a gene relation, never a condition's SNOMED field."
         }
       },
-      "type": "object"
-    },
-    "Reply_GtrGeneRelation": {
-      "description": "Native gene relation; its numeric ID comes only from the gene row.",
-      "properties": {
-        "gene": {
-          "$ref": "#/$defs/Reply_GtrGeneReference",
-          "description": "Shared source-given GeneID and gene_symbol; absent GeneID stays absent."
-        },
-        "mim_number": {
-          "description": "Native MIM cell, including empty.",
-          "type": "string"
-        },
-        "native_gene_or_snomed_ct_id": {
-          "description": "Uninterpreted nonempty `gene_or_SNOMED_CT_ID` when it is not a checked NCBI Gene ID.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "native_medgen": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Curie"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Independent native MedGen identity from GTR_identifier."
-        },
-        "object_name": {
-          "description": "Full source object_name without interpretation.",
-          "type": "string"
-        },
-        "test_id": {
-          "$ref": "#/$defs/Reply_GtrTestId",
-          "description": "Complete owning test accession/version."
-        },
-        "test_type": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_GtrTestType"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native source test type."
-        }
-      },
-      "required": [
-        "test_id",
-        "gene",
-        "mim_number",
-        "object_name"
-      ],
       "type": "object"
     },
     "Reply_GtrTestId": {
@@ -1045,7 +1047,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-genes/6",
+  "$id": "biomcp.diagnostic-genes/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1122,7 +1124,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic-genes/6",
+      "const": "biomcp.diagnostic-genes/7",
       "type": "string"
     },
     "sources": {

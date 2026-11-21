@@ -26,6 +26,40 @@
       "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
       "type": "string"
     },
+    "Reply_DiagnosticConditionRow": {
+      "description": "Native condition relation from the reply's test.",
+      "properties": {
+        "condition": {
+          "$ref": "#/$defs/Reply_GtrConditionReference",
+          "description": "Source-given MedGen concept."
+        },
+        "mim_number": {
+          "description": "Native MIM cell, including empty.",
+          "type": "string"
+        },
+        "snomed_ct_id": {
+          "description": "Native SNOMED CT cell, including empty.",
+          "type": "string"
+        },
+        "test_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_GtrTestType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native source test type."
+        }
+      },
+      "required": [
+        "condition",
+        "mim_number",
+        "snomed_ct_id"
+      ],
+      "type": "object"
+    },
     "Reply_DiagnosticConditions": {
       "description": "Native GTR condition rows without ontology or clinical conversion.",
       "properties": {
@@ -52,11 +86,18 @@
         "items": {
           "description": "Complete source-owned rows in native order; envelope totals count native rows.",
           "items": {
-            "$ref": "#/$defs/Reply_GtrConditionRelation"
+            "$ref": "#/$defs/Reply_DiagnosticConditionRow"
           },
           "type": "array"
+        },
+        "test_id": {
+          "$ref": "#/$defs/Reply_GtrTestId",
+          "description": "Exact owning test accession and version for every row."
         }
       },
+      "required": [
+        "test_id"
+      ],
       "type": "object"
     },
     "Reply_DiagnosticCountUnit": {
@@ -194,45 +235,6 @@
       },
       "required": [
         "id"
-      ],
-      "type": "object"
-    },
-    "Reply_GtrConditionRelation": {
-      "description": "Native condition membership; SNOMED cells never become GeneID.",
-      "properties": {
-        "condition": {
-          "$ref": "#/$defs/Reply_GtrConditionReference",
-          "description": "Shared MedGen concept with source label."
-        },
-        "mim_number": {
-          "description": "Native MIM cell, including empty.",
-          "type": "string"
-        },
-        "snomed_ct_id": {
-          "description": "Native SNOMED CT cell, including empty; never a gene ID.",
-          "type": "string"
-        },
-        "test_id": {
-          "$ref": "#/$defs/Reply_GtrTestId",
-          "description": "Complete owning test accession/version."
-        },
-        "test_type": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_GtrTestType"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Native source test type."
-        }
-      },
-      "required": [
-        "test_id",
-        "condition",
-        "mim_number",
-        "snomed_ct_id"
       ],
       "type": "object"
     },
@@ -1018,7 +1020,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-conditions/6",
+  "$id": "biomcp.diagnostic-conditions/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1095,7 +1097,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic-conditions/6",
+      "const": "biomcp.diagnostic-conditions/7",
       "type": "string"
     },
     "sources": {
