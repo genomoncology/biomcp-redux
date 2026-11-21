@@ -1,0 +1,49 @@
+{
+  "feature": "trial-search-matched-arms",
+  "story": "Trial search returns only the registered arms linked to an intervention or its source-stated alias, with original arm types, labels, intervention names and descriptions, plus the trial's primary purpose.",
+  "replay": "trial/matched-arms",
+  "verified": "Saved ClinicalTrials.gov API responses for the exact NCT06952504 and NCT05347134 intervention searches on 2026-11-20. The unused end-of-search cursors were omitted. The first byte ceiling is below the 7935-byte legacy arm read for that trial's first page. For NCT05347134, the registry lists SKB264 in both arms, while the label and description of the second arm name four other drugs.",
+  "steps": [
+    {
+      "run": ["search", "trial", "--id", "NCT06952504", "--intervention", "pembrolizumab", "--exact-term", "--arms-for", "MK-3475", "--limit", "1"],
+      "mcp": ["search", "trial", "--id", "NCT06952504", "--intervention", "pembrolizumab", "--exact-term", "--arms-for", "MK-3475", "--limit", "1"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/nct_id": "NCT06952504",
+        "/result/items/0/primary_purpose": "TREATMENT",
+        "/result/items/0/matched_arms/*/kind": {"equals": ["EXPERIMENTAL", "ACTIVE_COMPARATOR", "EXPERIMENTAL"]},
+        "/result/items/0/matched_arms/*/label": {
+          "equals": [
+            "Maintenance Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+            "Maintenance Treatment Arm B: Pembrolizumab Monotherapy",
+            "Subsequent Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan"
+          ]
+        },
+        "/result/items/0/matched_arms/1/intervention_names": [
+          "Biological: Pembrolizumab", "Drug: Carboplatin", "Drug: Paclitaxel", "Drug: Docetaxel", "Drug: Cisplatin"
+        ],
+        "/result/items/0/matched_arms/1/description": "During the Induction Phase, participants receive pembrolizumab 200 mg, carboplatin AUC 5 (mg/mL/min) or cisplatin 75 mg/m\\^2, and paclitaxel 175 mg/m\\^2 or docetaxel 75 mg/m\\^2 on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months).\n\nDuring the Maintenance Treatment Phase, participants receive pembrolizumab 400 mg on Day 1 of each 6-week cycle for up to 14 cycles (up to approximately 19 months)."
+      },
+      "max_bytes": 5300
+    },
+    {
+      "run": ["search", "trial", "--id", "NCT06952504", "--intervention", "pembrolizumab", "--exact-term", "--arms-for", "pembro", "--limit", "1"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0": {"omits": ["matched_arms"]}
+      }
+    },
+    {
+      "run": ["search", "trial", "--id", "NCT05347134", "--intervention", "SKB264", "--exact-term", "--arms-for", "skb264", "--limit", "1"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/matched_arms/*/kind": {"equals": ["ACTIVE_COMPARATOR", "ACTIVE_COMPARATOR"]},
+        "/result/items/0/matched_arms/*/label": {"equals": ["SKB264", "Eribulin or Capecitabine or Gemcitabine or Vinorelbine"]},
+        "/result/items/0/matched_arms/1/intervention_names": ["Drug: SKB264"],
+        "/result/items/0/matched_arms/1/description": "Eribulin:1.4mg/m2, IV (in the vein) on day 1 and Day 8 of each 21 day cycle.\n\nCapecitabine:1000-1250mg/m2, po,bid, from day 1 to Day 15 of each 21 day cycle.\n\nGemcitabine:800-1000 mg/m2, IV (in the vein) on day 1 and Day 8 of each 21day cycle.\n\nVinorelbine:25 mg/m2, IV (in the vein) on day 1 and Day 8 of each 21 day cycle."
+      }
+    }
+  ]
+}

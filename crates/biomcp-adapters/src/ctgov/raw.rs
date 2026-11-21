@@ -10,10 +10,13 @@ use super::detail::RawDate;
 use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::TrialHeader;
 use serde::Deserialize;
+#[path = "raw_arms.rs"]
+mod arms;
 #[path = "raw_dates.rs"]
 mod dates;
 #[path = "raw_gene.rs"]
 mod gene_context;
+use arms::{DesignInfo, Interventions};
 use dates::Dates;
 #[derive(Deserialize)]
 #[serde(transparent)]
@@ -81,8 +84,8 @@ pub(super) struct Study {
     has_results: Option<Field<bool>>,
 }
 impl Study {
-    pub(super) fn header(self) -> Result<Mapped<TrialHeader>, BadReply> {
-        self.protocol_section.header(self.has_results)
+    pub(super) fn header(self, arms_for: Option<&Text>) -> Result<Mapped<TrialHeader>, BadReply> {
+        self.protocol_section.header(self.has_results, arms_for)
     }
 }
 #[derive(Deserialize)]
@@ -132,6 +135,7 @@ struct Updated {
 #[serde(rename_all = "camelCase")]
 struct Design {
     phases: Option<Field<Vec<Field<TrialPhase>>>>,
+    design_info: Option<Field<DesignInfo>>,
 }
 #[derive(Deserialize)]
 struct Conditions {
@@ -148,14 +152,6 @@ struct Description {
 #[serde(rename_all = "camelCase")]
 struct Eligibility {
     eligibility_criteria: Option<Field<Box<str>>>,
-}
-#[derive(Deserialize)]
-struct Interventions {
-    interventions: Option<Field<Vec<Field<Intervention>>>>,
-}
-#[derive(Deserialize)]
-struct Intervention {
-    name: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 struct CountryLocations {
@@ -195,7 +191,11 @@ impl Protocol {
         requested.iter().all(|word| present.contains(word))
     }
 
-    fn header(self, has_results: Option<Field<bool>>) -> Result<Mapped<TrialHeader>, BadReply> {
+    fn header(
+        self,
+        has_results: Option<Field<bool>>,
+        arms_for: Option<&Text>,
+    ) -> Result<Mapped<TrialHeader>, BadReply> {
         let mut refusals = crate::Refusal::None;
         let mut problems = Problems {
             source: Source::ClinicalTrialsGov,
@@ -210,9 +210,28 @@ impl Protocol {
             )
             .and_then(|s| problems.field("leadSponsor", s.lead_sponsor))
             .and_then(|s| problems.field("leadSponsor.name", s.name));
-        let phases = problems
+        let (phases, primary_purpose) = problems
             .field("designModule", self.design_module)
-            .map_or_else(Box::default, |d| problems.fields("phases", d.phases));
+            .map_or_else(Default::default, |d| {
+                let phases = problems.fields("phases", d.phases);
+                let purpose =
+                    arms_for.and_then(|_| arms::primary_purpose(d.design_info, &mut problems));
+                (phases, purpose)
+            });
+        let title = problems.required_field("briefTitle", self.identification_module.brief_title);
+        let acronym = problems.field("acronym", self.identification_module.acronym);
+        let official_title =
+            problems.field("officialTitle", self.identification_module.official_title);
+        let conditions = problems
+            .field("conditionsModule", self.conditions_module)
+            .map_or_else(Vec::new, |v| {
+                problems.fields("conditions", v.conditions).into_vec()
+            });
+        let (interventions, matched_arms) = problems
+            .field("armsInterventionsModule", self.arms_interventions_module)
+            .map_or_else(Default::default, |module| {
+                module.rows(arms_for, &mut problems, &mut refusals)
+            });
         let value = TrialHeader {
             nct_id: self.identification_module.nct_id,
             url: Text::new(&format!(
@@ -220,36 +239,16 @@ impl Protocol {
                 self.identification_module.nct_id
             ))
             .map_err(|_| BadReply)?,
-            title: problems.required_field("briefTitle", self.identification_module.brief_title),
-            acronym: problems.field("acronym", self.identification_module.acronym),
-            official_title: problems
-                .field("officialTitle", self.identification_module.official_title),
+            title,
+            acronym,
+            official_title,
             status: dates.status,
             why_stopped: dates.why_stopped,
             phases,
-            conditions: names(
-                problems
-                    .field("conditionsModule", self.conditions_module)
-                    .map_or_else(Vec::new, |v| {
-                        problems.fields("conditions", v.conditions).into_vec()
-                    }),
-            ),
-            interventions: names(
-                problems
-                    .field("armsInterventionsModule", self.arms_interventions_module)
-                    .map_or_else(Vec::new, |v| {
-                        super::refusals::records(
-                            &mut problems,
-                            &mut refusals,
-                            "interventions",
-                            v.interventions,
-                        )
-                        .into_vec()
-                    })
-                    .into_iter()
-                    .filter_map(|v| problems.field("interventions.name", v.name))
-                    .collect(),
-            ),
+            conditions: names(conditions),
+            interventions: names(interventions),
+            matched_arms,
+            primary_purpose,
             sponsor,
             start: dates.start,
             primary_completion: dates.primary_completion,
