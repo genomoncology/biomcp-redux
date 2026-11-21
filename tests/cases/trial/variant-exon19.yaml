@@ -41,7 +41,7 @@
         "/status": "complete",
         "/page/total": 80,
         "/sources/0/notices": {
-          "count": 1
+          "count": 2
         }
       }
     },

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2001/20702s25lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795194852,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 461,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "40f213630f4167782f4b5b9fab598e796ca79f0f127dd1f7ad31ac4d66c053e0-0.bin"
+      }
+    }
+  ]
+}

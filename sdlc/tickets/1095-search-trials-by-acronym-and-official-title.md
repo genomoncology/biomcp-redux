@@ -1,6 +1,7 @@
 # 1095 — search-trials-by-acronym-and-official-title
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b40da7785f2954b15154563ade3df23ce7451856
 
 Milestone: 7
 

@@ -64,7 +64,7 @@
           ]
         },
         "/sources/1/notices": {
-          "count": 5
+          "count": 6
         }
       }
     },
@@ -84,7 +84,7 @@
         "/status": "complete",
         "/page/total": 257,
         "/sources/1/notices": {
-          "count": 2
+          "count": 3
         }
       }
     }

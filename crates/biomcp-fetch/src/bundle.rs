@@ -1,5 +1,6 @@
 //! Indexed published TSV files, independent of individual reply cache entries.
 mod download;
+mod first;
 mod manual;
 mod native;
 mod parse;
@@ -8,11 +9,11 @@ mod read;
 pub(crate) mod refresh;
 mod replay;
 mod set;
-pub(crate) mod store;
 mod streamed;
 mod transfer;
-use crate::{Fetch, Freshness, RequestError, SourceSpec};
 pub use set::{BundlePart, BundleSet, SetRow};
+pub(crate) mod store;
+use crate::{Fetch, Freshness, RequestError, SourceSpec};
 use std::marker::PhantomData;
 /// Maximum unencoded published bundle size.
 pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
@@ -227,7 +228,7 @@ impl BundleSync {
     }
 }
 impl Fetch {
-    /// Configured time limit for one explicit bundle synchronization.
+    /// Configured time limit for one explicit bundle synchronization and each read it makes.
     pub fn sync_budget(&self) -> std::time::Duration {
         self.config.sync_budget
     }
@@ -241,12 +242,12 @@ impl Fetch {
     }
     /// Synchronize while preserving a refused refresh separately from the active catalog.
     pub fn sync_catalog<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleSync, RequestError> {
-        self.sync_leg(bundle.spec).sync_bundle(bundle, false)
+        self.sync_leg(bundle.spec).sync_bundle(bundle, false, None)
     }
     /// Synchronize a declared bundle under the configured independent sync budget.
     pub fn sync<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleInfo, RequestError> {
         let leg = self.sync_leg(bundle.spec);
-        let mut info = leg.sync_bundle(bundle, false)?.published(&leg)?;
+        let mut info = leg.sync_bundle(bundle, false, None)?.published(&leg)?;
         // A busy cache must not fail a sync that already published; the date stays unknown.
         info.data_date = match leg.stored_data_date(bundle) {
             Err(RequestError::Cache(crate::CacheError::Busy)) => None,
@@ -270,10 +271,11 @@ pub fn decode_bundle_document<T: serde::de::DeserializeOwned>(
 /// Compute a catalog receipt hash from the complete checked native bytes.
 pub fn bundle_sha256(body: &[u8]) -> String {
     use sha2::{Digest, Sha256};
-    Sha256::digest(body)
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect()
+    digest_hex(&Sha256::digest(body))
+}
+
+fn digest_hex(digest: &[u8]) -> String {
+    digest.iter().map(|b| format!("{b:02x}")).collect()
 }
 
 impl DocumentMedia {

@@ -72,7 +72,7 @@ impl Leg<'_> {
             self.past_refresh(old.as_ref().and_then(|meta| meta.retrieved_at));
         }
         if !offline && !background && (!fresh || forced) {
-            match self.sync_for_read(bundle) {
+            match self.sync_for_read(bundle, None) {
                 Ok(_) => {
                     if let Some(names) = &mut refreshed {
                         names.insert(bundle.name);
@@ -113,7 +113,11 @@ impl Leg<'_> {
     }
     // Live readers share the last complete snapshot. Only an absent snapshot
     // waits for its first publisher, within the existing leg deadline.
-    fn sync_for_read<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleInfo, RequestError> {
+    fn sync_for_read<R: Row>(
+        &self,
+        bundle: &Bundle<R>,
+        size: Option<&super::first::Size>,
+    ) -> Result<BundleInfo, RequestError> {
         let cache = self.bundle_cache()?;
         let live = matches!(self.fetch.mode, Mode::Live { .. });
         let mut waited = false;
@@ -140,7 +144,7 @@ impl Leg<'_> {
                 }
             }
             match self
-                .sync_bundle(bundle, true)
+                .sync_bundle(bundle, true, size)
                 .and_then(|result| result.published(self))
             {
                 Err(RequestError::Source(error))
@@ -151,7 +155,7 @@ impl Leg<'_> {
             }
         }
     }
-    fn wait_for_bundle<R: Row>(
+    pub(super) fn wait_for_bundle<R: Row>(
         &self,
         bundle: &Bundle<R>,
         waited: bool,
@@ -187,13 +191,15 @@ impl Leg<'_> {
         bundle: &Bundle<R>,
         find: Find<'_>,
     ) -> Result<(Vec<R>, BundleInfo), RequestError> {
-        self.name_busy(self.read_stored_rows(bundle, find, || self.sync_for_read(bundle).map(drop)))
+        self.name_busy(self.read_stored_rows(bundle, find, |size| {
+            self.sync_for_read(bundle, Some(size)).map(drop)
+        }))
     }
     pub(super) fn read_stored_rows<R: Row>(
         &self,
         bundle: &Bundle<R>,
         find: Find<'_>,
-        first: impl FnOnce() -> Result<(), RequestError>,
+        first: impl FnOnce(&super::first::Size) -> Result<(), RequestError>,
     ) -> Result<(Vec<R>, BundleInfo), RequestError> {
         self.bundle_source(bundle)?;
         let cache = self.bundle_cache()?;
@@ -215,7 +221,7 @@ impl Leg<'_> {
         }
         // Offline and replay never fetch; a live first read fetches the missing copy (1055).
         if snapshot.is_none() && matches!(self.fetch.mode, Mode::Live { .. }) {
-            first()?;
+            self.first_fetch(bundle, first)?;
             snapshot = cache.stored_bundle(bundle.name, find, self.budget())?;
         }
         let store::StoredBundle { meta, rows, sample } =

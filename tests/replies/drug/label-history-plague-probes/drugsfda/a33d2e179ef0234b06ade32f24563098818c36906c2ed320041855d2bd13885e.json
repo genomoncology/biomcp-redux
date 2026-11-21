@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s048,020635s052,021721s016lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795149444,
+      "status": 200,
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "content_type": "application/pdf",
+      "body": {
+        "kind": "sidecar",
+        "value": "a33d2e179ef0234b06ade32f24563098818c36906c2ed320041855d2bd13885e-0.bin"
+      }
+    }
+  ]
+}
