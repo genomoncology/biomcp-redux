@@ -75,17 +75,17 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.",
+        " Paged identity cross-references and product links. MyChem includes ChEMBL ATC codes.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
-        " One exact native label heading; label replies also name the application numbers and recent major changes.",
+        " Exact label heading, application numbers and recent major changes.",
         " Native application and product history rows.",
-        " The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.",
+        " First Drugs@FDA label PDF version with a --find match in --label-section.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
-        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; --source names one market.",
-        " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
+        " DDInter partners and levels (default five per page). `levels` counts pairs across all pages. For management and mechanism text, follow `next` to the openFDA drug_interactions label field.",
+        " One row per market (Drugs@FDA, EMA, WHO prequalification). Use --source for one market.",
+        " eEML listings: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text (default five per page)."
       ]
     },
     "DrugSource": {
@@ -134,7 +134,7 @@
           "type": "null"
         }
       ],
-      "description": "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection. Only with --source civic."
+      "description": "Continue the same drug, profile and claim collection. Only with --source civic."
     },
     "civic_kind": {
       "anyOf": [
@@ -145,10 +145,10 @@
           "type": "null"
         }
       ],
-      "description": "CIViC collection; help get drug\nCIViC collection.\nIndependent native evidence or assertion collection within the selected profile. Only with --source civic."
+      "description": "Evidence or assertion collection within the selected profile; help get drug\nEvidence or assertion collection within the selected profile. Only with --source civic."
     },
     "civic_profile": {
-      "description": "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic.",
+      "description": "Molecular profile for this drug's claims. Only with --source civic.",
       "format": "uint64",
       "maximum": 2147483647,
       "minimum": 1,
@@ -166,7 +166,7 @@
           "type": "null"
         }
       ],
-      "description": "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals.",
+      "description": "Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals.",
       "x-required-component": "drugsfda"
     },
     "decision_to": {
@@ -178,7 +178,7 @@
           "type": "null"
         }
       ],
-      "description": "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals.",
+      "description": "Latest status date, inclusive (YYYY-MM-DD). Only with section approvals.",
       "x-required-component": "drugsfda"
     },
     "document_id": {
@@ -190,10 +190,10 @@
           "type": "null"
         }
       ],
-      "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Only with section approvals."
+      "description": "Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.\nOnly with --source drugsfda. Only with section approvals."
     },
     "every_version": {
-      "description": "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. Only with section label-history.",
+      "description": "Read versions in order up to the read limit, instead of halving. Only with section label-history.",
       "type": "boolean"
     },
     "evidence_level": {
@@ -226,7 +226,7 @@
       "description": "Status; help get drug\nStatus\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
     },
     "find": {
-      "description": "Label text; OR.\nLiteral text; repeat for OR. Ignore case and whitespace breaks; history also ignores hyphenation. Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs. Only with section label or label-history.",
+      "description": "Exact text, ignoring case and whitespace breaks. History also ignores hyphenation. Repeat for OR.\nCurrent labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.\nOnly with section label or label-history.",
       "items": {
         "$ref": "#/$defs/Text"
       },
@@ -235,7 +235,7 @@
     },
     "input": {
       "$ref": "#/$defs/Text",
-      "description": "Source ID, brand or generic name (fda-dsc requires the communication UUID).\nSource ID or complete brand or generic name; WHO references retain native spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; EMA prefers earliest authorisation. Other sources retain search order. The chosen record reports up to five alternatives and their total. A label read also takes an FDA application number, such as NDA216340. For fda-dsc, use the communication UUID from search drug NAME --source fda-dsc. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines",
+      "description": "Use a source ID or full brand or generic name. Keep spaces in WHO references. Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. Labels also take application numbers (e.g. NDA216340). fda-dsc requires the communication UUID from search drug NAME --source fda-dsc. Generic names accept one trailing salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brands identical to their ingredient count as generic. USAN: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines",
       "x-positional": 0
     },
     "label_section": {
@@ -247,7 +247,7 @@
           "type": "null"
         }
       ],
-      "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nThe printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.\nA section the label lacks, or a name openFDA does not use, lists the sections the label has.\nFor drugsfda label-history, one of boxed_warning, indications_and_usage, contraindications,\nwarnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.\nOnly with section label or label-history.",
+      "description": "Exact openFDA SPL fields.\nSeparate fields (including tables) with commas for one part per field. Omit or give an absent or unknown field to list available names.\nwarnings_and_precautions reads warnings_and_cautions.\nFor drugsfda history, choose boxed_warning, indications_and_usage, contraindications,\nwarnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.\nOnly with section label or label-history.",
       "x-comma-separated": true
     },
     "partner": {
@@ -259,7 +259,7 @@
           "type": "null"
         }
       ],
-      "description": "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.\nKeeps only the pairs with that drug. A name DDInter does not use is tried under the\nnames other sources state for it, as the drug itself is.",
+      "description": "Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.\nOnly with section interactions.",
       "x-required-component": "ddinter"
     },
     "product_number": {
@@ -271,7 +271,7 @@
           "type": "null"
         }
       ],
-      "description": "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda. Only with section approvals."
+      "description": "Application product number. Only with --source drugsfda. Only with section approvals."
     },
     "section": {
       "description": "Source sections; help get drug",
@@ -284,7 +284,7 @@
       "x-section-rule": "Named disclosures of the selected source, each its own part of one reply; empty means identity only."
     },
     "section_limit": {
-      "description": "Named section page size, refused on an identity-only card.\nAt most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere.",
+      "description": "Page size. Requires a section. Max 200 for approvals, interactions, label, regulatory, xrefs and essential-medicines, 50 elsewhere.",
       "format": "uint32",
       "maximum": 200,
       "minimum": 1,
@@ -294,7 +294,7 @@
       ]
     },
     "section_offset": {
-      "description": "Named section continuation, refused on an identity-only card; label-history --every-version starts at this version.",
+      "description": "Section offset. With label-history --every-version, start at this version. Requires a section.",
       "format": "uint32",
       "minimum": 0,
       "type": [
@@ -304,7 +304,7 @@
     },
     "source": {
       "$ref": "#/$defs/DrugSource",
-      "description": "Omit to infer the source of an unambiguous section; identity or; help get drug\nOmit to infer the source of an unambiguous section; identity or mixed sections use MyChem."
+      "description": "Omit to infer the source from the section. Identity and mixed; help get drug\nOmit to infer the source from the section. Identity and mixed sections default to MyChem."
     }
   },
   "required": [

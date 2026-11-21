@@ -33,9 +33,16 @@ impl schemars::JsonSchema for DrugGetCommand {
             .and_then(|p| p.get_mut("input"))
         {
             let original = input["description"].as_str().unwrap_or_default();
-            input["description"] = format!(concat!("{original} Generic names accept one trailing salt or ester term: {}. ",
-                "Brands identical to their ingredient count as generic. USAN: {}"),
-                super::DrugNameMatch::SALT_OR_ESTER_WORDS.join(", "), super::DrugNameMatch::NAMING_GUIDANCE, original=original).into();
+            input["description"] = format!(
+                concat!(
+                    "{original} Generic names accept one trailing salt or ester term: {}. ",
+                    "Brands identical to their ingredient count as generic. USAN: {}"
+                ),
+                super::DrugNameMatch::SALT_OR_ESTER_WORDS.join(", "),
+                super::DrugNameMatch::NAMING_GUIDANCE,
+                original = original
+            )
+            .into();
         }
         if let Some(source) = schema
             .get_mut("properties")
