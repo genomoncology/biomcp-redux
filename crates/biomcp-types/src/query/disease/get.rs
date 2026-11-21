@@ -163,6 +163,10 @@ impl DiseaseGet {
     pub fn source(&self) -> DiseaseSource {
         self.fields.source.unwrap_or_else(get_source)
     }
+    /// Default single publisher, if the section does not read both curation exports.
+    pub fn default_source(&self) -> Option<DiseaseSource> {
+        (self.section() != Some(DiseaseSection::GeneValidity)).then(get_source)
+    }
     /// Selected OLS ontology.
     pub fn ontology(&self) -> Option<DiseaseOntology> {
         self.fields.ontology

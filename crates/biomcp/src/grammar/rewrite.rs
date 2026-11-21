@@ -105,8 +105,15 @@ fn markets(value: &Value) -> bool {
 pub(crate) fn query_value(request: &Request) -> Result<Value, serde_json::Error> {
     let mut value = checked_value(request)?;
     match request.rewrite() {
-        Rewrite::Direct
-        | Rewrite::GetDrug
+        Rewrite::Direct => {
+            if let Request::GetDisease(query) = request
+                && query.default_source() == Some(query.source())
+                && let Some(fields) = value.as_object_mut()
+            {
+                fields.remove("source");
+            }
+        }
+        Rewrite::GetDrug
         | Rewrite::GetGwas
         | Rewrite::SearchGwas
         | Rewrite::SearchCellLine
