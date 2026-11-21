@@ -1,3 +1,5 @@
+#[cfg(feature = "schema")]
+use crate::query::command_source::SharedSource;
 use crate::{ErrorMessage, QueryInvalid};
 use biodata::{HpId, Text};
 use serde::{Deserialize, Serialize};
@@ -74,6 +76,29 @@ fn five() -> u32 {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "SearchFields"))]
 pub struct PhenotypeSearch(SearchFields);
+
+/// The phenotype search command's source choices.
+#[cfg(feature = "schema")]
+#[derive(Debug)]
+pub struct PhenotypeSearchCommand;
+
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for PhenotypeSearchCommand {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        PhenotypeSearch::schema_name()
+    }
+    fn schema_id() -> std::borrow::Cow<'static, str> {
+        "biomcp.PhenotypeSearchCommand".into()
+    }
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        crate::query::command_source::scoped::<PhenotypeSearch>(
+            generator,
+            SharedSource::<PhenotypeSource>::schema_name().as_ref(),
+            "PhenotypeSource",
+            &[monarch().as_str()],
+        )
+    }
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -83,6 +108,7 @@ struct SearchFields {
     text: Box<str>,
     /// Monarch only; HPO search is unsupported.
     #[serde(default = "monarch")]
+    #[cfg_attr(feature = "schema", schemars(with = "SharedSource<PhenotypeSource>"))]
     source: PhenotypeSource,
     /// Maximum native headers, default five.
     #[serde(default = "five")]
@@ -120,7 +146,7 @@ crate::query::validation::checked_query!(PhenotypeSearch, SearchFields);
 impl TryFrom<SearchFields> for PhenotypeSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if v.source != PhenotypeSource::Monarch {
+        if v.source != monarch() {
             return Err(QueryInvalid::new(&["source"]));
         }
         if v.text.trim().is_empty() {
@@ -181,7 +207,7 @@ struct GetFields {
         deserialize_with = "crate::query::present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "PhenotypeSource"))]
+    #[cfg_attr(feature = "schema", schemars(with = "SharedSource<PhenotypeSource>"))]
     source: Option<PhenotypeSource>,
     /// Absent means the source identity card.
     #[serde(

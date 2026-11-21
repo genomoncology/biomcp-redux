@@ -149,7 +149,7 @@ impl TryFrom<GetFields> for DrugGet {
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     if fields.section.contains(&DrugSection::Markets)
-        || fields.source == Some(DrugSource::PurpleBook)
+        || fields.source.is_some_and(|source| !source.supports_get())
     {
         return Err(QueryInvalid::new(&["section", "source"]));
     }

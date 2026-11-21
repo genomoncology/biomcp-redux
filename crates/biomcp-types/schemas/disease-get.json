@@ -35,7 +35,7 @@
         " ClinGen and GenCC curations. Filters ignore case."
       ]
     },
-    "DiseaseSource": {
+    "SharedDiseaseSource": {
       "description": "An explicit disease source without fallback.",
       "enum": [
         "ols",
@@ -168,7 +168,7 @@
       "description": "Native sex code."
     },
     "source": {
-      "$ref": "#/$defs/DiseaseSource",
+      "$ref": "#/$defs/SharedDiseaseSource",
       "description": "Default MyDisease, or both sources for gene validity; help get disease\nDefault MyDisease, or both sources for gene validity."
     },
     "submitter": {
