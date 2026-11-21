@@ -19,7 +19,8 @@
         "phenotypes",
         "incidence",
         "survival",
-        "prevalence"
+        "prevalence",
+        "gene-validity"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -30,7 +31,8 @@
         " Native phenotype association rows.",
         " Native stage incidence rows.",
         " Annual survival rows.",
-        " Orphanet prevalence, age of onset and inheritance."
+        " Orphanet prevalence, age of onset and inheritance.",
+        " ClinGen and GenCC curations by exact native disease name or ID."
       ]
     },
     "DiseaseSource": {
@@ -40,7 +42,9 @@
         "mydisease",
         "monarch",
         "seer",
-        "orphadata"
+        "orphadata",
+        "clingen",
+        "gencc"
       ],
       "type": "string"
     },
@@ -68,6 +72,10 @@
       ],
       "description": "Native age-range code."
     },
+    "classification": {
+      "$ref": "#/$defs/Text",
+      "description": "Gene validity only: exact native classification, ignoring letter case."
+    },
     "dataset": {
       "anyOf": [
         {
@@ -81,7 +89,7 @@
     },
     "id": {
       "$ref": "#/$defs/Text",
-      "description": "Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.",
+      "description": "Ontology CURIE, SEER site code or name, or exact native name for gene validity.",
       "x-positional": 0
     },
     "interval": {
@@ -161,8 +169,11 @@
     },
     "source": {
       "$ref": "#/$defs/DiseaseSource",
-      "default": "mydisease",
-      "description": "Default MyDisease; no automatic fallback; help get disease\nDefault MyDisease; no automatic fallback."
+      "description": "Gene validity reads both sources by default. Other reads; help get disease\nGene validity reads both sources by default. Other reads default to MyDisease."
+    },
+    "submitter": {
+      "$ref": "#/$defs/Text",
+      "description": "Gene validity only: exact GenCC submitter or ClinGen expert panel, ignoring letter case."
     }
   },
   "required": [
