@@ -45,13 +45,11 @@ singleton! {
 singleton! {
     ErrorSchema { V2 => "biomcp.error/4" }
 }
-
 singleton! {
     /// Fixed input-free error and migration guidance.
     pub ErrorMessage { BiomarkerTooBroad => "biomarker search is too broad; narrow --name or get one exact NCIt code",
         OrganizationTooBroad => "organization search is too broad; narrow --name, --city, --state, --country, \
         --postal-code, --family or --lat/--lon/--distance",
-
  VariantNormalizeForms => "normalization accepts reference-qualified HGVS, or chromosome genomic HGVS with CAR \
  and --build; convert rsIDs, clinvar:N, VCV accessions and genomic coordinates with get variant <ID> first",
  VariantNormalizeRoute => "normalization needs reference-qualified HGVS; for gene shorthand use search variant \
@@ -62,6 +60,9 @@ singleton! {
  WhoSearchFilters => "WHO PQ search requires a name, --therapeutic-area or a --prequalified-from/--prequalified-to date range",
  WhoIvdYears => "WHO IVD publishes only the prequalification year; give --prequalified-from/--prequalified-to as YYYY",
  SourceSelector => "choose one of the source selector values", UnsupportedFilter => "a selected source does not support the requested filters",
+ DrugFdaRegulatorySection => "Drugs@FDA does not have a regulatory section. Use approvals for the application's FDA submission history.",
+ DrugBiosimilarsSection => "biosimilars is not a drug get section. Search the FDA Purple Book for the reference drug's biosimilar roster.",
+ FieldsLabelText => "--fields selects fragment row fields from valid_values. Find the text at result.label.data.text in each label reply.",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
  McpResultTooBroad => "MCP tool result exceeds the character cap in error.count; narrow \
  --limit or --section-limit, select one source or section, or fetch one exact record",

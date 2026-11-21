@@ -318,9 +318,16 @@ fn drug_selector(action: &Action) -> Result<(), UsageError> {
         return Ok(());
     };
     let values = values.map_err(|_| UsageError::argument(option.into()))?;
+    let message = if query.source() == biomcp_types::DrugSource::Drugsfda
+        && query.sections() == [biomcp_types::DrugSection::Regulatory]
+    {
+        biomcp_types::ErrorMessage::DrugFdaRegulatorySection
+    } else {
+        biomcp_types::ErrorMessage::SourceSelector
+    };
     Err(UsageError::SourceSelector {
         source: query.source().source(),
-        message: biomcp_types::ErrorMessage::SourceSelector,
+        message,
         option: option.into(),
         valid_values: values.into(),
         next: serving

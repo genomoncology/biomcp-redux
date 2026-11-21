@@ -39,7 +39,7 @@
       "expect": {
         "/status": "complete",
         "/result/label/data/heading": "clinical_studies",
-        "/result/label/data/text": {"includes": "STUDY-189"}
+        "/result/label/data/text": {"includes": "An unrelated paragraph."}
       }
     },
     {
