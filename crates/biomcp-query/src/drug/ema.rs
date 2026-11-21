@@ -110,12 +110,21 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
     let mut notice = None;
+    let mut referral_error = None;
     let result = if regulatory {
-        ema::regulatory(&leg, &id).map(|body| {
-            out.include_refusals(body.refusals);
-            out.problems.extend(body.problems);
-            let body = body.value;
-            notice = body.as_ref().and_then(ema::decision_date_notice);
+        ema::regulatory(&leg, &id).map(|mapped| {
+            out.include_refusals(mapped.refusals);
+            out.problems.extend(mapped.problems);
+            let ema::RegulatoryRead {
+                body,
+                referral_error: error,
+            } = mapped.value;
+            referral_error = error;
+            notice = if error.is_some() {
+                Some("EMA's referrals file could not be read. The European Commission decision date is unknown.".into())
+            } else {
+                body.as_ref().and_then(ema::decision_date_notice)
+            };
             let found = body.is_some();
             out.body = biomcp_types::DrugRegulatory::into_reply(
                 query.clone(),
@@ -147,21 +156,15 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             found
         })
     };
-    let error = result.as_ref().err().copied();
+    let (found, error) = match result {
+        Ok(found) => (Some(found), referral_error),
+        Err(error) => (None, Some(error)),
+    };
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Ema, leg.finish(), error));
-    if let Ok(found) = result {
-        {
-            let (found, identity_failed, unavailable) = if !found {
-                (false, false, false)
-            } else if out.sources.iter().any(|s| s.state == SourceState::Stale) {
-                (true, false, true)
-            } else {
-                (true, false, false)
-            };
-            crate::status::item(&mut out, found, identity_failed, unavailable);
-        };
+    if let Some(found) = found {
+        status::item(&mut out, found, false, referral_error.is_some());
     }
     add_notice(&mut out, notice);
     sync_step(&mut out);

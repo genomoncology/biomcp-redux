@@ -1,0 +1,40 @@
+feature: disease-mydisease
+live_check: local validation and recorded MyDisease replies
+story: Disease get names the source and section requirements and offers a checked correction.
+replay: disease/orphanet-id
+steps:
+  - run: [get, disease, "ORPHA:115", xrefs, --source, orphanet]
+    exit: 2
+    is_error: true
+    expect:
+      /error/option: --source
+      /error/message: Use --source with one of the listed sources for this disease ID and section.
+      /error/valid_values: [mydisease]
+  - follow: configure
+    expect:
+      /status: complete
+      /query/section: xrefs
+      /query/source: mydisease
+  - run: [get, disease, "ORPHA:115", xrefs, --source, orphadata]
+    exit: 2
+    is_error: true
+    expect:
+      /error/message: Use --source with one of the listed sources for this disease ID and section.
+      /error/valid_values: [mydisease]
+      /next/0/args: [get, disease, "ORPHA:115", xrefs, --limit, "5"]
+  - run: [get, disease, "ORPHA:115", --source, orphadata]
+    exit: 2
+    is_error: true
+    expect:
+      /error/option: section
+      /error/message: Add the prevalence section to use --source orphadata.
+      /error/valid_values: [prevalence]
+      /next/0/args: [get, disease, "ORPHA:115", prevalence, --limit, "5", --source, orphadata]
+  - run: [get, disease, "MONDO:0019391", genes]
+    exit: 2
+    is_error: true
+    expect:
+      /error/option: --source
+      /error/message: Add --source monarch to read the genes section.
+      /error/valid_values: [monarch]
+      /next/0/args: [get, disease, "MONDO:0019391", genes, --limit, "5", --source, monarch]

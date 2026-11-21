@@ -3492,8 +3492,8 @@ Paging: --limit and --offset; --section-limit and --section-offset are the same 
 - `--civic-cursor`: CIViC cursor. Continue this drug, profile and collection. Only with --source civic. Value form: string; example: --civic-cursor 0:A2.
 - `--civic-kind`: CIViC collection. Evidence or assertions in this profile. Only with --source civic. Value form: string; example: --civic-kind evidence.
 - `--civic-profile`: CIViC profile. Selects a molecular profile for this drug. Only with --source civic. Value form: integer; example: --civic-profile 1.
-- `--decision-from`: Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals. Value form: string; example: --decision-from 2024-01-01; only with --source drugsfda.
-- `--decision-to`: Latest status date, inclusive (YYYY-MM-DD). Only with section approvals. Value form: string; example: --decision-to 2024-12-31; only with --source drugsfda.
+- `--decision-from`: Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals. Value form: string; example: --decision-from 2020-08-01; only with --source drugsfda.
+- `--decision-to`: Latest status date, inclusive (YYYY-MM-DD). Only with section approvals. Value form: string; example: --decision-to 2020-08-31; only with --source drugsfda.
 - `--document-id`: Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.
 Only with --source drugsfda. Only with section approvals. Value form: string; example: --document-id 64255.
 - `--every-version`: Read every version. In order up to the limit, instead of halving. Only with section label-history. Value form: boolean; example: --every-version.

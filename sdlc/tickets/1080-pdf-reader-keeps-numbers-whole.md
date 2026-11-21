@@ -1,6 +1,7 @@
 # 1080 — pdf-reader-keeps-numbers-whole
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e1857a08073907fc361af416a2fe5f9249e272ac
 
 Milestone: 7
 

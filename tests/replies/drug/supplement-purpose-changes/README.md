@@ -1,0 +1,1 @@
+Synthetic Drugs@FDA application and one-page PDF letters. The S-007 letter follows the FDA letter’s structure, with invented changes and indications. The document for S-008 uses the S-007 heading and changes, with an S-008 cross-reference as a mismatch control. The S-009 letter has only existing indications.

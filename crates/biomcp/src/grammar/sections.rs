@@ -19,16 +19,9 @@ const SYNONYMS: &[(&str, &str, &str)] = &[
 /// A publisher passed to gene get's unsupported --source flag can name a section.
 pub(super) fn gene_source_refusal(
     root: &Command,
-    args: &[OsString],
+    candidate: Vec<OsString>,
+    source: Source,
 ) -> Option<super::ParseInvalid> {
-    let index = args
-        .iter()
-        .take_while(|word| *word != "--")
-        .position(|word| {
-            word.to_str().and_then(|word| word.split('=').next()) == Some("--source")
-        })?;
-    let (name, candidate) = super::positional::source_value(args, index)?;
-    let source = name.to_ascii_lowercase().parse::<Source>().ok()?;
     if !matches!(source, Source::ClinGen | Source::Gencc | Source::Gnomad) {
         return None;
     }

@@ -1,6 +1,6 @@
 # 1111 — read-explicit-supplement-purpose-in-fda-letters
 
-Status: OPEN.
+Status: COMPLETE. Built and landed on the 1105 batch branch (ticket/1105-show-approval-letter-ids-in-compact-histories, 22d80088f): tests/cases/drug/supplement-purpose-changes.yaml returns the letter's change list and cites letter 75677
 
 Milestone: 7
 
