@@ -4,15 +4,6 @@
   "replay": "drug/label-find",
   "steps": [
     {
-      "run": ["get", "drug", "Keytruda", "label", "--source", "openfda-label", "--label-section", "clinical_studies", "--find", "KEYNOTE-189"],
-      "offline": true,
-      "exit": 4,
-      "expect": {
-        "/query/find": ["KEYNOTE-189"],
-        "/sources/0/reason": "offline"
-      }
-    },
-    {
       "run": ["get", "drug", "Keytruda", "label", "--source", "openfda-label", "--label-section", "clinical_studies", "--fields=text"],
       "exit": 2,
       "expect": {
@@ -40,6 +31,15 @@
         "/status": "complete",
         "/result/label/data/heading": "clinical_studies",
         "/result/label/data/text": {"includes": "An unrelated paragraph."}
+      }
+    },
+    {
+      "run": ["get", "drug", "Keytruda", "label", "--source", "openfda-label", "--label-section", "clinical_studies", "--find", "KEYNOTE-189"],
+      "offline": true,
+      "exit": 4,
+      "expect": {
+        "/query/find": ["KEYNOTE-189"],
+        "/sources/0/reason": "offline"
       }
     },
     {
