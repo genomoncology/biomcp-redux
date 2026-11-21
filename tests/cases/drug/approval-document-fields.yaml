@@ -1,0 +1,34 @@
+feature: section-fields
+story: A compact Drugs@FDA history keeps each native document ID with its type. Either listed letter ID opens the FDA document for its own submission.
+live_check: Recorded Drugs@FDA application and letter only.
+replay: diagnostic/fda-documents
+steps:
+  - run: [get, drug, NDA021588, approvals, --source, drugsfda, --limit, "200", --decision-from, "2020-08-01", --decision-to, "2020-08-31", "--fields=application_docs.id,application_docs.type"]
+    mcp: [get, drug, NDA021588, approvals, --source, drugsfda, --limit, "200", --decision-from, "2020-08-01", --decision-to, "2020-08-31", "--fields=application_docs.id,application_docs.type"]
+    expect:
+      /page/returned: 2
+      /result/approvals/data/records/0/submission_number: "57"
+      /result/approvals/data/records/0/application_docs:
+        - {id: "64255", type: Letter}
+        - {id: "64261", type: Label}
+      /result/approvals/data/records/1/submission_number: "56"
+      /result/approvals/data/records/1/application_docs:
+        - {id: "64254", type: Letter}
+        - {id: "64260", type: Label}
+  - run: [get, drug, NDA021588, approvals, --source, drugsfda, --limit, "200", --decision-from, "2020-08-01", --decision-to, "2020-08-31", "--fields=application_docs"]
+    expect:
+      /result/approvals/data/records/0/application_docs/0/id: "64255"
+      /result/approvals/data/records/0/application_docs/0/date: "2020-08-11"
+      /result/approvals/data/records/0/application_docs/0/url: "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/021588Orig1s056,s057ltr.pdf"
+  - run: [get, drug, NDA021588, approvals, --source, drugsfda, --document-id, "64255"]
+    expect:
+      /result/approvals/data/records/0/submission_number: "57"
+      /result/approvals/data/records/0/application_docs/0/id: "64255"
+      /result/approvals/data/records/0/application_docs/0/text/state: text
+      /result/approvals/data/records/0/application_docs/0/text/url: "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/021588Orig1s056,s057ltr.pdf"
+  - run: [get, drug, NDA021588, approvals, --source, drugsfda, --document-id, "64254"]
+    expect:
+      /result/approvals/data/records/0/submission_number: "56"
+      /result/approvals/data/records/0/application_docs/0/id: "64254"
+      /result/approvals/data/records/0/application_docs/0/text/state: text
+      /result/approvals/data/records/0/application_docs/0/text/url: "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/021588Orig1s056,s057ltr.pdf"
