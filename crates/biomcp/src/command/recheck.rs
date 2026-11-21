@@ -75,7 +75,7 @@ pub(crate) fn recheck(
     let mut walk = Walk::default();
     let mut next = Some(request);
     while let Some(request) = next.take() {
-        let result = super::run_request(&transport.fetch, &request, true, settings, false)?;
+        let result = super::run_request(&transport.fetch, &request, true, settings, false, &[])?;
         let page = result
             .next
             .iter()

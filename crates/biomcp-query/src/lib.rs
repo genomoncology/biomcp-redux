@@ -10,7 +10,7 @@ mod run;
 mod status;
 mod text_find;
 pub use context::{Ctx, DRUG_NAME_LIMIT, FIT_DEADLINE, LABEL_BYTES, MAX_LABEL_BYTES};
-pub use run::{Action, Bundle, run, run_drug_parts};
+pub use run::{Action, Bundle, TrialArmProjection, run, run_drug_parts, run_with_arm_projection};
 pub use status::{Outcome, sync_status};
 
 mod fan_out;

@@ -9,7 +9,7 @@ use biomcp_types::{ErrorMessage, Request, Source, Step, StepKind, UsageArguments
 use serde_json::Value;
 use std::{collections::BTreeSet, io};
 
-fn schema(id: &str) -> Option<Value> {
+pub(super) fn schema(id: &str) -> Option<Value> {
     serde_json::from_str(crate::schema::find(id)?).ok()
 }
 

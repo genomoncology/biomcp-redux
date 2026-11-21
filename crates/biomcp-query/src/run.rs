@@ -41,6 +41,19 @@ pub enum Action {
 }
 /// Run one checked request through the shared query layer.
 pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
+    run_with_arm_projection(cx, request, None)
+}
+
+/// Serialize a trial arm row as it will appear after field selection.
+pub type TrialArmProjection<'a> =
+    dyn Fn(&biomcp_types::TrialArmRecord) -> Result<Vec<u8>, serde_json::Error> + 'a;
+
+/// Run a checked request, sizing trial arms by the selected projection when provided.
+pub fn run_with_arm_projection(
+    cx: &Ctx<'_>,
+    request: &Request,
+    arm_projection: Option<&TrialArmProjection<'_>>,
+) -> Outcome {
     let mut out = match request {
         Request::AuthorPapers(q) => crate::author::papers(cx, q),
         Request::SearchAuthor(q) => crate::author::search(cx, q),
@@ -98,7 +111,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::VariantRecurrence(query) => crate::variant::recurrence::run(cx, query),
         Request::GetVariant(query) => crate::variant::lookup(cx, query),
         Request::TrialDocument(query) => crate::trial::document::download(cx, query, false).out,
-        Request::GetTrial(query) => crate::trial::get::get(cx, query),
+        Request::GetTrial(query) => crate::trial::get::get(cx, query, arm_projection),
         Request::SearchTrial(query) => crate::trial::search_bound(cx, query),
         Request::ArticlePdf(query) => crate::article::pdf::download(cx, query, false).out,
         Request::ArticleEvidence(query) => crate::article::evidence::run(cx, query),

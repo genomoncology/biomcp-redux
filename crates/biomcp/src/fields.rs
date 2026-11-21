@@ -4,10 +4,13 @@
 //! Rows come from the reply schema (`rows`). Each row always keeps its required and
 //! identifier (`x-identifier`) and `x-kept` keys, at every level a path narrows, and the envelope and the
 //! card stay whole, so a narrowed reply validates against the same schema.
+mod arm;
 mod narrow;
 mod rows;
 mod section_rows;
 mod sections;
 mod select;
 
-pub(crate) use select::{Chosen, carried, carry_to_correction, check, help_line, project};
+pub(crate) use select::{
+    Chosen, arm_projection, carried, carry_to_correction, check, help_line, project,
+};
