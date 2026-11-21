@@ -503,7 +503,7 @@ fn additional_sections() -> Result<(), String> {
     let key = "synthetic-fields-case";
     env.config(&serde_json::json!({"keys":{"oncokb_api_key":key}}))
         .map_err(|error| error.to_string())?;
-    let replay = super::licensed_cache::scoped_gene_fixture(&env, key)?;
+    let replay = fixtures.join("gene/oncokb-synthetic/data");
     compare(env, &replay, "get gene TP53 oncokb", "version")
 }
 

@@ -17,9 +17,11 @@
         ],
         "/result/items/0/sections/constraint/state": "data",
         "/result/items/0/sections/constraint/data": {
-          "loeuf": 0.4183620979251529,
-          "transcript": "ENST00000269305",
-          "version": "v4"
+          "equals": {
+            "loeuf": 0.4183620979251529,
+            "transcript": "ENST00000269305",
+            "version": "v4"
+          }
         }
       }
     },

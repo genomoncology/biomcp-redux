@@ -16,9 +16,11 @@
       ],
       "expect": {
         "/result/items/0/sections/arms/data/page": {
-          "offset": 0,
-          "returned": 10,
-          "total": 10
+          "equals": {
+            "offset": 0,
+            "returned": 10,
+            "total": 10
+          }
         },
         "/result/items/0/sections/arms/data": {
           "omits": [
@@ -48,10 +50,12 @@
       ],
       "expect": {
         "/result/items/0/sections/arms/data/page": {
-          "offset": 0,
-          "returned": 2,
-          "total": 3,
-          "truncated": true
+          "equals": {
+            "offset": 0,
+            "returned": 2,
+            "total": 3,
+            "truncated": true
+          }
         },
         "/result/items/0/sections/arms/data/items/*/data/label": [
           "Arm 1",
@@ -72,9 +76,11 @@
           "data.description"
         ],
         "/result/items/0/sections/arms/data/page": {
-          "offset": 2,
-          "returned": 1,
-          "total": 3
+          "equals": {
+            "offset": 2,
+            "returned": 1,
+            "total": 3
+          }
         },
         "/result/items/0/sections/arms/data/items/*/data/label": [
           "Arm 3"

@@ -47,14 +47,18 @@
           "loeuf"
         ],
         "/result/items/0/sections/constraint/data": {
-          "version": "v4.1",
-          "transcript": "ENST00000269305",
-          "loeuf": 0.42
+          "equals": {
+            "version": "v4.1",
+            "transcript": "ENST00000269305",
+            "loeuf": 0.42
+          }
         },
         "/result/items/1/sections/constraint/data": {
-          "version": "v4.1",
-          "transcript": "ENST00000305877",
-          "loeuf": 0.56
+          "equals": {
+            "version": "v4.1",
+            "transcript": "ENST00000305877",
+            "loeuf": 0.56
+          }
         }
       }
     },
@@ -81,14 +85,18 @@
       "expect": {
         "/status": "partial",
         "/result/items/0/sections/constraint/data": {
-          "version": "v4.0",
-          "transcript": "ENST00000269305",
-          "loeuf": 0.44
+          "equals": {
+            "version": "v4.0",
+            "transcript": "ENST00000269305",
+            "loeuf": 0.44
+          }
         },
         "/result/items/1/sections/constraint": {
-          "state": "unavailable",
-          "source": "gnomad",
-          "reason": "not-stated"
+          "equals": {
+            "state": "unavailable",
+            "source": "gnomad",
+            "reason": "not-stated"
+          }
         },
         "/sources/*/notices/*/message": {
           "includes": "gnomAD v4.0 has no unique MANE Select constraint row for BCR."
