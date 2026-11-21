@@ -7,8 +7,16 @@ fn device_source(v: &SearchFields) -> bool {
     )
 }
 
-/// Row-date window and order belong to the stored FDA companion table only.
-fn validate_cdx_dates(v: &SearchFields) -> Result<(), QueryInvalid> {
+/// Partner names, row dates and row order belong to the stored FDA companion tables.
+fn validate_cdx(v: &SearchFields) -> Result<(), QueryInvalid> {
+    if let Some(partner) = &v.regimen_partner {
+        if v.source != DiagnosticSearchSource::FdaCdx {
+            return Err(QueryInvalid::new(&["source", "regimen_partner"]));
+        }
+        if !partner.as_str().chars().any(char::is_alphanumeric) {
+            return Err(QueryInvalid::new(&["regimen_partner"]));
+        }
+    }
     let fields = ["source", "date_from", "date_to", "sort"];
     let asked = v.date_from.is_some() || v.date_to.is_some() || v.sort.is_some();
     if asked && v.source != DiagnosticSearchSource::FdaCdx {
@@ -111,15 +119,7 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
 }
 
 pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
-    validate_cdx_dates(v)?;
-    if let Some(partner) = &v.regimen_partner {
-        if v.source != DiagnosticSearchSource::FdaCdx {
-            return Err(QueryInvalid::new(&["source", "regimen_partner"]));
-        }
-        if !partner.as_str().chars().any(char::is_alphanumeric) {
-            return Err(QueryInvalid::new(&["regimen_partner"]));
-        }
-    }
+    validate_cdx(v)?;
     // openFDA publishes intended-use text (ao_statement) for PMA only; its 510(k) records have none (live, 2026-11-14).
     if let Some(text) = &v.intended_use {
         if v.source != DiagnosticSearchSource::FdaPma {
