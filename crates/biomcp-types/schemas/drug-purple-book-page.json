@@ -99,7 +99,7 @@
               "type": "null"
             }
           ],
-          "description": "Case-insensitive sponsor_name prefix, without company-family or subsidiary inference. A drug name narrows the search.",
+          "description": "sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.",
           "x-required-component": "drugsfda"
         },
         "application_type": {
@@ -120,7 +120,7 @@
               "type": "null"
             }
           ],
-          "description": "Earliest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in the window.",
+          "description": "Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.",
           "x-required-component": "drugsfda"
         },
         "approved_to": {
@@ -132,7 +132,7 @@
               "type": "null"
             }
           ],
-          "description": "Latest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
+          "description": "Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "drugsfda"
         },
         "classification": {
@@ -235,7 +235,7 @@
               "type": "null"
             }
           ],
-          "description": "Continue the first page's names and search step. Copy the returned token and keep filters unchanged."
+          "description": "Label name page token. Keep the first page's names and step by reusing the token with unchanged filters."
         },
         "offset": {
           "default": 0,
@@ -253,7 +253,7 @@
               "type": "null"
             }
           ],
-          "description": "Earliest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
+          "description": "First WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "who-pq"
         },
         "prequalified_to": {
@@ -265,7 +265,7 @@
               "type": "null"
             }
           ],
-          "description": "Latest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
+          "description": "Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "who-pq"
         },
         "presentations": {
@@ -275,7 +275,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase. Omit for recall, safety communication, WHO date, label indication or mechanism, or Drugs@FDA applicant searches.\nDrugs@FDA matches brands and ingredients, exact names first. openFDA labels match brands and generics, exact names first,\nthen search label text (including indications) if no names match. Recall aliases can match without becoming display names.\nSafety communications match titles, linked drug names and available text. Replies count records searched and records with page text.\nA communication can exist even when the search returns zero matches.",
+          "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,\nthen search label text (including indications) if no names match. Recall aliases can match without becoming display names.\nSafety communications match titles, linked drug names and available text. Replies count records searched and records with page text.\nA communication can exist even when the search returns zero matches.",
           "x-positional": 0
         },
         "reason": {
@@ -299,7 +299,7 @@
               "type": "null"
             }
           ],
-          "description": "newest sorts by latest submission status date, which may be for a supplement.\noriginal-approval reads all matches and sorts by original_approval. Both put recent dates first,\nbreak ties by application number and put undated rows last. Omit for source order.",
+          "description": "Application order. newest uses latest submission status date, which may be for a supplement.\noriginal-approval reads all matches and sorts by original_approval. Both put recent dates first,\nbreak ties by application number and put undated rows last. Omit for source order.",
           "x-required-component": "drugsfda"
         },
         "source": {
@@ -333,7 +333,7 @@
         },
         "therapeutic_area": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Match whole words in WHO's Therapeutic Area column, ignoring case (e.g. Oncology).",
+          "description": "WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology).",
           "x-required-component": "who-pq"
         }
       },

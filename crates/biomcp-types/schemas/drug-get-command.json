@@ -134,7 +134,7 @@
           "type": "null"
         }
       ],
-      "description": "Continue the same drug, profile and claim collection. Only with --source civic."
+      "description": "CIViC cursor. Continue this drug, profile and collection. Only with --source civic."
     },
     "civic_kind": {
       "anyOf": [
@@ -145,10 +145,10 @@
           "type": "null"
         }
       ],
-      "description": "Evidence or assertion collection within the selected profile; help get drug\nEvidence or assertion collection within the selected profile. Only with --source civic."
+      "description": "CIViC collection. Evidence or assertions in this profile. Only; help get drug\nCIViC collection. Evidence or assertions in this profile. Only with --source civic."
     },
     "civic_profile": {
-      "description": "Molecular profile for this drug's claims. Only with --source civic.",
+      "description": "CIViC profile. Selects a molecular profile for this drug. Only with --source civic.",
       "format": "uint64",
       "maximum": 2147483647,
       "minimum": 1,
@@ -193,7 +193,7 @@
       "description": "Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.\nOnly with --source drugsfda. Only with section approvals."
     },
     "every_version": {
-      "description": "Read versions in order up to the read limit, instead of halving. Only with section label-history.",
+      "description": "Read every version. In order up to the limit, instead of halving. Only with section label-history.",
       "type": "boolean"
     },
     "evidence_level": {
@@ -226,7 +226,7 @@
       "description": "Status; help get drug\nStatus\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
     },
     "find": {
-      "description": "Exact text, ignoring case and whitespace breaks. History also ignores hyphenation. Repeat for OR.\nCurrent labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.\nOnly with section label or label-history.",
+      "description": "Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.\nCurrent labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.\nOnly with section label or label-history.",
       "items": {
         "$ref": "#/$defs/Text"
       },
@@ -235,7 +235,7 @@
     },
     "input": {
       "$ref": "#/$defs/Text",
-      "description": "Use a source ID or full brand or generic name. Keep spaces in WHO references. Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. Labels also take application numbers (e.g. NDA216340). fda-dsc requires the communication UUID from search drug NAME --source fda-dsc. Generic names accept one trailing salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brands identical to their ingredient count as generic. USAN: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines",
+      "description": "Source ID or full brand or generic name (fda-dsc requires the communication UUID). Keep spaces in WHO references. Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. Labels also take application numbers (e.g. NDA216340). Find that UUID with search drug NAME --source fda-dsc. Generic names accept one trailing salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brands identical to their ingredient count as generic. USAN: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines",
       "x-positional": 0
     },
     "label_section": {
@@ -259,7 +259,7 @@
           "type": "null"
         }
       ],
-      "description": "Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.\nOnly with section interactions.",
+      "description": "Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.\nOnly with section interactions.",
       "x-required-component": "ddinter"
     },
     "product_number": {

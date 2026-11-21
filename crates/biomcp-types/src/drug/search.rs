@@ -59,7 +59,7 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Drug name phrase. Optional for recalls, safety communications, WHO dates, FDA label filters and Drugs@FDA applicant searches.
+    /// Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
     /// Drugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,
     /// then search label text (including indications) if no names match. Recall aliases can match without becoming display names.
     /// Safety communications match titles, linked drug names and available text. Replies count records searched and records with page text.

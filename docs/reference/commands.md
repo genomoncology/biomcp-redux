@@ -1415,15 +1415,15 @@ Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
-          Drug name phrase. Omit for recall, safety communication, WHO date, label indication or mechanism, or Drugs@FDA applicant searches.
-          Drugs@FDA matches brands and ingredients, exact names first. openFDA labels match brands and generics, exact names first,
+          Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
+          Drugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,
           then search label text (including indications) if no names match. Recall aliases can match without becoming display names.
           Safety communications match titles, linked drug names and available text. Replies count records searched and records with page text.
           A communication can exist even when the search returns zero matches.
 
 Options:
       --applicant <applicant>
-          Case-insensitive sponsor_name prefix, without company-family or subsidiary inference. A drug name narrows the search.
+          sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1439,10 +1439,10 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --approved-from <approved_from>
-          Earliest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in the window.
+          Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.
 
       --approved-to <approved_to>
-          Latest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
+          Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -1504,16 +1504,16 @@ Options:
           ChEMBL name to match. Default: preferred name.
 
       --name-snapshot <name_snapshot>
-          Continue the first page's names and search step. Copy the returned token and keep filters unchanged.
+          Label name page token. Keep the first page's names and step by reusing the token with unchanged filters.
 
       --offset <offset>
           Rows to skip. Purple Book applies this only to presentation rows.
 
       --prequalified-from <prequalified_from>
-          Earliest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
+          First WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
 
       --prequalified-to <prequalified_to>
-          Latest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
+          Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
 
       --presentations[=<presentations>]
           Return presentation rows, as do --strength and --device.
@@ -1525,8 +1525,8 @@ Options:
           Recall reason phrase.
 
       --sort <sort>
-          newest sorts by latest submission status date, which may be; help search drug
-          newest sorts by latest submission status date, which may be for a supplement.
+          Application order. newest uses latest submission status date,; help search drug
+          Application order. newest uses latest submission status date, which may be for a supplement.
           original-approval reads all matches and sorts by original_approval. Both put recent dates first,
           break ties by application number and put undated rows last. Omit for source order.
 
@@ -1541,7 +1541,7 @@ Options:
           Filter presentations by strength cell, ignoring case and spaces.
 
       --therapeutic-area <therapeutic_area>
-          Match whole words in WHO's Therapeutic Area column, ignoring case (e.g. Oncology).
+          WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology).
 
 ```
 
@@ -1550,10 +1550,10 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
-- `--applicant`: Case-insensitive sponsor_name prefix, without company-family or subsidiary inference. A drug name narrows the search. Value form: string; example: 'ALNYLAM PHARMS INC'; only with --source drugsfda.
+- `--applicant`: sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results. Value form: string; example: 'ALNYLAM PHARMS INC'; only with --source drugsfda.
 - `--application-type`: Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA). Value form: repeatable values (repeat the flag); example: nda; only with --source openfda-label.
-- `--approved-from`: Earliest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in the window. Value form: string; example: 2024-01-01; only with --source drugsfda.
-- `--approved-to`: Latest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2023; only with --source drugsfda.
+- `--approved-from`: Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range. Value form: string; example: 2024-01-01; only with --source drugsfda.
+- `--approved-to`: Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2023; only with --source drugsfda.
 - `--classification`: FDA recall classification. Value form: string; example: 'Class II'; only with --source fda-drug-recall.
 - `--device`: Filter presentations by device cell, ignoring case. Value form: string; example: Autoinjector; only with --source purple-book.
 - `--exact-term`: Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA. Value form: boolean; example: --exact-term.
@@ -1565,25 +1565,25 @@ Paging: --limit and --offset.
 - `--limit`: Rows per page. Purple Book product summaries always return the full roster. Value form: integer; example: 1.
 - `--mechanism-of-action`: Exact Mechanism of Action wording, without synonyms or drug class inference. Value form: string; example: 'Janus kinase'; only with --source openfda-label.
 - `--name-selector`: ChEMBL name to match. Default: preferred name. Value form: string; example: preferred; only with --source chembl.
-- `--name-snapshot`: Continue the first page's names and search step. Copy the returned token and keep filters unchanged. Value form: string; example: <name-snapshot> (syntax; replace the placeholder with your retained value).
+- `--name-snapshot`: Label name page token. Keep the first page's names and step by reusing the token with unchanged filters. Value form: string; example: <name-snapshot> (syntax; replace the placeholder with your retained value).
 - `--offset`: Rows to skip. Purple Book applies this only to presentation rows. Value form: integer; example: --offset 1.
-- `--prequalified-from`: Earliest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2020; only with --source who-pq.
-- `--prequalified-to`: Latest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: --prequalified-to 2020; only with --source who-pq.
+- `--prequalified-from`: First WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2020; only with --source who-pq.
+- `--prequalified-to`: Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `--presentations`: Return presentation rows, as do --strength and --device. Value form: boolean; example: --presentations; only with --source purple-book.
-- `query`: Drug name phrase. Omit for recall, safety communication, WHO date, label indication or mechanism, or Drugs@FDA applicant searches.
-Drugs@FDA matches brands and ingredients, exact names first. openFDA labels match brands and generics, exact names first,
+- `query`: Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
+Drugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,
 then search label text (including indications) if no names match. Recall aliases can match without becoming display names.
 Safety communications match titles, linked drug names and available text. Replies count records searched and records with page text.
 A communication can exist even when the search returns zero matches.
 Form: search drug QUERY; not --query.
 - `--reason`: Recall reason phrase. Value form: string; example: 'Lack of Sterility Assurance'; only with --source fda-drug-recall.
-- `--sort`: newest sorts by latest submission status date, which may be for a supplement.
+- `--sort`: Application order. newest uses latest submission status date, which may be for a supplement.
 original-approval reads all matches and sorts by original_approval. Both put recent dates first,
 break ties by application number and put undated rows last. Omit for source order. Value form: string; example: newest; only with --source drugsfda.
 - `--source`: Drug source. An empty name search may retry names from other sources. Value form: string; example: ema.
 - `--status`: Exact recall status. Value form: string; example: Ongoing; only with --source fda-drug-recall.
 - `--strength`: Filter presentations by strength cell, ignoring case and spaces. Value form: string; example: 50MG/ML; only with --source purple-book.
-- `--therapeutic-area`: Match whole words in WHO's Therapeutic Area column, ignoring case (e.g. Oncology). Value form: string; example: oncology; only with --source who-pq.
+- `--therapeutic-area`: WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology). Value form: string; example: oncology; only with --source who-pq.
 
 ## biomcp search gene
 
@@ -3349,14 +3349,14 @@ Usage: biomcp get drug [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          Use a source ID or full brand or generic name. Keep spaces in WHO references. Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. Labels also take application numbers (e.g. NDA216340). fda-dsc requires the communication UUID from search drug NAME --source fda-dsc. Generic names accept one trailing salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brands identical to their ingredient count as generic. USAN: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+          Source ID or full brand or generic name (fda-dsc requires the communication UUID). Keep spaces in WHO references. Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. Labels also take application numbers (e.g. NDA216340). Find that UUID with search drug NAME --source fda-dsc. Generic names accept one trailing salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brands identical to their ingredient count as generic. USAN: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 
   [section]...
           Source sections; help get drug
 
 Options:
       --civic-cursor <civic_cursor>
-          Continue the same drug, profile and claim collection. Only with --source civic.
+          CIViC cursor. Continue this drug, profile and collection. Only with --source civic.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -3365,14 +3365,14 @@ Options:
           [possible values: json, md]
 
       --civic-kind <civic_kind>
-          Evidence or assertion collection within the selected profile; help get drug
-          Evidence or assertion collection within the selected profile. Only with --source civic.
+          CIViC collection. Evidence or assertions in this profile. Only; help get drug
+          CIViC collection. Evidence or assertions in this profile. Only with --source civic.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --civic-profile <civic_profile>
-          Molecular profile for this drug's claims. Only with --source civic.
+          CIViC profile. Selects a molecular profile for this drug. Only with --source civic.
 
       --decision-from <decision_from>
           Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals.
@@ -3391,7 +3391,7 @@ Options:
           Only with --source drugsfda. Only with section approvals.
 
       --every-version[=<every_version>]
-          Read versions in order up to the read limit, instead of halving. Only with section label-history.
+          Read every version. In order up to the limit, instead of halving. Only with section label-history.
 
           [default: false]
           [possible values: true, false]
@@ -3421,7 +3421,7 @@ Options:
           [possible values: true, false]
 
       --find <find>...
-          Exact text, ignoring case and whitespace breaks. History also ignores hyphenation. Repeat for OR.
+          Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.
           Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.
           Only with section label or label-history.
 
@@ -3440,7 +3440,7 @@ Options:
           Only with section label or label-history.
 
       --partner <partner>
-          Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.
+          Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.
           Only with section interactions.
 
       --product-number <product_number>
@@ -3463,14 +3463,14 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
-- `--civic-cursor`: Continue the same drug, profile and claim collection. Only with --source civic. Value form: string; example: --civic-cursor 0:A2.
-- `--civic-kind`: Evidence or assertion collection within the selected profile. Only with --source civic. Value form: string; example: --civic-kind evidence.
-- `--civic-profile`: Molecular profile for this drug's claims. Only with --source civic. Value form: integer; example: --civic-profile 1.
+- `--civic-cursor`: CIViC cursor. Continue this drug, profile and collection. Only with --source civic. Value form: string; example: --civic-cursor 0:A2.
+- `--civic-kind`: CIViC collection. Evidence or assertions in this profile. Only with --source civic. Value form: string; example: --civic-kind evidence.
+- `--civic-profile`: CIViC profile. Selects a molecular profile for this drug. Only with --source civic. Value form: integer; example: --civic-profile 1.
 - `--decision-from`: Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals. Value form: string; example: --decision-from 2024-01-01; only with --source drugsfda.
 - `--decision-to`: Latest status date, inclusive (YYYY-MM-DD). Only with section approvals. Value form: string; example: --decision-to 2024-12-31; only with --source drugsfda.
 - `--document-id`: Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.
 Only with --source drugsfda. Only with section approvals. Value form: string; example: --document-id 64255.
-- `--every-version`: Read versions in order up to the read limit, instead of halving. Only with section label-history. Value form: boolean; example: --every-version.
+- `--every-version`: Read every version. In order up to the limit, instead of halving. Only with section label-history. Value form: boolean; example: --every-version.
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
@@ -3480,10 +3480,10 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 - `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
-- `--find`: Exact text, ignoring case and whitespace breaks. History also ignores hyphenation. Repeat for OR.
+- `--find`: Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.
 Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.
 Only with section label or label-history. Value form: repeatable values (repeat the flag); example: --find vasculitis.
-- `input`: Use a source ID or full brand or generic name. Keep spaces in WHO references. Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. Labels also take application numbers (e.g. NDA216340). fda-dsc requires the communication UUID from search drug NAME --source fda-dsc. Generic names accept one trailing salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brands identical to their ingredient count as generic. USAN: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+- `input`: Source ID or full brand or generic name (fda-dsc requires the communication UUID). Keep spaces in WHO references. Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. Labels also take application numbers (e.g. NDA216340). Find that UUID with search drug NAME --source fda-dsc. Generic names accept one trailing salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brands identical to their ingredient count as generic. USAN: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Separate fields (including tables) with commas for one part per field. Omit or give an absent or unknown field to list available names.
@@ -3491,7 +3491,7 @@ warnings_and_precautions reads warnings_and_cautions.
 For drugsfda history, choose boxed_warning, indications_and_usage, contraindications,
 warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
 Only with section label or label-history. Value form: string; example: --label-section warnings_and_cautions.
-- `--partner`: Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.
+- `--partner`: Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.
 Only with section interactions. Value form: string; example: --partner DDInter9005; only with --source ddinter.
 - `--product-number`: Application product number. Only with --source drugsfda. Only with section approvals. Value form: string; example: --product-number 001.
 - `section`: Source sections.

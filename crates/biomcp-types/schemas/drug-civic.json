@@ -1240,7 +1240,7 @@
               "type": "null"
             }
           ],
-          "description": "Continue the same drug, profile and claim collection. Only with --source civic."
+          "description": "CIViC cursor. Continue this drug, profile and collection. Only with --source civic."
         },
         "civic_kind": {
           "anyOf": [
@@ -1251,10 +1251,10 @@
               "type": "null"
             }
           ],
-          "description": "Evidence or assertion collection within the selected profile. Only with --source civic."
+          "description": "CIViC collection. Evidence or assertions in this profile. Only with --source civic."
         },
         "civic_profile": {
-          "description": "Molecular profile for this drug's claims. Only with --source civic.",
+          "description": "CIViC profile. Selects a molecular profile for this drug. Only with --source civic.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -1299,7 +1299,7 @@
           "description": "Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.\nOnly with --source drugsfda. Only with section approvals."
         },
         "every_version": {
-          "description": "Read versions in order up to the read limit, instead of halving. Only with section label-history.",
+          "description": "Read every version. In order up to the limit, instead of halving. Only with section label-history.",
           "type": "boolean"
         },
         "evidence_level": {
@@ -1332,7 +1332,7 @@
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "find": {
-          "description": "Exact text, ignoring case and whitespace breaks. History also ignores hyphenation. Repeat for OR.\nCurrent labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.\nOnly with section label or label-history.",
+          "description": "Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.\nCurrent labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.\nOnly with section label or label-history.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
@@ -1365,7 +1365,7 @@
               "type": "null"
             }
           ],
-          "description": "Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.\nOnly with section interactions.",
+          "description": "Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.\nOnly with section interactions.",
           "x-required-component": "ddinter"
         },
         "product_number": {
