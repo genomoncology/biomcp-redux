@@ -5,7 +5,6 @@ const FLAGS: &[(&str, ErrorMessage)] = &[
     ("-q", ErrorMessage::DiseaseText),
     ("--query", ErrorMessage::DiseaseText),
     ("--inheritance", ErrorMessage::DiseaseInheritance),
-    ("--phenotype", ErrorMessage::DiseasePhenotypeFilter),
     ("--onset", ErrorMessage::DiseaseOnset),
     ("--no-fallback", ErrorMessage::DiseaseNoFallback),
     ("-l", ErrorMessage::DiseaseLimit),
@@ -31,6 +30,8 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
     let mut option = None;
     let mut shared_option = None;
     let mut literal = false;
+    let mut phenotype = false;
+    let mut hpo_release = false;
     let mut args = args.iter();
     while let Some(word) = args.next() {
         let word = word.to_str()?;
@@ -52,6 +53,13 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
         if disease && let Some(found) = super::find(FLAGS, flag) {
             return Some(found);
         }
+        if flag == "--phenotype" {
+            if matches!(positional.as_slice(), ["get", "disease", ..]) {
+                return Some(ErrorMessage::DiseasePhenotypeFilter);
+            }
+            phenotype = true;
+        }
+        hpo_release |= flag == "--hpo-release";
         if disease && flag == "--name" {
             option = Some(ErrorMessage::DiseaseName);
         }
@@ -73,6 +81,9 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
     match positional.as_slice() {
         ["list", "disease", ..] => Some(ErrorMessage::DiseaseHelp),
         ["disease", "drugs", ..] => Some(ErrorMessage::DiseaseLabelSearch),
+        ["search", "disease", _, ..] if phenotype && !hpo_release => {
+            Some(ErrorMessage::DiseasePhenotypeFilter)
+        }
         ["search", "disease", ..] if matches!(source, Some("mondo" | "doid" | "mesh")) => {
             Some(ErrorMessage::DiseaseOntologySelector)
         }
