@@ -17,18 +17,24 @@ pub(crate) fn rows<const N: usize>(
     for fragment in body.split("<table").skip(1) {
         let (table, _) = fragment.split_once("</table>")?;
         let mut rows = table.split("<tr").skip(1);
-        let Some(head) = rows.next().and_then(cells).and_then(as_row::<N>) else {
-            continue;
-        };
-        if accepts(head.each_ref().map(|cell| cell.text.as_str())) {
+        let found = rows
+            .by_ref()
+            .filter_map(cells)
+            .filter_map(as_row::<N>)
+            .any(|head| accepts(head.each_ref().map(|cell| cell.text.as_str())));
+        if found {
             let mut carried: [Option<(usize, Cell<'_>)>; N] = std::array::from_fn(|_| None);
             let rows = rows
                 .map(|row| expanded(cells(row)?, &mut carried))
                 .collect::<Option<Vec<_>>>()?;
-            return carried
-                .into_iter()
-                .all(|slot| slot.is_none())
-                .then_some(rows);
+            if carried.into_iter().all(|slot| slot.is_none()) {
+                return Some(
+                    rows.into_iter()
+                        .filter(|row| row.iter().any(|cell| !cell.text.is_empty()))
+                        .collect(),
+                );
+            }
+            return None;
         }
     }
     None
