@@ -1,0 +1,45 @@
+{
+  "feature": "drug-label-history",
+  "story": "When the midpoint is unreadable, a probe toward the newer match reaches SUPPL 61.",
+  "live_check": "synthetic",
+  "replay": "drug/label-history-plague-probes",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA020634",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "indications_and_usage",
+        "--find",
+        "plague"
+      ],
+      "expect": {
+        "/result/first/submission": "SUPPL 61",
+        "/result/first/state": "match",
+        "/result/before/state": "no-match",
+        "/result/on_or_before": true,
+        "/result/answer": "Text in indications_and_usage on or before SUPPL 61, approved 2012-04-27. Older labels remain unchecked.",
+        "/result/before/submission": "SUPPL 12",
+        "/result/read/1/submission": "SUPPL 12",
+        "/result/read/8/submission": "SUPPL 61",
+        "/result/read/*/state": [
+          "no-text",
+          "no-match",
+          "not-fetched",
+          "section-not-bounded",
+          "section-not-bounded",
+          "section-not-bounded",
+          "section-not-bounded",
+          "section-not-bounded",
+          "match",
+          "match"
+        ]
+      }
+    }
+  ],
+  "verified": "Replay preserves the recorded NDA020634 submission dates and PDF aliases; synthetic PDF text represents the observed section states."
+}

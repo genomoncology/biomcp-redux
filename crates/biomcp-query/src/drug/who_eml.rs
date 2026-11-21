@@ -4,7 +4,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::who_eml;
 use biomcp_types::{
     DrugEssentialMedicines, DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, ReplyBody,
-    Request, Section, Source, StepKind,
+    Request, Section, Source, SourceState, StepKind,
 };
 
 /// Listings per page when the call names no section limit; each is one eEML page read.
@@ -23,8 +23,9 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     );
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    out.sources
-        .push(status::source(Source::WhoEml, leg.finish(), error));
+    let read = status::source(Source::WhoEml, leg.finish(), error);
+    let stale = read.state == SourceState::Stale;
+    out.sources.push(read);
     // A failed read is already in `sources`; the reply keeps no body.
     let mapped = match result {
         Ok(mapped) => mapped,
@@ -40,7 +41,16 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         page(query, cx.fresh, body, &mut out);
     }
     out.body = DrugEssentialMedicines::into_reply(query.clone(), mapped.value);
-    status::item(&mut out, found, false, false);
+    let stale_miss = stale && !found;
+    if stale_miss {
+        out.next.push(crate::next::Step::run(
+            StepKind::Fresh,
+            &[Source::WhoEml],
+            Request::GetDrug(query.clone()),
+            true,
+        ));
+    }
+    status::item(&mut out, found, stale_miss, false);
     command.finish(deadline.remaining());
     out
 }

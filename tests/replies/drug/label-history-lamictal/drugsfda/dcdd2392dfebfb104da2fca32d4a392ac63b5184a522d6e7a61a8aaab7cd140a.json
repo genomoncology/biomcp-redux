@@ -1,0 +1,96 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA020241%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1795149444,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-18",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "application_number": "NDA020241",
+              "products": [
+                {
+                  "product_number": "001",
+                  "brand_name": "LAMICTAL"
+                }
+              ],
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20080101",
+                  "application_docs": [
+                    {
+                      "id": "100",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2008/020241s000lbl.pdf",
+                      "date": "20080101",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "10",
+                  "submission_status": "AP",
+                  "submission_status_date": "20100101",
+                  "application_docs": [
+                    {
+                      "id": "101",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2010/020241s010lbl.pdf",
+                      "date": "20100101",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "20",
+                  "submission_status": "AP",
+                  "submission_status_date": "20110101",
+                  "application_docs": [
+                    {
+                      "id": "102",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2011/020241s020lbl.pdf",
+                      "date": "20110101",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "30",
+                  "submission_status": "AP",
+                  "submission_status_date": "20120101",
+                  "application_docs": [
+                    {
+                      "id": "103",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2012/020241s030lbl.pdf",
+                      "date": "20120101",
+                      "type": "Label"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

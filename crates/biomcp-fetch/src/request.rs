@@ -442,6 +442,18 @@ impl Leg<'_> {
             return Ok(Vec::new());
         }
         let limit = codec.limit.unwrap_or(self.fetch.config.max_body);
+        if status == 200
+            && let Some(record) = codec.part_length
+            && !response.headers().contains_key("content-encoding")
+            && let Some(length) = response.body().content_length()
+        {
+            record(length);
+            if length > limit {
+                return Err(Failure::Local(
+                    self.failure(codec.overflow_reason, Some(status)).into(),
+                ));
+            }
+        }
         let body = self.read_body(
             response,
             status,

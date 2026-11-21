@@ -103,6 +103,8 @@ pub(super) struct Protocol {
 struct Identification {
     nct_id: NctId,
     brief_title: Option<Field<Text>>,
+    acronym: Option<Field<Text>>,
+    official_title: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -219,6 +221,9 @@ impl Protocol {
             ))
             .map_err(|_| BadReply)?,
             title: problems.required_field("briefTitle", self.identification_module.brief_title),
+            acronym: problems.field("acronym", self.identification_module.acronym),
+            official_title: problems
+                .field("officialTitle", self.identification_module.official_title),
             status: dates.status,
             why_stopped: dates.why_stopped,
             phases,

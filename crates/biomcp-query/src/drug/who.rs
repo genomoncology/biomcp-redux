@@ -134,6 +134,7 @@ pub(super) fn market(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket
     let read = status::source(Source::WhoPq, leg.finish(), error);
     command.finish(deadline.remaining());
     let reason = read.reason;
+    let stale = read.state == SourceState::Stale;
     markets::add_source(out, read);
     sync_step(out);
     let rows = match result {
@@ -147,6 +148,10 @@ pub(super) fn market(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket
     };
     row.matches = Some(rows.len() as u64);
     let Some(chosen) = earliest(&rows) else {
+        if stale {
+            row.state = DrugMarketState::Failed;
+            row.reason = reason;
+        }
         return row;
     };
     row.state = DrugMarketState::Found;

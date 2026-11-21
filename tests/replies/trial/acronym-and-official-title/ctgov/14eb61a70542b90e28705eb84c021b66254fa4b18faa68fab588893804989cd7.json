@@ -1,0 +1,1033 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle&pageSize=50&query.term=SURMOUNT",
+  "exchanges": [
+    {
+      "fetched": 1795209009,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 197,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "totalCount": 21,
+          "studies": [
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT02080897",
+                  "briefTitle": "Evaluating Quality of Life in Patients With Soft Tissue Sarcoma Presenting With Metastatic Lung Disease",
+                  "officialTitle": "Evaluating Quality of Life in Patients With Soft Tissue Sarcoma Presenting With Metastatic Lung Disease Using the ESAS-Sarcoma Modified Questionnaire"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2014-03"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2017-08-07",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2018-04-10"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Duke University"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Soft Tissue Sarcoma",
+                    "Metastatic Lung Disease"
+                  ]
+                },
+                "designModule": {},
+                "armsInterventionsModule": {}
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT02281721",
+                  "briefTitle": "Surpass Flow Diverter for Intracranial Aneurysms: SURMOUNT Registry Data Collection",
+                  "officialTitle": "Prospective, Observational, Multi-Center, Single-Arm, Consecutive Enrollment, Post-Marketing, International Registry of the Surpass™ Flow Diverter in Intracranial Arteries"
+                },
+                "statusModule": {
+                  "overallStatus": "TERMINATED",
+                  "whyStopped": "Internal decision",
+                  "startDateStruct": {
+                    "date": "2015-03-18",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2019-12",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2021-07-14"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Stryker Neurovascular"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Cerebral Aneurysm"
+                  ]
+                },
+                "designModule": {},
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Surpass Flow Diverter(s)"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT05412004",
+                  "briefTitle": "Obstructive Sleep Apnea Master Protocol GPIF: A Study of Tirzepatide (LY3298176) in Participants With Obstructive Sleep Apnea",
+                  "officialTitle": "A Master Protocol to Investigate the Efficacy and Safety of Tirzepatide Once Weekly in Participants Who Have Obstructive Sleep Apnea and Obesity: A Randomized, Double-Blind, Placebo-Controlled Trial",
+                  "acronym": "SURMOUNT-OSA"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2022-06-21",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2024-03-12",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2025-04-30"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obstructive Sleep Apnea",
+                    "Obesity"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": true
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT06439277",
+                  "briefTitle": "A Study of Tirzepatide in Adolescents With Obesity and Weight-Related Comorbidities (SURMOUNT-ADOLESCENTS-2)",
+                  "officialTitle": "Efficacy and Safety of Tirzepatide Once Weekly Versus Placebo for the Treatment of Obesity and Weight-Related Comorbidities in Adolescents: A Randomized, Double-Blind, Placebo- Controlled Trial (SURMOUNT-ADOLESCENTS-2)"
+                },
+                "statusModule": {
+                  "overallStatus": "RECRUITING",
+                  "startDateStruct": {
+                    "date": "2024-06-03",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2027-10",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-09-24"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity",
+                    "Weight Gain"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT02278237",
+                  "briefTitle": "Pre/Post Pilot Test of Video Module Education",
+                  "officialTitle": "Pre/Post Pilot Test of VME for the Video vs. TTG Respiratory Inhaler Technique Assessment and InstructioN Study"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2014-11"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2015-10",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2019-06-04"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "University of Chicago"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Chronic Obstructive Pulmonary Disease",
+                    "Asthma"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "NA"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "VME Group"
+                    }
+                  ]
+                }
+              },
+              "hasResults": true
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT01361074",
+                  "briefTitle": "In Vivo Versus Augmented Reality Exposure for Small Animal Phobia",
+                  "officialTitle": "In Vivo Versus Augmented Reality Exposure for Small Animal Phobia Treatment: A Randomized Controlled Trial",
+                  "acronym": "VARESAP"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2011-01"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2011-05",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2015-12-04"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Universitat Jaume I"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Phobic Disorders"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "NA"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "In Vivo Exposure for Animal Phobia following Öst´s guidelines"
+                    },
+                    {
+                      "name": "Augmented Reality Exposure for Animal Phobia following Öst´s guidelines"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT07367399",
+                  "briefTitle": "Acute Myocardial Infarction Clinical Intelligent Decision Support System",
+                  "officialTitle": "Acute Myocardial Infarction Clinical Intelligent Decision Support System",
+                  "acronym": "AMI-CIDSS"
+                },
+                "statusModule": {
+                  "overallStatus": "ACTIVE_NOT_RECRUITING",
+                  "startDateStruct": {
+                    "date": "2018-01-01",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2028-12-31",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-01-26"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Beijing Anzhen Hospital"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Acute Myocardial Infarction",
+                    "Large Language Models",
+                    "Clinical Decision Support System"
+                  ]
+                },
+                "designModule": {}
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT07247084",
+                  "briefTitle": "A Study of Tirzepatide (LY3298176) Compared With Standard of Care in Adult Participants With Obesity and Without Diabetes (SURMOUNT-REAL UK)",
+                  "officialTitle": "A Phase 4 Multicenter, Randomized, Open-Label, Interventional Study With Pragmatic Elements Investigating the Effectiveness of Tirzepatide Once Weekly Compared With Standard of Care in Adult Participants With Obesity and Without Diabetes in a Real-World Setting"
+                },
+                "statusModule": {
+                  "overallStatus": "RECRUITING",
+                  "startDateStruct": {
+                    "date": "2025-11-24",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2029-07",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-09-09"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE4"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Standard of Care"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT04844918",
+                  "briefTitle": "A Study of Tirzepatide (LY3298176) in Participants With Obesity Disease",
+                  "officialTitle": "Efficacy and Safety of Once-Weekly Tirzepatide in Participants With Obesity Disease: A Randomized, Double-Blind, Placebo-Controlled Trial (SURMOUNT-J)",
+                  "acronym": "SURMOUNT-J"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2021-05-10",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2023-06-24",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2024-07-16"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": true
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT07639736",
+                  "briefTitle": "Teen Helpline Motivational Interviewing Study",
+                  "officialTitle": "Using Performance Feedback and Facilitation to Integrate Motivational Interviewing in Teen Helpline Services",
+                  "acronym": "MI"
+                },
+                "statusModule": {
+                  "overallStatus": "RECRUITING",
+                  "startDateStruct": {
+                    "date": "2025-08-28",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2029-10-31",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-06-25"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "San Diego State University"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Implementation Research",
+                    "Help Seeking"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "NA"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Motivational Interviewing Training"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT06085066",
+                  "briefTitle": "The Role of Modified Ultrafiltration Following Open Heart Surgery",
+                  "officialTitle": "The Role of Modified Ultrafiltration on Vascular Resistance, Cardiac Index Enhancement, and Inflammation Reduction Following Open Heart Surgery; A Randomized Clinical Trial"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2021-12-01",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2023-12-31",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2024-03-15"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Universitas Indonesia"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Heart; Surgery, Heart, Functional Disturbance as Result"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "NA"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Conventional Ultrafiltration alone on Cardiopulmonary bypass"
+                    },
+                    {
+                      "name": "Conventional Ultrafiltration followed by Modified Ultrafitration on Cardiopulmonary bypass"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT07817875",
+                  "briefTitle": "Efficacy, Safety, and Pharmacokinetics of Tirzepatide (LY3298176) Once Weekly Versus Placebo in Pediatric Participants 6 to Less Than 12 Years of Age Who Have Obesity (ADVANCE-SURMOUNT-KIDS)",
+                  "officialTitle": "Efficacy, Safety, and Pharmacokinetics of Tirzepatide Once Weekly Versus Placebo in Pediatric Participants 6 to Less Than 12 Years of Age Who Have Obesity: A Phase 3, Randomized, Double-Blind, Placebo-Controlled Trial"
+                },
+                "statusModule": {
+                  "overallStatus": "RECRUITING",
+                  "startDateStruct": {
+                    "date": "2026-09-25",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2029-12",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-11-04"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT07788807",
+                  "briefTitle": "A Study to Investigate How Well an Intracolonic Formulation of Two Monoclonal Antibodies is Tolerated in Healthy Participants and the Ability for the Antibodies to be Taken up by the Body Via the Colon",
+                  "officialTitle": "An Open-label, Phase 1, Pharmacokinetic Study of a Single Dose of Transcolonically Administered Adalimumab and Guselkumab in Healthy Adult Participants"
+                },
+                "statusModule": {
+                  "overallStatus": "RECRUITING",
+                  "startDateStruct": {
+                    "date": "2026-10-07",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2026-11-20",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-11-09"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Surmount Services, Inc."
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Healthy Subjects"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE1"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Adalimumab"
+                    },
+                    {
+                      "name": "Guselkumab"
+                    },
+                    {
+                      "name": "SDL-001"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT05556512",
+                  "briefTitle": "A Study of Tirzepatide (LY3298176) on the Reduction on Morbidity and Mortality in Adults With Obesity",
+                  "officialTitle": "A Phase 3, Randomized, Double-blind, Placebo-Controlled Study to Investigate the Effect of Tirzepatide on the Reduction of Morbidity and Mortality in Adults With Obesity",
+                  "acronym": "SURMOUNT-MMO"
+                },
+                "statusModule": {
+                  "overallStatus": "ACTIVE_NOT_RECRUITING",
+                  "startDateStruct": {
+                    "date": "2022-10-11",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2027-10",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-11-12"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity",
+                    "Overweight"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT06047548",
+                  "briefTitle": "A Study of LY3298176 (Tirzepatide) For the Maintenance of Body Weight Reduction in Participants Who Have Obesity or Overweight With Weight-Related Comorbidities",
+                  "officialTitle": "A Phase 3b, Randomized Controlled Study to Evaluate the Efficacy and Safety of Tirzepatide Once Weekly 5 mg and/or Maximum Tolerated Dose Versus Placebo for Maintenance of Body Weight Reduction in Participants Who Have Obesity or Overweight With Weight-Related Comorbidities (SURMOUNT-MAINTAIN)"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2023-09-20",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2026-01-20",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-03-25"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Overweight",
+                    "Obesity"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT03855449",
+                  "briefTitle": "A Task Analysis Study of DECIDE For African American Patients With Type 2 Diabetes",
+                  "officialTitle": "Web-Based Problem Solving Self-Management Program for African Americans With Type 2 Diabetes",
+                  "acronym": "eDECIDE"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2019-06-05",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2024-10-30",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-03-20"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "University of Kansas Medical Center"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Diabetes Mellitus, Type 2"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "NA"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "eDECIDE Web-based Intervention Group"
+                    }
+                  ]
+                }
+              },
+              "hasResults": true
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT06708351",
+                  "briefTitle": "Enhancing Cervical Cancer Screening and Treatment in Women Living With HIV in Kenya, the ENHANCE LINKAge Trial",
+                  "officialTitle": "Enhancing Cervical Cancer Screening and Treatment in Women Living With HIV in Kenya (ENHANCE LINKAGE)"
+                },
+                "statusModule": {
+                  "overallStatus": "NOT_YET_RECRUITING",
+                  "startDateStruct": {
+                    "date": "2026-12-31",
+                    "type": "ESTIMATED"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2029-08-31",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-09-17"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Emory University"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "HIV Infection",
+                    "Human Papillomavirus-Related Cervical Carcinoma",
+                    "Screening Strategy"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "NA"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Best Practice"
+                    },
+                    {
+                      "name": "Health Promotion and Education"
+                    },
+                    {
+                      "name": "HPV Self-Collection"
+                    },
+                    {
+                      "name": "Text Message-Based Navigation Intervention"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT06075667",
+                  "briefTitle": "A Study of Tirzepatide (LY3298176) Once Weekly in Adolescent Participants Who Have Obesity or Overweight With Weight-Related Comorbidities",
+                  "officialTitle": "Efficacy, Safety, and Pharmacokinetics of Tirzepatide Once Weekly Versus Placebo in Adolescent Participants Who Have Obesity, or Are Overweight With Weight-Related Comorbidities: A Randomized, Double-Blind Trial (SURMOUNT-ADOLESCENTS)"
+                },
+                "statusModule": {
+                  "overallStatus": "ACTIVE_NOT_RECRUITING",
+                  "startDateStruct": {
+                    "date": "2023-10-16",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2026-06-02",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-06-29"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity",
+                    "Overweight"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT05556577",
+                  "briefTitle": "Weight Cycle Post Intervention",
+                  "officialTitle": "Weight Cycle Impacted by Health Lifestyle Post Pharmacotherapy Intervention"
+                },
+                "statusModule": {
+                  "overallStatus": "WITHDRAWN",
+                  "whyStopped": "duplicated registration",
+                  "startDateStruct": {
+                    "date": "2022-09-15",
+                    "type": "ESTIMATED"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2023-03-15",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2022-11-28"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Shanghai Zhongshan Hospital"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Weight Gain"
+                  ]
+                },
+                "designModule": {},
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "investigational medicine product (IMP)"
+                    },
+                    {
+                      "name": "placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT05024032",
+                  "briefTitle": "A Study of Tirzepatide (LY3298176) in Chinese Participants Without Type 2 Diabetes Who Have Obesity or Overweight (SURMOUNT-CN)",
+                  "officialTitle": "Efficacy and Safety of Tirzepatide Once Weekly in Chinese Participants Without Type 2 Diabetes Who Have Obesity or Are Overweight With Weight-Related Comorbidities: A Randomized, Double-Blind, Placebo-Controlled Trial (SURMOUNT-CN)",
+                  "acronym": "SURMOUNT-CN"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2021-09-01",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2022-12-27",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2024-01-19"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity",
+                    "Overweight",
+                    "Metabolism and Nutrition Disorder"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": true
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT04029220",
+                  "briefTitle": "Navigation and Parent Peer Support to Promote Access",
+                  "officialTitle": "Navigation and Parent Peer Support to Promote Access and Retention of Children in Mental Health Services"
+                },
+                "statusModule": {
+                  "overallStatus": "UNKNOWN",
+                  "startDateStruct": {
+                    "date": "2020-02-18",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2022-12-31",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2022-08-17"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "University of Colorado, Denver"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Mental Disorder, Child",
+                    "Mental Health",
+                    "Family Health"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "NA"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Parent Peer Navigation"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

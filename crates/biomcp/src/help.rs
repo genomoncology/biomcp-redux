@@ -136,6 +136,11 @@ fn section_help(
     if alone {
         markets_arguments(&mut command.arguments);
     }
+    if entity == "drug" && section == "label-history" {
+        command
+            .arguments
+            .retain(|argument| argument.name != "--section-limit");
+    }
     if !sources.is_empty() {
         command.arguments.retain(|argument| {
             let only = only_sources(&argument.description);

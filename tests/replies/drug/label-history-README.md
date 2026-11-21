@@ -98,3 +98,22 @@ The help example (ticket 1083), recorded in pm job j43461 on 2026-11-20.
 - https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/208065s016lbl.pdf: sha256 80e628eee7d2564d3093cb506865a1214026436099d4806a66a0dc3dc69a6eee, 1388276 bytes
 - https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/208065s018lbl.pdf: sha256 a941c02b0c20c2c7ec3b4f9b0cdbb37fd6e3b4e16a62dc790500c0304052127e, 1219865 bytes
 - https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/208065s035s036lbl.pdf: sha256 9642c55d3088ce9821fa41b9abc3725e3ea9f42530ee51beb859cd29a6274a83, 1519577 bytes
+
+## Recorded for 1082
+
+Recorded in pm job j43558 on 2026-11-20. Each answer was checked against poppler's `pdftotext` on the original PDF.
+
+### label-history-opzelura
+
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2022/215309Orig1s000correctedlbl.pdf: sha256 8686f8ce78b27ff2311cd2f93f66078f8da6921b447fd6faaa96a94ccd2d2886, 1463450 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/215309s009sdn953lbl.pdf: sha256 7931524b4be3620ab3622b6e9cc0ecb6760d0bf7c72963058e6f2089c8e60f18, 636912 bytes
+
+### label-history-lipitor
+
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2001/20702s25lbl.pdf: sha256 6e70d655d3b96b73ea178f5d0ff87962ea621fb296bd64543636bfd1fb6cba84, 238638 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2024/020702s081lbl.pdf: sha256 076f78996e41cdae4bf40c3f8f8033cfc33f9ea9ed7351f0d2ae814b2763dc95, 1615318 bytes
+
+### label-history-olumiant-warnings
+
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/207924s010lbl.pdf: sha256 429ee947cc7d6c7f6dbc584b236e9473f9e19bb0ff9f45f72151a3ee5ef6a962, 969398 bytes
+- https://www.accessdata.fda.gov/drugsatfda_docs/label/2018/207924Orig1s000lbl.pdf: sha256 fb2ab438ff127e3cb61b92675da568aeb8cb1bcebc570085204d713736ea8a9b, 1137374 bytes

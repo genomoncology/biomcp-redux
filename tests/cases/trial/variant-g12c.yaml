@@ -42,6 +42,7 @@
         "/sources/0/notices/*/kind": {
           "equals": [
             "request-guidance",
+            "request-guidance",
             "request-guidance"
           ]
         }
