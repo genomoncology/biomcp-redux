@@ -27,10 +27,12 @@ pub enum DrugSource {
     Ddinter,
     /// WHO Model List of Essential Medicines listings from the WHO eEML.
     WhoEml,
+    /// FDA Drug Safety Communications.
+    FdaDsc,
 }
 impl DrugSource {
     /// Every retained drug source; registry bindings use these canonical values.
-    pub const ALL: [Self; 11] = [
+    pub const ALL: [Self; 12] = [
         Self::WhoPq,
         Self::FdaDrugRecall,
         Self::Mychem,
@@ -42,6 +44,7 @@ impl DrugSource {
         Self::Ema,
         Self::Ddinter,
         Self::WhoEml,
+        Self::FdaDsc,
     ];
     /// Canonical source spelling, reusing an existing source identity when present.
     pub fn as_str(self) -> &'static str {
@@ -61,6 +64,7 @@ impl DrugSource {
             Self::Ema => crate::Source::Ema,
             Self::Ddinter => crate::Source::Ddinter,
             Self::WhoEml => crate::Source::WhoEml,
+            Self::FdaDsc => crate::Source::FdaDsc,
         }
     }
 }
@@ -118,7 +122,7 @@ impl DrugSource {
             Self::Ema => &[Regulatory],
             Self::Ddinter => &[Interactions],
             Self::WhoEml => &[EssentialMedicines],
-            Self::WhoPq | Self::FdaDrugRecall => &[],
+            Self::WhoPq | Self::FdaDrugRecall | Self::FdaDsc => &[],
         }
     }
 }
@@ -151,7 +155,8 @@ impl DrugSource {
             Self::Ema => id
                 .strip_prefix("EMEA/H/C/")
                 .is_some_and(|s| s.len() == 6 && digits(s)),
-            Self::OpenfdaLabel => {
+            // FDA's page identifier for one communication, as its index links it.
+            Self::OpenfdaLabel | Self::FdaDsc => {
                 let pieces: Vec<_> = id.split('-').collect();
                 pieces.iter().map(|s| s.len()).eq([8, 4, 4, 4, 12])
                     && pieces

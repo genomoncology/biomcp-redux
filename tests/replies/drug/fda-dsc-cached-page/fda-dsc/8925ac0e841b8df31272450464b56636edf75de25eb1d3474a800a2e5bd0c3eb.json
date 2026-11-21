@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-dsc",
+  "url": "https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+  "exchanges": [
+    {
+      "fetched": 42,
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<table summary=\"Drug Safety Communications\"><tr><td>11-19-2026</td><td><a href=\"/drugs/drug-safety-communications/synthetic-unread-page\" data-entity-uuid=\"00000000-0000-4000-8000-000000000001\">Unread synthetic communication</a></td></tr><tr><td>11-18-2026</td><td><a href=\"/drugs/drug-safety-communications/synthetic-cached-page\" data-entity-uuid=\"00000000-0000-4000-8000-000000000002\">Cached synthetic communication</a></td></tr></table>"
+      }
+    }
+  ]
+}

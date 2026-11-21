@@ -116,7 +116,7 @@
           "x-required-component": "fda-drug-recall"
         },
         "exact_term": {
-          "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
+          "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
           "type": "boolean"
         },
         "expand_drug_names": {
@@ -226,7 +226,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase.\nFDA drug recalls, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
+          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.\nFDA safety communications search titles, linked drug names and available page text.\nZero matches does not establish that FDA issued no communication about this drug.\nThe reply counts the communications searched and how many had page text.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
           "x-positional": 0
         },
         "reason": {
@@ -292,7 +292,8 @@
         "drugsfda",
         "ema",
         "ddinter",
-        "who-eml"
+        "who-eml",
+        "fda-dsc"
       ]
     },
     "Reply_DrugWhoPage": {
@@ -696,6 +697,7 @@
         " FDA native 510(k) clearance records.",
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
+        " FDA Drug Safety Communications web pages.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -775,6 +777,7 @@
         "fda-510k",
         "fda-device-recall",
         "fda-drug-recall",
+        "fda-dsc",
         "cpic",
         "clinpgx",
         "cbioportal",

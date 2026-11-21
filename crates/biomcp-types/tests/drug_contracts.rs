@@ -65,6 +65,7 @@ fn selected_source_checks_its_native_identifier_grammar() {
         ("openfda-label", "741ff3e3-dc1a-45a6-84e5-2481b27131aa"),
         ("ddinter", "DDInter9001"),
         ("who-eml", "479"),
+        ("fda-dsc", "4ec3359d-b7fe-41ca-9724-9602b68d8ca6"),
         ("civic", "5"),
     ] {
         let selected: DrugSource = source.parse().expect("source");
@@ -148,6 +149,7 @@ fn closed_vocabularies_roundtrip_and_refuse_other_sections() {
         "ema",
         "ddinter",
         "who-eml",
+        "fda-dsc",
     ] {
         let value: DrugSource = name.parse().expect("source");
         assert_eq!(value.to_string(), name);
@@ -585,7 +587,8 @@ fn drug_recall_name_omission_and_present_values_match_the_schema() {
         );
     }
     for source in biomcp_types::DrugSource::ALL {
-        if source != biomcp_types::DrugSource::FdaDrugRecall {
+        // Recalls search filters alone; safety communications list newest first.
+        if !matches!(source.as_str(), "fda-drug-recall" | "fda-dsc") {
             assert!(
                 serde_json::from_value::<DrugSearch>(json!({"source":source})).is_err(),
                 "{source}"

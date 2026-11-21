@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-dsc",
+  "url": "https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+  "exchanges": [
+    {
+      "fetched": 1795194152,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 152,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "8925ac0e841b8df31272450464b56636edf75de25eb1d3474a800a2e5bd0c3eb-0.bin"
+      }
+    }
+  ]
+}

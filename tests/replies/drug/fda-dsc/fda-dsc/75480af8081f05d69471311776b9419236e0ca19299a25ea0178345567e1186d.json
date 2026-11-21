@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-dsc",
+  "url": "https://www.fda.gov/drugs/drug-safety-and-availability/fda-requires-warnings-about-increased-risk-serious-heart-related-events-cancer-blood-clots-and-death",
+  "exchanges": [
+    {
+      "fetched": 1795194184,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 220,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "75480af8081f05d69471311776b9419236e0ca19299a25ea0178345567e1186d-0.bin"
+      }
+    }
+  ]
+}

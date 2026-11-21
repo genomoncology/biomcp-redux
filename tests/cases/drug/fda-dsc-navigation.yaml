@@ -1,0 +1,34 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "The default FDA page offers a get for each result, a next page, and all hits in research search.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-dsc"
+      ],
+      "expect": {
+        "/page/returned": 10,
+        "/next/10/kind": "page"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "search",
+        "arguments": {
+          "query": "drug --source fda-dsc"
+        }
+      },
+      "expect": {
+        "/results": {
+          "count": 10
+        },
+        "/metadata/envelope/next/10/kind": "page"
+      }
+    }
+  ]
+}

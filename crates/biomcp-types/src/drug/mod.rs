@@ -44,6 +44,11 @@ mod history;
 pub use history::{
     DrugLabelHistory, LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
 };
+mod dsc;
+pub use dsc::{
+    DrugSafetyCommunication, DrugSafetyCommunicationCard, DrugSafetyCommunicationPage,
+    DrugSafetyMatch,
+};
 mod eml;
 pub use eml::{
     DrugEssentialMedicineDecision, DrugEssentialMedicineListing, DrugEssentialMedicines,
