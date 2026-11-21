@@ -1,0 +1,99 @@
+{
+  "method": "GET",
+  "source": "reactome",
+  "url": "https://reactome.org/ContentService/data/participants/R-HSA-5693607",
+  "exchanges": [
+    {
+      "fetched": 1794934719,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "peDbId": 113518,
+            "displayName": "H2O [nucleoplasm]",
+            "schemaClass": "SimpleEntity",
+            "refEntities": [
+              {
+                "dbId": 114728,
+                "stId": "chebi:15377",
+                "identifier": "15377",
+                "schemaClass": "ReferenceMolecule",
+                "displayName": "water [ChEBI:15377]",
+                "icon": "SimpleEntity",
+                "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15377"
+              }
+            ]
+          },
+          {
+            "peDbId": 113838,
+            "displayName": "p-S317,S345-CHEK1 [nucleoplasm]",
+            "schemaClass": "EntityWithAccessionedSequence",
+            "refEntities": [
+              {
+                "dbId": 87284,
+                "stId": "uniprot:O14757",
+                "identifier": "O14757",
+                "schemaClass": "ReferenceGeneProduct",
+                "displayName": "UniProt:O14757 CHEK1",
+                "icon": "EntityWithAccessionedSequence",
+                "url": "http://purl.uniprot.org/uniprot/O14757"
+              }
+            ]
+          },
+          {
+            "peDbId": 113838,
+            "displayName": "p-S317,S345-CHEK1 [nucleoplasm]",
+            "schemaClass": "EntityWithAccessionedSequence",
+            "refEntities": [
+              {
+                "dbId": 87284,
+                "stId": "uniprot:O14757-2",
+                "identifier": "O14757-2",
+                "schemaClass": "ReferenceGeneProduct",
+                "displayName": "Synthetic isoform",
+                "icon": "EntityWithAccessionedSequence",
+                "url": null
+              }
+            ]
+          },
+          {
+            "peDbId": 5684883,
+            "displayName": "ATR:ATRIP:p-RPA:3' overhanging ssDNA-DSBs:p-MRN:p-S1981,Ac-K3016-ATM:KAT5:BRCA1-C complex:EXO1,DNA2:BLM,WRN:p-S990,Ac-K1249-BRIP1:RAD17:RFC:RAD9:HUS1:RAD1:RHNO1:TOPBP1:TIMELESS:TIPIN:p-T916,S945-CLSPN:CHEK1 [nucleoplasm]",
+            "schemaClass": "Complex",
+            "refEntities": [
+              {
+                "dbId": 244680,
+                "stId": "uniprot:O60671",
+                "identifier": "O60671",
+                "schemaClass": "ReferenceGeneProduct",
+                "displayName": "UniProt:O60671 RAD1",
+                "icon": "EntityWithAccessionedSequence",
+                "url": "http://purl.uniprot.org/uniprot/O60671"
+              }
+            ]
+          },
+          {
+            "peDbId": 5683808,
+            "displayName": "DNA DNA DSBs:p-MRN:p-S1981,Ac-K3016-ATM:KAT5:K63PolyUb-K14,K16,p-S139-H2AFX,Me2K21-HIST1H4A-Nucleosome:p-5T-MDC1:p-S102-WHSC1:RNF8:Zn2+:SUMO1:p-T4827-HERC2:UBE2N:UBE2V2:RNF168:PIAS4:p-S25,S1778-TP53BP1:p-5S,2T-BRCA1-A complex [nucleoplasm]",
+            "schemaClass": "Complex",
+            "refEntities": [
+              {
+                "dbId": 355449,
+                "stId": "uniprot:P62805",
+                "identifier": "P62805",
+                "schemaClass": "ReferenceGeneProduct",
+                "displayName": "UniProt:P62805 H4C1",
+                "icon": "EntityWithAccessionedSequence",
+                "url": "http://purl.uniprot.org/uniprot/P62805"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

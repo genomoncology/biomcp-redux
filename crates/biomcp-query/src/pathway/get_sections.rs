@@ -40,13 +40,16 @@ pub(super) fn attach(
                 q.pool()
             },
             fresh: cx.fresh || q.fresh(),
-            header: Some(PathwayHeader {
-                id: card.pathway.id.clone(),
-                name: card.pathway.name.clone(),
-                species: card.pathway.species,
-                version: card.pathway.version.clone(),
-                revision: card.pathway.revision.clone(),
-            }),
+            card: Some((
+                PathwayHeader {
+                    id: card.pathway.id.clone(),
+                    name: card.pathway.name.clone(),
+                    species: card.pathway.species,
+                    version: card.pathway.version.clone(),
+                    revision: card.pathway.revision.clone(),
+                },
+                card.release.clone(),
+            )),
         };
         let result = relation::read(cx, selected, deadline);
         let reason = result

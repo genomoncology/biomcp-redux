@@ -1,8 +1,7 @@
 use super::{PathwayId, PathwaySection, QueryInvalid, Text, default_limit, native_id, reactome};
 use serde::{Deserialize, Serialize};
-#[doc = " Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, \
-    Reactome events or bounded all sections. Membership names a source and release; it \
-    implies no therapy, response or actionability. No enrichment is calculated."]
+#[doc = " Get a human Reactome R-HSA or WikiPathways WP card, summary, genes, Reactome events or bounded all sections. Reactome genes includes database \
+    release and pre-page HGNC counts. Membership implies no therapy, response or actionability. No enrichment is calculated."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

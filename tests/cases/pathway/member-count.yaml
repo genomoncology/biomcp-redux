@@ -1,0 +1,33 @@
+feature: pathway-reactome
+story: Reactome membership reports the database release and distinct mapped human genes across the whole reference list in either reply form.
+verified: The synthetic participant list reuses pathway/gene-products source recordings and adds one test isoform. Two references map to CHEK1, one maps to RAD1, a histone accession matches several genes, and a ChEBI molecule is outside the gene count.
+replay: pathway/member-count
+steps:
+- run: [pathway, genes, R-HSA-5693607, --limit, '2']
+  expect:
+    /status: complete
+    /result/release: '98'
+    /result/header/version: R-HSA-5693607.4
+    /result/total: 5
+    /result/page/total_kind: distinct-references
+    /result/page/returned: 2
+    /result/gene_count: {equals: {scope: hgnc-gene-products, distinct: 2, unmapped: 1}}
+- follow: page
+  expect:
+    /result/release: '98'
+    /result/total: 5
+    /result/page/offset: 2
+    /result/gene_count: {equals: {scope: hgnc-gene-products, distinct: 2, unmapped: 1}}
+- run: [get, pathway, R-HSA-5693607, genes, --section-limit, '2', --fresh]
+  expect:
+    /status: complete
+    /result/release: '98'
+    /result/genes/data/release: '98'
+    /result/genes/data/total: 5
+    /result/genes/data/page/returned: 2
+    /result/genes/data/gene_count: {equals: {scope: hgnc-gene-products, distinct: 2, unmapped: 1}}
+- run: [pathway, genes, R-HSA-5693607, --gene-products, --limit, '2']
+  expect:
+    /result/total: 4
+    /result/left_out/rows: 1
+    /result/gene_count: {equals: {scope: hgnc-gene-products, distinct: 2, unmapped: 1}}

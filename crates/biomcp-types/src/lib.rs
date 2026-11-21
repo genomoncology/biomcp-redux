@@ -269,8 +269,9 @@ pub use query::{
 };
 
 pub use response::{
-    PathwayCard, PathwayEvents, PathwayGenes, PathwayHeader, PathwayLeftOut, PathwayNamespaceCount,
-    PathwayPage, PathwayPageInfo, PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
+    PathwayCard, PathwayEvents, PathwayGeneCount, PathwayGeneCountScope, PathwayGenes,
+    PathwayHeader, PathwayLeftOut, PathwayNamespaceCount, PathwayPage, PathwayPageInfo,
+    PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
 };
 
 mod protein;

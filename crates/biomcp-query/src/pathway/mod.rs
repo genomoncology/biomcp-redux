@@ -6,6 +6,7 @@ mod gpml_membership;
 mod gpml_relation;
 mod membership;
 mod next;
+mod reactome_relation;
 mod relation;
 mod relation_steps;
 mod search;
