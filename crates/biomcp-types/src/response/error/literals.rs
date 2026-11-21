@@ -41,7 +41,7 @@ singleton! {
 }
 
 singleton! {
-    ErrorSchema { V2 => "biomcp.error/4" }
+    pub(super) ErrorSchema { V2 => "biomcp.error/4" }
 }
 
 pub(super) use singleton;
