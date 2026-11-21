@@ -179,7 +179,7 @@ fn entity(
 fn entity_description(
     tool: &super::catalog::front_map::EntityTool,
     actions: &[(&str, &str, &Command)],
-    excluded: &BTreeSet<Source>,
+    excluded: &BTreeSet<biomcp_types::Source>,
 ) -> String {
     let sources = actions
         .iter()
