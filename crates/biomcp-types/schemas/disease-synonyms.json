@@ -279,7 +279,7 @@
           "description": "Native sex code."
         },
         "source": {
-          "$ref": "#/$defs/Reply_DiseaseSource",
+          "$ref": "#/$defs/Reply_SharedDiseaseSource",
           "description": "Default MyDisease, or both sources for gene validity."
         },
         "submitter": {
@@ -329,19 +329,6 @@
         " Orphanet prevalence, onset and inheritance.",
         " ClinGen and GenCC curations. Filters ignore case."
       ]
-    },
-    "Reply_DiseaseSource": {
-      "description": "An explicit disease source without fallback.",
-      "enum": [
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer",
-        "orphadata",
-        "clingen",
-        "gencc"
-      ],
-      "type": "string"
     },
     "Reply_DiseaseSynonym": {
       "description": "A publisher synonym with its scope and language.",
@@ -675,6 +662,19 @@
         "no-join-id",
         "not-stated"
       ]
+    },
+    "Reply_SharedDiseaseSource": {
+      "description": "An explicit disease source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "orphadata",
+        "clingen",
+        "gencc"
+      ],
+      "type": "string"
     },
     "Reply_Source": {
       "description": "A source of BioMCP data, identified by its canonical short name.",

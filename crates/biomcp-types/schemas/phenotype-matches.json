@@ -472,7 +472,7 @@
           "description": "HP IDs only: hybrid (default) or slower full."
         },
         "source": {
-          "$ref": "#/$defs/Reply_PhenotypeSource",
+          "$ref": "#/$defs/Reply_SharedPhenotypeSource",
           "default": "monarch",
           "description": "Monarch only; HPO search is unsupported."
         },
@@ -498,20 +498,6 @@
       "x-enum-descriptions": [
         " Monarch's default: score only a shortlist prefiltered by Jaccard overlap.",
         " Score every entity in the group; slower."
-      ]
-    },
-    "Reply_PhenotypeSource": {
-      "description": "One independent term publisher.",
-      "enum": [
-        "hpo",
-        "monarch",
-        "ols"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Direct HPO term metadata.",
-        " Monarch term search and associations.",
-        " OLS ancestor lists for HP terms."
       ]
     },
     "Reply_PoolInfo": {
@@ -646,6 +632,20 @@
         "syncing",
         "no-join-id",
         "not-stated"
+      ]
+    },
+    "Reply_SharedPhenotypeSource": {
+      "description": "One independent term publisher.",
+      "enum": [
+        "hpo",
+        "monarch",
+        "ols"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Direct HPO term metadata.",
+        " Monarch term search and associations.",
+        " OLS ancestor lists for HP terms."
       ]
     },
     "Reply_Source": {

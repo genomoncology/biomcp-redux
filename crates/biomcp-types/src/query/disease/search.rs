@@ -9,6 +9,32 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "SearchFields"))]
 pub struct DiseaseSearch(SearchFields);
+
+const SEARCH_SOURCES: [DiseaseSource; 3] =
+    [DiseaseSource::Ols, DiseaseSource::Seer, DiseaseSource::Hpo];
+
+/// The disease search command's source choices.
+#[cfg(feature = "schema")]
+#[derive(Debug)]
+pub struct DiseaseSearchCommand;
+
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for DiseaseSearchCommand {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        DiseaseSearch::schema_name()
+    }
+    fn schema_id() -> std::borrow::Cow<'static, str> {
+        "biomcp.DiseaseSearchCommand".into()
+    }
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        crate::query::command_source::scoped::<DiseaseSearch>(
+            generator,
+            "DiseaseSearchSource",
+            "DiseaseSource",
+            &SEARCH_SOURCES.map(DiseaseSource::as_str),
+        )
+    }
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -84,13 +110,13 @@ impl TryFrom<SearchFields> for DiseaseSearch {
                 }
                 v.ontology.get_or_insert_with(DiseaseOntology::default);
             }
-            DiseaseSource::Seer => {
-                if v.text.as_ref().is_some_and(|t| t.trim().is_empty()) || v.ontology.is_some() {
-                    return Err(QueryInvalid::new(&["source", "text", "ontology"]));
-                }
+            DiseaseSource::Seer
+                if v.text.as_ref().is_some_and(|t| t.trim().is_empty()) || v.ontology.is_some() =>
+            {
+                return Err(QueryInvalid::new(&["source", "text", "ontology"]));
             }
-            DiseaseSource::Hpo => (),
-            _ => return Err(QueryInvalid::new(&["source"])),
+            _ if !SEARCH_SOURCES.contains(&source) => return Err(QueryInvalid::new(&["source"])),
+            _ => (),
         }
         v.source = Some(source);
         Ok(Self(v))

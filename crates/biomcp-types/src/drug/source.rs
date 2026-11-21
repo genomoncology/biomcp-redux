@@ -55,9 +55,9 @@ impl DrugSource {
         Self::FdaWithdrawnApprovals,
         Self::PurpleBook,
     ];
-    /// FDA lists whose rows are available through drug search.
-    pub(super) const fn fda_search_list(self) -> bool {
-        matches!(self, Self::FdaSafetySignals | Self::FdaWithdrawnApprovals)
+    /// Whether the public get command has a form for this source.
+    pub(super) const fn supports_get(self) -> bool {
+        !matches!(self, Self::PurpleBook | Self::FdaSafetySignals | Self::FdaWithdrawnApprovals)
     }
     /// Canonical source spelling, reusing an existing source identity when present.
     pub fn as_str(self) -> &'static str {

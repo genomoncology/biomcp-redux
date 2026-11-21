@@ -50,7 +50,7 @@ impl schemars::JsonSchema for DrugGetCommand {
             .and_then(|p| p.get_mut("source"))
         {
             *source =
-                super::DrugSource::selector_schema(|source| !source.fda_search_list()).to_value();
+                super::DrugSource::selector_schema(super::DrugSource::supports_get).to_value();
             source["description"] = "Omit to infer the source from the section. Identity and mixed sections default to MyChem.".into();
         }
         if let Some(required) = schema.get_mut("required").and_then(|r| r.as_array_mut()) {
