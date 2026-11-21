@@ -268,25 +268,39 @@ pub(super) fn source_flag(
     let index = args
         .iter()
         .position(|word| word.to_str() == Some(spelling))?;
-    let mut args = args.to_vec();
     if spelling == "--source" {
-        let value = args.get(index + 1)?.to_str()?.to_owned();
-        if !crate::help::coverage::command_sources(verb, entity, &schema).contains(&value) {
-            return None;
-        }
-        args.drain(index..index + 2);
-    } else {
-        let name = spelling.strip_prefix("--")?;
-        let selector = schema.pointer("/properties/source")?;
-        let known = super::validation::accepted(&schema, selector)?
+        let (source, args) = source_value(args, index)?;
+        if !crate::help::coverage::command_sources(verb, entity, &schema)
             .iter()
-            .any(|value| value.as_str() == name);
-        if !known || args.iter().any(|word| word.to_str() == Some("--source")) {
+            .any(|name| name == source)
+        {
             return None;
         }
-        args.splice(index..=index, ["--source".into(), OsString::from(name)]);
+        return candidate(root, &args);
     }
+    let name = spelling.strip_prefix("--")?;
+    let selector = schema.pointer("/properties/source")?;
+    let known = super::validation::accepted(&schema, selector)?
+        .iter()
+        .any(|value| value.as_str() == name);
+    if !known || args.iter().any(|word| word.to_str() == Some("--source")) {
+        return None;
+    }
+    let mut args = args.to_vec();
+    args.splice(index..=index, ["--source".into(), OsString::from(name)]);
     candidate(root, &args)
+}
+
+/// The source named by this --source argument, and the remaining argument words.
+pub(super) fn source_value(args: &[OsString], index: usize) -> Option<(&str, Vec<OsString>)> {
+    let flag = args.get(index)?.to_str()?;
+    let (name, width) = match flag.strip_prefix("--source=") {
+        Some(name) => (name, 1),
+        None => (args.get(index + 1)?.to_str()?, 2),
+    };
+    let mut remaining = args.to_vec();
+    remaining.drain(index..index + width);
+    Some((name, remaining))
 }
 
 /// Short flags agents carry from other tools, and the option each stands for here.

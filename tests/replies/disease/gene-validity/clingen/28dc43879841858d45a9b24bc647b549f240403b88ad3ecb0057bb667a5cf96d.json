@@ -1,0 +1,16 @@
+{
+  "method": "GET",
+  "source": "clingen",
+  "url": "https://search.clinicalgenome.org/kb/gene-validity/download",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/csv",
+      "delay_ms": 0,
+      "body": {
+        "kind": "text",
+        "value": "CLINGEN GENE DISEASE VALIDITY CURATIONS\nFILE CREATED: 2024-01-01\nWEBPAGE: https://search.clinicalgenome.org/kb/gene-validity\n+++++++++++\nGENE SYMBOL,GENE ID (HGNC),DISEASE LABEL,DISEASE ID (MONDO),MOI,CLASSIFICATION,CLASSIFICATION DATE,GCEP\nMLH1,HGNC:7127,Fixture disease,MONDO:0019391,AD,Definitive,2024-01-01,Fixture Expert Panel\nMSH2,HGNC:7325,Fixture disease,MONDO:0019391,AR,Limited,2024-01-02,Other Expert Panel\nMSH6,HGNC:7326,Fixture disease,MONDO:0005835,AD,Strong,2024-01-02,Other Expert Panel\n"
+      }
+    }
+  ]
+}

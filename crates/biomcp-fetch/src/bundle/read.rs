@@ -30,13 +30,28 @@ impl Leg<'_> {
 
     /// Find checked rows, synchronizing absent or stale data when policy permits.
     pub fn rows<R: Row>(&self, bundle: &Bundle<R>, find: Find<'_>) -> Result<Vec<R>, RequestError> {
-        self.name_busy(self.read_rows(bundle, find))
+        self.name_busy(
+            self.prepare_rows(bundle)
+                .and_then(|cache| decode(cache.bundle_rows(bundle.name, find, self.budget())?)),
+        )
     }
-    fn read_rows<R: Row>(
+    /// Read rows using the usual refresh policy and return metadata from the selected snapshot.
+    pub fn rows_with_info<R: Row>(
         &self,
         bundle: &Bundle<R>,
         find: Find<'_>,
-    ) -> Result<Vec<R>, RequestError> {
+    ) -> Result<(Vec<R>, BundleInfo), RequestError> {
+        self.name_busy(self.prepare_rows(bundle).and_then(|cache| {
+            let snapshot = cache
+                .stored_bundle(bundle.name, find, self.budget())?
+                .ok_or_else(|| self.failure(biomcp_types::Reason::Syncing, None))?;
+            Ok((decode(snapshot.rows)?, store::info(bundle, &snapshot.meta)))
+        }))
+    }
+    fn prepare_rows<R: Row>(
+        &self,
+        bundle: &Bundle<R>,
+    ) -> Result<&crate::cache::Cache, RequestError> {
         self.bundle_source(bundle)?;
         if self.fetch.cache.is_none() && matches!(self.fetch.mode, Mode::Offline) {
             return Err(self.failure(biomcp_types::Reason::Offline, None).into());
@@ -107,9 +122,7 @@ impl Leg<'_> {
         if offline && !fresh {
             self.past_refresh(old.as_ref().and_then(|meta| meta.retrieved_at));
         }
-        let rows = cache.bundle_rows(bundle.name, find, self.budget())?;
-        let rows = decode(rows)?;
-        Ok(rows)
+        Ok(cache)
     }
     // Live readers share the last complete snapshot. Only an absent snapshot
     // waits for its first publisher, within the existing leg deadline.

@@ -11,6 +11,12 @@ const FIELDS: &str = concat!(
 
 pub(super) fn base_parameters(query: &TrialSearch) -> BTreeMap<String, String> {
     let mut fields = FIELDS.to_owned();
+    if query.arms_for().is_some() {
+        fields.push_str(concat!(
+            ",ArmGroupLabel,ArmGroupType,ArmGroupDescription,ArmGroupInterventionName",
+            ",InterventionArmGroupLabel,InterventionOtherName,DesignPrimaryPurpose"
+        ));
+    }
     if !query.country().is_empty() {
         fields.push_str(",LocationCountry");
     }

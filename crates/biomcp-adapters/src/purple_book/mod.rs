@@ -6,4 +6,4 @@ mod products;
 pub use products::summarize;
 mod read;
 pub use read::SPEC;
-pub use read::{notice, search, sync_file};
+pub use read::{SnapshotSearch, search, sync_file, unavailable_notice};

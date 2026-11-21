@@ -835,6 +835,14 @@
         "plus_clinical"
       ]
     },
+    "Reply_Markdown": {
+      "description": "Nonempty source Markdown retains LF, CR and tab formatting; unsafe controls use visible escapes. The parser additionally rejects whitespace-only values.",
+      "format": "markdown",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
     "Reply_Match": {
       "description": "A source-stated match, preserving the text that matched.",
       "properties": {
@@ -1768,6 +1776,60 @@
       "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
       "type": "string"
     },
+    "Reply_TrialArm": {
+      "description": "Registry arm with source intervention relationships.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Markdown"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original arm description."
+        },
+        "intervention_names": {
+          "description": "Source intervention names, including their native prefixes.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialArmKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native arm type."
+        },
+        "label": {
+          "description": "Exact arm label.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Reply_TrialArmKind": {
+      "description": "Native registry arm group type from the publisher enum metadata.",
+      "type": "string",
+      "x-extensible-enum": [
+        "EXPERIMENTAL",
+        "ACTIVE_COMPARATOR",
+        "PLACEBO_COMPARATOR",
+        "SHAM_COMPARATOR",
+        "NO_INTERVENTION",
+        "OTHER"
+      ]
+    },
     "Reply_TrialConditionResolution": {
       "description": "Exact condition identity used for one trial request, without eligibility inference.",
       "properties": {
@@ -1911,6 +1973,13 @@
           "$ref": "#/$defs/Reply_Capped_Text",
           "description": "Source intervention names."
         },
+        "matched_arms": {
+          "description": "Registry arms linked to the intervention selected with --arms-for.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialArm"
+          },
+          "type": "array"
+        },
         "nct_id": {
           "$ref": "#/$defs/Reply_NctId",
           "description": "Exact registry identity."
@@ -1943,6 +2012,13 @@
             }
           ],
           "description": "Source primary completion date with its qualifier, when present."
+        },
+        "primary_purpose": {
+          "description": "Registry study purpose, when --arms-for is requested and the source provides it.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "sponsor": {
           "anyOf": [
@@ -2153,9 +2229,13 @@
           "minimum": 0,
           "type": "integer"
         },
+        "arms_for": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Arms.\nClinicalTrials.gov only. Exact intervention name or alias, ignoring case."
+        },
         "biomarker_code": {
           "$ref": "#/$defs/Reply_NcitId",
-          "description": "NCI NCIt code.\nExact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility."
+          "description": "NCIt code.\nNCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). Does not establish positivity or eligibility."
         },
         "biomarker_use": {
           "$ref": "#/$defs/Reply_NciBiomarkerUse",
@@ -2171,7 +2251,7 @@
         },
         "condition_id": {
           "$ref": "#/$defs/Reply_Curie",
-          "description": "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma)."
+          "description": "Condition ID.\nMyDisease resolves exact MONDO or DOID CURIEs. NCI also takes codes such as NCIT:C3224 (melanoma)."
         },
         "count_only": {
           "description": "Total.\nSource total only; no returned study rows.",
@@ -2419,7 +2499,7 @@
         },
         "distance": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Radius, mi or km.\nClinicalTrials.gov only: source distance with explicit mi or km units."
+          "description": "Radius.\nClinicalTrials.gov only: supply units (mi or km)."
         },
         "exact_condition": {
           "description": "Exact condition.\nAsk ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
@@ -2443,10 +2523,10 @@
         },
         "id": {
           "$ref": "#/$defs/Reply_NctId",
-          "description": "NCT identifier.\nClinicalTrials.gov only: exact NCT identity in a conjunction with other filters."
+          "description": "NCT ID.\nClinicalTrials.gov only: exact ID, combined with other filters."
         },
         "intervention": {
-          "description": "Treatment terms; OR.\nIntervention alternatives joined with OR; supported by ClinicalTrials.gov.",
+          "description": "Intervention.\nClinicalTrials.gov only: repeat to join alternatives with OR.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
@@ -2463,7 +2543,7 @@
         },
         "lat": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Latitude degrees.\nClinicalTrials.gov only: radius center latitude in degrees."
+          "description": "Latitude.\nClinicalTrials.gov only: radius center latitude in degrees."
         },
         "limit": {
           "default": 10,
@@ -2475,7 +2555,7 @@
         },
         "lon": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Longitude degrees.\nClinicalTrials.gov only: radius center longitude in degrees."
+          "description": "Longitude.\nClinicalTrials.gov only: radius center longitude in degrees."
         },
         "next_page": {
           "$ref": "#/$defs/Reply_Text",

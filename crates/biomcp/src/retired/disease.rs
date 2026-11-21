@@ -1,5 +1,5 @@
 //! Disease migration is fixed guidance, never a source request or query rewrite.
-use biomcp_types::ErrorMessage;
+use biomcp_types::{DiseaseSection, ErrorMessage};
 use std::ffi::OsString;
 const FLAGS: &[(&str, ErrorMessage)] = &[
     ("-q", ErrorMessage::DiseaseText),
@@ -86,21 +86,32 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
             Some(ErrorMessage::DiseaseOntologySelector)
         }
         ["get", "disease", id, rest @ ..] => {
-            let section = section.or_else(|| (!literal).then(|| rest.first().copied()).flatten());
-            if section == Some("genes") && source == Some("opentargets") {
-                return Some(ErrorMessage::DiseaseOpenTargets);
-            }
-            if section == Some("survival") && source != Some("seer") {
-                return Some(ErrorMessage::DiseaseSite);
-            }
-            if let Some(retired) = section.and_then(|s| super::find(SECTIONS, s)) {
-                return Some(retired);
-            }
-            if id.parse::<biodata::Curie>().is_err() && source != Some("seer") {
-                return Some(ErrorMessage::DiseaseName);
-            }
-            option
+            let positional_section = rest.first().copied();
+            let section = section.or(positional_section.filter(|_| !literal));
+            get_message(id, source, section, positional_section).or(option)
         }
         _ => option,
     }
+}
+
+fn get_message(
+    id: &str,
+    source: Option<&str>,
+    section: Option<&str>,
+    positional_section: Option<&str>,
+) -> Option<ErrorMessage> {
+    if section == Some("genes") && source == Some("opentargets") {
+        return Some(ErrorMessage::DiseaseOpenTargets);
+    }
+    if section == Some("survival") && source != Some("seer") {
+        return Some(ErrorMessage::DiseaseSite);
+    }
+    if let Some(retired) = section.and_then(|s| super::find(SECTIONS, s)) {
+        return Some(retired);
+    }
+    let validity = section
+        .or(positional_section)
+        .is_some_and(|word| word.eq_ignore_ascii_case(DiseaseSection::GeneValidity.as_str()));
+    (id.parse::<biodata::Curie>().is_err() && source != Some("seer") && !validity)
+        .then_some(ErrorMessage::DiseaseName)
 }

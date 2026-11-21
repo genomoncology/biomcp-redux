@@ -423,18 +423,20 @@
         "phenotypes",
         "incidence",
         "survival",
-        "prevalence"
+        "prevalence",
+        "gene-validity"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Publisher scoped synonyms.",
+        " Publisher synonyms.",
         " Native cross-references. Use --source ols for publisher-supplied target URLs.",
-        " Native parent relations.",
-        " Native gene association rows.",
-        " Native phenotype association rows.",
-        " Native stage incidence rows.",
-        " Annual survival rows.",
-        " Orphanet prevalence, age of onset and inheritance."
+        " Parent terms.",
+        " Gene associations.",
+        " Phenotype associations.",
+        " Incidence by stage.",
+        " Annual survival.",
+        " Orphanet prevalence, onset and inheritance.",
+        " ClinGen and GenCC curations. Filters ignore case."
       ]
     },
     "DiseaseSource": {
@@ -444,7 +446,9 @@
         "mydisease",
         "monarch",
         "seer",
-        "orphadata"
+        "orphadata",
+        "clingen",
+        "gencc"
       ],
       "type": "string"
     },
@@ -3782,6 +3786,10 @@
           ],
           "description": "Native age-range code."
         },
+        "classification": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact gene validity classification."
+        },
         "command": {
           "const": "get-disease",
           "type": "string"
@@ -3795,11 +3803,11 @@
               "type": "null"
             }
           ],
-          "description": "Requested native dataset selector, not proof of returned membership."
+          "description": "Requested dataset code."
         },
         "id": {
           "$ref": "#/$defs/Text",
-          "description": "Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.",
+          "description": "Disease CURIE, SEER site code or name, or exact curation name.",
           "x-positional": 0
         },
         "interval": {
@@ -3811,11 +3819,11 @@
               "type": "null"
             }
           ],
-          "description": "Survival-only interval code."
+          "description": "Survival interval code."
         },
         "ontology": {
           "$ref": "#/$defs/DiseaseOntology",
-          "description": "One OLS ontology; default the ID's own, else mondo."
+          "description": "OLS ontology. Defaults to the ID’s ontology or MONDO."
         },
         "period": {
           "anyOf": [
@@ -3826,7 +3834,7 @@
               "type": "null"
             }
           ],
-          "description": "Incidence-only native period code."
+          "description": "Incidence period code."
         },
         "race": {
           "anyOf": [
@@ -3848,11 +3856,11 @@
               "type": "null"
             }
           ],
-          "description": "One named section; absent means identity card only.",
+          "description": "Omit for the identity card.",
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.",
+          "description": "Rows per page. Default 5, Monarch genes 2, phenotypes 1.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3860,7 +3868,7 @@
         },
         "section_offset": {
           "default": 0,
-          "description": "Native row offset within the selected section.",
+          "description": "Section row offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -3878,8 +3886,11 @@
         },
         "source": {
           "$ref": "#/$defs/DiseaseSource",
-          "default": "mydisease",
-          "description": "Default MyDisease; no automatic fallback."
+          "description": "Default MyDisease, or both sources for gene validity."
+        },
+        "submitter": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact GenCC submitter or ClinGen panel."
         }
       },
       "required": [
@@ -5077,9 +5088,13 @@
           "minimum": 0,
           "type": "integer"
         },
+        "arms_for": {
+          "$ref": "#/$defs/Text",
+          "description": "Arms.\nClinicalTrials.gov only. Exact intervention name or alias, ignoring case."
+        },
         "biomarker_code": {
           "$ref": "#/$defs/NcitId",
-          "description": "NCI NCIt code.\nExact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility."
+          "description": "NCIt code.\nNCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). Does not establish positivity or eligibility."
         },
         "biomarker_use": {
           "$ref": "#/$defs/NciBiomarkerUse",
@@ -5099,7 +5114,7 @@
         },
         "condition_id": {
           "$ref": "#/$defs/Curie",
-          "description": "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma)."
+          "description": "Condition ID.\nMyDisease resolves exact MONDO or DOID CURIEs. NCI also takes codes such as NCIT:C3224 (melanoma)."
         },
         "count_only": {
           "description": "Total.\nSource total only; no returned study rows.",
@@ -5347,7 +5362,7 @@
         },
         "distance": {
           "$ref": "#/$defs/Text",
-          "description": "Radius, mi or km.\nClinicalTrials.gov only: source distance with explicit mi or km units."
+          "description": "Radius.\nClinicalTrials.gov only: supply units (mi or km)."
         },
         "exact_condition": {
           "description": "Exact condition.\nAsk ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
@@ -5371,10 +5386,10 @@
         },
         "id": {
           "$ref": "#/$defs/NctId",
-          "description": "NCT identifier.\nClinicalTrials.gov only: exact NCT identity in a conjunction with other filters."
+          "description": "NCT ID.\nClinicalTrials.gov only: exact ID, combined with other filters."
         },
         "intervention": {
-          "description": "Treatment terms; OR.\nIntervention alternatives joined with OR; supported by ClinicalTrials.gov.",
+          "description": "Intervention.\nClinicalTrials.gov only: repeat to join alternatives with OR.",
           "items": {
             "$ref": "#/$defs/Text"
           },
@@ -5391,7 +5406,7 @@
         },
         "lat": {
           "$ref": "#/$defs/Text",
-          "description": "Latitude degrees.\nClinicalTrials.gov only: radius center latitude in degrees."
+          "description": "Latitude.\nClinicalTrials.gov only: radius center latitude in degrees."
         },
         "limit": {
           "default": 10,
@@ -5403,7 +5418,7 @@
         },
         "lon": {
           "$ref": "#/$defs/Text",
-          "description": "Longitude degrees.\nClinicalTrials.gov only: radius center longitude in degrees."
+          "description": "Longitude.\nClinicalTrials.gov only: radius center longitude in degrees."
         },
         "next_page": {
           "$ref": "#/$defs/Text",

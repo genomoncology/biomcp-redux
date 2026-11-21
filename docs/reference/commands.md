@@ -1974,28 +1974,32 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --arms-for <arms_for>
+          Arms.
+          ClinicalTrials.gov only. Exact intervention name or alias, ignoring case.
+
       --biomarker-code <biomarker_code>
-          NCI NCIt code.
-          Exact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+          NCIt code.
+          NCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). Does not establish positivity or eligibility.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --biomarker-use <biomarker_use>
           NCI criterion; help search trial
           NCI criterion.
           Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --condition <condition>...
           Disease; NCI needs NCIt.
           Conditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers.
 
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
       --condition-id <condition_id>
-          MONDO/DOID/NCIT:C.
-          Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma).
+          Condition ID.
+          MyDisease resolves exact MONDO or DOID CURIEs. NCI also takes codes such as NCIT:C3224 (melanoma).
 
       --count-only[=<count_only>]
           Total.
@@ -2013,12 +2017,18 @@ Options:
           Criteria text.
           ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment.
 
-      --distance <distance>
-          Radius, mi or km.
-          ClinicalTrials.gov only: source distance with explicit mi or km units.
-
       --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --distance <distance>
+          Radius.
+          ClinicalTrials.gov only: supply units (mi or km).
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -2026,12 +2036,6 @@ Options:
       --exact-condition[=<exact_condition>]
           Exact condition.
           Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
-
-          [default: false]
-          [possible values: true, false]
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -2059,19 +2063,19 @@ Options:
           [possible values: true, false]
 
       --id <id>
-          NCT identifier.
-          ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters.
+          NCT ID.
+          ClinicalTrials.gov only: exact ID, combined with other filters.
 
       --intervention <intervention>...
-          Treatment terms; OR.
-          Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
+          Intervention.
+          ClinicalTrials.gov only: repeat to join alternatives with OR.
 
       --keyword <keyword>...
           Text; OR.
           Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 
       --lat <lat>
-          Latitude degrees.
+          Latitude.
           ClinicalTrials.gov only: radius center latitude in degrees.
 
       --limit <limit>
@@ -2079,7 +2083,7 @@ Options:
           Headers per page; NCI applies its own lower publisher limit.
 
       --lon <lon>
-          Longitude degrees.
+          Longitude.
           ClinicalTrials.gov only: radius center longitude in degrees.
 
       --next-page <next_page>
@@ -2167,22 +2171,24 @@ Paging: --limit and --offset.
 ClinicalTrials.gov only: search the registry acronym field. Value form: string; example: --acronym SURMOUNT.
 - `--age`: Age in years.
 ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer; example: --age 18.
-- `--biomarker-code`: NCI NCIt code.
-Exact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string; example: --biomarker-code C96022.
+- `--arms-for`: Arms.
+ClinicalTrials.gov only. Exact intervention name or alias, ignoring case. Value form: string; example: --arms-for MK-3475.
+- `--biomarker-code`: NCIt code.
+NCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). Does not establish positivity or eligibility. Value form: string; example: --biomarker-code C96022.
 - `--biomarker-use`: NCI criterion.
 Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems. Value form: string; example: --biomarker-use inclusion.
 - `--condition`: Disease; NCI needs NCIt.
 Conditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers. Value form: repeatable values (repeat the flag); example: --condition melanoma.
-- `--condition-id`: MONDO/DOID/NCIT:C.
-Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma). Value form: string; example: --condition-id NCIT:C3224.
+- `--condition-id`: Condition ID.
+MyDisease resolves exact MONDO or DOID CURIEs. NCI also takes codes such as NCIT:C3224 (melanoma). Value form: string; example: --condition-id NCIT:C3224.
 - `--count-only`: Total.
 Source total only; no returned study rows. Value form: boolean; example: --count-only.
 - `--country`: Country label.
 Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter. Value form: repeatable values (repeat the flag); example: --country 'United States'.
 - `--criteria`: Criteria text.
 ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment. Value form: string; example: --criteria 'exact criteria'.
-- `--distance`: Radius, mi or km.
-ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string; example: --distance 50mi.
+- `--distance`: Radius.
+ClinicalTrials.gov only: supply units (mi or km). Value form: string; example: --distance 50mi.
 - `--exact-condition`: Exact condition.
 Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean; example: --exact-condition.
 - `--exact-term`: Exact terms.
@@ -2193,17 +2199,17 @@ Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI match
 ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string; example: --gene BRAF.
 - `--has-results`: Posted results.
 ClinicalTrials.gov only: require posted source results. Each row carries has_results. Value form: boolean; example: --has-results.
-- `--id`: NCT identifier.
-ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters. Value form: string; example: --id NCT05273554.
-- `--intervention`: Treatment terms; OR.
-Intervention alternatives joined with OR; supported by ClinicalTrials.gov. Value form: repeatable values (repeat the flag); example: --intervention pembrolizumab.
+- `--id`: NCT ID.
+ClinicalTrials.gov only: exact ID, combined with other filters. Value form: string; example: --id NCT06952504.
+- `--intervention`: Intervention.
+ClinicalTrials.gov only: repeat to join alternatives with OR. Value form: repeatable values (repeat the flag); example: --intervention pembrolizumab.
 - `--keyword`: Text; OR.
 Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword. Value form: repeatable values (repeat the flag); example: --keyword survival.
-- `--lat`: Latitude degrees.
+- `--lat`: Latitude.
 ClinicalTrials.gov only: radius center latitude in degrees. Value form: string; example: --lat 42.3601.
 - `--limit`: Page size.
 Headers per page; NCI applies its own lower publisher limit. Value form: integer; example: --limit 1.
-- `--lon`: Longitude degrees.
+- `--lon`: Longitude.
 ClinicalTrials.gov only: radius center longitude in degrees. Value form: string; example: --lon -71.0589.
 - `--next-page`: Page token.
 ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string; example: --next-page <next-page> (syntax; replace the placeholder with your retained value).
@@ -2428,7 +2434,7 @@ Commands:
   pgx            PGx card or section. No phenotype, phase or dose is calculated.
   diagnostic     Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
   adverse-event  Exact source report identity and an optional independently paged section.
-  disease        Exact concept or source SEER site with independently paged section.
+  disease        Disease details and sections.
   drug           Retrieve a drug by source ID, brand or generic name, with explicit source-scoped sections.
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
@@ -3304,16 +3310,16 @@ FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. o
 ## biomcp get disease
 
 ```text
-Exact concept or source SEER site with independently paged section.
+Disease details and sections.
 
 Usage: biomcp get disease [OPTIONS] <id> [section]
 
 Arguments:
   <id>
-          Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
+          Disease CURIE, SEER site code or name, or exact curation name.
 
   [section]
-          One named section; absent means identity card only; help get disease
+          Omit for the identity card; help get disease
 
 Options:
       --age-range <age_range>
@@ -3325,18 +3331,17 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --dataset <dataset>
-          Requested source dataset selector, not proof of returned membership.
+      --classification <classification>
+          Exact gene validity classification.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
-      --interval <interval>
-          Survival-only interval code.
+      --dataset <dataset>
+          Requested dataset code.
 
-      --ontology <ontology>
-          One OLS ontology; default the ID's own, else mondo; help get disease
-          One OLS ontology; default the ID's own, else mondo.
+      --interval <interval>
+          Survival interval code.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3344,20 +3349,21 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --ontology <ontology>
+          OLS ontology. Defaults to the ID’s ontology or MONDO; help get disease
+          OLS ontology. Defaults to the ID’s ontology or MONDO.
+
       --period <period>
-          Incidence-only source period code.
+          Incidence period code.
 
       --race <race>
           Source race code.
 
       --section-limit <section_limit>
-          Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
+          Rows per page. Default 5, Monarch genes 2, phenotypes 1.
 
       --section-offset <section_offset>
-          Source row offset within the selected section.
-
-      --sex <sex>
-          Source sex code.
+          Section row offset.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3365,9 +3371,8 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --source <source>
-          Default MyDisease; no automatic fallback; help get disease
-          Default MyDisease; no automatic fallback.
+      --sex <sex>
+          Source sex code.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3375,38 +3380,48 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --source <source>
+          Default MyDisease, or both sources for gene validity; help get disease
+          Default MyDisease, or both sources for gene validity.
+
+      --submitter <submitter>
+          Exact GenCC submitter or ClinGen panel.
+
 ```
 
-Get disease details and source statistics. Sources: monarch, mydisease, ols, orphadata, seer.
+Get disease details and source statistics. Sources: clingen, gencc, monarch, mydisease, ols, orphadata, seer.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--age-range`: Source age-range code. Value form: string; example: --age-range 1.
-- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string; example: --dataset 4.
-- `id`: Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
+- `--classification`: Exact gene validity classification. Value form: string; example: --classification limited.
+- `--dataset`: Requested dataset code. Value form: string; example: --dataset 4.
+- `id`: Disease CURIE, SEER site code or name, or exact curation name.
 Form: get disease ID SECTION; not --id.
-- `--interval`: Survival-only interval code. Value form: string; example: --interval 5.
-- `--ontology`: One OLS ontology; default the ID's own, else mondo. Value form: string; example: --ontology mondo.
-- `--period`: Incidence-only source period code. Value form: string; example: --period 5.
+- `--interval`: Survival interval code. Value form: string; example: --interval 5.
+- `--ontology`: OLS ontology. Defaults to the ID’s ontology or MONDO. Value form: string; example: --ontology mondo.
+- `--period`: Incidence period code. Value form: string; example: --period 5.
 - `--race`: Source race code. Value form: string; example: --race 1.
-- `section`: One named section; absent means identity card only… (full rule with the sections).
+- `section`: Omit for the identity card… (full rule with the sections).
 Form: get disease ID SECTION; not --section.
-- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer; example: --section-limit 1.
-- `--section-offset`: Source row offset within the selected section. Value form: integer; example: --section-offset 1.
+- `--section-limit`: Rows per page. Default 5, Monarch genes 2, phenotypes 1. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Section row offset. Value form: integer; example: --section-offset 1.
 - `--sex`: Source sex code. Value form: string; example: --sex 3.
-- `--source`: Default MyDisease; no automatic fallback. Value form: string; example: --source seer.
+- `--source`: Default MyDisease, or both sources for gene validity. Value form: string; example: --source seer.
+- `--submitter`: Exact GenCC submitter or ClinGen panel. Value form: string; example: --submitter 'Other Expert Panel'.
 
-One named section; absent means identity card only.
+Omit for the identity card.
 
-- `synonyms`: Publisher scoped synonyms.
+- `synonyms`: Publisher synonyms.
 - `xrefs`: Source cross-references. Use --source ols for publisher-supplied target URLs.
-- `hierarchy`: Source parent relations.
-- `genes`: Source gene association rows.
-- `phenotypes`: Source phenotype association rows.
-- `incidence`: Source stage incidence rows.
-- `survival`: Annual survival rows.
-- `prevalence`: Orphanet prevalence, age of onset and inheritance.
+- `hierarchy`: Parent terms.
+- `genes`: Gene associations.
+- `phenotypes`: Phenotype associations.
+- `incidence`: Incidence by stage.
+- `survival`: Annual survival.
+- `prevalence`: Orphanet prevalence, onset and inheritance.
+- `gene-validity`: ClinGen and GenCC curations. Filters ignore case.
 
 ## biomcp get drug
 
