@@ -67,14 +67,14 @@ struct GetFields {
     /// Only with --source drugsfda. Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
-    /// CIViC molecular profile. Selects a profile for this drug's claims. Only with --source civic.
+    /// CIViC profile. Selects a molecular profile for this drug. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
-    /// CIViC collection. Evidence or assertions in the selected profile. Only with --source civic.
+    /// CIViC collection. Evidence or assertions in this profile. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_kind: Option<CivicClaimKind>,
-    /// CIViC cursor. Continue the same drug, profile and claim collection. Only with --source civic.
+    /// CIViC cursor. Continue this drug, profile and collection. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<Text>,
     #[serde(flatten)]
@@ -85,10 +85,10 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
     find: Box<[Text]>,
-    /// Read every version. Read in order up to the limit, instead of halving. Only with section label-history.
+    /// Read every version. In order up to the limit, instead of halving. Only with section label-history.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     every_version: bool,
-    /// Interaction partner. Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.
+    /// Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.
     /// Only with section interactions.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Ddinter)))]
