@@ -1,0 +1,63 @@
+{
+  "feature": "gene-constraint",
+  "story": "Explicit v4.1 selects the published MANE Select metrics for each gene and never substitutes a canonical transcript.",
+  "replay": "gene/constraint/release-selection",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gnomad-constraint-v4.1"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "BCR",
+        "constraint",
+        "--constraint-release",
+        "v4.1",
+        "--fields=loeuf"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "loeuf"
+        ],
+        "/result/items/0/sections/constraint/data": {
+          "version": "v4.1",
+          "transcript": "ENST00000269305",
+          "loeuf": 0.42
+        },
+        "/result/items/1/sections/constraint/data": {
+          "version": "v4.1",
+          "transcript": "ENST00000305877",
+          "loeuf": 0.56
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "--constraint-release",
+        "v4.9"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--constraint-release",
+        "/error/valid_values": [
+          "v4.0",
+          "v4.1"
+        ]
+      }
+    }
+  ]
+}
