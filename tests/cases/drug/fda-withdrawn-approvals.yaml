@@ -1,0 +1,79 @@
+{
+  "feature": "drug-fda-withdrawn-approvals",
+  "story": "The first read returns one FDA row per withdrawn indication with both dates. Drug, indication and date text select those rows.",
+  "replay": "drug/fda-withdrawn-approvals",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "tazemetostat",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "tazemetostat",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "expect": {
+        "/page/total": 2,
+        "/sources/0/source": "fda-withdrawn-approvals",
+        "/result/items/0/drug": "Tazverik (tazemetostat)",
+        "/result/items/0/indication": "Treatment of adults and pediatric patients aged 16 years and older with metastatic or locally advanced epithelioid sarcoma not eligible for complete resection",
+        "/result/items/0/approval_date": "1/23/2020",
+        "/result/items/0/withdrawal_date": "6/22/2026",
+        "/result/items/0/url": "https://www.fda.gov/drugs/cancer-approvals/withdrawn-cancer-accelerated-approvals",
+        "/result/items/0/indication_url": "https://wayback.archive-it.org/7993/20201222063544/https:/www.fda.gov/drugs/resources-information-approved-drugs/fda-approves-tazemetostat-advanced-epithelioid-sarcoma",
+        "/result/items/1/drug": "Tazverik (tazemetostat)",
+        "/result/items/1/indication": "Treatment of adult patients with relapsed or refractory (R/R) follicular lymphoma (FL) whose tumors are positive for an EZH2 mutation as detected by an FDA-approved test and who have received at least 2 prior systemic therapies. Treatment of adult patients with R/R FL who have no satisfactory alternative treatment options",
+        "/result/items/1/approval_date": "6/18/2020",
+        "/result/items/1/withdrawal_date": "6/22/2026",
+        "/result/items/1/url": "https://www.fda.gov/drugs/cancer-approvals/withdrawn-cancer-accelerated-approvals",
+        "/result/items/1/indication_url": "https://wayback.archive-it.org/7993/20201222062826/https:/www.fda.gov/drugs/fda-granted-accelerated-approval-tazemetostat-follicular-lymphoma"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "epithelioid sarcoma",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "epithelioid sarcoma",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/indication": "Treatment of adults and pediatric patients aged 16 years and older with metastatic or locally advanced epithelioid sarcoma not eligible for complete resection"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "2026-06-22",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "2026-06-22",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "expect": {
+        "/page/total": 2,
+        "/result/items/1/indication": "Treatment of adult patients with relapsed or refractory (R/R) follicular lymphoma (FL) whose tumors are positive for an EZH2 mutation as detected by an FDA-approved test and who have received at least 2 prior systemic therapies. Treatment of adult patients with R/R FL who have no satisfactory alternative treatment options"
+      }
+    }
+  ]
+}

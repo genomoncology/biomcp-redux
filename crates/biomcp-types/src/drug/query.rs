@@ -150,7 +150,11 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     if fields.section.contains(&DrugSection::Markets)
         || matches!(
             fields.source,
-            Some(DrugSource::PurpleBook | DrugSource::FdaSafetySignals)
+            Some(
+                DrugSource::PurpleBook
+                    | DrugSource::FdaSafetySignals
+                    | DrugSource::FdaWithdrawnApprovals
+            )
         )
     {
         return Err(QueryInvalid::new(&["section", "source"]));

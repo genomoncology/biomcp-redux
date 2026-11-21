@@ -147,6 +147,8 @@ canonical_enum! {
         FdaDsc => "fda-dsc",
         /// FDA potential safety signals from quarterly reports.
         FdaSafetySignals => "fda-safety-signals",
+        /// FDA cancer indications with withdrawn accelerated approval.
+        FdaWithdrawnApprovals => "fda-withdrawn-approvals",
         /// FDA Purple Book biologic product roster.
         PurpleBook => "purple-book",
         /// Clinical Pharmacogenetics Implementation Consortium.

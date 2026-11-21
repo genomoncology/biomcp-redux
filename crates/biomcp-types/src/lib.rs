@@ -203,10 +203,11 @@ pub use drug::{
     DrugSafetyCommunication, DrugSafetyCommunicationCard, DrugSafetyCommunicationPage,
     DrugSafetyMatch, DrugSafetySignal, DrugSafetySignalPage, DrugSearch, DrugSection,
     DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections, DrugSource, DrugTargets,
-    DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart,
-    LabelApplicationType, LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
-    OPENFDA_LABEL_HEADINGS, PurpleBookDesignationCount, PurpleBookLicense, PurpleBookPresentation,
-    PurpleBookProduct, PurpleBookReference, WhoDateStatus, openfda_label_field,
+    DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugWithdrawal,
+    DrugWithdrawalPage, DrugXrefs, DrugXrefsPart, LabelApplicationType, LabelHistorySection,
+    LabelVersion, LabelVersionMatch, LabelVersionState, OPENFDA_LABEL_HEADINGS,
+    PurpleBookDesignationCount, PurpleBookLicense, PurpleBookPresentation, PurpleBookProduct,
+    PurpleBookReference, WhoDateStatus, openfda_label_field,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};

@@ -142,9 +142,9 @@ fn decode(body: &str, path: &str, quarter: &str) -> Option<Vec<DrugSafetySignal>
     .into_iter()
     .map(|[product, signal, additional_information]| {
         Some(DrugSafetySignal {
-            product: Text::new(&product).ok()?,
-            signal: Text::new(&signal).ok()?,
-            additional_information: additional_information.into(),
+            product: Text::new(&product.text).ok()?,
+            signal: Text::new(&signal.text).ok()?,
+            additional_information: additional_information.text.into(),
             quarter: quarter.clone(),
             url: url.clone(),
         })

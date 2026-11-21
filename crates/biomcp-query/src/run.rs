@@ -92,6 +92,11 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         {
             crate::drug::signals::search(cx, query)
         }
+        Request::SearchDrug(query)
+            if query.source() == biomcp_types::DrugSource::FdaWithdrawnApprovals =>
+        {
+            crate::drug::withdrawals::search(cx, query)
+        }
         Request::SearchDrug(query) => crate::drug::search_with_aliases(cx, query),
         Request::GetDrug(query) => crate::drug::get(cx, query),
         Request::GetWhoMedicine(query) => crate::drug::who::get(cx, query),

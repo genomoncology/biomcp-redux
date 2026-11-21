@@ -126,6 +126,7 @@ mod fda_html;
 /// openFDA PMA publisher policy.
 pub mod fda_pma;
 pub mod fda_signals;
+pub mod fda_withdrawals;
 /// Diagnostic publisher declarations; command dispatch is not yet implemented.
 pub mod gtr;
 /// WHO export publisher policy.

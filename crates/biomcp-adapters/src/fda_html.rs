@@ -1,42 +1,52 @@
 //! Read visible cells from a fixed-column FDA HTML table.
 use crate::fda_dsc::html::{attribute, visible};
 
+/// A cell's visible wording and markup for reading its links.
+pub(crate) struct Cell<'a> {
+    pub text: String,
+    pub html: &'a str,
+}
+
 /// The first table with the expected heading and exact column count.
 pub(crate) fn rows<const N: usize>(
     body: &str,
     accepts: impl Fn([&str; N]) -> bool,
-) -> Option<Vec<[String; N]>> {
+) -> Option<Vec<[Cell<'_>; N]>> {
     for fragment in body.split("<table").skip(1) {
         let (table, _) = fragment.split_once("</table>")?;
         let mut rows = table.split("<tr").skip(1).map(cells::<N>);
         let Some(Some(head)) = rows.next() else {
             continue;
         };
-        if accepts(head.each_ref().map(String::as_str)) {
+        if accepts(head.each_ref().map(|cell| cell.text.as_str())) {
             return rows.collect();
         }
     }
     None
 }
 
-fn cells<const N: usize>(row: &str) -> Option<[String; N]> {
+fn cells<const N: usize>(row: &str) -> Option<[Cell<'_>; N]> {
     let (row, _) = row.split_once("</tr>")?;
     row.match_indices('<')
         .filter_map(|(at, _)| {
             let (tag, content) = row.get(at + 1..)?.split_once('>')?;
-            match tag.split_ascii_whitespace().next()? {
-                "td" => Some(content.split_once("</td>").map(|(value, _)| visible(value))),
-                "th" => Some(content.split_once("</th>").map(|(value, _)| visible(value))),
-                _ => None,
-            }
+            let end = match tag.split_ascii_whitespace().next()? {
+                "td" => "</td>",
+                "th" => "</th>",
+                _ => return None,
+            };
+            Some(content.split_once(end).map(|(html, _)| Cell {
+                text: visible(html),
+                html,
+            }))
         })
         .collect::<Option<Vec<_>>>()?
         .try_into()
         .ok()
 }
 
-/// FDA drug page links paired with their visible labels.
-pub(crate) fn links(body: &str) -> impl Iterator<Item = (&str, String)> {
+/// Page links paired with their visible labels.
+pub(crate) fn anchors(body: &str) -> impl Iterator<Item = (&str, String)> {
     body.split("<a ").skip(1).filter_map(|link| {
         let (tag, content) = link.split_once('>')?;
         let (label, _) = content.split_once("</a>")?;
@@ -45,8 +55,15 @@ pub(crate) fn links(body: &str) -> impl Iterator<Item = (&str, String)> {
                 .split_once('"')
                 .map(|(value, _)| value)
         })?;
+        Some((path, visible(label)))
+    })
+}
+
+/// FDA drug page paths paired with their visible labels.
+pub(crate) fn links(body: &str) -> impl Iterator<Item = (&str, String)> {
+    anchors(body).filter_map(|(path, label)| {
         let path = path.strip_prefix(crate::fda_dsc::SITE).unwrap_or(path);
-        path.starts_with("/drugs/").then(|| (path, visible(label)))
+        path.starts_with("/drugs/").then_some((path, label))
     })
 }
 

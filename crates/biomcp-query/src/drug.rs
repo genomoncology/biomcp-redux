@@ -22,6 +22,7 @@ pub(crate) mod signals;
 pub(crate) mod who;
 mod who_eml;
 mod widen;
+pub(crate) mod withdrawals;
 use crate::{Ctx, Outcome, status};
 /// Search selected-source records, consulting source-stated names only after an empty lookup.
 pub(crate) use aliases::search as search_with_aliases;

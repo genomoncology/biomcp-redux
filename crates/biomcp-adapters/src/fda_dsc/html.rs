@@ -39,7 +39,7 @@ pub(crate) fn attribute<'a>(tag: &'a str, name: &str) -> Option<&'a str> {
 
 /// A full date FDA typed as month, day and four-digit year, separated by `-` or `/`. A
 /// two-digit year or any other form is not read, so no century is guessed.
-pub(super) fn date(text: &str) -> Option<PartialDate> {
+pub(crate) fn date(text: &str) -> Option<PartialDate> {
     let mut parts = text.trim().split(['-', '/']);
     let (month, day, year) = (parts.next()?, parts.next()?, parts.next()?);
     if parts.next().is_some()

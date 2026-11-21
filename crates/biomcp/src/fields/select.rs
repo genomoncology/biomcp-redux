@@ -240,10 +240,11 @@ fn selected(request: &Request) -> Option<(Source, &'static str)> {
             use biomcp_types::{
                 DrugFdaPage, DrugPage, DrugPurpleBookPage, DrugPurpleBookProducts, DrugRecallPage,
                 DrugSafetyCommunicationPage, DrugSafetySignalPage, DrugSource, DrugWhoPage,
-                ResponseBody,
+                DrugWithdrawalPage, ResponseBody,
             };
             let source = query.source();
             let schema = match source {
+                DrugSource::FdaWithdrawnApprovals => DrugWithdrawalPage::SCHEMA,
                 DrugSource::FdaSafetySignals => DrugSafetySignalPage::SCHEMA,
                 DrugSource::FdaDsc => DrugSafetyCommunicationPage::SCHEMA,
                 DrugSource::PurpleBook if query.purple_book_presentations() => {
