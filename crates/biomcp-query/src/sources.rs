@@ -11,6 +11,7 @@ pub use biomcp_adapters::registry::{
 };
 
 pub use biomcp_adapters::decl::{BundleReply, bundles};
+pub use biomcp_adapters::purple_book::sync_file as sync_purple_book;
 pub use biomcp_adapters::{Mapped, Refusal};
 /// Synchronize the adapter declared by a checked catalog selector.
 pub fn sync(fetch: &biomcp_fetch::Fetch, bundle: crate::Bundle) -> BundleReply {

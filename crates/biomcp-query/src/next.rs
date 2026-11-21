@@ -298,6 +298,8 @@ fn bounded_navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         | ReplyData::DiseaseGenes { .. }
         | ReplyData::DiseasePhenotypes { .. }
         | ReplyData::DrugPage { .. }
+        | ReplyData::DrugPurpleBookPage { .. }
+        | ReplyData::DrugPurpleBookProducts { .. }
         | ReplyData::DrugWhoPage { .. }
         | ReplyData::DrugRecallCard { .. }
         | ReplyData::DrugRecallPage { .. }

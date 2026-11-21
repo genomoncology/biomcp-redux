@@ -42,6 +42,12 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
             "key".into(),
             biomcp_query::sources::key_name(*source).into(),
         ]),
+        Action::SyncPurpleBookFile { path } => Ok(vec![
+            "sync".into(),
+            biomcp_query::Bundle::PURPLE_BOOK.name().into(),
+            "--file".into(),
+            path.to_string_lossy().into_owned(),
+        ]),
         Action::Sync { bundle } => Ok(vec!["sync".into(), bundle.name().into()]),
         Action::Run { request, fresh } => {
             let mut args = request_args(request)?;

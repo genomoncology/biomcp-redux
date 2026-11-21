@@ -1,4 +1,10 @@
 //! Source-selected drug contracts; adapters and command dispatch live elsewhere.
+mod purple_book;
+pub use purple_book::{DrugPurpleBookPage, PurpleBookLicense, PurpleBookPresentation};
+mod purple_book_product;
+pub use purple_book_product::{
+    DrugPurpleBookProducts, PurpleBookDesignationCount, PurpleBookProduct, PurpleBookReference,
+};
 mod recall;
 pub use recall::{
     DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage,

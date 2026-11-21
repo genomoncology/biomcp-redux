@@ -1,0 +1,57 @@
+{
+  "feature": "drug-purple-book",
+  "story": "The dated FDA roster preserves separate designations and dates for each presentation of one biosimilar application.",
+  "steps": [
+    {
+      "run": ["help", "sync", "purple-book"],
+      "expect": {
+        "/result/commands/0/command": ["sync", "purple-book"]
+      }
+    },
+    {
+      "run": ["help", "sync", "purple-book", "--unknown-option"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": ["sync", "purple-book", "--file"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--file"
+      }
+    },
+    {
+      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--presentations", "--offline"],
+      "mcp": ["search", "drug", "Enbrel", "--source", "purple-book", "--presentations", "--offline"],
+      "expect": {
+        "/status": "complete",
+        "/result/release_month": "October 2026",
+        "/page/total": 7,
+        "/result/items/4/reference_bla": "BLA103795",
+        "/result/items/4/name": "Eticovo",
+        "/result/items/4/interchangeable": true,
+        "/result/items/4/license_type": "351(k) Interchangeable",
+        "/result/items/4/interchangeability_date": "June 25, 2024",
+        "/result/items/6/name": "Eticovo",
+        "/result/items/6/interchangeable": false,
+        "/result/items/6/license_type": "351(k) Biosimilar",
+        "/result/items/6": {"omits": ["interchangeability_date"]},
+        "/sources/0/source": "purple-book"
+      }
+    },
+    {
+      "run": ["search", "drug", "BLA103795", "--source", "purple-book", "--strength", "50MG/ML", "--device", "Autoinjector", "--offline"],
+      "expect": {
+        "/status": "complete",
+        "/result/release_month": "October 2026",
+        "/page/total": 2,
+        "/result/items/*/name": ["Erelzi Sensoready", "Eticovo"]
+      }
+    }
+  ]
+}
