@@ -31,6 +31,8 @@ pub mod wikipathways;
 pub mod civic;
 
 pub mod clingen;
+mod curation;
+pub use curation::CurationMatches;
 pub mod gencc;
 
 pub mod hpa;

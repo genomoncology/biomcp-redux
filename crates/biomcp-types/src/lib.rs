@@ -323,3 +323,5 @@ pub use response::{
     TrialResultAnalysis, TrialResultCategory, TrialResultClass, TrialResultCount,
     TrialResultDenominator, TrialResultGroup, TrialResultMeasurement, TrialResultRecord,
 };
+
+pub use response::{DiseaseAssertion, DiseaseCuration, DiseaseCurationCoverage, DiseaseValidity};

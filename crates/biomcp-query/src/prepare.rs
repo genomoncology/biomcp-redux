@@ -21,7 +21,10 @@ fn disease_unsupported(action: &Action) -> bool {
         Action::Run {
             request: Request::GetDisease(q),
             ..
-        } => !get_supported(q.source(), q.section(), q.id().as_str()),
+        } => {
+            q.validity_sources().is_none()
+                && !get_supported(q.source(), q.section(), q.id().as_str())
+        }
         _ => false,
     }
 }
@@ -63,19 +66,11 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
             Some(DiseaseSection::Incidence | DiseaseSection::Survival)
         ),
         DiseaseSource::Orphadata => section == Some(DiseaseSection::Prevalence),
+        DiseaseSource::ClinGen | DiseaseSource::Gencc => {
+            section == Some(DiseaseSection::GeneValidity)
+        }
     }
 }
-/// Every disease section, in declaration order.
-const DISEASE_SECTIONS: [DiseaseSection; 8] = [
-    DiseaseSection::Synonyms,
-    DiseaseSection::Xrefs,
-    DiseaseSection::Hierarchy,
-    DiseaseSection::Genes,
-    DiseaseSection::Phenotypes,
-    DiseaseSection::Incidence,
-    DiseaseSection::Survival,
-    DiseaseSection::Prevalence,
-];
 /// A source that serves only named sections, read without one: the sections it serves.
 fn disease_sections(action: &Action) -> Option<UsageError> {
     let Action::Run {
@@ -88,8 +83,9 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
     if q.section().is_some() {
         return None;
     }
-    let values = DISEASE_SECTIONS
-        .into_iter()
+    let values = DiseaseSection::ALL
+        .iter()
+        .copied()
         .filter(|section| get_supported(q.source(), Some(*section), q.id().as_str()))
         .map(|section| section.as_str().parse())
         .collect::<Result<Vec<biodata::Text>, _>>();

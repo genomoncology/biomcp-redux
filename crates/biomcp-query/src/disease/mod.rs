@@ -10,6 +10,7 @@ pub(crate) mod orphadata;
 mod page;
 /// Native SEER site and statistics pages.
 pub(crate) mod seer;
+mod validity;
 use crate::{Ctx, Outcome};
 use biomcp_types::{DiseaseGet, DiseaseSearch, DiseaseSource};
 /// Discover one page from the explicitly selected source.
@@ -21,6 +22,9 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
 }
 /// Read one exact concept or selected source page.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
+    if let Some(sources) = query.validity_sources() {
+        return validity::get(cx, query, sources);
+    }
     match (query.id(), query.source()) {
         (biomcp_types::DiseaseId::Concept(id), DiseaseSource::MyDisease) => {
             mydisease::get(cx, query, id)

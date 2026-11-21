@@ -164,6 +164,9 @@ pub enum KeyKind {
 pub enum Find<'a> {
     /// Case-insensitive complete key.
     Exact(KeyKind, &'a str),
+    /// Find a complete key, or return all rows if the bundle predates this key namespace.
+    /// The caller must check the exact key on returned rows.
+    ExactOrUnindexed(KeyKind, &'a str),
     /// Select several complete keys in one indexed snapshot.
     AnyExact(KeyKind, &'a [&'a str]),
     /// Literal key prefix.
