@@ -207,6 +207,7 @@ fn selected_form(verb: &str, entity: &str, source: &str) -> &'static [&'static s
         ("get", "disease", "orphadata") => &["ORPHA:558", "prevalence"],
         ("get", "disease", "seer") => &["melanoma", "incidence", "--dataset", "4", "--period", "5"],
         ("get", "disease", "monarch") => &["MONDO:0005105", "genes"],
+        ("get", "disease", "clingen" | "gencc") => &["MONDO:0019391", "gene-validity"],
         ("get", "disease", _) => &["MONDO:0005105"],
         ("get", "drug", "fda-dsc") => &["ffffffff-ffff-ffff-ffff-ffffffffffff"],
         ("get", "drug", _) => &["imatinib"],

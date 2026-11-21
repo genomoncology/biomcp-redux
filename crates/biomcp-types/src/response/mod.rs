@@ -164,6 +164,7 @@ mod trial_header;
 pub use trial_header::TrialHeader;
 
 mod disease;
+mod disease_validity;
 pub use disease::{
     DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
     DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseasePrevalence,
@@ -232,4 +233,8 @@ mod trial_flow;
 pub use trial_flow::{
     TrialBaseline, TrialBaselineMeasure, TrialFlowAchievement, TrialFlowDrop, TrialFlowMilestone,
     TrialFlowPeriod, TrialFlowReason, TrialParticipantFlow,
+};
+
+pub use disease_validity::{
+    DiseaseCuration, DiseaseCurationCoverage, DiseaseCurationGene, DiseaseValidity,
 };

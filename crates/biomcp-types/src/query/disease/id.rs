@@ -9,13 +9,15 @@ pub enum DiseaseId {
     Concept(Curie),
     /// Native site code or publisher site name, in caller spelling.
     SeerSite(Text),
+    /// Exact name in a source curation export.
+    CurationName(Text),
 }
 impl DiseaseId {
     /// Unchanged wire spelling.
     pub fn as_str(&self) -> &str {
         match self {
             Self::Concept(id) => id.as_str(),
-            Self::SeerSite(id) => id.as_str(),
+            Self::SeerSite(id) | Self::CurationName(id) => id.as_str(),
         }
     }
 }
