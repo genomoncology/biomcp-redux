@@ -25,6 +25,7 @@ mod map;
 mod page;
 mod raw;
 mod sentence;
+mod subsection;
 mod text_name;
 mod wire;
 use biodata::{DrugId, Text};
@@ -32,6 +33,7 @@ use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, Reque
 /// Exact native headings supported by the label surface.
 pub use biomcp_types::OPENFDA_LABEL_HEADINGS as HEADINGS;
 pub use map::{LabelChoice, LabelHolder, Record};
+pub use page::SubsectionPage;
 use raw::Record as RawRecord;
 /// Name lookups read 50 whole labels per page, and openFDA cannot return fewer fields.
 /// Live pages of 2026-11-12 reach 8.7 MiB for metformin, 10.4 MiB for rosuvastatin and

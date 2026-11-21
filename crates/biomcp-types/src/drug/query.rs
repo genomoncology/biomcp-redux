@@ -43,12 +43,12 @@ struct GetFields {
     /// Section offset. With label-history --every-version, start at this version. Requires a section.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
-    #[doc = "Exact openFDA SPL fields."]
-    /// Separate fields (including tables) with commas for one part per field. Omit or give an absent or unknown field to list available names.
+    /// openFDA SPL fields, comma-separated. Omit to list fields.
+    /// Append :NUMBER or :TITLE for a subsection, e.g. dosage_and_administration:2.1.
     /// warnings_and_precautions reads warnings_and_cautions.
-    /// For drugsfda history, choose boxed_warning, indications_and_usage, contraindications,
+    /// For Drugs@FDA history: boxed_warning, indications_and_usage, contraindications,
     /// warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
-    /// Only with section label or label-history.
+    /// Only with label or label-history.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     label_section: Option<Text>,

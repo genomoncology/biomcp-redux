@@ -1,0 +1,44 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%2211111111-1111-1111-1111-111111111111%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1793329799,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-10-28",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "set_id": "11111111-1111-1111-1111-111111111111",
+              "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "version": "1",
+              "effective_time": "20261120",
+              "openfda": {
+                "brand_name": [
+                  "Example"
+                ]
+              },
+              "dosage_and_administration": [
+                "2 DOSAGE AND ADMINISTRATION See section 2.1 for more information. ( 2.1 ) 2.1 Recommended Dosage Read the instructions.",
+                "2.1.1 Special Cases Read the special instructions. 2.2 Dose Modification Read the adjustment instructions.\n2.3 Special Cases\nRead the notes."
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

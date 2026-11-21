@@ -5,6 +5,7 @@ use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{DrugGet, ReplyBody, Section};
 use biomcp_types::{DrugLabel, DrugLabelText, Request, StepKind};
+use source::SubsectionPage;
 
 /// An omitted limit takes the request schema's largest, 50; the reply budget usually stops sooner.
 fn fragment_limit(query: &DrugGet) -> u32 {
@@ -61,15 +62,52 @@ pub(super) fn select(
         out.body = section_names(query, record, recent_major_changes)?;
         return Ok(());
     };
+    let (field, subsection) = asked
+        .split_once(':')
+        .map_or((asked, None), |(field, subsection)| {
+            (field.trim(), Some(subsection.trim()))
+        });
     // A name openFDA does not use is absent from this label like a field the label lacks.
     let Some(heading) =
-        biomcp_types::openfda_label_field(asked).filter(|heading| record.has_heading(heading))
+        biomcp_types::openfda_label_field(field).filter(|heading| record.has_heading(heading))
     else {
-        out.body = absent_heading(query, record, asked, recent_major_changes)?;
+        out.body = absent_heading(query, record, field, recent_major_changes)?;
         return Ok(());
     };
     let offset = query.section_offset().unwrap_or(0);
-    let label = match record.label(heading, offset, fragment_limit(query), cx.label_bytes)? {
+    let limit = fragment_limit(query);
+    let identity = record.header()?;
+    let (data, subsection_hint) = if let Some(asked) = subsection {
+        match record.label_subsection(heading, asked, offset, limit, cx.label_bytes)? {
+            SubsectionPage::Data(data) => (Some(data), None),
+            SubsectionPage::Missing => (
+                None,
+                Some(format!(
+                    "{} has no subsection {asked:?} in {heading}",
+                    label_name(&identity)
+                )),
+            ),
+            SubsectionPage::Ambiguous(matches) => {
+                let shown = matches
+                    .iter()
+                    .take(2)
+                    .map(String::as_str)
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                let more = if matches.len() > 2 { " and others" } else { "" };
+                (
+                    None,
+                    Some(format!(
+                        "In {}, subsection {asked:?} is ambiguous in {heading}: {shown}{more}",
+                        label_name(&identity)
+                    )),
+                )
+            }
+        }
+    } else {
+        (record.label(heading, offset, limit, cx.label_bytes)?, None)
+    };
+    let label = match data {
         Some(mut data) => {
             data.retrieved = received_date(fetched);
             let returned = data.fragments.len() as u32;
@@ -101,10 +139,19 @@ pub(super) fn select(
             record: None,
         },
     };
+    let hint = if let Some(message) = subsection_hint {
+        Some(
+            message
+                .parse()
+                .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
+        )
+    } else {
+        no_room(&label)?.or(printed_name(field, heading)?)
+    };
     out.body = (DrugLabel {
-        identity: record.header()?,
+        identity,
         recent_major_changes,
-        hint: no_room(&label)?.or(printed_name(asked, heading)?),
+        hint,
         label,
         sections: Box::default(),
     })

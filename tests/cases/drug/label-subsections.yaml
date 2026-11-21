@@ -1,0 +1,131 @@
+{
+  "feature": "drug-label",
+  "live_check": "synthetic",
+  "story": "Numbered label subsections can be selected by number or title, keeping descendants and source positions. Unknown and repeated titles are reported.",
+  "replay": "drug/label-subsections",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "dosage_and_administration:2.1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/source": "openfda-label",
+        "/result/label/data/heading": "2.1 Recommended Dosage",
+        "/result/label/data/text": "2.1 Recommended Dosage Read the instructions.2.1.1 Special Cases Read the special instructions.",
+        "/result/label/data/fragments/0/source_offset": 74,
+        "/result/label/data/fragments/1/source_part": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "dosage_and_administration:dose modification"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/source": "openfda-label",
+        "/result/label/data/heading": "2.2 Dose Modification",
+        "/result/label/data/text": "2.2 Dose Modification Read the adjustment instructions."
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "dosage_and_administration:2.9"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/source": "openfda-label",
+        "/result/label/state": "empty",
+        "/result/hint": {
+          "includes": "has no subsection \"2.9\" in dosage_and_administration"
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "dosage_and_administration:Special Cases"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/source": "openfda-label",
+        "/result/label/state": "empty",
+        "/result/hint": {
+          "includes": "subsection \"Special Cases\" is ambiguous in dosage_and_administration: 2.1.1 Special Cases, 2.3 Special Cases"
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "dosage_and_administration"
+      ],
+      "expect": {
+        "/result/label/data/heading": "dosage_and_administration",
+        "/result/label/data/text": {
+          "includes": "2.3 Special Cases"
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "dosage_and_administration:2.1",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/result/label/data/total": 2,
+        "/result/label/data/remaining": 1,
+        "/result/label/data/text": "2.1 Recommended Dosage Read the instructions."
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/result/label/data/heading": "2.1 Recommended Dosage",
+        "/result/label/data/offset": 1,
+        "/result/label/data/text": "2.1.1 Special Cases Read the special instructions."
+      }
+    }
+  ]
+}
