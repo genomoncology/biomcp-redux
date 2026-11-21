@@ -531,7 +531,7 @@ fn request(
             .or_else(|| words::unknown(verb, entity, &value, explicit))
             .or_else(|| {
                 if (verb, entity) == ("get", "disease") {
-                    disease::unknown_source(command.via, &value, &cause, fields)
+                    disease::source_refusal(command.via, &value, &cause, fields)
                 } else {
                     None
                 }

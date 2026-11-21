@@ -9,17 +9,14 @@ use serde_json::Value;
 const PATH: (&str, &str) = ("get", "disease");
 
 /// Check replacement sources against the same preparation step as the real command.
-pub(super) fn unknown_source(
+pub(super) fn source_refusal(
     via: Rewrite,
     value: &Value,
     cause: &QueryInvalid,
     fields: &[String],
 ) -> Option<ParseInvalid> {
-    if !matches!(cause.arguments(), [name] if name.as_ref() == "source") {
-        return None;
-    }
-    let source = value.get("source")?.as_str()?;
-    if DiseaseSource::try_from(source.to_owned()).is_ok() {
+    let prevalence = cause.message() == Some(ErrorMessage::DiseasePrevalenceSource);
+    if !prevalence && !matches!(cause.arguments(), [name] if name.as_ref() == "source") {
         return None;
     }
     let mut candidate = value.clone();
@@ -35,6 +32,10 @@ pub(super) fn unknown_source(
             Some((biodata::Text::new(source.as_str()).ok()?, request))
         })
         .collect();
+    if choices.is_empty() && prevalence {
+        // An invalid prevalence ID needs the constructor's ID guidance.
+        return None;
+    }
     let corrected = default.as_ref().or(match choices.as_slice() {
         [(_, only)] => Some(only),
         _ => None,
@@ -47,7 +48,8 @@ pub(super) fn unknown_source(
     let valid_values: Vec<_> = choices.into_iter().map(|(source, _)| source).collect();
     let mut arguments = UsageArguments {
         argument: Some("--source".into()),
-        message: (!valid_values.is_empty()).then_some(ErrorMessage::DiseaseGetSource),
+        message: (!valid_values.is_empty())
+            .then_some(cause.message().unwrap_or(ErrorMessage::DiseaseGetSource)),
         valid_values: (!valid_values.is_empty()).then(|| valid_values.into()),
         next: vec![validation::help([PATH.0, PATH.1])],
     };
