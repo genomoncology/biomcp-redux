@@ -1,9 +1,9 @@
 //! Read the ontology, disease annotations and gene links from the same release tag.
-use biodata::{Curie, HpId};
+use biodata::{Curie, HpId, Text};
 use biomcp_fetch::{
     BadReply, Bytes, Destinations, Freshness, Input, Leg, Read, RequestError, SourceSpec,
 };
-use biomcp_types::{HpoDiseaseMatch, HpoGeneLink, Reason, Source, Text};
+use biomcp_types::{HpoDiseaseMatch, HpoGeneLink, Reason, Source};
 use std::collections::{HashMap, HashSet};
 use std::time::Duration;
 
