@@ -3931,7 +3931,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact FDA Purple Book product presentation, ignoring case (e.g. Autoinjector).",
+          "description": "Purple Book device. Match its presentation cell, ignoring case; return presentations.",
           "x-required-component": "purple-book"
         },
         "exact_term": {
@@ -3985,7 +3985,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Native candidate rows per page.",
+          "description": "Rows per page. Purple Book product summaries always return the full roster.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -4014,7 +4014,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native rows to skip.",
+          "description": "Rows to skip. Purple Book applies this only to presentation rows.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -4042,6 +4042,11 @@
           ],
           "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
           "x-required-component": "who-pq"
+        },
+        "presentations": {
+          "description": "Purple Book presentation rows, also selected by --strength or --device.",
+          "type": "boolean",
+          "x-required-component": "purple-book"
         },
         "query": {
           "$ref": "#/$defs/Text",
@@ -4098,7 +4103,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact FDA Purple Book strength cell, ignoring case and spaces.",
+          "description": "Purple Book strength. Match its cell, ignoring case and spaces; return presentations.",
           "x-required-component": "purple-book"
         },
         "therapeutic_area": {

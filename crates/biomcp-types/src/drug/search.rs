@@ -247,16 +247,7 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.sort.is_some() && fields.source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["sort", "source"]));
         }
-        if (fields.presentations || fields.strength.is_some() || fields.device.is_some())
-            && fields.source != DrugSource::PurpleBook
-        {
-            return Err(QueryInvalid::new(&[
-                "presentations",
-                "strength",
-                "device",
-                "source",
-            ]));
-        }
+        validate_purple_book_selection(&fields)?;
         validate_approved(&fields)?;
         let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
         if who_dates && fields.source != DrugSource::WhoPq {
@@ -381,6 +372,19 @@ impl DrugSearch {
             .name_selector
             .unwrap_or(super::DrugNameSelector::Preferred)
     }
+}
+fn validate_purple_book_selection(fields: &SearchFields) -> Result<(), QueryInvalid> {
+    if (fields.presentations || fields.strength.is_some() || fields.device.is_some())
+        && fields.source != DrugSource::PurpleBook
+    {
+        return Err(QueryInvalid::new(&[
+            "presentations",
+            "strength",
+            "device",
+            "source",
+        ]));
+    }
+    Ok(())
 }
 /// The original approval window: Drugs@FDA only, and never ending before it starts.
 fn validate_approved(fields: &SearchFields) -> Result<(), QueryInvalid> {

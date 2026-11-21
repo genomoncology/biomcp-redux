@@ -88,7 +88,7 @@
       ]
     },
     "Reply_DrugSearch": {
-      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference product name or BLA and returns FDA biosimilar presentations.",
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference name or BLA and summarizes biosimilars by product.",
       "properties": {
         "applicant": {
           "anyOf": [
@@ -156,7 +156,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact FDA Purple Book product presentation, ignoring case (e.g. Autoinjector).",
+          "description": "Purple Book device. Match its presentation cell, ignoring case; return presentations.",
           "x-required-component": "purple-book"
         },
         "exact_term": {
@@ -210,7 +210,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Native candidate rows per page.",
+          "description": "Rows per page. Purple Book product summaries always return the full roster.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -239,7 +239,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native rows to skip.",
+          "description": "Rows to skip. Purple Book applies this only to presentation rows.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -267,6 +267,11 @@
           ],
           "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
           "x-required-component": "who-pq"
+        },
+        "presentations": {
+          "description": "Purple Book presentation rows, also selected by --strength or --device.",
+          "type": "boolean",
+          "x-required-component": "purple-book"
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
@@ -323,7 +328,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact FDA Purple Book strength cell, ignoring case and spaces.",
+          "description": "Purple Book strength. Match its cell, ignoring case and spaces; return presentations.",
           "x-required-component": "purple-book"
         },
         "therapeutic_area": {
@@ -554,6 +559,13 @@
     "Reply_PurpleBookPresentation": {
       "description": "One product presentation in a dated FDA Purple Book release.",
       "properties": {
+        "applicant": {
+          "description": "Applicant on this FDA presentation row.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "approval_date": {
           "description": "FDA approval date as printed in the CSV.",
           "type": [
