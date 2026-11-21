@@ -26,7 +26,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &SPEC,
+    spec: &crate::fda_withdrawals::SPEC,
     display: "FDA Withdrawn Cancer Accelerated Approvals",
     discovery_aliases: &["withdrawn oncology accelerated approvals"],
     registry_order: Some(68),

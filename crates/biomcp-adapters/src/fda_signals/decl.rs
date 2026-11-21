@@ -23,7 +23,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &SPEC,
+    spec: &crate::fda_signals::decl::SPEC,
     display: "FDA Potential Safety Signals",
     discovery_aliases: &["FDA quarterly safety signals"],
     registry_order: Some(67),
