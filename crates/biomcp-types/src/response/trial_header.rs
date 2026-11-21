@@ -31,6 +31,7 @@ pub struct TrialHeader {
     pub interventions: crate::Capped<Text>,
     /// Registry arms linked to the intervention selected with --arms-for.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-markdown-nested" = true)))]
     pub matched_arms: Box<[crate::TrialArm]>,
     /// Registry study purpose, when --arms-for is requested and the source provides it.
     #[serde(default, skip_serializing_if = "Option::is_none")]

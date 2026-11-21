@@ -174,9 +174,7 @@ impl View<'_> {
             }
         } else if items.iter().all(Value::is_object)
             && !items.iter().any(nested_records)
-            && !items
-                .iter()
-                .any(|item| contains_markdown(item, item_schema, self.root))
+            && !contains_markdown(item_schema, self.root)
         {
             for item in items {
                 table_notes(item, out);
@@ -481,20 +479,31 @@ fn property<'a>(node: &'a Value, name: &str, root: &'a Value) -> Option<&'a Valu
         .and_then(|properties| properties.get(name))
         .or_else(|| alternatives(node).find_map(|branch| property(branch, name, root)))
 }
-// Only Markdown in the returned values needs block layout.
-fn contains_markdown(value: &Value, node: &Value, root: &Value) -> bool {
-    match value {
-        Value::String(_) => {
-            member(node, "format", root).and_then(Value::as_str) == Some("markdown")
-        }
-        Value::Object(fields) => fields.iter().any(|(key, value)| {
-            property(node, key, root).is_some_and(|child| contains_markdown(value, child, root))
-        }),
-        Value::Array(items) => member(node, "items", root).is_some_and(|child| {
-            items
-                .iter()
-                .any(|value| contains_markdown(value, child, root))
-        }),
-        _ => false,
+fn contains_markdown(node: &Value, root: &Value) -> bool {
+    markdown_in_graph(node, root, &mut Vec::new())
+}
+// Recursive schema definitions describe finite response values. Visit each schema
+// node once so presentation discovery also terminates on recursive definitions.
+fn markdown_in_graph<'a>(node: &'a Value, root: &'a Value, seen: &mut Vec<&'a Value>) -> bool {
+    let node = resolve(node, root);
+    // Present nested arrays of records already select block layout in View::array.
+    if node.get("x-markdown-nested").and_then(Value::as_bool) == Some(true)
+        || seen.iter().any(|previous| std::ptr::eq(*previous, node))
+    {
+        return false;
     }
+    seen.push(node);
+    node.get("format").and_then(Value::as_str) == Some("markdown")
+        || node
+            .get("properties")
+            .and_then(Value::as_object)
+            .is_some_and(|properties| {
+                properties
+                    .values()
+                    .any(|p| markdown_in_graph(p, root, seen))
+            })
+        || node
+            .get("items")
+            .is_some_and(|item| markdown_in_graph(item, root, seen))
+        || alternatives(node).any(|branch| markdown_in_graph(branch, root, seen))
 }

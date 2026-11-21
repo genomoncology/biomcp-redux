@@ -201,7 +201,8 @@
       "items": {
         "$ref": "#/$defs/Reply_TrialArm"
       },
-      "type": "array"
+      "type": "array",
+      "x-markdown-nested": true
     },
     "nct_id": {
       "$ref": "#/$defs/Reply_NctId",
