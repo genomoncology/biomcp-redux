@@ -10,31 +10,17 @@
 //! same word. A font without glyph widths keeps lopdf's space after each `TJ` array.
 use super::cmap::Font;
 use super::fonts::number;
+use super::numbers::{Overlay, PHONE_PREFIX_BYTES, continue_phone, join_phones};
+use super::position::{End, Place, Position};
 use super::state::{Matrix, State};
 use lopdf::Object;
 use std::{collections::BTreeMap, rc::Rc};
 
-/// A gap wider than this share of the font size is a word break: poppler's `pdftotext`
-/// default, and the tenth of an em of lopdf's `TJ` kerning rule.
-const WORD_GAP: f32 = 0.1;
-/// A baseline move wider than this share of the font size starts another line.
-const LINE_GAP: f32 = 0.5;
 /// lopdf's `TJ` kerning rule: an adjustment below this many thousandths of an em is a space.
 const KERNING_SPACE: f32 = -100.0;
 
 /// A content stream's fonts by resource name, with their encodings and glyph widths.
 pub(super) type Fonts<'a> = BTreeMap<Vec<u8>, Rc<Font<'a>>>;
-
-/// Where on the page the last shown glyph ended and the font height there. Without widths
-/// the end is unknown, and `array` keeps lopdf's space after a `TJ` array.
-#[derive(Clone, Copy)]
-struct End {
-    x: f32,
-    y: f32,
-    height: f32,
-    measured: bool,
-    array: bool,
-}
 
 /// Text shown so far and the state that places the next word.
 #[derive(Default)]
@@ -47,20 +33,13 @@ pub(super) struct Reader<'a> {
     line: Matrix,
     matrix: Matrix,
     end: Option<End>,
+    overlay: Overlay,
     /// An `ET` line break waiting to see whether the next text continues the same word.
     pending: bool,
     /// A character map left a shown code unmapped, so lopdf gave U+FFFD for it: text is missing.
     pub(super) unmapped: bool,
     /// A shown Symbol glyph had no known standard character and was kept.
     pub(super) private_symbol: bool,
-}
-
-/// How the next shown text sits against the last: run on, a word gap away, or on another line.
-#[derive(Clone, Copy, PartialEq)]
-enum Place {
-    Joined,
-    Word,
-    Line,
 }
 
 fn float(operands: &[Object], at: usize) -> f32 {
@@ -121,6 +100,8 @@ impl<'a> Reader<'a> {
                     self.state = state;
                 }
             }
+            "Tr" => self.state.invisible = matches!(operands.first(), Some(Object::Integer(3))),
+            "Ts" => self.state.rise = float(operands, 0),
             "Tc" => self.state.char_space = float(operands, 0),
             "Tw" => self.state.word_space = float(operands, 0),
             "Tz" => self.state.scale = float(operands, 0) / 100.0,
@@ -222,16 +203,45 @@ impl<'a> Reader<'a> {
             && shown.contains('\u{fffd}');
         let sound = font.sound;
         let measured = widths.is_some();
-        let place = self.end.map_or(Place::Joined, |end| self.place(end));
-        if std::mem::take(&mut self.pending) {
-            if place != Place::Joined {
-                self.newline();
-            }
-        } else if place != Place::Joined
-            && !ends_blank(&self.text)
-            && !shown.starts_with(char::is_whitespace)
+        let position = Position::new(start, &self.state);
+        let digits_touch = self.text.ends_with(|c: char| c.is_ascii_digit())
+            && shown.starts_with(|c: char| c.is_ascii_digit());
+        let place = self
+            .end
+            .map_or(Place::Joined, |end| position.place(end, digits_touch));
+        let phone_start = self.text.trim_end().len();
+        let phone_wrap = sound
+            && self
+                .unsound
+                .last()
+                .is_none_or(|&(_, end)| end <= phone_start.saturating_sub(PHONE_PREFIX_BYTES))
+            && continue_phone(&self.text[..phone_start], &shown);
+        if phone_wrap {
+            self.pending = false;
+            self.overlay.drop_from(phone_start);
+            self.text.truncate(phone_start);
+            shown.drain(..shown.len() - shown.trim_start().len());
+        } else {
+            self.separate(place, &shown);
+        }
+
+        if sound {
+            join_phones(&mut shown);
+        }
+        if let Some(prior) =
+            self.overlay
+                .assemble(position, &self.state, operands, &mut shown, self.text.len())
         {
-            self.text.push(' ');
+            self.text.replace_range(prior.clone(), "");
+            for (start, end) in self
+                .unsound
+                .iter_mut()
+                .rev()
+                .take_while(|span| span.0 >= prior.end)
+            {
+                *start -= prior.len();
+                *end -= prior.len();
+            }
         }
         let at = self.text.len();
         self.text.push_str(&shown);
@@ -239,51 +249,18 @@ impl<'a> Reader<'a> {
             self.unsound.push((at, self.text.len()));
         }
         self.matrix = start.moved(advance, 0.0);
-        let page = self.matrix.times(self.state.ctm);
-        self.end = Some(End {
-            x: page.e,
-            y: page.f,
-            height: self.height(),
-            measured,
-            array,
-        });
+        self.end = Some(Position::new(self.matrix, &self.state).end(measured, array));
         Ok(())
     }
 
-    /// The font size on the page, measured along the text's vertical axis.
-    fn height(&self) -> f32 {
-        let page = self.matrix.times(self.state.ctm);
-        self.state.size * page.c.hypot(page.d)
-    }
-
-    /// Where the pen now sits against where the last glyph ended.
-    fn place(&self, end: End) -> Place {
-        if !end.measured {
-            return if end.array {
-                Place::Word
-            } else {
-                Place::Joined
-            };
-        }
-        let page = self.matrix.times(self.state.ctm);
-        let height = end.height.max(self.height());
-        let length = page.a.hypot(page.b);
-        let (x, y) = (page.e - end.x, page.f - end.y);
-        let (along_x, along_y) = (page.a / length, page.b / length);
-        let along = x * along_x + y * along_y;
-        let across = (x * along_y - y * along_x).abs();
-        // A degenerate or non-finite matrix places nothing, so keep the words apart.
-        if height <= 0.0
-            || length <= 0.0
-            || !(height.is_finite() && along.is_finite() && across.is_finite())
+    fn separate(&mut self, place: Place, shown: &str) {
+        if std::mem::take(&mut self.pending) && matches!(place, Place::Word | Place::Line) {
+            self.newline();
+        } else if place != Place::Joined
+            && !ends_blank(&self.text)
+            && !shown.starts_with(char::is_whitespace)
         {
-            Place::Word
-        } else if across > LINE_GAP * height {
-            Place::Line
-        } else if along > WORD_GAP * height || along < -height {
-            Place::Word
-        } else {
-            Place::Joined
+            self.text.push(' ');
         }
     }
 }
