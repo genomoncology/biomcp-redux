@@ -8655,6 +8655,9 @@
         "use: help phenotype",
         "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper",
         "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
+        "HPO serves term records. Use Monarch for the diseases section.",
+        "HPO serves term records. Use Monarch for the hierarchy section.",
+        "HPO serves term records. Use Monarch for the genes section.",
         "--group, --metric and --search-mode rank genes or diseases for HP IDs only; give the text as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes",
         "Monarch returns one ranked list of at most 50 rows for a set of HP IDs and has no further pages; drop --offset and raise --limit up to 50",
         "Monarch ranked nothing for this set, which it does when it knows none of the IDs; check each ID with the next steps",
@@ -8746,7 +8749,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged. Ticket 1112, 2026-11-21: add three drug get refusals that explain where label text appears, which Drugs@FDA section supplies approvals, and how to search Purple Book biosimilars. They keep the existing codes and provide corrected calls. The combined target also includes the gene get source refusal reviewed in ticket 1114. Ticket 1117, 2026-11-21: explain that a Reactome stable ID selects the source and offer the checked lookup without --source."
+      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged. Ticket 1112, 2026-11-21: add three drug get refusals that explain where label text appears, which Drugs@FDA section supplies approvals, and how to search Purple Book biosimilars. They keep the existing codes and provide corrected calls. The combined target also includes the gene get source refusal reviewed in ticket 1114. Ticket 1116 adds three phenotype get messages that explain HPO serves term records and point to Monarch for hierarchy, diseases, and genes. Ticket 1117,2026-11-21: explain that a Reactome stable ID selects the source and offer the checked lookup without --source."
     },
     {
       "schemas": [
