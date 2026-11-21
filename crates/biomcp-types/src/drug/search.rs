@@ -60,11 +60,13 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Drug name or text. FDA signals match report text. FDA withdrawals match indications or a withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD).
-    /// Optional for safety communications and with recall, WHO, label or Drugs@FDA applicant filters.
-    /// Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
-    /// Recall aliases match without replacing display names.
-    /// FDA safety communications match titles, linked names and available page text.
+    /// Drug name or text. FDA signals match report text. FDA withdrawals match indications or dates (YYYY, YYYY-MM or YYYY-MM-DD).
+    /// Optional for safety communications or with recall, WHO, label or applicant filters.
+    /// Labels and Drugs@FDA try exact names, then words. Labels also search label text.
+    /// Recall aliases keep display names.
+    /// Safety communications match titles, linked names and text.
+    /// Zero matches does not establish that FDA issued no communication about this drug.
+    /// FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
         default,
@@ -76,10 +78,10 @@ struct SearchFields {
     /// Accepted for one release. Name widening is already automatic where supported.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
-    /// Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
+    /// Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    /// Label name page token. Keep the first page's names and step by reusing the token with unchanged filters.
+    /// Reuse the first page’s name token with unchanged filters.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
     /// Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.
@@ -105,17 +107,16 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     application_type: Box<[LabelApplicationType]>,
-    /// sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.
+    /// Case-insensitive sponsor_name prefix. Matches listed sponsors. A drug name narrows results.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     applicant: Option<Text>,
-    /// Application order. newest uses latest submission status date, which may be for a supplement.
-    /// original-approval reads all matches and sorts by original_approval. Both put recent dates first,
-    /// break ties by application number and put undated rows last. Omit for source order.
+    /// Drugs@FDA order. newest uses the latest submission status date, including supplements.
+    /// original-approval uses original_approval. Recent first, then application number, with undated last. Default: FDA order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     sort: Option<DrugFdaSort>,
-    /// Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.
+    /// Earliest original_approval (inclusive, YYYY, YYYY-MM or YYYY-MM-DD). Counts matches in range.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     approved_from: Option<biodata::PartialDate>,
