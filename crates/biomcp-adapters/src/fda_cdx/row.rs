@@ -100,17 +100,9 @@ fn without_application(part: &str) -> &str {
     name.trim_end_matches([' ', '-', '–', '—'])
 }
 
-/// FDA's original row with its date, each cell's text under one name, and its links by cell.
-pub(super) fn reply(
-    native: super::raw::Native,
-    date: Option<PartialDate>,
-    query: &DiagnosticSearch,
-) -> CompanionDiagnosticRow {
-    let name_match = query
-        .name()
-        .map(|asked| name_match(&native.relation, asked.as_str()))
-        .unwrap_or_default();
-    let matched = [
+/// Each supplied drug filter passed before the search selected this row.
+fn match_basis(query: &DiagnosticSearch) -> Box<[CompanionMatch]> {
+    [
         query
             .drug_application()
             .is_some()
@@ -122,7 +114,20 @@ pub(super) fn reply(
     ]
     .into_iter()
     .flatten()
-    .collect();
+    .collect()
+}
+
+/// FDA's original row with its date, each cell's text under one name, and its links by cell.
+pub(super) fn reply(
+    native: super::raw::Native,
+    date: Option<PartialDate>,
+    query: &DiagnosticSearch,
+) -> CompanionDiagnosticRow {
+    let name_match = query
+        .name()
+        .map(|asked| name_match(&native.relation, asked.as_str()))
+        .unwrap_or_default();
+    let matched = match_basis(query);
     let biomarker = query.biomarker();
     let negated = |cell: &DiagnosticCell| {
         biomarker.is_some_and(|asked| super::biomarker::negated(&cell.text, asked.as_str()))
