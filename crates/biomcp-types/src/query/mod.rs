@@ -11,6 +11,8 @@ pub use article_pdf::ArticlePdf;
 mod article_text;
 pub use article_get::{ArticleGet, ArticleSection, ArticleSectionWord};
 pub use article_text::ArticleText;
+#[cfg(feature = "schema")]
+pub(crate) mod command_source;
 mod commands;
 mod gene;
 pub use commands::{COMMANDS, CommandSpec, Request, Rewrite, command_paths};
@@ -102,3 +104,6 @@ pub use validation::CheckedQuery;
 
 mod biomarker;
 pub use biomarker::{BiomarkerGet, BiomarkerSearch, BiomarkerSource};
+
+#[cfg(feature = "schema")]
+pub use disease::DiseaseSearchCommand;
