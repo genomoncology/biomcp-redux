@@ -1423,7 +1423,8 @@ Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
-          Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
+          Drug name or text. FDA signals match report text. FDA withdrawals match indications or a withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD).
+          Optional for safety communications and with recall, WHO, label or Drugs@FDA applicant filters.
           Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
           Recall aliases match without replacing display names.
           FDA safety communications match titles, linked names and available page text.
@@ -1577,7 +1578,8 @@ Paging: --limit and --offset.
 - `--prequalified-from`: First WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2020; only with --source who-pq.
 - `--prequalified-to`: Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `--presentations`: Return presentation rows, as do --strength and --device. Value form: boolean; example: --presentations; only with --source purple-book.
-- `query`: Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
+- `query`: Drug name or text. FDA signals match report text. FDA withdrawals match indications or a withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD).
+Optional for safety communications and with recall, WHO, label or Drugs@FDA applicant filters.
 Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
 Recall aliases match without replacing display names.
 FDA safety communications match titles, linked names and available page text.

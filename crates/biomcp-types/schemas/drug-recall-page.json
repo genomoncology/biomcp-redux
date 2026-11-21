@@ -364,7 +364,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nFDA safety communications match titles, linked names and available page text.",
+          "description": "Drug name or text. FDA signals match report text. FDA withdrawals match indications or a withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD).\nOptional for safety communications and with recall, WHO, label or Drugs@FDA applicant filters.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nFDA safety communications match titles, linked names and available page text.",
           "x-positional": 0
         },
         "reason": {
