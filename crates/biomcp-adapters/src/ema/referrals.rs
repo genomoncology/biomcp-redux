@@ -6,7 +6,7 @@
 use super::raw;
 use biodata::{AuthorizationDate, Text};
 use biomcp_fetch::{Bundle, Find, Freshness, KeyKind, Leg, RequestError, RowFormat};
-use biomcp_types::{DateRoleLabel, LocalBundleState};
+use biomcp_types::DateRoleLabel;
 use std::marker::PhantomData;
 
 pub(super) const REFERRALS: Bundle<raw::Referral> = Bundle {
@@ -30,8 +30,8 @@ pub(super) struct Decision {
 /// The Commission decision on the referral that is a product's latest procedure.
 ///
 /// The medicines file gives a referral as `REF/0000287477`; the referrals file gives the same
-/// procedure as `EMA/REF/0000287477`. Any other procedure, a referrals file not yet synchronized,
-/// or a reference that is not exactly one referral row yields no decision.
+/// procedure as `EMA/REF/0000287477`. Other procedures and references without exactly one
+/// matching row yield no decision. A missing file follows the ordinary first-read policy.
 pub(super) fn decision(
     leg: &Leg<'_>,
     procedure: Option<&str>,
@@ -40,12 +40,6 @@ pub(super) fn decision(
     let Some(procedure) = procedure.filter(|procedure| procedure.starts_with("REF/")) else {
         return Ok(None);
     };
-    if matches!(
-        leg.stored_bundle_state(&REFERRALS)?,
-        LocalBundleState::Missing
-    ) {
-        return Ok(None);
-    }
     let reference = format!("EMA/{procedure}");
     let (rows, _) = leg.stored_rows(&REFERRALS, Find::Exact(KeyKind::Xref, &reference))?;
     // SQLite indexes fold keys; the join still requires the published reference itself.

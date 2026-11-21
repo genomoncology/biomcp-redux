@@ -1,6 +1,6 @@
 # 1113 — name-the-source-limit-in-gene-search-refusals
 
-Status: OPEN.
+Status: COMPLETE. Built on its own branch and landed inside the 1115 branch (143bfe350), which merged ticket/1113-name-the-source-limit-in-gene-search-refusals whole: tests/cases/gene/search-source-refusals.yaml follows the disease gene-validity suggestion
 
 Milestone: 7
 

@@ -1,15 +1,19 @@
-//! Correct a redundant source flag when an exact get already determines the source.
+//! Explain source flags that a lookup does not accept.
 use biodata::PathwayId;
 use biomcp_types::{ErrorMessage, Request, Rewrite, Source, UsageArguments, UsageError};
 use clap::Command;
 use std::ffi::OsString;
 
-pub(super) fn get(root: &Command, path: &[&str], args: &[OsString]) -> Option<super::ParseInvalid> {
-    match path {
-        ["get", "gene"] => super::sections::gene_source_refusal(root, args),
-        ["get", "pathway"] => pathway(root, args),
-        _ => None,
+pub(super) fn for_command(
+    root: &Command,
+    path: &[&str],
+    spelling: Option<&str>,
+    args: &[OsString],
+) -> Option<super::ParseInvalid> {
+    if path == ["get", "pathway"] && spelling?.split('=').next() == Some("--source") {
+        return pathway(root, args);
     }
+    super::context::gene_source_refusal(root, path, spelling, args)
 }
 
 fn pathway(root: &Command, args: &[OsString]) -> Option<super::ParseInvalid> {

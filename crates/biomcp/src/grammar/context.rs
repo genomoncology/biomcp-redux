@@ -1,9 +1,74 @@
 //! Name the command a parser refusal belongs to, and fix an option given without its value.
+use biomcp_types::{
+    DiseaseSection, ErrorMessage, GeneSection, Rewrite, Source, Step, UsageArguments, UsageError,
+};
 use clap::{
     Command,
     error::{ContextKind, ContextValue, ErrorKind},
 };
 use std::ffi::OsString;
+
+/// A publisher passed as --source can name a gene section or a disease curation lookup.
+pub(super) fn gene_source_refusal(
+    root: &Command,
+    path: &[&str],
+    spelling: Option<&str>,
+    args: &[OsString],
+) -> Option<super::ParseInvalid> {
+    let [verb @ ("get" | "search"), "gene"] = path else {
+        return None;
+    };
+    if spelling?.split('=').next() != Some("--source") {
+        return None;
+    }
+    let index = args
+        .iter()
+        .take_while(|word| *word != "--")
+        .position(|word| {
+            word.to_str().and_then(|word| word.split('=').next()) == Some("--source")
+        })?;
+    let (name, remaining) = super::positional::source_value(args, index)?;
+    let source = name.to_ascii_lowercase().parse::<Source>().ok()?;
+    if *verb == "get" {
+        return super::sections::gene_source_refusal(root, remaining, source);
+    }
+    let section = match source {
+        Source::ClinGen => GeneSection::ClinGen,
+        Source::Gencc => GeneSection::Gencc,
+        _ => return None,
+    };
+    let help = super::validation::help(["get", "gene", section.into()]);
+    let next = disease_curation(root, remaining, source)
+        .into_iter()
+        .chain([help])
+        .collect();
+    Some(super::ParseInvalid {
+        usage: Some(UsageError::Arguments(UsageArguments {
+            argument: Some("--source".into()),
+            message: Some(ErrorMessage::GeneSearchSource),
+            valid_values: None,
+            next,
+        })),
+        ..Default::default()
+    })
+}
+
+fn disease_curation(root: &Command, args: Vec<OsString>, source: Source) -> Option<Step> {
+    let matches = root
+        .clone()
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
+        .ok()?;
+    let matches = matches
+        .subcommand_matches("search")?
+        .subcommand_matches("gene")?;
+    let search = super::request_arguments("search", "gene", matches).ok()?;
+    let name = search.get("query")?.as_str()?;
+    super::recovery::checked(
+        Rewrite::Direct,
+        ("get", "disease"),
+        serde_json::json!({"id": name, "section": DiseaseSection::GeneValidity, "source": source}),
+    )
+}
 
 /// The refused command and its path. The parser's usage context names it, including when
 /// parsing stopped before matches could be returned. An option given without its value
