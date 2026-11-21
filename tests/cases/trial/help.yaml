@@ -5,6 +5,7 @@
     {
       "expect": {
         "/result/commands/0/arguments/*/name": [
+          "--acronym",
           "--age",
           "--biomarker-code",
           "--biomarker-use",
@@ -26,6 +27,7 @@
           "--limit",
           "--lon",
           "--next-page",
+          "--official-title",
           "--offset",
           "--phase",
           "query",

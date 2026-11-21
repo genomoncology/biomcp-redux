@@ -119,6 +119,7 @@ fn transport_table(name: &str) -> bool {
             | "reply_bytes"
             | "bundle"
             | "bundle_sync"
+            | "bundle_first_read"
             | "bundle_row"
             | "bundle_key"
             | "bundle_content"

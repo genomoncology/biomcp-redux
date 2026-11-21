@@ -1,0 +1,30 @@
+{
+  "feature": "drug-label-history",
+  "story": "SUPPL 61 matches during the search for readable labels. The damaged older labels leave the first date open.",
+  "live_check": "synthetic",
+  "replay": "drug/label-history-plague",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA020634",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "indications_and_usage",
+        "--find",
+        "plague"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/first/submission": "SUPPL 61",
+        "/result/first/state": "match",
+        "/result/on_or_before": true,
+        "/result/answer": "Text in indications_and_usage on or before SUPPL 61, approved 2012-01-01. Older labels remain unchecked."
+      }
+    }
+  ],
+  "verified": "Synthetic application history and PDFs. The dates and label text are test data."
+}

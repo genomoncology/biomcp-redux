@@ -24,7 +24,7 @@ pub(super) fn fallback(
     queries: &[DrugGet],
     application: &DrugId,
     problems: &mut Vec<biomcp_types::Problem>,
-) -> Option<Vec<Outcome>> {
+) -> Option<(Vec<Outcome>, bool)> {
     let resolved = queries
         .iter()
         .map(|query| {
@@ -37,16 +37,14 @@ pub(super) fn fallback(
         .collect::<Option<Vec<_>>>()?;
     let found = get_parts(cx, &resolved);
     let application = application.to_string();
-    found
-        .iter()
-        .all(|out| match &out.body {
-            // An application can have several labels. Keep the choice page and its follow-up calls.
-            ReplyData::DrugPage { .. }
-            | ReplyData::DrugCard { body: None, .. }
-            | ReplyData::DrugLabel { body: None, .. } => true,
-            _ => verified_label(out, &application),
-        })
-        .then_some(found)
+    let verified = found.iter().all(|out| match &out.body {
+        // An application can have several labels. Keep the choice page and its follow-up calls.
+        ReplyData::DrugPage { .. }
+        | ReplyData::DrugCard { body: None, .. }
+        | ReplyData::DrugLabel { body: None, .. } => true,
+        _ => verified_label(out, &application),
+    });
+    Some((found, verified))
 }
 
 /// Check the identity returned by the SPL read, independently of the search result.

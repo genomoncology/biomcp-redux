@@ -94,29 +94,8 @@ fn name_parameters(
         }
     }
     filters::name_parameters(query, broader_names, &mut p);
-    let mut text = Vec::new();
-    if let Some(value) = query.query() {
-        text.push(value.as_str().to_owned());
-    }
-    if let Some(value) = query.variant() {
-        text.push(value.as_str().to_owned());
-    }
-    if let Some(value) = gene {
-        text.push(value.to_owned());
-    }
-    if !query.keyword().is_empty() {
-        let keywords = if text.is_empty() {
-            alternatives(query.keyword())
-        } else {
-            for value in &mut text {
-                *value = format!("({value})");
-            }
-            format!("({})", alternatives(query.keyword()))
-        };
-        text.push(keywords);
-    }
-    if !text.is_empty() {
-        p.insert("query.term".into(), text.join(" AND "));
+    if let Some(term) = filters::search_term(query, gene) {
+        p.insert("query.term".into(), term);
     }
     if let Some(status) = query.status() {
         p.insert("filter.overallStatus".into(), status.as_str().to_owned());
@@ -284,7 +263,7 @@ fn alternatives(values: &[Text]) -> String {
 }
 
 mod search_query;
-pub use search_query::{name_fits, search_query};
+pub use search_query::{name_fits, search_query, text_search_notice};
 mod site_count;
 pub use site_count::site_count;
 mod skip;

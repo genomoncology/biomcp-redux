@@ -1,0 +1,614 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA020634%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1795149444,
+      "status": 200,
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "content_type": "application/json",
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-18",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "application_number": "NDA020634",
+              "products": [
+                {
+                  "product_number": "001",
+                  "brand_name": "TEST"
+                }
+              ],
+              "submissions": [
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "59",
+                  "submission_status": "AP",
+                  "submission_status_date": "20110609",
+                  "application_docs": [
+                    {
+                      "id": "35015",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2011/020634s059,020635s065,021721s026lbl.pdf",
+                      "date": "20110614",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "73",
+                  "submission_status": "AP",
+                  "submission_status_date": "20200622",
+                  "application_docs": [
+                    {
+                      "id": "63783",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/020634s073lbl.pdf",
+                      "date": "20200702",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "12",
+                  "submission_status": "AP",
+                  "submission_status_date": "20000908",
+                  "application_docs": [
+                    {
+                      "id": "12876",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2000/20634S13lbl.pdf",
+                      "date": "20000908",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "65",
+                  "submission_status": "AP",
+                  "submission_status_date": "20130814",
+                  "application_docs": [
+                    {
+                      "id": "12889",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2013/020634s065,020635s071,021721s032lbl.pdf",
+                      "date": "20130815",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "71",
+                  "submission_status": "AP",
+                  "submission_status_date": "20190628",
+                  "application_docs": [
+                    {
+                      "id": "59224",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/020634s071lbl.pdf",
+                      "date": "20190702",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "49",
+                  "submission_status": "AP",
+                  "submission_status_date": "20071116",
+                  "application_docs": [
+                    {
+                      "id": "12883",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s049,020635s053,021721s017lbl.pdf",
+                      "date": "20071119",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "61",
+                  "submission_status": "AP",
+                  "submission_status_date": "20120427",
+                  "application_docs": [
+                    {
+                      "id": "35016",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2012/020634s061,020635s067,021721s028lbl.pdf",
+                      "date": "20120430",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "39",
+                  "submission_status": "AP",
+                  "submission_status_date": "20060120",
+                  "application_docs": [
+                    {
+                      "id": "35009",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2006/020634s039,020635s042,021721s006lbl.pdf",
+                      "date": "20060127",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "53",
+                  "submission_status": "AP",
+                  "submission_status_date": "20090427",
+                  "application_docs": [
+                    {
+                      "id": "35014",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2009/020634s053,020635s058, 021721s021lbl.pdf",
+                      "date": "20090511",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "45",
+                  "submission_status": "AP",
+                  "submission_status_date": "20070619",
+                  "application_docs": [
+                    {
+                      "id": "12882",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s045,020635s048,021721s031lbl.pdf",
+                      "date": "20070627",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "37",
+                  "submission_status": "AP",
+                  "submission_status_date": "20050804",
+                  "application_docs": [
+                    {
+                      "id": "35008",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2005/020634s037,020635s038,021721s002lbl.pdf",
+                      "date": "20050808",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "51",
+                  "submission_status": "AP",
+                  "submission_status_date": "20080416",
+                  "application_docs": [
+                    {
+                      "id": "12885",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2008/020634s051,020635s055,021721s019lbl.pdf",
+                      "date": "20080605",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "29",
+                  "submission_status": "AP",
+                  "submission_status_date": "20040305",
+                  "application_docs": [
+                    {
+                      "id": "35003",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20634slr029,20635slr029_levaquin_lbl.pdf",
+                      "date": "20040405",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "43",
+                  "submission_status": "AP",
+                  "submission_status_date": "20070911",
+                  "application_docs": [
+                    {
+                      "id": "12881",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s043,020635s046,021721s011lbl.pdf",
+                      "date": "20070919",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "35",
+                  "submission_status": "AP",
+                  "submission_status_date": "20041124",
+                  "application_docs": [
+                    {
+                      "id": "35006",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20634s035,20635s035,21721s003lbl.pdf",
+                      "date": "20041203",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "27",
+                  "submission_status": "AP",
+                  "submission_status_date": "20030523",
+                  "application_docs": [
+                    {
+                      "id": "35002",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2003/20634se1-027,20635se1-026_levaquin_lbl.pdf",
+                      "date": "20030608",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "41",
+                  "submission_status": "AP",
+                  "submission_status_date": "20070914",
+                  "application_docs": [
+                    {
+                      "id": "12879",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s041,020635s044,021721s009lbl.pdf",
+                      "date": "20070919",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "33",
+                  "submission_status": "AP",
+                  "submission_status_date": "20040914",
+                  "application_docs": [
+                    {
+                      "id": "35005",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20634s033,034,20635s033,034lbl.pdf",
+                      "date": "20040915",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "4",
+                  "submission_status": "AP",
+                  "submission_status_date": "19981217",
+                  "application_docs": [
+                    {
+                      "id": "34998",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/98/020634s04_prntlbl_P1.pdf",
+                      "date": "20040608",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "15",
+                  "submission_status": "AP",
+                  "submission_status_date": "20011218",
+                  "application_docs": [
+                    {
+                      "id": "35000",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2001/20634s15s21s22lbl.pdf",
+                      "date": "20011218",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "68",
+                  "submission_status": "AP",
+                  "submission_status_date": "20170208",
+                  "application_docs": [
+                    {
+                      "id": "47163",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/020634s068,020635s074,021721s035lbl.pdf",
+                      "date": "20170210",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "21",
+                  "submission_status": "AP",
+                  "submission_status_date": "20011218",
+                  "application_docs": [
+                    {
+                      "id": "35001",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2001/20634s15s21s22lbl.pdf",
+                      "date": "20011218",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "13",
+                  "submission_status": "AP",
+                  "submission_status_date": "20000908",
+                  "application_docs": [
+                    {
+                      "id": "34999",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2000/20634S13lbl.pdf",
+                      "date": "20000908",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "66",
+                  "submission_status": "AP",
+                  "submission_status_date": "20140523",
+                  "application_docs": [
+                    {
+                      "id": "35017",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2014/020634s066,020635s072,021721s033lbl.pdf",
+                      "date": "20140528",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "58",
+                  "submission_status": "AP",
+                  "submission_status_date": "20110225",
+                  "application_docs": [
+                    {
+                      "id": "12886",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2011/020634s058,020635s064,021721s025lbl.pdf",
+                      "date": "20110304",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "72",
+                  "submission_status": "AP",
+                  "submission_status_date": "20190503",
+                  "application_docs": [
+                    {
+                      "id": "58632",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/020634s072lbl.pdf",
+                      "date": "20190508",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "64",
+                  "submission_status": "AP",
+                  "submission_status_date": "20111011",
+                  "application_docs": [
+                    {
+                      "id": "12888",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2011/020634s062s064,020635s068s070,021721s029s031lbl.pdf",
+                      "date": "20111012",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "70",
+                  "submission_status": "AP",
+                  "submission_status_date": "20181018",
+                  "application_docs": [
+                    {
+                      "id": "56030",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/020634s070lbl.pdf",
+                      "date": "20181019",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "48",
+                  "submission_status": "AP",
+                  "submission_status_date": "20071115",
+                  "application_docs": [
+                    {
+                      "id": "35012",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s048,020635s052,021721s016lbl.pdf",
+                      "date": "20071119",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "62",
+                  "submission_status": "AP",
+                  "submission_status_date": "20111011",
+                  "application_docs": [
+                    {
+                      "id": "12887",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2011/020634s062s064,020635s068s070,021721s029s031lbl.pdf",
+                      "date": "20111012",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "52",
+                  "submission_status": "AP",
+                  "submission_status_date": "20081003",
+                  "application_docs": [
+                    {
+                      "id": "35013",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2008/021721s020_020635s57_020634s52_lbl.pdf",
+                      "date": "20081008",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "44",
+                  "submission_status": "AP",
+                  "submission_status_date": "20070510",
+                  "application_docs": [
+                    {
+                      "id": "35011",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s044,020635s047,021721s012lbl.pdf",
+                      "date": "20070516",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "36",
+                  "submission_status": "AP",
+                  "submission_status_date": "20041104",
+                  "application_docs": [
+                    {
+                      "id": "35007",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20635s037,20634s036lbl.pdf",
+                      "date": "20041108",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "50",
+                  "submission_status": "AP",
+                  "submission_status_date": "20071213",
+                  "application_docs": [
+                    {
+                      "id": "12884",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s050,020635s054,021721s018lbl.pdf",
+                      "date": "20071214",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "42",
+                  "submission_status": "AP",
+                  "submission_status_date": "20070531",
+                  "application_docs": [
+                    {
+                      "id": "12880",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/020634s042,020635s045,021721s010lbl.pdf",
+                      "date": "20070604",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "34",
+                  "submission_status": "AP",
+                  "submission_status_date": "20040914",
+                  "application_docs": [
+                    {
+                      "id": "12878",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20634s033,034,20635s033,034lbl.pdf",
+                      "date": "20040915",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "40",
+                  "submission_status": "AP",
+                  "submission_status_date": "20060623",
+                  "application_docs": [
+                    {
+                      "id": "35010",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2006/020634s040,020635s043,021721s007lbl.pdf",
+                      "date": "20060628",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "30",
+                  "submission_status": "AP",
+                  "submission_status_date": "20040714",
+                  "application_docs": [
+                    {
+                      "id": "35004",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20634s030,20635s030lbl.pdf",
+                      "date": "20040721",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "69",
+                  "submission_status": "AP",
+                  "submission_status_date": "20180702",
+                  "application_docs": [
+                    {
+                      "id": "54740",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/020634s069lbl.pdf",
+                      "date": "20180703",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "22",
+                  "submission_status": "AP",
+                  "submission_status_date": "20011218",
+                  "application_docs": [
+                    {
+                      "id": "12877",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2001/20634s15s21s22lbl.pdf",
+                      "date": "20011218",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "67",
+                  "submission_status": "AP",
+                  "submission_status_date": "20160726",
+                  "application_docs": [
+                    {
+                      "id": "12890",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2016/020634s067,020635s073,021721s034lbl.pdf",
+                      "date": "20160726",
+                      "type": "Label"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

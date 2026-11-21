@@ -181,6 +181,34 @@
           "use_in_specific_populations"
         ]
       }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA022363",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "warnings_and_cautions",
+        "--find",
+        "myasthenia",
+        "--every-version",
+        "--limit",
+        "2"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--section-limit",
+        "/error/message": "error.option is not accepted with the other options as given; valid_values names every option involved",
+        "/error/valid_values": [
+          "--section-limit",
+          "section"
+        ]
+      }
     }
   ]
 }

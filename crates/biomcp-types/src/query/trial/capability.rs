@@ -6,6 +6,10 @@ biodata::wire_enum! {
     TrialFilter {
         /// Registry general text.
         Text => "TEXT",
+        /// Registry acronym search.
+        Acronym => "--acronym",
+        /// Registry official title search.
+        OfficialTitle => "--official-title",
         /// Registry gene discovery.
         Gene => "--gene",
         /// Registry variant discovery.
@@ -68,6 +72,8 @@ impl TrialSearch {
         use TrialFilter as F;
         [
             (self.query().is_some(), F::Text),
+            (self.acronym().is_some(), F::Acronym),
+            (self.official_title().is_some(), F::OfficialTitle),
             (self.keyword().len() > 1, F::Keyword),
             (self.gene().is_some(), F::Gene),
             (self.variant().is_some(), F::Variant),

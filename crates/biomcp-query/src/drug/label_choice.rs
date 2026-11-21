@@ -1,5 +1,5 @@
 //! Choose one label when several share a drug name, and say which and why.
-use super::resolve::{NativePage, Rank, within};
+use super::resolve::{Rank, within};
 use crate::{Ctx, Outcome, status};
 use biodata::{DrugId, Text};
 use biomcp_adapters::openfda_label::{self as source, LabelHolder, Record};
@@ -17,7 +17,7 @@ pub(super) const RANKING: &str = "exact brand before generic, unless a matching 
 /// repackager's copy, then more numbered indications; the source's newest-first order breaks
 /// ties. A label whose generic name matches ranks as generic even when its brand name matches
 /// too; `generic_name` then settles every label's match.
-fn rank(matched: DrugNameMatch, row: &Record) -> Rank {
+pub(super) fn rank(matched: DrugNameMatch, row: &Record) -> Rank {
     let choice = row.choice();
     (
         u8::from(matched != DrugNameMatch::Brand),
@@ -31,7 +31,7 @@ fn rank(matched: DrugNameMatch, row: &Record) -> Rank {
 /// When some matching label carries the name as its generic name, the name is a generic name,
 /// so a label whose brand name repeats it (a generic maker filing as "Metformin") is no exact
 /// brand match, and every label is ranked by the tiers alone.
-fn generic_name(candidates: &mut [(Rank, DrugHeader)]) {
+pub(super) fn generic_name(candidates: &mut [(Rank, DrugHeader)]) {
     if candidates.iter().any(|((matched, ..), _)| *matched != 0) {
         for ((matched, ..), _) in candidates {
             *matched = 1;
@@ -109,27 +109,6 @@ pub(super) fn reason(candidates: &[(Rank, DrugHeader)]) -> Option<Box<str>> {
         )
         .into(),
     )
-}
-
-pub(super) fn candidates(leg: &Leg<'_>, name: &Text) -> Result<NativePage, RequestError> {
-    let mut out = NativePage {
-        read: None,
-        candidates: Vec::new(),
-        next_offset: None,
-        problems: Vec::new(),
-        refusals: biomcp_adapters::Refusal::None,
-    };
-    for page in source::search_names(leg, name)? {
-        out.refusals.include(page.window.refusals());
-        out.problems.extend(page.problems);
-        for row in &page.window.rows {
-            if let Some(matched) = row.exact_name_match(name) {
-                out.candidates.push((rank(matched, row), row.header()?));
-            }
-        }
-    }
-    generic_name(&mut out.candidates);
-    Ok(out)
 }
 
 /// A brand found only on repackager copies can use the original packager's label from the

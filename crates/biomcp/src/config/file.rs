@@ -74,6 +74,7 @@ pub(crate) struct ConfigFile {
     pub(super) ca_bundle: Option<PathBuf>,
     pub(super) ncbi_email: Option<String>,
     pub(super) keys: Option<BTreeMap<String, String>>,
+    pub(super) auto_sync_retry_seconds: Option<std::num::NonZeroU32>,
     pub(super) auto_sync_max_bytes: Option<u64>,
     pub(super) reply_cache_max_bytes: Option<u64>,
     pub(super) pdf_memory_limit_mib: Option<std::num::NonZeroU64>,
@@ -212,6 +213,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
         ca_bundle: take(&mut map, "ca_bundle")?,
         ncbi_email: take(&mut map, "ncbi_email")?,
         keys,
+        auto_sync_retry_seconds: take(&mut map, "auto_sync_retry_seconds")?,
         auto_sync_max_bytes: take(&mut map, "auto_sync_max_bytes")?,
         reply_cache_max_bytes: take(&mut map, "reply_cache_max_bytes")?,
         pdf_memory_limit_mib: take(&mut map, "pdf_memory_limit_mib")?,
@@ -267,4 +269,21 @@ pub(super) fn pacing(
                 .map_err(|_| ConfigError::field(&field))
         })
         .collect()
+}
+
+/// Apply the stored-source settings to the transport defaults.
+pub(super) fn bundle_settings(file: Option<&ConfigFile>) -> biomcp_fetch::FetchConfig {
+    let mut settings = biomcp_fetch::FetchConfig::default();
+    if let Some(file) = file {
+        if let Some(seconds) = file.auto_sync_retry_seconds {
+            settings.auto_sync_retry_seconds = seconds.get();
+        }
+        if let Some(bytes) = file.auto_sync_max_bytes {
+            settings.auto_sync_max_bytes = bytes;
+        }
+        if let Some(seconds) = file.sync_timeout_seconds {
+            settings.sync_budget = std::time::Duration::from_secs(seconds.get().into());
+        }
+    }
+    settings
 }
