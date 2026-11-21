@@ -1,7 +1,7 @@
 {
   "feature": "drug-label",
   "story": "Drug get preserves the label heading, FDA application or biosimilar reference in the next command when it refuses a field or section.",
-  "replay": "drug/label-continues",
+  "replay": "drug/label-find",
   "steps": [
     {
       "run": ["get", "drug", "Keytruda", "label", "--source", "openfda-label", "--label-section", "clinical_studies", "--find", "KEYNOTE-189"],
@@ -25,7 +25,7 @@
     },
     {
       "run": [
-        "get", "drug", "9333c79b-d487-4538-a9f0-71b91a02b287", "label",
+        "get", "drug", "11111111-1111-1111-1111-111111111111", "label",
         "--source", "openfda-label", "--label-section", "clinical_studies", "--fields=text"
       ],
       "exit": 2,
@@ -39,7 +39,7 @@
       "expect": {
         "/status": "complete",
         "/result/label/data/heading": "clinical_studies",
-        "/result/label/data/text": {"includes": "KEYNOTE-189"}
+        "/result/label/data/text": {"includes": "STUDY-189"}
       }
     },
     {
