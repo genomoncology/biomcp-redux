@@ -1,0 +1,25 @@
+feature: drug-approvals
+story: The selected FDA letter supplies its explicit list of changes for the named supplement. A wrong supplement header or a list of existing indications alone supplies no purpose.
+live_check: Synthetic Drugs@FDA application and PDF text, replay only.
+replay: drug/supplement-purpose-changes
+steps:
+  - run: [get, drug, BLA761118, approvals, --source, drugsfda, --document-id, "75677", --limit, "10"]
+    expect:
+      /result/approvals/data/records/0/submission_number: "7"
+      /result/approvals/data/records/0/supplement_purpose:
+        state: stated
+        document_id: "75677"
+        url: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/761118Orig1s007ltr.pdf
+        text: "This Prior Approval supplemental biologics license application proposes the following change(s): • a new prefilled syringe presentation; and • a new prefilled pen presentation."
+  - run: [get, drug, BLA761118, approvals, --source, drugsfda, --document-id, "75678"]
+    expect:
+      /result/approvals/data/records/0/submission_number: "8"
+      /result/approvals/data/records/0/supplement_purpose/state: unavailable
+      /result/approvals/data/records/0/supplement_purpose/reason: not-stated
+      /result/approvals/data/records/0/supplement_purpose/document_id: "75678"
+  - run: [get, drug, BLA761118, approvals, --source, drugsfda, --document-id, "75679"]
+    expect:
+      /result/approvals/data/records/0/submission_number: "9"
+      /result/approvals/data/records/0/supplement_purpose/state: unavailable
+      /result/approvals/data/records/0/supplement_purpose/reason: not-stated
+      /result/approvals/data/records/0/supplement_purpose/document_id: "75679"
