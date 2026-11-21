@@ -59,10 +59,12 @@
           }
         ],
         "/result/items/1/matches/0": {
-          "requested": "HP:0001083",
-          "annotated": [
-            "HP:0001083"
-          ]
+          "equals": {
+            "requested": "HP:0001083",
+            "annotated": [
+              "HP:0001083"
+            ]
+          }
         },
         "/result/items/0/gene_links": [
           {
