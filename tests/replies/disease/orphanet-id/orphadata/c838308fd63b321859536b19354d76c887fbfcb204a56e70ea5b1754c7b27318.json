@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "orphadata",
+  "url": "https://www.orphadata.com/data/xml/en_product1.xml",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/xml",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<JDBOR date=\"2026-06-23 07:53:50\" version=\"synthetic-1\" dbserver=\"synthetic\">\n  <Availability><Licence><ShortIdentifier>CC-BY-4.0</ShortIdentifier></Licence></Availability>\n  <DisorderList count=\"1\">\n    <Disorder id=\"900001\">\n      <OrphaCode>115</OrphaCode><Name lang=\"en\">Synthetic disorder</Name>\n      <ExternalReferenceList count=\"4\">\n        <ExternalReference><Source>OMIM</Source><Reference>900001</Reference>\n          <DisorderMappingRelation><Name lang=\"en\">E (Exact mapping: the two concepts are equivalent)</Name></DisorderMappingRelation>\n        </ExternalReference>\n        <ExternalReference><Source>OMIM</Source><Reference>900002</Reference>\n          <DisorderMappingRelation><Name lang=\"en\">NTBT (Narrow term to broad term)</Name></DisorderMappingRelation>\n        </ExternalReference>\n        <ExternalReference><Source>OMIM</Source><Reference>900003</Reference></ExternalReference>\n        <ExternalReference><Source>MeSH</Source><Reference>D900004</Reference></ExternalReference>\n      </ExternalReferenceList>\n    </Disorder>\n  </DisorderList>\n</JDBOR>\n"
+      }
+    }
+  ]
+}
