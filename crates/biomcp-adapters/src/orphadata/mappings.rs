@@ -152,6 +152,9 @@ fn digits(value: &str) -> bool {
 /// Read OMIM mappings for the requested ORPHA code, keeping the publisher's direction.
 pub fn omim_xrefs(leg: &Leg<'_>, id: &Curie) -> Result<Mapped<Vec<DiseaseRelation>>, RequestError> {
     let code = super::orpha_code(id.as_str()).ok_or(biomcp_fetch::InputError::Path)?;
+    let subject_id: Curie = format!("ORPHA:{code}")
+        .parse()
+        .map_err(|_| biomcp_fetch::InputError::Serialization)?;
     let (rows, info) = leg.stored_rows(&FILE, Find::Exact(KeyKind::Id, code))?;
     let mut mapped = Mapped {
         value: Vec::new(),
@@ -159,14 +162,13 @@ pub fn omim_xrefs(leg: &Leg<'_>, id: &Curie) -> Result<Mapped<Vec<DiseaseRelatio
         refusals: crate::bundle_mapping::bundle_refusals(&info),
     };
     for row in rows {
-        let subject_id: Curie = format!("ORPHA:{code}").parse().map_err(|_| BadReply)?;
         let mut cx = Problems {
             source: FILE.spec.source,
             record: crate::mapped::record(&subject_id),
             list: Vec::new(),
         };
         let subject = DiseaseEndpoint {
-            id: subject_id,
+            id: subject_id.clone(),
             label: cx.text("Name", row.name.as_deref()),
         };
         let attribution = Attribution {
