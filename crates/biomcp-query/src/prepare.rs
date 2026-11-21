@@ -26,7 +26,10 @@ fn disease_unsupported(action: &Action) -> bool {
     }
 }
 fn search_supported(source: DiseaseSource) -> bool {
-    matches!(source, DiseaseSource::Ols | DiseaseSource::Seer)
+    matches!(
+        source,
+        DiseaseSource::Ols | DiseaseSource::Seer | DiseaseSource::Hpo
+    )
 }
 /// Whether this source serves the ID and section, so a refusal never offers a source that would come back
 /// not found. OLS holds only its own ontologies' IDs.
@@ -62,6 +65,7 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
             section,
             Some(DiseaseSection::Incidence | DiseaseSection::Survival)
         ),
+        DiseaseSource::Hpo => false,
         DiseaseSource::Orphadata => section == Some(DiseaseSection::Prevalence),
     }
 }

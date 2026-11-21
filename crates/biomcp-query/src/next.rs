@@ -291,6 +291,7 @@ fn bounded_navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         | ReplyData::DiagnosticSupplements { .. }
         | ReplyData::AdverseEventPage { .. }
         | ReplyData::DiseasePage { .. }
+        | ReplyData::HpoDiseasePage { .. }
         | ReplyData::PhenotypeDiseases { .. }
         | ReplyData::PhenotypeGenes { .. }
         | ReplyData::PhenotypeMatches { .. }

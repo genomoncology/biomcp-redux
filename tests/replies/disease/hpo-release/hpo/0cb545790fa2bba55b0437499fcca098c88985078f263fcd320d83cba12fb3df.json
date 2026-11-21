@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hpo",
+  "url": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2099-01-01/genes_to_disease.txt",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/octet-stream",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "ncbi_gene_id\tgene_symbol\tassociation_type\tdisease_id\tsource\nNCBIGene:900001\tSYNTH1\tMENDELIAN\tOMIM:900001\thttps://example.org/genes\nNCBIGene:900002\tSYNTH2\tMENDELIAN\tOMIM:900006\thttps://example.org/genes\n"
+      }
+    }
+  ]
+}

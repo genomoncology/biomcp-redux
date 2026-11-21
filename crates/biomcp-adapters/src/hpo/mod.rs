@@ -1,4 +1,4 @@
-//! Direct exact-term HPO service policy; no discovery or bundle endpoint.
+//! Direct exact-term HPO reads and named release annotation search.
 use crate::disease_sources::components::HPO;
 use biomcp_fetch::Input;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
@@ -151,3 +151,7 @@ fn attribution(id: &biodata::HpId) -> Result<Attribution, RequestError> {
 
 /// Complete source policy and command declaration.
 pub(crate) mod decl;
+
+/// Exact tagged ontology, disease annotations and gene links.
+pub mod release;
+mod release_ontology;
