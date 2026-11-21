@@ -276,8 +276,8 @@ pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
     pub(crate) usage: Option<biomcp_types::UsageError>,
     pub(crate) prefer_argument_error: bool,
-    /// The refusal's only correction is the same call without an unknown option, which may
-    /// widen it; a caller that must not widen a query skips it.
+    /// The correction drops an option or replaces an explicitly requested source.
+    /// Callers that must keep the original request skip it.
     pub(crate) dropped: bool,
 }
 pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
@@ -531,7 +531,7 @@ fn request(
             .or_else(|| words::unknown(verb, entity, &value, explicit))
             .or_else(|| {
                 if (verb, entity) == ("get", "disease") {
-                    disease::source_refusal(command.via, &value, &cause, fields)
+                    disease::unknown_source(command.via, &value, &cause, fields)
                 } else {
                     None
                 }
