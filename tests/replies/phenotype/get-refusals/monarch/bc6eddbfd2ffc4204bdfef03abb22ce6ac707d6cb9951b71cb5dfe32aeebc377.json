@@ -1,0 +1,32 @@
+{
+  "source": "monarch",
+  "method": "GET",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/entity/HP%3A0001083",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "body": {
+        "kind": "json",
+        "value": {
+          "id": "HP:0001083",
+          "name": "Synthetic term",
+          "category": "biolink:PhenotypicFeature",
+          "namespace": "HP",
+          "description": "Synthetic exact term record",
+          "deprecated": false,
+          "has_descendant_count": 0,
+          "association_counts": [],
+          "synonym": [],
+          "xref": [],
+          "node_hierarchy": {
+            "super_classes": [],
+            "sub_classes": []
+          }
+        }
+      },
+      "fetched": 1792980000
+    }
+  ]
+}
