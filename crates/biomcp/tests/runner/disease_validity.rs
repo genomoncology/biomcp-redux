@@ -168,6 +168,7 @@ fn read(env: &Environment, globals: &[String], args: &[&str]) -> Result<Value, S
         globals,
         0,
     )
+    .map_err(|error| format!("{args:?}: {error}"))
 }
 
 fn assert_fields(reply: &Value, expected: &[(&str, Value)]) -> Result<(), String> {
