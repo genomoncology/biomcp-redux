@@ -1423,15 +1423,17 @@ Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
-          Drug name or text. FDA signals match report text. FDA withdrawals match indications or a withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD).
-          Optional for safety communications and with recall, WHO, label or Drugs@FDA applicant filters.
-          Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
-          Recall aliases match without replacing display names.
-          FDA safety communications match titles, linked names and available page text.
+          Drug name or text. FDA signals match report text. FDA withdrawals match indications or dates (YYYY, YYYY-MM or YYYY-MM-DD).
+          Optional for safety communications or with recall, WHO, label or applicant filters.
+          Labels and Drugs@FDA try exact names, then words. Labels also search label text.
+          Recall aliases keep display names.
+          Safety communications match titles, linked names and text.
+          Zero matches does not establish that FDA issued no communication about this drug.
+          FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
 
 Options:
       --applicant <applicant>
-          sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.
+          Case-insensitive sponsor_name prefix. Matches listed sponsors. A drug name narrows results.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1447,7 +1449,7 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --approved-from <approved_from>
-          Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.
+          Earliest original_approval (inclusive, YYYY, YYYY-MM or YYYY-MM-DD). Counts matches in range.
 
       --approved-to <approved_to>
           Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
@@ -1466,7 +1468,7 @@ Options:
           Filter presentations by device cell, ignoring case.
 
       --exact-term[=<exact_term>]
-          Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
+          Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
 
           [default: false]
           [possible values: true, false]
@@ -1512,7 +1514,7 @@ Options:
           ChEMBL name to match. Default: preferred name.
 
       --name-snapshot <name_snapshot>
-          Label name page token. Keep the first page's names and step by reusing the token with unchanged filters.
+          Reuse the first page’s name token with unchanged filters.
 
       --offset <offset>
           Rows to skip. Purple Book applies this only to presentation rows.
@@ -1533,10 +1535,9 @@ Options:
           Recall reason phrase.
 
       --sort <sort>
-          Application order. newest uses latest submission status date,; help search drug
-          Application order. newest uses latest submission status date, which may be for a supplement.
-          original-approval reads all matches and sorts by original_approval. Both put recent dates first,
-          break ties by application number and put undated rows last. Omit for source order.
+          Drugs@FDA order. newest uses the latest submission status; help search drug
+          Drugs@FDA order. newest uses the latest submission status date, including supplements.
+          original-approval uses original_approval. Recent first, then application number, with undated last. Default: FDA order.
 
       --source <source>
           Drug source. An empty name search may retry names from other; help search drug
@@ -1558,13 +1559,13 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
-- `--applicant`: sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results. Value form: string; example: 'ALNYLAM PHARMS INC'; only with --source drugsfda.
+- `--applicant`: Case-insensitive sponsor_name prefix. Matches listed sponsors. A drug name narrows results. Value form: string; example: 'ALNYLAM PHARMS INC'; only with --source drugsfda.
 - `--application-type`: Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA). Value form: repeatable values (repeat the flag); example: nda; only with --source openfda-label.
-- `--approved-from`: Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range. Value form: string; example: 2024-01-01; only with --source drugsfda.
+- `--approved-from`: Earliest original_approval (inclusive, YYYY, YYYY-MM or YYYY-MM-DD). Counts matches in range. Value form: string; example: 2024-01-01; only with --source drugsfda.
 - `--approved-to`: Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2023; only with --source drugsfda.
 - `--classification`: FDA recall classification. Value form: string; example: 'Class II'; only with --source fda-drug-recall.
 - `--device`: Filter presentations by device cell, ignoring case. Value form: string; example: Autoinjector; only with --source purple-book.
-- `--exact-term`: Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA. Value form: boolean; example: --exact-term.
+- `--exact-term`: Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA. Value form: boolean; example: --exact-term.
 - `--expand-drug-names`: Accepted for one release. Name widening is already automatic where supported. Value form: boolean; example: --expand-drug-names.
 - `--firm`: Exact phrase in the published recall firm name. Value form: string; example: Apotex; only with --source fda-drug-recall.
 - `--indication`: Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search. Value form: string; example: melanoma; only with --source openfda-label.
@@ -1573,21 +1574,22 @@ Paging: --limit and --offset.
 - `--limit`: Rows per page. Purple Book product summaries always return the full roster. Value form: integer; example: 1.
 - `--mechanism-of-action`: Exact Mechanism of Action wording, without synonyms or drug class inference. Value form: string; example: 'Janus kinase'; only with --source openfda-label.
 - `--name-selector`: ChEMBL name to match. Default: preferred name. Value form: string; example: preferred; only with --source chembl.
-- `--name-snapshot`: Label name page token. Keep the first page's names and step by reusing the token with unchanged filters. Value form: string; example: <name-snapshot> (syntax; replace the placeholder with your retained value).
+- `--name-snapshot`: Reuse the first page’s name token with unchanged filters. Value form: string; example: <name-snapshot> (syntax; replace the placeholder with your retained value).
 - `--offset`: Rows to skip. Purple Book applies this only to presentation rows. Value form: integer; example: --offset 1.
 - `--prequalified-from`: First WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2020; only with --source who-pq.
 - `--prequalified-to`: Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `--presentations`: Return presentation rows, as do --strength and --device. Value form: boolean; example: --presentations; only with --source purple-book.
-- `query`: Drug name or text. FDA signals match report text. FDA withdrawals match indications or a withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD).
-Optional for safety communications and with recall, WHO, label or Drugs@FDA applicant filters.
-Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
-Recall aliases match without replacing display names.
-FDA safety communications match titles, linked names and available page text.
+- `query`: Drug name or text. FDA signals match report text. FDA withdrawals match indications or dates (YYYY, YYYY-MM or YYYY-MM-DD).
+Optional for safety communications or with recall, WHO, label or applicant filters.
+Labels and Drugs@FDA try exact names, then words. Labels also search label text.
+Recall aliases keep display names.
+Safety communications match titles, linked names and text.
+Zero matches does not establish that FDA issued no communication about this drug.
+FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
 Form: search drug QUERY; not --query.
 - `--reason`: Recall reason phrase. Value form: string; example: 'Lack of Sterility Assurance'; only with --source fda-drug-recall.
-- `--sort`: Application order. newest uses latest submission status date, which may be for a supplement.
-original-approval reads all matches and sorts by original_approval. Both put recent dates first,
-break ties by application number and put undated rows last. Omit for source order. Value form: string; example: newest; only with --source drugsfda.
+- `--sort`: Drugs@FDA order. newest uses the latest submission status date, including supplements.
+original-approval uses original_approval. Recent first, then application number, with undated last. Default: FDA order. Value form: string; example: newest; only with --source drugsfda.
 - `--source`: Drug source. An empty name search may retry names from other sources. Value form: string; example: ema.
 - `--status`: Exact recall status. Value form: string; example: Ongoing; only with --source fda-drug-recall.
 - `--strength`: Filter presentations by strength cell, ignoring case and spaces. Value form: string; example: 50MG/ML; only with --source purple-book.

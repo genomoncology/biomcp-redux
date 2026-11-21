@@ -91,7 +91,7 @@
           "type": "null"
         }
       ],
-      "description": "sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.",
+      "description": "Case-insensitive sponsor_name prefix. Matches listed sponsors. A drug name narrows results.",
       "x-required-component": "drugsfda"
     },
     "application_type": {
@@ -112,7 +112,7 @@
           "type": "null"
         }
       ],
-      "description": "Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.",
+      "description": "Earliest original_approval (inclusive, YYYY, YYYY-MM or YYYY-MM-DD). Counts matches in range.",
       "x-required-component": "drugsfda"
     },
     "approved_to": {
@@ -152,7 +152,7 @@
       "x-required-component": "purple-book"
     },
     "exact_term": {
-      "description": "Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.",
+      "description": "Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA.",
       "type": "boolean"
     },
     "expand_drug_names": {
@@ -227,7 +227,7 @@
           "type": "null"
         }
       ],
-      "description": "Label name page token. Keep the first page's names and step by reusing the token with unchanged filters."
+      "description": "Reuse the first page’s name token with unchanged filters."
     },
     "offset": {
       "default": 0,
@@ -267,7 +267,7 @@
     },
     "query": {
       "$ref": "#/$defs/Text",
-      "description": "Drug name or text. FDA signals match report text. FDA withdrawals match indications or a withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD).\nOptional for safety communications and with recall, WHO, label or Drugs@FDA applicant filters.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nFDA safety communications match titles, linked names and available page text.",
+      "description": "Drug name or text. FDA signals match report text. FDA withdrawals match indications or dates (YYYY, YYYY-MM or YYYY-MM-DD).\nOptional for safety communications or with recall, WHO, label or applicant filters.\nLabels and Drugs@FDA try exact names, then words. Labels also search label text.\nRecall aliases keep display names.\nSafety communications match titles, linked names and text.\nZero matches does not establish that FDA issued no communication about this drug.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
       "x-positional": 0
     },
     "reason": {
@@ -291,7 +291,7 @@
           "type": "null"
         }
       ],
-      "description": "Application order. newest uses latest submission status date,; help search drug\nApplication order. newest uses latest submission status date, which may be for a supplement.\noriginal-approval reads all matches and sorts by original_approval. Both put recent dates first,\nbreak ties by application number and put undated rows last. Omit for source order.",
+      "description": "Drugs@FDA order. newest uses the latest submission status; help search drug\nDrugs@FDA order. newest uses the latest submission status date, including supplements.\noriginal-approval uses original_approval. Recent first, then application number, with undated last. Default: FDA order.",
       "x-required-component": "drugsfda"
     },
     "source": {
