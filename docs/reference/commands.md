@@ -2881,7 +2881,7 @@ Form: get pathway ID SECTION; not --id.
 - `--pool`: Retained snapshot, when continuing a source relation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `section`: Omit for the card; WikiPathways has summary and genes… (full rule with the sections).
 Form: get pathway ID SECTION; not --section.
-- `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer; example: --section-limit 5.
+- `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer; example: --section-offset 0.
 
 Omit for the card; WikiPathways has summary and genes sections.
