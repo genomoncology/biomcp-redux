@@ -12,7 +12,7 @@ pub(super) fn trial() -> Trial {
 
 fn import() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::new()?;
-    let offline = env.globals(None, true);
+    let offline = ["--offline".into()];
     let mut sync = ["sync", "purple-book"].map(str::to_owned).to_vec();
     let manual = command(&env, &sync, &offline, 4)?;
     let guidance = notice(&manual);

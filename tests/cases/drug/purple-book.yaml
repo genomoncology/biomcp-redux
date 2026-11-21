@@ -26,9 +26,8 @@
       }
     },
     {
-      "offline": true,
-      "run": ["search", "drug", "Enbrel", "--source", "purple-book"],
-      "mcp": ["search", "drug", "Enbrel", "--source", "purple-book"],
+      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--offline"],
+      "mcp": ["search", "drug", "Enbrel", "--source", "purple-book", "--offline"],
       "expect": {
         "/status": "complete",
         "/result/release_month": "October 2026",
@@ -46,8 +45,7 @@
       }
     },
     {
-      "offline": true,
-      "run": ["search", "drug", "BLA103795", "--source", "purple-book", "--strength", "50MG/ML", "--device", "Autoinjector"],
+      "run": ["search", "drug", "BLA103795", "--source", "purple-book", "--strength", "50MG/ML", "--device", "Autoinjector", "--offline"],
       "expect": {
         "/status": "complete",
         "/result/release_month": "October 2026",
