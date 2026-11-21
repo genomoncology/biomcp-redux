@@ -236,6 +236,10 @@ pub(super) struct Saved {
 
 impl crate::source_snapshot::Observation for Saved {
     fn whole(&self) -> bool {
-        !self.dropped && crate::source_snapshot::sources_whole(&self.sources)
+        !self.dropped
+            && self.genes.as_ref().is_none_or(|genes| {
+                !matches!(genes.header.id, PathwayId::Reactome(_)) || genes.release.is_some()
+            })
+            && crate::source_snapshot::sources_whole(&self.sources)
     }
 }
