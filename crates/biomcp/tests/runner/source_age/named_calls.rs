@@ -38,7 +38,14 @@ pub(super) fn sti() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let current = recordings(&env, "current", false)?;
     let down = recordings(&env, "down", true)?;
-    for (section, source) in [("approvals", "drugsfda"), ("label", "openfda-label")] {
+    for (section, source, expected_id) in [
+        ("approvals", "drugsfda", "NDA021335"),
+        (
+            "label",
+            "openfda-label",
+            "11111111-1111-1111-1111-111111111111",
+        ),
+    ] {
         let mut args = ["get", "drug", "STI-571", section, "--source", source]
             .map(str::to_owned)
             .to_vec();
@@ -46,16 +53,9 @@ pub(super) fn sti() -> Result<(), String> {
             args.extend(["--label-section", "boxed_warning"].map(str::to_owned));
         }
         let (reply, exit) = invoke(&env, &args, &env.globals(Some(&current), false))?;
-        // STI-571 has an alias for the approvals lookup, but Drugs@FDA supplies
-        // no application for STI-571 itself to verify the inferred label.
-        let expected = if section == "label" {
-            exit == Some(1) && reply.get("status") == Some(&json!("absent"))
-        } else {
-            exit == Some(0) && reply.pointer("/result/identity/id") == Some(&json!("NDA021335"))
-        };
-        if !expected {
+        if exit != Some(0) || reply.pointer("/result/identity/id") != Some(&json!(expected_id)) {
             return Err(format!(
-                "current MyChem reply for STI-571 {section}: {reply}"
+                "current MyChem did not resolve STI-571 for {section}: {reply}"
             ));
         }
         expire(env.root(), "mychem")?;

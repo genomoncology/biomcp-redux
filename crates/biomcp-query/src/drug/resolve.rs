@@ -3,5 +3,5 @@
 mod name_pages;
 mod named;
 pub(super) use named::{
-    Rank, brand_application, carry, get, get_parts, get_with_name_state, lookup_deadline, within,
+    Rank, applications, carry, get, get_parts, get_with_name_state, lookup_deadline, within,
 };

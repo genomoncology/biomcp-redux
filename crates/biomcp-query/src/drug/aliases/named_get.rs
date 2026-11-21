@@ -1,7 +1,7 @@
 //! Retry a drug get or DDInter partner lookup using source-stated names.
 use super::{
     alias_lookup::{Stated, usable, with_aliases},
-    label_fallback::{label_candidates, label_fallback},
+    label_fallback::LabelFallback,
     name_evidence::{Evidence, recovery},
 };
 use crate::drug::resolve::{lookup_deadline, within};
@@ -37,7 +37,7 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
         return outcomes;
     }
     let input = query.input();
-    let mut label_candidate = None;
+    let mut label = LabelFallback::default();
     let (found, stated, evidence) = with_aliases(
         &within(cx, deadline.remaining()),
         input,
@@ -45,11 +45,7 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
         |stated, name, evidence| {
             let cx = &within(cx, deadline.remaining());
             if query.source() == DrugSource::OpenfdaLabel {
-                if label_candidate.is_some() {
-                    return None;
-                }
-                label_candidate = Some(name.clone());
-                return label_fallback(cx, queries, input, evidence);
+                return label.read(cx, queries, stated, name, evidence);
             }
             retry_name(cx, queries, stated, name, evidence)
         },
@@ -87,9 +83,7 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
                 recovery(&mut part, Request::GetDrug(query.clone()));
             } else if let Some(stated) = &stated {
                 hint(&mut part, stated, input, query.source(), cx.fresh);
-                if let Some(name) = &label_candidate {
-                    label_candidates(&mut part, input, name, cx.fresh);
-                }
+                label.offer_candidate(&mut part, input, cx.fresh);
                 status::item(&mut part, false, false, false);
             }
             part
@@ -97,7 +91,7 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
         .collect()
 }
 
-fn retry_name(
+pub(super) fn retry_name(
     cx: &Ctx<'_>,
     queries: &[DrugGet],
     stated: &Stated,

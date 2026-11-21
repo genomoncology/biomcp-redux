@@ -126,20 +126,29 @@ fn unresolved(query: &DrugGet, mut discovery: Outcome) -> Outcome {
     discovery
 }
 
-/// A literal brand match to one distinct application can verify an otherwise unresolved label.
-pub(in crate::drug) fn brand_application(
+/// Read the current applications for a name. An exact brand takes precedence over generic matches.
+pub(in crate::drug) fn applications(
     cx: &Ctx<'_>,
     name: &Text,
     query: &DrugSearch,
-) -> (Outcome, Option<DrugId>) {
+    brand_only: bool,
+) -> (Outcome, Option<Vec<DrugId>>) {
     let (out, candidates) = name_pages::fda(cx, name, query);
-    let mut matches = candidates.into_iter().filter(|(rank, _)| rank.0 == 0);
-    let id = matches.next().map(|(_, header)| header.id).filter(|id| {
-        !unanswered(&out, true)
-            && out.local.is_none()
-            && matches.all(|(_, header)| header.id == *id)
+    let current = !unanswered(&out, true) && out.local.is_none();
+    let ids = current.then(|| {
+        let best = if brand_only {
+            Some(0)
+        } else {
+            candidates.iter().map(|(rank, _)| rank.0).min()
+        };
+        let mut seen = std::collections::BTreeSet::new();
+        candidates
+            .into_iter()
+            .filter(|(rank, header)| Some(rank.0) == best && seen.insert(header.id.to_string()))
+            .map(|(_, header)| header.id)
+            .collect()
     });
-    (out, id)
+    (out, ids)
 }
 
 /// A failed discovery keeps the caller's requested section and paging.
