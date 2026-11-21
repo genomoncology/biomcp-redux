@@ -1,5 +1,5 @@
 //! Disease migration is fixed guidance, never a source request or query rewrite.
-use biomcp_types::ErrorMessage;
+use biomcp_types::{DiseaseSection, ErrorMessage};
 use std::ffi::OsString;
 const FLAGS: &[(&str, ErrorMessage)] = &[
     ("-q", ErrorMessage::DiseaseText),
@@ -87,7 +87,12 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
             if let Some(retired) = section.and_then(|s| super::find(SECTIONS, s)) {
                 return Some(retired);
             }
-            if id.parse::<biodata::Curie>().is_err() && source != Some("seer") {
+            let validity = section
+                .or_else(|| rest.first().copied())
+                .is_some_and(|word| {
+                    word.eq_ignore_ascii_case(DiseaseSection::GeneValidity.as_str())
+                });
+            if id.parse::<biodata::Curie>().is_err() && source != Some("seer") && !validity {
                 return Some(ErrorMessage::DiseaseName);
             }
             option
