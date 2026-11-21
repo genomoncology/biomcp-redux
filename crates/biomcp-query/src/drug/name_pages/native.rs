@@ -1,6 +1,7 @@
 //! Read the native name selectors and gather candidates for drug identity resolution.
 use crate::drug::resolve::{Rank, carry, lookup_deadline, within};
 use crate::{Ctx, Outcome, status};
+use biodata::Text;
 use biomcp_types::{DrugGet, DrugHeader, DrugNameMatch, DrugSearch, ReplyBody, SourceState};
 use std::cmp::Reverse;
 
@@ -88,7 +89,7 @@ fn native_pages(
 /// then indications) needs the whole set, so a lookup answers whole or fails, never partly.
 pub(in crate::drug::resolve) fn fda(
     cx: &Ctx<'_>,
-    get: &DrugGet,
+    name: &Text,
     query: &DrugSearch,
 ) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     native_names(
@@ -96,7 +97,7 @@ pub(in crate::drug::resolve) fn fda(
         query,
         &biomcp_adapters::drugsfda::SPEC,
         |leg, offset| {
-            let page = biomcp_adapters::drugsfda::search_names(leg, get.input(), 50, offset)?;
+            let page = biomcp_adapters::drugsfda::search_names(leg, name, 50, offset)?;
             let next = offset + page.records.len() as u32;
             Ok(NativePage {
                 read: None,
@@ -104,11 +105,10 @@ pub(in crate::drug::resolve) fn fda(
                     .records
                     .iter()
                     .filter_map(|row| {
-                        row.name_rank(get.input().as_str())
-                            .map(|(name, app, date)| {
-                                let date = date.unwrap_or_else(|| "9999".into());
-                                (plain(name, app, date), row.header())
-                            })
+                        row.name_rank(name.as_str()).map(|(name, app, date)| {
+                            let date = date.unwrap_or_else(|| "9999".into());
+                            (plain(name, app, date), row.header())
+                        })
                     })
                     .collect(),
                 next_offset: (next > offset && u64::from(next) < page.total).then_some(next),

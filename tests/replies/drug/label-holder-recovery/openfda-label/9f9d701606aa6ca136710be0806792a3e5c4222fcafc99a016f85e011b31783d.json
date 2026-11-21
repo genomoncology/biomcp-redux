@@ -1,0 +1,114 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.application_number.exact%3A%22BLA761059%22&limit=50&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1795132800,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "results": {
+              "skip": 0,
+              "limit": 50,
+              "total": 4
+            }
+          },
+          "results": [
+            {
+              "set_id": "c44365e9-d470-4e35-978d-8565a9e3471e",
+              "id": "c44365e9-d470-4e35-978d-8565a9e3471e",
+              "version": "1",
+              "effective_time": "20261120",
+              "openfda": {
+                "brand_name": [
+                  "HADLIMA"
+                ],
+                "generic_name": [
+                  "ADALIMUMAB-BWWD"
+                ],
+                "application_number": [
+                  "BLA761219"
+                ],
+                "is_original_packager": [
+                  true
+                ]
+              },
+              "how_supplied": [
+                "Synthetic packaging for HADLIMA."
+              ]
+            },
+            {
+              "set_id": "c24655e5-796e-4127-b716-92f08d649c83",
+              "id": "c24655e5-796e-4127-b716-92f08d649c83",
+              "version": "1",
+              "effective_time": "20261120",
+              "openfda": {
+                "brand_name": [
+                  "Adalimumab-bwwd"
+                ],
+                "generic_name": [
+                  "ADALIMUMAB-BWWD"
+                ],
+                "application_number": [
+                  "BLA761059"
+                ],
+                "is_original_packager": [
+                  true
+                ]
+              },
+              "how_supplied": [
+                "Synthetic packaging for Adalimumab-bwwd."
+              ]
+            },
+            {
+              "set_id": "ef25af7e-6267-409a-8d68-de51eb48812a",
+              "id": "ef25af7e-6267-409a-8d68-de51eb48812a",
+              "version": "1",
+              "effective_time": "20261120",
+              "openfda": {
+                "brand_name": [
+                  "HADLIMA"
+                ],
+                "generic_name": [
+                  "ADALIMUMAB-BWWD"
+                ],
+                "application_number": [
+                  "BLA761059"
+                ]
+              },
+              "how_supplied": [
+                "Synthetic packaging for HADLIMA."
+              ]
+            },
+            {
+              "set_id": "f7f9da92-ff5d-4260-b4bd-e3f6993a36ae",
+              "id": "f7f9da92-ff5d-4260-b4bd-e3f6993a36ae",
+              "version": "1",
+              "effective_time": "20261120",
+              "openfda": {
+                "brand_name": [
+                  "HADLIMA"
+                ],
+                "generic_name": [
+                  "ADALIMUMAB-BWWD"
+                ],
+                "application_number": [
+                  "BLA761059"
+                ]
+              },
+              "how_supplied": [
+                "Synthetic packaging for HADLIMA."
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "feature": "drug-name-get",
+  "story": "An unresolved brand can recover its own application label, while an unverified brand offers candidates without returning another application's text.",
+  "verified": "Authored synthetic replies model the reported requests. Packaging text and provider responses are synthetic.",
+  "live_check": "Local synthetic replay only.",
+  "replay": "drug/label-fallback-application",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Hulio",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "Hulio",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/result/identity/application_numbers/0": "BLA761154",
+        "/result/label/data/text": "Synthetic packaging for Hulio."
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "ADALIMUMAB",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "ADALIMUMAB",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "exit": 0,
+      "expect": {
+        "/result/identity/application_numbers/0": "BLA761219"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA761154",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "BLA761154",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "exit": 0,
+      "expect": {
+        "/result/identity/id": "5cde907d-6747-0e62-db25-1718ee717fe7"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Unverified brand",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "Unverified brand",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "how_supplied"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "": {
+          "omits": [
+            "result"
+          ]
+        },
+        "/next/1/kind": "disambiguate",
+        "/next/1/args/2": "ADALIMUMAB"
+      }
+    }
+  ]
+}

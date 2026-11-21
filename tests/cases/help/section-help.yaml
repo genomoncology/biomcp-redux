@@ -108,7 +108,8 @@
             "--decision-to",
             "--product-number",
             "--document-id"
-          ]
+          ],
+          "excludes": "--find"
         },
         "/result/commands/0/examples/0": {
           "includes_all_of": [
