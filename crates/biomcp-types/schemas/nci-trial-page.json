@@ -1604,9 +1604,13 @@
           "minimum": 0,
           "type": "integer"
         },
+        "arms_for": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Arms.\nClinicalTrials.gov only. Exact intervention name or alias, ignoring case."
+        },
         "biomarker_code": {
           "$ref": "#/$defs/Reply_NcitId",
-          "description": "NCI NCIt code.\nExact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility."
+          "description": "NCIt code.\nNCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). Does not establish positivity or eligibility."
         },
         "biomarker_use": {
           "$ref": "#/$defs/Reply_NciBiomarkerUse",
@@ -1622,7 +1626,7 @@
         },
         "condition_id": {
           "$ref": "#/$defs/Reply_Curie",
-          "description": "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma)."
+          "description": "Condition ID.\nMyDisease resolves exact MONDO or DOID CURIEs. NCI also takes codes such as NCIT:C3224 (melanoma)."
         },
         "count_only": {
           "description": "Total.\nSource total only; no returned study rows.",
@@ -1870,7 +1874,7 @@
         },
         "distance": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Radius, mi or km.\nClinicalTrials.gov only: source distance with explicit mi or km units."
+          "description": "Radius.\nClinicalTrials.gov only: supply units (mi or km)."
         },
         "exact_condition": {
           "description": "Exact condition.\nAsk ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
@@ -1894,10 +1898,10 @@
         },
         "id": {
           "$ref": "#/$defs/Reply_NctId",
-          "description": "NCT identifier.\nClinicalTrials.gov only: exact NCT identity in a conjunction with other filters."
+          "description": "NCT ID.\nClinicalTrials.gov only: exact ID, combined with other filters."
         },
         "intervention": {
-          "description": "Treatment terms; OR.\nIntervention alternatives joined with OR; supported by ClinicalTrials.gov.",
+          "description": "Intervention.\nClinicalTrials.gov only: repeat to join alternatives with OR.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
@@ -1914,7 +1918,7 @@
         },
         "lat": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Latitude degrees.\nClinicalTrials.gov only: radius center latitude in degrees."
+          "description": "Latitude.\nClinicalTrials.gov only: radius center latitude in degrees."
         },
         "limit": {
           "default": 10,
@@ -1926,7 +1930,7 @@
         },
         "lon": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Longitude degrees.\nClinicalTrials.gov only: radius center longitude in degrees."
+          "description": "Longitude.\nClinicalTrials.gov only: radius center longitude in degrees."
         },
         "next_page": {
           "$ref": "#/$defs/Reply_Text",

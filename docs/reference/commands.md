@@ -1974,28 +1974,32 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --arms-for <arms_for>
+          Arms.
+          ClinicalTrials.gov only. Exact intervention name or alias, ignoring case.
+
       --biomarker-code <biomarker_code>
-          NCI NCIt code.
-          Exact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+          NCIt code.
+          NCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). Does not establish positivity or eligibility.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --biomarker-use <biomarker_use>
           NCI criterion; help search trial
           NCI criterion.
           Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --condition <condition>...
           Disease; NCI needs NCIt.
           Conditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers.
 
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
       --condition-id <condition_id>
-          MONDO/DOID/NCIT:C.
-          Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma).
+          Condition ID.
+          MyDisease resolves exact MONDO or DOID CURIEs. NCI also takes codes such as NCIT:C3224 (melanoma).
 
       --count-only[=<count_only>]
           Total.
@@ -2013,12 +2017,18 @@ Options:
           Criteria text.
           ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment.
 
-      --distance <distance>
-          Radius, mi or km.
-          ClinicalTrials.gov only: source distance with explicit mi or km units.
-
       --offline[=<offline>]
           Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --distance <distance>
+          Radius.
+          ClinicalTrials.gov only: supply units (mi or km).
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -2026,12 +2036,6 @@ Options:
       --exact-condition[=<exact_condition>]
           Exact condition.
           Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
-
-          [default: false]
-          [possible values: true, false]
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -2059,19 +2063,19 @@ Options:
           [possible values: true, false]
 
       --id <id>
-          NCT identifier.
-          ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters.
+          NCT ID.
+          ClinicalTrials.gov only: exact ID, combined with other filters.
 
       --intervention <intervention>...
-          Treatment terms; OR.
-          Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
+          Intervention.
+          ClinicalTrials.gov only: repeat to join alternatives with OR.
 
       --keyword <keyword>...
           Text; OR.
           Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 
       --lat <lat>
-          Latitude degrees.
+          Latitude.
           ClinicalTrials.gov only: radius center latitude in degrees.
 
       --limit <limit>
@@ -2079,7 +2083,7 @@ Options:
           Headers per page; NCI applies its own lower publisher limit.
 
       --lon <lon>
-          Longitude degrees.
+          Longitude.
           ClinicalTrials.gov only: radius center longitude in degrees.
 
       --next-page <next_page>
@@ -2167,22 +2171,24 @@ Paging: --limit and --offset.
 ClinicalTrials.gov only: search the registry acronym field. Value form: string; example: --acronym SURMOUNT.
 - `--age`: Age in years.
 ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer; example: --age 18.
-- `--biomarker-code`: NCI NCIt code.
-Exact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string; example: --biomarker-code C96022.
+- `--arms-for`: Arms.
+ClinicalTrials.gov only. Exact intervention name or alias, ignoring case. Value form: string; example: --arms-for MK-3475.
+- `--biomarker-code`: NCIt code.
+NCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). Does not establish positivity or eligibility. Value form: string; example: --biomarker-code C96022.
 - `--biomarker-use`: NCI criterion.
 Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems. Value form: string; example: --biomarker-use inclusion.
 - `--condition`: Disease; NCI needs NCIt.
 Conditions joined with OR. NCI needs NCIt codes such as C3224 (melanoma); use --condition-id for MONDO or DOID identifiers. Value form: repeatable values (repeat the flag); example: --condition melanoma.
-- `--condition-id`: MONDO/DOID/NCIT:C.
-Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma). Value form: string; example: --condition-id NCIT:C3224.
+- `--condition-id`: Condition ID.
+MyDisease resolves exact MONDO or DOID CURIEs. NCI also takes codes such as NCIT:C3224 (melanoma). Value form: string; example: --condition-id NCIT:C3224.
 - `--count-only`: Total.
 Source total only; no returned study rows. Value form: boolean; example: --count-only.
 - `--country`: Country label.
 Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter. Value form: repeatable values (repeat the flag); example: --country 'United States'.
 - `--criteria`: Criteria text.
 ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment. Value form: string; example: --criteria 'exact criteria'.
-- `--distance`: Radius, mi or km.
-ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string; example: --distance 50mi.
+- `--distance`: Radius.
+ClinicalTrials.gov only: supply units (mi or km). Value form: string; example: --distance 50mi.
 - `--exact-condition`: Exact condition.
 Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean; example: --exact-condition.
 - `--exact-term`: Exact terms.
@@ -2193,17 +2199,17 @@ Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI match
 ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string; example: --gene BRAF.
 - `--has-results`: Posted results.
 ClinicalTrials.gov only: require posted source results. Each row carries has_results. Value form: boolean; example: --has-results.
-- `--id`: NCT identifier.
-ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters. Value form: string; example: --id NCT05273554.
-- `--intervention`: Treatment terms; OR.
-Intervention alternatives joined with OR; supported by ClinicalTrials.gov. Value form: repeatable values (repeat the flag); example: --intervention pembrolizumab.
+- `--id`: NCT ID.
+ClinicalTrials.gov only: exact ID, combined with other filters. Value form: string; example: --id NCT06952504.
+- `--intervention`: Intervention.
+ClinicalTrials.gov only: repeat to join alternatives with OR. Value form: repeatable values (repeat the flag); example: --intervention pembrolizumab.
 - `--keyword`: Text; OR.
 Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword. Value form: repeatable values (repeat the flag); example: --keyword survival.
-- `--lat`: Latitude degrees.
+- `--lat`: Latitude.
 ClinicalTrials.gov only: radius center latitude in degrees. Value form: string; example: --lat 42.3601.
 - `--limit`: Page size.
 Headers per page; NCI applies its own lower publisher limit. Value form: integer; example: --limit 1.
-- `--lon`: Longitude degrees.
+- `--lon`: Longitude.
 ClinicalTrials.gov only: radius center longitude in degrees. Value form: string; example: --lon -71.0589.
 - `--next-page`: Page token.
 ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string; example: --next-page <next-page> (syntax; replace the placeholder with your retained value).
