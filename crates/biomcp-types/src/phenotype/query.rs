@@ -1,4 +1,6 @@
 use crate::QueryInvalid;
+#[cfg(feature = "schema")]
+use crate::query::command_source::SharedSource;
 use biodata::{HpId, Text};
 use serde::{Deserialize, Serialize};
 biodata::wire_enum! { described
@@ -91,7 +93,7 @@ impl schemars::JsonSchema for PhenotypeSearchCommand {
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         crate::query::command_source::scoped::<PhenotypeSearch>(
             generator,
-            "PhenotypeSource",
+            SharedSource::<PhenotypeSource>::schema_name().as_ref(),
             "PhenotypeSource",
             &[monarch().as_str()],
         )
@@ -106,6 +108,7 @@ struct SearchFields {
     text: Box<str>,
     /// Monarch only; HPO search is unsupported.
     #[serde(default = "monarch")]
+    #[cfg_attr(feature = "schema", schemars(with = "SharedSource<PhenotypeSource>"))]
     source: PhenotypeSource,
     /// Maximum native headers, default five.
     #[serde(default = "five")]
@@ -204,7 +207,7 @@ struct GetFields {
         deserialize_with = "crate::query::present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "PhenotypeSource"))]
+    #[cfg_attr(feature = "schema", schemars(with = "SharedSource<PhenotypeSource>"))]
     source: Option<PhenotypeSource>,
     /// Absent means the source identity card.
     #[serde(

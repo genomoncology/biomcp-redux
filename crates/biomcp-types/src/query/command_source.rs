@@ -1,5 +1,23 @@
 //! Publish a standalone search selector without changing shared request or reply schemas.
 use schemars::{JsonSchema, Schema, SchemaGenerator};
+use std::{borrow::Cow, marker::PhantomData};
+
+/// Keep a broader wire vocabulary distinct from the command's scoped selector.
+pub(crate) struct SharedSource<T>(PhantomData<T>);
+
+impl<T: JsonSchema> JsonSchema for SharedSource<T> {
+    fn schema_name() -> Cow<'static, str> {
+        format!("Shared{}", T::schema_name()).into()
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        format!("Shared{}", T::schema_id()).into()
+    }
+
+    fn json_schema(generator: &mut SchemaGenerator) -> Schema {
+        T::json_schema(generator)
+    }
+}
 
 pub(crate) fn scoped<T: JsonSchema>(
     generator: &mut SchemaGenerator,
