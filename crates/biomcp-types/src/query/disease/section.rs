@@ -27,7 +27,8 @@ impl DiseaseSection {
     pub const fn sources(self) -> &'static [crate::Source] {
         use crate::Source;
         match self {
-            Self::Synonyms | Self::Xrefs => &[Source::Ols, Source::MyDisease],
+            Self::Synonyms => &[Source::Ols, Source::MyDisease],
+            Self::Xrefs => &[Source::Ols, Source::MyDisease, Source::Orphadata],
             Self::Hierarchy => &[Source::MyDisease],
             Self::Genes | Self::Phenotypes => &[Source::Monarch],
             Self::Incidence | Self::Survival => &[Source::Seer],

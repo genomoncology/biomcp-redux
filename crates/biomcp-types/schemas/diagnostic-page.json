@@ -1004,6 +1004,18 @@
             "fda-device-recall"
           ]
         },
+        "regimen_partner": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FDA CDx regimen partner.\nWhole trade or generic name after FDA's combination wording. Rows label matches in matched.",
+          "x-required-component": "fda-cdx"
+        },
         "sort": {
           "anyOf": [
             {
@@ -1726,6 +1738,8 @@
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
         " FDA Drug Safety Communications web pages.",
+        " FDA potential safety signals from quarterly reports.",
+        " FDA cancer indications with withdrawn accelerated approval.",
         " FDA Purple Book biologic product roster.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
@@ -1807,6 +1821,8 @@
         "fda-device-recall",
         "fda-drug-recall",
         "fda-dsc",
+        "fda-safety-signals",
+        "fda-withdrawn-approvals",
         "purple-book",
         "cpic",
         "clinpgx",

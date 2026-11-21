@@ -1,6 +1,6 @@
 # 1100 — show-orphanet-to-omim-mapping-relations
 
-Status: OPEN.
+Status: COMPLETE. Built and landed on the 1120 batch branch (2686e30a5)
 
 Milestone: 7
 

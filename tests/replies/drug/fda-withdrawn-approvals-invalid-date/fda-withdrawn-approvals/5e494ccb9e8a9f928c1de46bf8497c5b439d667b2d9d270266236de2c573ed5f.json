@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-withdrawn-approvals",
+  "url": "https://www.fda.gov/drugs/cancer-approvals/withdrawn-cancer-accelerated-approvals",
+  "exchanges": [
+    {
+      "fetched": 42,
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<table><tr><th>Drug Name</th><th>Accelerated Approval (AA) Indication</th><th>Accelerated Approval Date</th><th>Withdrawal Date</th></tr><tr><td>Synthetic drug</td><td>Synthetic indication</td><td>1/23/2020</td><td>2/30/2026</td></tr></table>"
+      }
+    }
+  ]
+}

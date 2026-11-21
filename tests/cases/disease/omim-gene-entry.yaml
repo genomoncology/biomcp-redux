@@ -1,0 +1,20 @@
+{
+  "feature": "disease-mydisease",
+  "live_check": "public",
+  "story": "An OMIM number that identifies a gene states the record kind and offers the exact gene lookup.",
+  "verified": "Public HGNC CC0 lookup of OMIM:134797 and MyDisease 404 on 2026-11-21.",
+  "replay": "disease/orphanet-id",
+  "steps": [
+    {
+      "run": ["get", "disease", "OMIM:134797"],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "hgnc",
+        "/sources/0/notices/0/message": "HGNC lists OMIM:134797 as a gene entry.",
+        "/next/0/kind": "pivot",
+        "/next/0/args": ["get", "gene", "HGNC:3603"]
+      }
+    }
+  ]
+}

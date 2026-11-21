@@ -116,6 +116,10 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
     drug_application: Option<FdaDrugApplication>,
+    #[doc = "FDA CDx regimen partner.\nWhole trade or generic name after FDA's combination wording. Rows label matches in matched."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
+    regimen_partner: Option<Text>,
     #[doc = "Biomarker name in a cell.\nWhole name in the individual table's biomarker cell, any case, \
     surrounding spaces ignored: PIK3CA matches \"PIK3CA, AKT1, and PTEN\", not PIK3CA2. \
     A cell naming it only as \"Not NAME\", such as \"Not MSI-High\", is returned with biomarker_negated: true, kept whatever --fields names. \
@@ -313,6 +317,7 @@ impl DiagnosticSearch {
             condition: None,
             test_type: None,
             drug_application: None,
+            regimen_partner: None,
             biomarker: None,
             date_from: None,
             date_to: None,
@@ -370,6 +375,10 @@ impl DiagnosticSearch {
     /// Owned NDA/BLA application.
     pub fn drug_application(&self) -> Option<&FdaDrugApplication> {
         self.0.drug_application.as_ref()
+    }
+    /// Drug explicitly named as a regimen partner in FDA's drug cell.
+    pub fn regimen_partner(&self) -> Option<&Text> {
+        self.0.regimen_partner.as_ref()
     }
     /// Whole exact biomarker cell.
     pub fn biomarker(&self) -> Option<&Text> {

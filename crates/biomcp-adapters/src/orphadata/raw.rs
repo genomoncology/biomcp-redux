@@ -17,9 +17,18 @@ struct Jdbor {
     disorders: DisorderList,
 }
 #[derive(Deserialize)]
-struct Availability {
+pub(super) struct Availability {
     #[serde(rename = "Licence")]
     licence: Licence,
+}
+impl Availability {
+    pub(super) fn check(&self) -> Result<(), BadReply> {
+        if self.licence.short.trim() == LICENCE {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
+    }
 }
 #[derive(Deserialize)]
 struct Licence {
@@ -32,12 +41,12 @@ struct DisorderList {
     items: Option<Vec<Disorder>>,
 }
 #[derive(Deserialize)]
-struct Label {
+pub(super) struct Label {
     #[serde(rename = "$text")]
     text: Option<String>,
 }
 #[derive(Deserialize)]
-struct Term {
+pub(super) struct Term {
     #[serde(rename = "Name")]
     name: Option<Label>,
 }
@@ -115,13 +124,13 @@ pub(super) struct NativePrevalence {
     pub(super) geography: Option<String>,
     pub(super) validation: Option<String>,
 }
-fn label(value: Option<Label>) -> Option<String> {
+pub(super) fn label(value: Option<Label>) -> Option<String> {
     value
         .and_then(|v| v.text)
         .map(|v| v.trim().to_owned())
         .filter(|v| !v.is_empty())
 }
-fn term(value: Option<Term>) -> Option<String> {
+pub(super) fn term(value: Option<Term>) -> Option<String> {
     label(value.and_then(|v| v.name))
 }
 // An absent list element and an empty one both state no entries.
@@ -169,9 +178,7 @@ impl Row for Native {
     fn decode_document(body: &[u8]) -> Result<Vec<String>, BadReply> {
         let text = std::str::from_utf8(body).map_err(|_| BadReply)?;
         let document: Jdbor = quick_xml::de::from_str(text).map_err(|_| BadReply)?;
-        if document.availability.licence.short.trim() != LICENCE {
-            return Err(BadReply);
-        }
+        document.availability.check()?;
         let version = document.version.as_deref();
         document
             .disorders

@@ -138,20 +138,32 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>
         problems: problems.list,
     })
 }
+/// The medicine's regulatory record and any failure to read the referrals file.
+#[derive(Debug)]
+pub struct RegulatoryRead {
+    /// The selected medicine record, when found.
+    pub body: Option<DrugRegulatory>,
+    /// A referrals read failure leaves the medicine record available.
+    pub referral_error: Option<RequestError>,
+}
+
 /// Source-native dates and status for only the selected EMA application record, with the
 /// Commission decision date from the referrals file when its latest procedure is a referral.
 pub fn regulatory(
     leg: &Leg<'_>,
     id: &DrugId,
-) -> Result<crate::Mapped<Option<DrugRegulatory>>, RequestError> {
+) -> Result<crate::Mapped<RegulatoryRead>, RequestError> {
     let mut problems = fields(Some(id));
     let row = exact(leg, id)?;
     let procedure = row.as_ref().and_then(|row| {
         row.field("latest_procedure_affecting_product_information")
             .and_then(Result::ok)
     });
-    let decision = referrals::decision(leg, procedure, &mut problems)?;
-    let value = row.map(|row| {
+    let (decision, referral_error) = match referrals::decision(leg, procedure, &mut problems) {
+        Ok(decision) => (decision, None),
+        Err(error) => (None, Some(error)),
+    };
+    let body = row.map(|row| {
         let mut event = map::event(&row, &mut problems);
         let mut date_roles = map::date_roles(&row, &mut problems, &event).into_vec();
         if let Some(decision) = decision {
@@ -181,7 +193,10 @@ pub fn regulatory(
     });
     Ok(crate::Mapped {
         refusals: crate::Refusal::None,
-        value,
+        value: RegulatoryRead {
+            body,
+            referral_error,
+        },
         problems: problems.list,
     })
 }

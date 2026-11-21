@@ -1,6 +1,6 @@
 # 1093 — search-withdrawn-cancer-accelerated-approvals
 
-Status: OPEN.
+Status: COMPLETE. Built and landed on the 1088 batch branch (460df3f08)
 
 Milestone: 7
 

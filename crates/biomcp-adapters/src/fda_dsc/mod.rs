@@ -1,7 +1,7 @@
 //! FDA Drug Safety Communications: FDA's index page, a shipped seed of what each page links,
 //! and one communication's page read live.
 pub(crate) mod decl;
-mod html;
+pub(crate) mod html;
 mod page;
 mod read;
 mod seed;

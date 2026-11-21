@@ -1,6 +1,7 @@
 # 1104 — find-companion-diagnostics-by-regimen-partner
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f436c26484a484723127e9e84296b64fa7b2c4af
 
 Milestone: 7
 

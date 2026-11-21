@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-withdrawn-approvals",
+  "url": "https://www.fda.gov/drugs/cancer-approvals/withdrawn-cancer-accelerated-approvals",
+  "exchanges": [
+    {
+      "fetched": 42,
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<table><tr><th scope=\"col\">Drug Name</th><th style=\"width:35%;\" scope=\"col\">Accelerated Approval (AA) Indication</th><th scope=\"col\">Accelerated Approval Date</th><th scope=\"col\">Withdrawal Date&nbsp;<a id=\"footnoteref1_i6dr1gp\" class=\"see-footnote\" title=\"Withdrawal date indicates either the effective date published by the Federal Register or the date the product label was updated, whichever date came first.\" href=\"#footnote1_i6dr1gp\" aria-label=\"See footnote 1\"><sup>1</sup></a></th></tr><tr><td>Zepzelca (lurbinectedin)</td><td><a href=\"/drugs/drug-approvals-and-databases/fda-grants-accelerated-approval-lurbinectedin-metastatic-small-cell-lung-cancer\" data-entity-type=\"node\" data-entity-uuid=\"c510f6de-3e33-4f23-ae5f-5aa0a21f4a84\" data-entity-substitution=\"canonical\" title=\"FDA grants accelerated approval to lurbinectedin for metastatic small cell lung cancer\">Treatment of adult patients with metastatic small cell lung cancer (SCLC) with disease progression on or after prior platinum-based chemotherapy.</a></td><td>6/15/2020</td><td>9/30/2026</td></tr><tr><td>Tazverik (tazemetostat)</td><td><a href=\"https://wayback.archive-it.org/7993/20201222063544/https:/www.fda.gov/drugs/resources-information-approved-drugs/fda-approves-tazemetostat-advanced-epithelioid-sarcoma\">Treatment of adults and pediatric patients aged 16 years and older with metastatic or locally advanced epithelioid sarcoma not eligible for complete resection</a></td><td>1/23/2020</td><td>6/22/2026</td></tr><tr><td>Tazverik (tazemetostat)</td><td><a href=\"https://wayback.archive-it.org/7993/20201222062826/https:/www.fda.gov/drugs/fda-granted-accelerated-approval-tazemetostat-follicular-lymphoma\">Treatment of adult patients with relapsed or refractory (R/R) follicular lymphoma (FL) whose tumors are positive for an EZH2 mutation as detected by an FDA-approved test and who have received at least 2 prior systemic therapies. Treatment of adult patients with R/R FL who have no satisfactory alternative treatment options</a></td><td>6/18/2020</td><td>6/22/2026</td></tr></table>"
+      }
+    }
+  ]
+}
