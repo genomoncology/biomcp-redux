@@ -156,26 +156,7 @@ fn entity(
             json!({"type":"array","items":{"type":"string"},"description":FIELDS}),
         );
     }
-    let sources = actions
-        .iter()
-        .flat_map(|(_, _, command)| command.sources.iter().cloned())
-        .collect::<BTreeSet<_>>();
-    let notes = actions
-        .iter()
-        .map(|(action, note, _)| (*action, *note))
-        .collect::<Vec<_>>();
-    let action_sources = |word| {
-        actions
-            .iter()
-            .find(|(action, _, _)| *action == word)
-            .map(|(_, _, command)| &command.sources)
-    };
-    let source_scope = if matches!(name, "drug" | "disease" | "phenotype") {
-        action_sources("search").zip(action_sources("get"))
-    } else {
-        None
-    };
-    let description = super::description::tool(tool, &sources, source_scope, &notes, excluded);
+    let description = entity_description(tool, &actions, excluded);
     let mut tool = json!({"name":name,
         "description":description,
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",
@@ -193,6 +174,33 @@ fn entity(
         );
     }
     Ok(Some(tool))
+}
+
+fn entity_description(
+    tool: &super::catalog::front_map::EntityTool,
+    actions: &[(&str, &str, &Command)],
+    excluded: &BTreeSet<Source>,
+) -> String {
+    let sources = actions
+        .iter()
+        .flat_map(|(_, _, command)| command.sources.iter().cloned())
+        .collect::<BTreeSet<_>>();
+    let notes = actions
+        .iter()
+        .map(|(action, note, _)| (*action, *note))
+        .collect::<Vec<_>>();
+    let action_sources = |word| {
+        actions
+            .iter()
+            .find(|(action, _, _)| *action == word)
+            .map(|(_, _, command)| &command.sources)
+    };
+    let source_scope = if matches!(tool.0, "drug" | "disease" | "phenotype") {
+        action_sources("search").zip(action_sources("get"))
+    } else {
+        None
+    };
+    super::description::tool(tool, &sources, source_scope, &notes, excluded)
 }
 
 /// Write a canonical `{name: command, arguments}` call in its advertised entity form.
