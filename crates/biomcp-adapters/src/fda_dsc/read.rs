@@ -115,6 +115,10 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
             }
         })
         .collect();
+    let list_starts = items
+        .iter()
+        .filter_map(|row| row.header.date)
+        .min_by_key(|d| key(*d));
     items.extend(
         seeded
             .iter()
@@ -122,13 +126,6 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
             .cloned(),
     );
     newest_first(&mut items);
-    let list_starts = listed
-        .iter()
-        .filter_map(|l| match l.date {
-            Some(Ok(date)) => Some(date),
-            _ => None,
-        })
-        .min_by_key(|d| key(*d));
     Ok(Communications {
         items,
         list_starts,
