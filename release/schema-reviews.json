@@ -8488,6 +8488,9 @@
         "WHO IVD publishes only the prequalification year; give --prequalified-from/--prequalified-to as YYYY",
         "choose one of the source selector values",
         "a selected source does not support the requested filters",
+        "Drugs@FDA does not have a regulatory section. Use approvals for the application's FDA submission history.",
+        "biosimilars is not a drug get section. Search the FDA Purple Book for the reference drug's biosimilar roster.",
+        "--fields selects fragment row fields from valid_values. Find the text at result.label.data.text in each label reply.",
         "citation ordering exceeds the PMID limit; narrow the search",
         "MCP tool result exceeds the character cap in error.count; narrow --limit or --section-limit, select one source or section, or fetch one exact record",
         "use biomcp schema to list known artifact IDs",
@@ -8741,7 +8744,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged."
+      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged. Ticket 1112, 2026-11-21: add three drug get refusals that explain where label text appears, which Drugs@FDA section supplies approvals, and how to search Purple Book biosimilars. They keep the existing codes and provide corrected calls."
     },
     {
       "schemas": [
