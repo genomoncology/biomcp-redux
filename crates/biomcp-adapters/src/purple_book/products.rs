@@ -1,18 +1,33 @@
 //! Group matching FDA presentations by application without losing their distinctions.
 use super::dates::Dates;
 use biomcp_types::{
-    PurpleBookDesignationCount, PurpleBookPresentation, PurpleBookProduct, PurpleBookReference,
+    DrugPurpleBookProducts, PurpleBookDesignationCount, PurpleBookPresentation, PurpleBookProduct,
+    PurpleBookReference,
 };
 use std::collections::{BTreeMap, BTreeSet};
 
-/// Summarize the presentations of each application in BLA order.
-pub fn summarize(rows: &[PurpleBookPresentation]) -> Box<[PurpleBookProduct]> {
-    rows.chunk_by(|left, right| left.bla == right.bla)
-        .filter_map(product)
-        .collect()
+/// Summarize matching FDA presentations in BLA order with shared reference evidence.
+pub fn summarize(
+    release_month: Box<str>,
+    rows: &[PurpleBookPresentation],
+) -> DrugPurpleBookProducts {
+    let references = references(rows);
+    let items: Box<[_]> = rows
+        .chunk_by(|left, right| left.bla == right.bla)
+        .filter_map(|rows| product(rows, references.len() > 1))
+        .collect();
+    DrugPurpleBookProducts {
+        release_month,
+        total: items.len() as u64,
+        references,
+        items,
+    }
 }
 
-fn product(rows: &[PurpleBookPresentation]) -> Option<PurpleBookProduct> {
+fn product(
+    rows: &[PurpleBookPresentation],
+    multiple_references: bool,
+) -> Option<PurpleBookProduct> {
     let first = rows.first()?;
     let approval = Dates::read(rows.iter().map(|row| row.approval_date.as_deref()));
     let interchangeability = Dates::read(
@@ -42,7 +57,11 @@ fn product(rows: &[PurpleBookPresentation]) -> Option<PurpleBookProduct> {
             rows.iter().filter_map(|row| row.applicant.as_deref()),
             applicant,
         ),
-        references: references(rows),
+        references: if multiple_references {
+            references(rows)
+        } else {
+            Box::default()
+        },
         presentation_count: rows.len() as u32,
         designations: counts
             .into_iter()

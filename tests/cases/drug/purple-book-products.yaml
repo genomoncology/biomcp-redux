@@ -9,6 +9,7 @@
         "/result/release_month": "October 2026",
         "/page/total": 10,
         "/page/returned": 10,
+        "/result/references/0/bla": "BLA125057",
         "/result/items/0/bla": "BLA761024",
         "/result/items/0/name": "Amjevita",
         "/result/items/0/proper_name": "adalimumab-atto",

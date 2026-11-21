@@ -51,7 +51,8 @@ pub struct PurpleBookProduct {
     /// Other applicants FDA lists on matching presentations.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub other_applicants: Box<[Box<str>]>,
-    /// Reference names and application evidence for these presentations.
+    /// The references for this product when the roster matches several reference identities.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub references: Box<[PurpleBookReference]>,
     /// Number of matching presentations.
     pub presentation_count: u32,
@@ -91,6 +92,9 @@ pub struct DrugPurpleBookProducts {
     pub release_month: Box<str>,
     /// Number of matching biosimilar applications.
     pub total: u64,
+    /// Reference names and application evidence shared by this roster.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub references: Box<[PurpleBookReference]>,
     /// Biosimilar products in BLA order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[PurpleBookProduct]>,

@@ -87,10 +87,12 @@ fn products(
     release_month: Box<str>,
     rows: &[PurpleBookPresentation],
 ) {
-    let items = purple_book::summarize(rows);
-    let returned = items.len() as u32;
-    let total = u64::from(returned);
-    out.page = Some(status::page_info(0, returned, total));
+    let roster = purple_book::summarize(release_month, rows);
+    out.page = Some(status::page_info(
+        0,
+        roster.items.len() as u32,
+        roster.total,
+    ));
     if let Some(details) =
         crate::next::checked(query.purple_book_details(), SOURCE, &mut out.problems)
     {
@@ -101,10 +103,5 @@ fn products(
             fresh,
         ));
     }
-    out.body = DrugPurpleBookProducts {
-        release_month,
-        total,
-        items,
-    }
-    .with_query(query.clone());
+    out.body = roster.with_query(query.clone());
 }
