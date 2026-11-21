@@ -1,0 +1,27 @@
+{
+  "feature": "section-fields",
+  "story": "Select gnomAD LOEUF while retaining the same source transcript and release.",
+  "replay": "gene/constraint",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "--fields=loeuf"
+      ],
+      "expect": {
+        "/fields": [
+          "loeuf"
+        ],
+        "/result/items/0/sections/constraint/state": "data",
+        "/result/items/0/sections/constraint/data": {
+          "loeuf": 0.4183620979251529,
+          "transcript": "ENST00000269305",
+          "version": "v4"
+        }
+      }
+    }
+  ]
+}
