@@ -1,6 +1,7 @@
 # 1094 — query-the-purple-book-roster-and-interchangeability
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 34ee27c673eeffef3eee57e8fad71e6e2e3bb93c
 
 Milestone: 7
 

@@ -123,7 +123,7 @@ Commands:
   diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Exact discovery text or an explicit SEER catalog page.
-  drug           Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+  drug           Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference name or BLA and summarizes biosimilars by product.
   gene           Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with source counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
@@ -1409,7 +1409,7 @@ Form: search disease TEXT; not --text.
 ## biomcp search drug
 
 ```text
-Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference name or BLA and summarizes biosimilars by product.
 
 Usage: biomcp search drug [OPTIONS] [query]
 
@@ -1465,6 +1465,9 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --device <device>
+          Purple Book device. Match its presentation cell, ignoring case; return presentations.
+
       --exact-term[=<exact_term>]
           Search the typed name only.
           openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
@@ -1489,9 +1492,6 @@ Options:
           Search the source Indications and Usage field without disease synonym expansion.
           An optional name query further narrows the same source search.
 
-      --initiated-from <initiated_from>
-          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1504,11 +1504,14 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --initiated-from <initiated_from>
+          Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+
       --initiated-to <initiated_to>
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 
       --limit <limit>
-          Source candidate rows per page.
+          Rows per page. Purple Book product summaries always return the full roster.
 
       --mechanism-of-action <mechanism_of_action>
           Exact label mechanism of action; openFDA labels only.
@@ -1525,7 +1528,7 @@ Options:
           Follow the returned command with unchanged filters to keep the first page's names and step.
 
       --offset <offset>
-          Source rows to skip.
+          Rows to skip. Purple Book applies this only to presentation rows.
 
       --prequalified-from <prequalified_from>
           WHO PQ start date, inclusive.
@@ -1534,6 +1537,12 @@ Options:
       --prequalified-to <prequalified_to>
           WHO PQ end date, inclusive.
           Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+
+      --presentations[=<presentations>]
+          Purple Book presentation rows, also selected by --strength or --device.
+
+          [default: false]
+          [possible values: true, false]
 
       --reason <reason>
           Recall reason phrase.
@@ -1557,13 +1566,16 @@ Options:
       --status <status>
           Exact recall status.
 
+      --strength <strength>
+          Purple Book strength. Match its cell, ignoring case and spaces; return presentations.
+
       --therapeutic-area <therapeutic_area>
           WHO PQ therapeutic area.
           Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology.
 
 ```
 
-Search drugs and medicines by name, source label indication or mechanism of action. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, fda-dsc, mychem, openfda-label, opentargets, who-eml, who-pq.
+Search drugs and medicines by name, source label indication or mechanism of action. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, fda-dsc, mychem, openfda-label, opentargets, purple-book, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
@@ -1579,6 +1591,7 @@ falls in the window; BioMCP reads every match and counts the kept ones. Value fo
 - `--approved-to`: Original approval to, inclusive; Drugs@FDA only.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --approved-to 2023; only with --source drugsfda.
 - `--classification`: Source FDA classification; drug recalls only. Value form: string; example: --classification 'Class II'; only with --source fda-drug-recall.
+- `--device`: Purple Book device. Match its presentation cell, ignoring case; return presentations. Value form: string; example: --device Autoinjector; only with --source purple-book.
 - `--exact-term`: Search the typed name only.
 openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
 the drug's other names by default; this searches only the name as typed. Other sources search the name as typed. Value form: boolean; example: --exact-term.
@@ -1591,7 +1604,7 @@ Search the source Indications and Usage field without disease synonym expansion.
 An optional name query further narrows the same source search. Value form: string; example: --indication melanoma; only with --source openfda-label.
 - `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string; example: --initiated-from 2024-01-01; only with --source fda-drug-recall.
 - `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string; example: --initiated-to 2024-12-31; only with --source fda-drug-recall.
-- `--limit`: Source candidate rows per page. Value form: integer; example: --limit 1.
+- `--limit`: Rows per page. Purple Book product summaries always return the full roster. Value form: integer; example: --limit 1.
 - `--mechanism-of-action`: Exact label mechanism of action; openFDA labels only.
 Search the source Mechanism of Action field for this wording; no synonyms or drug class
 inference, so labels wording the mechanism differently are not returned. Value form: string; example: --mechanism-of-action 'Janus kinase'; only with --source openfda-label.
@@ -1599,11 +1612,12 @@ inference, so labels wording the mechanism differently are not returned. Value f
 Omit to search the preferred name. Value form: string; example: --name-selector preferred; only with --source chembl.
 - `--name-snapshot`: Label name page token.
 Follow the returned command with unchanged filters to keep the first page's names and step. Value form: string; example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value).
-- `--offset`: Source rows to skip. Value form: integer; example: --offset 1.
+- `--offset`: Rows to skip. Purple Book applies this only to presentation rows. Value form: integer; example: --offset 1.
 - `--prequalified-from`: WHO PQ start date, inclusive.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified-from 2020; only with --source who-pq.
 - `--prequalified-to`: WHO PQ end date, inclusive.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified-to 2020; only with --source who-pq.
+- `--presentations`: Purple Book presentation rows, also selected by --strength or --device. Value form: boolean; example: --presentations; only with --source purple-book.
 - `query`: Drug name phrase.
 FDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
 Drugs@FDA searches brands and ingredients,
@@ -1627,6 +1641,7 @@ Omit it for the source's own order. Value form: string; example: --sort newest; 
 
 After an empty name lookup, existing sources may supply aliases. Value form: string; example: --source ema.
 - `--status`: Exact recall status. Value form: string; example: --status Ongoing; only with --source fda-drug-recall.
+- `--strength`: Purple Book strength. Match its cell, ignoring case and spaces; return presentations. Value form: string; example: --strength 50MG/ML; only with --source purple-book.
 - `--therapeutic-area`: WHO PQ therapeutic area.
 Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology. Value form: string; example: --therapeutic-area oncology; only with --source who-pq.
 
@@ -3524,7 +3539,7 @@ Options:
 
 ```
 
-Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, fda-dsc, mychem, openfda-label, opentargets, who-eml, who-pq.
+Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, fda-dsc, mychem, openfda-label, opentargets, purple-book, who-eml, who-pq.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
@@ -3731,29 +3746,29 @@ Usage: biomcp get trial [OPTIONS] <input>...
 
 Arguments:
   <input>...
-          One to twenty exact NCT identifiers, in caller order.
+          1–20 NCT IDs in caller order.
 
 Options:
+      --distance <distance>
+          Positive radius in mi or km. Needs --lat and --lon.
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
 
-      --lat <lat>
-          Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read.
-
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --lat <lat>
+          Latitude in degrees. With --lon, sort locations by straight-line miles and default to that section.
+
       --limit <limit>
-          Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.
+          Up to 200 records per page. Sections other than locations also have byte limits.
 
       --lon <lon>
-          Longitude degrees; used with --lat.
-
-      --offset <offset>
-          Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
+          Longitude in degrees.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3761,21 +3776,31 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --offset <offset>
+          Skip characters in eligibility or NCI summary, records elsewhere.
+
       --pool <pool>
-          Checked stored source record, supplied by a continuation.
+          Stored record from a continuation.
 
       --section <section>
           Optional intact source sections. Default cards only; diseases; help get trial
 
       --source <source>
-          Explicit source; defaults to ClinicalTrials.gov and never; help get trial
-          Explicit source; defaults to ClinicalTrials.gov and never falls back.
+          Defaults to ClinicalTrials.gov. No fallback; help get trial
+          Defaults to ClinicalTrials.gov. No fallback.
+
+      --state <state>
+          Registry state label, ignoring ASCII case.
 
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
+
+      --status <status>
+          Site status, such as RECRUITING; help get trial
+          Site status, such as RECRUITING.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3790,31 +3815,34 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
-- `input`: One to twenty exact NCT identifiers, in caller order.
+- `--distance`: Positive radius in mi or km. Needs --lat and --lon. Value form: string; example: --distance 50km.
+- `input`: 1–20 NCT IDs in caller order.
 Form: get trial INPUT...; not --input.
-- `--lat`: Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read. Value form: string; example: --lat 39.96.
-- `--limit`: Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
-- `--lon`: Longitude degrees; used with --lat. Value form: string; example: --lon -83.00.
-- `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer; example: --offset 0.
-- `--pool`: Checked stored source record, supplied by a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--lat`: Latitude in degrees. With --lon, sort locations by straight-line miles and default to that section. Value form: string; example: --lat 39.96.
+- `--limit`: Up to 200 records per page. Sections other than locations also have byte limits. Value form: integer; example: --limit 1.
+- `--lon`: Longitude in degrees. Value form: string; example: --lon -83.00.
+- `--offset`: Skip characters in eligibility or NCI summary, records elsewhere. Value form: integer; example: --offset 0.
+- `--pool`: Stored record from a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `--section`: Optional intact source sections. Default cards only; diseases… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section outcomes.
-- `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
+- `--source`: Defaults to ClinicalTrials.gov. No fallback. Value form: string; example: --source nci.
+- `--state`: Registry state label, ignoring ASCII case. Value form: string; example: --state ohio.
+- `--status`: Site status, such as RECRUITING. Value form: string; example: --status RECRUITING.
 
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
-- `eligibility`: Intact criteria and structured age/sex fields.
-- `outcomes`: Primary, secondary and other outcome records.
-- `results`: Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).
-- `flow`: Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).
-- `baseline`: Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).
-- `arms`: Arms and interventions with original relationships.
-- `locations`: Whole source sites with their attached contacts.
-- `contacts`: Central contacts and overall officials in their original roles.
-- `references`: Registry publication identities and source reference types.
-- `documents`: Posted document metadata and source URLs.
-- `all`: Every implemented trial section, each with independent continuations; flow and baseline stay within results.
-- `diseases`: Source NCI disease concepts, including source enrichment metadata.
-- `summary`: Complete NCI summary, paged by original character offsets.
+- `eligibility`: Criteria and age/sex fields.
+- `outcomes`: Primary, secondary and other outcomes.
+- `results`: Posted outcomes and analyses, then flow, baseline and adverse events (ClinicalTrials.gov).
+- `flow`: Started, completed, and not completed by arm and period, with reasons (ClinicalTrials.gov).
+- `baseline`: Baseline populations, groups and measures (ClinicalTrials.gov).
+- `arms`: Arms and linked interventions.
+- `locations`: ClinicalTrials.gov sites with contacts. Count missing coordinates before radius filtering.
+- `contacts`: Central contacts and officials with roles.
+- `references`: Publication IDs and reference types.
+- `documents`: Document metadata and URLs.
+- `all`: All sections page separately. Flow and baseline stay in results.
+- `diseases`: NCI disease concepts and enrichment.
+- `summary`: NCI summary, paged by character.
 
 ## biomcp get variant
 
@@ -5866,9 +5894,12 @@ Arguments:
           Local source bundle to synchronize.
 
           [default: hgnc]
-          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx, orphadata]
+          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx, orphadata, purple-book]
 
 Options:
+      --file <PATH>
+          Import a manually downloaded FDA Purple Book monthly CSV. Purple Book only.
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
@@ -5900,9 +5931,11 @@ Options:
 
 Synchronize a local source bundle. Set sync_timeout_seconds in config.json to change its time limit (default 120).
 Listed choices accept any letter case; replies use their listed spelling.
+Options are local to the command and independent of source selection.
 
 - `bundle`: Local source bundle to synchronize.
 Form: sync BUNDLE; not --bundle.
+- `--file`: Import a manually downloaded FDA Purple Book monthly CSV. Purple Book only. Value form: string; example: --file <file> (syntax; replace the placeholder with your retained value).
 
 ## biomcp skill
 
@@ -9743,6 +9776,7 @@ Commands:
   who-ivd
   fda-cdx
   orphadata
+  purple-book
 
 Options:
       --format <format>
@@ -10231,6 +10265,44 @@ Options:
 ```
 
 Describe help sync orphadata.
+
+
+## biomcp help sync purple-book
+
+```text
+Usage: biomcp help sync purple-book [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help sync purple-book.
 
 
 ## biomcp help skill

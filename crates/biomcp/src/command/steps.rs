@@ -13,9 +13,17 @@ pub(super) fn next(
             let mut spelled = crate::spell::step(step.0, &step.1)?;
             // A section a card lists comes with the options that section takes.
             if step.0 == biomcp_types::StepKind::Section
-                && let biomcp_query::Action::Run { request, .. } = &step.1
+                && let biomcp_query::Action::Run {
+                    request: section, ..
+                } = &step.1
             {
-                spelled.options = crate::grammar::options(request);
+                spelled.options = crate::grammar::options(section);
+                // Trial help lists the site filters together. Keep section links to paging options.
+                if matches!(section, biomcp_types::Request::GetTrial(trial)
+                    if trial.sections() == [biomcp_types::TrialSection::Locations])
+                {
+                    spelled.options.remove("--status");
+                }
             }
             let carried = if globals.fields.is_empty() {
                 Vec::new()

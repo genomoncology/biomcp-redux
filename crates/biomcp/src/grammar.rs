@@ -229,12 +229,14 @@ pub(crate) fn root() -> Result<Root, ParseInvalid> {
         root = root.subcommand(command);
     }
     root = root.subcommand(
-        Command::new("sync").arg(
-            Arg::new("bundle")
-                .help("Local source bundle to synchronize.")
-                .default_value(Bundle::HGNC.name())
-                .value_parser(clap::builder::PossibleValuesParser::new(bundle_names())),
-        ),
+        Command::new("sync")
+            .arg(
+                Arg::new("bundle")
+                    .help("Local source bundle to synchronize.")
+                    .default_value(Bundle::HGNC.name())
+                    .value_parser(clap::builder::PossibleValuesParser::new(bundle_names())),
+            )
+            .arg(local::sync_file_arg()),
     );
     root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health").after_help("Example: biomcp health --offline"));
@@ -318,12 +320,7 @@ pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseIn
     } else if verb == "help" {
         Action::KeyHelp(local::help_source(matches)?)
     } else if verb == "sync" {
-        Action::Sync {
-            bundle: match matches.get_one::<String>("bundle") {
-                Some(name) => Bundle::named(name).ok_or_else(ParseInvalid::default)?,
-                None => Bundle::HGNC,
-            },
-        }
+        local::sync(matches)?
     } else {
         let (entity, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
         let request = request(verb, entity, matches, &globals.fields)?;

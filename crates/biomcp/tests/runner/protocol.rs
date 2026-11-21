@@ -1,5 +1,7 @@
 #[path = "hosted_surface.rs"]
 mod hosted_surface;
+#[path = "purple_book.rs"]
+mod purple_book;
 #[path = "source_age.rs"]
 mod source_age;
 
@@ -43,6 +45,7 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = typed_followups::trials();
+    trials.push(purple_book::trial());
     trials.extend(hosted_surface::trials());
     trials.extend(typed::trials());
     trials.extend(source_age::trials());

@@ -219,12 +219,16 @@ fn selected(request: &Request) -> Option<(Source, &'static str)> {
     match request {
         Request::SearchDrug(query) => {
             use biomcp_types::{
-                DrugFdaPage, DrugPage, DrugRecallPage, DrugSafetyCommunicationPage, DrugSource,
-                DrugWhoPage, ResponseBody,
+                DrugFdaPage, DrugPage, DrugPurpleBookPage, DrugPurpleBookProducts, DrugRecallPage,
+                DrugSafetyCommunicationPage, DrugSource, DrugWhoPage, ResponseBody,
             };
             let source = query.source();
             let schema = match source {
                 DrugSource::FdaDsc => DrugSafetyCommunicationPage::SCHEMA,
+                DrugSource::PurpleBook if query.purple_book_presentations() => {
+                    DrugPurpleBookPage::SCHEMA
+                }
+                DrugSource::PurpleBook => DrugPurpleBookProducts::SCHEMA,
                 DrugSource::FdaDrugRecall => DrugRecallPage::SCHEMA,
                 DrugSource::Drugsfda => DrugFdaPage::SCHEMA,
                 DrugSource::WhoPq => DrugWhoPage::SCHEMA,

@@ -58,6 +58,7 @@
     {
       "expect": {
         "/result/commands/0/arguments/*/name": [
+          "--distance",
           "input",
           "--lat",
           "--limit",
@@ -65,7 +66,9 @@
           "--offset",
           "--pool",
           "--section",
-          "--source"
+          "--source",
+          "--state",
+          "--status"
         ],
         "/result/commands/0/examples": {
           "count": 1
@@ -90,7 +93,7 @@
           "includes": "Optional intact source sections. Default cards only; diseases… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section outcomes."
         }
       },
-      "max_bytes": 4181,
+      "max_bytes": 4346,
       "run": [
         "help",
         "get",
