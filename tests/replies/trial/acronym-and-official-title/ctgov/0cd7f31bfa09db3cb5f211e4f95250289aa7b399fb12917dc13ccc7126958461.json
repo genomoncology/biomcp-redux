@@ -1,0 +1,226 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle&filter.advanced=AREA%5BAcronym%5D%22SURMOUNT%22&pageSize=5",
+  "exchanges": [
+    {
+      "fetched": 1795208827,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 301,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "totalCount": 4,
+          "studies": [
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT05412004",
+                  "briefTitle": "Obstructive Sleep Apnea Master Protocol GPIF: A Study of Tirzepatide (LY3298176) in Participants With Obstructive Sleep Apnea",
+                  "officialTitle": "A Master Protocol to Investigate the Efficacy and Safety of Tirzepatide Once Weekly in Participants Who Have Obstructive Sleep Apnea and Obesity: A Randomized, Double-Blind, Placebo-Controlled Trial",
+                  "acronym": "SURMOUNT-OSA"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2022-06-21",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2024-03-12",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2025-04-30"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obstructive Sleep Apnea",
+                    "Obesity"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": true
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT04844918",
+                  "briefTitle": "A Study of Tirzepatide (LY3298176) in Participants With Obesity Disease",
+                  "officialTitle": "Efficacy and Safety of Once-Weekly Tirzepatide in Participants With Obesity Disease: A Randomized, Double-Blind, Placebo-Controlled Trial (SURMOUNT-J)",
+                  "acronym": "SURMOUNT-J"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2021-05-10",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2023-06-24",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2024-07-16"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": true
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT05556512",
+                  "briefTitle": "A Study of Tirzepatide (LY3298176) on the Reduction on Morbidity and Mortality in Adults With Obesity",
+                  "officialTitle": "A Phase 3, Randomized, Double-blind, Placebo-Controlled Study to Investigate the Effect of Tirzepatide on the Reduction of Morbidity and Mortality in Adults With Obesity",
+                  "acronym": "SURMOUNT-MMO"
+                },
+                "statusModule": {
+                  "overallStatus": "ACTIVE_NOT_RECRUITING",
+                  "startDateStruct": {
+                    "date": "2022-10-11",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2027-10",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-11-12"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity",
+                    "Overweight"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            },
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT05024032",
+                  "briefTitle": "A Study of Tirzepatide (LY3298176) in Chinese Participants Without Type 2 Diabetes Who Have Obesity or Overweight (SURMOUNT-CN)",
+                  "officialTitle": "Efficacy and Safety of Tirzepatide Once Weekly in Chinese Participants Without Type 2 Diabetes Who Have Obesity or Are Overweight With Weight-Related Comorbidities: A Randomized, Double-Blind, Placebo-Controlled Trial (SURMOUNT-CN)",
+                  "acronym": "SURMOUNT-CN"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2021-09-01",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2022-12-27",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2024-01-19"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Eli Lilly and Company"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Obesity",
+                    "Overweight",
+                    "Metabolism and Nutrition Disorder"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Tirzepatide"
+                    },
+                    {
+                      "name": "Placebo"
+                    }
+                  ]
+                }
+              },
+              "hasResults": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

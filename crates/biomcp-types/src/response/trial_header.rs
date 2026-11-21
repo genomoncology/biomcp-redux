@@ -10,6 +10,12 @@ pub struct TrialHeader {
     /// Source brief title, absent when missing or rejected.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<Text>,
+    /// Source acronym, when registered.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub acronym: Option<Text>,
+    /// Source official protocol title, when registered.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub official_title: Option<Text>,
     /// Registry overall status, absent when missing or rejected; independent of site status.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<TrialStatus>,

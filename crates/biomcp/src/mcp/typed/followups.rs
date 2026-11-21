@@ -1,5 +1,5 @@
 //! Project only protocol-owned Steps; upstream text and query values remain data.
-use serde_json::Value;
+use serde_json::{Value, json};
 
 pub(super) fn project(
     root: &crate::grammar::Root,
@@ -19,7 +19,12 @@ pub(super) fn project(
     {
         let call = value.pointer(&path).and_then(|step| {
             let words = step.get("args")?.as_array()?;
-            let args = without_globals(root, words)?;
+            let Some(args) = without_globals(root, words) else {
+                if step.get("kind").and_then(Value::as_str) == Some("fresh") {
+                    return drug_refresh(root, words, tools);
+                }
+                return None;
+            };
             let mut call = super::summary::translate(root, &args, tools)?;
             if let Some(chosen) = chosen_fields(words) {
                 let arguments = call.get_mut("arguments")?.as_object_mut()?;
@@ -46,6 +51,31 @@ pub(super) fn project(
     }
     calls.reverse();
     Ok(calls)
+}
+
+/// The command tool accepts drug refreshes on transports that permit the fresh flag.
+fn drug_refresh(
+    root: &crate::grammar::Root,
+    words: &[Value],
+    tools: &super::grouping::Catalog,
+) -> Option<Value> {
+    use biomcp_types::Request::{GetDrug, GetDrugMarkets, SearchDrug};
+    let args = words
+        .iter()
+        .map(|word| word.as_str().map(std::ffi::OsString::from))
+        .collect::<Option<Vec<_>>>()?;
+    let mut parsed = crate::grammar::parse(root, &args).ok()?;
+    if !matches!(
+        parsed.action,
+        Some(biomcp_query::Action::Run {
+            request: GetDrug(_) | GetDrugMarkets(_) | SearchDrug(_),
+            fresh: true,
+        })
+    ) || !tools.permits(&mut parsed)
+    {
+        return None;
+    }
+    Some(json!({"kind":"fresh","name":"biomcp","arguments":{"args":words}}))
 }
 
 /// The typed call for command words, with any carried `--fields=a,b` as its `fields` list.

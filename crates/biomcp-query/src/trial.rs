@@ -132,6 +132,9 @@ fn search<'a>(
         page_notices(query, gene.as_deref(), &page, &mut source);
         let unconfirmed = page.codon_error.is_some();
         variant_spellings::codon_notice(searched, &page.codon_only, unconfirmed, &mut source);
+        source
+            .notices
+            .extend(ctgov::text_search_notice(searched, gene.as_deref()));
         // The registry's token belongs to the request that was sent, so the next page repeats it.
         let sent = (changed && !typed_only).then(|| searched.exact());
         let sent = sent.as_ref().unwrap_or(query);

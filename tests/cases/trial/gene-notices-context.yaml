@@ -37,7 +37,8 @@
           "equals": [
             "Publisher dataset date: 2026-10-23T09:00:04Z. This is distinct from retrieval and record event dates.",
             "Trial NCT00010001: BRAF appears only under the registered exclusion-criteria heading in the returned protocol fields: \"* bRaF mutations.\". This is not an eligibility assessment.",
-            "Trial NCT00010004: BRAF is not mentioned as an exact word in the returned protocol fields. Registry text matching does not establish a gene link or eligibility."
+            "Trial NCT00010004: BRAF is not mentioned as an exact word in the returned protocol fields. Registry text matching does not establish a gene link or eligibility.",
+            "ClinicalTrials.gov general text (query.term=\"BRAF\"). The total counts this search's matches. Use --acronym or --official-title to search those fields."
           ]
         },
         "/next/0/kind": "page"
@@ -58,7 +59,8 @@
         "/sources/1/notices/*/message": {
           "equals": [
             "Publisher dataset date: 2026-10-23T09:00:04Z. This is distinct from retrieval and record event dates.",
-            "Trial NCT00010007: the registered title contains \"Wild-type BRAF\". Gene-word matching does not establish eligibility."
+            "Trial NCT00010007: the registered title contains \"Wild-type BRAF\". Gene-word matching does not establish eligibility.",
+            "ClinicalTrials.gov general text (query.term=\"BRAF\"). The total counts this search's matches. Use --acronym or --official-title to search those fields."
           ]
         }
       }
@@ -82,7 +84,8 @@
         },
         "/sources/1/notices/*/message": {
           "equals": [
-            "Publisher dataset date: 2026-10-23T09:00:04Z. This is distinct from retrieval and record event dates."
+            "Publisher dataset date: 2026-10-23T09:00:04Z. This is distinct from retrieval and record event dates.",
+            "ClinicalTrials.gov general text (query.term=\"BRAF\"). The total counts this search's matches. Use --acronym or --official-title to search those fields."
           ]
         }
       }

@@ -115,7 +115,9 @@
       "exit": 4,
       "expect": {
         "/status": "failed",
-        "/query/query": "Broken name",
+        "/query/input": "Broken name",
+        "/query/section": ["approvals"],
+        "/next/0/kind": "fresh",
         "/query/source": "drugsfda"
       },
       "max_bytes": 9000
@@ -325,7 +327,7 @@
       "exit": 4,
       "expect": {
         "/status": "failed",
-        "/query/query": "Test therapy",
+        "/query/input": "Test therapy",
         "/problems/0/field": "molecule_chembl_id"
       },
       "max_bytes": 3000

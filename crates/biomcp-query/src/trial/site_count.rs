@@ -39,6 +39,9 @@ pub(super) fn count<'a>(
         return source;
     };
     if let Some(counts) = counts {
+        source
+            .notices
+            .extend(ctgov::text_search_notice(query, gene));
         source.count = Some(counts.trials_matched);
         source.retrieved_count = Some(u32::try_from(counts.trials_read).unwrap_or(u32::MAX));
         body.site_counts = Some(counts);

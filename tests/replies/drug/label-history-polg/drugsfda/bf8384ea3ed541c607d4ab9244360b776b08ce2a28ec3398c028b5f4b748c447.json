@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/1983/018723s000lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795149444,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "bf8384ea3ed541c607d4ab9244360b776b08ce2a28ec3398c028b5f4b748c447-0.bin"
+      }
+    }
+  ]
+}

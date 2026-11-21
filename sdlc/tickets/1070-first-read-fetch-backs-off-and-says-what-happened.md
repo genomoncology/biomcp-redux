@@ -1,6 +1,7 @@
 # 1070 — first-read-fetch-backs-off-and-says-what-happened
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 525e0ff7e2aef839335b790911aeb83eec28c8e8
 
 Milestone: 7
 

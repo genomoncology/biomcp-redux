@@ -11,7 +11,19 @@
         "/sources/3/source": "chembl",
         "/sources/3/state": "failed",
         "/page/total": 0,
-        "/page/returned": 0
+        "/page/returned": 0,
+        "/next/0/kind": "fresh",
+        "/next/0/name": "biomcp",
+        "/next/0/arguments/args": [
+          "search",
+          "drug",
+          "EX-66",
+          "--limit",
+          "1",
+          "--source",
+          "opentargets",
+          "--fresh"
+        ]
       },
       "mcp_call": {
         "name": "drug",
@@ -34,16 +46,16 @@
         "/status": "failed",
         "/query/input": "EX-66",
         "/query/source": "opentargets",
-        "/sources/0/notices/0/kind": "request-guidance",
-        "/next/0/name": "drug",
-        "/next/0/arguments": {
-          "equals": {
-            "action": "search",
-            "search": {
-              "query": "EX-66"
-            }
-          }
-        }
+        "/next/0/kind": "fresh",
+        "/next/0/name": "biomcp",
+        "/next/0/arguments/args": [
+          "get",
+          "drug",
+          "EX-66",
+          "--source",
+          "opentargets",
+          "--fresh"
+        ]
       },
       "exit": 4,
       "mcp_call": {

@@ -20,7 +20,8 @@
       ],
       "expect": {
         "/result/read/0/state": "private-use",
-        "/status": "partial"
+        "/status": "partial",
+        "/result/answer": "BioMCP could not tell: no label version could be read for its adverse_reactions section; 1 of 1 versions could not be read or were not opened."
       }
     }
   ]

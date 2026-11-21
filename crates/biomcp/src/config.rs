@@ -344,26 +344,18 @@ fn fetch_using(
         cache,
         mode,
         replay_cache,
-        auto_sync_max_bytes: file
-            .as_ref()
-            .and_then(|file| file.auto_sync_max_bytes)
-            .unwrap_or_else(|| FetchConfig::default().auto_sync_max_bytes),
         reply_cache_max_bytes: file
             .and_then(|file| file.reply_cache_max_bytes)
             .unwrap_or_else(|| FetchConfig::default().reply_cache_max_bytes),
         source_data_max_age_days: file
             .and_then(|file| file.source_data_max_age_days)
             .unwrap_or_else(|| FetchConfig::default().source_data_max_age_days),
-        sync_budget: file.and_then(|file| file.sync_timeout_seconds).map_or_else(
-            || FetchConfig::default().sync_budget,
-            |seconds| Duration::from_secs(seconds.get().into()),
-        ),
         proxy: file.and_then(|file| file.proxy.clone()).map(Secret::new),
         isolate: Some(crate::pdf_child::isolate(
             executable().ok(),
             file.and_then(|f| f.pdf_memory_limit_mib),
         )),
-        ..FetchConfig::default()
+        ..file::bundle_settings(file)
     })
     .map_err(|error| match error {
         biomcp_fetch::FetchError::Cache(error) => error.into(),

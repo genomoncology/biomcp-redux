@@ -1881,6 +1881,17 @@
     "Reply_TrialHeader": {
       "description": "Small source-attributed trial discovery record.",
       "properties": {
+        "acronym": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source acronym, when registered."
+        },
         "conditions": {
           "$ref": "#/$defs/Reply_Capped_Text",
           "description": "Source condition names."
@@ -1899,6 +1910,17 @@
         "nct_id": {
           "$ref": "#/$defs/Reply_NctId",
           "description": "Exact registry identity."
+        },
+        "official_title": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source official protocol title, when registered."
         },
         "phases": {
           "description": "Source phases; absent phases remain absent.",
@@ -2117,6 +2139,10 @@
     "Reply_TrialSearch": {
       "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",
       "properties": {
+        "acronym": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Acronym.\nClinicalTrials.gov only: search the registry acronym field."
+        },
         "age": {
           "description": "Age in years.\nClinicalTrials.gov only; unstated source bounds count as no limit.",
           "format": "uint32",
@@ -2396,7 +2422,7 @@
           "type": "boolean"
         },
         "exact_term": {
-          "description": "Search typed drug names and variant text as written, without other names or spellings.",
+          "description": "Exact terms.\nSearch typed drug names and variant text as written, without other names or spellings.",
           "type": "boolean"
         },
         "facility": {
@@ -2451,6 +2477,10 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Page token.\nClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page."
         },
+        "official_title": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Official title text.\nClinicalTrials.gov only: search the registry official title field."
+        },
         "offset": {
           "default": 0,
           "description": "Rows to skip.\nZero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent.",
@@ -2464,12 +2494,12 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Trial text.\nGeneral registry discovery text.",
+          "description": "Trial text.\nClinicalTrials.gov general text. Total counts its matches. Use --acronym or --official-title to search those fields.",
           "x-positional": 0
         },
         "sex": {
           "$ref": "#/$defs/Reply_TrialSex",
-          "description": "ClinicalTrials.gov only: registry sex facet."
+          "description": "Sex.\nClinicalTrials.gov only: registry sex facet."
         },
         "site_count": {
           "description": "Site count.\nClinicalTrials.gov only: instead of rows, the --limit facilities in the most matched trials, read over every page; names counted as registered, never merged.",

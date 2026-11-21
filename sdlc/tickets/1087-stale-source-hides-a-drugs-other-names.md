@@ -1,6 +1,7 @@
 # 1087 — stale-source-hides-a-drugs-other-names
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8beaba573684a74b9b21d2f93b4eec9e18d749a8
 
 Milestone: 7
 
