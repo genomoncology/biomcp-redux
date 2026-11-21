@@ -1,6 +1,7 @@
 # 1119 — ema-first-read-reads-the-referrals-file
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2a599189711a78208aa82a5bd1441b4f57dd04d3
 
 Milestone: 7
 
