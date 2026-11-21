@@ -7,10 +7,11 @@ steps:
     expect:
       /result/approvals/data/records/0/submission_number: "7"
       /result/approvals/data/records/0/supplement_purpose:
-        state: stated
-        document_id: "75677"
-        url: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/761118Orig1s007ltr.pdf
-        text: "This Prior Approval supplemental biologics license application proposes the following change(s): • a new prefilled syringe presentation; and • a new prefilled pen presentation."
+        equals:
+          state: stated
+          document_id: "75677"
+          url: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/761118Orig1s007ltr.pdf
+          text: "This Prior Approval supplemental biologics license application proposes the following change(s): • a new prefilled syringe presentation; and • a new prefilled pen presentation."
   - run: [get, drug, BLA761118, approvals, --source, drugsfda, --document-id, "75678"]
     expect:
       /result/approvals/data/records/0/submission_number: "8"

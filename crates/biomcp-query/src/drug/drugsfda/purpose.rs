@@ -177,7 +177,10 @@ fn purpose(text: &str, row: &DrugFdaSubmission) -> Option<String> {
         row.submission_number.as_str()
     );
     let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
-    let tail = compact.split_once(&header)?.1;
+    let (before, tail) = compact.split_once(&header)?;
+    if before.contains("/S-") {
+        return None;
+    }
     if tail.starts_with(|c: char| c.is_ascii_digit()) {
         return None;
     }
