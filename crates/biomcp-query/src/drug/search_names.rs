@@ -199,7 +199,7 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
         Ok(mapped) => mapped,
         Err(_) => return failure(error, vec![parent]),
     };
-    let carried = super::components(cx, &parent, false);
+    let carried = super::components(cx, &parent, false, false);
     let evidence: Vec<_> = std::iter::once(parent).chain(carried).collect();
     if mapped.refusals == biomcp_adapters::Refusal::Refused
         || u64::from(mapped.value.received) != mapped.value.total

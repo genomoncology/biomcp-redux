@@ -410,7 +410,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact openFDA SPL fields.\nSeparate fields (including tables) with commas for one part per field. Omit or give an absent or unknown field to list available names.\nwarnings_and_precautions reads warnings_and_cautions.\nFor drugsfda history, choose boxed_warning, indications_and_usage, contraindications,\nwarnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.\nOnly with section label or label-history.",
+          "description": "Exact openFDA SPL fields.\nComma-separated. Omit to list fields.\nCurrent subsections take :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.\nwarnings_and_precautions reads warnings_and_cautions.\nFor Drugs@FDA history: boxed_warning, indications_and_usage, contraindications,\nwarnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.\nOnly with section label or label-history.",
           "x-comma-separated": true
         },
         "partner": {

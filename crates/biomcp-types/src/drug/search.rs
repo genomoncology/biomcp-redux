@@ -3,9 +3,6 @@ use crate::QueryInvalid;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
 
-fn default_source() -> DrugSource {
-    DrugSource::Mychem
-}
 fn default_limit() -> u32 {
     10
 }
@@ -180,8 +177,9 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     device: Option<Text>,
     /// Drug source. An empty name search may retry names from other sources.
-    #[serde(default = "default_source")]
-    source: DrugSource,
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(with = "DrugSource", extend("default" = "mychem")))]
+    source: SearchSource,
     /// ChEMBL name to match. Default: preferred name.
     #[serde(
         default,
@@ -203,42 +201,43 @@ crate::query::validation::checked_query!(DrugSearch, SearchFields);
 impl TryFrom<SearchFields> for DrugSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
+        let source = fields.source.effective();
         if !(1..=50).contains(&fields.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        if fields.indication.is_some() && fields.source != DrugSource::OpenfdaLabel {
+        if fields.indication.is_some() && source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["indication", "source"]));
         }
-        if fields.mechanism_of_action.is_some() && fields.source != DrugSource::OpenfdaLabel {
+        if fields.mechanism_of_action.is_some() && source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["mechanism_of_action", "source"]));
         }
-        if !fields.application_type.is_empty() && fields.source != DrugSource::OpenfdaLabel {
+        if !fields.application_type.is_empty() && source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["application_type", "source"]));
         }
-        if fields.name_selector.is_some() && fields.source != DrugSource::Chembl {
+        if fields.name_selector.is_some() && source != DrugSource::Chembl {
             return Err(QueryInvalid::new(&["name_selector", "source"]));
         }
-        if fields.applicant.is_some() && fields.source != DrugSource::Drugsfda {
+        if fields.applicant.is_some() && source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["applicant", "source"]));
         }
-        if fields.sort.is_some() && fields.source != DrugSource::Drugsfda {
+        if fields.sort.is_some() && source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["sort", "source"]));
         }
-        validate_purple_book_selection(&fields)?;
-        validate_approved(&fields)?;
+        validate_purple_book_selection(&fields, source)?;
+        validate_approved(&fields, source)?;
         let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
-        if who_dates && fields.source != DrugSource::WhoPq {
+        if who_dates && source != DrugSource::WhoPq {
             return Err(QueryInvalid::new(&[
                 "prequalified_from",
                 "prequalified_to",
                 "source",
             ]));
         }
-        if fields.therapeutic_area.is_some() && fields.source != DrugSource::WhoPq {
+        if fields.therapeutic_area.is_some() && source != DrugSource::WhoPq {
             return Err(QueryInvalid::new(&["therapeutic_area", "source"]));
         }
         let who_filters = who_dates || fields.therapeutic_area.is_some();
-        if fields.source == DrugSource::WhoPq && fields.query.is_none() && !who_filters {
+        if source == DrugSource::WhoPq && fields.query.is_none() && !who_filters {
             return Err(QueryInvalid::new(&[
                 "query",
                 "therapeutic_area",
@@ -258,14 +257,14 @@ impl TryFrom<SearchFields> for DrugSearch {
             return Err(QueryInvalid::new(&["prequalified_from", "prequalified_to"]));
         }
         super::recall::validate_search(
-            fields.source,
+            source,
             fields.query.is_some()
                 || fields.indication.is_some()
                 || fields.mechanism_of_action.is_some()
                 || fields.applicant.is_some()
-                || (fields.source == DrugSource::WhoPq && who_filters)
+                || (source == DrugSource::WhoPq && who_filters)
                 // FDA's safety communications list newest first with no name.
-                || fields.source == DrugSource::FdaDsc,
+                || source == DrugSource::FdaDsc,
             fields.firm.is_some()
                 || fields.classification.is_some()
                 || fields.status.is_some()
@@ -322,7 +321,7 @@ impl DrugSearch {
             indication: None,
             mechanism_of_action: None,
             application_type: Box::default(),
-            source,
+            source: SearchSource(Some(source)),
             limit,
             offset: 0,
             applicant: None,
@@ -352,9 +351,12 @@ impl DrugSearch {
             .unwrap_or(super::DrugNameSelector::Preferred)
     }
 }
-fn validate_purple_book_selection(fields: &SearchFields) -> Result<(), QueryInvalid> {
+fn validate_purple_book_selection(
+    fields: &SearchFields,
+    source: DrugSource,
+) -> Result<(), QueryInvalid> {
     if (fields.presentations || fields.strength.is_some() || fields.device.is_some())
-        && fields.source != DrugSource::PurpleBook
+        && source != DrugSource::PurpleBook
     {
         return Err(QueryInvalid::new(&[
             "presentations",
@@ -366,9 +368,9 @@ fn validate_purple_book_selection(fields: &SearchFields) -> Result<(), QueryInva
     Ok(())
 }
 /// The original approval window: Drugs@FDA only, and never ending before it starts.
-fn validate_approved(fields: &SearchFields) -> Result<(), QueryInvalid> {
+fn validate_approved(fields: &SearchFields, source: DrugSource) -> Result<(), QueryInvalid> {
     let window = fields.approved_from.is_some() || fields.approved_to.is_some();
-    if window && fields.source != DrugSource::Drugsfda {
+    if window && source != DrugSource::Drugsfda {
         return Err(QueryInvalid::new(&[
             "approved_from",
             "approved_to",
@@ -389,6 +391,28 @@ fn validate_approved(fields: &SearchFields) -> Result<(), QueryInvalid> {
 }
 fn present_query<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
     Text::deserialize(d).map(Some)
+}
+
+// The command needs to know whether the caller supplied a source. Public JSON names the effective source.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct SearchSource(Option<DrugSource>);
+
+impl SearchSource {
+    fn effective(self) -> DrugSource {
+        self.0.unwrap_or(DrugSource::Mychem)
+    }
+}
+
+impl Serialize for SearchSource {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.effective().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for SearchSource {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        DrugSource::deserialize(d).map(|source| Self(Some(source)))
+    }
 }
 
 fn selected_name<'de, D: serde::Deserializer<'de>>(
@@ -475,7 +499,11 @@ impl DrugSearch {
 
     /// Single selected native source.
     pub fn source(&self) -> DrugSource {
-        self.0.source
+        self.0.source.effective()
+    }
+    /// Default discovery promotes complete names; explicit sources retain native order.
+    pub fn ranks_default_names(&self) -> bool {
+        self.0.source.0.is_none()
     }
     /// Native page bound.
     pub fn limit(&self) -> u32 {
@@ -506,12 +534,13 @@ const WIDENING: [DrugSource; 5] = [
 ];
 
 fn widens(fields: &SearchFields) -> bool {
+    let source = fields.source.effective();
     !fields.exact_term
-        && WIDENING.contains(&fields.source)
+        && WIDENING.contains(&source)
         && fields.query.as_ref().is_some_and(|name| {
             // A native record identifier names one record, never a drug with other names.
             match name.as_str().parse::<biodata::DrugId>() {
-                Ok(id) => !DrugSource::Drugsfda.accepts(&id) && !fields.source.accepts(&id),
+                Ok(id) => !DrugSource::Drugsfda.accepts(&id) && !source.accepts(&id),
                 Err(_) => true,
             }
         })

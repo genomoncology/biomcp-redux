@@ -1,0 +1,65 @@
+{
+  "feature": "drug-native-sources",
+  "live_check": "synthetic",
+  "story": "Default drug search promotes whole names and documented synonyms ahead of incidental rows before paging. Explicit MyChem search keeps source order.",
+  "replay": "drug/ranked-names",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "adalimumab",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/0/name": "Adalimumab",
+        "/result/items/0/matched_name": "generic",
+        "/result/items/0/source": "mychem",
+        "/sources/0/notices/0/message": "Total counts MyChem source rows. Exact names and synonyms rank first within the first 250 rows. matched_name also marks synonyms."
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/page/offset": 1,
+        "/page/total": 3,
+        "/result/items/0/name": "Example biologic",
+        "/result/items/0/matched_name": "generic"
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/page/offset": 2,
+        "/page/total": 3,
+        "/result/items/0/name": "Isopropyl alcohol",
+        "/result/items/0": {
+          "omits": [
+            "matched_name"
+          ]
+        },
+        "/next/*/kind": {
+          "excludes": "page"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "adalimumab",
+        "--limit",
+        "1",
+        "--source",
+        "mychem"
+      ],
+      "expect": {
+        "/page/total": 3,
+        "/result/items/0/name": "Isopropyl alcohol"
+      }
+    }
+  ]
+}

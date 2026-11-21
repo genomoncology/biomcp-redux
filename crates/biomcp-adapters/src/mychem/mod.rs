@@ -58,7 +58,7 @@ pub fn search(
     limit: u32,
     offset: u32,
 ) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
-    search_fields(leg, query, limit, offset, SEARCH_FIELDS)
+    search_fields(leg, query, limit, offset, SEARCH_FIELDS, names::matching)
 }
 /// Search the same source with its complete native brand and generic name fields for exact
 /// resolution. Each item comes with whether its record has drug rows, not only product rows.
@@ -70,9 +70,42 @@ pub fn search_names(
 ) -> Result<(crate::Mapped<DrugPage>, u32, Vec<bool>), RequestError> {
     let reply = search_reply(leg, query, limit, offset, NAME_READ_FIELDS)?;
     let received = reply.hits.len() as u32;
-    map::page(reply, leg, query)
+    map::page(reply, leg, query, names::matching)
         .map(|(page, drug)| (page, received, drug))
         .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
+}
+/// Number of native rows considered for promotion on default discovery.
+pub const RANKED_ROWS: u32 = 250;
+const RANK_FIELDS: &str = "drugbank.synonyms,chembl.molecule_synonyms.molecule_synonym,drugcentral.synonyms,\
+                    gtopdb.synonyms,openfda.generic_name,openfda.brand_name";
+/// Rank one fixed prefix before applying user offsets. Later rows retain the source order.
+pub fn search_ranked(
+    leg: &Leg<'_>,
+    query: &str,
+    limit: u32,
+    offset: u32,
+) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
+    let fields = format!("{SEARCH_FIELDS},{RANK_FIELDS}");
+    if offset >= RANKED_ROWS {
+        return search_fields(leg, query, limit, offset, &fields, names::exact_matching);
+    }
+    let (mut mapped, received) =
+        search_fields(leg, query, RANKED_ROWS, 0, &fields, names::exact_matching)?;
+    mapped
+        .value
+        .items
+        .sort_by_key(|row| row.matched_name.is_none());
+    // A rejected native row still consumes a position. Never assign its slot to a tail row.
+    let consumed = received.saturating_sub(offset).min(limit);
+    mapped.value.items = mapped
+        .value
+        .items
+        .into_vec()
+        .into_iter()
+        .skip(offset as usize)
+        .take(consumed as usize)
+        .collect();
+    Ok((mapped, consumed))
 }
 /// One source row stating a name, with the structure that row describes.
 #[derive(Debug)]
@@ -149,10 +182,11 @@ fn search_fields(
     limit: u32,
     offset: u32,
     requested: &str,
+    matching: names::NameMatch,
 ) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
     let reply = search_reply(leg, query, limit, offset, requested)?;
     let received = reply.hits.len() as u32;
-    map::page(reply, leg, query)
+    map::page(reply, leg, query, matching)
         .map(|(page, _)| (page, received))
         .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
 }
@@ -214,11 +248,14 @@ pub struct DrugDocument {
 /// Publisher components named by the request projection, before disabled fields are removed.
 pub fn requested_components(
     search: bool,
+    ranked: bool,
 ) -> impl Iterator<Item = &'static crate::registry::Component> {
     let fields = if search { SEARCH_FIELDS } else { CARD_FIELDS };
+    let extra = if ranked { RANK_FIELDS } else { "" };
     crate::drug_sources::components::all().filter(move |component| {
         fields
             .split(',')
+            .chain(extra.split(','))
             .any(|field| field.split('.').next() == Some(component.name))
     })
 }
