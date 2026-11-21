@@ -106,11 +106,11 @@
               "type": "null"
             }
           ],
-          "description": "Applicant name start; Drugs@FDA only.\nMatches native sponsor_name values starting with this text, ignoring letter case;\nno company-family or subsidiary inference. An optional name narrows the same search.",
+          "description": "sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.",
           "x-required-component": "drugsfda"
         },
         "application_type": {
-          "description": "Label application types to keep; openFDA labels only.\nBy openFDA application_number prefix; nda,bla leaves out generics (ANDA).",
+          "description": "Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA).",
           "items": {
             "$ref": "#/$defs/Reply_LabelApplicationType"
           },
@@ -127,7 +127,7 @@
               "type": "null"
             }
           ],
-          "description": "Original approval from, inclusive; Drugs@FDA only.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date\nfalls in the window; BioMCP reads every match and counts the kept ones.",
+          "description": "Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.",
           "x-required-component": "drugsfda"
         },
         "approved_to": {
@@ -139,7 +139,7 @@
               "type": "null"
             }
           ],
-          "description": "Original approval to, inclusive; Drugs@FDA only.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "drugsfda"
         },
         "classification": {
@@ -151,7 +151,7 @@
               "type": "null"
             }
           ],
-          "description": "Native FDA classification; drug recalls only.",
+          "description": "FDA recall classification.",
           "x-required-component": "fda-drug-recall"
         },
         "device": {
@@ -163,15 +163,15 @@
               "type": "null"
             }
           ],
-          "description": "Purple Book device. Match its presentation cell, ignoring case; return presentations.",
+          "description": "Filter presentations by device cell, ignoring case.",
           "x-required-component": "purple-book"
         },
         "exact_term": {
-          "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
+          "description": "Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.",
           "type": "boolean"
         },
         "expand_drug_names": {
-          "description": "Accepted for one release; changes nothing.\nSources that widen drug names do so by default.",
+          "description": "Accepted for one release. Name widening is already automatic where supported.",
           "type": "boolean"
         },
         "firm": {
@@ -183,12 +183,12 @@
               "type": "null"
             }
           ],
-          "description": "Recall firm phrase.\nMatches the published firm literally.",
+          "description": "Exact phrase in the published recall firm name.",
           "x-required-component": "fda-drug-recall"
         },
         "indication": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Literal label indication; openFDA labels only.\nSearch the native Indications and Usage field without disease synonym expansion.\nAn optional name query further narrows the same source search.",
+          "description": "Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.",
           "x-required-component": "openfda-label"
         },
         "initiated_from": {
@@ -200,7 +200,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Earliest recall initiation day, inclusive (YYYY-MM-DD).",
           "x-required-component": "fda-drug-recall"
         },
         "initiated_to": {
@@ -212,7 +212,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Latest recall initiation day, inclusive (YYYY-MM-DD).",
           "x-required-component": "fda-drug-recall"
         },
         "limit": {
@@ -225,12 +225,12 @@
         },
         "mechanism_of_action": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Literal label mechanism of action; openFDA labels only.\nSearch the source Mechanism of Action field for this wording; no synonyms or drug class\ninference, so labels wording the mechanism differently are not returned.",
+          "description": "Exact Mechanism of Action wording, without synonyms or drug class inference.",
           "x-required-component": "openfda-label"
         },
         "name_selector": {
           "$ref": "#/$defs/Reply_DrugNameSelector",
-          "description": "ChEMBL name selector.\nOmit to search the preferred name.",
+          "description": "ChEMBL name to match. Default: preferred name.",
           "x-required-component": "chembl"
         },
         "name_snapshot": {
@@ -242,7 +242,7 @@
               "type": "null"
             }
           ],
-          "description": "Label name page token.\nFollow the returned command with unchanged filters to keep the first page's names and step."
+          "description": "Label name page token. Keep the first page's names and step by reusing the token with unchanged filters."
         },
         "offset": {
           "default": 0,
@@ -260,7 +260,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO PQ start date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "First WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "who-pq"
         },
         "prequalified_to": {
@@ -272,17 +272,17 @@
               "type": "null"
             }
           ],
-          "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "who-pq"
         },
         "presentations": {
-          "description": "Purple Book presentation rows, also selected by --strength or --device.",
+          "description": "Return presentation rows, as do --strength and --device.",
           "type": "boolean",
           "x-required-component": "purple-book"
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.\nFDA safety communications search titles, linked drug names and available page text.\nZero matches does not establish that FDA issued no communication about this drug.\nThe reply counts the communications searched and how many had page text.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+          "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nSafety communications match titles, linked drug names and page text. Counts show records searched and those with text.\nZero matches does not establish that FDA issued no communication about this drug.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
           "x-positional": 0
         },
         "reason": {
@@ -306,13 +306,13 @@
               "type": "null"
             }
           ],
-          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\noriginal-approval: each row's original_approval date first, ties by application number;\nrows without one come last. BioMCP reads every match and orders them.\nOmit it for the source's own order.",
+          "description": "Application order. newest uses latest submission status date, which may be for a supplement.\noriginal-approval reads all matches and sorts by original_approval. Both put recent dates first,\nbreak ties by application number and put undated rows last. Omit for source order.",
           "x-required-component": "drugsfda"
         },
         "source": {
           "$ref": "#/$defs/Reply_DrugSource",
           "default": "mychem",
-          "description": "Selected source.\n\nAfter an empty name lookup, existing sources may supply aliases."
+          "description": "Drug source. An empty name search may retry names from other sources."
         },
         "status": {
           "anyOf": [
@@ -335,12 +335,12 @@
               "type": "null"
             }
           ],
-          "description": "Purple Book strength. Match its cell, ignoring case and spaces; return presentations.",
+          "description": "Filter presentations by strength cell, ignoring case and spaces.",
           "x-required-component": "purple-book"
         },
         "therapeutic_area": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "WHO PQ therapeutic area.\nWhole words of WHO's Therapeutic Area column, any letter case, such as Oncology.",
+          "description": "WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology).",
           "x-required-component": "who-pq"
         }
       },

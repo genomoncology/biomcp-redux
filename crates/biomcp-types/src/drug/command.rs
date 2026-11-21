@@ -17,13 +17,14 @@ impl schemars::JsonSchema for DrugGetCommand {
             if let Some(object) = input.as_object_mut() {
                 object.insert(
                     "description".into(),
-                    concat!("Source ID, brand or generic name (fda-dsc requires the communication UUID).\n",
-                        "Source ID or complete brand or generic name; WHO references retain native spaces. ",
-                        "Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval; ",
-                        "EMA prefers earliest authorisation. ",
-                        "Other sources retain search order. The chosen record reports up to five alternatives and their total. ",
-                        "A label read also takes an FDA application number, such as NDA216340. ",
-                        "For fda-dsc, use the communication UUID from search drug NAME --source fda-dsc.").into(),
+                    concat!(
+                        "Source ID or full brand or generic name (fda-dsc requires the communication UUID). ",
+                        "Keep spaces in WHO references. ",
+                        "Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. ",
+                        "EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. ",
+                        "Labels also take application numbers (e.g. NDA216340). ",
+                        "Find that UUID with search drug NAME --source fda-dsc."
+                    ).into(),
                 );
             }
             properties.insert("input".into(), input);
@@ -33,15 +34,22 @@ impl schemars::JsonSchema for DrugGetCommand {
             .and_then(|p| p.get_mut("input"))
         {
             let original = input["description"].as_str().unwrap_or_default();
-            input["description"] = format!(concat!("{original} Generic names also accept one trailing listed salt or ester term: {}. ",
-                "Brand names identical to their own ingredient count as generic. USAN nomenclature: {}"),
-                super::DrugNameMatch::SALT_OR_ESTER_WORDS.join(", "), super::DrugNameMatch::NAMING_GUIDANCE, original=original).into();
+            input["description"] = format!(
+                concat!(
+                    "{original} Generic names accept one trailing salt or ester term: {}. ",
+                    "Brands identical to their ingredient count as generic. USAN: {}"
+                ),
+                super::DrugNameMatch::SALT_OR_ESTER_WORDS.join(", "),
+                super::DrugNameMatch::NAMING_GUIDANCE,
+                original = original
+            )
+            .into();
         }
         if let Some(source) = schema
             .get_mut("properties")
             .and_then(|p| p.get_mut("source"))
         {
-            source["description"] = "Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.".into();
+            source["description"] = "Omit to infer the source from the section. Identity and mixed sections default to MyChem.".into();
         }
         if let Some(required) = schema.get_mut("required").and_then(|r| r.as_array_mut()) {
             required.retain(|name| name != "source");
