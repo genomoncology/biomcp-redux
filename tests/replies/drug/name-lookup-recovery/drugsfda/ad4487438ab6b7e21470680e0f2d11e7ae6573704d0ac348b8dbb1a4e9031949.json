@@ -1,0 +1,150 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22imatinib%22%20OR%20products.active_ingredients.name%3A%22imatinib%22&limit=50",
+  "exchanges": [
+    {
+      "fetched": 1794592763,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 358,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "results": {
+              "skip": 0,
+              "limit": 50,
+              "total": 2
+            }
+          },
+          "results": [
+            {
+              "application_number": "NDA021588",
+              "sponsor_name": "Synthetic sponsor",
+              "products": [
+                {
+                  "product_number": "001",
+                  "reference_drug": "Yes",
+                  "brand_name": "GLEEVEC",
+                  "active_ingredients": [
+                    {
+                      "name": "IMATINIB MESYLATE",
+                      "strength": "EQ 100MG BASE"
+                    }
+                  ],
+                  "reference_standard": "Yes",
+                  "dosage_form": "TABLET",
+                  "route": "ORAL",
+                  "marketing_status": "Prescription",
+                  "te_code": "AB"
+                }
+              ],
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20030418",
+                  "review_priority": "PRIORITY",
+                  "submission_class_code": "TYPE 3",
+                  "submission_class_code_description": "Type 3 - New Dosage Form",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "42219",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/021588s000_GleevecTOC.html",
+                      "date": "20060607",
+                      "type": "Review"
+                    },
+                    {
+                      "id": "44136",
+                      "url": "http://www.fda.gov/Drugs/DrugSafety/PostmarketDrugSafetyInformationforPatientsandProviders/ucm110502.htm",
+                      "date": "20031209",
+                      "type": "Other Important Information from FDA"
+                    },
+                    {
+                      "id": "15827",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2003/021588lbl.pdf",
+                      "date": "20030428",
+                      "type": "Label"
+                    },
+                    {
+                      "id": "28185",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2003/21588ltr.pdf",
+                      "date": "20030529",
+                      "type": "Letter"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "application_number": "NDA021335",
+              "sponsor_name": "Synthetic sponsor",
+              "products": [
+                {
+                  "product_number": "002",
+                  "reference_drug": "Yes",
+                  "brand_name": "GLEEVEC",
+                  "active_ingredients": [
+                    {
+                      "name": "IMATINIB MESYLATE",
+                      "strength": "EQ 100MG BASE **Federal Register determination that product was not discontinued or withdrawn for safety or effectiveness reasons**"
+                    }
+                  ],
+                  "reference_standard": "No",
+                  "dosage_form": "CAPSULE",
+                  "route": "ORAL",
+                  "marketing_status": "Discontinued"
+                }
+              ],
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20010510",
+                  "review_priority": "PRIORITY",
+                  "submission_class_code": "TYPE 1",
+                  "submission_class_code_description": "Type 1 - New Molecular Entity",
+                  "application_docs": [
+                    {
+                      "id": "44117",
+                      "url": "http://www.fda.gov/Drugs/DrugSafety/PostmarketDrugSafetyInformationforPatientsandProviders/ucm110502.htm",
+                      "date": "20031209",
+                      "type": "Other Important Information from FDA"
+                    },
+                    {
+                      "id": "5066",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2001/21335ltr.pdf",
+                      "date": "20010510",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "15209",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2001/21335lbl.pdf",
+                      "date": "20010510",
+                      "type": "Label"
+                    },
+                    {
+                      "id": "21604",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2001/21335_Gleevec.html",
+                      "date": "20010510",
+                      "type": "Review"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
