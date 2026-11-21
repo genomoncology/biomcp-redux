@@ -105,11 +105,12 @@ fn read(
             .collect())
     };
     let check = |bytes: &[u8]| {
-        std::str::from_utf8(bytes)
-            .ok()
-            .filter(|body| accept(body))
-            .map(|_| ())
-            .ok_or(Reason::BadReply)
+        let body = std::str::from_utf8(bytes).map_err(|_| Reason::BadReply)?;
+        if accept(body) {
+            Ok(())
+        } else {
+            Err(Reason::BadReply)
+        }
     };
     let mut codec = Read::<Bytes>::bytes().validate_body(&check);
     if file == "phenotype.hpoa" {
