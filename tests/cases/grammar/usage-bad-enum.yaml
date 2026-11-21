@@ -29,8 +29,7 @@
           "ema",
           "ddinter",
           "who-eml",
-          "fda-dsc",
-          "purple-book"
+          "fda-dsc"
         ],
         "/next/*/args": {
           "includes": [

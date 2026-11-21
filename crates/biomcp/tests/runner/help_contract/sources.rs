@@ -29,29 +29,19 @@ fn check() -> Check {
             .and_then(|line| line.trim_end_matches('.').split_once(" Sources: "))
             .ok_or_else(|| format!("missing source line for {verb} {entity}"))?;
         for source in sources.split(", ") {
-            if let Err(error) = validates(&env, command, source)
-                && !known_search_gap(verb, entity, source)
-            {
+            if let Err(error) = validates(&env, command, source) {
                 failures.push(format!("{verb} {entity} / {source}: {error}"));
             }
         }
     }
     if failures.is_empty() {
-        typed_drug(&env)
+        typed_sources(&env)
     } else {
         Err(failures.join("\n"))
     }
 }
 
-// Existing source-list gaps in other commands. Keep checking their other sources.
-fn known_search_gap(verb: &str, entity: &str, source: &str) -> bool {
-    matches!(
-        (verb, entity, source),
-        ("search", "phenotype", "hpo" | "ols") | ("search", "disease", "monarch" | "mydisease")
-    )
-}
-
-fn typed_drug(env: &Environment) -> Check {
+fn typed_sources(env: &Environment) -> Check {
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|error| error.to_string())?;
     let replies = mcp::exchange_with_globals(
@@ -59,30 +49,42 @@ fn typed_drug(env: &Environment) -> Check {
         &[mcp::request(json!(1), "tools/list", json!({}))],
         &["--offline".into()],
     )?;
-    let drug = replies
+    let tools = replies
         .first()
         .and_then(|reply| reply.pointer("/result/tools"))
         .and_then(Value::as_array)
-        .and_then(|tools| tools.iter().find(|tool| tool["name"] == "drug"))
-        .ok_or("missing typed drug tool")?;
-    for (action, expected) in [("search", true), ("get", false)] {
-        let sources = drug
-            .pointer(&format!(
-                "/inputSchema/properties/{action}/properties/source/enum"
-            ))
-            .and_then(Value::as_array)
-            .ok_or_else(|| format!("missing typed drug {action} sources"))?;
-        if sources.contains(&json!("purple-book")) != expected {
-            return Err(format!(
-                "wrong Purple Book availability in drug {action}: {sources:?}"
-            ));
+        .ok_or("missing typed tools")?;
+    for (entity, source, search_only, label) in [
+        ("drug", "purple-book", true, "FDA Purple Book (search)"),
+        ("phenotype", "hpo", false, "Human Phenotype Ontology (get)"),
+        ("phenotype", "ols", false, "Ontology Lookup Service (get)"),
+        ("disease", "monarch", false, "Monarch (get)"),
+        ("disease", "mydisease", false, "MyDisease.info (get)"),
+    ] {
+        let tool = tools
+            .iter()
+            .find(|tool| tool["name"] == entity)
+            .ok_or_else(|| format!("missing typed {entity} tool"))?;
+        for (action, expected) in [("search", search_only), ("get", !search_only)] {
+            let sources = tool
+                .pointer(&format!(
+                    "/inputSchema/properties/{action}/properties/source/enum"
+                ))
+                .and_then(Value::as_array)
+                .ok_or_else(|| format!("missing typed {entity} {action} sources"))?;
+            if sources.contains(&json!(source)) != expected {
+                return Err(format!(
+                    "wrong {source} availability in {entity} {action}: {sources:?}"
+                ));
+            }
         }
-    }
-    if !drug["description"]
-        .as_str()
-        .is_some_and(|text| text.contains("FDA Purple Book (search)"))
-    {
-        return Err("typed drug discovery must say Purple Book is search only".into());
+        if !tool
+            .get("description")
+            .and_then(Value::as_str)
+            .is_some_and(|text| text.contains(label))
+        {
+            return Err(format!("typed {entity} discovery is missing {label}"));
+        }
     }
     Ok(())
 }

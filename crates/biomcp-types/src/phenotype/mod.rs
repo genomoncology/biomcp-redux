@@ -3,6 +3,8 @@ use crate::{ComponentLabel, DiseaseAssociationItem, ResponseBody};
 use biodata::{
     PhenotypeCard, PhenotypeHeader, PhenotypeHierarchyLink, PhenotypeSynonym, PhenotypeXref,
 };
+#[cfg(feature = "schema")]
+pub use query::PhenotypeSearchCommand;
 pub use query::{
     PHENOTYPE_MATCH_MAX, PhenotypeGet, PhenotypeGroup, PhenotypeMetric, PhenotypeSearch,
     PhenotypeSearchMode, PhenotypeSection, PhenotypeSource,

@@ -164,11 +164,18 @@ fn entity(
         .iter()
         .map(|(action, note, _)| (*action, *note))
         .collect::<Vec<_>>();
-    let drug_get_sources = actions
-        .iter()
-        .find(|(action, _, _)| name == "drug" && *action == "get")
-        .map(|(_, _, command)| &command.sources);
-    let description = super::description::tool(tool, &sources, drug_get_sources, &notes, excluded);
+    let action_sources = |word| {
+        actions
+            .iter()
+            .find(|(action, _, _)| *action == word)
+            .map(|(_, _, command)| &command.sources)
+    };
+    let source_scope = if matches!(name, "drug" | "disease" | "phenotype") {
+        action_sources("search").zip(action_sources("get"))
+    } else {
+        None
+    };
+    let description = super::description::tool(tool, &sources, source_scope, &notes, excluded);
     let mut tool = json!({"name":name,
         "description":description,
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",

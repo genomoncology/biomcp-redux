@@ -74,6 +74,29 @@ fn five() -> u32 {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "SearchFields"))]
 pub struct PhenotypeSearch(SearchFields);
+
+/// The phenotype search command's source choices.
+#[cfg(feature = "schema")]
+#[derive(Debug)]
+pub struct PhenotypeSearchCommand;
+
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for PhenotypeSearchCommand {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        PhenotypeSearch::schema_name()
+    }
+    fn schema_id() -> std::borrow::Cow<'static, str> {
+        "biomcp.PhenotypeSearchCommand".into()
+    }
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        crate::query::command_source::scoped::<PhenotypeSearch>(
+            generator,
+            "PhenotypeSource",
+            "PhenotypeSource",
+            &[monarch().into()],
+        )
+    }
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -120,7 +143,7 @@ crate::query::validation::checked_query!(PhenotypeSearch, SearchFields);
 impl TryFrom<SearchFields> for PhenotypeSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if v.source != PhenotypeSource::Monarch {
+        if v.source != monarch() {
             return Err(QueryInvalid::new(&["source"]));
         }
         if v.text.trim().is_empty() {

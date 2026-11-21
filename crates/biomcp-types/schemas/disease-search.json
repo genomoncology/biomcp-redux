@@ -9,12 +9,9 @@
       ],
       "type": "string"
     },
-    "DiseaseSearchSource": {
-      "description": "An explicit disease search source without fallback.",
+    "DiseaseSource": {
       "enum": [
         "ols",
-        "mydisease",
-        "monarch",
         "seer",
         "hpo"
       ],
@@ -69,7 +66,7 @@
       "x-comma-separated": true
     },
     "source": {
-      "$ref": "#/$defs/DiseaseSearchSource",
+      "$ref": "#/$defs/DiseaseSource",
       "default": "ols",
       "description": "HPO for --phenotype, OLS by default, SEER for sites; help search disease\nHPO for --phenotype, OLS by default, SEER for sites."
     },

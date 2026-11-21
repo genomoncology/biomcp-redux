@@ -6,6 +6,8 @@ mod search;
 mod source;
 pub use id::DiseaseId;
 pub use search::DiseaseSearch;
+#[cfg(feature = "schema")]
+pub use search::DiseaseSearchCommand;
 pub use source::{DiseaseOntology, DiseaseSource};
 biodata::wire_enum! { described
     /// One named disease page.

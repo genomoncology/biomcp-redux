@@ -718,7 +718,7 @@ Options:
 
 ```
 
-Search human phenotypes in HPO. Sources: hpo, monarch, ols.
+Search human phenotypes in HPO. Sources: monarch.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
@@ -1400,7 +1400,7 @@ Options:
 
 ```
 
-Search diseases and their identifiers. Sources: hpo, monarch, mydisease, ols, seer.
+Search diseases and their identifiers. Sources: hpo, ols, seer.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
