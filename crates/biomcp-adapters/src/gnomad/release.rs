@@ -7,6 +7,7 @@ use biomcp_types::{Constraint, ConstraintRelease};
 use serde::{Deserialize, Deserializer};
 use std::{marker::PhantomData, time::Duration};
 
+/// Publisher endpoint for the explicit constraint release tables.
 pub static SPEC: SourceSpec = SourceSpec {
     base: "https://storage.googleapis.com/gcp-public-data--gnomad/release",
     deadline: Duration::from_secs(120),
