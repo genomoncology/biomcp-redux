@@ -16,7 +16,10 @@ fn check() -> Check {
     let mut failures = Vec::new();
     for (verb, entity, _) in biomcp_types::command_paths() {
         let (_, reply) = run(&env, &["help".into(), verb.into(), entity.into()])?;
-        let help: Help = serde_json::from_value(reply["result"].clone())
+        let help = reply
+            .get("result")
+            .ok_or_else(|| format!("missing help result for {verb} {entity}"))?;
+        let help: Help = serde_json::from_value(help.clone())
             .map_err(|error| format!("help {verb} {entity}: {error}"))?;
         let command = help.commands.first().ok_or("missing command help")?;
         let (_, sources) = command
@@ -125,8 +128,9 @@ fn validates(env: &Environment, command: &HelpCommand, source: &str) -> Check {
     }
     let example = command.examples.first().ok_or("missing help example")?;
     let (_, reply) = run(env, example)?;
-    if reply["sources"]
-        .as_array()
+    if reply
+        .get("sources")
+        .and_then(Value::as_array)
         .into_iter()
         .flatten()
         .any(|entry| entry["source"] == source)
@@ -134,8 +138,8 @@ fn validates(env: &Environment, command: &HelpCommand, source: &str) -> Check {
         Ok(())
     } else {
         Err(format!(
-            "no source route witnessed by {example:?}: {}",
-            reply["error"]
+            "no source route witnessed by {example:?}: {:?}",
+            reply.get("error")
         ))
     }
 }
@@ -145,7 +149,10 @@ fn accepted(env: &Environment, args: &[String]) -> Check {
     if matches!(code, Some(0 | 1 | 4)) {
         Ok(())
     } else {
-        Err(format!("{args:?} exited {code:?}: {}", reply["error"]))
+        Err(format!(
+            "{args:?} exited {code:?}: {:?}",
+            reply.get("error")
+        ))
     }
 }
 
