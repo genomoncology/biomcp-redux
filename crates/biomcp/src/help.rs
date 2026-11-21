@@ -86,7 +86,9 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
     } else if !public_grammar::overview(root, &mut commands, path)? {
         compact(&mut commands);
     }
-    fields_line(&mut commands, path);
+    if path != ["get", "cell-line"] {
+        fields_line(&mut commands, path);
+    }
     if path.is_empty() {
         let mut map = topic("map", FRONT_MAP.into());
         map.command.clear();
@@ -178,6 +180,9 @@ fn section_help(
         .sort_by_key(|example| !example.iter().any(|word| word == section));
     let mut commands = vec![command];
     compact(&mut commands);
+    if entity == "cell-line" {
+        fields_line(&mut commands, &path);
+    }
     Ok(Some(Help { commands }))
 }
 

@@ -106,8 +106,12 @@ fn stem(schema: &Value) -> &str {
 /// The row lists of one reply schema that a call reaches: a get's named sections, the
 /// section a reply of its own serves, or the rows of a search or subcommand.
 pub(super) fn lists(schema: &Value, call: &Call) -> Vec<List> {
+    let mut extra = super::section_rows::standalone(schema, call, stem(schema));
     if call.verb != "get" {
-        return items(schema);
+        if extra.is_empty() {
+            return items(schema);
+        }
+        return extra;
     }
     if call.words.is_empty() {
         return Vec::new();
@@ -121,10 +125,7 @@ pub(super) fn lists(schema: &Value, call: &Call) -> Vec<List> {
         walk.sections(result, &[Step::Key("result".into())]);
     }
     let found = walk.found;
-    let mut extra = super::section_rows::standalone(schema, call, stem(schema));
-    if extra.is_empty() || matches!(call.entity.as_str(), "variant") {
-        extra.extend(named_lists(schema, call, &found));
-    }
+    extra.extend(named_lists(schema, call, &found));
     extra
 }
 

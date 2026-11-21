@@ -359,7 +359,7 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
     if verb == "get" {
         let call = Call::of(verb, entity, sections);
         return (!call_lists(&call).is_empty()).then(|| {
-            "--fields a,b selects columns of a named section; a.b selects a nested value."
+            "--fields a,b keeps only those columns of a named section's rows; a.b names a value inside one."
                 .to_owned()
         });
     }

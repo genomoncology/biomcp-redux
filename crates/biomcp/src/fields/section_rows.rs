@@ -22,15 +22,17 @@ pub(super) fn standalone(schema: &Value, call: &Call, reply: &str) -> Vec<List> 
             &[(&["reactions", "records"], true)]
         }
         ("drug", "drug-markets") if requested(call, "markets") => &[(&["markets"], true)],
-        ("article", "article-pdf") if requested(call, "pdf") => &[(&["file", "data"], false)],
-        ("protein", "protein-sequence") if requested(call, "sequence") => &[(&["sequence"], false)],
+        ("sequence", "protein-sequence") if call.verb == "protein" => &[(&["sequence"], false)],
         ("cell-line", "cell-line-identity") if requested(call, "identity") => IDENTITY,
         ("cell-line", "cell-line-xrefs") if requested(call, "xrefs") => CAPPED,
         ("cell-line", "cell-line-variants") if requested(call, "variants") => CAPPED,
         ("cell-line", "cell-line-chembl") if requested(call, "chembl") => CAPPED,
-        ("variant", "variant-population") if requested(call, "population") => {
-            &[(&["groups"], true)]
-        }
+        ("population", "variant-population") if call.verb == "variant" => &[
+            (&["population", "data", "exome"], false),
+            (&["population", "data", "genome"], false),
+            (&["population", "data", "joint", "data"], false),
+            (&["groups"], true),
+        ],
         _ => &[],
     };
     schema
@@ -103,7 +105,7 @@ fn rows(schema: &Value, at: &[Step], node: &Value, paths: &[(&[&str], bool)]) ->
                 );
             }
             row.kept.extend(
-                ["reason", "record", "state"]
+                ["reason", "record", "state", "unmapped_codes"]
                     .into_iter()
                     .filter(|key| row.names.contains(*key))
                     .map(str::to_owned),
