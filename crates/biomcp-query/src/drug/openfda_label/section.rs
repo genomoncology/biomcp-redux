@@ -107,38 +107,7 @@ pub(super) fn select(
     } else {
         (record.label(heading, offset, limit, cx.label_bytes)?, None)
     };
-    let label = match data {
-        Some(mut data) => {
-            data.retrieved = received_date(fetched);
-            let returned = data.fragments.len() as u32;
-            let total = data.total.unwrap_or(0);
-            out.page = Some(crate::status::page_info(offset, returned, total));
-            if let Some(next) = offset
-                .checked_add(returned)
-                .filter(|n| u64::from(*n) < total)
-                && let Some(request) = crate::next::checked(
-                    query.at_section_offset(next),
-                    biomcp_types::Source::OpenfdaLabel,
-                    &mut out.problems,
-                )
-            {
-                out.next.push(crate::next::Step::run(
-                    StepKind::Page,
-                    &[biomcp_types::Source::OpenfdaLabel],
-                    Request::GetDrug(request),
-                    cx.fresh,
-                ));
-            }
-            Section::Data {
-                source: SOURCE,
-                data,
-            }
-        }
-        None => Section::Empty {
-            source: SOURCE,
-            record: None,
-        },
-    };
+    let label = section_page(query, cx.fresh, fetched, data, out);
     let hint = if let Some(message) = subsection_hint {
         Some(
             message
@@ -157,6 +126,49 @@ pub(super) fn select(
     })
     .with_query(query.clone());
     Ok(())
+}
+
+/// Retain source fragment offsets and keep the original selector in the continuation.
+fn section_page(
+    query: &DrugGet,
+    fresh: bool,
+    fetched: Option<i64>,
+    data: Option<DrugLabelText>,
+    out: &mut Outcome,
+) -> Section<DrugLabelText> {
+    match data {
+        Some(mut data) => {
+            data.retrieved = received_date(fetched);
+            let offset = data.offset;
+            let returned = data.fragments.len() as u32;
+            let total = data.total.unwrap_or(0);
+            out.page = Some(crate::status::page_info(offset, returned, total));
+            if let Some(next) = offset
+                .checked_add(returned)
+                .filter(|n| u64::from(*n) < total)
+                && let Some(request) = crate::next::checked(
+                    query.at_section_offset(next),
+                    biomcp_types::Source::OpenfdaLabel,
+                    &mut out.problems,
+                )
+            {
+                out.next.push(crate::next::Step::run(
+                    StepKind::Page,
+                    &[biomcp_types::Source::OpenfdaLabel],
+                    Request::GetDrug(request),
+                    fresh,
+                ));
+            }
+            Section::Data {
+                source: SOURCE,
+                data,
+            }
+        }
+        None => Section::Empty {
+            source: SOURCE,
+            record: None,
+        },
+    }
 }
 
 /// Search the whole section and cite the result without sending its full text.
