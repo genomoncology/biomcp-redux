@@ -128,6 +128,17 @@ fn drug_search(cx: &Ctx<'_>, query: &biomcp_types::DrugSearch) -> Outcome {
         DrugSource::PurpleBook => crate::drug::purple_book::search(cx, query),
         DrugSource::FdaSafetySignals => crate::drug::signals::search(cx, query),
         DrugSource::FdaWithdrawnApprovals => crate::drug::withdrawals::search(cx, query),
-        _ => crate::drug::search_with_aliases(cx, query),
+        DrugSource::WhoPq
+        | DrugSource::FdaDrugRecall
+        | DrugSource::Mychem
+        | DrugSource::Chembl
+        | DrugSource::Opentargets
+        | DrugSource::Civic
+        | DrugSource::OpenfdaLabel
+        | DrugSource::Drugsfda
+        | DrugSource::Ema
+        | DrugSource::Ddinter
+        | DrugSource::WhoEml
+        | DrugSource::FdaDsc => crate::drug::search_with_aliases(cx, query),
     }
 }

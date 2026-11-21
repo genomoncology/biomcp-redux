@@ -84,7 +84,7 @@ struct SearchFields {
     /// Reuse the first page’s name token with unchanged filters.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
-    /// Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.
+    /// Exact Indications and Usage wording. No disease synonyms. Drug names narrow results.
     #[serde(
         default,
         deserialize_with = "present_query",
@@ -93,7 +93,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     indication: Option<Text>,
-    /// Exact Mechanism of Action wording, without synonyms or drug class inference.
+    /// Exact Mechanism of Action wording. No synonyms or drug class inference.
     #[serde(
         default,
         deserialize_with = "present_query",
@@ -102,7 +102,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     mechanism_of_action: Option<Text>,
-    /// Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA).
+    /// Filter by application type. For example, nda,bla excludes generics (ANDA).
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
@@ -171,11 +171,11 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     presentations: bool,
-    /// Filter presentations by strength cell, ignoring case and spaces.
+    /// FDA presentation strength. Ignores case and spaces.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     strength: Option<Text>,
-    /// Filter presentations by device cell, ignoring case.
+    /// FDA presentation device. Ignores case.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     device: Option<Text>,
