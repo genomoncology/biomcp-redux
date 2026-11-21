@@ -1,9 +1,11 @@
 //! HGNC published approved and withdrawn human gene identities.
 mod fields;
 mod map;
+mod omim;
 mod raw;
 use crate::{Mapped, quotas};
 use biodata::{Gene, GeneSymbol, HgncId, HgncStatus, MatchKind, Text};
+pub use omim::{OMIM_SPEC, omim_genes};
 
 use biomcp_fetch::{
     Bundle, BundleInfo, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,

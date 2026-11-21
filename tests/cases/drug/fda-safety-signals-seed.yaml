@@ -1,0 +1,27 @@
+{
+  "feature": "drug-fda-safety-signals",
+  "story": "The first offline read can search the shipped FDA quarterly lists without a sync.",
+  "live_check": "local-only shipped snapshot",
+  "steps": [
+    {
+      "run": [
+        "--offline",
+        "search",
+        "drug",
+        "ocrelizumab",
+        "--source",
+        "fda-safety-signals",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/result/seed_date": "2026-11-21",
+        "/result/items/0/quarter": "April - June 2026",
+        "/result/items/0/signal": "Pneumonitis",
+        "/result/items/0/url": "https://www.fda.gov/drugs/fda-adverse-event-monitoring-system-aems/april-june-2026-new-safety-information-or-potential-signals-serious-risks-identified-fda-adverse",
+        "/result/items/1/signal": "Serum sickness",
+        "/sources/0/state": "stale"
+      }
+    }
+  ]
+}

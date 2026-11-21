@@ -84,10 +84,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::GetAdverseEvent(q) => crate::adverse_event::get(cx, q),
         Request::SearchDisease(query) => crate::disease::search(cx, query),
         Request::GetDisease(query) => crate::disease::get(cx, query),
-        Request::SearchDrug(query) if query.source() == biomcp_types::DrugSource::PurpleBook => {
-            crate::drug::purple_book::search(cx, query)
-        }
-        Request::SearchDrug(query) => crate::drug::search_with_aliases(cx, query),
+        Request::SearchDrug(query) => drug_search(cx, query),
         Request::GetDrug(query) => crate::drug::get(cx, query),
         Request::GetWhoMedicine(query) => crate::drug::who::get(cx, query),
         Request::GetDrugMarkets(query) => crate::drug::markets::get(cx, query),
@@ -122,4 +119,26 @@ pub fn run_drug_parts(cx: &Ctx<'_>, parts: &[biomcp_types::DrugGet]) -> Vec<Outc
         crate::publish::finish(out, &Request::GetDrug(part.clone()));
     }
     outcomes
+}
+
+fn drug_search(cx: &Ctx<'_>, query: &biomcp_types::DrugSearch) -> Outcome {
+    use biomcp_types::DrugSource;
+
+    match query.source() {
+        DrugSource::PurpleBook => crate::drug::purple_book::search(cx, query),
+        DrugSource::FdaSafetySignals => crate::drug::signals::search(cx, query),
+        DrugSource::FdaWithdrawnApprovals => crate::drug::withdrawals::search(cx, query),
+        DrugSource::WhoPq
+        | DrugSource::FdaDrugRecall
+        | DrugSource::Mychem
+        | DrugSource::Chembl
+        | DrugSource::Opentargets
+        | DrugSource::Civic
+        | DrugSource::OpenfdaLabel
+        | DrugSource::Drugsfda
+        | DrugSource::Ema
+        | DrugSource::Ddinter
+        | DrugSource::WhoEml
+        | DrugSource::FdaDsc => crate::drug::search_with_aliases(cx, query),
+    }
 }

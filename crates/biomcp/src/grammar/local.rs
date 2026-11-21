@@ -282,11 +282,31 @@ pub(super) fn sync_file_arg() -> Arg {
         .value_parser(clap::value_parser!(std::path::PathBuf))
 }
 
+pub(super) fn sync_xrefs_arg() -> Arg {
+    super::boolean_argument(
+        Arg::new("xrefs")
+            .long("xrefs")
+            .help("Synchronize the OMIM mapping file. Orphadata only.")
+            .conflicts_with("file"),
+    )
+}
+
 pub(super) fn sync(matches: &clap::ArgMatches) -> Result<super::Action, super::ParseInvalid> {
     let bundle = match matches.get_one::<String>("bundle") {
         Some(name) => super::Bundle::named(name).ok_or_else(super::ParseInvalid::default)?,
         None => super::Bundle::HGNC,
     };
+    if matches.get_flag("xrefs") {
+        if bundle != super::Bundle::ORPHADATA {
+            return Err(super::ParseInvalid {
+                usage: Some(biomcp_types::UsageError::argument("--xrefs".into())),
+                ..Default::default()
+            });
+        }
+        return Ok(super::Action::Sync {
+            bundle: super::Bundle::ORPHADATA_XREFS,
+        });
+    }
     let Some(path) = matches.get_one::<std::path::PathBuf>("file") else {
         return Ok(super::Action::Sync { bundle });
     };

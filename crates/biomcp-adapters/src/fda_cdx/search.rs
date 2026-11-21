@@ -239,4 +239,7 @@ fn matches(row: &CompanionDiagnosticRelation, query: &DiagnosticSearch) -> bool 
         && query
             .name()
             .is_none_or(|q| !super::row::name_match(row, q.as_str()).is_empty())
+        && query
+            .regimen_partner()
+            .is_none_or(|q| super::row::regimen_partner(row, q.as_str()))
 }

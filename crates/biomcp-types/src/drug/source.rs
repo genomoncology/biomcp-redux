@@ -29,12 +29,16 @@ pub enum DrugSource {
     WhoEml,
     /// FDA Drug Safety Communications.
     FdaDsc,
+    /// FDA potential safety signals (search only).
+    FdaSafetySignals,
+    /// FDA withdrawn cancer accelerated approvals (search only).
+    FdaWithdrawnApprovals,
     /// FDA Purple Book biosimilar roster (search only).
     PurpleBook,
 }
 impl DrugSource {
     /// Every retained drug source; registry bindings use these canonical values.
-    pub const ALL: [Self; 13] = [
+    pub const ALL: [Self; 15] = [
         Self::WhoPq,
         Self::FdaDrugRecall,
         Self::Mychem,
@@ -47,11 +51,16 @@ impl DrugSource {
         Self::Ddinter,
         Self::WhoEml,
         Self::FdaDsc,
+        Self::FdaSafetySignals,
+        Self::FdaWithdrawnApprovals,
         Self::PurpleBook,
     ];
     /// Whether the public get command has a form for this source.
     pub(super) const fn supports_get(self) -> bool {
-        !matches!(self, Self::PurpleBook)
+        !matches!(
+            self,
+            Self::PurpleBook | Self::FdaSafetySignals | Self::FdaWithdrawnApprovals
+        )
     }
     /// Canonical source spelling, reusing an existing source identity when present.
     pub fn as_str(self) -> &'static str {
@@ -72,6 +81,8 @@ impl DrugSource {
             Self::Ddinter => crate::Source::Ddinter,
             Self::WhoEml => crate::Source::WhoEml,
             Self::FdaDsc => crate::Source::FdaDsc,
+            Self::FdaSafetySignals => crate::Source::FdaSafetySignals,
+            Self::FdaWithdrawnApprovals => crate::Source::FdaWithdrawnApprovals,
             Self::PurpleBook => crate::Source::PurpleBook,
         }
     }
@@ -141,7 +152,12 @@ impl DrugSource {
             Self::Ema => &[Regulatory],
             Self::Ddinter => &[Interactions],
             Self::WhoEml => &[EssentialMedicines],
-            Self::WhoPq | Self::FdaDrugRecall | Self::FdaDsc | Self::PurpleBook => &[],
+            Self::WhoPq
+            | Self::FdaDrugRecall
+            | Self::FdaDsc
+            | Self::FdaSafetySignals
+            | Self::FdaWithdrawnApprovals
+            | Self::PurpleBook => &[],
         }
     }
 }
@@ -160,7 +176,10 @@ impl DrugSource {
         let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
         match self {
             Self::FdaDrugRecall => id.parse::<biodata::DrugRecallNumber>().is_ok(),
-            Self::WhoPq | Self::PurpleBook => false,
+            Self::WhoPq
+            | Self::PurpleBook
+            | Self::FdaSafetySignals
+            | Self::FdaWithdrawnApprovals => false,
             Self::Mychem => true,
             Self::Chembl | Self::Opentargets => id.strip_prefix("CHEMBL").is_some_and(digits),
             Self::Civic => civic_id(&id).is_some(),

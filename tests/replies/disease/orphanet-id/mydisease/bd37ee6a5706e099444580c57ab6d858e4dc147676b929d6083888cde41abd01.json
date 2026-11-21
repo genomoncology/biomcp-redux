@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease/OMIM%3A134797?fields=mondo%2Cdisease_ontology",
+  "exchanges": [
+    {
+      "fetched": 1795291836,
+      "status": 404,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "code": 404,
+          "success": false,
+          "error": "Not Found."
+        }
+      }
+    }
+  ]
+}

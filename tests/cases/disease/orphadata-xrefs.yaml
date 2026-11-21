@@ -1,0 +1,30 @@
+{
+  "feature": "disease-orphadata",
+  "live_check": "synthetic authored Orphadata reply",
+  "story": "Read a saved Orphadata release's OMIM mappings from one ORPHA code, preserving exact and broader relationships, direction and release.",
+  "verified": "Synthetic product 1 XML with source-defined mapping labels. See tests/replies/disease/orphanet-id/orphadata/README.md.",
+  "replay": "disease/orphanet-id",
+  "steps": [
+    {
+      "run": ["sync", "orphadata", "--xrefs"],
+      "expect": {"/status": "complete"}
+    },
+    {
+      "run": ["get", "disease", "ORPHA:115", "xrefs", "--source", "orphadata"],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/source": "orphadata",
+        "/page/total": 3,
+        "/result/items/*/subject/id": ["ORPHA:115", "ORPHA:115", "ORPHA:115"],
+        "/result/items/*/object/id": ["OMIM:900001", "OMIM:900002", "OMIM:900003"],
+        "/result/items/*/predicate": ["orphadata:E", "orphadata:NTBT", "orphadata:ExternalReference"],
+        "/result/items/0/description": "E (Exact mapping: the two concepts are equivalent)",
+        "/result/items/1/description": "NTBT (Narrow term to broad term)",
+        "/result/items/2": {"omits": ["description"]},
+        "/result/items/*/attribution/source": ["orphadata", "orphadata", "orphadata"],
+        "/result/items/0/attribution/release": "2026-06-23 07:53:50",
+        "/result/items/0/attribution/version": "synthetic-1"
+      }
+    }
+  ]
+}

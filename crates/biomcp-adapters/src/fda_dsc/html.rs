@@ -3,7 +3,7 @@ use biodata::PartialDate;
 
 /// Visible text of a fragment: tags, scripts and styles removed, character references decoded,
 /// and runs of whitespace joined into one space.
-pub(super) fn visible(fragment: &str) -> String {
+pub(crate) fn visible(fragment: &str) -> String {
     let mut out = String::with_capacity(fragment.len() / 2);
     let mut rest = fragment;
     while let Some(open) = rest.find('<') {
@@ -30,7 +30,7 @@ pub(super) fn visible(fragment: &str) -> String {
 }
 
 /// One double-quoted attribute value from an opening tag.
-pub(super) fn attribute<'a>(tag: &'a str, name: &str) -> Option<&'a str> {
+pub(crate) fn attribute<'a>(tag: &'a str, name: &str) -> Option<&'a str> {
     let key = format!(" {name}=\"");
     let start = tag.find(&key)? + key.len();
     let value = tag.get(start..)?;
@@ -39,7 +39,7 @@ pub(super) fn attribute<'a>(tag: &'a str, name: &str) -> Option<&'a str> {
 
 /// A full date FDA typed as month, day and four-digit year, separated by `-` or `/`. A
 /// two-digit year or any other form is not read, so no century is guessed.
-pub(super) fn date(text: &str) -> Option<PartialDate> {
+pub(crate) fn date(text: &str) -> Option<PartialDate> {
     let mut parts = text.trim().split(['-', '/']);
     let (month, day, year) = (parts.next()?, parts.next()?, parts.next()?);
     if parts.next().is_some()

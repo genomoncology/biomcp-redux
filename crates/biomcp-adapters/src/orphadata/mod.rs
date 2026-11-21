@@ -1,9 +1,11 @@
-//! Orphadata Science epidemiology and natural-history files as one local bundle.
+//! Orphadata Science published epidemiology and identifier mappings.
 mod bundle;
 /// Complete source policy and command declaration.
 pub(crate) mod decl;
+mod mappings;
 mod raw;
 mod read;
 pub(crate) use bundle::{HEALTH_PATH, bundle_state};
-pub use bundle::{SPEC, sync};
+pub use bundle::{NOTICE, SPEC, sync};
+pub use mappings::omim_xrefs;
 pub use read::{epidemiology, orpha_code};

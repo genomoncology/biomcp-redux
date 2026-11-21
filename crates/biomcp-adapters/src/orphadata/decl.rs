@@ -16,7 +16,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     key: None,
 };
 pub(crate) static BUNDLE: crate::decl::BundleDecl = crate::decl::BundleDecl {
-    help: crate::decl::bundle::REPLACE_HELP,
+    help: "Synchronize Orphanet prevalence. Use --xrefs to synchronize its OMIM mappings.",
     name: "orphadata",
     source: biomcp_types::Source::Orphadata,
     order: 11,
@@ -26,4 +26,16 @@ pub(crate) static BUNDLE: crate::decl::BundleDecl = crate::decl::BundleDecl {
 impl crate::decl::Bundle {
     /// Synchronize the Orphadata epidemiology files.
     pub const ORPHADATA: Self = Self(&BUNDLE);
+}
+pub(crate) static XREFS: crate::decl::BundleDecl = crate::decl::BundleDecl {
+    help: "Synchronize Orphanet’s published OMIM mappings.",
+    name: super::mappings::NAME,
+    source: biomcp_types::Source::Orphadata,
+    order: 13,
+    sync: |fetch| crate::decl::BundleReply::Standard(super::mappings::sync(fetch), false),
+    state: super::mappings::state,
+};
+impl crate::decl::Bundle {
+    /// Synchronize the Orphadata cross-reference file.
+    pub const ORPHADATA_XREFS: Self = Self(&XREFS);
 }
