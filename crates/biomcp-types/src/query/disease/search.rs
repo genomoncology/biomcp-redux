@@ -1,5 +1,6 @@
 //! Disease search inputs for literal discovery, site catalogs and HPO releases.
-use super::{DiseaseOntology, DiseaseSource, QueryInvalid, default_limit, present};
+use super::{DiseaseOntology, DiseaseSource, default_limit};
+use crate::query::gene::{QueryInvalid, present};
 use serde::{Deserialize, Serialize};
 
 /// Search by text, SEER site name, or HPO annotations.

@@ -1,0 +1,137 @@
+{
+  "live_check": "Synthetic ClinGen and GenCC export replies. No provider requests.",
+  "feature": "disease-gene-validity",
+  "story": "Disease validity preserves each publisher’s assertion, shows coverage, and pages exact name or ID lookups with row filters.",
+  "replay": "disease/gene-validity",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 3
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0019391",
+        "gene-validity"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 4,
+        "/sources/*/source": [
+          "clingen",
+          "gencc"
+        ],
+        "/sources/*/count": [
+          2,
+          2
+        ],
+        "/result/coverage/*/export_rows": [
+          3,
+          3
+        ],
+        "/result/items/*/source": [
+          "clingen",
+          "clingen",
+          "gencc",
+          "gencc"
+        ],
+        "/result/items/*/gene_id": [
+          "HGNC:7127",
+          "HGNC:7325",
+          "HGNC:7127",
+          "HGNC:7325"
+        ],
+        "/result/items/*/assertion/classification": [
+          "Definitive",
+          "Limited",
+          "Strong",
+          "Limited"
+        ],
+        "/result/items/*/assertion/mode_of_inheritance": [
+          "AD",
+          "AR",
+          "Autosomal dominant",
+          "Autosomal recessive"
+        ],
+        "/result/items/0/assertion/expert_panel": "Fixture Expert Panel",
+        "/result/items/2/assertion/submitter": "Fixture Submitter"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0019391",
+        "gene-validity",
+        "--section-limit",
+        "2"
+      ],
+      "expect": {
+        "/page/total": 4,
+        "/page/returned": 2,
+        "/sources/1/retrieved_count": 0,
+        "/next/0/kind": "page"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "Fixture disease",
+        "gene-validity",
+        "--source",
+        "clingen",
+        "--classification",
+        "limited",
+        "--submitter",
+        "Other Expert Panel"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/gene_id": "HGNC:7325",
+        "/sources/0/count": 1,
+        "/result/coverage/0/matched": 3
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "Fixture disease",
+        "gene-validity"
+      ],
+      "expect": {
+        "/sources/*/count": [
+          3,
+          1
+        ],
+        "/result/items/3/assertion/disease_id": "MONDO:0005835"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0019391",
+        "gene-validity",
+        "--source",
+        "gencc",
+        "--classification",
+        "strong",
+        "--submitter",
+        "Other Submitter"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0
+      }
+    }
+  ]
+}

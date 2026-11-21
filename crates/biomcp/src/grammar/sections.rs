@@ -3,7 +3,8 @@
 //! The fix is derived from what the command already declares: a section another name stands
 //! for, the sections a named source publishes, the source selector, and the label headings.
 //! It is offered as the next call and never run in place of the one given.
-use biomcp_types::{ErrorMessage, GeneSection, Source, Step, UsageArguments, UsageError};
+use biomcp_types::{ErrorMessage, Source, Step, UsageArguments, UsageError};
+use clap::Command;
 use serde_json::{Map, Value, json};
 use std::ffi::OsString;
 
@@ -15,33 +16,50 @@ const SYNONYMS: &[(&str, &str, &str)] = &[
     ("article", "body", "fulltext"),
 ];
 
-/// A named gene curation source is a get section, not a gene search selector.
-pub(super) fn gene_search_source(
-    path: &[&str],
-    spelling: Option<&str>,
-    args: &[OsString],
-) -> Option<UsageArguments> {
-    const FLAG: &str = "--source";
-    if path != ["search", "gene"] || spelling?.split('=').next() != Some(FLAG) {
+/// A publisher passed to gene get's unsupported --source flag can name a section.
+pub(super) fn gene_source_refusal(
+    root: &Command,
+    candidate: Vec<OsString>,
+    source: Source,
+) -> Option<super::ParseInvalid> {
+    if !matches!(source, Source::ClinGen | Source::Gencc | Source::Gnomad) {
         return None;
     }
-    let source = args
-        .iter()
-        .take_while(|word| *word != "--")
-        .enumerate()
-        .find_map(|(index, word)| match word.to_str()? {
-            FLAG => args.get(index + 1)?.to_str(),
-            word => word.strip_prefix(FLAG)?.strip_prefix('='),
-        })?;
-    let section = [GeneSection::ClinGen, GeneSection::Gencc]
-        .into_iter()
-        .map(<&str>::from)
-        .find(|section| source.eq_ignore_ascii_case(section))?;
-    Some(UsageArguments {
-        argument: Some(FLAG.into()),
-        message: Some(ErrorMessage::GeneSearchSource),
-        valid_values: None,
-        next: vec![super::validation::help(["get", "gene", section])],
+    let matches = root
+        .clone()
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(candidate))
+        .ok()?;
+    let matches = matches
+        .subcommand_matches("get")?
+        .subcommand_matches("gene")?;
+    let explicit = matches.try_get_raw("section").ok().flatten().is_some();
+    let mut value = super::request_arguments("get", "gene", matches).ok()?;
+    let fields = value.as_object_mut()?;
+    if matches!(source, Source::ClinGen | Source::Gencc) {
+        // The trailing validity shorthand is a section request after at least one gene ID.
+        let key = if fields.contains_key("section") {
+            "section"
+        } else {
+            "input"
+        };
+        if let Some(words) = fields.get_mut(key).and_then(Value::as_array_mut)
+            && (key == "section" || !explicit && words.len() > 1)
+            && words.last().and_then(Value::as_str) == Some("validity")
+        {
+            words.pop();
+        }
+    }
+    let schema = super::validation::schema("get", "gene")?;
+    by_source("get", "gene", &schema, fields, source)?;
+    let next = super::positional::complete(("get", "gene"), &schema, &value)?;
+    Some(super::ParseInvalid {
+        usage: Some(UsageError::Arguments(UsageArguments {
+            argument: Some("--source".into()),
+            message: Some(ErrorMessage::GeneSourceSection),
+            valid_values: None,
+            next: vec![next],
+        })),
+        ..super::ParseInvalid::default()
     })
 }
 

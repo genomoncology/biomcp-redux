@@ -1,45 +1,55 @@
 {
   "feature": "query-validation",
-  "live_check": "local-only validation and generated help; no source requests",
-  "story": "Gene search names its HGNC lookup and directs a refused curation source to its gene section.",
-  "replay": "gene/main",
+  "live_check": "Synthetic ClinGen and GenCC exports. No provider requests.",
+  "story": "Gene search names its HGNC lookup, suggests the same disease and curation source first, and keeps gene section help second.",
+  "replay": "disease/gene-validity",
   "steps": [
     {
-      "run": ["search", "gene", "Fanconi anemia", "--source", "clingen"],
+      "run": ["sync", "gencc"],
+      "expect": {"/status": "complete"}
+    },
+    {
+      "run": ["search", "gene", "Fixture disease", "--source", "clingen"],
       "exit": 2,
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--source",
-        "/error/message": "search gene does not take --source. It looks up HGNC names and aliases. For curation, use get gene SYMBOL and the source section.",
-        "/next/0/args": ["help", "get", "gene", "clingen"]
+        "/error/message": "search gene does not take --source. It looks up HGNC names and aliases. Use get disease NAME gene-validity for disease curation.",
+        "/next/0/args": {"includes_all_of": ["get", "disease", "Fixture disease", "gene-validity", "--source", "clingen"]},
+        "/next/1/args": ["help", "get", "gene", "clingen"]
       }
     },
     {
       "follow": "configure",
       "expect": {
         "/status": "complete",
-        "/result/commands/0/command": ["get", "gene"],
-        "/result/commands/0/sections/0/word": "clingen"
+        "/query/id": "Fixture disease",
+        "/query/source": "clingen",
+        "/page/total": 3,
+        "/sources/*/source": ["clingen"]
       }
     },
     {
-      "run": ["search", "gene", "Fanconi anemia", "--source", "gencc"],
+      "run": ["search", "gene", "Fixture disease", "--source", "gencc"],
       "exit": 2,
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--source",
-        "/error/message": "search gene does not take --source. It looks up HGNC names and aliases. For curation, use get gene SYMBOL and the source section.",
-        "/next/0/args": ["help", "get", "gene", "gencc"]
+        "/error/message": "search gene does not take --source. It looks up HGNC names and aliases. Use get disease NAME gene-validity for disease curation.",
+        "/next/0/args": {"includes_all_of": ["get", "disease", "Fixture disease", "gene-validity", "--source", "gencc"]},
+        "/next/1/args": ["help", "get", "gene", "gencc"]
       }
     },
     {
       "follow": "configure",
       "expect": {
         "/status": "complete",
-        "/result/commands/0/command": ["get", "gene"],
-        "/result/commands/0/sections/0/word": "gencc"
+        "/query/id": "Fixture disease",
+        "/query/source": "gencc",
+        "/page/total": 1,
+        "/sources/*/source": ["gencc"]
       }
     }
   ]
