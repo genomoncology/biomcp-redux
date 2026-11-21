@@ -1,0 +1,56 @@
+{
+  "feature": "query-validation",
+  "live_check": "Synthetic ClinGen and GenCC exports. No provider requests.",
+  "story": "Gene search names its HGNC lookup, suggests the same disease and curation source first, and keeps gene section help second.",
+  "replay": "disease/gene-validity",
+  "steps": [
+    {
+      "run": ["sync", "gencc"],
+      "expect": {"/status": "complete"}
+    },
+    {
+      "run": ["search", "gene", "Fixture disease", "--source", "clingen"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--source",
+        "/error/message": "search gene does not take --source. It looks up HGNC names and aliases. Use get disease NAME gene-validity for disease curation.",
+        "/next/0/args": {"includes_all_of": ["get", "disease", "Fixture disease", "gene-validity", "--source", "clingen"]},
+        "/next/1/args": ["help", "get", "gene", "clingen"]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/id": "Fixture disease",
+        "/query/source": "clingen",
+        "/page/total": 3,
+        "/sources/*/source": ["clingen"]
+      }
+    },
+    {
+      "run": ["search", "gene", "Fixture disease", "--source", "gencc"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--source",
+        "/error/message": "search gene does not take --source. It looks up HGNC names and aliases. Use get disease NAME gene-validity for disease curation.",
+        "/next/0/args": {"includes_all_of": ["get", "disease", "Fixture disease", "gene-validity", "--source", "gencc"]},
+        "/next/1/args": ["help", "get", "gene", "gencc"]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/id": "Fixture disease",
+        "/query/source": "gencc",
+        "/page/total": 1,
+        "/sources/*/source": ["gencc"]
+      }
+    }
+  ]
+}
