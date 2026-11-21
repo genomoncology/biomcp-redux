@@ -18,6 +18,8 @@ biodata::wire_enum! {
         Criteria => "--criteria",
         /// Registry intervention text.
         Intervention => "--intervention",
+        /// Registry intervention arm projection.
+        ArmsFor => "--arms-for",
         /// Registry status vocabulary.
         Status => "--status",
         /// Registry phase vocabulary.
@@ -78,6 +80,7 @@ impl TrialSearch {
             (self.gene().is_some(), F::Gene),
             (self.variant().is_some(), F::Variant),
             (self.criteria().is_some(), F::Criteria),
+            (self.arms_for().is_some(), F::ArmsFor),
             (!self.intervention().is_empty(), F::Intervention),
             (self.study_type().is_some(), F::StudyType),
             (self.sex().is_some(), F::Sex),
