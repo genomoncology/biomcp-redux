@@ -36,6 +36,7 @@
       "expect": {
         "/result/commands/0/arguments/*/name": [
           "--age-range",
+          "--classification",
           "--dataset",
           "id",
           "--interval",
@@ -46,7 +47,8 @@
           "--section-limit",
           "--section-offset",
           "--sex",
-          "--source"
+          "--source",
+          "--submitter"
         ],
         "/result/commands/0/command": [
           "get",
@@ -63,7 +65,8 @@
           "phenotypes",
           "incidence",
           "survival",
-          "prevalence"
+          "prevalence",
+          "gene-validity"
         ],
         "/result/commands/0/sections/1/description": "Source cross-references. Use --source ols for publisher-supplied target URLs.",
         "/status": "complete"

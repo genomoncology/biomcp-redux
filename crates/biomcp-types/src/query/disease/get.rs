@@ -5,7 +5,7 @@ use crate::{
     query::gene::{QueryInvalid, present},
 };
 use serde::{Deserialize, Serialize};
-/// Exact concept or native SEER site with independently paged section.
+/// Disease details and sections.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -24,10 +24,10 @@ pub struct DiseaseGet {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "GetFields"))]
 pub(super) struct GetFields<I = Text> {
-    /// Ontology CURIE, SEER site code or name, or exact native name for gene validity.
+    /// Disease CURIE, SEER site code or name, or exact curation name.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     pub(super) id: I,
-    /// Gene validity reads both sources by default. Other reads default to MyDisease.
+    /// Default MyDisease, or both sources for gene validity.
     #[serde(
         default,
         deserialize_with = "present",
@@ -35,7 +35,7 @@ pub(super) struct GetFields<I = Text> {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "DiseaseSource"))]
     pub(super) source: Option<DiseaseSource>,
-    /// One OLS ontology; default the ID's own, else mondo.
+    /// OLS ontology. Defaults to the ID’s ontology or MONDO.
     #[serde(
         default,
         deserialize_with = "present",
@@ -43,11 +43,11 @@ pub(super) struct GetFields<I = Text> {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology"))]
     pub(super) ontology: Option<DiseaseOntology>,
-    /// One named section; absent means identity card only.
+    /// Omit for the identity card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     pub(super) section: Option<DiseaseSection>,
-    /// Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
+    /// Rows per page. Default 5, Monarch genes 2, phenotypes 1.
     #[serde(
         default,
         deserialize_with = "present",
@@ -55,7 +55,7 @@ pub(super) struct GetFields<I = Text> {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "u32", range(min = 1, max = 50)))]
     pub(super) section_limit: Option<u32>,
-    /// Native row offset within the selected section.
+    /// Section row offset.
     #[serde(default)]
     pub(super) section_offset: u32,
     /// Native sex code.
@@ -67,20 +67,20 @@ pub(super) struct GetFields<I = Text> {
     /// Native age-range code.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) age_range: Option<Text>,
-    /// Requested native dataset selector, not proof of returned membership.
+    /// Requested dataset code.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) dataset: Option<Text>,
-    /// Incidence-only native period code.
+    /// Incidence period code.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) period: Option<Text>,
-    /// Survival-only interval code.
+    /// Survival interval code.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) interval: Option<Text>,
-    /// Gene validity only: exact native classification, ignoring letter case.
+    /// Exact gene validity classification.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub(super) classification: Option<Text>,
-    /// Gene validity only: exact GenCC submitter or ClinGen expert panel, ignoring letter case.
+    /// Exact GenCC submitter or ClinGen panel.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub(super) submitter: Option<Text>,

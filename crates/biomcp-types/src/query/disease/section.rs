@@ -2,23 +2,23 @@
 biodata::wire_enum! { described
     /// One named disease page.
     DiseaseSection {
-        /// Publisher scoped synonyms.
+        /// Publisher synonyms.
         Synonyms => "synonyms",
         /// Native cross-references. Use --source ols for publisher-supplied target URLs.
         Xrefs => "xrefs",
-        /// Native parent relations.
+        /// Parent terms.
         Hierarchy => "hierarchy",
-        /// Native gene association rows.
+        /// Gene associations.
         Genes => "genes",
-        /// Native phenotype association rows.
+        /// Phenotype associations.
         Phenotypes => "phenotypes",
-        /// Native stage incidence rows.
+        /// Incidence by stage.
         Incidence => "incidence",
-        /// Annual survival rows.
+        /// Annual survival.
         Survival => "survival",
-        /// Orphanet prevalence, age of onset and inheritance.
+        /// Orphanet prevalence, onset and inheritance.
         Prevalence => "prevalence",
-        /// ClinGen and GenCC curations by exact native disease name or ID.
+        /// ClinGen and GenCC curations. Filters ignore case.
         GeneValidity => "gene-validity",
     }
 }
