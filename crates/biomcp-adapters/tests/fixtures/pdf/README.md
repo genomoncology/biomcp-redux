@@ -5,3 +5,8 @@ PDFs for the PDF reader's cases (tickets 1068 and 1069). The real ones were fetc
 - `refused-map-label-page.pdf`: page 1 of the Olumiant (NDA 207924) supplement 2 label of 2020-07-08, https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/207924s002lbl.pdf (source SHA-256 784ea9b311eed9214a6105130eabd05803036061b41ed03d5268be9f0c472152), with the same kind of map.
 - `label-xeljanz-2012.pdf`: the Xeljanz (NDA 203214) original label of 2012-11-06, unchanged, https://www.accessdata.fda.gov/drugsatfda_docs/label/2012/203214s000lbl.pdf (SHA-256 59aea7c7eccf6f966b91337f0bcda23d4d009cb2e355b07063e9a7fe18630f71). The label-history section tests in `crates/biomcp-query` read it whole (ticket 1066); its contents list leaves out the boxed warning its body opens with.
 - The synthetic PDFs of the other cases are built inside `pdf_reader.rs`.
+
+The two Symbol fixtures contain one page each, copied with pypdf from the review's FDA labels. The expected characters were checked against the rendered pages.
+
+- `symbol-lipitor.pdf` is page 13 of [the Lipitor label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2012/020702s062s063lbl.pdf), source SHA-256 `5aa123a313951edbffb6c794c55a86b7817ce3499b4c92e07be0bc170e416d80`. Table 3 reads “↑ 8.7 fold”.
+- `symbol-tagrisso.pdf` is page 8 of [the Tagrisso label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/208065s021lbl.pdf), source SHA-256 `e8b4fb5945691feb9837df878d9c8feaf2e34cc6f761400aa7eab7551cd7d43f`. The footnote after “Fatigue” is β.

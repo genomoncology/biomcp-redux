@@ -1,0 +1,28 @@
+{
+  "feature": "drug-label-history",
+  "story": "A label section containing an undecoded supplementary private-use glyph cannot establish that a search term is absent.",
+  "live_check": "Synthetic PDFs, recorded only",
+  "replay": "drug/pdf-symbol-evidence",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA208692",
+        "label-history",
+        "--source",
+        "drugsfda",
+        "--label-section",
+        "adverse_reactions",
+        "--find",
+        "absent example",
+        "--every-version"
+      ],
+      "expect": {
+        "/result/read/0/state": "private-use",
+        "/status": "partial",
+        "/result/answer": "BioMCP could not tell: no label version could be read for its adverse_reactions section; 1 of 1 versions could not be read or were not opened."
+      }
+    }
+  ]
+}

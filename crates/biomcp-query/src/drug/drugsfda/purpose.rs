@@ -2,7 +2,9 @@
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{drugsfda, pdf};
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{DrugFdaDocument, DrugFdaSubmission, DrugFdaSupplementPurpose, Source};
+use biomcp_types::{
+    DrugFdaDocument, DrugFdaSubmission, DrugFdaSupplementPurpose, Source, SourceNotice,
+};
 
 pub(super) fn enrich(
     cx: &Ctx<'_>,
@@ -12,6 +14,7 @@ pub(super) fn enrich(
 ) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(&drugsfda::DOCUMENTS, deadline).fresh(cx.fresh);
     let mut incomplete = false;
+    let mut notices = Vec::new();
     for row in records.iter_mut().filter(|row| {
         row.event
             .kind
@@ -22,7 +25,7 @@ pub(super) fn enrich(
                 .as_ref()
                 .is_some_and(|v| v.as_str() == "EFFICACY")
     }) {
-        let purpose = read(&leg, row)?;
+        let purpose = read(&leg, row, &mut notices)?;
         incomplete |= matches!(purpose, DrugFdaSupplementPurpose::Unavailable { .. });
         row.supplement_purpose = Some(purpose);
     }
@@ -35,6 +38,11 @@ pub(super) fn enrich(
         .find(|s| s.source == Source::Drugsfda)
     {
         source.notices.extend(report.notices);
+        for notice in notices {
+            if !source.notices.contains(&notice) {
+                source.notices.push(notice);
+            }
+        }
         if document_failed {
             source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
             data_date: None,
@@ -68,6 +76,7 @@ fn unread(state: biomcp_types::PdfTextState) -> Option<&'static str> {
 fn read(
     leg: &biomcp_fetch::Leg<'_>,
     row: &DrugFdaSubmission,
+    notices: &mut Vec<SourceNotice>,
 ) -> Result<DrugFdaSupplementPurpose, RequestError> {
     let document = row
         .application_docs
@@ -93,11 +102,8 @@ fn read(
         Some(text) => Ok(text.clone()),
         None => pdf::read(leg, &drugsfda::DOCUMENTS, url, 0),
     };
-    let evidence = match extracted {
-        Ok(pdf) => match unread(pdf.state) {
-            Some(message) => return Ok(unavailable(message, Some(document), None)),
-            None => pdf.text.as_deref().and_then(|text| purpose(text, row)),
-        },
+    let pdf = match extracted {
+        Ok(pdf) => pdf,
         Err(error @ RequestError::Source(_)) => {
             return Ok(unavailable(
                 "The linked FDA letter could not be read; its supplement purpose is unavailable.",
@@ -116,13 +122,25 @@ fn read(
         }
         Err(error) => return Err(error),
     };
+    if let Some(message) = unread(pdf.state) {
+        return Ok(unavailable(message, Some(document), None));
+    }
+    let evidence = pdf.text.as_deref().and_then(|text| purpose(text, row));
     Ok(if let Some(text) = evidence {
         match biodata::Text::from_source(&text) {
-            Ok(text) => DrugFdaSupplementPurpose::Stated {
-                text,
-                document_id: document.id.clone(),
-                url: url.clone(),
-            },
+            Ok(text) => {
+                if pdf.private_symbol
+                    && text.as_str().chars().any(pdf::is_private_use)
+                    && let Some(notice) = pdf::missing_notice(&pdf)
+                {
+                    notices.push(notice);
+                }
+                DrugFdaSupplementPurpose::Stated {
+                    text,
+                    document_id: document.id.clone(),
+                    url: url.clone(),
+                }
+            }
             Err(_) => unavailable(
                 "The linked FDA letter purpose could not be represented as source text.",
                 Some(document),

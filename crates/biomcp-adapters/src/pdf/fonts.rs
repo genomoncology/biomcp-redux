@@ -28,7 +28,7 @@ impl Widths {
     }
 
     /// Horizontal text-space advance of one shown string under the text state.
-    pub(super) fn advance(&self, bytes: &[u8], state: &super::state::State) -> f32 {
+    pub(super) fn advance(&self, bytes: &[u8], state: &super::state::State<'_>) -> f32 {
         let codes: Vec<u32> = if self.two_byte {
             bytes
                 .chunks(2)

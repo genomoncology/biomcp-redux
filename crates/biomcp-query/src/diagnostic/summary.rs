@@ -38,12 +38,27 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
                 Some(find) => pdf::whole(&leg, &fda_pma::DOCUMENTS, url)
                     .map(|(d, text)| (d, Some((find, text)))),
             });
-    let error = match result {
+    let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
+    let mut source = status::source(q.source().source(), leg.finish(), error);
+    if let (Some(error), Ok(url)) = (error, url.as_ref())
+        && let Some(notice) = pdf::refusal(url, &error)
+    {
+        source.notices.push(notice);
+        next::push(
+            &mut out,
+            StepKind::Fresh,
+            &[q.source().source()],
+            Request::GetDiagnostic(q.clone()),
+            true,
+        );
+    }
+    out.sources.push(source);
+    match result {
         Ok((document, Some((find, text)))) => {
             status::pdf_item(&mut out, q.source().source(), &document);
             let body = found(cx, q, document, find.as_str(), &text, &mut out);
             out.body = body;
-            None
         }
         Ok((document, None)) => {
             let returned = u32::from(document.text.is_some());
@@ -69,27 +84,8 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
                 hits: None,
             }
             .with_query(q.clone());
-            None
         }
-        Err(error) => Some(error),
-    };
-    out.local = error.and_then(status::local);
-    let mut source = status::source(q.source().source(), leg.finish(), error);
-    if let (Some(error), Ok(url)) = (error, url.as_ref())
-        && let Some(notice) = pdf::refusal(url, &error)
-    {
-        source.notices.push(notice);
-        next::push(
-            &mut out,
-            StepKind::Fresh,
-            &[q.source().source()],
-            Request::GetDiagnostic(q.clone()),
-            true,
-        );
-    }
-    out.sources.push(source);
-    if error.is_some() {
-        status::item(&mut out, false, true, false);
+        Err(_) => status::item(&mut out, false, true, false),
     }
     command.finish(deadline.remaining());
     out

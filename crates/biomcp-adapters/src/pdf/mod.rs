@@ -11,6 +11,7 @@ mod page;
 pub mod publisher;
 mod scan;
 mod state;
+mod symbol;
 mod text;
 mod tounicode;
 mod words;
@@ -20,6 +21,7 @@ pub(crate) use download::pdf;
 pub use download::{MAX_BYTES, download, refused};
 pub use embedded::{Embedded, embedded};
 pub use garbled::garbled;
+pub use symbol::is_private_use;
 pub use text::{
     FRAGMENT_BYTES, LABEL_PAGES, MAX_EXPANDED_BYTES, MAX_PAGES, fragment_starts, label,
     missing_notice, read, refusal, whole,

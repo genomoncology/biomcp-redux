@@ -1,0 +1,1 @@
+Synthetic one-page PDF. Symbol and Wingdings share a ToUnicode map. The Symbol run uses an unassigned slot (FF), both private-use spellings of the radical extender, and an already-standard alpha. A form draws first with the inherited Wingdings font, then selects its own Symbol font under the same resource name. The page uses Wingdings again after the form.

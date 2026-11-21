@@ -190,3 +190,26 @@ fn codes_a_map_leaves_unmapped_mark_the_read_partial() {
     );
     assert_eq!(read.missing, Some(PdfMissing::Skipped));
 }
+
+#[test]
+fn fda_label_symbols_match_the_printed_tables() {
+    let lipitor = include_bytes!("fixtures/pdf/symbol-lipitor.pdf");
+    let tagrisso = include_bytes!("fixtures/pdf/symbol-tagrisso.pdf");
+    for (page, phrase) in [
+        (lipitor.as_slice(), "↑ 8.7 fold"),
+        (tagrisso.as_slice(), "Fatigueβ"),
+    ] {
+        let read = embedded(page, 1, &|| false).expect("read FDA label page");
+        assert!(
+            read.text.contains(phrase),
+            "expected the printed {phrase:?}"
+        );
+        assert!(
+            !read
+                .text
+                .chars()
+                .any(|c| ('\u{e000}'..='\u{f8ff}').contains(&c)),
+            "all private codes on this page are known Symbol glyphs"
+        );
+    }
+}

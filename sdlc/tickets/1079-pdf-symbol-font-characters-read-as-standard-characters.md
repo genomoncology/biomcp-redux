@@ -1,6 +1,7 @@
 # 1079 — pdf-symbol-font-characters-read-as-standard-characters
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b46c4b6d5c654de37e07c74b467477aef5c4236f
 
 Milestone: 7
 

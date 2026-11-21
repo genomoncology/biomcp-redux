@@ -44,6 +44,7 @@ pub(super) struct PageText {
     pub(super) text: String,
     pub(super) unsound: Vec<(usize, usize)>,
     pub(super) skipped: bool,
+    pub(super) private_symbol: bool,
 }
 
 /// One page's walk: the document, the expanded bytes left, and the text so far.
@@ -55,7 +56,7 @@ struct Walk<'a, 'c> {
     draws: usize,
     operations: usize,
     skipped: bool,
-    reader: Reader,
+    reader: Reader<'a>,
 }
 
 /// Embedded text of one page, its expanded content bounded by `limit` bytes.
@@ -96,11 +97,13 @@ pub(super) fn page<'a>(
     walk.stream(&bytes, &fonts, &xobjects, 0)?;
     // Codes a character map leaves unmapped are text not read, as a skipped part is.
     let skipped = walk.skipped || walk.reader.unmapped;
+    let private_symbol = walk.reader.private_symbol;
     let (text, unsound) = walk.reader.finish();
     Ok(PageText {
         text,
         unsound,
         skipped,
+        private_symbol,
     })
 }
 
