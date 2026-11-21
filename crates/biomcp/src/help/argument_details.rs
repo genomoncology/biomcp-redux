@@ -30,8 +30,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             .collect::<Vec<_>>();
         let own = command.command.join(" ");
         let rule = command.section_rule.clone();
-        let value_examples = command.command == ["search", "drug"];
-        let mut example_values = BTreeSet::new();
+        let mut example_values = (command.command == ["search", "drug"]).then(BTreeSet::new);
         let mut cased = false;
         for argument in &mut command.arguments {
             drop_pointer(&mut argument.description, &own, rule.as_deref());
@@ -58,14 +57,9 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 .filter(|_| selectable)
                 .map(|schema| only_sources(schema, &argument.name, &sources))
                 .unwrap_or_default();
-            // The flag is already beside its example. Keep it when two options share a value and source.
-            let sample = sample
-                .strip_prefix(&argument.name)
-                .and_then(|suffix| suffix.strip_prefix([' ', '=']))
-                .filter(|&value| {
-                    value_examples && example_values.insert((value.to_owned(), only.clone()))
-                })
-                .unwrap_or(&sample);
+            let sample = example_values.as_mut().map_or(sample.as_str(), |seen| {
+                short_example(&sample, &argument.name, &only, seen)
+            });
             option_sentence(argument, sample, &only);
         }
         // Lines that hold for every option are said once, on the command.
@@ -88,6 +82,19 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             command.description.push_str(&line);
         }
     }
+}
+/// The flag is already beside its example. Keep it when two options share a value and source.
+fn short_example<'a>(
+    sample: &'a str,
+    name: &str,
+    sources: &[String],
+    seen: &mut BTreeSet<(String, Vec<String>)>,
+) -> &'a str {
+    sample
+        .strip_prefix(name)
+        .and_then(|suffix| suffix.strip_prefix([' ', '=']))
+        .filter(|&value| seen.insert((value.to_owned(), sources.to_vec())))
+        .unwrap_or(sample)
 }
 /// One sentence per option that names the option, so no option repeats another's.
 fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
