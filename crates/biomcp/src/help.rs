@@ -174,17 +174,7 @@ fn section_help(
                 .any(|word| word == section || (!alone && names.contains(word)))
         });
     }
-    if entity == "drug"
-        && section == "approvals"
-        && let Some(argument) = command
-            .arguments
-            .iter_mut()
-            .find(|arg| arg.name == "--document-id")
-    {
-        argument.description.push_str(
-            " List IDs and types with --fields=application_docs.id,application_docs.type.",
-        );
-    }
+    argument_details::approval_document_hint(&mut command, entity, section);
     // Stable: the first recorded example that reads this section leads.
     command
         .examples

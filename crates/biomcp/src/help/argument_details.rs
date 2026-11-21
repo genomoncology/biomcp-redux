@@ -2,6 +2,20 @@
 use biomcp_types::{HelpArgument, HelpCommand};
 use std::collections::BTreeSet;
 
+pub(super) fn approval_document_hint(command: &mut HelpCommand, entity: &str, section: &str) {
+    if entity == "drug"
+        && section == "approvals"
+        && let Some(argument) = command
+            .arguments
+            .iter_mut()
+            .find(|arg| arg.name == "--document-id")
+    {
+        argument.description.push_str(
+            " List IDs and types with --fields=application_docs.id,application_docs.type.",
+        );
+    }
+}
+
 pub(super) fn complete(commands: &mut [HelpCommand]) {
     for command in commands {
         let schema = command
