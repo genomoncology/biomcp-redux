@@ -11,6 +11,5 @@ mod section_rows;
 mod sections;
 mod select;
 
-pub(crate) use select::{
-    Chosen, arm_projection, carried, carry_to_correction, check, help_line, project,
-};
+pub(crate) use arm::arm_projection;
+pub(crate) use select::{Chosen, carried, carry_to_correction, check, help_line, project};

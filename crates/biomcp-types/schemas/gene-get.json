@@ -53,7 +53,7 @@
   "properties": {
     "constraint_release": {
       "$ref": "#/$defs/ConstraintRelease",
-      "description": "Choose a gnomAD release for MANE Select."
+      "description": "Choose a gnomAD release for MANE Select; help get gene\nChoose a gnomAD release for MANE Select."
     },
     "input": {
       "description": "Gene symbols or checked identifiers, in input order.",
