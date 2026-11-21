@@ -5,6 +5,24 @@
   "steps": [
     {
       "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "--constraint-release",
+        "v4.1",
+        "--fields=loeuf"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/sections/constraint/reason": "syncing",
+        "/sources/*/notices/*/message": {
+          "includes": "gnomAD v4.1 constraint table is unavailable locally. Run biomcp sync gnomad-constraint-v4.1."
+        }
+      }
+    },
+    {
+      "run": [
         "sync",
         "gnomad-constraint-v4.1"
       ],
