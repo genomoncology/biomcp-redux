@@ -968,7 +968,7 @@
       "properties": {
         "constraint_release": {
           "$ref": "#/$defs/Reply_ConstraintRelease",
-          "description": "Read MANE Select from a gnomAD release table. Requires constraint."
+          "description": "Choose a gnomAD release for MANE Select."
         },
         "input": {
           "description": "Gene symbols or checked identifiers, in input order.",

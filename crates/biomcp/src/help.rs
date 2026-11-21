@@ -299,10 +299,13 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
         let properties = field(&schema, "properties")
             .as_object()
             .ok_or_else(|| io::Error::other("missing properties"))?;
-        let arguments = properties
+        let mut arguments = properties
             .iter()
             .flat_map(|(name, node)| arguments(name, node, &schema))
-            .collect();
+            .collect::<Vec<_>>();
+        if (verb, entity) == ("get", "gene") {
+            arguments.sort_by_key(|argument| argument.position.is_none());
+        }
         let sections = section_words(&schema);
         commands.push(HelpCommand {
             reply_schemas: crate::schema::replies(id, verb, entity),

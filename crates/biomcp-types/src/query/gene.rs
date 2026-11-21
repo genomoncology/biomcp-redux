@@ -26,7 +26,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[GeneSectionWord]>,
-    /// Read MANE Select from a gnomAD release table. Requires constraint.
+    /// Choose a gnomAD release for MANE Select.
     #[serde(
         default,
         deserialize_with = "present",
