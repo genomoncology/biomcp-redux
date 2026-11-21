@@ -103,6 +103,7 @@ fn bounded(
         .as_str()
         .strip_prefix("http://www.accessdata.fda.gov/")
         .map(|path| format!("https://www.accessdata.fda.gov/{path}"));
+    let isolated = leg.admit_isolated_read()?;
     let bytes =
         match super::download::from_source(leg, spec, https.as_deref().unwrap_or(url.as_str())) {
             Ok(bytes) => bytes,
@@ -113,7 +114,7 @@ fn bounded(
             Err(error) => return Err(error),
         };
     let deadline = leg.local_deadline();
-    let read = super::child::read(leg, &bytes, pages, &|| deadline.expired())
+    let read = super::child::read(isolated.as_ref(), &bytes, pages, &deadline)
         .map_err(|reason| error(spec.source, reason))?;
     result.pages = read.pages;
     result.state = read.state;

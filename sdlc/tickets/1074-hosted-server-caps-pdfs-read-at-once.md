@@ -1,6 +1,7 @@
 # 1074 — hosted-server-caps-pdfs-read-at-once
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2b99b7faf55170b708a702ee60dad38d076b7b27
 
 Milestone: 7
 

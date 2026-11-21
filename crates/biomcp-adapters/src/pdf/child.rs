@@ -50,20 +50,21 @@ pub fn pages(input: &[u8]) -> Result<(usize, &[u8]), Reason> {
     Ok((pages, rest.get(1..).ok_or(Reason::BadReply)?))
 }
 
-/// The parent's side: read `bytes`, at most `pages` pages, through the leg's isolation when
-/// there is one, in this process otherwise.
+/// The parent's side: read `bytes`, at most `pages` pages, in an admitted worker if configured.
 pub(super) fn read(
-    leg: &biomcp_fetch::Leg<'_>,
+    isolated: Option<&biomcp_fetch::IsolatedRead<'_>>,
     bytes: &[u8],
     pages: usize,
-    expired: &dyn Fn() -> bool,
+    deadline: &biomcp_fetch::LocalDeadline,
 ) -> Result<Embedded, Reason> {
+    let Some(isolated) = isolated else {
+        return super::embedded(bytes, pages, &|| deadline.expired());
+    };
     let mut input = format!("{pages}\n").into_bytes();
     input.extend_from_slice(bytes);
-    match leg.isolated(&input, MAX_OUTPUT) {
-        None => super::embedded(bytes, pages, expired),
-        Some(Ok(answer)) => decoded(&answer).unwrap_or_else(|Malformed| Ok(refused())),
-        Some(Err(biomcp_fetch::Contained)) => Ok(refused()),
+    match isolated.run(&input, MAX_OUTPUT, deadline) {
+        Ok(answer) => decoded(&answer).unwrap_or_else(|Malformed| Ok(refused())),
+        Err(biomcp_fetch::Contained) => Ok(refused()),
     }
 }
 

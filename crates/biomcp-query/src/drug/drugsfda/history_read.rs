@@ -122,11 +122,15 @@ pub(super) struct Search<'a, 'b> {
     pub(super) opened: BTreeMap<usize, Opened>,
     /// The read bound or the time limit stopped the search before it finished.
     pub(super) stopped: bool,
+    pub(super) pdf_busy: bool,
 }
 
 impl Search<'_, '_> {
     /// Open version `at` once; false when the read bound or the time limit is spent.
     pub(super) fn open(&mut self, at: usize) -> bool {
+        if self.pdf_busy {
+            return false;
+        }
         if self.opened.contains_key(&at) {
             return true;
         }
@@ -140,13 +144,21 @@ impl Search<'_, '_> {
             self.stopped = true;
             return false;
         }
-        let opened = version.label.as_ref().map_or_else(
-            || state(State::NotFetched),
-            |url| match pdf::label(self.leg, &source::DOCUMENTS, url) {
-                Ok((text, body)) => self.searched(text.state, &body),
-                Err(_) => state(State::NotFetched),
-            },
-        );
+        let result = version
+            .label
+            .as_ref()
+            .map(|url| pdf::label(self.leg, &source::DOCUMENTS, url));
+        let opened = match result {
+            Some(Ok((text, body))) => self.searched(text.state, &body),
+            Some(Err(RequestError::Source(error)))
+                if error.reason == biomcp_types::Reason::LocalQuota =>
+            {
+                self.pdf_busy = true;
+                self.stopped = true;
+                return false;
+            }
+            _ => state(State::NotFetched),
+        };
         self.opened.insert(at, opened);
         true
     }
