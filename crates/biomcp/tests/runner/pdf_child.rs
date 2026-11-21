@@ -3,6 +3,10 @@
 //! The binary's debug-only test switch makes the child hang or, on Linux, allocate without
 //! end, so these trials show the time limit and the memory cap stopping a read.
 use super::{launch::Environment, response_cases::copy_capture};
+
+#[cfg(all(debug_assertions, target_os = "linux"))]
+#[path = "pdf_hosted.rs"]
+mod hosted;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
@@ -26,6 +30,8 @@ const SLACK: Duration = Duration::from_secs(3);
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = Vec::new();
+    #[cfg(all(debug_assertions, target_os = "linux"))]
+    trials.extend(hosted::trials());
     if cfg!(debug_assertions) {
         trials.push(super::transcript_trial(
             "fda-document-text/pdf-read-stopped-at-time-limit",
@@ -42,7 +48,28 @@ pub(super) fn trials() -> Vec<Trial> {
         "fda-document-text/recorded-pdfs-read-the-same-in-child",
         || same().map_err(|e| e.to_string().into()),
     ));
+    trials.push(super::transcript_trial(
+        "fda-document-text/pdf-memory-config-has-an-upper-bound",
+        || memory_config().map_err(|e| e.to_string().into()),
+    ));
     trials
+}
+
+fn memory_config() -> Check {
+    let env = Environment::new()?;
+    let args = super::configuration::cached(
+        &["get", "gene", "BRAF"],
+        &env.root().join("case"),
+        Some(&super::configuration::root()),
+    );
+    env.config(&json!({"pdf_memory_limit_mib": 4096, "pdf_max_reads": 2}))?;
+    super::configuration::invoke(&env, args.clone(), 0)?;
+    env.config(&json!({"pdf_memory_limit_mib": 4097}))?;
+    let rejected = super::configuration::invoke(&env, args, 5)?;
+    if !rejected.to_string().contains("pdf_memory_limit_mib") {
+        return Err(format!("memory cap error did not name its field: {rejected}").into());
+    }
+    Ok(())
 }
 
 fn args() -> Vec<String> {
@@ -178,7 +205,12 @@ fn same() -> Check {
         fs::write(&input, &bytes)?;
         let mut command = env.command(
             env!("CARGO_BIN_EXE_biomcp"),
-            &["__pdf-read".into(), cap.clone()],
+            &[
+                "__pdf-read".into(),
+                cap.clone(),
+                "21".into(),
+                std::process::id().to_string(),
+            ],
         );
         command
             .stdin(fs::File::open(&input)?)

@@ -139,16 +139,28 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
-/// A refusal whose fixed message names its one fix: drug markets takes a name and at most a
-/// source, so the same call without the options it refused; a label-history offset needs
-/// every version, so the same call reading every version from that offset; a section
-/// label-history does not read is read from the label, when it is a label section (1081).
+/// A refusal with one known correction. FDA communication IDs come from search, markets
+/// takes a name and at most a source, and label history needs a supported heading and mode.
 pub(super) fn fixed(
     via: Rewrite,
     path: (&str, &str),
     value: &Value,
     cause: &biomcp_types::QueryInvalid,
 ) -> Option<Step> {
+    let fda_dsc = biomcp_types::DrugSource::FdaDsc;
+    if path == ("get", "drug")
+        && matches!(cause.arguments(), [name] if name.as_ref() == "input")
+        && value
+            .get("source")
+            .and_then(Value::as_str)
+            .is_some_and(|source| source.eq_ignore_ascii_case(fda_dsc.as_str()))
+    {
+        return checked(
+            Rewrite::Direct,
+            ("search", "drug"),
+            serde_json::json!({"query": value.get("input")?, "source": fda_dsc}),
+        );
+    }
     let mut candidate = value.clone();
     let fields = candidate.as_object_mut()?;
     match cause.message()? {

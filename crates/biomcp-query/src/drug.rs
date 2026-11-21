@@ -5,6 +5,7 @@ mod aliases;
 mod civic;
 mod ddinter;
 mod drugsfda;
+mod dsc;
 mod ema;
 mod label_application;
 mod label_choice;
@@ -64,6 +65,9 @@ fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::WhoEml {
         return who_eml::search(cx, query);
     }
+    if query.source() == DrugSource::FdaDsc {
+        return dsc::search(cx, query);
+    }
     if matches!(query.source(), DrugSource::Chembl | DrugSource::Opentargets) {
         return native::search(cx, query);
     }
@@ -109,6 +113,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     // The WHO eEML resolves its own names: its search page names each medicine.
     let mut out = if query.source() == DrugSource::WhoEml {
         who_eml::get(cx, query)
+    } else if query.source() == DrugSource::FdaDsc {
+        dsc::get(cx, query)
     } else if query.is_label_application() {
         label_application::get(cx, query)
     } else if query.is_name() {
@@ -128,6 +134,11 @@ pub(crate) fn get_parts(cx: &Ctx<'_>, parts: &[DrugGet]) -> Vec<Outcome> {
         .is_some_and(|p| p.source() == DrugSource::WhoEml)
     {
         parts.iter().map(|part| who_eml::get(cx, part)).collect()
+    } else if parts
+        .first()
+        .is_some_and(|p| p.source() == DrugSource::FdaDsc)
+    {
+        parts.iter().map(|part| dsc::get(cx, part)).collect()
     } else if parts.first().is_some_and(DrugGet::is_label_application) {
         label_application::get_parts(cx, parts)
     } else if parts.first().is_some_and(DrugGet::is_name) {

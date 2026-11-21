@@ -1,0 +1,17 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "An exact ibuprofen search finds the October 2020 NSAID communication because its page text names ibuprofen.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc",
+  "steps": [
+    {
+      "run": ["search", "drug", "ibuprofen", "--source", "fda-dsc", "--exact-term"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/id": "ffe6b059-007d-42e9-9bf4-798270296092",
+        "/result/items/0/date": "2020-10-15",
+        "/result/items/0/matched_in": ["text"]
+      }
+    }
+  ]
+}

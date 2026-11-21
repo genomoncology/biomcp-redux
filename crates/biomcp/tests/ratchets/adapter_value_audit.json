@@ -65,6 +65,14 @@
       "reason": "A device-cell date that is not a real calendar day leaves the row undated; the original cell is kept and the row is named in problems with field date, so nothing reads as dated."
     },
     {
+      "path": "crates/biomcp-adapters/src/fda_dsc/html.rs",
+      "site": "date: year , Some ( month ) , Some ( day ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "fda_dsc",
+      "reason": "A date FDA typed that is not a real calendar day stays unread; an index row keeps its title and address and is named in problems with field date, and a page date is left absent, so nothing reads as dated."
+    },
+    {
       "path": "crates/biomcp-adapters/src/cellosaurus/map.rs",
       "site": "card: ) , 3 ) , diseases : capped ( row . disease_list . unwrap_or_default ( )",
       "maximum": 1,

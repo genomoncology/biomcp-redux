@@ -118,6 +118,8 @@ pub mod maude;
 
 /// FDA companion table publisher policy.
 pub mod fda_cdx;
+/// FDA Drug Safety Communications from FDA's index and pages.
+pub mod fda_dsc;
 /// openFDA PMA publisher policy.
 pub mod fda_pma;
 /// Diagnostic publisher declarations; command dispatch is not yet implemented.

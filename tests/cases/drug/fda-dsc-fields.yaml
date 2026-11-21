@@ -1,0 +1,51 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "A recall field is rejected when searching FDA communications.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-dsc",
+        "--fields",
+        "recall_number"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/source": "fda-dsc",
+        "/error/unplaced": [
+          "recall_number"
+        ]
+      },
+      "exit": 2,
+      "is_error": true
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc",
+        "--exact-term",
+        "--fields",
+        "drugs"
+      ],
+      "expect": {
+        "/fields": [
+          "drugs"
+        ],
+        "/result/items/0/drugs/0": "Xeljanz",
+        "/result/items/0": {
+          "omits": [
+            "updated",
+            "matched_in"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -142,6 +142,9 @@ impl TryFrom<GetFields> for DrugGet {
                     }
                 }
             };
+        if source == DrugSource::FdaDsc && native_id == NativeDrugId::Name {
+            return Err(QueryInvalid::new(&["input"]));
+        }
         validate_civic(&fields)?;
         Ok(Self { fields, native_id })
     }
@@ -502,9 +505,7 @@ impl DrugGet {
     pub fn sections(&self) -> &[DrugSection] {
         &self.fields.section
     }
-}
 
-impl DrugGet {
     /// Continue the same named section without changing source, identity or section selectors.
     pub fn at_section_offset(&self, offset: u32) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
@@ -529,18 +530,14 @@ impl DrugGet {
     pub fn product_number(&self) -> Option<&Text> {
         self.fields.product_number.as_ref()
     }
-}
 
-impl DrugGet {
     /// Select one named disclosure without changing the exact source identity.
     pub fn for_section(&self, section: DrugSection) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();
         fields.section = vec![section].into();
         self.with_fields(fields)
     }
-}
 
-impl DrugGet {
     /// Select an explicit native label heading for the same source identity.
     pub fn for_label(&self, heading: Text) -> Result<Self, QueryInvalid> {
         let mut fields = self.fields.clone();

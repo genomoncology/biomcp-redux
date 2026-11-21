@@ -143,6 +143,8 @@ canonical_enum! {
         FdaDeviceRecall => "fda-device-recall",
         /// FDA drug enforcement recall records.
         FdaDrugRecall => "fda-drug-recall",
+        /// FDA Drug Safety Communications web pages.
+        FdaDsc => "fda-dsc",
         /// Clinical Pharmacogenetics Implementation Consortium.
         Cpic => "cpic",
         /// ClinPGx pharmacogenomics annotations.
