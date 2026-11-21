@@ -47,9 +47,8 @@ pub(super) fn bodies(capture: &str) -> Result<Vec<(String, String)>, String> {
             .pointer("/exchanges/0/body/value")
             .and_then(Value::as_str)
             .ok_or("capture body")?;
-        let (_, host_and_path) = url.split_once("://").ok_or("capture URL scheme")?;
-        let start = host_and_path.find('/').ok_or("capture URL path")?;
-        found.push((host_and_path[start..].to_owned(), body.to_owned()));
+        let url = url::Url::parse(url).map_err(|error| error.to_string())?;
+        found.push((url.path().to_owned(), body.to_owned()));
     }
     Ok(found)
 }
