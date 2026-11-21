@@ -1,7 +1,10 @@
 //! Choose one label when several share a drug name, and say which and why.
-use super::resolve::Rank;
-use biomcp_adapters::openfda_label::{LabelHolder, Record};
-use biomcp_types::{DrugHeader, DrugNameMatch};
+use super::resolve::{Rank, within};
+use crate::{Ctx, Outcome, status};
+use biodata::{DrugId, Text};
+use biomcp_adapters::openfda_label::{self as source, LabelHolder, Record};
+use biomcp_fetch::{Deadline, Leg, RequestError};
+use biomcp_types::{DrugGet, DrugHeader, DrugNameMatch, DrugSource, SourceNotice};
 use std::cmp::Reverse;
 
 /// The label ordering a name get applies, stated in every label name lookup.
@@ -106,4 +109,135 @@ pub(super) fn reason(candidates: &[(Rank, DrugHeader)]) -> Option<Box<str>> {
         )
         .into(),
     )
+}
+
+/// A brand found only on repackager copies can use the original packager's label from the
+/// same application. Multiple possible applications give no basis for recovering one holder.
+pub(super) fn recover(
+    cx: &Ctx<'_>,
+    deadline: &Deadline<'_>,
+    queries: &[DrugGet],
+    candidates: &mut Vec<(Rank, DrugHeader)>,
+    discovery: &mut Outcome,
+) -> Option<Vec<Outcome>> {
+    let application = repackaged_application(candidates).cloned()?;
+    let mut holders = find_holders(&within(cx, deadline.remaining()), &application, discovery);
+    holders.sort_by(|a, b| a.0.cmp(&b.0));
+    let (_, holder) = holders.first()?;
+    let read = crate::next::checked(
+        super::selected_as(&within(cx, deadline.remaining()), queries, &holder.id),
+        DrugSource::OpenfdaLabel.source(),
+        &mut discovery.problems,
+    );
+    if let Some(read) = read.filter(|parts| {
+        parts
+            .iter()
+            .all(|out| super::label_application::verified_label(out, application.as_str()))
+    }) {
+        holders.append(candidates);
+        *candidates = holders;
+        disclose(
+            discovery,
+            format!(
+                "The brand search found repackaged copies; checked application {application} for the original packager's label."
+            ),
+        );
+        return Some(read);
+    }
+    disclose(
+        discovery,
+        format!(
+            "The holder label for {application} could not be read. The fallback label is a repackager's copy."
+        ),
+    );
+    None
+}
+
+fn find_holders(
+    cx: &Ctx<'_>,
+    application: &Text,
+    discovery: &mut Outcome,
+) -> Vec<(Rank, DrugHeader)> {
+    let command = cx.fetch.command_deadline(cx.budget);
+    let leg = cx
+        .fetch
+        .leg(&source::SPEC, command.deadline())
+        .fresh(cx.fresh);
+    let found = original_packagers(&leg, application, &mut discovery.problems);
+    let remaining = leg.command_remaining();
+    let error = found.as_ref().err().copied();
+    let attempt = status::source(DrugSource::OpenfdaLabel.source(), leg.finish(), error);
+    command.finish(remaining);
+    if let Some(source) = discovery.sources.first_mut() {
+        source.notices.extend(attempt.notices);
+    }
+    match found {
+        Ok(found) => found,
+        Err(error) => {
+            disclose(
+                discovery,
+                format!(
+                    "Could not check application {application} for the original packager: {error}."
+                ),
+            );
+            Vec::new()
+        }
+    }
+}
+
+fn disclose(discovery: &mut Outcome, message: String) {
+    if let Some(source) = discovery.sources.first_mut() {
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        });
+    }
+}
+
+fn repackaged_application(candidates: &[(Rank, DrugHeader)]) -> Option<&Text> {
+    let [application] = candidates.first()?.1.application_numbers.as_ref() else {
+        return None;
+    };
+    if !application
+        .as_str()
+        .parse::<DrugId>()
+        .is_ok_and(|id| DrugSource::Drugsfda.accepts(&id))
+    {
+        return None;
+    }
+    candidates
+        .iter()
+        .all(|((matched, tier, copy, ..), header)| {
+            (*matched, *tier, *copy) == (0, LabelHolder::Brand as u8, 1)
+                && header.application_numbers.as_ref() == std::slice::from_ref(application)
+        })
+        .then_some(application)
+}
+
+fn original_packagers(
+    leg: &Leg<'_>,
+    application: &Text,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Result<Vec<(Rank, DrugHeader)>, RequestError> {
+    let mut offset = 0;
+    let mut originals = Vec::new();
+    loop {
+        let page = source::search(leg, application, 50, offset).page?;
+        problems.extend(page.problems);
+        for row in &page.window.rows {
+            if row.choice().original {
+                let header = row.header()?;
+                if header.application_numbers.contains(application) {
+                    // The input matched the brand on the copies; the application links the
+                    // original, whose own published name may be generic.
+                    originals.push((rank(DrugNameMatch::Brand, row), header));
+                }
+            }
+        }
+        let Some(next) = page.window.next_offset() else {
+            return Ok(originals);
+        };
+        offset = next;
+    }
 }
