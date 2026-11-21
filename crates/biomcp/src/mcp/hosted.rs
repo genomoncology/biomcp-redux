@@ -186,13 +186,14 @@ fn offered_argument(name: &str) -> bool {
 fn word_refusal(value: &Value) -> bool {
     use biomcp_types::ErrorMessage::{
         ArgumentIdAfterSection, ArgumentSectionNotId, ArgumentSectionNotIdTyped,
-        ArgumentSectionUnknown,
+        ArgumentSectionUnknown, DrugBiosimilarsSection,
     };
     [
         ArgumentSectionUnknown,
         ArgumentSectionNotId,
         ArgumentSectionNotIdTyped,
         ArgumentIdAfterSection,
+        DrugBiosimilarsSection,
     ]
     .iter()
     .any(|message| value.pointer("/error/message") == serde_json::to_value(message).ok().as_ref())
@@ -217,23 +218,7 @@ fn recovery(
     value: &mut Value,
     cx: Context<'_>,
 ) -> io::Result<Option<(&'static str, &'static str)>> {
-    let path = value
-        .get("next")
-        .and_then(Value::as_array)
-        .into_iter()
-        .flatten()
-        .filter_map(|step| step.get("args").and_then(Value::as_array))
-        .find_map(|words| {
-            // A help step names its command after help; a corrected call names it first.
-            let skip = usize::from(words.first() == Some(&json!("help")));
-            crate::grammar::command_paths()
-                .iter()
-                .find(|(verb, entity, _)| {
-                    words.get(skip) == Some(&json!(verb))
-                        && words.get(skip + 1) == Some(&json!(entity))
-                })
-                .copied()
-        });
+    let path = recovery_path(value);
     let schema = path
         .map(|(_, _, id)| super::typed::schema(id))
         .transpose()?;
@@ -291,6 +276,35 @@ fn recovery(
         }
     }
     Ok(path.map(|(verb, entity, _)| (verb, entity)))
+}
+
+fn recovery_path(value: &Value) -> Option<(&'static str, &'static str, &'static str)> {
+    // This cross-command correction still lists sections of the original get.
+    if value.pointer("/error/message")
+        == Some(&json!(biomcp_types::ErrorMessage::DrugBiosimilarsSection))
+    {
+        return crate::grammar::command_paths()
+            .iter()
+            .find(|(verb, entity, _)| (*verb, *entity) == ("get", "drug"))
+            .copied();
+    }
+    value
+        .get("next")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|step| step.get("args").and_then(Value::as_array))
+        .find_map(|words| {
+            // A help step names its command after help; a corrected call names it first.
+            let skip = usize::from(words.first() == Some(&json!("help")));
+            crate::grammar::command_paths()
+                .iter()
+                .find(|(verb, entity, _)| {
+                    words.get(skip) == Some(&json!(verb))
+                        && words.get(skip + 1) == Some(&json!(entity))
+                })
+                .copied()
+        })
 }
 
 fn next(value: &mut Value, cx: Context<'_>, drop_empty: bool) {

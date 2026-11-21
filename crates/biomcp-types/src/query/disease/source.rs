@@ -38,7 +38,7 @@ macro_rules! selector {
 }
 selector!(DiseaseOntology, "One explicit OLS ontology.", Mondo, {Mondo, Doid, Ncit});
 // HPO is search-only. The exact-read grammar uses this selector's schema.
-selector!(DiseaseSource, "An explicit disease source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer, Orphadata}; Hpo);
+selector!(DiseaseSource, "An explicit disease source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer, Orphadata, ClinGen, Gencc}; Hpo);
 // The sources disease search advertises; Orphadata only reads a known concept's prevalence.
 #[cfg(feature = "schema")]
 selector!(DiseaseSearchSource, "An explicit disease search source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer, Hpo});

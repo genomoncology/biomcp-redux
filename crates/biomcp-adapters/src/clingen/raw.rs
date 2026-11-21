@@ -13,7 +13,7 @@ pub(super) struct Validity {
     #[serde(rename = "GENE ID (HGNC)")]
     id: Option<Field<HgncId>>,
     #[serde(rename = "GENE SYMBOL")]
-    symbol: Option<Field<GeneSymbol>>,
+    pub(super) symbol: Option<Field<GeneSymbol>>,
     #[serde(rename = "DISEASE LABEL")]
     disease: Option<Field<NativeText>>,
     #[serde(rename = "DISEASE ID (MONDO)")]
@@ -30,24 +30,45 @@ pub(super) struct Validity {
     report_url: Option<Field<Text>>,
 }
 impl Validity {
-    pub(super) fn checked(self, problems: &mut Problems) -> Option<ClinGenValidity> {
+    pub(super) fn checked(self, problems: &mut Problems) -> Option<(HgncId, ClinGenValidity)> {
         problems.record = None;
         let id = problems.required_field("GENE ID (HGNC)", self.id)?;
         problems.record = crate::mapped::record(id);
-        Some(ClinGenValidity {
-            mondo_id: problems.required_field("DISEASE ID (MONDO)", self.mondo_id)?,
-            mode_of_inheritance: problems.required_field("MOI", self.mode_of_inheritance)?,
-            disease: problems.source_field("DISEASE LABEL", self.disease),
-            classification: problems.field("CLASSIFICATION", self.classification),
-            classification_date: problems.field("CLASSIFICATION DATE", self.classification_date),
-            expert_panel: problems.source_field("GCEP", self.expert_panel),
-            report_url: problems.url("ONLINE REPORT", self.report_url),
-        })
+        Some((
+            id,
+            ClinGenValidity {
+                mondo_id: problems.required_field("DISEASE ID (MONDO)", self.mondo_id)?,
+                mode_of_inheritance: problems.required_field("MOI", self.mode_of_inheritance)?,
+                disease: problems.source_field("DISEASE LABEL", self.disease),
+                classification: problems.field("CLASSIFICATION", self.classification),
+                classification_date: problems
+                    .field("CLASSIFICATION DATE", self.classification_date),
+                expert_panel: problems.source_field("GCEP", self.expert_panel),
+                report_url: problems.url("ONLINE REPORT", self.report_url),
+            },
+        ))
+    }
+}
+impl Validity {
+    pub(super) fn disease_keys(&self) -> (Option<&str>, Option<&str>) {
+        (
+            self.mondo_id
+                .as_ref()
+                .and_then(Field::as_ref)
+                .map(biodata::MondoId::as_str),
+            self.disease
+                .as_ref()
+                .and_then(Field::as_ref)
+                .map(|name| name.as_str()),
+        )
     }
 }
 impl Row for Validity {
     fn keys(&self) -> Keys {
-        keys(self.id.as_ref(), self.symbol.as_ref())
+        let mut keys = keys(self.id.as_ref(), self.symbol.as_ref());
+        let (id, name) = self.disease_keys();
+        crate::curation::index(&mut keys, id, name);
+        keys
     }
 }
 #[derive(Debug, Deserialize)]

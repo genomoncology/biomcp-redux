@@ -423,18 +423,20 @@
         "phenotypes",
         "incidence",
         "survival",
-        "prevalence"
+        "prevalence",
+        "gene-validity"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Publisher scoped synonyms.",
+        " Publisher synonyms.",
         " Native cross-references. Use --source ols for publisher-supplied target URLs.",
-        " Native parent relations.",
-        " Native gene association rows.",
-        " Native phenotype association rows.",
-        " Native stage incidence rows.",
-        " Annual survival rows.",
-        " Orphanet prevalence, age of onset and inheritance."
+        " Parent terms.",
+        " Gene associations.",
+        " Phenotype associations.",
+        " Incidence by stage.",
+        " Annual survival.",
+        " Orphanet prevalence, onset and inheritance.",
+        " ClinGen and GenCC curations. Filters ignore case."
       ]
     },
     "DiseaseSource": {
@@ -444,7 +446,9 @@
         "mydisease",
         "monarch",
         "seer",
-        "orphadata"
+        "orphadata",
+        "clingen",
+        "gencc"
       ],
       "type": "string"
     },
@@ -499,17 +503,17 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.",
+        " Paged identity cross-references and product links. MyChem includes ChEMBL ATC codes.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
-        " One exact native label heading; label replies also name the application numbers and recent major changes.",
+        " Exact label heading, application numbers and recent major changes.",
         " Native application and product history rows.",
-        " The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.",
+        " First Drugs@FDA label PDF version with a --find match in --label-section.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
-        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; --source names one market.",
-        " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
+        " DDInter partners and levels (default five per page). `levels` counts pairs across all pages. For management and mechanism text, follow `next` to the openFDA drug_interactions label field.",
+        " One row per market (Drugs@FDA, EMA, WHO prequalification). Use --source for one market.",
+        " eEML listings: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text (default five per page)."
       ]
     },
     "DrugSource": {
@@ -3782,6 +3786,10 @@
           ],
           "description": "Native age-range code."
         },
+        "classification": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact gene validity classification."
+        },
         "command": {
           "const": "get-disease",
           "type": "string"
@@ -3795,11 +3803,11 @@
               "type": "null"
             }
           ],
-          "description": "Requested native dataset selector, not proof of returned membership."
+          "description": "Requested dataset code."
         },
         "id": {
           "$ref": "#/$defs/Text",
-          "description": "Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.",
+          "description": "Disease CURIE, SEER site code or name, or exact curation name.",
           "x-positional": 0
         },
         "interval": {
@@ -3811,11 +3819,11 @@
               "type": "null"
             }
           ],
-          "description": "Survival-only interval code."
+          "description": "Survival interval code."
         },
         "ontology": {
           "$ref": "#/$defs/DiseaseOntology",
-          "description": "One OLS ontology; default the ID's own, else mondo."
+          "description": "OLS ontology. Defaults to the ID’s ontology or MONDO."
         },
         "period": {
           "anyOf": [
@@ -3826,7 +3834,7 @@
               "type": "null"
             }
           ],
-          "description": "Incidence-only native period code."
+          "description": "Incidence period code."
         },
         "race": {
           "anyOf": [
@@ -3848,11 +3856,11 @@
               "type": "null"
             }
           ],
-          "description": "One named section; absent means identity card only.",
+          "description": "Omit for the identity card.",
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.",
+          "description": "Rows per page. Default 5, Monarch genes 2, phenotypes 1.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3860,7 +3868,7 @@
         },
         "section_offset": {
           "default": 0,
-          "description": "Native row offset within the selected section.",
+          "description": "Section row offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -3878,8 +3886,11 @@
         },
         "source": {
           "$ref": "#/$defs/DiseaseSource",
-          "default": "mydisease",
-          "description": "Default MyDisease; no automatic fallback."
+          "description": "Default MyDisease, or both sources for gene validity."
+        },
+        "submitter": {
+          "$ref": "#/$defs/Text",
+          "description": "Exact GenCC submitter or ClinGen panel."
         }
       },
       "required": [
@@ -3904,11 +3915,11 @@
               "type": "null"
             }
           ],
-          "description": "Applicant name start; Drugs@FDA only.\nMatches native sponsor_name values starting with this text, ignoring letter case;\nno company-family or subsidiary inference. An optional name narrows the same search.",
+          "description": "sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.",
           "x-required-component": "drugsfda"
         },
         "application_type": {
-          "description": "Label application types to keep; openFDA labels only.\nBy openFDA application_number prefix; nda,bla leaves out generics (ANDA).",
+          "description": "Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA).",
           "items": {
             "$ref": "#/$defs/LabelApplicationType"
           },
@@ -3925,7 +3936,7 @@
               "type": "null"
             }
           ],
-          "description": "Original approval from, inclusive; Drugs@FDA only.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date\nfalls in the window; BioMCP reads every match and counts the kept ones.",
+          "description": "Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.",
           "x-required-component": "drugsfda"
         },
         "approved_to": {
@@ -3937,7 +3948,7 @@
               "type": "null"
             }
           ],
-          "description": "Original approval to, inclusive; Drugs@FDA only.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "drugsfda"
         },
         "classification": {
@@ -3949,7 +3960,7 @@
               "type": "null"
             }
           ],
-          "description": "Native FDA classification; drug recalls only.",
+          "description": "FDA recall classification.",
           "x-required-component": "fda-drug-recall"
         },
         "command": {
@@ -3965,15 +3976,15 @@
               "type": "null"
             }
           ],
-          "description": "Purple Book device. Match its presentation cell, ignoring case; return presentations.",
+          "description": "Filter presentations by device cell, ignoring case.",
           "x-required-component": "purple-book"
         },
         "exact_term": {
-          "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
+          "description": "Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.",
           "type": "boolean"
         },
         "expand_drug_names": {
-          "description": "Accepted for one release; changes nothing.\nSources that widen drug names do so by default.",
+          "description": "Accepted for one release. Name widening is already automatic where supported.",
           "type": "boolean"
         },
         "firm": {
@@ -3985,12 +3996,12 @@
               "type": "null"
             }
           ],
-          "description": "Recall firm phrase.\nMatches the published firm literally.",
+          "description": "Exact phrase in the published recall firm name.",
           "x-required-component": "fda-drug-recall"
         },
         "indication": {
           "$ref": "#/$defs/Text",
-          "description": "Literal label indication; openFDA labels only.\nSearch the native Indications and Usage field without disease synonym expansion.\nAn optional name query further narrows the same source search.",
+          "description": "Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.",
           "x-required-component": "openfda-label"
         },
         "initiated_from": {
@@ -4002,7 +4013,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Earliest recall initiation day, inclusive (YYYY-MM-DD).",
           "x-required-component": "fda-drug-recall"
         },
         "initiated_to": {
@@ -4014,7 +4025,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Latest recall initiation day, inclusive (YYYY-MM-DD).",
           "x-required-component": "fda-drug-recall"
         },
         "limit": {
@@ -4027,12 +4038,12 @@
         },
         "mechanism_of_action": {
           "$ref": "#/$defs/Text",
-          "description": "Literal label mechanism of action; openFDA labels only.\nSearch the source Mechanism of Action field for this wording; no synonyms or drug class\ninference, so labels wording the mechanism differently are not returned.",
+          "description": "Exact Mechanism of Action wording, without synonyms or drug class inference.",
           "x-required-component": "openfda-label"
         },
         "name_selector": {
           "$ref": "#/$defs/DrugNameSelector",
-          "description": "ChEMBL name selector.\nOmit to search the preferred name.",
+          "description": "ChEMBL name to match. Default: preferred name.",
           "x-required-component": "chembl"
         },
         "name_snapshot": {
@@ -4044,7 +4055,7 @@
               "type": "null"
             }
           ],
-          "description": "Label name page token.\nFollow the returned command with unchanged filters to keep the first page's names and step."
+          "description": "Label name page token. Keep the first page's names and step by reusing the token with unchanged filters."
         },
         "offset": {
           "default": 0,
@@ -4062,7 +4073,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO PQ start date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "First WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "who-pq"
         },
         "prequalified_to": {
@@ -4074,17 +4085,17 @@
               "type": "null"
             }
           ],
-          "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).",
           "x-required-component": "who-pq"
         },
         "presentations": {
-          "description": "Purple Book presentation rows, also selected by --strength or --device.",
+          "description": "Return presentation rows, as do --strength and --device.",
           "type": "boolean",
           "x-required-component": "purple-book"
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.\nFDA safety communications search titles, linked drug names and available page text.\nZero matches does not establish that FDA issued no communication about this drug.\nThe reply counts the communications searched and how many had page text.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+          "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nSafety communications match titles, linked drug names and page text. Counts show records searched and those with text.\nZero matches does not establish that FDA issued no communication about this drug.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
           "x-positional": 0
         },
         "reason": {
@@ -4108,13 +4119,13 @@
               "type": "null"
             }
           ],
-          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\noriginal-approval: each row's original_approval date first, ties by application number;\nrows without one come last. BioMCP reads every match and orders them.\nOmit it for the source's own order.",
+          "description": "Application order. newest uses latest submission status date, which may be for a supplement.\noriginal-approval reads all matches and sorts by original_approval. Both put recent dates first,\nbreak ties by application number and put undated rows last. Omit for source order.",
           "x-required-component": "drugsfda"
         },
         "source": {
           "$ref": "#/$defs/DrugSource",
           "default": "mychem",
-          "description": "Selected source.\n\nAfter an empty name lookup, existing sources may supply aliases."
+          "description": "Drug source. An empty name search may retry names from other sources."
         },
         "status": {
           "anyOf": [
@@ -4137,12 +4148,12 @@
               "type": "null"
             }
           ],
-          "description": "Purple Book strength. Match its cell, ignoring case and spaces; return presentations.",
+          "description": "Filter presentations by strength cell, ignoring case and spaces.",
           "x-required-component": "purple-book"
         },
         "therapeutic_area": {
           "$ref": "#/$defs/Text",
-          "description": "WHO PQ therapeutic area.\nWhole words of WHO's Therapeutic Area column, any letter case, such as Oncology.",
+          "description": "WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology).",
           "x-required-component": "who-pq"
         }
       },
@@ -4164,7 +4175,7 @@
               "type": "null"
             }
           ],
-          "description": "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection. Only with --source civic."
+          "description": "CIViC cursor. Continue this drug, profile and collection. Only with --source civic."
         },
         "civic_kind": {
           "anyOf": [
@@ -4175,10 +4186,10 @@
               "type": "null"
             }
           ],
-          "description": "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile. Only with --source civic."
+          "description": "CIViC collection. Evidence or assertions in this profile. Only with --source civic."
         },
         "civic_profile": {
-          "description": "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic.",
+          "description": "CIViC profile. Selects a molecular profile for this drug. Only with --source civic.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -4200,7 +4211,7 @@
               "type": "null"
             }
           ],
-          "description": "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals.",
+          "description": "Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals.",
           "x-required-component": "drugsfda"
         },
         "decision_to": {
@@ -4212,7 +4223,7 @@
               "type": "null"
             }
           ],
-          "description": "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals.",
+          "description": "Latest status date, inclusive (YYYY-MM-DD). Only with section approvals.",
           "x-required-component": "drugsfda"
         },
         "document_id": {
@@ -4224,10 +4235,10 @@
               "type": "null"
             }
           ],
-          "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Only with section approvals."
+          "description": "Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.\nOnly with --source drugsfda. Only with section approvals."
         },
         "every_version": {
-          "description": "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. Only with section label-history.",
+          "description": "Read every version. In order up to the limit, instead of halving. Only with section label-history.",
           "type": "boolean"
         },
         "evidence_level": {
@@ -4260,7 +4271,7 @@
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "find": {
-          "description": "Label text; OR.\nLiteral text; repeat for OR. Ignore case and whitespace breaks; history also ignores hyphenation. Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs. Only with section label or label-history.",
+          "description": "Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.\nCurrent labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.\nOnly with section label or label-history.",
           "items": {
             "$ref": "#/$defs/Text"
           },
@@ -4281,7 +4292,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nThe printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.\nA section the label lacks, or a name openFDA does not use, lists the sections the label has.\nFor drugsfda label-history, one of boxed_warning, indications_and_usage, contraindications,\nwarnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.\nOnly with section label or label-history.",
+          "description": "Exact openFDA SPL fields.\nSeparate fields (including tables) with commas for one part per field. Omit or give an absent or unknown field to list available names.\nwarnings_and_precautions reads warnings_and_cautions.\nFor drugsfda history, choose boxed_warning, indications_and_usage, contraindications,\nwarnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.\nOnly with section label or label-history.",
           "x-comma-separated": true
         },
         "partner": {
@@ -4293,7 +4304,7 @@
               "type": "null"
             }
           ],
-          "description": "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.\nKeeps only the pairs with that drug. A name DDInter does not use is tried under the\nnames other sources state for it, as the drug itself is.",
+          "description": "Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.\nOnly with section interactions.",
           "x-required-component": "ddinter"
         },
         "product_number": {
@@ -4305,7 +4316,7 @@
               "type": "null"
             }
           ],
-          "description": "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda. Only with section approvals."
+          "description": "Application product number. Only with --source drugsfda. Only with section approvals."
         },
         "section": {
           "description": "Named disclosures of the selected source, each its own part of one reply; empty means identity only.",
@@ -4317,7 +4328,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.\nAt most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere.",
+          "description": "Page size. Requires a section. Max 200 for approvals, interactions, label, regulatory, xrefs and essential-medicines, 50 elsewhere.",
           "format": "uint32",
           "maximum": 200,
           "minimum": 1,
@@ -4327,7 +4338,7 @@
           ]
         },
         "section_offset": {
-          "description": "Named section continuation, refused on an identity-only card; label-history --every-version starts at this version.",
+          "description": "Section offset. With label-history --every-version, start at this version. Requires a section.",
           "format": "uint32",
           "minimum": 0,
           "type": [

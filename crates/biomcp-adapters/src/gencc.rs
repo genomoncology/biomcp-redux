@@ -1,5 +1,6 @@
-//! GenCC submissions remain separate records keyed by HGNC identity.
+//! GenCC submissions remain separate records indexed by native gene or disease identity.
 use crate::native_text::NativeText;
+mod by_disease;
 use crate::{Mapped, mapped::Problems, quotas, raw::Field};
 use biodata::{GeneSymbol, HgncId, Text};
 use biomcp_fetch::{
@@ -7,6 +8,7 @@ use biomcp_fetch::{
     SourceSpec,
 };
 use biomcp_types::{GenccGene, GenccSubmission, Source, SyncResult};
+pub use by_disease::by_disease;
 use serde::Deserialize;
 use std::{marker::PhantomData, time::Duration};
 
@@ -73,10 +75,10 @@ pub fn gene(
     let submissions: Box<[_]> = rows
         .into_iter()
         .filter_map(|row| {
-            let mapped = row.into_record(id);
+            let mapped = row.into_record(Some(id));
             refusals.include(mapped.refusals);
             problems.extend(mapped.problems);
-            mapped.value
+            mapped.value.map(|(_, row)| row)
         })
         .collect();
     Ok(Mapped {
@@ -122,14 +124,30 @@ impl Row for Submission {
                 .map(|symbol| vec![(KeyKind::Symbol, rejected_key(symbol).into())])
                 .unwrap_or_default(),
         };
-        Keys {
+        let mut keys = Keys {
             exact,
             words: Vec::new(),
-        }
+        };
+        let (id, name) = self.disease_keys();
+        crate::curation::index(&mut keys, id, name);
+        keys
     }
 }
 impl Submission {
-    fn into_record(self, requested: HgncId) -> Mapped<Option<GenccSubmission>> {
+    fn disease_keys(&self) -> (Option<&str>, Option<&str>) {
+        (
+            self.disease_curie
+                .as_ref()
+                .and_then(Field::as_ref)
+                .map(Text::as_str),
+            self.disease_title
+                .as_ref()
+                .and_then(Field::as_ref)
+                .map(|name| name.as_str()),
+        )
+    }
+
+    fn into_record(self, requested: Option<HgncId>) -> Mapped<Option<(HgncId, GenccSubmission)>> {
         let mut cx = Problems {
             source: Source::Gencc,
             record: None,
@@ -138,32 +156,37 @@ impl Submission {
         let id = cx.required_field("sgc_id", self.sgc_id);
         cx.record = id.clone();
         let gene = cx.required_field("gene_curie", self.gene_curie);
-        if gene.is_some_and(|gene| gene != requested) {
+        let matches = gene.is_some_and(|gene| requested.is_none_or(|expected| expected == gene));
+        if gene.is_some() && !matches {
             cx.required::<()>("gene_curie", None);
         }
         let version = cx.required_field("version_number", self.version_number);
         let mut refusals = crate::Refusal::None;
-        let value = match (id, version) {
-            (Some(id), Some(version)) if gene == Some(requested) => Some(GenccSubmission {
-                id,
-                version,
-                disease_id: cx.field("disease_curie", self.disease_curie),
-                disease: cx.source_field("disease_title", self.disease_title),
-                classification_id: cx.field("classification_curie", self.classification_curie),
-                classification: cx.source_field("classification_title", self.classification_title),
-                mode_of_inheritance_id: cx.field("moi_curie", self.moi_curie),
-                mode_of_inheritance: cx.source_field("moi_title", self.moi_title),
-                submitter_id: cx.field("submitter_curie", self.submitter_curie),
-                submitter: cx.source_field("submitter_title", self.submitter_title),
-                evaluated_date: cx.text(
-                    "submitted_as_date",
-                    self.submitted_as_date.as_deref().filter(|v| !v.is_empty()),
-                ),
-                submitted_date: cx.text(
-                    "submitted_run_date",
-                    self.submitted_run_date.as_deref().filter(|v| !v.is_empty()),
-                ),
-            }),
+        let value = match (id, version, gene) {
+            (Some(id), Some(version), Some(gene)) if matches => Some((
+                gene,
+                GenccSubmission {
+                    id,
+                    version,
+                    disease_id: cx.field("disease_curie", self.disease_curie),
+                    disease: cx.source_field("disease_title", self.disease_title),
+                    classification_id: cx.field("classification_curie", self.classification_curie),
+                    classification: cx
+                        .source_field("classification_title", self.classification_title),
+                    mode_of_inheritance_id: cx.field("moi_curie", self.moi_curie),
+                    mode_of_inheritance: cx.source_field("moi_title", self.moi_title),
+                    submitter_id: cx.field("submitter_curie", self.submitter_curie),
+                    submitter: cx.source_field("submitter_title", self.submitter_title),
+                    evaluated_date: cx.text(
+                        "submitted_as_date",
+                        self.submitted_as_date.as_deref().filter(|v| !v.is_empty()),
+                    ),
+                    submitted_date: cx.text(
+                        "submitted_run_date",
+                        self.submitted_run_date.as_deref().filter(|v| !v.is_empty()),
+                    ),
+                },
+            )),
             _ => {
                 refusals = crate::Refusal::Refused;
                 None
