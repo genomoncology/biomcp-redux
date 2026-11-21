@@ -206,10 +206,7 @@ fn attributes(root: &Path, path: &str, tokens: &[String]) -> Check {
         {
             return fail(path, "dead_code and unused_imports suppressions forbidden");
         }
-        if suppression
-            && !first_read_size(path, &attribute, tail)
-            && (!EXCEPTIONS.iter().any(|(file, _)| *file == path) || !attribute.contains(&"reason"))
-        {
+        if suppression && !reasoned_suppression(path, &attribute, tail) {
             return fail(path, "lint exception requires listed location and reason");
         }
         if path == GENERATED_PROTO && suppression {
@@ -256,30 +253,31 @@ fn attributes(root: &Path, path: &str, tokens: &[String]) -> Check {
     Ok(())
 }
 
-// Only Size may use Cell to keep the response length when the synchronous fetch fails.
-fn first_read_size(path: &str, attribute: &[&str], tail: &[String]) -> bool {
-    path == "crates/biomcp-fetch/src/bundle/first.rs"
-        && matches!(
-            attribute,
-            [
-                "[",
-                "expect",
-                "(",
-                "clippy",
-                ":",
-                ":",
-                "disallowed_types",
-                ",",
-                "reason",
-                "=",
-                _,
-                ",",
-                ")"
-            ]
-        )
-        && tail
-            .get(attribute.len() + 1..attribute.len() + 8)
-            .is_some_and(|item| item == ["pub", "(", "super", ")", "struct", "Size", "("])
+fn reasoned_suppression(path: &str, attribute: &[&str], tail: &[String]) -> bool {
+    if path != "crates/biomcp-fetch/src/bundle/first.rs" {
+        return EXCEPTIONS.iter().any(|(file, _)| *file == path) && attribute.contains(&"reason");
+    }
+    // Only Size may use Cell to keep the response length when the synchronous fetch fails.
+    matches!(
+        attribute,
+        [
+            "[",
+            "expect",
+            "(",
+            "clippy",
+            ":",
+            ":",
+            "disallowed_types",
+            ",",
+            "reason",
+            "=",
+            _,
+            ",",
+            ")"
+        ]
+    ) && tail
+        .get(attribute.len() + 1..attribute.len() + 8)
+        .is_some_and(|item| item == ["pub", "(", "super", ")", "struct", "Size", "("])
 }
 
 fn references(
