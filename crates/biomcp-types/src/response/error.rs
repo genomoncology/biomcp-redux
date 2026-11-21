@@ -257,8 +257,7 @@ singleton! {
             as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes",
         PhenotypeSetOffset => "Monarch returns one ranked list of at most 50 rows for a set of HP IDs and has no further \
             pages; drop --offset and raise --limit up to 50",
-        PhenotypeSetEmpty => "Monarch ranked nothing for this set, which it does when it knows none of the IDs; check \
-            each ID with the next steps",
+        PhenotypeSetEmpty => "Monarch ranked nothing for this set, which it does when it knows none of the IDs; check each ID with the next steps",
         PhenotypeSetUnknown => "Monarch has no term for an HP ID in this set and would rank without it; check each ID with \
             the next steps, or rank only the IDs Monarch knows",
         DiseaseHelp => "use: help search disease; help get disease", DiseaseTrials => "use: search trial --condition <text>; NCI requires an NCIt identifier",
@@ -267,9 +266,7 @@ singleton! {
         CellLineExpression => "gene cell-lines is deferred until an exact HPA cell identity join exists",
         DrugCellLines => "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
         CvxUnavailable => "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
-
         EmaSync => "renamed; use: biomcp sync ema", DdinterSync => "renamed; use: biomcp sync ddinter",
-
         WhoPqSync => "renamed; use: biomcp sync who-pq", DrugQuery => "renamed; use: search drug <TEXT> --source <SOURCE>",
         DrugMechanism => "--mechanism is retired: semantic mechanism expansion is not supported; select a drug identity and read targets.",
         DrugPartnerSearch => "--interactions is retired: use get drug <ID> interactions --source ddinter.",
