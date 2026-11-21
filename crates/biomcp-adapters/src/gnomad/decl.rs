@@ -9,7 +9,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     registry_order: Some(20),
     probe: Probe::GraphQl("/api"),
     components: &[],
-    auxiliary: &[&release::SPEC],
+    auxiliary: &[&super::release::SPEC],
     bundles: &[&V4_1, &V4_0],
     guidance: Guidance {
         deadline: None,
