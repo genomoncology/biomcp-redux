@@ -1,9 +1,10 @@
 //! Feature drug-ema: first reads preserve known medicine dates and disclose unavailable referral dates.
-use super::{
+use super::{bodies, configured};
+use crate::runner::{
     configuration::{cached, invoke},
-    first_read::{bodies, configured},
     launch::Environment,
     network_stub::Stub,
+    response_cases, transcript,
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -21,13 +22,13 @@ const REFERRALS: &str = "/en/documents/report/referrals-output-json-report_en.js
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
-        super::transcript::trial("drug-ema/first-read-fetches-referrals", || {
+        transcript::trial("drug-ema/first-read-fetches-referrals", || {
             live_read(200).map_err(Into::into)
         }),
-        super::transcript::trial("drug-ema/first-read-reports-failed-referrals", || {
+        transcript::trial("drug-ema/first-read-reports-failed-referrals", || {
             live_read(403).map_err(Into::into)
         }),
-        super::transcript::trial("drug-ema/cold-replay-reports-missing-referrals", || {
+        transcript::trial("drug-ema/cold-replay-reports-missing-referrals", || {
             replay_read().map_err(Into::into)
         }),
     ]
@@ -84,7 +85,7 @@ fn replay_read() -> Result<(), String> {
     env.config(&json!({"source_data_max_age_days":1000000}))
         .map_err(|e| e.to_string())?;
     let capture = env.root().join("recordings");
-    super::response_cases::copy_capture(CAPTURE, &capture, |_, record| {
+    response_cases::copy_capture(CAPTURE, &capture, |_, record| {
         if record["url"]
             .as_str()
             .is_some_and(|url| url.ends_with(REFERRALS))

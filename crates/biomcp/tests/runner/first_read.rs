@@ -1,5 +1,7 @@
 //! Features diagnostic-cdx and disease-orphadata: a live first read fetches a missing small list;
 //! an offline one never fetches.
+mod ema;
+
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -8,7 +10,7 @@ use std::fs;
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         super::transcript::trial("diagnostic-cdx/first-read-fetches-the-list", || {
             companion().map_err(Into::into)
         }),
@@ -28,11 +30,13 @@ pub(super) fn trials() -> Vec<Trial> {
         super::transcript::trial("disease-orphadata/first-read-fetches-the-files", || {
             prevalence().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(ema::trials());
+    trials
 }
 
 /// The synthetic publisher bodies from one replay folder, by URL path.
-pub(super) fn bodies(capture: &str) -> Result<Vec<(String, String)>, String> {
+fn bodies(capture: &str) -> Result<Vec<(String, String)>, String> {
     let folder = super::launch::fixtures().join("replies").join(capture);
     let mut found = Vec::new();
     for file in fs::read_dir(folder).map_err(|e| e.to_string())? {
@@ -76,7 +80,7 @@ fn live(host: &'static str, capture: &str, extra: Value) -> Result<(Environment,
     configured(stub, extra)
 }
 
-pub(super) fn configured(stub: Stub, extra: Value) -> Result<(Environment, Stub), String> {
+fn configured(stub: Stub, extra: Value) -> Result<(Environment, Stub), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     stub.retain(env.shared_root());
     let ca = env.root().join("ca.pem");

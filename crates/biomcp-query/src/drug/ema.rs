@@ -156,11 +156,14 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             found
         })
     };
-    let error = result.as_ref().err().copied().or(referral_error);
+    let (found, error) = match result {
+        Ok(found) => (Some(found), referral_error),
+        Err(error) => (None, Some(error)),
+    };
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Ema, leg.finish(), error));
-    if let Ok(found) = result {
+    if let Some(found) = found {
         status::item(&mut out, found, false, referral_error.is_some());
     }
     add_notice(&mut out, notice);
