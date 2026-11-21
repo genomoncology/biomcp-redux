@@ -11,10 +11,6 @@ const GENERATED_PROTO: &str = "crates/biomcp-adapters/src/alphagenome/proto.rs";
 // New exceptions require a reviewed path and reason here.
 const EXCEPTIONS: &[(&str, &str)] = &[
     (
-        "crates/biomcp-fetch/src/bundle/first.rs",
-        "The synchronous response reader reports length to its own first fetch",
-    ),
-    (
         "crates/biomcp-fetch/tests/transport/tls_builds.rs",
         "Count TLS configuration builds on one isolated test thread",
     ),
@@ -211,6 +207,7 @@ fn attributes(root: &Path, path: &str, tokens: &[String]) -> Check {
             return fail(path, "dead_code and unused_imports suppressions forbidden");
         }
         if suppression
+            && !first_read_size(path, &attribute, tail)
             && (!EXCEPTIONS.iter().any(|(file, _)| *file == path) || !attribute.contains(&"reason"))
         {
             return fail(path, "lint exception requires listed location and reason");
@@ -257,6 +254,32 @@ fn attributes(root: &Path, path: &str, tokens: &[String]) -> Check {
         }
     }
     Ok(())
+}
+
+// Only Size may use Cell to keep the response length when the synchronous fetch fails.
+fn first_read_size(path: &str, attribute: &[&str], tail: &[String]) -> bool {
+    path == "crates/biomcp-fetch/src/bundle/first.rs"
+        && matches!(
+            attribute,
+            [
+                "[",
+                "expect",
+                "(",
+                "clippy",
+                ":",
+                ":",
+                "disallowed_types",
+                ",",
+                "reason",
+                "=",
+                _,
+                ",",
+                ")"
+            ]
+        )
+        && tail
+            .get(attribute.len() + 1..attribute.len() + 8)
+            .is_some_and(|item| item == ["pub", "(", "super", ")", "struct", "Size", "("])
 }
 
 fn references(

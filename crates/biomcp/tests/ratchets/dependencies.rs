@@ -51,7 +51,8 @@ const LAYERS: &[(&str, &[&str])] = &[
             "quick-xml",
             "thiserror",
             "calamine",
-            "caseless", // Full Unicode case folding for exact label phrase matching.
+            // PM ruling (1127): MIT-licensed, only for case-insensitive label phrase matching.
+            "caseless",
             "lopdf",
             "csv",
             "zip",
