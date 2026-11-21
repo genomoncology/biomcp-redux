@@ -272,7 +272,6 @@ fn reasoned_suppression(path: &str, attribute: &[&str], tail: &[String]) -> bool
             "reason",
             "=",
             _,
-            ",",
             ")"
         ]
     ) && tail
