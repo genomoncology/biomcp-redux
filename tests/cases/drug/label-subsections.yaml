@@ -57,9 +57,7 @@
         "/status": "complete",
         "/result/label/source": "openfda-label",
         "/result/label/state": "empty",
-        "/result/hint": {
-          "includes": "has no subsection \"2.9\" in dosage_and_administration"
-        }
+        "/result/hint": "Example's label (set 11111111-1111-1111-1111-111111111111, version 1) has no subsection \"2.9\" in dosage_and_administration"
       }
     },
     {
@@ -77,9 +75,7 @@
         "/status": "complete",
         "/result/label/source": "openfda-label",
         "/result/label/state": "empty",
-        "/result/hint": {
-          "includes": "subsection \"Special Cases\" is ambiguous in dosage_and_administration: 2.1.1 Special Cases, 2.3 Special Cases"
-        }
+        "/result/hint": "In Example's label (set 11111111-1111-1111-1111-111111111111, version 1), subsection \"Special Cases\" is ambiguous in dosage_and_administration: 2.1.1 Special Cases, 2.3 Special Cases"
       }
     },
     {
@@ -95,9 +91,7 @@
       ],
       "expect": {
         "/result/label/data/heading": "dosage_and_administration",
-        "/result/label/data/text": {
-          "includes": "2.3 Special Cases"
-        }
+        "/result/label/data/text": "2 DOSAGE AND ADMINISTRATION See section 2.1 for more information. ( 2.1 ) 2.1 Recommended Dosage Read the instructions.2.1.1 Special Cases Read the special instructions. 2.2 Dose Modification Read the adjustment instructions.\n2.3 Special Cases\nRead the notes."
       }
     },
     {
