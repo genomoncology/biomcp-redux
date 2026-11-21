@@ -279,9 +279,9 @@ fn split(probe: &Probe, args: &[String], whole: &Value, code: Option<i32>) -> Re
     for word in &words {
         let alone_args = alone(args, word);
         let mut candidates = paths(whole, word);
-        candidates.extend(probe.names(&alone_args)?.into_iter().take(TRIES));
-        for name in &candidates {
-            if checked && !name.contains('.') {
+        candidates.extend(probe.names(&alone_args)?);
+        for (index, name) in candidates.iter().enumerate() {
+            if (checked || index >= TRIES * 2) && !name.contains('.') {
                 continue;
             }
             let (alone_code, _) = probe.run(Some(name), &alone_args)?;
