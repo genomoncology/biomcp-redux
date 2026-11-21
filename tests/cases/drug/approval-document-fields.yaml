@@ -5,6 +5,7 @@ replay: diagnostic/fda-documents
 steps:
   - run: [get, drug, NDA021588, approvals, --source, drugsfda, --limit, "200", --decision-from, "2020-08-01", --decision-to, "2020-08-31", "--fields=application_docs.id,application_docs.type"]
     mcp: [get, drug, NDA021588, approvals, --source, drugsfda, --limit, "200", --decision-from, "2020-08-01", --decision-to, "2020-08-31", "--fields=application_docs.id,application_docs.type"]
+    max_bytes: 3000
     expect:
       /page/returned: 2
       /result/approvals/data/records/0/submission_number: "57"
