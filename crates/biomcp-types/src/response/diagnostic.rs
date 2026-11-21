@@ -1,9 +1,6 @@
 use super::{CompanionDiagnosticRow, DiagnosticProductCodeCounts};
 use crate::{DiagnosticGet, DiagnosticSearch, DiagnosticSection, Problem, ResponseBody};
-use biodata::{
-    GtrConditionRelation, GtrGeneRelation, GtrMethod, GtrTestId, PmaNumber, PmaSupplementCell,
-    Text, WhoIvdProduct,
-};
+use biodata::{GtrMethod, GtrTestId, PmaNumber, PmaSupplementCell, Text, WhoIvdProduct};
 use serde::{Deserialize, Serialize};
 
 /// Compact native laboratory context without authorization interpretation.
@@ -315,22 +312,6 @@ page!(
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub product_code_counts: Option<DiagnosticProductCodeCounts>,
     ]
-);
-page!(
-    diagnostic,
-    DiagnosticGenes,
-    GtrGeneRelation,
-    DiagnosticGet,
-    "biomcp.diagnostic-genes/6",
-    "Native GTR gene relation rows without variant-coverage inference."
-);
-page!(
-    diagnostic,
-    DiagnosticConditions,
-    GtrConditionRelation,
-    DiagnosticGet,
-    "biomcp.diagnostic-conditions/6",
-    "Native GTR condition rows without ontology or clinical conversion."
 );
 page!(
     diagnostic,

@@ -147,7 +147,7 @@ fn ema(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     row.record = text(&body.identity.id.to_string(), Source::Ema, "record", out);
     row.name = body.identity.name.clone();
     row.url = body.identity.url.clone();
-    if let Section::Data { data, .. } = &body.regulatory
+    if let Some(Section::Data { data, .. }) = &body.part.regulatory
         && let Some(event) = data.records.first()
     {
         row.holder = event.attribution.submitter.clone();

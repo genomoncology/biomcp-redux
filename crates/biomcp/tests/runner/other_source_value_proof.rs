@@ -278,7 +278,7 @@ fn mutations() -> [Mutation; 5] {
             pointer: "/drug_indications/0/max_phase_for_ind",
             field: "max_phase_for_ind",
             absent: "/result/indications/data/records/0/stage",
-            present: "/result/indications/data/records/0/drug/id",
+            present: "/result/identity/id",
         },
     ]
 }

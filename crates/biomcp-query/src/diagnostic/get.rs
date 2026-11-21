@@ -1,6 +1,6 @@
 use super::{empty, finish, next, unsupported};
 use crate::{Ctx, Outcome, status};
-use biodata::GtrTestRelation;
+use biodata::{GtrTestId, GtrTestRelation};
 use biomcp_adapters::gtr;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
@@ -48,7 +48,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
         if let Some(problem) = record.conflict {
             out.problems.push(problem);
         } else {
-            selected(&mut out, q, &query, record, cx.fresh);
+            selected(&mut out, q, &query, id, record, cx.fresh);
         }
     }
     finish(&mut out, leg, error);
@@ -59,6 +59,7 @@ fn selected(
     out: &mut Outcome,
     echo: &DiagnosticGet,
     q: &DiagnosticGet,
+    id: &GtrTestId,
     record: gtr::Record,
     fresh: bool,
 ) {
@@ -97,8 +98,10 @@ fn selected(
                 record.card.map(|v| DiagnosticCard::GtrTest(Box::new(v))),
             );
         }
-        Some(DiagnosticSection::Genes) => genes(out, echo, q, record.relations, fresh),
-        Some(DiagnosticSection::Conditions) => conditions(out, echo, q, record.relations, fresh),
+        Some(DiagnosticSection::Genes) => genes(out, echo, q, id, record.relations, fresh),
+        Some(DiagnosticSection::Conditions) => {
+            conditions(out, echo, q, id, record.relations, fresh)
+        }
         Some(DiagnosticSection::Methods) => {
             let total = record.methods.len();
             let items = record
@@ -141,6 +144,7 @@ fn genes(
     out: &mut Outcome,
     echo: &DiagnosticGet,
     q: &DiagnosticGet,
+    test_id: &GtrTestId,
     relations: Vec<GtrTestRelation>,
     fresh: bool,
 ) {
@@ -193,7 +197,8 @@ fn genes(
     }
     page(out, q, items.len(), total, fresh);
     out.body = (DiagnosticGenes {
-        items,
+        test_id: test_id.clone(),
+        items: items.into_vec().into_iter().map(Into::into).collect(),
         count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
         distinct_id_total,
     })
@@ -204,6 +209,7 @@ fn conditions(
     out: &mut Outcome,
     echo: &DiagnosticGet,
     q: &DiagnosticGet,
+    test_id: &GtrTestId,
     relations: Vec<GtrTestRelation>,
     fresh: bool,
 ) {
@@ -231,7 +237,8 @@ fn conditions(
         .collect::<Box<[_]>>();
     page(out, q, items.len(), total, fresh);
     out.body = (DiagnosticConditions {
-        items,
+        test_id: test_id.clone(),
+        items: items.into_vec().into_iter().map(Into::into).collect(),
         count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
         distinct_id_total,
     })
