@@ -1,0 +1,22 @@
+{
+  "source": "monarch",
+  "method": "GET",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/association?object=HP%3A0001083&subject_category=biolink%3AGene&subject_taxon=NCBITaxon%3A9606&direct=true&limit=1&offset=0",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "body": {
+        "kind": "json",
+        "value": {
+          "limit": 1,
+          "offset": 0,
+          "total": 0,
+          "items": []
+        }
+      },
+      "fetched": 1792980000
+    }
+  ]
+}

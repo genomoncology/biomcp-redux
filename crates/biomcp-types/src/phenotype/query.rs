@@ -1,6 +1,6 @@
-use crate::QueryInvalid;
 #[cfg(feature = "schema")]
 use crate::query::command_source::SharedSource;
+use crate::{ErrorMessage, QueryInvalid};
 use biodata::{HpId, Text};
 use serde::{Deserialize, Serialize};
 biodata::wire_enum! { described
@@ -248,7 +248,19 @@ impl TryFrom<GetFields> for PhenotypeGet {
                 None => chosen != PhenotypeSource::Ols,
             };
             if !served {
-                return Err(QueryInvalid::new(&["source", "section"]));
+                let cause = QueryInvalid::new(&["source", "section"]);
+                return Err(match (chosen, v.section) {
+                    (PhenotypeSource::Hpo, Some(PhenotypeSection::Diseases)) => {
+                        cause.with_message(ErrorMessage::PhenotypeHpoDiseases)
+                    }
+                    (PhenotypeSource::Hpo, Some(PhenotypeSection::Hierarchy)) => {
+                        cause.with_message(ErrorMessage::PhenotypeHpoHierarchy)
+                    }
+                    (PhenotypeSource::Hpo, Some(PhenotypeSection::Genes)) => {
+                        cause.with_message(ErrorMessage::PhenotypeHpoGenes)
+                    }
+                    _ => cause,
+                });
             }
         }
         if v.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
