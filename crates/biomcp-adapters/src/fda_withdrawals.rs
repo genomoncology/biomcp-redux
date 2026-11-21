@@ -44,6 +44,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
 };
 
 /// Rows from the FDA table or the shipped copy when the table cannot be read.
+#[derive(Debug)]
 pub struct Withdrawals {
     /// One row per FDA indication, in table order.
     pub items: Vec<DrugWithdrawal>,
