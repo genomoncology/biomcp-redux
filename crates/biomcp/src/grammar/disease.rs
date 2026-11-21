@@ -2,7 +2,7 @@
 use super::{ParseInvalid, recovery, rewrite, validation};
 use biomcp_query::Action;
 use biomcp_types::{
-    DiseaseSource, ErrorMessage, QueryInvalid, Request, Rewrite, Step, UsageArguments, UsageError,
+    DiseaseSource, ErrorMessage, QueryInvalid, Request, Rewrite, UsageArguments, UsageError,
 };
 use serde_json::Value;
 
@@ -54,17 +54,6 @@ pub(super) fn unknown_source(
         dropped,
         ..ParseInvalid::default()
     })
-}
-
-/// A disease card is a valid fallback when the requested section has no disease equivalent.
-pub(super) fn gene_validity_card(via: Rewrite, value: &Value) -> Option<Step> {
-    let mut candidate = value.clone();
-    let fields = candidate.as_object_mut()?;
-    fields.remove("section");
-    if fields.get("source").and_then(Value::as_str) == Some("clingen") {
-        fields.remove("source");
-    }
-    recovery::run(&runnable(via, candidate)?)
 }
 
 fn runnable(via: Rewrite, value: Value) -> Option<Request> {

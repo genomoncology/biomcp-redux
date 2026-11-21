@@ -238,7 +238,6 @@ singleton! {
         DiseaseMonarchSection => "Add the genes or phenotypes section to use --source monarch.",
         DiseaseGenesSource => "Add --source monarch to read the genes section.",
         DiseasePhenotypesSource => "Add --source monarch to read the phenotypes section.",
-        DiseaseGeneValiditySection => "gene-validity is not a disease get section. Read the disease card or choose a listed section.",
         DiseaseFunding => "dropped; grant amounts do not answer the disease care questions",
         DiseaseCivic => "dropped; use: get variant <ID> civic; no disease-name join",
         DiseaseDisgenet => "dropped; no indispensable disease question establishes this source",
@@ -447,6 +446,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
         out
     }
 }
+
 impl ErrorEnvelope {
     /// Chosen `--fields` names a call's rows lack, the names it cannot place and the call with the rest.
     fn fields_unknown(&mut self, usage: UsageError) {
@@ -552,6 +552,7 @@ impl ErrorEnvelope {
         }
     }
 }
+
 impl ErrorDetail {
     fn trial_continuation(&mut self, message: ErrorMessage) {
         self.source = Some(crate::Source::ClinicalTrialsGov);

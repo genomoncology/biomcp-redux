@@ -186,14 +186,13 @@ fn offered_argument(name: &str) -> bool {
 fn word_refusal(value: &Value) -> bool {
     use biomcp_types::ErrorMessage::{
         ArgumentIdAfterSection, ArgumentSectionNotId, ArgumentSectionNotIdTyped,
-        ArgumentSectionUnknown, DiseaseGeneValiditySection,
+        ArgumentSectionUnknown,
     };
     [
         ArgumentSectionUnknown,
         ArgumentSectionNotId,
         ArgumentSectionNotIdTyped,
         ArgumentIdAfterSection,
-        DiseaseGeneValiditySection,
     ]
     .iter()
     .any(|message| value.pointer("/error/message") == serde_json::to_value(message).ok().as_ref())

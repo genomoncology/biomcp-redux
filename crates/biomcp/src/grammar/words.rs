@@ -70,20 +70,12 @@ pub(super) fn unknown(
         |word: &str| super::rewrite::request(via, verb, entity, json!({"input": [word]})).is_ok();
     let (word, candidate, place) = first(&schema, value, explicit)?;
     let candidate = candidate.filter(|candidate| first(&schema, candidate, explicit).is_none());
-    let (message, next) = if entity == "disease" && word.eq_ignore_ascii_case("gene-validity") {
-        (
-            ErrorMessage::DiseaseGeneValiditySection,
-            super::disease::gene_validity_card(via, value),
-        )
-    } else {
-        let message = match place {
-            Place::Trailing if is_id(&word) => ErrorMessage::ArgumentSectionNotId,
-            Place::AfterSection => ErrorMessage::ArgumentIdAfterSection,
-            Place::Trailing | Place::Section => ErrorMessage::ArgumentSectionUnknown,
-        };
-        let next = candidate.and_then(|candidate| runs(via, (verb, entity), &schema, candidate));
-        (message, next)
+    let message = match place {
+        Place::Trailing if is_id(&word) => ErrorMessage::ArgumentSectionNotId,
+        Place::AfterSection => ErrorMessage::ArgumentIdAfterSection,
+        Place::Trailing | Place::Section => ErrorMessage::ArgumentSectionUnknown,
     };
+    let next = candidate.and_then(|candidate| runs(via, (verb, entity), &schema, candidate));
     Some(ParseInvalid {
         usage: Some(UsageError::Arguments(refusal(
             (verb, entity),

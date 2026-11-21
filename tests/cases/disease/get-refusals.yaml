@@ -38,10 +38,3 @@ steps:
       /error/message: Add --source monarch to read the genes section.
       /error/valid_values: [monarch]
       /next/0/args: [get, disease, "MONDO:0019391", genes, --limit, "5", --source, monarch]
-  - run: [get, disease, "MONDO:0019391", gene-validity, --source, clingen]
-    exit: 2
-    is_error: true
-    expect:
-      /error/option: gene-validity
-      /error/message: gene-validity is not a disease get section. Read the disease card or choose a listed section.
-      /next/0/args: [get, disease, "MONDO:0019391", --limit, "5"]
