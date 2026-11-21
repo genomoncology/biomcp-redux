@@ -219,7 +219,12 @@ fn selected(request: &Request) -> Option<(Source, &'static str)> {
     use biomcp_types::ResponseBody;
     match request {
         Request::SearchDrug(query) if query.source() == biomcp_types::DrugSource::PurpleBook => {
-            Some((Source::PurpleBook, biomcp_types::DrugPurpleBookPage::SCHEMA))
+            let schema = if query.purple_book_presentations() {
+                biomcp_types::DrugPurpleBookPage::SCHEMA
+            } else {
+                biomcp_types::DrugPurpleBookProducts::SCHEMA
+            };
+            Some((Source::PurpleBook, schema))
         }
         Request::SearchTrial(query) => Some((
             query.source().source(),

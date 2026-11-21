@@ -328,6 +328,6 @@ Label search widens a drug name by default: `biomcp search drug apixaban --sourc
 
 ### FDA Purple Book
 
-`biomcp search drug adalimumab --source purple-book` reads the biosimilar roster for a reference product name or BLA from a dated FDA snapshot. Use `--strength` and `--device` to match FDA's strength and presentation cells. Use the product number to tell presentations apart when their strength and device match. Designation and dates apply to the individual row. FDA supplies reference names in biosimilar rows. When those names occur under multiple BLAs, the reply lists the candidate BLAs.
+`biomcp search drug adalimumab --source purple-book` returns the full biosimilar product roster for a reference name or BLA on one page. Each row counts the presentations under each FDA designation and shows the earliest reported approval and interchangeability dates, plus differing dates where supplied. Use `--presentations`, `--strength`, or `--device` for FDA presentation rows. The presentation product number distinguishes rows with the same strength and device. When FDA's reference names match multiple BLAs, the reply gives the candidate BLAs.
 
 FDA updates the list monthly. BioMCP ships a snapshot and shows the release month. Download a newer complete monthly CSV from [FDA's Purple Book downloads](https://purplebooksearch.fda.gov/downloads) and import it with `biomcp sync purple-book --file PATH`. A failed import preserves the active release.

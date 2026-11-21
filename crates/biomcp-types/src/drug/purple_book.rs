@@ -23,6 +23,9 @@ pub struct PurpleBookPresentation {
     pub name: Box<str>,
     /// The FDA proper name.
     pub proper_name: Box<str>,
+    /// Applicant on this FDA presentation row.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub applicant: Option<Box<str>>,
     /// The FDA reference product's proprietary name.
     pub reference_name: Box<str>,
     /// The FDA reference product's proper name.

@@ -18,6 +18,7 @@
         "/result/items/0/earliest_approval_date": "September 23, 2016",
         "/result/items/0/earliest_interchangeability_date": "August 20, 2024",
         "/result/items/0/interchangeability_dates": ["August 20, 2024", "April 7, 2025", "May 20, 2025"],
+        "/result/items/1/first_interchangeable_exclusivity_expirations": ["April 15, 2023", "September 18, 2023"],
         "/next/0/args": {"includes_all_of": ["--presentations"]}
       },
       "max_bytes": 8500

@@ -49,7 +49,7 @@ impl LabelApplicationType {
     status, reason and initiation dates; counts are recall records. \
     WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. \
     Drugs@FDA accepts a name or an applicant. Other sources require a name. \
-    Purple Book takes a reference product name or BLA and returns FDA biosimilar presentations."]
+    Purple Book takes a reference name or BLA and summarizes biosimilars by product."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -187,11 +187,15 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     therapeutic_area: Option<Text>,
 
-    /// Exact FDA Purple Book strength cell, ignoring case and spaces.
+    /// Purple Book presentation rows, also selected by --strength or --device.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
+    presentations: bool,
+    /// Purple Book strength. Match its cell, ignoring case and spaces; return presentations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     strength: Option<Text>,
-    /// Exact FDA Purple Book product presentation, ignoring case (e.g. Autoinjector).
+    /// Purple Book device. Match its presentation cell, ignoring case; return presentations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     device: Option<Text>,
@@ -210,11 +214,11 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "super::DrugNameSelector"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Chembl)))]
     name_selector: Option<super::DrugNameSelector>,
-    /// Native candidate rows per page.
+    /// Rows per page. Purple Book product summaries always return the full roster.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Native rows to skip.
+    /// Rows to skip. Purple Book applies this only to presentation rows.
     #[serde(default)]
     offset: u32,
 }
@@ -243,10 +247,15 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.sort.is_some() && fields.source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["sort", "source"]));
         }
-        if (fields.strength.is_some() || fields.device.is_some())
+        if (fields.presentations || fields.strength.is_some() || fields.device.is_some())
             && fields.source != DrugSource::PurpleBook
         {
-            return Err(QueryInvalid::new(&["strength", "device", "source"]));
+            return Err(QueryInvalid::new(&[
+                "presentations",
+                "strength",
+                "device",
+                "source",
+            ]));
         }
         validate_approved(&fields)?;
         let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
@@ -359,6 +368,7 @@ impl DrugSearch {
             prequalified_from: None,
             prequalified_to: None,
             therapeutic_area: None,
+            presentations: false,
             strength: None,
             device: None,
             name_selector: None,
@@ -404,6 +414,17 @@ fn selected_name<'de, D: serde::Deserializer<'de>>(
     super::DrugNameSelector::deserialize(d).map(Some)
 }
 impl DrugSearch {
+    /// Whether the Purple Book search returns presentation rows.
+    pub fn purple_book_presentations(&self) -> bool {
+        self.0.presentations || self.0.strength.is_some() || self.0.device.is_some()
+    }
+    /// Switch a Purple Book summary to the first page of its FDA presentation rows.
+    pub fn purple_book_details(&self) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.presentations = true;
+        fields.offset = 0;
+        fields.try_into()
+    }
     /// Exact Purple Book strength cell.
     pub fn strength(&self) -> Option<&Text> {
         self.0.strength.as_ref()

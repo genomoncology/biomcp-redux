@@ -196,14 +196,14 @@ pub use drug::{
     DrugInteractionsPart, DrugLabel, DrugLabelFragment, DrugLabelHistory, DrugLabelPart,
     DrugLabelText, DrugLevelCount, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet,
     DrugNameMatch, DrugNameResolution, DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing,
-    DrugPage, DrugPurpleBookPage, DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit,
-    DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext,
-    DrugRegulatoryPart, DrugSearch, DrugSection, DrugSectionBody, DrugSectionPart,
-    DrugSectionReply, DrugSections, DrugSource, DrugTargets, DrugTargetsPart, DrugWhoCard,
-    DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart, LabelApplicationType,
-    LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
-    OPENFDA_LABEL_HEADINGS, PurpleBookLicense, PurpleBookPresentation, WhoDateStatus,
-    openfda_label_field,
+    DrugPage, DrugPurpleBookPage, DrugPurpleBookProducts, DrugRecallCard, DrugRecallClassification,
+    DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory,
+    DrugRegulatoryContext, DrugRegulatoryPart, DrugSearch, DrugSection, DrugSectionBody,
+    DrugSectionPart, DrugSectionReply, DrugSections, DrugSource, DrugTargets, DrugTargetsPart,
+    DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart,
+    LabelApplicationType, LabelHistorySection, LabelVersion, LabelVersionMatch, LabelVersionState,
+    OPENFDA_LABEL_HEADINGS, PurpleBookDesignationCount, PurpleBookLicense, PurpleBookPresentation,
+    PurpleBookProduct, PurpleBookReference, WhoDateStatus, openfda_label_field,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};

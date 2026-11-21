@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 
 const TITLE: &str = "Purple Book Monthly Historical Data Changes Report - ";
-const MONTHS: [&str; 12] = [
+pub(super) const MONTHS: [&str; 12] = [
     "January",
     "February",
     "March",
@@ -74,6 +74,8 @@ struct Native {
     name: Box<str>,
     #[serde(rename = "Proper Name")]
     proper_name: Box<str>,
+    #[serde(rename = "Applicant")]
+    applicant: Option<Box<str>>,
     #[serde(rename = "License Type", alias = "BLA Type")]
     license_type: Box<str>,
     #[serde(rename = "Ref. Product Proper Name")]
@@ -245,6 +247,7 @@ fn presentation(
         product_number: row.product_number,
         name: row.name,
         proper_name: row.proper_name,
+        applicant: known(row.applicant),
         reference_name: row.reference_name,
         reference_proper_name: row.reference_proper_name,
         reference_bla,

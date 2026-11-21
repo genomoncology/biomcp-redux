@@ -58,9 +58,9 @@ fn import() -> Result<(), Box<dyn std::error::Error>> {
         != Some("November 2026")
         || retained.pointer("/page/total").and_then(Value::as_u64) != Some(1)
         || retained
-            .pointer("/result/items/0/product_number")
+            .pointer("/result/items/0/applicant")
             .and_then(Value::as_str)
-            != Some("003")
+            != Some("Samsung Bioepis Co., Ltd.")
     {
         return Err(format!("failed import changed the active full roster: {retained}").into());
     }

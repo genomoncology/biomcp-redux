@@ -65,6 +65,7 @@ macro_rules! reply_types {
             variant_normalization: $crate::VariantNormalization => "variant-normalization",
             variant_page: $crate::VariantPage => "variant-page",
             variant_card: $crate::VariantCard => "variant-card",
+            drug_purple_book_products: $crate::DrugPurpleBookProducts => "drug-purple-book-products",
             drug_purple_book_page: $crate::DrugPurpleBookPage => "drug-purple-book-page",
             drug_who_page: $crate::DrugWhoPage => "drug-who-page",
             drug_who_card: $crate::DrugWhoCard => "drug-who-card",

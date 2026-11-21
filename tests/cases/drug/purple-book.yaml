@@ -26,8 +26,8 @@
       }
     },
     {
-      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--offline"],
-      "mcp": ["search", "drug", "Enbrel", "--source", "purple-book", "--offline"],
+      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--presentations", "--offline"],
+      "mcp": ["search", "drug", "Enbrel", "--source", "purple-book", "--presentations", "--offline"],
       "expect": {
         "/status": "complete",
         "/result/release_month": "October 2026",
