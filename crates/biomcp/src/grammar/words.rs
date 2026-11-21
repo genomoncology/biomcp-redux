@@ -70,12 +70,22 @@ pub(super) fn unknown(
         |word: &str| super::rewrite::request(via, verb, entity, json!({"input": [word]})).is_ok();
     let (word, candidate, place) = first(&schema, value, explicit)?;
     let candidate = candidate.filter(|candidate| first(&schema, candidate, explicit).is_none());
-    let message = match place {
-        Place::Trailing if is_id(&word) => ErrorMessage::ArgumentSectionNotId,
-        Place::AfterSection => ErrorMessage::ArgumentIdAfterSection,
-        Place::Trailing | Place::Section => ErrorMessage::ArgumentSectionUnknown,
+    let (message, next) = if entity == "drug" && word.eq_ignore_ascii_case("biosimilars") {
+        let next = super::recovery::checked(
+            biomcp_types::Rewrite::Direct,
+            ("search", "drug"),
+            json!({"query": value.get("input")?, "source": biomcp_types::DrugSource::PurpleBook}),
+        );
+        (ErrorMessage::DrugBiosimilarsSection, next)
+    } else {
+        let message = match place {
+            Place::Trailing if is_id(&word) => ErrorMessage::ArgumentSectionNotId,
+            Place::AfterSection => ErrorMessage::ArgumentIdAfterSection,
+            Place::Trailing | Place::Section => ErrorMessage::ArgumentSectionUnknown,
+        };
+        let next = candidate.and_then(|candidate| runs(via, (verb, entity), &schema, candidate));
+        (message, next)
     };
-    let next = candidate.and_then(|candidate| runs(via, (verb, entity), &schema, candidate));
     Some(ParseInvalid {
         usage: Some(UsageError::Arguments(refusal(
             (verb, entity),

@@ -207,7 +207,21 @@ pub(crate) fn prepared(
     request: &biomcp_types::Request,
     mut error: biomcp_types::UsageError,
 ) -> biomcp_types::UsageError {
-    let biomcp_types::UsageError::Arguments(arguments) = &mut error else {
+    use biomcp_types::{DrugSection, ErrorMessage, Request, UsageError};
+    if let (
+        Request::GetDrug(query),
+        UsageError::SourceSelector {
+            message: ErrorMessage::DrugFdaRegulatorySection,
+            next,
+            ..
+        },
+    ) = (request, &mut error)
+        && let Ok(approvals) = query.for_section(DrugSection::Approvals)
+        && let Some(step) = run(&Request::GetDrug(approvals))
+    {
+        *next = vec![step];
+    }
+    let UsageError::Arguments(arguments) = &mut error else {
         return error;
     };
     if arguments.next.iter().any(|step| !is_help(step)) || !super::options::asked(request) {
