@@ -324,4 +324,6 @@ pub use response::{
     TrialResultDenominator, TrialResultGroup, TrialResultMeasurement, TrialResultRecord,
 };
 
-pub use response::{DiseaseAssertion, DiseaseCuration, DiseaseCurationCoverage, DiseaseValidity};
+pub use response::{
+    DiseaseCuration, DiseaseCurationCoverage, DiseaseCurationGene, DiseaseValidity,
+};

@@ -2,7 +2,7 @@
 use crate::curation::{CurationMatches, Lookup};
 use crate::{Mapped, bundle_mapping, raw::Field};
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::{DiseaseAssertion, DiseaseCuration, DiseaseId, Source};
+use biomcp_types::{DiseaseCuration, DiseaseCurationGene, DiseaseId, Source};
 
 /// Read each stored GenCC submission whose native disease ID or title matches.
 pub fn by_disease(leg: &Leg<'_>, id: &DiseaseId) -> Result<CurationMatches, RequestError> {
@@ -21,11 +21,15 @@ pub fn by_disease(leg: &Leg<'_>, id: &DiseaseId) -> Result<CurationMatches, Requ
             let mapped = row.into_record(None);
             refusals.include(mapped.refusals);
             problems.extend(mapped.problems);
-            mapped.value.map(|(gene_id, assertion)| DiseaseCuration {
-                gene_id,
-                gene_symbol,
-                assertion: DiseaseAssertion::Gencc(assertion),
-            })
+            mapped
+                .value
+                .map(|(gene_id, assertion)| DiseaseCuration::Gencc {
+                    gene: DiseaseCurationGene {
+                        gene_id,
+                        gene_symbol,
+                    },
+                    assertion,
+                })
         })
         .collect();
     Ok(CurationMatches {

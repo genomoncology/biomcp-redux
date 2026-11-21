@@ -2,7 +2,7 @@
 use crate::curation::{CurationMatches, Lookup};
 use crate::{Mapped, bundle_mapping, mapped::Problems, raw::Field};
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::{DiseaseAssertion, DiseaseCuration, DiseaseId, Source};
+use biomcp_types::{DiseaseCuration, DiseaseCurationGene, DiseaseId, Source};
 
 /// Read each ClinGen validity row whose native MONDO ID or label matches.
 pub fn by_disease(leg: &Leg<'_>, id: &DiseaseId) -> Result<CurationMatches, RequestError> {
@@ -23,10 +23,12 @@ pub fn by_disease(leg: &Leg<'_>, id: &DiseaseId) -> Result<CurationMatches, Requ
         .filter_map(|row| {
             let gene_symbol = row.symbol.as_ref().and_then(Field::as_ref).cloned();
             match row.checked(&mut problems) {
-                Some((gene_id, assertion)) => Some(DiseaseCuration {
-                    gene_id,
-                    gene_symbol,
-                    assertion: DiseaseAssertion::ClinGen(assertion),
+                Some((gene_id, assertion)) => Some(DiseaseCuration::ClinGen {
+                    gene: DiseaseCurationGene {
+                        gene_id,
+                        gene_symbol,
+                    },
+                    assertion,
                 }),
                 None => {
                     refusals = crate::Refusal::Refused;

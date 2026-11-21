@@ -233,5 +233,5 @@ pub use trial_flow::{
 };
 
 pub use disease_validity::{
-    DiseaseAssertion, DiseaseCuration, DiseaseCurationCoverage, DiseaseValidity,
+    DiseaseCuration, DiseaseCurationCoverage, DiseaseCurationGene, DiseaseValidity,
 };

@@ -6,28 +6,37 @@ use serde::{Deserialize, Serialize};
 /// One curation keyed by the gene identity in its publisher's export.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub struct DiseaseCuration {
+#[serde(tag = "source")]
+pub enum DiseaseCuration {
+    /// ClinGen expert panel assessment.
+    #[serde(rename = "clingen")]
+    ClinGen {
+        /// Gene in the source assertion.
+        #[serde(flatten)]
+        gene: DiseaseCurationGene,
+        /// The publisher's validity assertion.
+        assertion: ClinGenValidity,
+    },
+    /// One GenCC contributor's submission.
+    #[serde(rename = "gencc")]
+    Gencc {
+        /// Gene in the source submission.
+        #[serde(flatten)]
+        gene: DiseaseCurationGene,
+        /// The publisher's submission.
+        assertion: GenccSubmission,
+    },
+}
+
+/// Gene identified by a native curation row.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiseaseCurationGene {
     /// HGNC identity supplied by the publisher.
     pub gene_id: HgncId,
     /// Gene symbol supplied by the publisher.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gene_symbol: Option<GeneSymbol>,
-    /// The publisher and its unchanged assertion.
-    #[serde(flatten)]
-    pub assertion: DiseaseAssertion,
-}
-
-/// Native curation evidence labeled by publisher.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[serde(tag = "source", content = "assertion")]
-pub enum DiseaseAssertion {
-    /// ClinGen expert panel assessment.
-    #[serde(rename = "clingen")]
-    ClinGen(ClinGenValidity),
-    /// One GenCC contributor's submission.
-    #[serde(rename = "gencc")]
-    Gencc(GenccSubmission),
 }
 
 /// Coverage of one local source copy that could be read.

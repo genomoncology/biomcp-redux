@@ -5,8 +5,8 @@ use biodata::Text;
 use biomcp_adapters::{CurationMatches, clingen, gencc, received_date};
 use biomcp_fetch::{Deadline, Leg, RequestError, SourceSpec};
 use biomcp_types::{
-    DiseaseAssertion, DiseaseCuration, DiseaseCurationCoverage, DiseaseGet, DiseaseId,
-    DiseaseValidity, ReplyBody, Request, Source, SourceOutcome, SourceState, StepKind,
+    DiseaseCuration, DiseaseCurationCoverage, DiseaseGet, DiseaseId, DiseaseValidity, ReplyBody,
+    Request, Source, SourceOutcome, SourceState, StepKind,
 };
 
 struct Publisher {
@@ -135,9 +135,13 @@ fn refresh(out: &mut Outcome, bundle: Bundle) {
 }
 
 fn matches(query: &DiseaseGet, row: &DiseaseCuration) -> bool {
-    let (classification, submitter) = match &row.assertion {
-        DiseaseAssertion::ClinGen(row) => (row.classification.as_ref(), row.expert_panel.as_ref()),
-        DiseaseAssertion::Gencc(row) => (row.classification.as_ref(), row.submitter.as_ref()),
+    let (classification, submitter) = match row {
+        DiseaseCuration::ClinGen { assertion: row, .. } => {
+            (row.classification.as_ref(), row.expert_panel.as_ref())
+        }
+        DiseaseCuration::Gencc { assertion: row, .. } => {
+            (row.classification.as_ref(), row.submitter.as_ref())
+        }
     };
     same(query.classification(), classification) && same(query.submitter(), submitter)
 }
@@ -149,9 +153,9 @@ fn same(requested: Option<&Text>, stated: Option<&Text>) -> bool {
 }
 
 fn source_of(row: &DiseaseCuration) -> Source {
-    match row.assertion {
-        DiseaseAssertion::ClinGen(_) => Source::ClinGen,
-        DiseaseAssertion::Gencc(_) => Source::Gencc,
+    match row {
+        DiseaseCuration::ClinGen { .. } => Source::ClinGen,
+        DiseaseCuration::Gencc { .. } => Source::Gencc,
     }
 }
 
