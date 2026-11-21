@@ -142,9 +142,11 @@ fn filters(env: &Environment, globals: &[String]) -> Result<(), String> {
 fn stale_copy(env: &Environment) -> Result<(), String> {
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
+    // Updating bundle freshness clears its stored content metadata.
     db.execute_batch(
-        "UPDATE bundle SET fresh_until=0 WHERE name='gencc-submissions';
-         UPDATE bundle_content SET retrieved_at=1704067200 WHERE name='gencc-submissions';
+        "CREATE TEMP TABLE validity_copy AS SELECT name,revision FROM bundle_content WHERE name='gencc-submissions';
+         UPDATE bundle SET fresh_until=0 WHERE name='gencc-submissions';
+         INSERT INTO bundle_content SELECT name,revision,1704067200 FROM validity_copy;
          DELETE FROM bundle_key WHERE kind=4 AND bundle IN('gencc-submissions','clingen-validity');",
     )
     .map_err(|e| e.to_string())?;
