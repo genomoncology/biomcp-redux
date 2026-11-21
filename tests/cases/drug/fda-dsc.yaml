@@ -1,0 +1,121 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "An agent asks when FDA required boxed warning updates for tofacitinib and the other JAK inhibitors. `search drug tofacitinib --source fda-dsc` widens the name to Xeljanz and finds, newest first, the 2021-09-01 communication requiring warnings for JAK inhibitors, whose page links Xeljanz, Olumiant and Rinvoq, and the 2021-02-04 communication on the initial safety trial results, each with its dates and address; the reply says the list starts where FDA's index starts and names the index date FDA typed as 9-1-21 as unread. `get drug ID --source fda-dsc` reads that communication's text and its Drugs@FDA applications live. With no name, the search lists FDA's 44 communications newest first.",
+  "live_check": "public",
+  "verified": "FDA and MyChem replies recorded unchanged with biomcp --record; see tests/replies/drug/fda-dsc/README.md.",
+  "replay": "drug/fda-dsc",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc"
+      ],
+      "expect": {
+        "/schema": "biomcp.drug-safety-communications/1",
+        "/status": "complete",
+        "/result/total": 2,
+        "/result/list_starts": "2020-01-14",
+        "/result/seed_date": "2026-11-20",
+        "/result/items/*/id": [
+          "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+          "760e4ace-aa81-4112-8779-efb5725411df"
+        ],
+        "/result/items/*/issued": [
+          "2021-09-01",
+          "2021-02-04"
+        ],
+        "/result/items/*/url": [
+          "https://www.fda.gov/drugs/drug-safety-and-availability/fda-requires-warnings-about-increased-risk-serious-heart-related-events-cancer-blood-clots-and-death",
+          "https://www.fda.gov/drugs/drug-safety-and-availability/initial-safety-trial-results-find-increased-risk-serious-heart-related-problems-and-cancer-arthritis"
+        ],
+        "/result/items/0/drugs": [
+          "Xeljanz",
+          "Xeljanz XR",
+          "Olumiant",
+          "Rinvoq"
+        ],
+        "/result/items/0": {
+          "omits": [
+            "date"
+          ]
+        },
+        "/result/items/1/date": "2021-02-04",
+        "/problems/0/record": "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+        "/problems/0/field": "date",
+        "/sources/0/source": "fda-dsc",
+        "/sources/0/state": "ok",
+        "/next/0/args": [
+          "get",
+          "drug",
+          "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+          "--source",
+          "fda-dsc"
+        ],
+        "/result/items/0/matched_in": [
+          "linked-name",
+          "text"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+        "--source",
+        "fda-dsc"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+        "--source",
+        "fda-dsc"
+      ],
+      "expect": {
+        "/schema": "biomcp.drug-safety-communication/1",
+        "/status": "complete",
+        "/result/header/issued": "2021-09-01",
+        "/result/header/updated": "2021-12-07",
+        "/result/header/applications": [
+          "203214",
+          "208246",
+          "207924",
+          "211675"
+        ],
+        "/result/header/page_read": true,
+        "/sources/0/state": "ok",
+        "/problems/0/field": "date"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-dsc",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 44,
+        "/result/items/*/date": [
+          "2026-11-09",
+          "2026-09-15"
+        ],
+        "/next/2/kind": "page"
+      }
+    }
+  ]
+}

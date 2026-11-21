@@ -73,8 +73,9 @@
       "is_error": true,
       "expect": {
         "/error/option": "--fields",
+        "/error/unplaced": ["id", "name", "manufacturer"],
         "/next/0/args": [
-          "--fields=id,name,date_of_prequalification",
+          "--fields=date_of_prequalification",
           "search",
           "drug",
           "--prequalified-from",

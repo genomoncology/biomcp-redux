@@ -1,0 +1,27 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "Disabling FDA communications also excludes its shipped records.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-dsc",
+        "--disable-sources",
+        "fda-dsc"
+      ],
+      "exit": 4,
+      "expect": {
+        "/sources/0/state": "skipped",
+        "": {
+          "omits": [
+            "page"
+          ]
+        }
+      }
+    }
+  ]
+}

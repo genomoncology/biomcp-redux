@@ -1,0 +1,45 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "An index outage still allows matching the shipped titles and page text, with coverage shown and the source marked stale.",
+  "live_check": "local-only shipped list; the replay holds no FDA reply on purpose",
+  "replay": "drug/fda-dsc-no-index",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc",
+        "--exact-term"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc",
+        "--exact-term"
+      ],
+      "expect": {
+        "/schema": "biomcp.drug-safety-communications/1",
+        "/status": "partial",
+        "/result/total": 2,
+        "/result/seed_date": "2026-11-20",
+        "/result/items/0/id": "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+        "/result/items/0/issued": "2021-09-01",
+        "/result/items/0/page_read": true,
+        "/sources/0/source": "fda-dsc",
+        "/sources/0/state": "stale",
+        "/result/items/0/matched_in": [
+          "text"
+        ],
+        "/result/items/1/matched_in": [
+          "title",
+          "text"
+        ],
+        "/result/searched": 44
+      }
+    }
+  ]
+}

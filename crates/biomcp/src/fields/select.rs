@@ -216,15 +216,25 @@ fn kept_step(
 /// The source a search query selects, with the reply schema of its rows, when the
 /// query alone fixes it.
 fn selected(request: &Request) -> Option<(Source, &'static str)> {
-    use biomcp_types::ResponseBody;
     match request {
-        Request::SearchDrug(query) if query.source() == biomcp_types::DrugSource::PurpleBook => {
-            let schema = if query.purple_book_presentations() {
-                biomcp_types::DrugPurpleBookPage::SCHEMA
-            } else {
-                biomcp_types::DrugPurpleBookProducts::SCHEMA
+        Request::SearchDrug(query) => {
+            use biomcp_types::{
+                DrugFdaPage, DrugPage, DrugPurpleBookPage, DrugPurpleBookProducts, DrugRecallPage,
+                DrugSafetyCommunicationPage, DrugSource, DrugWhoPage, ResponseBody,
             };
-            Some((Source::PurpleBook, schema))
+            let source = query.source();
+            let schema = match source {
+                DrugSource::FdaDsc => DrugSafetyCommunicationPage::SCHEMA,
+                DrugSource::PurpleBook if query.purple_book_presentations() => {
+                    DrugPurpleBookPage::SCHEMA
+                }
+                DrugSource::PurpleBook => DrugPurpleBookProducts::SCHEMA,
+                DrugSource::FdaDrugRecall => DrugRecallPage::SCHEMA,
+                DrugSource::Drugsfda => DrugFdaPage::SCHEMA,
+                DrugSource::WhoPq => DrugWhoPage::SCHEMA,
+                _ => DrugPage::SCHEMA,
+            };
+            Some((source.source(), schema))
         }
         Request::SearchTrial(query) => Some((
             query.source().source(),

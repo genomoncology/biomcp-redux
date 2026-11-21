@@ -1,0 +1,24 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "A seeded FDA identifier follows the index address and keeps its original date diagnostic.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc-moved",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+        "--source",
+        "fda-dsc"
+      ],
+      "expect": {
+        "/result/header/title": "Updated synthetic JAK title",
+        "/result/header/url": "https://www.fda.gov/drugs/drug-safety-communications/synthetic-moved-jak",
+        "/result/header/issued": "2021-09-01",
+        "/problems/0/field": "date",
+        "/problems/0/code": "value.unknown"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "A communication FDA added after the shipped list, whose page cannot be read yet, is still returned from FDA's index with its title, date and address and marked page_read false, never left out; a shipped communication FDA's index no longer lists is kept.",
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "replay": "drug/fda-dsc-unread",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 3,
+        "/result/items/0/id": "00000000-0000-4000-8000-000000000001",
+        "/result/items/0/date": "2026-11-19",
+        "/result/items/0/page_read": false,
+        "/result/items/0/url": "https://www.fda.gov/drugs/drug-safety-communications/synthetic-tofacitinib-communication",
+        "/result/items/1/id": "4ec3359d-b7fe-41ca-9724-9602b68d8ca6",
+        "/result/items/1/page_read": true,
+        "/result/items/1/matched_in": [
+          "text"
+        ],
+        "/result/items/2/id": "760e4ace-aa81-4112-8779-efb5725411df"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "tofacitinib",
+        "--source",
+        "fda-dsc",
+        "--exact-term",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "Zero matches does not establish that FDA issued no communication about this drug.",
+            "Searched 45 communications, with page text for 44.",
+            "https\\://www\\.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications"
+          ]
+        }
+      }
+    }
+  ]
+}

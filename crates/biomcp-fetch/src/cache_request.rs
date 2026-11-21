@@ -54,6 +54,13 @@ impl Leg<'_> {
         if self.fetch.mode == Mode::Offline {
             return self.offline(endpoint, prepared, codec);
         }
+        if codec.cache_only {
+            return if self.fresh {
+                Err(self.failure(Reason::Offline, None).into())
+            } else {
+                self.offline(endpoint, prepared, codec)
+            };
+        }
         let Some((cache, seconds)) = self.fetch.cache.as_ref().zip(endpoint.fresh.seconds()) else {
             return live().map(|decoded| {
                 let crate::request::Decoded {

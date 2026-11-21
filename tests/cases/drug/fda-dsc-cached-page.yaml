@@ -1,0 +1,35 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "Search inspects a page cached by get even after an earlier page fails.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc-cached-page",
+  "cache_acquired": 42,
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "00000000-0000-4000-8000-000000000002",
+        "--source",
+        "fda-dsc"
+      ],
+      "expect": {
+        "/result/header/page_read": true
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-dsc",
+        "Replaydrug",
+        "--exact-term"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/id": "00000000-0000-4000-8000-000000000002"
+      }
+    }
+  ]
+}

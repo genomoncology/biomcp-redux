@@ -1,0 +1,1340 @@
+{
+  "$defs": {
+    "Reply_CacheProblem": {
+      "description": "A local cache or recording failure, independent of what the provider returned.",
+      "enum": [
+        "busy",
+        "database",
+        "encoding",
+        "filesystem",
+        "internal",
+        "limit",
+        "snapshot",
+        "version",
+        "recording-conflict",
+        "recording-io",
+        "recording-missing",
+        "recording-exhausted",
+        "recording-malformed",
+        "recording-limit",
+        "recording-non-utf8"
+      ],
+      "type": "string"
+    },
+    "Reply_DrugFdaSort": {
+      "description": "Drugs@FDA application order; omitted keeps the source's own order.",
+      "enum": [
+        "newest",
+        "original-approval"
+      ],
+      "type": "string"
+    },
+    "Reply_DrugNameSelector": {
+      "description": "One explicit ChEMBL name filter without fallback or synonym expansion.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " Match the native preferred name exactly, ignoring case.",
+        " Match an explicit native synonym exactly, ignoring case."
+      ],
+      "x-extensible-enum": [
+        "preferred",
+        "synonym"
+      ]
+    },
+    "Reply_DrugRecallClassification": {
+      "description": "FDA's native recall classification, with no local ranking.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native Class I.",
+        " Native Class II.",
+        " Native Class III."
+      ],
+      "x-extensible-enum": [
+        "Class I",
+        "Class II",
+        "Class III"
+      ]
+    },
+    "Reply_DrugSafetyCommunication": {
+      "description": "One FDA Drug Safety Communication, as FDA's index lists it and its page links it.",
+      "properties": {
+        "applications": {
+          "description": "Drugs@FDA application numbers the page links, as FDA links them (digits only).",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The date FDA's index lists, when it reads as a full date."
+        },
+        "drugs": {
+          "description": "The drug names those Drugs@FDA links show, as FDA wrote them.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "FDA's own identifier for the communication's page, stable when its address moves."
+        },
+        "issued": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The date the communication's page states for itself, when the page was read."
+        },
+        "matched_in": {
+          "description": "Places that matched the search name. Omitted on an unfiltered list or get.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugSafetyMatch"
+          },
+          "type": "array"
+        },
+        "page_read": {
+          "description": "False when the page has not been read yet, so `issued`, `updated`, `applications` and\n`drugs` are not known; the row then matches by its title only.",
+          "type": "boolean"
+        },
+        "title": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Title as FDA wrote it."
+        },
+        "updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The page's \"Content current as of\" date: its last update, not its issue date."
+        },
+        "url": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "The communication's page on www.fda.gov.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "url",
+        "page_read"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSafetyCommunicationPage": {
+      "description": "A bounded page of FDA Drug Safety Communications, newest first.",
+      "properties": {
+        "hint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What the list holds and where FDA's text comes from."
+        },
+        "items": {
+          "description": "Matching communications, newest first.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugSafetyCommunication"
+          },
+          "type": "array"
+        },
+        "list_starts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The oldest date on FDA's index: FDA links an archived copy for earlier communications."
+        },
+        "searched": {
+          "description": "Communications whose titles were searched.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "seed_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The date of the list BioMCP ships; rows FDA added later come from FDA's index."
+        },
+        "text_searched": {
+          "description": "Communications whose page text was available to search.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "total": {
+          "description": "Matching communications.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSafetyMatch": {
+      "description": "Where an FDA communication matched the requested name or one of its other names.",
+      "enum": [
+        "title",
+        "linked-name",
+        "text"
+      ],
+      "type": "string"
+    },
+    "Reply_DrugSearch": {
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
+      "properties": {
+        "applicant": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Applicant name start; Drugs@FDA only.\nMatches native sponsor_name values starting with this text, ignoring letter case;\nno company-family or subsidiary inference. An optional name narrows the same search.",
+          "x-required-component": "drugsfda"
+        },
+        "application_type": {
+          "description": "Label application types to keep; openFDA labels only.\nBy openFDA application_number prefix; nda,bla leaves out generics (ANDA).",
+          "items": {
+            "$ref": "#/$defs/Reply_LabelApplicationType"
+          },
+          "type": "array",
+          "x-comma-separated": true,
+          "x-required-component": "openfda-label"
+        },
+        "approved_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original approval from, inclusive; Drugs@FDA only.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date\nfalls in the window; BioMCP reads every match and counts the kept ones.",
+          "x-required-component": "drugsfda"
+        },
+        "approved_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original approval to, inclusive; Drugs@FDA only.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "x-required-component": "drugsfda"
+        },
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugRecallClassification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native FDA classification; drug recalls only.",
+          "x-required-component": "fda-drug-recall"
+        },
+        "exact_term": {
+          "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
+          "type": "boolean"
+        },
+        "expand_drug_names": {
+          "description": "Accepted for one release; changes nothing.\nSources that widen drug names do so by default.",
+          "type": "boolean"
+        },
+        "firm": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Recall firm phrase.\nMatches the published firm literally.",
+          "x-required-component": "fda-drug-recall"
+        },
+        "indication": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Literal label indication; openFDA labels only.\nSearch the native Indications and Usage field without disease synonym expansion.\nAn optional name query further narrows the same source search.",
+          "x-required-component": "openfda-label"
+        },
+        "initiated_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "x-required-component": "fda-drug-recall"
+        },
+        "initiated_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "x-required-component": "fda-drug-recall"
+        },
+        "limit": {
+          "default": 10,
+          "description": "Native candidate rows per page.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mechanism_of_action": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Literal label mechanism of action; openFDA labels only.\nSearch the source Mechanism of Action field for this wording; no synonyms or drug class\ninference, so labels wording the mechanism differently are not returned.",
+          "x-required-component": "openfda-label"
+        },
+        "name_selector": {
+          "$ref": "#/$defs/Reply_DrugNameSelector",
+          "description": "ChEMBL name selector.\nOmit to search the preferred name.",
+          "x-required-component": "chembl"
+        },
+        "name_snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Label name page token.\nFollow the returned command with unchanged filters to keep the first page's names and step."
+        },
+        "offset": {
+          "default": 0,
+          "description": "Native rows to skip.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "prequalified_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "WHO PQ start date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "x-required-component": "who-pq"
+        },
+        "prequalified_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "x-required-component": "who-pq"
+        },
+        "query": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Drug name phrase.\nFDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.\nFDA safety communications search titles, linked drug names and available page text.\nZero matches does not establish that FDA issued no communication about this drug.\nThe reply counts the communications searched and how many had page text.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+          "x-positional": 0
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Recall reason phrase.",
+          "x-required-component": "fda-drug-recall"
+        },
+        "sort": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugFdaSort"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\noriginal-approval: each row's original_approval date first, ties by application number;\nrows without one come last. BioMCP reads every match and orders them.\nOmit it for the source's own order.",
+          "x-required-component": "drugsfda"
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_DrugSource",
+          "default": "mychem",
+          "description": "Selected source.\n\nAfter an empty name lookup, existing sources may supply aliases."
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Literal recall status.",
+          "x-required-component": "fda-drug-recall"
+        },
+        "therapeutic_area": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "WHO PQ therapeutic area.\nWhole words of WHO's Therapeutic Area column, any letter case, such as Oncology.",
+          "x-required-component": "who-pq"
+        }
+      },
+      "type": "object"
+    },
+    "Reply_DrugSource": {
+      "description": "A supported drug data source.",
+      "type": "string",
+      "x-extensible-enum": [
+        "who-pq",
+        "fda-drug-recall",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "civic",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "ddinter",
+        "who-eml",
+        "fda-dsc"
+      ]
+    },
+    "Reply_Incomplete": {
+      "description": "One thing a `partial` reply is missing, pointing at the detail already in the reply.",
+      "properties": {
+        "at": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "JSON pointer into this reply, such as `/sources/1` or a record's field."
+        },
+        "code": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ProblemCode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The refused record's own problem code, when a problem is the cause."
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Why, when a typed source reason is known."
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "The source whose data is missing."
+        }
+      },
+      "required": [
+        "at",
+        "source"
+      ],
+      "type": "object"
+    },
+    "Reply_LabelApplicationType": {
+      "description": "An openFDA label's FDA application type, read from the prefix of openFDA's application_number.",
+      "enum": [
+        "nda",
+        "anda",
+        "bla"
+      ],
+      "type": "string"
+    },
+    "Reply_PageInfo": {
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matches: the source's own count when one source states more than the snapshot holds, otherwise the identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Reply_PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
+      "type": "string"
+    },
+    "Reply_PoolInfo": {
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Reply_Problem": {
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/Reply_ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known. A `record.declined` problem has none, so\nit names the record by a source key, such as `event_id:100178`."
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "Reply_ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized.",
+        " Native collection exceeds the admitted complete source page.",
+        " A source repeats one exact identity with incompatible records.",
+        " A source record without a usable identity was left off the page; each problem names one such record.",
+        " The asked filter cannot read the records the field names, so they were not searched and may hold matches the page leaves out."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict",
+        "record.declined",
+        "filter.unsupported"
+      ]
+    },
+    "Reply_Reason": {
+      "description": "Why a source could not supply data.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The local source quota refused admission without a network request.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source.",
+        " The source document was read but does not state the value."
+      ],
+      "x-extensible-enum": [
+        "not-found",
+        "not-open",
+        "not-pdf",
+        "unsupported",
+        "too-large",
+        "rate-limited",
+        "local-quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad-reply",
+        "deadline-exceeded",
+        "offline",
+        "no-key",
+        "disabled",
+        "replay-miss",
+        "syncing",
+        "no-join-id",
+        "not-stated"
+      ]
+    },
+    "Reply_Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " WikiPathways published pathway catalogs.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " Integrated InterPro entries.",
+        " Complex Portal.",
+        " gnomAD.",
+        " ClinVar component source policy.",
+        " ClinGen Evidence Repository.",
+        " GWAS Catalog v2.",
+        " ClinGen.",
+        " GenCC submitter assessments.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " ORCID public registry.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator.",
+        " MyChem.info aggregation.",
+        " ChEMBL native records and carried component.",
+        " Open Targets.",
+        " openFDA SPL labels.",
+        " Drugs@FDA application records.",
+        " European Medicines Agency.",
+        " WHO finished pharmaceutical products.",
+        " WHO Model List of Essential Medicines, from the WHO eEML.",
+        " DDInter interaction records.",
+        " MyChem DrugBank Open identity subset only.",
+        " MyChem DrugCentral component.",
+        " MyChem Guide to Pharmacology component.",
+        " MyChem UNII identities.",
+        " MyChem NDC package identities.",
+        " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
+        " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
+        " openFDA MAUDE device event reports.",
+        " Source-reported MedDRA reaction labels and versions.",
+        " Source-carried GMDN device terminology.",
+        " NCBI Genetic Testing Registry public reports.",
+        " WHO prequalified in vitro diagnostics.",
+        " FDA companion diagnostic device tables.",
+        " openFDA premarket approval submissions.",
+        " FDA native 510(k) clearance records.",
+        " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
+        " FDA Drug Safety Communications web pages.",
+        " Clinical Pharmacogenetics Implementation Consortium.",
+        " ClinPGx pharmacogenomics annotations.",
+        " Public cBioPortal with study-specific reuse terms.",
+        " Cellosaurus cell line identity.",
+        " Orphadata Science epidemiology and natural-history files.",
+        " STRING.",
+        " NIH RePORTER research project grants."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "who-eml",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "fda-device-recall",
+        "fda-drug-recall",
+        "fda-dsc",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus",
+        "orphadata",
+        "string-db",
+        "nih-reporter"
+      ]
+    },
+    "Reply_SourceNotice": {
+      "description": "A source notice or request recovery step.",
+      "oneOf": [
+        {
+          "description": "Source-stated spellings actually searched.",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Whole caller-supplied name."
+            },
+            "kind": {
+              "const": "drug-name-search",
+              "type": "string"
+            },
+            "message": {
+              "description": "Why the names were expanded or retained.",
+              "type": "string"
+            },
+            "names": {
+              "description": "Names actually searched; ambiguous identities retain the typed name only.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "input",
+            "names",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Variant spellings and registry fields actually searched.",
+          "properties": {
+            "codon": {
+              "description": "Codon forms searched, which match trials written for any change at that position.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            },
+            "input": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Whole caller-supplied variant or criteria text."
+            },
+            "kind": {
+              "const": "variant-search",
+              "type": "string"
+            },
+            "message": {
+              "description": "What was searched, where, and how to search the typed text only.",
+              "type": "string"
+            },
+            "spellings": {
+              "description": "Spellings of the same change actually searched, including the typed text.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "input",
+            "spellings",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Local request limits, source observations and recovery guidance.",
+          "properties": {
+            "data_date": {
+              "description": "Retained publisher dataset date, independent of acquisition and record events.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "kind": {
+              "const": "request-guidance",
+              "type": "string"
+            },
+            "message": {
+              "description": "Reviewed guidance; any quoted provider wording remains source data.",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "description": "Seconds left before another source request may be admitted.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition-word-mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A checked provider answer survived a local cache failure.",
+          "properties": {
+            "kind": {
+              "const": "cache-problem",
+              "type": "string"
+            },
+            "reason": {
+              "$ref": "#/$defs/Reply_CacheProblem",
+              "description": "Bounded local failure without paths or database diagnostics."
+            }
+          },
+          "required": [
+            "kind",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph-truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar-rsid-hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed-warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not-found-words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Reply_SourceOutcome": {
+      "description": "One source's outcome with source notices and request guidance.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Source notices and request recovery guidance.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/Reply_SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        },
+        "use": {
+          "$ref": "#/$defs/Reply_Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative: see `help sources`."
+        }
+      },
+      "required": [
+        "source",
+        "use",
+        "state"
+      ],
+      "type": "object"
+    },
+    "Reply_SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Reply_Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Reply_Step": {
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/Reply_StepKind",
+          "description": "Purpose of the action."
+        },
+        "options": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Options this call also takes, each with a placeholder to fill in, such as\n`\"--decision-from\": \"<YYYY-MM-DD>\"`; add any of them to `args`. MCP names them as tool\narguments. Absent when the step is only runnable as it is.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "Reply_StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "pivot",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Reply_Text": {
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "licensed",
+        "per-record"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.drug-safety-communications/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
+  "properties": {
+    "absent": {
+      "description": "IDs a get of several did not find while it found others; each item says so too.",
+      "items": {
+        "$ref": "#/$defs/Reply_Text"
+      },
+      "type": "array"
+    },
+    "fields": {
+      "description": "The row fields the caller chose with `--fields`, as given; absent without them.\nEach row keeps those, its required keys and identifiers; other keys are left out.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "incomplete": {
+      "description": "What a `partial` reply is missing; present only on `partial` replies.",
+      "items": {
+        "$ref": "#/$defs/Reply_Incomplete"
+      },
+      "type": "array"
+    },
+    "local_error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_CacheProblem"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Bounded local cache or recording failure, independent of provider outcomes."
+    },
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Reply_Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Reply_Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/Reply_DrugSearch",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_DrugSafetyCommunicationPage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.drug-safety-communications/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/Reply_SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Reply_Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}

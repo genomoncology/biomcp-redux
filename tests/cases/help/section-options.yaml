@@ -43,6 +43,7 @@
           ]
         ],
         "/result/commands/0/description": "get drug markets. Sources: drugsfda, ema, who-pq.\nListed choices accept any letter case; replies use their listed spelling.",
+        "/result/commands/0/arguments/0/description": "Complete brand or generic name. Use get drug INPUT markets.",
         "/result/commands/0/arguments/2/choices": [
           "who-pq",
           "drugsfda",

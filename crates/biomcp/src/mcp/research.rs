@@ -208,12 +208,17 @@ fn search(root: &crate::grammar::Root, call: &Call, envelope: Value) -> io::Resu
         .map(|hit| restrictions(hit, &call.args))
         .collect::<io::Result<Vec<_>>>()?;
     let native_rows = rows.or_else(|| envelope.pointer("/result/rows").and_then(Value::as_array));
-    let omitted_rows = native_rows
-        .map_or(
-            usize::from(!envelope.get("result").is_none_or(Value::is_null)),
-            Vec::len,
-        )
-        .saturating_sub(results.len());
+    let returned = envelope
+        .pointer("/page/returned")
+        .and_then(Value::as_u64)
+        .and_then(|count| usize::try_from(count).ok())
+        .unwrap_or_else(|| {
+            native_rows.map_or(
+                usize::from(!envelope.get("result").is_none_or(Value::is_null)),
+                Vec::len,
+            )
+        });
+    let omitted_rows = returned.saturating_sub(results.len());
     serde_json::to_value(biomcp_types::ResearchSearch {
         results,
         metadata: biomcp_types::ResearchSearchMetadata {

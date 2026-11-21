@@ -6,7 +6,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     spec: &crate::purple_book::read::SPEC,
     display: "FDA Purple Book",
     discovery_aliases: &[],
-    registry_order: Some(65),
+    registry_order: Some(66),
     probe: Probe::Custom(read::probe),
     components: &[],
     auxiliary: &[],

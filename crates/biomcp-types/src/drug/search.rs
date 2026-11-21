@@ -60,11 +60,15 @@ pub struct DrugSearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Drug name phrase.
-    /// FDA drug recalls, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
+    /// FDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
     /// Drugs@FDA searches brands and ingredients,
     /// exact names before word matches. openFDA labels search exact then word brand/generic names,
     /// then label text (including indications) when no names match; source matches need not be exact names.
     /// Harmonized recall names match but never become display names.
+    /// FDA safety communications search titles, linked drug names and available page text.
+    /// Zero matches does not establish that FDA issued no communication about this drug.
+    /// The reply counts the communications searched and how many had page text.
+    /// FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
         default,
@@ -78,7 +82,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
     /// Search the typed name only.
-    /// openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+    /// openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
     /// the drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
@@ -286,7 +290,9 @@ impl TryFrom<SearchFields> for DrugSearch {
                 || fields.indication.is_some()
                 || fields.mechanism_of_action.is_some()
                 || fields.applicant.is_some()
-                || (fields.source == DrugSource::WhoPq && who_filters),
+                || (fields.source == DrugSource::WhoPq && who_filters)
+                // FDA's safety communications list newest first with no name.
+                || fields.source == DrugSource::FdaDsc,
             fields.firm.is_some()
                 || fields.classification.is_some()
                 || fields.status.is_some()
@@ -518,11 +524,12 @@ impl crate::Paged for DrugSearch {
 }
 
 /// Sources that search a typed drug name together with the drug's other names by default.
-const WIDENING: [DrugSource; 4] = [
+const WIDENING: [DrugSource; 5] = [
     DrugSource::OpenfdaLabel,
     DrugSource::Drugsfda,
     DrugSource::FdaDrugRecall,
     DrugSource::Ema,
+    DrugSource::FdaDsc,
 ];
 
 fn widens(fields: &SearchFields) -> bool {

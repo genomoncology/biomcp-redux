@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-dsc",
+  "url": "https://www.fda.gov/drugs/drug-safety-communications/synthetic-cached-page",
+  "exchanges": [
+    {
+      "fetched": 42,
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<div class=\"col-md-8\" role=\"main\"><p><a href=\"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?ApplNo=123456\">Replaydrug</a>.</p></div>"
+      }
+    }
+  ]
+}

@@ -188,6 +188,12 @@ fn markets_arguments(arguments: &mut Vec<HelpArgument>) {
         let field = argument.name.trim_start_matches("--").replace('-', "_");
         crate::grammar::rewrite::MARKETS_FIELDS.contains(&field.as_str())
     });
+    if let Some(input) = arguments
+        .iter_mut()
+        .find(|argument| argument.name == "input")
+    {
+        input.description = "Complete brand or generic name. Use get drug INPUT markets.".into();
+    }
     for argument in arguments.iter_mut().filter(|a| a.name == "--source") {
         let form = argument
             .description

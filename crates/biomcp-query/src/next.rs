@@ -302,6 +302,7 @@ fn bounded_navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         | ReplyData::DrugWhoPage { .. }
         | ReplyData::DrugRecallCard { .. }
         | ReplyData::DrugRecallPage { .. }
+        | ReplyData::DrugSafetyCommunicationPage { .. }
         | ReplyData::DrugFdaPage { .. }
         | ReplyData::DrugCivic { .. }
         | ReplyData::VariantPage { .. } => Navigation::Selectable,
