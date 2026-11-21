@@ -8,7 +8,7 @@
       "run": ["search", "drug", "no-such-purple-book-product", "--source", "purple-book"],
       "expect": {
         "/page/total": 0,
-        "/sources/0/notices/0/message": "This is the October 2026 Purple Book snapshot (3 months old). Products approved or designated after October 2026 are not included. Download the monthly CSV from https://purplebooksearch.fda.gov/downloads and run biomcp sync purple-book --file PATH."
+        "/sources/0/notices/0/message": "This is the October 2026 Purple Book snapshot (3 months old). Products approved or designated after October 2026 are not included. FDA does not allow automatic download. Download the monthly CSV from https://purplebooksearch.fda.gov/downloads and run biomcp sync purple-book --file PATH."
       }
     },
     {

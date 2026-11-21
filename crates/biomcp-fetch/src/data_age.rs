@@ -1,8 +1,21 @@
 //! Disclose publisher dataset dates without treating acquisition as publication.
-use crate::{Fetch, Leg};
+use crate::{Fetch, Leg, RecordError, record::Recordings};
 use biomcp_types::{SourceNotice, SourceOutcome};
+use std::{fs, io::Read, path::Path};
 
 impl Leg<'_> {
+    /// Return the current UTC year and month, using the recorded date if replay pins it.
+    pub fn utc_month(&self) -> (i64, i64) {
+        let today = match self.fetch.recordings.as_ref() {
+            Recordings::Replay {
+                today: Some(today), ..
+            } => *today,
+            _ => crate::cache::now().div_euclid(86_400),
+        };
+        let (year, month, _) = civil_date(today);
+        (year, month)
+    }
+
     /// Retain a native dataset date or timestamp after the adapter identifies its role.
     /// Invalid dates and dates without day precision are disclosed without an age claim.
     pub fn data_date(&self, date: &str) {
@@ -90,6 +103,29 @@ impl Fetch {
     }
 }
 
+/// Read the optional YYYY-MM-DD calendar date pinned by a replay fixture.
+pub(crate) fn replay_day(dir: &Path) -> Result<Option<i64>, RecordError> {
+    const MAX_BYTES: u64 = 12;
+    let path = dir.join("today.txt");
+    let meta = match path.symlink_metadata() {
+        Ok(meta) => meta,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error.into()),
+    };
+    if !meta.is_file() {
+        return Err(RecordError::Malformed);
+    }
+    let mut text = String::new();
+    fs::File::open(path)?
+        .take(MAX_BYTES + 1)
+        .read_to_string(&mut text)?;
+    let date = text.trim_end_matches(['\r', '\n']);
+    if text.len() as u64 > MAX_BYTES || date.len() != 10 {
+        return Err(RecordError::Malformed);
+    }
+    day(date).map(Some).ok_or(RecordError::Malformed)
+}
+
 fn day(value: &str) -> Option<i64> {
     let date = value.get(..10)?;
     if value.len() != 10 {
@@ -115,9 +151,16 @@ fn day(value: &str) -> Option<i64> {
     )
 }
 
-// Unix days to a Gregorian civil date, the inverse of `day`.
 fn utc_date(seconds: i64) -> Option<String> {
-    let days = seconds.div_euclid(86_400) + 719_468;
+    let (year, month, day) = civil_date(seconds.div_euclid(86_400));
+    (0..=9999)
+        .contains(&year)
+        .then(|| format!("{year:04}-{month:02}-{day:02}"))
+}
+
+// Unix days to a Gregorian civil date, the inverse of `day`.
+fn civil_date(days: i64) -> (i64, i64, i64) {
+    let days = days + 719_468;
     let era = days.div_euclid(146_097);
     let day_of_era = days - era * 146_097;
     let year_of_era =
@@ -127,9 +170,7 @@ fn utc_date(seconds: i64) -> Option<String> {
     let day = day_of_year - (153 * month + 2) / 5 + 1;
     let month = if month < 10 { month + 3 } else { month - 9 };
     let year = year_of_era + era * 400 + i64::from(month <= 2);
-    (0..=9999)
-        .contains(&year)
-        .then(|| format!("{year:04}-{month:02}-{day:02}"))
+    (year, month, day)
 }
 
 #[cfg(test)]

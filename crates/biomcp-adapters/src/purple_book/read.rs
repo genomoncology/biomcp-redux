@@ -67,11 +67,19 @@ pub(super) fn probe(leg: &Leg<'_>) -> Result<(), RequestError> {
     snapshot(leg, "").map(drop)
 }
 
+/// Matching presentations and the age of the snapshot searched.
+#[derive(Debug)]
+pub struct SnapshotSearch {
+    /// FDA release month in the publisher's report.
+    pub release_month: Box<str>,
+    /// Matching biosimilar presentations in the snapshot.
+    pub rows: Vec<PurpleBookPresentation>,
+    /// Snapshot age and, for an empty result, its coverage and import instructions.
+    pub notice: SourceNotice,
+}
+
 /// Search the full roster by the published reference names or their BLA candidates.
-pub fn search(
-    leg: &Leg<'_>,
-    query: &DrugSearch,
-) -> Result<(Box<str>, Vec<PurpleBookPresentation>), RequestError> {
+pub fn search(leg: &Leg<'_>, query: &DrugSearch) -> Result<SnapshotSearch, RequestError> {
     let input = query.query().map_or("", biodata::Text::as_str);
     let upper = input.to_ascii_uppercase();
     let number = upper.strip_prefix("BLA").unwrap_or(&upper).trim();
@@ -100,10 +108,18 @@ pub fn search(
                     .is_some_and(|cell| cell.eq_ignore_ascii_case(device.as_str()))
             })
     });
-    Ok((
-        snapshot.month.label(),
-        matches.map(|stored| stored.row).collect(),
-    ))
+    let rows: Vec<_> = matches.map(|stored| stored.row).collect();
+    let release_month = snapshot.month.label();
+    let guidance = if rows.is_empty() {
+        format!("Products approved or designated after {release_month} are not included. {HELP}")
+    } else {
+        String::new()
+    };
+    Ok(SnapshotSearch {
+        release_month,
+        rows,
+        notice: snapshot_notice(leg, &snapshot.month, &guidance),
+    })
 }
 
 fn strength_key(value: &str) -> String {
@@ -131,22 +147,20 @@ pub fn sync_file(fetch: &Fetch, path: Option<&Path>) -> BundleReply {
             Some(month),
         ),
         Err((error, message)) => match snapshot(&leg, "") {
-            Ok(active) => (Err(error), message, Some(active.month.label())),
-            Err(_) if fetch.disabled(SOURCE) => (Err(error), message, None),
-            Err(_) => (
-                Err(error),
-                "The active release month could not be read.",
-                None,
-            ),
+            Ok(active) => (Err(error), message, Some(active.month)),
+            Err(_) => (Err(error), message, None),
         },
     };
-    BundleReply::Manual(result, notice(month.as_deref(), message))
+    let notice = month.map_or_else(unavailable_notice, |month| {
+        snapshot_notice(&leg, &month, message)
+    });
+    BundleReply::Manual(result, notice)
 }
 
 fn import(
     leg: &Leg<'_>,
     path: &Path,
-) -> Result<(biomcp_fetch::BundleInfo, Box<str>), (RequestError, &'static str)> {
+) -> Result<(biomcp_fetch::BundleInfo, ReleaseMonth), (RequestError, &'static str)> {
     const UNREADABLE: &str = "The requested release file is unavailable or unreadable.";
     const INVALID: &str = "The requested release is unavailable because the file is not a valid complete FDA monthly Purple Book CSV.";
     let body = leg
@@ -167,7 +181,7 @@ fn import(
             source_error(Reason::Rejected),
             "The supplied release is not newer than the active snapshot.",
         ))?;
-    Ok((info, release.month.label()))
+    Ok((info, release.month))
 }
 
 fn source_error(reason: Reason) -> RequestError {
@@ -181,20 +195,35 @@ fn source_error(reason: Reason) -> RequestError {
     .into()
 }
 
-/// Explain the monthly release cadence and give the publisher's download address.
-pub fn notice(month: Option<&str>, guidance: &str) -> SourceNotice {
-    let snapshot = month.map_or_else(
-        || "FDA updates the Purple Book snapshot monthly.".to_owned(),
-        |month| format!("This is the {month} Purple Book snapshot. FDA updates the list monthly."),
+fn snapshot_notice(leg: &Leg<'_>, month: &ReleaseMonth, guidance: &str) -> SourceNotice {
+    let age = month.age_in_months(leg.utc_month());
+    let unit = if age == 1 { "month" } else { "months" };
+    let snapshot = format!(
+        "This is the {} Purple Book snapshot ({age} {unit} old).",
+        month.label()
     );
+    notice(if guidance.is_empty() {
+        format!(
+            "{snapshot} FDA updates the list monthly. FDA downloads: {}{PATH}",
+            SPEC.base
+        )
+    } else {
+        format!("{snapshot} {guidance}")
+    })
+}
+
+/// Explain why a reply cannot state the age of an unread snapshot.
+pub fn unavailable_notice() -> SourceNotice {
+    notice(format!(
+        "The active Purple Book snapshot could not be read. FDA downloads: {}{PATH}",
+        SPEC.base
+    ))
+}
+
+fn notice(message: String) -> SourceNotice {
     SourceNotice::RequestGuidance {
         data_date: None,
-        message: if guidance.is_empty() {
-            format!("{snapshot} FDA downloads: {}{PATH}", SPEC.base)
-        } else {
-            format!("{guidance} {snapshot}")
-        }
-        .into(),
+        message: message.into(),
         retry_after_seconds: None,
     }
 }
