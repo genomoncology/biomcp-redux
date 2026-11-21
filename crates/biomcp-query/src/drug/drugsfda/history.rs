@@ -29,6 +29,7 @@ pub(super) fn select(
         section,
         opened: BTreeMap::new(),
         stopped: false,
+        pdf_busy: false,
     };
     let path = if every {
         let from = query.section_offset().unwrap_or(0) as usize;
@@ -37,13 +38,30 @@ pub(super) fn select(
     } else {
         search(&mut found)
     };
-    let (body, consistent) = reply(&found, row, section, path)?;
+    let (mut body, consistent) = reply(&found, row, section, path)?;
+    if found.pdf_busy {
+        body.answer = text(
+            "BioMCP could not finish the label history because the hosted PDF reader was busy. Retry shortly.",
+        )?;
+        body.method = text(&format!(
+            "Stopped when the next PDF slot was unavailable. {} of {} PDFs read.",
+            found.opened.len(),
+            found.versions.len(),
+        ))?;
+        body.first = None;
+        body.before = None;
+        body.on_or_before = false;
+    }
     let open = !consistent
         || found.stopped
         || (body.first.is_none() && body.not_opened > 0)
         || body.on_or_before;
     let unread = open || found.opened.values().any(Opened::gap);
-    let resume = resume(&found, path);
+    let resume = if found.pdf_busy {
+        None
+    } else {
+        resume(&found, path)
+    };
     drop(found);
     merge(leg, out);
     if open && body.not_opened > 0 {

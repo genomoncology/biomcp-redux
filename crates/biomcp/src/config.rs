@@ -351,10 +351,7 @@ fn fetch_using(
             .and_then(|file| file.source_data_max_age_days)
             .unwrap_or_else(|| FetchConfig::default().source_data_max_age_days),
         proxy: file.and_then(|file| file.proxy.clone()).map(Secret::new),
-        isolate: Some(crate::pdf_child::isolate(
-            executable().ok(),
-            file.and_then(|f| f.pdf_memory_limit_mib),
-        )),
+        isolate: Some(file::pdf_reader(file, globals.hosted, executable().ok())),
         ..file::bundle_settings(file)
     })
     .map_err(|error| match error {

@@ -400,12 +400,17 @@ impl LocalDeadline {
             cancelled: self.cancelled.clone().or(other.cancelled),
         }
     }
+    /// Wall time left for local work.
+    pub fn remaining(&self) -> Duration {
+        self.end.saturating_duration_since(Instant::now())
+    }
+
     /// Whether the parsing budget has been exhausted.
     pub fn expired(&self) -> bool {
         self.cancelled
             .as_ref()
             .is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Acquire))
-            || Instant::now() >= self.end
+            || self.remaining().is_zero()
     }
 }
 

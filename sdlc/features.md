@@ -145,12 +145,12 @@ organization-nci: Find source-native NCI organizations with bounded snapshots an
 biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code.
 drug-recall: Search published FDA drug recall records by name (together with the drug's bounded source-stated other names in one native query by default, or only the typed name with --exact-term), firm, classification, status, reason and initiation dates; page and fetch exact native recall numbers with source field problems.
 variant-clinvar-haplotype: Preserve native ClinVar haplotype kind, version, chromosome grouping and ordered member identities.
-mcp-hosted: A server operator refuses host file saves, health details and store or key changes over every MCP transport in hosted mode; discovery and follow-ups offer only served operations without server paths, source notices distinguish operator exclusions from hosted use policy, and HTTP preserves caller credential scope, pacing and whole-call bounds.
+mcp-hosted: A server operator refuses host file saves, health details and store or key changes over every MCP transport in hosted mode; discovery and follow-ups offer only served operations without server paths, source notices distinguish operator exclusions from hosted use policy, and HTTP preserves caller credential scope, pacing and whole-call bounds. Hosted PDF reads share a cap and tell callers to retry when it is full.
 
 source-pacing: Operators can lower source rates and simultaneous requests within documented source ceilings.
 
 device-approval-search: Search native FDA PMA and 510(k) submission records by name, manufacturer and decision date.
-fda-document-text: Read FDA-published PMA SSED and selected drug approval letter text in bounded continuable fragments, with explicit no-text and oversized states.
+fda-document-text: Read FDA-published PMA SSED and selected drug approval letter text in bounded continuable fragments, with explicit no-text and oversized states and bounded reader processes.
 drug-name-get: Resolve source names with the fixed single-term salt/ester rule in one get call, infer an unambiguous section source, choose a label for a generic name by brand holder, then the original packager before repackaged copies, then most numbered indications and say which and why, report bounded alternatives and direct unresolved names to source search.
 trial-results: A caller pages posted outcome measures, source group values, dispersion and analyses, then participant flow by arm and period with its dropout reasons, baseline characteristics, and adverse-event tables from the same registry record, with its first posting date; the participant flow and the baseline characteristics also answer alone as their own sections.
 bundle-sync-time-limit: A user sets the bundle sync time limit with sync_timeout_seconds in config.json, 120 seconds by default; a sync that runs out of time names the limit and the setting.
