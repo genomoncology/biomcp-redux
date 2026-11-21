@@ -18,7 +18,7 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "a selected source does not support the requested filters",
+        "/error/message": "HPO serves term records. Use Monarch for the hierarchy section.",
         "/error/option": "--section",
         "/error/valid_values": [
           "monarch"
@@ -27,7 +27,9 @@
           "get",
           "phenotype",
           "HP:0001250",
-          "hierarchy"
+          "hierarchy",
+          "--source",
+          "monarch"
         ],
         "/next": {
           "count": 2
@@ -55,7 +57,7 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "a selected source does not support the requested filters",
+        "/error/message": "HPO serves term records. Use Monarch for the diseases section.",
         "/error/option": "--section",
         "/error/valid_values": [
           "monarch"
@@ -68,7 +70,9 @@
           "get",
           "phenotype",
           "HP:0001250",
-          "diseases"
+          "diseases",
+          "--source",
+          "monarch"
         ],
         "/next/1/args": [
           "help",
@@ -93,7 +97,7 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/message": "a selected source does not support the requested filters",
+        "/error/message": "HPO serves term records. Use Monarch for the genes section.",
         "/error/option": "--section",
         "/error/valid_values": [
           "monarch"
@@ -106,7 +110,9 @@
           "get",
           "phenotype",
           "HP:0001250",
-          "genes"
+          "genes",
+          "--source",
+          "monarch"
         ],
         "/next/1/args": [
           "help",

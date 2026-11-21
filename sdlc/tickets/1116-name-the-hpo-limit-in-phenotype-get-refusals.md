@@ -1,6 +1,7 @@
 # 1116 — name-the-hpo-limit-in-phenotype-get-refusals
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6e45a15093b8094994d0f709cc1744b93339762d
 
 Milestone: 7
 
