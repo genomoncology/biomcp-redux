@@ -19,7 +19,7 @@ pub(super) enum Step {
 pub(super) struct Row {
     /// Top-level names.
     pub(super) names: BTreeSet<String>,
-    /// Dotted paths to values inside the row's objects; a path never crosses a list.
+    /// Dotted paths inside the row's objects and application documents.
     pub(super) paths: BTreeSet<String>,
     /// Names and dotted paths kept whenever their object is: required and identifier keys.
     pub(super) kept: BTreeSet<String>,
@@ -171,8 +171,15 @@ fn collect(node: &Value, root: &Value, row: &mut Row, prefix: &str, level: usize
                 if identifier(property, root) {
                     row.kept.insert(path.clone());
                 }
-                if level < PATH_DEPTH && list_items(property, root).is_none() {
-                    collect(property, root, row, &path, level + 1);
+                if level < PATH_DEPTH {
+                    match list_items(property, root) {
+                        // Approval rows can list document IDs without the rest of each link.
+                        Some(items) if path == "application_docs" => {
+                            collect(items, root, row, &path, level + 1);
+                        }
+                        Some(_) => {}
+                        None => collect(property, root, row, &path, level + 1),
+                    }
                 }
             }
         }

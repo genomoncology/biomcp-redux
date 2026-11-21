@@ -71,6 +71,8 @@ pub(super) struct State<'a> {
     pub(super) scale: f32,
     pub(super) leading: f32,
     pub(super) size: f32,
+    pub(super) rise: f32,
+    pub(super) invisible: bool,
     pub(super) font: Option<Rc<Font<'a>>>,
 }
 
@@ -83,6 +85,8 @@ impl Default for State<'_> {
             scale: 1.0,
             leading: 0.0,
             size: 0.0,
+            rise: 0.0,
+            invisible: false,
             font: None,
         }
     }

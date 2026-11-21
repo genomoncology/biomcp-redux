@@ -460,3 +460,51 @@ fn english_is_never_garbled_and_misdecoded_fonts_are() {
     assert!(!garbled(&numbered(shifted, 2)), "too little text to judge");
     assert!(!garbled(""), "no text is not garbled");
 }
+
+#[test]
+fn raised_table_notes_stay_separate_from_week_numbers() -> Result<(), Reason> {
+    let read = read(include_bytes!("fixtures/pdf/numbers-rinvoq.pdf"))?;
+    assert_eq!(read.state, PdfTextState::Text, "FDA page is readable");
+    let text = flat(&read.text);
+    for phrase in ["Week 26 2", "Week 24 4", "0.78 (0.1)", "-0.85, -0.20"] {
+        assert!(text.contains(phrase), "{phrase:?} in {text:?}");
+    }
+    for joined in ["Week 262", "Week 244"] {
+        assert!(!text.contains(joined), "{joined:?} in {text:?}");
+    }
+    Ok(())
+}
+
+#[test]
+fn decimal_glyphs_drawn_in_two_passes_read_as_one_number() -> Result<(), Reason> {
+    let read = read(include_bytes!("fixtures/pdf/numbers-lipitor.pdf"))?;
+    assert_eq!(read.state, PdfTextState::Text, "FDA page is readable");
+    let text = flat(&read.text);
+    for phrase in ["p=0.0005", "p=0.01"] {
+        assert!(text.contains(phrase), "{phrase:?} in {text:?}");
+    }
+    assert!(!text.contains("0 0005"), "split decimal in {text:?}");
+    Ok(())
+}
+
+#[test]
+fn a_phone_number_wrapped_at_its_hyphen_reads_whole() -> Result<(), Reason> {
+    let read = read(include_bytes!("fixtures/pdf/numbers-fda-letter.pdf"))?;
+    assert_eq!(read.state, PdfTextState::Text, "FDA page is readable");
+    let text = flat(&read.text);
+    assert!(text.contains("(301) 796-5073."), "phone number in {text:?}");
+    Ok(())
+}
+
+#[test]
+fn powers_of_ten_keep_their_existing_text() -> Result<(), Reason> {
+    let read = read(include_bytes!(concat!(
+        "../../../tests/replies/diagnostic/pma-summary-find/fda-pma/",
+        "de2c2f69831314028261780ff0a88ee2095df7e6df69f167288d56fb7f705c8b-0.bin"
+    )))?;
+    assert_eq!(read.state, PdfTextState::Text, "FDA summary is readable");
+    for passage in ["1x106 colony forming units", "1x106 CFU/mL"] {
+        assert!(read.text.contains(passage), "the summary keeps {passage:?}");
+    }
+    Ok(())
+}

@@ -58,8 +58,14 @@ fn object(row: &mut Map<String, Value>, prefix: &str, chosen: &[&str], kept: &BT
             return true;
         }
         if chosen.iter().any(|name| name.starts_with(&inside)) {
-            if let Some(inner) = value.as_object_mut() {
-                object(inner, &path, chosen, kept);
+            match value {
+                Value::Object(inner) => object(inner, &path, chosen, kept),
+                Value::Array(items) => {
+                    for inner in items.iter_mut().filter_map(Value::as_object_mut) {
+                        object(inner, &path, chosen, kept);
+                    }
+                }
+                _ => {}
             }
             return true;
         }

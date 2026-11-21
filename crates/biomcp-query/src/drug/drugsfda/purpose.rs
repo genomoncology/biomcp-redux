@@ -177,27 +177,66 @@ fn purpose(text: &str, row: &DrugFdaSubmission) -> Option<String> {
         row.submission_number.as_str()
     );
     let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
-    let tail = compact.split_once(&header)?.1;
+    let (before, tail) = compact.split_once(&header)?;
+    if before.contains("/S-") {
+        return None;
+    }
     if tail.starts_with(|c: char| c.is_ascii_digit()) {
         return None;
     }
-    let provides = text.find(" provides for ")?;
-    let start = text.get(..provides)?.rfind("This ")?;
-    if !text.get(start..provides)?.contains("supplement") {
+    provided_purpose(&text).or_else(|| proposed_purpose(&text))
+}
+
+fn provided_purpose(text: &str) -> Option<String> {
+    let phrase = " provides for ";
+    let (intro, _) = text.split_once(phrase)?;
+    let start = supplement_start(intro)?;
+    let remainder = text.get(start..)?;
+    let end = closing_marker(remainder)?;
+    if end <= intro.len() - start + phrase.len() {
         return None;
     }
-    let remainder = text.get(start..)?;
-    let end = [
+    remainder.get(..end).map(str::to_owned)
+}
+
+fn proposed_purpose(text: &str) -> Option<String> {
+    let (intro, after) = text.split_once(" proposes the following change")?;
+    let start = supplement_start(intro)?;
+    if intro.get(start..)?.contains(". ") {
+        return None;
+    }
+    let changes = ["(s): ", "s: ", ": "]
+        .iter()
+        .find_map(|suffix| after.strip_prefix(suffix))?;
+    let existing_indications =
+        match changes.split_once(" is licensed for the following indications:") {
+            Some((before, _)) => Some(before.rfind(". ")? + 1),
+            None => None,
+        };
+    let end = existing_indications
+        .into_iter()
+        .chain(closing_marker(changes))
+        .min()?;
+    let statement = changes.get(..end)?;
+    if !statement.ends_with('.') {
+        return None;
+    }
+    text.get(start..text.len() - changes.len() + end)
+        .map(str::to_owned)
+}
+
+fn supplement_start(intro: &str) -> Option<usize> {
+    let start = intro.rfind("This ")?;
+    intro.get(start..)?.contains("supplement").then_some(start)
+}
+
+fn closing_marker(text: &str) -> Option<usize> {
+    [
         " APPROVAL & LABELING",
         " APPROVAL AND LABELING",
         " We have completed",
     ]
     .iter()
-    .filter_map(|marker| remainder.find(marker))
-    .min()?;
-    let stated = remainder.get(..end)?;
-    if stated.len() <= provides - start + " provides for ".len() {
-        return None;
-    }
-    Some(stated.to_owned())
+    .filter_map(|marker| text.find(marker))
+    .min()
 }
