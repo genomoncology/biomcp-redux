@@ -2,6 +2,7 @@
 use biodata::PartialDate;
 use biomcp_types::ProblemCode;
 
+/// A recognized date gives either a calendar day or a reply problem.
 pub(super) type Date = Option<Result<PartialDate, ProblemCode>>;
 
 /// Visible text of a fragment: tags, scripts and styles removed, character references decoded,

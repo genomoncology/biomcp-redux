@@ -290,11 +290,9 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-query/tests/article_rights/lookups.rs` | Inspect stored replies and pools after failed or capped license lookups, and repeat reads, through public queries. |
 | `crates/biomcp-query/tests/article_rights/routes.rs` | Inspect synthetic transport replies for source-owned abstract and passage rights and bounded dependency admission. |
 
-Everything else goes through the runner.
+The label section finder has item-specific test placement exceptions in the ratchet. Everything else goes through the runner.
 
 ## 11. Structural checks
-
-The label section finder has item-specific test placement exceptions in the ratchet.
 
 Workspace lints, per-crate Clippy configuration and repository ratchets enforce dependency direction, source declarations, file boundaries, reasoned exceptions and test placement. The source owns each limit and exception list. `make landing-gate` combines formatting, lint, documentation, generated protobuf checks, dependency policy, secret scanning, library tests and binary coverage. Required coverage and structural ratchets also run from the coverage script.
 

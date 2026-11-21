@@ -71,7 +71,7 @@ pub(super) fn index(body: &str) -> Option<Vec<Listed>> {
         rows.push(Listed {
             id,
             date: date(&date_text)
-                .or_else(|| (!date_text.is_empty()).then_some(Err(ProblemCode::ValueUnknown))),
+                .or((!date_text.is_empty()).then_some(Err(ProblemCode::ValueUnknown))),
             title,
             path: path.to_owned(),
             url,
