@@ -20,12 +20,6 @@ impl Record {
         limit: u32,
         budget: usize,
     ) -> Result<Option<DrugLabelText>, RequestError> {
-        if !(1..=50).contains(&limit) {
-            return Err(biomcp_fetch::bad_reply(
-                biomcp_types::Source::OpenfdaLabel,
-                Some(200),
-            ));
-        }
         let Some(parts) = self.parts(heading) else {
             return Ok(None);
         };
