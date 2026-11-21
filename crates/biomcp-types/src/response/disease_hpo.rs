@@ -37,8 +37,12 @@ pub struct HpoDiseaseMatch {
     pub label: Text,
     /// Positive evidence for each requested term.
     pub matches: Box<[HpoTermMatch]>,
-    /// Gene links from the release. An empty list means there were no supplied links for this ID.
+    /// Gene links supplied for this original ID.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub gene_links: Box<[HpoGeneLink]>,
+    /// The release supplies no gene links for this ID.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub gene_links_missing: bool,
 }
 
 page!(@body, HpoDiseasePage, HpoDiseaseMatch, DiseaseSearch, "biomcp.disease-hpo-page/1",

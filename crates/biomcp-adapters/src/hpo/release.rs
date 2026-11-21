@@ -22,7 +22,11 @@ pub static SPEC: SourceSpec = SourceSpec {
     destinations: Destinations::Additional(&["https://release-assets.githubusercontent.com"]),
     deadline: Duration::from_secs(60),
     command_budget: Some(Duration::from_secs(60)),
-    ..super::SPEC
+    source: Source::Hpo,
+    terms: super::SPEC.terms,
+    key: super::SPEC.key,
+    quota: super::SPEC.quota,
+    user_agent: super::SPEC.user_agent,
 };
 
 /// One slice of the complete intersection.
@@ -47,7 +51,8 @@ pub fn search(
     let obo = read(leg, tag, "hp.obo", 24, &|body| {
         ontology::has_version(body, date)
     })?;
-    let (descendants, unknown) = ontology::descendants(&obo, requested).map_err(|_| bad_reply())?;
+    let (descendants, unknown) = ontology::descendants(&obo, requested)
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Hpo, None))?;
     if !unknown.is_empty() {
         return Ok(Matches {
             total: 0,
@@ -59,7 +64,8 @@ pub fn search(
     let hpoa = read(leg, tag, "phenotype.hpoa", 64, &|body| {
         has_annotations(body, date)
     })?;
-    let candidates = annotate(&hpoa, &descendants, requested).map_err(|_| bad_reply())?;
+    let candidates = annotate(&hpoa, &descendants, requested)
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Hpo, None))?;
     drop(hpoa);
     let total = candidates.len() as u64;
     let mut items: Vec<_> = candidates
@@ -71,7 +77,7 @@ pub fn search(
         let genes = read(leg, tag, "genes_to_disease.txt", 8, &|body| {
             body.lines().next() == Some(GENE_HEADER)
         })?;
-        link_genes(&genes, &mut items).map_err(|_| bad_reply())?;
+        link_genes(&genes, &mut items).map_err(|_| biomcp_fetch::bad_reply(Source::Hpo, None))?;
     }
     Ok(Matches {
         total,
@@ -117,7 +123,7 @@ fn read(
         codec = codec.filter_body(&filter);
     }
     let bytes = leg.call(&endpoint, Input::Params(&[]), codec)?.value;
-    String::from_utf8(bytes.0).map_err(|_| bad_reply())
+    String::from_utf8(bytes.0).map_err(|_| biomcp_fetch::bad_reply(Source::Hpo, None))
 }
 
 fn has_annotations(body: &str, date: &str) -> bool {
@@ -179,7 +185,10 @@ fn annotate(
             .entry(id)
             .or_insert_with(|| (label, vec![HashSet::new(); requested.len()]));
         for &index in indices {
-            evidence[index].insert(term.clone());
+            evidence
+                .get_mut(index)
+                .ok_or(BadReply)?
+                .insert(term.clone());
         }
     }
     let mut matches: Vec<_> = candidates
@@ -206,6 +215,7 @@ fn annotate(
                 label,
                 matches,
                 gene_links: Box::default(),
+                gene_links_missing: true,
             })
         })
         .collect();
@@ -245,19 +255,9 @@ fn link_genes(body: &str, items: &mut [HpoDiseaseMatch]) -> Result<(), BadReply>
     }
     for item in items {
         if let Some(rows) = links.remove(&item.id) {
+            item.gene_links_missing = rows.is_empty();
             item.gene_links = rows.into();
         }
     }
     Ok(())
-}
-
-fn bad_reply() -> RequestError {
-    biomcp_fetch::SourceError {
-        source: Source::Hpo,
-        reason: Reason::BadReply,
-        status: None,
-        tls_cause: None,
-        retry_after: None,
-    }
-    .into()
 }

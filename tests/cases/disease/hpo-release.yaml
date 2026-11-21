@@ -74,8 +74,13 @@
             "source": "https://example.org/genes"
           }
         ],
-        "/result/items/1/gene_links": [],
-        "/sources/0/source": "hpo"
+        "/sources/0/source": "hpo",
+        "/result/items/1/gene_links_missing": true,
+        "/result/items/1": {
+          "omits": [
+            "gene_links"
+          ]
+        }
       },
       "max_bytes": 2200
     },

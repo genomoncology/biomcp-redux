@@ -26,11 +26,17 @@
         "/page/total": 2,
         "/page/returned": 1,
         "/result/items/0/id": "ORPHA:900001",
-        "/result/items/0/gene_links": []
+        "/result/items/0/gene_links_missing": true,
+        "/result/items/0": {
+          "omits": [
+            "gene_links"
+          ]
+        }
       }
     }
   ],
   "config": {
-    "mcp_tool_mode": "typed"
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
   }
 }
