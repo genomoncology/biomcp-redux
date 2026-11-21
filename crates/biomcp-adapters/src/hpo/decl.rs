@@ -7,7 +7,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     registry_order: Some(55),
     probe: Probe::Get("/api/hp/terms/HP:0001250", &[]),
     components: &[],
-    auxiliary: &[],
+    auxiliary: &[&super::release::SPEC],
     bundles: &[],
     guidance: Guidance {
         deadline: None,
