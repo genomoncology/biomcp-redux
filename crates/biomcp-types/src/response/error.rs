@@ -71,6 +71,7 @@ singleton! {
  ArgumentMissing => "required option missing: add error.option with a value valid_values accepts",
  ArgumentNoValue => "option given without a value: give error.option a value valid_values accepts",
  ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
+ GeneSearchSource => "search gene does not take --source. It looks up HGNC names and aliases. For curation, use get gene SYMBOL and the source section.",
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentTextUnplaced => "this command takes no text outside an option; next gives the words to error.option",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",

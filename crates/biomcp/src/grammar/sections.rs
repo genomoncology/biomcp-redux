@@ -3,8 +3,9 @@
 //! The fix is derived from what the command already declares: a section another name stands
 //! for, the sections a named source publishes, the source selector, and the label headings.
 //! It is offered as the next call and never run in place of the one given.
-use biomcp_types::{ErrorMessage, Source, Step, UsageArguments, UsageError};
+use biomcp_types::{ErrorMessage, GeneSection, Source, Step, UsageArguments, UsageError};
 use serde_json::{Map, Value, json};
+use std::ffi::OsString;
 
 /// Section words agents type for a section under its own name, by entity.
 const SYNONYMS: &[(&str, &str, &str)] = &[
@@ -13,6 +14,35 @@ const SYNONYMS: &[(&str, &str, &str)] = &[
     ("article", "full_text", "fulltext"),
     ("article", "body", "fulltext"),
 ];
+
+/// A named gene curation source is a get section, not a gene search selector.
+pub(super) fn gene_search_source(
+    path: &[&str],
+    spelling: Option<&str>,
+    args: &[OsString],
+) -> Option<UsageArguments> {
+    const FLAG: &str = "--source";
+    if path != ["search", "gene"] || spelling?.split('=').next() != Some(FLAG) {
+        return None;
+    }
+    let source = args
+        .iter()
+        .take_while(|word| *word != "--")
+        .enumerate()
+        .find_map(|(index, word)| match word.to_str()? {
+            FLAG => args.get(index + 1)?.to_str(),
+            word => word.strip_prefix(FLAG)?.strip_prefix('='),
+        })?;
+    let section = [GeneSection::ClinGen, GeneSection::Gencc]
+        .into_iter()
+        .find(|section| source.eq_ignore_ascii_case(section.as_str()))?;
+    Some(UsageArguments {
+        argument: Some(FLAG.into()),
+        message: Some(ErrorMessage::GeneSearchSource),
+        valid_values: None,
+        next: vec![super::validation::help(["get", "gene", section.as_str()])],
+    })
+}
 
 /// Refuse a call whose section word is wrong with the corrected call, when one checks.
 pub(super) fn fix(verb: &str, entity: &str, value: &Value) -> Option<super::ParseInvalid> {

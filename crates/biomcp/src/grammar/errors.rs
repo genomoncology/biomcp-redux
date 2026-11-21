@@ -215,6 +215,12 @@ pub(super) fn parse_invalid(
         }
         _ => None,
     };
+    if let Some(arguments) = super::sections::gene_search_source(&path, spelling, args) {
+        return super::ParseInvalid {
+            usage: Some(UsageError::Arguments(arguments)),
+            ..Default::default()
+        };
+    }
     if let Some(mut arguments) = parser_usage(command, &path, error) {
         let registered_argument = invalid_argument(command, &path, error).is_some();
         let mut only_dropped = false;
