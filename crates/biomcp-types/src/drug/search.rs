@@ -486,6 +486,12 @@ impl DrugSearch {
     pub fn source(&self) -> DrugSource {
         self.0.source.unwrap_or(DrugSource::Mychem)
     }
+    /// Echo the effective source without changing the caller's paging request.
+    pub fn for_reply(&self) -> Self {
+        let mut query = self.clone();
+        query.0.source = Some(self.source());
+        query
+    }
     /// Default discovery promotes complete names; explicit sources retain native order.
     pub fn ranks_default_names(&self) -> bool {
         self.0.source.is_none()

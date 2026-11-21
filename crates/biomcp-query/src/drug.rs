@@ -86,7 +86,7 @@ fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             items: Box::default(),
             total: None,
         })
-        .with_query(query.clone()),
+        .with_query(query.for_reply()),
     );
     let Some(name) = query.query() else {
         return unsupported(query.source(), out);
@@ -447,7 +447,7 @@ fn search_results(
             fresh,
         ));
     }
-    out.body = page.with_query(query.clone());
+    out.body = page.with_query(query.for_reply());
 }
 
 pub(crate) mod label_bound;
