@@ -47,7 +47,9 @@ pub fn search(
     tag: &str,
     requested: &[HpId],
 ) -> Result<Matches, RequestError> {
-    let date = tag.strip_prefix('v').ok_or_else(bad_reply)?;
+    let date = tag
+        .strip_prefix('v')
+        .ok_or_else(|| biomcp_fetch::bad_reply(Source::Hpo, None))?;
     let obo = read(leg, tag, "hp.obo", 24, &|body| {
         ontology::has_version(body, date)
     })?;
