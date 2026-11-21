@@ -46,9 +46,11 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/locations/data/page": {
-          "offset": 0,
-          "total": 2,
-          "returned": 1
+          "equals": {
+            "offset": 0,
+            "total": 2,
+            "returned": 1
+          }
         },
         "/result/items/0/sections/locations/data/missing_coordinates": 1,
         "/result/items/0/sections/locations/data/items/0/facility": "Nearest Ohio Site",
@@ -64,9 +66,11 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/locations/data/page": {
-          "offset": 1,
-          "total": 2,
-          "returned": 1
+          "equals": {
+            "offset": 1,
+            "total": 2,
+            "returned": 1
+          }
         },
         "/result/items/0/sections/locations/data/missing_coordinates": 1,
         "/result/items/0/sections/locations/data/items/0/facility": "Farther Ohio Site",
@@ -113,9 +117,11 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/locations/data/page": {
-          "offset": 0,
-          "total": 0,
-          "returned": 0
+          "equals": {
+            "offset": 0,
+            "total": 0,
+            "returned": 0
+          }
         },
         "/result/items/0/sections/locations/data/missing_coordinates": 1
       }
