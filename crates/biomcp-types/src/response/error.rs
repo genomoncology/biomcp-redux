@@ -112,7 +112,6 @@ singleton! {
  SavedAccount => "saved work in hosted mode needs a signed-in account; sign in to save searches, lists and notes",
  HostedKey => "add the source key in your account settings", UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
-
         GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; \
             --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST \
             accessions, rsIDs, positive PMIDs and native trait IDs without repair; --limit is 1..50 and \
@@ -270,9 +269,7 @@ singleton! {
         CellLineExpression => "gene cell-lines is deferred until an exact HPA cell identity join exists",
         DrugCellLines => "drug cell-lines is retired: cell-line screening is outside the cancer-care drug slice.",
         CvxUnavailable => "Vaccine identity lookup and sync are unavailable; search vaccine report summaries with `search adverse-event --source vaers`.",
-
         EmaSync => "renamed; use: biomcp sync ema", DdinterSync => "renamed; use: biomcp sync ddinter",
-
         WhoPqSync => "renamed; use: biomcp sync who-pq", DrugQuery => "renamed; use: search drug <TEXT> --source <SOURCE>",
         DrugMechanism => "--mechanism is retired: semantic mechanism expansion is not supported; select a drug identity and read targets.",
         DrugPartnerSearch => "--interactions is retired: use get drug <ID> interactions --source ddinter.",
@@ -450,7 +447,6 @@ impl From<crate::UsageError> for ErrorEnvelope {
         out
     }
 }
-
 impl ErrorEnvelope {
     /// Chosen `--fields` names a call's rows lack, the names it cannot place and the call with the rest.
     fn fields_unknown(&mut self, usage: UsageError) {
@@ -469,14 +465,12 @@ impl ErrorEnvelope {
             self.next = next;
         }
     }
-
     fn retired(&mut self, message: ErrorMessage, next: Vec<super::Step>) {
         self.error.code = ErrorCode::Retired;
         self.error.message = message;
         self.error.valid_values = retired_values(message);
         self.next = next;
     }
-
     fn source_selector(&mut self, usage: crate::UsageError) {
         if let crate::UsageError::SourceSelector {
             source,
@@ -515,7 +509,6 @@ impl ErrorEnvelope {
             options: Default::default(),
         });
     }
-
     /// Report a local failure without paths or provider diagnostics.
     pub fn local() -> Self {
         Self::empty(ErrorStatus::Local, ErrorCode::Local, ErrorMessage::Local)
@@ -559,7 +552,6 @@ impl ErrorEnvelope {
         }
     }
 }
-
 impl ErrorDetail {
     fn trial_continuation(&mut self, message: ErrorMessage) {
         self.source = Some(crate::Source::ClinicalTrialsGov);
