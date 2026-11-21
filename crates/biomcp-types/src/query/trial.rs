@@ -66,7 +66,7 @@ struct Fields {
     #[doc = "Exact terms.\nSearch typed drug names and variant text as written, without other names or spellings."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    #[doc = "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes, such as NCIT:C3224 (melanoma)."]
+    #[doc = "Condition ID.\nMyDisease resolves exact MONDO or DOID CURIEs. NCI also takes codes such as NCIT:C3224 (melanoma)."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -74,10 +74,18 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "biodata::Curie"))]
     condition_id: Option<biodata::Curie>,
-    #[doc = "Treatment terms; OR.\nIntervention alternatives joined with OR; supported by ClinicalTrials.gov."]
+    #[doc = "Intervention.\nClinicalTrials.gov only: repeat to join alternatives with OR."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
     intervention: Box<[Text]>,
+    #[doc = "Arms.\nClinicalTrials.gov only. Exact intervention name or alias, ignoring case."]
+    #[serde(
+        default,
+        deserialize_with = "super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    arms_for: Option<Text>,
     #[doc = "Gene symbol/ID.\nClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment."]
     #[serde(
         default,
@@ -94,8 +102,8 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     variant: Option<Text>,
-    #[doc = "NCI NCIt code.\nExact NCIt biomarker concept listed by NCI in trial criteria, such as C96022 (CD274 Gene, PD-L1); NCI source only. \
-        This listing does not establish biomarker positivity or patient eligibility."]
+    #[doc = "NCIt code.\nNCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). \
+        Does not establish positivity or eligibility."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -177,7 +185,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(schema_with = "country::schema"))]
     country: Box<[Box<str>]>,
-    #[doc = "Latitude degrees.\nClinicalTrials.gov only: radius center latitude in degrees."]
+    #[doc = "Latitude.\nClinicalTrials.gov only: radius center latitude in degrees."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -185,7 +193,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lat: Option<Text>,
-    #[doc = "Longitude degrees.\nClinicalTrials.gov only: radius center longitude in degrees."]
+    #[doc = "Longitude.\nClinicalTrials.gov only: radius center longitude in degrees."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -193,7 +201,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lon: Option<Text>,
-    #[doc = "Radius, mi or km.\nClinicalTrials.gov only: source distance with explicit mi or km units."]
+    #[doc = "Radius.\nClinicalTrials.gov only: supply units (mi or km)."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -241,7 +249,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
     updated_until: Option<PartialDate>,
-    #[doc = "NCT identifier.\nClinicalTrials.gov only: exact NCT identity in a conjunction with other filters."]
+    #[doc = "NCT ID.\nClinicalTrials.gov only: exact ID, combined with other filters."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -482,6 +490,10 @@ impl TrialSearch {
     /// Facility counts across every page instead of rows.
     pub fn site_count(&self) -> bool {
         self.0.site_count
+    }
+    /// Project arms for this registered intervention name or alias.
+    pub fn arms_for(&self) -> Option<&Text> {
+        self.0.arms_for.as_ref()
     }
     /// Bounded page size.
     pub fn limit(&self) -> u32 {

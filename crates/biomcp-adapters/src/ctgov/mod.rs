@@ -141,16 +141,17 @@ pub fn search(
     conditions: &[Text],
     countries: &[Box<str>],
 ) -> Result<SearchPage, RequestError> {
-    search_with_gene(leg, params, conditions, countries, None, &[])
+    search_page(leg, params, conditions, countries, None, &[], None)
 }
 
-pub(super) fn search_with_gene(
+pub(super) fn search_page(
     leg: &Leg<'_>,
     params: &BTreeMap<String, String>,
     conditions: &[Text],
     countries: &[Box<str>],
     gene: Option<&str>,
     exact: &[String],
+    arms_for: Option<&Text>,
 ) -> Result<SearchPage, RequestError> {
     let raw = fetch_page(leg, params)?;
     if !countries.is_empty()
@@ -199,7 +200,7 @@ pub(super) fn search_with_gene(
         .unwrap_or_default()
         .into_iter()
         .filter_map(|row| match row.value() {
-            Some(row) => Some(row.header()),
+            Some(row) => Some(row.header(arms_for)),
             None => {
                 refusals = crate::Refusal::Refused;
                 rejected.push(crate::mapped::problem(SPEC.source, None, "nctId"));
