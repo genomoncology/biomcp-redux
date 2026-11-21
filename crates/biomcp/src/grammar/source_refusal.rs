@@ -20,7 +20,7 @@ fn pathway(root: &Command, args: &[OsString]) -> Option<super::ParseInvalid> {
             word.to_str().and_then(|word| word.split('=').next()) == Some("--source")
         })?;
     let (source, remaining) = super::positional::source_value(args, index)?;
-    if !source.eq_ignore_ascii_case(Source::Reactome.as_str()) {
+    if !source.eq_ignore_ascii_case(Source::Reactome.into()) {
         return None;
     }
     let matches = root
