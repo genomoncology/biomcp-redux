@@ -45,7 +45,7 @@ trial-search: Search the registry with repeated condition, intervention, keyword
 trial-get: Retrieve exact registry cards, with registered enrollment and the registry's reason a study stopped, and recover intact eligibility, outcome and arm records through bounded continuations.
 trial-nci: Explicit NCI phase and status filters use publisher vocabularies; trial search and exact retrieval require the user key and preserve native fields without registry fallback; exact facility search returns one matched site and its match count; exact biomarker code search retains native criterion and inclusion_indicator entries and reports same-entry mismatches.
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path.
-trial-sites: Page original registry sites and their attached contacts, and retrieve requested-trial central contacts and officials.
+trial-sites: Filter registry sites by state, recruitment status and radius before paging, report missing coordinates, and retain attached and trial-wide contacts.
 variant-population: A caller reads source-given population counts and current catalog associations, keeps missing datasets distinct from zero, and pages ancestry without inferred frequencies or clinical meaning.
 variant-search: Search explicit gene/protein or ClinVar gene/coding changes, assembly-qualified regions or raw MyVariant queries with proved literal source filters, preserve native candidates, source transcript notation and matches, and pages, and honor component terms switches; SnpEff fallback matches require allowed same-record corroboration or an agreeing reference base.
 trial-help: Discover trial commands through schema-generated help and executable case examples.

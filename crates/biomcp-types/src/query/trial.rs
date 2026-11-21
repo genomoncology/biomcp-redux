@@ -544,7 +544,7 @@ impl TrialSource {
     }
 }
 
-mod validation;
+pub(super) mod validation;
 fn words(text: &str) -> Vec<&str> {
     text.split(|c: char| !c.is_alphanumeric())
         .filter(|word| !word.is_empty())
