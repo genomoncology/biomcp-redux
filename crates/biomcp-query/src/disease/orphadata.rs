@@ -81,22 +81,26 @@ fn xrefs(
         sync_step(&mut out, Bundle::ORPHADATA_XREFS);
     }
     out.local = error.and_then(status::local);
-    if let Ok(mapped) = reply {
+    if reply.is_ok() {
         source.notices.push(SourceNotice::RequestGuidance {
             data_date: None,
             message: orphadata::NOTICE.into(),
             retry_after_seconds: None,
         });
-        out.include_refusals(mapped.refusals);
-        out.problems.extend(mapped.problems);
-        let (items, total) = slice(mapped.value, query);
-        page(&mut out, query, items.len() as u32, total);
-        body.items = items.into_iter().map(Into::into).collect();
-        out.body = body.with_query(query.clone());
     }
     out.sources.push(source);
-    let found = out.page.as_ref().is_some_and(|page| page.total > 0);
-    status::item(&mut out, found, error.is_some(), false);
+    match reply {
+        Ok(mapped) => {
+            out.include_refusals(mapped.refusals);
+            out.problems.extend(mapped.problems);
+            let (items, total) = slice(mapped.value, query);
+            page(&mut out, query, items.len() as u32, total);
+            body.items = items.into_iter().map(Into::into).collect();
+            out.body = body.with_query(query.clone());
+            status::item(&mut out, total > 0, false, false);
+        }
+        Err(_) => status::item(&mut out, false, true, false),
+    }
     out
 }
 

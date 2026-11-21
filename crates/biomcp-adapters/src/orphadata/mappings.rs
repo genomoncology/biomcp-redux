@@ -44,8 +44,8 @@ struct Jdbor {
 
 #[derive(Deserialize)]
 struct Disorders {
-    #[serde(rename = "Disorder", default)]
-    items: Vec<Disorder>,
+    #[serde(rename = "Disorder")]
+    items: Option<Vec<Disorder>>,
 }
 
 #[derive(Deserialize)]
@@ -60,8 +60,8 @@ struct Disorder {
 
 #[derive(Deserialize)]
 struct References {
-    #[serde(rename = "ExternalReference", default)]
-    items: Vec<Reference>,
+    #[serde(rename = "ExternalReference")]
+    items: Option<Vec<Reference>>,
 }
 
 #[derive(Deserialize)]
@@ -96,18 +96,21 @@ impl Row for Native {
         let text = std::str::from_utf8(body).map_err(|_| BadReply)?;
         let document: Jdbor = quick_xml::de::from_str(text).map_err(|_| BadReply)?;
         document.availability.check()?;
-        if document.date.trim().is_empty() || document.disorders.items.is_empty() {
+        if document.date.trim().is_empty() {
             return Err(BadReply);
         }
-        document
+        let disorders = document
             .disorders
             .items
+            .filter(|rows| !rows.is_empty())
+            .ok_or(BadReply)?;
+        disorders
             .into_iter()
             .map(|disorder| {
                 let omim = disorder
                     .references
                     .into_iter()
-                    .flat_map(|list| list.items)
+                    .flat_map(|list| list.items.into_iter().flatten())
                     .filter_map(|row| {
                         (label(row.source).as_deref() == Some("OMIM")).then(|| Omim {
                             id: label(row.id),
@@ -200,22 +203,17 @@ fn relation(
     attribution: &Attribution,
     cx: &mut Problems,
 ) -> Option<DiseaseRelation> {
-    let id = cx.required(
-        "ExternalReference.Reference",
-        mapping
-            .id
-            .as_deref()
-            .filter(|value| digits(value))
-            .and_then(|value| format!("OMIM:{value}").parse().ok()),
-    )?;
+    let field = "ExternalReference.Reference";
+    let number = cx.required(field, mapping.id.as_deref().filter(|value| digits(value)))?;
+    let id = cx.optional(field, Some(format!("OMIM:{number}").parse()))?;
     let code = mapping
         .relation
         .as_deref()
         .and_then(|text| text.split_whitespace().next())
         .unwrap_or("ExternalReference");
-    let predicate = cx.required(
+    let predicate = cx.optional(
         "DisorderMappingRelation",
-        format!("orphadata:{code}").parse().ok(),
+        Some(format!("orphadata:{code}").parse()),
     )?;
     Some(DiseaseRelation {
         subject: subject.clone(),

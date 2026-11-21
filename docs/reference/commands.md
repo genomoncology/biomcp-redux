@@ -5841,6 +5841,12 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --xrefs[=<xrefs>]
+          Synchronize the OMIM mapping file. Orphadata only.
+
+          [default: false]
+          [possible values: true, false]
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
@@ -5868,6 +5874,7 @@ Options are local to the command and independent of source selection.
 - `bundle`: Local source bundle to synchronize.
 Form: sync BUNDLE; not --bundle.
 - `--file`: Import a manually downloaded FDA Purple Book monthly CSV. Purple Book only. Value form: string; example: --file <file> (syntax; replace the placeholder with your retained value).
+- `--xrefs`: Synchronize the OMIM mapping file. Orphadata only. Value form: boolean; example: --xrefs.
 
 ## biomcp skill
 
