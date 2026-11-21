@@ -97,6 +97,7 @@ fn bounded(
         total: 0,
         text: None,
         missing: None,
+        private_symbol: false,
     };
     // FDA's historical document links use HTTP; retain that published spelling in the reply.
     let https = url
@@ -122,6 +123,7 @@ fn bounded(
     if !result.state.readable() {
         return Ok((result, String::new()));
     }
+    result.private_symbol = read.private_symbol;
     let text = read.text;
     result.total = fragment_starts(&text).len() as u32;
     Ok((result, text))
@@ -130,7 +132,7 @@ fn bounded(
 /// The reply notice for a partial read, saying what was cut or skipped, or for a damaged file,
 /// saying to fetch it another way.
 pub fn missing_notice(text: &PdfText) -> Option<SourceNotice> {
-    let message = match (text.state, text.missing) {
+    let missing = match (text.state, text.missing) {
         (PdfTextState::Damaged, _) => concat!(
             "This PDF is damaged: its structure is broken or irregular, and BioMCP does not ",
             "repair damaged PDFs, so none of its text was read. Fetch the document another way."
@@ -140,11 +142,18 @@ pub fn missing_notice(text: &PdfText) -> Option<SourceNotice> {
             "and was stopped, so none of its text was read. Fetch the document another way."
         ),
         (PdfTextState::Partial, missing) => partial_message(missing),
-        _ => return None,
+        _ => "",
+    };
+    let symbol = "This PDF contains a Symbol-font character with no known standard equivalent. Its private-use code was kept.";
+    let message = match (missing.is_empty(), text.private_symbol) {
+        (true, false) => return None,
+        (true, true) => symbol.into(),
+        (false, false) => missing.into(),
+        (false, true) => format!("{missing} {symbol}").into(),
     };
     Some(SourceNotice::RequestGuidance {
         data_date: None,
-        message: message.into(),
+        message,
         retry_after_seconds: None,
     })
 }

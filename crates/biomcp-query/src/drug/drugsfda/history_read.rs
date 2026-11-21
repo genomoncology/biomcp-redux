@@ -194,9 +194,7 @@ impl Search<'_, '_> {
             Found::Older => return state(State::OlderFormat),
         };
         let hits = label_text::hits(&section, self.finds);
-        let private_use = section
-            .chars()
-            .any(|c| ('\u{e000}'..='\u{f8ff}').contains(&c));
+        let private_use = section.chars().any(pdf::is_private_use);
         let Some(&at) = hits.first() else {
             if !whole {
                 return state(State::SectionNotBounded);

@@ -1,7 +1,9 @@
 //! The text matrix and the graphics and text state a PDF content stream sets, as
 //! PDF 32000-1 §8.4 and §9.3 define them, for placing words.
+use super::cmap::Font;
 use super::fonts::number;
 use lopdf::Object;
+use std::rc::Rc;
 
 /// A text or line matrix `[a b c d e f]`.
 #[derive(Clone, Copy)]
@@ -62,17 +64,17 @@ impl Matrix {
 
 /// The CTM and text state parameters that `q` and `Q` save and restore.
 #[derive(Clone)]
-pub(super) struct State {
+pub(super) struct State<'a> {
     pub(super) ctm: Matrix,
     pub(super) char_space: f32,
     pub(super) word_space: f32,
     pub(super) scale: f32,
     pub(super) leading: f32,
     pub(super) size: f32,
-    pub(super) font: Vec<u8>,
+    pub(super) font: Option<Rc<Font<'a>>>,
 }
 
-impl Default for State {
+impl Default for State<'_> {
     fn default() -> Self {
         Self {
             ctm: Matrix::default(),
@@ -81,7 +83,7 @@ impl Default for State {
             scale: 1.0,
             leading: 0.0,
             size: 0.0,
-            font: Vec::new(),
+            font: None,
         }
     }
 }

@@ -19,14 +19,17 @@ pub const MAX_OUTPUT: usize = super::MAX_EXPANDED_BYTES + 4096;
 pub fn serve(input: &[u8]) -> Vec<u8> {
     let read = pages(input).and_then(|(pages, bytes)| super::embedded(bytes, pages, &|| false));
     let (header, text) = match read {
-        Ok(read) => (
-            json!({
-                "state": read.state,
-                "pages": read.pages,
-                "missing": read.missing.map(missing_name),
-            }),
-            read.text,
-        ),
+        Ok(read) => {
+            let mut header = serde_json::Map::from_iter([
+                ("state".into(), json!(read.state)),
+                ("pages".into(), json!(read.pages)),
+                ("missing".into(), json!(read.missing.map(missing_name))),
+            ]);
+            if read.private_symbol && read.state.readable() {
+                header.insert("private_symbol".into(), true.into());
+            }
+            (Value::Object(header), read.text)
+        }
         Err(reason) => (json!({ "error": reason }), String::new()),
     };
     let mut out = header.to_string().into_bytes();
@@ -75,6 +78,7 @@ fn refused() -> Embedded {
         state: PdfTextState::Refused,
         text: String::new(),
         missing: None,
+        private_symbol: false,
     }
 }
 
@@ -114,6 +118,11 @@ fn decoded(answer: &[u8]) -> Result<Result<Embedded, Reason>, Malformed> {
         state,
         text,
         missing,
+        private_symbol: match header.get("private_symbol") {
+            Some(Value::Bool(value)) => *value,
+            None => false,
+            _ => return Err(Malformed),
+        },
     }))
 }
 

@@ -23,6 +23,10 @@ pub struct PdfText {
     #[serde(skip)]
     #[cfg_attr(feature = "schema", schemars(skip))]
     pub missing: Option<PdfMissing>,
+    /// The reader kept a Symbol-font character with no known standard equivalent.
+    #[serde(skip)]
+    #[cfg_attr(feature = "schema", schemars(skip))]
+    pub private_symbol: bool,
 }
 /// Why a partial PDF read may miss text.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

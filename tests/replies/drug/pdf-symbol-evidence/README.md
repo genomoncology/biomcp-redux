@@ -1,0 +1,1 @@
+Synthetic label and approval letter with one supplementary private-use Symbol character (U+F0000). The application replay selects supplement 17 from the NDA208692 recording in drug/supplement-purpose. The PDFs contain authored text for these tests. The label includes a complete Adverse Reactions section bounded by the next heading.

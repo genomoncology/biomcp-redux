@@ -14,6 +14,8 @@ pub struct Embedded {
     pub text: String,
     /// Why a partial read may miss text.
     pub missing: Option<PdfMissing>,
+    /// A private-use Symbol character was kept in the text.
+    pub private_symbol: bool,
 }
 
 /// Read every page's embedded text from `bytes`, refusing more than `max_pages` pages or
@@ -29,6 +31,7 @@ pub fn embedded(
         state: PdfTextState::NoText,
         text: String::new(),
         missing: None,
+        private_symbol: false,
     };
     if !bytes.starts_with(b"%PDF-") {
         return Err(Reason::NotPdf);
@@ -94,6 +97,7 @@ pub fn embedded(
         );
         text.push_str(&part.text);
         skipped |= part.skipped;
+        result.private_symbol |= part.private_symbol;
     }
     check()?;
     Ok(settle(result, text, &unsound, skipped))

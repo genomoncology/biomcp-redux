@@ -1,0 +1,24 @@
+{
+  "feature": "drug-approvals",
+  "story": "A supplement-purpose reply keeps an unknown Symbol glyph in the quoted evidence and explains the private-use code.",
+  "live_check": "Synthetic PDFs, recorded only",
+  "replay": "drug/pdf-symbol-evidence",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA208692",
+        "approvals",
+        "--source",
+        "drugsfda"
+      ],
+      "expect": {
+        "/result/approvals/data/records/0/supplement_purpose/text": "This supplement provides for the example \udb80\udc00.",
+        "/sources/0/notices/*/message": {
+          "includes": "This PDF contains a Symbol-font character with no known standard equivalent. Its private-use code was kept."
+        }
+      }
+    }
+  ]
+}

@@ -3168,7 +3168,7 @@ Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value).
-- `--find`: PMA summary: case-insensitive exact text to find; section offset then counts passages. Value form: string; example: --find 'Limit of Detection'.
+- `--find`: PMA summary: case-insensitive exact text to find; section offset then counts passages. Value form: string; example: --find 'PBLAC score of ≥ 150 for 3 months prior to study enrollment; OR PBLAC score ≥ 150 for one month'.
 - `id`: Exact source identity, including version for GTR.
 Form: get diagnostic ID SECTION; not --id.
 - `section`: GTR: genes, conditions, methods. PMA: regulatory,… (full rule with the sections).
