@@ -1,6 +1,7 @@
 # 1098 — look-up-clingen-and-gencc-curations-by-disease
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6aa7cfcb61af5a91e929395765fbc0d8a67df65d
 
 Milestone: 7
 

@@ -195,7 +195,7 @@
       "type": "object"
     },
     "Reply_DiseaseGet": {
-      "description": "Exact concept or native SEER site with independently paged section.",
+      "description": "Disease details and sections.",
       "properties": {
         "age_range": {
           "anyOf": [
@@ -208,6 +208,10 @@
           ],
           "description": "Native age-range code."
         },
+        "classification": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Exact gene validity classification."
+        },
         "dataset": {
           "anyOf": [
             {
@@ -217,11 +221,11 @@
               "type": "null"
             }
           ],
-          "description": "Requested native dataset selector, not proof of returned membership."
+          "description": "Requested dataset code."
         },
         "id": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.",
+          "description": "Disease CURIE, SEER site code or name, or exact curation name.",
           "x-positional": 0
         },
         "interval": {
@@ -233,11 +237,11 @@
               "type": "null"
             }
           ],
-          "description": "Survival-only interval code."
+          "description": "Survival interval code."
         },
         "ontology": {
           "$ref": "#/$defs/Reply_DiseaseOntology",
-          "description": "One OLS ontology; default the ID's own, else mondo."
+          "description": "OLS ontology. Defaults to the ID’s ontology or MONDO."
         },
         "period": {
           "anyOf": [
@@ -248,7 +252,7 @@
               "type": "null"
             }
           ],
-          "description": "Incidence-only native period code."
+          "description": "Incidence period code."
         },
         "race": {
           "anyOf": [
@@ -270,11 +274,11 @@
               "type": "null"
             }
           ],
-          "description": "One named section; absent means identity card only.",
+          "description": "Omit for the identity card.",
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.",
+          "description": "Rows per page. Default 5, Monarch genes 2, phenotypes 1.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -282,7 +286,7 @@
         },
         "section_offset": {
           "default": 0,
-          "description": "Native row offset within the selected section.",
+          "description": "Section row offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -300,8 +304,11 @@
         },
         "source": {
           "$ref": "#/$defs/Reply_DiseaseSource",
-          "default": "mydisease",
-          "description": "Default MyDisease; no automatic fallback."
+          "description": "Default MyDisease, or both sources for gene validity."
+        },
+        "submitter": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Exact GenCC submitter or ClinGen panel."
         }
       },
       "required": [
@@ -331,18 +338,20 @@
         "phenotypes",
         "incidence",
         "survival",
-        "prevalence"
+        "prevalence",
+        "gene-validity"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Publisher scoped synonyms.",
+        " Publisher synonyms.",
         " Native cross-references. Use --source ols for publisher-supplied target URLs.",
-        " Native parent relations.",
-        " Native gene association rows.",
-        " Native phenotype association rows.",
-        " Native stage incidence rows.",
-        " Annual survival rows.",
-        " Orphanet prevalence, age of onset and inheritance."
+        " Parent terms.",
+        " Gene associations.",
+        " Phenotype associations.",
+        " Incidence by stage.",
+        " Annual survival.",
+        " Orphanet prevalence, onset and inheritance.",
+        " ClinGen and GenCC curations. Filters ignore case."
       ]
     },
     "Reply_DiseaseSource": {
@@ -352,7 +361,9 @@
         "mydisease",
         "monarch",
         "seer",
-        "orphadata"
+        "orphadata",
+        "clingen",
+        "gencc"
       ],
       "type": "string"
     },

@@ -1,4 +1,6 @@
 //! Feature source-data-age: retained source dates survive paging and hosted restrictions.
+#[path = "source_age/disease_validity.rs"]
+mod disease_validity;
 #[path = "source_age/name_recovery.rs"]
 mod name_recovery;
 #[path = "source_age/named_calls.rs"]
@@ -20,6 +22,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     vec![
+        crate::runner::transcript::trial("disease-gene-validity/stale-copy", || {
+            disease_validity::check().map_err(Into::into)
+        }),
         crate::runner::transcript::trial("source-data-age/oncokb-release-date", || {
             oncokb::check().map_err(Into::into)
         }),

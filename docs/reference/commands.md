@@ -2434,7 +2434,7 @@ Commands:
   pgx            PGx card or section. No phenotype, phase or dose is calculated.
   diagnostic     Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
   adverse-event  Exact source report identity and an optional independently paged section.
-  disease        Exact concept or source SEER site with independently paged section.
+  disease        Disease details and sections.
   drug           Retrieve a drug by source ID, brand or generic name, with explicit source-scoped sections.
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
@@ -3310,16 +3310,16 @@ FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. o
 ## biomcp get disease
 
 ```text
-Exact concept or source SEER site with independently paged section.
+Disease details and sections.
 
 Usage: biomcp get disease [OPTIONS] <id> [section]
 
 Arguments:
   <id>
-          Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
+          Disease CURIE, SEER site code or name, or exact curation name.
 
   [section]
-          One named section; absent means identity card only; help get disease
+          Omit for the identity card; help get disease
 
 Options:
       --age-range <age_range>
@@ -3331,18 +3331,17 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --dataset <dataset>
-          Requested source dataset selector, not proof of returned membership.
+      --classification <classification>
+          Exact gene validity classification.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
-      --interval <interval>
-          Survival-only interval code.
+      --dataset <dataset>
+          Requested dataset code.
 
-      --ontology <ontology>
-          One OLS ontology; default the ID's own, else mondo; help get disease
-          One OLS ontology; default the ID's own, else mondo.
+      --interval <interval>
+          Survival interval code.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3350,20 +3349,21 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --ontology <ontology>
+          OLS ontology. Defaults to the ID’s ontology or MONDO; help get disease
+          OLS ontology. Defaults to the ID’s ontology or MONDO.
+
       --period <period>
-          Incidence-only source period code.
+          Incidence period code.
 
       --race <race>
           Source race code.
 
       --section-limit <section_limit>
-          Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
+          Rows per page. Default 5, Monarch genes 2, phenotypes 1.
 
       --section-offset <section_offset>
-          Source row offset within the selected section.
-
-      --sex <sex>
-          Source sex code.
+          Section row offset.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3371,9 +3371,8 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --source <source>
-          Default MyDisease; no automatic fallback; help get disease
-          Default MyDisease; no automatic fallback.
+      --sex <sex>
+          Source sex code.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3381,38 +3380,48 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --source <source>
+          Default MyDisease, or both sources for gene validity; help get disease
+          Default MyDisease, or both sources for gene validity.
+
+      --submitter <submitter>
+          Exact GenCC submitter or ClinGen panel.
+
 ```
 
-Get disease details and source statistics. Sources: monarch, mydisease, ols, orphadata, seer.
+Get disease details and source statistics. Sources: clingen, gencc, monarch, mydisease, ols, orphadata, seer.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--age-range`: Source age-range code. Value form: string; example: --age-range 1.
-- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string; example: --dataset 4.
-- `id`: Exact ontology CURIE, such as MONDO, DOID, OMIM or ORPHA, or a SEER site code or name.
+- `--classification`: Exact gene validity classification. Value form: string; example: --classification limited.
+- `--dataset`: Requested dataset code. Value form: string; example: --dataset 4.
+- `id`: Disease CURIE, SEER site code or name, or exact curation name.
 Form: get disease ID SECTION; not --id.
-- `--interval`: Survival-only interval code. Value form: string; example: --interval 5.
-- `--ontology`: One OLS ontology; default the ID's own, else mondo. Value form: string; example: --ontology mondo.
-- `--period`: Incidence-only source period code. Value form: string; example: --period 5.
+- `--interval`: Survival interval code. Value form: string; example: --interval 5.
+- `--ontology`: OLS ontology. Defaults to the ID’s ontology or MONDO. Value form: string; example: --ontology mondo.
+- `--period`: Incidence period code. Value form: string; example: --period 5.
 - `--race`: Source race code. Value form: string; example: --race 1.
-- `section`: One named section; absent means identity card only… (full rule with the sections).
+- `section`: Omit for the identity card… (full rule with the sections).
 Form: get disease ID SECTION; not --section.
-- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer; example: --section-limit 1.
-- `--section-offset`: Source row offset within the selected section. Value form: integer; example: --section-offset 1.
+- `--section-limit`: Rows per page. Default 5, Monarch genes 2, phenotypes 1. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Section row offset. Value form: integer; example: --section-offset 1.
 - `--sex`: Source sex code. Value form: string; example: --sex 3.
-- `--source`: Default MyDisease; no automatic fallback. Value form: string; example: --source seer.
+- `--source`: Default MyDisease, or both sources for gene validity. Value form: string; example: --source seer.
+- `--submitter`: Exact GenCC submitter or ClinGen panel. Value form: string; example: --submitter 'Other Expert Panel'.
 
-One named section; absent means identity card only.
+Omit for the identity card.
 
-- `synonyms`: Publisher scoped synonyms.
+- `synonyms`: Publisher synonyms.
 - `xrefs`: Source cross-references. Use --source ols for publisher-supplied target URLs.
-- `hierarchy`: Source parent relations.
-- `genes`: Source gene association rows.
-- `phenotypes`: Source phenotype association rows.
-- `incidence`: Source stage incidence rows.
-- `survival`: Annual survival rows.
-- `prevalence`: Orphanet prevalence, age of onset and inheritance.
+- `hierarchy`: Parent terms.
+- `genes`: Gene associations.
+- `phenotypes`: Phenotype associations.
+- `incidence`: Incidence by stage.
+- `survival`: Annual survival.
+- `prevalence`: Orphanet prevalence, onset and inheritance.
+- `gene-validity`: ClinGen and GenCC curations. Filters ignore case.
 
 ## biomcp get drug
 
