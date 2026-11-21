@@ -49,6 +49,8 @@
         "ddinter",
         "who-eml",
         "fda-dsc",
+        "fda-safety-signals",
+        "fda-withdrawn-approvals",
         "purple-book"
       ],
       "type": "string"
@@ -78,7 +80,7 @@
   "$id": "biomcp.drug-search/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference name or BLA and summarizes biosimilars by product.",
+  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or applicant. FDA signals take a drug or report text. FDA withdrawals take a drug, indication or withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD). Purple Book takes a reference name or BLA and summarizes biosimilars by product.",
   "properties": {
     "applicant": {
       "anyOf": [
@@ -89,11 +91,11 @@
           "type": "null"
         }
       ],
-      "description": "sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.",
+      "description": "Case-insensitive sponsor_name prefix. Matches listed sponsors. A drug name narrows results.",
       "x-required-component": "drugsfda"
     },
     "application_type": {
-      "description": "Keep label application_number prefixes, e.g. nda,bla to; help search drug\nKeep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA).",
+      "description": "Filter by application type. For example, nda,bla excludes; help search drug\nFilter by application type. For example, nda,bla excludes generics (ANDA).",
       "items": {
         "$ref": "#/$defs/LabelApplicationType"
       },
@@ -110,7 +112,7 @@
           "type": "null"
         }
       ],
-      "description": "Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.",
+      "description": "Earliest original_approval (inclusive, YYYY, YYYY-MM or YYYY-MM-DD). Counts matches in range.",
       "x-required-component": "drugsfda"
     },
     "approved_to": {
@@ -146,11 +148,11 @@
           "type": "null"
         }
       ],
-      "description": "Filter presentations by device cell, ignoring case.",
+      "description": "FDA presentation device. Ignores case.",
       "x-required-component": "purple-book"
     },
     "exact_term": {
-      "description": "Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.",
+      "description": "Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA.",
       "type": "boolean"
     },
     "expand_drug_names": {
@@ -171,7 +173,7 @@
     },
     "indication": {
       "$ref": "#/$defs/Text",
-      "description": "Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.",
+      "description": "Exact Indications and Usage wording. No disease synonyms. Drug names narrow results.",
       "x-required-component": "openfda-label"
     },
     "initiated_from": {
@@ -208,7 +210,7 @@
     },
     "mechanism_of_action": {
       "$ref": "#/$defs/Text",
-      "description": "Exact Mechanism of Action wording, without synonyms or drug class inference.",
+      "description": "Exact Mechanism of Action wording. No synonyms or drug class inference.",
       "x-required-component": "openfda-label"
     },
     "name_selector": {
@@ -225,7 +227,7 @@
           "type": "null"
         }
       ],
-      "description": "Label name page token. Keep the first page's names and step by reusing the token with unchanged filters."
+      "description": "Reuse the first page’s name token with unchanged filters."
     },
     "offset": {
       "default": 0,
@@ -265,7 +267,7 @@
     },
     "query": {
       "$ref": "#/$defs/Text",
-      "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nSafety communications match titles, linked drug names and page text. Counts show records searched and those with text.\nZero matches does not establish that FDA issued no communication about this drug.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+      "description": "Drug name or text. FDA signals match report text. FDA withdrawals match indications or dates (YYYY, YYYY-MM or YYYY-MM-DD).\nOptional for safety communications or with recall, WHO, label or applicant filters.\nLabels and Drugs@FDA try exact names, then words. Labels also search label text.\nRecall aliases keep display names.\nSafety communications match titles, linked names and text.\nZero matches does not establish that FDA issued no communication about this drug.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
       "x-positional": 0
     },
     "reason": {
@@ -289,7 +291,7 @@
           "type": "null"
         }
       ],
-      "description": "Application order. newest uses latest submission status date,; help search drug\nApplication order. newest uses latest submission status date, which may be for a supplement.\noriginal-approval reads all matches and sorts by original_approval. Both put recent dates first,\nbreak ties by application number and put undated rows last. Omit for source order.",
+      "description": "Drugs@FDA order. newest uses the latest submission status; help search drug\nDrugs@FDA order. newest uses the latest submission status date, including supplements.\noriginal-approval uses original_approval. Recent first, then application number, with undated last. Default: FDA order.",
       "x-required-component": "drugsfda"
     },
     "source": {
@@ -318,7 +320,7 @@
           "type": "null"
         }
       ],
-      "description": "Filter presentations by strength cell, ignoring case and spaces.",
+      "description": "FDA presentation strength. Ignores case and spaces.",
       "x-required-component": "purple-book"
     },
     "therapeutic_area": {

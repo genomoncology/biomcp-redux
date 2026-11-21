@@ -69,7 +69,11 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
             Some(DiseaseSection::Incidence | DiseaseSection::Survival)
         ),
         DiseaseSource::Hpo => false,
-        DiseaseSource::Orphadata => section == Some(DiseaseSection::Prevalence),
+        DiseaseSource::Orphadata => match section {
+            Some(DiseaseSection::Prevalence) => true,
+            Some(DiseaseSection::Xrefs) => biomcp_adapters::orphadata::orpha_code(id).is_some(),
+            _ => false,
+        },
         DiseaseSource::ClinGen | DiseaseSource::Gencc => {
             section == Some(DiseaseSection::GeneValidity)
         }
@@ -111,6 +115,7 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
     Some(UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some("section".into()),
         message: Some(match q.source() {
+            DiseaseSource::Orphadata if values.len() > 1 => ErrorMessage::DiseaseOrphaSection,
             DiseaseSource::Orphadata => ErrorMessage::DiseaseOrphadataSection,
             DiseaseSource::Monarch => ErrorMessage::DiseaseMonarchSection,
             _ => ErrorMessage::ArgumentMissing,

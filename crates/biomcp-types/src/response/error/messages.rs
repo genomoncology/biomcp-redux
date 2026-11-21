@@ -199,6 +199,7 @@ singleton! {
             use: get disease <CURIE> prevalence --source orphadata",
         DiseaseGetSource => "Use --source with one of the listed sources for this disease ID and section.",
         DiseaseOrphadataSection => "Add the prevalence section to use --source orphadata.",
+        DiseaseOrphaSection => "Add xrefs or prevalence to use --source orphadata.",
         DiseaseMonarchSection => "Add the genes or phenotypes section to use --source monarch.",
         DiseaseGenesSource => "Add --source monarch to read the genes section.",
         DiseasePhenotypesSource => "Add --source monarch to read the phenotypes section.",

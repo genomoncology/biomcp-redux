@@ -1,6 +1,7 @@
 # 1120 — disease-id-says-retired-record-or-gene-entry
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2686e30a559f3de84f6a2fdc738acdc8b5b36e3e
 
 Milestone: 7
 

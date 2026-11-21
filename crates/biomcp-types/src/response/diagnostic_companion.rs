@@ -72,6 +72,10 @@ pub struct CompanionOwned {
     /// The cells whose text holds the `--name` text; absent without `--name`.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub name_match: Box<[CompanionColumn]>,
+    /// How the row matched an application or a named partner; kept with selected fields.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-kept" = true)))]
+    pub matched: Box<[CompanionMatch]>,
     /// Device facts from this row’s own dedicated device cell only.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub device_ids: Box<[DiagnosticDeviceId]>,
@@ -124,6 +128,15 @@ biodata::wire_enum! {
         Diagnostic => "diagnostic",
         /// The drug cell; in the group table, the drug group cell.
         Drug => "drug"
+    }
+}
+biodata::wire_enum! {
+    /// How an FDA row matched an application or named regimen partner.
+    CompanionMatch {
+        /// The row's own typed drug application matched.
+        DrugApplication => "drug-application",
+        /// FDA's drug cell explicitly named the partner in a combination.
+        RegimenPartner => "regimen-partner"
     }
 }
 impl CompanionDiagnosticRow {

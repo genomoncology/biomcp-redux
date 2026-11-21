@@ -1,0 +1,107 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://rest.genenames.org/fetch/omim_id/134797",
+  "exchanges": [
+    {
+      "fetched": 1795291837,
+      "status": 200,
+      "content_type": "application/json;charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "responseHeader": {
+            "status": 0,
+            "QTime": 0
+          },
+          "response": {
+            "numFound": 1,
+            "start": 0,
+            "numFoundExact": true,
+            "docs": [
+              {
+                "location": "15q21.1",
+                "name": "fibrillin 1",
+                "gencc": "HGNC:3603",
+                "orphanet": 121752,
+                "status": "Approved",
+                "vega_id": "OTTHUMG00000172218",
+                "gene_group": [
+                  "Fibrillin family"
+                ],
+                "alias_name": [
+                  "Marfan syndrome",
+                  "asprosin"
+                ],
+                "locus_group": "protein-coding gene",
+                "ccds_id": [
+                  "CCDS32232"
+                ],
+                "agr": "HGNC:3603",
+                "date_approved_reserved": "1987-09-11T00:00:00Z",
+                "prev_symbol": [
+                  "FBN",
+                  "MFS1",
+                  "WMS"
+                ],
+                "ena": [
+                  "X63556"
+                ],
+                "gene_group_id": [
+                  1888
+                ],
+                "iuphar": "HGNC:3603",
+                "rgd_id": [
+                  "RGD:620908"
+                ],
+                "date_name_changed": "2006-04-25T00:00:00Z",
+                "ensembl_gene_id": "ENSG00000166147",
+                "uniprot_ids": [
+                  "P35555"
+                ],
+                "lsdb": [
+                  "UMD Locus Specific Databases|http://www.umd.be/",
+                  "LRG_778|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_778.xml"
+                ],
+                "locus_type": "gene with protein product",
+                "omim_id": [
+                  "134797"
+                ],
+                "entrez_id": "2200",
+                "alias_symbol": [
+                  "MASS",
+                  "OCTD",
+                  "SGS"
+                ],
+                "refseq_accession": [
+                  "NM_000138"
+                ],
+                "prev_name": [
+                  "fibrillin 1 (Marfan syndrome)"
+                ],
+                "mane_select": [
+                  "ENST00000316623.10",
+                  "NM_000138.5"
+                ],
+                "mgd_id": [
+                  "MGI:95489"
+                ],
+                "symbol": "FBN1",
+                "date_modified": "2023-01-20T00:00:00Z",
+                "hgnc_id": "HGNC:3603",
+                "uuid": "fc3a9ff6-cc10-46aa-9672-adb6eb6d6f74",
+                "ucsc_id": "uc001zwx.3",
+                "pubmed_id": [
+                  10036187,
+                  12525539
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

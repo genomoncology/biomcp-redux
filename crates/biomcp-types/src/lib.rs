@@ -201,12 +201,13 @@ pub use drug::{
     DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
     DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugRegulatoryPart,
     DrugSafetyCommunication, DrugSafetyCommunicationCard, DrugSafetyCommunicationPage,
-    DrugSafetyMatch, DrugSearch, DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply,
-    DrugSections, DrugSource, DrugTargets, DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage,
-    DrugWhoRow, DrugXrefs, DrugXrefsPart, LabelApplicationType, LabelHistorySection, LabelVersion,
-    LabelVersionMatch, LabelVersionState, OPENFDA_LABEL_HEADINGS, PurpleBookDesignationCount,
-    PurpleBookLicense, PurpleBookPresentation, PurpleBookProduct, PurpleBookReference,
-    WhoDateStatus, openfda_label_field,
+    DrugSafetyMatch, DrugSafetySignal, DrugSafetySignalPage, DrugSearch, DrugSection,
+    DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections, DrugSource, DrugTargets,
+    DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugWithdrawal,
+    DrugWithdrawalPage, DrugXrefs, DrugXrefsPart, LabelApplicationType, LabelHistorySection,
+    LabelVersion, LabelVersionMatch, LabelVersionState, OPENFDA_LABEL_HEADINGS,
+    PurpleBookDesignationCount, PurpleBookLicense, PurpleBookPresentation, PurpleBookProduct,
+    PurpleBookReference, WhoDateStatus, openfda_label_field,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
@@ -240,13 +241,13 @@ pub use query::{
     DiagnosticSearchSource, DiagnosticSection, DiagnosticSort,
 };
 pub use response::{
-    CompanionColumn, CompanionDiagnosticRow, CompanionLinks, CompanionOwned, CompanionShared,
-    DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditionRow,
-    DiagnosticConditions, DiagnosticGeneRow, DiagnosticGenes, DiagnosticLaboratory,
-    DiagnosticMethods, DiagnosticPage, DiagnosticProductCodeCount, DiagnosticProductCodeCounts,
-    DiagnosticRegulatory, DiagnosticRegulatoryField, DiagnosticRegulatoryFragment,
-    DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader, GtrLabAddress,
-    GtrLabCertification, GtrNameMatch, GtrNativeStatus,
+    CompanionColumn, CompanionDiagnosticRow, CompanionLinks, CompanionMatch, CompanionOwned,
+    CompanionShared, DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion,
+    DiagnosticConditionRow, DiagnosticConditions, DiagnosticGeneRow, DiagnosticGenes,
+    DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticProductCodeCount,
+    DiagnosticProductCodeCounts, DiagnosticRegulatory, DiagnosticRegulatoryField,
+    DiagnosticRegulatoryFragment, DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader,
+    GtrLabAddress, GtrLabCertification, GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{

@@ -7,8 +7,8 @@ use biomcp_fetch::{Find, InputError, KeyKind, Leg, RequestError, SetRow};
 use biomcp_types::{OrphanetEpidemiology, OrphanetPrevalence};
 
 /// The ORPHAcode of an Orphanet identifier in any of its common spellings.
-pub fn orpha_code(id: &Curie) -> Option<&str> {
-    let (prefix, code) = id.as_str().split_once(':')?;
+pub fn orpha_code(id: &str) -> Option<&str> {
+    let (prefix, code) = id.split_once(':')?;
     (["Orphanet", "ORPHA"]
         .iter()
         .any(|p| p.eq_ignore_ascii_case(prefix))
@@ -24,7 +24,7 @@ pub fn epidemiology(
     ids: &[Curie],
 ) -> Result<crate::Mapped<Vec<OrphanetEpidemiology>>, RequestError> {
     let mut codes: Vec<&str> = Vec::new();
-    for code in ids.iter().filter_map(orpha_code) {
+    for code in ids.iter().filter_map(|id| orpha_code(id.as_str())) {
         if !codes.contains(&code) {
             codes.push(code);
         }

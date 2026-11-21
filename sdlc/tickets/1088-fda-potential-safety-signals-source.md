@@ -1,6 +1,7 @@
 # 1088 — fda-potential-safety-signals-source
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 460df3f08cf36b171406516bed8f8935aa1754d2
 
 Milestone: 7
 
