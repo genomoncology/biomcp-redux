@@ -48,16 +48,20 @@ pub fn read(leg: &Leg<'_>) -> Result<Signals, RequestError> {
         return Err(biomcp_fetch::SourceError::disabled(SOURCE).into());
     }
     let seed: Seed = serde_json::from_str(include_str!("seed.json")).map_err(|_| malformed())?;
-    let index = fda_html::read(leg, &INDEX_READ, SOURCE, false).and_then(index_reports);
+    let (current, index_error) =
+        match fda_html::read(leg, &INDEX_READ, SOURCE, false).and_then(index_reports) {
+            Ok(current) => (current, None),
+            Err(error) => (BTreeMap::new(), Some(error)),
+        };
     let mut signals = Signals {
         items: Vec::new(),
         seed_date: None,
         unread_quarters: 0,
-        index_error: index.as_ref().err().copied(),
+        index_error,
     };
     let mut spaced = false;
     let mut updated = BTreeMap::new();
-    for (key, (path, quarter)) in index.unwrap_or_default().into_iter().rev() {
+    for (key, (path, quarter)) in current.into_iter().rev() {
         match leg.dependency(&SPEC, PAGE_WAIT, |child| {
             page_rows(child, &path, &quarter, spaced)
         }) {
@@ -75,8 +79,7 @@ pub fn read(leg: &Leg<'_>) -> Result<Signals, RequestError> {
         let rows = updated.entry(key).or_default();
         if rows.is_none() {
             signals.seed_date = Some(seed.date);
-            *rows =
-                Some(decode(&report.table, &report.path, &report.quarter).ok_or_else(malformed)?);
+            *rows = Some(decode(&report.table, &report.path, &report.quarter)?);
         }
     }
     signals.unread_quarters = seed.unread_archived_quarters
@@ -85,7 +88,7 @@ pub fn read(leg: &Leg<'_>) -> Result<Signals, RequestError> {
     Ok(signals)
 }
 
-type Reports = BTreeMap<(u16, u8), (String, String)>;
+type Reports = BTreeMap<(Box<str>, u8), (String, String)>;
 
 fn index_reports(body: String) -> Result<Reports, RequestError> {
     let reports: Reports = fda_html::links(&body)
@@ -97,9 +100,11 @@ fn index_reports(body: String) -> Result<Reports, RequestError> {
     Ok(reports)
 }
 
-fn quarter_key(quarter: &str) -> Option<(u16, u8)> {
+fn quarter_key(quarter: &str) -> Option<(Box<str>, u8)> {
     let (months, year) = quarter.rsplit_once(' ')?;
-    let year: u16 = year.parse().ok()?;
+    if year.len() != 4 || !year.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
     let (start, end) = months.split_once(['-', '–', '—'])?;
     let quarter = match (start.trim(), end.trim()) {
         ("January", "March") => 1,
@@ -108,7 +113,7 @@ fn quarter_key(quarter: &str) -> Option<(u16, u8)> {
         ("October", "December") => 4,
         _ => return None,
     };
-    Some((year, quarter))
+    Some((year.into(), quarter))
 }
 
 fn page_rows(
@@ -129,29 +134,30 @@ fn page_rows(
         SOURCE,
         cache_only,
     )?;
-    decode(&body, path, quarter).ok_or_else(malformed)
+    decode(&body, path, quarter)
 }
 
-fn decode(body: &str, path: &str, quarter: &str) -> Option<Vec<DrugSafetySignal>> {
-    let quarter = Text::new(quarter).ok()?;
+fn decode(body: &str, path: &str, quarter: &str) -> Result<Vec<DrugSafetySignal>, RequestError> {
+    let quarter = Text::new(quarter).map_err(|_| malformed())?;
     let url = if path.starts_with("https://") {
         Text::new(path)
     } else {
         Text::new(&format!("{}{path}", SPEC.base))
     }
-    .ok()?;
+    .map_err(|_| malformed())?;
     fda_html::rows(body, |[product, signal, info]| {
         product.to_ascii_lowercase().starts_with("product name")
             && signal.to_ascii_lowercase().contains("potential signal")
             && info
                 .to_ascii_lowercase()
                 .starts_with("additional information")
-    })?
+    })
+    .map_err(|_| malformed())?
     .into_iter()
     .map(|[product, signal, additional_information]| {
-        Some(DrugSafetySignal {
-            product: crate::native_text::admit(&product.text).ok()?,
-            signal: crate::native_text::admit(&signal.text).ok()?,
+        Ok(DrugSafetySignal {
+            product: crate::native_text::admit(&product.text).map_err(|_| malformed())?,
+            signal: crate::native_text::admit(&signal.text).map_err(|_| malformed())?,
             additional_information: additional_information.text.into(),
             quarter: quarter.clone(),
             url: url.clone(),

@@ -1,5 +1,6 @@
 //! Read visible cells from a fixed-column FDA HTML table.
 use crate::fda_dsc::html::{attribute, visible};
+use biomcp_fetch::BadReply;
 
 /// A cell's visible wording and markup for reading its links.
 #[derive(Debug, Clone)]
@@ -13,39 +14,38 @@ pub(crate) struct Cell<'a> {
 pub(crate) fn rows<const N: usize>(
     body: &str,
     accepts: impl Fn([&str; N]) -> bool,
-) -> Option<Vec<[Cell<'_>; N]>> {
+) -> Result<Vec<[Cell<'_>; N]>, BadReply> {
     for fragment in body.split("<table").skip(1) {
-        let (table, _) = fragment.split_once("</table>")?;
+        let (table, _) = fragment.split_once("</table>").ok_or(BadReply)?;
         let mut rows = table.split("<tr").skip(1);
-        let found = rows
-            .by_ref()
-            .filter_map(cells)
-            .filter_map(as_row::<N>)
-            .any(|head| accepts(head.each_ref().map(|cell| cell.text.as_str())));
+        let found = rows.by_ref().any(|row| {
+            cells(row)
+                .and_then(as_row::<N>)
+                .is_ok_and(|head| accepts(head.each_ref().map(|cell| cell.text.as_str())))
+        });
         if found {
             let mut carried: [Option<(usize, Cell<'_>)>; N] = std::array::from_fn(|_| None);
             let rows = rows
                 .map(|row| expanded(cells(row)?, &mut carried))
-                .collect::<Option<Vec<_>>>()?;
+                .collect::<Result<Vec<_>, BadReply>>()?;
             if carried.into_iter().all(|slot| slot.is_none()) {
-                return Some(
-                    rows.into_iter()
-                        .filter(|row| row.iter().any(|cell| !cell.text.is_empty()))
-                        .collect(),
-                );
+                return Ok(rows
+                    .into_iter()
+                    .filter(|row| row.iter().any(|cell| !cell.text.is_empty()))
+                    .collect());
             }
-            return None;
+            return Err(BadReply);
         }
     }
-    None
+    Err(BadReply)
 }
 
-fn as_row<const N: usize>(cells: Vec<Cell<'_>>) -> Option<[Cell<'_>; N]> {
-    cells.try_into().ok()
+fn as_row<const N: usize>(cells: Vec<Cell<'_>>) -> Result<[Cell<'_>; N], BadReply> {
+    cells.try_into().map_err(|_| BadReply)
 }
 
-fn cells(row: &str) -> Option<Vec<Cell<'_>>> {
-    let (row, _) = row.split_once("</tr>")?;
+fn cells(row: &str) -> Result<Vec<Cell<'_>>, BadReply> {
+    let (row, _) = row.split_once("</tr>").ok_or(BadReply)?;
     row.match_indices('<')
         .filter_map(|(at, _)| {
             let (tag, content) = row.get(at + 1..)?.split_once('>')?;
@@ -59,13 +59,16 @@ fn cells(row: &str) -> Option<Vec<Cell<'_>>> {
         .collect()
 }
 
-fn cell<'a>(tag: &str, content: &'a str, end: &str) -> Option<Cell<'a>> {
+fn cell<'a>(tag: &str, content: &'a str, end: &str) -> Result<Cell<'a>, BadReply> {
     if attribute(tag, "colspan").is_some_and(|width| width != "1") {
-        return None;
+        return Err(BadReply);
     }
-    let (html, _) = content.split_once(end)?;
-    let span = attribute(tag, "rowspan").unwrap_or("1").parse().ok()?;
-    Some(Cell {
+    let (html, _) = content.split_once(end).ok_or(BadReply)?;
+    let span = attribute(tag, "rowspan")
+        .unwrap_or("1")
+        .parse()
+        .map_err(|_| BadReply)?;
+    Ok(Cell {
         text: visible(html),
         html,
         span,
@@ -75,7 +78,7 @@ fn cell<'a>(tag: &str, content: &'a str, end: &str) -> Option<Cell<'a>> {
 fn expanded<'a, const N: usize>(
     cells: Vec<Cell<'a>>,
     carried: &mut [Option<(usize, Cell<'a>)>; N],
-) -> Option<[Cell<'a>; N]> {
+) -> Result<[Cell<'a>; N], BadReply> {
     let mut cells = cells.into_iter();
     let row = carried
         .iter_mut()
@@ -83,18 +86,18 @@ fn expanded<'a, const N: usize>(
             let (remaining, cell) = match slot.take() {
                 Some(previous) => previous,
                 None => {
-                    let cell = cells.next()?;
+                    let cell = cells.next().ok_or(BadReply)?;
                     (cell.span, cell)
                 }
             };
             if remaining > 1 {
                 *slot = Some((remaining - 1, cell.clone()));
             }
-            Some(cell)
+            Ok(cell)
         })
-        .collect::<Option<Vec<_>>>()?;
+        .collect::<Result<Vec<_>, BadReply>>()?;
     if cells.next().is_some() {
-        return None;
+        return Err(BadReply);
     }
     as_row(row)
 }
