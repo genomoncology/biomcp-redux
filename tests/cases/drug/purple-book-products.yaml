@@ -36,6 +36,14 @@
         "/result/items/1/approval_dates": ["April 25, 2019", "May 3, 2024"],
         "/result/items/1/interchangeability_date_unreported": 1
       }
+    },
+    {
+      "run": ["search", "drug", "denosumab", "--source", "purple-book", "--offline"],
+      "expect": {
+        "/page/total": 12,
+        "/page/returned": 12,
+        "/next/*/kind": ["section"]
+      }
     }
   ]
 }
