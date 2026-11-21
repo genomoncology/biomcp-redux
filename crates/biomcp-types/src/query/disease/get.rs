@@ -33,7 +33,10 @@ pub(super) struct GetFields<I = Text> {
         deserialize_with = "present",
         skip_serializing_if = "Option::is_none"
     )]
-    #[cfg_attr(feature = "schema", schemars(with = "DiseaseSource"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "crate::query::command_source::SharedSource<DiseaseSource>")
+    )]
     pub(super) source: Option<DiseaseSource>,
     /// OLS ontology. Defaults to the ID’s ontology or MONDO.
     #[serde(

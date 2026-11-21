@@ -303,8 +303,22 @@
       ]
     },
     "source": {
-      "$ref": "#/$defs/DrugSource",
-      "description": "Omit to infer the source from the section. Identity and mixed; help get drug\nOmit to infer the source from the section. Identity and mixed sections default to MyChem."
+      "description": "Omit to infer the source from the section. Identity and mixed; help get drug\nOmit to infer the source from the section. Identity and mixed sections default to MyChem.",
+      "enum": [
+        "who-pq",
+        "fda-drug-recall",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "civic",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "ddinter",
+        "who-eml",
+        "fda-dsc"
+      ],
+      "type": "string"
     }
   },
   "required": [
