@@ -1,6 +1,7 @@
 //! Retry a drug get or DDInter partner lookup using source-stated names.
 use super::{
     alias_lookup::{Stated, usable, with_aliases},
+    label_fallback::LabelFallback,
     name_evidence::{Evidence, recovery},
 };
 use crate::drug::resolve::{lookup_deadline, within};
@@ -36,18 +37,17 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
         return outcomes;
     }
     let input = query.input();
+    let mut label = LabelFallback::default();
     let (found, stated, evidence) = with_aliases(
         &within(cx, deadline.remaining()),
         input,
         query.source(),
         |stated, name, evidence| {
-            retry_name(
-                &within(cx, deadline.remaining()),
-                queries,
-                stated,
-                name,
-                evidence,
-            )
+            let cx = &within(cx, deadline.remaining());
+            if query.source() == DrugSource::OpenfdaLabel {
+                return label.read(cx, queries, stated, name, evidence);
+            }
+            retry_name(cx, queries, stated, name, evidence)
         },
     );
     let lookup_failed = evidence.lookup_failed();
@@ -83,6 +83,7 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
                 recovery(&mut part, Request::GetDrug(query.clone()));
             } else if let Some(stated) = &stated {
                 hint(&mut part, stated, input, query.source(), cx.fresh);
+                label.offer_candidate(&mut part, input, cx.fresh);
                 status::item(&mut part, false, false, false);
             }
             part
@@ -90,7 +91,7 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
         .collect()
 }
 
-fn retry_name(
+pub(super) fn retry_name(
     cx: &Ctx<'_>,
     queries: &[DrugGet],
     stated: &Stated,
@@ -110,15 +111,7 @@ fn retry_name(
         })
         .collect::<Option<Vec<_>>>()?;
     let mut found = resolve::get_parts(cx, &retries);
-    let first = found.first()?;
-    if matches!(first.body, ReplyData::Usage(_))
-        || found
-            .iter()
-            .all(|part| matches!(part.status(), Status::Absent | Status::Failed))
-    {
-        for part in &found {
-            evidence.observe(part, query.source(), false);
-        }
+    if !answered_alias(&found, query.source(), evidence) {
         return None;
     }
     for found in &mut found {
@@ -137,6 +130,25 @@ fn retry_name(
         );
     }
     Some(found)
+}
+
+pub(super) fn answered_alias(
+    found: &[Outcome],
+    source: DrugSource,
+    evidence: &mut Evidence,
+) -> bool {
+    let answered = found
+        .first()
+        .is_some_and(|part| !matches!(part.body, ReplyData::Usage(_)))
+        && found
+            .iter()
+            .any(|part| !matches!(part.status(), Status::Absent | Status::Failed));
+    if !answered {
+        for part in found {
+            evidence.observe(part, source, false);
+        }
+    }
+    answered
 }
 
 /// Retry a DDInter partner DDInter does not name under each exact name another source states

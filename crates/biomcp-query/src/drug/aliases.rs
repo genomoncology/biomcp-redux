@@ -2,6 +2,7 @@
 #[path = "alias_lookup.rs"]
 mod alias_lookup;
 pub(super) use alias_lookup::names;
+mod label_fallback;
 #[path = "name_evidence.rs"]
 pub(super) mod name_evidence;
 mod named_get;

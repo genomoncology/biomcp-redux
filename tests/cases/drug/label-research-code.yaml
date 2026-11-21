@@ -1,0 +1,40 @@
+{
+  "feature": "drug-name-get",
+  "story": "A source-stated research code reads the resolved drug\u2019s label when the fetched SPL carries one of that drug\u2019s FDA applications.",
+  "verified": "Synthetic MyChem research-code evidence and a reduced Drugs@FDA application response. Label text and set ID are synthetic.",
+  "live_check": "Local replay only.",
+  "replay": "drug/name-lookup-recovery",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "STI-571",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "boxed_warning"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "STI-571",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "boxed_warning"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "11111111-1111-1111-1111-111111111111",
+        "/result/identity/application_numbers/0": "NDA021335",
+        "/result/label/data/text": "Synthetic boxed warning.",
+        "/sources/0/notices/*/message": {
+          "includes": "The source did not resolve \"STI-571\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-N supplies the name \"imatinib\"; tried resolving that name in the selected source. Only that source can supply its own record."
+        }
+      }
+    }
+  ]
+}

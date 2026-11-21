@@ -13,6 +13,8 @@ pub struct ChemblRecord {
     pub preferred: Vec<String>,
     /// The synonyms ChEMBL types as official.
     pub official: Vec<String>,
+    /// Whether ChEMBL explicitly types the requested name as a research code.
+    pub research_code: bool,
 }
 /// The ChEMBL molecules stating one name, with the native window they came from.
 #[derive(Debug)]
@@ -141,6 +143,10 @@ fn chembl_records(
                 names,
                 preferred: c.pref_name.clone().into_iter().collect(),
                 official: super::names::official(c),
+                research_code: c.molecule_synonyms.iter().flatten().any(|synonym| {
+                    synonym.syn_type.as_deref() == Some("RESEARCH_CODE")
+                        && synonym.molecule_synonym.as_deref().is_some_and(exact)
+                }),
             });
         }
     }

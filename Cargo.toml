@@ -42,6 +42,7 @@ biomcp-adapters = { version = "=1.0.0", path = "crates/biomcp-adapters" }
 biomcp-fetch = { version = "=1.0.0", path = "crates/biomcp-fetch" }
 biomcp-query = { version = "=1.0.0", path = "crates/biomcp-query" }
 biomcp-types = { version = "=1.0.0", path = "crates/biomcp-types" }
+caseless = "=0.2.2"
 shlex = "=2.0.1"
 url = "2.5.8"
 # Keep publisher hosts ASCII-only without ICU Unicode normalization.
