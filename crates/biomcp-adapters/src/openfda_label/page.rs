@@ -5,6 +5,7 @@ use biomcp_types::{DrugLabelFragment, DrugLabelText};
 /// Fragments keep a fixed size so offsets mean the same text whatever the reply budget.
 const FRAGMENT_BYTES: usize = 6144;
 /// One selected subsection or why the source text could not identify it.
+#[derive(Debug)]
 pub enum SubsectionPage {
     /// One complete heading, paged within its subtree.
     Data(DrugLabelText),
@@ -112,7 +113,10 @@ impl super::Record {
             titles.extend(others);
             return Ok(SubsectionPage::Ambiguous(titles));
         }
-        let end = headings[index + 1..].iter().find(|h| !heading.contains(h));
+        let end = headings
+            .iter()
+            .skip(index + 1)
+            .find(|h| !heading.contains(h));
         let slice = parts
             .iter()
             .enumerate()
@@ -123,13 +127,14 @@ impl super::Record {
                 let stop = end
                     .filter(|end| index == end.part)
                     .map_or(part.len(), |end| end.at);
-                let text = &part[start..stop];
+                let (preceding, from_start) = part.split_at(start);
+                let (text, _) = from_start.split_at(stop - start);
                 let last = end.map_or(parts.len() - 1, |end| end.part);
                 if index == last {
                     let text = text.trim_end();
-                    (!text.is_empty()).then(|| (index, part[..start].chars().count(), text))
+                    (!text.is_empty()).then(|| (index, preceding.chars().count(), text))
                 } else {
-                    Some((index, part[..start].chars().count(), text))
+                    Some((index, preceding.chars().count(), text))
                 }
             });
         self.0

@@ -47,14 +47,13 @@ pub(super) fn headings(parts: &[String]) -> Vec<Heading<'_>> {
 }
 
 fn heading_at(part: usize, text: &str, at: usize) -> Option<Heading<'_>> {
-    let before = &text[..at];
+    let (before, rest) = text.split_at(at);
     let boundary = before.trim_end_matches(|c: char| c.is_whitespace() && c != '\n' && c != '\r');
     if !boundary.is_empty() && !boundary.ends_with(['\n', '\r', '.', ')', ']']) {
         return None;
     }
-    let rest = &text[at..];
     let end = rest.find(char::is_whitespace)?;
-    let number = &rest[..end];
+    let (number, rest) = rest.split_at(end);
     if !number.contains('.')
         || !number
             .split('.')
@@ -62,7 +61,7 @@ fn heading_at(part: usize, text: &str, at: usize) -> Option<Heading<'_>> {
     {
         return None;
     }
-    let title = title(rest[end..].trim_start())?;
+    let title = title(rest.trim_start())?;
     Some(Heading {
         part,
         at,
@@ -78,7 +77,8 @@ fn title(text: &str) -> Option<&str> {
     let mut rest = line;
     let mut end = 0;
     while let Some(word) = rest.split_whitespace().next() {
-        rest = &rest.trim_start()[word.len()..];
+        let (_, after) = rest.trim_start().split_at(word.len());
+        rest = after;
         if !word.starts_with(char::is_uppercase) {
             if end > 0 && connector(word) {
                 continue;
@@ -94,7 +94,7 @@ fn title(text: &str) -> Option<&str> {
         }
         end = line.len() - rest.len();
     }
-    (end > 0).then_some(&line[..end])
+    line.get(..end).filter(|title| !title.is_empty())
 }
 
 fn connector(word: &str) -> bool {
