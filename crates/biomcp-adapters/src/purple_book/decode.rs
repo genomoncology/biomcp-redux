@@ -62,6 +62,9 @@ impl ReleaseMonth {
     pub(super) fn label(&self) -> Box<str> {
         format!("{} {}", self.name, self.year).into()
     }
+    pub(super) fn age_in_months(&self, (year, month): (i64, i64)) -> i64 {
+        ((year - i64::from(self.year)) * 12 + month - self.month as i64).max(0)
+    }
 }
 
 #[derive(Debug, Deserialize)]
