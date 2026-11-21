@@ -85,7 +85,9 @@ impl crate::Paged for $name {
 }
 relation!(PathwayGenesQuery, GeneFields, "GeneFields", valid_genes,
     "Read Reactome references or WikiPathways GeneProduct nodes. Reactome gives its database release and counts distinct HGNC genes and \
-        unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.", details: None, gene_products: false);
+        unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.",
+    details: None, gene_products: false
+);
 relation!(
     PathwayEventsQuery,
     EventFields,
