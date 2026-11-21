@@ -32,7 +32,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 
 /// The synthetic publisher bodies from one replay folder, by URL path.
-fn bodies(capture: &str) -> Result<Vec<(String, String)>, String> {
+pub(super) fn bodies(capture: &str) -> Result<Vec<(String, String)>, String> {
     let folder = super::launch::fixtures().join("replies").join(capture);
     let mut found = Vec::new();
     for file in fs::read_dir(folder).map_err(|e| e.to_string())? {
@@ -47,11 +47,9 @@ fn bodies(capture: &str) -> Result<Vec<(String, String)>, String> {
             .pointer("/exchanges/0/body/value")
             .and_then(Value::as_str)
             .ok_or("capture body")?;
-        let path = url
-            .split_once(".com")
-            .or_else(|| url.split_once(".gov"))
-            .ok_or("capture host")?;
-        found.push((path.1.to_owned(), body.to_owned()));
+        let (_, host_and_path) = url.split_once("://").ok_or("capture URL scheme")?;
+        let start = host_and_path.find('/').ok_or("capture URL path")?;
+        found.push((host_and_path[start..].to_owned(), body.to_owned()));
     }
     Ok(found)
 }
@@ -79,7 +77,7 @@ fn live(host: &'static str, capture: &str, extra: Value) -> Result<(Environment,
     configured(stub, extra)
 }
 
-fn configured(stub: Stub, extra: Value) -> Result<(Environment, Stub), String> {
+pub(super) fn configured(stub: Stub, extra: Value) -> Result<(Environment, Stub), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     stub.retain(env.shared_root());
     let ca = env.root().join("ca.pem");
