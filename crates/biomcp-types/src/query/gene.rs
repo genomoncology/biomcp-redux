@@ -85,13 +85,12 @@ impl GeneGet {
         &self.0.input
     }
 }
-biodata::canonical_enum! {
+biodata::wire_enum! {
+    described
     /// gnomAD releases with supported constraint tables.
-    ConstraintRelease, ConstraintReleaseUnknown {
-        /// Version 4.0 table.
-        V4_0 => "v4.0",
-        /// Version 4.1 table.
-        V4_1 => "v4.1",
+    ConstraintRelease {
+        #[doc = " Version 4.0 table."] V4_0 => "v4.0",
+        #[doc = " Version 4.1 table."] V4_1 => "v4.1"
     }
 }
 /// Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
