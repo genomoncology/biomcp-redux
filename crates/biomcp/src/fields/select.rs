@@ -1,7 +1,8 @@
 //! Check chosen fields against a call's rows, narrow its finished reply, and say so in help.
 use super::{
     narrow,
-    rows::{self, Call, List, Row},
+    rows::{Call, List, Row},
+    sections,
 };
 use biomcp_query::Action;
 use biomcp_types::{ErrorMessage, Request, Source, Step, StepKind, UsageArguments, UsageError};
@@ -23,7 +24,7 @@ fn call_lists(call: &Call) -> Vec<List> {
     crate::schema::replies(id, &call.verb, &call.entity)
         .iter()
         .filter_map(|reply| schema(reply))
-        .flat_map(|schema| rows::lists(&schema, call))
+        .flat_map(|schema| sections::lists(&schema, call))
         .collect()
 }
 
@@ -38,7 +39,7 @@ fn union(lists: Vec<List>) -> Row {
 /// The rows of one reply schema's `result.items`, for a search or subcommand.
 fn reply_row(id: &str) -> Option<Row> {
     let call = Call::default();
-    let lists = rows::lists(&schema(id)?, &call);
+    let lists = sections::lists(&schema(id)?, &call);
     (!lists.is_empty()).then(|| union(lists))
 }
 
@@ -94,7 +95,9 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     if row.names.is_empty() {
         return Err(UsageError::Arguments(UsageArguments {
             argument: Some("--fields".into()),
-            message: Some(ErrorMessage::FieldsRowsOnly),
+            message: Some(
+                super::section_rows::refusal(request).unwrap_or(ErrorMessage::FieldsRowsOnly),
+            ),
             next: vec![help_step(path)],
             ..Default::default()
         }));
@@ -342,7 +345,7 @@ pub(crate) fn project(value: &mut Value, chosen: &Chosen) -> io::Result<()> {
     let Some(schema) = value.get("schema").and_then(Value::as_str).and_then(schema) else {
         return Ok(());
     };
-    for list in rows::lists(&schema, &chosen.call) {
+    for list in sections::lists(&schema, &chosen.call) {
         narrow::list(value, &list, &chosen.names);
     }
     Ok(())
@@ -356,7 +359,7 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
     if verb == "get" {
         let call = Call::of(verb, entity, sections);
         return (!call_lists(&call).is_empty()).then(|| {
-            "--fields a,b keeps only those columns of a named section's rows; a.b names a value inside one."
+            "--fields a,b selects columns of a named section; a.b selects a nested value."
                 .to_owned()
         });
     }
@@ -412,7 +415,11 @@ pub(crate) fn carried(kind: StepKind, action: &Action, fields: &[String]) -> Vec
         Action::Run { request, .. }
             if matches!(
                 kind,
-                StepKind::Page | StepKind::Sort | StepKind::Restart | StepKind::Fresh
+                StepKind::Page
+                    | StepKind::Section
+                    | StepKind::Sort
+                    | StepKind::Restart
+                    | StepKind::Fresh
             ) =>
         {
             known(request, fields)

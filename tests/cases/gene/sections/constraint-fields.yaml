@@ -22,6 +22,51 @@
           "version": "v4"
         }
       }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "clinvar",
+        "--fields=description"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--fields",
+        "/error/message": "ClinVar gene counts require every count and its scope; drop --fields to read them."
+      }
+    },
+    {
+      "run": [
+        "get",
+        "cell-line",
+        "CVCL_0030",
+        "names",
+        "--fields=description"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--fields",
+        "/error/message": "Cell-line names require both the name and its kind; drop --fields to read them."
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "R-HSA-5673001",
+        "summary",
+        "--fields=description"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--fields",
+        "/error/message": "Pathway summary is source text, with no row columns; drop --fields to read it."
+      }
     }
   ]
 }

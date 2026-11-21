@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 
 /// How deep a dotted path may reach inside a row, and how far a schema walk may go.
 const PATH_DEPTH: usize = 4;
-const WALK_DEPTH: usize = 24;
+pub(super) const WALK_DEPTH: usize = 24;
 
 /// One step from the reply root towards a row list.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -89,7 +89,7 @@ impl Call {
     }
 }
 
-fn key(word: &str) -> String {
+pub(super) fn key(word: &str) -> String {
     word.to_ascii_lowercase().replace('-', "_")
 }
 
@@ -119,21 +119,21 @@ fn branches<'a>(node: &'a Value, root: &'a Value, out: &mut Vec<&'a Value>, dept
     }
 }
 
-fn variants<'a>(node: &'a Value, root: &'a Value) -> Vec<&'a Value> {
+pub(super) fn variants<'a>(node: &'a Value, root: &'a Value) -> Vec<&'a Value> {
     let mut out = Vec::new();
     branches(node, root, &mut out, 0);
     out
 }
 
 /// The item schema of a list property, through nullable or variant wrappers.
-fn list_items<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
+pub(super) fn list_items<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
     variants(node, root)
         .into_iter()
         .find_map(|branch| branch.get("items").filter(|items| items.is_object()))
 }
 
 /// Whether an item schema describes objects.
-fn objects(node: &Value, root: &Value) -> bool {
+pub(super) fn objects(node: &Value, root: &Value) -> bool {
     variants(node, root)
         .iter()
         .any(|branch| branch.get("properties").is_some_and(Value::is_object))
@@ -188,14 +188,14 @@ fn collect(node: &Value, root: &Value, row: &mut Row, prefix: &str, level: usize
     }
 }
 
-fn row_of(items: &Value, root: &Value) -> Row {
+pub(super) fn row_of(items: &Value, root: &Value) -> Row {
     let mut row = Row::default();
     collect(items, root, &mut row, "", 1);
     row
 }
 
 /// The `result.items` rows of a reply schema, across its result variants.
-fn items(schema: &Value) -> Vec<List> {
+pub(super) fn items(schema: &Value) -> Vec<List> {
     let Some(result) = schema.pointer("/properties/result") else {
         return Vec::new();
     };
@@ -221,149 +221,4 @@ fn items(schema: &Value) -> Vec<List> {
     } else {
         Vec::new()
     }
-}
-
-/// Every section under the result, by its path and its key.
-/// Every section under a node, by its path; a type already on the walk is not entered again.
-struct Walk<'a> {
-    root: &'a Value,
-    found: Vec<(Vec<Step>, &'a Value)>,
-    entered: Vec<&'a str>,
-}
-
-impl<'a> Walk<'a> {
-    fn sections(&mut self, node: &'a Value, at: &[Step]) {
-        let reference = node.get("$ref").and_then(Value::as_str);
-        if reference.is_some_and(|reference| reference.starts_with("#/$defs/Reply_Section_")) {
-            self.found.push((at.to_vec(), resolve(node, self.root)));
-            return;
-        }
-        if self.entered.len() >= WALK_DEPTH
-            || reference.is_some_and(|reference| self.entered.contains(&reference))
-        {
-            return;
-        }
-        if let Some(reference) = reference {
-            self.entered.push(reference);
-        }
-        self.inside(resolve(node, self.root), at);
-        if reference.is_some() {
-            self.entered.pop();
-        }
-    }
-
-    fn inside(&mut self, node: &'a Value, at: &[Step]) {
-        for key in ["anyOf", "oneOf", "allOf"] {
-            for branch in node
-                .get(key)
-                .and_then(Value::as_array)
-                .into_iter()
-                .flatten()
-            {
-                self.sections(branch, at);
-            }
-        }
-        if let Some(items) = node.get("items").filter(|items| items.is_object()) {
-            self.sections(items, &[at, &[Step::Each]].concat());
-        }
-        for (name, property) in node
-            .get("properties")
-            .and_then(Value::as_object)
-            .into_iter()
-            .flatten()
-        {
-            self.sections(property, &[at, &[Step::Key(name.clone())]].concat());
-        }
-    }
-}
-
-/// The row lists inside one section's data: the data itself when it is a list of objects,
-/// or each of its own lists of objects.
-fn section_lists(section: &Value, root: &Value, at: &[Step]) -> Vec<List> {
-    let mut lists = Vec::new();
-    let data = variants(section, root)
-        .into_iter()
-        .filter_map(|branch| branch.pointer("/properties/data"))
-        .collect::<Vec<_>>();
-    for data in data {
-        let at = [at, &[Step::Key("data".into())]].concat();
-        if let Some(item) = list_items(data, root).filter(|item| objects(item, root)) {
-            lists.push(List {
-                at: [at.as_slice(), &[Step::Each]].concat(),
-                row: row_of(item, root),
-            });
-            continue;
-        }
-        for branch in variants(data, root) {
-            for (name, property) in branch
-                .get("properties")
-                .and_then(Value::as_object)
-                .into_iter()
-                .flatten()
-            {
-                if let Some(item) = list_items(property, root).filter(|item| objects(item, root)) {
-                    lists.push(List {
-                        at: [at.as_slice(), &[Step::Key(name.clone()), Step::Each]].concat(),
-                        row: row_of(item, root),
-                    });
-                }
-            }
-        }
-    }
-    lists
-}
-
-/// The schema's name without its namespace and version, such as `drug-approvals`.
-fn stem(schema: &Value) -> &str {
-    let id = schema
-        .get("$id")
-        .and_then(Value::as_str)
-        .unwrap_or_default();
-    let id = id.split('/').next().unwrap_or_default();
-    id.split_once('.').map_or(id, |(_, stem)| stem)
-}
-
-/// The row lists of one reply schema that a call reaches: a get's named sections, the
-/// section a reply of its own serves, or the rows of a search or subcommand.
-pub(super) fn lists(schema: &Value, call: &Call) -> Vec<List> {
-    if call.verb != "get" {
-        return items(schema);
-    }
-    if call.words.is_empty() {
-        return Vec::new();
-    }
-    let mut walk = Walk {
-        root: schema,
-        found: Vec::new(),
-        entered: Vec::new(),
-    };
-    if let Some(result) = schema.pointer("/properties/result") {
-        walk.sections(result, &[Step::Key("result".into())]);
-    }
-    let found = walk.found;
-    let named = |at: &[Step]| {
-        matches!(at.last(), Some(Step::Key(name))
-            if call.words.iter().any(|word| *word == key(name) || word == "all"))
-    };
-    let chosen = found.iter().filter(|(at, _)| named(at)).collect::<Vec<_>>();
-    let own = call
-        .words
-        .iter()
-        .any(|word| stem(schema) == format!("{}_{word}", key(&call.entity)).replace('_', "-"));
-    let chosen = if chosen.is_empty() && own {
-        found.iter().collect()
-    } else {
-        chosen
-    };
-    if chosen.is_empty() {
-        return if own && found.is_empty() {
-            items(schema)
-        } else {
-            Vec::new()
-        };
-    }
-    chosen
-        .into_iter()
-        .flat_map(|(at, section)| section_lists(section, schema, at))
-        .collect()
 }

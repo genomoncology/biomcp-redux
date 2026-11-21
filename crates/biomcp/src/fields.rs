@@ -6,6 +6,8 @@
 //! card stay whole, so a narrowed reply validates against the same schema.
 mod narrow;
 mod rows;
+mod section_rows;
+mod sections;
 mod select;
 
 pub(crate) use select::{Chosen, carried, carry_to_correction, check, help_line, project};

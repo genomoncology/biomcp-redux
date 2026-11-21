@@ -270,30 +270,40 @@ fn alone(args: &[String], word: &str) -> Vec<String> {
 /// alone must not narrow a section that lacks the path).
 fn split(probe: &Probe, args: &[String], whole: &Value, code: Option<i32>) -> Result<bool, String> {
     let words = section_words(args);
+    let mut checked = false;
     for word in &words {
+        let alone_args = alone(args, word);
         let mut candidates = paths(whole, word);
-        candidates.extend(probe.names(&alone(args, word))?);
-        for name in candidates.iter().take(TRIES * 2) {
-            let mut others = Vec::new();
+        candidates.extend(probe.names(&alone_args)?.into_iter().take(TRIES));
+        for name in &candidates {
+            if checked && !name.contains('.') {
+                continue;
+            }
+            let (alone_code, _) = probe.run(Some(name), &alone_args)?;
+            if alone_code != Some(0) {
+                continue;
+            }
+            let mut shared = false;
             for other in words.iter().filter(|other| *other != word) {
                 let (other_code, _) = probe.run(Some(name), &alone(args, other))?;
-                others.push(other_code != Some(0));
+                shared |= other_code == Some(0);
             }
-            if others.iter().all(|refused| *refused) {
-                let narrow = narrowed(probe, args, name, code, whole)?;
-                for other in words.iter().filter(|other| *other != word) {
-                    let key = other.replace('-', "_");
-                    if under(whole, &key) != under(&narrow, &key) {
-                        return Err(format!(
-                            "--fields {name} changed section {other}, which lacks it"
-                        ));
-                    }
+            if shared {
+                continue;
+            }
+            let narrow = narrowed(probe, args, name, code, whole)?;
+            for other in words.iter().filter(|other| *other != word) {
+                let key = other.replace('-', "_");
+                if under(whole, &key) != under(&narrow, &key) {
+                    return Err(format!(
+                        "--fields {name} changed section {other}, which lacks it"
+                    ));
                 }
-                return Ok(true);
             }
+            checked = true;
         }
     }
-    Ok(false)
+    Ok(checked)
 }
 
 /// Dotted paths into the objects of the first row under a section key.
