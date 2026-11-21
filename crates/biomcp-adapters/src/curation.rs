@@ -13,6 +13,10 @@ pub struct CurationMatches {
 }
 
 pub(crate) fn index(keys: &mut Keys, id: Option<&str>, name: Option<&str>) {
+    // Keep the existing bundle admission rule for rows without a usable gene key.
+    if keys.exact.is_empty() {
+        return;
+    }
     keys.exact.extend(
         [("id", id), ("name", name)]
             .into_iter()
