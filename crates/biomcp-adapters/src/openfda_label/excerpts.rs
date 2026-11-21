@@ -1,12 +1,15 @@
 //! Literal matches in original label text, before full-section pagination splits it.
-use super::Record;
+use super::{
+    Record,
+    excerpt_text::{around, fold, match_end},
+};
 use crate::xml_element::{Element, body_nodes, descendants};
 use biodata::Text;
 use biomcp_fetch::{BadReply, RequestError};
 use biomcp_types::{DrugLabelExcerpt, DrugLabelMatches, DrugLabelText, Source};
+use std::ops::Range;
 
 const EXCERPTS: usize = 2;
-const EXCERPT_CHARS: usize = 300;
 const HEADER_CHARS: usize = 200;
 
 impl Record {
@@ -38,62 +41,101 @@ impl Record {
 }
 
 fn excerpts(parts: &[String], terms: &[Text], table: bool) -> Result<DrugLabelMatches, BadReply> {
+    let mut terms = terms
+        .iter()
+        .map(|term| {
+            fold(term.as_str(), &[])
+                .map(|(ch, _)| ch)
+                .collect::<String>()
+        })
+        .filter(|term| !term.is_empty())
+        .collect::<Vec<_>>();
+    // Terms with the same folded spelling describe the same occurrence.
+    terms.sort_unstable();
+    terms.dedup();
     let mut search = Search {
-        terms: terms.iter().map(|term| fold(term.as_str())).collect(),
+        terms: terms
+            .into_iter()
+            .map(|term| {
+                let characters = term.chars().count();
+                (term, characters)
+            })
+            .collect(),
         excerpts: Vec::new(),
+        total: 0,
         truncated: false,
     };
-    for part in parts {
-        if table && part.trim_start().starts_with("<table") {
-            for table in descendants(part, "table")? {
-                search.table(table)?;
+    let structured = |part: &str| table && part.trim_start().starts_with("<table");
+    for group in parts.chunk_by(|a, b| !structured(a) && !structured(b)) {
+        match group {
+            [part] if structured(part) => {
+                for table in descendants(part, "table")? {
+                    search.table(table)?;
+                }
             }
-        } else {
-            for paragraph in part.replace("\r\n", "\n").split("\n\n") {
-                search.add(paragraph, None, None);
-            }
+            [part] => search.add(part, &[], None, None),
+            // A native fragment is a continuation of the same section text.
+            parts => search.add(&parts.concat(), &[], None, None),
         }
     }
     Ok(DrugLabelMatches {
-        matched: !search.excerpts.is_empty(),
+        matched: search.total != 0,
+        total_matches: Some(search.total),
         excerpts: search.excerpts.into(),
         truncated: search.truncated,
     })
 }
 
 struct Search {
-    terms: Vec<String>,
+    terms: Vec<(String, usize)>,
     excerpts: Vec<DrugLabelExcerpt>,
+    total: u64,
     truncated: bool,
 }
 
 impl Search {
-    fn add(&mut self, text: &str, header: Option<&str>, caption: Option<&str>) {
-        if self.truncated {
-            return;
+    fn add(&mut self, text: &str, pipes: &[usize], header: Option<&str>, caption: Option<&str>) {
+        let mut origins = fold(text, pipes);
+        let folded = origins.clone().map(|(ch, _)| ch).collect::<String>();
+        let mut windows: Vec<Range<usize>> = Vec::new();
+        let mut last_start = None;
+        for (at, _) in folded.char_indices() {
+            let Some((_, span)) = origins.next() else {
+                break;
+            };
+            if last_start.replace(span.start) == Some(span.start) {
+                continue;
+            }
+            let Some(tail) = folded.get(at..) else {
+                continue;
+            };
+            for (term, length) in &self.terms {
+                if !tail.starts_with(term) {
+                    continue;
+                }
+                let Some(end) = match_end(origins.clone(), span.end, *length) else {
+                    continue;
+                };
+                self.total += 1;
+                if windows
+                    .iter()
+                    .any(|window| window.start <= span.start && end <= window.end)
+                {
+                    continue;
+                }
+                if self.excerpts.len() == EXCERPTS {
+                    self.truncated = true;
+                    continue;
+                }
+                let (window, excerpt) = around(text, span.start..end);
+                windows.push(window);
+                self.excerpts.push(DrugLabelExcerpt {
+                    text: excerpt,
+                    table_header: header.map(context),
+                    table_caption: caption.map(context),
+                });
+            }
         }
-        let text = words(text);
-        if text.is_empty() {
-            return;
-        }
-        let folded = text.to_ascii_lowercase();
-        let Some((start, size)) = self
-            .terms
-            .iter()
-            .filter_map(|term| folded.find(term).map(|at| (at, term.chars().count())))
-            .min()
-        else {
-            return;
-        };
-        if self.excerpts.len() == EXCERPTS {
-            self.truncated = true;
-            return;
-        }
-        self.excerpts.push(DrugLabelExcerpt {
-            text: around(&text, start, size),
-            table_header: header.map(context),
-            table_caption: caption.map(context),
-        });
     }
 
     fn table(&mut self, table: Element<'_>) -> Result<(), BadReply> {
@@ -104,7 +146,7 @@ impl Search {
             match kind.as_str() {
                 "thead" => {
                     for row in element.children("tr")? {
-                        header.push(cells(row)?.0);
+                        header.push(cells(row)?);
                     }
                 }
                 "tbody" | "tfoot" => rows.extend(element.children("tr")?),
@@ -113,47 +155,65 @@ impl Search {
             }
         }
         if let Some(caption) = caption.as_deref() {
-            self.add(caption, None, None);
+            self.add(caption, &[], None, None);
         }
-        let mut data_started = false;
-        for row in rows {
-            let (text, only_headers) = cells(row)?;
-            if !data_started && only_headers {
-                header.push(text);
-                continue;
-            }
-            data_started = true;
-            let headings = header.join("\n");
-            self.add(&text, nonblank(&headings), caption.as_deref());
+        let rows = rows.into_iter().map(cells).collect::<Result<Vec<_>, _>>()?;
+        let lead = rows.iter().take_while(|row| row.only_headers).count();
+        let (leading_headers, data) = rows.split_at(lead);
+        header.extend_from_slice(leading_headers);
+        let headings = header
+            .iter()
+            .map(|row| row.text.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+        for row in data {
+            self.add(
+                &row.text,
+                &row.pipes,
+                nonblank(&headings),
+                caption.as_deref(),
+            );
         }
-        let headings = header.join("\n");
-        self.add(&headings, None, caption.as_deref());
+        for row in header {
+            self.add(&row.text, &row.pipes, None, caption.as_deref());
+        }
         Ok(())
     }
 }
 
-fn cells(row: Element<'_>) -> Result<(String, bool), BadReply> {
-    let mut cells = Vec::new();
+#[derive(Clone)]
+struct Row {
+    text: String,
+    pipes: Vec<usize>,
+    only_headers: bool,
+}
+
+fn cells(row: Element<'_>) -> Result<Row, BadReply> {
+    let mut text = String::new();
+    let mut pipes = Vec::new();
     let mut only_headers = true;
+    let mut first = true;
     for (kind, cell) in body_nodes(row.0)? {
         if matches!(kind.as_str(), "td" | "th") {
             only_headers &= kind == "th";
-            cells.push(cell.text()?);
+            if !first {
+                text.push(' ');
+                pipes.push(text.len());
+                text.push_str("| ");
+            }
+            first = false;
+            text.push_str(&cell.text()?);
         }
     }
-    Ok((cells.join(" | "), only_headers && !cells.is_empty()))
+    Ok(Row {
+        text,
+        pipes,
+        only_headers: only_headers && !first,
+    })
 }
 
 fn nonblank(value: &str) -> Option<&str> {
     (!value.trim().is_empty()).then_some(value)
-}
-
-fn words(text: &str) -> String {
-    text.split_whitespace().collect::<Vec<_>>().join(" ")
-}
-
-fn fold(text: &str) -> String {
-    words(text).to_ascii_lowercase()
 }
 
 fn context(text: &str) -> Box<str> {
@@ -163,14 +223,4 @@ fn context(text: &str) -> Box<str> {
     } else {
         clipped.into()
     }
-}
-
-fn around(text: &str, start: usize, matched: usize) -> Box<str> {
-    let prefix = text.get(..start).map_or(0, |prefix| prefix.chars().count());
-    let skip = prefix.saturating_sub(EXCERPT_CHARS.saturating_sub(matched) / 2);
-    let mut chars = text.chars().skip(skip);
-    let excerpt = chars.by_ref().take(EXCERPT_CHARS).collect::<String>();
-    let before = if skip > 0 { "…" } else { "" };
-    let after = if chars.next().is_some() { "…" } else { "" };
-    format!("{before}{excerpt}{after}").into()
 }

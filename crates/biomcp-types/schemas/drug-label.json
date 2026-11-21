@@ -627,8 +627,17 @@
           "description": "Whether this readable section contains at least one of the requested phrases.",
           "type": "boolean"
         },
+        "total_matches": {
+          "description": "Distinct occurrences of the requested phrases in the readable section.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "truncated": {
-          "description": "The section had more matching paragraphs or rows than this reply carries.",
+          "description": "Some occurrences are outside the excerpts shown.",
           "type": "boolean"
         }
       },

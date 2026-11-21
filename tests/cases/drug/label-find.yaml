@@ -75,6 +75,7 @@
         },
         "/result/parts/1/reply/result/label/data/search/excerpts/0/table_caption": "Study outcomes",
         "/result/parts/2/reply/result/label/data/search/matched": false,
+        "/result/parts/2/reply/result/label/data/search/total_matches": 0,
         "/result/parts/2/reply/result/label/data/search": {
           "omits": [
             "excerpts"
@@ -122,6 +123,7 @@
         },
         "/result/parts/1/reply/result/label/data/search/excerpts/0/table_caption": "Study outcomes",
         "/result/parts/2/reply/result/label/data/search/matched": false,
+        "/result/parts/2/reply/result/label/data/search/total_matches": 0,
         "/result/parts/2/reply/result/label/data/search": {
           "omits": [
             "excerpts"

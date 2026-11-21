@@ -81,10 +81,13 @@ pub(super) fn batch(
 pub struct DrugLabelMatches {
     /// Whether this readable section contains at least one of the requested phrases.
     pub matched: bool,
+    /// Distinct occurrences of the requested phrases in the readable section.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub total_matches: Option<u64>,
     /// Matching paragraphs or table rows.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub excerpts: Box<[DrugLabelExcerpt]>,
-    /// The section had more matching paragraphs or rows than this reply carries.
+    /// Some occurrences are outside the excerpts shown.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub truncated: bool,
 }

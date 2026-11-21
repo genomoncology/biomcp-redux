@@ -234,6 +234,7 @@ dependencies = [
  "biomcp-test-support",
  "biomcp-types",
  "calamine",
+ "caseless",
  "csv",
  "libtest-mimic",
  "lopdf",
