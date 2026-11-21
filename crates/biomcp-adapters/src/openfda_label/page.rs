@@ -1,7 +1,7 @@
 use super::{raw::Record, subsection};
 use crate::text_parts::{escaped_bytes, split};
-use biomcp_fetch::RequestError;
-use biomcp_types::{DrugLabelFragment, DrugLabelText};
+use biomcp_fetch::{RequestError, bad_reply};
+use biomcp_types::{DrugLabelFragment, DrugLabelText, Source};
 /// Fragments keep a fixed size so offsets mean the same text whatever the reply budget.
 const FRAGMENT_BYTES: usize = 6144;
 /// One selected subsection or why the source text could not identify it.
@@ -56,7 +56,7 @@ impl Record {
         budget: usize,
     ) -> Result<DrugLabelText, RequestError> {
         if !(1..=50).contains(&limit) {
-            return Err(bad_reply());
+            return Err(bad_reply(Source::OpenfdaLabel, Some(200)));
         }
         let all = fragments(parts)?;
         let total = all.len() as u64;
@@ -75,7 +75,9 @@ impl Record {
         let remaining = total.saturating_sub(u64::from(offset) + selected.len() as u64);
         Ok(DrugLabelText {
             label: self.reference()?,
-            heading: heading.parse().map_err(|_| bad_reply())?,
+            heading: heading
+                .parse()
+                .map_err(|_| bad_reply(Source::OpenfdaLabel, Some(200)))?,
             remaining: (remaining > 0).then_some(remaining),
             search: None,
             text: text.into(),
@@ -143,34 +145,29 @@ impl super::Record {
     }
 }
 
-fn bad_reply() -> RequestError {
-    biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
-}
-
 fn fragments<'a>(
     parts: impl Iterator<Item = (usize, usize, &'a str)>,
 ) -> Result<Vec<Fragment>, RequestError> {
+    let bad = || bad_reply(Source::OpenfdaLabel, Some(200));
     let mut fragments = Vec::new();
     for (source_part, start, part) in parts {
-        let mut source_offset = u32::try_from(start).map_err(|_| bad_reply())?;
+        let mut source_offset = u32::try_from(start).map_err(|_| bad())?;
         let pieces = if part.is_empty() {
             vec![String::new()]
         } else {
             split(part, FRAGMENT_BYTES)
         };
         for text in pieces {
-            let characters = u32::try_from(text.chars().count()).map_err(|_| bad_reply())?;
+            let characters = u32::try_from(text.chars().count()).map_err(|_| bad())?;
             fragments.push(Fragment {
                 meta: DrugLabelFragment {
-                    source_part: u32::try_from(source_part).map_err(|_| bad_reply())?,
+                    source_part: u32::try_from(source_part).map_err(|_| bad())?,
                     source_offset,
                     characters,
                 },
                 text,
             });
-            source_offset = source_offset
-                .checked_add(characters)
-                .ok_or_else(bad_reply)?;
+            source_offset = source_offset.checked_add(characters).ok_or_else(bad)?;
         }
     }
     Ok(fragments)
