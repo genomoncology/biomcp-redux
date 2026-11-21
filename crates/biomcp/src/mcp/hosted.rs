@@ -391,7 +391,7 @@ pub(super) fn instructions(cx: Context<'_>) -> io::Result<String> {
                     .is_ok_and(|source| source_exclusions.contains(&source))
             })
             .collect::<Vec<_>>()
-            .join(", ");
+            .join(",");
         rows.push(format!("{verb} {entity}: {sources}"));
     }
     Ok(rows.join("\n"))

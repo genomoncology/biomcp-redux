@@ -1,6 +1,7 @@
 //! Indexed published TSV files, independent of individual reply cache entries.
 mod download;
 mod first;
+mod manual;
 mod native;
 mod parse;
 mod publish;

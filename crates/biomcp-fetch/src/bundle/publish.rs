@@ -25,6 +25,18 @@ impl Cache {
         rows: Option<&[Parsed]>,
         deadline: Deadline<'_>,
     ) -> Result<bool, CacheError> {
+        self.publish_if_newer(bundle, holder, meta, rows, deadline, None)
+    }
+
+    pub(super) fn publish_if_newer<R: Row>(
+        &self,
+        bundle: &Bundle<R>,
+        holder: Option<&str>,
+        meta: &Meta,
+        rows: Option<&[Parsed]>,
+        deadline: Deadline<'_>,
+        newer_than_stored: Option<&str>,
+    ) -> Result<bool, CacheError> {
         let connection = self.owned_connection()?;
         connection
             .execute_batch(STAGING)
@@ -54,6 +66,16 @@ impl Cache {
                     .map_err(|error| db_error(error))?;
                 if !owned {
                     return Ok(false);
+                }
+            }
+            if let Some(date) = newer_than_stored {
+                let stored = super::store::first_row(&tx, bundle.name)?;
+                if let Some(stored) = stored {
+                    let stored: R =
+                        serde_json::from_str(&stored).map_err(|_| CacheError::Encoding)?;
+                    if stored.data_date().ok_or(CacheError::Encoding)? >= date {
+                        return Ok(false);
+                    }
                 }
             }
             if rows.is_some() {
