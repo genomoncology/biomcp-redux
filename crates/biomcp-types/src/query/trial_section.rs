@@ -5,31 +5,31 @@ biodata::wire_enum! {
     described
     /// Available source protocol sections.
     TrialSection {
-        /// Intact criteria and structured age/sex fields.
+        /// Criteria and age/sex fields.
         Eligibility => "eligibility",
-        /// Primary, secondary and other outcome records.
+        /// Primary, secondary and other outcomes.
         Outcomes => "outcomes",
-        /// Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).
+        /// Posted outcomes, analyses, flow, baseline and adverse events (CT.gov).
         Results => "results",
-        /// Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).
+        /// Started, finished, and dropped out by arm and period, with reasons (CT.gov).
         Flow => "flow",
-        /// Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).
+        /// Baseline populations, groups and measures (CT.gov).
         Baseline => "baseline",
-        /// Arms and interventions with original relationships.
+        /// Arms and linked interventions.
         Arms => "arms",
-        /// Whole source sites with contacts. Filter before paging. Count missing coordinates before filtering by radius.
+        /// CT.gov sites with contacts. Count missing coordinates before radius filtering.
         Locations => "locations",
-        /// Central contacts and overall officials in their original roles.
+        /// Central contacts and officials with roles.
         Contacts => "contacts",
-        /// Registry publication identities and native reference types.
+        /// Publication IDs and reference types.
         References => "references",
-        /// Posted document metadata and source URLs.
+        /// Document metadata and URLs.
         Documents => "documents",
-        /// Every implemented trial section, each with independent continuations; flow and baseline stay within results.
+        /// All sections page separately. Flow and baseline stay in results.
         All => "all",
-        /// Native NCI disease concepts, including source enrichment metadata.
+        /// NCI disease concepts and enrichment.
         Diseases => "diseases",
-        /// Complete NCI summary, paged by original character offsets.
+        /// NCI summary, paged by character.
         Summary => "summary",
     }
 }

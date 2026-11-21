@@ -12,7 +12,7 @@ pub struct TrialGet(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// One to twenty exact NCT identifiers, in caller order.
+    /// 1–20 NCT IDs.
     #[cfg_attr(feature="schema", schemars(length(min=1,max=20), extend("x-positional"=0)))]
     input: Box<[NctId]>,
     #[doc = " Optional intact source sections. Default cards only; diseases and summary require NCI. \
@@ -20,14 +20,14 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,
-    /// Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.
+    /// Up to 200 records per page. Other sections also have byte limits.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     limit: u32,
-    /// Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
+    /// Skip characters in eligibility or NCI summary, records elsewhere.
     #[serde(default)]
     offset: u32,
-    /// Checked stored source record, supplied by a continuation.
+    /// Stored record from a continuation.
     #[serde(
         default,
         deserialize_with = "present",
@@ -35,7 +35,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
-    /// Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read.
+    /// Latitude in degrees. With --lon, reads locations by straight-line distance.
     #[serde(
         default,
         deserialize_with = "present",
@@ -43,7 +43,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lat: Option<Text>,
-    /// Longitude degrees; used with --lat.
+    /// Longitude in degrees.
     #[serde(
         default,
         deserialize_with = "present",
@@ -51,7 +51,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lon: Option<Text>,
-    /// Match the ClinicalTrials.gov state label ignoring ASCII case.
+    /// Registry state label, ignoring ASCII case.
     #[serde(
         default,
         deserialize_with = "present",
@@ -59,7 +59,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     state: Option<Text>,
-    /// Match the ClinicalTrials.gov site status, such as RECRUITING.
+    /// Site status, such as RECRUITING.
     #[serde(
         default,
         deserialize_with = "present",
@@ -67,7 +67,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "TrialSiteStatus"))]
     status: Option<TrialSiteStatus>,
-    /// Keep ClinicalTrials.gov sites within a positive radius in mi or km. Requires --lat and --lon.
+    /// Positive radius in mi or km. Needs --lat and --lon.
     #[serde(
         default,
         deserialize_with = "present",
@@ -75,7 +75,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     distance: Option<Text>,
-    /// Explicit provider; defaults to ClinicalTrials.gov and never falls back.
+    /// Defaults to ClinicalTrials.gov. No fallback.
     #[serde(default, skip_serializing_if = "TrialSource::is_default")]
     source: TrialSource,
 }
