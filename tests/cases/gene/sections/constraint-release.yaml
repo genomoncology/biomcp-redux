@@ -42,6 +42,43 @@
     },
     {
       "run": [
+        "sync",
+        "gnomad-constraint-v4.0"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "BCR",
+        "constraint",
+        "--constraint-release",
+        "v4.0",
+        "--fields=loeuf"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/sections/constraint/data": {
+          "version": "v4.0",
+          "transcript": "ENST00000269305",
+          "loeuf": 0.44
+        },
+        "/result/items/1/sections/constraint": {
+          "state": "unavailable",
+          "source": "gnomad",
+          "reason": "not-stated"
+        },
+        "/sources/*/notices/*/message": {
+          "includes": "gnomAD v4.0 has no unique MANE Select constraint row for BCR."
+        }
+      }
+    },
+    {
+      "run": [
         "get",
         "gene",
         "TP53",

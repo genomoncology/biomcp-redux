@@ -17,6 +17,13 @@ impl Leg<'_> {
         bundle: &Bundle<R>,
     ) -> Result<biomcp_types::LocalBundleState, RequestError> {
         use biomcp_types::LocalBundleState;
+        // A publisher can serve its catalog and its API from separate origins.
+        if self.spec.source == bundle.spec.source && !std::ptr::eq(self.spec, bundle.spec) {
+            return self
+                .fetch
+                .leg(bundle.spec, self.deadline)
+                .stored_bundle_state(bundle);
+        }
         self.bundle_source(bundle)?;
         let Some(cache) = self.fetch.cache.as_deref() else {
             return Ok(LocalBundleState::Missing);

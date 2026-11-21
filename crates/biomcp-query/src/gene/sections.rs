@@ -219,7 +219,12 @@ pub(super) fn jobs<'a>(
             .any(|(_, gene)| applicable(GeneSection::Constraint, gene))
     {
         jobs.push(Box::new(move || {
-            super::get::Job::Section(constraint::run(cx, deadline, genes))
+            super::get::Job::Section(constraint::run(
+                cx,
+                deadline,
+                genes,
+                query.constraint_release(),
+            ))
         }));
     }
     if requested.contains(&GeneSection::Expression)

@@ -24,6 +24,6 @@ pub struct Constraint {
     pub flags: Box<[Text]>,
     /// Source MANE Select transcript, otherwise the source canonical transcript.
     pub transcript: AccessionBase,
-    /// Source dataset family, not a minor release identifier.
+    /// Source dataset family for the default read, or the selected table's exact release.
     pub version: Text,
 }

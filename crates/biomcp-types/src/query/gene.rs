@@ -26,12 +26,20 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-trailing-section" = true)))]
     section: Box<[GeneSectionWord]>,
+    /// Read MANE Select from a gnomAD release table. Requires constraint.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "ConstraintRelease"))]
+    constraint_release: Option<ConstraintRelease>,
 }
 crate::query::validation::checked_query!(GeneGet, GetFields);
 impl TryFrom<GetFields> for GeneGet {
     type Error = QueryInvalid;
     fn try_from(fields: GetFields) -> Result<Self, Self::Error> {
-        Self::with_sections(fields.input, fields.section)
+        Self::checked(fields)
     }
 }
 impl GeneGet {
@@ -44,10 +52,29 @@ impl GeneGet {
         input: Box<[GeneInput]>,
         section: Box<[GeneSectionWord]>,
     ) -> Result<Self, QueryInvalid> {
-        if !(MIN_INPUTS..=MAX_INPUTS).contains(&input.len()) {
+        Self::checked(GetFields {
+            input,
+            section,
+            constraint_release: None,
+        })
+    }
+    fn checked(fields: GetFields) -> Result<Self, QueryInvalid> {
+        if !(MIN_INPUTS..=MAX_INPUTS).contains(&fields.input.len()) {
             return Err(QueryInvalid::new(&["input"]));
         }
-        Ok(Self(GetFields { input, section }))
+        if fields.constraint_release.is_some()
+            && !fields
+                .section
+                .iter()
+                .any(|word| matches!(word, GeneSectionWord::Constraint | GeneSectionWord::All))
+        {
+            return Err(QueryInvalid::new(&["constraint_release", "section"]));
+        }
+        Ok(Self(fields))
+    }
+    /// Explicit publisher release for the MANE Select constraint read.
+    pub fn constraint_release(&self) -> Option<ConstraintRelease> {
+        self.0.constraint_release
     }
     /// Section words in caller order.
     pub fn sections(&self) -> &[GeneSectionWord] {
@@ -56,6 +83,15 @@ impl GeneGet {
     /// Inputs in caller order.
     pub fn input(&self) -> &[GeneInput] {
         &self.0.input
+    }
+}
+biodata::canonical_enum! {
+    /// gnomAD releases with supported constraint tables.
+    ConstraintRelease, ConstraintReleaseUnknown {
+        /// Version 4.0 table.
+        V4_0 => "v4.0",
+        /// Version 4.1 table.
+        V4_1 => "v4.1",
     }
 }
 /// Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
