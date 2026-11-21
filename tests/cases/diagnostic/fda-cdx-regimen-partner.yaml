@@ -1,0 +1,58 @@
+{
+  "feature": "diagnostic-cdx",
+  "live_check": "recorded only; reuses the FDA companion list replay",
+  "story": "A lab director finds FDA companion rows that explicitly name a regimen partner even when the FDA row is indexed under a different drug application.",
+  "replay": "diagnostic/cdx-group-join",
+  "config": {"mcp_tool_mode": "typed"},
+  "steps": [
+    {
+      "run": ["sync", "fda-cdx"],
+      "expect": {"/result/rows": 244}
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--regimen-partner", "PALBOCICLIB"],
+      "expect": {
+        "/page/total": 2,
+        "/result/items/*/device_ids": [["P170019/S062"], ["P190032/S023"]],
+        "/result/items/*/drug_applications": [["NDA219249"], ["NDA219249"]],
+        "/result/items/*/matched": [["regimen-partner"], ["regimen-partner"]],
+        "/result/items/0/links/drug/0/label": "NDA 219249",
+        "/sources/0/source": "fda-cdx"
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "NDA207103", "--limit", "50"],
+      "expect": {"/page/total": 0}
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "NDA219249"],
+      "expect": {
+        "/page/total": 2,
+        "/result/items/*/matched": [["drug-application"], ["drug-application"]]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "source": "fda-cdx",
+            "regimen_partner": "trametinib",
+            "drug_application": "NDA204114",
+            "limit": 50
+          }
+        }
+      },
+      "expect": {
+        "/query/regimen_partner": "trametinib",
+        "/result/items/*/kind": {"includes": "group"},
+        "/result/items/0/matched": ["drug-application", "regimen-partner"]
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--regimen-partner", "inavolisib"],
+      "expect": {"/page/total": 0}
+    }
+  ]
+}
