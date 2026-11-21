@@ -43,9 +43,13 @@ pub(super) fn fetch(
             let release = if q.card.is_some() {
                 card.release.clone()
             } else {
-                reactome::release(&leg)
-                    .inspect_err(|&error| release_error = Some(error))
-                    .ok()
+                match reactome::release(&leg) {
+                    Ok(release) => Some(release),
+                    Err(error) => {
+                        release_error = Some(error);
+                        None
+                    }
+                }
             };
             saved.dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
             saved.problems = rows.problems;

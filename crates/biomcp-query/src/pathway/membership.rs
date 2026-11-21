@@ -1,7 +1,7 @@
 //! Exact source namespace joins; display names never participate in identity.
 use super::relation::{Selection, position};
 use crate::{Ctx, Outcome, status};
-use biodata::{PathwayId, PathwayMember, UniProtAcc, UniProtIsoform};
+use biodata::{PathwayId, PathwayMember, Text, UniProtAcc, UniProtIsoform};
 use biomcp_adapters::{hgnc, reactome};
 use biomcp_fetch::{Deadline, Find, KeyKind};
 use biomcp_types::{
@@ -25,26 +25,25 @@ fn resolve(
     let mut by_accession = HashMap::new();
     if !names.is_empty() {
         let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
-        let mapped = hgnc::lookup(&leg, Find::AnyExact(KeyKind::Xref, &names));
-        sources.push(status::source(
-            Source::Hgnc,
-            leg.finish(),
-            mapped.as_ref().err().copied(),
-        ));
-        if let Ok(mapped) = mapped {
-            for gene in mapped.value {
-                for id in gene.uniprot {
-                    by_accession
-                        .entry(id)
-                        .and_modify(|matched| {
-                            if *matched != Some(gene.hgnc_id) {
-                                *matched = None;
-                            }
-                        })
-                        .or_insert(Some(gene.hgnc_id));
-                }
+        let (genes, error) = match hgnc::lookup(&leg, Find::AnyExact(KeyKind::Xref, &names)) {
+            Ok(mapped) => {
+                problems.extend(mapped.problems);
+                (mapped.value, None)
             }
-            problems.extend(mapped.problems);
+            Err(error) => (Vec::new(), Some(error)),
+        };
+        sources.push(status::source(Source::Hgnc, leg.finish(), error));
+        for gene in genes {
+            for id in gene.uniprot {
+                by_accession
+                    .entry(id)
+                    .and_modify(|matched| {
+                        if *matched != Some(gene.hgnc_id) {
+                            *matched = None;
+                        }
+                    })
+                    .or_insert(Some(gene.hgnc_id));
+            }
         }
     }
     let mut distinct = HashSet::new();
@@ -73,13 +72,14 @@ fn report_unmapped(rows: &[PathwayMember], problems: &mut Vec<Problem>) {
     for row in rows.iter().filter(|row| row.gene.is_none()) {
         problems.push(Problem {
             source: Source::Reactome,
-            record: format!(
-                "{}:{}",
-                row.reference.namespace.as_deref().unwrap_or(""),
-                row.reference.id
-            )
-            .parse()
-            .ok(),
+            record: Some(
+                Text::new(&format!(
+                    "{}:{}",
+                    row.reference.namespace.as_deref().unwrap_or(""),
+                    row.reference.id
+                ))
+                .unwrap_or_else(|_| row.reference.id.clone()),
+            ),
             field: "genes.gene".into(),
             code: ProblemCode::ValueUnknown,
         });
