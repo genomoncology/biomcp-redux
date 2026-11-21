@@ -57,7 +57,10 @@ impl DrugSource {
     ];
     /// Whether the public get command has a form for this source.
     pub(super) const fn supports_get(self) -> bool {
-        !matches!(self, Self::PurpleBook | Self::FdaSafetySignals | Self::FdaWithdrawnApprovals)
+        !matches!(
+            self,
+            Self::PurpleBook | Self::FdaSafetySignals | Self::FdaWithdrawnApprovals
+        )
     }
     /// Canonical source spelling, reusing an existing source identity when present.
     pub fn as_str(self) -> &'static str {
