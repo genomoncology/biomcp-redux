@@ -239,7 +239,9 @@ pub(crate) fn execute(
         Action::Run {
             request: Request::GetDrug(query),
             fresh,
-        } if query.parts().is_ok_and(|parts| parts.len() > 1) => {
+        } if !query.label_batch().is_empty()
+            || query.parts().is_ok_and(|parts| parts.len() > 1) =>
+        {
             sections::run(fetch, settings, &query, fresh, globals, encoding)
         }
         Action::Run { request, fresh } => {

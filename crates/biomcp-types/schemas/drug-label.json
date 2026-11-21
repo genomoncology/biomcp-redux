@@ -285,7 +285,7 @@
           "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "find": {
-          "description": "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. Only with section label-history.",
+          "description": "Label text; OR.\nLiteral text; repeat for OR. Ignore case and whitespace breaks; history also ignores hyphenation. Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs. Only with section label or label-history.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
@@ -557,6 +557,33 @@
       ],
       "type": "object"
     },
+    "Reply_DrugLabelExcerpt": {
+      "description": "One paragraph or table row containing the requested literal text.",
+      "properties": {
+        "table_caption": {
+          "description": "Caption from the same table, when preserved by the source.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "table_header": {
+          "description": "Column headings from the same table, when preserved by the source.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "description": "Wording around the match, with visible ellipses where clipped.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
     "Reply_DrugLabelFragment": {
       "description": "One slice of a native label array element, partitioning the page's unchanged text.",
       "properties": {
@@ -583,6 +610,39 @@
         "source_part",
         "source_offset",
         "characters"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugLabelMatches": {
+      "description": "Bounded excerpts from one readable current-label section.",
+      "properties": {
+        "excerpts": {
+          "description": "Matching paragraphs or table rows.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugLabelExcerpt"
+          },
+          "type": "array"
+        },
+        "matched": {
+          "description": "Whether this readable section contains at least one of the requested phrases.",
+          "type": "boolean"
+        },
+        "total_matches": {
+          "description": "Distinct occurrences of the requested phrases in the readable section.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "truncated": {
+          "description": "Some occurrences are outside the excerpts shown.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "matched"
       ],
       "type": "object"
     },
@@ -681,6 +741,17 @@
             }
           ],
           "description": "Original source reply retrieval date; absent for legacy captures without a timestamp."
+        },
+        "search": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugLabelMatches"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Present on a phrase search. The full section text and fragment page are omitted from the search."
         },
         "text": {
           "description": "Original text slice, preserving whitespace and wording.",

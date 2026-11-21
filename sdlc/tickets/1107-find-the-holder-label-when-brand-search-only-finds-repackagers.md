@@ -1,6 +1,6 @@
 # 1107 — find-the-holder-label-when-brand-search-only-finds-repackagers
 
-Status: OPEN.
+Status: COMPLETE. Built and landed with 1106 (a1a8b9a9f): tests/cases/drug/label-holder-recovery.yaml covers a repackager-only search recovering the holder label
 
 Milestone: 7
 

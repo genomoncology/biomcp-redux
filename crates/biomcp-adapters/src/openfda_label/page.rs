@@ -50,6 +50,7 @@ impl Record {
                 biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
             })?,
             remaining: (remaining > 0).then_some(remaining),
+            search: None,
             text: text.into(),
             retrieved: None,
             fragments: selected.into(),

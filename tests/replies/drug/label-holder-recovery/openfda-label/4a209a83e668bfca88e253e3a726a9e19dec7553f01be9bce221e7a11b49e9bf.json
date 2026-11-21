@@ -1,0 +1,48 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22ef25af7e-6267-409a-8d68-de51eb48812a%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1795132800,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "set_id": "ef25af7e-6267-409a-8d68-de51eb48812a",
+              "id": "ef25af7e-6267-409a-8d68-de51eb48812a",
+              "version": "1",
+              "effective_time": "20261120",
+              "openfda": {
+                "brand_name": [
+                  "HADLIMA"
+                ],
+                "generic_name": [
+                  "ADALIMUMAB-BWWD"
+                ],
+                "application_number": [
+                  "BLA761059"
+                ]
+              },
+              "how_supplied": [
+                "Synthetic packaging for HADLIMA."
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

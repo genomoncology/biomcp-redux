@@ -1,6 +1,7 @@
 # 1106 — keep-drug-label-fallback-on-the-same-application
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a16f1d7389c46c7904f766be3ef2865f36cc2245
 
 Milestone: 7
 

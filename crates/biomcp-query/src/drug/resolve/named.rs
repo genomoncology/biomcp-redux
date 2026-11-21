@@ -1,8 +1,9 @@
 //! Resolve complete source names before the unchanged native-ID path.
 use super::name_pages;
 use crate::drug::aliases::name_evidence::recovery;
-use crate::drug::{fork, label_choice, rejected_input, selected_parts};
+use crate::drug::{fork, label_choice, rejected_input, selected_as};
 use crate::{Ctx, Outcome, status};
+use biodata::{DrugId, Text};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugCard, DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource,
@@ -39,7 +40,6 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
         return Vec::new();
     };
     let deadline = lookup_deadline(cx);
-    let name = query.input().to_string();
     let search = match DrugSearch::named(query.input().clone(), query.source(), 50) {
         Ok(search) => search,
         Err(_) => {
@@ -49,7 +49,7 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
         }
     };
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
-        name_pages::fda(cx, query, &search)
+        name_pages::fda(cx, query.input(), &search)
     } else if query.source() == DrugSource::OpenfdaLabel {
         name_pages::label(cx, query, &search)
     } else if query.source() == DrugSource::Mychem {
@@ -70,36 +70,25 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
             .collect();
     }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));
+    let recovered = if query.source() == DrugSource::OpenfdaLabel {
+        label_choice::recover(cx, &deadline, queries, &mut candidates, &mut discovery)
+    } else {
+        None
+    };
     let mut seen = std::collections::BTreeSet::new();
     candidates.retain(|(_, header)| seen.insert(header.id.to_string()));
     let Some((rank, selected)) = candidates.first() else {
-        discovery.body = ReplyData::Usage(UsageError::Arguments(UsageArguments {
-            argument: Some("input".into()),
-            next: vec![Step {
-                kind: StepKind::Disambiguate,
-                args: vec![
-                    "search".into(),
-                    "drug".into(),
-                    name.into(),
-                    "--source".into(),
-                    query.source().as_str().into(),
-                ]
-                .into(),
-                options: Default::default(),
-            }],
-            ..Default::default()
-        }));
-        return vec![discovery];
+        return vec![unresolved(query, discovery)];
     };
-    let resolved = match queries
-        .iter()
-        .map(|query| query.with_native_id(selected.id.clone()))
-        .collect::<Result<Vec<_>, _>>()
-    {
-        Ok(resolved) => resolved,
+    let read = recovered.map_or_else(
+        || selected_as(&within(cx, deadline.remaining()), queries, &selected.id),
+        Ok,
+    );
+    let parts = match read {
+        Ok(parts) => parts,
         Err(_) => return vec![rejected_input(query.source(), "input", discovery)],
     };
-    selected_parts(&within(cx, deadline.remaining()), &resolved)
+    parts
         .into_iter()
         .zip(queries)
         .map(|(out, query)| {
@@ -115,6 +104,51 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
             out
         })
         .collect()
+}
+
+fn unresolved(query: &DrugGet, mut discovery: Outcome) -> Outcome {
+    discovery.body = ReplyData::Usage(UsageError::Arguments(UsageArguments {
+        argument: Some("input".into()),
+        next: vec![Step {
+            kind: StepKind::Disambiguate,
+            args: vec![
+                "search".into(),
+                "drug".into(),
+                query.input().to_string().into(),
+                "--source".into(),
+                query.source().as_str().into(),
+            ]
+            .into(),
+            options: Default::default(),
+        }],
+        ..Default::default()
+    }));
+    discovery
+}
+
+/// Read the current applications for a name. An exact brand takes precedence over generic matches.
+pub(in crate::drug) fn applications(
+    cx: &Ctx<'_>,
+    name: &Text,
+    query: &DrugSearch,
+    brand_only: bool,
+) -> (Outcome, Option<Vec<DrugId>>) {
+    let (out, candidates) = name_pages::fda(cx, name, query);
+    let current = !unanswered(&out, true) && out.local.is_none();
+    let ids = current.then(|| {
+        let best = if brand_only {
+            Some(0)
+        } else {
+            candidates.iter().map(|(rank, _)| rank.0).min()
+        };
+        let mut seen = std::collections::BTreeSet::new();
+        candidates
+            .into_iter()
+            .filter(|(rank, header)| Some(rank.0) == best && seen.insert(header.id.to_string()))
+            .map(|(_, header)| header.id)
+            .collect()
+    });
+    (out, ids)
 }
 
 /// A failed discovery keeps the caller's requested section and paging.

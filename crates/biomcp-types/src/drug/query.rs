@@ -1,39 +1,8 @@
-use super::DrugSource;
 use super::source::{civic_id, inferred_source};
+use super::{DrugSection, DrugSource, label_find};
 use crate::{CivicClaimKind, QueryInvalid};
 use biodata::{DrugId, Text};
 use serde::{Deserialize, Serialize};
-biodata::canonical_enum! {
-    /// Explicit drug disclosures; identity cards never expand into these sections.
-    DrugSection, SourceUnknown {
-        /// All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.
-        Xrefs => "xrefs",
-        /// Native target and mechanism relations.
-        Targets => "targets",
-        /// Native indication wording.
-        Indications => "indications",
-        /// Native CIViC therapy evidence and profile context.
-        Civic => "civic",
-        /// One exact native label heading; label replies also name the application numbers and recent major changes.
-        Label => "label",
-        /// Native application and product history rows.
-        Approvals => "approvals",
-        /// The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.
-        LabelHistory => "label-history",
-        /// Source-scoped regulator events.
-        Regulatory => "regulatory",
-        /// Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
-        /// `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and
-        /// no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions
-        /// section has that text.
-        Interactions => "interactions",
-        /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; --source names one market.
-        Markets => "markets",
-        /// Essential Medicines List listings from the eEML: core or complementary, section, indication,
-        /// date added, therapeutic alternatives and Expert Committee text; five per default page.
-        EssentialMedicines => "essential-medicines",
-    }
-}
 /// Retrieve a native ID or a complete source name.
 /// Brands rank first; Drugs@FDA then prefers original applications and earliest approval, otherwise source search order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -50,6 +19,7 @@ enum NativeDrugId {
     Civic(std::num::NonZeroU32),
     Other,
     Name,
+    LabelBatch(Box<[DrugId]>),
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -111,8 +81,9 @@ struct GetFields {
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "Label text; OR.\nLiteral text a label-history section must hold, ignoring letter case, line breaks and hyphenation; repeat for OR. \
-        Only with section label-history."]
+    #[doc = "Label text; OR.\nLiteral text; repeat for OR. Ignore case and whitespace breaks; history also ignores hyphenation. \
+        Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs. \
+        Only with section label or label-history."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
     find: Box<[Text]>,
@@ -135,39 +106,42 @@ impl TryFrom<GetFields> for DrugGet {
             .unwrap_or_else(|| inferred_source(&fields.section));
         (fields.source, fields.input) = (Some(source), source.listed_case(fields.input));
         validate_sections(&fields)?;
-        let native_id = if !fields
-            .input
-            .as_str()
-            .parse::<DrugId>()
-            .is_ok_and(|id| source.native_id(&id))
-        {
-            NativeDrugId::Name
-        } else {
-            match source {
-                DrugSource::FdaDrugRecall => NativeDrugId::Recall(
-                    fields
-                        .input
-                        .to_string()
-                        .parse()
-                        .map_err(|_| QueryInvalid::new(&["source", "input"]))?,
-                ),
-                DrugSource::Civic => NativeDrugId::Civic(
-                    civic_id(&fields.input.to_string())
-                        .ok_or_else(|| QueryInvalid::new(&["source", "input"]))?,
-                ),
-                source => {
-                    if !fields
-                        .input
-                        .as_str()
-                        .parse::<DrugId>()
-                        .is_ok_and(|id| source.accepts(&id))
-                    {
-                        return Err(QueryInvalid::new(&["source", "input"]));
+        let native_id =
+            if let Some(ids) = label_find::batch(&fields.input, &fields.find, &fields.section)? {
+                NativeDrugId::LabelBatch(ids)
+            } else if !fields
+                .input
+                .as_str()
+                .parse::<DrugId>()
+                .is_ok_and(|id| source.native_id(&id))
+            {
+                NativeDrugId::Name
+            } else {
+                match source {
+                    DrugSource::FdaDrugRecall => NativeDrugId::Recall(
+                        fields
+                            .input
+                            .to_string()
+                            .parse()
+                            .map_err(|_| QueryInvalid::new(&["source", "input"]))?,
+                    ),
+                    DrugSource::Civic => NativeDrugId::Civic(
+                        civic_id(&fields.input.to_string())
+                            .ok_or_else(|| QueryInvalid::new(&["source", "input"]))?,
+                    ),
+                    source => {
+                        if !fields
+                            .input
+                            .as_str()
+                            .parse::<DrugId>()
+                            .is_ok_and(|id| source.accepts(&id))
+                        {
+                            return Err(QueryInvalid::new(&["source", "input"]));
+                        }
+                        NativeDrugId::Other
                     }
-                    NativeDrugId::Other
                 }
-            }
-        };
+            };
         if source == DrugSource::FdaDsc && native_id == NativeDrugId::Name {
             return Err(QueryInvalid::new(&["input"]));
         }
@@ -218,17 +192,22 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
             "section_offset",
         ]));
     }
-    let history = (
+    let options = (
         &*fields.find,
         fields.every_version,
         fields.label_section.as_ref(),
     );
-    super::history::checked(
-        &fields.section,
-        fields.source == Some(DrugSource::Drugsfda),
-        (fields.section_limit, fields.section_offset),
-        history,
-    )?;
+    let paging = (fields.section_limit, fields.section_offset);
+    if label_find::requested(&fields.section, &fields.find) {
+        label_find::check(fields.source, paging, options)?;
+    } else {
+        super::history::checked(
+            &fields.section,
+            fields.source == Some(DrugSource::Drugsfda),
+            paging,
+            options,
+        )?;
+    }
     if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
         return Err(QueryInvalid::new(&["product_number", "section"]));
     }
@@ -466,6 +445,17 @@ impl DrugGet {
     /// Explicit section continuation offset.
     pub fn section_offset(&self) -> Option<u32> {
         self.fields.section_offset
+    }
+    /// Literal texts to find in the selected current-label headings.
+    pub fn label_find(&self) -> &[Text] {
+        &self.fields.find
+    }
+    /// Known openFDA SPL sets to read together, in caller order.
+    pub fn label_batch(&self) -> &[DrugId] {
+        match &self.native_id {
+            NativeDrugId::LabelBatch(ids) => ids,
+            _ => &[],
+        }
     }
     /// A label history's texts, whether it reads every version, and its section.
     pub fn label_history(&self) -> (&[Text], bool, Option<super::LabelHistorySection>) {
