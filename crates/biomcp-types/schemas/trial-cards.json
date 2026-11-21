@@ -2898,7 +2898,7 @@
       "properties": {
         "distance": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "ClinicalTrials.gov locations only: positive straight-line radius with mi or km units; requires --lat and --lon."
+          "description": "Keep ClinicalTrials.gov sites within a positive radius in mi or km. Requires --lat and --lon."
         },
         "input": {
           "description": "One to twenty exact NCT identifiers, in caller order.",
@@ -2951,11 +2951,11 @@
         },
         "state": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "ClinicalTrials.gov locations only: match the registry state label, ignoring ASCII case."
+          "description": "Match the ClinicalTrials.gov state label ignoring ASCII case."
         },
         "status": {
           "$ref": "#/$defs/Reply_TrialSiteStatus",
-          "description": "ClinicalTrials.gov locations only: match the site's exact registry recruitment status, such as RECRUITING."
+          "description": "Match the ClinicalTrials.gov site status, such as RECRUITING."
         }
       },
       "required": [
@@ -4443,7 +4443,7 @@
         " Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).",
         " Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).",
         " Arms and interventions with original relationships.",
-        " Whole source sites with contacts. Filters apply before paging; missing coordinates are counted before the radius filter.",
+        " Whole source sites with contacts. Filter before paging. Count missing coordinates before filtering by radius.",
         " Central contacts and overall officials in their original roles.",
         " Registry publication identities and native reference types.",
         " Posted document metadata and source URLs.",
