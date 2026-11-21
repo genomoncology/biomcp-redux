@@ -179,25 +179,7 @@ pub(super) fn card(
 }
 
 pub(super) fn aliases_for(c: &Component) -> Vec<String> {
-    let mut aliases = Vec::new();
-    aliases.extend(
-        c.synonyms
-            .as_ref()
-            .map(strings)
-            .unwrap_or_default()
-            .into_iter()
-            .flat_map(super::names::split)
-            .map(str::to_owned),
-    );
-    aliases.extend(
-        c.molecule_synonyms
-            .as_ref()
-            .into_iter()
-            .flatten()
-            .filter_map(|s| s.molecule_synonym.as_deref())
-            .flat_map(super::names::split)
-            .map(str::to_owned),
-    );
+    let mut aliases = super::names::synonyms(c).collect::<Vec<_>>();
     for values in [&c.generic_name, &c.brand_name] {
         aliases.extend(
             values

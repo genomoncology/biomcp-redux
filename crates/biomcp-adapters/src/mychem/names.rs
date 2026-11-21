@@ -26,10 +26,27 @@ pub(super) fn matching(rows: &[(&str, Component)], query: &str) -> Option<DrugNa
 /// Match complete names and aliases from the reviewed projection, without salt expansion.
 pub(super) fn exact_matching(rows: &[(&str, Component)], query: &str) -> Option<DrugNameMatch> {
     matching_with(rows, query, DrugNameMatch::same_name, |c| {
-        super::map::aliases_for(c)
-            .iter()
-            .any(|s| DrugNameMatch::same_name(s, query))
+        synonyms(c).any(|s| DrugNameMatch::same_name(&s, query))
     })
+}
+
+/// Split the source's synonym fields into complete names.
+pub(super) fn synonyms(c: &Component) -> impl Iterator<Item = String> + '_ {
+    c.synonyms
+        .as_ref()
+        .map(strings)
+        .unwrap_or_default()
+        .into_iter()
+        .flat_map(split)
+        .map(str::to_owned)
+        .chain(
+            c.molecule_synonyms
+                .iter()
+                .flatten()
+                .filter_map(|s| s.molecule_synonym.as_deref())
+                .flat_map(split)
+                .map(str::to_owned),
+        )
 }
 
 pub(super) type NameMatch = fn(&[(&str, Component)], &str) -> Option<DrugNameMatch>;
