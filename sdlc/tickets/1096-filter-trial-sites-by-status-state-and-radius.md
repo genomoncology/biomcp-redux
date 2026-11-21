@@ -1,6 +1,7 @@
 # 1096 — filter-trial-sites-by-status-state-and-radius
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7b79b8f20f1dc9281c177b91687d770245988a7a
 
 Milestone: 7
 

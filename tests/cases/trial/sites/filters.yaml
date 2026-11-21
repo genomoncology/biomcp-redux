@@ -1,0 +1,146 @@
+{
+  "live_check": "local-only synthetic registry locations attached to a retained replay",
+  "feature": "trial-sites",
+  "story": "Filter a trial’s sites before paging, return nearest sites first, and count matching sites whose distance is unknown.",
+  "replay": "trial/get/site-filters",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--state",
+        "ohio",
+        "--status",
+        "RECRUITING",
+        "--lat",
+        "40",
+        "--lon",
+        "-83",
+        "--distance",
+        "50km",
+        "--limit",
+        "1",
+        "--fields=facility,city,state,status,contacts,distance_mi"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--state",
+        "ohio",
+        "--status",
+        "RECRUITING",
+        "--lat",
+        "40",
+        "--lon",
+        "-83",
+        "--distance",
+        "50km",
+        "--limit",
+        "1",
+        "--fields=facility,city,state,status,contacts,distance_mi"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/page": {
+          "equals": {
+            "offset": 0,
+            "total": 2,
+            "returned": 1
+          }
+        },
+        "/result/items/0/sections/locations/data/missing_coordinates": 1,
+        "/result/items/0/sections/locations/data/items/0/facility": "Nearest Ohio Site",
+        "/result/items/0/sections/locations/data/items/0/distance_mi": 6.6,
+        "/result/items/0/sections/locations/data/items/0/contacts/0/name": "Site Coordinator",
+        "/result/items/0/sections/locations/data/continuation/state": "ohio",
+        "/result/items/0/sections/locations/data/continuation/status": "RECRUITING",
+        "/result/items/0/sections/locations/data/continuation/distance": "50km"
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/page": {
+          "equals": {
+            "offset": 1,
+            "total": 2,
+            "returned": 1
+          }
+        },
+        "/result/items/0/sections/locations/data/missing_coordinates": 1,
+        "/result/items/0/sections/locations/data/items/0/facility": "Farther Ohio Site",
+        "/result/items/0/sections/locations/data/items/0/distance_mi": 26.5
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--state",
+        "ohio",
+        "--status",
+        "RECRUITING",
+        "--fields=facility,city,state,status,contacts,distance_mi"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/total": 4,
+        "/result/items/0/sections/locations/data/missing_coordinates": 1,
+        "/result/items/0/sections/locations/data/items/0/facility": "Farther Ohio Site",
+        "/result/items/0/sections/locations/data/items/1/facility": "Ohio Site Without Coordinates"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--state",
+        "ohio",
+        "--status",
+        "RECRUITING",
+        "--lat",
+        "40",
+        "--lon",
+        "-83",
+        "--distance",
+        "1mi"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/locations/data/page": {
+          "equals": {
+            "offset": 0,
+            "total": 0,
+            "returned": 0
+          }
+        },
+        "/result/items/0/sections/locations/data/missing_coordinates": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419",
+        "locations",
+        "--distance",
+        "50mi"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

@@ -49,7 +49,9 @@ pub use variant_terms::{
 };
 
 mod trial_get;
-pub use trial_get::{TrialGet, TrialSection};
+pub use trial_get::TrialGet;
+mod trial_section;
+pub use trial_section::TrialSection;
 
 mod trial_document;
 pub use trial_document::TrialDocumentGet;

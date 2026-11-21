@@ -141,7 +141,7 @@ pub use response::{
 pub use response::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 pub use response::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
-    TrialItemFailure, TrialRecords, TrialSections, TrialSite,
+    TrialItemFailure, TrialLocationsPage, TrialRecords, TrialSections, TrialSite,
 };
 pub use response::{TrialConditionResolution, TrialPage, TrialSiteCount, TrialSiteCounts};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};

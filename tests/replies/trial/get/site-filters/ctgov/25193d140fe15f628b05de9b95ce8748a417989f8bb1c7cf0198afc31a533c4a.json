@@ -1,0 +1,164 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies/NCT00627419",
+  "exchanges": [
+    {
+      "fetched": 1794409796,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 133,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "protocolSection": {
+            "identificationModule": {
+              "nctId": "NCT00627419",
+              "orgStudyIdInfo": {
+                "id": "MI-CP159"
+              },
+              "organization": {
+                "fullName": "Infinity Pharmaceuticals, Inc.",
+                "class": "INDUSTRY"
+              },
+              "briefTitle": "A Study Evaluating the Safety and Antitumor Activity of IPI-504, in Patients With Metastatic Melanoma",
+              "officialTitle": "A Phase 2, Open-Label, Single-Arm, Multicenter Study Evaluating the Safety and Antitumor Activity of IPI-504, A Novel Small Molecule Inhibitor of Heat Shock Protein 90 (HSP90), in Patients With Metastatic Melanoma"
+            },
+            "statusModule": {
+              "statusVerifiedDate": "2012-12",
+              "overallStatus": "TERMINATED",
+              "whyStopped": "Study closed \\& recruitment will not recommence",
+              "expandedAccessInfo": {
+                "hasExpandedAccess": false
+              },
+              "startDateStruct": {
+                "date": "2008-02"
+              },
+              "primaryCompletionDateStruct": {
+                "date": "2009-10",
+                "type": "ACTUAL"
+              },
+              "completionDateStruct": {
+                "date": "2009-10",
+                "type": "ACTUAL"
+              },
+              "studyFirstSubmitDate": "2008-02-21",
+              "studyFirstSubmitQcDate": "2008-02-21",
+              "studyFirstPostDateStruct": {
+                "date": "2008-03-03",
+                "type": "ESTIMATED"
+              },
+              "dispFirstSubmitDate": "2012-12-06",
+              "dispFirstSubmitQcDate": "2012-12-06",
+              "dispFirstPostDateStruct": {
+                "date": "2012-12-10",
+                "type": "ESTIMATED"
+              },
+              "lastUpdateSubmitDate": "2012-12-06",
+              "lastUpdatePostDateStruct": {
+                "date": "2012-12-10",
+                "type": "ESTIMATED"
+              }
+            },
+            "conditionsModule": {
+              "conditions": [
+                "Metastatic Melanoma"
+              ]
+            },
+            "designModule": {
+              "studyType": "INTERVENTIONAL",
+              "phases": [
+                "PHASE2"
+              ],
+              "designInfo": {
+                "allocation": "NA",
+                "interventionModel": "SINGLE_GROUP",
+                "primaryPurpose": "TREATMENT",
+                "maskingInfo": {
+                  "masking": "NONE"
+                }
+              },
+              "enrollmentInfo": {
+                "count": 1,
+                "type": "ACTUAL"
+              }
+            },
+            "contactsLocationsModule": {
+              "locations": [
+                {
+                  "facility": "Farther Ohio Site",
+                  "city": "Test City",
+                  "state": "Ohio",
+                  "status": "RECRUITING",
+                  "country": "United States",
+                  "geoPoint": {
+                    "lat": 40,
+                    "lon": -82.5
+                  }
+                },
+                {
+                  "facility": "Closed Ohio Site",
+                  "city": "Test City",
+                  "state": "Ohio",
+                  "status": "ACTIVE_NOT_RECRUITING",
+                  "country": "United States",
+                  "geoPoint": {
+                    "lat": 40,
+                    "lon": -83
+                  }
+                },
+                {
+                  "facility": "Nearby Indiana Site",
+                  "city": "Test City",
+                  "state": "Indiana",
+                  "status": "RECRUITING",
+                  "country": "United States",
+                  "geoPoint": {
+                    "lat": 40,
+                    "lon": -83
+                  }
+                },
+                {
+                  "facility": "Ohio Site Without Coordinates",
+                  "city": "Test City",
+                  "state": "Ohio",
+                  "status": "RECRUITING",
+                  "country": "United States"
+                },
+                {
+                  "facility": "Outside Ohio Site",
+                  "city": "Test City",
+                  "state": "Ohio",
+                  "status": "RECRUITING",
+                  "country": "United States",
+                  "geoPoint": {
+                    "lat": 40,
+                    "lon": -82.25
+                  }
+                },
+                {
+                  "facility": "Nearest Ohio Site",
+                  "city": "Test City",
+                  "state": "Ohio",
+                  "status": "RECRUITING",
+                  "country": "United States",
+                  "geoPoint": {
+                    "lat": 40,
+                    "lon": -83.125
+                  },
+                  "contacts": [
+                    {
+                      "name": "Site Coordinator",
+                      "role": "CONTACT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
