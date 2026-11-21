@@ -1,0 +1,80 @@
+{
+  "feature": "runnable-related-queries",
+  "live_check": "authored synthetic Monarch replies",
+  "story": "When HPO cannot serve a phenotype section, follow the explicit Monarch command to read that same section.",
+  "replay": "phenotype/get-refusals",
+  "steps": [
+    {
+      "run": ["get", "phenotype", "HP:0001083", "diseases", "--source", "hpo"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": {
+          "includes_all_of": ["HPO serves term records", "diseases", "Monarch"]
+        },
+        "/error/valid_values": ["monarch"],
+        "/next/0/kind": "configure",
+        "/next/0/args": ["get", "phenotype", "HP:0001083", "diseases", "--source", "monarch"]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/source": "monarch",
+        "/query/section": "diseases",
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": ["get", "phenotype", "HP:0001083", "hierarchy", "--source", "hpo"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": {
+          "includes_all_of": ["HPO serves term records", "hierarchy", "Monarch"]
+        },
+        "/error/valid_values": ["monarch"],
+        "/next/0/kind": "configure",
+        "/next/0/args": ["get", "phenotype", "HP:0001083", "hierarchy", "--source", "monarch"]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/source": "monarch",
+        "/query/section": "hierarchy",
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": ["get", "phenotype", "HP:0001083", "genes", "--source", "hpo"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": {
+          "includes_all_of": ["HPO serves term records", "genes", "Monarch"]
+        },
+        "/error/valid_values": ["monarch"],
+        "/next/0/kind": "configure",
+        "/next/0/args": ["get", "phenotype", "HP:0001083", "genes", "--source", "monarch"]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/source": "monarch",
+        "/query/section": "genes",
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}
