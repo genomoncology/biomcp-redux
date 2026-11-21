@@ -1,0 +1,24 @@
+feature: pathway-reactome
+story: A Reactome stable ID selects Reactome, so get pathway names the redundant source flag and offers the same lookup with that flag removed.
+replay: pathway/gene-products
+steps:
+- run: [get, pathway, R-HSA-5693607, --source, reactome]
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+    /error/option: --source
+    /error/message: "get pathway rejects --source. The Reactome stable ID selects Reactome."
+    /next/0/args: [get, pathway, R-HSA-5693607]
+- follow: configure
+  expect:
+    /status: complete
+    /result/pathway/id: {equals: {namespace: reactome, id: R-HSA-5693607}}
+- run: [get, pathway, R-HSA-5693607, genes, --section-limit, '2', --source=Reactome]
+  exit: 2
+  expect:
+    /error/option: --source
+    /error/message: "get pathway rejects --source. The Reactome stable ID selects Reactome."
+- follow: configure
+  expect:
+    /status: complete
+    /result/genes/data/page/returned: 2

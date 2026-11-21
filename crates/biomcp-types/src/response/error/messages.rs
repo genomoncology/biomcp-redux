@@ -30,6 +30,7 @@ singleton! {
  ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
  GeneSourceSection => "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD.",
  GeneSearchSource => "search gene does not take --source. It looks up HGNC names and aliases. Use get disease NAME gene-validity for disease curation.",
+ PathwaySourceImplicit => "get pathway rejects --source. The Reactome stable ID selects Reactome.",
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentTextUnplaced => "this command takes no text outside an option; next gives the words to error.option",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",

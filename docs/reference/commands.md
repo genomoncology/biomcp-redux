@@ -2371,7 +2371,7 @@ Commands:
                  Sections disclose source facts with independent row bounds; function keeps all paragraphs.
                  No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
   phenotype      Read an exact HP term from HPO or Monarch, or page source sections. A term lookup answers terminology; an association answers what its publisher asserts. Neither establishes a diagnosis.
-  pathway        Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+  pathway        Get a human Reactome R-HSA or WikiPathways WP card, summary, genes, Reactome events or bounded all sections. Reactome genes includes database release and pre-page HGNC counts. Membership implies no therapy, response or actionability. No enrichment is calculated.
   study          Exact case-sensitive study card or bounded metadata section. No frequency, denominator, survival or comparison is calculated. Source counts keep their source names.
   pgx            PGx card or section. No phenotype, phase or dose is calculated.
   diagnostic     Get one exact source record or supported section. A listing is not authorization; a companion row is not a treatment recommendation.
@@ -2813,7 +2813,7 @@ Absent means the source identity card.
 ## biomcp get pathway
 
 ```text
-Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+Get a human Reactome R-HSA or WikiPathways WP card, summary, genes, Reactome events or bounded all sections. Reactome genes includes database release and pre-page HGNC counts. Membership implies no therapy, response or actionability. No enrichment is calculated.
 
 Usage: biomcp get pathway [OPTIONS] <id> [section]
 
@@ -2881,7 +2881,7 @@ Form: get pathway ID SECTION; not --id.
 - `--pool`: Retained snapshot, when continuing a source relation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `section`: Omit for the card; WikiPathways has summary and genes… (full rule with the sections).
 Form: get pathway ID SECTION; not --section.
-- `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer; example: --section-limit 5.
+- `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer; example: --section-offset 0.
 
 Omit for the card; WikiPathways has summary and genes sections.
@@ -4649,7 +4649,7 @@ Read pathway genes and source events.
 Usage: biomcp pathway [OPTIONS] <COMMAND>
 
 Commands:
-  genes   Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses complete Reactome physical contexts. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+  genes   Read Reactome references or WikiPathways GeneProduct nodes. Reactome gives its database release and counts distinct HGNC genes and unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.
   events  Read Reactome event objects and unresolved source integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
 Options:
@@ -4688,7 +4688,7 @@ Read pathway genes and source events.
 ## biomcp pathway genes
 
 ```text
-Read Reactome exact references or WikiPathways GeneProduct data nodes. The details layer discloses complete Reactome physical contexts. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+Read Reactome references or WikiPathways GeneProduct nodes. Reactome gives its database release and counts distinct HGNC genes and unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.
 
 Usage: biomcp pathway genes [OPTIONS] <id> [details]
 
