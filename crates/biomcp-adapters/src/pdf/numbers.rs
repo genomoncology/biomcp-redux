@@ -189,8 +189,8 @@ fn merge(visible: &[Glyph], invisible: &[Glyph], gap: f32) -> Option<String> {
     if invisible.first()?.start > visible.first()?.start
         || invisible.last()?.end < visible.last()?.end
         || glyphs
-            .windows(2)
-            .any(|pair| pair[0].end - pair[1].start > gap)
+            .array_windows()
+            .any(|[previous, next]| previous.end - next.start > gap)
         || !glyphs.windows(3).any(|triple| split_decimal(triple, gap))
     {
         return None;

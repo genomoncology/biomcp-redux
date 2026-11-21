@@ -209,22 +209,9 @@ impl<'a> Reader<'a> {
         let place = self
             .end
             .map_or(Place::Joined, |end| position.place(end, digits_touch));
-        let phone_start = self.text.trim_end().len();
-        let phone_wrap = sound
-            && self
-                .unsound
-                .last()
-                .is_none_or(|&(_, end)| end <= phone_start.saturating_sub(PHONE_PREFIX_BYTES))
-            && continue_phone(&self.text[..phone_start], &shown);
-        if phone_wrap {
-            self.pending = false;
-            self.overlay.drop_from(phone_start);
-            self.text.truncate(phone_start);
-            shown.drain(..shown.len() - shown.trim_start().len());
-        } else {
+        if !sound || !self.join_wrapped_phone(&mut shown) {
             self.separate(place, &shown);
         }
-
         if sound {
             join_phones(&mut shown);
         }
@@ -251,6 +238,23 @@ impl<'a> Reader<'a> {
         self.matrix = start.moved(advance, 0.0);
         self.end = Some(Position::new(self.matrix, &self.state).end(measured, array));
         Ok(())
+    }
+
+    fn join_wrapped_phone(&mut self, shown: &mut String) -> bool {
+        let before = self.text.trim_end();
+        if self
+            .unsound
+            .last()
+            .is_some_and(|&(_, end)| end > before.len().saturating_sub(PHONE_PREFIX_BYTES))
+            || !continue_phone(before, shown)
+        {
+            return false;
+        }
+        self.pending = false;
+        self.overlay.drop_from(before.len());
+        self.text.truncate(before.len());
+        shown.drain(..shown.len() - shown.trim_start().len());
+        true
     }
 
     fn separate(&mut self, place: Place, shown: &str) {
