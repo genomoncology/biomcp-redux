@@ -1566,9 +1566,9 @@ Paging: --limit and --offset.
 - `--mechanism-of-action`: Exact Mechanism of Action wording, without synonyms or drug class inference. Value form: string; example: 'Janus kinase'; only with --source openfda-label.
 - `--name-selector`: ChEMBL name to match. Default: preferred name. Value form: string; example: preferred; only with --source chembl.
 - `--name-snapshot`: Continue the first page's names and search step. Copy the returned token and keep filters unchanged. Value form: string; example: <name-snapshot> (syntax; replace the placeholder with your retained value).
-- `--offset`: Rows to skip. Purple Book applies this only to presentation rows. Value form: integer; example: 1.
+- `--offset`: Rows to skip. Purple Book applies this only to presentation rows. Value form: integer; example: --offset 1.
 - `--prequalified-from`: Earliest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2020; only with --source who-pq.
-- `--prequalified-to`: Latest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2020; only with --source who-pq.
+- `--prequalified-to`: Latest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `--presentations`: Return presentation rows, as do --strength and --device. Value form: boolean; example: --presentations; only with --source purple-book.
 - `query`: Drug name phrase. Omit for recall, safety communication, WHO date, label indication or mechanism, or Drugs@FDA applicant searches.
 Drugs@FDA matches brands and ingredients, exact names first. openFDA labels match brands and generics, exact names first,
