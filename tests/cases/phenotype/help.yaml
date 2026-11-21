@@ -6,7 +6,6 @@
       "expect": {
         "/result/commands/0/arguments/*/choices/*": {
           "includes_all_of": [
-            "hpo",
             "monarch"
           ]
         },
@@ -18,7 +17,7 @@
             "--offset"
           ]
         },
-        "/result/commands/0/description": "Search human phenotypes in HPO. Sources: hpo, monarch, ols.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: attribution, best_matches, category, id, label, match_score, match_type, matched_field, object_to_subject_score, rank, score, subject_to_object_score. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: attribution, id, rank, score.",
+        "/result/commands/0/description": "Search human phenotypes in HPO. Sources: monarch.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: attribution, best_matches, category, id, label, match_score, match_type, matched_field, object_to_subject_score, rank, score, subject_to_object_score. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: attribution, id, rank, score.",
         "/result/commands/0/examples": {
           "count": 1
         },

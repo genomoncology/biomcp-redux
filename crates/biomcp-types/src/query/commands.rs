@@ -119,7 +119,7 @@ macro_rules! command_types {
             );
             /// Search human phenotypes in HPO.
             SearchPhenotype(PhenotypeSearch) => (
-                "search", "phenotype", PhenotypeSearch, "phenotype-search-query", "biomcp.phenotype-search-query/1", PhenotypeSearch,
+                "search", "phenotype", PhenotypeSearchCommand, "phenotype-search-query", "biomcp.phenotype-search-query/1", PhenotypeSearchCommand,
                 "phenotype-search-query", "biomcp.phenotype-search-query/1", "biomcp.phenotype-search-query/1", 20, Direct
             );
             /// Get human phenotype details and relationships.
@@ -194,7 +194,7 @@ macro_rules! command_types {
             );
             /// Search diseases and their identifiers.
             SearchDisease(DiseaseSearch) => (
-                "search", "disease", DiseaseSearch, "disease-search", "biomcp.disease-search/1", DiseaseSearch, "disease-search",
+                "search", "disease", DiseaseSearchCommand, "disease-search", "biomcp.disease-search/1", DiseaseSearchCommand, "disease-search",
                 "biomcp.disease-search/1", "biomcp.disease-search/1", 34, Direct
             );
             /// Get disease details and source statistics.

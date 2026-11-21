@@ -25,7 +25,7 @@
         " Every ancestor term up to the ontology root, from OLS."
       ]
     },
-    "PhenotypeSource": {
+    "SharedPhenotypeSource": {
       "description": "One independent term publisher.",
       "enum": [
         "hpo",
@@ -82,7 +82,7 @@
       "description": "Retained exact source reply for local text and link pages; unsupported for diseases, genes and ancestors."
     },
     "source": {
-      "$ref": "#/$defs/PhenotypeSource",
+      "$ref": "#/$defs/SharedPhenotypeSource",
       "description": "HPO or Monarch for cards, synonyms and xrefs; Monarch only; help get phenotype\nHPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes; OLS only for ancestors. Defaults to HPO for cards, synonyms and xrefs, OLS for ancestors, otherwise Monarch."
     }
   },

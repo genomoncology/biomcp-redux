@@ -299,7 +299,7 @@
           "description": "Retained exact source reply for local text and link pages; unsupported for diseases, genes and ancestors."
         },
         "source": {
-          "$ref": "#/$defs/Reply_PhenotypeSource",
+          "$ref": "#/$defs/Reply_SharedPhenotypeSource",
           "description": "HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes; OLS only for ancestors. Defaults to HPO for cards, synonyms and xrefs, OLS for ancestors, otherwise Monarch."
         }
       },
@@ -397,20 +397,6 @@
         " Native disease association rows.",
         " Native human gene association rows.",
         " Every ancestor term up to the ontology root, from OLS."
-      ]
-    },
-    "Reply_PhenotypeSource": {
-      "description": "One independent term publisher.",
-      "enum": [
-        "hpo",
-        "monarch",
-        "ols"
-      ],
-      "type": "string",
-      "x-enum-descriptions": [
-        " Direct HPO term metadata.",
-        " Monarch term search and associations.",
-        " OLS ancestor lists for HP terms."
       ]
     },
     "Reply_PoolInfo": {
@@ -545,6 +531,20 @@
         "syncing",
         "no-join-id",
         "not-stated"
+      ]
+    },
+    "Reply_SharedPhenotypeSource": {
+      "description": "One independent term publisher.",
+      "enum": [
+        "hpo",
+        "monarch",
+        "ols"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Direct HPO term metadata.",
+        " Monarch term search and associations.",
+        " OLS ancestor lists for HP terms."
       ]
     },
     "Reply_Source": {
