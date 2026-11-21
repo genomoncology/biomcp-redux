@@ -106,6 +106,7 @@ fn provenance(
 pub(super) fn tool(
     (name, asks, _, [search, get], not_for): &super::catalog::front_map::EntityTool,
     sources: &BTreeSet<String>,
+    drug_get_sources: Option<&BTreeSet<String>>,
     actions: &[(&str, &str)],
     excluded: &BTreeSet<biomcp_types::Source>,
 ) -> String {
@@ -113,8 +114,15 @@ pub(super) fn tool(
     let mut parts = vec![plain(&format!("{asks}."))];
     let names = sources
         .iter()
-        .filter_map(|word| word.parse::<biomcp_types::Source>().ok())
-        .map(biomcp_query::sources::display_name)
+        .filter_map(|word| {
+            let source = word.parse().ok()?;
+            let name = biomcp_query::sources::display_name(source);
+            Some(if drug_get_sources.is_some_and(|get| !get.contains(word)) {
+                format!("{name} (search)")
+            } else {
+                name.to_owned()
+            })
+        })
         .collect::<BTreeSet<_>>();
     if !names.is_empty() {
         let names = names.into_iter().collect::<Vec<_>>();

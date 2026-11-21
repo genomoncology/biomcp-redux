@@ -164,7 +164,11 @@ fn entity(
         .iter()
         .map(|(action, note, _)| (*action, *note))
         .collect::<Vec<_>>();
-    let description = super::description::tool(tool, &sources, &notes, excluded);
+    let drug_get_sources = actions
+        .iter()
+        .find(|(action, _, _)| name == "drug" && *action == "get")
+        .map(|(_, _, command)| &command.sources);
+    let description = super::description::tool(tool, &sources, drug_get_sources, &notes, excluded);
     let mut tool = json!({"name":name,
         "description":description,
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",

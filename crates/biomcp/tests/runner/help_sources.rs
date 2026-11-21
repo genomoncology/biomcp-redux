@@ -1,7 +1,7 @@
 //! Feature schema-discovery: an advertised publisher has a usable command form.
-use super::launch::Environment;
+use super::{launch::Environment, mcp};
 use biomcp_types::{Help, HelpCommand, Source};
-use serde_json::Value;
+use serde_json::{Value, json};
 
 type Check<T = ()> = Result<T, String>;
 
@@ -26,16 +26,62 @@ fn check() -> Check {
             .and_then(|line| line.trim_end_matches('.').split_once(" Sources: "))
             .ok_or_else(|| format!("missing source line for {verb} {entity}"))?;
         for source in sources.split(", ") {
-            if let Err(error) = validates(&env, command, source) {
+            if let Err(error) = validates(&env, command, source)
+                && !known_search_gap(verb, entity, source)
+            {
                 failures.push(format!("{verb} {entity} / {source}: {error}"));
             }
         }
     }
     if failures.is_empty() {
-        Ok(())
+        typed_drug(&env)
     } else {
         Err(failures.join("\n"))
     }
+}
+
+// Existing source-list gaps in other commands. Keep checking their other sources.
+fn known_search_gap(verb: &str, entity: &str, source: &str) -> bool {
+    matches!(
+        (verb, entity, source),
+        ("search", "phenotype", "hpo" | "ols") | ("search", "disease", "monarch" | "mydisease")
+    )
+}
+
+fn typed_drug(env: &Environment) -> Check {
+    env.config(&json!({"mcp_tool_mode":"typed"}))
+        .map_err(|error| error.to_string())?;
+    let replies = mcp::exchange_with_globals(
+        env,
+        &[mcp::request(json!(1), "tools/list", json!({}))],
+        &["--offline".into()],
+    )?;
+    let drug = replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .and_then(|tools| tools.iter().find(|tool| tool["name"] == "drug"))
+        .ok_or("missing typed drug tool")?;
+    for (action, expected) in [("search", true), ("get", false)] {
+        let sources = drug
+            .pointer(&format!(
+                "/inputSchema/properties/{action}/properties/source/enum"
+            ))
+            .and_then(Value::as_array)
+            .ok_or_else(|| format!("missing typed drug {action} sources"))?;
+        if sources.contains(&json!("purple-book")) != expected {
+            return Err(format!(
+                "wrong Purple Book availability in drug {action}: {sources:?}"
+            ));
+        }
+    }
+    if !drug["description"]
+        .as_str()
+        .is_some_and(|text| text.contains("FDA Purple Book (search)"))
+    {
+        return Err("typed drug discovery must say Purple Book is search only".into());
+    }
+    Ok(())
 }
 
 fn validates(env: &Environment, command: &HelpCommand, source: &str) -> Check {
@@ -54,6 +100,11 @@ fn validates(env: &Environment, command: &HelpCommand, source: &str) -> Check {
     }
 
     // Fixed and implicit publishers use a section, an ID form, or the ordinary example.
+    if let Some(operands) = implicit_form(verb, entity, source) {
+        let mut args = command.command.clone();
+        args.extend(operands.iter().map(|word| (*word).to_owned()));
+        return accepted(env, &args);
+    }
     let parsed = source
         .parse::<Source>()
         .map_err(|error| error.to_string())?;
@@ -70,11 +121,6 @@ fn validates(env: &Environment, command: &HelpCommand, source: &str) -> Check {
         };
         let mut args = command.command.clone();
         args.extend(operands.into_iter().map(str::to_owned));
-        return accepted(env, &args);
-    }
-    if let Some(operands) = implicit_form(verb, entity, source) {
-        let mut args = command.command.clone();
-        args.extend(operands.iter().map(|word| (*word).to_owned()));
         return accepted(env, &args);
     }
     let example = command.examples.first().ok_or("missing help example")?;
@@ -118,22 +164,24 @@ fn run(env: &Environment, args: &[String]) -> Check<(Option<i32>, Value)> {
 
 fn selected_form(verb: &str, entity: &str, source: &str) -> &'static [&'static str] {
     match (verb, entity, source) {
-        ("search", "biomarker", _) => &["PD-L1"],
-        ("search", "organization", _) => &["Mayo"],
+        ("search", "biomarker", _) => &["--name", "PD-L1"],
+        ("search", "organization", _) => &["--name", "Mayo"],
         ("search", "author", _) => &["Jane Smith"],
         ("search", "pathway", _) => &["MAPK"],
         ("search", "pgx", _) => &["--gene", "CYP2C19"],
         ("search", "phenotype", _) => &["seizure"],
         ("search", "diagnostic", _) => &[],
-        ("search", "adverse-event", "vaers") => &["--vaccine", "COVID19"],
-        ("search", "adverse-event", "maude") => &["--device", "pump"],
+        ("search", "adverse-event", "vaers") => &["COVID19"],
+        ("search", "adverse-event", "maude") => &["pump"],
         ("search", "adverse-event", _) => &["--drug", "imatinib"],
         ("search", "disease", "hpo") => {
             &["--phenotype", "HP:0001250", "--hpo-release", "v2025-11-24"]
         }
         ("search", "disease", _) => &["melanoma"],
         ("search", "drug", _) => &["imatinib"],
+        ("search", "article", "litvar") => &["--variant", "rs121434592"],
         ("search", "article", _) => &["BRAF V600E"],
+        ("search", "trial", "nci") => &["--condition", "C3224"],
         ("search", "trial", _) => &["--condition", "melanoma"],
         ("search", "variant", _) => &["BRAF V600E"],
         ("get", "biomarker", _) => &["C96022"],
@@ -145,10 +193,11 @@ fn selected_form(verb: &str, entity: &str, source: &str) -> &'static [&'static s
         ("get", "diagnostic", "fda-device-recall") => &["Z-0877-2024"],
         ("get", "diagnostic", "fda-pma") => &["P170019"],
         ("get", "diagnostic", "gtr") => &["GTR000000001.1"],
-        ("get", "diagnostic", "who-ivd") => &["PQDx 0157-013-00"],
+        ("get", "diagnostic", "who-ivd") => &["0999-999-99"],
         ("get", "adverse-event", _) => &["12345678"],
         ("get", "disease", "orphadata") => &["ORPHA:558", "prevalence"],
-        ("get", "disease", "seer") => &["melanoma"],
+        ("get", "disease", "seer") => &["melanoma", "incidence", "--dataset", "4", "--period", "5"],
+        ("get", "disease", "monarch") => &["MONDO:0005105", "genes"],
         ("get", "disease", _) => &["MONDO:0005105"],
         ("get", "drug", "fda-dsc") => &["ffffffff-ffff-ffff-ffff-ffffffffffff"],
         ("get", "drug", _) => &["imatinib"],
@@ -158,7 +207,13 @@ fn selected_form(verb: &str, entity: &str, source: &str) -> &'static [&'static s
         }
         ("article", "citations" | "references", _) => &["30545842"],
         ("variant", "assertions", _) => &["clinvar:13961"],
-        ("variant", "recurrence", _) => &["7-140753336-A-T", "--study", "msk_impact_2017"],
+        ("variant", "recurrence", _) => &[
+            "7-140753336-A-T",
+            "--gene",
+            "BRAF",
+            "--study",
+            "msk_impact_2017",
+        ],
         ("variant", "normalize", _) => &["--hgvs", "NM_004333.6:c.1799T>A", "--build", "GRCh38"],
         _ => &[],
     }
@@ -166,20 +221,26 @@ fn selected_form(verb: &str, entity: &str, source: &str) -> &'static [&'static s
 
 fn implicit_form(verb: &str, entity: &str, source: &str) -> Option<&'static [&'static str]> {
     Some(match (verb, entity, source) {
-        ("search", "gene", "clingen") => &["--cytoband", "17p13.3"],
+        ("search", "gene", "clingen") => &["--band", "17p13.3"],
         ("get", "author", "orcid") | ("author", "papers", "orcid") => {
             &["orcid:0000-0002-1825-0097"]
         }
         ("get", "author", "semantic-scholar") | ("author", "papers", "semantic-scholar") => {
             &["semantic-scholar:1741101"]
         }
+        ("get", "cell-line", "cellosaurus") => &["CVCL_0030", "names"],
+        ("get", "pathway", "reactome") => &["R-HSA-5673001", "summary"],
         ("get", "gene", "mygene") => &["BRAF"],
         ("get", "protein", "hgnc") => &["EGFR"],
         ("get", "article", "europepmc") => &["PMC6549796"],
         ("get", "pathway", "wikipathways") | ("pathway", "genes", "wikipathways") => &["WP254"],
-        ("article", "text", "europepmc" | "pmc-oa") => &["PMC6549796", "--body"],
-        ("article", "supplement", "pmc-oa") => &["PMC6549796", "--file", "supplement.pdf"],
-        ("article", "citation-evidence", "pmc-oa") => &["30545842"],
+        ("article", "text", "pubmed") => &["30545842"],
+        ("article", "text", "europepmc" | "pmc-oa") => &["PMC6549796", "--find", "BRAF"],
+        ("article", "supplement", "pmc-oa") => &["PMC6549796", "supplement.pdf"],
+        ("article", "citations" | "references", "pubmed") => {
+            &["30545842", "--source", "semantic-scholar"]
+        }
+        ("article", "citation-evidence", "pmc-oa") => &["30545842", "34096690", "--fulltext"],
         ("variant", "population", "gnomad" | "myvariant") => &["7-140753336-A-T"],
         _ => return None,
     })

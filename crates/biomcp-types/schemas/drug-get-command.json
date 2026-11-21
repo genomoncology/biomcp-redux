@@ -303,8 +303,22 @@
       ]
     },
     "source": {
-      "$ref": "#/$defs/DrugSource",
-      "description": "Omit to infer the source of an unambiguous section; identity or; help get drug\nOmit to infer the source of an unambiguous section; identity or mixed sections use MyChem."
+      "description": "Omit to infer the source of an unambiguous section; identity or; help get drug\nOmit to infer the source of an unambiguous section; identity or mixed sections use MyChem.",
+      "enum": [
+        "who-pq",
+        "fda-drug-recall",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "civic",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "ddinter",
+        "who-eml",
+        "fda-dsc"
+      ],
+      "type": "string"
     }
   },
   "required": [
