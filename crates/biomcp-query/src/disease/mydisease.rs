@@ -11,6 +11,12 @@ use biomcp_types::{
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
+    let mut out = empty(biomcp_types::DiseaseCard::into_reply(query.clone(), None));
+    if id.as_str().starts_with("OMIM:") && omim_gene(cx, id, deadline, &mut out) {
+        crate::status::item(&mut out, false, false, false);
+        command.finish(deadline.remaining());
+        return out;
+    }
     let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);
     let mut reply = mydisease::annotation(&leg, id);
     let mut label_problems = Vec::new();
@@ -26,7 +32,6 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         label_error = label(&leg, page.collect(), &mut label_problems);
     }
     let error = reply.as_ref().err().copied();
-    let mut out = empty(biomcp_types::DiseaseCard::into_reply(query.clone(), None));
     // A failed parent-name read leaves the rows unnamed, so the source and reply are not complete.
     out.sources.push(status::source(
         Source::MyDisease,
@@ -47,6 +52,57 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     command.finish(deadline.remaining());
     out
 }
+/// A positive, exact gene entry stops the disease lookup and offers the known gene IDs.
+fn omim_gene(
+    cx: &Ctx<'_>,
+    id: &biodata::Curie,
+    deadline: biomcp_fetch::Deadline<'_>,
+    out: &mut Outcome,
+) -> bool {
+    use biomcp_adapters::hgnc;
+    use biomcp_types::{GeneGet, GeneInput, SourceNotice};
+
+    let leg = cx.fetch.leg(&hgnc::OMIM_SPEC, deadline).fresh(cx.fresh);
+    let reply = hgnc::omim_genes(&leg, id);
+    let error = reply.as_ref().err().copied();
+    let mut source = status::source(Source::Hgnc, leg.finish(), error);
+    let (is_gene, notice) = match reply {
+        Ok(ids) if !ids.is_empty() => {
+            for id in ids {
+                let query = crate::next::checked(
+                    GeneGet::new(vec![GeneInput::HgncId(id)].into()),
+                    Source::Hgnc,
+                    &mut out.problems,
+                );
+                out.next.extend(query.map(|query| {
+                    crate::next::Step::new(
+                        StepKind::Pivot,
+                        &[Source::Hgnc],
+                        run(Request::GetGene(query)),
+                    )
+                }));
+            }
+            (true, Some(format!("HGNC lists {id} as a gene entry.")))
+        }
+        Ok(_) => (false, None),
+        Err(_) => (
+            false,
+            Some(format!(
+                "HGNC could not check whether {id} is a gene entry."
+            )),
+        ),
+    };
+    source
+        .notices
+        .extend(notice.map(|message| SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        }));
+    out.sources.push(source);
+    is_gene
+}
+
 /// Name each direct parent on the page from its own record in one batch; an unnamed parent keeps its ID.
 /// Returns the lookup failure, which the caller reports on the source.
 fn label(
