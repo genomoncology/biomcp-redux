@@ -2,7 +2,7 @@
 use super::fonts::number;
 use super::position::{Position, WORD_GAP};
 use super::state::State;
-use lopdf::Object;
+use lopdf::{Encoding, Object};
 use std::ops::Range;
 
 /// A raised digit immediately after explicit multiplication by ten is an exponent.
@@ -96,13 +96,13 @@ impl Overlay {
             if !same_line(prior.position, position) || !shown.contains('.') {
                 return None;
             }
-            let glyphs = positioned(position, state, items)?;
+            let glyphs = positioned(position, state, items, shown)?;
             let merged = merge(&prior.glyphs, &glyphs, position.height * WORD_GAP)?;
             *shown = merged;
             return self.0.take().map(|candidate| candidate.output);
         }
         if sparse(items, shown) {
-            self.0 = positioned(position, state, items).map(|glyphs| Candidate {
+            self.0 = positioned(position, state, items, shown).map(|glyphs| Candidate {
                 position,
                 glyphs,
                 output: at..at + shown.len(),
@@ -149,31 +149,44 @@ fn same_line(left: Position, right: Position) -> bool {
 
 /// Read individual positions only for candidate runs. A glyph with ambiguous decoding or
 /// advance leaves the original two passes intact.
-fn positioned(position: Position, state: &State<'_>, items: &[Object]) -> Option<Vec<Glyph>> {
+fn positioned(
+    position: Position,
+    state: &State<'_>,
+    items: &[Object],
+    shown: &str,
+) -> Option<Vec<Glyph>> {
     let font = state.font.as_ref()?;
-    let widths = font.widths.as_ref()?;
+    let widths = font.widths.as_ref().filter(|widths| widths.two_byte)?;
+    let Encoding::UnicodeMapEncoding(map) = &font.encoding else {
+        return None;
+    };
     let mut x = position.page.e;
     let mut glyphs = Vec::new();
-    let mut decoded = String::new();
+    let mut source = shown.chars().filter(|c| !c.is_whitespace());
     let mut count = 0;
     for item in items {
         if let Object::String(bytes, _) = item {
-            for glyph in bytes.chunks(widths.code_bytes()) {
-                count += 1;
-                if count > MAX_GLYPHS || glyph.len() != widths.code_bytes() {
+            let (codes, trailing) = bytes.as_chunks::<2>();
+            count += codes.len();
+            if count > MAX_GLYPHS || !trailing.is_empty() {
+                return None;
+            }
+            for glyph in codes {
+                let units = map.get(u32::from(u16::from_be_bytes(*glyph)), 2)?;
+                let [unit] = units.as_slice() else {
                     return None;
-                }
-                decoded.clear();
-                match font.decode(glyph, &mut decoded) {
-                    Ok(false) => {}
-                    Ok(true) | Err(_) => return None,
-                }
-                let character = single_char(&decoded)?;
+                };
+                let character = char::from_u32(u32::from(*unit))?;
                 let end = x + widths.glyph_advance(glyph, state) * position.page.a;
                 if !end.is_finite() || end < x {
                     return None;
                 }
                 if !character.is_whitespace() {
+                    // Compare with the original read to rule out variable-width codes and
+                    // mappings that decode differently from the two-byte glyph positions.
+                    if source.next() != Some(character) {
+                        return None;
+                    }
                     glyphs.push(Glyph {
                         start: x,
                         end,
@@ -187,13 +200,7 @@ fn positioned(position: Position, state: &State<'_>, items: &[Object]) -> Option
             x -= adjust / 1000.0 * state.size * state.scale * position.page.a;
         }
     }
-    Some(glyphs)
-}
-
-fn single_char(decoded: &str) -> Option<char> {
-    let mut chars = decoded.chars();
-    let first = chars.next()?;
-    (first != '\u{fffd}' && chars.next().is_none()).then_some(first)
+    source.next().is_none().then_some(glyphs)
 }
 
 fn merge(visible: &[Glyph], invisible: &[Glyph], gap: f32) -> Option<String> {
