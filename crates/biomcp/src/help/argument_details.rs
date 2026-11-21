@@ -1,5 +1,6 @@
 //! Combine schema argument facts, recorded examples and registry source coverage.
 use biomcp_types::{HelpArgument, HelpCommand};
+use std::collections::BTreeSet;
 
 pub(super) fn complete(commands: &mut [HelpCommand]) {
     for command in commands {
@@ -29,6 +30,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             .collect::<Vec<_>>();
         let own = command.command.join(" ");
         let rule = command.section_rule.clone();
+        let mut example_values = (command.command == ["search", "drug"]).then(BTreeSet::new);
         let mut cased = false;
         for argument in &mut command.arguments {
             drop_pointer(&mut argument.description, &own, rule.as_deref());
@@ -55,7 +57,10 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 .filter(|_| selectable)
                 .map(|schema| only_sources(schema, &argument.name, &sources))
                 .unwrap_or_default();
-            option_sentence(argument, &sample, &only);
+            let sample = example_values.as_mut().map_or(sample.as_str(), |seen| {
+                short_example(&sample, &argument.name, &only, seen)
+            });
+            option_sentence(argument, sample, &only);
         }
         // Lines that hold for every option are said once, on the command.
         if cased {
@@ -77,6 +82,19 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             command.description.push_str(&line);
         }
     }
+}
+/// The flag is already beside its example. Keep it when two options share a value and source.
+fn short_example<'a>(
+    sample: &'a str,
+    name: &str,
+    sources: &[String],
+    seen: &mut BTreeSet<(String, Vec<String>)>,
+) -> &'a str {
+    sample
+        .strip_prefix(name)
+        .and_then(|suffix| suffix.strip_prefix([' ', '=']))
+        .filter(|&value| seen.insert((value.to_owned(), sources.to_vec())))
+        .unwrap_or(sample)
 }
 /// One sentence per option that names the option, so no option repeats another's.
 fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
@@ -189,11 +207,7 @@ fn usage_form(command: &HelpCommand) -> String {
         .join(" ")
 }
 /// Command sources an option's schema field requires, when it names only some of them.
-fn only_sources(
-    schema: &serde_json::Value,
-    name: &str,
-    sources: &std::collections::BTreeSet<String>,
-) -> Vec<String> {
+fn only_sources(schema: &serde_json::Value, name: &str, sources: &BTreeSet<String>) -> Vec<String> {
     let required = crate::mcp::typed::catalog::argument_sources(schema, name)
         .iter()
         .map(ToString::to_string)

@@ -118,8 +118,25 @@ fn unknown(
     path: (&str, &str),
 ) -> UsageError {
     let (mut next, unplaced, unsaid) = kept_step(parsed, row);
+    let label_text = !unsaid
+        && unplaced.iter().any(|name| name.as_str() == "text")
+        && matches!(
+            &parsed.action,
+            Some(Action::Run { request: Request::GetDrug(query), .. })
+                if query.sections() == [biomcp_types::DrugSection::Label]
+                    && query.source() == biomcp_types::DrugSource::OpenfdaLabel
+                    && query.label_section().is_some()
+                    && query.label_find().is_empty()
+        );
     if next.is_empty() {
-        next.push(help_step(path));
+        if label_text
+            && let Some(action) = &parsed.action
+            && let Ok(step) = crate::spell::step(StepKind::Configure, action)
+        {
+            next.push(step);
+        } else {
+            next.push(help_step(path));
+        }
     }
     UsageError::FieldsUnknown {
         source,
@@ -127,6 +144,8 @@ fn unknown(
         unplaced,
         message: if unsaid {
             ErrorMessage::FieldsUnsaid
+        } else if label_text {
+            ErrorMessage::FieldsLabelText
         } else {
             ErrorMessage::FieldsUnknown
         },
@@ -355,6 +374,14 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
         return None;
     }
     let required = row.required().cloned().collect::<BTreeSet<_>>();
+    if (verb, entity) == ("search", "drug") {
+        let optional = row.names.difference(&required).cloned().collect();
+        return Some(format!(
+            "Optional fields: {}. Always kept: {}. --fields a,b or a.b (MCP: fields).",
+            joined(&optional),
+            joined(&required)
+        ));
+    }
     let kept = if required.is_empty() {
         String::new()
     } else {

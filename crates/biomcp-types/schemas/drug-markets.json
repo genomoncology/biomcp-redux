@@ -210,17 +210,17 @@
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "type": "string",
       "x-enum-descriptions": [
-        " All native identity cross-references and product links, mechanically paged; MyChem rows include ChEMBL ATC codes.",
+        " Paged identity cross-references and product links. MyChem includes ChEMBL ATC codes.",
         " Native target and mechanism relations.",
         " Native indication wording.",
         " Native CIViC therapy evidence and profile context.",
-        " One exact native label heading; label replies also name the application numbers and recent major changes.",
+        " Exact label heading, application numbers and recent major changes.",
         " Native application and product history rows.",
-        " The Drugs@FDA label version whose --label-section first holds a --find text, read from FDA's label PDFs.",
+        " First Drugs@FDA label PDF version with a --find match in --label-section.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. `levels` counts pairs per level across every page. DDInter's published files carry a level per pair and no management or mechanism text; `next` offers a search for the drug's openFDA label, whose drug_interactions section has that text.",
-        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; --source names one market.",
-        " Essential Medicines List listings from the eEML: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text; five per default page."
+        " DDInter partners and levels (default five per page). `levels` counts pairs across all pages. For management and mechanism text, follow `next` to the openFDA drug_interactions label field.",
+        " One row per market (Drugs@FDA, EMA, WHO prequalification). Use --source for one market.",
+        " eEML listings: core or complementary, section, indication, date added, therapeutic alternatives and Expert Committee text (default five per page)."
       ],
       "x-extensible-enum": [
         "xrefs",

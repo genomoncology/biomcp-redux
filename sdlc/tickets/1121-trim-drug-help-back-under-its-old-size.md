@@ -1,6 +1,7 @@
 # 1121 — trim-drug-help-back-under-its-old-size
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0a55727fca29ea19bf9c78f5ed772859d1e7b9ca
 
 Milestone: 7
 
