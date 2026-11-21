@@ -25,9 +25,22 @@
         "/page/returned": 1,
         "/result/indications/data/records/0/disease_references/0/id": "EFO:0000220",
         "/result/indications/data/records/0/disease_references/1/id": "D054198",
-        "/result/indications/data/records/0/stage/value": "3.0"
+        "/result/indications/data/records/0/stage/value": "3.0",
+        "/result/indications/data/records/0/attribution/source": "chembl",
+        "/result/indications/data/records/0": { "omits": ["drug"] },
+        "/result": { "omits": ["indication_attribution", "regulatory_context"] }
       },
       "max_bytes": 2139
+    },
+    {
+      "run": [
+        "get", "drug", "CHEMBL941", "indications", "--source", "chembl",
+        "--section-limit", "1", "--section-offset", "0", "--fields", "stage.value"
+      ],
+      "expect": {
+        "/result/indications/data/records/0/stage/value": "3.0",
+        "/result/indications/data/records/0/attribution/source": "chembl"
+      }
     },
     {
       "run": [

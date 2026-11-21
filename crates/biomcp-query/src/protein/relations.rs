@@ -63,15 +63,9 @@ impl Selection {
                     .filter(|r| accepts(q, r))
                     .collect();
                 let total = rows.len();
-                let items: Box<[_]> = rows
-                    .into_iter()
-                    .skip(offset as usize)
-                    .take(limit as usize)
-                    .collect();
-                out.body = (ProteinFeatures {
-                    coordinate_note: biomcp_types::coordinate_note(!items.is_empty()),
-                    items,
-                })
+                out.body = ProteinFeatures::for_entry(
+                    rows.into_iter().skip(offset as usize).take(limit as usize),
+                )
                 .with_query(q.clone());
                 total
             }

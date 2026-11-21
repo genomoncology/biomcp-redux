@@ -1326,25 +1326,48 @@
       ],
       "type": "object"
     },
-    "Reply_ProteinFeature": {
-      "description": "UniProt feature with source attribution and coordinate provenance.",
+    "Reply_ProteinFeaturePage": {
+      "description": "First page of features embedded in the selected protein card.",
       "properties": {
         "attribution": {
           "$ref": "#/$defs/Reply_Attribution",
-          "description": "Source record and release facts."
+          "description": "Entry provenance shared by the section's features."
         },
+        "items": {
+          "description": "Rows in source order.",
+          "items": {
+            "$ref": "#/$defs/Reply_ProteinFeatureRow"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Native feature count before the section limit.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "attribution",
+        "total",
+        "items"
+      ],
+      "type": "object"
+    },
+    "Reply_ProteinFeatureRow": {
+      "description": "A feature with its own coordinate accession and original convention.",
+      "properties": {
         "feature": {
           "$ref": "#/$defs/Reply_UniProtFeature",
-          "description": "Shared feature, including native label and residues."
+          "description": "Feature data, including source-specific sequence coordinates and residues."
         },
         "source_coordinates": {
           "$ref": "#/$defs/Reply_ProteinCoordinateConvention",
-          "description": "Convention before mathematical conversion."
+          "description": "Coordinate convention in the source data."
         }
       },
       "required": [
         "feature",
-        "attribution",
         "source_coordinates"
       ],
       "type": "object"
@@ -1694,29 +1717,6 @@
         "items": {
           "description": "Whole native rows in source order.",
           "items": {
-            "$ref": "#/$defs/Reply_ProteinFeature"
-          },
-          "type": "array"
-        },
-        "total": {
-          "description": "Number of source rows before card bounding.",
-          "format": "uint64",
-          "minimum": 0,
-          "type": "integer"
-        }
-      },
-      "required": [
-        "total",
-        "items"
-      ],
-      "type": "object"
-    },
-    "Reply_ProteinSectionPage2": {
-      "description": "Bounded card rows and the size of their complete UniProt collection.",
-      "properties": {
-        "items": {
-          "description": "Whole native rows in source order.",
-          "items": {
             "$ref": "#/$defs/Reply_ProteinIsoform"
           },
           "type": "array"
@@ -1734,7 +1734,7 @@
       ],
       "type": "object"
     },
-    "Reply_ProteinSectionPage3": {
+    "Reply_ProteinSectionPage2": {
       "description": "Bounded card rows and the size of their complete UniProt collection.",
       "properties": {
         "items": {
@@ -1796,7 +1796,7 @@
         "features": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_Section_ProteinSectionPage"
+              "$ref": "#/$defs/Reply_Section_ProteinFeaturePage"
             },
             {
               "type": "null"
@@ -1829,7 +1829,7 @@
         "isoforms": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_Section_ProteinSectionPage2"
+              "$ref": "#/$defs/Reply_Section_ProteinSectionPage"
             },
             {
               "type": "null"
@@ -1851,7 +1851,7 @@
         "structures": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_Section_ProteinSectionPage3"
+              "$ref": "#/$defs/Reply_Section_ProteinSectionPage2"
             },
             {
               "type": "null"
@@ -2435,6 +2435,122 @@
         }
       ]
     },
+    "Reply_Section_ProteinFeaturePage": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_ProteinFeaturePage",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not-applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "Reply_Section_ProteinFunctionResult": {
       "description": "A requested section has exactly one state.",
       "oneOf": [
@@ -2791,122 +2907,6 @@
           "properties": {
             "data": {
               "$ref": "#/$defs/Reply_ProteinSectionPage2",
-              "description": "Whole section data."
-            },
-            "source": {
-              "$ref": "#/$defs/Reply_Source",
-              "description": "Source identity."
-            },
-            "state": {
-              "const": "data",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state",
-            "source",
-            "data"
-          ],
-          "type": "object"
-        },
-        {
-          "description": "The source answered with no data.",
-          "properties": {
-            "record": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_SourceRecord"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Native entry, if any."
-            },
-            "source": {
-              "$ref": "#/$defs/Reply_Source",
-              "description": "Source identity."
-            },
-            "state": {
-              "const": "empty",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state",
-            "source"
-          ],
-          "type": "object"
-        },
-        {
-          "description": "A requested source failed.",
-          "properties": {
-            "reason": {
-              "$ref": "#/$defs/Reply_Reason",
-              "description": "Typed reason."
-            },
-            "source": {
-              "$ref": "#/$defs/Reply_Source",
-              "description": "Source identity."
-            },
-            "state": {
-              "const": "unavailable",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state",
-            "source",
-            "reason"
-          ],
-          "type": "object"
-        },
-        {
-          "description": "User settings prevented the source request.",
-          "properties": {
-            "reason": {
-              "$ref": "#/$defs/Reply_Reason",
-              "description": "Typed reason."
-            },
-            "source": {
-              "$ref": "#/$defs/Reply_Source",
-              "description": "Source identity."
-            },
-            "state": {
-              "const": "skipped",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state",
-            "source",
-            "reason"
-          ],
-          "type": "object"
-        },
-        {
-          "description": "Entity facts rule this section out.",
-          "properties": {
-            "state": {
-              "const": "not-applicable",
-              "type": "string"
-            }
-          },
-          "required": [
-            "state"
-          ],
-          "type": "object"
-        }
-      ]
-    },
-    "Reply_Section_ProteinSectionPage3": {
-      "description": "A requested section has exactly one state.",
-      "oneOf": [
-        {
-          "description": "The source returned data.",
-          "properties": {
-            "data": {
-              "$ref": "#/$defs/Reply_ProteinSectionPage3",
               "description": "Whole section data."
             },
             "source": {
@@ -3839,7 +3839,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-card/12",
+  "$id": "biomcp.protein-card/13",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -3916,7 +3916,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-card/12",
+      "const": "biomcp.protein-card/13",
       "type": "string"
     },
     "sources": {
