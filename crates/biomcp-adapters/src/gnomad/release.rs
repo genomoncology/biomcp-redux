@@ -3,15 +3,21 @@ use biodata::{Accession, AccessionBase, EnsemblFeature, FiniteNumber, Gene, Text
 use biomcp_fetch::{
     Bundle, Find, Freshness, KeyKind, Keys, Leg, RequestError, Row, RowFormat, SourceSpec,
 };
-use biomcp_types::{Constraint, ConstraintRelease};
+use biomcp_types::{Constraint, ConstraintRelease, Source};
 use serde::{Deserialize, Deserializer};
 use std::{marker::PhantomData, time::Duration};
 
 /// Publisher endpoint for the explicit constraint release tables.
 pub static SPEC: SourceSpec = SourceSpec {
     base: "https://storage.googleapis.com/gcp-public-data--gnomad/release",
+    source: Source::Gnomad,
+    terms: super::SPEC.terms,
+    destinations: super::SPEC.destinations,
+    key: super::SPEC.key,
+    quota: super::SPEC.quota,
+    user_agent: super::SPEC.user_agent,
     deadline: Duration::from_secs(120),
-    ..super::SPEC
+    command_budget: None,
 };
 
 pub(crate) const V4_0_NAME: &str = "gnomad-constraint-v4.0";
@@ -97,22 +103,21 @@ pub fn constraints(
 
 #[derive(Debug, Deserialize)]
 struct Native {
-    #[serde(default)]
-    gene_id: String,
+    gene_id: Option<String>,
     #[serde(deserialize_with = "transcript")]
     transcript: AccessionBase,
     mane_select: String,
-    #[serde(rename = "lof.pLI", default, deserialize_with = "number")]
+    #[serde(rename = "lof.pLI", deserialize_with = "number")]
     pli: Option<FiniteNumber>,
-    #[serde(rename = "lof.oe_ci.upper", default, deserialize_with = "number")]
+    #[serde(rename = "lof.oe_ci.upper", deserialize_with = "number")]
     loeuf: Option<FiniteNumber>,
-    #[serde(rename = "lof.oe", default, deserialize_with = "number")]
+    #[serde(rename = "lof.oe", deserialize_with = "number")]
     oe_lof: Option<FiniteNumber>,
-    #[serde(rename = "mis.z_score", default, deserialize_with = "number")]
+    #[serde(rename = "mis.z_score", deserialize_with = "number")]
     mis_z: Option<FiniteNumber>,
-    #[serde(rename = "syn.z_score", default, deserialize_with = "number")]
+    #[serde(rename = "syn.z_score", deserialize_with = "number")]
     syn_z: Option<FiniteNumber>,
-    #[serde(rename = "constraint_flags", default, deserialize_with = "flags")]
+    #[serde(rename = "constraint_flags", deserialize_with = "flags")]
     flags: Box<[Text]>,
 }
 
@@ -131,12 +136,12 @@ fn number<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<FiniteNum
     let text = String::deserialize(deserializer)?;
     match text.as_str() {
         "" | "NA" => Ok(None),
-        _ => text
-            .parse::<f64>()
-            .ok()
-            .and_then(|value| FiniteNumber::new(value).ok())
-            .map(Some)
-            .ok_or_else(|| serde::de::Error::custom("invalid constraint metric")),
+        _ => {
+            let value = text.parse::<f64>().map_err(serde::de::Error::custom)?;
+            FiniteNumber::new(value)
+                .map(Some)
+                .map_err(serde::de::Error::custom)
+        }
     }
 }
 
@@ -150,11 +155,10 @@ fn flags<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Box<[Text]>, D::E
 
 impl Native {
     fn key(&self) -> String {
-        if self.gene_id.is_empty() {
-            self.transcript.to_string()
-        } else {
-            self.gene_id.clone()
-        }
+        self.gene_id
+            .as_deref()
+            .filter(|id| !id.is_empty())
+            .map_or_else(|| self.transcript.to_string(), str::to_owned)
     }
 
     fn constraint(&self, version: Text) -> Constraint {

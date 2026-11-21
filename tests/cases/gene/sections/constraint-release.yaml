@@ -121,6 +121,56 @@
           "v4.1"
         ]
       }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gnomad-constraint-v4.0"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "sync",
+          "gnomad-constraint-v4.0"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gnomad-constraint-v4.0",
+        "--unrecognized-argument"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gnomad-constraint-v4.1"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "sync",
+          "gnomad-constraint-v4.1"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gnomad-constraint-v4.1",
+        "--unrecognized-argument"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
     }
   ]
 }

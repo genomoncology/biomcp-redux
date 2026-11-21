@@ -10,7 +10,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "text",
-        "value": "gene\tgene_id\ttranscript\tcanonical\tmane_select\tlof.pLI\tlof.oe_ci.upper\tlof.oe\tmis.z_score\tsyn.z_score\nTP53\tENSG00000141510\tENST00000269305\tfalse\ttrue\t0.90\t0.42\t0.20\t2.0\t1.0\nTP53\tENSG00000141510\tENST00000420246\ttrue\tfalse\t0.01\t0.98\t0.87\t1.0\t0.5\nBCR\tENSG00000186716\tENST00000305877\ttrue\ttrue\t0.80\t0.56\t0.33\t3.0\t1.5\nRPL5\tENSG00000122406\tENST00000370321\ttrue\tfalse\t0.50\t0.65\t0.40\t1.0\t0.0\n"
+        "value": "gene\tgene_id\ttranscript\tcanonical\tmane_select\tlof.pLI\tlof.oe_ci.upper\tlof.oe\tmis.z_score\tsyn.z_score\tconstraint_flags\nTP53\tENSG00000141510\tENST00000269305\tfalse\ttrue\t0.90\t0.42\t0.20\t2.0\t1.0\t[]\nTP53\tENSG00000141510\tENST00000420246\ttrue\tfalse\t0.01\t0.98\t0.87\t1.0\t0.5\t[]\nBCR\tENSG00000186716\tENST00000305877\ttrue\ttrue\t0.80\t0.56\t0.33\t3.0\t1.5\t[]\nRPL5\tENSG00000122406\tENST00000370321\ttrue\tfalse\t0.50\t0.65\t0.40\t1.0\t0.0\t[]\n"
       }
     }
   ]
