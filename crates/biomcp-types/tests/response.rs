@@ -508,7 +508,7 @@ fn shared_and_pathway_pages_state_their_totals_before_their_items() -> Outcome {
         "items",
     )?;
     declared_first::<DiagnosticGenes>(
-        json!({"distinct_id_total":2}),
+        json!({"test_id":"GTR000006692.3","distinct_id_total":2}),
         &["count_unit", "distinct_id_total"],
         "items",
     )

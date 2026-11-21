@@ -52,10 +52,10 @@ pub(super) fn bounded(value: &serde_json::Value) -> Result<(), String> {
         {
             "diagnostic-baseline-3760"
         }
-        ("biomcp.diagnostic-genes/6", "", "partial") => "diagnostic-baseline-1006",
-        ("biomcp.diagnostic-conditions/6", "", "complete") => "diagnostic-baseline-625",
-        ("biomcp.diagnostic-conditions/6", "", "partial") => "diagnostic-baseline-695",
-        ("biomcp.diagnostic-genes/6", "", "complete") => "diagnostic-baseline-867",
+        ("biomcp.diagnostic-genes/7", "", "partial") => "diagnostic-baseline-1006",
+        ("biomcp.diagnostic-conditions/7", "", "complete") => "diagnostic-baseline-625",
+        ("biomcp.diagnostic-conditions/7", "", "partial") => "diagnostic-baseline-695",
+        ("biomcp.diagnostic-genes/7", "", "complete") => "diagnostic-baseline-867",
         ("biomcp.diagnostic-page/7", "", "failed") => "diagnostic-baseline-379",
         ("biomcp.diagnostic-regulatory/4", "", "complete") => "diagnostic-baseline-7260",
         ("biomcp.diagnostic-supplements/4", "", "complete") => "diagnostic-baseline-1414",
