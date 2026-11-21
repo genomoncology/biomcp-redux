@@ -68,7 +68,7 @@ pub struct TrialSections {
     pub documents: Option<Section<TrialRecords<crate::TrialDocument>>>,
     /// Whole sites with their original contacts attached.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub locations: Option<Section<TrialRecords<TrialSite>>>,
+    pub locations: Option<Section<TrialLocationsPage>>,
     /// Central contacts followed by overall officials, each in source order.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contacts: Option<Section<TrialRecords<TrialContactRecord>>>,
@@ -185,6 +185,19 @@ pub enum TrialArmRecord {
     Arm(TrialArm),
     /// Original intervention with aliases and arm labels.
     Intervention(TrialIntervention),
+}
+
+/// A page of sites after location filters.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(rename = "TrialRecords_TrialLocation"))]
+pub struct TrialLocationsPage {
+    /// Count of sites without coordinates after state and status filters, before radius and paging.
+    #[serde(default)]
+    pub missing_coordinates: u32,
+    /// Matching sites in page order.
+    #[serde(flatten)]
+    pub records: TrialRecords<TrialSite>,
 }
 
 /// One source site, kept whole during pagination.

@@ -28,6 +28,11 @@ pub enum Action {
     KeyHelp(biomcp_fetch::SecretName),
     /// Explain the required arguments for an existing query.
     QueryHelp(Request),
+    /// Import a manually downloaded FDA Purple Book release.
+    SyncPurpleBookFile {
+        #[doc = "Local FDA CSV file."]
+        path: std::path::PathBuf,
+    },
     /// Synchronize one declared file.
     Sync {
         #[doc = "Bundle selector."]
@@ -79,6 +84,9 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::GetAdverseEvent(q) => crate::adverse_event::get(cx, q),
         Request::SearchDisease(query) => crate::disease::search(cx, query),
         Request::GetDisease(query) => crate::disease::get(cx, query),
+        Request::SearchDrug(query) if query.source() == biomcp_types::DrugSource::PurpleBook => {
+            crate::drug::purple_book::search(cx, query)
+        }
         Request::SearchDrug(query) => crate::drug::search_with_aliases(cx, query),
         Request::GetDrug(query) => crate::drug::get(cx, query),
         Request::GetWhoMedicine(query) => crate::drug::who::get(cx, query),

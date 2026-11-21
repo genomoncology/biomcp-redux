@@ -19,7 +19,8 @@ fn bundle_names_are_unique_and_keep_the_public_command_contract() {
             "gtr",
             "who-ivd",
             "fda-cdx",
-            "orphadata"
+            "orphadata",
+            "purple-book"
         ],
         "source declarations keep every public sync word"
     );

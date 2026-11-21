@@ -141,7 +141,7 @@ pub use response::{
 pub use response::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 pub use response::{
     TrialArmRecord, TrialCardItem, TrialCards, TrialContactRecord, TrialEligibilityPage,
-    TrialItemFailure, TrialRecords, TrialSections, TrialSite,
+    TrialItemFailure, TrialLocationsPage, TrialRecords, TrialSections, TrialSite,
 };
 pub use response::{TrialConditionResolution, TrialPage, TrialSiteCount, TrialSiteCounts};
 pub use response::{TrialDocumentResult, TrialDocumentSaved};
@@ -196,14 +196,16 @@ pub use drug::{
     DrugInteractionsPart, DrugLabel, DrugLabelExcerpt, DrugLabelFragment, DrugLabelHistory,
     DrugLabelMatches, DrugLabelPart, DrugLabelText, DrugLevelCount, DrugMarket, DrugMarketState,
     DrugMarkets, DrugMarketsGet, DrugNameMatch, DrugNameResolution, DrugNameSelector,
-    DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard, DrugRecallClassification,
-    DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory,
-    DrugRegulatoryContext, DrugRegulatoryPart, DrugSafetyCommunication,
-    DrugSafetyCommunicationCard, DrugSafetyCommunicationPage, DrugSafetyMatch, DrugSearch,
-    DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections, DrugSource,
-    DrugTargets, DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs,
-    DrugXrefsPart, LabelApplicationType, LabelHistorySection, LabelVersion, LabelVersionMatch,
-    LabelVersionState, OPENFDA_LABEL_HEADINGS, WhoDateStatus, openfda_label_field,
+    DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugPurpleBookPage, DrugPurpleBookProducts,
+    DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
+    DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugRegulatoryPart,
+    DrugSafetyCommunication, DrugSafetyCommunicationCard, DrugSafetyCommunicationPage,
+    DrugSafetyMatch, DrugSearch, DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply,
+    DrugSections, DrugSource, DrugTargets, DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage,
+    DrugWhoRow, DrugXrefs, DrugXrefsPart, LabelApplicationType, LabelHistorySection, LabelVersion,
+    LabelVersionMatch, LabelVersionState, OPENFDA_LABEL_HEADINGS, PurpleBookDesignationCount,
+    PurpleBookLicense, PurpleBookPresentation, PurpleBookProduct, PurpleBookReference,
+    WhoDateStatus, openfda_label_field,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};

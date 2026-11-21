@@ -150,8 +150,9 @@ impl TryFrom<GetFields> for DrugGet {
     }
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
-    // The markets section is its own request, with no other section.
-    if fields.section.contains(&DrugSection::Markets) {
+    if fields.section.contains(&DrugSection::Markets)
+        || fields.source == Some(DrugSource::PurpleBook)
+    {
         return Err(QueryInvalid::new(&["section", "source"]));
     }
     if fields.document_id.is_some()
@@ -162,7 +163,6 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     }
     let approvals = fields.source == Some(DrugSource::Drugsfda)
         && fields.section.as_ref() == [DrugSection::Approvals];
-    // A section held whole pages up to the held cap; one the source pages keeps its own 50 (1061).
     let held = !fields.section.is_empty()
         && fields.section.iter().all(|section| {
             matches!(
@@ -192,22 +192,7 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
             "section_offset",
         ]));
     }
-    let options = (
-        &*fields.find,
-        fields.every_version,
-        fields.label_section.as_ref(),
-    );
-    let paging = (fields.section_limit, fields.section_offset);
-    if label_find::requested(&fields.section, &fields.find) {
-        label_find::check(fields.source, paging, options)?;
-    } else {
-        super::history::checked(
-            &fields.section,
-            fields.source == Some(DrugSource::Drugsfda),
-            paging,
-            options,
-        )?;
-    }
+    validate_label_options(fields)?;
     if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
         return Err(QueryInvalid::new(&["product_number", "section"]));
     }
@@ -232,6 +217,24 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
         return Err(QueryInvalid::new(&["source", "section"]));
     }
     Ok(())
+}
+fn validate_label_options(fields: &GetFields) -> Result<(), QueryInvalid> {
+    let options = (
+        &*fields.find,
+        fields.every_version,
+        fields.label_section.as_ref(),
+    );
+    let paging = (fields.section_limit, fields.section_offset);
+    if label_find::requested(&fields.section, &fields.find) {
+        label_find::check(fields.source, paging, options)
+    } else {
+        super::history::checked(
+            &fields.section,
+            fields.source == Some(DrugSource::Drugsfda),
+            paging,
+            options,
+        )
+    }
 }
 fn validate_window(fields: &GetFields, approvals: bool) -> Result<(), QueryInvalid> {
     let window = [

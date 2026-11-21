@@ -440,7 +440,8 @@
         "ema",
         "ddinter",
         "who-eml",
-        "fda-dsc"
+        "fda-dsc",
+        "purple-book"
       ]
     },
     "Reply_Incomplete": {
@@ -744,6 +745,7 @@
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
         " FDA Drug Safety Communications web pages.",
+        " FDA Purple Book biologic product roster.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -824,6 +826,7 @@
         "fda-device-recall",
         "fda-drug-recall",
         "fda-dsc",
+        "purple-book",
         "cpic",
         "clinpgx",
         "cbioportal",

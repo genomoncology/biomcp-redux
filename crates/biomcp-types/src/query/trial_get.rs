@@ -1,5 +1,6 @@
 use super::gene::{QueryInvalid, present};
-use crate::{NctId, Text, TrialSource};
+use crate::{NctId, Text, TrialSection, TrialSource};
+use biodata::TrialSiteStatus;
 use serde::{Deserialize, Serialize};
 /// Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -11,7 +12,7 @@ pub struct TrialGet(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// One to twenty exact NCT identifiers, in caller order.
+    /// 1–20 NCT IDs in caller order.
     #[cfg_attr(feature="schema", schemars(length(min=1,max=20), extend("x-positional"=0)))]
     input: Box<[NctId]>,
     #[doc = " Optional intact source sections. Default cards only; diseases and summary require NCI. \
@@ -19,14 +20,14 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,
-    /// Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.
+    /// Up to 200 records per page. Sections other than locations also have byte limits.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     limit: u32,
-    /// Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
+    /// Skip characters in eligibility or NCI summary, records elsewhere.
     #[serde(default)]
     offset: u32,
-    /// Checked stored source record, supplied by a continuation.
+    /// Stored record from a continuation.
     #[serde(
         default,
         deserialize_with = "present",
@@ -34,7 +35,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
-    /// Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read.
+    /// Latitude in degrees. With --lon, sort locations by straight-line miles and default to that section.
     #[serde(
         default,
         deserialize_with = "present",
@@ -42,7 +43,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lat: Option<Text>,
-    /// Longitude degrees; used with --lat.
+    /// Longitude in degrees.
     #[serde(
         default,
         deserialize_with = "present",
@@ -50,7 +51,31 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lon: Option<Text>,
-    /// Explicit provider; defaults to ClinicalTrials.gov and never falls back.
+    /// Registry state label, ignoring ASCII case.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    state: Option<Text>,
+    /// Site status, such as RECRUITING.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "TrialSiteStatus"))]
+    status: Option<TrialSiteStatus>,
+    /// Positive radius in mi or km. Needs --lat and --lon.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    distance: Option<Text>,
+    /// Defaults to ClinicalTrials.gov. No fallback.
     #[serde(default, skip_serializing_if = "TrialSource::is_default")]
     source: TrialSource,
 }
@@ -61,8 +86,9 @@ crate::query::validation::checked_query!(TrialGet, Fields);
 impl TryFrom<Fields> for TrialGet {
     type Error = QueryInvalid;
     fn try_from(mut v: Fields) -> Result<Self, Self::Error> {
-        // A point with no section can only ask for the sites' distances (1057).
-        if v.lat.is_some() && v.lon.is_some() && v.section.is_empty() {
+        if v.section.is_empty()
+            && (v.site_filter().is_some() || (v.lat.is_some() && v.lon.is_some()))
+        {
             v.section = Box::new([TrialSection::Locations]);
         }
         if v.source == TrialSource::Ctgov
@@ -85,21 +111,51 @@ impl TryFrom<Fields> for TrialGet {
         {
             return Err(QueryInvalid::new(&["pool", "offset", "input", "section"]));
         }
-        match (&v.lat, &v.lon) {
-            (None, None) => {}
+        v.validate_locations()?;
+        Ok(Self(v))
+    }
+}
+impl Fields {
+    fn site_filter(&self) -> Option<&'static str> {
+        if self.state.is_some() {
+            Some("state")
+        } else if self.status.is_some() {
+            Some("status")
+        } else {
+            self.distance.as_ref().map(|_| "distance")
+        }
+    }
+
+    fn validate_locations(&self) -> Result<(), QueryInvalid> {
+        let locations = self
+            .section
+            .iter()
+            .any(|s| matches!(s, TrialSection::Locations | TrialSection::All));
+        if let Some(option) = self.site_filter() {
+            if self.source != TrialSource::Ctgov {
+                return Err(QueryInvalid::new(&[option, "source"]));
+            }
+            if !locations {
+                return Err(QueryInvalid::new(&[option, "section"]));
+            }
+        }
+        match (&self.lat, &self.lon) {
+            (None, None) if self.distance.is_none() => {}
             (Some(lat), Some(lon)) => {
                 super::trial::point(lat, lon)?;
-                if !v
-                    .section
-                    .iter()
-                    .any(|s| matches!(s, TrialSection::Locations | TrialSection::All))
-                {
+                if !locations {
                     return Err(QueryInvalid::new(&["lat", "lon", "section"]));
                 }
             }
+            _ if self.distance.is_some() => {
+                return Err(QueryInvalid::new(&["lat", "lon", "distance"]));
+            }
             _ => return Err(QueryInvalid::new(&["lat", "lon"])),
         }
-        Ok(Self(v))
+        if let Some(distance) = &self.distance {
+            super::trial::validation::radius_miles(distance)?;
+        }
+        Ok(())
     }
 }
 impl TrialGet {
@@ -137,6 +193,22 @@ impl TrialGet {
     pub fn point(&self) -> Option<(f64, f64)> {
         super::trial::point(self.0.lat.as_ref()?, self.0.lon.as_ref()?).ok()
     }
+    /// Filter sites by registry state label.
+    pub fn site_state(&self) -> Option<&str> {
+        self.0.state.as_ref().map(Text::as_str)
+    }
+    /// Filter sites by their registry recruitment status.
+    pub fn site_status(&self) -> Option<TrialSiteStatus> {
+        self.0.status
+    }
+    /// Maximum straight-line distance in miles from the checked point.
+    pub fn site_radius_miles(&self) -> Option<f64> {
+        super::trial::validation::radius_miles(self.0.distance.as_ref()?).ok()
+    }
+    /// Whether any location filter was supplied.
+    pub fn filters_sites(&self) -> bool {
+        self.0.site_filter().is_some()
+    }
     /// One card or section request, used by typed next steps.
     pub fn single(input: NctId, section: Option<TrialSection>, limit: u32) -> Self {
         Self(Fields {
@@ -147,6 +219,9 @@ impl TrialGet {
             pool: None,
             lat: None,
             lon: None,
+            state: None,
+            status: None,
+            distance: None,
             source: TrialSource::Ctgov,
         })
     }
@@ -156,6 +231,9 @@ impl TrialGet {
         if section == TrialSection::Locations {
             next.0.lat = self.0.lat.clone();
             next.0.lon = self.0.lon.clone();
+            next.0.state = self.0.state.clone();
+            next.0.status = self.0.status;
+            next.0.distance = self.0.distance.clone();
         }
         next.0.source = self.source();
         next.0.pool = Some(pool);
@@ -176,62 +254,5 @@ impl TrialGet {
         q.0.pool = None;
         q.0.offset = 0;
         q
-    }
-}
-biodata::wire_enum! {
-    described
-    /// Available source protocol sections.
-    TrialSection {
-        /// Intact criteria and structured age/sex fields.
-        Eligibility => "eligibility",
-        /// Primary, secondary and other outcome records.
-        Outcomes => "outcomes",
-        /// Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).
-        Results => "results",
-        /// Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).
-        Flow => "flow",
-        /// Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).
-        Baseline => "baseline",
-        /// Arms and interventions with original relationships.
-        Arms => "arms",
-        /// Whole source sites with their attached contacts.
-        Locations => "locations",
-        /// Central contacts and overall officials in their original roles.
-        Contacts => "contacts",
-        /// Registry publication identities and native reference types.
-        References => "references",
-        /// Posted document metadata and source URLs.
-        Documents => "documents",
-        /// Every implemented trial section, each with independent continuations; flow and baseline stay within results.
-        All => "all",
-        /// Native NCI disease concepts, including source enrichment metadata.
-        Diseases => "diseases",
-        /// Complete NCI summary, paged by original character offsets.
-        Summary => "summary",
-    }
-}
-
-impl TrialSource {
-    /// Implemented protocol sections in source presentation order.
-    pub const fn sections(self) -> &'static [TrialSection] {
-        use TrialSection::{
-            Arms, Baseline, Contacts, Diseases, Documents, Eligibility, Flow, Locations, Outcomes,
-            References, Results, Summary,
-        };
-        match self {
-            Self::Ctgov => &[
-                Eligibility,
-                Outcomes,
-                Arms,
-                Locations,
-                Contacts,
-                References,
-                Documents,
-                Results,
-                Flow,
-                Baseline,
-            ],
-            Self::Nci => &[Eligibility, Outcomes, Arms, Diseases, Summary],
-        }
     }
 }

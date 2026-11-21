@@ -394,7 +394,7 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
     Ok(out)
 }
 
-fn first_row(c: &Connection, name: &str) -> Result<Option<String>, CacheError> {
+pub(super) fn first_row(c: &Connection, name: &str) -> Result<Option<String>, CacheError> {
     c.query_row(
         "SELECT row FROM bundle_row WHERE bundle=?1 ORDER BY n LIMIT 1",
         [name],

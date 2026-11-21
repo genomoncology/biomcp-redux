@@ -273,3 +273,28 @@ pub(super) fn serve(
         help: None,
     })
 }
+
+pub(super) fn sync_file_arg() -> Arg {
+    Arg::new("file")
+        .long("file")
+        .value_name("PATH")
+        .help("Import a manually downloaded FDA Purple Book monthly CSV. Purple Book only.")
+        .value_parser(clap::value_parser!(std::path::PathBuf))
+}
+
+pub(super) fn sync(matches: &clap::ArgMatches) -> Result<super::Action, super::ParseInvalid> {
+    let bundle = match matches.get_one::<String>("bundle") {
+        Some(name) => super::Bundle::named(name).ok_or_else(super::ParseInvalid::default)?,
+        None => super::Bundle::HGNC,
+    };
+    let Some(path) = matches.get_one::<std::path::PathBuf>("file") else {
+        return Ok(super::Action::Sync { bundle });
+    };
+    if bundle.source() != biomcp_types::Source::PurpleBook {
+        return Err(super::ParseInvalid {
+            usage: Some(biomcp_types::UsageError::argument("--file".into())),
+            ..Default::default()
+        });
+    }
+    Ok(super::Action::SyncPurpleBookFile { path: path.clone() })
+}

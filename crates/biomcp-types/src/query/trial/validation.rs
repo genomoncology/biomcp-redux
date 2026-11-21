@@ -1,5 +1,5 @@
 use super::{Fields, TrialSearch, TrialSource};
-use crate::{NctId, QueryInvalid};
+use crate::{NctId, QueryInvalid, Text};
 
 impl TryFrom<Fields> for TrialSearch {
     type Error = QueryInvalid;
@@ -160,19 +160,26 @@ fn validate_location(f: &Fields) -> Result<(), QueryInvalid> {
     }
     if let (Some(lat), Some(lon), Some(distance)) = (&f.lat, &f.lon, &f.distance) {
         super::point(lat, lon)?;
-        let distance = distance
-            .as_str()
-            .strip_suffix("mi")
-            .or_else(|| distance.as_str().strip_suffix("km"))
-            .ok_or_else(|| QueryInvalid::new(&["distance"]))?
-            .parse::<f64>()
-            .map_err(|_| QueryInvalid::new(&["distance"]))?;
-        if !distance.is_finite() {
-            return Err(QueryInvalid::new(&["distance"]));
-        }
-        if distance <= 0.0 {
-            return Err(QueryInvalid::new(&["distance"]));
-        }
+        radius_miles(distance)?;
     }
     Ok(())
+}
+
+/// Check a positive radius with explicit units and return miles.
+pub(in crate::query) fn radius_miles(distance: &Text) -> Result<f64, QueryInvalid> {
+    let text = distance.as_str();
+    let (number, unit_miles) = text
+        .strip_suffix("mi")
+        .map(|number| (number, 1.0))
+        .or_else(|| {
+            text.strip_suffix("km")
+                .map(|number| (number, 1.0 / 1.609_344))
+        })
+        .ok_or_else(|| QueryInvalid::new(&["distance"]))?;
+    number
+        .parse::<f64>()
+        .ok()
+        .filter(|value| value.is_finite() && *value > 0.0)
+        .map(|value| value * unit_miles)
+        .ok_or_else(|| QueryInvalid::new(&["distance"]))
 }

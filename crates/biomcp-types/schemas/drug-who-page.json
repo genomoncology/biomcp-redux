@@ -56,7 +56,7 @@
       ]
     },
     "Reply_DrugSearch": {
-      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference name or BLA and summarizes biosimilars by product.",
       "properties": {
         "applicant": {
           "anyOf": [
@@ -115,6 +115,18 @@
           "description": "Native FDA classification; drug recalls only.",
           "x-required-component": "fda-drug-recall"
         },
+        "device": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Purple Book device. Match its presentation cell, ignoring case; return presentations.",
+          "x-required-component": "purple-book"
+        },
         "exact_term": {
           "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
           "type": "boolean"
@@ -166,7 +178,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Native candidate rows per page.",
+          "description": "Rows per page. Purple Book product summaries always return the full roster.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -195,7 +207,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native rows to skip.",
+          "description": "Rows to skip. Purple Book applies this only to presentation rows.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -223,6 +235,11 @@
           ],
           "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
           "x-required-component": "who-pq"
+        },
+        "presentations": {
+          "description": "Purple Book presentation rows, also selected by --strength or --device.",
+          "type": "boolean",
+          "x-required-component": "purple-book"
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
@@ -270,6 +287,18 @@
           "description": "Literal recall status.",
           "x-required-component": "fda-drug-recall"
         },
+        "strength": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Purple Book strength. Match its cell, ignoring case and spaces; return presentations.",
+          "x-required-component": "purple-book"
+        },
         "therapeutic_area": {
           "$ref": "#/$defs/Reply_Text",
           "description": "WHO PQ therapeutic area.\nWhole words of WHO's Therapeutic Area column, any letter case, such as Oncology.",
@@ -293,7 +322,8 @@
         "ema",
         "ddinter",
         "who-eml",
-        "fda-dsc"
+        "fda-dsc",
+        "purple-book"
       ]
     },
     "Reply_DrugWhoPage": {
@@ -698,6 +728,7 @@
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
         " FDA Drug Safety Communications web pages.",
+        " FDA Purple Book biologic product roster.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -778,6 +809,7 @@
         "fda-device-recall",
         "fda-drug-recall",
         "fda-dsc",
+        "purple-book",
         "cpic",
         "clinpgx",
         "cbioportal",

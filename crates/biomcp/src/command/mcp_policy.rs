@@ -14,6 +14,9 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
         return Some(UsageError::McpUnavailable(ErrorMessage::McpKey));
     }
     let action = action?;
+    if matches!(action, Action::SyncPurpleBookFile { .. }) {
+        return Some(UsageError::McpUnavailable(ErrorMessage::McpSync));
+    }
     if http {
         let command = match action {
             Action::Sync { .. } => Some(ErrorMessage::McpSync),
