@@ -36,10 +36,10 @@
       "type": "string"
     },
     "Reply_DiseaseSearch": {
-      "description": "Literal disease discovery, SEER site search, or intersection of positive annotations in a named HPO release.",
+      "description": "Search by text, SEER site name, or HPO annotations.",
       "properties": {
         "hpo_release": {
-          "description": "Required for --phenotype. Use the publisher's vYYYY-MM-DD release tag.",
+          "description": "HPO release tag (vYYYY-MM-DD), required with --phenotype.",
           "pattern": "^v[0-9]{4}-[0-9]{2}-[0-9]{2}$",
           "type": [
             "string",
@@ -48,7 +48,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Maximum source rows on one page.",
+          "description": "Rows per page.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -56,7 +56,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native row offset.",
+          "description": "Row offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -64,10 +64,10 @@
         "ontology": {
           "$ref": "#/$defs/Reply_DiseaseOntology",
           "default": "mondo",
-          "description": "Exactly one ontology, default MONDO."
+          "description": "OLS ontology, default MONDO."
         },
         "phenotype": {
-          "description": "HPO IDs to match together, including descendants. Repeat this option for each term.",
+          "description": "Each HPO ID or a descendant must have a positive annotation.",
           "items": {
             "$ref": "#/$defs/Reply_HpId"
           },
@@ -78,10 +78,10 @@
         "source": {
           "$ref": "#/$defs/Reply_DiseaseSearchSource",
           "default": "ols",
-          "description": "Defaults to HPO with --phenotype and OLS for text. Select SEER for site search."
+          "description": "HPO for --phenotype, OLS by default, SEER for sites."
         },
         "text": {
-          "description": "Literal source search text; optional site-name filter for SEER.",
+          "description": "Search text or optional SEER site name.",
           "minLength": 1,
           "type": [
             "string",
@@ -510,6 +510,7 @@
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
         " FDA Drug Safety Communications web pages.",
+        " FDA Purple Book biologic product roster.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
@@ -590,6 +591,7 @@
         "fda-device-recall",
         "fda-drug-recall",
         "fda-dsc",
+        "purple-book",
         "cpic",
         "clinpgx",
         "cbioportal",
