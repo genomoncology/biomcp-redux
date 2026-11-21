@@ -1,0 +1,19 @@
+{
+  "feature": "drug-fda-dsc",
+  "story": "A communication with impossible page dates keeps its index date and text and reports both bad fields.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-dsc-invalid-page-dates",
+  "steps": [
+    {
+      "run": ["get", "drug", "4ec3359d-b7fe-41ca-9724-9602b68d8ca6", "--source", "fda-dsc"],
+      "expect": {
+        "/result/header/date": "2021-09-01",
+        "/result/header/page_read": true,
+        "/result/header": {"omits": ["issued", "updated"]},
+        "/problems/*/record": ["4ec3359d-b7fe-41ca-9724-9602b68d8ca6", "4ec3359d-b7fe-41ca-9724-9602b68d8ca6"],
+        "/problems/*/field": ["issued", "updated"],
+        "/problems/*/code": ["value.unknown", "value.unknown"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-dsc",
+  "url": "https://www.fda.gov/drugs/drug-safety-communications/synthetic-moved-jak",
+  "exchanges": [
+    {
+      "fetched": 42,
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<div class=\"col-md-8\" role=\"main\"><p>02-30-2021 FDA Drug Safety Communication. Synthetic text.</p></div><div class=\"node-current-date\"><time datetime=\"2021-04-31T00:00:00Z\">April 31, 2021</time></div>"
+      }
+    }
+  ]
+}

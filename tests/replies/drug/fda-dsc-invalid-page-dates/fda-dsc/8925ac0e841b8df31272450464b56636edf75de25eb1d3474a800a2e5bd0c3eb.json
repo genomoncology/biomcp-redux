@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-dsc",
+  "url": "https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+  "exchanges": [
+    {
+      "fetched": 42,
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<table summary=\"Drug Safety Communications\"><tr><td>09-01-2021</td><td><a href=\"/drugs/drug-safety-communications/synthetic-moved-jak\" data-entity-uuid=\"4ec3359d-b7fe-41ca-9724-9602b68d8ca6\">Updated synthetic JAK title</a></td></tr></table>"
+      }
+    }
+  ]
+}
