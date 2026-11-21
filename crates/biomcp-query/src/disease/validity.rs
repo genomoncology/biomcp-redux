@@ -14,11 +14,7 @@ struct Publisher {
     spec: &'static SourceSpec,
     read: fn(&Leg<'_>, &DiseaseId) -> Result<CurationMatches, RequestError>,
 }
-type ReadResult<'a> = (
-    &'a Publisher,
-    SourceOutcome,
-    Result<CurationMatches, RequestError>,
-);
+type ReadResult = (Bundle, SourceOutcome, Result<CurationMatches, RequestError>);
 
 static PUBLISHERS: [Publisher; 2] = [
     Publisher {
