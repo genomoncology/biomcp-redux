@@ -1,5 +1,7 @@
-//! Published ClinGen validity and dosage bundles, keyed only by HGNC identity, and the region dosage list.
+//! Published ClinGen validity and dosage bundles, indexed by native gene or disease identity, and the region dosage list.
 mod band;
+mod by_disease;
+pub use by_disease::by_disease;
 mod gene_dosage;
 pub use gene_dosage::{Evidence, evidence};
 mod raw;
@@ -113,7 +115,7 @@ pub fn validity(
         .rows(&VALIDITY, Find::AnyExact(KeyKind::Id, &[&key, &rejected]))?
         .into_iter()
         .filter_map(|row| match row.checked(&mut problems) {
-            Some(row) => Some(row),
+            Some((_, row)) => Some(row),
             None => {
                 refusals = crate::Refusal::Refused;
                 None

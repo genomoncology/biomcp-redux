@@ -21,7 +21,10 @@ fn disease_unsupported(action: &Action) -> bool {
         Action::Run {
             request: Request::GetDisease(q),
             ..
-        } => !get_supported(q.source(), q.section(), q.id().as_str()),
+        } => {
+            q.validity_sources().is_none()
+                && !get_supported(q.source(), q.section(), q.id().as_str())
+        }
         _ => false,
     }
 }
@@ -67,10 +70,13 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
         ),
         DiseaseSource::Hpo => false,
         DiseaseSource::Orphadata => section == Some(DiseaseSection::Prevalence),
+        DiseaseSource::ClinGen | DiseaseSource::Gencc => {
+            section == Some(DiseaseSection::GeneValidity)
+        }
     }
 }
 /// Every disease section, in declaration order.
-const DISEASE_SECTIONS: [DiseaseSection; 8] = [
+const DISEASE_SECTIONS: [DiseaseSection; 9] = [
     DiseaseSection::Synonyms,
     DiseaseSection::Xrefs,
     DiseaseSection::Hierarchy,
@@ -79,6 +85,7 @@ const DISEASE_SECTIONS: [DiseaseSection; 8] = [
     DiseaseSection::Incidence,
     DiseaseSection::Survival,
     DiseaseSection::Prevalence,
+    DiseaseSection::GeneValidity,
 ];
 /// A source that serves only named sections, read without one: the sections it serves.
 fn disease_sections(action: &Action) -> Option<UsageError> {

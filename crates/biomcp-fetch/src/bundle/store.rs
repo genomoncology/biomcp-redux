@@ -350,6 +350,24 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
             None,
             kind(k),
         ),
+        Find::ExactOrUnindexed(k, v) => {
+            let indexed = c
+                .query_row(
+                    "SELECT EXISTS(SELECT 1 FROM bundle_key WHERE bundle=?1 AND kind=?2)",
+                    params![name, kind(k)],
+                    |row| row.get::<_, bool>(0),
+                )
+                .map_err(|error| db_error(error))?;
+            if indexed {
+                return selected_rows(c, name, Find::Exact(k, v));
+            }
+            (
+                "SELECT row FROM bundle_row WHERE bundle=?1 ORDER BY n",
+                String::new(),
+                None,
+                0,
+            )
+        }
         Find::Prefix(k, v) => {
             let v = v.to_ascii_lowercase();
             let end = prefix_end(&v);
@@ -382,10 +400,10 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
     let mut q = c.prepare(query).map_err(|error| db_error(error))?;
     let count = q.parameter_count();
     let mut out = Vec::new();
-    let mut rows = if count == 2 {
-        q.query(params![name, a])
-    } else {
-        q.query(params![name, a, b, k])
+    let mut rows = match count {
+        1 => q.query(params![name]),
+        2 => q.query(params![name, a]),
+        _ => q.query(params![name, a, b, k]),
     }
     .map_err(|error| db_error(error))?;
     while let Some(row) = rows.next().map_err(|error| db_error(error))? {
