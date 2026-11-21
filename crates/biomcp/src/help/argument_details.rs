@@ -29,6 +29,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             .collect::<Vec<_>>();
         let own = command.command.join(" ");
         let rule = command.section_rule.clone();
+        let value_examples = command.command == ["search", "drug"];
         let mut cased = false;
         for argument in &mut command.arguments {
             drop_pointer(&mut argument.description, &own, rule.as_deref());
@@ -50,12 +51,21 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 continue;
             }
             let sample = example(argument, &command.examples);
+            // The drug search page names each flag next to its example value.
+            let sample = if value_examples {
+                sample
+                    .strip_prefix(&argument.name)
+                    .and_then(|suffix| suffix.strip_prefix([' ', '=']))
+                    .unwrap_or(&sample)
+            } else {
+                &sample
+            };
             let only = schema
                 .as_ref()
                 .filter(|_| selectable)
                 .map(|schema| only_sources(schema, &argument.name, &sources))
                 .unwrap_or_default();
-            option_sentence(argument, &sample, &only);
+            option_sentence(argument, sample, &only);
         }
         // Lines that hold for every option are said once, on the command.
         if cased {

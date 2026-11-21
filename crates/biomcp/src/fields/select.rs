@@ -355,6 +355,14 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
         return None;
     }
     let required = row.required().cloned().collect::<BTreeSet<_>>();
+    if (verb, entity) == ("search", "drug") {
+        let optional = row.names.difference(&required).cloned().collect();
+        return Some(format!(
+            "Optional fields: {}. Always kept: {}. {CHOOSE}.",
+            joined(&optional),
+            joined(&required)
+        ));
+    }
     let kept = if required.is_empty() {
         String::new()
     } else {

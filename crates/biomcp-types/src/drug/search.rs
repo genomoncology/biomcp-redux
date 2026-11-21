@@ -59,16 +59,11 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Drug name phrase.
-    /// FDA drug recalls, FDA safety communications, WHO date ranges, label indication or mechanism and Drugs@FDA applicant searches allow no name.
-    /// Drugs@FDA searches brands and ingredients,
-    /// exact names before word matches. openFDA labels search exact then word brand/generic names,
-    /// then label text (including indications) when no names match; source matches need not be exact names.
-    /// Harmonized recall names match but never become display names.
-    /// FDA safety communications search titles, linked drug names and available page text.
-    /// Zero matches does not establish that FDA issued no communication about this drug.
-    /// The reply counts the communications searched and how many had page text.
-    /// FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
+    /// Drug name phrase. Omit for recall, safety communication, WHO date, label indication or mechanism, or Drugs@FDA applicant searches.
+    /// Drugs@FDA matches brands and ingredients, exact names first. openFDA labels match brands and generics, exact names first,
+    /// then search label text (including indications) if no names match. Recall aliases can match without becoming display names.
+    /// Safety communications match titles, linked drug names and available text. Replies count records searched and records with page text.
+    /// A communication can exist even when the search returns zero matches.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
         default,
@@ -77,22 +72,16 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     query: Option<Text>,
-    /// Accepted for one release; changes nothing.
-    /// Sources that widen drug names do so by default.
+    /// Accepted for one release. Name widening is already automatic where supported.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
-    /// Search the typed name only.
-    /// openFDA labels, Drugs@FDA, FDA drug recalls, FDA safety communications and EMA search the typed name together with
-    /// the drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
+    /// Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    /// Label name page token.
-    /// Follow the returned command with unchanged filters to keep the first page's names and step.
+    /// Continue the first page's names and search step. Copy the returned token and keep filters unchanged.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
-    /// Literal label indication; openFDA labels only.
-    /// Search the native Indications and Usage field without disease synonym expansion.
-    /// An optional name query further narrows the same source search.
+    /// Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.
     #[serde(
         default,
         deserialize_with = "present_query",
@@ -101,9 +90,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     indication: Option<Text>,
-    /// Literal label mechanism of action; openFDA labels only.
-    /// Search the source Mechanism of Action field for this wording; no synonyms or drug class
-    /// inference, so labels wording the mechanism differently are not returned.
+    /// Exact Mechanism of Action wording, without synonyms or drug class inference.
     #[serde(
         default,
         deserialize_with = "present_query",
@@ -112,44 +99,34 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     mechanism_of_action: Option<Text>,
-    /// Label application types to keep; openFDA labels only.
-    /// By openFDA application_number prefix; nda,bla leaves out generics (ANDA).
+    /// Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA).
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     application_type: Box<[LabelApplicationType]>,
-    /// Applicant name start; Drugs@FDA only.
-    /// Matches native sponsor_name values starting with this text, ignoring letter case;
-    /// no company-family or subsidiary inference. An optional name narrows the same search.
+    /// Case-insensitive sponsor_name prefix, without company-family or subsidiary inference. A drug name narrows the search.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     applicant: Option<Text>,
-    #[doc = "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;"]
-    /// applications with no dated submission come last. That latest date is often a labeling or
-    /// efficacy supplement, not the original approval; each row's original_approval gives that.
-    /// original-approval: each row's original_approval date first, ties by application number;
-    /// rows without one come last. BioMCP reads every match and orders them.
-    /// Omit it for the source's own order.
+    /// newest sorts by latest submission status date, which may be for a supplement.
+    /// original-approval reads all matches and sorts by original_approval. Both put recent dates first,
+    /// break ties by application number and put undated rows last. Omit for source order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     sort: Option<DrugFdaSort>,
-    /// Original approval from, inclusive; Drugs@FDA only.
-    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
-    /// falls in the window; BioMCP reads every match and counts the kept ones.
+    /// Earliest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in the window.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     approved_from: Option<biodata::PartialDate>,
-    /// Original approval to, inclusive; Drugs@FDA only.
-    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+    /// Latest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     approved_to: Option<biodata::PartialDate>,
-    /// Recall firm phrase.
-    /// Matches the published firm literally.
+    /// Exact phrase in the published recall firm name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     firm: Option<Text>,
-    /// Native FDA classification; drug recalls only.
+    /// FDA recall classification.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     classification: Option<super::DrugRecallClassification>,
@@ -161,27 +138,24 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     reason: Option<Text>,
-    /// Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+    /// Earliest recall initiation day, inclusive (YYYY-MM-DD).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     initiated_from: Option<biodata::PartialDate>,
-    /// Inclusive initiation day, YYYY-MM-DD; drug recalls only.
+    /// Latest recall initiation day, inclusive (YYYY-MM-DD).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     initiated_to: Option<biodata::PartialDate>,
 
-    /// WHO PQ start date, inclusive.
-    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+    /// Earliest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_from: Option<biodata::PartialDate>,
-    /// WHO PQ end date, inclusive.
-    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+    /// Latest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_to: Option<biodata::PartialDate>,
-    /// WHO PQ therapeutic area.
-    /// Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology.
+    /// Match whole words in WHO's Therapeutic Area column, ignoring case (e.g. Oncology).
     #[serde(
         default,
         deserialize_with = "present_query",
@@ -191,25 +165,22 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     therapeutic_area: Option<Text>,
 
-    /// Purple Book presentation rows, also selected by --strength or --device.
+    /// Return presentation rows, as do --strength and --device.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     presentations: bool,
-    /// Purple Book strength. Match its cell, ignoring case and spaces; return presentations.
+    /// Filter presentations by strength cell, ignoring case and spaces.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     strength: Option<Text>,
-    /// Purple Book device. Match its presentation cell, ignoring case; return presentations.
+    /// Filter presentations by device cell, ignoring case.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     device: Option<Text>,
-    /// Selected source.
-    ///
-    /// After an empty name lookup, existing sources may supply aliases.
+    /// Drug source. An empty name search may retry names from other sources.
     #[serde(default = "default_source")]
     source: DrugSource,
-    /// ChEMBL name selector.
-    /// Omit to search the preferred name.
+    /// ChEMBL name to match. Default: preferred name.
     #[serde(
         default,
         deserialize_with = "selected_name",

@@ -36,63 +36,60 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
-    /// Named section page size, refused on an identity-only card.
-    /// At most 200 rows for approvals, interactions, label, regulatory, xrefs and essential-medicines; 50 elsewhere.
+    /// Page size. Requires a section. Max 200 for approvals, interactions, label, regulatory, xrefs and essential-medicines, 50 elsewhere.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     section_limit: Option<u32>,
-    /// Named section continuation, refused on an identity-only card; label-history --every-version starts at this version.
+    /// Section offset. With label-history --every-version, start at this version. Requires a section.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
     #[doc = "Exact openFDA SPL fields."]
-    /// Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-    /// The printed label's warnings_and_precautions reads openFDA's warnings_and_cautions.
-    /// A section the label lacks, or a name openFDA does not use, lists the sections the label has.
-    /// For drugsfda label-history, one of boxed_warning, indications_and_usage, contraindications,
+    /// Separate fields (including tables) with commas for one part per field. Omit or give an absent or unknown field to list available names.
+    /// warnings_and_precautions reads warnings_and_cautions.
+    /// For drugsfda history, choose boxed_warning, indications_and_usage, contraindications,
     /// warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
     /// Only with section label or label-history.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     label_section: Option<Text>,
-    #[doc = "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda. Only with section approvals."]
+    /// Application product number. Only with --source drugsfda. Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
-    #[doc = "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals."]
+    /// Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_from: Option<biodata::PartialDate>,
-    #[doc = "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals. Only with section approvals."]
+    /// Latest status date, inclusive (YYYY-MM-DD). Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_to: Option<biodata::PartialDate>,
-    #[doc = "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages"]
-    /// and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Only with section approvals.
+    /// Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.
+    /// Only with --source drugsfda. Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
-    #[doc = "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic."]
+    /// Molecular profile for this drug's claims. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
-    #[doc = "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile. Only with --source civic."]
+    /// Evidence or assertion collection within the selected profile. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_kind: Option<CivicClaimKind>,
-    #[doc = "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection. Only with --source civic."]
+    /// Continue the same drug, profile and claim collection. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "Label text; OR.\nLiteral text; repeat for OR. Ignore case and whitespace breaks; history also ignores hyphenation. \
-        Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs. \
-        Only with section label or label-history."]
+    /// Exact text, ignoring case and whitespace breaks. History also ignores hyphenation. Repeat for OR.
+    /// Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.
+    /// Only with section label or label-history.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
     find: Box<[Text]>,
-    #[doc = "Read every version.\nLabel history reads every version in order, up to its read bound, instead of halving. Only with section label-history."]
+    /// Read versions in order up to the read limit, instead of halving. Only with section label-history.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     every_version: bool,
-    #[doc = "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only."]
-    /// Keeps only the pairs with that drug. A name DDInter does not use is tried under the
-    /// names other sources state for it, as the drug itself is.
+    /// Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.
+    /// Only with section interactions.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Ddinter)))]
     partner: Option<Text>,
