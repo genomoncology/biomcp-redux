@@ -41,37 +41,7 @@ impl TryFrom<GetFields> for DiseaseGet {
             return Err(QueryInvalid::new(&["source", "id"])
                 .with_message(crate::ErrorMessage::DiseasePrevalenceSource));
         }
-        if source != DiseaseSource::Seer
-            && [
-                &v.sex,
-                &v.race,
-                &v.age_range,
-                &v.dataset,
-                &v.period,
-                &v.interval,
-            ]
-            .iter()
-            .any(|v| v.is_some())
-        {
-            return Err(QueryInvalid::new(&[
-                "source",
-                "sex",
-                "race",
-                "age_range",
-                "dataset",
-                "period",
-                "interval",
-            ]));
-        }
-        if source != DiseaseSource::Ols && v.ontology.is_some() {
-            return Err(QueryInvalid::new(&["source", "ontology"]));
-        }
-        if v.section != Some(DiseaseSection::Incidence) && v.period.is_some() {
-            return Err(QueryInvalid::new(&["section", "period"]));
-        }
-        if v.section != Some(DiseaseSection::Survival) && v.interval.is_some() {
-            return Err(QueryInvalid::new(&["section", "interval"]));
-        }
+        validate_selectors(&v, source)?;
         if source == DiseaseSource::Ols {
             // An OLS read looks the ID up in one ontology, so default to the one the ID names.
             v.ontology
@@ -102,6 +72,41 @@ impl TryFrom<GetFields> for DiseaseGet {
             },
         })
     }
+}
+
+fn validate_selectors(v: &GetFields, source: DiseaseSource) -> Result<(), QueryInvalid> {
+    if source != DiseaseSource::Seer
+        && [
+            &v.sex,
+            &v.race,
+            &v.age_range,
+            &v.dataset,
+            &v.period,
+            &v.interval,
+        ]
+        .iter()
+        .any(|v| v.is_some())
+    {
+        return Err(QueryInvalid::new(&[
+            "source",
+            "sex",
+            "race",
+            "age_range",
+            "dataset",
+            "period",
+            "interval",
+        ]));
+    }
+    if source != DiseaseSource::Ols && v.ontology.is_some() {
+        return Err(QueryInvalid::new(&["source", "ontology"]));
+    }
+    if v.section != Some(DiseaseSection::Incidence) && v.period.is_some() {
+        return Err(QueryInvalid::new(&["section", "period"]));
+    }
+    if v.section != Some(DiseaseSection::Survival) && v.interval.is_some() {
+        return Err(QueryInvalid::new(&["section", "interval"]));
+    }
+    Ok(())
 }
 
 /// Orphadata reads an Orphanet code directly, or a MONDO or DOID concept through its Orphanet links.
