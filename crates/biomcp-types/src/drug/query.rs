@@ -67,28 +67,28 @@ struct GetFields {
     /// Only with --source drugsfda. Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
-    /// Molecular profile for this drug's claims. Only with --source civic.
+    /// CIViC molecular profile. Selects a profile for this drug's claims. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
-    /// Evidence or assertion collection within the selected profile. Only with --source civic.
+    /// CIViC collection. Evidence or assertions in the selected profile. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_kind: Option<CivicClaimKind>,
-    /// Continue the same drug, profile and claim collection. Only with --source civic.
+    /// CIViC cursor. Continue the same drug, profile and claim collection. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    /// Exact text, ignoring case and whitespace breaks. History also ignores hyphenation. Repeat for OR.
+    /// Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.
     /// Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.
     /// Only with section label or label-history.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
     find: Box<[Text]>,
-    /// Read versions in order up to the read limit, instead of halving. Only with section label-history.
+    /// Read every version. Read in order up to the limit, instead of halving. Only with section label-history.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     every_version: bool,
-    /// Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.
+    /// Interaction partner. Keep pairs with this DDInter ID or full drug name (any case). Retries missing names with aliases.
     /// Only with section interactions.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Ddinter)))]

@@ -18,11 +18,12 @@ impl schemars::JsonSchema for DrugGetCommand {
                 object.insert(
                     "description".into(),
                     concat!(
-                        "Use a source ID or full brand or generic name. Keep spaces in WHO references. ",
+                        "Source ID or full brand or generic name (fda-dsc requires the communication UUID). ",
+                        "Keep spaces in WHO references. ",
                         "Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. ",
                         "EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. ",
                         "Labels also take application numbers (e.g. NDA216340). ",
-                        "fda-dsc requires the communication UUID from search drug NAME --source fda-dsc."
+                        "Find that UUID with search drug NAME --source fda-dsc."
                     ).into(),
                 );
             }

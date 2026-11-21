@@ -59,8 +59,8 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Drug name phrase. Omit for recall, safety communication, WHO date, label indication or mechanism, or Drugs@FDA applicant searches.
-    /// Drugs@FDA matches brands and ingredients, exact names first. openFDA labels match brands and generics, exact names first,
+    /// Drug name phrase. Optional for recalls, safety communications, WHO dates, FDA label filters and Drugs@FDA applicant searches.
+    /// Drugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,
     /// then search label text (including indications) if no names match. Recall aliases can match without becoming display names.
     /// Safety communications match titles, linked drug names and available text. Replies count records searched and records with page text.
     /// A communication can exist even when the search returns zero matches.
@@ -78,7 +78,7 @@ struct SearchFields {
     /// Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    /// Continue the first page's names and search step. Copy the returned token and keep filters unchanged.
+    /// Label name page token. Keep the first page's names and step by reusing the token with unchanged filters.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
     /// Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.
@@ -104,21 +104,21 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     application_type: Box<[LabelApplicationType]>,
-    /// Case-insensitive sponsor_name prefix, without company-family or subsidiary inference. A drug name narrows the search.
+    /// sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     applicant: Option<Text>,
-    /// newest sorts by latest submission status date, which may be for a supplement.
+    /// Application order. newest uses latest submission status date, which may be for a supplement.
     /// original-approval reads all matches and sorts by original_approval. Both put recent dates first,
     /// break ties by application number and put undated rows last. Omit for source order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     sort: Option<DrugFdaSort>,
-    /// Earliest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in the window.
+    /// Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     approved_from: Option<biodata::PartialDate>,
-    /// Latest original_approval, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
+    /// Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     approved_to: Option<biodata::PartialDate>,
@@ -147,15 +147,15 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     initiated_to: Option<biodata::PartialDate>,
 
-    /// Earliest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
+    /// First WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_from: Option<biodata::PartialDate>,
-    /// Latest WHO prequalification date, inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
+    /// Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_to: Option<biodata::PartialDate>,
-    /// Match whole words in WHO's Therapeutic Area column, ignoring case (e.g. Oncology).
+    /// WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology).
     #[serde(
         default,
         deserialize_with = "present_query",
