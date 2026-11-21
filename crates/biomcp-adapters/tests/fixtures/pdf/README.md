@@ -10,3 +10,9 @@ The two Symbol fixtures contain one page each, copied with pypdf from the review
 
 - `symbol-lipitor.pdf` is page 13 of [the Lipitor label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2012/020702s062s063lbl.pdf), source SHA-256 `5aa123a313951edbffb6c794c55a86b7817ce3499b4c92e07be0bc170e416d80`. Table 3 reads “↑ 8.7 fold”.
 - `symbol-tagrisso.pdf` is page 8 of [the Tagrisso label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/208065s021lbl.pdf), source SHA-256 `e8b4fb5945691feb9837df878d9c8feaf2e34cc6f761400aa7eab7551cd7d43f`. The footnote after “Fatigue” is β.
+
+The number fixtures contain one page each from saved FDA documents. The pages were copied with pypdf, excluding annotations and the structure-tree pointer. The Lipitor page content stream was compressed without changing its drawing commands.
+
+- `numbers-rinvoq.pdf` is page 26 of the [original Rinvoq label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/211675s000lbl.pdf), source SHA-256 `9d5db1cc76fd1f38b5ee6d713ed4523119bdf3af463856875f824ddf19c2426b`. The numbers after “Week 26” and “Week 24” are superscript footnote markers.
+- `numbers-lipitor.pdf` is page 5 of the [2009 Lipitor label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2009/020702s057lbl.pdf), source SHA-256 `abb4c1e91bc598c3692795ba732f65079832626011847e962164e9c549b29787`. The digits and decimal point in `p=0.0005` are drawn in separate text passes.
+- `numbers-fda-letter.pdf` is page 3 of the [Olumiant supplement 2 approval letter](https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/207924Orig1s002ltr.pdf), source SHA-256 `19f2a7a35cfc1c2b9e969357aee0b39bb7a2f3636840d2b30a0b846aabe08af9`. Its phone number wraps after the hyphen.
