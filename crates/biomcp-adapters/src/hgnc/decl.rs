@@ -7,7 +7,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     registry_order: Some(16),
     probe: Probe::Custom(crate::hgnc::probe),
     components: &[],
-    auxiliary: &[&super::OMIM_SPEC],
+    auxiliary: &[&super::omim::OMIM_SPEC],
     bundles: &[&BUNDLE],
     guidance: Guidance {
         deadline: None,

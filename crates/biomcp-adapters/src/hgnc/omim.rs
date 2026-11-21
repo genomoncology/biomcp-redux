@@ -7,9 +7,15 @@ use serde::Deserialize;
 
 /// HGNC REST API for exact OMIM gene-entry lookups.
 pub static OMIM_SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
+    user_agent: None,
+    source: biomcp_types::Source::Hgnc,
+    terms: super::SPEC.terms,
     base: "https://rest.genenames.org",
+    key: biomcp_fetch::KeyUse::None,
+    quota: super::SPEC.quota,
     deadline: std::time::Duration::from_secs(4),
-    ..super::SPEC
+    command_budget: None,
 };
 const FETCH: biomcp_fetch::Endpoint = OMIM_SPEC.get("/fetch/omim_id").fresh(Freshness::Days(7));
 
