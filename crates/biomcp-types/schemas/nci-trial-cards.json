@@ -2198,10 +2198,10 @@
       "properties": {
         "distance": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Keep ClinicalTrials.gov sites within a positive radius in mi or km. Requires --lat and --lon."
+          "description": "Positive radius in mi or km. Needs --lat and --lon."
         },
         "input": {
-          "description": "One to twenty exact NCT identifiers, in caller order.",
+          "description": "1–20 NCT IDs in caller order.",
           "items": {
             "$ref": "#/$defs/Reply_NctId"
           },
@@ -2212,11 +2212,11 @@
         },
         "lat": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read."
+          "description": "Latitude in degrees. With --lon, sort locations by straight-line miles and default to that section."
         },
         "limit": {
           "default": 10,
-          "description": "Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.",
+          "description": "Up to 200 records per page. Sections other than locations also have byte limits.",
           "format": "uint32",
           "maximum": 200,
           "minimum": 1,
@@ -2224,18 +2224,18 @@
         },
         "lon": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Longitude degrees; used with --lat."
+          "description": "Longitude in degrees."
         },
         "offset": {
           "default": 0,
-          "description": "Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.",
+          "description": "Skip characters in eligibility or NCI summary, records elsewhere.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
         },
         "pool": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Checked stored source record, supplied by a continuation."
+          "description": "Stored record from a continuation."
         },
         "section": {
           "description": "Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.",
@@ -2247,15 +2247,15 @@
         },
         "source": {
           "$ref": "#/$defs/Reply_TrialSource",
-          "description": "Explicit provider; defaults to ClinicalTrials.gov and never falls back."
+          "description": "Defaults to ClinicalTrials.gov. No fallback."
         },
         "state": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Match the ClinicalTrials.gov state label ignoring ASCII case."
+          "description": "Registry state label, ignoring ASCII case."
         },
         "status": {
           "$ref": "#/$defs/Reply_TrialSiteStatus",
-          "description": "Match the ClinicalTrials.gov site status, such as RECRUITING."
+          "description": "Site status, such as RECRUITING."
         }
       },
       "required": [
@@ -2507,19 +2507,19 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Intact criteria and structured age/sex fields.",
-        " Primary, secondary and other outcome records.",
-        " Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).",
-        " Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).",
-        " Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).",
-        " Arms and interventions with original relationships.",
-        " Whole source sites with contacts. Filter before paging. Count missing coordinates before filtering by radius.",
-        " Central contacts and overall officials in their original roles.",
-        " Registry publication identities and native reference types.",
-        " Posted document metadata and source URLs.",
-        " Every implemented trial section, each with independent continuations; flow and baseline stay within results.",
-        " Native NCI disease concepts, including source enrichment metadata.",
-        " Complete NCI summary, paged by original character offsets."
+        " Criteria and age/sex fields.",
+        " Primary, secondary and other outcomes.",
+        " Posted outcomes and analyses, then flow, baseline and adverse events (ClinicalTrials.gov).",
+        " Started, completed, and not completed by arm and period, with reasons (ClinicalTrials.gov).",
+        " Baseline populations, groups and measures (ClinicalTrials.gov).",
+        " Arms and linked interventions.",
+        " ClinicalTrials.gov sites with contacts. Count missing coordinates before radius filtering.",
+        " Central contacts and officials with roles.",
+        " Publication IDs and reference types.",
+        " Document metadata and URLs.",
+        " All sections page separately. Flow and baseline stay in results.",
+        " NCI disease concepts and enrichment.",
+        " NCI summary, paged by character."
       ]
     },
     "Reply_TrialSiteStatus": {

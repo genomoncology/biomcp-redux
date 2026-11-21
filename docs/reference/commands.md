@@ -3722,11 +3722,11 @@ Usage: biomcp get trial [OPTIONS] <input>...
 
 Arguments:
   <input>...
-          One to twenty exact NCT identifiers, in caller order.
+          1–20 NCT IDs in caller order.
 
 Options:
       --distance <distance>
-          Keep ClinicalTrials.gov sites within a positive radius in mi or km. Requires --lat and --lon.
+          Positive radius in mi or km. Needs --lat and --lon.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -3738,13 +3738,13 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --lat <lat>
-          Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read.
+          Latitude in degrees. With --lon, sort locations by straight-line miles and default to that section.
 
       --limit <limit>
-          Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget.
+          Up to 200 records per page. Sections other than locations also have byte limits.
 
       --lon <lon>
-          Longitude degrees; used with --lat.
+          Longitude in degrees.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3753,20 +3753,20 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
-          Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
+          Skip characters in eligibility or NCI summary, records elsewhere.
 
       --pool <pool>
-          Checked stored source record, supplied by a continuation.
+          Stored record from a continuation.
 
       --section <section>
           Optional intact source sections. Default cards only; diseases; help get trial
 
       --source <source>
-          Explicit source; defaults to ClinicalTrials.gov and never; help get trial
-          Explicit source; defaults to ClinicalTrials.gov and never falls back.
+          Defaults to ClinicalTrials.gov. No fallback; help get trial
+          Defaults to ClinicalTrials.gov. No fallback.
 
       --state <state>
-          Match the ClinicalTrials.gov state label ignoring ASCII case.
+          Registry state label, ignoring ASCII case.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3775,8 +3775,8 @@ Options:
           [possible values: true, false]
 
       --status <status>
-          Match the ClinicalTrials.gov site status, such as RECRUITING; help get trial
-          Match the ClinicalTrials.gov site status, such as RECRUITING.
+          Site status, such as RECRUITING; help get trial
+          Site status, such as RECRUITING.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3791,34 +3791,34 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
-- `--distance`: Keep ClinicalTrials.gov sites within a positive radius in mi or km. Requires --lat and --lon. Value form: string; example: --distance 50km.
-- `input`: One to twenty exact NCT identifiers, in caller order.
+- `--distance`: Positive radius in mi or km. Needs --lat and --lon. Value form: string; example: --distance 50km.
+- `input`: 1–20 NCT IDs in caller order.
 Form: get trial INPUT...; not --input.
-- `--lat`: Latitude degrees; with --lon, locations give each site's straight-line miles and come nearest first; with no section, locations is read. Value form: string; example: --lat 39.96.
-- `--limit`: Whole-record count per source collection page, up to 200; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
-- `--lon`: Longitude degrees; used with --lat. Value form: string; example: --lon -83.00.
-- `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer; example: --offset 0.
-- `--pool`: Checked stored source record, supplied by a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--lat`: Latitude in degrees. With --lon, sort locations by straight-line miles and default to that section. Value form: string; example: --lat 39.96.
+- `--limit`: Up to 200 records per page. Sections other than locations also have byte limits. Value form: integer; example: --limit 1.
+- `--lon`: Longitude in degrees. Value form: string; example: --lon -83.00.
+- `--offset`: Skip characters in eligibility or NCI summary, records elsewhere. Value form: integer; example: --offset 0.
+- `--pool`: Stored record from a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `--section`: Optional intact source sections. Default cards only; diseases… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section outcomes.
-- `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
-- `--state`: Match the ClinicalTrials.gov state label ignoring ASCII case. Value form: string; example: --state ohio.
-- `--status`: Match the ClinicalTrials.gov site status, such as RECRUITING. Value form: string; example: --status RECRUITING.
+- `--source`: Defaults to ClinicalTrials.gov. No fallback. Value form: string; example: --source nci.
+- `--state`: Registry state label, ignoring ASCII case. Value form: string; example: --state ohio.
+- `--status`: Site status, such as RECRUITING. Value form: string; example: --status RECRUITING.
 
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
-- `eligibility`: Intact criteria and structured age/sex fields.
-- `outcomes`: Primary, secondary and other outcome records.
-- `results`: Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).
-- `flow`: Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).
-- `baseline`: Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).
-- `arms`: Arms and interventions with original relationships.
-- `locations`: Whole source sites with contacts. Filter before paging. Count missing coordinates before filtering by radius.
-- `contacts`: Central contacts and overall officials in their original roles.
-- `references`: Registry publication identities and source reference types.
-- `documents`: Posted document metadata and source URLs.
-- `all`: Every implemented trial section, each with independent continuations; flow and baseline stay within results.
-- `diseases`: Source NCI disease concepts, including source enrichment metadata.
-- `summary`: Complete NCI summary, paged by original character offsets.
+- `eligibility`: Criteria and age/sex fields.
+- `outcomes`: Primary, secondary and other outcomes.
+- `results`: Posted outcomes and analyses, then flow, baseline and adverse events (ClinicalTrials.gov).
+- `flow`: Started, completed, and not completed by arm and period, with reasons (ClinicalTrials.gov).
+- `baseline`: Baseline populations, groups and measures (ClinicalTrials.gov).
+- `arms`: Arms and linked interventions.
+- `locations`: ClinicalTrials.gov sites with contacts. Count missing coordinates before radius filtering.
+- `contacts`: Central contacts and officials with roles.
+- `references`: Publication IDs and reference types.
+- `documents`: Document metadata and URLs.
+- `all`: All sections page separately. Flow and baseline stay in results.
+- `diseases`: NCI disease concepts and enrichment.
+- `summary`: NCI summary, paged by character.
 
 ## biomcp get variant
 
