@@ -95,7 +95,7 @@
       ]
     },
     "Reply_DrugSearch": {
-      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name. Purple Book takes a reference name or BLA and summarizes biosimilars by product.",
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or applicant. FDA signals take a drug or report text. FDA withdrawals take a drug, indication or withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD). Purple Book takes a reference name or BLA and summarizes biosimilars by product.",
       "properties": {
         "applicant": {
           "anyOf": [
@@ -282,7 +282,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nSafety communications match titles, linked drug names and page text. Counts show records searched and those with text.\nZero matches does not establish that FDA issued no communication about this drug.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
+          "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nFDA safety communications match titles, linked names and available page text.",
           "x-positional": 0
         },
         "reason": {
@@ -362,6 +362,8 @@
         "ddinter",
         "who-eml",
         "fda-dsc",
+        "fda-safety-signals",
+        "fda-withdrawn-approvals",
         "purple-book"
       ]
     },
@@ -878,6 +880,8 @@
         " openFDA medical device product recall records.",
         " FDA drug enforcement recall records.",
         " FDA Drug Safety Communications web pages.",
+        " FDA potential safety signals from quarterly reports.",
+        " FDA cancer indications with withdrawn accelerated approval.",
         " FDA Purple Book biologic product roster.",
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
@@ -959,6 +963,8 @@
         "fda-device-recall",
         "fda-drug-recall",
         "fda-dsc",
+        "fda-safety-signals",
+        "fda-withdrawn-approvals",
         "purple-book",
         "cpic",
         "clinpgx",

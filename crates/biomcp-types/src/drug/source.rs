@@ -55,6 +55,10 @@ impl DrugSource {
         Self::FdaWithdrawnApprovals,
         Self::PurpleBook,
     ];
+    /// FDA lists whose rows are available through drug search.
+    pub(super) const fn fda_search_list(self) -> bool {
+        matches!(self, Self::FdaSafetySignals | Self::FdaWithdrawnApprovals)
+    }
     /// Canonical source spelling, reusing an existing source identity when present.
     pub fn as_str(self) -> &'static str {
         self.source().into()
@@ -111,7 +115,18 @@ impl schemars::JsonSchema for DrugSource {
         "DrugSource".into()
     }
     fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-        let names = Self::ALL.map(Self::as_str);
+        Self::selector_schema(|_| true)
+    }
+}
+
+#[cfg(feature = "schema")]
+impl DrugSource {
+    pub(super) fn selector_schema(supports: impl Fn(Self) -> bool) -> schemars::Schema {
+        let names = Self::ALL
+            .into_iter()
+            .filter(|source| supports(*source))
+            .map(Self::as_str)
+            .collect::<Vec<_>>();
         schemars::json_schema!({"description":"A supported drug data source.",
             "type":"string", "enum":names, "x-enum-open":true})
     }
