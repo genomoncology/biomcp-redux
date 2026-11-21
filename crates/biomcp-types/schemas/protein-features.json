@@ -774,25 +774,20 @@
       ],
       "type": "string"
     },
-    "Reply_ProteinFeature": {
-      "description": "UniProt feature with source attribution and coordinate provenance.",
+    "Reply_ProteinFeatureRow": {
+      "description": "A feature with its own coordinate accession and original convention.",
       "properties": {
-        "attribution": {
-          "$ref": "#/$defs/Reply_Attribution",
-          "description": "Source record and release facts."
-        },
         "feature": {
           "$ref": "#/$defs/Reply_UniProtFeature",
-          "description": "Shared feature, including native label and residues."
+          "description": "Feature data, including source-specific sequence coordinates and residues."
         },
         "source_coordinates": {
           "$ref": "#/$defs/Reply_ProteinCoordinateConvention",
-          "description": "Convention before mathematical conversion."
+          "description": "Coordinate convention in the source data."
         }
       },
       "required": [
         "feature",
-        "attribution",
         "source_coordinates"
       ],
       "type": "object"
@@ -800,8 +795,19 @@
     "Reply_ProteinFeatures": {
       "description": "Native UniProt feature rows, preserving exact labels and uncertain bounds.",
       "properties": {
+        "attribution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Attribution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Entry provenance shared by this feature list."
+        },
         "coordinate_note": {
-          "description": "How to read the spans above; present when any row is returned.",
+          "description": "How to read the spans, present when any row is returned.",
           "type": [
             "string",
             "null"
@@ -810,7 +816,7 @@
         "items": {
           "description": "Whole native rows in source order; totals apply only to this collection.",
           "items": {
-            "$ref": "#/$defs/Reply_ProteinFeature"
+            "$ref": "#/$defs/Reply_ProteinFeatureRow"
           },
           "type": "array"
         }
@@ -1586,7 +1592,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-features/6",
+  "$id": "biomcp.protein-features/7",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1663,7 +1669,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-features/6",
+      "const": "biomcp.protein-features/7",
       "type": "string"
     },
     "sources": {

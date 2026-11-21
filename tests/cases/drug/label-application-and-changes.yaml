@@ -56,7 +56,7 @@
       ],
       "exit": 0,
       "expect": {
-        "/schema": "biomcp.drug-sections/2",
+        "/schema": "biomcp.drug-sections/3",
         "/status": "complete",
         "/result/identity/application_numbers": [
           "NDA216340"

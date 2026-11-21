@@ -2,7 +2,7 @@
   "feature": "source-data-age",
   "live_check": "Entirely synthetic native-shaped source facts; no live provider observation",
   "replay": "source-age/fda-unavailable",
-  "story": "Unavailable FDA context leaves the native Open Targets phase visible with the additional source failure",
+  "story": "FDA failure affects the explicit regulatory section. The indications command needs only Open Targets and keeps its native phase.",
   "steps": [
     {
       "run": [
@@ -16,14 +16,28 @@
         "1"
       ],
       "expect": {
-        "/status": "partial",
-        "/result/indications/data/records/0/stage/value": "PHASE_III",
-        "/result": {
-          "omits": [
-            "regulatory_context"
-          ]
+        "/status": "complete",
+        "/sources": {
+          "count": 1
         },
-        "/sources/1/state": "failed"
+        "/result/indications/data/records/0/stage/value": "PHASE_III"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "CHEMBL941",
+        "regulatory",
+        "--source",
+        "opentargets",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/sources/1/state": "failed",
+        "/result/regulatory_context/state": "unavailable"
       }
     }
   ]

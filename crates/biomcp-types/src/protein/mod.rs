@@ -3,3 +3,6 @@ mod query;
 pub use query::*;
 mod response;
 pub use response::*;
+
+mod features;
+pub use features::{ProteinFeaturePage, ProteinFeatureRow, ProteinFeatures};

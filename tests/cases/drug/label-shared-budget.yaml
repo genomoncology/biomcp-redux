@@ -17,7 +17,7 @@
         "indications_and_usage,dosage_and_administration,warnings_and_cautions"
       ],
       "expect": {
-        "/schema": "biomcp.drug-sections/2",
+        "/schema": "biomcp.drug-sections/3",
         "/status": "complete",
         "/result/parts/0/reply/page/returned": 4,
         "/result/parts/0/reply/result/label/data": {

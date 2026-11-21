@@ -127,6 +127,9 @@
       ],
       "expect": {
         "/result/items/0/feature/protein": "P00533",
+        "/result/attribution/source": "uniprot",
+        "/result/attribution/record": "P00533",
+        "/result/items/0": { "omits": ["attribution"] },
         "/result/items/0/feature/id": "PRO_0000016665",
         "/result/items/0/feature/kind/label": "Chain",
         "/page/total": 1
