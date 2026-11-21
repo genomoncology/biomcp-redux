@@ -1,6 +1,6 @@
 # 1109 — show-the-scope-of-trial-text-search-totals
 
-Status: OPEN.
+Status: COMPLETE. Built by 1095 (search trials by acronym and official title): crates/biomcp-adapters/src/ctgov/search_query.rs explains a general text search's scope ('ClinicalTrials.gov general text (query.term=...). The total counts this search's matches.')
 
 Milestone: 7
 
