@@ -1,0 +1,90 @@
+{
+  "feature": "section-fields",
+  "story": "Arm pages count selected columns, give a reason for a page still limited by bytes and continue at the first omitted arm.",
+  "replay": "trial/arm-projection",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT06952504",
+        "--section",
+        "arms",
+        "--fields=record,data.kind,data.label,data.intervention_names",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/result/items/0/sections/arms/data/page": {
+          "offset": 0,
+          "returned": 10,
+          "total": 10
+        },
+        "/result/items/0/sections/arms/data": {
+          "omits": [
+            "continuation"
+          ]
+        },
+        "/result/items/0/sections/arms/data/items": {
+          "count": 10
+        },
+        "/result/items/0/sections/arms/data/items/0/data": {
+          "omits": [
+            "description"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999999",
+        "--section",
+        "arms",
+        "--fields=record,data.label,data.description",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/result/items/0/sections/arms/data/page": {
+          "offset": 0,
+          "returned": 2,
+          "total": 3,
+          "truncated": true
+        },
+        "/result/items/0/sections/arms/data/items/*/data/label": [
+          "Arm 1",
+          "Arm 2"
+        ],
+        "/result/items/0/sections/arms/data/continuation/offset": 2,
+        "/sources/*/notices/*/message": {
+          "includes": "NCT09999999 arms reached the 4500-byte page limit."
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/fields": [
+          "record",
+          "data.label",
+          "data.description"
+        ],
+        "/result/items/0/sections/arms/data/page": {
+          "offset": 2,
+          "returned": 1,
+          "total": 3
+        },
+        "/result/items/0/sections/arms/data/items/*/data/label": [
+          "Arm 3"
+        ],
+        "/result/items/0/sections/arms/data": {
+          "omits": [
+            "continuation"
+          ]
+        }
+      }
+    }
+  ]
+}
