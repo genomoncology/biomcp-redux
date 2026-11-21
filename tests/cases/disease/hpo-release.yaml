@@ -1,0 +1,106 @@
+{
+  "feature": "disease-hpo-release",
+  "story": "Find diseases with positive annotation support for every requested term in one release, with original disease IDs and the gene links supplied by that release.",
+  "live_check": "Synthetic replay of three assets under one HPO release tag.",
+  "replay": "disease/hpo-release",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "disease",
+        "--hpo-release",
+        "v2099-01-01",
+        "--phenotype",
+        "HP:0001083",
+        "--phenotype",
+        "HP:0000098",
+        "--phenotype",
+        "HP:0001634"
+      ],
+      "mcp": [
+        "search",
+        "disease",
+        "--hpo-release",
+        "v2099-01-01",
+        "--phenotype",
+        "HP:0001083",
+        "--phenotype",
+        "HP:0000098",
+        "--phenotype",
+        "HP:0001634"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/hpo_release": "v2099-01-01",
+        "/page/total": 2,
+        "/result/release": "v2099-01-01",
+        "/result/items/*/id": [
+          "OMIM:900001",
+          "ORPHA:900001"
+        ],
+        "/result/items/0/matches": [
+          {
+            "requested": "HP:0001083",
+            "annotated": [
+              "HP:9000102"
+            ]
+          },
+          {
+            "requested": "HP:0000098",
+            "annotated": [
+              "HP:0000098"
+            ]
+          },
+          {
+            "requested": "HP:0001634",
+            "annotated": [
+              "HP:0001634"
+            ]
+          }
+        ],
+        "/result/items/1/matches/0": {
+          "equals": {
+            "requested": "HP:0001083",
+            "annotated": [
+              "HP:0001083"
+            ]
+          }
+        },
+        "/result/items/0/gene_links": [
+          {
+            "id": "NCBIGene:900001",
+            "symbol": "SYNTH1",
+            "association_type": "MENDELIAN",
+            "source": "https://example.org/genes"
+          }
+        ],
+        "/sources/0/source": "hpo",
+        "/result/items/1/gene_links_missing": true,
+        "/result/items/1": {
+          "omits": [
+            "gene_links"
+          ]
+        }
+      },
+      "max_bytes": 2200
+    },
+    {
+      "run": [
+        "search",
+        "disease",
+        "--hpo-release",
+        "v2099-01-01",
+        "--phenotype",
+        "HP:0000007"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/id": "OMIM:900008",
+        "/result/items/0/matches/0/annotated": [
+          "HP:0000007"
+        ]
+      }
+    }
+  ]
+}
