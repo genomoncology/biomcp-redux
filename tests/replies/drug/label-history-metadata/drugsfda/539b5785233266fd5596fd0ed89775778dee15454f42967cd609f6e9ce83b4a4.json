@@ -1,0 +1,108 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA214012%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1795149444,
+      "status": 200,
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "content_type": "application/json",
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-18",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "application_number": "NDA214012",
+              "products": [
+                {
+                  "product_number": "001",
+                  "brand_name": "TEST"
+                }
+              ],
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20211222",
+                  "application_docs": [
+                    {
+                      "id": "69748",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2021/214012lbl.pdf",
+                      "date": "20211223",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "2",
+                  "submission_status": "AP",
+                  "submission_status_date": "20220606",
+                  "application_docs": [
+                    {
+                      "id": "71264",
+                      "date": "20220610",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "6",
+                  "submission_status": "TA",
+                  "submission_status_date": "20230217",
+                  "application_docs": [
+                    {
+                      "id": "73594",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2023/214012Orig1s006lbl.pdf",
+                      "date": "20230222",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "20",
+                  "submission_status": "AP",
+                  "application_docs": [
+                    {
+                      "id": "86999",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/214012s021lbl.pdf",
+                      "date": "20260820",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "21",
+                  "submission_status": "AP",
+                  "submission_status_date": "20260819",
+                  "application_docs": [
+                    {
+                      "id": "87029",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/214012s021lbl.pdf",
+                      "date": "20260825",
+                      "type": "Label"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -37,12 +37,12 @@ biodata::wire_enum! {
         /// The document names itself as another kind, such as Instructions for Use, and has no
         /// prescribing information; it is not a label version and is passed over.
         NotPrescribingInformation => "not-prescribing-information",
-        /// Unread: the section's bounds could not be found from the label's contents list.
+        /// Unread: the section's bounds could not be found from the label's contents list or its
+        /// headings.
         SectionNotBounded => "section-not-bounded",
-        /// Unread: a label in the format used before 2006 whose heading for the section is not a
-        /// whole line, or which has no such heading.
+        /// Unread: a label in the format used before 2006 with no heading for the section.
         OlderFormat => "older-format",
-        /// Unread: the PDF has no embedded text, such as a scan.
+        /// Unread: the PDF has no embedded text besides FDA's stamp, such as a scan.
         NoText => "no-text",
         /// Unread: over BioMCP's PDF bounds.
         TooLarge => "too-large",
@@ -101,6 +101,9 @@ pub(super) fn checked(
             LabelHistoryOffset, LabelHistoryOffsetIncomplete, LabelHistoryOffsetSection,
             LabelHistorySectionUnknown,
         };
+        if limit.is_some() {
+            return Err(crate::QueryInvalid::new(&["section_limit", "section"]));
+        }
         let offset = offset.is_some() && !options.1;
         let unknown = options.2.is_some() && section(options.2).is_none();
         // Without --find, the refusal that names it also names the sections to choose from.
@@ -154,24 +157,24 @@ pub struct DrugLabelHistory {
     pub identity: DrugHeader,
     /// The section searched.
     pub section: LabelHistorySection,
-    /// The answer in one sentence: where the text first appears, or that no version read has it.
+    /// What the versions read establish about when the text appeared.
     pub answer: Text,
     /// How versions were chosen, and the assumption the answer rests on when it rests on one.
     pub method: Text,
     /// Label versions Drugs@FDA lists for the application: one per distinct label PDF.
     pub versions: u32,
-    /// The earliest version read whose section holds a searched text; absent when none does.
+    /// The earliest confirmed match read, if the reply can establish one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub first: Option<LabelVersionMatch>,
     /// The latest version before `first` whose section was read and holds no searched text.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub before: Option<LabelVersion>,
-    /// True when a version between `before` and `first` was not read, so the text appeared on
-    /// or before `first`'s date rather than on it.
+    /// True when any version older than `first` was unreadable or unopened.
+    /// The first appearance could be earlier than `first`.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub on_or_before: bool,
-    /// Versions this call never opened. Halving passes over versions on its stated assumption;
-    /// otherwise an unopened version leaves the answer open, and the reply is partial.
+    /// Versions this call never opened. An unopened version leaves the answer open if it
+    /// precedes the earliest match or if no match was found.
     #[serde(default, skip_serializing_if = "is_zero")]
     pub not_opened: u32,
     /// True when the call stopped at its read bound or time limit before the search finished;

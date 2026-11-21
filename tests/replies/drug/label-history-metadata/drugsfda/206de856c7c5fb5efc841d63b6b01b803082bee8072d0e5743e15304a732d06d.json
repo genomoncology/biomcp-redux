@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2021/214012lbl.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795149444,
+      "status": 200,
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "content_type": "application/pdf",
+      "body": {
+        "kind": "sidecar",
+        "value": "206de856c7c5fb5efc841d63b6b01b803082bee8072d0e5743e15304a732d06d-0.bin"
+      }
+    }
+  ]
+}

@@ -23,11 +23,17 @@ struct Transfer<'a> {
     complete: bool,
     started: Instant,
 }
+impl Transfer<'_> {
+    fn known_size(&self) -> Option<u64> {
+        self.part.total.or(self.complete.then_some(self.part.bytes))
+    }
+}
 impl Leg<'_> {
     pub(super) fn sync_bundle<R: Row>(
         &self,
         b: &Bundle<R>,
         auto: bool,
+        size: Option<&super::first::Size>,
     ) -> Result<BundleSync, RequestError> {
         self.bundle_source(b)?;
         if matches!(self.fetch.mode, Mode::Offline) {
@@ -37,7 +43,8 @@ impl Leg<'_> {
         if matches!(self.fetch.mode, Mode::Replay { .. }) {
             return self.replay_bundle(b);
         }
-        let old = if matches!(self.fetch.mode, Mode::Record { .. }) {
+        let record = matches!(self.fetch.mode, Mode::Record { .. });
+        let old = if record {
             None
         } else {
             cache.bundle_info(b.name, self.budget())?
@@ -74,7 +81,6 @@ impl Leg<'_> {
             etag: None,
             total: None,
         };
-        let record = matches!(self.fetch.mode, Mode::Record { .. });
         resume(
             prior,
             &mut part,
@@ -90,22 +96,22 @@ impl Leg<'_> {
             complete: false,
             started: Instant::now(),
         };
-        let result = self.download(
-            b,
-            &url,
-            &mut transfer,
-            if record { None } else { old.as_ref() },
-        );
-        if result.is_err() {
-            // Preserve this holder's file only if its fenced metadata update succeeds.
-            let cleanup = Deadline::start(Duration::from_secs(1), None);
-            if transfer.complete {
-                cache.discard(b.name, &holder, cleanup)?;
-            } else if cache.retain(b.name, &holder, &part, cleanup)? {
-                file.keep().map_err(|_| CacheError::Filesystem)?;
-            }
+        let result = self.download(b, &url, &mut transfer, old.as_ref());
+        if let Some(size) = size {
+            size.set(transfer.known_size());
         }
-        result
+        if result.is_err() {
+            let discard = transfer.complete || part.total.is_some_and(|n| n > MAX_BUNDLE_BYTES);
+            finish_failed(cache, b.name, &holder, &part, file, discard)?;
+        }
+        match result {
+            Err(RequestError::Source(error))
+                if size.is_none() && error.reason == Reason::TooLarge =>
+            {
+                Err(self.failure(Reason::Syncing, error.status).into())
+            }
+            result => result,
+        }
     }
     fn replay_bundle<R: Row>(&self, b: &Bundle<R>) -> Result<BundleSync, RequestError> {
         let cache = self.bundle_cache()?;
@@ -370,16 +376,9 @@ impl Leg<'_> {
                 reset(t.file, t.part)?;
                 return Err(self.failure(Reason::BadReply, Some(status)).into());
             }
-            if total > MAX_BUNDLE_BYTES {
-                reset(t.file, t.part)?;
-                return Err(self.failure(Reason::Syncing, Some(status)).into());
-            }
             t.part.total = Some(total);
         } else {
             reset(t.file, t.part)?;
-            if length.is_some_and(|n| n > MAX_BUNDLE_BYTES) {
-                return Err(self.failure(Reason::Syncing, Some(status)).into());
-            }
             t.part.total = length;
             t.part.etag = etag;
         }
@@ -399,7 +398,7 @@ impl Leg<'_> {
         }
         .min(source_limit);
         if t.part.total.is_some_and(|n| n > limit) {
-            return Err(self.failure(Reason::Syncing, Some(status)).into());
+            return Err(self.failure(Reason::TooLarge, Some(status)).into());
         }
         let mut reader = response.body_mut().as_reader();
         let mut buffer = [0u8; 16 * 1024];
@@ -424,7 +423,7 @@ impl Leg<'_> {
                 return Err(self.failure(Reason::BadReply, Some(status)).into());
             };
             if t.part.bytes.saturating_add(n as u64) > limit {
-                return Err(self.failure(Reason::Syncing, Some(status)).into());
+                return Err(self.failure(Reason::TooLarge, Some(status)).into());
             }
             t.file
                 .write_all(bytes)
@@ -546,4 +545,22 @@ fn provenance(meta: &mut Meta, body: &[u8]) {
     let hex = super::bundle_sha256(body);
     meta.content_revision = Some(format!("sha256:{hex}"));
     meta.retrieved_at = crate::cache::timestamp();
+}
+
+/// Keep resumable bytes only after this holder stored their matching metadata.
+fn finish_failed(
+    cache: &crate::cache::Cache,
+    name: &str,
+    holder: &str,
+    part: &Part,
+    file: tempfile::NamedTempFile,
+    discard: bool,
+) -> Result<(), RequestError> {
+    let cleanup = Deadline::start(Duration::from_secs(1), None);
+    if discard {
+        cache.discard(name, holder, cleanup)?;
+    } else if cache.retain(name, holder, part, cleanup)? {
+        file.keep().map_err(|_| CacheError::Filesystem)?;
+    }
+    Ok(())
 }

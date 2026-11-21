@@ -148,6 +148,8 @@ pub struct FetchConfig {
     pub sync_budget: Duration,
     /// Maximum automatically downloaded bundle bytes.
     pub auto_sync_max_bytes: u64,
+    /// Seconds to wait after an unsuccessful automatic first fetch.
+    pub auto_sync_retry_seconds: u32,
     /// Maximum stored reply body bytes, enforced when a reply is written.
     pub reply_cache_max_bytes: u64,
     /// Days after a publisher dataset date before replies flag old data.
