@@ -48,6 +48,9 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
             "--file".into(),
             path.to_string_lossy().into_owned(),
         ]),
+        Action::Sync { bundle } if *bundle == biomcp_query::Bundle::ORPHADATA_XREFS => {
+            Ok(vec!["sync".into(), "orphadata".into(), "--xrefs".into()])
+        }
         Action::Sync { bundle } => Ok(vec!["sync".into(), bundle.name().into()]),
         Action::Run { request, fresh } => {
             let mut args = request_args(request)?;

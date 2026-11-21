@@ -17,7 +17,8 @@ macro_rules! notice {
          Orphanet is not responsible for their quality"
     };
 }
-pub(super) const NOTICE: &str = notice!();
+/// Publisher-requested acknowledgment that accompanies Orphadata results.
+pub const NOTICE: &str = notice!();
 /// Orphadata's CC BY 4.0 terms in plain words, with its requested statement.
 const TERMS: biomcp_fetch::Terms = biomcp_fetch::Terms {
     name: concat!("CC BY 4.0; cite Orphadata. ", notice!()),

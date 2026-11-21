@@ -1,17 +1,22 @@
-//! Orphanet epidemiology for an Orphanet code, or a MONDO or DOID concept through its own Orphanet links.
+//! Orphanet OMIM mappings and epidemiology for an Orphanet code or a concept with Orphanet links.
 use super::page::{empty, page_info, run, slice};
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::{Curie, DiseaseRelation};
 use biomcp_adapters::{mydisease, orphadata};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGet, DiseasePrevalence, OrphanetEpidemiology, Reason, Request, Source, SourceState,
-    SourceStatus, StepKind,
+    DiseaseGet, DiseasePrevalence, DiseaseSection, DiseaseXrefs, OrphanetEpidemiology, Reason,
+    Request, Source, SourceNotice, SourceState, SourceStatus, StepKind,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
+    if query.section() == Some(DiseaseSection::Xrefs) {
+        let out = xrefs(cx, query, id, deadline);
+        command.finish(deadline.remaining());
+        return out;
+    }
     let mut out = empty(body(query, Vec::new(), Vec::new()));
     let Some((codes, links)) = linked(cx, query, id, deadline, &mut out) else {
         command.finish(deadline.remaining());
@@ -40,16 +45,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
             out.include_refusals(mapped.refusals);
             out.problems.extend(mapped.problems);
             let (items, total) = slice(mapped.value, query);
-            let returned = items.len() as u32;
-            out.page = Some(page_info(query.section_offset(), returned, total));
-            let offset = query.section_offset().saturating_add(returned);
-            if returned > 0 && u64::from(offset) < total {
-                out.next.push(crate::next::Step::new(
-                    StepKind::Page,
-                    &[Source::Orphadata],
-                    run(Request::GetDisease(query.at_section_offset(offset))),
-                ));
-            }
+            page(&mut out, query, items.len() as u32, total);
             let found = total > 0;
             out.body = body(query, items, links);
             status::item(&mut out, found, false, false);
@@ -60,16 +56,68 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
         }
     }
     if sync {
-        out.next.push(crate::next::Step::new(
-            StepKind::Sync,
-            &[Source::Orphadata],
-            Action::Sync {
-                bundle: Bundle::ORPHADATA,
-            },
-        ));
+        sync_step(&mut out, Bundle::ORPHADATA);
     }
     command.finish(deadline.remaining());
     out
+}
+
+fn xrefs(
+    cx: &Ctx<'_>,
+    query: &DiseaseGet,
+    id: &Curie,
+    deadline: biomcp_fetch::Deadline<'_>,
+) -> Outcome {
+    let mut body = DiseaseXrefs {
+        items: Box::default(),
+        components: Box::default(),
+    };
+    let mut out = empty(body.clone().with_query(query.clone()));
+    let leg = cx.fetch.leg(&orphadata::SPEC, deadline);
+    let reply = orphadata::omim_xrefs(&leg, id);
+    let error = reply.as_ref().err().copied();
+    let mut source = status::source(Source::Orphadata, leg.finish(), error);
+    if matches!(source.state, SourceState::Syncing | SourceState::Stale) {
+        sync_step(&mut out, Bundle::ORPHADATA_XREFS);
+    }
+    out.local = error.and_then(status::local);
+    if let Ok(mapped) = reply {
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: orphadata::NOTICE.into(),
+            retry_after_seconds: None,
+        });
+        out.include_refusals(mapped.refusals);
+        out.problems.extend(mapped.problems);
+        let (items, total) = slice(mapped.value, query);
+        page(&mut out, query, items.len() as u32, total);
+        body.items = items.into_iter().map(Into::into).collect();
+        out.body = body.with_query(query.clone());
+    }
+    out.sources.push(source);
+    let found = out.page.as_ref().is_some_and(|page| page.total > 0);
+    status::item(&mut out, found, error.is_some(), false);
+    out
+}
+
+fn page(out: &mut Outcome, query: &DiseaseGet, returned: u32, total: u64) {
+    let offset = query.section_offset().saturating_add(returned);
+    out.page = Some(page_info(query.section_offset(), returned, total));
+    if returned > 0 && u64::from(offset) < total {
+        out.next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[Source::Orphadata],
+            run(Request::GetDisease(query.at_section_offset(offset))),
+        ));
+    }
+}
+
+fn sync_step(out: &mut Outcome, bundle: Bundle) {
+    out.next.push(crate::next::Step::new(
+        StepKind::Sync,
+        &[Source::Orphadata],
+        Action::Sync { bundle },
+    ));
 }
 
 /// The Orphanet codes to read: the requested code, or the concept's MONDO-stated Orphanet links.
@@ -81,7 +129,7 @@ fn linked(
     deadline: biomcp_fetch::Deadline<'_>,
     out: &mut Outcome,
 ) -> Option<(Vec<Curie>, Vec<DiseaseRelation>)> {
-    if orphadata::orpha_code(id).is_some() {
+    if orphadata::orpha_code(id.as_str()).is_some() {
         return Some((vec![id.clone()], Vec::new()));
     }
     let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);
@@ -103,7 +151,7 @@ fn linked(
         .value
         .xrefs
         .into_iter()
-        .filter(|xref| orphadata::orpha_code(&xref.object.id).is_some())
+        .filter(|xref| orphadata::orpha_code(xref.object.id.as_str()).is_some())
         .collect();
     Some((links.iter().map(|l| l.object.id.clone()).collect(), links))
 }
@@ -129,7 +177,7 @@ pub(crate) fn step(
 ) -> Option<crate::next::Step> {
     if !xrefs
         .iter()
-        .any(|xref| orphadata::orpha_code(&xref.object.id).is_some())
+        .any(|xref| orphadata::orpha_code(xref.object.id.as_str()).is_some())
     {
         return None;
     }

@@ -36,6 +36,7 @@ impl TryFrom<GetFields> for DiseaseGet {
                 .with_message(crate::ErrorMessage::DiseasePrevalenceSource));
         }
         if source == DiseaseSource::Orphadata
+            && v.section != Some(DiseaseSection::Xrefs)
             && !matches!(&id, DiseaseId::Concept(id) if orphadata_id(id.as_str()))
         {
             return Err(QueryInvalid::new(&["source", "id"])

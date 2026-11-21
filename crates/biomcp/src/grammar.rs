@@ -236,7 +236,8 @@ pub(crate) fn root() -> Result<Root, ParseInvalid> {
                     .default_value(Bundle::HGNC.name())
                     .value_parser(clap::builder::PossibleValuesParser::new(bundle_names())),
             )
-            .arg(local::sync_file_arg()),
+            .arg(local::sync_file_arg())
+            .arg(local::sync_xrefs_arg()),
     );
     root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health").after_help("Example: biomcp health --offline"));

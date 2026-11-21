@@ -172,7 +172,8 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
             }
             // Orphadata reads an Orphanet code itself; any other ID goes through the MONDO record's links.
             let card = &record.card;
-            let id = if biomcp_adapters::orphadata::orpha_code(&card.requested_id).is_some() {
+            let id = if biomcp_adapters::orphadata::orpha_code(card.requested_id.as_str()).is_some()
+            {
                 &card.requested_id
             } else {
                 &card.returned_id
