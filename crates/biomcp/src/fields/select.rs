@@ -388,6 +388,9 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
             joined(&required)
         ));
     }
+    if (verb, entity) == ("protein", "sequence") {
+        return Some("--fields crc64,md5 or --fields audit.sequence_version.".into());
+    }
     let kept = if required.is_empty() {
         String::new()
     } else {
