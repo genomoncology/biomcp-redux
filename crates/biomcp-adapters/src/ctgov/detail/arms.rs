@@ -1,5 +1,5 @@
 //! Registered arms and interventions retain their original relationships.
-use super::{Arms, Problems, TrialArm, TrialIntervention};
+use super::{Arms, Field, Problems, TrialArm, TrialIntervention};
 
 impl Arms {
     pub(super) fn rows(
@@ -11,13 +11,7 @@ impl Arms {
             super::super::refusals::records(problems, refusals, "armGroups", self.arm_groups)
                 .into_vec()
                 .into_iter()
-                .map(|v| TrialArm {
-                    label: problems.required_native_text("armGroups.label", v.label),
-                    kind: problems.field("armGroups.type", v.kind),
-                    description: problems.field("armsInterventions.description", v.description),
-                    intervention_names: problems
-                        .native_texts("armGroups.interventionNames", v.intervention_names),
-                })
+                .map(|arm| arm.row(problems))
                 .collect(),
             super::super::refusals::records(
                 problems,
@@ -37,5 +31,27 @@ impl Arms {
             })
             .collect(),
         )
+    }
+}
+
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(in crate::ctgov) struct Arm {
+    label: Option<Field<Box<str>>>,
+    #[serde(rename = "type")]
+    kind: Option<Field<biodata::TrialArmKind>>,
+    description: Option<Field<biodata::Markdown>>,
+    intervention_names: Option<Field<Vec<Field<Box<str>>>>>,
+}
+
+impl Arm {
+    pub(in crate::ctgov) fn row(self, problems: &mut Problems) -> TrialArm {
+        TrialArm {
+            label: problems.required_native_text("armGroups.label", self.label),
+            kind: problems.field("armGroups.type", self.kind),
+            description: problems.field("armsInterventions.description", self.description),
+            intervention_names: problems
+                .native_texts("armGroups.interventionNames", self.intervention_names),
+        }
     }
 }

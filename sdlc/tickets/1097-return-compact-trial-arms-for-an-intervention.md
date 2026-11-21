@@ -1,6 +1,7 @@
 # 1097 — return-compact-trial-arms-for-an-intervention
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a94a7ca3c817c03f0e1c476c0cd722d12a3e9539
 
 Milestone: 7
 
