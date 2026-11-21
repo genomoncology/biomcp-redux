@@ -83,6 +83,18 @@
         "/result/references/0/bla": "BLA125057",
         "/page/total": 10
       }
+    },
+    {
+      "mcp": ["get", "drug", "BLA125057", "biosimilars", "--source", "drugsfda"],
+      "hosted": true,
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "biosimilars",
+        "/error/valid_values": {"includes": "approvals"},
+        "/next/0/args": {"includes_all_of": ["search", "drug", "BLA125057", "--source", "purple-book"]}
+      }
     }
   ]
 }
