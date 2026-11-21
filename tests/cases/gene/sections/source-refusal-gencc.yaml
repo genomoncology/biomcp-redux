@@ -1,0 +1,24 @@
+feature: gene-sections
+story: Gene get refuses --source gencc and directs validity requests to the gencc section.
+replay: gene/gencc
+config:
+  disable_sources: [oncokb]
+steps:
+- run: [get, gene, FANCA, validity, --source, gencc]
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+    /error/option: --source
+    /error/message: { includes: "--source" }
+    /next/0/args: [get, gene, FANCA, gencc]
+- run: [sync, gencc]
+  expect:
+    /status: complete
+- run: [get, gene, ODC1, MIR21, validity, "--source=gencc"]
+  exit: 2
+  expect:
+    /next/0/args: [get, gene, ODC1, MIR21, gencc]
+- follow: configure
+  expect:
+    /status: complete
+    /result/items/0/sections/gencc/state: data
