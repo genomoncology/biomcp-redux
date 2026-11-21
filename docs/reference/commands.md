@@ -3551,17 +3551,21 @@ Arguments:
           Gene symbols or checked identifiers, in input order.
 
 Options:
+      --constraint-release <constraint_release>
+          Choose a gnomAD release for MANE Select; help get gene
+          Choose a gnomAD release for MANE Select.
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
 
-      --section <section>
-          Requested section words, preserving caller order and repetitions; help get gene
-
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --section <section>
+          Requested section words, preserving caller order and repetitions; help get gene
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3589,6 +3593,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `input`: Gene symbols or checked identifiers, in input order.
 Form: get gene INPUT...; not --input.
+- `--constraint-release`: Choose a gnomAD release for MANE Select. Value form: string; example: --constraint-release v4.1.
 - `--section`: Requested section words, preserving caller order and repetitions… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section clingen.
 
 Requested section words, preserving caller order and repetitions.
@@ -5826,7 +5831,7 @@ Arguments:
           Local source bundle to synchronize.
 
           [default: hgnc]
-          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx, orphadata, purple-book]
+          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx, orphadata, purple-book, gnomad-constraint-v4.0, gnomad-constraint-v4.1]
 
 Options:
       --file <PATH>
@@ -9709,6 +9714,8 @@ Commands:
   fda-cdx
   orphadata
   purple-book
+  gnomad-constraint-v4.0
+  gnomad-constraint-v4.1
 
 Options:
       --format <format>
@@ -10235,6 +10242,82 @@ Options:
 ```
 
 Describe help sync purple-book.
+
+
+## biomcp help sync gnomad-constraint-v4.0
+
+```text
+Usage: biomcp help sync gnomad-constraint-v4.0 [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help sync gnomad-constraint-v4.0.
+
+
+## biomcp help sync gnomad-constraint-v4.1
+
+```text
+Usage: biomcp help sync gnomad-constraint-v4.1 [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help sync gnomad-constraint-v4.1.
 
 
 ## biomcp help skill
