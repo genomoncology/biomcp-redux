@@ -109,10 +109,10 @@ impl TryFrom<SearchFields> for DiseaseSearch {
                 }
                 v.ontology.get_or_insert_with(DiseaseOntology::default);
             }
-            DiseaseSource::Seer => {
-                if v.text.as_ref().is_some_and(|t| t.trim().is_empty()) || v.ontology.is_some() {
-                    return Err(QueryInvalid::new(&["source", "text", "ontology"]));
-                }
+            DiseaseSource::Seer
+                if v.text.as_ref().is_some_and(|t| t.trim().is_empty()) || v.ontology.is_some() =>
+            {
+                return Err(QueryInvalid::new(&["source", "text", "ontology"]));
             }
             _ if !SEARCH_SOURCES.contains(&source) => return Err(QueryInvalid::new(&["source"])),
             _ => (),
