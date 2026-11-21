@@ -17,8 +17,15 @@ fn check() -> Result<(), String> {
     let replay = fixtures().join("replies/disease/gene-validity");
     let globals = env.globals(Some(&replay), false);
     command(&env, &["sync".into(), "gencc".into()], &globals, 0)?;
-    let combined = ["get", "disease", "MONDO:0019391", "gene-validity"];
-    let reply = read(&env, &globals, &combined)?;
+    assertions(&env, &globals)?;
+    filters(&env, &globals)?;
+    stale_copy(&env)
+}
+
+const GET_ID: [&str; 4] = ["get", "disease", "MONDO:0019391", "gene-validity"];
+
+fn assertions(env: &Environment, globals: &[String]) -> Result<(), String> {
+    let reply = read(env, globals, &GET_ID)?;
     assert_fields(
         &reply,
         &[
@@ -54,9 +61,24 @@ fn check() -> Result<(), String> {
             ),
         ],
     )?;
+    let first_page = ["--section-limit", "2"];
+    let args = [GET_ID.as_slice(), &first_page].concat();
+    let page = read(env, globals, &args)?;
+    assert_fields(
+        &page,
+        &[
+            ("/page/total", json!(4)),
+            ("/page/returned", json!(2)),
+            ("/sources/1/retrieved_count", json!(0)),
+            ("/next/0/kind", json!("page")),
+        ],
+    )
+}
+
+fn filters(env: &Environment, globals: &[String]) -> Result<(), String> {
     let filtered = read(
-        &env,
-        &globals,
+        env,
+        globals,
         &[
             "get",
             "disease",
@@ -80,8 +102,8 @@ fn check() -> Result<(), String> {
         ],
     )?;
     let native_names = read(
-        &env,
-        &globals,
+        env,
+        globals,
         &["get", "disease", "Fixture disease", "gene-validity"],
     )?;
     assert_fields(
@@ -96,8 +118,8 @@ fn check() -> Result<(), String> {
         ],
     )?;
     let no_match = read(
-        &env,
-        &globals,
+        env,
+        globals,
         &[
             "get",
             "disease",
@@ -114,7 +136,10 @@ fn check() -> Result<(), String> {
     assert_fields(
         &no_match,
         &[("/status", json!("complete")), ("/page/total", json!(0))],
-    )?;
+    )
+}
+
+fn stale_copy(env: &Environment) -> Result<(), String> {
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
         .map_err(|e| e.to_string())?;
     db.execute_batch(
@@ -123,7 +148,7 @@ fn check() -> Result<(), String> {
          DELETE FROM bundle_key WHERE kind=4 AND bundle IN('gencc-submissions','clingen-validity');",
     )
     .map_err(|e| e.to_string())?;
-    let stale = read(&env, &env.globals(None, true), &combined)?;
+    let stale = read(env, &env.globals(None, true), &GET_ID)?;
     assert_fields(
         &stale,
         &[
