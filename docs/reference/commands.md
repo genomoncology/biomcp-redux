@@ -3459,11 +3459,11 @@ Options:
       --label-section <label_section>
           Exact openFDA SPL fields.
           Comma-separated. Omit to list fields.
-          For a current subsection, append :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
+          Current subsections take :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
           warnings_and_precautions reads warnings_and_cautions.
           For Drugs@FDA history: boxed_warning, indications_and_usage, contraindications,
           warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
-          Only with label or label-history.
+          Only with section label or label-history.
 
       --partner <partner>
           Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.
@@ -3513,11 +3513,11 @@ Only with section label or label-history. Value form: repeatable values (repeat 
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Comma-separated. Omit to list fields.
-For a current subsection, append :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
+Current subsections take :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
 warnings_and_precautions reads warnings_and_cautions.
 For Drugs@FDA history: boxed_warning, indications_and_usage, contraindications,
 warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
-Only with label or label-history. Value form: string; example: --label-section warnings_and_cautions.
+Only with section label or label-history. Value form: string; example: --label-section warnings_and_cautions.
 - `--partner`: Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.
 Only with section interactions. Value form: string; example: --partner DDInter9005; only with --source ddinter.
 - `--product-number`: Application product number. Only with --source drugsfda. Only with section approvals. Value form: string; example: --product-number 001.

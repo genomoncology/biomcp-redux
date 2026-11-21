@@ -45,11 +45,11 @@ struct GetFields {
     section_offset: Option<u32>,
     /// Exact openFDA SPL fields.
     /// Comma-separated. Omit to list fields.
-    /// For a current subsection, append :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
+    /// Current subsections take :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
     /// warnings_and_precautions reads warnings_and_cautions.
     /// For Drugs@FDA history: boxed_warning, indications_and_usage, contraindications,
     /// warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
-    /// Only with label or label-history.
+    /// Only with section label or label-history.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     label_section: Option<Text>,
