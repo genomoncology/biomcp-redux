@@ -2,9 +2,11 @@
 use crate::fda_dsc::html::{attribute, visible};
 
 /// A cell's visible wording and markup for reading its links.
+#[derive(Debug, Clone)]
 pub(crate) struct Cell<'a> {
     pub text: String,
     pub html: &'a str,
+    span: usize,
 }
 
 /// The first table with the expected heading and exact column count.
@@ -14,18 +16,29 @@ pub(crate) fn rows<const N: usize>(
 ) -> Option<Vec<[Cell<'_>; N]>> {
     for fragment in body.split("<table").skip(1) {
         let (table, _) = fragment.split_once("</table>")?;
-        let mut rows = table.split("<tr").skip(1).map(cells::<N>);
-        let Some(Some(head)) = rows.next() else {
+        let mut rows = table.split("<tr").skip(1);
+        let Some(head) = rows.next().and_then(cells).and_then(as_row::<N>) else {
             continue;
         };
         if accepts(head.each_ref().map(|cell| cell.text.as_str())) {
-            return rows.collect();
+            let mut carried: [Option<(usize, Cell<'_>)>; N] = std::array::from_fn(|_| None);
+            let rows = rows
+                .map(|row| expanded(cells(row)?, &mut carried))
+                .collect::<Option<Vec<_>>>()?;
+            return carried
+                .into_iter()
+                .all(|slot| slot.is_none())
+                .then_some(rows);
         }
     }
     None
 }
 
-fn cells<const N: usize>(row: &str) -> Option<[Cell<'_>; N]> {
+fn as_row<const N: usize>(cells: Vec<Cell<'_>>) -> Option<[Cell<'_>; N]> {
+    cells.try_into().ok()
+}
+
+fn cells(row: &str) -> Option<Vec<Cell<'_>>> {
     let (row, _) = row.split_once("</tr>")?;
     row.match_indices('<')
         .filter_map(|(at, _)| {
@@ -35,14 +48,49 @@ fn cells<const N: usize>(row: &str) -> Option<[Cell<'_>; N]> {
                 "th" => "</th>",
                 _ => return None,
             };
-            Some(content.split_once(end).map(|(html, _)| Cell {
-                text: visible(html),
-                html,
-            }))
+            Some(cell(tag, content, end))
         })
-        .collect::<Option<Vec<_>>>()?
-        .try_into()
-        .ok()
+        .collect()
+}
+
+fn cell<'a>(tag: &str, content: &'a str, end: &str) -> Option<Cell<'a>> {
+    if attribute(tag, "colspan").is_some_and(|width| width != "1") {
+        return None;
+    }
+    let (html, _) = content.split_once(end)?;
+    let span = attribute(tag, "rowspan").unwrap_or("1").parse().ok()?;
+    Some(Cell {
+        text: visible(html),
+        html,
+        span,
+    })
+}
+
+fn expanded<'a, const N: usize>(
+    cells: Vec<Cell<'a>>,
+    carried: &mut [Option<(usize, Cell<'a>)>; N],
+) -> Option<[Cell<'a>; N]> {
+    let mut cells = cells.into_iter();
+    let row = carried
+        .iter_mut()
+        .map(|slot| {
+            let (remaining, cell) = match slot.take() {
+                Some(previous) => previous,
+                None => {
+                    let cell = cells.next()?;
+                    (cell.span, cell)
+                }
+            };
+            if remaining > 1 {
+                *slot = Some((remaining - 1, cell.clone()));
+            }
+            Some(cell)
+        })
+        .collect::<Option<Vec<_>>>()?;
+    if cells.next().is_some() {
+        return None;
+    }
+    as_row(row)
 }
 
 /// Page links paired with their visible labels.

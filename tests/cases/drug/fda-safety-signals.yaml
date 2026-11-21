@@ -50,6 +50,27 @@
         "/page/total": 1,
         "/result/items/0/signal": "Second signal"
       }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "Alternate compound",
+        "--source",
+        "fda-safety-signals"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "Alternate compound",
+        "--source",
+        "fda-safety-signals"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/signal": "Other signal",
+        "/result/items/0/additional_information": "Follow-up."
+      }
     }
   ]
 }

@@ -19,6 +19,7 @@ const PAGE_WAIT: Duration = Duration::from_secs(1);
 struct Seed {
     date: PartialDate,
     reports: Vec<SeedReport>,
+    unread_archived_quarters: u32,
 }
 
 #[derive(Deserialize)]
@@ -29,6 +30,7 @@ struct SeedReport {
 }
 
 /// Quarterly rows and how much of the list was available to search.
+#[derive(Debug)]
 pub struct Signals {
     /// Rows, newest quarter first, in FDA's order within a quarter.
     pub items: Vec<DrugSafetySignal>,
@@ -77,7 +79,8 @@ pub fn read(leg: &Leg<'_>) -> Result<Signals, RequestError> {
                 Some(decode(&report.table, &report.path, &report.quarter).ok_or_else(malformed)?);
         }
     }
-    signals.unread_quarters = updated.values().filter(|rows| rows.is_none()).count() as u32;
+    signals.unread_quarters = seed.unread_archived_quarters
+        + updated.values().filter(|rows| rows.is_none()).count() as u32;
     signals.items = updated.into_values().rev().flatten().flatten().collect();
     Ok(signals)
 }
@@ -131,7 +134,12 @@ fn page_rows(
 
 fn decode(body: &str, path: &str, quarter: &str) -> Option<Vec<DrugSafetySignal>> {
     let quarter = Text::new(quarter).ok()?;
-    let url = Text::new(&format!("{}{path}", SPEC.base)).ok()?;
+    let url = if path.starts_with("https://") {
+        Text::new(path)
+    } else {
+        Text::new(&format!("{}{path}", SPEC.base))
+    }
+    .ok()?;
     fda_html::rows(body, |[product, signal, info]| {
         product.to_ascii_lowercase().starts_with("product name")
             && signal.to_ascii_lowercase().contains("potential signal")
@@ -142,8 +150,8 @@ fn decode(body: &str, path: &str, quarter: &str) -> Option<Vec<DrugSafetySignal>
     .into_iter()
     .map(|[product, signal, additional_information]| {
         Some(DrugSafetySignal {
-            product: Text::new(&product.text).ok()?,
-            signal: Text::new(&signal.text).ok()?,
+            product: crate::native_text::admit(&product.text).ok()?,
+            signal: crate::native_text::admit(&signal.text).ok()?,
             additional_information: additional_information.text.into(),
             quarter: quarter.clone(),
             url: url.clone(),

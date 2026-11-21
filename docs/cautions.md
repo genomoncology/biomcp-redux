@@ -22,7 +22,7 @@ The reply preserves the source URL, document metadata and license without granti
 
 ## FDA safety signals and withdrawn approvals
 
-FDA's quarterly `fda-safety-signals` search includes a shipped snapshot of FDA-hosted reports for first and offline reads. Reports linked only from external archives are outside its coverage. Each result page carries FDA's wording on causality and gives the snapshot date when shipped tables were used. Use `biomcp search drug ocrelizumab --source fda-safety-signals`.
+FDA's quarterly `fda-safety-signals` search uses a shipped snapshot of current and available archived reports for first and offline reads. Each result page carries FDA's wording on causality. It reports the snapshot date when used and the count of unread quarters, including [archived reports](https://www.fda.gov/drugs/fda-adverse-event-monitoring-system-aems/archived-quarterly-reports-new-safety-information-or-potential-signals-serious-risks-identified-fda) unavailable for collection. Use `biomcp search drug ocrelizumab --source fda-safety-signals`.
 
 The `fda-withdrawn-approvals` source returns one row per withdrawn cancer indication with FDA's wording and dates. A query can use drug or indication text, or a withdrawal date in FDA's printed form or ISO year, month or day format. The shipped table also works offline. Use `biomcp search drug tazemetostat --source fda-withdrawn-approvals`.
 
