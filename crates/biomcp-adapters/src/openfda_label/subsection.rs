@@ -10,17 +10,17 @@ pub(super) struct Heading<'a> {
 }
 
 impl Heading<'_> {
-    pub fn matches(&self, asked: &str) -> bool {
+    pub(super) fn matches(&self, asked: &str) -> bool {
         self.number == asked
             || DrugNameMatch::same_name(self.title, asked)
             || DrugNameMatch::same_name(&self.printed(), asked)
     }
 
-    pub fn printed(&self) -> String {
+    pub(super) fn printed(&self) -> String {
         format!("{} {}", self.number, self.title)
     }
 
-    pub fn contains(&self, next: &Self) -> bool {
+    pub(super) fn contains(&self, next: &Self) -> bool {
         next.number
             .strip_prefix(self.number)
             .is_some_and(|rest| rest.starts_with('.'))

@@ -78,32 +78,7 @@ pub(super) fn select(
     let limit = fragment_limit(query);
     let identity = record.header()?;
     let (data, subsection_hint) = if let Some(asked) = subsection {
-        match record.label_subsection(heading, asked, offset, limit, cx.label_bytes)? {
-            SubsectionPage::Data(data) => (Some(data), None),
-            SubsectionPage::Missing => (
-                None,
-                Some(format!(
-                    "{} has no subsection {asked:?} in {heading}",
-                    label_name(&identity)
-                )),
-            ),
-            SubsectionPage::Ambiguous(matches) => {
-                let shown = matches
-                    .iter()
-                    .take(2)
-                    .map(String::as_str)
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                let more = if matches.len() > 2 { " and others" } else { "" };
-                (
-                    None,
-                    Some(format!(
-                        "In {}, subsection {asked:?} is ambiguous in {heading}: {shown}{more}",
-                        label_name(&identity)
-                    )),
-                )
-            }
-        }
+        subsection_text(record, query, heading, asked, cx.label_bytes, &identity)?
     } else {
         (record.label(heading, offset, limit, cx.label_bytes)?, None)
     };
@@ -126,6 +101,45 @@ pub(super) fn select(
     })
     .with_query(query.clone());
     Ok(())
+}
+
+fn subsection_text(
+    record: &source::Record,
+    query: &DrugGet,
+    heading: &str,
+    asked: &str,
+    budget: usize,
+    identity: &biomcp_types::DrugHeader,
+) -> Result<(Option<DrugLabelText>, Option<String>), RequestError> {
+    let offset = query.section_offset().unwrap_or(0);
+    let limit = fragment_limit(query);
+    let result = record.label_subsection(heading, asked, offset, limit, budget)?;
+    Ok(match result {
+        SubsectionPage::Data(data) => (Some(*data), None),
+        SubsectionPage::Missing => (
+            None,
+            Some(format!(
+                "{} has no subsection {asked:?} in {heading}",
+                label_name(identity)
+            )),
+        ),
+        SubsectionPage::Ambiguous(matches) => {
+            let shown = matches
+                .iter()
+                .take(2)
+                .map(String::as_str)
+                .collect::<Vec<_>>()
+                .join(", ");
+            let more = if matches.len() > 2 { " and others" } else { "" };
+            (
+                None,
+                Some(format!(
+                    "In {}, subsection {asked:?} is ambiguous in {heading}: {shown}{more}",
+                    label_name(identity)
+                )),
+            )
+        }
+    })
 }
 
 /// Retain source fragment offsets and keep the original selector in the continuation.

@@ -8,7 +8,7 @@ const FRAGMENT_BYTES: usize = 6144;
 #[derive(Debug)]
 pub enum SubsectionPage {
     /// One complete heading, paged within its subtree.
-    Data(DrugLabelText),
+    Data(Box<DrugLabelText>),
     /// No numbered heading matches the selector.
     Missing,
     /// Multiple supported headings match the selector.
@@ -139,7 +139,7 @@ impl super::Record {
             });
         self.0
             .label_page(&heading.printed(), slice, offset, limit, budget)
-            .map(SubsectionPage::Data)
+            .map(|data| SubsectionPage::Data(Box::new(data)))
     }
 }
 
