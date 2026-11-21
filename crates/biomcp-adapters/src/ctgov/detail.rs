@@ -1,6 +1,6 @@
 //! One registry record request with a typed protocol projection, checked against its requested identity before caching.
 use biomcp_fetch::{Input, Read};
-mod arms;
+pub(super) mod arms;
 mod dates;
 mod eligibility;
 mod posted;
@@ -199,17 +199,8 @@ struct Outcome {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Arms {
-    arm_groups: Option<Field<Vec<Field<Arm>>>>,
+    arm_groups: Option<Field<Vec<Field<arms::Arm>>>>,
     interventions: Option<Field<Vec<Field<Intervention>>>>,
-}
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Arm {
-    label: Option<Field<Box<str>>>,
-    #[serde(rename = "type")]
-    kind: Option<Field<biodata::TrialArmKind>>,
-    description: Option<Field<Markdown>>,
-    intervention_names: Option<Field<Vec<Field<Box<str>>>>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
