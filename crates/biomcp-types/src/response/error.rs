@@ -250,6 +250,9 @@ singleton! {
         PhenotypeSet => "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch",
         PhenotypeHelp => "use: help phenotype", TrialOffsetDeep => "ClinicalTrials.gov offsets reach row 5000; follow --next-page from next to go deeper",
         PhenotypeHpoSearch => "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
+        PhenotypeHpoDiseases => "HPO serves term records. Use Monarch for the diseases section.",
+        PhenotypeHpoHierarchy => "HPO serves term records. Use Monarch for the hierarchy section.",
+        PhenotypeHpoGenes => "HPO serves term records. Use Monarch for the genes section.",
         PhenotypeSetOptions => "--group, --metric and --search-mode rank genes or diseases for HP IDs only; give the text \
             as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes",
         PhenotypeSetOffset => "Monarch returns one ranked list of at most 50 rows for a set of HP IDs and has no further \
