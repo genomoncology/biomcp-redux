@@ -16,7 +16,7 @@ const LIST: Endpoint = SPEC.get(PATH).bytes(1024 * 1024).fresh(Freshness::Days(1
 pub static SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: fda_dsc::SPEC.user_agent,
-    source: SOURCE,
+    source: Source::FdaWithdrawnApprovals,
     base: fda_dsc::SITE,
     terms: fda_dsc::SPEC.terms,
     quota: &crate::quotas::FDA_DSC,
@@ -82,25 +82,37 @@ fn decode(body: &str) -> Result<Vec<DrugWithdrawal>, RequestError> {
             && approval == "Accelerated Approval Date"
             && withdrawal.starts_with("Withdrawal Date")
     })
-    .filter(|rows| !rows.is_empty())
-    .ok_or_else(malformed)?;
-    Ok(rows
-        .into_iter()
-        .map(|[drug, indication, approval, withdrawal]| DrugWithdrawal {
-            drug: drug.text.into(),
-            indication: indication.text.into(),
-            approval_date: approval.text.into(),
-            withdrawal_date: withdrawal.text.into(),
-            url: url.clone(),
-            indication_url: fda_html::anchors(indication.html).find_map(|(href, _)| match href {
-                path if path.starts_with("/drugs/") => {
-                    Text::new(&format!("{}{path}", SPEC.base)).ok()
-                }
-                url if url.starts_with("https://") => Text::new(url).ok(),
-                _ => None,
-            }),
+    .map_err(|_| malformed())?;
+    if rows.is_empty() {
+        return Err(malformed());
+    }
+    rows.into_iter()
+        .map(|[drug, indication, approval, withdrawal]| {
+            let indication_url = fda_html::anchors(indication.html)
+                .next()
+                .map(|(href, _)| approval_url(href))
+                .transpose()?;
+            Ok(DrugWithdrawal {
+                drug: drug.text.into(),
+                indication: indication.text.into(),
+                approval_date: approval.text.into(),
+                withdrawal_date: withdrawal.text.into(),
+                url: url.clone(),
+                indication_url,
+            })
         })
-        .collect())
+        .collect()
+}
+
+fn approval_url(href: &str) -> Result<Text, RequestError> {
+    let url = if href.starts_with("/drugs/") {
+        Text::new(&format!("{}{href}", SPEC.base))
+    } else if href.starts_with("https://") {
+        Text::new(href)
+    } else {
+        return Err(biomcp_fetch::bad_reply(SOURCE, None));
+    };
+    url.map_err(|_| biomcp_fetch::bad_reply(SOURCE, None))
 }
 
 /// Match the printed FDA date or its ISO year, month or full date.
@@ -108,14 +120,13 @@ pub fn matches_date(needle: &str, published: &str) -> bool {
     if needle == published {
         return true;
     }
-    let Ok(query) = needle.parse::<biodata::PartialDate>() else {
-        return false;
-    };
-    fda_dsc::html::date(published).is_some_and(|date| {
-        query.year() == date.year()
-            && query
-                .month()
-                .is_none_or(|month| Some(month) == date.month())
-            && query.day().is_none_or(|day| Some(day) == date.day())
+    needle.parse::<biodata::PartialDate>().is_ok_and(|query| {
+        fda_dsc::html::date(published).is_some_and(|date| {
+            query.year() == date.year()
+                && query
+                    .month()
+                    .is_none_or(|month| Some(month) == date.month())
+                && query.day().is_none_or(|day| Some(day) == date.day())
+        })
     })
 }

@@ -17,27 +17,30 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         .fresh(cx.fresh);
     let result = fda_withdrawals::read(&leg);
     let mut report = leg.finish();
-    let error = result.as_ref().err().copied();
-    if let Ok(found) = result {
-        let needle = q.query().map(|text| text.as_str().to_lowercase());
-        let matching = found.items.into_iter().filter(|row| {
-            fda_list::matches(needle.as_deref(), &[&row.drug, &row.indication])
-                || needle.as_deref().is_some_and(|needle| {
-                    fda_withdrawals::matches_date(needle, &row.withdrawal_date)
-                })
-        });
-        let items = fda_list::page(cx, q, matching, &mut out);
-        report.stale |= found.fallback.is_some();
-        if let Some(RequestError::Source(error)) = found.fallback {
-            report.failures.push(error);
+    let error = match result {
+        Ok(found) => {
+            let needle = q.query().map(|text| text.as_str().to_lowercase());
+            let matching = found.items.into_iter().filter(|row| {
+                fda_list::matches(needle.as_deref(), &[&row.drug, &row.indication])
+                    || needle.as_deref().is_some_and(|needle| {
+                        fda_withdrawals::matches_date(needle, &row.withdrawal_date)
+                    })
+            });
+            let items = fda_list::page(cx, q, matching, &mut out);
+            report.stale |= found.fallback.is_some();
+            if let Some(RequestError::Source(error)) = found.fallback {
+                report.failures.push(error);
+            }
+            out.body = DrugWithdrawalPage {
+                total: out.page.as_ref().map_or(0, |page| page.total),
+                seed_date: found.fallback.map(|_| fda_withdrawals::SEED_DATE.into()),
+                items,
+            }
+            .with_query(q.clone());
+            None
         }
-        out.body = DrugWithdrawalPage {
-            total: out.page.as_ref().map_or(0, |page| page.total),
-            seed_date: found.fallback.map(|_| fda_withdrawals::SEED_DATE.into()),
-            items,
-        }
-        .with_query(q.clone());
-    }
+        Err(error) => Some(error),
+    };
     fda_list::source(SOURCE, &mut out, report, error);
     command.finish(deadline.remaining());
     out
