@@ -89,7 +89,7 @@ fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             items: Box::default(),
             total: None,
         })
-        .with_query(query.for_reply()),
+        .with_query(query.clone()),
     );
     let Some(name) = query.query() else {
         return unsupported(query.source(), out);
@@ -450,7 +450,7 @@ fn search_results(
             fresh,
         ));
     }
-    out.body = page.with_query(query.for_reply());
+    out.body = page.with_query(query.clone());
 }
 
 pub(crate) mod label_bound;

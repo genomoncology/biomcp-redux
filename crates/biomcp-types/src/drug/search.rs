@@ -177,13 +177,9 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     device: Option<Text>,
     /// Drug source. An empty name search may retry names from other sources.
-    #[serde(
-        default,
-        deserialize_with = "selected_source",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default)]
     #[cfg_attr(feature = "schema", schemars(with = "DrugSource", extend("default" = "mychem")))]
-    source: Option<DrugSource>,
+    source: SearchSource,
     /// ChEMBL name to match. Default: preferred name.
     #[serde(
         default,
@@ -205,7 +201,7 @@ crate::query::validation::checked_query!(DrugSearch, SearchFields);
 impl TryFrom<SearchFields> for DrugSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
-        let source = fields.source.unwrap_or(DrugSource::Mychem);
+        let source = fields.source.effective();
         if !(1..=50).contains(&fields.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
@@ -325,7 +321,7 @@ impl DrugSearch {
             indication: None,
             mechanism_of_action: None,
             application_type: Box::default(),
-            source: Some(source),
+            source: SearchSource(Some(source)),
             limit,
             offset: 0,
             applicant: None,
@@ -397,8 +393,26 @@ fn present_query<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>,
     Text::deserialize(d).map(Some)
 }
 
-fn selected_source<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<DrugSource>, D::Error> {
-    DrugSource::deserialize(d).map(Some)
+// The command needs to know whether the caller supplied a source. Public JSON names the effective source.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct SearchSource(Option<DrugSource>);
+
+impl SearchSource {
+    fn effective(self) -> DrugSource {
+        self.0.unwrap_or(DrugSource::Mychem)
+    }
+}
+
+impl Serialize for SearchSource {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.effective().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for SearchSource {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        DrugSource::deserialize(d).map(|source| Self(Some(source)))
+    }
 }
 
 fn selected_name<'de, D: serde::Deserializer<'de>>(
@@ -485,17 +499,11 @@ impl DrugSearch {
 
     /// Single selected native source.
     pub fn source(&self) -> DrugSource {
-        self.0.source.unwrap_or(DrugSource::Mychem)
-    }
-    /// Echo the effective source without changing the caller's paging request.
-    pub fn for_reply(&self) -> Self {
-        let mut query = self.clone();
-        query.0.source = Some(self.source());
-        query
+        self.0.source.effective()
     }
     /// Default discovery promotes complete names; explicit sources retain native order.
     pub fn ranks_default_names(&self) -> bool {
-        self.0.source.is_none()
+        self.0.source.0.is_none()
     }
     /// Native page bound.
     pub fn limit(&self) -> u32 {
@@ -526,17 +534,13 @@ const WIDENING: [DrugSource; 5] = [
 ];
 
 fn widens(fields: &SearchFields) -> bool {
+    let source = fields.source.effective();
     !fields.exact_term
-        && fields
-            .source
-            .is_some_and(|source| WIDENING.contains(&source))
+        && WIDENING.contains(&source)
         && fields.query.as_ref().is_some_and(|name| {
             // A native record identifier names one record, never a drug with other names.
             match name.as_str().parse::<biodata::DrugId>() {
-                Ok(id) => {
-                    !DrugSource::Drugsfda.accepts(&id)
-                        && !fields.source.is_some_and(|source| source.accepts(&id))
-                }
+                Ok(id) => !DrugSource::Drugsfda.accepts(&id) && !source.accepts(&id),
                 Err(_) => true,
             }
         })
