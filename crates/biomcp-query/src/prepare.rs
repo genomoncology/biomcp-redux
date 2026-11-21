@@ -1,6 +1,6 @@
 //! Capability and selector checks run before transport admission.
 use crate::Action;
-use biomcp_types::{DiseaseSection, DiseaseSource, Request, UsageError};
+use biomcp_types::{DiseaseSection, DiseaseSource, ErrorMessage, Request, UsageError};
 impl Action {
     /// Prepare source selectors and preserve existing usage refusal envelopes.
     pub fn prepare(self) -> Result<Self, UsageError> {
@@ -114,7 +114,11 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
     };
     Some(UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some("section".into()),
-        message: Some(biomcp_types::ErrorMessage::ArgumentMissing),
+        message: Some(match q.source() {
+            DiseaseSource::Orphadata => ErrorMessage::DiseaseOrphadataSection,
+            DiseaseSource::Monarch => ErrorMessage::DiseaseMonarchSection,
+            _ => ErrorMessage::ArgumentMissing,
+        }),
         valid_values: Some(values.into()),
         next: vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,
@@ -162,9 +166,20 @@ fn disease_sources(action: &Action) -> UsageError {
         Ok(values) => values,
         Err(_) => return UsageError::argument("--source".into()),
     };
+    let message = match action {
+        Action::Run {
+            request: Request::GetDisease(q),
+            ..
+        } if !values.is_empty() => Some(match q.section() {
+            Some(DiseaseSection::Genes) => ErrorMessage::DiseaseGenesSource,
+            Some(DiseaseSection::Phenotypes) => ErrorMessage::DiseasePhenotypesSource,
+            _ => ErrorMessage::DiseaseGetSource,
+        }),
+        _ => None,
+    };
     UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some("--source".into()),
-        message: None,
+        message,
         valid_values: (!values.is_empty()).then(|| values.into()),
         next: vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,
