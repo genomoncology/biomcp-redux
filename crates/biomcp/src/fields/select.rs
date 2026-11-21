@@ -358,7 +358,7 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
     if (verb, entity) == ("search", "drug") {
         let optional = row.names.difference(&required).cloned().collect();
         return Some(format!(
-            "Optional fields: {}. Always kept: {}. {CHOOSE}.",
+            "Optional fields: {}. Always kept: {}. --fields a,b or a.b (MCP: fields).",
             joined(&optional),
             joined(&required)
         ));

@@ -243,7 +243,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,\nthen search label text (including indications) if no names match. Recall aliases can match without becoming display names.\nSafety communications match titles, linked drug names and available text. Replies count records searched and records with page text.\nA communication can exist even when the search returns zero matches.",
+          "description": "Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.\nDrugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.\nRecall aliases match without replacing display names.\nSafety communications match titles, linked drug names and page text. Counts show records searched and those with text.\nZero matches does not establish that FDA issued no communication about this drug.\nFDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications",
           "x-positional": 0
         },
         "reason": {

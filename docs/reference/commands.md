@@ -1424,10 +1424,11 @@ Usage: biomcp search drug [OPTIONS] [query]
 Arguments:
   [query]
           Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
-          Drugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,
-          then search label text (including indications) if no names match. Recall aliases can match without becoming display names.
-          Safety communications match titles, linked drug names and available text. Replies count records searched and records with page text.
-          A communication can exist even when the search returns zero matches.
+          Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
+          Recall aliases match without replacing display names.
+          Safety communications match titles, linked drug names and page text. Counts show records searched and those with text.
+          Zero matches does not establish that FDA issued no communication about this drug.
+          FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
 
 Options:
       --applicant <applicant>
@@ -1579,10 +1580,11 @@ Paging: --limit and --offset.
 - `--prequalified-to`: Last WHO prequalification date. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `--presentations`: Return presentation rows, as do --strength and --device. Value form: boolean; example: --presentations; only with --source purple-book.
 - `query`: Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
-Drugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,
-then search label text (including indications) if no names match. Recall aliases can match without becoming display names.
-Safety communications match titles, linked drug names and available text. Replies count records searched and records with page text.
-A communication can exist even when the search returns zero matches.
+Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
+Recall aliases match without replacing display names.
+Safety communications match titles, linked drug names and page text. Counts show records searched and those with text.
+Zero matches does not establish that FDA issued no communication about this drug.
+FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
 Form: search drug QUERY; not --query.
 - `--reason`: Recall reason phrase. Value form: string; example: 'Lack of Sterility Assurance'; only with --source fda-drug-recall.
 - `--sort`: Application order. newest uses latest submission status date, which may be for a supplement.

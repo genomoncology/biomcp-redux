@@ -60,10 +60,11 @@ pub struct DrugSearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
-    /// Drugs@FDA matches brands and ingredients by exact name, then by words. openFDA labels do the same for brands and generics,
-    /// then search label text (including indications) if no names match. Recall aliases can match without becoming display names.
-    /// Safety communications match titles, linked drug names and available text. Replies count records searched and records with page text.
-    /// A communication can exist even when the search returns zero matches.
+    /// Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
+    /// Recall aliases match without replacing display names.
+    /// Safety communications match titles, linked drug names and page text. Counts show records searched and those with text.
+    /// Zero matches does not establish that FDA issued no communication about this drug.
+    /// FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
         default,
