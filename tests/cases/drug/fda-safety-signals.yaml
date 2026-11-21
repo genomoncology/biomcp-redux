@@ -1,8 +1,25 @@
 {
   "feature": "drug-fda-safety-signals",
-  "story": "A first read finds quarterly FDA rows by product and by signal text without a sync.",
+  "story": "A first read finds shipped FDA rows. An index cached by that read lets later calls search the newly published table by product and text.",
   "replay": "drug/fda-safety-signals",
   "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "ocrelizumab",
+        "--source",
+        "fda-safety-signals",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/result/items/0/quarter": "April - June 2026",
+        "/result/items/0/signal": "Pneumonitis",
+        "/result/unread_quarters": 32,
+        "/result/seed_date": "2026-11-21"
+      }
+    },
     {
       "run": [
         "search",
@@ -72,5 +89,6 @@
         "/result/items/0/additional_information": "Follow-up."
       }
     }
-  ]
+  ],
+  "cache_acquired": 42
 }
