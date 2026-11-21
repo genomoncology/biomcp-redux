@@ -10,9 +10,7 @@
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/message": {
-          "includes_all_of": ["HPO serves term records", "diseases", "Monarch"]
-        },
+        "/error/message": "HPO serves term records. Use Monarch for the diseases section.",
         "/error/valid_values": ["monarch"],
         "/next/0/kind": "configure",
         "/next/0/args": ["get", "phenotype", "HP:0001083", "diseases", "--source", "monarch"]
@@ -34,9 +32,7 @@
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/message": {
-          "includes_all_of": ["HPO serves term records", "hierarchy", "Monarch"]
-        },
+        "/error/message": "HPO serves term records. Use Monarch for the hierarchy section.",
         "/error/valid_values": ["monarch"],
         "/next/0/kind": "configure",
         "/next/0/args": ["get", "phenotype", "HP:0001083", "hierarchy", "--source", "monarch"]
@@ -58,9 +54,7 @@
       "is_error": true,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/message": {
-          "includes_all_of": ["HPO serves term records", "genes", "Monarch"]
-        },
+        "/error/message": "HPO serves term records. Use Monarch for the genes section.",
         "/error/valid_values": ["monarch"],
         "/next/0/kind": "configure",
         "/next/0/args": ["get", "phenotype", "HP:0001083", "genes", "--source", "monarch"]
