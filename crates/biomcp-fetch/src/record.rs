@@ -282,6 +282,7 @@ pub(crate) enum Recordings {
     Capture(Capture),
     Replay {
         dir: PathBuf,
+        today: Option<i64>,
         cursors: Mutex<BTreeMap<(biomcp_types::Source, [u8; 32]), Cursor>>,
     },
 }
@@ -346,6 +347,7 @@ impl Recordings {
             }
             Mode::Replay { dir } => Ok(Self::Replay {
                 dir: fs::canonicalize(dir).unwrap_or_else(|_| dir.clone()),
+                today: crate::data_age::replay_day(dir)?,
                 cursors: Mutex::new(BTreeMap::new()),
             }),
             _ => Ok(Self::None),
@@ -393,7 +395,7 @@ impl Recordings {
         max_body: u64,
         (file_limit, binary): (u64, u64),
     ) -> Result<Option<Exchange>, RecordError> {
-        let Self::Replay { dir, cursors } = self else {
+        let Self::Replay { dir, cursors, .. } = self else {
             return Ok(None);
         };
         let mut cursors = cursors

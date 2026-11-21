@@ -1,6 +1,7 @@
 # 1122 — purple-book-says-how-old-its-snapshot-is
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6a6e5466d8a39b31e8f5009984bb81065a93268f
 
 Milestone: 7
 

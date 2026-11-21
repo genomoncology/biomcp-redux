@@ -23,10 +23,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     let mut source = status::source(SOURCE, leg.finish(), error);
     match result {
-        Ok((release_month, rows)) => {
-            source
-                .notices
-                .push(purple_book::notice(Some(&release_month), ""));
+        Ok(purple_book::SnapshotSearch {
+            release_month,
+            rows,
+            notice,
+        }) => {
+            source.notices.push(notice);
             if details {
                 presentations(&mut out, query, cx.fresh, release_month, rows);
             } else {
@@ -37,7 +39,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 source.retrieved_count = Some(page.returned);
             }
         }
-        Err(_) => source.notices.push(purple_book::notice(None, "")),
+        Err(_) => source.notices.push(purple_book::unavailable_notice()),
     }
     out.sources.push(source);
     status::search(&mut out);

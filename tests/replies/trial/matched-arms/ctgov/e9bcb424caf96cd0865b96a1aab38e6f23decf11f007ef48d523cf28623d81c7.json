@@ -1,0 +1,99 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle%2CArmGroupLabel%2CArmGroupType%2CArmGroupDescription%2CArmGroupInterventionName%2CInterventionArmGroupLabel%2CInterventionOtherName%2CDesignPrimaryPurpose&filter.advanced=AREA%5BNCTId%5DNCT05347134&pageSize=1&query.intr=%28SKB264%29",
+  "exchanges": [
+    {
+      "fetched": 1795227381,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 272,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "totalCount": 1,
+          "studies": [
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT05347134",
+                  "briefTitle": "SKB264 Injection vs Investigator Selected Regimens to Treat Locally Advanced, Recurrent or Metastatic Triple-negative Breast Cancer",
+                  "officialTitle": "A Randomized, Controlled, Open-label, Multi-center Phase III Clinical Trial of SKB264 for Injection Versus Investigator Selected Regimens in Patients With Unresectable Locally Advanced, Recurrent or Metastatic Triple-negative Breast Cancer Who Have Failed Second-line or Above Prior Standard of Care"
+                },
+                "statusModule": {
+                  "overallStatus": "ACTIVE_NOT_RECRUITING",
+                  "startDateStruct": {
+                    "date": "2022-06-10",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2023-11-30",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-05-08"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Sichuan Kelun-Biotech Biopharmaceutical Co., Ltd."
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Triple Negative Breast Cancer"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ],
+                  "designInfo": {
+                    "primaryPurpose": "TREATMENT"
+                  }
+                },
+                "armsInterventionsModule": {
+                  "armGroups": [
+                    {
+                      "label": "SKB264",
+                      "type": "ACTIVE_COMPARATOR",
+                      "description": "5 mg/kg, IV (in the vein) on day 1 and Day 15 of each 28 day cycle.",
+                      "interventionNames": [
+                        "Drug: SKB264"
+                      ]
+                    },
+                    {
+                      "label": "Eribulin or Capecitabine or Gemcitabine or Vinorelbine",
+                      "type": "ACTIVE_COMPARATOR",
+                      "description": "Eribulin:1.4mg/m2, IV (in the vein) on day 1 and Day 8 of each 21 day cycle.\n\nCapecitabine:1000-1250mg/m2, po,bid, from day 1 to Day 15 of each 21 day cycle.\n\nGemcitabine:800-1000 mg/m2, IV (in the vein) on day 1 and Day 8 of each 21day cycle.\n\nVinorelbine:25 mg/m2, IV (in the vein) on day 1 and Day 8 of each 21 day cycle.",
+                      "interventionNames": [
+                        "Drug: SKB264"
+                      ]
+                    }
+                  ],
+                  "interventions": [
+                    {
+                      "name": "SKB264",
+                      "armGroupLabels": [
+                        "Eribulin or Capecitabine or Gemcitabine or Vinorelbine",
+                        "SKB264"
+                      ],
+                      "otherNames": [
+                        "Eribulin",
+                        "Capecitabine",
+                        "Gemcitabine",
+                        "Vinorelbine"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

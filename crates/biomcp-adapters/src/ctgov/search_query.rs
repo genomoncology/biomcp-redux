@@ -48,13 +48,14 @@ pub fn search_query(
         .find_map(|terms| biomcp_types::codon_split(terms.as_str()))
         .map(|(exact, _)| exact)
         .unwrap_or_default();
-    let mut result = ctgov::search_with_gene(
+    let mut result = ctgov::search_page(
         leg,
         &params,
         conditions,
         query.country(),
         context_gene,
         &exact,
+        query.arms_for(),
     );
     let mut broader = query.broader_names();
     let notice = if query.next_page().is_none()
@@ -74,13 +75,14 @@ pub fn search_query(
              BioMCP tried the registry's broader name request {fallback:?} once."
         );
         broader = true;
-        result = ctgov::search_with_gene(
+        result = ctgov::search_page(
             leg,
             &fallback,
             conditions,
             query.country(),
             context_gene,
             &exact,
+            query.arms_for(),
         );
         Some(guidance(message))
     } else if broader {

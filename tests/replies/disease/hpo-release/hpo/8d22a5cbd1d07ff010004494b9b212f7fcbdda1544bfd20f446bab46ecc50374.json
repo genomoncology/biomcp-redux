@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hpo",
+  "url": "https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2099-01-01/hp.obo",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/octet-stream",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "format-version: 1.2\ndata-version: hp/releases/2099-01-01\nontology: hp\n\n[Term]\nid: HP:0001083\nname: Synthetic HP:0001083\n\n[Term]\nid: HP:0000098\nname: Synthetic HP:0000098\n\n[Term]\nid: HP:0001634\nname: Synthetic HP:0001634\n\n[Term]\nid: HP:9000101\nname: Synthetic HP:9000101\nis_a: HP:0001083 ! Synthetic parent\n\n[Term]\nid: HP:9000102\nname: Synthetic HP:9000102\nis_a: HP:9000101 ! Synthetic parent\n\n[Term]\nid: HP:0000007\nname: Synthetic inheritance term\n"
+      }
+    }
+  ]
+}
