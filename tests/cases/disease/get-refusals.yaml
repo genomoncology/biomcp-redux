@@ -44,7 +44,7 @@ steps:
     expect:
       /error/option: gene-validity
       /error/message: gene-validity is not a disease get section. Read the disease card or choose a listed section.
-      /next/0/args: [get, disease, "MONDO:0019391"]
+      /next/0/args: [get, disease, "MONDO:0019391", --limit, "5"]
   - run: [get, disease, "ORPHA:115", prevalence]
     exit: 2
     is_error: true
