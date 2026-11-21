@@ -45,7 +45,6 @@ singleton! {
 singleton! {
     ErrorSchema { V2 => "biomcp.error/4" }
 }
-
 singleton! {
     /// Fixed input-free error and migration guidance.
     pub ErrorMessage { BiomarkerTooBroad => "biomarker search is too broad; narrow --name or get one exact NCIt code",
@@ -71,6 +70,7 @@ singleton! {
  ArgumentMissing => "required option missing: add error.option with a value valid_values accepts",
  ArgumentNoValue => "option given without a value: give error.option a value valid_values accepts",
  ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
+ GeneSourceSection => "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD.",
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentTextUnplaced => "this command takes no text outside an option; next gives the words to error.option",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
