@@ -1,5 +1,5 @@
 //! Suggest only requests accepted by the registry's existing checked constructors.
-use biomcp_types::{Rewrite, Step, StepKind};
+use biomcp_types::{PhenotypeSource, Request, Rewrite, Step, StepKind};
 use serde_json::Value;
 
 pub(super) fn checked(via: Rewrite, path: (&str, &str), value: Value) -> Option<Step> {
@@ -364,6 +364,19 @@ pub(super) fn source_swap(
         .prepare()
         .ok()?;
         let mut step = run(&request)?;
+        if let Request::GetPhenotype(query) = &request
+            && query.source() == PhenotypeSource::Monarch
+            && query.source() == query.default_source()
+            && value
+                .get("source")
+                .and_then(Value::as_str)
+                .is_some_and(|source| source.eq_ignore_ascii_case(PhenotypeSource::Hpo.as_str()))
+        {
+            // Changing HPO to Monarch should be visible even when Monarch is the default.
+            let mut args = step.args.into_vec();
+            args.extend(["--source".into(), query.source().as_str().into()]);
+            step.args = args.into_boxed_slice();
+        }
         crate::fields::carry_to_correction(&request, fields, &mut step);
         Some(step)
     });
