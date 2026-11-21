@@ -49,9 +49,6 @@ pub(super) fn headings(parts: &[String]) -> Vec<Heading<'_>> {
 fn heading_at(part: usize, text: &str, at: usize) -> Option<Heading<'_>> {
     let (before, rest) = text.split_at(at);
     let boundary = before.trim_end_matches(|c: char| c.is_whitespace() && c != '\n' && c != '\r');
-    if !boundary.is_empty() && !boundary.ends_with(['\n', '\r', '.', ')', ']']) {
-        return None;
-    }
     let end = rest.find(char::is_whitespace)?;
     let (number, rest) = rest.split_at(end);
     if !number.contains('.')
@@ -61,13 +58,38 @@ fn heading_at(part: usize, text: &str, at: usize) -> Option<Heading<'_>> {
     {
         return None;
     }
-    let title = title(rest.trim_start())?;
+    let major = number.split('.').next()?;
+    if !boundary.is_empty()
+        && !boundary.ends_with(['\n', '\r', '.', ')', ']'])
+        && !after_parent(boundary, major)
+    {
+        return None;
+    }
+    let text = rest.trim_start();
+    let title = standalone_title(text).or_else(|| title(text))?;
     Some(Heading {
         part,
         at,
         number,
         title,
     })
+}
+
+/// A field may start with its own number and uppercase title on the same line.
+fn after_parent(before: &str, major: &str) -> bool {
+    before
+        .trim_start()
+        .split_once(char::is_whitespace)
+        .is_some_and(|(number, title)| {
+            number == major && title.chars().all(|ch| !ch.is_lowercase())
+        })
+}
+
+fn standalone_title(text: &str) -> Option<&str> {
+    let (line, _) = text.split_once('\n')?;
+    let title = line.trim_end();
+    (title.starts_with(char::is_uppercase) && !title.ends_with(['.', ':', ';', '!', '?']))
+        .then_some(title)
 }
 
 /// Titles on flattened lines use title case. A capitalized word before lowercase
