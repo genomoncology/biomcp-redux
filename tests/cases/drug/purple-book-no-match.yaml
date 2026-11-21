@@ -1,0 +1,25 @@
+{
+  "feature": "drug-purple-book",
+  "story": "An empty roster or presentation search explains the snapshot cutoff and how to import a newer file.",
+  "live_check": "The Purple Book reads only the bundled or manually imported snapshot. Replay pins the calendar.",
+  "replay": "drug/purple-book-january-clock",
+  "steps": [
+    {
+      "run": ["search", "drug", "no-such-purple-book-product", "--source", "purple-book"],
+      "expect": {
+        "/page/total": 0,
+        "/sources/0/notices/0/message": "This is the October 2026 Purple Book snapshot (3 months old). Products approved or designated after October 2026 are not included. Download the monthly CSV from https://purplebooksearch.fda.gov/downloads and run biomcp sync purple-book --file PATH."
+      }
+    },
+    {
+      "run": ["search", "drug", "Keytruda", "--source", "purple-book", "--presentations", "--format", "md"],
+      "expect": {
+        "": {"includes_all_of": [
+          "Products approved or designated after October 2026 are not included.",
+          "https://purplebooksearch.fda.gov/downloads",
+          "biomcp sync purple-book --file PATH"
+        ]}
+      }
+    }
+  ]
+}
