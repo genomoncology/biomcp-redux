@@ -1,5 +1,5 @@
 //! Retired phenotype forms never rewrite text or choose a candidate.
-use biomcp_types::ErrorMessage;
+use biomcp_types::{ErrorMessage, PhenotypeSource};
 use std::ffi::OsString;
 pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMessage> {
     let words = super::words(root, args)?;
@@ -11,7 +11,14 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
                 if word == "--" {
                     break;
                 }
-                if word == "--source=hpo" || (word == "--source" && args.next() == Some("hpo")) {
+                let source = if word == "--source" {
+                    args.next()
+                } else {
+                    word.strip_prefix("--source=")
+                };
+                if source
+                    .is_some_and(|value| value.eq_ignore_ascii_case(PhenotypeSource::Hpo.as_str()))
+                {
                     return Some(ErrorMessage::PhenotypeHpoSearch);
                 }
             }

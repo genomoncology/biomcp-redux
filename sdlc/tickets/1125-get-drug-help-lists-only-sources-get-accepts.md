@@ -1,6 +1,7 @@
 # 1125 — get-drug-help-lists-only-sources-get-accepts
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 008348933e34f1f34eee4a25b849cba7d1db1d17
 
 Milestone: 7
 
