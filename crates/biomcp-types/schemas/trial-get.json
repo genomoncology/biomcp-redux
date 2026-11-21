@@ -37,7 +37,7 @@
         " Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).",
         " Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).",
         " Arms and interventions with original relationships.",
-        " Whole source sites with their attached contacts.",
+        " Whole source sites with contacts. Filters apply before paging; missing coordinates are counted before the radius filter.",
         " Central contacts and overall officials in their original roles.",
         " Registry publication identities and native reference types.",
         " Posted document metadata and source URLs.",
@@ -45,6 +45,21 @@
         " Native NCI disease concepts, including source enrichment metadata.",
         " Complete NCI summary, paged by original character offsets."
       ]
+    },
+    "TrialSiteStatus": {
+      "description": "Native site recruitment status, distinct from overall trial status.",
+      "enum": [
+        "NOT_YET_RECRUITING",
+        "RECRUITING",
+        "ENROLLING_BY_INVITATION",
+        "ACTIVE_NOT_RECRUITING",
+        "SUSPENDED",
+        "TERMINATED",
+        "COMPLETED",
+        "WITHDRAWN",
+        "AVAILABLE"
+      ],
+      "type": "string"
     },
     "TrialSource": {
       "description": "Independent trial providers; results are never folded or used as fallbacks.",
@@ -60,6 +75,10 @@
   "additionalProperties": false,
   "description": "Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.",
   "properties": {
+    "distance": {
+      "$ref": "#/$defs/Text",
+      "description": "ClinicalTrials.gov locations only: positive straight-line radius with mi or km units; requires --lat and --lon."
+    },
     "input": {
       "description": "One to twenty exact NCT identifiers, in caller order.",
       "items": {
@@ -109,6 +128,14 @@
     "source": {
       "$ref": "#/$defs/TrialSource",
       "description": "Explicit provider; defaults to ClinicalTrials.gov and never; help get trial\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
+    },
+    "state": {
+      "$ref": "#/$defs/Text",
+      "description": "ClinicalTrials.gov locations only: match the registry state label, ignoring ASCII case."
+    },
+    "status": {
+      "$ref": "#/$defs/TrialSiteStatus",
+      "description": "ClinicalTrials.gov locations only: match the site's exact; help get trial\nClinicalTrials.gov locations only: match the site's exact registry recruitment status, such as RECRUITING."
     }
   },
   "required": [

@@ -17,7 +17,7 @@ biodata::wire_enum! {
         Baseline => "baseline",
         /// Arms and interventions with original relationships.
         Arms => "arms",
-        /// Whole source sites with contacts. Filters apply before paging; missing coordinates are counted before the radius filter.
+        /// Whole source sites with contacts. Filter before paging. Count missing coordinates before filtering by radius.
         Locations => "locations",
         /// Central contacts and overall officials in their original roles.
         Contacts => "contacts",

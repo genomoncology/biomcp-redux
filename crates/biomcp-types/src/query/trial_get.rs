@@ -51,7 +51,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lon: Option<Text>,
-    /// ClinicalTrials.gov locations only: match the registry state label, ignoring ASCII case.
+    /// Match the ClinicalTrials.gov state label ignoring ASCII case.
     #[serde(
         default,
         deserialize_with = "present",
@@ -59,7 +59,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     state: Option<Text>,
-    /// ClinicalTrials.gov locations only: match the site's exact registry recruitment status, such as RECRUITING.
+    /// Match the ClinicalTrials.gov site status, such as RECRUITING.
     #[serde(
         default,
         deserialize_with = "present",
@@ -67,7 +67,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "TrialSiteStatus"))]
     status: Option<TrialSiteStatus>,
-    /// ClinicalTrials.gov locations only: positive straight-line radius with mi or km units; requires --lat and --lon.
+    /// Keep ClinicalTrials.gov sites within a positive radius in mi or km. Requires --lat and --lon.
     #[serde(
         default,
         deserialize_with = "present",
