@@ -1,0 +1,45 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=adalimumab&size=250&from=0&fields=drugbank.id%2Cdrugbank.name%2Cchembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_type%2Cgtopdb.ligand_id%2Cgtopdb.name%2Cgtopdb.type%2Cunii.unii%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.product_id%2Cndc.productndc%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Cdrugbank.synonyms%2Cchembl.molecule_synonyms.molecule_synonym%2Cdrugcentral.synonyms%2Cgtopdb.synonyms%2Copenfda.generic_name%2Copenfda.brand_name",
+  "exchanges": [
+    {
+      "fetched": 1795180000,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "total": 3,
+          "hits": [
+            {
+              "_id": "KFZMGEQAYNKOFK-UHFFFAOYSA-N",
+              "chembl": {
+                "pref_name": "Isopropyl alcohol"
+              }
+            },
+            {
+              "_id": "CHEMBL1201580",
+              "chembl": {
+                "pref_name": "Adalimumab"
+              }
+            },
+            {
+              "_id": "CHEMBL1234",
+              "chembl": {
+                "pref_name": "Example biologic",
+                "molecule_synonyms": [
+                  {
+                    "molecule_synonym": "ADALIMUMAB"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
