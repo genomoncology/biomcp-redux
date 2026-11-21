@@ -3457,8 +3457,9 @@ Options:
           [possible values: true, false]
 
       --label-section <label_section>
-          openFDA SPL fields, comma-separated. Omit to list fields.
-          Append :NUMBER or :TITLE for a subsection, e.g. dosage_and_administration:2.1.
+          Exact openFDA SPL fields.
+          Comma-separated. Omit to list fields.
+          For a current subsection, append :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
           warnings_and_precautions reads warnings_and_cautions.
           For Drugs@FDA history: boxed_warning, indications_and_usage, contraindications,
           warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
@@ -3510,8 +3511,9 @@ Current labels: two excerpts per section, up to five sections and five comma-sep
 Only with section label or label-history. Value form: repeatable values (repeat the flag); example: --find vasculitis.
 - `input`: Source ID or full brand or generic name (fda-dsc requires the communication UUID). Keep spaces in WHO references. Exact brands rank first. Drugs@FDA ranks NDA/BLA before ANDA, then earliest approval. EMA uses earliest authorisation. Others use search order. Replies show up to five alternatives and their total. Labels also take application numbers (e.g. NDA216340). Find that UUID with search drug NAME --source fda-dsc. Generic names accept one trailing salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brands identical to their ingredient count as generic. USAN: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
-- `--label-section`: openFDA SPL fields, comma-separated. Omit to list fields.
-Append :NUMBER or :TITLE for a subsection, e.g. dosage_and_administration:2.1.
+- `--label-section`: Exact openFDA SPL fields.
+Comma-separated. Omit to list fields.
+For a current subsection, append :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
 warnings_and_precautions reads warnings_and_cautions.
 For Drugs@FDA history: boxed_warning, indications_and_usage, contraindications,
 warnings_and_cautions, adverse_reactions, drug_interactions or use_in_specific_populations.
