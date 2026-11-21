@@ -10,7 +10,12 @@ macro_rules! selector {
             /// Every supported selector.
             pub const ALL: &[Self] = &[$(Self::$variant,)+ $(Self::$extra,)?];
             /// Shared source identity owning the canonical spelling.
-            pub const fn source(self) -> crate::Source { match self { $(Self::$variant => crate::Source::$variant,)+ $(Self::$extra => crate::Source::$extra,)? } }
+            pub const fn source(self) -> crate::Source {
+                match self {
+                    $(Self::$variant => crate::Source::$variant,)+
+                    $(Self::$extra => crate::Source::$extra,)?
+                }
+            }
             /// Canonical source spelling.
             pub fn as_str(self) -> &'static str { self.source().into() }
         }

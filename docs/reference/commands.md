@@ -122,7 +122,7 @@ Commands:
   pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
   diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
-  disease        Exact discovery text or an explicit SEER catalog page.
+  disease        Exact disease discovery, SEER site search, or intersection of positive annotations in a named HPO release.
   drug           Search one drug source. FDA drug recalls accept a name or source firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept exact indication or mechanism wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
   gene           Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
   article        Checked search selectors and pool cursor.
@@ -1342,7 +1342,7 @@ Independent VAERS table; omitted means reported symptoms.
 ## biomcp search disease
 
 ```text
-Exact discovery text or an explicit SEER catalog page.
+Exact disease discovery, SEER site search, or intersection of positive annotations in a named HPO release.
 
 Usage: biomcp search disease [OPTIONS] [text]
 
@@ -1357,11 +1357,14 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --limit <limit>
-          Maximum source rows on one page.
+      --hpo-release <hpo_release>
+          Required for --phenotype. Use the publisher's vYYYY-MM-DD release tag.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --limit <limit>
+          Maximum source rows on one page.
 
       --offset <offset>
           Source row offset.
@@ -1370,15 +1373,18 @@ Options:
           Exactly one ontology, default MONDO; help search disease
           Exactly one ontology, default MONDO.
 
-      --source <source>
-          One explicit source, default OLS; help search disease
-          One explicit source, default OLS.
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --phenotype <phenotype>
+          HPO IDs to match together, including descendants. Repeat this option for each term.
+
+      --source <source>
+          Defaults to HPO with --phenotype and OLS for text. Select; help search disease
+          Defaults to HPO with --phenotype and OLS for text. Select SEER for site search.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1394,15 +1400,17 @@ Options:
 
 ```
 
-Search diseases and their identifiers. Sources: monarch, mydisease, ols, seer.
+Search diseases and their identifiers. Sources: hpo, monarch, mydisease, ols, seer.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
+- `--hpo-release`: Required for --phenotype. Use the publisher's vYYYY-MM-DD release tag. Value form: string; example: --hpo-release v2099-01-01.
 - `--limit`: Maximum source rows on one page. Value form: integer; example: --limit 1.
 - `--offset`: Source row offset. Value form: integer; example: --offset 1.
 - `--ontology`: Exactly one ontology, default MONDO. Value form: string; example: --ontology mondo.
-- `--source`: One explicit source, default OLS. Value form: string; example: --source seer.
+- `--phenotype`: HPO IDs to match together, including descendants. Repeat this option for each term. Value form: repeatable values (repeat the flag); example: --phenotype HP:0001083.
+- `--source`: Defaults to HPO with --phenotype and OLS for text. Select SEER for site search. Value form: string; example: --source seer.
 - `text`: Exact source search text; optional site-name filter for SEER.
 Form: search disease TEXT; not --text.
 

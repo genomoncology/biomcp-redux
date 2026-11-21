@@ -328,8 +328,7 @@
         "mydisease",
         "monarch",
         "seer",
-        "orphadata",
-        "hpo"
+        "orphadata"
       ],
       "type": "string"
     },
