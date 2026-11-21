@@ -1,0 +1,40 @@
+{
+  "feature": "drug-purple-book",
+  "story": "The default Purple Book lookup fits the full biosimilar product roster on one page and discloses different presentation designations and dates.",
+  "steps": [
+    {
+      "run": ["search", "drug", "Humira", "--source", "purple-book", "--offline"],
+      "expect": {
+        "/status": "complete",
+        "/result/release_month": "October 2026",
+        "/page/total": 10,
+        "/page/returned": 10,
+        "/result/items/0/bla": "BLA761024",
+        "/result/items/0/name": "Amjevita",
+        "/result/items/0/proper_name": "adalimumab-atto",
+        "/result/items/0/applicant": "Amgen Inc.",
+        "/result/items/0/presentation_count": 9,
+        "/result/items/0/designations": [{"license_type": "351(k) Interchangeable", "count": 9}],
+        "/result/items/0/earliest_approval_date": "September 23, 2016",
+        "/result/items/0/earliest_interchangeability_date": "August 20, 2024",
+        "/result/items/0/interchangeability_dates": ["August 20, 2024", "April 7, 2025", "May 20, 2025"],
+        "/next/0/args": {"includes_all_of": ["--presentations"]}
+      },
+      "max_bytes": 8500
+    },
+    {
+      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--offline"],
+      "expect": {
+        "/page/total": 2,
+        "/result/items/1/bla": "BLA761066",
+        "/result/items/1/presentation_count": 3,
+        "/result/items/1/designations": [
+          {"license_type": "351(k) Biosimilar", "count": 1},
+          {"license_type": "351(k) Interchangeable", "count": 2}
+        ],
+        "/result/items/1/approval_dates": ["April 25, 2019", "May 3, 2024"],
+        "/result/items/1/interchangeability_date_unreported": 1
+      }
+    }
+  ]
+}
