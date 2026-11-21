@@ -14,6 +14,12 @@ struct Publisher {
     spec: &'static SourceSpec,
     read: fn(&Leg<'_>, &DiseaseId) -> Result<CurationMatches, RequestError>,
 }
+type ReadResult<'a> = (
+    &'a Publisher,
+    SourceOutcome,
+    Result<CurationMatches, RequestError>,
+);
+
 const PUBLISHERS: [Publisher; 2] = [
     Publisher {
         bundle: Bundle::CLIN_GEN,
@@ -35,7 +41,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
         .filter(|publisher| selected.contains(&publisher.bundle.source()))
         .map(|publisher| {
             Box::new(move || publisher.fetch(cx, query.id(), deadline))
-                as Box<dyn FnOnce() -> _ + Send>
+                as Box<dyn FnOnce() -> ReadResult<'_> + Send>
         })
         .collect();
 
@@ -109,12 +115,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
 }
 
 impl Publisher {
-    fn fetch(
-        &self,
-        cx: &Ctx<'_>,
-        id: &DiseaseId,
-        deadline: Deadline<'_>,
-    ) -> (&Self, SourceOutcome, Result<CurationMatches, RequestError>) {
+    fn fetch(&self, cx: &Ctx<'_>, id: &DiseaseId, deadline: Deadline<'_>) -> ReadResult<'_> {
         let leg = cx.fetch.leg(self.spec, deadline).fresh(cx.fresh);
         let result = (self.read)(&leg, id);
         let source = status::source(
