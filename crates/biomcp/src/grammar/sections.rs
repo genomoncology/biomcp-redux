@@ -4,7 +4,9 @@
 //! for, the sections a named source publishes, the source selector, and the label headings.
 //! It is offered as the next call and never run in place of the one given.
 use biomcp_types::{ErrorMessage, Source, Step, UsageArguments, UsageError};
+use clap::Command;
 use serde_json::{Map, Value, json};
+use std::ffi::OsString;
 
 /// Section words agents type for a section under its own name, by entity.
 const SYNONYMS: &[(&str, &str, &str)] = &[
@@ -13,6 +15,60 @@ const SYNONYMS: &[(&str, &str, &str)] = &[
     ("article", "full_text", "fulltext"),
     ("article", "body", "fulltext"),
 ];
+
+/// A publisher passed to gene get's unsupported --source flag can name a section.
+pub(super) fn gene_source_refusal(
+    root: &Command,
+    args: &[OsString],
+) -> Option<super::ParseInvalid> {
+    let index = args
+        .iter()
+        .take_while(|word| *word != "--")
+        .position(|word| {
+            word.to_str().and_then(|word| word.split('=').next()) == Some("--source")
+        })?;
+    let (name, candidate) = super::positional::source_value(args, index)?;
+    let source = name.to_ascii_lowercase().parse::<Source>().ok()?;
+    if !matches!(source, Source::ClinGen | Source::Gencc | Source::Gnomad) {
+        return None;
+    }
+    let matches = root
+        .clone()
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(candidate))
+        .ok()?;
+    let matches = matches
+        .subcommand_matches("get")?
+        .subcommand_matches("gene")?;
+    let explicit = matches.try_get_raw("section").ok().flatten().is_some();
+    let mut value = super::request_arguments("get", "gene", matches).ok()?;
+    let fields = value.as_object_mut()?;
+    if matches!(source, Source::ClinGen | Source::Gencc) {
+        // The trailing validity shorthand is a section request after at least one gene ID.
+        let key = if fields.contains_key("section") {
+            "section"
+        } else {
+            "input"
+        };
+        if let Some(words) = fields.get_mut(key).and_then(Value::as_array_mut)
+            && (key == "section" || !explicit && words.len() > 1)
+            && words.last().and_then(Value::as_str) == Some("validity")
+        {
+            words.pop();
+        }
+    }
+    let schema = super::validation::schema("get", "gene")?;
+    by_source("get", "gene", &schema, fields, source)?;
+    let next = super::positional::complete(("get", "gene"), &schema, &value)?;
+    Some(super::ParseInvalid {
+        usage: Some(UsageError::Arguments(UsageArguments {
+            argument: Some("--source".into()),
+            message: Some(ErrorMessage::GeneSourceSection),
+            valid_values: None,
+            next: vec![next],
+        })),
+        ..super::ParseInvalid::default()
+    })
+}
 
 /// Refuse a call whose section word is wrong with the corrected call, when one checks.
 pub(super) fn fix(verb: &str, entity: &str, value: &Value) -> Option<super::ParseInvalid> {

@@ -1,0 +1,19 @@
+feature: gene-constraint
+story: Gene get refuses --source gnomad and directs constraint requests to the constraint section.
+replay: gene/constraint
+steps:
+- run: [get, gene, ATM, constraint, --source, gnomad]
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+    /error/option: --source
+    /error/message: "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD."
+    /next/0/args: [get, gene, ATM, constraint]
+- run: [get, gene, TP53, constraint, --source, gnomad]
+  exit: 2
+  expect:
+    /next/0/args: [get, gene, TP53, constraint]
+- follow: configure
+  expect:
+    /status: complete
+    /result/items/0/sections/constraint/state: data
