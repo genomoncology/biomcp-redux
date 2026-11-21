@@ -172,6 +172,9 @@ pub use disease::{
     DiseaseXrefItem, DiseaseXrefs, OrphanetEpidemiology, OrphanetPrevalence,
 };
 
+mod disease_hpo;
+pub use disease_hpo::{HpoDiseaseMatch, HpoDiseasePage, HpoGeneLink, HpoTermMatch};
+
 mod diagnostic;
 pub use diagnostic::*;
 mod gtr_relations;

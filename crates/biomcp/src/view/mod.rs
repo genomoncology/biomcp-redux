@@ -496,8 +496,10 @@ fn markdown_in_graph<'a>(node: &'a Value, root: &'a Value, seen: &mut Vec<&'a Va
             .and_then(Value::as_object)
             .is_some_and(|properties| {
                 properties
-                    .values()
-                    .any(|p| markdown_in_graph(p, root, seen))
+                    // Present trial arm rows already select block layout as nested records.
+                    .iter()
+                    .filter(|(key, _)| key.as_str() != "matched_arms")
+                    .any(|(_, p)| markdown_in_graph(p, root, seen))
             })
         || node
             .get("items")

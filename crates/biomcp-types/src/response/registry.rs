@@ -125,6 +125,7 @@ macro_rules! reply_types {
             cell_line_variants: $crate::CellLineVariants => "cell-line-variants",
             cell_line_chembl: $crate::CellLineChembl => "cell-line-chembl",
             cell_line_assay_count: $crate::CellLineAssayCount => "cell-line-assay-count",
+            hpo_disease_page: $crate::HpoDiseasePage => "disease-hpo-page",
             disease_page: $crate::DiseasePage => "disease-page",
             disease_card: $crate::DiseaseCard => "disease-card",
             disease_synonyms: $crate::DiseaseSynonyms => "disease-synonyms",

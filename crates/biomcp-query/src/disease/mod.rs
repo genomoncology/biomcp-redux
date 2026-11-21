@@ -1,4 +1,5 @@
 //! Source-owned disease facts without identity choice or cross-provider fallback.
+mod hpo;
 /// Source-native Monarch association pages.
 pub(crate) mod monarch;
 /// MyDisease exact annotation outcomes.
@@ -15,6 +16,9 @@ use crate::{Ctx, Outcome};
 use biomcp_types::{DiseaseGet, DiseaseSearch, DiseaseSource};
 /// Discover one page from the explicitly selected source.
 pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
+    if let Some((tag, terms)) = query.hpo() {
+        return hpo::search(cx, query, tag, terms);
+    }
     match query.source() {
         biomcp_types::DiseaseSource::Seer => seer::search(cx, query),
         _ => ols::search(cx, query),
