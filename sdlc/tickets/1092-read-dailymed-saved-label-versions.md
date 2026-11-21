@@ -1,6 +1,6 @@
 # 1092 — read-dailymed-saved-label-versions
 
-Status: OPEN.
+Status: WITHDRAWN. The motivating case (NDA215309 boxed warning, MACE) now reads the original label through Drugs@FDA on main 30c84d372: complete, five versions read, first found in ORIG 1 approved 2021-09-21 (pm job j44478). Refile DailyMed saved versions if a later run shows a label-history read it cannot bound.
 
 Milestone: 7
 
