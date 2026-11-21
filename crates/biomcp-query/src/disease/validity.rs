@@ -90,9 +90,14 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
     let returned = items.len() as u32;
     let offset = query.section_offset().saturating_add(returned);
     if returned > 0 && u64::from(offset) < total {
+        let available: Vec<_> = selected
+            .iter()
+            .copied()
+            .filter(|source| !cx.fetch.disabled(*source))
+            .collect();
         out.next.push(crate::next::Step::new(
             StepKind::Page,
-            selected,
+            &available,
             run(Request::GetDisease(query.at_section_offset(offset))),
         ));
     }
