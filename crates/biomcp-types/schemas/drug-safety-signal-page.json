@@ -150,7 +150,7 @@
           "x-required-component": "drugsfda"
         },
         "application_type": {
-          "description": "Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA).",
+          "description": "Filter by application type. For example, nda,bla excludes generics (ANDA).",
           "items": {
             "$ref": "#/$defs/Reply_LabelApplicationType"
           },
@@ -203,7 +203,7 @@
               "type": "null"
             }
           ],
-          "description": "Filter presentations by device cell, ignoring case.",
+          "description": "FDA presentation device. Ignores case.",
           "x-required-component": "purple-book"
         },
         "exact_term": {
@@ -228,7 +228,7 @@
         },
         "indication": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.",
+          "description": "Exact Indications and Usage wording. No disease synonyms. Drug names narrow results.",
           "x-required-component": "openfda-label"
         },
         "initiated_from": {
@@ -265,7 +265,7 @@
         },
         "mechanism_of_action": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact Mechanism of Action wording, without synonyms or drug class inference.",
+          "description": "Exact Mechanism of Action wording. No synonyms or drug class inference.",
           "x-required-component": "openfda-label"
         },
         "name_selector": {
@@ -375,7 +375,7 @@
               "type": "null"
             }
           ],
-          "description": "Filter presentations by strength cell, ignoring case and spaces.",
+          "description": "FDA presentation strength. Ignores case and spaces.",
           "x-required-component": "purple-book"
         },
         "therapeutic_area": {

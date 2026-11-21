@@ -1442,8 +1442,8 @@ Options:
           [possible values: json, md]
 
       --application-type <application_type>
-          Keep label application_number prefixes, e.g. nda,bla to; help search drug
-          Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA).
+          Filter by application type. For example, nda,bla excludes; help search drug
+          Filter by application type. For example, nda,bla excludes generics (ANDA).
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -1465,7 +1465,7 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --device <device>
-          Filter presentations by device cell, ignoring case.
+          FDA presentation device. Ignores case.
 
       --exact-term[=<exact_term>]
           Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
@@ -1483,7 +1483,7 @@ Options:
           Exact phrase in the published recall firm name.
 
       --indication <indication>
-          Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.
+          Exact Indications and Usage wording. No disease synonyms. Drug names narrow results.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1507,7 +1507,7 @@ Options:
           Rows per page. Purple Book product summaries always return the full roster.
 
       --mechanism-of-action <mechanism_of_action>
-          Exact Mechanism of Action wording, without synonyms or drug class inference.
+          Exact Mechanism of Action wording. No synonyms or drug class inference.
 
       --name-selector <name_selector>
           ChEMBL name to match. Default: preferred name; help search drug
@@ -1547,7 +1547,7 @@ Options:
           Exact recall status.
 
       --strength <strength>
-          Filter presentations by strength cell, ignoring case and spaces.
+          FDA presentation strength. Ignores case and spaces.
 
       --therapeutic-area <therapeutic_area>
           WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology).
@@ -1560,19 +1560,19 @@ Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
 - `--applicant`: Case-insensitive sponsor_name prefix. Matches listed sponsors. A drug name narrows results. Value form: string; example: 'ALNYLAM PHARMS INC'; only with --source drugsfda.
-- `--application-type`: Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA). Value form: repeatable values (repeat the flag); example: nda; only with --source openfda-label.
+- `--application-type`: Filter by application type. For example, nda,bla excludes generics (ANDA). Value form: repeatable values (repeat the flag); example: nda; only with --source openfda-label.
 - `--approved-from`: Earliest original_approval (inclusive, YYYY, YYYY-MM or YYYY-MM-DD). Counts matches in range. Value form: string; example: 2024-01-01; only with --source drugsfda.
 - `--approved-to`: Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2023; only with --source drugsfda.
 - `--classification`: FDA recall classification. Value form: string; example: 'Class II'; only with --source fda-drug-recall.
-- `--device`: Filter presentations by device cell, ignoring case. Value form: string; example: Autoinjector; only with --source purple-book.
+- `--device`: FDA presentation device. Ignores case. Value form: string; example: Autoinjector; only with --source purple-book.
 - `--exact-term`: Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA. Value form: boolean; example: --exact-term.
 - `--expand-drug-names`: Accepted for one release. Name widening is already automatic where supported. Value form: boolean; example: --expand-drug-names.
 - `--firm`: Exact phrase in the published recall firm name. Value form: string; example: Apotex; only with --source fda-drug-recall.
-- `--indication`: Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search. Value form: string; example: melanoma; only with --source openfda-label.
+- `--indication`: Exact Indications and Usage wording. No disease synonyms. Drug names narrow results. Value form: string; example: melanoma; only with --source openfda-label.
 - `--initiated-from`: Earliest recall initiation day, inclusive (YYYY-MM-DD). Value form: string; example: 2024-01-01; only with --source fda-drug-recall.
 - `--initiated-to`: Latest recall initiation day, inclusive (YYYY-MM-DD). Value form: string; example: 2024-12-31; only with --source fda-drug-recall.
 - `--limit`: Rows per page. Purple Book product summaries always return the full roster. Value form: integer; example: 1.
-- `--mechanism-of-action`: Exact Mechanism of Action wording, without synonyms or drug class inference. Value form: string; example: 'Janus kinase'; only with --source openfda-label.
+- `--mechanism-of-action`: Exact Mechanism of Action wording. No synonyms or drug class inference. Value form: string; example: 'Janus kinase'; only with --source openfda-label.
 - `--name-selector`: ChEMBL name to match. Default: preferred name. Value form: string; example: preferred; only with --source chembl.
 - `--name-snapshot`: Reuse the first page’s name token with unchanged filters. Value form: string; example: <name-snapshot> (syntax; replace the placeholder with your retained value).
 - `--offset`: Rows to skip. Purple Book applies this only to presentation rows. Value form: integer; example: --offset 1.
@@ -1592,7 +1592,7 @@ Form: search drug QUERY; not --query.
 original-approval uses original_approval. Recent first, then application number, with undated last. Default: FDA order. Value form: string; example: newest; only with --source drugsfda.
 - `--source`: Drug source. An empty name search may retry names from other sources. Value form: string; example: ema.
 - `--status`: Exact recall status. Value form: string; example: Ongoing; only with --source fda-drug-recall.
-- `--strength`: Filter presentations by strength cell, ignoring case and spaces. Value form: string; example: 50MG/ML; only with --source purple-book.
+- `--strength`: FDA presentation strength. Ignores case and spaces. Value form: string; example: 50MG/ML; only with --source purple-book.
 - `--therapeutic-area`: WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology). Value form: string; example: oncology; only with --source who-pq.
 
 ## biomcp search gene
