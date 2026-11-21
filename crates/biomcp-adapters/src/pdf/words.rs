@@ -10,7 +10,7 @@
 //! same word. A font without glyph widths keeps lopdf's space after each `TJ` array.
 use super::cmap::Font;
 use super::fonts::number;
-use super::numbers::{Overlay, PHONE_PREFIX_BYTES, continue_phone, join_phones};
+use super::numbers::{Overlay, PHONE_PREFIX_BYTES, continue_phone, could_be_note, join_phones};
 use super::position::{End, Place, Position};
 use super::state::{Matrix, State};
 use lopdf::Object;
@@ -204,11 +204,9 @@ impl<'a> Reader<'a> {
         let sound = font.sound;
         let measured = widths.is_some();
         let position = Position::new(start, &self.state);
-        let digits_touch = self.text.ends_with(|c: char| c.is_ascii_digit())
-            && shown.starts_with(|c: char| c.is_ascii_digit());
-        let place = self
-            .end
-            .map_or(Place::Joined, |end| position.place(end, digits_touch));
+        let place = self.end.map_or(Place::Joined, |end| {
+            position.place(end, could_be_note(&self.text, &shown))
+        });
         if !sound || !self.join_wrapped_phone(&mut shown) {
             self.separate(place, &shown);
         }

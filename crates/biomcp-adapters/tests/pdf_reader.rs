@@ -495,3 +495,16 @@ fn a_phone_number_wrapped_at_its_hyphen_reads_whole() -> Result<(), Reason> {
     assert!(text.contains("(301) 796-5073."), "phone number in {text:?}");
     Ok(())
 }
+
+#[test]
+fn powers_of_ten_keep_their_existing_text() -> Result<(), Reason> {
+    let read = read(include_bytes!(concat!(
+        "../../../tests/replies/diagnostic/pma-summary-find/fda-pma/",
+        "de2c2f69831314028261780ff0a88ee2095df7e6df69f167288d56fb7f705c8b-0.bin"
+    )))?;
+    assert_eq!(read.state, PdfTextState::Text, "FDA summary is readable");
+    for passage in ["1x106 colony forming units", "1x106 CFU/mL"] {
+        assert!(read.text.contains(passage), "the summary keeps {passage:?}");
+    }
+    Ok(())
+}

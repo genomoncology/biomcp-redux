@@ -46,7 +46,7 @@ impl Position {
         }
     }
 
-    pub(super) fn place(self, end: End, digits_touch: bool) -> Place {
+    pub(super) fn place(self, end: End, could_be_note: bool) -> Place {
         if !end.measured {
             return if end.array {
                 Place::Word
@@ -67,7 +67,7 @@ impl Position {
             || !(height.is_finite() && along.is_finite() && rise.is_finite())
         {
             Place::Word
-        } else if digits_touch
+        } else if could_be_note
             && along.abs() <= WORD_GAP * height
             && self.raised_digit(prior, rise, height)
         {

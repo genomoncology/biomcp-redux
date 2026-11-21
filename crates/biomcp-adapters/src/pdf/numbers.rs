@@ -5,6 +5,20 @@ use super::state::State;
 use lopdf::Object;
 use std::ops::Range;
 
+/// A raised digit immediately after explicit multiplication by ten is an exponent.
+pub(super) fn could_be_note(before: &str, after: &str) -> bool {
+    before.ends_with(|c: char| c.is_ascii_digit())
+        && after.starts_with(|c: char| c.is_ascii_digit())
+        && !before
+            .strip_suffix("10")
+            .and_then(|prefix| prefix.trim_end().strip_suffix(['x', 'X', '×']))
+            .is_some_and(|coefficient| {
+                coefficient
+                    .trim_end()
+                    .ends_with(|c: char| c.is_ascii_digit())
+            })
+}
+
 pub(super) const PHONE_PREFIX_BYTES: usize = b"(000) 000-".len();
 
 /// A US phone number can wrap at the last hyphen in FDA letters.
