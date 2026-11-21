@@ -20,7 +20,7 @@ type ReadResult<'a> = (
     Result<CurationMatches, RequestError>,
 );
 
-const PUBLISHERS: [Publisher; 2] = [
+static PUBLISHERS: [Publisher; 2] = [
     Publisher {
         bundle: Bundle::CLIN_GEN,
         spec: &clingen::SPEC,
@@ -41,14 +41,14 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
         .filter(|publisher| selected.contains(&publisher.bundle.source()))
         .map(|publisher| {
             Box::new(move || publisher.fetch(cx, query.id(), deadline))
-                as Box<dyn FnOnce() -> ReadResult<'_> + Send>
+                as Box<dyn FnOnce() -> ReadResult + Send>
         })
         .collect();
 
     let mut rows = Vec::new();
     let mut coverage = Vec::new();
     let mut out = empty(body(query, Vec::new(), Vec::new()));
-    for (publisher, mut source, result) in crate::fan_out::run(jobs) {
+    for (bundle, mut source, result) in crate::fan_out::run(jobs) {
         match result {
             Ok(result) => {
                 let matched = result.rows.value.len() as u64;
@@ -70,13 +70,13 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
                     retrieved: received_date(result.snapshot.retrieved_at),
                 });
                 if !result.snapshot.fresh {
-                    refresh(&mut out, publisher.bundle);
+                    refresh(&mut out, bundle);
                 }
             }
             Err(error) => {
                 out.local = out.local.or(status::local(error));
                 if source.state == SourceState::Syncing {
-                    refresh(&mut out, publisher.bundle);
+                    refresh(&mut out, bundle);
                 }
             }
         }
@@ -115,7 +115,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
 }
 
 impl Publisher {
-    fn fetch(&self, cx: &Ctx<'_>, id: &DiseaseId, deadline: Deadline<'_>) -> ReadResult<'_> {
+    fn fetch(&self, cx: &Ctx<'_>, id: &DiseaseId, deadline: Deadline<'_>) -> ReadResult {
         let leg = cx.fetch.leg(self.spec, deadline).fresh(cx.fresh);
         let result = (self.read)(&leg, id);
         let source = status::source(
@@ -123,7 +123,7 @@ impl Publisher {
             leg.finish(),
             result.as_ref().err().copied(),
         );
-        (self, source, result)
+        (self.bundle, source, result)
     }
 }
 
