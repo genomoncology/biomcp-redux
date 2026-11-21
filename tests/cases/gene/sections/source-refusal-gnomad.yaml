@@ -7,7 +7,7 @@ steps:
   expect:
     /error/code: usage.arguments
     /error/option: --source
-    /error/message: { includes: "--source" }
+    /error/message: "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD."
     /next/0/args: [get, gene, ATM, constraint]
 - run: [get, gene, TP53, constraint, --source, gnomad]
   exit: 2
