@@ -44,11 +44,13 @@ pub(super) fn render(
             .iter_mut()
             .find(|source| source.source == Source::ClinicalTrialsGov)
         {
-            source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: format!("{id} arms reached the {ARM_BYTES}-byte page limit. Follow next for the remaining rows.").into(),
-                retry_after_seconds: None,
-            });
+            source
+                .notices
+                .push(biomcp_types::SourceNotice::RequestGuidance {
+                    data_date: None,
+                    message: format!("{id} arms reached the {ARM_BYTES}-byte page limit.").into(),
+                    retry_after_seconds: None,
+                });
         }
     }
     continue_records(&mut page, query, id, TrialSection::Arms, pool);

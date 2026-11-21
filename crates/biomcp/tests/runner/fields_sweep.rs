@@ -12,6 +12,12 @@ pub(super) fn trial() -> libtest_mimic::Trial {
     })
 }
 
+pub(super) fn additional_trial() -> libtest_mimic::Trial {
+    super::transcript::trial("section-fields/sections/additional-row-shapes", || {
+        additional_sections().map_err(Into::into)
+    })
+}
+
 /// Fewer distinct calls than this means the sweep lost its cases, not that all passed.
 const LEAST: usize = 20;
 /// The several-section calls whose untouched sections the sweep proves exactly whole.
@@ -399,4 +405,127 @@ fn values(part: &Value, full: &Value) -> bool {
         }
         _ => part == full,
     }
+}
+
+/// The recorded sections that use dedicated replies, nested lists, or single data rows.
+fn additional_sections() -> Result<(), String> {
+    let fixtures = super::launch::fixtures().join("replies");
+    for (replay, command, field) in [
+        (
+            "adverse-event/faers-code-words",
+            "get adverse-event 100 drugs",
+            "medicinalproduct",
+        ),
+        (
+            "adverse-event/faers-code-words",
+            "get adverse-event 100 reactions",
+            "term",
+        ),
+        (
+            "drug/markets",
+            "get drug dolutegravir markets --source drugsfda",
+            "name",
+        ),
+        ("gene/civic", "get gene ERBB2 civic", "variant_count"),
+        ("gene/constraint", "get gene TP53 constraint", "loeuf"),
+        (
+            "article/fulltext/live-all",
+            "get article 33123537 citations",
+            "cited_by",
+        ),
+        ("article/pdf/synthetic", "get article 41351423 pdf", "url"),
+        (
+            "protein/native-sections",
+            "get protein P00533 sequence",
+            "length",
+        ),
+        (
+            "cell-line/native-sections",
+            "get cell-line CVCL_0004 identity",
+            "id",
+        ),
+        (
+            "cell-line/k562-xrefs",
+            "get cell-line CVCL_0004 xrefs",
+            "id",
+        ),
+        (
+            "cell-line/native-sections",
+            "get cell-line CVCL_0004 variants",
+            "description",
+        ),
+        (
+            "cell-line/native-sections",
+            "get cell-line CVCL_0004 chembl",
+            "name",
+        ),
+        (
+            "gwas/synthetic",
+            "get gwas GCST000035 associations",
+            "p_value",
+        ),
+        (
+            "variant-population/homozygotes-joint",
+            "get variant 1-11796321-G-A population",
+            "homozygote_count",
+        ),
+        (
+            "variant-population/homozygotes-joint",
+            "variant population 1-11796321-G-A --detail --limit 3",
+            "homozygote_count",
+        ),
+    ] {
+        let env = Environment::new().map_err(|error| error.to_string())?;
+        compare(env, &fixtures.join(replay), command, field)?;
+    }
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let replay = env.root().join("tldr");
+    response_cases::copy_capture("article/fulltext/live-all", &replay, |_, exchange| {
+        if exchange
+            .get("url")
+            .and_then(Value::as_str)
+            .is_some_and(|url| url.contains("fields=tldr%2C"))
+            && let Some(body) = exchange
+                .pointer_mut("/exchanges/0/body/value")
+                .and_then(Value::as_object_mut)
+        {
+            body.insert(
+                "tldr".into(),
+                serde_json::json!({"text":"Synthetic summary","model":"test-model"}),
+            );
+            body.insert("citationCount".into(), Value::from(7));
+        }
+    })
+    .map_err(|error| error.to_string())?;
+    compare(env, &replay, "get article 33123537 tldr", "text")?;
+
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let key = "synthetic-fields-case";
+    env.config(&serde_json::json!({"keys":{"oncokb_api_key":key}}))
+        .map_err(|error| error.to_string())?;
+    let replay = super::licensed_cache::scoped_gene_fixture(&env, key)?;
+    compare(env, &replay, "get gene TP53 oncokb", "version")
+}
+
+fn compare(
+    env: Environment,
+    replay: &std::path::Path,
+    command: &str,
+    field: &str,
+) -> Result<(), String> {
+    let globals = env.globals(Some(replay), false);
+    let probe = Probe { env, globals };
+    let args: Vec<_> = command.split_whitespace().map(str::to_owned).collect();
+    let (code, whole) = probe.run(None, &args)?;
+    if code != Some(0) {
+        return Err(format!("{command}: whole read returned {code:?}"));
+    }
+    let narrow = narrowed(&probe, &args, field, code, &whole)
+        .map_err(|error| format!("{command}: {error}"))?;
+    if size(narrow.get("result")) >= size(whole.get("result")) {
+        return Err(format!(
+            "{command} --fields {field}: result did not get smaller"
+        ));
+    }
+    Ok(())
 }

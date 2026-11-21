@@ -1,9 +1,9 @@
 //! Indexed, versioned gnomAD constraint tables.
-use biodata::{Accession, AccessionBase, EnsemblFeature, FiniteNumber, Gene};
+use biodata::{Accession, AccessionBase, EnsemblFeature, FiniteNumber, Gene, Text};
 use biomcp_fetch::{
     Bundle, Find, Freshness, KeyKind, Keys, Leg, RequestError, Row, RowFormat, SourceSpec,
 };
-use biomcp_types::{Constraint, ConstraintRelease, Text};
+use biomcp_types::{Constraint, ConstraintRelease};
 use serde::{Deserialize, Deserializer};
 use std::{marker::PhantomData, time::Duration};
 
