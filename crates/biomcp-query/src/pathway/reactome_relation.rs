@@ -4,7 +4,7 @@ use crate::{Ctx, Outcome, status};
 use biodata::PathwayId;
 use biomcp_adapters::reactome;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{PathwayHeader, PathwayPageInfo, PathwayTotalKind, Source};
+use biomcp_types::{PathwayCard, PathwayHeader, PathwayPageInfo, PathwayTotalKind, Source};
 pub(super) fn fetch(
     cx: &Ctx<'_>,
     q: &Selection<'_>,
@@ -17,27 +17,20 @@ pub(super) fn fetch(
     let leg = cx.fetch.leg(&reactome::SPEC, deadline).fresh(q.fresh);
     let mut release_error = None;
     let reply = (|| {
-        let (header, known_release) = match &q.card {
-            Some((header, release)) => (header.clone(), release.clone()),
-            None => {
-                let mapped = reactome::card(&leg, id, false)?;
-                out.include_refusals(mapped.refusals);
-                out.problems.extend(mapped.problems);
-                let Some(card) = mapped.value else {
-                    return Ok(None);
-                };
-                (
-                    PathwayHeader {
-                        id: card.pathway.id,
-                        name: card.pathway.name,
-                        species: card.pathway.species,
-                        version: card.pathway.version,
-                        revision: None,
-                    },
-                    None,
-                )
-            }
+        let native_card;
+        let card = if let Some(card) = q.card {
+            card
+        } else {
+            let mapped = reactome::card(&leg, id, false)?;
+            out.include_refusals(mapped.refusals);
+            out.problems.extend(mapped.problems);
+            let Some(card) = mapped.value else {
+                return Ok(None);
+            };
+            native_card = card;
+            &native_card
         };
+        let header = relation_header(card);
         let mut saved = Saved {
             dropped: out.dropped,
             genes: None,
@@ -48,15 +41,11 @@ pub(super) fn fetch(
         if q.genes {
             let rows = reactome::members(&leg, id)?;
             let release = if q.card.is_some() {
-                known_release
+                card.release.clone()
             } else {
-                match reactome::release(&leg) {
-                    Ok(release) => Some(release),
-                    Err(error) => {
-                        release_error = Some(error);
-                        None
-                    }
-                }
+                reactome::release(&leg)
+                    .inspect_err(|&error| release_error = Some(error))
+                    .ok()
             };
             saved.dropped |= rows.refusals == biomcp_adapters::Refusal::Refused;
             saved.problems = rows.problems;
@@ -96,6 +85,16 @@ pub(super) fn fetch(
     saved.problems.extend(out.problems.clone());
     Ok(Some(saved))
 }
+fn relation_header(card: &PathwayCard) -> PathwayHeader {
+    PathwayHeader {
+        id: card.pathway.id.clone(),
+        name: card.pathway.name.clone(),
+        species: card.pathway.species,
+        version: card.pathway.version.clone(),
+        revision: card.pathway.revision.clone(),
+    }
+}
+
 fn full_page(size: usize, kind: PathwayTotalKind) -> PathwayPageInfo {
     PathwayPageInfo {
         offset: 0,

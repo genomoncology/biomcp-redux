@@ -2,9 +2,7 @@ use super::relation::{self, Echo, Selection};
 use crate::{Ctx, Outcome, status};
 use biomcp_fetch::Deadline;
 use biomcp_types::Paged;
-use biomcp_types::{
-    PathwayCard, PathwayGet, PathwayHeader, PathwaySection, Reason, ReplyData, Section, Source,
-};
+use biomcp_types::{PathwayCard, PathwayGet, PathwaySection, Reason, ReplyData, Section, Source};
 pub(super) fn attach(
     cx: &Ctx<'_>,
     q: &PathwayGet,
@@ -40,16 +38,7 @@ pub(super) fn attach(
                 q.pool()
             },
             fresh: cx.fresh || q.fresh(),
-            card: Some((
-                PathwayHeader {
-                    id: card.pathway.id.clone(),
-                    name: card.pathway.name.clone(),
-                    species: card.pathway.species,
-                    version: card.pathway.version.clone(),
-                    revision: card.pathway.revision.clone(),
-                },
-                card.release.clone(),
-            )),
+            card: Some(card),
         };
         let result = relation::read(cx, selected, deadline);
         let reason = result

@@ -4,7 +4,7 @@ use biodata::{PathwayId, Text};
 use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    PathwayEventsQuery, PathwayGenesQuery, PathwayHeader, PathwayPageInfo, Reason, ReplyData,
+    PathwayCard, PathwayEventsQuery, PathwayGenesQuery, PathwayPageInfo, Reason, ReplyData,
     Request, Source, StepKind,
 };
 pub(super) enum Echo {
@@ -20,7 +20,7 @@ pub(super) struct Selection<'a> {
     pub offset: u32,
     pub pool: Option<&'a Text>,
     pub fresh: bool,
-    pub card: Option<(PathwayHeader, Option<Text>)>,
+    pub card: Option<&'a PathwayCard>,
 }
 impl Selection<'_> {
     fn source(&self) -> Source {
