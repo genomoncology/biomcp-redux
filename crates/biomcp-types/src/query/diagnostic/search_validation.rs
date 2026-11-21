@@ -112,6 +112,14 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
 
 pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
     validate_cdx_dates(v)?;
+    if let Some(partner) = &v.regimen_partner {
+        if v.source != DiagnosticSearchSource::FdaCdx {
+            return Err(QueryInvalid::new(&["source", "regimen_partner"]));
+        }
+        if !partner.as_str().chars().any(char::is_alphanumeric) {
+            return Err(QueryInvalid::new(&["regimen_partner"]));
+        }
+    }
     // openFDA publishes intended-use text (ao_statement) for PMA only; its 510(k) records have none (live, 2026-11-14).
     if let Some(text) = &v.intended_use {
         if v.source != DiagnosticSearchSource::FdaPma {

@@ -1004,6 +1004,18 @@
             "fda-device-recall"
           ]
         },
+        "regimen_partner": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FDA CDx regimen partner.\nWhole trade or generic name after FDA's combination wording. Rows label matches in matched.",
+          "x-required-component": "fda-cdx"
+        },
         "sort": {
           "anyOf": [
             {

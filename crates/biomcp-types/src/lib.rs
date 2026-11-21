@@ -240,13 +240,13 @@ pub use query::{
     DiagnosticSearchSource, DiagnosticSection, DiagnosticSort,
 };
 pub use response::{
-    CompanionColumn, CompanionDiagnosticRow, CompanionLinks, CompanionOwned, CompanionShared,
-    DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditionRow,
-    DiagnosticConditions, DiagnosticGeneRow, DiagnosticGenes, DiagnosticLaboratory,
-    DiagnosticMethods, DiagnosticPage, DiagnosticProductCodeCount, DiagnosticProductCodeCounts,
-    DiagnosticRegulatory, DiagnosticRegulatoryField, DiagnosticRegulatoryFragment,
-    DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader, GtrLabAddress,
-    GtrLabCertification, GtrNameMatch, GtrNativeStatus,
+    CompanionColumn, CompanionDiagnosticRow, CompanionLinks, CompanionMatch, CompanionOwned,
+    CompanionShared, DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion,
+    DiagnosticConditionRow, DiagnosticConditions, DiagnosticGeneRow, DiagnosticGenes,
+    DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticProductCodeCount,
+    DiagnosticProductCodeCounts, DiagnosticRegulatory, DiagnosticRegulatoryField,
+    DiagnosticRegulatoryFragment, DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader,
+    GtrLabAddress, GtrLabCertification, GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{
