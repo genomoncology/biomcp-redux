@@ -1,0 +1,16 @@
+{
+  "method": "GET",
+  "source": "gencc",
+  "url": "https://thegencc.org/download/action/submissions-export-csv?format=new",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/csv",
+      "delay_ms": 0,
+      "body": {
+        "kind": "text",
+        "value": "sgc_id,version_number,gene_curie,gene_symbol,disease_curie,disease_title,classification_title,moi_title,submitter_title,submitted_as_date\nSGC-001,1,HGNC:7127,MLH1,MONDO:0019391,Fixture alternative label,Strong,Autosomal dominant,Fixture Submitter,2024-01-03\nSGC-002,1,HGNC:7325,MSH2,MONDO:0019391,Fixture alternative label,Limited,Autosomal recessive,Other Submitter,2024-01-04\nSGC-003,1,HGNC:7326,MSH6,MONDO:0005835,Fixture disease,Strong,Autosomal dominant,Fixture Submitter,2024-01-05\n"
+      }
+    }
+  ]
+}

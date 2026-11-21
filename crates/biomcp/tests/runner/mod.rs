@@ -55,6 +55,7 @@ mod diagnostic_retirements;
 mod diagnostic_who;
 mod disease_monarch;
 mod disease_next;
+mod disease_validity;
 mod drug_approvals;
 mod drug_civic;
 mod drug_civic_fixtures;
@@ -372,6 +373,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.push(protein_commands::refused_pool_trial());
     trials.extend(orphadata_sync::trials());
     trials.extend(disease_next::trials());
+    trials.extend(disease_validity::trials());
     trials.extend(first_read::trials());
     trials.extend(source_text::trials());
     trials.extend(offset_walks::trials());
