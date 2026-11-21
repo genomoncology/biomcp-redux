@@ -5,13 +5,15 @@
     {
       "expect": {
         "/result/commands/0/arguments/*/name": [
+          "--hpo-release",
           "--limit",
           "--offset",
           "--ontology",
+          "--phenotype",
           "--source",
           "text"
         ],
-        "/result/commands/0/arguments/2/choices": [
+        "/result/commands/0/arguments/3/choices": [
           "mondo",
           "doid",
           "ncit"

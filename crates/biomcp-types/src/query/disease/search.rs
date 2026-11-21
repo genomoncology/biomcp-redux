@@ -2,7 +2,7 @@
 use super::{DiseaseOntology, DiseaseSource, QueryInvalid, default_limit, present};
 use serde::{Deserialize, Serialize};
 
-/// Literal disease discovery, SEER site search, or intersection of positive annotations in a named HPO release.
+/// Search by text, SEER site name, or HPO annotations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -12,22 +12,22 @@ pub struct DiseaseSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// HPO IDs to match together, including descendants. Repeat this option for each term.
+    /// Each HPO ID or a descendant must have a positive annotation.
     #[serde(default, skip_serializing_if = "<[biodata::HpId]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max=20), extend("x-comma-separated" = true)))]
     phenotype: Box<[biodata::HpId]>,
-    /// Required for --phenotype. Use the publisher's vYYYY-MM-DD release tag.
+    /// HPO release tag (vYYYY-MM-DD), required with --phenotype.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(
         feature = "schema",
         schemars(regex(pattern = r"^v[0-9]{4}-[0-9]{2}-[0-9]{2}$"))
     )]
     hpo_release: Option<Box<str>>,
-    /// Literal source search text; optional site-name filter for SEER.
+    /// Search text or optional SEER site name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(length(min=1),extend("x-positional" = 0)))]
     text: Option<Box<str>>,
-    /// Defaults to HPO with --phenotype and OLS for text. Select SEER for site search.
+    /// HPO for --phenotype, OLS by default, SEER for sites.
     #[serde(default)]
     #[cfg_attr(
         feature = "schema",
@@ -35,7 +35,7 @@ struct SearchFields {
     )]
     #[serde(skip_serializing_if = "Option::is_none")]
     source: Option<DiseaseSource>,
-    /// Exactly one ontology, default MONDO.
+    /// OLS ontology, default MONDO.
     #[serde(
         default,
         deserialize_with = "present",
@@ -43,11 +43,11 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "DiseaseOntology", extend("default" = "mondo")))]
     ontology: Option<DiseaseOntology>,
-    /// Maximum source rows on one page.
+    /// Rows per page.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Native row offset.
+    /// Row offset.
     #[serde(default)]
     offset: u32,
 }
