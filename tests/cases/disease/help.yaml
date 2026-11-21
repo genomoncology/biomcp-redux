@@ -71,7 +71,7 @@
         "/result/commands/0/sections/1/description": "Source cross-references. Use --source ols for publisher-supplied target URLs.",
         "/status": "complete"
       },
-      "max_bytes": 3932,
+      "max_bytes": 3946,
       "run": [
         "help",
         "get",
