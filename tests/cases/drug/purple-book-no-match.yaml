@@ -16,7 +16,7 @@
       "expect": {
         "": {"includes_all_of": [
           "Products approved or designated after October 2026 are not included.",
-          "https://purplebooksearch.fda.gov/downloads",
+          "https\\://purplebooksearch.fda.gov/downloads",
           "biomcp sync purple-book --file PATH"
         ]}
       }
