@@ -9,15 +9,15 @@ biodata::wire_enum! {
         Eligibility => "eligibility",
         /// Primary, secondary and other outcomes.
         Outcomes => "outcomes",
-        /// Posted outcomes, analyses, flow, baseline and adverse events (CT.gov).
+        /// Posted outcomes and analyses, then flow, baseline and adverse events (ClinicalTrials.gov).
         Results => "results",
-        /// Started, finished, and dropped out by arm and period, with reasons (CT.gov).
+        /// Started, completed, and not completed by arm and period, with reasons (ClinicalTrials.gov).
         Flow => "flow",
-        /// Baseline populations, groups and measures (CT.gov).
+        /// Baseline populations, groups and measures (ClinicalTrials.gov).
         Baseline => "baseline",
         /// Arms and linked interventions.
         Arms => "arms",
-        /// CT.gov sites with contacts. Count missing coordinates before radius filtering.
+        /// ClinicalTrials.gov sites with contacts. Count missing coordinates before radius filtering.
         Locations => "locations",
         /// Central contacts and officials with roles.
         Contacts => "contacts",

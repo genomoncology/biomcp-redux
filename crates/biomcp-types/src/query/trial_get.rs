@@ -12,7 +12,7 @@ pub struct TrialGet(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// 1–20 NCT IDs.
+    /// 1–20 NCT IDs in caller order.
     #[cfg_attr(feature="schema", schemars(length(min=1,max=20), extend("x-positional"=0)))]
     input: Box<[NctId]>,
     #[doc = " Optional intact source sections. Default cards only; diseases and summary require NCI. \
@@ -20,7 +20,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature="schema", schemars(extend("x-trailing-section"=true)))]
     section: Box<[TrialSection]>,
-    /// Up to 200 records per page. Other sections also have byte limits.
+    /// Up to 200 records per page. Sections other than locations also have byte limits.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     limit: u32,
@@ -35,7 +35,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pool: Option<Text>,
-    /// Latitude in degrees. With --lon, reads locations by straight-line distance.
+    /// Latitude in degrees. With --lon, sort locations by straight-line miles and default to that section.
     #[serde(
         default,
         deserialize_with = "present",
