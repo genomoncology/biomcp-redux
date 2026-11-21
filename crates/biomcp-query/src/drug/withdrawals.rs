@@ -3,7 +3,7 @@ use super::fda_list;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::fda_withdrawals;
 use biomcp_fetch::RequestError;
-use biomcp_types::{DrugSearch, DrugWithdrawalPage, ReplyBody, Source};
+use biomcp_types::{DrugSearch, DrugWithdrawalPage, Problem, ReplyBody, Source};
 
 const SOURCE: Source = Source::FdaWithdrawnApprovals;
 
@@ -20,13 +20,27 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     let error = match result {
         Ok(found) => {
             let needle = q.query().map(|text| text.as_str().to_lowercase());
+            let needle = needle.as_deref();
+            let mut problems = Vec::new();
             let matching = found.items.into_iter().filter(|row| {
-                fda_list::matches(needle.as_deref(), &[&row.drug, &row.indication])
-                    || needle.as_deref().is_some_and(|needle| {
-                        fda_withdrawals::matches_date(needle, &row.withdrawal_date)
-                    })
+                let by_date = match fda_withdrawals::matches_date(needle, &row.withdrawal_date) {
+                    Ok(matches) => matches,
+                    Err(code) => {
+                        problems.push(Problem {
+                            source: SOURCE,
+                            record: None,
+                            field: "withdrawal_date".into(),
+                            code,
+                        });
+                        false
+                    }
+                };
+                by_date
+                    || needle == Some(row.withdrawal_date.as_ref())
+                    || fda_list::matches(needle, &[&row.drug, &row.indication])
             });
             let items = fda_list::page(cx, q, matching, &mut out);
+            out.problems.extend(problems);
             report.stale |= found.fallback.is_some();
             if let Some(RequestError::Source(error)) = found.fallback {
                 report.failures.push(error);

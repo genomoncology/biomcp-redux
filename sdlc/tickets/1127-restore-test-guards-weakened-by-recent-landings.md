@@ -1,6 +1,7 @@
 # 1127 — restore-test-guards-weakened-by-recent-landings
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8214b54f065f6a9734b4386d83bd47d9ac1b7b39
 
 Milestone: 7
 

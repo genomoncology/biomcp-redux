@@ -1,4 +1,4 @@
-use super::{Check, rust_files, source};
+use super::{Check, label_section_placement, rust_files, source};
 use std::{fs, path::Path};
 
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
@@ -481,11 +481,6 @@ const ALLOWED: &[(&str, &str)] = &[
         "Find every match in synthetic long extracted lines at the private PMA summary passage cut, which a recorded document cannot shape on demand.",
     ),
     (
-        "crates/biomcp-query/src/drug/drugsfda/label_sections_tests.rs",
-        "Check label section bounds from the contents list on real label text and one real FDA label PDF at the private \
-        section finder, where table rows that look like headings must never end a section.",
-    ),
-    (
         "crates/biomcp-query/tests/gene_resolution.rs",
         "Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline.",
     ),
@@ -549,7 +544,8 @@ pub(super) fn check(root: &Path) -> Check {
                     .to_string_lossy()
                     .replace('\\', "/");
                 let tokens = source::tokens(&fs::read_to_string(&path)?);
-                let has_test = tokens.iter().enumerate().any(|(index, token)| {
+                let unlisted_test = tokens.iter().enumerate().any(|(index, token)| {
+                    let test =
                     token == "#"
                         && tokens.get(index + 1).is_some_and(|v| v == "[")
                         && tokens
@@ -559,9 +555,10 @@ pub(super) fn check(root: &Path) -> Check {
                             .collect::<Vec<_>>()
                             .windows(2)
                             .any(|v| matches!(v, [left, right] if right.as_str() == "test" && matches!(left.as_str(), "," | ":")))
-                        || tokens.get(index..index + 4).is_some_and(|v| v == ["#", "[", "test", "]"])
+                        || tokens.get(index..index + 4).is_some_and(|v| v == ["#", "[", "test", "]"]);
+                    test && !label_section_placement::allows(&relative, tokens.get(index..index + 6))
                 });
-                if has_test && !ALLOWED.iter().any(|(file, _)| *file == relative) {
+                if unlisted_test && !ALLOWED.iter().any(|(file, _)| *file == relative) {
                     return Err(format!("{relative}: inline test outside listed locations").into());
                 }
             }

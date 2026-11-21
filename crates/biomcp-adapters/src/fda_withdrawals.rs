@@ -3,9 +3,9 @@ use crate::{
     decl::{Guidance, Probe, SourceDecl},
     fda_dsc, fda_html,
 };
-use biodata::Text;
+use biodata::{PartialDate, Text};
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
-use biomcp_types::{DrugWithdrawal, Source};
+use biomcp_types::{DrugWithdrawal, ProblemCode, Source};
 use std::time::Duration;
 
 const SOURCE: Source = Source::FdaWithdrawnApprovals;
@@ -115,18 +115,19 @@ fn approval_url(href: &str) -> Result<Text, RequestError> {
     url.map_err(|_| biomcp_fetch::bad_reply(SOURCE, None))
 }
 
-/// Match the printed FDA date or its ISO year, month or full date.
-pub fn matches_date(needle: &str, published: &str) -> bool {
-    if needle == published {
-        return true;
-    }
-    needle.parse::<biodata::PartialDate>().is_ok_and(|query| {
-        fda_dsc::html::date(published).is_some_and(|date| {
+/// Match the FDA date against an ISO year, month or full date.
+/// Report unreadable publisher dates even when the search has no date filter.
+pub fn matches_date(needle: Option<&str>, published: &str) -> Result<bool, ProblemCode> {
+    let date = fda_dsc::html::date(published)
+        .transpose()?
+        .ok_or(ProblemCode::ValueUnknown)?;
+    Ok(needle.is_some_and(|needle| {
+        needle.parse::<PartialDate>().is_ok_and(|query| {
             query.year() == date.year()
                 && query
                     .month()
                     .is_none_or(|month| Some(month) == date.month())
                 && query.day().is_none_or(|day| Some(day) == date.day())
         })
-    })
+    }))
 }
