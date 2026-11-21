@@ -1952,8 +1952,8 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --arms-for <arms_for>
-          Arm match.
-          ClinicalTrials.gov only: add arms for an exact intervention name or registry alias, ignoring case.
+          Arms.
+          ClinicalTrials.gov only. Exact intervention name or alias, ignoring case.
 
       --biomarker-code <biomarker_code>
           NCIt code.
@@ -2148,8 +2148,8 @@ Paging: --limit and --offset.
 ClinicalTrials.gov only: search the registry acronym field. Value form: string; example: --acronym SURMOUNT.
 - `--age`: Age in years.
 ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer; example: --age 18.
-- `--arms-for`: Arm match.
-ClinicalTrials.gov only: add arms for an exact intervention name or registry alias, ignoring case. Value form: string; example: --arms-for MK-3475.
+- `--arms-for`: Arms.
+ClinicalTrials.gov only. Exact intervention name or alias, ignoring case. Value form: string; example: --arms-for MK-3475.
 - `--biomarker-code`: NCIt code.
 NCI only: exact biomarker in trial criteria such as C96022 (CD274 Gene, PD-L1). Does not establish positivity or eligibility. Value form: string; example: --biomarker-code C96022.
 - `--biomarker-use`: NCI criterion.

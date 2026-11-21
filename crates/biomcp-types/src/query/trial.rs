@@ -78,7 +78,7 @@ struct Fields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
     intervention: Box<[Text]>,
-    #[doc = "Arm match.\nClinicalTrials.gov only: add arms for an exact intervention name or registry alias, ignoring case."]
+    #[doc = "Arms.\nClinicalTrials.gov only. Exact intervention name or alias, ignoring case."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",

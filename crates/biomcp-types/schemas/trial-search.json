@@ -214,7 +214,7 @@
     },
     "arms_for": {
       "$ref": "#/$defs/Text",
-      "description": "Arm match.\nClinicalTrials.gov only: add arms for an exact intervention name or registry alias, ignoring case."
+      "description": "Arms.\nClinicalTrials.gov only. Exact intervention name or alias, ignoring case."
     },
     "biomarker_code": {
       "$ref": "#/$defs/NcitId",
