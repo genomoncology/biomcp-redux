@@ -6,6 +6,8 @@ This document prepares the commands. It does not establish a passing preflight. 
 
 ## Select sources and inputs
 
+- [ ] Before each release, download FDA's newest monthly Purple Book CSV by hand and replace the bundled column projection in [crates/biomcp-adapters/src/purple_book/seed.csv](../crates/biomcp-adapters/src/purple_book/seed.csv). Keep both sections and every row. Update the release month in the [seed README](../crates/biomcp-adapters/src/purple_book/README.md). [FDA Purple Book downloads](https://purplebooksearch.fda.gov/downloads)
+
 `MAIN_REVISION` is the full main commit selected after the required changes land. It is the product source, runner source and fixture source for this preflight. `DRIVER_REVISION` is the actual commit of an outer workflow or wrapper if it differs. Record both. `BIOMCP_BUILD_REVISION`, when needed by a Git archive, must identify the source actually being compiled.
 
 Run commands from a clean checkout of selected main using its `release/toolchain.json` pins. After verifying that checkout's HEAD, set `BIOMCP_BUILD_REVISION="$MAIN_REVISION"` for producer and runner compilation, including `release/gate.py`; generated artifact directories must not cause dirty-tree identity inference. This names the source actually compiled, not a different driver tree. The artifact's `release.json`, inspected wheel and `version --verbose` must agree on the product commit and binary hash. A prepared runner's `bootstrap.json` names the source actually used to compile its case and tool runners.
