@@ -93,7 +93,7 @@ impl schemars::JsonSchema for PhenotypeSearchCommand {
             generator,
             "PhenotypeSource",
             "PhenotypeSource",
-            &[monarch().into()],
+            &[monarch().as_str()],
         )
     }
 }
