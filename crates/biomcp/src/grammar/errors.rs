@@ -215,9 +215,8 @@ pub(super) fn parse_invalid(
         }
         _ => None,
     };
-    if path == ["get", "gene"]
-        && spelling.is_some_and(|flag| flag.split('=').next() == Some("--source"))
-        && let Some(refusal) = super::sections::gene_source_refusal(root, args)
+    if spelling.is_some_and(|flag| flag.split('=').next() == Some("--source"))
+        && let Some(refusal) = super::source_refusal::get(root, &path, args)
     {
         return refusal;
     }

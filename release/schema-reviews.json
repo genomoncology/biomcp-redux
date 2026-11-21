@@ -8500,6 +8500,7 @@
         "option given without a value: give error.option a value valid_values accepts",
         "unknown option: this command has no error.option; run next, or use an option valid_values lists",
         "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD.",
+        "get pathway rejects --source. The Reactome stable ID selects Reactome.",
         "value not accepted: give error.option a value valid_values accepts",
         "this command takes no text outside an option; next gives the words to error.option",
         "option repeated: give error.option once, in the form valid_values shows",
@@ -8745,7 +8746,7 @@
         "pool expired; restart the search",
         "pool selectors do not match this search"
       ],
-      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged. Ticket 1112, 2026-11-21: add three drug get refusals that explain where label text appears, which Drugs@FDA section supplies approvals, and how to search Purple Book biosimilars. They keep the existing codes and provide corrected calls. The combined target also includes the gene get source refusal reviewed in ticket 1114."
+      "review": "Ticket 1081, 2026-11-20: against the 1.0.0 baseline, text where a command takes no positional is refused as text outside an option rather than a refused value; a --fields refusal that cannot repeat a name says so and still offers the names it can place; a label-history refusal names every cause at once when --offset comes without --every-version and --find, --label-section or a section it reads is also missing. Codes and options are unchanged. Ticket 1112, 2026-11-21: add three drug get refusals that explain where label text appears, which Drugs@FDA section supplies approvals, and how to search Purple Book biosimilars. They keep the existing codes and provide corrected calls. The combined target also includes the gene get source refusal reviewed in ticket 1114. Ticket 1117, 2026-11-21: explain that a Reactome stable ID selects the source and offer the checked lookup without --source."
     },
     {
       "schemas": [
