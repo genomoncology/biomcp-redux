@@ -1,0 +1,20 @@
+feature: gene-clingen
+story: Gene get refuses --source clingen and directs validity requests to the clingen section.
+replay: gene/clingen
+cache_acquired: 42
+steps:
+- run: [get, gene, FANCA, validity, --source, clingen]
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+    /error/option: --source
+    /error/message: "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD."
+    /next/0/args: [get, gene, FANCA, clingen]
+- run: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, validity, --source, clingen]
+  exit: 2
+  expect:
+    /next/0/args: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, clingen]
+- follow: configure
+  expect:
+    /status: complete
+    /result/items/0/sections/clingen/state: data
