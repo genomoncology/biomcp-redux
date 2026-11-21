@@ -1081,6 +1081,10 @@ Options:
           FDA product code.
           Exact source FDA product code; PMA, 510(k) and device recalls only.
 
+      --regimen-partner <regimen_partner>
+          FDA CDx regimen partner.
+          Whole trade or generic name after FDA's combination wording. Rows label matches in matched.
+
       --sort <sort>
           Row order; help search diagnostic
           Row order.
@@ -1155,6 +1159,8 @@ First prequalification year included, YYYY; WHO publishes only the year. Value f
 Last prequalification year included, YYYY; WHO publishes only the year. Value form: string; example: --prequalified-to 2023; only with --source who-ivd.
 - `--product-code`: FDA product code.
 Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string; example: --product-code ABC; only with --source fda-pma, fda-510k or fda-device-recall.
+- `--regimen-partner`: FDA CDx regimen partner.
+Whole trade or generic name after FDA's combination wording. Rows label matches in matched. Value form: string; example: --regimen-partner PALBOCICLIB; only with --source fda-cdx.
 - `--sort`: Row order.
 Newest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order. Value form: string; example: --sort date; only with --source fda-cdx.
 - `--source`: Source diagnostic source.
