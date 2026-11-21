@@ -1,0 +1,32 @@
+{
+  "feature": "drug-label",
+  "live_check": "recorded only; synthetic label fixtures",
+  "story": "All distinct occurrences in one paragraph count, including those outside the two displayed excerpts.",
+  "replay": "drug/label-find",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "contraindications",
+        "--find",
+        "marker",
+        "--find",
+        "MARKER"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/data/search/total_matches": 4,
+        "/result/label/data/search/truncated": true,
+        "/result/label/data/search/excerpts": {
+          "count": 2
+        }
+      }
+    }
+  ]
+}

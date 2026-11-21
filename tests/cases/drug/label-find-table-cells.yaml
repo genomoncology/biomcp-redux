@@ -1,0 +1,28 @@
+{
+  "feature": "drug-label",
+  "live_check": "recorded only; synthetic label fixtures",
+  "story": "A phrase spanning table cells matches, with source columns and their header in the excerpt.",
+  "replay": "drug/label-find",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "11111111-1111-1111-1111-111111111111",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "clinical_studies_table",
+        "--find",
+        "study-189 met endpoint"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/data/search/matched": true,
+        "/result/label/data/search/excerpts/0/text": "STUDY-189 | Met endpoint",
+        "/result/label/data/search/excerpts/0/table_header": "Trial | Outcome"
+      }
+    }
+  ]
+}

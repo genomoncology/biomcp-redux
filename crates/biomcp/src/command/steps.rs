@@ -49,8 +49,10 @@ fn adjust(
     result: &biomcp_query::Outcome,
 ) -> Result<Option<biomcp_types::Step>, serde_json::Error> {
     use biomcp_types::Status::{Complete, Partial};
+    // Full openFDA label pages only offer actual continuations.
     if !matches!(result.status(), Complete | Partial)
         || result.page.is_none()
+        || matches!(request, biomcp_types::Request::GetDrug(query) if query.sections() == [biomcp_types::DrugSection::Label])
         || !crate::grammar::first_page(request)
         || !crate::grammar::section_page(request)
     {
