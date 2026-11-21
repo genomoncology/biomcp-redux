@@ -78,6 +78,24 @@
         "/sources/0/source": "hpo"
       },
       "max_bytes": 2200
+    },
+    {
+      "run": [
+        "search",
+        "disease",
+        "--hpo-release",
+        "v2099-01-01",
+        "--phenotype",
+        "HP:0000007"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/id": "OMIM:900008",
+        "/result/items/0/matches/0/annotated": [
+          "HP:0000007"
+        ]
+      }
     }
   ]
 }

@@ -166,7 +166,7 @@ fn annotate(
             return Err(BadReply);
         };
         let frequency = fields.nth(3).ok_or(BadReply)?;
-        if !qualifier.is_empty() || fields.nth(2) != Some("P") || !positive(frequency) {
+        if !qualifier.is_empty() || !positive(frequency) {
             continue;
         }
         let term: HpId = term.parse().map_err(|_| BadReply)?;
