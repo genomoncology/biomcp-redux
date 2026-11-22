@@ -226,6 +226,9 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
             if form.phrase && items.iter().all(Value::is_string) {
                 let words = items.iter().filter_map(Value::as_str).collect::<Vec<_>>();
                 value = json!(words.join(" "));
+            } else if items.is_empty() && form.advertised == "section" {
+                fields.remove(name);
+                continue;
             } else if let [one] = items.as_slice() {
                 value = one.clone();
             } else {

@@ -228,14 +228,15 @@ pub(super) fn split(
     }) else {
         return Vec::new();
     };
+    let input = super::arguments::input(schema);
     items
         .iter()
-        .filter_map(|item| {
+        .map(|item| {
             let mut values = values.clone();
             values.remove(key);
             values.insert(form.field.clone(), item.clone());
             let mut values = Value::Object(values);
-            super::forms::normalize(&mut values, &forms, &super::arguments::input(schema)).ok()?;
+            super::forms::normalize(&mut values, &forms, &input).ok()?;
             let mut args = super::arguments::cli(root, verb, entity, schema, &values)?;
             if let Some(chosen) = chosen {
                 args.insert(0, format!("--fields={chosen}").into());
@@ -248,7 +249,16 @@ pub(super) fn split(
                 words.insert(0, format!("--fields={chosen}").into());
                 step.args = words.into();
             }
+            let words = step
+                .args
+                .iter()
+                .map(|word| OsString::from(&**word))
+                .collect::<Vec<_>>();
+            let checked = crate::grammar::parse(root, &words).ok()?;
+            crate::fields::check(&checked).ok()?;
+            checked.action?.prepare().ok()?;
             Some(step)
         })
-        .collect()
+        .collect::<Option<Vec<_>>>()
+        .unwrap_or_default()
 }

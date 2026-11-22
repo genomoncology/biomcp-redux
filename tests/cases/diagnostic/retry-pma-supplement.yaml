@@ -2,24 +2,26 @@
   "feature": "diagnostic-pma",
   "story": "A PMA summary and supplement conflict offers the specific supplement card.",
   "live_check": "Replay only",
-  "replay": "diagnostic/pma-synthetic",
+  "replay": "diagnostic/pma-supplement-retry",
   "steps": [
     {
       "run": [
         "get",
         "diagnostic",
-        "P150013",
+        "P190032",
         "summary",
         "--source",
         "fda-pma",
         "--supplement",
-        "S020"
+        "S023",
+        "--find",
+        "H1047R"
       ],
       "is_error": true,
       "expect": {
         "/status": "usage",
         "/next/0/args": {
-          "includes": "S020"
+          "includes": "S023"
         }
       },
       "exit": 2
@@ -28,8 +30,8 @@
       "follow": "configure",
       "expect": {
         "/status": "complete",
-        "/query/id": "P150013",
-        "/result/header/supplement_number": "S020"
+        "/query/id": "P190032",
+        "/result/header/supplement_number": "S023"
       }
     },
     {
@@ -38,27 +40,28 @@
         "arguments": {
           "action": "get",
           "get": {
-            "id": "P150013",
+            "id": "P190032",
             "section": [
               "summary"
             ],
             "source": "fda-pma",
-            "supplement": "S020"
+            "supplement": "S023",
+            "find": "H1047R"
           }
         }
       },
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/next/0/arguments/get/supplement": "S020"
+        "/next/0/arguments/get/supplement": "S023"
       }
     },
     {
       "follow": "configure",
       "expect": {
         "/status": "complete",
-        "/query/id": "P150013",
-        "/result/header/supplement_number": "S020"
+        "/query/id": "P190032",
+        "/result/header/supplement_number": "S023"
       }
     }
   ]

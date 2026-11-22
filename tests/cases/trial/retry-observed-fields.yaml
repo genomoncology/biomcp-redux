@@ -1,0 +1,90 @@
+{
+  "feature": "search-fields",
+  "story": "A correction for field spellings in a general-text trial search keeps the whole search expression and projection.",
+  "live_check": "Replay only",
+  "replay": "trial/retry-observed-fields",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "(\"sacituzumab tirumotecan\" OR \"MK-2870\" OR \"SKB264\" OR \"sac-TMT\") AND AREA[Phase]PHASE3",
+        "--limit",
+        "100",
+        "--fields",
+        "nct_id,title,phase,status,conditions,sponsor,primary_completion_date"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/next/0/args/0": "--fields=nct_id,title,phases,status,conditions,sponsor,primary_completion"
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/query": "(\"sacituzumab tirumotecan\" OR \"MK-2870\" OR \"SKB264\" OR \"sac-TMT\") AND AREA[Phase]PHASE3",
+        "/result/items/0/nct_id": "NCT06081959",
+        "/result/items/0/phases": [
+          "PHASE3"
+        ],
+        "/result/items/0": {
+          "omits": [
+            "official_title"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "(\"sacituzumab tirumotecan\" OR \"MK-2870\" OR \"SKB264\" OR \"sac-TMT\") AND AREA[Phase]PHASE3",
+            "limit": 100
+          },
+          "fields": [
+            "nct_id",
+            "title",
+            "phase",
+            "status",
+            "conditions",
+            "sponsor",
+            "primary_completion_date"
+          ]
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/next/0/arguments/fields": [
+          "nct_id",
+          "title",
+          "phases",
+          "status",
+          "conditions",
+          "sponsor",
+          "primary_completion"
+        ],
+        "/next/0/arguments/search/query": "(\"sacituzumab tirumotecan\" OR \"MK-2870\" OR \"SKB264\" OR \"sac-TMT\") AND AREA[Phase]PHASE3"
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/query": "(\"sacituzumab tirumotecan\" OR \"MK-2870\" OR \"SKB264\" OR \"sac-TMT\") AND AREA[Phase]PHASE3",
+        "/result/items/0/nct_id": "NCT06081959",
+        "/result/items/0/phases": [
+          "PHASE3"
+        ],
+        "/result/items/0": {
+          "omits": [
+            "official_title"
+          ]
+        }
+      }
+    }
+  ]
+}

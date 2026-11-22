@@ -99,8 +99,10 @@ fn history(fields: &mut Map<String, Value>, cause: &QueryInvalid) -> Option<Erro
             return Some(ErrorMessage::ArgumentCombination);
         }
         // The same call may also need a selector; recover the question below.
-    } else if cause.message() != Some(ErrorMessage::LabelHistorySectionUnknown)
-        && !exact(cause, &["section", "find", "label_section"])
+    } else if !matches!(
+        cause.message(),
+        Some(ErrorMessage::LabelHistorySectionUnknown | ErrorMessage::LabelHistoryOffsetSection)
+    ) && !exact(cause, &["section", "find", "label_section"])
     {
         return None;
     }
@@ -153,7 +155,7 @@ fn safety_headings(fields: &mut Map<String, Value>) {
 }
 
 fn heading(fields: &Map<String, Value>) -> Option<&'static str> {
-    biomcp_types::openfda_label_field(fields.get("label_section")?.as_str()?)
+    biomcp_types::openfda_label_field(&fields.get("label_section")?.as_str()?.to_ascii_lowercase())
 }
 
 fn empty_withdrawals(fields: &Map<String, Value>, cause: &QueryInvalid) -> bool {
