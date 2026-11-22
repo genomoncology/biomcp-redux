@@ -6,7 +6,7 @@ pub(super) fn serve_command() -> Command {
             .help("Advertise one CLI tool or generated typed command tools; default single.")
             .value_parser(clap::value_parser!(crate::config::ToolMode)))
         .arg(Arg::new("catalog").long("catalog")
-            .help("Typed MCP catalog: full lists every tool; compact lists discovery and dispatch. Default full.")
+            .help("Choose the typed MCP catalog. Full lists every tool. Compact lists discovery and dispatch. Default full.")
             .value_parser(clap::value_parser!(crate::config::McpCatalog)))
         .after_help("Example: biomcp serve\nExample: biomcp help serve")
         .arg(
