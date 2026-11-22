@@ -10,9 +10,74 @@ use serde_json::{Value, json};
 use std::io::Write;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial("mcp-parity/reply-forms", || {
+    let mut trials = vec![transcript_trial("mcp-parity/reply-forms", || {
         check().map_err(Into::into)
-    })]
+    })];
+    for (status, args, recording, exit) in [
+        ("usage", &["get", "gene"][..], None, 2),
+        (
+            "absent",
+            &["get", "trial", "NCT01811710"][..],
+            Some("trial/get/NCT01811710"),
+            1,
+        ),
+        (
+            "failed",
+            &["get", "trial", "NCT02296125"][..],
+            Some("trial/unavailable"),
+            4,
+        ),
+    ] {
+        trials.push(transcript_trial(
+            format!("mcp-parity/structured-errors/{status}"),
+            move || check_error(args, recording, exit).map_err(Into::into),
+        ));
+    }
+    trials
+}
+
+fn check_error(args: &[&str], recording: Option<&str>, exit: i32) -> Result<(), String> {
+    let cli_env = Environment::new().map_err(|e| e.to_string())?;
+    let mcp_env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = super::super::response_cases::replay(&cli_env, recording, None)?;
+    let mut cli_args: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
+    cli_args.extend(cli_env.globals(replay.as_deref(), replay.is_none()));
+    let cli = super::super::configuration::invoke(&cli_env, cli_args, exit)?;
+    let call = if let (1, ["get", "trial", id]) = (exit, args) {
+        // A missing exact fetch is a tool error. A get can successfully report absence.
+        json!({"name":"fetch","arguments":{"id":format!("trial {id}")}})
+    } else {
+        json!({"name":"biomcp","arguments":{"args":args}})
+    };
+    let replies = exchange_wire(
+        &mcp_env,
+        &[request(json!(1), "tools/call", call)],
+        &mcp_env.globals(replay.as_deref(), replay.is_none()),
+        None,
+    )?;
+    let result = replies
+        .first()
+        .and_then(|reply| reply.get("result"))
+        .ok_or("MCP tool result missing")?;
+    if result.get("isError") != Some(&json!(true)) {
+        return Err("MCP isError must be true".into());
+    }
+    let structured = result
+        .get("structuredContent")
+        .ok_or("MCP error is missing structuredContent")?;
+    if structured != &cli {
+        return Err(format!(
+            "structured MCP error differs from CLI: {structured} != {cli}"
+        ));
+    }
+    let text = result
+        .pointer("/content/0/text")
+        .and_then(Value::as_str)
+        .ok_or("MCP error is missing its text copy")?;
+    if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != cli {
+        return Err("text MCP error differs from CLI".into());
+    }
+    Ok(())
 }
 
 pub(super) fn check() -> Result<(), String> {
@@ -74,8 +139,8 @@ pub(super) fn check() -> Result<(), String> {
                     .ok_or("first result missing")?;
                 // A hosted first reply is already HTTP; only local mode pairs stdio with HTTP.
                 let http = (!hosted).then(|| http_reply(&server, call)).transpose()?;
-                let default = if hosted { "both" } else { "once" };
-                let value = check_pair(first, http.as_ref(), form.unwrap_or(default), index)
+                let expected_form = form.or(hosted.then_some("both"));
+                let value = check_pair(first, http.as_ref(), expected_form, index)
                     .map_err(|error| format!("hosted={hosted}: {error}"))?;
                 if form.is_none() {
                     reference.push(value);
@@ -124,7 +189,7 @@ fn http_reply(server: &Server, call: &Value) -> Result<Value, String> {
 fn check_pair(
     first: &Value,
     http: Option<&Value>,
-    form: &str,
+    form: Option<&str>,
     index: usize,
 ) -> Result<Value, String> {
     let value = check_content(first, form)?;
@@ -149,7 +214,7 @@ fn check_pair(
             )?;
         }
         return Err(format!(
-            "stdio/HTTP values differ form={form} call={index}: {difference}"
+            "stdio/HTTP values differ form={form:?} call={index}: {difference}"
         ));
     }
     Ok(value)
@@ -184,19 +249,22 @@ fn invalid_settings() -> Result<(), String> {
     Ok(())
 }
 
-/// The reply's JSON value, checked to sit where `form` puts it, once, with nothing before it.
-pub(super) fn check_content(result: &Value, form: &str) -> Result<Value, String> {
+/// Check where the reply carries JSON. An unset form means the local default.
+pub(super) fn check_content(result: &Value, form: Option<&str>) -> Result<Value, String> {
     let blocks = result
         .get("content")
         .and_then(Value::as_array)
         .ok_or("content list missing")?;
     let structured = result.get("structuredContent");
     let failed = result.get("isError") == Some(&json!(true));
-    if form == "once" && !failed {
+    let form = form.unwrap_or(if failed { "both" } else { "once" });
+    if form == "once" {
         if !blocks.is_empty() {
-            return Err(format!("once repeats JSON as text: {result}"));
+            return Err("once requires empty content".into());
         }
-        return structured.cloned().ok_or("structured JSON missing".into());
+        return structured
+            .cloned()
+            .ok_or("once requires structuredContent".into());
     }
     let [block] = blocks.as_slice() else {
         return Err("expected one content block".into());
@@ -219,8 +287,8 @@ pub(super) fn check_content(result: &Value, form: &str) -> Result<Value, String>
     match (form, structured) {
         ("both", Some(copy)) if copy == &value => Ok(value),
         ("both", _) => Err("JSON copies differ".into()),
-        ("once" | "text-only", None) => Ok(value),
-        ("once" | "text-only", Some(_)) => Err(format!("{form} repeats JSON")),
+        ("text-only", None) => Ok(value),
+        ("text-only", Some(_)) => Err("text-only repeats JSON".into()),
         _ => Err("unknown test form".into()),
     }
 }

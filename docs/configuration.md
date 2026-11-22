@@ -144,7 +144,14 @@ Flag fields override file fields for that source. Other fields and sources remai
 
 ## MCP reply form
 
-`mcp_reply_form` accepts `once`, `both` (JSON text plus `structuredContent`), `structured-only` (JSON in `structuredContent` plus a one-line text note), or `text-only` (JSON text). The default for local servers, `once`, sends the JSON one time: a successful reply puts it in `structuredContent` with an empty text list, and an error reply puts it in text with no `structuredContent`. Claude Code shows the model `structuredContent` on success and only the text of an error, and clients that prefer text show `structuredContent` when no text is sent. Hosted servers (`serve --hosted --http`) default to `both` until every client they serve has been checked. Choose `both` for a client that shows only text, and `text-only` only for a client that ignores the output schema, since MCP requires structured results from a tool that declares one. The setting applies to all MCP tools over stdio and HTTP, including error replies. When included, the output schema describes that JSON value regardless of reply form. Next steps in MCP replies never carry the server's `--config` path.
+Set `mcp_reply_form` to choose where MCP tools put the JSON reply over stdio and HTTP. Each setting uses the same layout for successes and errors.
+
+- `once` puts JSON in `structuredContent` and leaves `content` empty.
+- `both` puts JSON in `structuredContent` and in a text block in `content`.
+- `structured-only` puts JSON in `structuredContent` and includes a one-line note in `content`.
+- `text-only` puts JSON in a text block in `content`.
+
+With the setting omitted, local servers use the `once` layout for successes and the `both` layout for errors. Hosted servers (`serve --hosted --http`) default to `both` for every reply. Choose `both` for a client that shows only text. Use `text-only` only with a client that ignores the output schema, since MCP requires structured results from tools that declare one. When included, the output schema describes the JSON value in every form. Next steps in MCP replies never carry the server's `--config` path.
 
 ## Hosted servers
 
