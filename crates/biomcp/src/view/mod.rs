@@ -97,10 +97,15 @@ impl View<'_> {
             return;
         };
         state_note(value, out);
+        let arm_section = fields
+            .get("arms")
+            .and_then(Value::as_array)
+            .zip(eligibility_arm_schema(schema, self.root));
         for (name, value) in fields {
             // The coordinate note already leads the text as prose.
             if name == "schema"
                 || name == "coordinate_note"
+                || (name == "arms" && arm_section.is_some())
                 || (name == "query"
                     && (value.is_null()
                         || value.as_object().is_some_and(serde_json::Map::is_empty)))
@@ -109,9 +114,6 @@ impl View<'_> {
             }
             let node = property(schema, name, self.root).unwrap_or(&Value::Null);
             if value.as_array().is_some_and(Vec::is_empty) && node.get("default") == Some(value) {
-                continue;
-            }
-            if self.eligibility_arms(value, node, depth, out) {
                 continue;
             }
             if (value.is_object() || value.is_array()) && nonfinite(value).is_none() {
@@ -143,25 +145,18 @@ impl View<'_> {
                 out.push_str(&format!("**{}:** {}\n\n", escape(name), scalar(value)));
             }
         }
+        if let Some((arms, item_schema)) = arm_section {
+            self.eligibility_arms(arms, item_schema, depth, out);
+        }
     }
+
     fn eligibility_arms(
         &self,
-        value: &Value,
-        schema: &Value,
+        arms: &[Value],
+        item_schema: &Value,
         depth: usize,
         out: &mut String,
-    ) -> bool {
-        let Some(item_schema) = member(schema, "items", self.root) else {
-            return false;
-        };
-        if item_schema.get("$ref").and_then(Value::as_str)
-            != Some("#/$defs/Reply_TrialEligibilityArm")
-        {
-            return false;
-        }
-        let Some(arms) = value.as_array() else {
-            return false;
-        };
+    ) {
         let depth = depth.min(4);
         heading("arms", depth, out);
         for arm in arms {
@@ -170,11 +165,10 @@ impl View<'_> {
                 .as_object_mut()
                 .and_then(|fields| fields.remove("heading"));
             if let Some(title) = title.as_ref().and_then(Value::as_str) {
-                heading(title, depth + 1, out);
+                out.push_str(&format!("{} {}\n\n", "#".repeat(depth + 1), escape(title)));
             }
             self.object(&criteria, item_schema, depth + 2, out);
         }
-        true
     }
 
     fn render(&self, value: &Value, schema: &Value, depth: usize, out: &mut String) {
@@ -296,6 +290,12 @@ fn state_note(value: &Value, out: &mut String) {
         _ => {}
     }
 }
+fn eligibility_arm_schema<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
+    let item = member(property(node, "arms", root)?, "items", root)?;
+    (item.get("$ref").and_then(Value::as_str) == Some("#/$defs/Reply_TrialEligibilityArm"))
+        .then_some(item)
+}
+
 fn heading(name: &str, depth: usize, out: &mut String) {
     out.push_str(&format!(
         "{} {}\n\n",
