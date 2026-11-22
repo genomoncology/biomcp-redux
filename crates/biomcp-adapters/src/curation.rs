@@ -1,7 +1,8 @@
 //! Index native disease identifiers and names in the validity exports.
 use crate::Mapped;
+use biodata::Text;
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Keys};
-use biomcp_types::{DiseaseCuration, DiseaseId, Text};
+use biomcp_types::{DiseaseCuration, DiseaseId};
 use caseless::Caseless;
 
 /// One export's checked matches and the snapshot that supplied them.
