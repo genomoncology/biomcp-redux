@@ -10,7 +10,7 @@ pub struct VariantAssertions {
     #[serde(default)]
     pub total: u64,
     /// Source assertion rows in native order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub assertions: Box<[VariantAssertion]>,
     /// Page bounds over native rows.
     pub page: PageInfo,

@@ -36,7 +36,7 @@ pub struct ProteinDomains {
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,
     /// Bounded retained rows in source order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinDomainMatch]>,
     /// How to read the spans above; present when any row has a fragment, but not inside a card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -65,7 +65,7 @@ pub struct ProteinComplexes {
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,
     /// Bounded retained rows in source order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinComplexHeader]>,
 }
 impl ResponseBody for ProteinComplexes {
@@ -178,7 +178,7 @@ pub struct ProteinFunctionResult {
     #[serde(default)]
     pub total: u64,
     /// Native paragraphs in source order, without inferred interpretation.
-    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinFunction]>,
 }
 impl ResponseBody for ProteinFunctionResult {
@@ -211,7 +211,7 @@ pub struct ProteinInteractions {
     /// products of one gene, such as CDKN2A's P42771 and Q8N726, share one entry and one partner list.
     pub string_id: Text,
     /// Bounded first rows in STRING's order, highest combined score first.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinInteraction]>,
 }
 /// One STRING functional association; a score is STRING's confidence (0 to 1), not a measured affinity.
@@ -265,7 +265,7 @@ pub struct ProteinChembl {
     #[serde(default)]
     pub total: u64,
     /// The targets, each with its assay and activity totals.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinChemblTarget]>,
 }
 /// One ChEMBL target; its totals are ChEMBL's own counts, not rows BioMCP read.

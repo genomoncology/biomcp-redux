@@ -100,7 +100,7 @@ pub struct AdverseEventPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fetched: Option<u64>,
     /// Native ordered report candidates.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[AdverseEventHeader]>,
     /// Explicit reports unit for envelope page totals.
     pub unit: ReportUnit,
@@ -239,7 +239,7 @@ pub struct AdverseEventRecords<T> {
     /// Complete selected section length, not report or patient count.
     pub total: u64,
     /// Source ordered whole rows.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub records: Box<[T]>,
 }
 macro_rules! section {
@@ -300,7 +300,7 @@ pub struct AdverseEventIdentifierRecords {
     /// Complete selected array length.
     pub total: u64,
     /// Published identifier strings without rewriting.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub records: Box<[Box<str>]>,
 }
 macro_rules! identifiers {

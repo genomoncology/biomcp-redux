@@ -34,7 +34,7 @@ pub struct DrugSafetySignalPage {
     /// FDA's statement on the meaning of a listing.
     pub caution: Box<str>,
     /// Matching rows.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[DrugSafetySignal]>,
 }
 

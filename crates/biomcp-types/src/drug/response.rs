@@ -96,7 +96,7 @@ pub struct DrugPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub total: Option<u64>,
     /// Native candidates, preserving their separate identity levels.
-    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[DrugHeader]>,
 }
 /// One bounded native row page, without fabricating an unknown total.
@@ -116,7 +116,7 @@ pub struct DrugRecords<T> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub truncated: Option<bool>,
     /// Native source rows in order.
-    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[serde(default)]
     pub records: Box<[T]>,
     /// Dataset or bundle revision.
     #[serde(default, skip_serializing_if = "Option::is_none")]

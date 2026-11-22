@@ -59,7 +59,7 @@ pub struct DiseaseCurationCoverage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DiseaseValidity {
     /// Curations on this page in source order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[DiseaseCuration]>,
     /// Coverage and retrieval dates for readable copies.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

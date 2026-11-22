@@ -10,6 +10,6 @@ pub struct Capped<T> {
     /// Distinct references before capping.
     pub total: u64,
     /// References in stable source order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[T]>,
 }

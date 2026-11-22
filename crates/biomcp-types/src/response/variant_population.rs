@@ -70,7 +70,7 @@ pub struct VariantGwas {
     #[serde(default)]
     pub total: u64,
     /// Native source associations, without inferred clinical meaning.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub associations: Box<[GwasAssociation]>,
     /// Exact source page bounds and total.
     pub page: crate::PageInfo,

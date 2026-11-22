@@ -45,7 +45,7 @@ pub struct VariantOncokb {
     /// Disclosure bounds over the records, independent of identity paging.
     pub page: PageInfo,
     /// Source claims and text in native field order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub records: Box<[OncokbVariantRecord]>,
     /// Continue without changing identity, build, tumor context or source.
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -98,7 +98,7 @@ pub struct ArticleItem {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticlePage {
     /// Original ordered items.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ArticleItem]>,
     /// Nearby source candidates when an exact variant was not uniquely selected.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -126,7 +126,7 @@ pub struct ArticleEdgePage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub order: Option<EdgeOrder>,
     /// Papers in the fixed edge pool.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ArticleEdgeItem]>,
 }
 impl super::ResponseBody for ArticleEdgePage {

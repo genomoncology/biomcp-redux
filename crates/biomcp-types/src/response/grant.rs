@@ -12,7 +12,7 @@ pub struct GrantPage {
     /// How to read the rows: what the total counts, how to add amounts and how names match.
     pub hint: Box<str>,
     /// Award rows on this page.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[Grant]>,
 }
 

@@ -20,7 +20,7 @@ pub struct VariantHotspots {
     /// Disclosure bounds for this section.
     pub page: PageInfo,
     /// Native residue records in source order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub records: Box<[HotspotRecord]>,
     /// Continue this section without changing identity selectors.
     #[serde(skip_serializing_if = "Option::is_none")]

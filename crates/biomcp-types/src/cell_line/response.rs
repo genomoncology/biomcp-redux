@@ -30,7 +30,7 @@ pub struct CellLineHeader {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct CellLinePage {
     /// Native result order, without reranking or selected identity.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[CellLineHeader]>,
     /// What a variation filter matched; only variation-filtered searches carry it.
     #[serde(default, skip_serializing_if = "Option::is_none")]

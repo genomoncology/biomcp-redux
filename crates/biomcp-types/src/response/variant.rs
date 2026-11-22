@@ -124,7 +124,7 @@ pub struct VariantPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub excluded: Option<VariantSearchExclusions>,
     /// Native source order, preserving every candidate including repeated source identities.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[VariantHeader]>,
 }
 /// Count of candidates withheld from a fallback search, with a stable reason.

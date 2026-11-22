@@ -47,7 +47,7 @@ pub struct DrugWhoPage {
     /// Matching rows in the complete local snapshot.
     pub total: u64,
     /// Bounded native rows in export order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[DrugWhoRow]>,
 }
 /// Source-scoped native rows for one exact WHO reference.

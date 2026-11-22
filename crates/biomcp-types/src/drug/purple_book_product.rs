@@ -96,7 +96,7 @@ pub struct DrugPurpleBookProducts {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub references: Box<[PurpleBookReference]>,
     /// Biosimilar products in BLA order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[PurpleBookProduct]>,
 }
 
