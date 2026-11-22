@@ -1,5 +1,8 @@
 //! Execute canonical case steps and assert their actual emitted bytes.
-use super::{Step, Value, assertions, launch, mcp, pathway_budgets, schema};
+use super::{
+    Step, Value, assertions, launch, mcp, pathway_budgets, protocol::typed_followups, research,
+    schema,
+};
 use std::{io::Write, process::Stdio};
 pub(super) fn run_step(
     step: &Step,
@@ -29,37 +32,19 @@ pub(super) fn run_step(
         names_argument(cli, &step.run)?;
         line_breaks_read_as_text(cli)?;
     }
-    let mut answer = cli.clone();
-    if let Some(args) = &step.mcp {
-        let (result, text) = if step.hosted {
-            mcp::call_text_hosted(environment, args, step.is_error, &globals)?
-        } else if step.http {
-            mcp::call_text_http(environment, args, step.is_error, &globals)?
-        } else {
-            mcp::call_text_with_globals(environment, args, step.is_error, &globals)?
-        };
-        registry.validate(&result, args, !step.is_error)?;
-        if step.is_error || !narrowed(args) {
-            super::reply_readback::check(text.as_bytes(), &result, true)?;
-        }
-        pathway_budgets::help(&result, args, "mcp")?;
-        assertions::check(text.as_bytes(), step, expectations)?;
-        if step.full_output_bytes {
-            writeln!(
-                std::io::stderr(),
-                "RAW_OUTPUT mcp-text {:?} {}",
-                args,
-                text.len()
-            )
-            .map_err(|e| e.to_string())?;
-        }
-        names_argument(&result, args)?;
-        line_breaks_read_as_text(&result)?;
-        answer = Some(result.clone());
-        if let Some(cli) = cli.as_ref() {
-            parity(cli, &result, args)?;
-        }
-    }
+    let mut answer = if let Some(args) = &step.mcp {
+        Some(run_mcp(
+            args,
+            step,
+            environment,
+            expectations,
+            registry,
+            &globals,
+            cli.as_ref(),
+        )?)
+    } else {
+        cli
+    };
     if let Some(call) = &step.mcp_call {
         let value = named(call, step, environment, expectations, &globals)?;
         names_argument(&value, &call.name)?;
@@ -67,6 +52,60 @@ pub(super) fn run_step(
         answer = Some(value);
     }
     answer.ok_or_else(|| "step requires run, mcp or mcp_call".into())
+}
+
+fn run_mcp(
+    args: &[String],
+    step: &Step,
+    environment: &launch::Environment,
+    expectations: &assertions::Expectations<'_>,
+    registry: &schema::Registry,
+    globals: &[String],
+    cli: Option<&Value>,
+) -> Result<Value, String> {
+    let (result, text) = if step.hosted {
+        mcp::call_text_hosted(environment, args, step.is_error, globals)?
+    } else if step.http {
+        mcp::call_text_http(environment, args, step.is_error, globals)?
+    } else {
+        mcp::call_text_with_globals(environment, args, step.is_error, globals)?
+    };
+    let typed = cli.is_some() && environment.typed_mcp().map_err(|error| error.to_string())?;
+    if typed {
+        let tools = research::catalog(environment, globals)?;
+        research::validate_reply_schema(&tools, "biomcp", &result)?;
+        typed_followups::check_next(&result, &tools, &mut 0)?;
+    } else {
+        registry.validate(&result, args, !step.is_error)?;
+        if step.is_error || !narrowed(args) {
+            super::reply_readback::check(text.as_bytes(), &result, true)?;
+        }
+    }
+    pathway_budgets::help(&result, args, "mcp")?;
+    assertions::check(text.as_bytes(), step, expectations)?;
+    if step.full_output_bytes {
+        writeln!(
+            std::io::stderr(),
+            "RAW_OUTPUT mcp-text {:?} {}",
+            args,
+            text.len()
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    names_argument(&result, args)?;
+    line_breaks_read_as_text(&result)?;
+    if let Some(cli) = cli {
+        if typed {
+            parity(
+                &typed_followups::data(cli),
+                &typed_followups::data(&result),
+                args,
+            )?;
+        } else {
+            parity(cli, &result, args)?;
+        }
+    }
+    Ok(result)
 }
 
 fn cli(
@@ -216,7 +255,7 @@ fn named(
 
 /// Every argument refusal names the option or argument at fault, so the caller knows what
 /// to change.
-fn names_argument(reply: &Value, call: &impl std::fmt::Debug) -> Result<(), String> {
+fn names_argument(reply: &Value, call: &(impl std::fmt::Debug + ?Sized)) -> Result<(), String> {
     if reply.pointer("/error/code") == Some(&Value::from("usage.arguments"))
         && reply.pointer("/error/option").is_none()
     {
