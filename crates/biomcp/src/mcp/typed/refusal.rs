@@ -105,6 +105,19 @@ pub(super) fn fix(
     Some(step)
 }
 
+/// Preserve the parser's specific recovery for a source the lookup does not accept.
+pub(super) fn source(
+    root: &crate::grammar::Root,
+    path: &[&str],
+    args: &[OsString],
+    values: &Value,
+) -> Option<biomcp_types::UsageError> {
+    let source = values.get("source")?.as_str()?;
+    let mut args = args.to_vec();
+    args.insert(2, format!("--source={source}").into());
+    crate::grammar::source_refusal::for_command(root, path, Some("--source"), &args)?.usage
+}
+
 pub(super) fn arguments(
     refused: &super::forms::Refused,
     help: &[&str],

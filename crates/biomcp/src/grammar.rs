@@ -25,7 +25,7 @@ mod recovery;
 mod repeated;
 pub(crate) use recovery::prepared;
 mod sections;
-mod source_refusal;
+pub(crate) mod source_refusal;
 mod tree;
 pub(crate) use tree::Root;
 mod validation;
