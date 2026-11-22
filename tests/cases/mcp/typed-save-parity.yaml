@@ -10,4 +10,8 @@ steps:
     mcp: [search, trial, --condition, melanoma]
     expect:
       /status: complete
-      /result/items/0/nct_id: NCT02296125
+      /result/items/0/nct_id: NCT04631731
+  - follow: save
+    expect:
+      /status: complete
+      /result/searches/0/args: {equals: [search, trial, --condition=melanoma]}
