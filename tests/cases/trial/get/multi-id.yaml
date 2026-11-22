@@ -152,9 +152,7 @@
         "trial"
       ],
       "expect": {
-        "/result/commands/0/arguments/1/description": {
-          "includes": "Space or comma."
-        }
+        "/result/commands/0/arguments/1/description": "1–20 NCT IDs. Space or comma.\nForm: get trial INPUT...; not --input."
       }
     }
   ]
