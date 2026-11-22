@@ -1,6 +1,6 @@
 //! Find one executable typed tool without reading the full catalog first.
 use super::{Environment, reply, request};
-use crate::runner::{http::Server, mcp::exchange_with_globals};
+use crate::runner::{http::Server, launch::fixtures, mcp::exchange_with_globals};
 use serde_json::{Value, json};
 
 fn compact_list() -> Value {
@@ -35,7 +35,8 @@ pub(super) fn check() -> Result<(), String> {
             }),
         ),
     ];
-    let replies = exchange_with_globals(&env, &frames, &["--offline".into()])?;
+    let replay = fixtures().join("replies/trial/condition");
+    let replies = exchange_with_globals(&env, &frames, &env.globals(Some(&replay), false))?;
     let get = |id: &str| reply(&replies, &json!(id));
     let compact = &get("compact")?["result"]["tools"];
     if compact.as_array().map(Vec::len) != Some(1)
@@ -69,8 +70,23 @@ pub(super) fn check() -> Result<(), String> {
     if get("miss")?["result"]["structuredContent"]["tools"] != json!([]) {
         return Err("no-match discovery must return an empty tools array".into());
     }
-    if !get("trial")?["result"]["structuredContent"].is_object() {
-        return Err("discovered trial tool was not callable".into());
+    if get("trial")?["result"]["structuredContent"]["status"] != "complete" {
+        return Err("discovered trial tool did not complete its recorded search".into());
+    }
+    default_list(&env)
+}
+
+fn default_list(env: &Environment) -> Result<(), String> {
+    let flags = ["--offline".into(), "--tool-mode".into(), "single".into()];
+    let frames = [
+        compact_list(),
+        request(json!("full"), "tools/list", json!({})),
+    ];
+    let replies = exchange_with_globals(env, &frames, &flags)?;
+    let compact = &reply(&replies, &json!("compact"))?["result"]["tools"];
+    let full = &reply(&replies, &json!("full"))?["result"]["tools"];
+    if compact != full || full.as_array().map(Vec::len) != Some(3) {
+        return Err("the compact option changed the default three-tool list".into());
     }
     Ok(())
 }
