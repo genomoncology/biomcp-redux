@@ -52,18 +52,20 @@ Mount a Docker named volume at the container's `XDG_CACHE_HOME` path to keep the
 
 `help` supplies command contracts and examples, and the `biomcp` tool retains the complete CLI grammar. Research `search` and `fetch` remain available. Typed calls return the JSON reply alone, with no summary line. Set `"mcp_tool_mode": "typed"` in configuration for the same behavior. The flag overrides configuration. `single` remains the default and keeps the CLI-argument tool and research compatibility tools. Hosted restrictions apply in either mode, and hidden sources disappear from each action's schema. Typed mode follows `mcp_reply_form`. The result cap counts the JSON value once in either tool mode. Typed `next` entries carry `kind`, `name` and `arguments`, where `name` is an entity tool and `arguments` holds its `action` and action object. Sections use the command's `section` field inside the action object. A section step, a section page's own call, and a refusal's corrected call may also carry `options`: the other arguments that call takes, under the action's own names, each with a placeholder such as `<YYYY-MM-DD>` to fill in. The CLI step carries the same `options` keyed by flag, such as `--decision-from`. Replies omit inherited CLI globals and server paths from these calls, and omit suggestions that the effective catalog cannot execute. Earlier typed tool names are retired; the [release notes](../release/notes.md#typed-tool-names-for-0x-and-hosted-users) map each to its new tool and action.
 
-Set `"mcp_typed_output_schema": true` to include reply envelope schemas on the entity tools. The shared `biomcp`, research `search` and `fetch` tools retain their output schemas in either setting. `mcp_typed_enum_limit` sets the largest choice list advertised inline (default 30); larger lists use strings, with accepted values checked by the CLI parser. Section words are never listed inline at any limit; each action's description names them. Both settings apply only to typed discovery; each tool's `action` list always names every action. For example:
+Typed mode includes compact output schemas for entity tools, `help` and `saved` by default. These schemas describe the reply envelope, the names and JSON types of the result's top-level fields, and one row's fields when applicable. Use the advertised schema ID with `biomcp schema <id>` for the full contract. Command help also lists reply schema IDs. Set `"mcp_typed_output_schema": false` to omit the compact schemas. The shared `biomcp`, research `search` and `fetch` tools advertise their output schemas in either setting.
+
+`mcp_typed_enum_limit` sets the largest input choice list advertised inline (default 30). Larger lists use strings, with accepted values checked by the CLI parser. Each action's description names its section choices. Both settings apply only to typed discovery, and each tool's `action` list always names every action. This configuration selects typed mode with the default schemas and choice limit.
 
 ```json
 {
   "mcp_tool_mode": "typed",
-  "mcp_typed_output_schema": true,
   "mcp_typed_enum_limit": 30
 }
 ```
 
+`mcp_typed_tool_limit` and `mcp_typed_definition_bytes` set positive ceilings on the typed catalog. The defaults are 20 tools and 192 KiB of compact UTF-8 definitions. Setting `"mcp_typed_output_schema": false` uses a 128 KiB byte ceiling. An explicit `mcp_typed_definition_bytes` value overrides either default. These ceilings apply only to typed discovery. [Typed budget configuration](../crates/biomcp/src/config/mcp.rs)
 
-`mcp_typed_tool_limit` and `mcp_typed_definition_bytes` set positive ceilings on the complete typed catalog. Defaults are 20 tools, 128 KiB of compact UTF-8 tool definitions, or 192 KiB when output schemas are explicitly enabled; their owner is [the typed budget configuration](../crates/biomcp/src/config/mcp.rs). Counts include help, research and escape-hatch tools. Bytes include descriptions, annotations and any output schemas, excluding the JSON-RPC envelope and server instructions. A catalog exceeding either ceiling returns an error naming the required size and configured limits. Clinical tools and complete descriptions are retained. An explicit `mcp_typed_definition_bytes` value overrides either default, including when output schemas are enabled. Larger catalogs may require a larger configured byte ceiling. Single mode is unaffected.
+The 18-tool default typed `tools/list` catalog measured **190,876 bytes** over stdio. This measures the `tools` array, including descriptions, annotations and output schemas. The JSON-RPC envelope and server instructions are outside that count. A catalog exceeding either ceiling returns an error naming the required size and configured limits.
 
 ## HTTP capacity
 
