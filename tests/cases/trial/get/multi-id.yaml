@@ -1,0 +1,159 @@
+{
+  "feature": "trial-get",
+  "story": "Space-separated and comma-separated trial IDs keep caller order and the selected flow fields. Empty entries give a copyable batch correction.",
+  "live_check": "synthetic ClinicalTrials.gov results for the two reported IDs",
+  "replay": "trial/get/synthetic-multi-id",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04657016",
+        "NCT04660643",
+        "flow",
+        "--fields=record,data.title,data.milestones"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "record",
+          "data.title",
+          "data.milestones"
+        ],
+        "/result/items/*/input": [
+          "NCT04657016",
+          "NCT04660643"
+        ],
+        "/result/items/*/sections/flow/data/items/1/record": [
+          "flow-period",
+          "flow-period"
+        ],
+        "/result/items/*/sections/flow/data/items/1/data/title": [
+          "Synthetic period 1",
+          "Synthetic period 2"
+        ],
+        "/result/items/*/sections/flow/data/items/1/data/milestones/0/type": [
+          "STARTED",
+          "STARTED"
+        ],
+        "/result/items/0/sections/flow/data/items/0/data": {
+          "omits": [
+            "id"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04657016,NCT04660643",
+        "flow",
+        "--fields=record,data.title,data.milestones"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT04657016,NCT04660643",
+        "flow",
+        "--fields=record,data.title,data.milestones"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "record",
+          "data.title",
+          "data.milestones"
+        ],
+        "/result/items/*/input": [
+          "NCT04657016",
+          "NCT04660643"
+        ],
+        "/result/items/*/sections/flow/data/items/1/record": [
+          "flow-period",
+          "flow-period"
+        ],
+        "/result/items/*/sections/flow/data/items/1/data/title": [
+          "Synthetic period 1",
+          "Synthetic period 2"
+        ],
+        "/result/items/*/sections/flow/data/items/1/data/milestones/0/type": [
+          "STARTED",
+          "STARTED"
+        ],
+        "/result/items/0/sections/flow/data/items/0/data": {
+          "omits": [
+            "id"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04657016,,NCT04660643",
+        "flow",
+        "--fields=record,data.title,data.milestones"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "input",
+        "/next/0/args": [
+          "--fields=record,data.title,data.milestones",
+          "get",
+          "trial",
+          "NCT04657016",
+          "NCT04660643",
+          "flow"
+        ],
+        "/error/valid_values": [
+          "Separate IDs with spaces or commas."
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "record",
+          "data.title",
+          "data.milestones"
+        ],
+        "/result/items/*/input": [
+          "NCT04657016",
+          "NCT04660643"
+        ],
+        "/result/items/*/sections/flow/data/items/1/record": [
+          "flow-period",
+          "flow-period"
+        ],
+        "/result/items/*/sections/flow/data/items/1/data/title": [
+          "Synthetic period 1",
+          "Synthetic period 2"
+        ],
+        "/result/items/*/sections/flow/data/items/1/data/milestones/0/type": [
+          "STARTED",
+          "STARTED"
+        ],
+        "/result/items/0/sections/flow/data/items/0/data": {
+          "omits": [
+            "id"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "trial"
+      ],
+      "expect": {
+        "/result/commands/0/arguments/1/description": "1–20 NCT IDs. Space or comma.\nForm: get trial INPUT...; not --input."
+      }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 # 1103 — make-multi-id-syntax-consistent
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 28fe2a547a36d333dd8a6358f8764071a82b3940
 
 Milestone: 7
 

@@ -1,0 +1,25 @@
+{
+  "feature": "protein-search",
+  "story": "Protein batches keep accessions, including isoforms, in comma-list order.",
+  "live_check": "synthetic control",
+  "replay": "protein/synthetic",
+  "cache_acquired": 42,
+  "steps": [
+    {
+      "run": [
+        "get",
+        "protein",
+        "P38398-2,P00533",
+        "Q9UIF7"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/header/protein/accession": [
+          "P38398-2",
+          "P00533",
+          "Q9UIF7"
+        ]
+      }
+    }
+  ]
+}

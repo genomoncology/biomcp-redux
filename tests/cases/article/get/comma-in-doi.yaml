@@ -1,0 +1,22 @@
+{
+  "feature": "article-get",
+  "story": "A valid DOI containing a comma remains one identifier even when its suffix looks like a PubMed ID.",
+  "live_check": "local replay without a match for the synthetic DOI",
+  "replay": "article/get/synthetic-derived",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "10.1234/alpha,12345"
+      ],
+      "exit": 5,
+      "expect": {
+        "/status": "failed",
+        "/query/input": [
+          "10.1234/alpha,12345"
+        ]
+      }
+    }
+  ]
+}

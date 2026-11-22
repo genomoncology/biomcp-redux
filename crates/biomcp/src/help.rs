@@ -304,6 +304,13 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
             .iter()
             .flat_map(|(name, node)| arguments(name, node, &schema))
             .collect::<Vec<_>>();
+        if let Some(help) = crate::grammar::batch_id_help(verb, entity)
+            && let Some(input) = arguments
+                .iter_mut()
+                .find(|argument| argument.name == "input")
+        {
+            input.description = help.into();
+        }
         if (verb, entity) == ("get", "gene") {
             arguments.sort_by_key(|argument| argument.position.is_none());
         }
