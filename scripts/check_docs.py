@@ -297,7 +297,7 @@ def commercial_setup(root):
 
 
 def check_skill_examples(root, skill):
-    examples = {tuple(shlex.split(line)[1:])
+    examples = {tuple(shlex.split(line, comments=True)[1:])
                 for block in re.findall(r"```sh\n(.*?)```", skill, re.S)
                 for line in block.splitlines() if line.startswith("biomcp ")}
     for path in (root / "tests/cases").rglob("*.yaml"):
