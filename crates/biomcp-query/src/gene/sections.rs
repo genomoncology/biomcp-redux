@@ -7,6 +7,7 @@ mod gencc;
 mod oncokb;
 mod pathways;
 mod protein;
+mod value;
 use crate::Ctx;
 use biodata::{Gene, HgncId};
 
@@ -88,14 +89,16 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, G
         let Some(GeneResolution::Resolved { gene, .. }) = &item.answer else {
             continue;
         };
-        item.more = SECTIONS
-            .into_iter()
-            .filter(|section| {
-                !requested.contains(section)
-                    && applicable(*section, gene)
-                    && *section != GeneSection::Oncokb
-            })
-            .collect();
+        if !query.section_only() {
+            item.more = SECTIONS
+                .into_iter()
+                .filter(|section| {
+                    !requested.contains(section)
+                        && applicable(*section, gene)
+                        && *section != GeneSection::Oncokb
+                })
+                .collect();
+        }
         if !requested.is_empty() {
             item.sections = Some(GeneSections {
                 protein: requested
@@ -241,61 +244,12 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(pathways::run(cx, deadline, genes))
         }));
     }
-    if !genes.is_empty() {
+    if !query.section_only() && !genes.is_empty() {
         jobs.push(Box::new(move || {
             super::get::Job::Section(oncokb::run(cx, deadline, genes))
         }));
     }
     jobs
-}
-impl SectionValue {
-    fn unavailable(&self) -> bool {
-        match self {
-            Self::Protein(value) => matches!(value, Section::Unavailable { .. }),
-            Self::Civic(value) => matches!(value, Section::Unavailable { .. }),
-            Self::ClinGen(Section::Data { data, .. }) => {
-                [&data.validity_status, &data.dosage_status]
-                    .into_iter()
-                    .any(|outcome| {
-                        matches!(
-                            outcome.state,
-                            SourceState::Failed | SourceState::Stale | SourceState::Syncing
-                        )
-                    })
-            }
-            Self::ClinGen(value) => matches!(value, Section::Unavailable { .. }),
-            Self::Gencc(value) => matches!(value, Section::Unavailable { .. }),
-            Self::ClinVar(value) => matches!(value, Section::Unavailable { .. }),
-            Self::Constraint(value) => matches!(value, Section::Unavailable { .. }),
-            Self::Expression(value) => matches!(value, Section::Unavailable { .. }),
-            Self::Pathways(value) => matches!(value, Section::Unavailable { .. }),
-            Self::Oncokb(value, _, _) => matches!(value, Section::Unavailable { .. }),
-        }
-    }
-    fn apply(&self, item: &mut GeneItem) {
-        if let Self::Oncokb(_, card, partial) = self {
-            item.oncokb = card.clone();
-            if *partial {
-                item.status = crate::status::item_status(true, false, true);
-            }
-        }
-        if let Some(sections) = &mut item.sections {
-            match self {
-                Self::Protein(value) => sections.protein = Some(value.clone()),
-                Self::Civic(value) => sections.civic = Some(value.clone()),
-                Self::ClinGen(value) => sections.clingen = Some(value.clone()),
-                Self::Gencc(value) => sections.gencc = Some(value.clone()),
-                Self::ClinVar(value) => sections.clinvar = Some(value.clone()),
-                Self::Constraint(value) => sections.constraint = Some(value.clone()),
-                Self::Expression(value) => sections.expression = Some(value.clone()),
-                Self::Pathways(value) => sections.pathways = Some(value.clone()),
-                Self::Oncokb(value, _, _) if sections.oncokb.is_some() => {
-                    sections.oncokb = Some(value.clone())
-                }
-                Self::Oncokb(..) => {}
-            }
-        }
-    }
 }
 pub(super) fn join(items: &mut [GeneItem], result: &SectionResult) {
     for item in items {

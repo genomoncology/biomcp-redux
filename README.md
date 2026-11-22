@@ -44,6 +44,20 @@ Trial and article searches expand a whole drug name to the other names stated by
 
 Trial search's `--variant` searches a trial's general text and its eligibility criteria in one ClinicalTrials.gov query. A protein change (V600E) also searches its other spellings (Val600Glu, p.V600E, p.Val600Glu), and an exon deletion or insertion (exon 19 deletion) its common short forms (ex19del, 19del, del19). With `--gene`, a protein change also searches its codon (V600, V600X), which matches trials written for any change at that position; the reply names each returned trial that matched only that way. `--criteria` searches the same spellings in eligibility criteria. A source notice lists what was searched, and `--exact-term` searches the typed text alone, in general text only for `--variant`.
 
+For a compact gene constraint batch, ask for the constraint section and select its fields:
+
+```sh
+biomcp get gene ATR RAD17 KAT5 RAD51 CHEK1 constraint --section-only --fields=loeuf,transcript
+```
+
+In typed MCP, call `gene` with:
+
+```json
+{"action":"get","get":{"id":["ATR","RAD17","KAT5","RAD51","CHEK1"],"section":"constraint","section_only":true},"fields":["loeuf","transcript"]}
+```
+
+Each resolved row includes its requested input, HGNC ID and symbol, and the constraint section with its release, transcript and source. Omit `--section-only` or `section_only` to read the full cards.
+
 These commands come from recorded cases. Live replies can change. Inspect source outcomes before interpreting a result. Follow returned next commands to page records, inspect source sections or resolve an ambiguous identity. A missing result does not establish absence.
 
 JSON is the default output. A search with no matches has `page.total` and `page.returned` 0 and an empty `result.items` array. Use `--format md` for readable Markdown with tables and copyable next commands, or set `"format": "md"` in configuration. MCP always returns JSON. The [command reference](docs/reference/commands.md) lists every command, option and section. The [worked commands](docs/recipes.md) provide more examples. The [source and entity cautions](docs/cautions.md) explain interpretation limits.

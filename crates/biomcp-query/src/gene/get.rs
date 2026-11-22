@@ -2,12 +2,12 @@ use super::{next, resolve, sections};
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::{clinvar::GENE_COUNTS, hgnc, mygene};
-use biomcp_types::GeneResolution;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     GeneCards, GeneGet, GeneItem, Incomplete, Problem, ProblemCode, Source, SourceNotice,
     SourceState, Status,
 };
+use biomcp_types::{GeneIdentity, GeneResolution};
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     // ClinVar gene counts declare a longer budget than the default; other legs keep their caps.
@@ -44,7 +44,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
         .filter_map(|(_, gene)| gene.entrez_id)
         .collect();
     let mut jobs = sections::jobs(cx, deadline, query, &genes);
-    if !ids.is_empty() {
+    if !query.section_only() && !ids.is_empty() {
         jobs.insert(
             0,
             Box::new(|| {
@@ -75,11 +75,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     }
     sections::offer_oncokb(query, &mut items, &sources);
     let state = status::status(items.iter().map(|item| item.status));
+    let next = next::get(query, &items, &sources, &mut problems);
+    if query.section_only() {
+        retain_identities(&mut items);
+    }
     let mut out = crate::status::finish(
         [state],
         crate::status::Parts {
             dropped: false,
-            next: next::get(query, &items, &sources, &mut problems),
+            next,
             body: (GeneCards {
                 items: items.into(),
             })
@@ -92,6 +96,19 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     );
     out.incomplete = incomplete;
     out
+}
+fn retain_identities(items: &mut [GeneItem]) {
+    for item in items {
+        if let Some(GeneResolution::Resolved { gene, r#match }) = &item.answer {
+            item.answer = Some(GeneResolution::ResolvedIdentity {
+                gene: GeneIdentity {
+                    hgnc_id: gene.hgnc_id,
+                    symbol: gene.symbol.clone(),
+                },
+                r#match: r#match.clone(),
+            });
+        }
+    }
 }
 fn join(
     item: &mut GeneItem,

@@ -164,7 +164,7 @@ pub use article::{
 pub use article::{ArticleHeader, Indexing, MeshHeading, MeshQualifier, PublicationType};
 
 pub use query::GeneInput;
-pub use response::{GeneHeader, GeneResolution, Match};
+pub use response::{GeneHeader, GeneIdentity, GeneResolution, Match};
 
 pub use response::TrialHeader;
 

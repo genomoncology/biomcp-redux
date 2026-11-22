@@ -34,6 +34,15 @@ pub struct GeneHeader {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#match: Option<Match>,
 }
+/// The identity retained when reading a gene section alone.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GeneIdentity {
+    /// HGNC identifier.
+    pub hgnc_id: HgncId,
+    /// Source-preserved symbol.
+    pub symbol: GeneSymbol,
+}
 /// Resolution outcomes preserve ambiguity and withdrawn identity.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "resolution", rename_all = "kebab-case")]
@@ -43,6 +52,13 @@ pub enum GeneResolution {
     Resolved {
         /// The whole gene entity.
         gene: Box<Gene>,
+        /// How the source matched the input.
+        r#match: Match,
+    },
+    /// One resolved identity in a section-only read.
+    ResolvedIdentity {
+        /// Resolved HGNC identity.
+        gene: GeneIdentity,
         /// How the source matched the input.
         r#match: Match,
     },
