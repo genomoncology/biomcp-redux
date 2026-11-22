@@ -130,6 +130,13 @@ fn execute<'a>(
         return preprint(cx, query, selection, id, deadline, out, save);
     }
     let Some(id) = resolve(cx, query.input(), deadline, out)? else {
+        if matches!(query.input(), ArticleInput::Pmid(_))
+            && let ReplyData::ArticleTextResult {
+                body: Some(body), ..
+            } = &mut out.body
+        {
+            body.content = Section::unavailable(Source::PmcOa, Reason::NotOpen);
+        }
         return Ok(());
     };
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);

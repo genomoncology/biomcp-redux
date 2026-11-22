@@ -16,6 +16,21 @@ const SYNONYMS: &[(&str, &str, &str)] = &[
     ("article", "body", "fulltext"),
 ];
 
+/// A single PMID followed by `text` takes the same reader path as `article text`.
+pub(super) fn article_text(value: &Value) -> Option<biomcp_types::Request> {
+    let fields = value.as_object()?;
+    let [id, word] = fields.get("input")?.as_array()?.as_slice() else {
+        return None;
+    };
+    if fields.len() != 1 || !word.as_str()?.eq_ignore_ascii_case("text") {
+        return None;
+    }
+    let input = biomcp_types::ArticleInput::Pmid(id.as_str()?.parse().ok()?);
+    biomcp_types::ArticleText::part(input, 1)
+        .ok()
+        .map(biomcp_types::Request::ArticleText)
+}
+
 /// A publisher passed to gene get's unsupported --source flag can name a section.
 pub(super) fn gene_source_refusal(
     root: &Command,

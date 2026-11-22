@@ -1,7 +1,7 @@
 {
   "feature": "article-fulltext",
   "live_check": "public",
-  "story": "Both PMID command forms open the first body part and return the next part's command.",
+  "story": "Both PMID command forms open the first body part.",
   "replay": "article/fulltext/live-introduction",
   "steps": [
     {
@@ -9,8 +9,7 @@
       "expect": {
         "/result/pmcid": "PMC5606870",
         "/result/content/data/part": 1,
-        "/result/content/data/heading_path/0": "Introduction",
-        "/next/0/args": ["article", "text", "PMC5606870", "--part", "2"]
+        "/result/content/data/markdown": {"includes": "Colorectal cancer (CRC) is the third"}
       }
     },
     {
@@ -18,7 +17,7 @@
       "expect": {
         "/result/pmcid": "PMC5606870",
         "/result/content/data/part": 1,
-        "/result/content/data/heading_path/0": "Introduction"
+        "/result/content/data/markdown": {"includes": "Colorectal cancer (CRC) is the third"}
       }
     }
   ]

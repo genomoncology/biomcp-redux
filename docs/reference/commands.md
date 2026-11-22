@@ -4848,7 +4848,7 @@ Usage: biomcp article [OPTIONS] <COMMAND>
 Commands:
   supplement         Read a checked supplement file or page its original rows.
   pdf                Download one publisher PDF to an explicit file or existing folder.
-  text               Return the abstract card by default, or explicitly read body text.
+  text               Read body text. A bare PMID starts at part 1.
   citations          Page the citing or referenced PubMed papers of one checked PMID.
   references         Page the citing or referenced PubMed papers of one checked PMID.
   citation-evidence  Read every source context and optional explicit full-text citation paragraph.
@@ -5032,7 +5032,7 @@ Form: article pdf INPUT; not --input.
 ## biomcp article text
 
 ```text
-Return the abstract card by default, or explicitly read body text.
+Read body text. A bare PMID starts at part 1.
 
 Usage: biomcp article text [OPTIONS] <input>
 
@@ -5057,7 +5057,7 @@ Options:
           Number of matching rows already returned.
 
       --part <part>
-          One-based outline part; omit reader selectors for the abstract card.
+          One-based body part. Bare PMIDs start at 1. Other IDs default to the abstract card.
 
       --replace[=<replace>]
           Replace an existing destination only when explicitly requested with save.
@@ -5091,7 +5091,7 @@ Options:
 
 ```
 
-Get the abstract card by default, or explicitly read article body text. Sources: europepmc, pmc-oa, pubmed.
+Read body text. A bare PMID starts at part 1. Sources: europepmc, pmc-oa, pubmed.
 Options apply to every listed source unless their description restricts them.
 Paging: --offset.
 
@@ -5099,7 +5099,7 @@ Paging: --offset.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
 Form: article text INPUT; not --input.
 - `--offset`: Number of matching rows already returned. Value form: integer; example: --offset 0.
-- `--part`: One-based outline part; omit reader selectors for the abstract card. Value form: integer; example: --part 1.
+- `--part`: One-based body part. Bare PMIDs start at 1. Other IDs default to the abstract card. Value form: integer; example: --part 1.
 - `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean; example: --replace.
 - `--save`: Save the whole original document to an explicit file or existing folder. Value form: string; example: --save article-output.
 - `--variant`: Explicit checked protein substitution. Value form: string; example: --variant p.V600E.

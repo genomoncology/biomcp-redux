@@ -10,7 +10,7 @@ use crate::{Ctx, status};
 use biomcp_fetch::Deadline;
 use biomcp_types::{
     ArticleCardItem, ArticleGet, ArticleResolution, ArticleSection, ArticleSectionWord,
-    ArticleSections, Section,
+    ArticleSections, Reason, Section, Source,
 };
 pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool {
     let requested = !query.sections().is_empty();
@@ -41,7 +41,16 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 fulltext: (selected(query, ArticleSectionWord::Fulltext)
                     && card.pmcid.is_none()
                     && card.europepmc_id.is_none())
-                .then_some(Section::NotApplicable),
+                .then(|| {
+                    if card.pmid.is_some()
+                        && card.book_title.is_none()
+                        && card.bookshelf_url.is_none()
+                    {
+                        Section::unavailable(Source::PmcOa, Reason::NotOpen)
+                    } else {
+                        Section::NotApplicable
+                    }
+                }),
             });
         }
         item.more = [
