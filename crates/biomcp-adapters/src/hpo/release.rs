@@ -11,6 +11,7 @@ use super::{raw::PublishedRelease, release_ontology as ontology};
 
 const GITHUB_API: &str = "https://api.github.com";
 const REPOSITORY: &str = "/obophenotype/human-phenotype-ontology";
+const ANNOTATION_FILE: &str = "phenotype.hpoa";
 const GENE_HEADER: &str = "ncbi_gene_id\tgene_symbol\tassociation_type\tdisease_id\tsource";
 const ANNOTATION_HEADER: &str = concat!(
     "database_id\tdisease_name\tqualifier\thpo_id\treference\tevidence",
@@ -48,9 +49,6 @@ pub fn latest(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<DiseaseSearch, Req
     pin(release.value.tag_name).ok_or_else(|| biomcp_fetch::bad_reply(Source::Hpo, None))
 }
 
-/// Evidence code excluded from the publisher's annotation file.
-pub const EXCLUDED_EVIDENCE: &str = "IEA";
-
 /// One slice of the complete intersection.
 #[derive(Debug)]
 pub struct Matches {
@@ -85,7 +83,7 @@ pub fn search(
         });
     }
     drop(obo);
-    let hpoa = read(leg, tag, "phenotype.hpoa", 64, &|body| {
+    let hpoa = read(leg, tag, ANNOTATION_FILE, 64, &|body| {
         has_annotations(body, date)
     })?;
     let candidates = annotate(&hpoa, &descendants, requested)
@@ -122,20 +120,6 @@ fn read(
         .download(&url)?
         .bytes(max_mib << 20)
         .fresh(Freshness::Days(30));
-    let filter = |body: &[u8]| -> Result<Vec<u8>, BadReply> {
-        let body = std::str::from_utf8(body).map_err(|_| BadReply)?;
-        if !accept(body) {
-            return Err(BadReply);
-        }
-        // The HPO annotation documentation requires separate permission for IEA rows.
-        Ok(body
-            .split_inclusive('\n')
-            .filter(|line| {
-                line.starts_with('#') || line.split('\t').nth(5) != Some(EXCLUDED_EVIDENCE)
-            })
-            .flat_map(str::bytes)
-            .collect())
-    };
     let check = |bytes: &[u8]| {
         let body = std::str::from_utf8(bytes).map_err(|_| Reason::BadReply)?;
         if accept(body) {
@@ -145,8 +129,9 @@ fn read(
         }
     };
     let mut codec = Read::<Bytes>::bytes().validate_body(&check);
-    if file == "phenotype.hpoa" {
-        codec = codec.filter_body(&filter);
+    if file == ANNOTATION_FILE {
+        // The previous cache identity holds bodies stripped of IEA rows.
+        codec = codec.cache_revision("complete-hpoa");
     }
     let bytes = leg.call(&endpoint, Input::Params(&[]), codec)?.value;
     String::from_utf8(bytes.0).map_err(|_| biomcp_fetch::bad_reply(Source::Hpo, None))

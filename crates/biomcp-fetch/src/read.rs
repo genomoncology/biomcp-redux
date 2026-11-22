@@ -8,7 +8,6 @@ use std::borrow::Cow;
 type BodyCheck<'a> = dyn Fn(&[u8]) -> Result<(), biomcp_types::Reason> + 'a;
 type ReplyCheck<'a, T> = dyn Fn(&T) -> Result<(), crate::BadReply> + 'a;
 type RangeCheck<'a, T> = dyn Fn(&T, crate::ContentRange, u16) -> Result<(), crate::BadReply> + 'a;
-type BodyFilter<'a> = dyn Fn(&[u8]) -> Result<Vec<u8>, crate::BadReply> + 'a;
 type BodyNormalizer = for<'a> fn(&str, &'a [u8]) -> Cow<'a, [u8]>;
 /// Options shared by live, replay and cached response reads.
 pub struct Read<'a, T> {
@@ -19,7 +18,7 @@ pub struct Read<'a, T> {
     codec: Codec,
     xml_media: Option<fn(&str) -> bool>,
     normalize_body: Option<BodyNormalizer>,
-    filter_body: Option<&'a BodyFilter<'a>>,
+    cache_revision: Option<&'static str>,
     pub(crate) limit: Option<u64>,
     pub(crate) overflow_reason: biomcp_types::Reason,
     pub(crate) json_rejections: bool,
@@ -47,20 +46,21 @@ impl<'a, T: Reply> Read<'a, T> {
         self
     }
 
-    /// Remove disallowed source fields before decoding, recording or cache admission.
-    /// The same policy applies to existing cached bytes without refetching them.
-    pub fn filter_body(mut self, filter: &'a BodyFilter<'a>) -> Self {
-        self.filter_body = Some(filter);
+    /// Give a changed stored representation a fresh cache identity while keeping the wire request and replay identity.
+    pub fn cache_revision(mut self, revision: &'static str) -> Self {
+        self.cache_revision = Some(revision);
         self
     }
-    pub(crate) fn filtered_body<'b>(
-        &self,
-        body: &'b [u8],
-    ) -> Result<Cow<'b, [u8]>, crate::BadReply> {
-        self.filter_body.map_or_else(
-            || Ok(Cow::Borrowed(body)),
-            |filter| filter(body).map(Cow::Owned),
-        )
+    pub(crate) fn cache_key(&self, request_key: [u8; 32]) -> [u8; 32] {
+        let Some(revision) = self.cache_revision else {
+            return request_key;
+        };
+        use sha2::{Digest, Sha256};
+        let mut hash = Sha256::new();
+        hash.update(b"cache-revision\0");
+        hash.update(request_key);
+        hash.update(revision);
+        hash.finalize().into()
     }
     /// Check request-bound identity before cache admission and every reuse.
     pub fn check(mut self, check: &'a ReplyCheck<'a, T>) -> Self {
@@ -121,7 +121,7 @@ impl<'a, T: Reply> Read<'a, T> {
             codec: Codec::Json,
             xml_media: None,
             normalize_body: None,
-            filter_body: None,
+            cache_revision: None,
             validate: None,
             check: None,
             cache_if: None,
@@ -154,7 +154,7 @@ impl<'a, T: Reply> Read<'a, T> {
             codec: Codec::Xml,
             xml_media: Some(T::accepts_media),
             normalize_body: Some(T::normalize_body),
-            filter_body: None,
+            cache_revision: None,
             validate: None,
             check: None,
             cache_if: None,
@@ -227,7 +227,7 @@ impl Read<'_, Probe> {
             codec: Codec::Probe,
             xml_media: None,
             normalize_body: None,
-            filter_body: None,
+            cache_revision: None,
             validate: None,
             check: None,
             cache_if: None,
@@ -264,7 +264,7 @@ impl<'a> Read<'a, Bytes> {
             codec: Codec::Bytes("application/octet-stream"),
             xml_media: None,
             normalize_body: None,
-            filter_body: None,
+            cache_revision: None,
             validate: None,
             check: None,
             cache_if: None,
