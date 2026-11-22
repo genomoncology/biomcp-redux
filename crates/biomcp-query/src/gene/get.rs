@@ -5,7 +5,7 @@ use biomcp_adapters::{hgnc, mygene};
 use biomcp_types::GeneResolution;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    GeneCards, GeneGet, GeneItem, Problem, ProblemCode, Source, SourceState, Status,
+    GeneCards, GeneGet, GeneItem, Incomplete, Problem, ProblemCode, Source, SourceState, Status,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
@@ -54,16 +54,19 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
             }),
         );
     }
+    let mut incomplete = Vec::new();
     for job in crate::fan_out::run(jobs) {
         match job {
-            Job::MyGene(batches, report) => mygene_join(
-                &mut items,
-                batches,
-                report,
-                &mut sources,
-                &mut problems,
-                &mut local,
-            ),
+            Job::MyGene(batches, report) => {
+                incomplete = mygene_join(
+                    &mut items,
+                    batches,
+                    report,
+                    &mut sources,
+                    &mut problems,
+                    &mut local,
+                );
+            }
             Job::Section(result) => {
                 sections::join(&mut items, &result);
                 sources.push(result.source);
@@ -75,7 +78,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     sections::offer_oncokb(query, &mut items, &sources);
     let state = status::status(items.iter().map(|item| item.status));
     let next = next::get(query, &items, &sources, &mut problems);
-    crate::status::finish(
+    let mut out = crate::status::finish(
         [state],
         crate::status::Parts {
             dropped: false,
@@ -89,7 +92,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
             next,
             local,
         },
-    )
+    );
+    out.incomplete = incomplete;
+    out
 }
 fn join(
     item: &mut GeneItem,
@@ -177,8 +182,9 @@ fn mygene_join(
     sources: &mut Vec<biomcp_types::SourceOutcome>,
     problems: &mut Vec<Problem>,
     local: &mut Option<biomcp_fetch::RequestError>,
-) {
+) -> Vec<Incomplete> {
     let mut error = None;
+    let mut incomplete = Vec::new();
     for batch in batches {
         status::append(problems, batch.problems);
         match batch.result {
@@ -190,10 +196,21 @@ fn mygene_join(
             Err(failure) => {
                 error = Some(failure);
                 *local = local.or(status::local(failure));
-                for item in &mut *items {
+                for (index, item) in items.iter_mut().enumerate() {
                     if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some_and(|id| batch.ids.contains(&id)))
                     {
                         item.status = crate::status::item_status(true, false, true);
+                        for field in ["summary", "spans"] {
+                            let at =
+                                Text::new(&format!("/result/items/{index}/answer/gene/{field}"))
+                                    .unwrap_or_else(|_| biodata::text!("/result/items"));
+                            incomplete.push(Incomplete {
+                                at,
+                                source: Source::MyGene,
+                                reason: status::reason(failure),
+                                code: None,
+                            });
+                        }
                     }
                 }
             }
@@ -209,4 +226,5 @@ fn mygene_join(
         }
     }
     sources.push(source);
+    incomplete
 }
