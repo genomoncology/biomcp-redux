@@ -4,8 +4,8 @@ use biomcp_adapters::ols;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGet, DiseaseOntology, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms,
-    DiseaseXrefs, ReplyData, Request, Source, SourceNotice, StepKind,
+    DiseaseGet, DiseaseHeader, DiseaseOntology, DiseasePage, DiseaseSearch, DiseaseSection,
+    DiseaseSynonyms, DiseaseXrefs, ReplyData, Request, Source, SourceNotice, StepKind,
 };
 /// Discover one source-ordered page from one explicit ontology.
 pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
@@ -43,28 +43,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
                 "MONDO results can include non-human terms. The source labels retain any stated species.".into(),
             ));
         }
-        // Imported gene records keep their source links instead of disease get commands.
-        for row in &rows.value {
-            if let Some(id) = &row.concept.id
-                && !id.as_str().split_once(':').is_some_and(|(prefix, _)| {
-                    prefix.eq_ignore_ascii_case("HGNC") || prefix.eq_ignore_ascii_case("NCBIGene")
-                })
-                && let Some(get) = crate::next::checked(
-                    id.to_string()
-                        .parse()
-                        .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
-                        .and_then(|id| DiseaseGet::ols(id, row.ontology)),
-                    Source::Ols,
-                    &mut out.problems,
-                )
-            {
-                out.next.push(crate::next::Step::new(
-                    StepKind::Disambiguate,
-                    &[biomcp_types::Source::Ols],
-                    run(Request::GetDisease(get)),
-                ));
-            }
-        }
+        disambiguate(&mut out, &rows.value);
         let offset = query.offset();
         let end = u64::from(offset) + u64::from(returned);
         let total = if returned == 0 { total.min(end) } else { total };
@@ -94,6 +73,31 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
+fn disambiguate(out: &mut Outcome, rows: &[DiseaseHeader]) {
+    // Imported gene records keep their source links instead of disease get commands.
+    for row in rows {
+        if let Some(id) = &row.concept.id
+            && !id.as_str().split_once(':').is_some_and(|(prefix, _)| {
+                prefix.eq_ignore_ascii_case("HGNC") || prefix.eq_ignore_ascii_case("NCBIGene")
+            })
+            && let Some(get) = crate::next::checked(
+                id.to_string()
+                    .parse()
+                    .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
+                    .and_then(|id| DiseaseGet::ols(id, row.ontology)),
+                Source::Ols,
+                &mut out.problems,
+            )
+        {
+            out.next.push(crate::next::Step::new(
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::Ols],
+                run(Request::GetDisease(get)),
+            ));
+        }
+    }
+}
+
 fn search_notice(message: String) -> SourceNotice {
     SourceNotice::RequestGuidance {
         message: message.into(),
