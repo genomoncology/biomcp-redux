@@ -1,6 +1,7 @@
 use super::{SPEC, map, raw};
 use crate::Mapped;
-use biodata::Curie;
+use crate::raw::Field;
+use biodata::{Curie, Error};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_fetch::{Input, Read};
 use biomcp_types::{DiseaseHeader, DiseaseOntology, DiseaseSearch};
@@ -86,21 +87,24 @@ fn map_page(
         problems.record = None;
         let id = hit
             .obo_id
-            .and_then(crate::raw::Field::value)
-            .or_else(|| {
-                hit.iri
+            .and_then(Field::value)
+            .ok_or(Error::CurieInvalid)
+            .or_else(|_| {
+                let iri = hit
+                    .iri
                     .as_ref()
-                    .and_then(crate::raw::Field::as_ref)
-                    .and_then(|iri| search_iri_id(iri.as_str()))
+                    .and_then(Field::as_ref)
+                    .ok_or(Error::CurieInvalid)?;
+                search_iri_id(iri.as_str())
             })
-            .or_else(|| {
-                let short_form = hit.short_form?.value()?;
-                short_form.as_str().parse().ok().or_else(|| {
-                    let id = map::short_form_id(short_form.as_str())?;
-                    (DiseaseOntology::of(id.as_str()) == Some(ontology)).then_some(id)
-                })
+            .or_else(|_| {
+                let short_form = hit
+                    .short_form
+                    .and_then(Field::value)
+                    .ok_or(Error::CurieInvalid)?;
+                search_short_form_id(short_form.as_str(), ontology)
             });
-        let id = problems.required("obo_id", id);
+        let id = problems.optional("obo_id", Some(id));
         problems.record = id.as_ref().and_then(crate::mapped::record);
         let iri = problems.field("iri", hit.iri);
         let label = problems.source_field("label", hit.label);
@@ -134,7 +138,7 @@ fn map_page(
 }
 
 // OLS may return imported gene terms with only a local number in its ID fields.
-fn search_iri_id(iri: &str) -> Option<Curie> {
+fn search_iri_id(iri: &str) -> Result<Curie, Error> {
     let Some(path) = iri
         .strip_prefix("http://identifiers.org/")
         .or_else(|| iri.strip_prefix("https://identifiers.org/"))
@@ -142,15 +146,26 @@ fn search_iri_id(iri: &str) -> Option<Curie> {
         return map::iri_id(iri);
     };
     let Some((namespace, local)) = path.split_once('/') else {
-        return path.parse().ok();
+        return path.parse();
     };
     let authority = match namespace {
         "hgnc" => "HGNC",
         "ncbigene" => "NCBIGene",
-        _ => return None,
+        _ => return Err(Error::CurieInvalid),
     };
     if local.is_empty() || !local.bytes().all(|byte| byte.is_ascii_digit()) {
-        return None;
+        return Err(Error::CurieInvalid);
     }
-    format!("{authority}:{local}").parse().ok()
+    format!("{authority}:{local}").parse()
+}
+
+fn search_short_form_id(value: &str, ontology: DiseaseOntology) -> Result<Curie, Error> {
+    value.parse().or_else(|_| {
+        let id = map::short_form_id(value)?;
+        if DiseaseOntology::of(id.as_str()) == Some(ontology) {
+            Ok(id)
+        } else {
+            Err(Error::CurieInvalid)
+        }
+    })
 }

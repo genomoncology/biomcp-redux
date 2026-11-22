@@ -26,45 +26,48 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     );
     let mut source = status::source(Source::Ols, leg.finish(), error);
     out.local = error.and_then(status::local);
-    if let Ok(page) = reply {
-        let returned = page.received;
-        let total = page.total;
-        let count = page.missing_ids();
-        let rows = page.into_display_rows();
-        out.include_refusals(rows.refusals);
-        if count > 0 {
-            let noun = if count == 1 { "row" } else { "rows" };
-            source.notices.push(search_notice(format!(
-                "OLS returned {count} {noun} without a usable identifier on this page."
-            )));
-        }
-        if returned > 0 && query.ontology() == Some(DiseaseOntology::Mondo) {
-            source.notices.push(search_notice(
+    match reply {
+        Ok(page) => {
+            let returned = page.received;
+            let total = page.total;
+            let count = page.missing_ids();
+            let rows = page.into_display_rows();
+            out.include_refusals(rows.refusals);
+            if count > 0 {
+                let noun = if count == 1 { "row" } else { "rows" };
+                source.notices.push(search_notice(format!(
+                    "OLS returned {count} {noun} without a usable identifier on this page."
+                )));
+            }
+            if returned > 0 && query.ontology() == Some(DiseaseOntology::Mondo) {
+                source.notices.push(search_notice(
                 "MONDO results can include non-human terms. The source labels retain any stated species.".into(),
             ));
+            }
+            disambiguate(&mut out, &rows.value);
+            let offset = query.offset();
+            let end = u64::from(offset) + u64::from(returned);
+            let total = if returned == 0 { total.min(end) } else { total };
+            if let Some(next) = offset.checked_add(returned)
+                && returned > 0
+                && end < total
+            {
+                out.next.push(crate::next::Step::new(
+                    StepKind::Page,
+                    &[biomcp_types::Source::Ols],
+                    run(Request::SearchDisease(query.at_offset(next))),
+                ));
+            }
+            out.page = Some(page_info(offset, returned, total));
+            out.problems.extend(rows.problems);
+            if let ReplyData::DiseasePage {
+                body: Some(body), ..
+            } = &mut out.body
+            {
+                body.items = rows.value.into();
+            }
         }
-        disambiguate(&mut out, &rows.value);
-        let offset = query.offset();
-        let end = u64::from(offset) + u64::from(returned);
-        let total = if returned == 0 { total.min(end) } else { total };
-        if let Ok(next) = u32::try_from(end)
-            && returned > 0
-            && end < total
-        {
-            out.next.push(crate::next::Step::new(
-                StepKind::Page,
-                &[biomcp_types::Source::Ols],
-                run(Request::SearchDisease(query.at_offset(next))),
-            ));
-        }
-        out.page = Some(page_info(offset, returned, total));
-        out.problems.extend(rows.problems);
-        if let ReplyData::DiseasePage {
-            body: Some(body), ..
-        } = &mut out.body
-        {
-            body.items = rows.value.into();
-        }
+        Err(_) => (),
     }
     out.sources.push(source);
     if out.page.is_some() {
