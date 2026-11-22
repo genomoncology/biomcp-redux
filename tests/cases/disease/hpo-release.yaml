@@ -32,10 +32,11 @@
       "expect": {
         "/status": "complete",
         "/query/hpo_release": "v2099-01-01",
-        "/page/total": 2,
+        "/page/total": 3,
         "/result/release": "v2099-01-01",
         "/result/items/*/id": [
           "OMIM:900001",
+          "OMIM:900007",
           "ORPHA:900001"
         ],
         "/result/items/0/matches": [
@@ -58,7 +59,7 @@
             ]
           }
         ],
-        "/result/items/1/matches/0": {
+        "/result/items/2/matches/0": {
           "equals": {
             "requested": "HP:0001083",
             "annotated": [
@@ -75,8 +76,8 @@
           }
         ],
         "/sources/0/source": "hpo",
-        "/result/items/1/gene_links_missing": true,
-        "/result/items/1": {
+        "/result/items/2/gene_links_missing": true,
+        "/result/items/2": {
           "omits": [
             "gene_links"
           ]
