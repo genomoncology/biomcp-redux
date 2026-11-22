@@ -2,6 +2,7 @@
 //! an offline one never fetches.
 mod ema;
 mod parity;
+mod publisher;
 
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
@@ -34,6 +35,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ];
     trials.extend(ema::trials());
     trials.extend(parity::trials());
+    trials.extend(publisher::trials());
     trials
 }
 
@@ -198,16 +200,19 @@ fn timeout() -> Check {
     Ok(())
 }
 
-fn publisher_retry_after() -> Check {
-    let stub = Stub::with_headers(
-        &["www.fda.gov"],
+fn retry_peer(host: &str) -> Result<Stub, String> {
+    Stub::with_headers(
+        &[host],
         |_| "text/html",
         |_| Ok(String::new()),
         |_, bytes| bytes,
         |_| 429,
         |_| "Retry-After: 300\r\n".to_owned(),
-    )?;
-    let (env, stub) = configured(stub, json!({}))?;
+    )
+}
+
+fn publisher_retry_after() -> Check {
+    let (env, stub) = configured(retry_peer("www.fda.gov")?, json!({}))?;
     let first = invoke(&env, words(SEARCH), 4)?;
     let again = invoke(&env, words(SEARCH), 4)?;
     let requests = stub.finish()?;
