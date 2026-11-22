@@ -258,13 +258,13 @@ fn reject_nulls(value: &Value, path: &str, schema: &str) -> Result<(), String> {
         }
         Value::Array(items) => {
             for (index, item) in items.iter().enumerate() {
-                reject_nulls(item, &format!("{path}/{index}"), schema, allowed)?;
+                reject_nulls(item, &format!("{path}/{index}"), schema)?;
             }
         }
         Value::Object(fields) => {
             for (name, item) in fields {
                 let name = name.replace('~', "~0").replace('/', "~1");
-                reject_nulls(item, &format!("{path}/{name}"), schema, allowed)?;
+                reject_nulls(item, &format!("{path}/{name}"), schema)?;
             }
         }
         _ => {}
