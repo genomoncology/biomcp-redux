@@ -566,7 +566,7 @@
         },
         "version": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Source dataset family, not a minor release identifier."
+          "description": "Source dataset family for the default read, or the selected table's exact release."
         }
       },
       "required": [
@@ -574,6 +574,18 @@
         "version"
       ],
       "type": "object"
+    },
+    "Reply_ConstraintRelease": {
+      "description": "gnomAD releases with supported constraint tables.",
+      "enum": [
+        "v4.0",
+        "v4.1"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Version 4.0 table.",
+        " Version 4.1 table."
+      ]
     },
     "Reply_EnsemblGeneId": {
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
@@ -954,6 +966,10 @@
     "Reply_GeneGet": {
       "description": "Get one to twenty human gene inputs in their original order.",
       "properties": {
+        "constraint_release": {
+          "$ref": "#/$defs/Reply_ConstraintRelease",
+          "description": "Choose a gnomAD release for MANE Select."
+        },
         "input": {
           "description": "Gene symbols or checked identifiers, in input order.",
           "items": {

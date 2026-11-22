@@ -2,6 +2,9 @@
 use biomcp_fetch::{Input, Read};
 mod map;
 mod raw;
+
+/// Indexed gnomAD release constraint tables.
+pub mod release;
 use crate::{Mapped, quotas};
 use biodata::EnsemblGeneId;
 use biomcp_fetch::{Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};

@@ -86,7 +86,9 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
     } else if !public_grammar::overview(root, &mut commands, path)? {
         compact(&mut commands);
     }
-    fields_line(&mut commands, path);
+    if path != ["get", "cell-line"] {
+        fields_line(&mut commands, path);
+    }
     if path.is_empty() {
         let mut map = topic("map", FRONT_MAP.into());
         map.command.clear();
@@ -172,23 +174,16 @@ fn section_help(
                 .any(|word| word == section || (!alone && names.contains(word)))
         });
     }
-    if entity == "drug"
-        && section == "approvals"
-        && let Some(argument) = command
-            .arguments
-            .iter_mut()
-            .find(|arg| arg.name == "--document-id")
-    {
-        argument.description.push_str(
-            " List IDs and types with --fields=application_docs.id,application_docs.type.",
-        );
-    }
+    argument_details::approval_document_hint(&mut command, entity, section);
     // Stable: the first recorded example that reads this section leads.
     command
         .examples
         .sort_by_key(|example| !example.iter().any(|word| word == section));
     let mut commands = vec![command];
     compact(&mut commands);
+    if entity == "cell-line" {
+        fields_line(&mut commands, &path);
+    }
     Ok(Some(Help { commands }))
 }
 
@@ -305,10 +300,13 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
         let properties = field(&schema, "properties")
             .as_object()
             .ok_or_else(|| io::Error::other("missing properties"))?;
-        let arguments = properties
+        let mut arguments = properties
             .iter()
             .flat_map(|(name, node)| arguments(name, node, &schema))
-            .collect();
+            .collect::<Vec<_>>();
+        if (verb, entity) == ("get", "gene") {
+            arguments.sort_by_key(|argument| argument.position.is_none());
+        }
         let sections = section_words(&schema);
         commands.push(HelpCommand {
             reply_schemas: crate::schema::replies(id, verb, entity),

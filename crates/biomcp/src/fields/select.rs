@@ -1,14 +1,15 @@
 //! Check chosen fields against a call's rows, narrow its finished reply, and say so in help.
 use super::{
     narrow,
-    rows::{self, Call, List, Row},
+    rows::{Call, List, Row},
+    sections,
 };
 use biomcp_query::Action;
 use biomcp_types::{ErrorMessage, Request, Source, Step, StepKind, UsageArguments, UsageError};
 use serde_json::Value;
 use std::{collections::BTreeSet, io};
 
-fn schema(id: &str) -> Option<Value> {
+pub(super) fn schema(id: &str) -> Option<Value> {
     serde_json::from_str(crate::schema::find(id)?).ok()
 }
 
@@ -23,7 +24,7 @@ fn call_lists(call: &Call) -> Vec<List> {
     crate::schema::replies(id, &call.verb, &call.entity)
         .iter()
         .filter_map(|reply| schema(reply))
-        .flat_map(|schema| rows::lists(&schema, call))
+        .flat_map(|schema| sections::lists(&schema, call))
         .collect()
 }
 
@@ -38,7 +39,7 @@ fn union(lists: Vec<List>) -> Row {
 /// The rows of one reply schema's `result.items`, for a search or subcommand.
 fn reply_row(id: &str) -> Option<Row> {
     let call = Call::default();
-    let lists = rows::lists(&schema(id)?, &call);
+    let lists = sections::lists(&schema(id)?, &call);
     (!lists.is_empty()).then(|| union(lists))
 }
 
@@ -94,7 +95,9 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     if row.names.is_empty() {
         return Err(UsageError::Arguments(UsageArguments {
             argument: Some("--fields".into()),
-            message: Some(ErrorMessage::FieldsRowsOnly),
+            message: Some(
+                super::section_rows::refusal(request).unwrap_or(ErrorMessage::FieldsRowsOnly),
+            ),
             next: vec![help_step(path)],
             ..Default::default()
         }));
@@ -345,7 +348,7 @@ pub(crate) fn project(value: &mut Value, chosen: &Chosen) -> io::Result<()> {
     let Some(schema) = value.get("schema").and_then(Value::as_str).and_then(schema) else {
         return Ok(());
     };
-    for list in rows::lists(&schema, &chosen.call) {
+    for list in sections::lists(&schema, &chosen.call) {
         narrow::list(value, &list, &chosen.names);
     }
     Ok(())
@@ -385,6 +388,9 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
             joined(&required)
         ));
     }
+    if (verb, entity) == ("protein", "sequence") {
+        return Some("--fields crc64,md5 or --fields audit.sequence_version.".into());
+    }
     let kept = if required.is_empty() {
         String::new()
     } else {
@@ -415,7 +421,11 @@ pub(crate) fn carried(kind: StepKind, action: &Action, fields: &[String]) -> Vec
         Action::Run { request, .. }
             if matches!(
                 kind,
-                StepKind::Page | StepKind::Sort | StepKind::Restart | StepKind::Fresh
+                StepKind::Page
+                    | StepKind::Section
+                    | StepKind::Sort
+                    | StepKind::Restart
+                    | StepKind::Fresh
             ) =>
         {
             known(request, fields)

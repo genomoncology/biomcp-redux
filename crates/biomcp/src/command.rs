@@ -1,6 +1,7 @@
 //! Shared command interpretation and typed outcomes for CLI and MCP.
 mod context;
 mod encoding;
+mod query;
 mod recheck;
 mod reply;
 mod saved;
@@ -18,6 +19,7 @@ mod steps;
 mod sync;
 mod transport;
 
+use self::query::run_request;
 use biomcp_query::{Action, Bundle};
 use biomcp_types::{Envelope, ErrorEnvelope, Request, Status, UsageArguments, UsageError};
 use std::{ffi::OsString, io};
@@ -245,7 +247,14 @@ pub(crate) fn execute(
             sections::run(fetch, settings, &query, fresh, globals, encoding)
         }
         Action::Run { request, fresh } => {
-            let result = run_request(fetch, &request, fresh, settings, allow_save)?;
+            let result = run_request(
+                fetch,
+                &request,
+                fresh,
+                settings,
+                allow_save,
+                &globals.fields,
+            )?;
             response(fetch, request, result, fresh, globals, encoding)
         }
     }
@@ -531,30 +540,6 @@ fn run_parts(
         .into_iter()
         .zip(biomcp_query::run_drug_parts(&cx, &parts))
         .collect())
-}
-
-fn run_request(
-    fetch: &biomcp_fetch::Fetch,
-    request: &Request,
-    fresh: bool,
-    settings: &crate::config::Settings,
-    allow_save: bool,
-) -> io::Result<biomcp_query::Outcome> {
-    let configured_request = crate::config::request_defaults(settings, request)
-        .map_err(|_| io::Error::other("local configuration failed"))?;
-    let request = &configured_request;
-    let cx = query_context(fetch, fresh, settings)?;
-    Ok(match request {
-        Request::TrialDocument(query) => crate::save::trial::document(&cx, query, allow_save),
-        Request::ArticlePdf(query) => crate::save::run(&cx, query, allow_save),
-        Request::ArticleText(query) if query.save().is_some() => {
-            crate::save::article::text(&cx, query, allow_save)
-        }
-        Request::ArticleSupplement(query) if query.save().is_some() => {
-            crate::save::article::supplement(&cx, query, allow_save)
-        }
-        _ => biomcp_query::run(&cx, request),
-    })
 }
 
 fn pool_error(

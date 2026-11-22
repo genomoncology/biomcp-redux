@@ -415,9 +415,54 @@
       ],
       "type": "object"
     },
+    "Reply_PathwayGeneCount": {
+      "description": "Distinct mapped human genes and unmapped gene-product references before paging.",
+      "properties": {
+        "distinct": {
+          "description": "Unique HGNC IDs from exact, unambiguous UniProt base-accession matches.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scope": {
+          "$ref": "#/$defs/Reply_PathwayGeneCountScope",
+          "description": "Mapping and reference scope for both counts."
+        },
+        "unmapped": {
+          "description": "Gene-product reference rows without a unique HGNC match.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "scope",
+        "distinct",
+        "unmapped"
+      ],
+      "type": "object"
+    },
+    "Reply_PathwayGeneCountScope": {
+      "description": "Reference collection and mapping used for a pathway's human-gene count.",
+      "enum": [
+        "hgnc-gene-products"
+      ],
+      "type": "string"
+    },
     "Reply_PathwayGenes": {
       "description": "Independent source-ordered distinct membership references and their observed counts.",
       "properties": {
+        "gene_count": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PathwayGeneCount"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Mapped human genes across the full Reactome reference list, before paging."
+        },
         "header": {
           "$ref": "#/$defs/Reply_PathwayHeader",
           "description": "Exact source pathway owning this relation."
@@ -456,9 +501,20 @@
           "minimum": 0,
           "type": "integer"
         },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native Reactome database release for this observation, separate from pathway version."
+        },
         "total": {
           "default": 0,
-          "description": "Rows in the whole collection, equal to `page.total`; the count to report (1022).",
+          "description": "Reference rows in the whole collection, equal to `page.total`.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
@@ -473,7 +529,7 @@
       "type": "object"
     },
     "Reply_PathwayGet": {
-      "description": "Get an exact human Reactome R-HSA or WikiPathways WP card. Read whole summary, genes, Reactome events or bounded all sections. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.",
+      "description": "Get a human Reactome R-HSA or WikiPathways WP card, summary, genes, Reactome events or bounded all sections. Reactome genes includes database release and pre-page HGNC counts. Membership implies no therapy, response or actionability. No enrichment is calculated.",
       "properties": {
         "fresh": {
           "description": "Request a new source observation.",

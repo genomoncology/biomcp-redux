@@ -1,6 +1,7 @@
 # 1078 — fields-covers-the-remaining-sections
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f0ef0d9f02272def92f61463034d2d77c4391366
 
 Milestone: 7
 

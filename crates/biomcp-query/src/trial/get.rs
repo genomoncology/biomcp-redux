@@ -1,7 +1,8 @@
 //! Exact trial cards and immutable source section continuations.
 use biomcp_types::ReplyBody;
+mod arms;
 pub(in crate::trial) mod page;
-use crate::{Ctx, Outcome, source_snapshot, status};
+use crate::{Ctx, Outcome, TrialArmProjection, source_snapshot, status};
 use biodata::NctId;
 use biomcp_adapters::ctgov;
 use biomcp_fetch::{CacheError, RequestError};
@@ -12,7 +13,11 @@ use biomcp_types::{
 const SNAPSHOT_NAMESPACE: &str = "trial-results/1";
 
 /// Retrieve independent input states under one shared command deadline.
-pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
+pub(crate) fn get(
+    cx: &Ctx<'_>,
+    query: &TrialGet,
+    arm_projection: Option<&TrialArmProjection<'_>>,
+) -> Outcome {
     if query.source() == biomcp_types::TrialSource::Nci {
         return super::nci::get(cx, query);
     }
@@ -25,9 +30,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &TrialGet) -> Outcome {
     let command = cx.fetch.command_deadline(budget);
     let deadline = command.deadline();
     let result = if query.pool().is_some() {
-        restore(cx, query, deadline, &mut out)
+        restore(cx, query, deadline, &mut out, arm_projection)
     } else {
-        fetch(cx, query, deadline, &mut out)
+        fetch(cx, query, deadline, &mut out, arm_projection)
     };
     if let Err(error) = result {
         crate::status::item(&mut out, false, true, false);
@@ -41,6 +46,7 @@ fn fetch(
     query: &TrialGet,
     deadline: biomcp_fetch::Deadline<'_>,
     out: &mut Outcome,
+    arm_projection: Option<&TrialArmProjection<'_>>,
 ) -> Result<(), RequestError> {
     let leg = cx
         .fetch
@@ -99,7 +105,7 @@ fn fetch(
                         out,
                     )?
                 };
-                items.push(page::render(query, snapshot, pool, out)?);
+                items.push(page::render(query, snapshot, pool, out, arm_projection)?);
             }
             Err(e) if not_found(e) => items.push(unresolved(
                 *id,
@@ -216,6 +222,7 @@ fn restore(
     query: &TrialGet,
     deadline: biomcp_fetch::Deadline<'_>,
     out: &mut Outcome,
+    arm_projection: Option<&TrialArmProjection<'_>>,
 ) -> Result<(), RequestError> {
     let id = query.input().first().copied().ok_or(CacheError::Internal)?;
     if cx.fetch.disabled(Source::ClinicalTrialsGov) {
@@ -271,7 +278,7 @@ fn restore(
     {
         cx.fetch.retain_data_date(source, version.value.as_str());
     }
-    let item = page::render(query, snapshot, query.pool().cloned(), out)?;
+    let item = page::render(query, snapshot, query.pool().cloned(), out, arm_projection)?;
     finish(query, vec![item], version, out);
     Ok(())
 }

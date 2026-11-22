@@ -99,8 +99,14 @@ impl ResponseBody for PathwayCard {
 pub struct PathwayGenes {
     /// Exact source pathway owning this relation.
     pub header: PathwayHeader,
+    /// Native Reactome database release for this observation, separate from pathway version.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub release: Option<Text>,
+    /// Mapped human genes across the full Reactome reference list, before paging.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gene_count: Option<PathwayGeneCount>,
     // The total comes before the rows (0942): a reader of only the start sees it.
-    /// Rows in the whole collection, equal to `page.total`; the count to report (1022).
+    /// Reference rows in the whole collection, equal to `page.total`.
     #[serde(default)]
     pub total: u64,
     /// Distinct-reference total and continuation.
@@ -115,6 +121,23 @@ pub struct PathwayGenes {
     /// Distinct namespaced source references in first occurrence order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[PathwayMember]>,
+}
+/// Distinct mapped human genes and unmapped gene-product references before paging.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PathwayGeneCount {
+    /// Mapping and reference scope for both counts.
+    pub scope: PathwayGeneCountScope,
+    /// Unique HGNC IDs from exact, unambiguous UniProt base-accession matches.
+    pub distinct: u64,
+    /// Gene-product reference rows without a unique HGNC match.
+    pub unmapped: u64,
+}
+biodata::wire_enum! {
+    /// Reference collection and mapping used for a pathway's human-gene count.
+    PathwayGeneCountScope {
+        #[doc = "All Reactome gene-product references, mapped to HGNC; excludes non-gene references."] HgncGeneProducts => "hgnc-gene-products"
+    }
 }
 /// Distinct references a gene-products read left out, such as ChEBI small molecules.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

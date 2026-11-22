@@ -30,6 +30,7 @@ singleton! {
  ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
  GeneSourceSection => "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD.",
  GeneSearchSource => "search gene does not take --source. It looks up HGNC names and aliases. Use get disease NAME gene-validity for disease curation.",
+ PathwaySourceImplicit => "get pathway rejects --source. The Reactome stable ID selects Reactome.",
  ArgumentValue => "value not accepted: give error.option a value valid_values accepts",
  ArgumentTextUnplaced => "this command takes no text outside an option; next gives the words to error.option",
  ArgumentRepeated => "option repeated: give error.option once, in the form valid_values shows",
@@ -45,6 +46,9 @@ singleton! {
  FieldsUnsaid => "--fields takes row fields from valid_values, or a dotted path inside one; next puts each name it can place in the field \
  that holds it; error.unplaced lists the names it cannot place, but one that is not letters, digits, _ and . is not repeated",
  FieldsRowsOnly => "--fields does not narrow this call yet; it narrows search rows and some sections' rows; drop --fields to read it whole",
+ FieldsClinvarCounts => "ClinVar gene counts require every count and its scope; drop --fields to read them.",
+ FieldsCellLineNames => "Cell-line names require both the name and its kind; drop --fields to read them.",
+ FieldsPathwaySummary => "Pathway summary is source text, with no row columns; drop --fields to read it.",
  SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next \
  step; run the suggested command",
  OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \

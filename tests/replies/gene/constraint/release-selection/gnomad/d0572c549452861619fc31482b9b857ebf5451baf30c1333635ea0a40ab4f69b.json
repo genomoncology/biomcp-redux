@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "gnomad",
+  "url": "https://storage.googleapis.com/gcp-public-data--gnomad/release/4.0/constraint/gnomad.v4.0.constraint_metrics.tsv",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "gene\ttranscript\tmane_select\tlof.pLI\tlof.oe_ci.upper\tlof.oe\tmis.z_score\tsyn.z_score\tconstraint_flags\nTP53\tENST00000269305\ttrue\t0.82\t0.44\t0.29\t1.9\t1.1\t[\"outlier_mis\"]\nBCR\tENST00000305877\tfalse\t0.22\t0.81\t0.28\tNA\t2.2\t[]\n"
+      }
+    }
+  ]
+}

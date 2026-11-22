@@ -17,7 +17,7 @@ mod commands;
 mod gene;
 pub use commands::{COMMANDS, CommandSpec, Request, Rewrite, command_paths};
 pub(crate) use gene::present;
-pub use gene::{GeneGet, GeneSearch, GeneSection, GeneSectionWord};
+pub use gene::{ConstraintRelease, GeneGet, GeneSearch, GeneSection, GeneSectionWord};
 
 mod article_edges;
 pub use article_edges::{ArticleEdges, EdgeSource};

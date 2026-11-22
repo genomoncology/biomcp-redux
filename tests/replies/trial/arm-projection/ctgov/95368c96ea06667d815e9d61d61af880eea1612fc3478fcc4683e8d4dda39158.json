@@ -1,0 +1,249 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies/NCT06952504",
+  "exchanges": [
+    {
+      "fetched": 1795290634,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 187,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "protocolSection": {
+            "identificationModule": {
+              "nctId": "NCT06952504",
+              "orgStudyIdInfo": {
+                "id": "2870-033"
+              },
+              "secondaryIdInfos": [
+                {
+                  "id": "2024-519331-42-00",
+                  "type": "REGISTRY",
+                  "domain": "EU CT"
+                },
+                {
+                  "id": "U1111-1315-0794",
+                  "type": "REGISTRY",
+                  "domain": "UTN"
+                },
+                {
+                  "id": "GOG-3119",
+                  "type": "OTHER",
+                  "domain": "Gynecologic Oncology Group"
+                },
+                {
+                  "id": "ENGOT-en29",
+                  "type": "OTHER",
+                  "domain": "European Network for Gynaecological Oncological Trial groups"
+                },
+                {
+                  "id": "TroFuse-033",
+                  "type": "OTHER",
+                  "domain": "MSD"
+                },
+                {
+                  "id": "jRCT2011250020",
+                  "type": "REGISTRY",
+                  "domain": "Japan Registry of Clinical Trial (jRCT)"
+                }
+              ],
+              "organization": {
+                "fullName": "Merck Sharp & Dohme LLC",
+                "class": "INDUSTRY"
+              },
+              "briefTitle": "A Study to Compare Sacituzumab Tirumotecan (MK-2870) in Combination With Pembrolizumab (MK-3475) Versus Pembrolizumab Alone as Treatment in Participants With Mismatch Repair Proficient Endometrial Cancer (MK-2870-033/TroFuse-033/GOG-3119/ENGOT-en29)",
+              "officialTitle": "A Phase 3 Randomized, Open-label, Multicenter Study to Compare the Efficacy and Safety of Sacituzumab Tirumotecan (Sac-TMT, MK-2870) in Combination With Pembrolizumab Versus Pembrolizumab Alone as First-line Maintenance Treatment in Participants With Mismatch Repair Proficient Endometrial Cancer (TroFuse-033/GOG-3119/ENGOT-en29)",
+              "acronym": "TroFuse-033"
+            },
+            "statusModule": {
+              "statusVerifiedDate": "2026-11",
+              "overallStatus": "RECRUITING",
+              "expandedAccessInfo": {
+                "hasExpandedAccess": false
+              },
+              "startDateStruct": {
+                "date": "2025-05-22",
+                "type": "ACTUAL"
+              },
+              "primaryCompletionDateStruct": {
+                "date": "2032-05-24",
+                "type": "ESTIMATED"
+              },
+              "completionDateStruct": {
+                "date": "2032-05-24",
+                "type": "ESTIMATED"
+              },
+              "studyFirstSubmitDate": "2025-04-23",
+              "studyFirstSubmitQcDate": "2025-04-23",
+              "studyFirstPostDateStruct": {
+                "date": "2025-05-01",
+                "type": "ACTUAL"
+              },
+              "lastUpdateSubmitDate": "2026-11-14",
+              "lastUpdatePostDateStruct": {
+                "date": "2026-11-17",
+                "type": "ACTUAL"
+              }
+            },
+            "designModule": {
+              "studyType": "INTERVENTIONAL",
+              "phases": [
+                "PHASE3"
+              ],
+              "designInfo": {
+                "allocation": "RANDOMIZED",
+                "interventionModel": "PARALLEL",
+                "interventionModelDescription": "Participants are allocated to a single induction arm, then assigned randomly to either one of two maintenance treatment arms or one of two subsequent treatment arms.",
+                "primaryPurpose": "TREATMENT",
+                "maskingInfo": {
+                  "masking": "SINGLE",
+                  "whoMasked": [
+                    "OUTCOMES_ASSESSOR"
+                  ]
+                }
+              },
+              "enrollmentInfo": {
+                "count": 1123,
+                "type": "ESTIMATED"
+              }
+            },
+            "armsInterventionsModule": {
+              "armGroups": [
+                {
+                  "label": "Maintenance Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                  "type": "EXPERIMENTAL",
+                  "description": "During the Induction Phase, participants receive pembrolizumab 200 mg, carboplatin area under the curve (AUC) 5 (mg/mL/min) or cisplatin 75 mg/m\\^2, and paclitaxel 175 mg/m\\^2 or docetaxel 75 mg/m\\^2 on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months).\n\nDuring the Maintenance Treatment Phase, participants receive sac-TMT 4 mg/kg on Days 1, 15, and 29 of each 6-week cycle and pembrolizumab 400 mg on Day 1 of each 6-week cycle for up to 14 cycles (up to approximately 19 months).",
+                  "interventionNames": [
+                    "Biological: Pembrolizumab",
+                    "Drug: Carboplatin",
+                    "Drug: Paclitaxel",
+                    "Drug: Docetaxel",
+                    "Biological: Sacituzumab Tirumotecan",
+                    "Drug: Cisplatin"
+                  ]
+                },
+                {
+                  "label": "Maintenance Treatment Arm B: Pembrolizumab Monotherapy",
+                  "type": "ACTIVE_COMPARATOR",
+                  "description": "During the Induction Phase, participants receive pembrolizumab 200 mg, carboplatin AUC 5 (mg/mL/min) or cisplatin 75 mg/m\\^2, and paclitaxel 175 mg/m\\^2 or docetaxel 75 mg/m\\^2 on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months).\n\nDuring the Maintenance Treatment Phase, participants receive pembrolizumab 400 mg on Day 1 of each 6-week cycle for up to 14 cycles (up to approximately 19 months).",
+                  "interventionNames": [
+                    "Biological: Pembrolizumab",
+                    "Drug: Carboplatin",
+                    "Drug: Paclitaxel",
+                    "Drug: Docetaxel",
+                    "Drug: Cisplatin"
+                  ]
+                },
+                {
+                  "label": "Subsequent Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                  "type": "EXPERIMENTAL",
+                  "description": "During the Induction Phase, participants receive pembrolizumab 200 mg, carboplatin AUC 5 (mg/mL/min) or cisplatin 75 mg/m\\^2, and paclitaxel 175 mg/m\\^2 or docetaxel 75 mg/m\\^2 on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months).\n\nDuring the Subsequent Treatment Phase, participants receive sac-TMT 4 mg/kg on Days 1, 15, and 29 of each 6-week cycle until discontinuation criteria is met and pembrolizumab 400 mg on Day 1 of each 6-week cycle for up to 14 cycles (up to approximately 19 months).",
+                  "interventionNames": [
+                    "Biological: Pembrolizumab",
+                    "Drug: Carboplatin",
+                    "Drug: Paclitaxel",
+                    "Drug: Docetaxel",
+                    "Biological: Sacituzumab Tirumotecan",
+                    "Drug: Cisplatin"
+                  ]
+                },
+                {
+                  "label": "Subsequent Treatment Arm B: Sacituzumab Tirumotecan Monotherapy",
+                  "type": "ACTIVE_COMPARATOR",
+                  "description": "During the Induction Phase, participants receive pembrolizumab 200 mg, carboplatin AUC 5 (mg/mL/min) or cisplatin 75 mg/m\\^2, and paclitaxel 175 mg/m\\^2 or docetaxel 75 mg/m\\^2 on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months).\n\nDuring the Subsequent Treatment Phase, participants receive sac-TMT 4 mg/kg on Days 1, 15, and 29 of each 6-week cycle until discontinuation criteria is met.",
+                  "interventionNames": [
+                    "Drug: Carboplatin",
+                    "Drug: Paclitaxel",
+                    "Drug: Docetaxel",
+                    "Biological: Sacituzumab Tirumotecan",
+                    "Drug: Cisplatin"
+                  ]
+                }
+              ],
+              "interventions": [
+                {
+                  "type": "BIOLOGICAL",
+                  "name": "Pembrolizumab",
+                  "description": "Intravenous (IV) Infusion",
+                  "armGroupLabels": [
+                    "Maintenance Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Maintenance Treatment Arm B: Pembrolizumab Monotherapy",
+                    "Subsequent Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan"
+                  ],
+                  "otherNames": [
+                    "KEYTRUDA®",
+                    "MK-3475",
+                    "SCH 900475"
+                  ]
+                },
+                {
+                  "type": "DRUG",
+                  "name": "Carboplatin",
+                  "description": "During the Induction Phase, participants receive carboplatin AUC 5 (mg/mL/min) on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months) via IV infusion.",
+                  "armGroupLabels": [
+                    "Maintenance Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Maintenance Treatment Arm B: Pembrolizumab Monotherapy",
+                    "Subsequent Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Subsequent Treatment Arm B: Sacituzumab Tirumotecan Monotherapy"
+                  ]
+                },
+                {
+                  "type": "DRUG",
+                  "name": "Paclitaxel",
+                  "description": "During the Induction Phase, participants receive paclitaxel 175 mg/m\\^2 on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months) via IV infusion.",
+                  "armGroupLabels": [
+                    "Maintenance Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Maintenance Treatment Arm B: Pembrolizumab Monotherapy",
+                    "Subsequent Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Subsequent Treatment Arm B: Sacituzumab Tirumotecan Monotherapy"
+                  ]
+                },
+                {
+                  "type": "DRUG",
+                  "name": "Docetaxel",
+                  "description": "During the Induction Phase, participants may receive docetaxel (in place of paclitaxel) 75 mg/m\\^2 on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months) via IV infusion.",
+                  "armGroupLabels": [
+                    "Maintenance Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Maintenance Treatment Arm B: Pembrolizumab Monotherapy",
+                    "Subsequent Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Subsequent Treatment Arm B: Sacituzumab Tirumotecan Monotherapy"
+                  ]
+                },
+                {
+                  "type": "BIOLOGICAL",
+                  "name": "Sacituzumab Tirumotecan",
+                  "description": "IV Infusion",
+                  "armGroupLabels": [
+                    "Maintenance Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Subsequent Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Subsequent Treatment Arm B: Sacituzumab Tirumotecan Monotherapy"
+                  ],
+                  "otherNames": [
+                    "sac-TMT",
+                    "MK-2870",
+                    "SKB264"
+                  ]
+                },
+                {
+                  "type": "DRUG",
+                  "name": "Cisplatin",
+                  "description": "During the Induction Phase, participants may receive cisplatin (in place of carboplatin) 75 mg/m\\^2 on Day 1 of each 3-week cycle for 6 cycles (up to approximately 4 months) via IV infusion",
+                  "armGroupLabels": [
+                    "Maintenance Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Maintenance Treatment Arm B: Pembrolizumab Monotherapy",
+                    "Subsequent Treatment Arm A: Pembrolizumab + Sacituzumab Tirumotecan",
+                    "Subsequent Treatment Arm B: Sacituzumab Tirumotecan Monotherapy"
+                  ]
+                }
+              ]
+            }
+          },
+          "hasResults": false
+        }
+      }
+    }
+  ]
+}

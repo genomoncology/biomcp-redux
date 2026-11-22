@@ -357,7 +357,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(drug_approvals::trials());
     trials.extend(nci::trials());
     trials.extend(drug_civic::trials());
-    trials.extend([citation_values::trial(), fields_sweep::trial()]);
+    trials.extend(std::iter::once(citation_values::trial()).chain(fields_sweep::trials()));
     trials.extend(transcript_trials());
     trials
 }

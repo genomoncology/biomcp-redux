@@ -55,7 +55,7 @@ pub use query::{
     CivicClaimKind, CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceSignificance,
     CivicEvidenceStatus, VariantSection,
 };
-pub use query::{GeneGet, GeneSearch, GeneSection, GeneSectionWord, Request};
+pub use query::{ConstraintRelease, GeneGet, GeneSearch, GeneSection, GeneSectionWord, Request};
 pub use query::{
     MyVariantQuery, VariantRegion, VariantSearch, VariantSearchField, VariantSearchSource,
     protein_query_forms,
@@ -272,8 +272,9 @@ pub use query::{
 };
 
 pub use response::{
-    PathwayCard, PathwayEvents, PathwayGenes, PathwayHeader, PathwayLeftOut, PathwayNamespaceCount,
-    PathwayPage, PathwayPageInfo, PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
+    PathwayCard, PathwayEvents, PathwayGeneCount, PathwayGeneCountScope, PathwayGenes,
+    PathwayHeader, PathwayLeftOut, PathwayNamespaceCount, PathwayPage, PathwayPageInfo,
+    PathwayTotalKind, WikiPathwaysCatalogReceipt, WikiPathwaysSync,
 };
 
 mod protein;

@@ -1,0 +1,176 @@
+{
+  "feature": "gene-constraint",
+  "story": "Explicit v4.1 selects the published MANE Select metrics for each gene and never substitutes a canonical transcript.",
+  "replay": "gene/constraint/release-selection",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "--constraint-release",
+        "v4.1",
+        "--fields=loeuf"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/sections/constraint/reason": "syncing",
+        "/sources/*/notices/*/message": {
+          "includes": "gnomAD v4.1 constraint table is unavailable locally. Run biomcp sync gnomad-constraint-v4.1."
+        }
+      }
+    },
+    {
+      "run": [
+        "sync",
+        "gnomad-constraint-v4.1"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "BCR",
+        "constraint",
+        "--constraint-release",
+        "v4.1",
+        "--fields=loeuf"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "loeuf"
+        ],
+        "/result/items/0/sections/constraint/data": {
+          "equals": {
+            "version": "v4.1",
+            "transcript": "ENST00000269305",
+            "loeuf": 0.42
+          }
+        },
+        "/result/items/1/sections/constraint/data": {
+          "equals": {
+            "version": "v4.1",
+            "transcript": "ENST00000305877",
+            "loeuf": 0.56
+          }
+        }
+      }
+    },
+    {
+      "run": [
+        "sync",
+        "gnomad-constraint-v4.0"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "BCR",
+        "constraint",
+        "--constraint-release",
+        "v4.0",
+        "--fields=loeuf"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/0/sections/constraint/data": {
+          "equals": {
+            "version": "v4.0",
+            "transcript": "ENST00000269305",
+            "loeuf": 0.44
+          }
+        },
+        "/result/items/1/sections/constraint": {
+          "equals": {
+            "state": "unavailable",
+            "source": "gnomad",
+            "reason": "not-stated"
+          }
+        },
+        "/sources/*/notices/*/message": {
+          "includes": "gnomAD v4.0 has no unique MANE Select constraint row for BCR."
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "TP53",
+        "constraint",
+        "--constraint-release",
+        "v4.9"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--constraint-release",
+        "/error/valid_values": [
+          "v4.0",
+          "v4.1"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gnomad-constraint-v4.0"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "sync",
+          "gnomad-constraint-v4.0"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gnomad-constraint-v4.0",
+        "--unrecognized-argument"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gnomad-constraint-v4.1"
+      ],
+      "expect": {
+        "/result/commands/0/command": [
+          "sync",
+          "gnomad-constraint-v4.1"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "sync",
+        "gnomad-constraint-v4.1",
+        "--unrecognized-argument"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

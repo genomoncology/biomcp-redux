@@ -1,0 +1,21 @@
+{
+  "feature": "section-fields",
+  "story": "Arms and contacts from the same registry snapshot can be read together.",
+  "replay": "trial/get/NCT02987543",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02987543",
+        "arms",
+        "contacts"
+      ],
+      "expect": {
+        "/result/items/0/sections/arms/state": "data",
+        "/result/items/0/sections/contacts/state": "data",
+        "/result/items/0/sections/contacts/data/items/0/data/name": "Johann de Bono, M.D., Ph.D."
+      }
+    }
+  ]
+}
