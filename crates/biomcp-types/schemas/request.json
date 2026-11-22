@@ -6107,6 +6107,10 @@
           },
           "type": "array",
           "x-trailing-section": true
+        },
+        "section_only": {
+          "description": "Keep resolved identity and constraint rows. Use with the constraint section.",
+          "type": "boolean"
         }
       },
       "required": [

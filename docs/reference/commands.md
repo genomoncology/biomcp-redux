@@ -3579,6 +3579,12 @@ Options:
       --section <section>
           Requested section words, preserving caller order and repetitions; help get gene
 
+      --section-only[=<section_only>]
+          Keep resolved identity and constraint rows. Use with the constraint section.
+
+          [default: false]
+          [possible values: true, false]
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
@@ -3607,6 +3613,7 @@ Options apply to every listed source unless their description restricts them.
 Form: get gene INPUT...; not --input.
 - `--constraint-release`: Choose a gnomAD release for MANE Select. Value form: string; example: --constraint-release v4.1.
 - `--section`: Requested section words, preserving caller order and repetitions… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section clingen.
+- `--section-only`: Keep resolved identity and constraint rows. Use with the constraint section. Value form: boolean; example: --section-only.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.

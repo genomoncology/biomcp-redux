@@ -15,9 +15,11 @@ pub use article_text::ArticleText;
 pub(crate) mod command_source;
 mod commands;
 mod gene;
+mod gene_get;
 pub use commands::{COMMANDS, CommandSpec, Request, Rewrite, command_paths};
 pub(crate) use gene::present;
-pub use gene::{ConstraintRelease, GeneGet, GeneSearch, GeneSection, GeneSectionWord};
+pub use gene::{GeneSearch, GeneSection, GeneSectionWord};
+pub use gene_get::{ConstraintRelease, GeneGet};
 
 mod article_edges;
 pub use article_edges::{ArticleEdges, EdgeSource};
