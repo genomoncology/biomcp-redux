@@ -25,6 +25,8 @@ mod typed_bridge;
 pub(super) mod typed_catalog;
 #[path = "typed_discovery.rs"]
 mod typed_discovery;
+#[path = "typed_dispatch.rs"]
+mod typed_dispatch;
 #[path = "typed_entity.rs"]
 mod typed_entity;
 #[path = "typed_followups.rs"]
@@ -58,6 +60,9 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend([
         transcript_trial("mcp-typed-discovery/compact", || {
             typed_discovery::check().map_err(Into::into)
+        }),
+        transcript_trial("mcp-typed-discovery/listed-dispatch", || {
+            typed_dispatch::check().map_err(Into::into)
         }),
         transcript_trial("mcp-typed-discovery/hosted", || {
             typed_discovery::hosted().map_err(Into::into)
