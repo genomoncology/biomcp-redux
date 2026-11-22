@@ -1,5 +1,5 @@
 feature: disease-hpo-release
-story: Phenotype searches resolve the current HPO release and keep its tag in the next-page command.
+story: Phenotype searches resolve the current HPO release and report when a requested release cannot be read.
 replay: disease/hpo-release
 steps:
   - run: [disease, search, --source, hpo, --phenotype, "HP:0001083", --phenotype, "HP:0000098", --phenotype, "HP:0001634"]
@@ -14,5 +14,6 @@ steps:
     expect:
       /status: failed
       /sources/0/reason: not-found
+      /sources/0/notices: {count: 1}
       /sources/0/notices/0/message: "HPO release v2099-03-01 or a required release file was not found."
       "": {omits: [result]}
