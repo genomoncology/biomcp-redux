@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "hpo",
+  "url": "https://api.github.com/repos/obophenotype/human-phenotype-ontology/releases/latest",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "tag_name": "v2099-02-01"
+        }
+      }
+    }
+  ]
+}

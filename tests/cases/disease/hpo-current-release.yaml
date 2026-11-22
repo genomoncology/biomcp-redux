@@ -1,0 +1,19 @@
+feature: disease-hpo-release
+story: Phenotype searches resolve the current HPO release and report when a requested release cannot be read.
+replay: disease/hpo-release
+steps:
+  - run: [disease, search, --source, hpo, --phenotype, "HP:0001083", --phenotype, "HP:0000098", --phenotype, "HP:0001634"]
+    expect:
+      /status: complete
+      /result/release: v2099-02-01
+      /result/items/0/gene_links/0/symbol: SYNTH3
+      /sources/0/notices/0/message: "This product uses Human Phenotype Ontology release v2099-02-01. IEA annotations (inferred from electronic annotation) are excluded."
+  - run: [search, disease, --phenotype, "HP:0001083", --hpo-release, v2099-03-01]
+    exit: 4
+    is_error: true
+    expect:
+      /status: failed
+      /sources/0/reason: not-found
+      /sources/0/notices: {count: 1}
+      /sources/0/notices/0/message: "HPO release v2099-03-01 or a required release file was not found."
+      "": {omits: [result]}
