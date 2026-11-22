@@ -202,6 +202,7 @@
           "description": "Requested provider record."
         },
         "items": {
+          "default": [],
           "description": "Original source order; no native corpus total is claimed.",
           "items": {
             "$ref": "#/$defs/Reply_AuthorPaperDetail"
@@ -1246,7 +1247,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+      "description": "Page bounds and total. A row page with no rows includes an empty array for its primary collection."
     },
     "problems": {
       "description": "Rejected source fields.",

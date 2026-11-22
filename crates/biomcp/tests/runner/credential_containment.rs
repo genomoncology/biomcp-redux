@@ -123,7 +123,7 @@ fn invoke(env: &Environment, mut args: Vec<String>, bad: bool) -> Result<Value, 
     if bad && out.pointer("/sources/0/reason") != Some(&json!("bad-reply")) {
         return Err("contamination was not a sanitized bad_reply".into());
     }
-    if !bad && out.pointer("/result/items").is_some() {
+    if !bad && out.pointer("/result/items") != Some(&json!([])) {
         return Err("ordinary keyed reply changed".into());
     }
     Ok(out)

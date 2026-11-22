@@ -102,7 +102,7 @@ fn hosted() -> Result<(), String> {
     }
     let show = json!({"action":"show"});
     let (_, other) = call(&server, "saved", show.clone(), &account("bob"))?;
-    if other.get("result") != Some(&json!({})) {
+    if other.get("result") != Some(&json!({"searches":[],"lists":[]})) {
         return Err(format!("bob never sees alice's names: {other}"));
     }
     for bad in ["../alice", "alice/x", ".."] {

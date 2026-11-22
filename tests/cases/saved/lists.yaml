@@ -11,9 +11,8 @@
       "expect": {
         "/schema": "biomcp.saved/1",
         "/status": "complete",
-        "/result": {
-          "equals": {}
-        }
+        "/result/searches": [],
+        "/result/lists": []
       }
     },
     {
@@ -262,9 +261,8 @@
         "show"
       ],
       "expect": {
-        "/result": {
-          "equals": {}
-        }
+        "/result/searches": [],
+        "/result/lists": []
       }
     },
     {

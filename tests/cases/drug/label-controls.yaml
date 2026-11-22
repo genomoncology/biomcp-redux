@@ -24,11 +24,7 @@
       "exit": 0,
       "expect": {
         "/status": "complete",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
+        "/result/items": [],
         "": {
           "omits": [
             "problems"

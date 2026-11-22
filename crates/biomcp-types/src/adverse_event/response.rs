@@ -100,8 +100,9 @@ pub struct AdverseEventPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fetched: Option<u64>,
     /// Native ordered report candidates.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub items: Box<[AdverseEventHeader]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Box<[AdverseEventHeader]>", extend("default" = [])))]
+    pub items: Option<Box<[AdverseEventHeader]>>,
     /// Explicit reports unit for envelope page totals.
     pub unit: ReportUnit,
     /// Applicable component terms.

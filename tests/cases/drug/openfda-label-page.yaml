@@ -116,11 +116,7 @@
         "/page/returned": 0,
         "/page/total": 24,
         "/result/total": 24,
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        }
+        "/result/items": []
       }
     },
     {

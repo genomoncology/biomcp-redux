@@ -69,7 +69,7 @@ pub struct DrugPurpleBookPage {
     /// Number of matching presentation rows.
     pub total: u64,
     /// FDA rows in BLA and product number order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[PurpleBookPresentation]>,
 }
 

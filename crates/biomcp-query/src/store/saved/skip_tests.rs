@@ -84,7 +84,11 @@ fn unknown_stored_values_are_skipped() {
         store.show(None).unwrap(),
         store.show(Some("genes")).unwrap(),
     ] {
-        assert_eq!(shown.lists[0].items.len(), 1, "the readable item stays");
+        assert_eq!(
+            shown.lists.as_deref().unwrap()[0].items.len(),
+            1,
+            "the readable item stays"
+        );
         assert_eq!(shown.user_notes.len(), 1, "the readable note stays");
         assert!(shown.skipped.contains(&item));
     }

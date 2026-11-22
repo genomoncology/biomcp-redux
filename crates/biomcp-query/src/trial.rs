@@ -308,7 +308,7 @@ fn apply_page(
         body: Some(body), ..
     } = &mut outcome.body
     {
-        body.items = page.items.into();
+        body.items = (!query.count_only()).then(|| page.items.into());
     }
 }
 fn empty(query: &TrialSearch) -> Outcome {
@@ -317,7 +317,7 @@ fn empty(query: &TrialSearch) -> Outcome {
         crate::status::Parts {
             dropped: false,
             body: (TrialPage {
-                items: Box::default(),
+                items: (!(query.count_only() || query.site_count())).then(Box::default),
                 source_updated: None,
                 attribution:
                     "ClinicalTrials.gov; source-native discovery, no eligibility assessment".into(),

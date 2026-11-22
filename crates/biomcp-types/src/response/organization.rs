@@ -71,7 +71,7 @@ pub struct OrganizationCoordinates {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct OrganizationPage {
     /// Published organizations in source order, with optional source details.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[Organization]>,
 }
 impl crate::ResponseBody for OrganizationPage {

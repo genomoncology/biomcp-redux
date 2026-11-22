@@ -11,7 +11,7 @@ pub struct ProteinFeatures {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub attribution: Option<Attribution>,
     /// Whole native rows in source order; totals apply only to this collection.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinFeatureRow]>,
     /// How to read the spans, present when any row is returned.
     #[serde(skip_serializing_if = "Option::is_none")]

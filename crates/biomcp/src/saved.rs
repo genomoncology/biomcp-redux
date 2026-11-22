@@ -256,7 +256,7 @@ pub(crate) fn save_search(
         Ok(search) if at.context.is_some() => reply(
             encoding,
             Ok(Saved {
-                searches: vec![search],
+                searches: Some(vec![search]),
                 ..Saved::default()
             }),
             "--save-as",
@@ -370,6 +370,13 @@ pub(crate) fn verbs(
         "list" => return list(root, at, matches),
         _ => return usage(encoding, help_usage(UsageError::arguments())),
     };
+    let result = result.map(|mut saved| {
+        if verb == "show" && name.is_none() {
+            saved.searches.get_or_insert_default();
+            saved.lists.get_or_insert_default();
+        }
+        saved
+    });
     reply(encoding, result, "NAME")
 }
 

@@ -1,6 +1,7 @@
 # 1132 — mcp-lists-stay-arrays-when-empty
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: aef1466e9de77d80e6f7b8b284293aeee1eddd4d
 
 Milestone: 7
 

@@ -51,11 +51,7 @@
       "follow": "page",
       "expect": {
         "/status": "partial",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
+        "/result/items": [],
         "/page/offset": 4,
         "/page/returned": 0,
         "/page/total": 8
@@ -76,6 +72,26 @@
           "omits": [
             "next"
           ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition-id",
+        "NCIT:C3224",
+        "--limit",
+        "2",
+        "--count-only"
+      ],
+      "expect": {
+        "/page/total": 8,
+        "/page/returned": 0,
+        "/result": {
+          "omits": ["items"]
         }
       }
     }

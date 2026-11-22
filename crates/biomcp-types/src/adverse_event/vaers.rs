@@ -155,7 +155,7 @@ pub struct VaersSummary {
     pub footer: VaersRow,
     /// Native row order, or the whole table ordered by native count with --sort reports, with
     /// local paging.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub rows: Box<[VaersRow]>,
     /// Applied native messages, evaluated caveats and footnotes.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

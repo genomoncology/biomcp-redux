@@ -86,7 +86,7 @@ fn failures() -> Check {
         json!({
             "/status": "partial",
             "/sources/0/state": "ok",
-            "/result": {"equals": {}},
+            "/result": {"equals": {"items": []}},
             "/page/returned": 0,
             "/page/total": 0,
             "/problems": [{
