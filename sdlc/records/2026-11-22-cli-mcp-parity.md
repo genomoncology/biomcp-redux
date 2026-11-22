@@ -37,7 +37,7 @@ The second command makes two live ClinicalTrials.gov reads. It exercises one opt
 | [1078 fields covers the remaining sections](../tickets/1078-fields-covers-the-remaining-sections.md) | Both | Same | `gene/sections/constraint-fields` step 1 |
 | [1079 pdf symbol font characters read as standard characters](../tickets/1079-pdf-symbol-font-characters-read-as-standard-characters.md) | Both | Same | `diagnostic/pdf-symbol-characters` step 1 |
 | [1080 pdf reader keeps numbers whole](../tickets/1080-pdf-reader-keeps-numbers-whole.md) | Both | Same | The same Rinvoq history request as 1066 reads the affected archived PDF. The PDF reader cases assert the numbers directly. |
-| [1081 two small reply faults from the hand check](../tickets/1081-two-small-reply-faults-from-the-hand-check.md) | Both | Same | `drug/approvals-default-page` step 1 |
+| [1081 two small reply faults from the hand check](../tickets/1081-two-small-reply-faults-from-the-hand-check.md) | Both | Same | `drug/approvals-default-page` step 3 |
 | [1082 label history reads old format labels](../tickets/1082-label-history-reads-old-format-labels.md) | Both | Same | `drug/label-history-lamictal` step 1 |
 | [1083 label history help uses a neutral example](../tickets/1083-label-history-help-uses-a-neutral-example.md) | Both | Same | `drug/label-history-example` step 2 |
 | [1084 companion list rows are small and searchable by name](../tickets/1084-companion-list-rows-are-small-and-searchable-by-name.md) | Both | Same | `diagnostic/native-cdx` step 4 |
@@ -80,7 +80,7 @@ The second command makes two live ClinicalTrials.gov reads. It exercises one opt
 | [1122 purple book says how old its snapshot is](../tickets/1122-purple-book-says-how-old-its-snapshot-is.md) | Both | Same | `drug/purple-book-age` step 1 |
 | [1125 get drug help lists only sources get accepts](../tickets/1125-get-drug-help-lists-only-sources-get-accepts.md) | Both | Same | `drug/help` step 2 |
 | [1126 label section limit matches what help advertises](../tickets/1126-label-section-limit-matches-what-help-advertises.md) | Both | Same | `drug/label-section-limit` step 1 |
-| [1127 restore test guards weakened by recent landings](../tickets/1127-restore-test-guards-weakened-by-recent-landings.md) | Build and checks | Different by design | Restored test guards. No application request changed. |
+| [1127 restore test guards weakened by recent landings](../tickets/1127-restore-test-guards-weakened-by-recent-landings.md) | Both | Same | `drug/fda-dsc-invalid-page-dates` and `drug/fda-withdrawn-approvals-invalid-date` step 1. Other changes restored test guards. |
 | [1128 partial gene reply names what is missing](../tickets/1128-partial-gene-reply-names-what-is-missing.md) | Both | Same | `gene/batch-mygene-disabled` step 1 |
 | [1129 skill names label indication search and fda lists](../tickets/1129-skill-names-label-indication-search-and-fda-lists.md) | CLI skill | Fixed here | `drug/indication` step 6 / `drug/fda-withdrawn-approvals` step 4 / `drug/fda-safety-signals` step 5 / the same guide is served by both MCP modes |
 
