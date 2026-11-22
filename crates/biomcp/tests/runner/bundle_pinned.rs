@@ -92,7 +92,7 @@ fn read() -> Result<(), String> {
 }
 
 /// Hosted mode serves only HTTP: one hosted server in this environment.
-fn hosted(env: &Environment) -> Result<Server, String> {
+pub(super) fn hosted(env: &Environment) -> Result<Server, String> {
     Server::configured_launch(
         "127.0.0.1:0",
         None,
