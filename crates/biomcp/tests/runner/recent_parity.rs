@@ -133,7 +133,10 @@ fn replay(case: &case_data::Case, step: usize, mcp: bool) -> Result<Value, Strin
             current.mcp = None;
             if mcp {
                 let mut config = launch::case_config(case);
-                config["mcp_tool_mode"] = json!("single");
+                config
+                    .as_object_mut()
+                    .ok_or("case config object")?
+                    .insert("mcp_tool_mode".into(), json!("single"));
                 env.config(&config).map_err(|error| error.to_string())?;
                 current.mcp = Some(args);
                 current.is_error = current.exit >= 2;

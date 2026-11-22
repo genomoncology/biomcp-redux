@@ -33,7 +33,10 @@ pub(super) fn expected(before: &Value, after: &Value) -> Result<Value, String> {
                     .flat_map(|args| args.windows(2))
                     .enumerate()
                 {
-                    if pair[0].as_str() == Some("--pool") && &pair[1] == id {
+                    if let [flag, value] = pair
+                        && flag.as_str() == Some("--pool")
+                        && value == id
+                    {
                         paths.push(format!("{next}/{step}/args/{}", index + 1));
                     }
                 }
