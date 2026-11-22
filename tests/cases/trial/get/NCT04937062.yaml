@@ -44,7 +44,7 @@
           "includes_all_of": [
             "##### STXBP1 / SLC6A1 ARM\n\n###### Exclusion",
             "##### MONOGENETIC DEE ARM\n\n###### Exclusion",
-            "**age_scope:** study-wide"
+            "**age\\_scope:** study-wide"
           ]
         }
       }
