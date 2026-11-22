@@ -1,0 +1,13 @@
+feature: mcp-parity
+live_check: retained replay
+story: A paired CLI and typed MCP trial search compares the same rows when MCP offers a save follow-up.
+replay: trial/condition
+config:
+  mcp_tool_mode: typed
+  mcp_typed_output_schema: true
+steps:
+  - run: [search, trial, --condition, melanoma]
+    mcp: [search, trial, --condition, melanoma]
+    expect:
+      /status: complete
+      /result/items/0/nct_id: NCT02296125
