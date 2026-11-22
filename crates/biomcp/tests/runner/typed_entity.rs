@@ -37,6 +37,7 @@ pub(super) fn check() -> Result<(), String> {
         &offline,
     )?)?;
     super::typed_catalog::check(&local)?;
+    cardinalities(&local)?;
     let validators = output::check(&env, &local)?;
     let server =
         Server::configured_globals("127.0.0.1:0", Some(config), None, None, None, &hosted)?;
@@ -105,6 +106,32 @@ pub(super) fn check() -> Result<(), String> {
     } else {
         Err(failures.join("\n"))
     }
+}
+
+/// Single-value actions accept a scalar or a one-item list in tools/list.
+fn cardinalities(tools: &[Value]) -> Result<(), String> {
+    for (name, field, singleton) in [
+        ("drug", "id", true),
+        ("disease", "id", true),
+        ("gene", "id", false),
+        ("diagnostic", "section", true),
+        ("drug", "section", false),
+    ] {
+        let path = format!("/inputSchema/properties/get/properties/{field}");
+        let advertised = tools
+            .iter()
+            .find(|tool| tool["name"] == name)
+            .and_then(|tool| tool.pointer(&path))
+            .ok_or_else(|| format!("missing {name}.get.{field}"))?;
+        if advertised["type"] != json!(["string", "array"])
+            || (advertised["maxItems"] == json!(1)) != singleton
+        {
+            return Err(format!(
+                "{name}.get.{field} has the wrong cardinality: {advertised}"
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// A served action reaches the CLI's command (schema and query); hosting refuses it only for a source whose key the
