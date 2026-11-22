@@ -245,13 +245,9 @@ fn replay_replies(env: &Environment, validators: &Validators<'_>) -> Result<(), 
         );
         let frames = exchange_with_globals(env, &[frame], &globals)?;
         let mut reply = frames
-            .into_iter()
-            .next()
-            .and_then(|mut frame| {
-                frame
-                    .pointer_mut("/result/structuredContent")
-                    .map(Value::take)
-            })
+            .first()
+            .and_then(|frame| frame.pointer("/result/structuredContent"))
+            .cloned()
             .ok_or_else(|| format!("{name}: missing replayed reply"))?;
         let schema = &validators[name];
         schema
@@ -289,11 +285,8 @@ fn saved_replies(validators: &Validators<'_>) -> Result<(), String> {
             previous.as_ref(),
             prior_step,
         )?;
-        if step
-            .mcp_call
-            .as_ref()
-            .is_some_and(|call| call.name == "saved")
-        {
+        let call = step.mcp_call.as_ref();
+        if call.is_some_and(|call| call.name == "saved") {
             validators["saved"]
                 .validate(&reply)
                 .map_err(|error| format!("saved output schema rejected replayed reply: {error}"))?;
