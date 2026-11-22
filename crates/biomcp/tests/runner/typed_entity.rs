@@ -36,8 +36,7 @@ pub(super) fn check() -> Result<(), String> {
     )?)?;
     super::typed_catalog::check(&local)?;
     let validators = reply_validators(&local)?;
-    replay_reply(&env, &validators)?;
-    shared_replies(&env, &validators)?;
+    replay_replies(&env, &validators)?;
     saved_replies(&validators)?;
     let server =
         Server::configured_globals("127.0.0.1:0", Some(config), None, None, None, &hosted)?;
@@ -215,37 +214,15 @@ fn reply_validators(tools: &[Value]) -> Result<Validators<'_>, String> {
         .collect()
 }
 
-fn replay_reply(env: &Environment, validators: &Validators<'_>) -> Result<(), String> {
-    let replay = super::super::response_cases::replay(env, Some("trial/intervention"), None)?;
-    let globals = env.globals(replay.as_deref(), false);
-    let frame = request(
-        json!(1),
-        "tools/call",
-        json!({"name":"trial","arguments":{"action":"search","search":{
-            "condition":"melanoma","intervention":"pembrolizumab"
-        }}}),
-    );
-    let frames = exchange_with_globals(env, &[frame], &globals)?;
-    let mut response = frames
-        .first()
-        .and_then(|frame| frame.pointer("/result/structuredContent"))
-        .cloned()
-        .ok_or("missing replayed trial search")?;
-    validators["trial"]
-        .validate(&response)
-        .map_err(|error| format!("trial search replay: {error}"))?;
-    let title = response
-        .pointer_mut("/result/items/0/title")
-        .ok_or("missing replayed trial title")?;
-    *title = json!({"wrong_type":true});
-    if validators["trial"].is_valid(&response) {
-        return Err("trial search schema accepted an object as a row title".into());
-    }
-    Ok(())
-}
-
-fn shared_replies(env: &Environment, validators: &Validators<'_>) -> Result<(), String> {
+fn replay_replies(env: &Environment, validators: &Validators<'_>) -> Result<(), String> {
     for (name, args, capture) in [
+        (
+            "trial",
+            json!({"action":"search","search":{
+                "condition":"melanoma","intervention":"pembrolizumab"
+            }}),
+            Some("trial/intervention"),
+        ),
         ("help", json!({"command":"search trial"}), None),
         ("biomcp", json!({"args":["help","search","trial"]}), None),
         (
@@ -267,13 +244,27 @@ fn shared_replies(env: &Environment, validators: &Validators<'_>) -> Result<(), 
             json!({"name":name,"arguments":args}),
         );
         let frames = exchange_with_globals(env, &[frame], &globals)?;
-        let reply = frames
-            .first()
-            .and_then(|frame| frame.pointer("/result/structuredContent"))
+        let mut reply = frames
+            .into_iter()
+            .next()
+            .and_then(|mut frame| {
+                frame
+                    .pointer_mut("/result/structuredContent")
+                    .map(Value::take)
+            })
             .ok_or_else(|| format!("{name}: missing replayed reply"))?;
-        validators[name]
-            .validate(reply)
+        let schema = &validators[name];
+        schema
+            .validate(&reply)
             .map_err(|error| format!("{name}: output schema rejected replayed reply: {error}"))?;
+        if name == "trial" {
+            *reply
+                .pointer_mut("/result/items/0/title")
+                .ok_or("missing replayed trial title")? = json!({"wrong_type":true});
+            if schema.is_valid(&reply) {
+                return Err("trial search schema accepted an object as a row title".into());
+            }
+        }
     }
     Ok(())
 }
