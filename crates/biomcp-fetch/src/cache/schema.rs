@@ -195,7 +195,7 @@ impl Cache {
 }
 
 fn add_first_read_backoff(tx: &Transaction<'_>) -> Result<(), CacheError> {
-    let installed = tx.query_row(
+    let installed: bool = tx.query_row(
         "SELECT EXISTS(SELECT 1 FROM pragma_table_info('bundle_first_read') WHERE name='publisher_status')",
         [],
         |row| row.get(0),
