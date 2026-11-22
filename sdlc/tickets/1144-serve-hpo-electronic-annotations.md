@@ -1,6 +1,7 @@
 # 1144 — serve-hpo-electronic-annotations
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 98c9faa26e5f8eb730c7b2b12582f21e03fa55b1
 
 Milestone: 7
 

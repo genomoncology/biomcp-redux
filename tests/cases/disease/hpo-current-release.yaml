@@ -5,9 +5,12 @@ steps:
   - run: [disease, search, --source, hpo, --phenotype, "HP:0001083", --phenotype, "HP:0000098", --phenotype, "HP:0001634"]
     expect:
       /status: complete
+      /page/total: 3
       /result/release: v2099-02-01
       /result/items/0/gene_links/0/symbol: SYNTH3
-      /sources/0/notices/0/message: "This product uses Human Phenotype Ontology release v2099-02-01. IEA annotations (inferred from electronic annotation) are excluded."
+      /sources/0/notices/0/message: >-
+        This product uses Human Phenotype Ontology release v2099-02-01.
+        HPO marks IEA annotations as derived from OMIM's clinical features.
   - run: [search, disease, --phenotype, "HP:0001083", --hpo-release, v2099-03-01]
     exit: 4
     is_error: true
