@@ -1,6 +1,7 @@
 # 1136 — paired-test-helper-accepts-typed-save-followup
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 59c58cbb32a6efbb07507abc702cc04144d66282
 
 Milestone: 7
 
