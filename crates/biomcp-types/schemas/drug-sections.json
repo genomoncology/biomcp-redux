@@ -2890,6 +2890,7 @@
           "type": "integer"
         },
         "records": {
+          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_AuthorizationEvent"
@@ -2950,6 +2951,7 @@
           "type": "integer"
         },
         "records": {
+          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugFdaSubmission"
@@ -3010,6 +3012,7 @@
           "type": "integer"
         },
         "records": {
+          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugIdentityRelation"
@@ -3070,6 +3073,7 @@
           "type": "integer"
         },
         "records": {
+          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugIndicationRow"
@@ -3130,6 +3134,7 @@
           "type": "integer"
         },
         "records": {
+          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugInteractionClaim"
@@ -3190,6 +3195,7 @@
           "type": "integer"
         },
         "records": {
+          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugTargetRelation"

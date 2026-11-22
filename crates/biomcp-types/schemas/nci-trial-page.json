@@ -1566,6 +1566,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciDiseaseRef"

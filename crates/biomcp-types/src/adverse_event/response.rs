@@ -240,6 +240,7 @@ pub struct AdverseEventRecords<T> {
     pub total: u64,
     /// Source ordered whole rows.
     #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(extend("default" = [])))]
     pub records: Box<[T]>,
 }
 macro_rules! section {

@@ -3573,6 +3573,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialArmRecord"
@@ -3618,6 +3619,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialContactRecord"
@@ -3663,6 +3665,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialDocument"
@@ -3708,6 +3711,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialLocation"
@@ -3760,6 +3764,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialOutcome"
@@ -3805,6 +3810,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialReference"
@@ -3850,6 +3856,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialResultRecord"

@@ -156,6 +156,7 @@ pub struct TrialRecords<T> {
     pub page: crate::PageInfo,
     /// Complete records in source order.
     #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(extend("default" = [])))]
     pub items: Box<[T]>,
 }
 impl<T> TrialRecords<T> {

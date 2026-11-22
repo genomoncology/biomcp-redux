@@ -1,6 +1,10 @@
 use jsonschema::{Retrieve, Uri, Validator};
 use serde_json::Value;
-use std::{collections::BTreeMap, error::Error, sync::Arc};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    error::Error,
+    sync::Arc,
+};
 
 pub(super) const ARTIFACTS: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/schemas.rs"));
 // Only a resolution anchor. The custom retriever never performs external I/O.
@@ -132,9 +136,9 @@ impl Registry {
             .get("schema")
             .and_then(Value::as_str)
             .ok_or("schema validation: result requires a string schema identity")?;
-        reject_empty_lists(value, "", id)?;
-        reject_nulls(value, "", id)?;
         let validator = self.validator(id)?;
+        check_empty_lists(value, id, validator)?;
+        reject_nulls(value, "", id)?;
         if let Some(error) = validator.iter_errors(value).next() {
             return Err(format!(
                 "schema validation: {} at {} violates {} ({})",
@@ -148,20 +152,47 @@ impl Registry {
     }
 }
 
-fn reject_empty_lists(value: &Value, path: &str, schema: &str) -> Result<(), String> {
+fn check_empty_lists(value: &Value, id: &str, validator: &Validator) -> Result<(), String> {
+    if reject_empty_lists(value, "", id, &BTreeSet::new()).is_ok() {
+        return Ok(());
+    }
+    // Generated reply schemas declare collections that serialize an empty default.
+    // Inspect only the schema branches that apply to this reply.
+    let evaluation = validator.evaluate(value);
+    let allowed = evaluation
+        .iter_annotations()
+        .filter_map(|annotation| {
+            annotation
+                .annotations
+                .value()
+                .get("default")
+                .and_then(Value::as_array)
+                .filter(|items| items.is_empty())
+                .map(|_| annotation.instance_location.as_str())
+        })
+        .collect();
+    reject_empty_lists(value, "", id, &allowed)
+}
+
+fn reject_empty_lists(
+    value: &Value,
+    path: &str,
+    schema: &str,
+    allowed: &BTreeSet<&str>,
+) -> Result<(), String> {
     match value {
         Value::Array(items) => {
-            if items.is_empty() && !gnomad_filters(path, schema) {
+            if items.is_empty() && !allowed.contains(path) && !gnomad_filters(path, schema) {
                 return Err(format!("product reply contains an empty list at {path}"));
             }
             for (index, item) in items.iter().enumerate() {
-                reject_empty_lists(item, &format!("{path}/{index}"), schema)?;
+                reject_empty_lists(item, &format!("{path}/{index}"), schema, allowed)?;
             }
         }
         Value::Object(fields) => {
             for (name, item) in fields {
                 let name = name.replace('~', "~0").replace('/', "~1");
-                reject_empty_lists(item, &format!("{path}/{name}"), schema)?;
+                reject_empty_lists(item, &format!("{path}/{name}"), schema, allowed)?;
             }
         }
         _ => {}
@@ -227,13 +258,13 @@ fn reject_nulls(value: &Value, path: &str, schema: &str) -> Result<(), String> {
         }
         Value::Array(items) => {
             for (index, item) in items.iter().enumerate() {
-                reject_nulls(item, &format!("{path}/{index}"), schema)?;
+                reject_nulls(item, &format!("{path}/{index}"), schema, allowed)?;
             }
         }
         Value::Object(fields) => {
             for (name, item) in fields {
                 let name = name.replace('~', "~0").replace('/', "~1");
-                reject_nulls(item, &format!("{path}/{name}"), schema)?;
+                reject_nulls(item, &format!("{path}/{name}"), schema, allowed)?;
             }
         }
         _ => {}

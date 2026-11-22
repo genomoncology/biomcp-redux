@@ -1085,6 +1085,7 @@
           "type": "integer"
         },
         "records": {
+          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugFdaSubmission"

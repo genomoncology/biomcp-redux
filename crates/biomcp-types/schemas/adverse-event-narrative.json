@@ -212,6 +212,7 @@
           "type": "integer"
         },
         "records": {
+          "default": [],
           "description": "Source ordered whole rows.",
           "items": {
             "$ref": "#/$defs/Reply_AdverseEventNarrativeItem"

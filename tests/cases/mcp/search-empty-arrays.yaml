@@ -6,11 +6,16 @@ config:
   mcp_tool_mode: typed
 steps:
   - run: &zero [search, trial, --condition, Snyder-Robinson syndrome, --exact-condition, --limit, "1"]
-    mcp: *zero
     expect:
       /status: complete
       /page/total: 0
       /page/returned: 0
+      /result/items: []
+  - mcp_call:
+      name: biomcp
+      arguments: {args: *zero}
+    expect:
+      /status: complete
       /result/items: []
   - mcp_call:
       name: trial

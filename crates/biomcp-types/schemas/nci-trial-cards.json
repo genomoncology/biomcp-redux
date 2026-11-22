@@ -2284,6 +2284,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciArmRecord"
@@ -2329,6 +2330,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciCriterion"
@@ -2374,6 +2376,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciDisease"
@@ -2419,6 +2422,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciDiseaseRef"
@@ -2464,6 +2468,7 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
+          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciOutcome"
