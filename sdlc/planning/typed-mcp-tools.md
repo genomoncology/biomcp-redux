@@ -51,8 +51,8 @@ Experiment 513's 14-tool Python prototype set the bar: the single tool cost 0.83
 ### Outputs and errors
 
 - `structuredContent` is the CLI JSON reply unchanged. Typed mode follows `mcp_reply_form` with default `both`, as single mode does: the first text block starts with the one-line summary (status and up to three executable typed calls) followed by the serialized JSON, because the MCP spec says structured results SHOULD also carry the JSON as text and some clients pass only `content[0].text` to the model, especially on errors. The size cap counts the JSON value alone in both modes, so the two modes refuse the same replies.
-- The output schema is left out of typed `tools/list` by default (a setting keeps it), since it is about 35% of the list, carries only the envelope types, and strict clients throw on any mismatch.
-- The output schema must not dominate the tool's size. Tool-search harnesses load a matched tool whole, so per-tool size is what an agent pays. The budget is 2,400 characters per tool for name, description and input schema (raised from a 2,000 design target by ticket 0905, because new filters kept forcing trims), with the all-tools definition cap (128 KiB since ticket 0763) as the guard for clients that load every tool, and the total list reported on every build.
+- Ticket 1131 makes compact output schemas the default in typed `tools/list`. Each typed action names the result's top-level fields and one row's fields where applicable. The advertised schema ID gives callers the full contract through `biomcp schema <id>`.
+- Tool-search harnesses load a matched tool whole, so per-tool size is what an agent pays. The budget is 2,400 characters per tool for name, description and input schema (raised from a 2,000 design target by ticket 0905). See the complete catalog's measured size and byte ceilings in the [configuration guide](../../docs/configuration.md#mcp-tools).
 - Only unknown keys and non-object arguments are refused before parsing. Every other value is spelled into CLI words and parsed by `grammar::parse`, whose usage envelope (an `isError` tool result naming the argument, valid values and the exact next call) is the reply, so a string `"10"` for a number or a wrong enum value is recoverable in one step and the rules match the CLI exactly.
 - "Search for this name" guidance comes from the CLI's own usage error for a get command, never from word-shape guesses in the typed layer.
 
@@ -74,7 +74,7 @@ Experiment 513's 14-tool Python prototype set the bar: the single tool cost 0.83
 
 ## Review outcome
 
-A fresh adversarial review on 2026-11-05 (`records/2026-11-05-typed-mcp-tools-review.md`) found the branch not ready for the bench, for reasons unrelated to the typed idea: replies carried one text line, 43% of argument descriptions were replaced by a generic type description, bad arguments got unrecoverable errors, and descriptions did not say what the tool does. The design above includes its corrections. Open questions it settled: keep all 58 commands as tools for the bench and decide from its tool-search misses; drop the output schema from typed `tools/list` by default; hosting needs the reply, research-tool and hosted-listing work, not only the setting.
+A fresh adversarial review on 2026-11-05 (`records/2026-11-05-typed-mcp-tools-review.md`) found the branch not ready for the bench, for reasons unrelated to the typed idea: replies carried one text line, 43% of argument descriptions were replaced by a generic type description, bad arguments got unrecoverable errors, and descriptions did not say what the tool does. The design above includes its corrections. Open questions it settled: keep all 58 commands as tools for the bench and decide from its tool-search misses; omit the output schema from typed `tools/list` by default in that design, a decision superseded by ticket 1131; hosting needs the reply, research-tool and hosted-listing work, not only the setting.
 
 ## Work
 

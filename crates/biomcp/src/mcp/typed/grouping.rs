@@ -61,10 +61,11 @@ pub(super) struct Command {
 pub(super) fn catalog(
     context: crate::command::Context<'_>,
     read_only: bool,
+    discovery: bool,
     commands: Vec<Command>,
     excluded: BTreeSet<biomcp_types::Source>,
 ) -> io::Result<Catalog> {
-    let output_schema = crate::config::mcp_typed_schema_options(context.settings).0;
+    let output_schema = discovery && crate::config::mcp_typed_schema_options(context.settings).0;
     let mut tools = ENTITY_TOOLS
         .iter()
         .filter_map(|tool| entity(tool, &commands, output_schema, &excluded).transpose())
@@ -72,20 +73,10 @@ pub(super) fn catalog(
     if super::saved::offered(context.globals) {
         tools.push(super::saved::tool(output_schema)?);
     }
-    tools.push(super::help::tool());
+    tools.push(super::help::tool(output_schema)?);
     tools.extend(super::super::protocol::tools(context.root, read_only)?);
-    let (tool_limit, byte_limit) = crate::config::mcp_typed_budget(context.settings);
-    let bytes = serde_json::to_vec(&tools)?.len();
-    if tools.len() > tool_limit || bytes > byte_limit {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!(
-                "Typed catalog requires {} tools and {bytes} definition bytes; \
-                mcp_typed_tool_limit={tool_limit}, mcp_typed_definition_bytes={byte_limit}. \
-                Clinical tools and complete descriptions are retained; configure sufficient budgets.",
-                tools.len(),
-            ),
-        ));
+    if discovery {
+        check_budget(context.settings, &tools)?;
     }
     Ok(Catalog {
         tools,
@@ -98,6 +89,23 @@ pub(super) fn catalog(
         excluded,
         current: None,
     })
+}
+
+fn check_budget(settings: &crate::config::Settings, tools: &[Value]) -> io::Result<()> {
+    let (tool_limit, byte_limit) = crate::config::mcp_typed_budget(settings);
+    let bytes = serde_json::to_vec(tools)?.len();
+    if tools.len() > tool_limit || bytes > byte_limit {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!(
+                "Typed catalog requires {} tools and {bytes} definition bytes; \
+                mcp_typed_tool_limit={tool_limit}, mcp_typed_definition_bytes={byte_limit}. \
+                Clinical tools and complete descriptions are retained; configure sufficient budgets.",
+                tools.len(),
+            ),
+        ));
+    }
+    Ok(())
 }
 
 /// An entity tool: `action` picks one command, whose own schema is the object named after it.
@@ -170,7 +178,7 @@ fn entity(
             .collect::<Vec<_>>();
         fields.insert(
             "outputSchema".into(),
-            super::super::output_schema::for_commands(&paths)?,
+            super::super::output_shape::for_commands(&paths)?,
         );
     }
     Ok(Some(tool))

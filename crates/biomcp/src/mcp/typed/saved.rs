@@ -74,7 +74,7 @@ pub(super) fn tool(output_schema: bool) -> std::io::Result<Value> {
     if output_schema && let Some(fields) = tool.as_object_mut() {
         fields.insert(
             "outputSchema".into(),
-            super::super::output_schema::for_saved()?,
+            super::super::output_shape::for_saved()?,
         );
     }
     Ok(tool)

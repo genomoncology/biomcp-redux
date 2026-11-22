@@ -416,14 +416,12 @@ fn compare(
         .ok_or("tool name")?;
     let mut typed_globals = globals.to_vec();
     typed_globals.extend(["--tool-mode".into(), "typed".into()]);
+    let call = super::super::typed_catalog::call(tool, input);
+    let called = call.get("name").and_then(Value::as_str).ok_or("called tool")?.to_owned();
     let reply = exchange_with_globals(
         env,
         &[
-            request(
-                json!(1),
-                "tools/call",
-                super::super::typed_catalog::call(tool, input),
-            ),
+            request(json!(1), "tools/call", call),
             request(json!(2), "tools/list", json!({})),
         ],
         &typed_globals,
@@ -459,14 +457,14 @@ fn compare(
         &[],
         expected.get("status") != Some(&json!("usage")),
     )?;
-    if let Some(schema) = tool.get("outputSchema")
-        && !jsonschema::validator_for(schema)
-            .map_err(|e| e.to_string())?
-            .is_valid(actual)
-    {
-        return Err(format!("{name} output schema mismatch"));
-    }
-    Ok(())
+    let schema = tools.iter()
+        .find(|tool| tool.get("name").and_then(Value::as_str) == Some(called.as_str()))
+        .and_then(|tool| tool.get("outputSchema"))
+        .ok_or_else(|| format!("{called}: missing advertised output schema"))?;
+    jsonschema::validator_for(schema)
+        .map_err(|e| e.to_string())?
+        .validate(actual)
+        .map_err(|error| format!("{name} output schema mismatch: {error}"))
 }
 
 fn validate_input(tool: &Value, input: &Value) -> Result<(), String> {

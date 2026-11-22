@@ -1,5 +1,7 @@
 //! Every entity tool and action reaches its registry command through stdio and hosted HTTP.
 //! live_check: offline; each call returns its command's own offline reply, with no network.
+#[path = "typed_output_schemas.rs"]
+mod output;
 use super::super::{
     http::Server,
     launch::Environment,
@@ -35,6 +37,7 @@ pub(super) fn check() -> Result<(), String> {
         &offline,
     )?)?;
     super::typed_catalog::check(&local)?;
+    let validators = output::check(&env, &local)?;
     let server =
         Server::configured_globals("127.0.0.1:0", Some(config), None, None, None, &hosted)?;
     let (_, served) = server.request("POST", "/mcp", &list.to_string())?;
@@ -77,6 +80,7 @@ pub(super) fn check() -> Result<(), String> {
             failures.push(format!("{label}: no stdio tool result: {raw:?}"));
             continue;
         };
+        output::validate(&validators, tool, &label, reply)?;
         if super::typed_followups::data(reply) != super::typed_followups::data(&expected) {
             failures.push(format!("{label} stdio differs from CLI {argv:?}: {reply}"));
         }
