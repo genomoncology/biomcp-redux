@@ -2448,13 +2448,10 @@
     },
     "Reply_TrialEligibilityAgeScope": {
       "description": "The registry age bounds apply to the study as a whole.",
-      "oneOf": [
-        {
-          "const": "study-wide",
-          "description": "Study-level age bounds, separate from the criteria text.",
-          "type": "string"
-        }
-      ]
+      "enum": [
+        "study-wide"
+      ],
+      "type": "string"
     },
     "Reply_TrialEligibilityArm": {
       "description": "This page's criteria under one registry arm heading.",

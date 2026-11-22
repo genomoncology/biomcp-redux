@@ -146,11 +146,23 @@ pub struct TrialEligibilityPage {
 }
 /// The registry age bounds apply to the study as a whole.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum TrialEligibilityAgeScope {
     /// Study-level age bounds, separate from the criteria text.
     StudyWide,
+}
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for TrialEligibilityAgeScope {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "TrialEligibilityAgeScope".into()
+    }
+    fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        schemars::json_schema!({
+            "type": "string",
+            "enum": [Self::StudyWide],
+            "description": "The registry age bounds apply to the study as a whole."
+        })
+    }
 }
 
 /// This page's criteria under one registry arm heading.
