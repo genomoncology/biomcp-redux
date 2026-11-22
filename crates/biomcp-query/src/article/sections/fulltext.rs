@@ -1,14 +1,24 @@
 use crate::{Ctx, Outcome, status};
-use biodata::Pmcid;
+use biodata::{Pmcid, Text};
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleResolution, ArticleSupplement, ArticleText, FullText, Reason, Request, Section, Source,
-    StepKind, Supplements,
+    Article, ArticleResolution, ArticleSupplement, ArticleText, Capped, FullText, Reason, Request,
+    Section, Source, StepKind, Supplements,
 };
 type Identity = (Pmcid, Option<biodata::Pmid>);
 type Content = Result<Option<(FullText, Supplements)>, Reason>;
+
+/// A PubMed article without a PMC link has no open copy through this reader.
+pub(super) fn without_copy(card: &Article<Capped<Text>>) -> Section<FullText> {
+    if card.pmid.is_some() && card.book_title.is_none() && card.bookshelf_url.is_none() {
+        Section::unavailable(Source::PmcOa, Reason::NotOpen)
+    } else {
+        Section::NotApplicable
+    }
+}
+
 /// Load one document for both sections, preserving a single source request sequence.
 pub(super) fn run<'a>(
     cx: &Ctx<'a>,
