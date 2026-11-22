@@ -20,7 +20,10 @@ fn bundle_names_are_unique_and_keep_the_public_command_contract() {
             "who-ivd",
             "fda-cdx",
             "orphadata",
-            "purple-book"
+            "purple-book",
+            // Ticket 1101 adds the versioned gnomAD constraint sync bundles.
+            "gnomad-constraint-v4.0",
+            "gnomad-constraint-v4.1",
         ],
         "source declarations keep every public sync word"
     );
