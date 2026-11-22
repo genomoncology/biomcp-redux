@@ -62,6 +62,17 @@ singleton! {
  from valid_values; add what is missing, or drop --offset (also spelled --section-offset)",
  LabelHistoryOffsetSection => "--offset needs --every-version, and label-history reads only the label sections in valid_values; add \
  --every-version and give --label-section one of them, or read another section with: get drug <NAME> label --label-section NAME",
+ DrugApprovalDocumentFind => "next reads the named FDA approval document. Search for the phrase in the document text in the reply.",
+ DrugHistoryApprovals => "next reads the application's FDA submissions, with any decision dates kept. To find when text first appeared, \
+  use label-history with --label-section and --find.",
+ DrugHistoryHeading => "next uses the equivalent section name for the historical text search.",
+ DrugHistoryCurrentLabel => "next reads the current label. To find when text first appeared, use label-history with --label-section and --find.",
+ DrugLabelFindHeading => "a label match needs --label-section. Next checks the current warnings and adverse reactions. \
+  To search another heading, name it with --label-section.",
+ DrugLabelFindPaging => "a label match returns bounded excerpts without section paging. Next searches the same \
+  current label sections for the same text.",
+ PmaSupplementRead => "next reads the named PMA supplement card. Summary text and --find are available on the base PMA only.",
+ DrugWithdrawalQuery => "search FDA withdrawals by drug, indication or withdrawal year. Next gives one example of each.",
  LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
  --label-section indications_and_usage",
  McpSync => "sync is unavailable over MCP; run it from the command line",

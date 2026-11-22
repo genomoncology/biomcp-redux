@@ -169,3 +169,96 @@ pub(super) fn section(
     let values = json!({record.field.as_str(): id, sections.field.as_str(): word});
     super::arguments::cli(root, verb, entity, &schema, &values)
 }
+
+/// Accept fields inside the action when both spellings agree or only one is given.
+pub(super) fn take_fields(
+    top: Option<&Value>,
+    action: &mut Value,
+) -> Result<Option<String>, biomcp_types::ErrorMessage> {
+    use biomcp_types::ErrorMessage;
+    let nested = action
+        .as_object_mut()
+        .and_then(|fields| fields.remove("fields"));
+    if let (Some(top), Some(nested)) = (top, &nested)
+        && top != nested
+    {
+        return Err(ErrorMessage::ArgumentRepeated);
+    }
+    let Some(value) = top.or(nested.as_ref()) else {
+        return Ok(None);
+    };
+    let names = value
+        .as_array()
+        .and_then(|names| {
+            names
+                .iter()
+                .map(|name| name.as_str().filter(|name| !name.contains(',')))
+                .collect::<Option<Vec<_>>>()
+        })
+        .ok_or(ErrorMessage::ArgumentValue)?;
+    Ok((!names.is_empty()).then(|| names.join(",")))
+}
+
+/// A single-ID action with several IDs is answered by one checked call per ID.
+pub(super) fn split(
+    root: &crate::grammar::Root,
+    (verb, entity): (&str, &str),
+    schema: &Value,
+    values: &Value,
+    refused: &super::forms::Refused,
+    chosen: Option<&str>,
+) -> Vec<biomcp_types::Step> {
+    if refused.valid.as_slice() != ["one value per call"] {
+        return Vec::new();
+    }
+    let forms = super::forms::forms(verb, schema);
+    let Some(form) = forms
+        .iter()
+        .find(|form| form.advertised == refused.argument)
+    else {
+        return Vec::new();
+    };
+    let Some(values) = values.as_object() else {
+        return Vec::new();
+    };
+    let Some((key, items)) = values.iter().find_map(|(key, value)| {
+        (super::forms::field(&forms, key) == form.field)
+            .then(|| value.as_array().map(|items| (key, items)))
+            .flatten()
+    }) else {
+        return Vec::new();
+    };
+    let input = super::arguments::input(schema);
+    items
+        .iter()
+        .map(|item| {
+            let mut values = values.clone();
+            values.remove(key);
+            values.insert(form.field.clone(), item.clone());
+            let mut values = Value::Object(values);
+            super::forms::normalize(&mut values, &forms, &input).ok()?;
+            let mut args = super::arguments::cli(root, verb, entity, schema, &values)?;
+            if let Some(chosen) = chosen {
+                args.insert(0, format!("--fields={chosen}").into());
+            }
+            let mut step = crate::grammar::candidate(root, &args)?;
+            if let Some(chosen) = chosen
+                && !step.args.iter().any(|arg| arg.starts_with("--fields="))
+            {
+                let mut words = step.args.into_vec();
+                words.insert(0, format!("--fields={chosen}").into());
+                step.args = words.into();
+            }
+            let words = step
+                .args
+                .iter()
+                .map(|word| OsString::from(&**word))
+                .collect::<Vec<_>>();
+            let checked = crate::grammar::parse(root, &words).ok()?;
+            crate::fields::check(&checked).ok()?;
+            checked.action?.prepare().ok()?;
+            Some(step)
+        })
+        .collect::<Option<Vec<_>>>()
+        .unwrap_or_default()
+}
