@@ -72,7 +72,7 @@ pub struct DrugSafetyCommunicationPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub seed_date: Option<PartialDate>,
     /// Matching communications, newest first.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[DrugSafetyCommunication]>,
     /// What the list holds and where FDA's text comes from.
     #[serde(default, skip_serializing_if = "Option::is_none")]

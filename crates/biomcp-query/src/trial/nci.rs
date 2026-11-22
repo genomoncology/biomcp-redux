@@ -12,7 +12,7 @@ const ATTRIBUTION: &str =
 pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
     let mut out = empty(
         (NciTrialPage {
-            items: Box::default(),
+            items: (!q.count_only()).then(Box::default),
             request: Box::default(),
             condition_resolution: None,
             attribution: ATTRIBUTION.into(),
@@ -157,7 +157,7 @@ fn apply(
     } = &mut out.body
         && !q.count_only()
     {
-        body.items = page
+        let items: Box<[_]> = page
             .data
             .into_iter()
             .map(|mut r| {
@@ -180,8 +180,8 @@ fn apply(
                 }
             })
             .collect();
-        let problems: Vec<_> = body.items.iter().filter_map(phase_problem).collect();
-        out.problems.extend(problems);
+        out.problems.extend(items.iter().filter_map(phase_problem));
+        body.items = Some(items);
     }
 }
 

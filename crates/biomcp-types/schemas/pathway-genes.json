@@ -201,6 +201,7 @@
           "description": "Exact source pathway owning this relation."
         },
         "items": {
+          "default": [],
           "description": "Distinct namespaced source references in first occurrence order.",
           "items": {
             "$ref": "#/$defs/Reply_PathwayMember"
@@ -1393,7 +1394,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+      "description": "Page bounds and total. A row page with no rows includes an empty array for its primary collection."
     },
     "problems": {
       "description": "Rejected source fields.",

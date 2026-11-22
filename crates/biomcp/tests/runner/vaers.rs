@@ -73,7 +73,7 @@ pub(super) fn research_aggregate() -> Check {
         &[],
     )?;
     if result.to_string().len() > crate::runner::output_limit("vaers-full-summary")?
-        || result.get("results").is_some()
+        || result.get("results") != Some(&json!([]))
         || result.pointer("/metadata/envelope") != Some(&cli)
         || result.pointer("/metadata/omitted_rows") != Some(&json!(3))
     {

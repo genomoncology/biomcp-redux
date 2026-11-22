@@ -91,7 +91,7 @@ pub struct PhenotypeAncestor {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PhenotypeMatches {
     /// Ranked rows in source order; Monarch scores them, BioMCP does not rerank.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[PhenotypeMatch]>,
     /// The queried HP terms with the labels Monarch matched, in caller order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -199,7 +199,7 @@ macro_rules! associations {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
             /// Native association rows in source order, without deduplication.
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+            #[serde(default)]
             pub items: Box<[DiseaseAssociationItem]>,
             /// Publisher direct graph scope; this supplies no causal assertion.
             pub direct: bool,

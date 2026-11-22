@@ -18,11 +18,7 @@
         },
         "/page/total": 1,
         "/page/returned": 0,
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        }
+        "/result/items": []
       }
     },
     {
@@ -39,11 +35,7 @@
         },
         "/page/total": 1,
         "/page/returned": 0,
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        }
+        "/result/items": []
       }
     }
   ]

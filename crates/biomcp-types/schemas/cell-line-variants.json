@@ -21,10 +21,11 @@
       ],
       "type": "string"
     },
-    "Reply_Capped_CellLineVariation": {
+    "Reply_CappedPage_CellLineVariation": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
+          "default": [],
           "description": "References in stable source order.",
           "items": {
             "$ref": "#/$defs/Reply_CellLineVariation"
@@ -233,7 +234,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Reply_Capped_CellLineVariation",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineVariation",
           "description": "Whole source rows and the total in this collection only."
         },
         "offset": {
@@ -1261,7 +1262,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+      "description": "Page bounds and total. A row page with no rows includes an empty array for its primary collection."
     },
     "problems": {
       "description": "Rejected source fields.",

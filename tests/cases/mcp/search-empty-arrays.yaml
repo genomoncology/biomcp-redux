@@ -1,0 +1,36 @@
+feature: mcp-parity
+live_check: retained replay
+story: A successful trial search with no matches returns an empty item array through CLI and MCP, including the research projection.
+replay: trial/native-exact
+config:
+  mcp_tool_mode: typed
+  mcp_typed_output_schema: true
+steps:
+  - run: &zero [search, trial, --condition, Snyder-Robinson syndrome, --exact-condition, --limit, "1"]
+    expect:
+      /status: complete
+      /page/total: 0
+      /page/returned: 0
+      /result/items: []
+  - mcp_call:
+      name: biomcp
+      arguments: {args: *zero}
+    expect:
+      /status: complete
+      /result/items: []
+  - mcp_call:
+      name: trial
+      arguments:
+        action: search
+        search: {condition: Snyder-Robinson syndrome, exact_condition: true, limit: 1}
+    expect:
+      /status: complete
+      /result/items: []
+  - mcp_call:
+      name: search
+      arguments:
+        query: trial --condition "Snyder-Robinson syndrome" --exact-condition --limit 1
+    expect:
+      /metadata/envelope/status: complete
+      /metadata/envelope/result/items: []
+      /results: []

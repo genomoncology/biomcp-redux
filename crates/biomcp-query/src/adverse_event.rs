@@ -143,7 +143,7 @@ fn search<'a>(
                 source_query: selector.into_boxed_str(),
                 source_updated: None,
                 fetched: None,
-                items: Box::default(),
+                items: Some(Box::default()),
                 unit: ReportUnit::Reports,
                 components: Box::default(),
             })
@@ -172,7 +172,7 @@ fn search<'a>(
             body: Some(body), ..
         } = &mut out.body
         {
-            body.items = page.items.into();
+            body.items = Some(page.items.into());
             body.components = page.components;
             body.source_updated = page.updated.map(Into::into);
             body.fetched = page

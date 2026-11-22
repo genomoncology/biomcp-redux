@@ -72,7 +72,7 @@ pub struct SavedList {
     /// Unix seconds when an item was last added or removed.
     pub modified: u64,
     /// Items in the order they were added.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(default)]
     pub items: Vec<SavedListItem>,
 }
 
@@ -81,11 +81,13 @@ pub struct SavedList {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Saved {
     /// Saved searches, by project and name.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub searches: Vec<SavedSearch>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Vec<SavedSearch>", extend("default" = [])))]
+    pub searches: Option<Vec<SavedSearch>>,
     /// Saved lists, by project and name.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub lists: Vec<SavedList>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Vec<SavedList>", extend("default" = [])))]
+    pub lists: Option<Vec<SavedList>>,
     /// IDs a list remove named that the list did not hold.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub missing: Vec<crate::Text>,
