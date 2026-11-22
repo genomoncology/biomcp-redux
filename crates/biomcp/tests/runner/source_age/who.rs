@@ -29,6 +29,8 @@ pub(super) fn market() -> Check {
 
     let stale = command(&env, &miss, &offline, 4)?;
     stale_failure(&stale, "who-pq", Some("failed"))?;
+    let mcp = crate::runner::mcp::call_with_globals(&env, &miss, true, &offline)?;
+    crate::runner::recent_parity::compare(&stale, &mcp)?;
     if action(&stale, "sync")? != ["sync", "who-pq"] {
         return Err(format!("WHO PQ miss lost its sync step: {stale}"));
     }

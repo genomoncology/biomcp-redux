@@ -1,6 +1,7 @@
 //! Features diagnostic-cdx and disease-orphadata: a live first read fetches a missing small list;
 //! an offline one never fetches.
 mod ema;
+mod parity;
 
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
@@ -32,6 +33,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(ema::trials());
+    trials.extend(parity::trials());
     trials
 }
 

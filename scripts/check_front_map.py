@@ -106,7 +106,8 @@ def first_read_sizes(binary, env):
             replies = {reply.get("id"): reply for reply in map(json.loads, process.stdout.splitlines())}
         instructions = replies[1]["result"]["instructions"]
         tools = json.dumps(replies[2]["result"]["tools"], ensure_ascii=False, separators=(",", ":"))
-        sizes[mode] = {"instructions_characters": len(instructions), "tools_bytes": len(tools.encode()),
+        sizes[mode] = {"instructions_characters": len(instructions), "instructions_bytes": len(instructions.encode()),
+                       "tools_bytes": len(tools.encode()),
                        "tools": len(replies[2]["result"]["tools"])}
         require(len(instructions) <= FIRST_READ_CEILINGS[mode],
                 f"{mode} instructions are {len(instructions)} characters, over the ceiling of {FIRST_READ_CEILINGS[mode]}")

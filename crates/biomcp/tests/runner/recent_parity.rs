@@ -281,7 +281,7 @@ fn live() -> Result<(), String> {
     compare(&value, &mcp::call_with_globals(&env, &args, false, &[])?)
 }
 
-fn compare(cli: &Value, mcp: &Value) -> Result<(), String> {
+pub(super) fn compare(cli: &Value, mcp: &Value) -> Result<(), String> {
     match assertions::difference(cli, mcp, "") {
         Some(diff) => Err(format!("CLI/MCP parity: unequal results at {diff}")),
         None => Ok(()),
