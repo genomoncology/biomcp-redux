@@ -61,7 +61,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-typed-discovery/compact", || {
             typed_discovery::check().map_err(Into::into)
         }),
-        transcript_trial("mcp-typed-discovery/listed-dispatch", || {
+        transcript_trial(super::pool_contract::TYPED_CATALOG.0, || {
             typed_dispatch::check().map_err(Into::into)
         }),
         transcript_trial("mcp-typed-discovery/hosted", || {

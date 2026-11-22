@@ -45,7 +45,7 @@ def discover(binary, env):
 
 FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
                     "hosted": ["--hosted", "--tool-mode", "typed"], "hosted-single": ["--hosted"],
-                    "typed-compact": ["--tool-mode", "typed"]}
+                    "typed-compact": ["--tool-mode", "typed", "--catalog", "compact"]}
 # What every connection reads first, in characters, as measured on main 4f4414616 for ticket 0836. The skill
 # is re-read every turn (sdlc/records/2026-11-11-token-gap-root-cause.md), so first-read text costs tokens.
 # Ticket 0905 gives each ceiling 5% room over that measured base, rounded up, because a new source or
@@ -98,7 +98,6 @@ def first_read_sizes(binary, env):
             {"jsonrpc": "2.0", "method": "notifications/initialized"},
             {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}]
         if mode == "typed-compact":
-            frames[-1]["params"]["_meta"] = {"biomcp/compactCatalog": True}
             frames.extend(
                 {"jsonrpc": "2.0", "id": index, "method": "tools/call",
                  "params": {"name": "search_tools", "arguments": arguments}}

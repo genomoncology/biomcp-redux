@@ -45,7 +45,7 @@ pub(super) fn check() -> Result<(), String> {
     let compact = get("compact")?
         .pointer("/result/tools")
         .ok_or("compact tools")?;
-    if compact.as_array().map(Vec::len) != Some(1)
+    if compact.as_array().map(Vec::len) != Some(2)
         || compact.pointer("/0/name").and_then(Value::as_str) != Some("search_tools")
         || compact.to_string().len() > 1500
     {

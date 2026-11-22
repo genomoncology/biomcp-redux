@@ -6650,6 +6650,11 @@ Options:
 
           [possible values: single, typed]
 
+      --catalog <catalog>
+          Typed MCP catalog: full lists every tool; compact lists discovery and dispatch. Default full.
+
+          [possible values: full, compact]
+
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
@@ -6707,6 +6712,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options are local to the command and independent of source selection.
 
 - `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single. Value form: string; example: --tool-mode single.
+- `--catalog`: Typed MCP catalog: full lists every tool; compact lists discovery and dispatch. Default full. Value form: string; example: --catalog full.
 - `--hosted`: Serve behind a hosting front end; requires --http. Refuses host file saves, health details and store or key changes over MCP. Value form: boolean; example: --hosted.
 - `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string; example: --rate-share 1.
 - `--saved-folder`: Keep each account's saved work in hosted mode under DIR, in the folder its account header names. Value form: string; example: --saved-folder <saved-folder> (syntax; replace the placeholder with your retained value).

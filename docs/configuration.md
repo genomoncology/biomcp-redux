@@ -52,11 +52,15 @@ Mount a Docker named volume at the container's `XDG_CACHE_HOME` path to keep the
 
 `help` supplies command contracts and examples, and the `biomcp` tool retains the complete CLI grammar. Research `search` and `fetch` remain available. Typed calls return the JSON reply alone, with no summary line. Set `"mcp_tool_mode": "typed"` in configuration for the same behavior. The flag overrides configuration. `single` remains the default and keeps the CLI-argument tool and research compatibility tools. Hosted restrictions apply in either mode, and hidden sources disappear from each action's schema. Typed mode follows `mcp_reply_form`. The result cap counts the JSON value once in either tool mode. Typed `next` entries carry `kind`, `name` and `arguments`, where `name` is an entity tool and `arguments` holds its `action` and action object. Sections use the command's `section` field inside the action object. A section step, a section page's own call, and a refusal's corrected call may also carry `options`: the other arguments that call takes, under the action's own names, each with a placeholder such as `<YYYY-MM-DD>` to fill in. The CLI step carries the same `options` keyed by flag, such as `--decision-from`. Replies omit inherited CLI globals and server paths from these calls, and omit suggestions that the effective catalog cannot execute. Earlier typed tool names are retired; the [release notes](../release/notes.md#typed-tool-names-for-0x-and-hosted-users) map each to its new tool and action.
 
-A typed client that loads tool definitions on demand can send `tools/list` with `params._meta` containing
-`"biomcp/compactCatalog": true`. The reply lists only `search_tools`. Call it with
-`{"query":"trials near a city"}` for up to five names and short descriptions, or with
-`{"name":"trial"}` for that tool's full definition. Both return a `tools` array, empty when nothing matches.
-Call a discovered tool by name through `tools/call`. A plain `tools/list` still returns the full typed catalog.
+Start `biomcp serve --tool-mode typed --catalog compact` to list just `search_tools` and `call_tool` for any MCP client.
+Set `"mcp_catalog": "compact"` in configuration for the same behavior. The flag overrides the setting.
+The catalog defaults to `full`, and it applies only to typed mode.
+
+1. Call `search_tools` with `{"query":"trials near a city"}` for up to five names and short descriptions.
+2. Call `search_tools` with `{"name":"trial"}` for its full definition. Both discovery replies use a `tools` array, empty when nothing matches.
+3. Call `call_tool` with `{"name":"trial","arguments":{"action":"search","search":{"condition":"melanoma"}}}`. It returns the same reply and errors as a direct `trial` call. The definition describes its output. Use the same wrapper for suggested next calls.
+
+A client can also request the compact list from a full typed server by including `"biomcp/compactCatalog": true` in `tools/list` request metadata.
 
 Typed mode includes compact output schemas for entity tools, `help` and `saved` by default. These schemas describe the reply envelope, the names and JSON types of the result's top-level fields, and one row's fields when applicable. Use the advertised schema ID with `biomcp schema <id>` for the full contract. Command help also lists reply schema IDs. Set `"mcp_typed_output_schema": false` to omit the compact schemas. The shared `biomcp`, research `search` and `fetch` tools advertise their output schemas in either setting.
 

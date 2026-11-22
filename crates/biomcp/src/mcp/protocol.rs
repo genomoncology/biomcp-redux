@@ -8,7 +8,10 @@ pub(super) fn instructions(
     mode: crate::config::ToolMode,
     context: crate::command::Context<'_>,
 ) -> String {
-    let mut instructions = if mode == crate::config::ToolMode::Typed {
+    let compact = mode == crate::config::ToolMode::Typed && super::discovery::configured(context);
+    let mut instructions = if compact {
+        super::discovery::INSTRUCTIONS.into()
+    } else if mode == crate::config::ToolMode::Typed {
         super::typed::instructions(context)
             .unwrap_or_else(|_| "Use help for command arguments.".into())
     } else if context.globals.hosted {
@@ -17,7 +20,7 @@ pub(super) fn instructions(
     } else {
         INSTRUCTIONS.into()
     };
-    if mode == crate::config::ToolMode::Typed {
+    if mode == crate::config::ToolMode::Typed && !compact {
         instructions.push_str(&format!(
             "\nFor search_tools, tools/list _meta {{\"{}\":true}}.",
             super::discovery::COMPACT_KEY

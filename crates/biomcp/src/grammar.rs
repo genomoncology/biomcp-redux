@@ -67,6 +67,7 @@ pub(crate) struct Globals {
     /// Set when a server call inherits the process globals; its caller cannot name their paths.
     pub(crate) served: bool,
     pub(crate) mcp_tool_mode: Option<crate::config::ToolMode>,
+    pub(crate) mcp_catalog: Option<crate::config::McpCatalog>,
     pub(crate) http_max_calls: Option<std::num::NonZeroUsize>,
     pub(crate) http_max_connections: Option<std::num::NonZeroUsize>,
     pub(crate) source_pacing: Option<String>,
@@ -392,6 +393,7 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ParseInvalid> {
             .collect(),
         replay: matches.get_one::<PathBuf>("replay").cloned(),
         mcp_tool_mode: None,
+        mcp_catalog: None,
         observe: matches.get_one::<PathBuf>("observe").cloned(),
         record: matches.get_one::<PathBuf>("record").cloned(),
         case_cache: matches.get_one::<PathBuf>("case-cache").cloned(),

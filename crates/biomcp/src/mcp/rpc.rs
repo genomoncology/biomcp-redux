@@ -67,22 +67,7 @@ pub(super) fn message(
             Ok(tools) => json!({"tools":tools}),
             Err(reply) => return Message::Reply(reply),
         },
-        "tools/call" if typed && discovery::called(&params) => {
-            return Message::Reply(discovery::call(
-                id.clone(),
-                &params,
-                context,
-                read_only,
-                modern,
-            ));
-        }
-        "tools/call" => {
-            return Message::Tool {
-                id: id.clone(),
-                params,
-                modern,
-            };
-        }
+        "tools/call" => return call(id.clone(), params, typed, read_only, modern, context),
         _ => return Message::Reply(protocol::error(id.clone(), -32601, "Method not found")),
     };
     Message::Reply(protocol::result(id.clone(), result, modern))
@@ -97,8 +82,8 @@ fn tools(
 ) -> Result<Vec<Value>, Value> {
     let definitions = if !typed {
         protocol::tools(context.root, read_only)
-    } else if discovery::requested(params) {
-        return Ok(vec![discovery::tool()]);
+    } else if discovery::configured(context) || discovery::requested(params) {
+        return Ok(discovery::tools(read_only));
     } else {
         super::typed::tools(context, read_only)
     };
@@ -110,4 +95,24 @@ fn tools(
         };
         protocol::error(id.clone(), -32603, &message)
     })
+}
+
+fn call(
+    id: Value,
+    mut params: Value,
+    typed: bool,
+    read_only: bool,
+    modern: bool,
+    context: crate::command::Context<'_>,
+) -> Message {
+    if typed && discovery::called(&params) {
+        return Message::Reply(discovery::call(id, &params, context, read_only, modern));
+    }
+    if typed && params.get("name").and_then(Value::as_str) == Some(discovery::DISPATCH) {
+        let Some(target) = discovery::target(&params) else {
+            return Message::Reply(protocol::error(id, -32602, "Invalid params"));
+        };
+        params = target;
+    }
+    Message::Tool { id, params, modern }
 }
