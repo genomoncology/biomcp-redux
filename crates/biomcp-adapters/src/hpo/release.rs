@@ -7,7 +7,7 @@ use biomcp_types::{DiseaseSearch, HpoDiseaseMatch, HpoGeneLink, Reason, Source};
 use std::collections::{HashMap, HashSet};
 use std::time::Duration;
 
-use super::release_ontology as ontology;
+use super::{raw::PublishedRelease, release_ontology as ontology};
 
 const GITHUB_API: &str = "https://api.github.com";
 const REPOSITORY: &str = "/obophenotype/human-phenotype-ontology";
@@ -32,11 +32,6 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: super::SPEC.quota,
     user_agent: super::SPEC.user_agent,
 };
-
-#[derive(serde::Deserialize)]
-struct PublishedRelease {
-    tag_name: Box<str>,
-}
 
 /// Resolve the publisher's current release and pin it for subsequent reads.
 pub fn latest(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<DiseaseSearch, RequestError> {
