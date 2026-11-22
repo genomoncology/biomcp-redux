@@ -66,8 +66,9 @@ pub struct NciDisease {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialPage {
     /// Source rows, never merged with another provider.
-    #[serde(default)]
-    pub items: Box<[NciTrial]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Box<[NciTrial]>", extend("default" = [])))]
+    pub items: Option<Box<[NciTrial]>>,
     /// Exact source parameters, excluding credentials.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub request: Box<[crate::TrialParameter]>,

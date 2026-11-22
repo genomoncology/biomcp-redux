@@ -74,6 +74,26 @@
           ]
         }
       }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--condition-id",
+        "NCIT:C3224",
+        "--limit",
+        "2",
+        "--count-only"
+      ],
+      "expect": {
+        "/page/total": 8,
+        "/page/returned": 0,
+        "/result": {
+          "omits": ["items"]
+        }
+      }
     }
   ]
 }
