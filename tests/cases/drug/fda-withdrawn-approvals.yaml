@@ -74,6 +74,20 @@
         "/page/total": 2,
         "/result/items/1/indication": "Treatment of adult patients with relapsed or refractory (R/R) follicular lymphoma (FL) whose tumors are positive for an EZH2 mutation as detected by an FDA-approved test and who have received at least 2 prior systemic therapies. Treatment of adult patients with R/R FL who have no satisfactory alternative treatment options"
       }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "2026-09",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/withdrawal_date": "9/30/2026"
+      }
     }
   ]
 }

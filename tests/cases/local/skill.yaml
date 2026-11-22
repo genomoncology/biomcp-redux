@@ -39,7 +39,7 @@
             "--source openfda-label --label-section",
             "biomcp search drug --indication \"pancreatic cancer\" --source openfda-label --limit 2",
             "biomcp search drug 2026-09 --source fda-withdrawn-approvals",
-            "biomcp search drug pneumonitis --source fda-safety-signals",
+            "biomcp search drug pneumonitis --source fda-safety-signals --limit 1",
             "biomcp search drug --source fda-dsc",
             "biomcp search drug Enbrel --source purple-book --presentations",
             "get drug NAME markets",

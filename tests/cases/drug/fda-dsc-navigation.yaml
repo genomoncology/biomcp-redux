@@ -12,6 +12,7 @@
         "fda-dsc"
       ],
       "expect": {
+        "/status": "complete",
         "/page/returned": 10,
         "/next/10/kind": "page"
       }

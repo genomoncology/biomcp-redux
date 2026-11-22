@@ -311,7 +311,14 @@ def check_skill_examples(root, skill):
         if not case.get("replay"):
             continue
         for step in case.get("steps", []):
-            if step.get("exit", 0) == 0 and step.get("expect", {}).get("/status") == "complete":
+            if step.get("exit", 0) != 0:
+                continue
+            expected = step.get("expect", {})
+            returned = expected.get("/page/returned")
+            # A snapshot or unread source can leave a search partial even when it returns rows.
+            if expected.get("/status") == "complete" or (
+                expected.get("/status") == "partial" and type(returned) is int and returned > 0
+            ):
                 examples.discard(tuple(step.get("run", [])))
     if examples:
         raise ValueError(f"agent skill example has no successful replay case: {shlex.join(min(examples))}")

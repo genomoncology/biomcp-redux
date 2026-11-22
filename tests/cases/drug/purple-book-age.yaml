@@ -11,6 +11,21 @@
         "/result/release_month": "October 2026",
         "/sources/0/notices/0/message": "This is the October 2026 Purple Book snapshot (3 months old). FDA updates the list monthly. FDA downloads: https://purplebooksearch.fda.gov/downloads"
       }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "Enbrel",
+        "--source",
+        "purple-book",
+        "--presentations"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 7,
+        "/result/items/4/license_type": "351(k) Interchangeable"
+      }
     }
   ]
 }
