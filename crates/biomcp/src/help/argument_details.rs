@@ -172,18 +172,18 @@ pub(super) const SOURCE_OPTIONS: &str =
 pub(super) const LOCAL_OPTIONS: &str =
     "Options are local to the command and independent of source selection.";
 const SHORT_ENUM_CASE_GUIDANCE: &str = "Choices ignore case; replies use listed spelling.";
+pub(super) fn case_guidance(line: &str) -> Option<&'static str> {
+    [crate::grammar::ENUM_CASE_GUIDANCE, SHORT_ENUM_CASE_GUIDANCE]
+        .into_iter()
+        .find(|&guidance| guidance == line)
+}
 /// A command description without the lines that speak for its options, for pages that omit them.
 pub(super) fn without_option_lines(description: &str) -> String {
     description
         .lines()
         .filter(|line| {
-            ![
-                crate::grammar::ENUM_CASE_GUIDANCE,
-                SHORT_ENUM_CASE_GUIDANCE,
-                SOURCE_OPTIONS,
-                LOCAL_OPTIONS,
-            ]
-            .contains(line)
+            case_guidance(line).is_none()
+                && ![SOURCE_OPTIONS, LOCAL_OPTIONS].contains(line)
                 && !line.starts_with(crate::grammar::paging::HELP_PREFIX)
         })
         .collect::<Vec<_>>()
