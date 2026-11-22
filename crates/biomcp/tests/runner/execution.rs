@@ -66,7 +66,16 @@ pub(super) fn run_step(
         line_breaks_read_as_text(&value)?;
         answer = Some(value);
     }
-    answer.ok_or_else(|| "step requires run, mcp or mcp_call".into())
+    let answer = answer.ok_or("step requires run, mcp or mcp_call")?;
+    if answer.get("status").and_then(Value::as_str) == Some("partial")
+        && !answer
+            .get("incomplete")
+            .and_then(Value::as_array)
+            .is_some_and(|entries| !entries.is_empty())
+    {
+        return Err("partial reply must name missing data in incomplete".into());
+    }
+    Ok(answer)
 }
 
 fn cli(
