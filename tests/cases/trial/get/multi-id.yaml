@@ -144,6 +144,18 @@
           ]
         }
       }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "trial"
+      ],
+      "expect": {
+        "/result/commands/0/arguments/1/description": {
+          "includes": "Separate IDs with spaces or commas."
+        }
+      }
     }
   ]
 }

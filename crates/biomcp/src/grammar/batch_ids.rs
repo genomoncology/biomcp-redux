@@ -50,7 +50,7 @@ fn gene(word: &str) -> bool {
     }
 }
 
-pub(super) fn guidance(verb: &str, entity: &str) -> Option<&'static str> {
+pub(crate) fn guidance(verb: &str, entity: &str) -> Option<&'static str> {
     batch(verb, entity).map(|_| FORM)
 }
 
