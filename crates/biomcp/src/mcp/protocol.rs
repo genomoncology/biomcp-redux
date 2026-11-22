@@ -84,7 +84,7 @@ use crate::config::ReplyForm;
 const DESCRIPTION: &str = concat!(
     "Run a BioMCP CLI command. arguments has exactly one field: args, an array of command words (strings), ",
     "without the biomcp executable. Example: {\"args\":[\"help\"]}. Start with help for the command map; ",
-    "use help <command> for options and schema <id> for a complete reply schema. ",
+    "Use help <command> for options, help skill render for the agent guide, and schema <id> for the reply schema. ",
     "Replies are JSON source evidence with status, problems and next commands; inspect them before interpreting results."
 );
 

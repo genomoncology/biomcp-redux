@@ -585,6 +585,15 @@ fn network(setting: &str) -> Help {
     }
 }
 
+pub(crate) fn mcp_skill_guide() -> io::Result<Help> {
+    let guide = crate::skill::Skill::Overview.render()?;
+    let mut command = topic("skill", guide.trim_end().into());
+    command.command.push("render".into());
+    Ok(Help {
+        commands: vec![command],
+    })
+}
+
 fn topic(name: &str, description: String) -> HelpCommand {
     HelpCommand {
         command: vec!["help".into(), name.into()],
