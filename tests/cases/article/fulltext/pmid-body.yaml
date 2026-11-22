@@ -1,0 +1,25 @@
+{
+  "feature": "article-fulltext",
+  "live_check": "public",
+  "story": "Both PMID command forms open the first body part and return the next part's command.",
+  "replay": "article/fulltext/live-introduction",
+  "steps": [
+    {
+      "run": ["article", "text", "28944238"],
+      "expect": {
+        "/result/pmcid": "PMC5606870",
+        "/result/content/data/part": 1,
+        "/result/content/data/heading_path/0": "Introduction",
+        "/next/0/args": ["article", "text", "PMC5606870", "--part", "2"]
+      }
+    },
+    {
+      "run": ["get", "article", "28944238", "text"],
+      "expect": {
+        "/result/pmcid": "PMC5606870",
+        "/result/content/data/part": 1,
+        "/result/content/data/heading_path/0": "Introduction"
+      }
+    }
+  ]
+}

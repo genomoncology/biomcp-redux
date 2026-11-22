@@ -1,0 +1,14 @@
+{
+  "feature": "article-fulltext",
+  "live_check": "synthetic PubMed article with no PMC identity",
+  "story": "A fulltext outline reports not-open for a PubMed article with no PMC identity.",
+  "replay": "article/get/synthetic-readable",
+  "steps": [
+    {
+      "run": ["get", "article", "39214094", "fulltext"],
+      "expect": {
+        "/result/items/0/sections/fulltext": {"equals": {"state": "unavailable", "source": "pmc-oa", "reason": "not-open"}}
+      }
+    }
+  ]
+}
