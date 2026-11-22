@@ -295,9 +295,17 @@ pub(super) fn checked_invalid(
     entity: &str,
     value: &serde_json::Value,
     cause: &biomcp_types::QueryInvalid,
+    fields: &[String],
 ) -> super::ParseInvalid {
     let usage = super::validation::checked(verb, entity, value, cause)
         .map(|mut arguments| {
+            if let Some((message, next)) =
+                super::conflicts::next(via, (verb, entity), value, cause, fields)
+            {
+                arguments.message = Some(message);
+                arguments.next = next;
+                return arguments;
+            }
             let names: Vec<_> = cause.arguments().iter().map(AsRef::as_ref).collect();
             let corrected =
                 super::recovery::fixed(via, (verb, entity), value, cause).or_else(|| {

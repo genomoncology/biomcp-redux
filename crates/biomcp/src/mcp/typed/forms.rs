@@ -3,7 +3,7 @@
 //! The command registry names its search text `query`, `text` or `name`, its record ID
 //! `input` or `id`, and its sections `section`. Callers that see only a tool's schema
 //! guess across those, so every action advertises `query`, `id` and `section` and takes one
-//! string or a list. The registry's own name and the common guesses are accepted without
+//! string or a list where the command takes several. The registry's own name and the common guesses are accepted without
 //! being advertised: an action's schema names its arguments and does not forbid others, so
 //! a client that checks arguments lets a guess through and the server maps or refuses it.
 use serde_json::{Map, Value, json};
@@ -107,19 +107,6 @@ fn widen(node: &mut Value) {
     }
 }
 
-/// An ID or a section also takes a list; its allowed values move onto the list's items.
-fn listed(fields: &mut Map<String, Value>) {
-    if fields.get("type") != Some(&json!("string")) {
-        return;
-    }
-    let mut item = json!({"type":"string"});
-    if let (Some(choices), Some(item)) = (fields.remove("enum"), item.as_object_mut()) {
-        item.insert("enum".into(), choices);
-    }
-    fields.insert("type".into(), json!(["string", "array"]));
-    fields.insert("items".into(), item);
-}
-
 /// Section words are plain text: the action's description lists them, and a wrong one
 /// reaches the server, which answers with the call that works.
 fn plain(fields: &mut Map<String, Value>) {
@@ -152,9 +139,6 @@ pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
         if let Some(fields) = node.as_object_mut() {
             if form.advertised == "section" {
                 plain(fields);
-            }
-            if !form.phrase {
-                listed(fields);
             }
             if required.contains(&json!(form.field)) && !form.aliases.is_empty() {
                 let text = fields
@@ -231,7 +215,7 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
                 cause: biomcp_types::ErrorMessage::ArgumentRepeated,
             });
         }
-        let Some(mut value) = fields.remove(name) else {
+        let Some(mut value) = fields.get(name).cloned() else {
             continue;
         };
         let kind = input.pointer(&format!("/properties/{}/type", form.field));
@@ -244,8 +228,7 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
                 value = json!(words.join(" "));
             } else if let [one] = items.as_slice() {
                 value = one.clone();
-            } else if form.advertised == "id" {
-                // The command would read a second ID as a section name and refuse that.
+            } else {
                 return Err(Refused {
                     argument: form.advertised.into(),
                     valid: vec!["one value per call".into()],
@@ -253,6 +236,7 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
                 });
             }
         }
+        fields.remove(name);
         fields.insert(form.field.clone(), value);
     }
     Ok(())

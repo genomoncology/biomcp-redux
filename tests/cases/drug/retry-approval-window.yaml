@@ -92,6 +92,61 @@
           ]
         }
       }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "NDA203214",
+              "NDA207924"
+            ],
+            "section": "label-history",
+            "source": "drugsfda",
+            "section_limit": 51,
+            "decision_from": "2021-09-01",
+            "decision_to": "2022-02-01"
+          },
+          "fields": [
+            "submission_number"
+          ]
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/arguments/fields": [
+          "submission_number"
+        ],
+        "/next/0/arguments/get/section": [
+          "approvals"
+        ],
+        "/error/option": "id",
+        "/next/0/arguments/get/id": "NDA203214",
+        "/next/1/arguments/get/id": "NDA207924",
+        "/next/1/arguments/get/decision_from": "2021-09-01",
+        "/next/1/arguments/get/decision_to": "2022-02-01"
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/input": "NDA203214",
+        "/query/decision_from": "2021-09-01",
+        "/query/decision_to": "2022-02-01",
+        "/result/approvals/data/records/*/submission_number": [
+          "28",
+          "31"
+        ],
+        "/result/approvals/data/records/0": {
+          "omits": [
+            "application_docs"
+          ]
+        }
+      }
     }
   ]
 }
