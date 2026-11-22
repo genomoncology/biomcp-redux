@@ -1,6 +1,7 @@
 # 1141 — compact-batched-constraint-reads
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ecba32de6e06f2e984442baaff02a1f20b54b804
 
 Milestone: 7
 
