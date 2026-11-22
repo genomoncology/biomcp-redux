@@ -63,23 +63,9 @@ pub(super) fn message(
     let result = match method {
         "ping" => json!({}),
         "server/discover" => current::discover(mode, context),
-        "tools/list" if typed && discovery::requested(&params) => {
-            json!({"tools":[discovery::tool()]})
-        }
-        "tools/list" => match if typed {
-            super::typed::tools(context, read_only)
-        } else {
-            protocol::tools(context.root, read_only)
-        } {
+        "tools/list" => match tools(id, &params, typed, read_only, context) {
             Ok(tools) => json!({"tools":tools}),
-            Err(error) => {
-                let message = if error.kind() == std::io::ErrorKind::InvalidInput {
-                    error.to_string()
-                } else {
-                    "Output schema unavailable".into()
-                };
-                return Message::Reply(protocol::error(id.clone(), -32603, &message));
-            }
+            Err(reply) => return Message::Reply(reply),
         },
         "tools/call" if typed && discovery::called(&params) => {
             return Message::Reply(discovery::call(
@@ -100,4 +86,28 @@ pub(super) fn message(
         _ => return Message::Reply(protocol::error(id.clone(), -32601, "Method not found")),
     };
     Message::Reply(protocol::result(id.clone(), result, modern))
+}
+
+fn tools(
+    id: &Value,
+    params: &Value,
+    typed: bool,
+    read_only: bool,
+    context: crate::command::Context<'_>,
+) -> Result<Vec<Value>, Value> {
+    let definitions = if !typed {
+        protocol::tools(context.root, read_only)
+    } else if discovery::requested(params) {
+        return Ok(vec![discovery::tool()]);
+    } else {
+        super::typed::tools(context, read_only)
+    };
+    definitions.map_err(|error| {
+        let message = if error.kind() == std::io::ErrorKind::InvalidInput {
+            error.to_string()
+        } else {
+            "Output schema unavailable".into()
+        };
+        protocol::error(id.clone(), -32603, &message)
+    })
 }
