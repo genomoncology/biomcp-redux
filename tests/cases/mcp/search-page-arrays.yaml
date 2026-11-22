@@ -1,0 +1,52 @@
+feature: mcp-parity
+live_check: retained replay
+story: Trial search exposes the same item array on single-row, multi-row and exhausted pages through CLI and MCP.
+replay: paging/search-trial
+config:
+  mcp_tool_mode: typed
+steps:
+  - run: &one [search, trial, --condition, melanoma, --intervention, tebentafusp, --limit, "1"]
+    mcp: *one
+    expect:
+      /status: complete
+      /result/items: {count: 1}
+  - run: &many [search, trial, --condition, melanoma, --intervention, tebentafusp, --limit, "8"]
+    mcp: *many
+    expect:
+      /status: complete
+      /result/items: {count: 8}
+  - run: &end [search, trial, --condition, melanoma, --intervention, tebentafusp, --limit, "8", --offset, "24"]
+    mcp: *end
+    expect:
+      /status: complete
+      /page/total: 20
+      /page/returned: 0
+      /result/items: []
+  - mcp_call:
+      name: trial
+      arguments:
+        action: search
+        search: {condition: melanoma, intervention: tebentafusp, limit: 1}
+    expect:
+      /status: complete
+      /result/items: {count: 1}
+  - mcp_call:
+      name: trial
+      arguments:
+        action: search
+        search: {condition: melanoma, intervention: tebentafusp, limit: 8}
+    expect:
+      /status: complete
+      /result/items: {count: 8}
+  - mcp_call:
+      name: search
+      arguments:
+        query: trial --condition melanoma --intervention tebentafusp --limit 1
+    expect:
+      /results: {count: 1}
+  - mcp_call:
+      name: search
+      arguments:
+        query: trial --condition melanoma --intervention tebentafusp --limit 8
+    expect:
+      /results: {count: 8}
