@@ -1,0 +1,31 @@
+{
+  "feature": "agent-skill",
+  "story": "The skill selects one CPIC recommendation table and filters by the source phenotype.",
+  "live_check": "public",
+  "verified": "Recorded the public CPIC recommendation API with BioMCP --record. CPIC identifies RxNorm:195085 as efavirenz.",
+  "replay": "pgx/skill-example",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "CYP2B6",
+        "--source",
+        "cpic",
+        "recommendations",
+        "--drug-id",
+        "RxNorm:195085",
+        "--phenotype",
+        "Intermediate Metabolizer"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/phenotype": "Intermediate Metabolizer",
+        "/result/page/total": 1,
+        "/result/items/0/drugid": "RxNorm:195085",
+        "/result/items/0/phenotypes/CYP2B6": "Intermediate Metabolizer"
+      }
+    }
+  ]
+}

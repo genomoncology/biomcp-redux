@@ -1,6 +1,7 @@
 # 1118 — teach-efficient-biomcp-reads-and-recovery
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f57d366f84771d21b9a691101d1abdcdaa23a764
 
 Milestone: 7
 
