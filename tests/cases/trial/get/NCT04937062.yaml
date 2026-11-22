@@ -21,6 +21,7 @@
         "/result/items/0/sections/eligibility/data/arms/1/heading": "MONOGENETIC DEE ARM",
         "/result/items/0/sections/eligibility/data/arms/1/inclusion": {"count": 9},
         "/result/items/0/sections/eligibility/data/arms/1/inclusion/1": "* Is between 0 months and 15 years of age, inclusive.",
+        "/result/items/0/sections/eligibility/data/arms/1/exclusion": {"count": 1},
         "/result/items/0/sections/eligibility/data": {"omits": ["criteria", "inclusion", "exclusion"]}
       }
     },
@@ -30,6 +31,9 @@
         "/status": "complete",
         "/result/items/0/sections/eligibility/data/arms": {"count": 1},
         "/result/items/0/sections/eligibility/data/arms/0/heading": "MONOGENETIC DEE ARM",
+        "/result/items/0/sections/eligibility/data/arms/0/exclusion": {"count": 11},
+        "/result/items/0/sections/eligibility/data/arms/0/exclusion/10": "* Pancreatic insufficiency or intestinal malabsorption",
+        "/result/items/0/sections/eligibility/data/arms/0": {"omits": ["inclusion", "preamble"]},
         "/result/items/0/sections/eligibility/data": {"omits": ["continuation", "criteria", "inclusion", "exclusion"]}
       }
     }
