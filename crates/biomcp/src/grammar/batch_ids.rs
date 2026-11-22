@@ -1,6 +1,7 @@
 //! Recognize comma lists without splitting identifiers that already contain a comma.
+use biodata::NctId;
 use biomcp_types::{
-    ArticleInput, ErrorMessage, GeneInput, NctId, ProteinInput, UsageArguments, UsageError,
+    ArticleInput, ErrorMessage, GeneInput, ProteinInput, UsageArguments, UsageError,
 };
 use serde::Deserialize;
 use serde_json::Value;
@@ -59,7 +60,7 @@ pub(super) fn guidance(verb: &str, entity: &str) -> Option<&'static str> {
 pub(super) fn normalize(verb: &str, entity: &str, value: &Value) -> Option<(Value, bool)> {
     let ids = batch(verb, entity)?;
     let input = value.get("input")?.as_array()?;
-    let mut normalized = None;
+    let mut normalized: Option<Vec<Value>> = None;
     let mut empty = false;
     for (index, original) in input.iter().enumerate() {
         if let Some(word) = original.as_str()
