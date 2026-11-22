@@ -347,8 +347,9 @@ def check(root, executable=None):
             raise ValueError(f"Configuration commercial setup differs from {path}")
 
     skill = (root / "skills/SKILL.md").read_text()
-    if len(skill.encode()) > 4096:
-        raise ValueError("agent skill exceeds 4 KB")
+    # Ticket 1129 PM ruling: allow 4,600 bytes to keep the full command map and FDA examples.
+    if len(skill.encode()) > 4_600:
+        raise ValueError("agent skill exceeds 4,600 bytes")
     check_skill_examples(root, skill)
     roadmap = (root / "ROADMAP.md").read_text()
     if roadmap.count(LEDGER_START) != 1 or roadmap.count(LEDGER_END) != 1:

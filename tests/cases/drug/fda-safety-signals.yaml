@@ -95,13 +95,11 @@
         "drug",
         "pneumonitis",
         "--source",
-        "fda-safety-signals",
-        "--limit",
-        "1"
+        "fda-safety-signals"
       ],
       "expect": {
         "/status": "partial",
-        "/page/returned": 1,
+        "/page/returned": 6,
         "/result/items/0/signal": "Pneumonitis"
       }
     }

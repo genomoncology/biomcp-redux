@@ -334,8 +334,9 @@ fn embed_skills() -> Result<(), Box<dyn Error>> {
     if guide.contains("{{") {
         return Err("skill guide must hold no template marker".into());
     }
-    if guide.len() > 4096 {
-        return Err("agent skill template exceeds 4 KB".into());
+    // Ticket 1129 PM ruling: allow 4,600 bytes to keep the full command map and FDA examples.
+    if guide.len() > 4_600 {
+        return Err("agent skill template exceeds 4,600 bytes".into());
     }
     let examples = first_read::examples(&directory.join("use-cases"))?;
     let out = PathBuf::from(env::var("OUT_DIR")?);

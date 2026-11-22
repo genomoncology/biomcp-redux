@@ -94,6 +94,24 @@
         "search",
         "drug",
         "--indication",
+        "pancreatic cancer",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/page/returned": 1,
+        "/result/items/0/id": "33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--indication",
         "unlisted indication",
         "--source",
         "openfda-label"
