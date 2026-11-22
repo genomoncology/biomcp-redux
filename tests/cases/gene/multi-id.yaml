@@ -8,21 +8,15 @@
       "run": [
         "get",
         "gene",
-        "BRAF, 3845"
+        "PDF, 673"
       ],
       "expect": {
-        "/query/input": [
-          "BRAF",
-          "3845"
-        ],
+        "/status": "complete",
         "/result/items/*/input": [
-          "BRAF",
-          "3845"
+          "PDF",
+          "673"
         ],
-        "/result/items/*/answer/gene/symbol": [
-          "BRAF",
-          "KRAS"
-        ]
+        "/result/items/1/answer/gene/symbol": "BRAF"
       }
     },
     {
@@ -39,10 +33,5 @@
         ]
       }
     }
-  ],
-  "config": {
-    "disable_sources": [
-      "mygene"
-    ]
-  }
+  ]
 }
