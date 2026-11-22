@@ -88,6 +88,7 @@ mod offset_walks;
 mod recurrence;
 mod remote_tools;
 mod replay;
+mod recent_parity;
 mod request_keys;
 mod socket_read;
 mod source_pacing;
@@ -294,6 +295,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(source_pacing::trials());
     trials.extend(recurrence::trials());
     trials.extend(replay::trials());
+    trials.extend(recent_parity::trials());
     trials.extend(output_stream::trials());
     trials.extend(research::trials());
     trials.extend(trial_gene::trials());
