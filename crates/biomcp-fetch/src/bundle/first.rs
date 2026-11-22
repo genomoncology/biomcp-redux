@@ -170,9 +170,8 @@ impl Leg<'_> {
             .get()
             .map_or_else(|| "unknown".to_owned(), |n| format!("{n} bytes"));
         let message = if let Some((status, _)) = publisher {
-            let mut message = format!(
-                "The publisher refused the first-read fetch (HTTP {status}). Source size: {bytes}."
-            );
+            let mut message =
+                format!("Publisher refused first fetch (HTTP {status}). Size: {bytes}.");
             if crate::retry::status_reason(status) != Reason::RateLimited {
                 message.push_str(" Retry the read after the reported delay.");
             }
