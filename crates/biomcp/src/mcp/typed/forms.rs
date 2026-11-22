@@ -3,7 +3,7 @@
 //! The command registry names its search text `query`, `text` or `name`, its record ID
 //! `input` or `id`, and its sections `section`. Callers that see only a tool's schema
 //! guess across those, so every action advertises `query`, `id` and `section` and takes one
-//! string or a list where the command takes several. The registry's own name and the common guesses are accepted without
+//! string or a list within the command's cardinality. Guessed names are accepted without
 //! being advertised: an action's schema names its arguments and does not forbid others, so
 //! a client that checks arguments lets a guess through and the server maps or refuses it.
 use serde_json::{Map, Value, json};
@@ -107,6 +107,21 @@ fn widen(node: &mut Value) {
     }
 }
 
+/// Preserve the array spelling for clients that send a single value in a list.
+fn singleton(fields: &mut Map<String, Value>) {
+    if fields.get("type") != Some(&json!("string")) {
+        return;
+    }
+    let mut item = json!({"type":"string"});
+    if let (Some(choices), Some(item)) = (fields.remove("enum"), item.as_object_mut()) {
+        item.insert("enum".into(), choices);
+    }
+    fields.insert("type".into(), json!(["string", "array"]));
+    fields.insert("items".into(), item);
+    fields.insert("minItems".into(), json!(1));
+    fields.insert("maxItems".into(), json!(1));
+}
+
 /// Section words are plain text: the action's description lists them, and a wrong one
 /// reaches the server, which answers with the call that works.
 fn plain(fields: &mut Map<String, Value>) {
@@ -139,6 +154,9 @@ pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
         if let Some(fields) = node.as_object_mut() {
             if form.advertised == "section" {
                 plain(fields);
+            }
+            if !form.phrase {
+                singleton(fields);
             }
             if required.contains(&json!(form.field)) && !form.aliases.is_empty() {
                 let text = fields
@@ -231,7 +249,7 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
                 continue;
             } else if let [one] = items.as_slice() {
                 value = one.clone();
-            } else {
+            } else if form.advertised == "id" {
                 return Err(Refused {
                     argument: form.advertised.into(),
                     valid: vec!["one value per call".into()],

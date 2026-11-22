@@ -108,27 +108,26 @@ pub(super) fn check() -> Result<(), String> {
     }
 }
 
-/// Tools advertise lists only where the get action can read several values.
+/// Single-value actions accept a scalar or a one-item list in tools/list.
 fn cardinalities(tools: &[Value]) -> Result<(), String> {
-    let several = json!(["string", "array"]);
-    for (name, field, kind) in [
-        ("drug", "id", json!("string")),
-        ("disease", "id", json!("string")),
-        ("gene", "id", several.clone()),
-        ("diagnostic", "section", json!("string")),
-        ("drug", "section", several),
+    for (name, field, singleton) in [
+        ("drug", "id", true),
+        ("disease", "id", true),
+        ("gene", "id", false),
+        ("diagnostic", "section", true),
+        ("drug", "section", false),
     ] {
-        let actual = tools
+        let path = format!("/inputSchema/properties/get/properties/{field}");
+        let advertised = tools
             .iter()
             .find(|tool| tool["name"] == name)
-            .and_then(|tool| {
-                tool.pointer(&format!(
-                    "/inputSchema/properties/get/properties/{field}/type"
-                ))
-            });
-        if actual != Some(&kind) {
+            .and_then(|tool| tool.pointer(&path))
+            .ok_or_else(|| format!("missing {name}.get.{field}"))?;
+        if advertised["type"] != json!(["string", "array"])
+            || (advertised["maxItems"] == json!(1)) != singleton
+        {
             return Err(format!(
-                "{name}.get.{field} advertises {actual:?}, expected {kind}"
+                "{name}.get.{field} has the wrong cardinality: {advertised}"
             ));
         }
     }

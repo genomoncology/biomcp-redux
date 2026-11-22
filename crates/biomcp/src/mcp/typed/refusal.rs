@@ -199,7 +199,7 @@ pub(super) fn take_fields(
     Ok((!names.is_empty()).then(|| names.join(",")))
 }
 
-/// A scalar ID or section with several values is answered by one checked call per value.
+/// A single-ID action with several IDs is answered by one checked call per ID.
 pub(super) fn split(
     root: &crate::grammar::Root,
     (verb, entity): (&str, &str),

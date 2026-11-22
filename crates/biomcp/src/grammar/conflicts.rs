@@ -100,6 +100,7 @@ fn history(fields: &mut Map<String, Value>, cause: &QueryInvalid) -> Option<Erro
         || exact(cause, &["section", "find", "label_section"])
             && !present(fields, "find")
             && !present(fields, "label_section")
+            && application(fields)
         || exact(cause, &["section_limit", "section"])
             && !present(fields, "find")
             && !present(fields, "label_section")
@@ -160,6 +161,18 @@ fn history(fields: &mut Map<String, Value>, cause: &QueryInvalid) -> Option<Erro
             .message()
             .unwrap_or(ErrorMessage::DrugHistoryCurrentLabel),
     )
+}
+
+/// A bare history request implies submissions only with an FDA source or application ID.
+fn application(fields: &Map<String, Value>) -> bool {
+    let source = fields.get("source").and_then(Value::as_str);
+    source == Some(DrugSource::Drugsfda.as_str())
+        || source.is_none()
+            && fields
+                .get("input")
+                .and_then(Value::as_str)
+                .and_then(|input| input.parse::<biodata::DrugId>().ok())
+                .is_some_and(|id| DrugSource::Drugsfda.accepts(&id))
 }
 
 fn current_label(fields: &mut Map<String, Value>, cause: &QueryInvalid) -> Option<ErrorMessage> {
