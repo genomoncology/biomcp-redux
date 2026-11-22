@@ -7552,7 +7552,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Candidate rows per page; more remain reachable through typed next commands.",
+          "description": "Candidate rows per page.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,

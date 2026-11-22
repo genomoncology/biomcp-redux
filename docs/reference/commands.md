@@ -3888,7 +3888,7 @@ Options:
           [possible values: true, false]
 
       --limit <limit>
-          Candidate rows per page; more remain reachable through typed next commands.
+          Candidate rows per page.
 
       --offset <offset>
           Candidate rows to skip in source order.
@@ -3946,7 +3946,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E.
 Form: get variant INPUT SECTION...; not --input.
-- `--limit`: Candidate rows per page; more remain reachable through typed next commands. Value form: integer; example: --limit 1.
+- `--limit`: Candidate rows per page. Value form: integer; example: --limit 1.
 - `--offset`: Candidate rows to skip in source order. Value form: integer; example: --offset 1.
 - `--resolver`: Resolver.
 Resolver for reference-qualified notation; never repairs the input locally. Value form: string; example: --resolver variantvalidator.
