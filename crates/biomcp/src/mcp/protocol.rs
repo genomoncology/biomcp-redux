@@ -120,7 +120,7 @@ pub(super) fn tool_result(
     id: Value,
     outcome: &crate::command::Outcome,
     modern: bool,
-    form: ReplyForm,
+    form: Option<ReplyForm>,
 ) -> Value {
     let failed = !matches!(
         outcome.status,
@@ -142,18 +142,25 @@ pub(super) fn tool_result(
     result(id, content(error, true, form), modern)
 }
 // The JSON value is the whole text: no status line or summary precedes it.
-fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
-    let text = json!([{"type":"text","text":value.to_string()}]);
+fn content(value: Value, failed: bool, form: Option<ReplyForm>) -> Value {
+    let form = form.unwrap_or(if failed {
+        ReplyForm::Both
+    } else {
+        ReplyForm::Once
+    });
+    let text = || json!([{"type":"text","text":value.to_string()}]);
     match form {
-        ReplyForm::Once if failed => json!({"content":text, "isError":true}),
-        // Clients that show text when it is present show structured content when it is not.
-        ReplyForm::Once => json!({"content":[], "structuredContent":value, "isError":false}),
-        ReplyForm::Both => json!({"content":text, "structuredContent":value, "isError":failed}),
+        ReplyForm::Once => {
+            json!({"content":[], "structuredContent":value, "isError":failed})
+        }
+        ReplyForm::Both => {
+            json!({"content":text(), "structuredContent":value, "isError":failed})
+        }
         ReplyForm::StructuredOnly => {
             json!({"content":[{"type":"text","text":"JSON reply is in structuredContent."}],
             "structuredContent":value, "isError":failed})
         }
-        ReplyForm::TextOnly => json!({"content":text, "isError":failed}),
+        ReplyForm::TextOnly => json!({"content":text(), "isError":failed}),
     }
 }
 pub(super) fn within_cap(value: &Value) -> bool {

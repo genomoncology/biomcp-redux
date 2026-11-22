@@ -183,7 +183,7 @@ fn check_reply(
     (section_expected, restricted): (bool, bool),
 ) -> Result<(), String> {
     let result = reply.get("result").ok_or("result")?;
-    let value = super::reply_form::check_content(result, form)?;
+    let value = super::reply_form::check_content(result, Some(form))?;
     let mut sections = 0;
     check_next(&value, tools, &mut sections)?;
     if restricted

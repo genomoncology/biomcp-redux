@@ -1,6 +1,7 @@
 # 1133 — mcp-errors-in-structured-content
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ba86a2b183996d72b317cd136ac7a30f78e03f81
 
 Milestone: 7
 
