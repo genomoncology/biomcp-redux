@@ -20,3 +20,7 @@ Found 2026-11-22 by scouts exploring BioMCP for multi-entity questions (about 76
 ## Proof
 
 - Replays: a four-ID list returns four documents (or a clear list refusal); a letter stating its purpose is not reported as `not-stated`.
+
+## Amendment 2026-11-22
+
+Found by the developer of ticket 1140: when a supplement letter is unavailable and the caller selects only `submission_number`, the reply's incomplete-data note points to `supplement_purpose`, a field the caller left out. A note about an unselected field should name what is missing in words the caller can act on, or move to the selected field.
