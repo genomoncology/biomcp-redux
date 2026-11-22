@@ -2675,7 +2675,7 @@ Usage: biomcp get protein [OPTIONS] <input>...
 
 Arguments:
   <input>...
-          Source accessions or gene symbols, preserving caller order. Separate IDs with spaces or commas.
+          Accessions or gene symbols in order. Spaces or commas.
 
 Options:
       --format <format>
@@ -2718,7 +2718,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit; --section-limit is the same option.
 
-- `input`: Source accessions or gene symbols, preserving caller order. Separate IDs with spaces or commas.
+- `input`: Accessions or gene symbols in order. Spaces or commas.
 Form: get protein INPUT...; not --input.
 - `--section`: Select source sections or all bounded first pages; function… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section function.
 - `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs. Value form: integer; example: --section-limit 2.
@@ -3556,7 +3556,7 @@ Usage: biomcp get gene [OPTIONS] <input>...
 
 Arguments:
   <input>...
-          Gene symbols or checked identifiers, in input order. Separate IDs with spaces or commas.
+          Gene symbols or IDs in order. Use spaces or commas.
 
 Options:
       --constraint-release <constraint_release>
@@ -3599,7 +3599,7 @@ Get gene identities and source annotations. Sources: civic, clingen, clinvar, ge
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
-- `input`: Gene symbols or checked identifiers, in input order. Separate IDs with spaces or commas.
+- `input`: Gene symbols or IDs in order. Use spaces or commas.
 Form: get gene INPUT...; not --input.
 - `--constraint-release`: Choose a gnomAD release for MANE Select. Value form: string; example: --constraint-release v4.1.
 - `--section`: Requested section words, preserving caller order and repetitions… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section clingen.
@@ -3628,7 +3628,7 @@ Usage: biomcp get article [OPTIONS] <input>...
 
 Arguments:
   <input>...
-          PubMed, PMC or DOI identifiers in input order. Separate IDs with spaces or commas.
+          PubMed, PMC or DOI IDs in order. Use spaces or commas.
 
 Options:
       --format <format>
@@ -3667,7 +3667,7 @@ Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtato
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
-- `input`: PubMed, PMC or DOI identifiers in input order. Separate IDs with spaces or commas.
+- `input`: PubMed, PMC or DOI IDs in order. Use spaces or commas.
 Form: get article INPUT...; not --input.
 - `--section`: Requested section words; trailing words and --section share… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section annotations.
 
@@ -3691,7 +3691,7 @@ Usage: biomcp get trial [OPTIONS] <input>...
 
 Arguments:
   <input>...
-          1–20 NCT IDs in caller order. Separate IDs with spaces or commas.
+          1–20 NCT IDs. Space or comma.
 
 Options:
       --distance <distance>
@@ -3761,7 +3761,7 @@ Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--distance`: Positive radius in mi or km. Needs --lat and --lon. Value form: string; example: --distance 50km.
-- `input`: 1–20 NCT IDs in caller order. Separate IDs with spaces or commas.
+- `input`: 1–20 NCT IDs. Space or comma.
 Form: get trial INPUT...; not --input.
 - `--lat`: Latitude in degrees. With --lon, sort locations by straight-line miles and default to that section. Value form: string; example: --lat 39.96.
 - `--limit`: Up to 200 records per page. Sections other than locations also have byte limits. Value form: integer; example: --limit 1.

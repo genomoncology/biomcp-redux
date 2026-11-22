@@ -31,19 +31,12 @@ pub(super) fn command_for(
             continue;
         }
         // Terminal help speaks the same plain words as the reference details list.
-        let mut help = crate::help::plain(
-            property
-                .get("description")
-                .and_then(Value::as_str)
-                .unwrap_or_default(),
-        );
-        if name == "input"
-            && let Some(guidance) = super::batch_ids::guidance(verb, command.get_name())
-        {
-            help.push(' ');
-            help.push_str(guidance);
-        }
-        let mut argument = Arg::new(name.clone()).help(help);
+        let help = (name == "input")
+            .then(|| super::batch_ids::input_help(verb, command.get_name()))
+            .flatten()
+            .or_else(|| property.get("description").and_then(Value::as_str))
+            .unwrap_or_default();
+        let mut argument = Arg::new(name.clone()).help(crate::help::plain(help));
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
             argument = argument.index(position as usize + 1);
         } else {

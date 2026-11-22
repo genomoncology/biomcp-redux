@@ -11,16 +11,29 @@ const FORM: &str = "Separate IDs with spaces or commas.";
 struct Ids {
     item: fn(&str) -> bool,
     allow_literal_comma: bool,
+    help: &'static str,
 }
 
 fn batch(verb: &str, entity: &str) -> Option<Ids> {
     if verb != "get" {
         return None;
     }
-    let (item, allow_literal_comma): (fn(&str) -> bool, bool) = match entity {
-        "trial" => (|word| word.parse::<NctId>().is_ok(), false),
-        "article" => (article, true),
-        "gene" => (gene, false),
+    let (item, allow_literal_comma, help): (fn(&str) -> bool, bool, &str) = match entity {
+        "trial" => (
+            |word| word.parse::<NctId>().is_ok(),
+            false,
+            "1–20 NCT IDs. Space or comma.",
+        ),
+        "article" => (
+            article,
+            true,
+            "PubMed, PMC or DOI IDs in order. Use spaces or commas.",
+        ),
+        "gene" => (
+            gene,
+            false,
+            "Gene symbols or IDs in order. Use spaces or commas.",
+        ),
         "protein" => (
             |word| {
                 ProteinInput::deserialize(serde::de::value::StrDeserializer::<
@@ -29,12 +42,14 @@ fn batch(verb: &str, entity: &str) -> Option<Ids> {
                 .is_ok()
             },
             false,
+            "Accessions or gene symbols in order. Spaces or commas.",
         ),
         _ => return None,
     };
     Some(Ids {
         item,
         allow_literal_comma,
+        help,
     })
 }
 
@@ -50,8 +65,8 @@ fn gene(word: &str) -> bool {
     }
 }
 
-pub(crate) fn guidance(verb: &str, entity: &str) -> Option<&'static str> {
-    batch(verb, entity).map(|_| FORM)
+pub(crate) fn input_help(verb: &str, entity: &str) -> Option<&'static str> {
+    batch(verb, entity).map(|ids| ids.help)
 }
 
 /// Split an argv word only when all its nonempty pieces are checked IDs. Free-text gene aliases

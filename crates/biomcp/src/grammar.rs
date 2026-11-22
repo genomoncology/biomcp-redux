@@ -1,7 +1,7 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod arguments;
 mod batch_ids;
-pub(crate) use batch_ids::guidance as batch_id_guidance;
+pub(crate) use batch_ids::input_help as batch_id_help;
 mod choices;
 mod context;
 pub(crate) use choices::ENUM_CASE_GUIDANCE;
