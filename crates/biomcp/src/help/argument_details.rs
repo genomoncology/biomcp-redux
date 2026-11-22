@@ -44,7 +44,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             .collect::<Vec<_>>();
         let own = command.command.join(" ");
         let rule = command.section_rule.clone();
-        let show_form = command.command != ["get", "disease"];
+        let concise = command.command == ["get", "disease"];
         let mut example_values = (command.command == ["search", "drug"]).then(BTreeSet::new);
         let mut cased = false;
         for argument in &mut command.arguments {
@@ -72,30 +72,49 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 .filter(|_| selectable)
                 .map(|schema| only_sources(schema, &argument.name, &sources))
                 .unwrap_or_default();
-            let sample = example_values.as_mut().map_or(sample.as_str(), |seen| {
-                short_example(&sample, &argument.name, &only, seen)
-            });
-            option_sentence(argument, sample, &only, show_form);
+            let sample = example_values.as_mut().map_or_else(
+                || {
+                    if concise {
+                        example_value(&sample, &argument.name).unwrap_or(&sample)
+                    } else {
+                        &sample
+                    }
+                },
+                |seen| short_example(&sample, &argument.name, &only, seen),
+            );
+            option_sentence(argument, sample, &only);
         }
-        // Lines that hold for every option are said once, on the command.
-        if cased {
-            command.description.push('\n');
-            command
-                .description
-                .push_str(crate::grammar::ENUM_CASE_GUIDANCE);
-        }
-        if !flags.is_empty() {
-            command.description.push('\n');
-            command.description.push_str(if sources.is_empty() {
-                LOCAL_OPTIONS
-            } else {
-                SOURCE_OPTIONS
-            });
-        }
+        let scope = if sources.is_empty() {
+            LOCAL_OPTIONS
+        } else {
+            SOURCE_OPTIONS
+        };
+        let scope = (!flags.is_empty() && !concise).then_some(scope);
+        append_option_guidance(command, cased, concise, scope);
         if let Some(line) = schema.as_ref().and_then(crate::grammar::paging::help_line) {
             command.description.push('\n');
             command.description.push_str(&line);
         }
+    }
+}
+/// Say shared guidance once, on the command.
+fn append_option_guidance(
+    command: &mut HelpCommand,
+    cased: bool,
+    concise: bool,
+    scope: Option<&str>,
+) {
+    if cased {
+        command.description.push('\n');
+        command.description.push_str(if concise {
+            SHORT_ENUM_CASE_GUIDANCE
+        } else {
+            crate::grammar::ENUM_CASE_GUIDANCE
+        });
+    }
+    if let Some(scope) = scope {
+        command.description.push('\n');
+        command.description.push_str(scope);
     }
 }
 /// The flag is already beside its example. Keep it when two options share a value and source.
@@ -105,23 +124,19 @@ fn short_example<'a>(
     sources: &[String],
     seen: &mut BTreeSet<(String, Vec<String>)>,
 ) -> &'a str {
-    sample
-        .strip_prefix(name)
-        .and_then(|suffix| suffix.strip_prefix([' ', '=']))
+    example_value(sample, name)
         .filter(|&value| seen.insert((value.to_owned(), sources.to_vec())))
         .unwrap_or(sample)
 }
+fn example_value<'a>(sample: &'a str, name: &str) -> Option<&'a str> {
+    sample.strip_prefix(name)?.strip_prefix([' ', '='])
+}
 /// One sentence per option that names the option, so no option repeats another's.
-fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String], show_form: bool) {
+fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
     let form = if argument.value_type == "array" {
         "repeatable values (repeat the flag)"
     } else {
         &argument.value_type
-    };
-    let example_label = if show_form {
-        format!("Value form: {form}; example: ")
-    } else {
-        "Example: ".into()
     };
     // The option's own text ends its sentence before the form sentence starts.
     if !argument.description.trim_end().ends_with('.') {
@@ -129,11 +144,11 @@ fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String], s
     }
     if argument.description.contains("Example: ") {
         // The field's own example leads; the form joins its sentence.
-        if show_form {
-            argument.description = argument
-                .description
-                .replacen("Example: ", &example_label, 1);
-        }
+        argument.description = argument.description.replacen(
+            "Example: ",
+            &format!("Value form: {form}; example: "),
+            1,
+        );
         if !only.is_empty() {
             argument
                 .description
@@ -148,7 +163,7 @@ fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String], s
         };
         argument
             .description
-            .push_str(&format!(" {example_label}{sample}{scope}."));
+            .push_str(&format!(" Value form: {form}; example: {sample}{scope}."));
     }
 }
 /// Said once per command page instead of after every option.
@@ -156,6 +171,7 @@ pub(super) const SOURCE_OPTIONS: &str =
     "Options apply to every listed source unless their description restricts them.";
 pub(super) const LOCAL_OPTIONS: &str =
     "Options are local to the command and independent of source selection.";
+const SHORT_ENUM_CASE_GUIDANCE: &str = "Choices ignore case; replies use listed spelling.";
 /// A command description without the lines that speak for its options, for pages that omit them.
 pub(super) fn without_option_lines(description: &str) -> String {
     description
@@ -163,6 +179,7 @@ pub(super) fn without_option_lines(description: &str) -> String {
         .filter(|line| {
             ![
                 crate::grammar::ENUM_CASE_GUIDANCE,
+                SHORT_ENUM_CASE_GUIDANCE,
                 SOURCE_OPTIONS,
                 LOCAL_OPTIONS,
             ]
