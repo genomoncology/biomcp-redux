@@ -6669,14 +6669,14 @@ Options:
 
           [default: 1]
 
-      --saved-folder <DIR>
-          Keep each account's saved work in hosted mode under DIR, in the folder its account header names.
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --saved-folder <DIR>
+          Keep each account's saved work in hosted mode under DIR, in the folder its account header names.
 
       --http [<http>]
           Listen on an HTTP address; omit its value for the loopback default.
