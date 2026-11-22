@@ -157,10 +157,7 @@ fn response(
         .iter()
         .find(|v| v["id"] == 2)
         .ok_or("nested reply")?;
-    let form = config
-        .get("mcp_reply_form")
-        .and_then(Value::as_str)
-        .unwrap_or("once");
+    let form = config.get("mcp_reply_form").and_then(Value::as_str);
     let value =
         super::super::reply_form::check_content(reply.get("result").ok_or("nested result")?, form)?;
     Ok((value, tools))

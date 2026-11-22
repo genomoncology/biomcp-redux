@@ -66,10 +66,10 @@ fn forms() -> Result<(), String> {
                     .find(|reply| reply.get("id") == frame.get("id"))
                     .and_then(|reply| reply.get("result"))
                     .ok_or("tool result missing")?;
-                checked(result, form.unwrap_or("once"), index)
+                checked(result, form, index)
             })
             .collect::<Result<Vec<_>, String>>()?;
-        http_forms(config, &capture, &frames, form.unwrap_or("once"))?;
+        http_forms(config, &capture, &frames, form)?;
         if let Some(reference) = &reference {
             if reference != &values {
                 return Err("reply form changed typed JSON".into());
@@ -84,7 +84,7 @@ fn http_forms(
     config: Value,
     capture: &std::path::Path,
     frames: &[Value],
-    form: &str,
+    form: Option<&str>,
 ) -> Result<(), String> {
     let server = Server::configured_globals(
         "127.0.0.1:0",
@@ -104,7 +104,7 @@ fn http_forms(
     }
     Ok(())
 }
-fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
+fn checked(result: &Value, form: Option<&str>, index: usize) -> Result<Value, String> {
     let value = super::reply_form::check_content(result, form)?;
     if result.get("isError") != Some(&json!(index != 0)) {
         return Err("typed reply lost error status".into());

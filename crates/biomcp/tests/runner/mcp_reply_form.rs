@@ -139,8 +139,8 @@ pub(super) fn check() -> Result<(), String> {
                     .ok_or("first result missing")?;
                 // A hosted first reply is already HTTP; only local mode pairs stdio with HTTP.
                 let http = (!hosted).then(|| http_reply(&server, call)).transpose()?;
-                let default = if hosted { "both" } else { "once" };
-                let value = check_pair(first, http.as_ref(), form.unwrap_or(default), index)
+                let expected_form = form.or(hosted.then_some("both"));
+                let value = check_pair(first, http.as_ref(), expected_form, index)
                     .map_err(|error| format!("hosted={hosted}: {error}"))?;
                 if form.is_none() {
                     reference.push(value);
@@ -189,7 +189,7 @@ fn http_reply(server: &Server, call: &Value) -> Result<Value, String> {
 fn check_pair(
     first: &Value,
     http: Option<&Value>,
-    form: &str,
+    form: Option<&str>,
     index: usize,
 ) -> Result<Value, String> {
     let value = check_content(first, form)?;
@@ -214,7 +214,7 @@ fn check_pair(
             )?;
         }
         return Err(format!(
-            "stdio/HTTP values differ form={form} call={index}: {difference}"
+            "stdio/HTTP values differ form={form:?} call={index}: {difference}"
         ));
     }
     Ok(value)
@@ -249,19 +249,22 @@ fn invalid_settings() -> Result<(), String> {
     Ok(())
 }
 
-/// The reply's JSON value, checked to sit where `form` puts it, once, with nothing before it.
-pub(super) fn check_content(result: &Value, form: &str) -> Result<Value, String> {
+/// Check where the reply carries JSON. An unset form means the local default.
+pub(super) fn check_content(result: &Value, form: Option<&str>) -> Result<Value, String> {
     let blocks = result
         .get("content")
         .and_then(Value::as_array)
         .ok_or("content list missing")?;
     let structured = result.get("structuredContent");
     let failed = result.get("isError") == Some(&json!(true));
-    if form == "once" && !failed {
+    let form = form.unwrap_or(if failed { "both" } else { "once" });
+    if form == "once" {
         if !blocks.is_empty() {
-            return Err(format!("once repeats JSON as text: {result}"));
+            return Err("once requires empty content".into());
         }
-        return structured.cloned().ok_or("structured JSON missing".into());
+        return structured
+            .cloned()
+            .ok_or("once requires structuredContent".into());
     }
     let [block] = blocks.as_slice() else {
         return Err("expected one content block".into());
@@ -284,8 +287,8 @@ pub(super) fn check_content(result: &Value, form: &str) -> Result<Value, String>
     match (form, structured) {
         ("both", Some(copy)) if copy == &value => Ok(value),
         ("both", _) => Err("JSON copies differ".into()),
-        ("once" | "text-only", None) => Ok(value),
-        ("once" | "text-only", Some(_)) => Err(format!("{form} repeats JSON")),
+        ("text-only", None) => Ok(value),
+        ("text-only", Some(_)) => Err("text-only repeats JSON".into()),
         _ => Err("unknown test form".into()),
     }
 }
