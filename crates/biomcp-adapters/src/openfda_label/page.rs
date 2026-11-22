@@ -55,9 +55,6 @@ impl Record {
         limit: u32,
         budget: usize,
     ) -> Result<DrugLabelText, RequestError> {
-        if !(1..=50).contains(&limit) {
-            return Err(bad_reply(Source::OpenfdaLabel, Some(200)));
-        }
         let all = fragments(parts)?;
         let total = all.len() as u64;
         let mut text = String::new();

@@ -1,6 +1,7 @@
 # 1126 — label-section-limit-matches-what-help-advertises
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e0307e8e1f27d84afcef88ef60908e14ce159850
 
 Milestone: 7
 

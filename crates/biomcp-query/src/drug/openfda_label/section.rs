@@ -3,11 +3,11 @@ use super::SOURCE;
 use crate::{Ctx, Outcome};
 use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
-use biomcp_types::{DrugGet, ReplyBody, Section};
+use biomcp_types::{DrugGet, ReplyBody, Section, SourceStatus};
 use biomcp_types::{DrugLabel, DrugLabelText, Request, StepKind};
 use source::SubsectionPage;
 
-/// An omitted limit takes the request schema's largest, 50; the reply budget usually stops sooner.
+/// An omitted fragment limit keeps the default page size; the text budget may stop it sooner.
 fn fragment_limit(query: &DrugGet) -> u32 {
     query.section_limit().unwrap_or(50)
 }
@@ -213,7 +213,8 @@ fn find(
             out.body = absent_heading(query, record, asked, Box::default())?;
             return Ok(());
         }
-        Err(_) => {
+        Err(error) => {
+            fail_source(out, error);
             crate::status::item(out, true, false, true);
             (
                 Section::unavailable(SOURCE, biomcp_types::Reason::BadReply),
@@ -230,6 +231,13 @@ fn find(
     }
     .with_query(query.clone());
     Ok(())
+}
+
+/// Keep the source read's counts and notices when its label section cannot be used.
+pub(super) fn fail_source(out: &mut Outcome, error: RequestError) {
+    if let Some(source) = out.sources.first_mut() {
+        source.set_status(SourceStatus::Failed(crate::status::reason(error)));
+    }
 }
 
 /// The label's recent major changes, except beside a read of that section, which already
