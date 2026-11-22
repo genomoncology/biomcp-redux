@@ -1,0 +1,37 @@
+{
+  "feature": "gene-identity",
+  "story": "Gene batches accept checked symbols and IDs. A comma inside a full alias stays in the lookup.",
+  "live_check": "synthetic HGNC subset",
+  "replay": "gene/main",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "PDF, 673"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/input": [
+          "PDF",
+          "673"
+        ],
+        "/result/items/1/answer/gene/symbol": "BRAF"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "Kirsten rat sarcoma, synthetic alias"
+      ],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/query/input": [
+          "Kirsten rat sarcoma, synthetic alias"
+        ]
+      }
+    }
+  ]
+}

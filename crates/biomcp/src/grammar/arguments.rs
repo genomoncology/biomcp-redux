@@ -5,6 +5,7 @@ use clap::{Arg, ArgAction, Command, builder::TypedValueParser};
 use serde_json::Value;
 
 pub(super) fn command_for(
+    verb: &str,
     name: &'static str,
     schema: &Value,
 ) -> Result<Command, super::ParseInvalid> {
@@ -30,12 +31,12 @@ pub(super) fn command_for(
             continue;
         }
         // Terminal help speaks the same plain words as the reference details list.
-        let mut argument = Arg::new(name.clone()).help(crate::help::plain(
-            property
-                .get("description")
-                .and_then(Value::as_str)
-                .unwrap_or_default(),
-        ));
+        let help = (name == "input")
+            .then(|| super::batch_ids::input_help(verb, command.get_name()))
+            .flatten()
+            .or_else(|| property.get("description").and_then(Value::as_str))
+            .unwrap_or_default();
+        let mut argument = Arg::new(name.clone()).help(crate::help::plain(help));
         if let Some(position) = property.get("x-positional").and_then(Value::as_u64) {
             argument = argument.index(position as usize + 1);
         } else {
