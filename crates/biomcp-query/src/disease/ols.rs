@@ -25,7 +25,6 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         .with_query(query.clone()),
     );
     let mut source = status::source(Source::Ols, leg.finish(), error);
-    out.local = error.and_then(status::local);
     match reply {
         Ok(page) => {
             let returned = page.received;
@@ -67,7 +66,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
                 body.items = rows.value.into();
             }
         }
-        Err(_) => (),
+        Err(error) => out.local = status::local(error),
     }
     out.sources.push(source);
     if out.page.is_some() {
