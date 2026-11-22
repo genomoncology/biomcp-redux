@@ -3332,6 +3332,12 @@ Options:
           Default MyDisease, or both sources for gene validity; help get disease
           Default MyDisease, or both sources for gene validity.
 
+      --source-title-prefix[=<source_title_prefix>]
+          Match publisher titles starting with ID text. Gene validity only.
+
+          [default: false]
+          [possible values: true, false]
+
       --submitter <submitter>
           Exact GenCC submitter or ClinGen panel.
 
@@ -3357,6 +3363,7 @@ Form: get disease ID SECTION; not --section.
 - `--section-offset`: Section row offset. Value form: integer; example: --section-offset 1.
 - `--sex`: Source sex code. Value form: string; example: --sex 3.
 - `--source`: Default MyDisease, or both sources for gene validity. Value form: string; example: --source seer.
+- `--source-title-prefix`: Match publisher titles starting with ID text. Gene validity only. Value form: boolean; example: --source-title-prefix.
 - `--submitter`: Exact GenCC submitter or ClinGen panel. Value form: string; example: --submitter 'Other Expert Panel'.
 
 Omit for the identity card.

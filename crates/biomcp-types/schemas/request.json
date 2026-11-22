@@ -3914,6 +3914,10 @@
           "$ref": "#/$defs/SharedDiseaseSource",
           "description": "Default MyDisease, or both sources for gene validity."
         },
+        "source_title_prefix": {
+          "description": "Match publisher titles starting with ID text. Gene validity only.",
+          "type": "boolean"
+        },
         "submitter": {
           "$ref": "#/$defs/Text",
           "description": "Exact GenCC submitter or ClinGen panel."
