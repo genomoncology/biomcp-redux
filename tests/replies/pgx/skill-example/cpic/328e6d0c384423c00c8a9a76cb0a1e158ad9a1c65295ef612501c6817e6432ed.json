@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/recommendation?select=%2A&lookupkey-%3E%3ECYP2B6=not.is.null&drugid=eq.RxNorm%3A195085&order=id.asc&limit=5&offset=0&phenotypes-%3E%3ECYP2B6=eq.Intermediate%20Metabolizer",
+  "exchanges": [
+    {
+      "fetched": 1795319796,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "0-0/1",
+      "delay_ms": 135,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"id":8609521,"guidelineid":104245,"drugid":"RxNorm:195085","implications":{"CYP2B6": "Higher dose-adjusted trough concentrations of efavirenz compared with normal metabolizers; increased risk of CNS adverse events"},"drugrecommendation":"Consider initiating efavirenz with decreased dose of 400 mg/day","classification":"Moderate","phenotypes":{"CYP2B6": "Intermediate Metabolizer"},"activityscore":{"CYP2B6": "n/a"},"allelestatus":{},"lookupkey":{"CYP2B6": "Intermediate Metabolizer"},"population":"child >40kg_adult","comments":"If therapeutic drug monitoring is available and a decreased efavirenz dose is prescribed, consider obtaining steady-state plasma efavirenz concentrations to ensure concentrations are in the suggested therapeutic range (~1 to 4 μg/mL). To prescribe efavirenz at a decreased dose of 400 mg/day or 200 mg/day in a multidrug regimen may require prescribing more than one pill once daily. If so, the provider should weigh the potential benefit of reduced dose against the potential detrimental impact of increased pill number.","version":1,"dosinginformation":false,"alternatedrugavailable":false,"otherprescribingguidance":false}]
+      }
+    }
+  ]
+}

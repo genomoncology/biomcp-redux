@@ -1,0 +1,91 @@
+{
+  "feature": "agent-skill",
+  "story": "The skill batches registered trials with selected flow fields and pages Boston-area sites with selected columns.",
+  "live_check": "public",
+  "verified": "Recorded the public ClinicalTrials.gov API v2 study and version replies with BioMCP --record.",
+  "replay": "trial/skill-examples",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT05209464,NCT05006261",
+        "flow",
+        "--fields=record,data.title,data.milestones"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "record",
+          "data.title",
+          "data.milestones"
+        ],
+        "/result/items/*/input": {
+          "equals": [
+            "NCT05209464",
+            "NCT05006261"
+          ]
+        },
+        "/result/items/*/sections/flow/data/items/1/record": {
+          "equals": [
+            "flow-period",
+            "flow-period"
+          ]
+        },
+        "/result/items/*/sections/flow/data/items/1/data/milestones/0/type": {
+          "equals": [
+            "STARTED",
+            "STARTED"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00535626",
+        "locations",
+        "--lat",
+        "42.36",
+        "--lon",
+        "-71.06",
+        "--fields",
+        "facility,distance_mi"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "facility",
+          "distance_mi"
+        ],
+        "/result/items/0/sections/locations/data/total": 15,
+        "/result/items/0/sections/locations/data/items/0": {
+          "equals": {
+            "facility": "New England Baptist Hospital",
+            "distance_mi": 0.1
+          }
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/fields": [
+          "facility",
+          "distance_mi"
+        ],
+        "/query/lat": "42.36",
+        "/query/lon": "-71.06",
+        "/result/items/0/sections/locations/data/page": {
+          "equals": {
+            "offset": 10,
+            "returned": 5,
+            "total": 15
+          }
+        }
+      }
+    }
+  ]
+}
