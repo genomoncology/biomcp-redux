@@ -1,5 +1,6 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod arguments;
+mod batch_ids;
 mod choices;
 mod context;
 pub(crate) use choices::ENUM_CASE_GUIDANCE;
@@ -226,7 +227,7 @@ pub(crate) fn root() -> Result<Root, ParseInvalid> {
             let schema: Value =
                 serde_json::from_str(crate::schema::find(id).ok_or_else(ParseInvalid::default)?)
                     .map_err(|_| ParseInvalid::default())?;
-            command = command.subcommand(command_for(entity, &schema)?);
+            command = command.subcommand(command_for(verb, entity, &schema)?);
         }
         root = root.subcommand(command);
     }
@@ -527,9 +528,17 @@ fn request(
     }
     // A trailing word given with --section is an ID; without it, a section-shaped one is a section.
     let explicit = matches.try_get_raw("section").ok().flatten().is_some();
-    match rewrite::request(command.via, verb, entity, value.clone()) {
+    let batch = batch_ids::normalize(verb, entity, &value);
+    let (normalized, malformed) = batch
+        .as_ref()
+        .map_or((&value, false), |(v, empty)| (v, *empty));
+    let request = rewrite::request(command.via, verb, entity, normalized.clone());
+    if malformed {
+        return Err(batch_ids::refusal(verb, entity, request, fields));
+    }
+    match request {
         Ok(request) => words::unknown(verb, entity, &value, explicit).map_or(Ok(request), Err),
-        Err(cause) => Err(sections::fix(verb, entity, &value)
+        Err(cause) => Err(sections::fix(verb, entity, normalized)
             .or_else(|| words::unknown(verb, entity, &value, explicit))
             .or_else(|| {
                 if (verb, entity) == ("get", "disease") {
@@ -539,7 +548,9 @@ fn request(
                 }
             })
             .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause, fields))
-            .unwrap_or_else(|| errors::checked_invalid(command.via, verb, entity, &value, &cause))),
+            .unwrap_or_else(|| {
+                errors::checked_invalid(command.via, verb, entity, normalized, &cause)
+            })),
     }
 }
 

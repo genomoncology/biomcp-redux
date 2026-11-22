@@ -101,12 +101,15 @@
       "expect": {
         "/error/option": "input",
         "/next/0/args": [
+          "--fields=record,data.title,data.milestones",
           "get",
           "trial",
           "NCT04657016",
           "NCT04660643",
-          "flow",
-          "--fields=record,data.title,data.milestones"
+          "flow"
+        ],
+        "/error/valid_values": [
+          "Separate IDs with spaces or commas."
         ]
       }
     },
