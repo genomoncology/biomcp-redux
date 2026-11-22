@@ -231,6 +231,24 @@
       ],
       "type": "object"
     },
+    "Reply_GeneIdentity": {
+      "description": "The identity retained when reading a gene section alone.",
+      "properties": {
+        "hgnc_id": {
+          "$ref": "#/$defs/Reply_HgncId",
+          "description": "HGNC identifier."
+        },
+        "symbol": {
+          "$ref": "#/$defs/Reply_GeneSymbol",
+          "description": "Source-preserved symbol."
+        }
+      },
+      "required": [
+        "hgnc_id",
+        "symbol"
+      ],
+      "type": "object"
+    },
     "Reply_GeneLocation": {
       "description": "HGNC location text with a parsed interpretation when its syntax is known.",
       "type": "string"
@@ -582,6 +600,29 @@
         },
         "resolution": {
           "const": "resolved",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resolution",
+        "gene",
+        "match"
+      ],
+      "type": "object"
+    },
+    {
+      "description": "One resolved identity in a section-only read.",
+      "properties": {
+        "gene": {
+          "$ref": "#/$defs/Reply_GeneIdentity",
+          "description": "Resolved HGNC identity."
+        },
+        "match": {
+          "$ref": "#/$defs/Reply_Match",
+          "description": "How the source matched the input."
+        },
+        "resolution": {
+          "const": "resolved-identity",
           "type": "string"
         }
       },
