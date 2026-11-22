@@ -1,0 +1,1 @@
+These compact projections of public OLS MONDO search replies retain source order, totals, labels, and identifier fields. MONDO terms are available under CC BY 4.0. The SLC6A1 pages with limit 2 contain response-only controls. On the first page the MONDO row has only its short form. On the second page the last row has no identity fields.

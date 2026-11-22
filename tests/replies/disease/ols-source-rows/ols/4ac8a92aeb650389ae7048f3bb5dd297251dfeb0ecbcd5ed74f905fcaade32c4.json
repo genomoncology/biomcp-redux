@@ -1,0 +1,61 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/search?q=STXBP1&rows=12&start=0&ontology=mondo&groupField=iri",
+  "exchanges": [
+    {
+      "fetched": 1795389677,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 418,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "response": {
+            "numFound": 4,
+            "start": 0,
+            "docs": [
+              {
+                "iri": "http://identifiers.org/hgnc/11444",
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "short_form": "11444",
+                "label": "STXBP1",
+                "obo_id": "11444",
+                "type": "class"
+              },
+              {
+                "iri": "http://identifiers.org/ncbigene/102120803",
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "short_form": "102120803",
+                "label": "STXBP1",
+                "obo_id": "102120803",
+                "type": "class"
+              },
+              {
+                "iri": "http://purl.obolibrary.org/obo/MONDO_1012925",
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "short_form": "MONDO_1012925",
+                "label": "encephalopathy, STXBP1-related, crab-eating macaque",
+                "obo_id": "MONDO:1012925",
+                "type": "class"
+              },
+              {
+                "iri": "http://purl.obolibrary.org/obo/MONDO_0012812",
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "short_form": "MONDO_0012812",
+                "label": "developmental and epileptic encephalopathy, 4",
+                "obo_id": "MONDO:0012812",
+                "type": "class"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
