@@ -111,6 +111,9 @@ impl View<'_> {
             if value.as_array().is_some_and(Vec::is_empty) && node.get("default") == Some(value) {
                 continue;
             }
+            if self.eligibility_arms(value, node, depth, out) {
+                continue;
+            }
             if (value.is_object() || value.is_array()) && nonfinite(value).is_none() {
                 heading(name, depth, out);
                 if typed_step(value, node, self.root, out) {
@@ -141,6 +144,39 @@ impl View<'_> {
             }
         }
     }
+    fn eligibility_arms(
+        &self,
+        value: &Value,
+        schema: &Value,
+        depth: usize,
+        out: &mut String,
+    ) -> bool {
+        let Some(item_schema) = member(schema, "items", self.root) else {
+            return false;
+        };
+        if item_schema.get("$ref").and_then(Value::as_str)
+            != Some("#/$defs/Reply_TrialEligibilityArm")
+        {
+            return false;
+        }
+        let Some(arms) = value.as_array() else {
+            return false;
+        };
+        let depth = depth.min(4);
+        heading("arms", depth, out);
+        for arm in arms {
+            let mut criteria = arm.clone();
+            let title = criteria
+                .as_object_mut()
+                .and_then(|fields| fields.remove("heading"));
+            if let Some(title) = title.as_ref().and_then(Value::as_str) {
+                heading(title, depth + 1, out);
+            }
+            self.object(&criteria, item_schema, depth + 2, out);
+        }
+        true
+    }
+
     fn render(&self, value: &Value, schema: &Value, depth: usize, out: &mut String) {
         match value {
             Value::Object(_) => self.object(value, schema, depth, out),
