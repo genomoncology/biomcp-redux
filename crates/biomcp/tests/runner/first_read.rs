@@ -2,6 +2,7 @@
 //! an offline one never fetches.
 mod ema;
 mod parity;
+mod publisher;
 
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
@@ -34,6 +35,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ];
     trials.extend(ema::trials());
     trials.extend(parity::trials());
+    trials.extend(publisher::trials());
     trials
 }
 
@@ -199,15 +201,7 @@ fn timeout() -> Check {
 }
 
 fn publisher_retry_after() -> Check {
-    let stub = Stub::with_headers(
-        &["www.fda.gov"],
-        |_| "text/html",
-        |_| Ok(String::new()),
-        |_, bytes| bytes,
-        |_| 429,
-        |_| "Retry-After: 300\r\n".to_owned(),
-    )?;
-    let (env, stub) = configured(stub, json!({}))?;
+    let (env, stub) = configured(publisher::retry_peer("www.fda.gov")?, json!({}))?;
     let first = invoke(&env, words(SEARCH), 4)?;
     let again = invoke(&env, words(SEARCH), 4)?;
     let requests = stub.finish()?;
@@ -218,17 +212,21 @@ fn publisher_retry_after() -> Check {
         ));
     }
     for reply in [first, again] {
-        check_failure(
-            &reply,
-            "Publisher Retry-After was 300 seconds",
-            "size: unknown",
-        )?;
-        if reply
-            .pointer("/sources/0/notices/0/retry_after_seconds")
-            .and_then(Value::as_u64)
-            > Some(60)
-        {
-            return Err(format!("publisher delay replaced the local wait: {reply}"));
+        publisher::assert_backoff(&reply, 300)?;
+        let context = reply
+            .pointer("/sources/0/notices")
+            .and_then(Value::as_array);
+        let explains_failure = context
+            .into_iter()
+            .flatten()
+            .filter_map(|notice| notice.get("message").and_then(Value::as_str))
+            .any(|message| {
+                message.contains("first fetch")
+                    && message.contains("HTTP 429")
+                    && message.contains("Size: unknown")
+            });
+        if !explains_failure {
+            return Err(format!("missing first-fetch context: {reply}"));
         }
     }
     Ok(())
