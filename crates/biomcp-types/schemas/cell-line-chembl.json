@@ -21,10 +21,11 @@
       ],
       "type": "string"
     },
-    "Reply_Capped_CellLineChemblRecord": {
+    "Reply_CappedPage_CellLineChemblRecord": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
+          "default": [],
           "description": "References in stable source order.",
           "items": {
             "$ref": "#/$defs/Reply_CellLineChemblRecord"
@@ -60,7 +61,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Reply_Capped_CellLineChemblRecord",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineChemblRecord",
           "description": "Every selected whole metadata row and the native total."
         },
         "offset": {

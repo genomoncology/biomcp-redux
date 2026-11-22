@@ -21,10 +21,11 @@
       ],
       "type": "string"
     },
-    "Reply_Capped_CellLineWarning": {
+    "Reply_CappedPage_CellLineWarning": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
+          "default": [],
           "description": "References in stable source order.",
           "items": {
             "$ref": "#/$defs/Reply_CellLineWarning"
@@ -43,10 +44,11 @@
       ],
       "type": "object"
     },
-    "Reply_Capped_CellLineXref": {
+    "Reply_CappedPage_CellLineXref": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
+          "default": [],
           "description": "References in stable source order.",
           "items": {
             "$ref": "#/$defs/Reply_CellLineXref"
@@ -106,7 +108,7 @@
           "description": "Selected exact primary accession."
         },
         "diseases": {
-          "$ref": "#/$defs/Reply_Capped_CellLineXref",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineXref",
           "description": "Whole disease rows and their independent source total."
         },
         "fetched": {
@@ -136,11 +138,11 @@
           "description": "Independently fetched publisher release."
         },
         "species": {
-          "$ref": "#/$defs/Reply_Capped_CellLineXref",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineXref",
           "description": "Whole species rows and their source total."
         },
         "warnings": {
-          "$ref": "#/$defs/Reply_Capped_CellLineWarning",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineWarning",
           "description": "Whole scoped warning rows and their independent source total."
         }
       },

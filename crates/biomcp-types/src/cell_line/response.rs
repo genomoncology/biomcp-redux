@@ -1,3 +1,5 @@
+#[cfg(feature = "schema")]
+use super::page::CappedPage;
 use super::{CellLineAssayCountQuery, CellLineGet, CellLineInput, CellLineSearch, CellLineSection};
 use crate::{Capped, ItemStatus, ResponseBody, Section};
 use biodata::{
@@ -138,6 +140,11 @@ pub struct CellLineNames {
     #[serde(default)]
     pub total: u64,
     /// Whole source rows and the total in this collection only.
+    #[serde(serialize_with = "super::page::serialize")]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "CappedPage<'static, CellLineName>")
+    )]
     pub items: Capped<CellLineName>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -158,6 +165,11 @@ pub struct CellLineXrefs {
     #[serde(default)]
     pub total: u64,
     /// Whole source rows and the total in this collection only.
+    #[serde(serialize_with = "super::page::serialize")]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "CappedPage<'static, CellLineXref>")
+    )]
     pub items: Capped<CellLineXref>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -178,6 +190,11 @@ pub struct CellLineVariants {
     #[serde(default)]
     pub total: u64,
     /// Whole source rows and the total in this collection only.
+    #[serde(serialize_with = "super::page::serialize")]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "CappedPage<'static, CellLineVariation>")
+    )]
     pub items: Capped<CellLineVariation>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -195,10 +212,25 @@ pub struct CellLineIdentityPage {
     /// Requested offset applied independently to each collection.
     pub offset: u32,
     /// Whole species rows and their source total.
+    #[serde(serialize_with = "super::page::serialize")]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "CappedPage<'static, CellLineXref>")
+    )]
     pub species: Capped<CellLineXref>,
     /// Whole disease rows and their independent source total.
+    #[serde(serialize_with = "super::page::serialize")]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "CappedPage<'static, CellLineXref>")
+    )]
     pub diseases: Capped<CellLineXref>,
     /// Whole scoped warning rows and their independent source total.
+    #[serde(serialize_with = "super::page::serialize")]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "CappedPage<'static, CellLineWarning>")
+    )]
     pub warnings: Capped<CellLineWarning>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -258,6 +290,11 @@ pub struct CellLineChembl {
     #[serde(default)]
     pub total: u64,
     /// Every selected whole metadata row and the native total.
+    #[serde(serialize_with = "super::page::serialize")]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "CappedPage<'static, CellLineChemblRecord>")
+    )]
     pub items: Capped<CellLineChemblRecord>,
 }
 /// Native assay total for one source-local cell identity; no activity or sensitivity count.

@@ -118,8 +118,7 @@ steps:
         equals: [list]
   - run: [saved, show]
     expect:
-      /result:
-        omits: [lists]
+      /result/lists: []
       /result/user_notes/*/target/kind:
         equals: [project]
   - run: [saved, delete, --note, 00000000000000000000000000000000]
