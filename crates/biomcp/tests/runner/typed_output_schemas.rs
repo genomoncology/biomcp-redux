@@ -32,7 +32,10 @@ fn reply_validators(tools: &[Value]) -> Result<Validators<'_>, String> {
     tools
         .iter()
         .map(|tool| {
-            let name = tool["name"].as_str().ok_or("tool name")?;
+            let name = tool
+                .get("name")
+                .and_then(Value::as_str)
+                .ok_or("tool name")?;
             let schema = tool
                 .get("outputSchema")
                 .ok_or_else(|| format!("{name}: missing default outputSchema"))?;
@@ -78,7 +81,9 @@ fn replay_replies(env: &Environment, validators: &Validators<'_>) -> Result<(), 
             .and_then(|frame| frame.pointer("/result/structuredContent"))
             .cloned()
             .ok_or_else(|| format!("{name}: missing replayed reply"))?;
-        let schema = &validators[name];
+        let schema = validators
+            .get(name)
+            .ok_or_else(|| format!("{name}: tool schema missing"))?;
         schema
             .validate(&reply)
             .map_err(|error| format!("{name}: output schema rejected replayed reply: {error}"))?;
