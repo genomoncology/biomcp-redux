@@ -212,17 +212,21 @@ fn publisher_retry_after() -> Check {
         ));
     }
     for reply in [first, again] {
-        check_failure(
-            &reply,
-            "Publisher Retry-After was 300 seconds",
-            "size: unknown",
-        )?;
-        if reply
-            .pointer("/sources/0/notices/0/retry_after_seconds")
-            .and_then(Value::as_u64)
-            > Some(60)
-        {
-            return Err(format!("publisher delay replaced the local wait: {reply}"));
+        publisher::assert_backoff(&reply, 300)?;
+        let context = reply
+            .pointer("/sources/0/notices")
+            .and_then(Value::as_array);
+        let explains_failure = context
+            .into_iter()
+            .flatten()
+            .filter_map(|notice| notice.get("message").and_then(Value::as_str))
+            .any(|message| {
+                message.contains("first fetch")
+                    && message.contains("HTTP 429")
+                    && message.contains("Size: unknown")
+            });
+        if !explains_failure {
+            return Err(format!("missing first-fetch context: {reply}"));
         }
     }
     Ok(())

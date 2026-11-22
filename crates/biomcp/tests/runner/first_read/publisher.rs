@@ -84,7 +84,7 @@ fn cold() -> Check {
     Ok(())
 }
 
-fn assert_backoff(reply: &Value, max_delay: u64) -> Check {
+pub(super) fn assert_backoff(reply: &Value, max_delay: u64) -> Check {
     let guidance = reply
         .pointer("/sources/0/notices")
         .and_then(Value::as_array);
