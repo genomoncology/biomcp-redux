@@ -97,7 +97,11 @@ fn lists_and_searches_round_trip() {
     );
     assert_eq!(unchanged.missing, [text("NRAS")], "now missing");
     drop(store);
-    let mut store = SavedStore::open(&path).unwrap();
+    assert_reopened(&path);
+}
+
+fn assert_reopened(path: &std::path::Path) {
+    let mut store = SavedStore::open(path).unwrap();
     let all = store.show(None).unwrap();
     assert_eq!(
         (all.searches.unwrap().len(), all.lists.unwrap().len()),
