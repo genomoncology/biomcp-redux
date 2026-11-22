@@ -7,7 +7,7 @@ use std::{
 };
 
 pub(super) fn for_commands(paths: &[(&str, &str, &str)]) -> io::Result<Value> {
-    for_replies(command_replies(paths.iter().copied()))
+    for_replies(command_replies(paths.iter().copied()), BTreeSet::new())
 }
 
 fn command_replies<'a>(
@@ -19,13 +19,14 @@ fn command_replies<'a>(
 }
 
 pub(super) fn for_saved() -> io::Result<Value> {
-    let mut ids = command_replies(
+    // save_search forwards a failed search as-is. Its search tool already describes those rows.
+    let forwarded = command_replies(
         crate::grammar::command_paths()
             .into_iter()
             .filter(|(verb, ..)| *verb == "search"),
     );
-    ids.insert(<biomcp_types::Saved as biomcp_types::ResponseBody>::SCHEMA.into());
-    for_replies(ids)
+    let saved = <biomcp_types::Saved as biomcp_types::ResponseBody>::SCHEMA;
+    for_replies(BTreeSet::from([saved.into()]), forwarded)
 }
 
 pub(super) fn for_help() -> io::Result<Value> {
@@ -34,13 +35,38 @@ pub(super) fn for_help() -> io::Result<Value> {
             .iter()
             .flat_map(|path| crate::schema::local_replies(path))
             .collect(),
+        BTreeSet::new(),
     )
 }
 
-fn for_replies(ids: BTreeSet<String>) -> io::Result<Value> {
+fn for_replies(ids: BTreeSet<String>, forwarded: BTreeSet<String>) -> io::Result<Value> {
+    let variants = ids
+        .iter()
+        .map(|id| result_variant(id))
+        .collect::<io::Result<Vec<_>>>()?;
+    let failure = json!({"properties":{
+        "schema":{"const":"biomcp.error/4"},"status":{"type":"string"},
+        "error":{"type":"object"},"next":{"type":"array"},"local_error":{"type":["string","null"]}},
+        "required":["schema","status","error"]});
+    let mut branches = vec![envelope(variants)?, failure];
+    if !forwarded.is_empty() {
+        branches.push(envelope(
+            forwarded
+                .iter()
+                .map(|id| json!({"properties":{"schema":{"const":id}}}))
+                .collect(),
+        )?);
+    }
+    Ok(json!({"$schema":super::protocol::SCHEMA_DIALECT,"type":"object","anyOf":branches}))
+}
+
+fn envelope(variants: Vec<Value>) -> io::Result<Value> {
     let health = canonical(<biomcp_types::Health as biomcp_types::ResponseBody>::SCHEMA)?;
     let mut reply = shape(&health)?;
-    let fields = reply
+    let record = reply
+        .as_object_mut()
+        .ok_or_else(|| io::Error::other("missing reply schema object"))?;
+    let fields = record
         .get_mut("properties")
         .and_then(Value::as_object_mut)
         .ok_or_else(|| io::Error::other("missing reply properties"))?;
@@ -48,18 +74,8 @@ fn for_replies(ids: BTreeSet<String>) -> io::Result<Value> {
     fields.shift_remove("result");
     fields.insert("status".into(), json!({"type":"string"}));
     fields.insert("query".into(), json!({"type":["object","array","null"]}));
-    let variants = ids
-        .iter()
-        .map(|id| result_variant(id))
-        .collect::<io::Result<Vec<_>>>()?;
-    if let Some(record) = reply.as_object_mut() {
-        record.insert("anyOf".into(), json!(variants));
-    }
-    let failure = json!({"properties":{
-        "schema":{"const":"biomcp.error/4"},"status":{"type":"string"},
-        "error":{"type":"object"},"next":{"type":"array"},"local_error":{"type":["string","null"]}},
-        "required":["schema","status","error"]});
-    Ok(json!({"$schema":super::protocol::SCHEMA_DIALECT,"type":"object","anyOf":[reply,failure]}))
+    record.insert("anyOf".into(), json!(variants));
+    Ok(reply)
 }
 
 fn result_variant(id: &str) -> io::Result<Value> {
@@ -67,13 +83,13 @@ fn result_variant(id: &str) -> io::Result<Value> {
     let result = root
         .pointer("/properties/result")
         .ok_or_else(|| io::Error::other("missing result schema"))?;
-    let kinds = kinds(&root, &[result]);
-    let result = named(&root, &[result], kinds, true);
+    let result = named(&root, &[result], true);
     Ok(json!({"properties":{"schema":{"const":id},"result":result}}))
 }
 
 // Alternatives contribute possible fields. A section or a projected row can omit fields.
-fn named(root: &Value, nodes: &[&Value], mut schema: Value, rows: bool) -> Value {
+fn named(root: &Value, nodes: &[&Value], rows: bool) -> Value {
+    let mut schema = kinds(root, nodes);
     let mut fields = BTreeMap::<&str, Vec<&Value>>::new();
     for node in nodes.iter().flat_map(|node| variants(root, node)) {
         if let Some(properties) = node.get("properties").and_then(Value::as_object) {
@@ -82,30 +98,42 @@ fn named(root: &Value, nodes: &[&Value], mut schema: Value, rows: bool) -> Value
             }
         }
     }
-    if !fields.is_empty()
-        && let Some(schema) = schema.as_object_mut()
+    if fields.is_empty() {
+        return schema;
+    }
+    let row = rows.then(|| primary_row(root, &fields)).flatten();
+    let mut fields = fields
+        .into_iter()
+        .map(|(name, nodes)| (name.into(), kinds(root, &nodes)))
+        .collect::<Map<_, _>>();
+    if let Some((name, row)) = row
+        && let Some(field) = fields.get_mut(name).and_then(Value::as_object_mut)
     {
-        let fields = fields
-            .into_iter()
-            .map(|(name, nodes)| {
-                let mut field = kinds(root, &nodes);
-                if rows && let Some(schema) = field.as_object_mut() {
-                    let items = nodes
-                        .iter()
-                        .flat_map(|node| variants(root, node))
-                        .filter_map(|node| node.get("items"))
-                        .collect::<Vec<_>>();
-                    let row = named(root, &items, kinds(root, &items), false);
-                    if row.get("properties").is_some() {
-                        schema.insert("items".into(), row);
-                    }
-                }
-                (name.into(), field)
-            })
-            .collect::<Map<_, _>>();
-        schema.insert("properties".into(), Value::Object(fields));
+        field.insert("items".into(), row);
+    }
+    if let Some(shape) = schema.as_object_mut() {
+        shape.insert("properties".into(), Value::Object(fields));
     }
     schema
+}
+
+fn primary_row<'a>(
+    root: &Value,
+    fields: &BTreeMap<&'a str, Vec<&Value>>,
+) -> Option<(&'a str, Value)> {
+    ["items", "rows", "results"]
+        .into_iter()
+        .filter_map(|name| fields.get_key_value(name))
+        .chain(fields)
+        .find_map(|(&name, nodes)| {
+            let items = nodes
+                .iter()
+                .flat_map(|node| variants(root, node))
+                .filter_map(|node| node.get("items"))
+                .collect::<Vec<_>>();
+            let row = named(root, &items, false);
+            row.get("properties").is_some().then_some((name, row))
+        })
 }
 
 fn variants<'a>(root: &'a Value, node: &'a Value) -> Vec<&'a Value> {

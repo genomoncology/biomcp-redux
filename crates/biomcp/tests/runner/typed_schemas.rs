@@ -15,14 +15,6 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     let views = crate::runner::protocol::typed_catalog::commands(&tools);
     let mut failures = Vec::new();
     top_level(&tools, &mut failures);
-    let bytes = serde_json::to_vec(&tools)
-        .map_err(|error| error.to_string())?
-        .len();
-    if bytes >= 200_000 {
-        return Err(format!(
-            "the default typed catalog uses {bytes} bytes, budget is under 200,000"
-        ));
-    }
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
         let tool = views
@@ -104,6 +96,12 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
 }
 /// The typed tools themselves: one-line descriptions and compact default output schemas.
 fn top_level(tools: &[Value], failures: &mut Vec<String>) {
+    let bytes = json!(tools).to_string().len();
+    if bytes >= 200_000 {
+        failures.push(format!(
+            "the default typed catalog uses {bytes} bytes, budget is under 200,000"
+        ));
+    }
     for tool in tools {
         let name = field(tool, "name");
         if ["biomcp", "search", "fetch"].contains(&name.as_str().unwrap_or_default()) {
