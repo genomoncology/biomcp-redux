@@ -137,6 +137,15 @@ pub(super) fn tool(
             ));
         }
     }
+    if *name == "disease" && sources.contains("hpo") {
+        parts.push(
+            concat!(
+                "Current HPO release: ",
+                r#"{"action":"search","search":{"source":"hpo","phenotype":["HP:0001083"]}}."#,
+            )
+            .into(),
+        );
+    }
     let others = actions
         .iter()
         .filter(|(_, note)| !note.is_empty())

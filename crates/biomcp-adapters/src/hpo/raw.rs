@@ -20,3 +20,13 @@ impl Reply for Term {
         Ok(())
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub(super) struct PublishedRelease {
+    pub tag_name: Box<str>,
+}
+impl Reply for PublishedRelease {
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
+}
