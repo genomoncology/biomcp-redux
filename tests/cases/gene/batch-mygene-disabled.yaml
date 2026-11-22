@@ -12,11 +12,9 @@
       "expect": {
         "/status": "partial",
         "/result/items/*/answer/gene/symbol": ["BRAF", "KRAS"],
+        "/sources/1/notices/0/message": "MyGene did not supply gene summaries or genomic spans for NCBI Gene IDs 673, 3845.",
         "/incomplete": [
-          {"at": "/result/items/0/answer/gene/summary", "source": "mygene", "reason": "disabled"},
-          {"at": "/result/items/0/answer/gene/spans", "source": "mygene", "reason": "disabled"},
-          {"at": "/result/items/1/answer/gene/summary", "source": "mygene", "reason": "disabled"},
-          {"at": "/result/items/1/answer/gene/spans", "source": "mygene", "reason": "disabled"}
+          {"at": "/sources/1/notices/0", "source": "mygene", "reason": "disabled"}
         ]
       }
     }

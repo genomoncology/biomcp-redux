@@ -5,7 +5,8 @@ use biomcp_adapters::{hgnc, mygene};
 use biomcp_types::GeneResolution;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    GeneCards, GeneGet, GeneItem, Incomplete, Problem, ProblemCode, Source, SourceState, Status,
+    GeneCards, GeneGet, GeneItem, Incomplete, Problem, ProblemCode, Source, SourceNotice,
+    SourceState, Status,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
@@ -184,7 +185,7 @@ fn mygene_join(
     local: &mut Option<biomcp_fetch::RequestError>,
 ) -> Vec<Incomplete> {
     let mut error = None;
-    let mut incomplete = Vec::new();
+    let mut missing = Vec::new();
     for batch in batches {
         status::append(problems, batch.problems);
         match batch.result {
@@ -196,27 +197,17 @@ fn mygene_join(
             Err(failure) => {
                 error = Some(failure);
                 *local = local.or(status::local(failure));
-                for (index, item) in items.iter_mut().enumerate() {
+                for item in &mut *items {
                     if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some_and(|id| batch.ids.contains(&id)))
                     {
                         item.status = crate::status::item_status(true, false, true);
-                        for field in ["summary", "spans"] {
-                            let at =
-                                Text::new(&format!("/result/items/{index}/answer/gene/{field}"))
-                                    .unwrap_or_else(|_| biodata::text!("/result/items"));
-                            incomplete.push(Incomplete {
-                                at,
-                                source: Source::MyGene,
-                                reason: status::reason(failure),
-                                code: None,
-                            });
-                        }
                     }
                 }
+                missing.push((batch.ids, status::reason(failure)));
             }
         }
     }
-    let source = status::source(Source::MyGene, report, error);
+    let mut source = status::source(Source::MyGene, report, error);
     if source.state == SourceState::Stale {
         for item in items {
             if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some())
@@ -224,6 +215,34 @@ fn mygene_join(
                 item.status = crate::status::item_status(true, false, true);
             }
         }
+    }
+    let mut incomplete = Vec::new();
+    for (ids, reason) in missing {
+        let at = Text::new(&format!(
+            "/sources/{}/notices/{}",
+            sources.len(),
+            source.notices.len()
+        ))
+        .unwrap_or_else(|_| biodata::text!("/sources"));
+        let ids = ids
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(", ");
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: format!(
+                "MyGene did not supply gene summaries or genomic spans for NCBI Gene IDs {ids}."
+            )
+            .into(),
+            retry_after_seconds: None,
+        });
+        incomplete.push(Incomplete {
+            at,
+            source: Source::MyGene,
+            reason,
+            code: None,
+        });
     }
     sources.push(source);
     incomplete
