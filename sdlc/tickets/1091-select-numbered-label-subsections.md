@@ -1,6 +1,6 @@
 # 1091 — select-numbered-label-subsections
 
-Status: OPEN.
+Status: COMPLETE. Built and landed on the 1108 batch branch (ticket/1108-rank-exact-drug-names-ahead-of-incidental-matches, 7ba17e2dc)
 
 Milestone: 7
 
