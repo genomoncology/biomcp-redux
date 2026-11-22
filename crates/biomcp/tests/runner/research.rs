@@ -217,8 +217,11 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .ok_or("CLI rows missing")?;
     let search_cap = match args.get(1).map(String::as_str) {
         Some("article") => crate::runner::output_limit("research-measured-1732")?,
-        // The full trial projection retains the registered acronym and official title (8,291 bytes in j43882).
-        Some("trial") => crate::runner::output_limit("research-measured-9535")?,
+        // PM ruling (1127): keep the registered acronym and official title. Main measured
+        // 8,291 bytes in j44818; apply the standard 15 percent allowance to that measurement.
+        Some("trial") => {
+            (crate::runner::output_limit("research-trial-search-measured")? * 115).div_ceil(100)
+        }
         _ => crate::runner::output_limit("research-measured-2864")?,
     };
     bounded(&wrapped, search_cap)?;

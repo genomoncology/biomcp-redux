@@ -1,5 +1,6 @@
 //! FDA's index joined with the shipped seed; pages the seed lacks are read one at a time, only
 //! while FDA's 30-second spacing allows, and a row not yet read is kept, marked, never dropped.
+use super::html::Date;
 use super::page::{Listed, Page, index, page};
 use super::seed::{SearchRow, Seed, seed};
 use super::{INDEX_PATH, SITE, SPEC};
@@ -30,7 +31,7 @@ pub struct Communications {
     pub items: Vec<SearchRow>,
     /// The oldest full date on FDA's index.
     pub list_starts: Option<PartialDate>,
-    /// Index dates that are not full dates, and index dates a page contradicts.
+    /// Invalid dates on the index or page, and index dates a page contradicts.
     pub problems: Vec<Problem>,
     /// Why FDA's index could not be read; the rows are then the seed's alone.
     pub index_error: Option<RequestError>,
@@ -99,7 +100,7 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
                 }) {
                     Ok(mut page) => {
                         let text = std::mem::take(&mut page.text);
-                        (Some(with_page(listed, page)), Some(text))
+                        (Some(with_page(listed, page, &mut problems)), Some(text))
                     }
                     // After a deferred read, continue checking the cache.
                     Err(_) => {
@@ -114,6 +115,10 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
             }
         })
         .collect();
+    let list_starts = items
+        .iter()
+        .filter_map(|row| row.header.date)
+        .min_by_key(|d| key(*d));
     items.extend(
         seeded
             .iter()
@@ -121,7 +126,6 @@ pub fn communications(leg: &Leg<'_>) -> Result<Communications, RequestError> {
             .cloned(),
     );
     newest_first(&mut items);
-    let list_starts = listed.iter().filter_map(|l| l.date).min_by_key(|d| key(*d));
     Ok(Communications {
         items,
         list_starts,
@@ -156,10 +160,8 @@ pub fn communication(
     let page = read_page(leg, &listed.path, false)?;
     let text = crate::native_text::admit(&page.text).map_err(|_| malformed())?;
     let mut problems = Vec::new();
-    let value = Some((
-        row(&listed, Some(with_page(&listed, page)), &mut problems),
-        text,
-    ));
+    let header = with_page(&listed, page, &mut problems);
+    let value = Some((row(&listed, Some(header), &mut problems), text));
     Ok(Mapped {
         value,
         problems,
@@ -171,8 +173,7 @@ fn seed_listing(row: &DrugSafetyCommunication) -> Listed {
     Listed {
         id: row.id.clone(),
         title: row.title.clone(),
-        date_text: row.date.map(|date| date.to_string()).unwrap_or_default(),
-        date: row.date,
+        date: row.date.map(Ok),
         path: row
             .url
             .as_str()
@@ -215,13 +216,13 @@ fn read_page(leg: &Leg<'_>, path: &str, cache_only: bool) -> Result<Page, Reques
 }
 
 /// A row from a page just read, before the index's facts are laid over it.
-fn with_page(listed: &Listed, page: Page) -> DrugSafetyCommunication {
+fn with_page(listed: &Listed, page: Page, problems: &mut Vec<Problem>) -> DrugSafetyCommunication {
     DrugSafetyCommunication {
         id: listed.id.clone(),
         title: listed.title.clone(),
-        date: listed.date,
-        issued: page.issued,
-        updated: page.updated,
+        date: None,
+        issued: reported_date(page.issued, &listed.id, "issued", problems),
+        updated: reported_date(page.updated, &listed.id, "updated", problems),
         url: listed.url.clone(),
         applications: page.applications.into(),
         drugs: page.drugs.into(),
@@ -250,20 +251,36 @@ fn row(
     });
     row.title = listed.title.clone();
     row.url = listed.url.clone();
-    row.date = listed.date;
-    let problem = |field: &str, code| Problem {
-        source: Source::FdaDsc,
-        record: Some(row.id.clone()),
-        field: field.into(),
-        code,
-    };
-    if listed.date.is_none() && !listed.date_text.is_empty() {
-        problems.push(problem("date", ProblemCode::ValueUnknown));
-    }
+    row.date = reported_date(listed.date, &row.id, "date", problems);
     if row.date.zip(row.issued).is_some_and(|(a, b)| a != b) {
-        problems.push(problem("issued", ProblemCode::IdentityConflict));
+        problems.push(Problem {
+            source: Source::FdaDsc,
+            record: Some(row.id.clone()),
+            field: "issued".into(),
+            code: ProblemCode::IdentityConflict,
+        });
     }
     row
+}
+
+fn reported_date(
+    date: Date,
+    id: &Text,
+    field: &str,
+    problems: &mut Vec<Problem>,
+) -> Option<PartialDate> {
+    match date.transpose() {
+        Ok(date) => date,
+        Err(code) => {
+            problems.push(Problem {
+                source: Source::FdaDsc,
+                record: Some(id.clone()),
+                field: field.into(),
+                code,
+            });
+            None
+        }
+    }
 }
 
 fn newest_first(items: &mut [SearchRow]) {

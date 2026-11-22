@@ -151,6 +151,9 @@ fn backoff() -> Check {
     }
     for reply in replies {
         check_failure(&reply, "size limit", &format!("{size} bytes"))?;
+        if reply.pointer("/sources/0/state") != Some(&json!("syncing")) {
+            return Err(format!("over-limit first fetch is not syncing: {reply}"));
+        }
     }
     Ok(())
 }

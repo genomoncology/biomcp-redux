@@ -1,0 +1,42 @@
+{
+  "feature": "drug-fda-withdrawn-approvals",
+  "story": "A withdrawal date that cannot be read is reported and remains searchable as FDA printed it.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-withdrawn-approvals-invalid-date",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "Synthetic drug",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/drug": "Synthetic drug",
+        "/result/items/0/withdrawal_date": "2/30/2026",
+        "/problems/0/source": "fda-withdrawn-approvals",
+        "/problems/0/field": "withdrawal_date",
+        "/problems/0/code": "value.unknown"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "2/30/2026",
+        "--source",
+        "fda-withdrawn-approvals"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/drug": "Synthetic drug",
+        "/result/items/0/withdrawal_date": "2/30/2026",
+        "/problems/0/source": "fda-withdrawn-approvals",
+        "/problems/0/field": "withdrawal_date",
+        "/problems/0/code": "value.unknown"
+      }
+    }
+  ]
+}

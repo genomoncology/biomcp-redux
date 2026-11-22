@@ -277,7 +277,6 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-query/src/store/saved/tests.rs` | Check that saved-work migrations only add and a newer file stays unchanged, at the private saved store boundary. |
 | `crates/biomcp-query/src/trial/page_tests.rs` | Keep an earlier refusal flag across a clean page at the private trial page join, which no recorded reply can order on demand. |
 | `crates/biomcp-query/src/diagnostic/summary_tests.rs` | Find every match in synthetic long extracted lines at the private PMA summary passage cut, which a recorded document cannot shape on demand. |
-| `crates/biomcp-query/src/drug/drugsfda/label_sections_tests.rs` | Check label section bounds from the contents list on real label text and one real FDA label PDF at the private section finder, where table rows that look like headings must never end a section. |
 | `crates/biomcp-query/tests/gene_resolution.rs` | Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline. |
 | `crates/biomcp-query/tests/health.rs` | Exercise command and per-source probe deadlines and failure diagnostics through the public health API with deterministic replay time. |
 | `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
@@ -291,7 +290,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-query/tests/article_rights/lookups.rs` | Inspect stored replies and pools after failed or capped license lookups, and repeat reads, through public queries. |
 | `crates/biomcp-query/tests/article_rights/routes.rs` | Inspect synthetic transport replies for source-owned abstract and passage rights and bounded dependency admission. |
 
-Everything else goes through the runner.
+The label section finder has item-specific test placement exceptions in the ratchet. Everything else goes through the runner.
 
 ## 11. Structural checks
 

@@ -419,7 +419,7 @@ fn regulatory_default_counts_one_fragment_and_explicit_limits_remain_explicit() 
     clippy::unwrap_used,
     reason = "Contract setup requires valid synthetic bodies, queries and generated schemas"
 )]
-fn envelope<T>(query: Value, body: Value)
+fn envelope<T>(query: Value, body: Value) -> Value
 where
     T: ResponseBody + schemars::JsonSchema + serde::de::DeserializeOwned,
     T::Query: schemars::JsonSchema + serde::de::DeserializeOwned,
@@ -435,6 +435,7 @@ where
         Some(T::SCHEMA),
         "Diagnostic replies must retain their versioned envelope contract"
     );
+    value
 }
 
 #[cfg(feature = "schema")]
@@ -467,10 +468,18 @@ fn all_eight_consumer_schemas_accept_their_source_owned_views() {
         json!({"source":"fda-pma","id":"P150013","section":"supplements"}),
         json!({"items":[pma_header()]}),
     );
-    envelope::<DiagnosticCompanion>(
+    let companion = envelope::<DiagnosticCompanion>(
         json!({"source":"fda-cdx","drug_application":"NDA021335"}),
         json!({"snapshot":"synthetic-revision","items":[companion_row(false),companion_row(true)]}),
     );
+    for index in [0, 1] {
+        let row = &companion["result"]["items"][index];
+        assert_eq!(
+            row["device_ids"],
+            json!(["P150013/S020", "K173492", "DEN170019"])
+        );
+        assert_eq!(row["drug_applications"], json!(["NDA021335", "BLA125514"]));
+    }
     assert!(serde_json::from_value::<DiagnosticGenes>(compact(condition())).is_err());
 }
 
@@ -486,8 +495,8 @@ fn companion_row(group: bool) -> Value {
     json!({"kind":kind,"row_date":"2026-07-01","diagnostic":"Synthetic test (Synthetic maker)",
         "indication":"Synthetic indication - Tissue","device":"P150013/S020\n(07/01/2026)",
         "drug":"Synthetic (synthetic) NDA 021335","biomarker":biomarker,"biomarker_details":details,"index":7,
-        "links":{"device":link,"drug":link},"name_match":["drug"],"device_ids":["P150013/S020"],
-        "drug_applications":["NDA021335"]})
+        "links":{"device":link,"drug":link},"name_match":["drug"],"device_ids":["P150013/S020","K173492","DEN170019"],
+        "drug_applications":["NDA021335","BLA125514"]})
 }
 
 #[test]
