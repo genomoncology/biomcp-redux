@@ -55,6 +55,16 @@ Reactome `pathway genes` gives release, `gene_count.distinct`, reference total.
 biomcp get pgx --gene CYP2B6 --source cpic recommendations --drug-id RxNorm:195085 --phenotype "Intermediate Metabolizer"
 ```
 
+`--indication` matches exact wording, one row per label. Read `total` and follow `next`.
+
+```sh
+biomcp search drug --indication "pancreatic cancer" --source openfda-label --limit 50
+biomcp search drug 2026-09 --source fda-withdrawn-approvals # Withdrawn cancer accelerated approvals
+biomcp search drug pneumonitis --source fda-safety-signals # Potential safety signals
+biomcp search drug --source fda-dsc # Safety communications
+biomcp search drug Enbrel --source purple-book --presentations # Purple Book
+```
+
 <!-- exit-reference:start -->
 Process exit codes:
 0: complete or partial reply

@@ -297,7 +297,7 @@ def commercial_setup(root):
 
 
 def check_skill_examples(root, skill):
-    examples = {tuple(shlex.split(line)[1:])
+    examples = {tuple(shlex.split(line, comments=True)[1:])
                 for block in re.findall(r"```sh\n(.*?)```", skill, re.S)
                 for line in block.splitlines() if line.startswith("biomcp ")}
     for path in (root / "tests/cases").rglob("*.yaml"):
@@ -311,7 +311,14 @@ def check_skill_examples(root, skill):
         if not case.get("replay"):
             continue
         for step in case.get("steps", []):
-            if step.get("exit", 0) == 0 and step.get("expect", {}).get("/status") == "complete":
+            if step.get("exit", 0) != 0:
+                continue
+            expected = step.get("expect", {})
+            returned = expected.get("/page/returned")
+            # A snapshot or unread source can leave a search partial even when it returns rows.
+            if expected.get("/status") == "complete" or (
+                expected.get("/status") == "partial" and type(returned) is int and returned > 0
+            ):
                 examples.discard(tuple(step.get("run", [])))
     if examples:
         raise ValueError(f"agent skill example has no successful replay case: {shlex.join(min(examples))}")
@@ -340,8 +347,9 @@ def check(root, executable=None):
             raise ValueError(f"Configuration commercial setup differs from {path}")
 
     skill = (root / "skills/SKILL.md").read_text()
-    if len(skill.encode()) > 4096:
-        raise ValueError("agent skill exceeds 4 KB")
+    # Ticket 1129 PM ruling: allow 4,600 bytes to keep the full command map and FDA examples.
+    if len(skill.encode()) > 4_600:
+        raise ValueError("agent skill exceeds 4,600 bytes")
     check_skill_examples(root, skill)
     roadmap = (root / "ROADMAP.md").read_text()
     if roadmap.count(LEDGER_START) != 1 or roadmap.count(LEDGER_END) != 1:

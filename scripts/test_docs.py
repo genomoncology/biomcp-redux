@@ -160,11 +160,11 @@ def main():
                                 original_guide.decode(), flags=re.S))
         result = check(root)
         assert result.returncode != 0 and "agent skill example has no successful replay case" in result.stderr, result
-        guide.write_bytes(b"x" * 4096)
+        guide.write_bytes(b"x" * 4_600)
         assert check(root).returncode == 0
-        guide.write_bytes(b"x" * 4097)
+        guide.write_bytes(b"x" * 4_601)
         result = check(root)
-        assert result.returncode != 0 and "agent skill exceeds 4 KB" in result.stderr, result
+        assert result.returncode != 0 and "agent skill exceeds 4,600 bytes" in result.stderr, result
         guide.write_bytes(original_guide)
         roadmap = root / "ROADMAP.md"
         original = roadmap.read_text()

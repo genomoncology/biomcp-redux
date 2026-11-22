@@ -1,6 +1,7 @@
 # 1129 — skill-names-label-indication-search-and-fda-lists
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a06a2ce7b80904f2425263b16a3803e9c15eb50a
 
 Milestone: 7
 

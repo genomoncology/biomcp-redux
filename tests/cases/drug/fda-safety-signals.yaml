@@ -88,6 +88,20 @@
         "/result/items/0/signal": "Other signal",
         "/result/items/0/additional_information": "Follow-up."
       }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "pneumonitis",
+        "--source",
+        "fda-safety-signals"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/returned": 6,
+        "/result/items/0/signal": "Pneumonitis"
+      }
     }
   ],
   "cache_acquired": 42
