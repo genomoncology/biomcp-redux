@@ -255,7 +255,7 @@ fn named(
 
 /// Every argument refusal names the option or argument at fault, so the caller knows what
 /// to change.
-fn names_argument(reply: &Value, call: &impl std::fmt::Debug) -> Result<(), String> {
+fn names_argument(reply: &Value, call: &(impl std::fmt::Debug + ?Sized)) -> Result<(), String> {
     if reply.pointer("/error/code") == Some(&Value::from("usage.arguments"))
         && reply.pointer("/error/option").is_none()
     {
