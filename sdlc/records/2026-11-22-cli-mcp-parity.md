@@ -1,6 +1,6 @@
 # Recent CLI and MCP parity
 
-This inventory covers the tickets landed on main from November 19 through November 22, 2026, including tickets landed in another ticket's batch. The surface column records what the original fix affected. “Both” includes shared command code. The parity check compares the JSON that an ordinary CLI caller and the default `biomcp` MCP tool receive. Each replay prepares the two callers independently. The typed cases also verify that the tool translates the corrected next call into typed arguments.
+This inventory covers the tickets landed on main from November 19 through November 22, 2026, including tickets landed in another ticket's batch. The surface column records what the original fix affected. “Both” includes shared command code. The parity check compares the JSON that an ordinary CLI caller and the default `biomcp` MCP tool receive. Each replay prepares the two callers independently. Where a reply publishes a page pool, the test checks the token format, expiry and references in the next call before comparing the reply. The typed cases also verify that the tool translates the corrected next call into typed arguments.
 
 ```sh
 cargo test --locked -p biomcp --test cases mcp-parity/recent
@@ -84,6 +84,6 @@ The second command makes two live ClinicalTrials.gov reads. It exercises one opt
 | [1128 partial gene reply names what is missing](../tickets/1128-partial-gene-reply-names-what-is-missing.md) | Both | Same | `gene/batch-mygene-disabled` step 1 |
 | [1129 skill names label indication search and fda lists](../tickets/1129-skill-names-label-indication-search-and-fda-lists.md) | CLI skill | Fixed here | `drug/indication` step 6 / `drug/fda-withdrawn-approvals` step 4 / `drug/fda-safety-signals` step 5 / the same guide is served by both MCP modes |
 
-The comparison notes also propose trial enrollment and acronym display, a default label-text fallback, and changing the layout of label text and pagination. Those proposals had no landed change in the period. The landed work covers label indication and mechanism search, label history, FDA lists, companion diagnostics, trial sites and flows, disease curations and HPO queries, and pathway member paging. The guide carries the usage advice for these through `help skill render`. The original CLI `help skill render` still describes the CLI renderer.
+The comparison's landed changes cover label indication and mechanism search, label history, FDA lists, companion diagnostics, trial acronym search, sites and flows, disease curations and HPO queries, and pathway member paging. The guide carries the usage advice for these through `help skill render`. The original CLI `help skill render` still describes the CLI renderer.
 
 Typed tools take explicit sections and return typed next calls. A CLI word whose meaning depends on its position has no equivalent ambiguity in an explicit MCP field. Other unknown typed options keep their own list of allowed argument names. The hosted PDF concurrency limit and hosted refusals have their own tests.
