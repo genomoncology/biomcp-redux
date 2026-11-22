@@ -43,13 +43,15 @@ fn check_error(args: &[&str], recording: Option<&str>, exit: i32) -> Result<(), 
     let mut cli_args: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
     cli_args.extend(cli_env.globals(replay.as_deref(), replay.is_none()));
     let cli = super::super::configuration::invoke(&cli_env, cli_args, exit)?;
+    let call = if let (1, ["get", "trial", id]) = (exit, args) {
+        // A missing exact fetch is a tool error. A get can successfully report absence.
+        json!({"name":"fetch","arguments":{"id":format!("trial {id}")}})
+    } else {
+        json!({"name":"biomcp","arguments":{"args":args}})
+    };
     let replies = exchange_wire(
         &mcp_env,
-        &[request(
-            json!(1),
-            "tools/call",
-            json!({"name":"biomcp","arguments":{"args":args}}),
-        )],
+        &[request(json!(1), "tools/call", call)],
         &mcp_env.globals(replay.as_deref(), replay.is_none()),
         None,
     )?;
