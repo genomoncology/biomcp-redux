@@ -1,0 +1,38 @@
+feature: disease-hpo-release
+story: Phenotype searches resolve the current HPO release and keep its tag in the next-page command.
+replay: disease/hpo-release
+steps:
+  - run: [disease, search, --source, hpo, --phenotype, "HP:0001083", --phenotype, "HP:0000098", --phenotype, "HP:0001634"]
+    expect:
+      /status: complete
+      /result/release: v2099-02-01
+      /result/items/0/gene_links/0/symbol: SYNTH3
+      /sources/0/notices/0/message: "This product uses Human Phenotype Ontology release v2099-02-01. IEA annotations (inferred from electronic annotation) are excluded."
+  - mcp_call:
+      name: disease
+      arguments:
+        action: search
+        search:
+          hpo_release: latest
+          phenotype: ["HP:0001083", "HP:0000098", "HP:0001634"]
+          limit: 1
+    expect:
+      /status: complete
+      /result/release: v2099-02-01
+      /next/0/arguments/search/hpo_release: v2099-02-01
+  - follow: page
+    expect:
+      /result/release: v2099-02-01
+      /result/items/0/id: "ORPHA:900001"
+      /result/items/0/gene_links/0/symbol: SYNTH4
+  - run: [search, disease, --phenotype, "HP:0001083", --hpo-release, v2099-03-01]
+    exit: 4
+    is_error: true
+    expect:
+      /status: failed
+      /sources/0/reason: not-found
+      /sources/0/notices/0/message: "HPO release v2099-03-01 was not found."
+      "": {omits: [result]}
+config:
+  mcp_tool_mode: typed
+  mcp_typed_output_schema: true
