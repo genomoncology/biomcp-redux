@@ -44,6 +44,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             .collect::<Vec<_>>();
         let own = command.command.join(" ");
         let rule = command.section_rule.clone();
+        let show_form = command.command != ["get", "disease"];
         let mut example_values = (command.command == ["search", "drug"]).then(BTreeSet::new);
         let mut cased = false;
         for argument in &mut command.arguments {
@@ -74,7 +75,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             let sample = example_values.as_mut().map_or(sample.as_str(), |seen| {
                 short_example(&sample, &argument.name, &only, seen)
             });
-            option_sentence(argument, sample, &only);
+            option_sentence(argument, sample, &only, show_form);
         }
         // Lines that hold for every option are said once, on the command.
         if cased {
@@ -111,11 +112,16 @@ fn short_example<'a>(
         .unwrap_or(sample)
 }
 /// One sentence per option that names the option, so no option repeats another's.
-fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
+fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String], show_form: bool) {
     let form = if argument.value_type == "array" {
         "repeatable values (repeat the flag)"
     } else {
         &argument.value_type
+    };
+    let example_label = if show_form {
+        format!("Value form: {form}; example: ")
+    } else {
+        "Example: ".into()
     };
     // The option's own text ends its sentence before the form sentence starts.
     if !argument.description.trim_end().ends_with('.') {
@@ -123,11 +129,11 @@ fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
     }
     if argument.description.contains("Example: ") {
         // The field's own example leads; the form joins its sentence.
-        argument.description = argument.description.replacen(
-            "Example: ",
-            &format!("Value form: {form}; example: "),
-            1,
-        );
+        if show_form {
+            argument.description = argument
+                .description
+                .replacen("Example: ", &example_label, 1);
+        }
         if !only.is_empty() {
             argument
                 .description
@@ -142,7 +148,7 @@ fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
         };
         argument
             .description
-            .push_str(&format!(" Value form: {form}; example: {sample}{scope}."));
+            .push_str(&format!(" {example_label}{sample}{scope}."));
     }
 }
 /// Said once per command page instead of after every option.
