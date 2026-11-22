@@ -1,5 +1,8 @@
 //! Share one source read across requested headings for a label.
-use super::{SOURCE, section::select};
+use super::{
+    SOURCE,
+    section::{fail_source, select},
+};
 use crate::status;
 use crate::{Ctx, Outcome};
 use biomcp_adapters::openfda_label as source;
@@ -77,6 +80,7 @@ fn read(cx: &Ctx<'_>, queries: &[DrugGet], deadline: Deadline<'_>) -> Vec<Outcom
                     }
                     left = left.saturating_sub(text_bytes(&part));
                     if let Err(error) = selected {
+                        fail_source(&mut part, error);
                         crate::status::item(&mut part, false, true, false);
                         part.local = status::local(error);
                     }

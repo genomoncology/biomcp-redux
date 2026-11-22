@@ -1,0 +1,33 @@
+{
+  "feature": "drug-label",
+  "story": "A current openFDA label section accepts fragment limits through the advertised maximum of 200.",
+  "replay": "drug/label-shared-budget",
+  "steps": [
+    {
+      "run": [
+        "get", "drug", "9333c79b-d487-4538-a9f0-71b91a02b287", "label",
+        "--source", "openfda-label", "--label-section", "dosage_and_administration",
+        "--section-limit", "51"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/sources/0/source": "openfda-label",
+        "/sources/0/state": "ok",
+        "/page/returned": 4
+      }
+    },
+    {
+      "run": [
+        "get", "drug", "9333c79b-d487-4538-a9f0-71b91a02b287", "label",
+        "--source", "openfda-label", "--label-section", "dosage_and_administration",
+        "--section-limit", "200"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 4
+      }
+    }
+  ]
+}

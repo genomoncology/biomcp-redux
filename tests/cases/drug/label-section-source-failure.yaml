@@ -1,0 +1,22 @@
+{
+  "feature": "drug-label",
+  "story": "If a current label section cannot be searched, openFDA reports the failure while the reply retains the label identity.",
+  "replay": "drug/label-find",
+  "steps": [
+    {
+      "run": [
+        "get", "drug", "22222222-2222-2222-2222-222222222222", "label",
+        "--source", "openfda-label", "--label-section", "dosage_and_administration",
+        "--find", "study-189"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/identity/id": "22222222-2222-2222-2222-222222222222",
+        "/result/label/reason": "bad-reply",
+        "/sources/0/source": "openfda-label",
+        "/sources/0/state": "failed",
+        "/sources/0/reason": "bad-reply"
+      }
+    }
+  ]
+}
