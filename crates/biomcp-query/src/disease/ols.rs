@@ -27,10 +27,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
     let mut source = status::source(Source::Ols, leg.finish(), error);
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
-        out.include_refusals(page.rows.refusals);
-        let returned = page.rows.value.len() as u32;
-        if page.missing_ids > 0 {
-            let count = page.missing_ids;
+        let returned = page.received;
+        let total = page.total;
+        let count = page.missing_ids();
+        let rows = page.into_display_rows();
+        out.include_refusals(rows.refusals);
+        if count > 0 {
             let noun = if count == 1 { "row" } else { "rows" };
             source.notices.push(search_notice(format!(
                 "OLS returned {count} {noun} without a usable identifier on this page."
@@ -42,7 +44,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             ));
         }
         // Imported gene records keep their source links instead of disease get commands.
-        for row in &page.rows.value {
+        for row in &rows.value {
             if let Some(id) = &row.concept.id
                 && !id.as_str().split_once(':').is_some_and(|(prefix, _)| {
                     prefix.eq_ignore_ascii_case("HGNC") || prefix.eq_ignore_ascii_case("NCBIGene")
@@ -65,11 +67,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         }
         let offset = query.offset();
         let end = u64::from(offset) + u64::from(returned);
-        let total = if returned == 0 {
-            page.total.min(end)
-        } else {
-            page.total
-        };
+        let total = if returned == 0 { total.min(end) } else { total };
         if let Ok(next) = u32::try_from(end)
             && returned > 0
             && end < total
@@ -81,12 +79,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             ));
         }
         out.page = Some(page_info(offset, returned, total));
-        out.problems.extend(page.rows.problems);
+        out.problems.extend(rows.problems);
         if let ReplyData::DiseasePage {
             body: Some(body), ..
         } = &mut out.body
         {
-            body.items = page.rows.value.into();
+            body.items = rows.value.into();
         }
     }
     out.sources.push(source);

@@ -7,13 +7,31 @@ use biomcp_types::{DiseaseHeader, DiseaseOntology, DiseaseSearch};
 /// A single native page without local ranking or identity selection.
 #[derive(Debug)]
 pub struct SearchPage {
-    /// Rows retained without a usable identity.
-    pub missing_ids: u32,
+    unidentified: Vec<(usize, DiseaseHeader)>,
+    /// Native window size before identity refusals.
+    pub received: u32,
     /// Publisher total for the literal query and one ontology.
     pub total: u64,
-    /// Headers in publisher order and field-level problems.
+    /// Identified headers in publisher order and field-level problems.
     pub rows: Mapped<Vec<DiseaseHeader>>,
 }
+
+impl SearchPage {
+    /// Number of source rows whose identities were refused.
+    pub fn missing_ids(&self) -> usize {
+        self.unidentified.len()
+    }
+
+    /// Keep the unidentified rows in their original positions in the display page.
+    pub fn into_display_rows(self) -> Mapped<Vec<DiseaseHeader>> {
+        let mut rows = self.rows;
+        for (index, row) in self.unidentified {
+            rows.value.insert(index, row);
+        }
+        rows
+    }
+}
+
 /// Fetch exactly one page from exactly one admitted ontology.
 pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, RequestError> {
     let ontology = crate::disease_sources::components::ontology(
@@ -61,9 +79,10 @@ fn map_page(
         record: None,
         list: Vec::new(),
     };
-    let mut value = Vec::with_capacity(page.docs.len());
-    let mut missing_ids = 0;
-    for hit in page.docs {
+    let received = page.docs.len();
+    let mut value = Vec::with_capacity(received);
+    let mut unidentified = Vec::new();
+    for (index, hit) in page.docs.into_iter().enumerate() {
         problems.record = None;
         let id = hit
             .obo_id
@@ -82,28 +101,32 @@ fn map_page(
                 })
             });
         let id = problems.required("obo_id", id);
-        if id.is_none() {
-            missing_ids += 1;
-        }
         problems.record = id.as_ref().and_then(crate::mapped::record);
         let iri = problems.field("iri", hit.iri);
         let label = problems.source_field("label", hit.label);
-        value.push(DiseaseHeader {
+        let row = DiseaseHeader {
             attribution: map::attribution(id.as_ref(), iri, ontology)?,
             concept: biomcp_types::DiseaseConcept { id, label },
             ontology,
             obsolete: problems.field("is_obsolete", hit.is_obsolete),
-        });
+        };
+        if row.concept.id.is_some() {
+            value.push(row);
+        } else {
+            unidentified.push((index, row));
+        }
     }
+    let refusals = if unidentified.is_empty() {
+        crate::Refusal::None
+    } else {
+        crate::Refusal::Refused
+    };
     Ok(SearchPage {
-        missing_ids,
+        unidentified,
+        received: received as u32,
         total: page.total,
         rows: Mapped {
-            refusals: if missing_ids == 0 {
-                crate::Refusal::None
-            } else {
-                crate::Refusal::Refused
-            },
+            refusals,
             value,
             problems: problems.list,
         },
