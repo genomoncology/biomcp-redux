@@ -1,6 +1,7 @@
 # 1131 — mcp-tools-declare-their-output-schemas
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3a345cf6d047725683fc2e95115e254def52ef0d
 
 Milestone: 7
 

@@ -2,45 +2,6 @@
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
-/// One reply shape for an entity tool: the union of its actions' command replies.
-pub(super) fn for_commands(paths: &[(&str, &str, &str)]) -> io::Result<Value> {
-    let ids = paths
-        .iter()
-        .flat_map(|&(verb, entity, id)| crate::schema::replies(id, verb, entity))
-        .collect();
-    let mut branches = [envelope(ids)?, shape(&canonical("biomcp.error/4")?)?];
-    for branch in &mut branches {
-        if let Some(fields) = branch.get_mut("properties").and_then(Value::as_object_mut) {
-            fields.insert(
-                "next".into(),
-                json!({"type":"array","items":{
-                "type":"object","properties":{"kind":{"type":"string"},
-                    "name":{"type":"string"},"arguments":{"type":"object"},
-                    "options":{"type":"object"}},
-                "required":["kind","name","arguments"],"additionalProperties":false}}),
-            );
-        }
-    }
-    Ok(json!({"$schema":super::protocol::SCHEMA_DIALECT,"type":"object","anyOf":branches}))
-}
-/// The `saved` tool's reply: saved work, or the reply of a search it ran that failed.
-pub(super) fn for_saved() -> io::Result<Value> {
-    let searches = crate::grammar::command_paths()
-        .into_iter()
-        .filter(|(verb, ..)| *verb == "search")
-        .collect::<Vec<_>>();
-    let mut schema = for_commands(&searches)?;
-    if let Some(ids) = schema
-        .pointer_mut("/anyOf/0/properties/schema/enum")
-        .and_then(Value::as_array_mut)
-    {
-        ids.insert(
-            0,
-            json!(<biomcp_types::Saved as biomcp_types::ResponseBody>::SCHEMA),
-        );
-    }
-    Ok(schema)
-}
 fn envelope(ids: BTreeSet<String>) -> io::Result<Value> {
     let health = canonical(<biomcp_types::Health as biomcp_types::ResponseBody>::SCHEMA)?;
     let mut envelope = shape(&health)?;
@@ -54,7 +15,7 @@ fn envelope(ids: BTreeSet<String>) -> io::Result<Value> {
     Ok(envelope)
 }
 
-pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Value> {
+fn replies(root: &crate::grammar::Root, name: &str) -> io::Result<BTreeSet<String>> {
     let mut ids = crate::help::commands(root)?
         .into_iter()
         .filter(|command| match name {
@@ -67,6 +28,11 @@ pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Va
     if name == "fetch" {
         ids.extend(crate::schema::local_replies(&["help".into()]));
     }
+    Ok(ids)
+}
+
+pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Value> {
+    let ids = replies(root, name)?;
     let mut branches = vec![envelope(ids)?, shape(&canonical("biomcp.error/4")?)?];
     if name == "biomcp" {
         branches.push(json!({"properties":{
@@ -87,7 +53,7 @@ pub(super) fn for_tool(root: &crate::grammar::Root, name: &str) -> io::Result<Va
         "anyOf": branches
     }))
 }
-fn canonical(id: &str) -> io::Result<Value> {
+pub(super) fn canonical(id: &str) -> io::Result<Value> {
     serde_json::from_str(
         crate::schema::find(id).ok_or_else(|| io::Error::other("missing reply schema"))?,
     )
@@ -100,7 +66,7 @@ fn resolve<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
         Some(node)
     }
 }
-fn shape(root: &Value) -> io::Result<Value> {
+pub(super) fn shape(root: &Value) -> io::Result<Value> {
     let properties = root
         .get("properties")
         .and_then(Value::as_object)

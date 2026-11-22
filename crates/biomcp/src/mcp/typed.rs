@@ -108,9 +108,17 @@ pub(super) fn tools(
     context: crate::command::Context<'_>,
     read_only: bool,
 ) -> io::Result<Vec<Value>> {
-    Ok(catalog(context, read_only)?.tools)
+    Ok(build_catalog(context, read_only, true)?.tools)
 }
 fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<grouping::Catalog> {
+    build_catalog(context, read_only, false)
+}
+
+fn build_catalog(
+    context: crate::command::Context<'_>,
+    read_only: bool,
+    discovery: bool,
+) -> io::Result<grouping::Catalog> {
     let enum_limit = crate::config::mcp_typed_schema_options(context.settings).1;
     let excluded = catalog::excluded(context)?;
     let commands = crate::grammar::command_paths()
@@ -153,7 +161,7 @@ fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<
         .into_iter()
         .flatten()
         .collect::<Vec<_>>();
-    grouping::catalog(context, read_only, commands, excluded)
+    grouping::catalog(context, read_only, discovery, commands, excluded)
 }
 pub(super) fn parse(
     context: crate::command::Context<'_>,
