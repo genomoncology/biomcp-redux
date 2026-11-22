@@ -28,7 +28,6 @@ mod fields_sweep;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
-mod pool_parity;
 #[path = "../support/synthetic_contracts.rs"]
 mod required_contract;
 tool_only! { pub(super) mod tools_api; }
@@ -86,7 +85,6 @@ mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
 mod offset_walks;
-mod recent_parity;
 mod recurrence;
 mod remote_tools;
 mod replay;
@@ -366,7 +364,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
 
 fn retained_source_trials() -> Vec<Trial> {
     let mut trials = snapshot_errors::trials();
-    trials.extend(recent_parity::trials());
     trials.extend(trial_binding::trials());
     trials.extend(author_pools::trials());
     trials.extend(faers_names::trials());

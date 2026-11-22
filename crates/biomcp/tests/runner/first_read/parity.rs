@@ -1,6 +1,8 @@
 //! Fresh CLI and MCP processes read the same publisher recordings through a local stub.
 use super::{COMPANION, Check, SEARCH, ema, invoke, live, words};
-use crate::runner::{launch::Environment, mcp, network_stub::Stub, recent_parity, transcript};
+use crate::runner::{
+    launch::Environment, mcp, network_stub::Stub, protocol::recent_parity, transcript,
+};
 use libtest_mimic::Trial;
 use serde_json::json;
 

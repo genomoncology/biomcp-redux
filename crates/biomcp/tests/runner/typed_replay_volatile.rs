@@ -1,5 +1,5 @@
 //! Compare only the named volatile fields approved in PM ruling m25543.
-use crate::runner::pool_parity::project;
+use crate::runner::protocol::pool_parity::project;
 use serde_json::Value;
 use std::collections::BTreeMap;
 

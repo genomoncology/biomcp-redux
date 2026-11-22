@@ -7,6 +7,10 @@ mod source_age;
 
 #[path = "label_priority.rs"]
 mod label_priority;
+#[path = "pool_parity.rs"]
+mod pool_parity;
+#[path = "recent_parity.rs"]
+pub(super) mod recent_parity;
 #[path = "mcp_reply_form.rs"]
 mod reply_form;
 #[path = "mcp_reply_size.rs"]
@@ -46,6 +50,7 @@ type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = typed_followups::trials();
     trials.push(purple_book::trial());
+    trials.extend(recent_parity::trials());
     trials.extend(hosted_surface::trials());
     trials.extend(typed::trials());
     trials.extend(source_age::trials());

@@ -4,7 +4,7 @@ mod argument_details;
 #[path = "../coverage.rs"]
 pub(crate) mod coverage;
 mod discovery;
-mod guide;
+pub(crate) mod guide;
 pub(crate) use discovery::{plain, relations};
 pub(crate) const FRONT_MAP: &str = include_str!(concat!(env!("OUT_DIR"), "/front-map.txt"));
 mod schema_fields;
@@ -583,15 +583,6 @@ fn network(setting: &str) -> Help {
             examples: Vec::new(),
         }],
     }
-}
-
-pub(crate) fn mcp_skill_guide() -> io::Result<Help> {
-    let guide = crate::skill::Skill::Overview.render()?;
-    let mut command = topic("skill", guide.trim_end().into());
-    command.command.push("render".into());
-    Ok(Help {
-        commands: vec![command],
-    })
 }
 
 fn topic(name: &str, description: String) -> HelpCommand {

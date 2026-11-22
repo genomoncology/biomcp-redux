@@ -1,5 +1,7 @@
 //! Compare the CLI and default MCP call against independently prepared replay fixtures.
-use super::{assertions, case_data, launch, mcp, response_cases, run_sequence, schema, transcript};
+use crate::runner::{
+    assertions, case_data, launch, mcp, response_cases, run_sequence, schema, transcript,
+};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::path::Path;
@@ -178,7 +180,7 @@ fn typed_source_refusals() -> Result<(), String> {
     ] {
         let mut args = words.map(str::to_owned).to_vec();
         args.push("--offline".into());
-        let cli = super::configuration::invoke(&env, args, 2)?;
+        let cli = crate::runner::configuration::invoke(&env, args, 2)?;
         let replies = mcp::exchange_with_globals(
             &env,
             &[mcp::request(
@@ -193,8 +195,8 @@ fn typed_source_refusals() -> Result<(), String> {
             .pointer("/result/structuredContent")
             .ok_or("typed data missing")?;
         compare(
-            &super::protocol::typed_followups::data(&cli),
-            &super::protocol::typed_followups::data(typed),
+            &super::typed_followups::data(&cli),
+            &super::typed_followups::data(typed),
         )?;
         let expected_tool = if tool == "gene" { "disease" } else { tool };
         if typed.pointer("/next/0/name") != Some(&json!(expected_tool))
@@ -286,7 +288,7 @@ fn live() -> Result<(), String> {
     compare(&value, &mcp::call_with_globals(&env, &args, false, &[])?)
 }
 
-pub(super) fn compare(cli: &Value, mcp: &Value) -> Result<(), String> {
+pub(in crate::runner) fn compare(cli: &Value, mcp: &Value) -> Result<(), String> {
     match assertions::difference(cli, mcp, "") {
         Some(diff) => Err(format!("CLI/MCP parity: unequal results at {diff}")),
         None => Ok(()),

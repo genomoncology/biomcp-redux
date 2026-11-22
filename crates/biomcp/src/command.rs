@@ -86,7 +86,7 @@ fn dispatch_using(
     };
     if let Some(path) = parsed.help {
         let mut help = if context.is_some() && path == ["skill", "render"] {
-            crate::help::mcp_skill_guide()?
+            crate::help::guide::mcp_skill_guide()?
         } else {
             crate::help::dispatch(root, &path)?
         };
