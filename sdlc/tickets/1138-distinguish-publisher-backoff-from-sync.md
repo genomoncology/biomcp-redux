@@ -1,6 +1,7 @@
 # 1138 — distinguish-publisher-backoff-from-sync
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8b3c68f4e863db5528028db7a243929e006e96db
 
 Milestone: 7
 

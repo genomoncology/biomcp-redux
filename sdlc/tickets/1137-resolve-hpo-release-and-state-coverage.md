@@ -1,6 +1,7 @@
 # 1137 — resolve-hpo-release-and-state-coverage
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1f451de792de5dd183ab4efec9e7da7ddf237bb8
 
 Milestone: 7
 
