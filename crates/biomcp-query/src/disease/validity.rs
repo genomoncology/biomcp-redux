@@ -32,15 +32,11 @@ static PUBLISHERS: [Publisher; 2] = [
 pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let lookup = query.source_title_prefix().map_or(
-        CurationLookup::Exact(query.id()),
-        CurationLookup::TitlePrefix,
-    );
     let jobs = PUBLISHERS
         .iter()
         .filter(|publisher| selected.contains(&publisher.bundle.source()))
         .map(|publisher| {
-            Box::new(move || publisher.fetch(cx, lookup, deadline))
+            Box::new(move || publisher.fetch(cx, query, deadline))
                 as Box<dyn FnOnce() -> ReadResult + Send>
         })
         .collect();
@@ -115,13 +111,12 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
 }
 
 impl Publisher {
-    fn fetch(
-        &self,
-        cx: &Ctx<'_>,
-        lookup: CurationLookup<'_>,
-        deadline: Deadline<'_>,
-    ) -> ReadResult {
+    fn fetch(&self, cx: &Ctx<'_>, query: &DiseaseGet, deadline: Deadline<'_>) -> ReadResult {
         let leg = cx.fetch.leg(self.spec, deadline).fresh(cx.fresh);
+        let lookup = query.source_title_prefix().map_or(
+            CurationLookup::Exact(query.id()),
+            CurationLookup::TitlePrefix,
+        );
         let result = (self.read)(&leg, lookup);
         let source = status::source(
             self.bundle.source(),
