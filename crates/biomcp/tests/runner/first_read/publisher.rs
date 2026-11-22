@@ -1,8 +1,9 @@
 //! Feature disease-gene-validity: distinguish publisher backoff from local bundle state.
 use super::super::{
     bundle_pinned::hosted, bundle_sync::database, configuration::invoke, mcp::request,
+    network_stub::Stub,
 };
-use super::{Check, configured, live, retry_peer, words};
+use super::{Check, configured, live, words};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
@@ -24,6 +25,17 @@ pub(super) fn trials() -> Vec<Trial> {
             stale().map_err(Into::into)
         }),
     ]
+}
+
+pub(super) fn retry_peer(host: &str) -> Result<Stub, String> {
+    Stub::with_headers(
+        &[host],
+        |_| "text/html",
+        |_| Ok(String::new()),
+        |_, bytes| bytes,
+        |_| 429,
+        |_| "Retry-After: 300\r\n".to_owned(),
+    )
 }
 
 fn cold() -> Check {

@@ -200,19 +200,8 @@ fn timeout() -> Check {
     Ok(())
 }
 
-fn retry_peer(host: &str) -> Result<Stub, String> {
-    Stub::with_headers(
-        &[host],
-        |_| "text/html",
-        |_| Ok(String::new()),
-        |_, bytes| bytes,
-        |_| 429,
-        |_| "Retry-After: 300\r\n".to_owned(),
-    )
-}
-
 fn publisher_retry_after() -> Check {
-    let (env, stub) = configured(retry_peer("www.fda.gov")?, json!({}))?;
+    let (env, stub) = configured(publisher::retry_peer("www.fda.gov")?, json!({}))?;
     let first = invoke(&env, words(SEARCH), 4)?;
     let again = invoke(&env, words(SEARCH), 4)?;
     let requests = stub.finish()?;
