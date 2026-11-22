@@ -1,6 +1,6 @@
 # 1117 — name-the-source-limit-in-pathway-get-refusals
 
-Status: OPEN.
+Status: COMPLETE. Built on its batch branch and landed inside the 1078 branch (f0ef0d9f0)
 
 Milestone: 7
 
