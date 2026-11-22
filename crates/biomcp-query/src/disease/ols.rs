@@ -4,8 +4,8 @@ use biomcp_adapters::ols;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGet, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms, DiseaseXrefs,
-    ReplyData, Request, Source, StepKind,
+    DiseaseGet, DiseaseOntology, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms,
+    DiseaseXrefs, ReplyData, Request, Source, SourceNotice, StepKind,
 };
 /// Discover one source-ordered page from one explicit ontology.
 pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
@@ -24,14 +24,29 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         })
         .with_query(query.clone()),
     );
-    out.sources
-        .push(status::source(Source::Ols, leg.finish(), error));
+    let mut source = status::source(Source::Ols, leg.finish(), error);
     out.local = error.and_then(status::local);
     if let Ok(page) = reply {
         out.include_refusals(page.rows.refusals);
         let returned = page.rows.value.len() as u32;
+        if page.missing_ids > 0 {
+            let count = page.missing_ids;
+            let noun = if count == 1 { "row" } else { "rows" };
+            source.notices.push(search_notice(format!(
+                "OLS returned {count} {noun} without a usable identifier on this page."
+            )));
+        }
+        if returned > 0 && query.ontology() == Some(DiseaseOntology::Mondo) {
+            source.notices.push(search_notice(
+                "MONDO results can include non-human terms. The source labels retain any stated species.".into(),
+            ));
+        }
+        // Imported gene records keep their source links instead of disease get commands.
         for row in &page.rows.value {
             if let Some(id) = &row.concept.id
+                && !id.as_str().split_once(':').is_some_and(|(prefix, _)| {
+                    prefix.eq_ignore_ascii_case("HGNC") || prefix.eq_ignore_ascii_case("NCBIGene")
+                })
                 && let Some(get) = crate::next::checked(
                     id.to_string()
                         .parse()
@@ -48,16 +63,24 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
                 ));
             }
         }
-        if page.received > 0 && u64::from(query.offset()) + u64::from(page.received) < page.total {
+        let offset = query.offset();
+        let end = u64::from(offset) + u64::from(returned);
+        let total = if returned == 0 {
+            page.total.min(end)
+        } else {
+            page.total
+        };
+        if let Ok(next) = u32::try_from(end)
+            && returned > 0
+            && end < total
+        {
             out.next.push(crate::next::Step::new(
                 StepKind::Page,
                 &[biomcp_types::Source::Ols],
-                run(Request::SearchDisease(
-                    query.at_offset(query.offset().saturating_add(page.received)),
-                )),
+                run(Request::SearchDisease(query.at_offset(next))),
             ));
         }
-        out.page = Some(page_info(query.offset(), returned, page.total));
+        out.page = Some(page_info(offset, returned, total));
         out.problems.extend(page.rows.problems);
         if let ReplyData::DiseasePage {
             body: Some(body), ..
@@ -65,10 +88,20 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         {
             body.items = page.rows.value.into();
         }
+    }
+    out.sources.push(source);
+    if out.page.is_some() {
         crate::status::search(&mut out);
     }
     command.finish(deadline.remaining());
     out
+}
+fn search_notice(message: String) -> SourceNotice {
+    SourceNotice::RequestGuidance {
+        message: message.into(),
+        data_date: None,
+        retry_after_seconds: None,
+    }
 }
 /// Get an exact OLS record; section slicing reuses the checked original response.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {

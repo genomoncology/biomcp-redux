@@ -1,13 +1,14 @@
 use super::{SPEC, map, raw};
 use crate::Mapped;
+use biodata::Curie;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_fetch::{Input, Read};
-use biomcp_types::{DiseaseHeader, DiseaseSearch};
+use biomcp_types::{DiseaseHeader, DiseaseOntology, DiseaseSearch};
 /// A single native page without local ranking or identity selection.
 #[derive(Debug)]
 pub struct SearchPage {
-    /// Native window size before identity refusals.
-    pub received: u32,
+    /// Rows retained without a usable identity.
+    pub missing_ids: u32,
     /// Publisher total for the literal query and one ontology.
     pub total: u64,
     /// Headers in publisher order and field-level problems.
@@ -25,65 +26,108 @@ pub fn search(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<SearchPage, Reques
         .text()
         .ok_or(biomcp_fetch::InputError::Serialization)?;
     let endpoint = SPEC.get("/api/search").fresh(Freshness::Days(1));
-    let (page, _) = leg
-        .call(
-            &endpoint,
-            Input::Params(&[
-                ("q", Arg::Text(text)),
-                ("rows", Arg::Num(u64::from(query.limit()))),
-                ("start", Arg::Num(u64::from(query.offset()))),
-                ("ontology", Arg::Text(ontology.as_str())),
-                ("groupField", Arg::Text("iri")),
-            ]),
-            Read::<raw::Search>::json().check(&|page| {
-                let response = &page.response;
-                if response.start != query.offset()
-                    || response.docs.len() > query.limit() as usize
-                    || response
-                        .docs
-                        .iter()
-                        .any(|d| d.ontology_name.as_str() != ontology.as_str())
-                {
-                    return Err(BadReply);
-                }
-                Ok(())
-            }),
-        )
-        .map(|received| (received.value, received.meta))?;
+    let page = leg.call(
+        &endpoint,
+        Input::Params(&[
+            ("q", Arg::Text(text)),
+            ("rows", Arg::Num(u64::from(query.limit()))),
+            ("start", Arg::Num(u64::from(query.offset()))),
+            ("ontology", Arg::Text(ontology.as_str())),
+            ("groupField", Arg::Text("iri")),
+        ]),
+        Read::<raw::Search>::json().check(&|page| {
+            let response = &page.response;
+            if response.start != query.offset()
+                || response.docs.len() > query.limit() as usize
+                || response
+                    .docs
+                    .iter()
+                    .any(|d| d.ontology_name.as_str() != ontology.as_str())
+            {
+                return Err(BadReply);
+            }
+            Ok(())
+        }),
+    )?;
+    map_page(page.value.response, ontology)
+}
+
+fn map_page(
+    page: raw::SearchResponse,
+    ontology: DiseaseOntology,
+) -> Result<SearchPage, RequestError> {
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Ols,
         record: None,
         list: Vec::new(),
     };
-    let received = page.response.docs.len() as u32;
-    let mut value = Vec::new();
-    let mut refusals = crate::Refusal::None;
-    for hit in page.response.docs {
+    let mut value = Vec::with_capacity(page.docs.len());
+    let mut missing_ids = 0;
+    for hit in page.docs {
         problems.record = None;
-        let Some(id) = problems.required_field("obo_id", hit.obo_id) else {
-            refusals = crate::Refusal::Refused;
-            continue;
-        };
-        problems.record = crate::mapped::record(&id);
-        let iri = problems.optional("iri", hit.iri.map(|v| v.value().ok_or(())));
-        let label = problems.optional("label", hit.label.map(|v| v.value().ok_or(())));
+        let id = hit
+            .obo_id
+            .and_then(crate::raw::Field::value)
+            .or_else(|| {
+                hit.iri
+                    .as_ref()
+                    .and_then(crate::raw::Field::as_ref)
+                    .and_then(|iri| search_iri_id(iri.as_str()))
+            })
+            .or_else(|| {
+                let short_form = hit.short_form?.value()?;
+                short_form.as_str().parse().ok().or_else(|| {
+                    let id = map::short_form_id(short_form.as_str())?;
+                    (DiseaseOntology::of(id.as_str()) == Some(ontology)).then_some(id)
+                })
+            });
+        let id = problems.required("obo_id", id);
+        if id.is_none() {
+            missing_ids += 1;
+        }
+        problems.record = id.as_ref().and_then(crate::mapped::record);
+        let iri = problems.field("iri", hit.iri);
+        let label = problems.source_field("label", hit.label);
         value.push(DiseaseHeader {
-            attribution: map::attribution(&id, iri, ontology)?,
-            concept: biomcp_types::DiseaseConcept {
-                id: Some(id),
-                label: label.map(Into::into),
-            },
+            attribution: map::attribution(id.as_ref(), iri, ontology)?,
+            concept: biomcp_types::DiseaseConcept { id, label },
             ontology,
             obsolete: problems.field("is_obsolete", hit.is_obsolete),
         });
     }
     Ok(SearchPage {
-        received,
-        total: page.response.total,
+        missing_ids,
+        total: page.total,
         rows: Mapped {
-            refusals,
+            refusals: if missing_ids == 0 {
+                crate::Refusal::None
+            } else {
+                crate::Refusal::Refused
+            },
             value,
             problems: problems.list,
         },
     })
+}
+
+// OLS may return imported gene terms with only a local number in its ID fields.
+fn search_iri_id(iri: &str) -> Option<Curie> {
+    let Some(path) = iri
+        .strip_prefix("http://identifiers.org/")
+        .or_else(|| iri.strip_prefix("https://identifiers.org/"))
+    else {
+        return map::iri_id(iri);
+    };
+    let Some((namespace, local)) = path.split_once('/') else {
+        return path.parse().ok();
+    };
+    let authority = match namespace {
+        "hgnc" => "HGNC",
+        "ncbigene" => "NCBIGene",
+        _ => return None,
+    };
+    if local.is_empty() || !local.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
+    format!("{authority}:{local}").parse().ok()
 }
