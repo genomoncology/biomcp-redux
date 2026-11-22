@@ -8,11 +8,15 @@ pub(super) const COMPACT_KEY: &str = "biomcp/compactCatalog";
 const NAME: &str = "search_tools";
 
 pub(super) fn requested(params: &Value) -> bool {
-    params["_meta"][COMPACT_KEY].as_bool() == Some(true)
+    params
+        .get("_meta")
+        .and_then(|meta| meta.get(COMPACT_KEY))
+        .and_then(Value::as_bool)
+        == Some(true)
 }
 
 pub(super) fn called(params: &Value) -> bool {
-    params["name"].as_str() == Some(NAME)
+    params.get("name").and_then(Value::as_str) == Some(NAME)
 }
 
 pub(super) fn tool() -> Value {
@@ -40,8 +44,9 @@ pub(super) fn call(
     read_only: bool,
     modern: bool,
 ) -> Value {
-    let Some(args) = params["arguments"]
-        .as_object()
+    let Some(args) = params
+        .get("arguments")
+        .and_then(Value::as_object)
         .filter(|args| args.len() == 1)
     else {
         return protocol::error(id, -32602, "Invalid params");
@@ -57,7 +62,7 @@ pub(super) fn call(
             typed::discovery_tools(context, read_only, true).map(|tools| {
                 tools
                     .into_iter()
-                    .filter(|tool| tool["name"] == name)
+                    .filter(|tool| tool.get("name").and_then(Value::as_str) == Some(name))
                     .collect()
             })
         }
@@ -74,8 +79,8 @@ fn search(tools: &[Value], query: &str) -> Vec<Value> {
     let mut matches = tools
         .iter()
         .filter_map(|tool| {
-            let name = tool["name"].as_str()?;
-            let description = tool["description"].as_str()?.split(". ").next()?;
+            let name = tool.get("name")?.as_str()?;
+            let description = tool.get("description")?.as_str()?.split(". ").next()?;
             let name_terms = words(name).collect::<BTreeSet<_>>();
             let description_terms = words(description).collect::<BTreeSet<_>>();
             let fields = tool
