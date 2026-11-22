@@ -39,7 +39,7 @@
       "description": "Search by text, SEER site name, or HPO annotations.",
       "properties": {
         "hpo_release": {
-          "description": "HPO tag (vYYYY-MM-DD) or latest. Example: --hpo-release latest.",
+          "description": "HPO tag (vYYYY-MM-DD). Omit for latest. Example: --hpo-release latest.",
           "pattern": "^(latest|v[0-9]{4}-[0-9]{2}-[0-9]{2})$",
           "type": [
             "string",

@@ -1364,7 +1364,7 @@ Options:
           [possible values: json, md]
 
       --hpo-release <hpo_release>
-          HPO tag (vYYYY-MM-DD) or latest. Example: --hpo-release latest.
+          HPO tag (vYYYY-MM-DD). Omit for latest. Example: --hpo-release latest.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -1413,7 +1413,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
-- `--hpo-release`: HPO tag (vYYYY-MM-DD) or latest. Value form: string; example: --hpo-release latest.
+- `--hpo-release`: HPO tag (vYYYY-MM-DD). Omit for latest. Value form: string; example: --hpo-release latest.
 - `--limit`: Rows per page. Value form: integer; example: --limit 1.
 - `--offset`: Row offset. Value form: integer; example: --offset 1.
 - `--ontology`: OLS ontology, default MONDO. Value form: string; example: --ontology mondo.

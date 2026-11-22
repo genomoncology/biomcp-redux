@@ -45,7 +45,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "<[biodata::HpId]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max=20), extend("x-comma-separated" = true)))]
     phenotype: Box<[biodata::HpId]>,
-    /// HPO tag (vYYYY-MM-DD) or latest. Example: --hpo-release latest.
+    /// HPO tag (vYYYY-MM-DD). Omit for latest. Example: --hpo-release latest.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(
         feature = "schema",
