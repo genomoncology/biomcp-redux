@@ -30,10 +30,14 @@ fn cold() -> Check {
     let (env, stub) = configured(retry_peer("thegencc.org")?, json!({}))?;
     let first = invoke(&env, words(READ), 4)?;
     let repeated = invoke(&env, words(READ), 4)?;
-    // Expire only the local cooldown in the shared store without sleeping for a minute.
+    for reply in [&first, &repeated] {
+        assert_backoff(reply, 300)?;
+    }
+    // Advance the persisted countdowns by a minute. The default local wait has now expired.
     database(&env)?
         .execute(
-            "UPDATE bundle_first_read SET until=unixepoch()-1 WHERE name='gencc-submissions'",
+            "UPDATE bundle_first_read SET until=until-61,publisher_until=publisher_until-61
+             WHERE name='gencc-submissions'",
             [],
         )
         .map_err(|e| e.to_string())?;
@@ -56,8 +60,8 @@ fn cold() -> Check {
         .pointer("/result/structuredContent")
         .ok_or_else(|| format!("missing hosted reply: {hosted}"))?;
 
-    for reply in [&first, &repeated, &reopened, served] {
-        assert_backoff(reply)?;
+    for reply in [&reopened, served] {
+        assert_backoff(reply, 239)?;
     }
     let requests = stub.finish()?;
     if requests.len() != 1 {
@@ -68,7 +72,7 @@ fn cold() -> Check {
     Ok(())
 }
 
-fn assert_backoff(reply: &Value) -> Check {
+fn assert_backoff(reply: &Value, max_delay: u64) -> Check {
     let guidance = reply
         .pointer("/sources/0/notices")
         .and_then(Value::as_array);
@@ -76,11 +80,11 @@ fn assert_backoff(reply: &Value) -> Check {
         notice
             .get("retry_after_seconds")
             .and_then(Value::as_u64)
-            .is_some_and(|delay| (240..=300).contains(&delay))
+            .is_some_and(|delay| (max_delay - 60..=max_delay).contains(&delay))
             && notice
                 .get("message")
                 .and_then(Value::as_str)
-                .is_some_and(|message| message.to_lowercase().contains("retry"))
+                .is_some_and(|message| message.contains("retry"))
     });
     let has_sync = reply
         .get("next")
