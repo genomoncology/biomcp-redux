@@ -124,9 +124,9 @@ fn compact_output(tool: &Value) -> Result<(), String> {
     let schema = tool
         .get("outputSchema")
         .ok_or("missing default output schema")?;
-    if nested_description(schema, false)
-        || has_keyword(schema, "$defs")
-        || has_keyword(schema, "enum")
+    if ["description", "$defs", "enum"]
+        .iter()
+        .any(|key| has_keyword(schema, key))
     {
         return Err("output schema contains definitions, descriptions or enums".into());
     }
@@ -150,6 +150,14 @@ fn compact_output(tool: &Value) -> Result<(), String> {
             .and_then(Value::as_object)
             .filter(|fields| !fields.is_empty())
             .ok_or("reply variant lacks result fields")?;
+        if result
+            .values()
+            .filter(|field| field.get("items").is_some())
+            .count()
+            > 1
+        {
+            return Err("reply contains more than one row shape".into());
+        }
         for field in result.values() {
             if has_keyword(field, "properties")
                 && (field.get("properties").is_some()
@@ -168,7 +176,17 @@ fn compact_output(tool: &Value) -> Result<(), String> {
 fn has_keyword(schema: &Value, key: &str) -> bool {
     match schema {
         Value::Object(fields) => {
-            fields.contains_key(key) || fields.values().any(|value| has_keyword(value, key))
+            fields.contains_key(key)
+                || fields.iter().any(|(name, value)| {
+                    if name == "properties" {
+                        return value.as_object().is_some_and(|properties| {
+                            properties
+                                .values()
+                                .any(|property| has_keyword(property, key))
+                        });
+                    }
+                    has_keyword(value, key)
+                })
         }
         Value::Array(values) => values.iter().any(|value| has_keyword(value, key)),
         _ => false,
@@ -186,7 +204,13 @@ fn catalog(env: &Environment, config: Value) -> Result<Vec<Value>, String> {
         .and_then(|r| r.pointer("/result/tools"))
         .and_then(Value::as_array)
         .cloned()
-        .ok_or("catalog missing")?;
+        .ok_or_else(|| {
+            let message = replies
+                .first()
+                .and_then(|reply| reply.pointer("/error/message"))
+                .and_then(Value::as_str);
+            message.unwrap_or("catalog missing").to_owned()
+        })?;
     super::typed_catalog::check(&tools)?;
     Ok(tools)
 }
