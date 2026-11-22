@@ -10,9 +10,70 @@ use serde_json::{Value, json};
 use std::io::Write;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial("mcp-parity/reply-forms", || {
+    let mut trials = vec![transcript_trial("mcp-parity/reply-forms", || {
         check().map_err(Into::into)
-    })]
+    })];
+    for (status, args, recording, exit) in [
+        ("usage", &["get", "gene"][..], None, 2),
+        (
+            "absent",
+            &["get", "trial", "NCT01811710"][..],
+            Some("trial/get/NCT01811710"),
+            1,
+        ),
+        (
+            "failed",
+            &["get", "trial", "NCT02296125"][..],
+            Some("trial/unavailable"),
+            4,
+        ),
+    ] {
+        trials.push(transcript_trial(
+            format!("mcp-parity/structured-errors/{status}"),
+            move || check_error(args, recording, exit).map_err(Into::into),
+        ));
+    }
+    trials
+}
+
+fn check_error(args: &[&str], recording: Option<&str>, exit: i32) -> Result<(), String> {
+    let cli_env = Environment::new().map_err(|e| e.to_string())?;
+    let mcp_env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = super::super::response_cases::replay(&cli_env, recording, None)?;
+    let mut cli_args: Vec<_> = args.iter().map(|word| (*word).to_owned()).collect();
+    cli_args.extend(cli_env.globals(replay.as_deref(), replay.is_none()));
+    let cli = super::super::configuration::invoke(&cli_env, cli_args, exit)?;
+    let replies = exchange_wire(
+        &mcp_env,
+        &[request(
+            json!(1),
+            "tools/call",
+            json!({"name":"biomcp","arguments":{"args":args}}),
+        )],
+        &mcp_env.globals(replay.as_deref(), replay.is_none()),
+        None,
+    )?;
+    let result = replies
+        .first()
+        .and_then(|reply| reply.get("result"))
+        .ok_or("MCP tool result missing")?;
+    if result.get("isError") != Some(&json!(true)) {
+        return Err("MCP isError must be true".into());
+    }
+    let structured = result
+        .get("structuredContent")
+        .ok_or("MCP error is missing structuredContent")?;
+    if structured != &cli {
+        return Err(format!("structured MCP error differs from CLI: {structured} != {cli}"));
+    }
+    let text = result
+        .pointer("/content/0/text")
+        .and_then(Value::as_str)
+        .ok_or("MCP error is missing its text copy")?;
+    if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != cli {
+        return Err("text MCP error differs from CLI".into());
+    }
+    Ok(())
 }
 
 pub(super) fn check() -> Result<(), String> {
