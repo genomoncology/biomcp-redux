@@ -35,6 +35,8 @@ pub(super) fn check() -> Result<(), String> {
         &offline,
     )?)?;
     super::typed_catalog::check(&local)?;
+    let validators = reply_validators(&local)?;
+    replay_reply(&env, &validators)?;
     let server =
         Server::configured_globals("127.0.0.1:0", Some(config), None, None, None, &hosted)?;
     let (_, served) = server.request("POST", "/mcp", &list.to_string())?;
@@ -77,6 +79,9 @@ pub(super) fn check() -> Result<(), String> {
             failures.push(format!("{label}: no stdio tool result: {raw:?}"));
             continue;
         };
+        validators[tool]
+            .validate(reply)
+            .map_err(|error| format!("{label}: output schema rejected reply: {error}"))?;
         if super::typed_followups::data(reply) != super::typed_followups::data(&expected) {
             failures.push(format!("{label} stdio differs from CLI {argv:?}: {reply}"));
         }
@@ -189,4 +194,50 @@ fn report(local: &[Value], served: &[Value]) -> Result<(), String> {
         bytes(served)
     )
     .map_err(|e| e.to_string())
+}
+
+type Validators<'a> = std::collections::BTreeMap<&'a str, jsonschema::Validator>;
+
+fn reply_validators(tools: &[Value]) -> Result<Validators<'_>, String> {
+    tools
+        .iter()
+        .map(|tool| {
+            let name = tool["name"].as_str().ok_or("tool name")?;
+            let schema = tool
+                .get("outputSchema")
+                .ok_or_else(|| format!("{name}: missing default outputSchema"))?;
+            let validator = jsonschema::validator_for(schema)
+                .map_err(|error| format!("{name}: invalid outputSchema: {error}"))?;
+            Ok((name, validator))
+        })
+        .collect()
+}
+
+fn replay_reply(env: &Environment, validators: &Validators<'_>) -> Result<(), String> {
+    let replay = super::super::response_cases::replay(env, Some("trial/intervention"), false)?;
+    let globals = env.globals(replay.as_deref(), false);
+    let frame = request(
+        json!(1),
+        "tools/call",
+        json!({"name":"trial","arguments":{"action":"search","search":{
+            "condition":"melanoma","intervention":"pembrolizumab"
+        }}}),
+    );
+    let frames = exchange_with_globals(env, &[frame], &globals)?;
+    let mut response = frames
+        .first()
+        .and_then(|frame| frame.pointer("/result/structuredContent"))
+        .cloned()
+        .ok_or("missing replayed trial search")?;
+    validators["trial"]
+        .validate(&response)
+        .map_err(|error| format!("trial search replay: {error}"))?;
+    let title = response
+        .pointer_mut("/result/items/0/title")
+        .ok_or("missing replayed trial title")?;
+    *title = json!({"wrong_type":true});
+    if validators["trial"].is_valid(&response) {
+        return Err("trial search schema accepted an object as a row title".into());
+    }
+    Ok(())
 }
