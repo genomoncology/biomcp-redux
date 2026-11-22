@@ -10,6 +10,53 @@ pub(super) fn name(c: &Component) -> Option<&str> {
         .or(c.nonproprietaryname.as_deref())
 }
 pub(super) fn matching(rows: &[(&str, Component)], query: &str) -> Option<DrugNameMatch> {
+    matching_with(rows, query, DrugNameMatch::generic_name, |c| {
+        c.synonyms.as_ref().is_some_and(|v| {
+            strings(v)
+                .into_iter()
+                .any(|s| DrugNameMatch::same_name(s, query))
+        }) || c.molecule_synonyms.iter().flatten().any(|s| {
+            s.molecule_synonym
+                .as_deref()
+                .is_some_and(|s| DrugNameMatch::same_name(s, query))
+        })
+    })
+}
+
+/// Match complete names and aliases from the reviewed projection, without salt expansion.
+pub(super) fn exact_matching(rows: &[(&str, Component)], query: &str) -> Option<DrugNameMatch> {
+    matching_with(rows, query, DrugNameMatch::same_name, |c| {
+        synonyms(c).any(|s| DrugNameMatch::same_name(&s, query))
+    })
+}
+
+/// Split the source's synonym fields into complete names.
+pub(super) fn synonyms(c: &Component) -> impl Iterator<Item = String> + '_ {
+    c.synonyms
+        .as_ref()
+        .map(strings)
+        .unwrap_or_default()
+        .into_iter()
+        .flat_map(split)
+        .map(str::to_owned)
+        .chain(
+            c.molecule_synonyms
+                .iter()
+                .flatten()
+                .filter_map(|s| s.molecule_synonym.as_deref())
+                .flat_map(split)
+                .map(str::to_owned),
+        )
+}
+
+pub(super) type NameMatch = fn(&[(&str, Component)], &str) -> Option<DrugNameMatch>;
+
+fn matching_with(
+    rows: &[(&str, Component)],
+    query: &str,
+    generic_match: fn(&str, &str) -> bool,
+    synonym_match: impl Fn(&Component) -> bool,
+) -> Option<DrugNameMatch> {
     let exact = |s: &str| DrugNameMatch::same_name(s, query);
     let brand = rows.iter().any(|(_, c)| {
         let real_brand = |brand: &str| {
@@ -33,19 +80,13 @@ pub(super) fn matching(rows: &[(&str, Component)], query: &str) -> Option<DrugNa
         generic_names(c)
             .into_iter()
             .flatten()
-            .any(|name| DrugNameMatch::generic_name(name, query))
+            .any(|name| generic_match(name, query))
             || c.generic_name.as_ref().is_some_and(|v| {
                 strings(v)
                     .into_iter()
-                    .any(|name| DrugNameMatch::generic_name(name, query))
+                    .any(|name| generic_match(name, query))
             })
-            || c.synonyms
-                .as_ref()
-                .is_some_and(|v| strings(v).into_iter().any(exact))
-            || c.molecule_synonyms
-                .iter()
-                .flatten()
-                .any(|s| s.molecule_synonym.as_deref().is_some_and(exact))
+            || synonym_match(c)
     });
     DrugNameMatch::from_fields(brand, generic)
 }

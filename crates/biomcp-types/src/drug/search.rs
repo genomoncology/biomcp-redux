@@ -3,9 +3,6 @@ use crate::QueryInvalid;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
 
-fn default_source() -> DrugSource {
-    DrugSource::Mychem
-}
 fn default_limit() -> u32 {
     10
 }
@@ -48,7 +45,8 @@ impl LabelApplicationType {
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
     WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. \
-    Drugs@FDA accepts a name or an applicant. Other sources require a name. \
+    Drugs@FDA accepts a name or applicant. FDA signals take a drug or report text. \
+    FDA withdrawals take a drug, indication or withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD). \
     Purple Book takes a reference name or BLA and summarizes biosimilars by product."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -59,10 +57,11 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Drug name phrase. Optional for recalls, safety communications, WHO dates, label indication or mechanism and Drugs@FDA applicant searches.
-    /// Drugs@FDA tries exact brand or ingredient names, then words. openFDA labels do likewise for brands and generics, then tries label text.
-    /// Recall aliases match without replacing display names.
-    /// Safety communications match titles, linked drug names and page text. Counts show records searched and those with text.
+    /// Drug name or text. FDA signals match report text. FDA withdrawals match indications or dates (YYYY, YYYY-MM or YYYY-MM-DD).
+    /// Optional for safety communications or with recall, WHO, label or applicant filters.
+    /// Labels and Drugs@FDA try exact names, then words. Labels also search label text.
+    /// Recall aliases keep display names.
+    /// Safety communications match titles, linked names and text.
     /// Zero matches does not establish that FDA issued no communication about this drug.
     /// FDA index: https://www.fda.gov/drugs/drug-safety-and-availability/drug-safety-communications
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
@@ -76,13 +75,13 @@ struct SearchFields {
     /// Accepted for one release. Name widening is already automatic where supported.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
-    /// Use only the typed name. Default name widening applies to openFDA labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
+    /// Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    /// Label name page token. Keep the first page's names and step by reusing the token with unchanged filters.
+    /// Reuse the first page’s name token with unchanged filters.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
-    /// Exact Indications and Usage wording, without disease synonyms. A drug name narrows the search.
+    /// Exact Indications and Usage wording. No disease synonyms. Drug names narrow results.
     #[serde(
         default,
         deserialize_with = "present_query",
@@ -91,7 +90,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     indication: Option<Text>,
-    /// Exact Mechanism of Action wording, without synonyms or drug class inference.
+    /// Exact Mechanism of Action wording. No synonyms or drug class inference.
     #[serde(
         default,
         deserialize_with = "present_query",
@@ -100,22 +99,21 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     mechanism_of_action: Option<Text>,
-    /// Keep label application_number prefixes, e.g. nda,bla to exclude generics (ANDA).
+    /// Filter by application type. For example, nda,bla excludes generics (ANDA).
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     application_type: Box<[LabelApplicationType]>,
-    /// sponsor_name prefix. Ignores case, with no company-family or subsidiary inference. A drug name narrows results.
+    /// Case-insensitive sponsor_name prefix. Matches listed sponsors. A drug name narrows results.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     applicant: Option<Text>,
-    /// Application order. newest uses latest submission status date, which may be for a supplement.
-    /// original-approval reads all matches and sorts by original_approval. Both put recent dates first,
-    /// break ties by application number and put undated rows last. Omit for source order.
+    /// Drugs@FDA order. newest uses the latest submission status date, including supplements.
+    /// original-approval uses original_approval. Recent first, then application number, with undated last. Default: FDA order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     sort: Option<DrugFdaSort>,
-    /// Earliest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Reads all matches and counts those in range.
+    /// Earliest original_approval (inclusive, YYYY, YYYY-MM or YYYY-MM-DD). Counts matches in range.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     approved_from: Option<biodata::PartialDate>,
@@ -170,17 +168,18 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     presentations: bool,
-    /// Filter presentations by strength cell, ignoring case and spaces.
+    /// FDA presentation strength. Ignores case and spaces.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     strength: Option<Text>,
-    /// Filter presentations by device cell, ignoring case.
+    /// FDA presentation device. Ignores case.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::PurpleBook)))]
     device: Option<Text>,
     /// Drug source. An empty name search may retry names from other sources.
-    #[serde(default = "default_source")]
-    source: DrugSource,
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(with = "DrugSource", extend("default" = "mychem")))]
+    source: SearchSource,
     /// ChEMBL name to match. Default: preferred name.
     #[serde(
         default,
@@ -202,42 +201,43 @@ crate::query::validation::checked_query!(DrugSearch, SearchFields);
 impl TryFrom<SearchFields> for DrugSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
+        let source = fields.source.effective();
         if !(1..=50).contains(&fields.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        if fields.indication.is_some() && fields.source != DrugSource::OpenfdaLabel {
+        if fields.indication.is_some() && source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["indication", "source"]));
         }
-        if fields.mechanism_of_action.is_some() && fields.source != DrugSource::OpenfdaLabel {
+        if fields.mechanism_of_action.is_some() && source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["mechanism_of_action", "source"]));
         }
-        if !fields.application_type.is_empty() && fields.source != DrugSource::OpenfdaLabel {
+        if !fields.application_type.is_empty() && source != DrugSource::OpenfdaLabel {
             return Err(QueryInvalid::new(&["application_type", "source"]));
         }
-        if fields.name_selector.is_some() && fields.source != DrugSource::Chembl {
+        if fields.name_selector.is_some() && source != DrugSource::Chembl {
             return Err(QueryInvalid::new(&["name_selector", "source"]));
         }
-        if fields.applicant.is_some() && fields.source != DrugSource::Drugsfda {
+        if fields.applicant.is_some() && source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["applicant", "source"]));
         }
-        if fields.sort.is_some() && fields.source != DrugSource::Drugsfda {
+        if fields.sort.is_some() && source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["sort", "source"]));
         }
-        validate_purple_book_selection(&fields)?;
-        validate_approved(&fields)?;
+        validate_purple_book_selection(&fields, source)?;
+        validate_approved(&fields, source)?;
         let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
-        if who_dates && fields.source != DrugSource::WhoPq {
+        if who_dates && source != DrugSource::WhoPq {
             return Err(QueryInvalid::new(&[
                 "prequalified_from",
                 "prequalified_to",
                 "source",
             ]));
         }
-        if fields.therapeutic_area.is_some() && fields.source != DrugSource::WhoPq {
+        if fields.therapeutic_area.is_some() && source != DrugSource::WhoPq {
             return Err(QueryInvalid::new(&["therapeutic_area", "source"]));
         }
         let who_filters = who_dates || fields.therapeutic_area.is_some();
-        if fields.source == DrugSource::WhoPq && fields.query.is_none() && !who_filters {
+        if source == DrugSource::WhoPq && fields.query.is_none() && !who_filters {
             return Err(QueryInvalid::new(&[
                 "query",
                 "therapeutic_area",
@@ -257,14 +257,14 @@ impl TryFrom<SearchFields> for DrugSearch {
             return Err(QueryInvalid::new(&["prequalified_from", "prequalified_to"]));
         }
         super::recall::validate_search(
-            fields.source,
+            source,
             fields.query.is_some()
                 || fields.indication.is_some()
                 || fields.mechanism_of_action.is_some()
                 || fields.applicant.is_some()
-                || (fields.source == DrugSource::WhoPq && who_filters)
+                || (source == DrugSource::WhoPq && who_filters)
                 // FDA's safety communications list newest first with no name.
-                || fields.source == DrugSource::FdaDsc,
+                || source == DrugSource::FdaDsc,
             fields.firm.is_some()
                 || fields.classification.is_some()
                 || fields.status.is_some()
@@ -321,7 +321,7 @@ impl DrugSearch {
             indication: None,
             mechanism_of_action: None,
             application_type: Box::default(),
-            source,
+            source: SearchSource(Some(source)),
             limit,
             offset: 0,
             applicant: None,
@@ -351,9 +351,12 @@ impl DrugSearch {
             .unwrap_or(super::DrugNameSelector::Preferred)
     }
 }
-fn validate_purple_book_selection(fields: &SearchFields) -> Result<(), QueryInvalid> {
+fn validate_purple_book_selection(
+    fields: &SearchFields,
+    source: DrugSource,
+) -> Result<(), QueryInvalid> {
     if (fields.presentations || fields.strength.is_some() || fields.device.is_some())
-        && fields.source != DrugSource::PurpleBook
+        && source != DrugSource::PurpleBook
     {
         return Err(QueryInvalid::new(&[
             "presentations",
@@ -365,9 +368,9 @@ fn validate_purple_book_selection(fields: &SearchFields) -> Result<(), QueryInva
     Ok(())
 }
 /// The original approval window: Drugs@FDA only, and never ending before it starts.
-fn validate_approved(fields: &SearchFields) -> Result<(), QueryInvalid> {
+fn validate_approved(fields: &SearchFields, source: DrugSource) -> Result<(), QueryInvalid> {
     let window = fields.approved_from.is_some() || fields.approved_to.is_some();
-    if window && fields.source != DrugSource::Drugsfda {
+    if window && source != DrugSource::Drugsfda {
         return Err(QueryInvalid::new(&[
             "approved_from",
             "approved_to",
@@ -388,6 +391,28 @@ fn validate_approved(fields: &SearchFields) -> Result<(), QueryInvalid> {
 }
 fn present_query<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
     Text::deserialize(d).map(Some)
+}
+
+// The command needs to know whether the caller supplied a source. Public JSON names the effective source.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct SearchSource(Option<DrugSource>);
+
+impl SearchSource {
+    fn effective(self) -> DrugSource {
+        self.0.unwrap_or(DrugSource::Mychem)
+    }
+}
+
+impl Serialize for SearchSource {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.effective().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for SearchSource {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        DrugSource::deserialize(d).map(|source| Self(Some(source)))
+    }
 }
 
 fn selected_name<'de, D: serde::Deserializer<'de>>(
@@ -474,7 +499,11 @@ impl DrugSearch {
 
     /// Single selected native source.
     pub fn source(&self) -> DrugSource {
-        self.0.source
+        self.0.source.effective()
+    }
+    /// Default discovery promotes complete names; explicit sources retain native order.
+    pub fn ranks_default_names(&self) -> bool {
+        self.0.source.0.is_none()
     }
     /// Native page bound.
     pub fn limit(&self) -> u32 {
@@ -505,12 +534,13 @@ const WIDENING: [DrugSource; 5] = [
 ];
 
 fn widens(fields: &SearchFields) -> bool {
+    let source = fields.source.effective();
     !fields.exact_term
-        && WIDENING.contains(&fields.source)
+        && WIDENING.contains(&source)
         && fields.query.as_ref().is_some_and(|name| {
             // A native record identifier names one record, never a drug with other names.
             match name.as_str().parse::<biodata::DrugId>() {
-                Ok(id) => !DrugSource::Drugsfda.accepts(&id) && !fields.source.accepts(&id),
+                Ok(id) => !DrugSource::Drugsfda.accepts(&id) && !source.accepts(&id),
                 Err(_) => true,
             }
         })

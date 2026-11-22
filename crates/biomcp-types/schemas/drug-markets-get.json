@@ -45,6 +45,8 @@
         "ddinter",
         "who-eml",
         "fda-dsc",
+        "fda-safety-signals",
+        "fda-withdrawn-approvals",
         "purple-book"
       ],
       "type": "string"

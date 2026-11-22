@@ -7,6 +7,7 @@ mod ddinter;
 mod drugsfda;
 mod dsc;
 mod ema;
+mod fda_list;
 mod label_application;
 mod label_choice;
 pub(crate) mod markets;
@@ -17,9 +18,11 @@ pub(crate) mod purple_book;
 mod recall;
 mod resolve;
 pub(crate) mod search_names;
+pub(crate) mod signals;
 pub(crate) mod who;
 mod who_eml;
 mod widen;
+pub(crate) mod withdrawals;
 use crate::{Ctx, Outcome, status};
 /// Search selected-source records, consulting source-stated names only after an empty lookup.
 pub(crate) use aliases::search as search_with_aliases;
@@ -94,7 +97,13 @@ fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&mychem::SPEC, deadline).fresh(cx.fresh);
-    let result = mychem::search(&leg, name.as_str(), query.limit(), query.offset());
+    let ranked = query.ranks_default_names();
+    let read = if ranked {
+        mychem::search_ranked
+    } else {
+        mychem::search
+    };
+    let result = read(&leg, name.as_str(), query.limit(), query.offset());
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
     let remaining = leg.command_remaining();
@@ -104,8 +113,18 @@ fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         out.include_refusals(page.refusals);
         out.problems = page.problems;
         search_results(query, cx.fresh, page.value, &mut out, received);
+        if ranked && let Some(source) = out.sources.first_mut() {
+            source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                retry_after_seconds: None,
+                message: format!(
+                    "Total counts MyChem source rows. Exact names and synonyms rank first within the first {} rows. matched_name also marks synonyms.",
+                    mychem::RANKED_ROWS
+                ).into(),
+            });
+        }
     }
-    component_outcomes(cx, &mut out, true);
+    component_outcomes(cx, &mut out, true, ranked);
     command.finish(remaining);
     out
 }
@@ -276,7 +295,7 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.body = (document.value.card).with_query(query.clone());
         }
     }
-    component_outcomes(cx, &mut out, false);
+    component_outcomes(cx, &mut out, false, false);
     command.finish(remaining);
     out
 }
@@ -351,11 +370,11 @@ fn unsupported(source: DrugSource, mut out: Outcome) -> Outcome {
     out
 }
 
-fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool) {
+fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool, ranked: bool) {
     let Some(parent) = out.sources.first().cloned() else {
         return;
     };
-    out.sources.extend(components(cx, &parent, search));
+    out.sources.extend(components(cx, &parent, search, ranked));
 }
 
 /// The sources a MyChem reply carries, so a later disabled source can withhold stored names.
@@ -363,8 +382,9 @@ fn components(
     cx: &Ctx<'_>,
     parent: &biomcp_types::SourceOutcome,
     search: bool,
+    ranked: bool,
 ) -> Vec<biomcp_types::SourceOutcome> {
-    mychem::requested_components(search)
+    mychem::requested_components(search, ranked)
         .filter_map(|component| {
             let source = component.native_source?;
             Some(biomcp_adapters::registry::outcome(

@@ -1,6 +1,7 @@
 //! FDA's index table and one communication page, read only where FDA marks them.
-use super::html::{attribute, date, visible};
-use biodata::{PartialDate, Text};
+use super::html::{Date, attribute, date, visible};
+use biodata::Text;
+use biomcp_types::ProblemCode;
 
 /// One row of FDA's index table.
 #[derive(Debug, Clone)]
@@ -8,9 +9,8 @@ pub(super) struct Listed {
     /// FDA's page identifier (`data-entity-uuid`).
     pub id: Text,
     pub title: Text,
-    /// The Date cell as FDA typed it.
-    pub date_text: String,
-    pub date: Option<PartialDate>,
+    /// The Date cell is absent, a valid date, or a problem to report for this row.
+    pub date: Date,
     /// The page's path on www.fda.gov.
     pub path: String,
     /// The page's address.
@@ -20,8 +20,8 @@ pub(super) struct Listed {
 /// What one communication page states.
 #[derive(Debug, Default)]
 pub(super) struct Page {
-    pub issued: Option<PartialDate>,
-    pub updated: Option<PartialDate>,
+    pub issued: Date,
+    pub updated: Date,
     pub applications: Vec<Text>,
     pub drugs: Vec<Text>,
     pub text: String,
@@ -70,8 +70,8 @@ pub(super) fn index(body: &str) -> Option<Vec<Listed>> {
         };
         rows.push(Listed {
             id,
-            date: date(&date_text),
-            date_text,
+            date: date(&date_text)
+                .or((!date_text.is_empty()).then_some(Err(ProblemCode::ValueUnknown))),
             title,
             path: path.to_owned(),
             url,
@@ -125,20 +125,30 @@ pub(super) fn page(body: &str) -> Option<Page> {
 }
 
 /// The date written just before the words "FDA Drug Safety Communication" at the page's start.
-fn issued(text: &str) -> Option<PartialDate> {
-    text.match_indices("FDA Drug Safety Communication")
-        .find_map(|(at, _)| {
-            let before = text.get(..at)?.trim_end();
-            let word = before.rsplit(' ').next()?;
-            date(word.trim_matches(['[', ']', '(', ')']))
-        })
+fn issued(text: &str) -> Date {
+    let mut invalid = None;
+    for (at, _) in text.match_indices("FDA Drug Safety Communication") {
+        let candidate = text
+            .get(..at)
+            .and_then(|before| before.trim_end().rsplit(' ').next());
+        match candidate.and_then(|word| date(word.trim_matches(['[', ']', '(', ')']))) {
+            Some(Ok(day)) => return Some(Ok(day)),
+            Some(Err(problem)) => invalid = Some(Err(problem)),
+            None => {}
+        }
+    }
+    invalid
 }
 
 /// The "Content current as of" date from its machine-readable `<time datetime>`.
-fn updated(body: &str) -> Option<PartialDate> {
+fn updated(body: &str) -> Date {
     let block = body.get(body.find(CURRENT)?..)?;
     let tag = block.get(block.find("<time")?..)?;
     let value = attribute(tag.get(..tag.find('>')?)?, "datetime")?;
+    updated_date(value).or(Some(Err(ProblemCode::ValueUnknown)))
+}
+
+fn updated_date(value: &str) -> Date {
     let day = value.get(..10)?;
     let mut parts = day.split('-');
     let (year, month, day) = (parts.next()?, parts.next()?, parts.next()?);

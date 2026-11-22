@@ -1,0 +1,29 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://rest.genenames.org/fetch/omim_id/121050",
+  "exchanges": [
+    {
+      "fetched": 1795291837,
+      "status": 200,
+      "content_type": "application/json;charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "responseHeader": {
+            "status": 0,
+            "QTime": 0
+          },
+          "response": {
+            "numFound": 0,
+            "start": 0,
+            "numFoundExact": true,
+            "docs": []
+          }
+        }
+      }
+    }
+  ]
+}

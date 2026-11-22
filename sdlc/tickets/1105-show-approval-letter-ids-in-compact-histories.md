@@ -1,6 +1,7 @@
 # 1105 — show-approval-letter-ids-in-compact-histories
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 22d80088f9593066edd5f9c17317413e96098e25
 
 Milestone: 7
 

@@ -29,28 +29,26 @@ impl Widths {
 
     /// Horizontal text-space advance of one shown string under the text state.
     pub(super) fn advance(&self, bytes: &[u8], state: &super::state::State<'_>) -> f32 {
-        let codes: Vec<u32> = if self.two_byte {
-            bytes
-                .chunks(2)
-                .map(|pair| {
-                    pair.iter()
-                        .fold(0, |code, byte| code * 256 + u32::from(*byte))
-                })
-                .collect()
-        } else {
-            bytes.iter().map(|byte| u32::from(*byte)).collect()
-        };
-        codes
-            .into_iter()
-            .map(|code| {
-                let word = if !self.two_byte && code == 32 {
-                    state.word_space
-                } else {
-                    0.0
-                };
-                (self.of(code) / 1000.0 * state.size + state.char_space + word) * state.scale
-            })
+        bytes
+            .chunks(self.code_bytes())
+            .map(|glyph| self.glyph_advance(glyph, state))
             .sum()
+    }
+
+    pub(super) fn code_bytes(&self) -> usize {
+        if self.two_byte { 2 } else { 1 }
+    }
+
+    pub(super) fn glyph_advance(&self, glyph: &[u8], state: &super::state::State<'_>) -> f32 {
+        let code = glyph
+            .iter()
+            .fold(0, |code, byte| code * 256 + u32::from(*byte));
+        let word = if !self.two_byte && code == 32 {
+            state.word_space
+        } else {
+            0.0
+        };
+        (self.of(code) / 1000.0 * state.size + state.char_space + word) * state.scale
     }
 }
 

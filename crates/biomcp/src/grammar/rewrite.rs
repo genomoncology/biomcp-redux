@@ -106,10 +106,10 @@ pub(crate) fn query_value(request: &Request) -> Result<Value, serde_json::Error>
     let mut value = checked_value(request)?;
     match request.rewrite() {
         Rewrite::Direct => {
-            if let Request::GetDisease(query) = request
-                && query.default_source() == Some(query.source())
-                && let Some(fields) = value.as_object_mut()
-            {
+            // A ranked drug page must spell its continuation with the source still implicit.
+            let infer_source = matches!(request, Request::SearchDrug(query) if query.ranks_default_names())
+                || matches!(request, Request::GetDisease(query) if query.default_source() == Some(query.source()));
+            if infer_source && let Some(fields) = value.as_object_mut() {
                 fields.remove("source");
             }
         }

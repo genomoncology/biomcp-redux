@@ -1,5 +1,7 @@
 //! Features diagnostic-cdx and disease-orphadata: a live first read fetches a missing small list;
 //! an offline one never fetches.
+mod ema;
+
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -8,7 +10,7 @@ use std::fs;
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         super::transcript::trial("diagnostic-cdx/first-read-fetches-the-list", || {
             companion().map_err(Into::into)
         }),
@@ -28,7 +30,9 @@ pub(super) fn trials() -> Vec<Trial> {
         super::transcript::trial("disease-orphadata/first-read-fetches-the-files", || {
             prevalence().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(ema::trials());
+    trials
 }
 
 /// The synthetic publisher bodies from one replay folder, by URL path.
@@ -47,11 +51,8 @@ fn bodies(capture: &str) -> Result<Vec<(String, String)>, String> {
             .pointer("/exchanges/0/body/value")
             .and_then(Value::as_str)
             .ok_or("capture body")?;
-        let path = url
-            .split_once(".com")
-            .or_else(|| url.split_once(".gov"))
-            .ok_or("capture host")?;
-        found.push((path.1.to_owned(), body.to_owned()));
+        let url = url::Url::parse(url).map_err(|error| error.to_string())?;
+        found.push((url.path().to_owned(), body.to_owned()));
     }
     Ok(found)
 }
@@ -150,6 +151,9 @@ fn backoff() -> Check {
     }
     for reply in replies {
         check_failure(&reply, "size limit", &format!("{size} bytes"))?;
+        if reply.pointer("/sources/0/state") != Some(&json!("syncing")) {
+            return Err(format!("over-limit first fetch is not syncing: {reply}"));
+        }
     }
     Ok(())
 }

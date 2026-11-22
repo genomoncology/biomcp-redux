@@ -5,7 +5,6 @@ pub(super) use crate::mapped::text;
 use biodata::{DrugIdentityLevel, DrugIdentityRelation};
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::{DrugCard, DrugHeader, DrugPage, DrugSource};
-
 pub(super) fn components(
     hit: Hit,
     leg: &Leg<'_>,
@@ -70,6 +69,7 @@ pub(super) fn page(
     page: Page,
     leg: &Leg<'_>,
     query: &str,
+    matching: super::names::NameMatch,
 ) -> Result<(crate::Mapped<DrugPage>, Vec<bool>), BadReply> {
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Mychem,
@@ -93,7 +93,7 @@ pub(super) fn page(
         let (id, _, rows) = components(hit, leg, &mut problems);
         let rows = super::names::speaking(rows);
         let mut item = header(&id, &rows)?;
-        item.matched_name = super::names::matching(&rows, query);
+        item.matched_name = matching(&rows, query);
         items.push(item);
         drug.push(super::names::has_drug_rows(&rows));
     }
@@ -179,25 +179,7 @@ pub(super) fn card(
 }
 
 pub(super) fn aliases_for(c: &Component) -> Vec<String> {
-    let mut aliases = Vec::new();
-    aliases.extend(
-        c.synonyms
-            .as_ref()
-            .map(strings)
-            .unwrap_or_default()
-            .into_iter()
-            .flat_map(super::names::split)
-            .map(str::to_owned),
-    );
-    aliases.extend(
-        c.molecule_synonyms
-            .as_ref()
-            .into_iter()
-            .flatten()
-            .filter_map(|s| s.molecule_synonym.as_deref())
-            .flat_map(super::names::split)
-            .map(str::to_owned),
-    );
+    let mut aliases = super::names::synonyms(c).collect::<Vec<_>>();
     for values in [&c.generic_name, &c.brand_name] {
         aliases.extend(
             values

@@ -1,6 +1,7 @@
 # 1108 — rank-exact-drug-names-ahead-of-incidental-matches
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7ba17e2dc4dd2f25664d4ee128c6184d1afabcbc
 
 Milestone: 7
 

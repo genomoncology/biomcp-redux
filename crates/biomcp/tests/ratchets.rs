@@ -7,6 +7,8 @@ mod dependency_sources;
 mod errors;
 #[path = "runner/features.rs"]
 mod feature_contract;
+#[path = "ratchets/label_section_placement.rs"]
+mod label_section_placement;
 #[path = "ratchets/lints.rs"]
 mod lints;
 #[path = "ratchets/module_shape.rs"]

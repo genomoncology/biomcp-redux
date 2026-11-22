@@ -7,6 +7,7 @@ mod command_words;
 pub(crate) use command_words::canonical as canonical_command;
 pub(crate) use command_words::cli as command_arguments;
 mod decode;
+mod disease;
 mod entry;
 mod process_arguments;
 pub(crate) mod rewrite;
@@ -236,7 +237,8 @@ pub(crate) fn root() -> Result<Root, ParseInvalid> {
                     .default_value(Bundle::HGNC.name())
                     .value_parser(clap::builder::PossibleValuesParser::new(bundle_names())),
             )
-            .arg(local::sync_file_arg()),
+            .arg(local::sync_file_arg())
+            .arg(local::sync_xrefs_arg()),
     );
     root = root.subcommands(local::housekeeping_commands());
     root = root.subcommand(Command::new("health").after_help("Example: biomcp health --offline"));
@@ -275,8 +277,8 @@ pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
     pub(crate) usage: Option<biomcp_types::UsageError>,
     pub(crate) prefer_argument_error: bool,
-    /// The refusal's only correction is the same call without an unknown option, which may
-    /// widen it; a caller that must not widen a query skips it.
+    /// The correction drops an option or replaces an explicitly requested source.
+    /// Callers that must keep the original request skip it.
     pub(crate) dropped: bool,
 }
 pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
@@ -528,6 +530,13 @@ fn request(
         Ok(request) => words::unknown(verb, entity, &value, explicit).map_or(Ok(request), Err),
         Err(cause) => Err(sections::fix(verb, entity, &value)
             .or_else(|| words::unknown(verb, entity, &value, explicit))
+            .or_else(|| {
+                if (verb, entity) == ("get", "disease") {
+                    disease::unknown_source(command.via, &value, &cause, fields)
+                } else {
+                    None
+                }
+            })
             .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause, fields))
             .unwrap_or_else(|| errors::checked_invalid(command.via, verb, entity, &value, &cause))),
     }

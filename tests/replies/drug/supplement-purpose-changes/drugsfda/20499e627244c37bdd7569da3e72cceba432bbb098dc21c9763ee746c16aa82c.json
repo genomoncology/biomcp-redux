@@ -1,0 +1,77 @@
+{
+  "source": "drugsfda",
+  "method": "GET",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22BLA761118%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1793907755,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-19",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "application_number": "BLA761118",
+              "sponsor_name": "Example sponsor",
+              "submissions": [
+                {
+                  "submission_number": "7",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "submission_status_date": "20231004",
+                  "submission_class_code": "EFFICACY",
+                  "application_docs": [
+                    {
+                      "id": "75677",
+                      "type": "Letter",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/761118Orig1s007ltr.pdf"
+                    }
+                  ]
+                },
+                {
+                  "submission_number": "8",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "submission_status_date": "20231004",
+                  "submission_class_code": "EFFICACY",
+                  "application_docs": [
+                    {
+                      "id": "75678",
+                      "type": "Letter",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/761118Orig1s008ltr.pdf"
+                    }
+                  ]
+                },
+                {
+                  "submission_number": "9",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "submission_status_date": "20231004",
+                  "submission_class_code": "EFFICACY",
+                  "application_docs": [
+                    {
+                      "id": "75679",
+                      "type": "Letter",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/761118Orig1s009ltr.pdf"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

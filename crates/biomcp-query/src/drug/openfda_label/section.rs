@@ -5,9 +5,12 @@ use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::{DrugGet, ReplyBody, Section, SourceStatus};
 use biomcp_types::{DrugLabel, DrugLabelText, Request, StepKind};
+use source::SubsectionPage;
 
 /// An omitted fragment limit keeps the default page size; the text budget may stop it sooner.
-const DEFAULT_FRAGMENT_LIMIT: u32 = 50;
+fn fragment_limit(query: &DrugGet) -> u32 {
+    query.section_limit().unwrap_or(50)
+}
 /// An identity card with one next call per label heading the record carries.
 fn card(
     cx: &Ctx<'_>,
@@ -59,18 +62,98 @@ pub(super) fn select(
         out.body = section_names(query, record, recent_major_changes)?;
         return Ok(());
     };
+    let (field, subsection) = asked
+        .split_once(':')
+        .map_or((asked, None), |(field, subsection)| {
+            (field.trim(), Some(subsection.trim()))
+        });
     // A name openFDA does not use is absent from this label like a field the label lacks.
     let Some(heading) =
-        biomcp_types::openfda_label_field(asked).filter(|heading| record.has_heading(heading))
+        biomcp_types::openfda_label_field(field).filter(|heading| record.has_heading(heading))
     else {
-        out.body = absent_heading(query, record, asked, recent_major_changes)?;
+        out.body = absent_heading(query, record, field, recent_major_changes)?;
         return Ok(());
     };
     let offset = query.section_offset().unwrap_or(0);
-    let limit = query.section_limit().unwrap_or(DEFAULT_FRAGMENT_LIMIT);
-    let label = match record.label(heading, offset, limit, cx.label_bytes)? {
+    let limit = fragment_limit(query);
+    let identity = record.header()?;
+    let (data, subsection_hint) = if let Some(asked) = subsection {
+        subsection_text(record, query, heading, asked, cx.label_bytes, &identity)?
+    } else {
+        (record.label(heading, offset, limit, cx.label_bytes)?, None)
+    };
+    let label = section_page(query, cx.fresh, fetched, data, out);
+    let hint = if let Some(message) = subsection_hint {
+        Some(
+            message
+                .parse()
+                .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
+        )
+    } else {
+        no_room(&label)?.or(printed_name(field, heading)?)
+    };
+    out.body = (DrugLabel {
+        identity,
+        recent_major_changes,
+        hint,
+        label,
+        sections: Box::default(),
+    })
+    .with_query(query.clone());
+    Ok(())
+}
+
+fn subsection_text(
+    record: &source::Record,
+    query: &DrugGet,
+    heading: &str,
+    asked: &str,
+    budget: usize,
+    identity: &biomcp_types::DrugHeader,
+) -> Result<(Option<DrugLabelText>, Option<String>), RequestError> {
+    let offset = query.section_offset().unwrap_or(0);
+    let limit = fragment_limit(query);
+    let result = record.label_subsection(heading, asked, offset, limit, budget)?;
+    Ok(match result {
+        SubsectionPage::Data(data) => (Some(*data), None),
+        SubsectionPage::Missing => (
+            None,
+            Some(format!(
+                "{} has no subsection {asked:?} in {heading}",
+                label_name(identity)
+            )),
+        ),
+        SubsectionPage::Ambiguous(matches) => {
+            let shown = matches
+                .iter()
+                .take(2)
+                .map(String::as_str)
+                .collect::<Vec<_>>()
+                .join(", ");
+            let more = if matches.len() > 2 { " and others" } else { "" };
+            (
+                None,
+                Some(format!(
+                    "In {}, subsection {asked:?} is ambiguous in {heading}: {shown}{more}",
+                    label_name(identity)
+                )),
+            )
+        }
+    })
+}
+
+/// Retain source fragment offsets and keep the original selector in the continuation.
+fn section_page(
+    query: &DrugGet,
+    fresh: bool,
+    fetched: Option<i64>,
+    data: Option<DrugLabelText>,
+    out: &mut Outcome,
+) -> Section<DrugLabelText> {
+    match data {
         Some(mut data) => {
             data.retrieved = received_date(fetched);
+            let offset = data.offset;
             let returned = data.fragments.len() as u32;
             let total = data.total.unwrap_or(0);
             out.page = Some(crate::status::page_info(offset, returned, total));
@@ -87,7 +170,7 @@ pub(super) fn select(
                     StepKind::Page,
                     &[biomcp_types::Source::OpenfdaLabel],
                     Request::GetDrug(request),
-                    cx.fresh,
+                    fresh,
                 ));
             }
             Section::Data {
@@ -99,16 +182,7 @@ pub(super) fn select(
             source: SOURCE,
             record: None,
         },
-    };
-    out.body = (DrugLabel {
-        identity: record.header()?,
-        recent_major_changes,
-        hint: no_room(&label)?.or(printed_name(asked, heading)?),
-        label,
-        sections: Box::default(),
-    })
-    .with_query(query.clone());
-    Ok(())
+    }
 }
 
 /// Search the whole section and cite the result without sending its full text.
