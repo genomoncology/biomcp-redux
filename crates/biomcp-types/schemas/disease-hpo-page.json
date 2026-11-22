@@ -39,8 +39,8 @@
       "description": "Search by text, SEER site name, or HPO annotations.",
       "properties": {
         "hpo_release": {
-          "description": "HPO release tag (vYYYY-MM-DD), required with --phenotype.",
-          "pattern": "^v[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "HPO tag (vYYYY-MM-DD) or latest. Example: --hpo-release latest.",
+          "pattern": "^(latest|v[0-9]{4}-[0-9]{2}-[0-9]{2})$",
           "type": [
             "string",
             "null"
@@ -67,7 +67,7 @@
           "description": "OLS ontology, default MONDO."
         },
         "phenotype": {
-          "description": "Each HPO ID or a descendant must have a positive annotation.",
+          "description": "Each HPO ID or a descendant must have a positive annotation.\n\nExample: biomcp search disease --source hpo --phenotype HP:0001083.",
           "items": {
             "$ref": "#/$defs/Reply_HpId"
           },

@@ -3,23 +3,27 @@ use biodata::{Curie, HpId, Text};
 use biomcp_fetch::{
     BadReply, Bytes, Destinations, Freshness, Input, Leg, Read, RequestError, SourceSpec,
 };
-use biomcp_types::{HpoDiseaseMatch, HpoGeneLink, Reason, Source};
+use biomcp_types::{DiseaseSearch, HpoDiseaseMatch, HpoGeneLink, Reason, Source};
 use std::collections::{HashMap, HashSet};
 use std::time::Duration;
 
 use super::release_ontology as ontology;
 
-const RELEASES: &str = "/obophenotype/human-phenotype-ontology/releases/download";
+const GITHUB_API: &str = "https://api.github.com";
+const REPOSITORY: &str = "/obophenotype/human-phenotype-ontology";
 const GENE_HEADER: &str = "ncbi_gene_id\tgene_symbol\tassociation_type\tdisease_id\tsource";
 const ANNOTATION_HEADER: &str = concat!(
     "database_id\tdisease_name\tqualifier\thpo_id\treference\tevidence",
     "\tonset\tfrequency\tsex\tmodifier\taspect\tbiocuration"
 );
 
-/// Transport policy for the HPO project's pinned GitHub release assets.
+/// Transport policy for the HPO project's GitHub release metadata and assets.
 pub static SPEC: SourceSpec = SourceSpec {
     base: "https://github.com",
-    destinations: Destinations::Additional(&["https://release-assets.githubusercontent.com"]),
+    destinations: Destinations::Additional(&[
+        GITHUB_API,
+        "https://release-assets.githubusercontent.com",
+    ]),
     deadline: Duration::from_secs(60),
     command_budget: Some(Duration::from_secs(60)),
     source: Source::Hpo,
@@ -28,6 +32,29 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: super::SPEC.quota,
     user_agent: super::SPEC.user_agent,
 };
+
+#[derive(serde::Deserialize)]
+struct PublishedRelease {
+    tag_name: Box<str>,
+}
+
+/// Resolve the publisher's current release and pin it for subsequent reads.
+pub fn latest(leg: &Leg<'_>, query: &DiseaseSearch) -> Result<DiseaseSearch, RequestError> {
+    let endpoint = SPEC
+        .download(&format!("{GITHUB_API}/repos{REPOSITORY}/releases/latest"))?
+        .bytes(128 << 10);
+    let pin = |tag| query.clone().with_hpo_release(tag);
+    let release = leg.call(
+        &endpoint,
+        Input::Params(&[]),
+        Read::<PublishedRelease>::json()
+            .check(&|value| pin(value.tag_name.clone()).map(|_| ()).ok_or(BadReply)),
+    )?;
+    pin(release.value.tag_name).ok_or_else(|| biomcp_fetch::bad_reply(Source::Hpo, None))
+}
+
+/// Evidence code excluded from the publisher's annotation file.
+pub const EXCLUDED_EVIDENCE: &str = "IEA";
 
 /// One slice of the complete intersection.
 #[derive(Debug)]
@@ -43,7 +70,7 @@ pub struct Matches {
 /// Match current HPO terms (including alternate IDs) against positive release annotations.
 pub fn search(
     leg: &Leg<'_>,
-    query: &biomcp_types::DiseaseSearch,
+    query: &DiseaseSearch,
     tag: &str,
     requested: &[HpId],
 ) -> Result<Matches, RequestError> {
@@ -95,7 +122,7 @@ fn read(
     max_mib: u64,
     accept: &dyn Fn(&str) -> bool,
 ) -> Result<String, RequestError> {
-    let url = format!("{}{RELEASES}/{tag}/{file}", SPEC.base);
+    let url = format!("{}{REPOSITORY}/releases/download/{tag}/{file}", SPEC.base);
     let endpoint = SPEC
         .download(&url)?
         .bytes(max_mib << 20)
@@ -108,7 +135,9 @@ fn read(
         // The HPO annotation documentation requires separate permission for IEA rows.
         Ok(body
             .split_inclusive('\n')
-            .filter(|line| line.starts_with('#') || line.split('\t').nth(5) != Some("IEA"))
+            .filter(|line| {
+                line.starts_with('#') || line.split('\t').nth(5) != Some(EXCLUDED_EVIDENCE)
+            })
             .flat_map(str::bytes)
             .collect())
     };

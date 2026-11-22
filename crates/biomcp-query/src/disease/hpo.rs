@@ -2,7 +2,8 @@
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::hpo::release;
 use biomcp_types::{
-    DiseaseSearch, HpoDiseasePage, Paged, ReplyBody, Request, Source, SourceNotice, StepKind,
+    DiseaseSearch, HpoDiseasePage, Paged, Reason, ReplyBody, Request, Source, SourceNotice,
+    StepKind,
 };
 
 pub(super) fn search(
@@ -14,16 +15,24 @@ pub(super) fn search(
     let command = cx.fetch.source_command_deadline(&release::SPEC, cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&release::SPEC, deadline).fresh(cx.fresh);
-    let answer = release::search(&leg, query, tag, terms);
-    let report = leg.finish();
-    let page = HpoDiseasePage {
-        release: tag.into(),
-        items: Box::default(),
+    let resolved = if tag == "latest" {
+        release::latest(&leg, query)
+    } else {
+        Ok(query.clone())
     };
-    let mut out = status::empty(page.with_query(query.clone()));
-    let (mut source, error) = match answer {
-        Ok(result) => {
-            let mut source = status::source(Source::Hpo, report, None);
+    let pinned = resolved.as_ref().map_err(|error| *error).and_then(|query| {
+        query
+            .hpo()
+            .map(|(tag, _)| (query, tag))
+            .ok_or_else(|| biomcp_fetch::bad_reply(Source::Hpo, None))
+    });
+    let answer = pinned.and_then(|(query, tag)| {
+        release::search(&leg, query, tag, terms).map(|result| (query, tag, result))
+    });
+    let mut source = status::source(Source::Hpo, leg.finish(), answer.as_ref().err().copied());
+    let mut out = status::empty(HpoDiseasePage::into_reply(query.clone(), None));
+    match answer {
+        Ok((pinned, tag, result)) => {
             if !result.unknown.is_empty() {
                 let terms = result
                     .unknown
@@ -35,41 +44,52 @@ pub(super) fn search(
                     terms.join(", ")
                 )));
             }
-            apply(&mut out, query, result);
-            (source, None)
+            let evidence = release::EXCLUDED_EVIDENCE;
+            source.notices.push(notice(format!(
+                "This product uses Human Phenotype Ontology release {tag}. \
+                 {evidence} annotations (inferred from electronic annotation) are excluded."
+            )));
+            apply(&mut out, query, pinned, tag, result);
         }
-        Err(error) => (
-            status::source(Source::Hpo, report, Some(error)),
-            status::local(error),
-        ),
-    };
-    source.notices.push(notice(format!(
-        "This product uses Human Phenotype Ontology release {tag}. Annotations requiring separate OMIM permission are excluded."
-    )));
+        Err(error) => {
+            if source.reason == Some(Reason::NotFound)
+                && let Ok((_, tag)) = pinned
+            {
+                source.notices.push(notice(format!(
+                    "HPO release {tag} or a required release file was not found."
+                )));
+            }
+            out.local = status::local(error);
+        }
+    }
     out.sources.push(source);
-    out.local = error;
     status::search(&mut out);
     command.finish(deadline.remaining());
     out
 }
 
-fn apply(out: &mut Outcome, query: &DiseaseSearch, result: release::Matches) {
+fn apply(
+    out: &mut Outcome,
+    query: &DiseaseSearch,
+    pinned: &DiseaseSearch,
+    tag: &str,
+    result: release::Matches,
+) {
     let returned = result.items.len() as u32;
     let offset = query.offset().saturating_add(returned);
     if returned > 0 && u64::from(offset) < result.total {
         out.next.push(crate::next::Step::new(
             StepKind::Page,
             &[Source::Hpo],
-            super::page::run(Request::SearchDisease(query.at_offset(offset))),
+            super::page::run(Request::SearchDisease(pinned.at_offset(offset))),
         ));
     }
     out.page = Some(status::page_info(query.offset(), returned, result.total));
-    if let biomcp_types::ReplyData::HpoDiseasePage {
-        body: Some(body), ..
-    } = &mut out.body
-    {
-        body.items = result.items;
+    out.body = HpoDiseasePage {
+        release: tag.into(),
+        items: result.items,
     }
+    .with_query(query.clone());
 }
 
 fn notice(message: String) -> SourceNotice {

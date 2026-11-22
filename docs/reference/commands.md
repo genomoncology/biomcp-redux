@@ -1364,7 +1364,7 @@ Options:
           [possible values: json, md]
 
       --hpo-release <hpo_release>
-          HPO release tag (vYYYY-MM-DD), required with --phenotype.
+          HPO tag (vYYYY-MM-DD) or latest. Example: --hpo-release latest.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -1387,6 +1387,8 @@ Options:
 
       --phenotype <phenotype>
           Each HPO ID or a descendant must have a positive annotation.
+
+          Example: biomcp search disease --source hpo --phenotype HP:0001083.
 
       --source <source>
           HPO for --phenotype, OLS by default, SEER for sites; help search disease
@@ -1411,11 +1413,13 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
-- `--hpo-release`: HPO release tag (vYYYY-MM-DD), required with --phenotype. Value form: string; example: --hpo-release v2099-01-01.
+- `--hpo-release`: HPO tag (vYYYY-MM-DD) or latest. Value form: string; example: --hpo-release latest.
 - `--limit`: Rows per page. Value form: integer; example: --limit 1.
 - `--offset`: Row offset. Value form: integer; example: --offset 1.
 - `--ontology`: OLS ontology, default MONDO. Value form: string; example: --ontology mondo.
-- `--phenotype`: Each HPO ID or a descendant must have a positive annotation. Value form: repeatable values (repeat the flag); example: --phenotype HP:0001083.
+- `--phenotype`: Each HPO ID or a descendant must have a positive annotation.
+
+Value form: repeatable values (repeat the flag); example: biomcp search disease --source hpo --phenotype HP:0001083.
 - `--source`: HPO for --phenotype, OLS by default, SEER for sites. Value form: string; example: --source seer.
 - `text`: Search text or optional SEER site name.
 Form: search disease TEXT; not --text.

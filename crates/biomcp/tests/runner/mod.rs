@@ -70,6 +70,7 @@ mod hosted_cancel;
 mod hosted_deadline;
 mod hosted_pacing;
 mod housekeeping;
+mod hpo_release;
 mod http;
 mod http_capacity;
 mod http_limits;
@@ -372,6 +373,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.push(protein_commands::refused_pool_trial());
     trials.extend(orphadata_sync::trials());
     trials.extend(disease_next::trials());
+    trials.push(hpo_release::trial());
     trials.extend(first_read::trials());
     trials.extend(source_text::trials());
     trials.extend(offset_walks::trials());

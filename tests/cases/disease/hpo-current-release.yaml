@@ -31,7 +31,7 @@ steps:
     expect:
       /status: failed
       /sources/0/reason: not-found
-      /sources/0/notices/0/message: "HPO release v2099-03-01 was not found."
+      /sources/0/notices/0/message: "HPO release v2099-03-01 or a required release file was not found."
       "": {omits: [result]}
 config:
   mcp_tool_mode: typed
