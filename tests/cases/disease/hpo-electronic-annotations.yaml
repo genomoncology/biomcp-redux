@@ -1,0 +1,28 @@
+feature: disease-hpo-release
+story: HPO disease searches return a disease supported only by electronic annotations and name their origin.
+replay: disease/hpo-release
+config:
+  mcp_tool_mode: typed
+steps:
+  - run: [disease, search, --source, hpo, --hpo-release, v2099-01-01, --phenotype, "HP:0001083", --phenotype, "HP:0000098", --phenotype, "HP:0001634"]
+    expect:
+      /status: complete
+      /page/total: 3
+      /result/items/1/id: "OMIM:900007"
+      /sources/0/notices/0/message: >-
+        This product uses Human Phenotype Ontology release v2099-01-01.
+        HPO marks IEA annotations as derived from OMIM's clinical features.
+  - mcp_call:
+      name: disease
+      arguments:
+        action: search
+        search:
+          source: hpo
+          hpo_release: v2099-01-01
+          phenotype: ["HP:0001083", "HP:0000098", "HP:0001634"]
+          limit: 1
+          offset: 1
+    expect:
+      /status: complete
+      /page/total: 3
+      /result/items/0/id: "OMIM:900007"

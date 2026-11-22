@@ -20,6 +20,7 @@ pub struct Read<'a, T> {
     xml_media: Option<fn(&str) -> bool>,
     normalize_body: Option<BodyNormalizer>,
     filter_body: Option<&'a BodyFilter<'a>>,
+    pub(crate) cache_revision: Option<&'static str>,
     pub(crate) limit: Option<u64>,
     pub(crate) overflow_reason: biomcp_types::Reason,
     pub(crate) json_rejections: bool,
@@ -61,6 +62,11 @@ impl<'a, T: Reply> Read<'a, T> {
             || Ok(Cow::Borrowed(body)),
             |filter| filter(body).map(Cow::Owned),
         )
+    }
+    /// Give a changed stored representation a fresh cache identity while keeping the wire request and replay identity.
+    pub fn cache_revision(mut self, revision: &'static str) -> Self {
+        self.cache_revision = Some(revision);
+        self
     }
     /// Check request-bound identity before cache admission and every reuse.
     pub fn check(mut self, check: &'a ReplyCheck<'a, T>) -> Self {
@@ -122,6 +128,7 @@ impl<'a, T: Reply> Read<'a, T> {
             xml_media: None,
             normalize_body: None,
             filter_body: None,
+            cache_revision: None,
             validate: None,
             check: None,
             cache_if: None,
@@ -155,6 +162,7 @@ impl<'a, T: Reply> Read<'a, T> {
             xml_media: Some(T::accepts_media),
             normalize_body: Some(T::normalize_body),
             filter_body: None,
+            cache_revision: None,
             validate: None,
             check: None,
             cache_if: None,
@@ -228,6 +236,7 @@ impl Read<'_, Probe> {
             xml_media: None,
             normalize_body: None,
             filter_body: None,
+            cache_revision: None,
             validate: None,
             check: None,
             cache_if: None,
@@ -265,6 +274,7 @@ impl<'a> Read<'a, Bytes> {
             xml_media: None,
             normalize_body: None,
             filter_body: None,
+            cache_revision: None,
             validate: None,
             check: None,
             cache_if: None,

@@ -1,6 +1,6 @@
 //! Feature disease-mydisease: every step a refused disease read offers runs, for each ID namespace in
 //! its printed and lowercase spelling, with and without each section.
-//! Feature disease-hpo-release: a continuation survives a publisher release change.
+//! Feature disease-hpo-release: pages stay pinned and an old filtered cache is refreshed.
 use super::launch::{self, Environment};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -34,6 +34,9 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         super::transcript::trial("disease-hpo-release/current-release-advances", || {
             hpo_release_advances().map_err(Into::into)
+        }),
+        super::transcript::trial("disease-hpo-release/refreshes-filtered-cache", || {
+            refreshes_filtered_cache().map_err(Into::into)
         }),
     ]
 }
@@ -176,5 +179,63 @@ fn hpo_release_advances() -> Result<(), String> {
             "continuation changed release when the publisher updated it: {next}"
         ));
     }
+    Ok(())
+}
+
+fn refreshes_filtered_cache() -> Result<(), String> {
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let replay = env.root().join("replay");
+    super::response_cases::cache_capture(
+        "disease/hpo-release",
+        &replay,
+        super::response_cases::CACHE_ACQUIRED,
+    )?;
+    let args = [
+        "disease",
+        "search",
+        "--hpo-release",
+        "v2099-01-01",
+        "--phenotype",
+        "HP:0001083,HP:0000098,HP:0001634",
+    ]
+    .map(str::to_owned);
+    let globals = env.globals(Some(&replay), false);
+    let (code, first) = cli(&env, &args, &globals)?;
+    if code != Some(0) {
+        return Err(format!("could not populate the HPO store: {first}"));
+    }
+    restore_filtered_annotation(&env).map_err(|error| error.to_string())?;
+    let (code, refreshed) = cli(&env, &args, &globals)?;
+    if code != Some(0) || refreshed.pointer("/result/items/1/id") != Some(&json!("OMIM:900007")) {
+        return Err(format!(
+            "did not refresh the old filtered annotation: {refreshed}"
+        ));
+    }
+    let (code, offline) = cli(&env, &args, &env.globals(None, true))?;
+    if code != Some(0) || offline.get("result") != refreshed.get("result") {
+        return Err(format!(
+            "the refreshed HPO file was not reusable offline: {offline}"
+        ));
+    }
+    Ok(())
+}
+
+fn restore_filtered_annotation(env: &Environment) -> Result<(), Box<dyn std::error::Error>> {
+    use sha2::{Digest, Sha256};
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))?;
+    let (url, body): (String, Vec<u8>) = db.query_row(
+        "SELECT url, body FROM reply WHERE source='hpo' AND url LIKE '%/phenotype.hpoa'",
+        [],
+        |row| Ok((row.get(0)?, row.get(1)?)),
+    )?;
+    let filtered: String = std::str::from_utf8(&body)?
+        .split_inclusive('\n')
+        .filter(|line| line.split('\t').nth(5) != Some("IEA"))
+        .collect();
+    let legacy_key = Sha256::digest(format!("GET\0{url}").as_bytes()).to_vec();
+    db.execute(
+        "UPDATE reply SET key=?1,body=?2 WHERE url=?3",
+        rusqlite::params![legacy_key, filtered.as_bytes(), url],
+    )?;
     Ok(())
 }
