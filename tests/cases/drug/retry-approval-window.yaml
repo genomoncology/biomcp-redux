@@ -1,6 +1,6 @@
 {
   "feature": "drug-approvals",
-  "story": "A date window on label history leads to approvals within those dates, with the chosen approval field.",
+  "story": "A date window on label history leads to approvals within those dates and keeps the chosen submission fields.",
   "live_check": "Replay only",
   "replay": "drug/approval-window-retry",
   "steps": [
@@ -17,12 +17,12 @@
         "--decision-to",
         "2022-02-01",
         "--fields",
-        "submission_number"
+        "submission_number,supplement_purpose"
       ],
       "is_error": true,
       "expect": {
         "/status": "usage",
-        "/next/0/args/0": "--fields=submission_number"
+        "/next/0/args/0": "--fields=submission_number,supplement_purpose"
       },
       "exit": 2
     },
@@ -57,7 +57,8 @@
             "decision_to": "2022-02-01"
           },
           "fields": [
-            "submission_number"
+            "submission_number",
+            "supplement_purpose"
           ]
         }
       },
@@ -65,7 +66,8 @@
       "expect": {
         "/status": "usage",
         "/next/0/arguments/fields": [
-          "submission_number"
+          "submission_number",
+          "supplement_purpose"
         ],
         "/next/0/arguments/get/section": [
           "approvals"
@@ -106,7 +108,8 @@
             "decision_to": "2022-02-01"
           },
           "fields": [
-            "submission_number"
+            "submission_number",
+            "supplement_purpose"
           ]
         }
       },
@@ -114,7 +117,8 @@
       "expect": {
         "/status": "usage",
         "/next/0/arguments/fields": [
-          "submission_number"
+          "submission_number",
+          "supplement_purpose"
         ],
         "/next/0/arguments/get/section": [
           "approvals"
