@@ -43,6 +43,14 @@ pub(super) fn aggregate(
                 continue;
             };
             let review = problems.text("review_status", group.value(&["ReviewStatus"])?.as_deref());
+            let mut row_conditions = conditions.clone();
+            if let Some(list) = group.child("ConditionList")? {
+                for condition in super::detail::conditions(list, problems)? {
+                    if !row_conditions.contains(&condition) {
+                        row_conditions.push(condition);
+                    }
+                }
+            }
             let detail = AssertionDetail {
                 impact_therapies: problems.text(
                     "impact_therapies",
@@ -58,11 +66,8 @@ pub(super) fn aggregate(
                         .attr("ClinicalImpactClinicalSignificance")?
                         .as_deref(),
                 ),
-                conditions: if let Some(list) = group.child("ConditionList")? {
-                    super::detail::conditions(list, problems)?.into()
-                } else {
-                    conditions.clone().into()
-                },
+                conditions_missing: kind == AssertionKind::Rcv && row_conditions.is_empty(),
+                conditions: row_conditions.into(),
                 ..Default::default()
             };
             rows.push(crate::assertion::row(
