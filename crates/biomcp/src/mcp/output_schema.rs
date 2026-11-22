@@ -15,7 +15,7 @@ fn envelope(ids: BTreeSet<String>) -> io::Result<Value> {
     Ok(envelope)
 }
 
-pub(super) fn replies(root: &crate::grammar::Root, name: &str) -> io::Result<BTreeSet<String>> {
+fn replies(root: &crate::grammar::Root, name: &str) -> io::Result<BTreeSet<String>> {
     let mut ids = crate::help::commands(root)?
         .into_iter()
         .filter(|command| match name {
@@ -66,7 +66,7 @@ fn resolve<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
         Some(node)
     }
 }
-fn shape(root: &Value) -> io::Result<Value> {
+pub(super) fn shape(root: &Value) -> io::Result<Value> {
     let properties = root
         .get("properties")
         .and_then(Value::as_object)

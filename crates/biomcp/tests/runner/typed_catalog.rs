@@ -349,7 +349,7 @@ pub(super) fn budgets(
         ),
         (
             json!({"mcp_tool_mode":"typed","mcp_typed_output_schema":true,"mcp_typed_definition_bytes":bytes}),
-            Some("mcp_typed_definition_bytes"),
+            None,
         ),
     ] {
         env.config(&config).map_err(|error| error.to_string())?;

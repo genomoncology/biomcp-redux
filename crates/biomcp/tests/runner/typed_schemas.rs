@@ -15,6 +15,14 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     let views = crate::runner::protocol::typed_catalog::commands(&tools);
     let mut failures = Vec::new();
     top_level(&tools, &mut failures);
+    let bytes = serde_json::to_vec(&tools)
+        .map_err(|error| error.to_string())?
+        .len();
+    if bytes >= 200_000 {
+        return Err(format!(
+            "the default typed catalog uses {bytes} bytes, budget is under 200,000"
+        ));
+    }
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
         let tool = views
@@ -94,7 +102,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     super::typed_catalog::budgets(env, &tools)?;
     settings(env, &tools)
 }
-/// The entity tools themselves: one-line descriptions and no default output schema.
+/// The typed tools themselves: one-line descriptions and compact default output schemas.
 fn top_level(tools: &[Value], failures: &mut Vec<String>) {
     for tool in tools {
         let name = field(tool, "name");
@@ -109,9 +117,63 @@ fn top_level(tools: &[Value], failures: &mut Vec<String>) {
                 "{name}: full schema prose leaked into tool summary"
             ));
         }
-        if tool.get("outputSchema").is_some() {
-            failures.push(format!("{name}: outputSchema must default off"));
+        if let Err(error) = compact_output(tool) {
+            failures.push(format!("{name}: {error}"));
         }
+    }
+}
+fn compact_output(tool: &Value) -> Result<(), String> {
+    let schema = tool
+        .get("outputSchema")
+        .ok_or("missing default output schema")?;
+    if nested_description(schema, false)
+        || has_keyword(schema, "$defs")
+        || has_keyword(schema, "enum")
+    {
+        return Err("output schema contains definitions, descriptions or enums".into());
+    }
+    let variants = schema
+        .pointer("/anyOf/0/anyOf")
+        .and_then(Value::as_array)
+        .ok_or("output schema lacks reply variants")?;
+    if variants.is_empty() || schema.pointer("/anyOf/1/properties").is_none() {
+        return Err("output schema lacks success or error replies".into());
+    }
+    for variant in variants {
+        if variant
+            .pointer("/properties/schema/const")
+            .and_then(Value::as_str)
+            .is_none()
+        {
+            return Err("reply variant lacks its canonical schema id".into());
+        }
+        let result = variant
+            .pointer("/properties/result/properties")
+            .and_then(Value::as_object)
+            .filter(|fields| !fields.is_empty())
+            .ok_or("reply variant lacks result fields")?;
+        for field in result.values() {
+            if has_keyword(field, "properties")
+                && (field.get("properties").is_some()
+                    || field
+                        .pointer("/items/properties")
+                        .and_then(Value::as_object)
+                        .is_none_or(|row| row.values().any(|cell| has_keyword(cell, "properties"))))
+            {
+                return Err("result fields contain schemas below the row level".into());
+            }
+        }
+    }
+    Ok(())
+}
+
+fn has_keyword(schema: &Value, key: &str) -> bool {
+    match schema {
+        Value::Object(fields) => {
+            fields.contains_key(key) || fields.values().any(|value| has_keyword(value, key))
+        }
+        Value::Array(values) => values.iter().any(|value| has_keyword(value, key)),
+        _ => false,
     }
 }
 fn catalog(env: &Environment, config: Value) -> Result<Vec<Value>, String> {
@@ -254,57 +316,49 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
         json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,"mcp_typed_definition_bytes":200000}),
     )?;
     report(&enabled)?;
-    for tool in enabled {
-        for (name, id) in [
-            (
-                "disease",
-                <biomcp_types::DiseaseSites as biomcp_types::ResponseBody>::SCHEMA,
-            ),
-            (
-                "cell_line",
-                <biomcp_types::CellLinePage as biomcp_types::ResponseBody>::SCHEMA,
-            ),
-            (
-                "cell_line",
-                <biomcp_types::CellLineFilteredPage as biomcp_types::ResponseBody>::SCHEMA,
-            ),
-        ] {
-            if field(&tool, "name").as_str() == Some(name)
-                && !tool
-                    .pointer("/outputSchema/anyOf/0/properties/schema/enum")
-                    .and_then(Value::as_array)
-                    .is_some_and(|ids| ids.contains(&json!(id)))
-            {
-                return Err(format!("{name} output schema omits {id}"));
-            }
+    if enabled != default {
+        return Err("explicit output schemas differ from the default".into());
+    }
+    for (name, id) in [
+        (
+            "disease",
+            <biomcp_types::DiseaseSites as biomcp_types::ResponseBody>::SCHEMA,
+        ),
+        (
+            "cell_line",
+            <biomcp_types::CellLinePage as biomcp_types::ResponseBody>::SCHEMA,
+        ),
+        (
+            "cell_line",
+            <biomcp_types::CellLineFilteredPage as biomcp_types::ResponseBody>::SCHEMA,
+        ),
+    ] {
+        let schema = enabled
+            .iter()
+            .find(|tool| field(tool, "name") == name)
+            .and_then(|tool| tool.get("outputSchema"))
+            .ok_or("output schema missing")?;
+        if !super::super::schema_proof::reply_ids(schema).contains(id) {
+            return Err(format!("{name} output schema omits {id}"));
         }
-        if matches!(
-            field(&tool, "name").as_str(),
-            Some("help" | "biomcp" | "search" | "fetch")
+    }
+    let disabled = catalog(
+        env,
+        json!({"mcp_tool_mode":"typed","mcp_typed_output_schema":false}),
+    )?;
+    for (tool, disabled) in enabled.into_iter().zip(disabled) {
+        let mut expected = tool;
+        if !matches!(
+            field(&expected, "name").as_str(),
+            Some("biomcp" | "search" | "fetch")
         ) {
-            if !default.contains(&tool) {
-                return Err("shared help/research contract changed".into());
-            }
-            continue;
+            expected
+                .as_object_mut()
+                .ok_or("tool object")?
+                .remove("outputSchema");
         }
-        if tool
-            .pointer("/outputSchema/anyOf/0/properties/schema/enum")
-            .and_then(Value::as_array)
-            .is_none()
-            || tool.pointer("/outputSchema/anyOf/1/properties").is_none()
-        {
-            return Err(format!(
-                "{}: output schema not restored",
-                field(&tool, "name")
-            ));
-        }
-        let mut without = tool.clone();
-        without
-            .as_object_mut()
-            .ok_or("tool object")?
-            .remove("outputSchema");
-        if !default.contains(&without) {
-            return Err("output schema setting changed input catalog".into());
+        if expected != disabled {
+            return Err("explicit opt-out changed more than the typed output schemas".into());
         }
     }
     enum_settings(env, default)

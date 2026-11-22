@@ -74,21 +74,7 @@ pub(super) fn catalog(
         tools.push(super::saved::tool(output_schema)?);
     }
     tools.push(super::help::tool(output_schema)?);
-    let mut shared = super::super::protocol::tools(context.root, read_only)?;
-    if output_schema {
-        for tool in &mut shared {
-            let fields = tool
-                .as_object_mut()
-                .ok_or_else(|| io::Error::other("missing tool fields"))?;
-            let name = fields
-                .get("name")
-                .and_then(Value::as_str)
-                .ok_or_else(|| io::Error::other("missing tool name"))?;
-            let schema = super::super::output_shape::for_tool(context.root, name)?;
-            fields.insert("outputSchema".into(), schema);
-        }
-    }
-    tools.extend(shared);
+    tools.extend(super::super::protocol::tools(context.root, read_only)?);
     if discovery {
         check_budget(context.settings, &tools)?;
     }
