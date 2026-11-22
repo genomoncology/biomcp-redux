@@ -112,6 +112,7 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(pool_contracts::HTTP_CAPACITY.1);
     counts.runner(pool_contracts::HOSTED_MODE.1);
     counts.runner(pool_contracts::TYPED_TOOLS.1);
+    counts.runner(pool_contracts::TYPED_CATALOG.1);
     counts.runner(pool_contracts::HOSTED_PACING.1);
     counts.runner(pool_contracts::SAVED_FOLDER.1);
     counts.runner(pool_contracts::SOURCE_PACING.1);

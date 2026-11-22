@@ -300,10 +300,11 @@ impl Service {
         (self.globals.hosted
             && crate::config::mcp_tool_mode(&self.globals, &self.settings)
                 == crate::config::ToolMode::Typed
-            && matches!(
-                value.get("method").and_then(Value::as_str),
-                Some("tools/list" | "server/discover" | "initialize")
-            ))
+            && match value.get("method").and_then(Value::as_str) {
+                Some("tools/list" | "server/discover" | "initialize") => true,
+                Some("tools/call") => value.get("params").is_some_and(super::discovery::called),
+                _ => false,
+            })
         .then(|| request.source_keys())
         .transpose()
     }

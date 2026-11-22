@@ -5,6 +5,9 @@ pub(super) fn serve_command() -> Command {
         .arg(Arg::new("tool-mode").long("tool-mode")
             .help("Advertise one CLI tool or generated typed command tools; default single.")
             .value_parser(clap::value_parser!(crate::config::ToolMode)))
+        .arg(Arg::new("catalog").long("catalog")
+            .help("Choose the typed MCP catalog. Full lists every tool. Compact lists discovery and dispatch. Default full.")
+            .value_parser(clap::value_parser!(crate::config::McpCatalog)))
         .after_help("Example: biomcp serve\nExample: biomcp help serve")
         .arg(
             super::boolean_argument(Arg::new("hosted")
@@ -225,6 +228,9 @@ pub(super) fn serve(
 ) -> Result<super::Parsed, super::ParseInvalid> {
     globals.mcp_tool_mode = matches
         .get_one::<crate::config::ToolMode>("tool-mode")
+        .copied();
+    globals.mcp_catalog = matches
+        .get_one::<crate::config::McpCatalog>("catalog")
         .copied();
     globals.hosted = matches.get_flag("hosted");
     // Every per-caller control is an HTTP header, so hosted mode never serves stdio.

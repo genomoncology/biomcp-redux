@@ -8,7 +8,10 @@ pub(super) fn instructions(
     mode: crate::config::ToolMode,
     context: crate::command::Context<'_>,
 ) -> String {
-    let mut instructions = if mode == crate::config::ToolMode::Typed {
+    let compact = mode == crate::config::ToolMode::Typed && super::discovery::configured(context);
+    let mut instructions = if compact {
+        super::discovery::INSTRUCTIONS.into()
+    } else if mode == crate::config::ToolMode::Typed {
         super::typed::instructions(context)
             .unwrap_or_else(|_| "Use help for command arguments.".into())
     } else if context.globals.hosted {
@@ -17,6 +20,12 @@ pub(super) fn instructions(
     } else {
         INSTRUCTIONS.into()
     };
+    if mode == crate::config::ToolMode::Typed && !compact {
+        instructions.push_str(&format!(
+            "\nFor search_tools, tools/list _meta {{\"{}\":true}}.",
+            super::discovery::COMPACT_KEY
+        ));
+    }
     instructions.push('\n');
     instructions.push_str(crate::grammar::ENUM_CASE_GUIDANCE);
     instructions
@@ -141,6 +150,19 @@ pub(super) fn tool_result(
     };
     result(id, content(error, true, form), modern)
 }
+pub(super) fn discovery_result(
+    id: Value,
+    value: Value,
+    modern: bool,
+    context: crate::command::Context<'_>,
+) -> Value {
+    if !within_cap(&value) {
+        return error(id, -32603, "Output schema unavailable");
+    }
+    let form = crate::config::mcp_reply_form(context.globals, context.settings);
+    result(id, content(value, false, form), modern)
+}
+
 // The JSON value is the whole text: no status line or summary precedes it.
 fn content(value: Value, failed: bool, form: Option<ReplyForm>) -> Value {
     let form = form.unwrap_or(if failed {

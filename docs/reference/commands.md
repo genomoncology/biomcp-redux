@@ -6650,6 +6650,11 @@ Options:
 
           [possible values: single, typed]
 
+      --catalog <catalog>
+          Choose the typed MCP catalog. Full lists every tool. Compact lists discovery and dispatch. Default full.
+
+          [possible values: full, compact]
+
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
@@ -6664,14 +6669,14 @@ Options:
 
           [default: 1]
 
-      --saved-folder <DIR>
-          Keep each account's saved work in hosted mode under DIR, in the folder its account header names.
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --saved-folder <DIR>
+          Keep each account's saved work in hosted mode under DIR, in the folder its account header names.
 
       --http [<http>]
           Listen on an HTTP address; omit its value for the loopback default.
@@ -6707,6 +6712,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options are local to the command and independent of source selection.
 
 - `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single. Value form: string; example: --tool-mode single.
+- `--catalog`: Choose the typed MCP catalog. Full lists every tool. Compact lists discovery and dispatch. Default full. Value form: string; example: --catalog full.
 - `--hosted`: Serve behind a hosting front end; requires --http. Refuses host file saves, health details and store or key changes over MCP. Value form: boolean; example: --hosted.
 - `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string; example: --rate-share 1.
 - `--saved-folder`: Keep each account's saved work in hosted mode under DIR, in the folder its account header names. Value form: string; example: --saved-folder <saved-folder> (syntax; replace the placeholder with your retained value).

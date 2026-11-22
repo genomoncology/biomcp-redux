@@ -1,5 +1,6 @@
 //! Stdio scheduling and the single response writer.
 mod current;
+mod discovery;
 mod framing;
 mod hosted;
 pub(crate) mod http;

@@ -108,7 +108,17 @@ pub(super) fn tools(
     context: crate::command::Context<'_>,
     read_only: bool,
 ) -> io::Result<Vec<Value>> {
-    Ok(build_catalog(context, read_only, true)?.tools)
+    let tools = discovery_tools(context, read_only, true)?;
+    grouping::check_budget(context.settings, &tools)?;
+    Ok(tools)
+}
+
+pub(super) fn discovery_tools(
+    context: crate::command::Context<'_>,
+    read_only: bool,
+    with_output_schemas: bool,
+) -> io::Result<Vec<Value>> {
+    Ok(build_catalog(context, read_only, with_output_schemas)?.tools)
 }
 fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<grouping::Catalog> {
     build_catalog(context, read_only, false)

@@ -1,6 +1,6 @@
 //! The process argument and settings boundary.
 mod mcp;
-pub(crate) use mcp::mcp_typed_budget;
+pub(crate) use mcp::{mcp_catalog, mcp_typed_budget};
 pub(crate) mod credentials;
 pub(crate) mod key_file;
 mod pacing;
@@ -14,7 +14,7 @@ mod credential_reads_tests;
 
 pub(crate) mod file;
 use file::ConfigFile;
-pub(crate) use file::{ConfigError, ReplyForm, ToolMode};
+pub(crate) use file::{ConfigError, McpCatalog, ReplyForm, ToolMode};
 
 pub(crate) const DEFAULT_HTTP_CAPACITY: usize = 8;
 const TRIAL_CURSOR_KEY_ENV: &str = "BIOMCP_TRIAL_CONTINUATION_KEY";

@@ -1,6 +1,7 @@
 # 1134 — mcp-tool-search-over-typed-catalog
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 97c55b0e78776e4363cb346a66103275d3752324
 
 Milestone: 7
 

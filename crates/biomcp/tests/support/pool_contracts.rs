@@ -181,3 +181,9 @@ pub(crate) const SOURCE_PACING: (&str, &[&str]) = (
 /// Typed discovery and explicit mode override use the installed MCP boundary.
 pub(crate) const TYPED_TOOLS: (&str, &[&str]) =
     ("mcp-parity/mcp-typed-tools", &["option serve --tool-mode"]);
+
+/// Plain listing serves the operator's configured catalog, with a CLI override.
+pub(crate) const TYPED_CATALOG: (&str, &[&str]) = (
+    "mcp-typed-discovery/listed-dispatch",
+    &["option serve --catalog"],
+);

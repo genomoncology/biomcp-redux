@@ -44,7 +44,8 @@ def discover(binary, env):
 
 
 FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
-                    "hosted": ["--hosted", "--tool-mode", "typed"], "hosted-single": ["--hosted"]}
+                    "hosted": ["--hosted", "--tool-mode", "typed"], "hosted-single": ["--hosted"],
+                    "typed-compact": ["--tool-mode", "typed", "--catalog", "compact"]}
 # What every connection reads first, in characters, as measured on main 4f4414616 for ticket 0836. The skill
 # is re-read every turn (sdlc/records/2026-11-11-token-gap-root-cause.md), so first-read text costs tokens.
 # Ticket 0905 gives each ceiling 5% room over that measured base, rounded up, because a new source or
@@ -96,6 +97,12 @@ def first_read_sizes(binary, env):
             "clientInfo": {"name": "first-read-size", "version": "1"}}},
             {"jsonrpc": "2.0", "method": "notifications/initialized"},
             {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}]
+        if mode == "typed-compact":
+            frames.extend(
+                {"jsonrpc": "2.0", "id": index, "method": "tools/call",
+                 "params": {"name": "search_tools", "arguments": arguments}}
+                for index, arguments in ((3, {"query": "trials near a city"}), (4, {"name": "trial"}))
+            )
         if "--hosted" in flags:
             replies = hosted_replies(binary, ["--offline", *flags], env, frames)
         else:
@@ -105,15 +112,27 @@ def first_read_sizes(binary, env):
             require(process.returncode == 0, f"{mode} serve failed: {process.stderr}")
             replies = {reply.get("id"): reply for reply in map(json.loads, process.stdout.splitlines())}
         instructions = replies[1]["result"]["instructions"]
-        tools = json.dumps(replies[2]["result"]["tools"], ensure_ascii=False, separators=(",", ":"))
-        sizes[mode] = {"instructions_characters": len(instructions), "instructions_bytes": len(instructions.encode()),
-                       "tools_bytes": len(tools.encode()),
-                       "tools": len(replies[2]["result"]["tools"])}
-        require(len(instructions) <= FIRST_READ_CEILINGS[mode],
-                f"{mode} instructions are {len(instructions)} characters, over the ceiling of {FIRST_READ_CEILINGS[mode]}")
+        tools = replies[2]["result"]["tools"]
+        row = {"instructions_characters": len(instructions), "instructions_bytes": len(instructions.encode()),
+               "tools_bytes": compact_bytes(tools), "tools": len(tools)}
+        row["first_call_bytes"] = row["instructions_bytes"] + row["tools_bytes"]
+        if mode == "typed-compact":
+            for index, field in ((3, "discovery_summary_bytes"), (4, "discovery_definition_bytes")):
+                require("structuredContent" in replies[index].get("result", {}),
+                        f"{mode} discovery failed: {replies[index]}")
+                row[field] = compact_bytes(replies[index]["result"]["structuredContent"])
+                row["first_call_bytes"] += row[field]
+        sizes[mode] = row
+        ceiling = FIRST_READ_CEILINGS["typed" if mode == "typed-compact" else mode]
+        require(len(instructions) <= ceiling,
+                f"{mode} instructions are {len(instructions)} characters, over the ceiling of {ceiling}")
         require(all(word in instructions for word in ("questions", "examples")),
                 f"{mode} instructions do not name help questions and help examples")
     return sizes
+
+
+def compact_bytes(value):
+    return len(json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode())
 
 
 def use_cases():
