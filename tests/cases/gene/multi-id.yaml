@@ -18,6 +18,10 @@
         "/result/items/*/input": [
           "BRAF",
           "3845"
+        ],
+        "/result/items/*/answer/gene/symbol": [
+          "BRAF",
+          "KRAS"
         ]
       }
     },
@@ -35,5 +39,10 @@
         ]
       }
     }
-  ]
+  ],
+  "config": {
+    "disable_sources": [
+      "mygene"
+    ]
+  }
 }
