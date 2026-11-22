@@ -1,0 +1,55 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies/NCT04660643",
+  "exchanges": [
+    {
+      "fetched": 1793808996,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "protocolSection": {
+            "identificationModule": {
+              "nctId": "NCT04660643",
+              "briefTitle": "Synthetic study 2"
+            },
+            "statusModule": {
+              "overallStatus": "COMPLETED"
+            }
+          },
+          "hasResults": true,
+          "resultsSection": {
+            "participantFlowModule": {
+              "groups": [
+                {
+                  "id": "FG000",
+                  "title": "Study group"
+                }
+              ],
+              "periods": [
+                {
+                  "title": "Synthetic period 2",
+                  "milestones": [
+                    {
+                      "type": "STARTED",
+                      "achievements": [
+                        {
+                          "groupId": "FG000",
+                          "numSubjects": "2"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
