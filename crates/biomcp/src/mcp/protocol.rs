@@ -145,10 +145,11 @@ pub(super) fn tool_result(
 fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
     let text = json!([{"type":"text","text":value.to_string()}]);
     match form {
-        ReplyForm::Once if failed => json!({"content":text, "isError":true}),
         // Clients that show text when it is present show structured content when it is not.
-        ReplyForm::Once => json!({"content":[], "structuredContent":value, "isError":false}),
-        ReplyForm::Both => json!({"content":text, "structuredContent":value, "isError":failed}),
+        ReplyForm::Once if !failed => json!({"content":[], "structuredContent":value, "isError":false}),
+        ReplyForm::Once | ReplyForm::Both => {
+            json!({"content":text, "structuredContent":value, "isError":failed})
+        }
         ReplyForm::StructuredOnly => {
             json!({"content":[{"type":"text","text":"JSON reply is in structuredContent."}],
             "structuredContent":value, "isError":failed})
