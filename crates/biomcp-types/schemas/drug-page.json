@@ -251,6 +251,7 @@
       "description": "A single source candidate page in native order, without selecting the first hit.",
       "properties": {
         "items": {
+          "default": [],
           "description": "Native candidates, preserving their separate identity levels.",
           "items": {
             "$ref": "#/$defs/Reply_DrugHeader"
@@ -1391,7 +1392,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+      "description": "Page bounds and total. A page with no rows has `returned` 0 and an empty row array."
     },
     "problems": {
       "description": "Rejected source fields.",

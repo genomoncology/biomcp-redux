@@ -208,6 +208,7 @@
       "description": "Source-ordered header page; class admission never changes the native total.",
       "properties": {
         "items": {
+          "default": [],
           "description": "Whole admitted pathway headers in native order.",
           "items": {
             "$ref": "#/$defs/Reply_PathwayHeader"
@@ -1103,7 +1104,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+      "description": "Page bounds and total. A page with no rows has `returned` 0 and an empty row array."
     },
     "problems": {
       "description": "Rejected source fields.",

@@ -94,6 +94,7 @@
       "description": "Original response and projection disclosures."
     },
     "results": {
+      "default": [],
       "description": "Citable records in unchanged CLI order.",
       "items": {
         "$ref": "#/$defs/Reply_ResearchHit"
