@@ -7121,6 +7121,7 @@
       "description": "One source-ordered page, with native record and classification boundaries intact.",
       "properties": {
         "assertions": {
+          "default": [],
           "description": "Source assertion rows in native order.",
           "items": {
             "$ref": "#/$defs/Reply_VariantAssertion"
