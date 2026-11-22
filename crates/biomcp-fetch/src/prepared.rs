@@ -78,6 +78,17 @@ impl Prepared {
     }
 }
 impl Prepared {
+    pub(crate) fn cache_key(&self, revision: Option<&str>) -> [u8; 32] {
+        let Some(revision) = revision else {
+            return self.identity;
+        };
+        let mut hash = Sha256::new();
+        hash.update(b"cache-revision\0");
+        hash.update(self.identity);
+        hash.update(revision);
+        hash.finalize().into()
+    }
+
     pub(crate) fn recording(&self) -> crate::record::Request<'_> {
         if self.method == Method::Head {
             crate::record::Request::Head

@@ -14,12 +14,12 @@ steps:
     mcp: *one
     expect:
       /status: complete
-      /result/items: {count: 1}
+      /result/items: {count: 2}
   - run: &end [search, disease, --hpo-release, v2099-01-01, --phenotype, "HP:0001083",
      --phenotype, "HP:0000098", --phenotype, "HP:0001634", --limit, "2", --offset, "2"]
     mcp: *end
     expect:
       /status: complete
-      /page/total: 2
-      /page/returned: 0
-      /result/items: []
+      /page/total: 3
+      /page/returned: 1
+      /result/items: {count: 1}
