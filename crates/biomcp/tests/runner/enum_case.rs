@@ -534,6 +534,7 @@ fn context(
             json!({"section":["civic"], "civic_kind":"evidence", "civic_profile":1})
         }
         ("get", "variant", "clinvar_kind") => json!({"section":["clinvar"]}),
+        ("get", "gene", "constraint_release") => json!({"section":["constraint"]}),
         ("get", "pgx", "kind") => json!({"section":"annotations"}),
         ("get", "disease", "ontology") => json!({"source":"ols"}),
         ("search", "adverse-event", "section" | "sort") => {
