@@ -76,7 +76,7 @@ pub(super) fn call_checked(
     .map_err(|e| e.to_string())?;
     Ok(value.clone())
 }
-fn catalog(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String> {
+pub(super) fn catalog(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String> {
     // The call's server creates the observation file, which opens only once.
     let mut catalog_globals = Vec::with_capacity(globals.len());
     let mut remaining = globals.iter();
@@ -100,7 +100,11 @@ fn catalog(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String> 
         .ok_or("tool catalog missing".into())
 }
 
-fn validate_reply_schema(tools: &[Value], name: &str, value: &Value) -> Result<(), String> {
+pub(super) fn validate_reply_schema(
+    tools: &[Value],
+    name: &str,
+    value: &Value,
+) -> Result<(), String> {
     let tool = tools
         .iter()
         .find(|v| v.get("name") == Some(&json!(name)))

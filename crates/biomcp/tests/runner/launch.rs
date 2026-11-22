@@ -36,9 +36,25 @@ impl Environment {
     }
 
     pub(super) fn config(&self, value: &serde_json::Value) -> io::Result<()> {
-        let directory = self.root.path().join("config/biomcp");
+        let directory = self.config_directory();
         fs::create_dir_all(&directory)?;
         fs::write(directory.join("config.json"), serde_json::to_vec(value)?)
+    }
+    fn config_directory(&self) -> std::path::PathBuf {
+        self.root.path().join("config/biomcp")
+    }
+    pub(super) fn typed_mcp(&self) -> io::Result<bool> {
+        match fs::read(self.config_directory().join("config.json")) {
+            Ok(bytes) => {
+                let config: serde_json::Value = serde_json::from_slice(&bytes)?;
+                Ok(config
+                    .get("mcp_tool_mode")
+                    .and_then(serde_json::Value::as_str)
+                    == Some("typed"))
+            }
+            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(false),
+            Err(error) => Err(error),
+        }
     }
     /// Write a case's configuration with its publisher dataset age limit pinned.
     pub(super) fn case_config(&self, case: &super::case_data::Case) -> io::Result<()> {
