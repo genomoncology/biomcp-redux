@@ -8,7 +8,7 @@ steps:
 - run: [sync, gnomad-constraint-v4.0]
   expect:
     /status: complete
-- run: [get, gene, TP53, BCR, constraint, --constraint-release, v4.0, --fields=loeuf,transcript, --section-only]
+- run: [get, gene, TP53, BCR, constraint, --constraint-release, v4.0, "--fields=loeuf,transcript", --section-only]
   expect:
     /status: partial
     /result/items/*/input: [TP53, BCR]
