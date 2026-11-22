@@ -44,10 +44,9 @@ pub(super) fn search(
                     terms.join(", ")
                 )));
             }
-            let evidence = release::EXCLUDED_EVIDENCE;
             source.notices.push(notice(format!(
                 "This product uses Human Phenotype Ontology release {tag}. \
-                 {evidence} annotations (inferred from electronic annotation) are excluded."
+                 HPO marks IEA annotations as derived from OMIM's clinical features."
             )));
             apply(&mut out, query, pinned, tag, result);
         }

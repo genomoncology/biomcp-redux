@@ -23,9 +23,9 @@
       },
       "expect": {
         "/status": "complete",
-        "/page/total": 2,
+        "/page/total": 3,
         "/page/returned": 1,
-        "/result/items/0/id": "ORPHA:900001",
+        "/result/items/0/id": "OMIM:900007",
         "/result/items/0/gene_links_missing": true,
         "/result/items/0": {
           "omits": [

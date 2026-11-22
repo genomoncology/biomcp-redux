@@ -29,6 +29,9 @@ steps:
       /next/0/arguments/search/hpo_release: v2099-02-01
   - follow: page
     expect:
+      /page/total: 3
+      /page/returned: 1
       /result/release: v2099-02-01
-      /result/items/0/id: "ORPHA:900001"
-      /result/items/0/gene_links/0/symbol: SYNTH4
+      /result/items/0/id: "OMIM:900007"
+      /result/items/0/gene_links_missing: true
+      /result/items/0: {omits: [gene_links]}
