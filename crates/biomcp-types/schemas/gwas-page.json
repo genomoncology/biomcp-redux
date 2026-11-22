@@ -358,6 +358,7 @@
           "description": "Same-selector search continuation."
         },
         "items": {
+          "default": [],
           "description": "Shared complete association records.",
           "items": {
             "$ref": "#/$defs/Reply_GwasAssociation"
@@ -1405,7 +1406,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+      "description": "Page bounds and total. A row page with no rows includes an empty array for its primary collection."
     },
     "problems": {
       "description": "Rejected source fields.",

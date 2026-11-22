@@ -7121,6 +7121,7 @@
       "description": "One source-ordered page, with native record and classification boundaries intact.",
       "properties": {
         "assertions": {
+          "default": [],
           "description": "Source assertion rows in native order.",
           "items": {
             "$ref": "#/$defs/Reply_VariantAssertion"
@@ -7959,6 +7960,7 @@
           "description": "Independent publisher terms for named ClinVar filters, present only when requested."
         },
         "items": {
+          "default": [],
           "description": "Native source order, preserving every candidate including repeated source identities.",
           "items": {
             "$ref": "#/$defs/Reply_VariantHeader"
@@ -9029,7 +9031,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+      "description": "Page bounds and total. A row page with no rows includes an empty array for its primary collection."
     },
     "problems": {
       "description": "Rejected source fields.",

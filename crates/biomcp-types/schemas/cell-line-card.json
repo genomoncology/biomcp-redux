@@ -21,10 +21,11 @@
       ],
       "type": "string"
     },
-    "Reply_Capped_CellLineChemblRecord": {
+    "Reply_CappedPage_CellLineChemblRecord": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
+          "default": [],
           "description": "References in stable source order.",
           "items": {
             "$ref": "#/$defs/Reply_CellLineChemblRecord"
@@ -43,13 +44,83 @@
       ],
       "type": "object"
     },
-    "Reply_Capped_CellLineName": {
+    "Reply_CappedPage_CellLineName": {
       "description": "A bounded list with the total before its cap was applied.",
       "properties": {
         "items": {
+          "default": [],
           "description": "References in stable source order.",
           "items": {
             "$ref": "#/$defs/Reply_CellLineName"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total"
+      ],
+      "type": "object"
+    },
+    "Reply_CappedPage_CellLineVariation": {
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "default": [],
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/Reply_CellLineVariation"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total"
+      ],
+      "type": "object"
+    },
+    "Reply_CappedPage_CellLineWarning": {
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "default": [],
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/Reply_CellLineWarning"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Distinct references before capping.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total"
+      ],
+      "type": "object"
+    },
+    "Reply_CappedPage_CellLineXref": {
+      "description": "A bounded list with the total before its cap was applied.",
+      "properties": {
+        "items": {
+          "default": [],
+          "description": "References in stable source order.",
+          "items": {
+            "$ref": "#/$defs/Reply_CellLineXref"
           },
           "type": "array"
         },
@@ -272,7 +343,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Reply_Capped_CellLineChemblRecord",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineChemblRecord",
           "description": "Every selected whole metadata row and the native total."
         },
         "offset": {
@@ -563,7 +634,7 @@
           "description": "Selected exact primary accession."
         },
         "diseases": {
-          "$ref": "#/$defs/Reply_Capped_CellLineXref",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineXref",
           "description": "Whole disease rows and their independent source total."
         },
         "fetched": {
@@ -593,11 +664,11 @@
           "description": "Independently fetched publisher release."
         },
         "species": {
-          "$ref": "#/$defs/Reply_Capped_CellLineXref",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineXref",
           "description": "Whole species rows and their source total."
         },
         "warnings": {
-          "$ref": "#/$defs/Reply_Capped_CellLineWarning",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineWarning",
           "description": "Whole scoped warning rows and their independent source total."
         }
       },
@@ -650,7 +721,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Reply_Capped_CellLineName",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineName",
           "description": "Whole source rows and the total in this collection only."
         },
         "offset": {
@@ -878,7 +949,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Reply_Capped_CellLineVariation",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineVariation",
           "description": "Whole source rows and the total in this collection only."
         },
         "offset": {
@@ -1105,7 +1176,7 @@
           ]
         },
         "items": {
-          "$ref": "#/$defs/Reply_Capped_CellLineXref",
+          "$ref": "#/$defs/Reply_CappedPage_CellLineXref",
           "description": "Whole source rows and the total in this collection only."
         },
         "offset": {
@@ -2620,7 +2691,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
+      "description": "Page bounds and total. A row page with no rows includes an empty array for its primary collection."
     },
     "problems": {
       "description": "Rejected source fields.",

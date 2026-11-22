@@ -108,6 +108,9 @@ impl View<'_> {
                 continue;
             }
             let node = property(schema, name, self.root).unwrap_or(&Value::Null);
+            if value.as_array().is_some_and(Vec::is_empty) && node.get("default") == Some(value) {
+                continue;
+            }
             if (value.is_object() || value.is_array()) && nonfinite(value).is_none() {
                 heading(name, depth, out);
                 if typed_step(value, node, self.root, out) {

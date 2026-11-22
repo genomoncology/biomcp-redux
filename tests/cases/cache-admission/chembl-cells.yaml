@@ -16,11 +16,7 @@
         "/problems/*/field": {
           "includes": "cell_chembl_id"
         },
-        "/result/items": {
-          "omits": [
-            "items"
-          ]
-        }
+        "/result/items/items": []
       }
     },
     {
@@ -35,11 +31,7 @@
         "/problems/*/field": {
           "includes": "cell_chembl_id"
         },
-        "/result/items": {
-          "omits": [
-            "items"
-          ]
-        }
+        "/result/items/items": []
       }
     }
   ]

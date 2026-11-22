@@ -21,7 +21,7 @@ pub(super) fn search<'a>(
         source_query: query.faers_expression().into_boxed_str(),
         source_updated: None,
         fetched: None,
-        items: Box::default(),
+        items: None,
         unit: ReportUnit::Reports,
         components: Box::default(),
     };
@@ -82,7 +82,7 @@ pub(super) fn received<'a>(
         source_query: source_query.into_boxed_str(),
         source_updated: None,
         fetched: None,
-        items: Box::default(),
+        items: None,
         unit: ReportUnit::Reports,
         components: Box::default(),
     };

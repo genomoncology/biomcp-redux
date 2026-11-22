@@ -185,7 +185,7 @@ fn check_source(http: bool, fallback: bool, nci: bool) -> Check {
                 return Err("server failed to reload key".into());
             }
         } else {
-            if result.pointer("/result/items").is_some() {
+            if result.pointer("/result/items") != Some(&json!([])) {
                 return Err(format!("local synthetic query failed: {result}"));
             }
             expected.push(selected);

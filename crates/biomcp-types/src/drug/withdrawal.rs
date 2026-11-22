@@ -33,7 +33,7 @@ pub struct DrugWithdrawalPage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub seed_date: Option<Box<str>>,
     /// Rows as listed by FDA.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[DrugWithdrawal]>,
 }
 

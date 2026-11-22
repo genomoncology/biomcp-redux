@@ -51,10 +51,10 @@ impl SavedStore {
     /// Saved searches, or the one with this name; a list's name is unknown here.
     pub fn searches(&self, name: Option<&str>) -> Result<Vec<SavedSearch>, SavedError> {
         let saved = self.show(name)?;
-        if name.is_some() && saved.searches.is_empty() {
+        if name.is_some() && saved.searches.is_none() {
             return Err(SavedError::Unknown);
         }
-        Ok(saved.searches)
+        Ok(saved.searches.unwrap_or_default())
     }
 
     /// A search's kept snapshots, newest first; rows this build cannot read go to `skipped`.

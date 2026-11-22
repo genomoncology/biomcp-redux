@@ -36,7 +36,7 @@ pub struct ProteinDomains {
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,
     /// Bounded retained rows in source order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinDomainMatch]>,
     /// How to read the spans above; present when any row has a fragment, but not inside a card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -65,7 +65,7 @@ pub struct ProteinComplexes {
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,
     /// Bounded retained rows in source order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinComplexHeader]>,
 }
 impl ResponseBody for ProteinComplexes {
@@ -178,7 +178,7 @@ pub struct ProteinFunctionResult {
     #[serde(default)]
     pub total: u64,
     /// Native paragraphs in source order, without inferred interpretation.
-    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    #[serde(default)]
     pub items: Box<[ProteinFunction]>,
 }
 impl ResponseBody for ProteinFunctionResult {

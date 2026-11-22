@@ -371,9 +371,18 @@
         "show"
       ],
       "expect": {
-        "/result": {
-          "equals": {}
-        }
+        "/result/searches": [],
+        "/result/lists": []
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "saved",
+        "arguments": {"action": "show", "show": {}}
+      },
+      "expect": {
+        "/result/searches": [],
+        "/result/lists": []
       }
     }
   ]
