@@ -44,19 +44,7 @@ Trial and article searches expand a whole drug name to the other names stated by
 
 Trial search's `--variant` searches a trial's general text and its eligibility criteria in one ClinicalTrials.gov query. A protein change (V600E) also searches its other spellings (Val600Glu, p.V600E, p.Val600Glu), and an exon deletion or insertion (exon 19 deletion) its common short forms (ex19del, 19del, del19). With `--gene`, a protein change also searches its codon (V600, V600X), which matches trials written for any change at that position; the reply names each returned trial that matched only that way. `--criteria` searches the same spellings in eligibility criteria. A source notice lists what was searched, and `--exact-term` searches the typed text alone, in general text only for `--variant`.
 
-For a compact gene constraint batch, request the constraint section with the fields you need.
-
-```sh
-biomcp get gene ATR RAD17 KAT5 RAD51 CHEK1 constraint --section-only --fields=loeuf,transcript
-```
-
-In typed MCP, use the same section and fields in a call to `gene`.
-
-```json
-{"action":"get","get":{"id":["ATR","RAD17","KAT5","RAD51","CHEK1"],"section":"constraint","section_only":true},"fields":["loeuf","transcript"]}
-```
-
-Each resolved row includes its requested input, HGNC ID and symbol, and the constraint section with its release, transcript and source. Omit `--section-only` or `section_only` to read the full cards.
+See [compact gene constraint batches](docs/configuration.md#compact-gene-constraint-batches) for the CLI and typed MCP forms.
 
 These commands come from recorded cases. Live replies can change. Inspect source outcomes before interpreting a result. Follow returned next commands to page records, inspect source sections or resolve an ambiguous identity. A missing result does not establish absence.
 
