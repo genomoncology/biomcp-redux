@@ -146,7 +146,9 @@ fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
     let text = json!([{"type":"text","text":value.to_string()}]);
     match form {
         // Clients that show text when it is present show structured content when it is not.
-        ReplyForm::Once if !failed => json!({"content":[], "structuredContent":value, "isError":false}),
+        ReplyForm::Once if !failed => {
+            json!({"content":[], "structuredContent":value, "isError":false})
+        }
         ReplyForm::Once | ReplyForm::Both => {
             json!({"content":text, "structuredContent":value, "isError":failed})
         }

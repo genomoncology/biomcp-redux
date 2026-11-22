@@ -66,7 +66,9 @@ fn check_error(args: &[&str], recording: Option<&str>, exit: i32) -> Result<(), 
         .get("structuredContent")
         .ok_or("MCP error is missing structuredContent")?;
     if structured != &cli {
-        return Err(format!("structured MCP error differs from CLI: {structured} != {cli}"));
+        return Err(format!(
+            "structured MCP error differs from CLI: {structured} != {cli}"
+        ));
     }
     let text = result
         .pointer("/content/0/text")
