@@ -3,7 +3,8 @@ use super::Settings;
 
 pub(crate) const DEFAULT_TYPED_TOOL_LIMIT: usize = 20;
 pub(crate) const DEFAULT_TYPED_DEFINITION_BYTES: usize = 128 * 1024;
-pub(crate) const DEFAULT_TYPED_OUTPUT_DEFINITION_BYTES: usize = 1024 * 1024;
+// The complete typed catalog measures 1,033,668 bytes. Keep 15% room for catalog changes.
+pub(crate) const DEFAULT_TYPED_OUTPUT_DEFINITION_BYTES: usize = 1_188_719;
 
 pub(crate) fn mcp_typed_budget(settings: &Settings) -> (usize, usize) {
     let file = settings.as_ref().ok().and_then(Option::as_ref);

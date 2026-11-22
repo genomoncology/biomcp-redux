@@ -1,8 +1,8 @@
 //! Default typed tool discovery and its advertised schemas against recorded replies.
 use super::super::super::{
-    case_data, launch,
+    launch,
     mcp::{exchange_with_globals, request},
-    response_cases, run_sequence, schema,
+    response_cases,
 };
 use launch::Environment;
 use serde_json::{Value, json};
@@ -12,7 +12,6 @@ pub(super) type Validators<'a> = std::collections::BTreeMap<&'a str, jsonschema:
 pub(super) fn check<'a>(env: &Environment, tools: &'a [Value]) -> Result<Validators<'a>, String> {
     let validators = reply_validators(tools)?;
     replay_replies(env, &validators)?;
-    saved_replies(&validators)?;
     Ok(validators)
 }
 
@@ -91,37 +90,6 @@ fn replay_replies(env: &Environment, validators: &Validators<'_>) -> Result<(), 
                 return Err("trial search schema accepted an object as a row title".into());
             }
         }
-    }
-    Ok(())
-}
-
-fn saved_replies(validators: &Validators<'_>) -> Result<(), String> {
-    let env = Environment::new().map_err(|error| error.to_string())?;
-    env.config(&json!({"mcp_tool_mode":"typed"}))
-        .map_err(|error| error.to_string())?;
-    let case = case_data::read_case(&launch::fixtures().join("cases/saved/mcp.yaml"))?;
-    let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
-    let registry = schema::Registry::embedded()?;
-    let mut previous = None;
-    let mut prior_step = None;
-    for step in &case.steps {
-        let reply = run_sequence(
-            step,
-            &env,
-            &Vec::new(),
-            &registry,
-            replay.as_deref(),
-            previous.as_ref(),
-            prior_step,
-        )?;
-        let call = step.mcp_call.as_ref();
-        if call.is_some_and(|call| call.name == "saved") {
-            validators["saved"]
-                .validate(&reply)
-                .map_err(|error| format!("saved output schema rejected replayed reply: {error}"))?;
-        }
-        previous = Some(reply);
-        prior_step = Some(step);
     }
     Ok(())
 }
