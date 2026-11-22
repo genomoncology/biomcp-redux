@@ -40,14 +40,16 @@ impl schemars::JsonSchema for DiseaseSearchCommand {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Each HPO ID or a descendant must have a positive annotation.
+    ///
+    /// Example: biomcp search disease --source hpo --phenotype HP:0001083.
     #[serde(default, skip_serializing_if = "<[biodata::HpId]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max=20), extend("x-comma-separated" = true)))]
     phenotype: Box<[biodata::HpId]>,
-    /// HPO release tag (vYYYY-MM-DD), required with --phenotype.
+    /// HPO tag (vYYYY-MM-DD). Omit for latest. Example: --hpo-release latest.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(
         feature = "schema",
-        schemars(regex(pattern = r"^v[0-9]{4}-[0-9]{2}-[0-9]{2}$"))
+        schemars(regex(pattern = r"^(latest|v[0-9]{4}-[0-9]{2}-[0-9]{2})$"))
     )]
     hpo_release: Option<Box<str>>,
     /// Search text or optional SEER site name.
@@ -94,7 +96,10 @@ impl TryFrom<SearchFields> for DiseaseSearch {
             if v.phenotype.is_empty() || v.phenotype.len() > 20 {
                 return Err(QueryInvalid::new(&["phenotype"]));
             }
-            if v.hpo_release.as_deref().is_none_or(|tag| !release_tag(tag)) {
+            if v.hpo_release
+                .as_deref()
+                .is_some_and(|tag| tag != "latest" && !release_tag(tag))
+            {
                 return Err(QueryInvalid::new(&["hpo_release"]));
             }
             if v.text.is_some() || v.ontology.is_some() {
@@ -162,12 +167,22 @@ impl DiseaseSearch {
     pub fn source(&self) -> DiseaseSource {
         self.0.source.unwrap_or_default()
     }
-    /// The named HPO release and requested terms, when this is an HPO search.
+    /// The HPO release selector and requested terms, when this is an HPO search.
     pub fn hpo(&self) -> Option<(&str, &[biodata::HpId])> {
-        self.0
-            .hpo_release
-            .as_deref()
-            .map(|tag| (tag, self.0.phenotype.as_ref()))
+        (self.source() == DiseaseSource::Hpo).then(|| {
+            (
+                self.0.hpo_release.as_deref().unwrap_or("latest"),
+                self.0.phenotype.as_ref(),
+            )
+        })
+    }
+    /// Pin an HPO search to a publisher tag before constructing a continuation.
+    pub fn with_hpo_release(mut self, tag: Box<str>) -> Option<Self> {
+        if self.source() != DiseaseSource::Hpo || !release_tag(&tag) {
+            return None;
+        }
+        self.0.hpo_release = Some(tag);
+        Some(self)
     }
     /// Selected OLS ontology, absent for other sources.
     pub fn ontology(&self) -> Option<DiseaseOntology> {
