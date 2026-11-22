@@ -1,7 +1,7 @@
 use super::{next, resolve, sections};
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
-use biomcp_adapters::{hgnc, mygene};
+use biomcp_adapters::{clinvar::GENE_COUNTS, hgnc, mygene};
 use biomcp_types::GeneResolution;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
@@ -12,9 +12,8 @@ use biomcp_types::{
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     // ClinVar gene counts declare a longer budget than the default; other legs keep their caps.
     let requested = sections::requested(query);
-    let clinvar = &biomcp_adapters::clinvar::GENE_COUNTS;
     let budget = if requested.contains(&biomcp_types::GeneSection::ClinVar) {
-        cx.fetch.source_budget(clinvar, cx.budget)
+        cx.fetch.source_budget(&GENE_COUNTS, cx.budget)
     } else {
         cx.budget
     };
@@ -58,16 +57,14 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     let mut incomplete = Vec::new();
     for job in crate::fan_out::run(jobs) {
         match job {
-            Job::MyGene(batches, report) => {
-                incomplete = mygene_join(
-                    &mut items,
-                    batches,
-                    report,
-                    &mut sources,
-                    &mut problems,
-                    &mut local,
-                );
-            }
+            Job::MyGene(batches, report) => incomplete.extend(mygene_join(
+                &mut items,
+                batches,
+                report,
+                &mut sources,
+                &mut problems,
+                &mut local,
+            )),
             Job::Section(result) => {
                 sections::join(&mut items, &result);
                 sources.push(result.source);
@@ -78,11 +75,11 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     }
     sections::offer_oncokb(query, &mut items, &sources);
     let state = status::status(items.iter().map(|item| item.status));
-    let next = next::get(query, &items, &sources, &mut problems);
     let mut out = crate::status::finish(
         [state],
         crate::status::Parts {
             dropped: false,
+            next: next::get(query, &items, &sources, &mut problems),
             body: (GeneCards {
                 items: items.into(),
             })
@@ -90,7 +87,6 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
             page: None,
             sources,
             problems,
-            next,
             local,
         },
     );
