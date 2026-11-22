@@ -2,7 +2,7 @@
   "feature": "drug-approvals",
   "story": "A date window on label history leads to approvals within those dates, with the chosen approval field.",
   "live_check": "Replay only",
-  "replay": "drug/label-history-xeljanz",
+  "replay": "drug/approval-window-retry",
   "steps": [
     {
       "run": [
@@ -16,8 +16,6 @@
         "2021-09-01",
         "--decision-to",
         "2022-02-01",
-        "--section-limit",
-        "51",
         "--fields",
         "submission_number"
       ],
@@ -31,7 +29,7 @@
     {
       "follow": "configure",
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/query/input": "NDA203214",
         "/query/decision_from": "2021-09-01",
         "/query/decision_to": "2022-02-01",
@@ -55,7 +53,6 @@
             "id": "NDA203214",
             "section": "label-history",
             "source": "drugsfda",
-            "section_limit": 51,
             "decision_from": "2021-09-01",
             "decision_to": "2022-02-01"
           },
@@ -78,7 +75,7 @@
     {
       "follow": "configure",
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/query/input": "NDA203214",
         "/query/decision_from": "2021-09-01",
         "/query/decision_to": "2022-02-01",
@@ -105,7 +102,6 @@
             ],
             "section": "label-history",
             "source": "drugsfda",
-            "section_limit": 51,
             "decision_from": "2021-09-01",
             "decision_to": "2022-02-01"
           },
@@ -133,7 +129,7 @@
     {
       "follow": "configure",
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/query/input": "NDA203214",
         "/query/decision_from": "2021-09-01",
         "/query/decision_to": "2022-02-01",
@@ -148,5 +144,9 @@
         }
       }
     }
-  ]
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
 }

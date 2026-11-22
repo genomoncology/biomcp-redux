@@ -59,5 +59,9 @@
         "/result/items/0/drug": "Zepzelca (lurbinectedin)"
       }
     }
-  ]
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
 }

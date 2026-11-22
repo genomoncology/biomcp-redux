@@ -2,6 +2,7 @@ feature: drug-approvals
 story: A text search on an exact approval letter offers a read of that same letter.
 live_check: Replay only
 replay: diagnostic/fda-documents
+config: {mcp_tool_mode: typed, mcp_typed_output_schema: true}
 steps:
   - run: [get, drug, NDA021588, approvals, --source, drugsfda, --document-id, "64255", --find, efficacy]
     exit: 2

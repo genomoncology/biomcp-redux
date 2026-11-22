@@ -72,5 +72,9 @@
         "/result/first/approved": "2025-03-21"
       }
     }
-  ]
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
 }

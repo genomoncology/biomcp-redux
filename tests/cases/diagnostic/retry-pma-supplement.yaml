@@ -64,5 +64,9 @@
         "/result/header/supplement_number": "S023"
       }
     }
-  ]
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
 }
