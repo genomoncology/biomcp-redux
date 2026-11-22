@@ -296,6 +296,27 @@ def commercial_setup(root):
         raise ValueError("local source exclusions configuration example is invalid JSON") from error
 
 
+def check_skill_examples(root, skill):
+    examples = {tuple(shlex.split(line)[1:])
+                for block in re.findall(r"```sh\n(.*?)```", skill, re.S)
+                for line in block.splitlines() if line.startswith("biomcp ")}
+    for path in (root / "tests/cases").rglob("*.yaml"):
+        if not examples:
+            return
+        # The docs check uses the JSON-form cases, as the README check does.
+        content = path.read_text()
+        if not content.lstrip().startswith("{"):
+            continue
+        case = json.loads(content)
+        if not case.get("replay"):
+            continue
+        for step in case.get("steps", []):
+            if step.get("exit", 0) == 0 and step.get("expect", {}).get("/status") == "complete":
+                examples.discard(tuple(step.get("run", [])))
+    if examples:
+        raise ValueError(f"agent skill example has no successful replay case: {shlex.join(min(examples))}")
+
+
 def check(root, executable=None):
     architecture(root)
     internal_names(root)
@@ -318,8 +339,10 @@ def check(root, executable=None):
         if case.get("replay") and case.get("config") != commercial:
             raise ValueError(f"Configuration commercial setup differs from {path}")
 
-    if (root / "skills/SKILL.md").stat().st_size > 4096:
+    skill = (root / "skills/SKILL.md").read_text()
+    if len(skill.encode()) > 4096:
         raise ValueError("agent skill exceeds 4 KB")
+    check_skill_examples(root, skill)
     roadmap = (root / "ROADMAP.md").read_text()
     if roadmap.count(LEDGER_START) != 1 or roadmap.count(LEDGER_END) != 1:
         raise ValueError("parity table differs: expected one generated ledger block")

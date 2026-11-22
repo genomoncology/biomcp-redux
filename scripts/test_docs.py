@@ -156,6 +156,10 @@ def main():
         architecture.write_text(original_architecture)
         guide = root / "skills/SKILL.md"
         original_guide = guide.read_bytes()
+        guide.write_text(re.sub(r"```sh\n.*?```", "```sh\nbiomcp get trial NCT00000000\n```",
+                                original_guide.decode(), flags=re.S))
+        result = check(root)
+        assert result.returncode != 0 and "agent skill example has no successful replay case" in result.stderr, result
         guide.write_bytes(b"x" * 4096)
         assert check(root).returncode == 0
         guide.write_bytes(b"x" * 4097)
