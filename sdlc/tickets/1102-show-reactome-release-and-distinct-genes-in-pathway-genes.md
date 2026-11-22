@@ -1,6 +1,6 @@
 # 1102 — show-reactome-release-and-distinct-genes-in-pathway-genes
 
-Status: OPEN.
+Status: COMPLETE. Built on its batch branch and landed inside the 1078 branch (f0ef0d9f0)
 
 Milestone: 7
 
