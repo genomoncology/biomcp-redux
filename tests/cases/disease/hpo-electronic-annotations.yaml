@@ -9,7 +9,9 @@ steps:
       /status: complete
       /page/total: 3
       /result/items/1/id: "OMIM:900007"
-      /sources/0/notices/0/message: "This product uses Human Phenotype Ontology release v2099-01-01. HPO marks IEA annotations as derived from OMIM's clinical features."
+      /sources/0/notices/0/message: >-
+        This product uses Human Phenotype Ontology release v2099-01-01.
+        HPO marks IEA annotations as derived from OMIM's clinical features.
   - mcp_call:
       name: disease
       arguments:
