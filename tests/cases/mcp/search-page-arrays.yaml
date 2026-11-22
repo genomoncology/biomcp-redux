@@ -4,6 +4,7 @@ story: Trial search exposes the same item array on single-row, multi-row and exh
 replay: paging/search-trial
 config:
   mcp_tool_mode: typed
+  mcp_typed_output_schema: true
 steps:
   - run: [search, trial, --condition, melanoma, --intervention, tebentafusp, --limit, "1"]
     expect:

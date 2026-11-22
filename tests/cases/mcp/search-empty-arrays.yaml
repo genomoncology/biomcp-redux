@@ -4,6 +4,7 @@ story: A successful trial search with no matches returns an empty item array thr
 replay: trial/native-exact
 config:
   mcp_tool_mode: typed
+  mcp_typed_output_schema: true
 steps:
   - run: &zero [search, trial, --condition, Snyder-Robinson syndrome, --exact-condition, --limit, "1"]
     expect:
