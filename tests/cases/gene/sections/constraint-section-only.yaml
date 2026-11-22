@@ -1,0 +1,40 @@
+feature: gene-constraint
+story: A section-only constraint batch keeps each resolved identity, selected metrics and unavailable states in input order.
+replay: gene/constraint/release-selection
+config:
+  mcp_tool_mode: typed
+  mcp_typed_output_schema: true
+steps:
+- run: [sync, gnomad-constraint-v4.0]
+  expect:
+    /status: complete
+- run: [get, gene, TP53, BCR, constraint, --constraint-release, v4.0, "--fields=loeuf,transcript", --section-only]
+  expect:
+    /status: partial
+    /result/items/*/input: [TP53, BCR]
+    /result/items/0/answer/gene:
+      equals: {hgnc_id: 'HGNC:11998', symbol: TP53}
+    /result/items/0/sections/constraint/data:
+      equals: {version: v4.0, transcript: ENST00000269305, loeuf: 0.44}
+    /result/items/1/answer/gene:
+      equals: {hgnc_id: 'HGNC:1014', symbol: BCR}
+    /result/items/1/sections/constraint:
+      equals: {state: unavailable, source: gnomad, reason: not-stated}
+    /sources/*/source: [hgnc, gnomad]
+- mcp_call:
+    name: gene
+    arguments:
+      action: get
+      get:
+        id: [TP53, BCR]
+        section: constraint
+        constraint_release: v4.0
+        section_only: true
+      fields: [loeuf, transcript]
+  expect:
+    /status: partial
+    /result/items/*/answer/gene/symbol: [TP53, BCR]
+    /result/items/0/sections/constraint/data:
+      equals: {version: v4.0, transcript: ENST00000269305, loeuf: 0.44}
+    /result/items/1/sections/constraint/reason: not-stated
+    /sources/*/source: [hgnc, gnomad]

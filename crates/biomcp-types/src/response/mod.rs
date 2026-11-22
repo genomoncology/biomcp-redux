@@ -158,7 +158,7 @@ pub use variant_population::{
 };
 
 mod gene_discovery;
-pub use gene_discovery::{GeneHeader, GeneResolution, Match};
+pub use gene_discovery::{GeneHeader, GeneIdentity, GeneResolution, Match};
 
 mod trial_header;
 pub use trial_header::TrialHeader;

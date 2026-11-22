@@ -77,6 +77,22 @@ Typed mode includes compact output schemas for entity tools, `help` and `saved` 
 
 The 18-tool default typed `tools/list` catalog measured **190,876 bytes** over stdio. This measures the `tools` array, including descriptions, annotations and output schemas. The JSON-RPC envelope and server instructions are outside that count. A catalog exceeding either ceiling returns an error naming the required size and configured limits.
 
+## Compact gene constraint batches
+
+For a compact gene constraint batch, request the constraint section with the fields you need.
+
+```sh
+biomcp get gene ATR RAD17 KAT5 RAD51 CHEK1 constraint --section-only --fields=loeuf,transcript
+```
+
+In typed MCP, use the same section and fields in a call to `gene`.
+
+```json
+{"action":"get","get":{"id":["ATR","RAD17","KAT5","RAD51","CHEK1"],"section":"constraint","section_only":true},"fields":["loeuf","transcript"]}
+```
+
+Each resolved row includes its requested input, HGNC ID and symbol, and the constraint section with its release, transcript and source. Omit `--section-only` or `section_only` to read the full cards.
+
 ## HTTP capacity
 
 `http_max_calls` limits tool calls in flight. `http_max_connections` limits open non-health HTTP connections. Each key accepts a positive integer. The server refuses `http_max_connections` when it is below `http_max_calls`. Pending framing readers and active requests share the connection cap. Framing readers share the existing worker bound of twice the connection setting plus one. `/health` uses neither the connection cap nor the tool call cap, but idle or incomplete sockets can exhaust framing workers and make it return 503. A front end that forwards complete requests avoids this raw-socket limit.
