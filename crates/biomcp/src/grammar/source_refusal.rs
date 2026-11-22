@@ -4,7 +4,7 @@ use biomcp_types::{ErrorMessage, Request, Rewrite, Source, UsageArguments, Usage
 use clap::Command;
 use std::ffi::OsString;
 
-pub(super) fn for_command(
+pub(crate) fn for_command(
     root: &Command,
     path: &[&str],
     spelling: Option<&str>,

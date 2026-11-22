@@ -9,7 +9,7 @@ use crate::runner::{
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
-const GET: &[&str] = &[
+pub(super) const GET: &[&str] = &[
     "get",
     "drug",
     "EMEA/H/C/005248",
@@ -34,7 +34,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 
-fn live_read(referral_status: u16) -> Result<(), String> {
+pub(super) fn recorded_server(referral_status: u16) -> Result<(Environment, Stub), String> {
     let recordings = bodies(&format!("{CAPTURE}/ema"))?;
     let stub = Stub::for_source_status(
         "www.ema.europa.eu",
@@ -54,7 +54,11 @@ fn live_read(referral_status: u16) -> Result<(), String> {
             }
         },
     )?;
-    let (env, stub) = configured(stub, json!({"source_data_max_age_days":1000000}))?;
+    configured(stub, json!({"source_data_max_age_days":1000000}))
+}
+
+fn live_read(referral_status: u16) -> Result<(), String> {
+    let (env, stub) = recorded_server(referral_status)?;
     let reply = invoke(&env, GET.iter().map(|arg| (*arg).into()).collect(), 0)?;
     let requests = stub.finish()?;
     if !requests

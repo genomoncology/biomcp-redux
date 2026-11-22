@@ -283,15 +283,17 @@ fn command_call(
         })
     });
     if let Some(refused) = refused {
+        let known = refusal::known(&input, &values);
+        let args = arguments::cli(root, verb, entity, &schema, &known)?;
+        let specific = (refused.cause == ErrorMessage::ArgumentUnknown
+            && refused.argument == "source"
+            && values.as_object()?.len() == known.as_object()?.len() + 1)
+            .then(|| refusal::source(root, &[verb, entity], &args, &values))
+            .flatten();
         let mut error = refusal::arguments(&refused, &["help", verb, entity])?;
-        let args = arguments::cli(
-            root,
-            verb,
-            entity,
-            &schema,
-            &refusal::known(&input, &values),
-        )?;
-        if let biomcp_types::UsageError::Arguments(usage) = &mut error
+        if let Some(specific) = specific {
+            error = specific;
+        } else if let biomcp_types::UsageError::Arguments(usage) = &mut error
             && refusal::unknown(&input, &values).as_ref() == Some(&refused.argument)
             && let Some(step) = refusal::fix(root, &args, &input, &values)
         {

@@ -3,7 +3,7 @@ use serde_json::{Value, json};
 
 pub(super) fn tool() -> Value {
     json!({"name":"help",
-        "description":"Read BioMCP command help, argument schema, sections and examples for a command path.",
+        "description":"Read BioMCP command help, argument schema, sections and examples for a command path. Use skill render for the agent guide.",
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",
             "properties":{"command":{"type":"string","description":"Command path, such as search trial, get gene or sources; empty for the map."}},
             "required":["command"],"additionalProperties":false},

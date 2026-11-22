@@ -63,3 +63,12 @@ fn lines(root: &crate::grammar::Root, tool: Option<&str>) -> io::Result<String> 
     }
     Ok(lines.join("\n"))
 }
+
+pub(crate) fn mcp_skill_guide() -> io::Result<Help> {
+    let guide = crate::skill::Skill::Overview.render()?;
+    let mut command = super::topic("skill", guide.trim_end().into());
+    command.command.push("render".into());
+    Ok(Help {
+        commands: vec![command],
+    })
+}
