@@ -8,6 +8,7 @@ mod oncokb;
 mod pathways;
 mod protein;
 mod value;
+use super::get::SourceJob;
 use crate::Ctx;
 use biodata::{Gene, HgncId};
 
@@ -172,8 +173,8 @@ pub(super) fn jobs<'a>(
     deadline: Deadline<'a>,
     query: &GeneGet,
     genes: &'a [(HgncId, Gene)],
-) -> Vec<Box<dyn FnOnce() -> super::get::Job + Send + 'a>> {
-    let mut jobs: Vec<Box<dyn FnOnce() -> super::get::Job + Send + 'a>> = Vec::new();
+) -> Vec<SourceJob<'a>> {
+    let mut jobs: Vec<SourceJob<'a>> = Vec::new();
     let requested = requested(query);
     if requested.contains(&GeneSection::Protein)
         && genes

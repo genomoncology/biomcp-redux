@@ -1,7 +1,8 @@
 use super::{next, resolve, sections};
 use crate::{Ctx, Outcome, status};
-use biodata::Text;
+use biodata::{Gene, HgncId, Text};
 use biomcp_adapters::{clinvar::GENE_COUNTS, hgnc, mygene};
+use biomcp_fetch::Deadline;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     GeneCards, GeneGet, GeneItem, Incomplete, Problem, ProblemCode, Source, SourceNotice,
@@ -39,20 +40,11 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     }
     let mut sources = vec![hgnc];
     let genes = sections::prepare(query, &mut items);
-    let ids: Vec<_> = genes
-        .iter()
-        .filter_map(|(_, gene)| gene.entrez_id)
-        .collect();
     let mut jobs = sections::jobs(cx, deadline, query, &genes);
-    if !query.section_only() && !ids.is_empty() {
-        jobs.insert(
-            0,
-            Box::new(|| {
-                let leg = cx.fetch.leg(&mygene::SPEC, deadline).fresh(cx.fresh);
-                let batches = mygene::genes(&leg, &ids);
-                Job::MyGene(batches, leg.finish())
-            }),
-        );
+    if !query.section_only()
+        && let Some(job) = mygene_job(cx, deadline, &genes)
+    {
+        jobs.insert(0, job);
     }
     let mut incomplete = Vec::new();
     for job in crate::fan_out::run(jobs) {
@@ -97,6 +89,25 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     out.incomplete = incomplete;
     out
 }
+fn mygene_job<'a>(
+    cx: &'a Ctx<'a>,
+    deadline: Deadline<'a>,
+    genes: &[(HgncId, Gene)],
+) -> Option<SourceJob<'a>> {
+    let ids: Vec<_> = genes
+        .iter()
+        .filter_map(|(_, gene)| gene.entrez_id)
+        .collect();
+    if ids.is_empty() {
+        return None;
+    }
+    Some(Box::new(move || {
+        let leg = cx.fetch.leg(&mygene::SPEC, deadline).fresh(cx.fresh);
+        let batches = mygene::genes(&leg, &ids);
+        Job::MyGene(batches, leg.finish())
+    }))
+}
+
 fn retain_identities(items: &mut [GeneItem]) {
     for item in items {
         if let Some(GeneResolution::Resolved { gene, r#match }) = &item.answer {
@@ -184,6 +195,8 @@ fn resolve_item(
         more: Box::default(),
     }
 }
+
+pub(super) type SourceJob<'a> = Box<dyn FnOnce() -> Job + Send + 'a>;
 
 pub(super) enum Job {
     MyGene(Vec<mygene::GeneBatch>, biomcp_fetch::LegReport),
