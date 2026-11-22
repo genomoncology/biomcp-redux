@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-Every command-line fix landed for the code-mode comparison reaches `biomcp serve` the same way. That covers the fixes in the comparison’s `climb.md` and every biomcp-redux ticket landed from 2026-11-19 to 2026-11-22. For each fix, the same request sent through the command and through an MCP tool call gets the same options, sections, records, refusals and refusal wording. The guidance the skill gives about the parts an MCP caller uses also reaches the MCP side, through tool descriptions, the server's instructions or `help`. A repeatable parity check proves it, and whatever it finds different is fixed in this ticket.
+Every command-line fix landed for the code-mode comparison reaches `biomcp serve` the same way. That covers the fixes in the comparison’s `climb.md` and every ticket in this repository landed from 2026-11-19 to 2026-11-22. For each fix, the same request sent through the command and through an MCP tool call gets the same options, sections, records, refusals and refusal wording. The guidance the skill gives about the parts an MCP caller uses also reaches the MCP side, through tool descriptions, the server's instructions or `help`. A repeatable parity check proves it, and whatever it finds different is fixed in this ticket.
 
 ## Why
 
