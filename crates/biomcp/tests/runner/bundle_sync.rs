@@ -123,7 +123,7 @@ fn limited(short: bool) -> Check {
     peer.finish()?;
     Ok(())
 }
-fn database(env: &Environment) -> Result<rusqlite::Connection, String> {
+pub(super) fn database(env: &Environment) -> Result<rusqlite::Connection, String> {
     let path = fs::read_dir(env.root().join("cache/biomcp"))
         .map_err(|e| e.to_string())?
         .collect::<Result<Vec<_>, _>>()
