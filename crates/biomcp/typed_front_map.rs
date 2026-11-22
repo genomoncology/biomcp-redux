@@ -318,7 +318,7 @@ pub(crate) fn generate(
     }
     let (tool, _, _, [_, get], _) = ENTITY_TOOLS.first().ok_or("no entity tool")?;
     let mut lines = vec![format!(
-        "Use an action and its object: {tool} {{\"action\":\"get\",\"get\":{get}}}. Search uses query. Get uses id. help(command|questions|examples|sources)."
+        "Example: {tool} {{\"action\":\"get\",\"get\":{get}}}. Search: query. Get: id. help(command|questions|examples|sources)."
     )];
     for (tool, _, placed, _, _) in ENTITY_TOOLS {
         let mut actions = BTreeSet::new();

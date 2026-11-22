@@ -75,9 +75,6 @@ pub(super) fn catalog(
     }
     tools.push(super::help::tool(output_schema)?);
     tools.extend(super::super::protocol::tools(context.root, read_only)?);
-    if discovery {
-        check_budget(context.settings, &tools)?;
-    }
     Ok(Catalog {
         tools,
         commands: commands
@@ -91,7 +88,7 @@ pub(super) fn catalog(
     })
 }
 
-fn check_budget(settings: &crate::config::Settings, tools: &[Value]) -> io::Result<()> {
+pub(super) fn check_budget(settings: &crate::config::Settings, tools: &[Value]) -> io::Result<()> {
     let (tool_limit, byte_limit) = crate::config::mcp_typed_budget(settings);
     let bytes = serde_json::to_vec(tools)?.len();
     if tools.len() > tool_limit || bytes > byte_limit {

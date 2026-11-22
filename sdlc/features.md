@@ -24,6 +24,7 @@ article-retired: A caller using a retired article spelling receives its fixed re
 mcp-parity: A caller sends CLI arguments through the default MCP tool or named arguments through registry-generated typed tools, receives the same command result and validates structured replies against each advertised schema; typed discovery includes command help, research search and fetch, typed follow-ups admitted against the caller’s advertised tools and input schemas, section names in the section argument, and a catalog whose tools, sources and file-write hints reflect serving authority.
 schema-discovery: A caller lists versioned schemas with descriptions, discovers resolvable command reply contracts and scoped help aliases, and follows safe guidance for invalid schema requests and unknown commands.
 corporate-network: A caller adds corporate certificate authorities, follows standard proxy settings and receives private configuration guidance for network failures.
+mcp-typed-discovery: A typed MCP caller opts into a compact list, finds tools by task, and loads an individual callable definition with the same scope and schema as the full catalog.
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP.
 article-semantic-sections: Read machine-written summaries and source-ordered citation edges with contexts from Semantic Scholar.
 source-controls: Source terms, disabled sources and bounded source health preserve policy skips before cached reads or requests.

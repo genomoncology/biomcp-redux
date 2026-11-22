@@ -1,5 +1,5 @@
 //! Transport-independent RPC admission and protocol responses.
-use super::{current, legacy, protocol};
+use super::{current, discovery, legacy, protocol};
 use serde_json::{Value, json};
 pub(super) enum Message {
     Reply(Value),
@@ -59,10 +59,14 @@ pub(super) fn message(
         *legacy = true;
         return Message::Reply(protocol::result(id.clone(), result, false));
     }
+    let typed = mode == crate::config::ToolMode::Typed;
     let result = match method {
         "ping" => json!({}),
         "server/discover" => current::discover(mode, context),
-        "tools/list" => match if mode == crate::config::ToolMode::Typed {
+        "tools/list" if typed && discovery::requested(&params) => {
+            json!({"tools":[discovery::tool()]})
+        }
+        "tools/list" => match if typed {
             super::typed::tools(context, read_only)
         } else {
             protocol::tools(context.root, read_only)
@@ -77,6 +81,15 @@ pub(super) fn message(
                 return Message::Reply(protocol::error(id.clone(), -32603, &message));
             }
         },
+        "tools/call" if typed && discovery::called(&params) => {
+            return Message::Reply(discovery::call(
+                id.clone(),
+                &params,
+                context,
+                read_only,
+                modern,
+            ));
+        }
         "tools/call" => {
             return Message::Tool {
                 id: id.clone(),
