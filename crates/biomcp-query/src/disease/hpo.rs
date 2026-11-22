@@ -52,12 +52,14 @@ pub(super) fn search(
             apply(&mut out, query, pinned, tag, result);
         }
         Err(error) => {
-            if source.reason == Some(Reason::NotFound)
-                && let Ok((_, tag)) = pinned
-            {
-                source.notices.push(notice(format!(
-                    "HPO release {tag} or a required release file was not found."
-                )));
+            if source.reason == Some(Reason::NotFound) {
+                let message = match pinned {
+                    Ok((_, tag)) => {
+                        format!("HPO release {tag} or a required release file was not found.")
+                    }
+                    Err(_) => "The publisher's current HPO release was not found.".into(),
+                };
+                source.notices.push(notice(message));
             }
             out.local = status::local(error);
         }

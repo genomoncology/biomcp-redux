@@ -1,9 +1,10 @@
 //! Feature disease-mydisease: every step a refused disease read offers runs, for each ID namespace in
 //! its printed and lowercase spelling, with and without each section.
+//! Feature disease-hpo-release: a continuation survives a publisher release change.
 use super::launch::{self, Environment};
 use libtest_mimic::Trial;
-use serde_json::Value;
-use std::io::Write;
+use serde_json::{Value, json};
+use std::{fs, io::Write};
 
 const IDS: [&str; 8] = [
     "MONDO:0007363",
@@ -27,10 +28,14 @@ const SECTIONS: [&str; 8] = [
 ];
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![super::transcript::trial(
-        "disease-mydisease/refusal-steps-run",
-        || run().map_err(Into::into),
-    )]
+    vec![
+        super::transcript::trial("disease-mydisease/refusal-steps-run", || {
+            run().map_err(Into::into)
+        }),
+        super::transcript::trial("disease-hpo-release/current-release-advances", || {
+            hpo_release_advances().map_err(Into::into)
+        }),
+    ]
 }
 
 fn run() -> Result<(), String> {
@@ -105,4 +110,71 @@ fn cli(
         .map_err(|e| e.to_string())?;
     let reply = serde_json::from_slice(&output.stdout).unwrap_or(Value::Null);
     Ok((output.status.code(), reply))
+}
+
+fn hpo_release_advances() -> Result<(), String> {
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let replay = env.root().join("replay");
+    let input = launch::fixtures().join("replies/disease/hpo-release/hpo");
+    let target = replay.join("hpo");
+    fs::create_dir_all(&target).map_err(|error| error.to_string())?;
+    let mut latest = None;
+    for entry in fs::read_dir(input).map_err(|error| error.to_string())? {
+        let entry = entry.map_err(|error| error.to_string())?;
+        let path = entry.path();
+        if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
+            continue;
+        }
+        let record = fs::read_to_string(&path).map_err(|error| error.to_string())?;
+        let path = target.join(entry.file_name());
+        if record.contains("/releases/latest") {
+            fs::write(&path, record.replace("v2099-02-01", "v2099-01-01"))
+                .map_err(|error| error.to_string())?;
+            latest = Some((path, record));
+        } else {
+            fs::write(path, record).map_err(|error| error.to_string())?;
+        }
+    }
+    let (path, new_release) = latest.ok_or("missing latest release recording")?;
+    let first_args = [
+        "search",
+        "disease",
+        "--source",
+        "hpo",
+        "--phenotype",
+        "HP:0001083",
+        "--phenotype",
+        "HP:0000098",
+        "--phenotype",
+        "HP:0001634",
+        "--limit",
+        "1",
+    ]
+    .map(str::to_owned);
+    let globals = env.globals(Some(&replay), false);
+    let (code, first) = cli(&env, &first_args, &globals)?;
+    if code != Some(0) || first.pointer("/result/release") != Some(&json!("v2099-01-01")) {
+        return Err(format!(
+            "first search missed the publisher's original release: {first}"
+        ));
+    }
+    fs::write(path, new_release).map_err(|error| error.to_string())?;
+    let (code, new) = cli(&env, &first_args, &globals)?;
+    if code != Some(0)
+        || new.pointer("/result/items/0/gene_links/0/symbol") != Some(&json!("SYNTH3"))
+    {
+        return Err(format!(
+            "a new search did not pick up the new release: {new}"
+        ));
+    }
+    let (code, next) = cli(&env, &super::action(&first, "page")?, &globals)?;
+    if code != Some(0)
+        || next.pointer("/result/release") != Some(&json!("v2099-01-01"))
+        || next.pointer("/result/items/0/gene_links_missing") != Some(&json!(true))
+    {
+        return Err(format!(
+            "continuation changed release when the publisher updated it: {next}"
+        ));
+    }
+    Ok(())
 }
