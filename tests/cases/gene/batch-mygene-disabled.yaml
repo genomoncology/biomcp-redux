@@ -1,0 +1,22 @@
+{
+  "feature": "gene-identity",
+  "story": "A gene batch resolved by HGNC names the summary and spans missing from MyGene for each gene.",
+  "live_check": "Recorded HGNC rows with MyGene disabled.",
+  "replay": "gene/main",
+  "config": {
+    "disable_sources": ["mygene"]
+  },
+  "steps": [
+    {
+      "run": ["get", "gene", "BRAF", "3845"],
+      "expect": {
+        "/status": "partial",
+        "/result/items/*/answer/gene/symbol": ["BRAF", "KRAS"],
+        "/sources/1/notices/0/message": "MyGene did not supply gene summaries or genomic spans for NCBI Gene IDs 673, 3845.",
+        "/incomplete": [
+          {"at": "/sources/1/notices/0", "source": "mygene", "reason": "disabled"}
+        ]
+      }
+    }
+  ]
+}

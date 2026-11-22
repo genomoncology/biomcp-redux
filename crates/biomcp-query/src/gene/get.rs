@@ -1,19 +1,19 @@
 use super::{next, resolve, sections};
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
-use biomcp_adapters::{hgnc, mygene};
+use biomcp_adapters::{clinvar::GENE_COUNTS, hgnc, mygene};
 use biomcp_types::GeneResolution;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    GeneCards, GeneGet, GeneItem, Problem, ProblemCode, Source, SourceState, Status,
+    GeneCards, GeneGet, GeneItem, Incomplete, Problem, ProblemCode, Source, SourceNotice,
+    SourceState, Status,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     // ClinVar gene counts declare a longer budget than the default; other legs keep their caps.
     let requested = sections::requested(query);
-    let clinvar = &biomcp_adapters::clinvar::GENE_COUNTS;
     let budget = if requested.contains(&biomcp_types::GeneSection::ClinVar) {
-        cx.fetch.source_budget(clinvar, cx.budget)
+        cx.fetch.source_budget(&GENE_COUNTS, cx.budget)
     } else {
         cx.budget
     };
@@ -54,16 +54,17 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
             }),
         );
     }
+    let mut incomplete = Vec::new();
     for job in crate::fan_out::run(jobs) {
         match job {
-            Job::MyGene(batches, report) => mygene_join(
+            Job::MyGene(batches, report) => incomplete.extend(mygene_join(
                 &mut items,
                 batches,
                 report,
                 &mut sources,
                 &mut problems,
                 &mut local,
-            ),
+            )),
             Job::Section(result) => {
                 sections::join(&mut items, &result);
                 sources.push(result.source);
@@ -74,11 +75,11 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     }
     sections::offer_oncokb(query, &mut items, &sources);
     let state = status::status(items.iter().map(|item| item.status));
-    let next = next::get(query, &items, &sources, &mut problems);
-    crate::status::finish(
+    let mut out = crate::status::finish(
         [state],
         crate::status::Parts {
             dropped: false,
+            next: next::get(query, &items, &sources, &mut problems),
             body: (GeneCards {
                 items: items.into(),
             })
@@ -86,10 +87,11 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
             page: None,
             sources,
             problems,
-            next,
             local,
         },
-    )
+    );
+    out.incomplete = incomplete;
+    out
 }
 fn join(
     item: &mut GeneItem,
@@ -177,8 +179,9 @@ fn mygene_join(
     sources: &mut Vec<biomcp_types::SourceOutcome>,
     problems: &mut Vec<Problem>,
     local: &mut Option<biomcp_fetch::RequestError>,
-) {
+) -> Vec<Incomplete> {
     let mut error = None;
+    let mut missing = Vec::new();
     for batch in batches {
         status::append(problems, batch.problems);
         match batch.result {
@@ -196,10 +199,11 @@ fn mygene_join(
                         item.status = crate::status::item_status(true, false, true);
                     }
                 }
+                missing.push((batch.ids, status::reason(failure)));
             }
         }
     }
-    let source = status::source(Source::MyGene, report, error);
+    let mut source = status::source(Source::MyGene, report, error);
     if source.state == SourceState::Stale {
         for item in items {
             if matches!(&item.answer, Some(GeneResolution::Resolved { gene, .. }) if gene.entrez_id.is_some())
@@ -208,5 +212,34 @@ fn mygene_join(
             }
         }
     }
+    let mut incomplete = Vec::new();
+    for (ids, reason) in missing {
+        let at = Text::new(&format!(
+            "/sources/{}/notices/{}",
+            sources.len(),
+            source.notices.len()
+        ))
+        .unwrap_or_else(|_| biodata::text!("/sources"));
+        let ids = ids
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join(", ");
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: format!(
+                "MyGene did not supply gene summaries or genomic spans for NCBI Gene IDs {ids}."
+            )
+            .into(),
+            retry_after_seconds: None,
+        });
+        incomplete.push(Incomplete {
+            at,
+            source: Source::MyGene,
+            reason,
+            code: None,
+        });
+    }
     sources.push(source);
+    incomplete
 }
