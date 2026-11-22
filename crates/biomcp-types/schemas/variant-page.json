@@ -285,7 +285,6 @@
           "description": "Requested scorer identity, distinct from native metadata."
         },
         "rows": {
-          "default": [],
           "description": "Paged values in native row-major order.",
           "items": {
             "$ref": "#/$defs/Reply_AlphaGenomeValue"
@@ -7122,7 +7121,6 @@
       "description": "One source-ordered page, with native record and classification boundaries intact.",
       "properties": {
         "assertions": {
-          "default": [],
           "description": "Source assertion rows in native order.",
           "items": {
             "$ref": "#/$defs/Reply_VariantAssertion"
@@ -7253,7 +7251,6 @@
           "description": "Disclosure bounds for this section."
         },
         "profiles": {
-          "default": [],
           "description": "Source profiles in native order; name candidates carry no attached statements.",
           "items": {
             "$ref": "#/$defs/Reply_CivicProfile_VariantGet"
@@ -7625,7 +7622,6 @@
       "description": "One page of exact rsID catalog associations.",
       "properties": {
         "associations": {
-          "default": [],
           "description": "Native source associations, without inferred clinical meaning.",
           "items": {
             "$ref": "#/$defs/Reply_GwasAssociation"
@@ -7765,7 +7761,6 @@
           "description": "Source rows remain candidates when no transcript/consequence join exists."
         },
         "records": {
-          "default": [],
           "description": "Native residue records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_HotspotRecord"
@@ -7887,7 +7882,6 @@
           "description": "Disclosure bounds over the records, independent of identity paging."
         },
         "records": {
-          "default": [],
           "description": "Source claims and text in native field order.",
           "items": {
             "$ref": "#/$defs/Reply_OncokbVariantRecord"
@@ -9036,7 +9030,7 @@
           "type": "null"
         }
       ],
-      "description": "Page bounds and total. A page with no rows has `returned` 0 and an empty row array."
+      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
     },
     "problems": {
       "description": "Rejected source fields.",

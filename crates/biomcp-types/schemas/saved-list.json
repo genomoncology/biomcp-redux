@@ -303,6 +303,7 @@
       "description": "Random 16-byte identifier in hex."
     },
     "items": {
+      "default": [],
       "description": "Items in the order they were added.",
       "items": {
         "$ref": "#/$defs/Reply_SavedListItem"

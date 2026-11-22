@@ -225,7 +225,10 @@ impl SavedStore {
                 params![id, seconds(now)?],
             )?;
             let mut saved = Saved::default();
-            saved.lists.push(list(tx, &id, &mut saved.skipped)?);
+            saved
+                .lists
+                .get_or_insert_default()
+                .push(list(tx, &id, &mut saved.skipped)?);
             Ok(saved)
         })
     }
@@ -259,7 +262,10 @@ impl SavedStore {
                 missing,
                 ..Saved::default()
             };
-            saved.lists.push(list(tx, &id, &mut saved.skipped)?);
+            saved
+                .lists
+                .get_or_insert_default()
+                .push(list(tx, &id, &mut saved.skipped)?);
             Ok(saved)
         })
     }
@@ -277,12 +283,12 @@ impl SavedStore {
             if name.is_none() {
                 tx.execute("DELETE FROM saved_note", [])?;
             }
-            for search in &deleted.searches {
+            for search in deleted.searches.iter().flatten() {
                 super::notes::delete_record(tx, search.id.as_str())?;
                 super::snapshot::delete_snapshots(tx, search.id.as_str())?;
                 tx.execute("DELETE FROM saved_search WHERE id=?1", [search.id.as_str()])?;
             }
-            for list in &deleted.lists {
+            for list in deleted.lists.iter().flatten() {
                 super::notes::delete_record(tx, list.id.as_str())?;
                 tx.execute(
                     "DELETE FROM saved_list_item WHERE list=?1",
@@ -351,10 +357,16 @@ fn select(connection: &Connection, name: Option<&str>) -> Result<Saved, SavedErr
     let mut saved = Saved::default();
     if let Some(name) = name {
         let record = if let Some(id) = search_id(connection, name)? {
-            saved.searches.push(search(connection, &id)?);
+            saved
+                .searches
+                .get_or_insert_default()
+                .push(search(connection, &id)?);
             id
         } else if let Some(id) = list_id(connection, name)? {
-            saved.lists.push(list(connection, &id, &mut saved.skipped)?);
+            saved
+                .lists
+                .get_or_insert_default()
+                .push(list(connection, &id, &mut saved.skipped)?);
             id
         } else {
             return Err(SavedError::Unknown);
@@ -373,10 +385,16 @@ fn select(connection: &Connection, name: Option<&str>) -> Result<Saved, SavedErr
         Ok(rows.collect::<Result<_, _>>()?)
     };
     for id in ids("SELECT id FROM saved_search ORDER BY project, name COLLATE NOCASE, id")? {
-        saved.searches.push(search(connection, &id)?);
+        saved
+            .searches
+            .get_or_insert_default()
+            .push(search(connection, &id)?);
     }
     for id in ids("SELECT id FROM saved_list ORDER BY project, name COLLATE NOCASE, id")? {
-        saved.lists.push(list(connection, &id, &mut saved.skipped)?);
+        saved
+            .lists
+            .get_or_insert_default()
+            .push(list(connection, &id, &mut saved.skipped)?);
     }
     for id in note_ids(connection, Scope::All)? {
         match note(connection, &id)? {

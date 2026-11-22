@@ -4,8 +4,9 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialPage {
     /// Native study headers in registry order.
-    #[serde(default)]
-    pub items: Box<[crate::TrialHeader]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Box<[crate::TrialHeader]>", extend("default" = [])))]
+    pub items: Option<Box<[crate::TrialHeader]>>,
     /// Registry's source processing timestamp, independently of retrieval time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_updated: Option<crate::SourceUpdated>,

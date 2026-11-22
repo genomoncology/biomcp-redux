@@ -3573,7 +3573,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialArmRecord"
@@ -3619,7 +3618,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialContactRecord"
@@ -3665,7 +3663,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialDocument"
@@ -3711,7 +3708,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialLocation"
@@ -3764,7 +3760,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialOutcome"
@@ -3810,7 +3805,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialReference"
@@ -3856,7 +3850,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_TrialResultRecord"
@@ -4702,7 +4695,7 @@
           "type": "null"
         }
       ],
-      "description": "Page bounds and total. A page with no rows has `returned` 0 and an empty row array."
+      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
     },
     "problems": {
       "description": "Rejected source fields.",

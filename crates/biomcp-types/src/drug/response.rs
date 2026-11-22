@@ -116,8 +116,7 @@ pub struct DrugRecords<T> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub truncated: Option<bool>,
     /// Native source rows in order.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(extend("default" = [])))]
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub records: Box<[T]>,
     /// Dataset or bundle revision.
     #[serde(default, skip_serializing_if = "Option::is_none")]

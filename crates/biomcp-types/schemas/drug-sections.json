@@ -1320,7 +1320,6 @@
           "description": "Stream totals and continuation, independent of every other stream."
         },
         "records": {
-          "default": [],
           "description": "Native claim order; each row carries the profile to which that claim belongs.",
           "items": {
             "$ref": "#/$defs/Reply_DrugCivicClaim"
@@ -2890,7 +2889,6 @@
           "type": "integer"
         },
         "records": {
-          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_AuthorizationEvent"
@@ -2951,7 +2949,6 @@
           "type": "integer"
         },
         "records": {
-          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugFdaSubmission"
@@ -3012,7 +3009,6 @@
           "type": "integer"
         },
         "records": {
-          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugIdentityRelation"
@@ -3073,7 +3069,6 @@
           "type": "integer"
         },
         "records": {
-          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugIndicationRow"
@@ -3134,7 +3129,6 @@
           "type": "integer"
         },
         "records": {
-          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugInteractionClaim"
@@ -3195,7 +3189,6 @@
           "type": "integer"
         },
         "records": {
-          "default": [],
           "description": "Native source rows in order.",
           "items": {
             "$ref": "#/$defs/Reply_DrugTargetRelation"
@@ -8531,7 +8524,7 @@
           "type": "null"
         }
       ],
-      "description": "Page bounds and total. A page with no rows has `returned` 0 and an empty row array."
+      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
     },
     "problems": {
       "description": "Rejected source fields.",

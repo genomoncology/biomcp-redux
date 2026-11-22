@@ -9,7 +9,7 @@ pub struct VariantCivic {
     #[serde(default)]
     pub total: u64,
     /// Source profiles in native order; name candidates carry no attached statements.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub profiles: Box<[CivicProfile]>,
     /// Disclosure bounds for this section.
     pub page: PageInfo,

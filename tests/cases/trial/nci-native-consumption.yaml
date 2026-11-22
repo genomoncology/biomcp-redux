@@ -51,11 +51,7 @@
       "follow": "page",
       "expect": {
         "/status": "partial",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
+        "/result/items": [],
         "/page/offset": 4,
         "/page/returned": 0,
         "/page/total": 8

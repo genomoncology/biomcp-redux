@@ -2284,7 +2284,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciArmRecord"
@@ -2330,7 +2329,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciCriterion"
@@ -2376,7 +2374,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciDisease"
@@ -2422,7 +2419,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciDiseaseRef"
@@ -2468,7 +2464,6 @@
           "description": "Checked request for the next intact records, absent when complete."
         },
         "items": {
-          "default": [],
           "description": "Complete records in source order.",
           "items": {
             "$ref": "#/$defs/Reply_NciOutcome"
@@ -2644,7 +2639,7 @@
           "type": "null"
         }
       ],
-      "description": "Page bounds and total. A page with no rows has `returned` 0 and an empty row array."
+      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
     },
     "problems": {
       "description": "Rejected source fields.",

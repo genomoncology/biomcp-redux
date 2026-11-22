@@ -390,6 +390,7 @@
           "type": "array"
         },
         "lists": {
+          "default": [],
           "description": "Saved lists, by project and name.",
           "items": {
             "$ref": "#/$defs/Reply_SavedList"
@@ -404,6 +405,7 @@
           "type": "array"
         },
         "searches": {
+          "default": [],
           "description": "Saved searches, by project and name.",
           "items": {
             "$ref": "#/$defs/Reply_SavedSearch"
@@ -448,6 +450,7 @@
           "description": "Random 16-byte identifier in hex."
         },
         "items": {
+          "default": [],
           "description": "Items in the order they were added.",
           "items": {
             "$ref": "#/$defs/Reply_SavedListItem"
@@ -1456,7 +1459,7 @@
           "type": "null"
         }
       ],
-      "description": "Page bounds and total. A page with no rows has `returned` 0 and an empty row array."
+      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
     },
     "problems": {
       "description": "Rejected source fields.",

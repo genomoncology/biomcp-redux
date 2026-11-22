@@ -155,8 +155,7 @@ pub struct TrialRecords<T> {
     /// The page every list states: offset, rows returned and total (1061).
     pub page: crate::PageInfo,
     /// Complete records in source order.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(extend("default" = [])))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[T]>,
 }
 impl<T> TrialRecords<T> {

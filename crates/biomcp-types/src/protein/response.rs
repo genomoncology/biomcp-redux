@@ -211,7 +211,7 @@ pub struct ProteinInteractions {
     /// products of one gene, such as CDKN2A's P42771 and Q8N726, share one entry and one partner list.
     pub string_id: Text,
     /// Bounded first rows in STRING's order, highest combined score first.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ProteinInteraction]>,
 }
 /// One STRING functional association; a score is STRING's confidence (0 to 1), not a measured affinity.
@@ -265,7 +265,7 @@ pub struct ProteinChembl {
     #[serde(default)]
     pub total: u64,
     /// The targets, each with its assay and activity totals.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ProteinChemblTarget]>,
 }
 /// One ChEMBL target; its totals are ChEMBL's own counts, not rows BioMCP read.

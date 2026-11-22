@@ -78,6 +78,7 @@ fn lists_and_searches_round_trip() {
         .list_add(&text("genes"), &[item("BRAF"), item("KIT")])
         .unwrap()
         .lists
+        .unwrap()
         .remove(0);
     let ids: Vec<_> = list.items.iter().map(|i| i.reference.id.as_str()).collect();
     assert_eq!(ids, ["BRAF", "NRAS", "KIT"], "set insert in added order");
@@ -85,12 +86,13 @@ fn lists_and_searches_round_trip() {
     let removed = store
         .list_remove("GENES", &[text("NRAS"), text("TP53")])
         .unwrap();
-    let list = &removed.lists[0];
+    let list = &removed.lists.as_deref().unwrap()[0];
     assert_eq!(list.items.len(), 2, "one item removed");
     assert_eq!(removed.missing, [text("TP53")], "not held");
     let unchanged = store.list_remove("genes", &[text("NRAS")]).unwrap();
     assert_eq!(
-        unchanged.lists[0].modified, list.modified,
+        unchanged.lists.as_deref().unwrap()[0].modified,
+        list.modified,
         "nothing removed leaves modified"
     );
     assert_eq!(unchanged.missing, [text("NRAS")], "now missing");
@@ -98,7 +100,7 @@ fn lists_and_searches_round_trip() {
     let mut store = SavedStore::open(&path).unwrap();
     let all = store.show(None).unwrap();
     assert_eq!(
-        (all.searches.len(), all.lists.len()),
+        (all.searches.unwrap().len(), all.lists.unwrap().len()),
         (1, 1),
         "reopened file keeps both"
     );
@@ -108,9 +110,17 @@ fn lists_and_searches_round_trip() {
         "unknown name"
     );
     let deleted = store.delete(Some("melanoma")).unwrap();
-    assert_eq!(deleted.searches.len(), 1, "deleted search returned");
+    assert_eq!(
+        deleted.searches.unwrap().len(),
+        1,
+        "deleted search returned"
+    );
     let deleted = store.delete(None).unwrap();
-    assert_eq!(deleted.lists.len(), 1, "delete all returns the rest");
+    assert_eq!(
+        deleted.lists.unwrap().len(),
+        1,
+        "delete all returns the rest"
+    );
     assert_eq!(
         store.show(None).unwrap(),
         Default::default(),
@@ -162,7 +172,7 @@ fn file_with_later_additive_migrations_opens() {
         )
         .unwrap();
     assert_eq!(
-        list.lists[0].items.len(),
+        list.lists.as_deref().unwrap()[0].items.len(),
         2,
         "an older build writes the later file"
     );

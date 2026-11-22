@@ -134,8 +134,8 @@ steps:
         equals: [project]
   - run: [saved, show]
     expect:
-      /result:
-        equals: {}
+      /result/searches: []
+      /result/lists: []
   # --source picks the item by its source; the store test covers one ID under two sources.
   - run: [saved, list, add, recalls, --entity, diagnostic, --source, fda-device-recall, Z-0884-2026]
     expect:
