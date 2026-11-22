@@ -37,6 +37,7 @@ pub(super) fn check() -> Result<(), String> {
         &offline,
     )?)?;
     super::typed_catalog::check(&local)?;
+    cardinalities(&local)?;
     let validators = output::check(&env, &local)?;
     let server =
         Server::configured_globals("127.0.0.1:0", Some(config), None, None, None, &hosted)?;
@@ -105,6 +106,33 @@ pub(super) fn check() -> Result<(), String> {
     } else {
         Err(failures.join("\n"))
     }
+}
+
+/// Tools advertise lists only where the get action can read several values.
+fn cardinalities(tools: &[Value]) -> Result<(), String> {
+    let several = json!(["string", "array"]);
+    for (name, field, kind) in [
+        ("drug", "id", json!("string")),
+        ("disease", "id", json!("string")),
+        ("gene", "id", several.clone()),
+        ("diagnostic", "section", json!("string")),
+        ("drug", "section", several),
+    ] {
+        let actual = tools
+            .iter()
+            .find(|tool| tool["name"] == name)
+            .and_then(|tool| {
+                tool.pointer(&format!(
+                    "/inputSchema/properties/get/properties/{field}/type"
+                ))
+            });
+        if actual != Some(&kind) {
+            return Err(format!(
+                "{name}.get.{field} advertises {actual:?}, expected {kind}"
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// A served action reaches the CLI's command (schema and query); hosting refuses it only for a source whose key the
