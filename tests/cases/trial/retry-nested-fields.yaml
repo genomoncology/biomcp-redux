@@ -1,0 +1,91 @@
+{
+  "feature": "search-fields",
+  "story": "Fields nested inside an otherwise valid trial search are checked as a projection. The retry keeps the ID and phase columns and names the unplaced field.",
+  "live_check": "Replay only",
+  "replay": "trial/row-fields",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal",
+        "melanoma",
+        "--phase",
+        "3",
+        "--limit",
+        "3",
+        "--fields",
+        "nct_id,phase,unknown_column"
+      ],
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/unplaced": [
+          "unknown_column"
+        ],
+        "/next/0/args/0": "--fields=nct_id,phases"
+      },
+      "exit": 2
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/phases": {
+          "count": 1
+        },
+        "/result/items/0": {
+          "omits": [
+            "title",
+            "sponsor"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "condition": "uveal melanoma",
+            "phase": "3",
+            "limit": 3,
+            "fields": [
+              "nct_id",
+              "phase",
+              "unknown_column"
+            ]
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/unplaced": [
+          "unknown_column"
+        ],
+        "/next/0/arguments/fields": [
+          "nct_id",
+          "phases"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/phases": {
+          "count": 1
+        },
+        "/result/items/0": {
+          "omits": [
+            "title",
+            "sponsor"
+          ]
+        }
+      }
+    }
+  ]
+}

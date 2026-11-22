@@ -1,0 +1,76 @@
+{
+  "feature": "drug-label-history",
+  "story": "A page-size conflict returns the same label history and text search so it can run within the history reader\u2019s own bounds.",
+  "live_check": "Replay only",
+  "replay": "drug/label-history-aimovig",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA761077",
+        "label-history",
+        "--label-section",
+        "warnings_and_cautions",
+        "--find",
+        "Raynaud",
+        "--section-limit",
+        "15"
+      ],
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/args": {
+          "includes": "label-history"
+        }
+      },
+      "exit": 2
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "partial",
+        "/query/input": "BLA761077",
+        "/query/find": [
+          "Raynaud"
+        ],
+        "/result/section": "warnings_and_cautions",
+        "/result/first/approved": "2025-03-21"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BLA761077",
+            "section": "label-history",
+            "label_section": "warnings_and_cautions",
+            "find": "Raynaud",
+            "section_limit": 15
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/arguments/get/section": [
+          "label-history"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "partial",
+        "/query/input": "BLA761077",
+        "/query/find": [
+          "Raynaud"
+        ],
+        "/result/section": "warnings_and_cautions",
+        "/result/first/approved": "2025-03-21"
+      }
+    }
+  ]
+}

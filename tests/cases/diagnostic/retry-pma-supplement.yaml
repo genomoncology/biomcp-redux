@@ -1,0 +1,65 @@
+{
+  "feature": "diagnostic-pma",
+  "story": "A PMA summary and supplement conflict offers the specific supplement card.",
+  "live_check": "Replay only",
+  "replay": "diagnostic/pma-synthetic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P150013",
+        "summary",
+        "--source",
+        "fda-pma",
+        "--supplement",
+        "S020"
+      ],
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/args": {
+          "includes": "S020"
+        }
+      },
+      "exit": 2
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/id": "P150013",
+        "/result/header/supplement_number": "S020"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "P150013",
+            "section": [
+              "summary"
+            ],
+            "source": "fda-pma",
+            "supplement": "S020"
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/arguments/get/supplement": "S020"
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/id": "P150013",
+        "/result/header/supplement_number": "S020"
+      }
+    }
+  ]
+}
