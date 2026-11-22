@@ -56,10 +56,10 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(hosted_surface::trials());
     trials.extend(typed::trials());
     trials.extend([
-        transcript_trial("mcp-parity/typed-discovery-compact", || {
+        transcript_trial("mcp-typed-discovery/compact", || {
             typed_discovery::check().map_err(Into::into)
         }),
-        transcript_trial("mcp-parity/typed-discovery-hosted", || {
+        transcript_trial("mcp-typed-discovery/hosted", || {
             typed_discovery::hosted().map_err(Into::into)
         }),
     ]);
