@@ -5,6 +5,7 @@ mod hosted;
 pub(crate) mod http;
 mod legacy;
 mod output_schema;
+mod output_shape;
 mod protocol;
 mod queue;
 pub(crate) mod research;

@@ -88,35 +88,19 @@ const DESCRIPTION: &str = concat!(
     "Replies are JSON source evidence with status, problems and next commands; inspect them before interpreting results."
 );
 
-fn tool(read_only: bool) -> Value {
-    json!({"name":"biomcp", "description":DESCRIPTION,
+pub(super) fn tool(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Value> {
+    Ok(json!({"name":"biomcp", "description":DESCRIPTION,
         "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true},
         "inputSchema":{"$schema":SCHEMA_DIALECT,"type":"object","properties":{
             "args":{"type":"array","items":{"type":"string"},
                 "description":"CLI command words, without biomcp. Example: [\"help\"]"}},
-            "required":["args"],"additionalProperties":false}})
+            "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool(root, "biomcp")?}))
 }
 
 pub(super) fn tools(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Vec<Value>> {
-    let mut tools = input_tools(read_only);
-    for tool in &mut tools {
-        let fields = tool
-            .as_object_mut()
-            .ok_or_else(|| std::io::Error::other("missing tool fields"))?;
-        let name = fields
-            .get("name")
-            .and_then(Value::as_str)
-            .ok_or_else(|| std::io::Error::other("missing tool name"))?;
-        let output = super::output_schema::for_tool(root, name)?;
-        fields.insert("outputSchema".into(), output);
-    }
+    let mut tools = vec![tool(root, read_only)?];
+    tools.extend(super::research::tools(root)?);
     Ok(tools)
-}
-
-pub(super) fn input_tools(read_only: bool) -> Vec<Value> {
-    let mut tools = vec![tool(read_only)];
-    tools.extend(super::research::tools());
-    tools
 }
 
 pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {

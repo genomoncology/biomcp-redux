@@ -74,11 +74,23 @@ pub(super) fn catalog(
         tools.push(super::saved::tool(output_schema)?);
     }
     tools.push(super::help::tool(output_schema)?);
+    let mut shared = super::super::protocol::tools(context.root, read_only)?;
+    if output_schema {
+        for tool in &mut shared {
+            let fields = tool
+                .as_object_mut()
+                .ok_or_else(|| io::Error::other("missing tool fields"))?;
+            let name = fields
+                .get("name")
+                .and_then(Value::as_str)
+                .ok_or_else(|| io::Error::other("missing tool name"))?;
+            let schema = super::super::output_shape::for_tool(context.root, name)?;
+            fields.insert("outputSchema".into(), schema);
+        }
+    }
+    tools.extend(shared);
     if discovery {
-        tools.extend(super::super::protocol::tools(context.root, read_only)?);
         check_budget(context.settings, &tools)?;
-    } else {
-        tools.extend(super::super::protocol::input_tools(read_only));
     }
     Ok(Catalog {
         tools,
@@ -180,7 +192,7 @@ fn entity(
             .collect::<Vec<_>>();
         fields.insert(
             "outputSchema".into(),
-            super::super::output_schema::for_commands(&paths)?,
+            super::super::output_shape::for_commands(&paths)?,
         );
     }
     Ok(Some(tool))

@@ -38,6 +38,7 @@ pub(super) fn check() -> Result<(), String> {
     let validators = reply_validators(&local)?;
     replay_reply(&env, &validators)?;
     shared_replies(&env, &validators)?;
+    saved_replies(&validators)?;
     let server =
         Server::configured_globals("127.0.0.1:0", Some(config), None, None, None, &hosted)?;
     let (_, served) = server.request("POST", "/mcp", &list.to_string())?;
@@ -244,17 +245,22 @@ fn replay_reply(env: &Environment, validators: &Validators<'_>) -> Result<(), St
 }
 
 fn shared_replies(env: &Environment, validators: &Validators<'_>) -> Result<(), String> {
-    let replay = super::super::response_cases::replay(env, Some("trial/intervention"), None)?;
-    let globals = env.globals(replay.as_deref(), false);
-    for (name, args) in [
-        ("help", json!({"command":"search trial"})),
-        ("biomcp", json!({"args":["help","search","trial"]})),
+    for (name, args, capture) in [
+        ("help", json!({"command":"search trial"}), None),
+        ("biomcp", json!({"args":["help","search","trial"]}), None),
         (
             "search",
             json!({"query":"trial --condition melanoma --intervention pembrolizumab"}),
+            Some("trial/intervention"),
         ),
-        ("saved", json!({"action":"show","show":{}})),
+        (
+            "fetch",
+            json!({"id":"trial NCT02296125"}),
+            Some("trial/get/NCT02296125"),
+        ),
     ] {
+        let replay = super::super::response_cases::replay(env, capture, None)?;
+        let globals = env.globals(replay.as_deref(), capture.is_none());
         let frame = request(
             json!(1),
             "tools/call",
@@ -268,6 +274,41 @@ fn shared_replies(env: &Environment, validators: &Validators<'_>) -> Result<(), 
         validators[name]
             .validate(reply)
             .map_err(|error| format!("{name}: output schema rejected replayed reply: {error}"))?;
+    }
+    Ok(())
+}
+
+fn saved_replies(validators: &Validators<'_>) -> Result<(), String> {
+    use super::super::{case_data, launch, response_cases, run_sequence, schema};
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    env.config(&json!({"mcp_tool_mode":"typed"}))
+        .map_err(|error| error.to_string())?;
+    let case = case_data::read_case(&launch::fixtures().join("cases/saved/mcp.yaml"))?;
+    let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
+    let registry = schema::Registry::embedded()?;
+    let mut previous = None;
+    let mut prior_step = None;
+    for step in &case.steps {
+        let reply = run_sequence(
+            step,
+            &env,
+            &Vec::new(),
+            &registry,
+            replay.as_deref(),
+            previous.as_ref(),
+            prior_step,
+        )?;
+        if step
+            .mcp_call
+            .as_ref()
+            .is_some_and(|call| call.name == "saved")
+        {
+            validators["saved"]
+                .validate(&reply)
+                .map_err(|error| format!("saved output schema rejected replayed reply: {error}"))?;
+        }
+        previous = Some(reply);
+        prior_step = Some(step);
     }
     Ok(())
 }
