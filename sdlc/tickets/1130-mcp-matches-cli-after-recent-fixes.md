@@ -6,11 +6,11 @@ Milestone: 7
 
 ## Outcome
 
-Every command-line fix landed for the code-mode comparison reaches `biomcp serve` the same way. That covers the fixes in `biomcp-code-mode-redux` `climb.md` and every biomcp-redux ticket landed from 2026-11-19 to 2026-11-22. For each fix, the same request sent through the command and through an MCP tool call gets the same options, sections, records, refusals and refusal wording. The guidance the skill gives about the parts an MCP caller uses also reaches the MCP side, through tool descriptions, the server's instructions or `help`. A repeatable parity check proves it, and whatever it finds different is fixed in this ticket.
+Every command-line fix landed for the code-mode comparison reaches `biomcp serve` the same way. That covers the fixes in the comparison’s `climb.md` and every biomcp-redux ticket landed from 2026-11-19 to 2026-11-22. For each fix, the same request sent through the command and through an MCP tool call gets the same options, sections, records, refusals and refusal wording. The guidance the skill gives about the parts an MCP caller uses also reaches the MCP side, through tool descriptions, the server's instructions or `help`. A repeatable parity check proves it, and whatever it finds different is fixed in this ticket.
 
 ## Why
 
-Ian, 2026-11-22 (relayed by Jarvis, pm mail m40010): "with our recent fixes to the CLI we need to make sure MCP is up to speed." Next the code-mode project runs round 1 with BioMCP reached over MCP, with and without code mode (biomcp-code-mode-redux ticket 0016). The MCP arms must not measure an MCP server that lags the command.
+Ian, 2026-11-22 (relayed by Jarvis, pm mail m40010): "with our recent fixes to the CLI we need to make sure MCP is up to speed." Next the code-mode project runs round 1 with BioMCP reached over MCP, with and without code mode. The MCP arms must not measure an MCP server that lags the command.
 
 ## Proof
 
@@ -20,7 +20,7 @@ Ian, 2026-11-22 (relayed by Jarvis, pm mail m40010): "with our recent fixes to t
 
 ## Starts from
 
-- Starts from: main `3b58595cd`. Landed tickets: `git log --since=2026-11-19 origin/main`. `climb.md` is in `~/workspace/repos/biomcp-code-mode-redux`.
+- Starts from: main `3b58595cd`. Landed tickets: `git log --since=2026-11-19 origin/main`.
 
 ## Keeps
 

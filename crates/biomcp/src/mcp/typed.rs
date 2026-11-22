@@ -290,10 +290,10 @@ fn command_call(
             && values.as_object()?.len() == known.as_object()?.len() + 1)
             .then(|| refusal::source(root, &[verb, entity], &args, &values))
             .flatten();
-        let mut error =
-            specific.or_else(|| refusal::arguments(&refused, &["help", verb, entity]))?;
-        if let biomcp_types::UsageError::Arguments(usage) = &mut error
-            && usage.message == Some(ErrorMessage::ArgumentUnknown)
+        let mut error = refusal::arguments(&refused, &["help", verb, entity])?;
+        if let Some(specific) = specific {
+            error = specific;
+        } else if let biomcp_types::UsageError::Arguments(usage) = &mut error
             && refusal::unknown(&input, &values).as_ref() == Some(&refused.argument)
             && let Some(step) = refusal::fix(root, &args, &input, &values)
         {
