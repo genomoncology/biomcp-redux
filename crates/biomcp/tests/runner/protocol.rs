@@ -23,6 +23,8 @@ mod typed;
 mod typed_bridge;
 #[path = "typed_catalog.rs"]
 pub(super) mod typed_catalog;
+#[path = "typed_discovery.rs"]
+mod typed_discovery;
 #[path = "typed_entity.rs"]
 mod typed_entity;
 #[path = "typed_followups.rs"]
@@ -53,6 +55,14 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(recent_parity::trials());
     trials.extend(hosted_surface::trials());
     trials.extend(typed::trials());
+    trials.extend([
+        transcript_trial("mcp-parity/typed-discovery-compact", || {
+            typed_discovery::check().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-discovery-hosted", || {
+            typed_discovery::hosted().map_err(Into::into)
+        }),
+    ]);
     trials.extend(source_age::trials());
     trials.extend([
         transcript_trial("mcp-parity/cancellation-suppresses-later-output", || {
