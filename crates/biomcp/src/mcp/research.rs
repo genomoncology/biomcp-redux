@@ -5,7 +5,7 @@ use biomcp_types::ResearchHit;
 use serde_json::{Value, json};
 use std::{ffi::OsString, io};
 
-pub(super) fn tools(root: &crate::grammar::Root) -> io::Result<Vec<Value>> {
+pub(super) fn tools() -> [Value; 2] {
     [
         (
             "search",
@@ -18,20 +18,15 @@ pub(super) fn tools(root: &crate::grammar::Root) -> io::Result<Vec<Value>> {
             "Fetch a search result using its exact id. Returns the CLI record as Markdown with source metadata.",
         ),
     ]
-    .into_iter()
     .map(|(name, key, description)| {
-        let output = super::output_schema::for_tool(root, name)?;
-        Ok(json!({"name":name,
+        json!({"name":name,
 "description":description,
 "inputSchema":{"$schema":super::protocol::SCHEMA_DIALECT,"type":"object",
 "properties":{key:{"type":"string","description":description}},
 "required":[key],
 "additionalProperties":false},
-"outputSchema":output,
-
-                "annotations":{"readOnlyHint":true,"destructiveHint":false,"openWorldHint":true}}))
+"annotations":{"readOnlyHint":true,"destructiveHint":false,"openWorldHint":true}})
     })
-    .collect()
 }
 #[derive(Clone)]
 pub(super) enum Projection {

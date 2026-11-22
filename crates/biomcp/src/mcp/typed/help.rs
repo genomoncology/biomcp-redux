@@ -1,13 +1,20 @@
 //! One help entry point delegates command paths to the existing CLI help owner.
 use serde_json::{Value, json};
 
-pub(super) fn tool() -> Value {
-    json!({"name":"help",
+pub(super) fn tool(output_schema: bool) -> std::io::Result<Value> {
+    let mut tool = json!({"name":"help",
         "description":"Read BioMCP command help, argument schema, sections and examples for a command path. Use skill render for the agent guide.",
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",
             "properties":{"command":{"type":"string","description":"Command path, such as search trial, get gene or sources; empty for the map."}},
             "required":["command"],"additionalProperties":false},
-        "annotations":{"readOnlyHint":true,"destructiveHint":false,"openWorldHint":true}})
+        "annotations":{"readOnlyHint":true,"destructiveHint":false,"openWorldHint":true}});
+    if output_schema && let Some(fields) = tool.as_object_mut() {
+        fields.insert(
+            "outputSchema".into(),
+            super::super::output_schema::for_help()?,
+        );
+    }
+    Ok(tool)
 }
 pub(super) fn parse(params: &Value) -> Option<super::super::research::Call> {
     let fields = params.get("arguments")?.as_object()?;
