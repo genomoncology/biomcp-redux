@@ -80,7 +80,7 @@ drug-fda-safety-signals: Search FDA quarterly potential safety signals by drug o
 drug-fda-dsc: A drug name finds FDA Drug Safety Communications by title, linked drug name or available page text, with the match location and coverage; a communication UUID reads FDA's text.
 drug-ddinter: Explicit synchronization replaces all eight native pair files atomically, a live first read fetches a missing copy, reads never refresh a stored one, and search and interaction pages retain native identity, level, order, provenance and content revision.
 disease-monarch: Read native gene and phenotype association rows with their endpoints, evidence, provenance and component terms, without causal inference.
-disease-gene-validity: A caller pages separate ClinGen and GenCC curations by native disease name or ID, filters classifications and submitters, and sees source coverage and freshness.
+disease-gene-validity: A caller pages separate ClinGen and GenCC curations by exact native disease name or ID or literal title prefix, filters classifications and submitters, selects row fields, and sees source coverage and freshness.
 drug-next-steps: Follow source-stated variant, build and tumor context from drug claims to keyed variant annotation, with explicit missing context and no drug-name inference.
 drug-retirements: Retired and unproved drug commands return fixed migration guidance before requests.
 drug-failures: Every kept drug source reports synthetic transport and broken-body failures with publisher terms.

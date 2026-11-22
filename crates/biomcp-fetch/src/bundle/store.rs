@@ -139,6 +139,7 @@ pub(super) fn kind(k: KeyKind) -> u8 {
         KeyKind::Alias => 3,
         KeyKind::Xref => 4,
         KeyKind::Band => 5,
+        KeyKind::CurationTitle => 6,
     }
 }
 pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
@@ -350,7 +351,7 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
             None,
             kind(k),
         ),
-        Find::ExactOrUnindexed(k, v) => {
+        Find::ExactOrUnindexed(k, v) | Find::PrefixOrUnindexed(k, v) => {
             let indexed = c
                 .query_row(
                     "SELECT EXISTS(SELECT 1 FROM bundle_key WHERE bundle=?1 AND kind=?2)",
@@ -359,7 +360,12 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
                 )
                 .map_err(|error| db_error(error))?;
             if indexed {
-                return selected_rows(c, name, Find::Exact(k, v));
+                let indexed = if matches!(find, Find::PrefixOrUnindexed(..)) {
+                    Find::Prefix(k, v)
+                } else {
+                    Find::Exact(k, v)
+                };
+                return selected_rows(c, name, indexed);
             }
             (
                 "SELECT row FROM bundle_row WHERE bundle=?1 ORDER BY n",

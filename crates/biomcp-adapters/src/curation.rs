@@ -1,7 +1,8 @@
 //! Index native disease identifiers and names in the validity exports.
 use crate::Mapped;
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Keys};
-use biomcp_types::{DiseaseCuration, DiseaseId};
+use biomcp_types::{DiseaseCuration, DiseaseId, Text};
+use caseless::Caseless;
 
 /// One export's checked matches and the snapshot that supplied them.
 #[derive(Debug)]
@@ -24,34 +25,49 @@ pub(crate) fn index(keys: &mut Keys, id: Option<&str>, name: Option<&str>) {
                 value.map(|value| (KeyKind::Xref, format!("{kind}:{value}").into()))
             }),
     );
+    if let Some(name) = name {
+        keys.exact.push((KeyKind::CurationTitle, fold(name).into()));
+    }
 }
 
-pub(crate) struct Lookup<'a>(&'a DiseaseId);
+/// Select curations by an exact native identity or a literal publisher title prefix.
+#[derive(Clone, Copy, Debug)]
+pub enum CurationLookup<'a> {
+    /// Exact native identifier or title.
+    Exact(&'a DiseaseId),
+    /// Prefix of a publisher's own disease title.
+    TitlePrefix(&'a Text),
+}
 
-impl<'a> Lookup<'a> {
-    pub(crate) fn new(id: &'a DiseaseId) -> Self {
-        Self(id)
-    }
-
+impl CurationLookup<'_> {
     pub(crate) fn key(&self) -> String {
-        let kind = if matches!(self.0, DiseaseId::Concept(_)) {
-            "id"
-        } else {
-            "name"
-        };
-        format!("{kind}:{}", self.0)
+        match self {
+            Self::Exact(id @ DiseaseId::Concept(_)) => format!("id:{id}"),
+            Self::Exact(name) => format!("name:{name}"),
+            Self::TitlePrefix(prefix) => fold(prefix.as_str()),
+        }
     }
 
-    pub(crate) fn find(key: &str) -> Find<'_> {
-        Find::ExactOrUnindexed(KeyKind::Xref, key)
+    pub(crate) fn find<'a>(&self, key: &'a str) -> Find<'a> {
+        match self {
+            Self::Exact(_) => Find::ExactOrUnindexed(KeyKind::Xref, key),
+            Self::TitlePrefix(_) => Find::PrefixOrUnindexed(KeyKind::CurationTitle, key),
+        }
     }
 
-    pub(crate) fn matches(&self, id: Option<&str>, name: Option<&str>) -> bool {
-        let candidate = if matches!(self.0, DiseaseId::Concept(_)) {
-            id
-        } else {
-            name
-        };
-        candidate.is_some_and(|value| value.eq_ignore_ascii_case(self.0.as_str()))
+    pub(crate) fn matches(&self, id: Option<&str>, name: Option<&str>, key: &str) -> bool {
+        match self {
+            Self::Exact(requested @ DiseaseId::Concept(_)) => same(id, requested),
+            Self::Exact(requested) => same(name, requested),
+            Self::TitlePrefix(_) => name.is_some_and(|name| fold(name).starts_with(key)),
+        }
     }
+}
+
+fn same(candidate: Option<&str>, requested: &DiseaseId) -> bool {
+    candidate.is_some_and(|value| value.eq_ignore_ascii_case(requested.as_str()))
+}
+
+fn fold(title: &str) -> String {
+    title.chars().default_case_fold().collect()
 }
