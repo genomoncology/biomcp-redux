@@ -214,7 +214,7 @@ fn reply_validators(tools: &[Value]) -> Result<Validators<'_>, String> {
 }
 
 fn replay_reply(env: &Environment, validators: &Validators<'_>) -> Result<(), String> {
-    let replay = super::super::response_cases::replay(env, Some("trial/intervention"), false)?;
+    let replay = super::super::response_cases::replay(env, Some("trial/intervention"), None)?;
     let globals = env.globals(replay.as_deref(), false);
     let frame = request(
         json!(1),
