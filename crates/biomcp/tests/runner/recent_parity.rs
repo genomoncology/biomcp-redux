@@ -88,6 +88,9 @@ pub(super) fn trials() -> Vec<Trial> {
         })
         .collect();
     trials.extend([
+        transcript::trial("mcp-parity/recent/typed-source-refusals", || {
+            typed_source_refusals().map_err(Into::into)
+        }),
         transcript::trial("mcp-parity/recent/skill-guide", || {
             guide().map_err(Into::into)
         }),
@@ -150,6 +153,52 @@ fn replay(case: &case_data::Case, step: usize, mcp: bool) -> Result<Value, Strin
         return Err("parity witness step is outside its case".into());
     }
     previous.ok_or_else(|| "parity witness step must be positive".into())
+}
+
+fn typed_source_refusals() -> Result<(), String> {
+    let env = launch::Environment::new().map_err(|error| error.to_string())?;
+    for (tool, words, arguments, correction) in [
+        (
+            "gene",
+            ["search", "gene", "Fanconi anemia", "--source", "clingen"],
+            json!({"action":"search","search":{"query":"Fanconi anemia","source":"clingen"}}),
+            json!({"action":"get","get":{"id":"Fanconi anemia","section":"gene-validity","source":"clingen"}}),
+        ),
+        (
+            "pathway",
+            ["get", "pathway", "R-HSA-5693607", "--source", "reactome"],
+            json!({"action":"get","get":{"id":"R-HSA-5693607","source":"reactome"}}),
+            json!({"action":"get","get":{"id":"R-HSA-5693607"}}),
+        ),
+    ] {
+        let mut args = words.map(str::to_owned).to_vec();
+        args.push("--offline".into());
+        let cli = super::configuration::invoke(&env, args, 2)?;
+        let replies = mcp::exchange_with_globals(
+            &env,
+            &[mcp::request(
+                json!(1),
+                "tools/call",
+                json!({"name":tool,"arguments":arguments}),
+            )],
+            &["--offline".into(), "--tool-mode".into(), "typed".into()],
+        )?;
+        let reply = replies.first().ok_or("typed reply missing")?;
+        let typed = reply
+            .pointer("/result/structuredContent")
+            .ok_or("typed data missing")?;
+        compare(
+            &super::protocol::typed_followups::data(&cli),
+            &super::protocol::typed_followups::data(typed),
+        )?;
+        let expected_tool = if tool == "gene" { "disease" } else { tool };
+        if typed.pointer("/next/0/name") != Some(&json!(expected_tool))
+            || typed.pointer("/next/0/arguments") != Some(&correction)
+        {
+            return Err(format!("typed correction differs: {typed}"));
+        }
+    }
+    Ok(())
 }
 
 fn guide() -> Result<(), String> {
