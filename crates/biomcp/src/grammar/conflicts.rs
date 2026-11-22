@@ -1,8 +1,27 @@
 //! Recover source-specific sub-questions from conflicting selectors.
-use biomcp_types::{DrugSource, ErrorMessage, LabelHistorySection, QueryInvalid, Rewrite, Step};
+use biomcp_types::{
+    DrugSource, ErrorMessage, LabelHistorySection, QueryInvalid, Rewrite, Step, UsageError,
+};
 use serde_json::{Map, Value, json};
 
-pub(super) fn next(
+pub(super) fn invalid(
+    via: Rewrite,
+    path: (&str, &str),
+    value: &Value,
+    cause: &QueryInvalid,
+    projection: &[String],
+) -> Option<super::ParseInvalid> {
+    let (message, next) = next(via, path, value, cause, projection)?;
+    let mut arguments = super::validation::checked(path.0, path.1, value, cause)?;
+    arguments.message = Some(message);
+    arguments.next = next;
+    Some(super::ParseInvalid {
+        usage: Some(UsageError::Arguments(arguments)),
+        ..super::ParseInvalid::default()
+    })
+}
+
+fn next(
     via: Rewrite,
     path: (&str, &str),
     value: &Value,
@@ -54,6 +73,15 @@ fn drug(fields: &mut Map<String, Value>, cause: &QueryInvalid) -> Option<ErrorMe
     match fields.get("section")?.as_array()?.as_slice() {
         [section] if section == "label-history" => history(fields, cause),
         [section] if section == "label" => current_label(fields, cause),
+        [section]
+            if section == "approvals"
+                && present(fields, "document_id")
+                && present(fields, "find")
+                && exact(cause, &["section", "find", "label_section"]) =>
+        {
+            remove(fields, &["find", "label_section"]);
+            Some(ErrorMessage::DrugApprovalDocumentFind)
+        }
         _ => None,
     }
 }

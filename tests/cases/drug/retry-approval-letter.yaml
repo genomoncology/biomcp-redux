@@ -1,0 +1,27 @@
+feature: drug-approvals
+story: A text search on an exact approval letter offers a read of that same letter.
+live_check: Replay only
+replay: diagnostic/fda-documents
+steps:
+  - run: [get, drug, NDA021588, approvals, --source, drugsfda, --document-id, "64255", --find, efficacy]
+    exit: 2
+    is_error: true
+    expect:
+      /next/0/args: {includes_all_of: [NDA021588, approvals, --document-id, "64255"]}
+  - follow: configure
+    expect:
+      /result/approvals/data/records/0/application_docs/0/id: "64255"
+      /result/approvals/data/records/0/application_docs/0/text/state: text
+  - mcp_call:
+      name: drug
+      arguments:
+        action: get
+        get: {id: NDA021588, section: approvals, source: drugsfda, document_id: "64255", find: efficacy}
+    is_error: true
+    expect:
+      /next/0/arguments/get/id: NDA021588
+      /next/0/arguments/get/document_id: "64255"
+  - follow: configure
+    expect:
+      /result/approvals/data/records/0/application_docs/0/id: "64255"
+      /result/approvals/data/records/0/application_docs/0/text/state: text

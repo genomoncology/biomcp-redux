@@ -551,9 +551,10 @@ fn request(
                     None
                 }
             })
+            .or_else(|| conflicts::invalid(command.via, (verb, entity), normalized, &cause, fields))
             .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause, fields))
             .unwrap_or_else(|| {
-                errors::checked_invalid(command.via, verb, entity, normalized, &cause, fields)
+                errors::checked_invalid(command.via, verb, entity, normalized, &cause)
             })),
     }
 }
