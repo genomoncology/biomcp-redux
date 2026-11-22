@@ -1,6 +1,7 @@
 # 1135 — bump-url-for-rustsec-2026-0592
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b851455feb6e72bfb451b43824c9e787f383e1f8
 
 Milestone: 7
 
