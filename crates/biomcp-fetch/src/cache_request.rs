@@ -99,7 +99,7 @@ impl Leg<'_> {
                 // A current absence replaces a formerly positive entry; no stale
                 // result can override it and the provider body is never stored.
                 self.cache_result(cache.write(
-                    &codec.cache_key(prepared.identity),
+                    &prepared.cache_key(codec.cache_revision),
                     self.spec.source,
                     url,
                     &Entry::new(404, Vec::new(), NEGATIVE_SECONDS, codec.name()),
@@ -144,7 +144,7 @@ impl Leg<'_> {
             pagination,
         } = decoded;
         let mut entry = Entry::new(status, body, seconds, codec.name());
-        let key = codec.cache_key(prepared.identity);
+        let key = prepared.cache_key(codec.cache_revision);
         if codec.json_absence && status == 404 {
             self.cache_result(cache.remove(&key, self.budget()));
         }
@@ -231,7 +231,7 @@ impl Leg<'_> {
         prepared: &crate::prepared::Prepared,
         codec: &Read<T>,
     ) -> Result<Option<Checked<T>>, RequestError> {
-        let key = &codec.cache_key(prepared.identity);
+        let key = &prepared.cache_key(codec.cache_revision);
         let entry = match cache.read(
             key,
             codec.limit.unwrap_or(self.fetch.config.max_body),
@@ -335,7 +335,7 @@ impl Leg<'_> {
                 // Text filtered on an unfinished lookup serves this read only.
                 if !self.license_unchecked() {
                     cache.write(
-                        &codec.cache_key(prepared.identity),
+                        &prepared.cache_key(codec.cache_revision),
                         self.spec.source,
                         &prepared.url,
                         entry,

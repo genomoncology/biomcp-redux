@@ -20,7 +20,7 @@ pub struct Read<'a, T> {
     xml_media: Option<fn(&str) -> bool>,
     normalize_body: Option<BodyNormalizer>,
     filter_body: Option<&'a BodyFilter<'a>>,
-    cache_revision: Option<&'static str>,
+    pub(crate) cache_revision: Option<&'static str>,
     pub(crate) limit: Option<u64>,
     pub(crate) overflow_reason: biomcp_types::Reason,
     pub(crate) json_rejections: bool,
@@ -67,17 +67,6 @@ impl<'a, T: Reply> Read<'a, T> {
     pub fn cache_revision(mut self, revision: &'static str) -> Self {
         self.cache_revision = Some(revision);
         self
-    }
-    pub(crate) fn cache_key(&self, request_key: [u8; 32]) -> [u8; 32] {
-        let Some(revision) = self.cache_revision else {
-            return request_key;
-        };
-        use sha2::{Digest, Sha256};
-        let mut hash = Sha256::new();
-        hash.update(b"cache-revision\0");
-        hash.update(request_key);
-        hash.update(revision);
-        hash.finalize().into()
     }
     /// Check request-bound identity before cache admission and every reuse.
     pub fn check(mut self, check: &'a ReplyCheck<'a, T>) -> Self {
