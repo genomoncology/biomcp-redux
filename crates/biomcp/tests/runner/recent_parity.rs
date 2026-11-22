@@ -107,7 +107,7 @@ fn recorded(file: &str, step: usize) -> Result<(), String> {
     let case = case_data::read_case(&path)?;
     let cli = replay(&case, step, false)?;
     let mcp = replay(&case, step, true)?;
-    compare(&cli, &mcp)
+    compare(&super::pool_parity::expected(&cli, &mcp)?, &mcp)
 }
 
 fn replay(case: &case_data::Case, step: usize, mcp: bool) -> Result<Value, String> {
@@ -130,6 +130,9 @@ fn replay(case: &case_data::Case, step: usize, mcp: bool) -> Result<Value, Strin
             }
             current.mcp = None;
             if mcp {
+                let mut config = launch::case_config(case);
+                config["mcp_tool_mode"] = json!("single");
+                env.config(&config).map_err(|error| error.to_string())?;
                 current.mcp = Some(args);
                 current.is_error = current.exit >= 2;
                 current.max_bytes = None;
@@ -164,7 +167,7 @@ fn typed_source_refusals() -> Result<(), String> {
             "gene",
             ["search", "gene", "Fanconi anemia", "--source", "clingen"],
             json!({"action":"search","search":{"query":"Fanconi anemia","source":"clingen"}}),
-            json!({"action":"get","get":{"id":"Fanconi anemia","section":"gene-validity","source":"clingen"}}),
+            json!({"action":"get","get":{"id":"Fanconi anemia","section":"gene-validity","section_limit":5,"source":"clingen"}}),
         ),
         (
             "pathway",
