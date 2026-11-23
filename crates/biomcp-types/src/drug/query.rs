@@ -1,3 +1,5 @@
+//! Checked drug reads and their selectors.
+use super::query_validation::{validate_civic, validate_sections};
 use super::source::{civic_id, inferred_source};
 use super::{DrugSection, DrugSource, label_find};
 use crate::{CivicClaimKind, QueryInvalid};
@@ -24,25 +26,25 @@ enum NativeDrugId {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-struct GetFields {
+pub(super) struct GetFields {
     /// Published source-native identifier or complete brand or generic name.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: Text,
     /// Source inferred from an unambiguous requested section; otherwise MyChem.
     #[serde(default, deserialize_with = "selected_source")]
     #[cfg_attr(feature = "schema", schemars(with = "DrugSource", extend("default" = "mychem")))]
-    source: Option<DrugSource>,
+    pub(super) source: Option<DrugSource>,
     /// Named disclosures of the selected source, each its own part of one reply; empty means identity only.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
-    section: Box<[DrugSection]>,
+    pub(super) section: Box<[DrugSection]>,
     /// Page size. Requires a section. Max 200 for approvals, interactions, label, regulatory, xrefs and essential-medicines, 50 elsewhere.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
-    section_limit: Option<u32>,
+    pub(super) section_limit: Option<u32>,
     /// Section offset. With label-history --every-version, start at this version. Requires a section.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    section_offset: Option<u32>,
+    pub(super) section_offset: Option<u32>,
     /// Exact openFDA SPL fields.
     /// Comma-separated. Omit to list fields.
     /// Current subsections take :NUMBER or :TITLE, e.g. dosage_and_administration:2.1.
@@ -52,48 +54,48 @@ struct GetFields {
     /// Only with section label or label-history.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
-    label_section: Option<Text>,
+    pub(super) label_section: Option<Text>,
     /// Application product number. Only with --source drugsfda. Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    product_number: Option<Text>,
+    pub(super) product_number: Option<Text>,
     /// Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
-    decision_from: Option<biodata::PartialDate>,
+    pub(super) decision_from: Option<biodata::PartialDate>,
     /// Latest status date, inclusive (YYYY-MM-DD). Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
-    decision_to: Option<biodata::PartialDate>,
+    pub(super) decision_to: Option<biodata::PartialDate>,
     /// Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.
     /// Only with --source drugsfda. Only with section approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    document_id: Option<Text>,
+    pub(super) document_id: Option<Text>,
     /// CIViC profile. Selects a molecular profile for this drug. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
-    civic_profile: Option<u64>,
+    pub(super) civic_profile: Option<u64>,
     /// CIViC collection. Evidence or assertions in this profile. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    civic_kind: Option<CivicClaimKind>,
+    pub(super) civic_kind: Option<CivicClaimKind>,
     /// CIViC cursor. Continue this drug, profile and collection. Only with --source civic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    civic_cursor: Option<Text>,
+    pub(super) civic_cursor: Option<Text>,
     #[serde(flatten)]
-    evidence_filter: crate::CivicEvidenceFilter,
+    pub(super) evidence_filter: crate::CivicEvidenceFilter,
     /// Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.
     /// Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.
     /// Only with section label or label-history.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = 5)))]
-    find: Box<[Text]>,
+    pub(super) find: Box<[Text]>,
     /// Read every version. In order up to the limit, instead of halving. Only with section label-history.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    every_version: bool,
+    pub(super) every_version: bool,
     /// Interaction partner. Keep pairs matching a DDInter ID or full name (any case). Retry missing names with aliases.
     /// Only with section interactions.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Ddinter)))]
-    partner: Option<Text>,
+    pub(super) partner: Option<Text>,
 }
 crate::query::validation::checked_query!(DrugGet, GetFields);
 impl TryFrom<GetFields> for DrugGet {
@@ -152,159 +154,6 @@ impl TryFrom<GetFields> for DrugGet {
         validate_civic(&fields)?;
         Ok(Self { fields, native_id })
     }
-}
-fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
-    if fields.section.contains(&DrugSection::Markets)
-        || fields.source.is_some_and(|source| !source.supports_get())
-    {
-        return Err(QueryInvalid::new(&["section", "source"]));
-    }
-    if fields.document_id.is_some()
-        && (fields.source != Some(DrugSource::Drugsfda)
-            || fields.section.as_ref() != [DrugSection::Approvals])
-    {
-        return Err(QueryInvalid::new(&["document_id", "source", "section"]));
-    }
-    if fields
-        .document_id
-        .as_ref()
-        .is_some_and(|id| id.as_str().contains(','))
-    {
-        return Err(QueryInvalid::new(&["document_id"])
-            .with_message(crate::ErrorMessage::DrugApprovalDocumentList));
-    }
-    let approvals = fields.source == Some(DrugSource::Drugsfda)
-        && fields.section.as_ref() == [DrugSection::Approvals];
-    let held = !fields.section.is_empty()
-        && fields.section.iter().all(|section| {
-            matches!(
-                section,
-                DrugSection::Approvals
-                    | DrugSection::Interactions
-                    | DrugSection::Label
-                    | DrugSection::Regulatory
-                    | DrugSection::Xrefs
-                    | DrugSection::EssentialMedicines
-            )
-        });
-    let most = if held { crate::HELD_PAGE_MAX } else { 50 };
-    if fields
-        .section_limit
-        .is_some_and(|n| !(1..=most).contains(&n))
-    {
-        return Err(QueryInvalid::new(&["section_limit"]));
-    }
-    validate_window(fields, approvals)?;
-    if fields.section.is_empty()
-        && (fields.section_limit.is_some() || fields.section_offset.is_some())
-    {
-        return Err(QueryInvalid::new(&[
-            "section",
-            "section_limit",
-            "section_offset",
-        ]));
-    }
-    validate_label_options(fields)?;
-    if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
-        return Err(QueryInvalid::new(&["product_number", "section"]));
-    }
-    if fields.partner.is_some()
-        && (fields.source != Some(DrugSource::Ddinter)
-            || fields.section.as_ref() != [DrugSection::Interactions])
-    {
-        return Err(QueryInvalid::new(&["partner", "source", "section"]));
-    }
-    // The WHO eEML answers only its own section, which a who-eml get reads with or without the word.
-    let eml = fields.section.contains(&DrugSection::EssentialMedicines);
-    if (fields.source == Some(DrugSource::WhoEml)
-        && !matches!(
-            fields.section.as_ref(),
-            [] | [DrugSection::EssentialMedicines]
-        ))
-        || (eml && fields.source != Some(DrugSource::WhoEml))
-    {
-        return Err(QueryInvalid::new(&["source", "section"]));
-    }
-    if fields.source == Some(DrugSource::FdaDrugRecall) && !fields.section.is_empty() {
-        return Err(QueryInvalid::new(&["source", "section"]));
-    }
-    Ok(())
-}
-fn validate_label_options(fields: &GetFields) -> Result<(), QueryInvalid> {
-    let options = (
-        &*fields.find,
-        fields.every_version,
-        fields.label_section.as_ref(),
-    );
-    let paging = (fields.section_limit, fields.section_offset);
-    if label_find::requested(&fields.section, &fields.find) {
-        label_find::check(fields.source, paging, options)
-    } else {
-        super::history::checked(
-            &fields.section,
-            fields.source == Some(DrugSource::Drugsfda),
-            paging,
-            options,
-        )
-    }
-}
-fn validate_window(fields: &GetFields, approvals: bool) -> Result<(), QueryInvalid> {
-    let window = [
-        ("decision_from", fields.decision_from),
-        ("decision_to", fields.decision_to),
-    ];
-    if window.iter().any(|(_, date)| date.is_some()) && (!approvals || fields.document_id.is_some())
-    {
-        return Err(QueryInvalid::new(&[
-            "decision_from",
-            "decision_to",
-            "source",
-            "section",
-            "document_id",
-        ]));
-    }
-    for (name, date) in window {
-        if date.is_some_and(|d| d.day().is_none()) {
-            return Err(QueryInvalid::new(&[name]));
-        }
-    }
-    if fields
-        .decision_from
-        .zip(fields.decision_to)
-        .is_some_and(|(a, b)| a.to_string() > b.to_string())
-    {
-        return Err(QueryInvalid::new(&["decision_from", "decision_to"]));
-    }
-    Ok(())
-}
-fn validate_civic(fields: &GetFields) -> Result<(), QueryInvalid> {
-    if !fields.evidence_filter.is_empty() && fields.civic_kind != Some(CivicClaimKind::Evidence) {
-        return Err(QueryInvalid::new(&[
-            "evidence_level",
-            "evidence_status",
-            "evidence_significance",
-            "civic_kind",
-        ]));
-    }
-    if fields
-        .civic_profile
-        .is_some_and(|id| id == 0 || id > i32::MAX as u64)
-    {
-        return Err(QueryInvalid::new(&["civic_profile"]));
-    }
-    if fields.civic_profile.is_some() && fields.civic_kind.is_none() {
-        return Err(QueryInvalid::new(&["civic_profile", "civic_kind"]));
-    }
-    if fields.civic_cursor.is_some() && fields.civic_kind.is_none() {
-        return Err(QueryInvalid::new(&["civic_cursor", "civic_kind"]));
-    }
-    if fields.civic_kind.is_some()
-        && (fields.source != Some(DrugSource::Civic)
-            || !fields.section.contains(&DrugSection::Civic))
-    {
-        return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
-    }
-    Ok(())
 }
 impl DrugGet {
     fn with_fields(&self, fields: GetFields) -> Result<Self, QueryInvalid> {

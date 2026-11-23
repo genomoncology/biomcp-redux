@@ -21,6 +21,7 @@ pub use fda::{
     DrugFdaSupplementPurpose,
 };
 mod query;
+mod query_validation;
 mod response;
 mod search;
 mod source;
