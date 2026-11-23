@@ -55,6 +55,20 @@ pub(super) fn apply<'a>(
             candidate.sections = Some(Box::new(sections));
         }
     }
+    if population_reason == Some(Reason::NoJoinId) {
+        let missing = super::identity::missing(Source::Gnomad);
+        if collected.problems.contains(&missing) {
+            collected.problems.retain(|problem| problem != &missing);
+            collected.problems.push(Problem {
+                field: concat!(
+                    "input: multiple candidate alleles match this input; ",
+                    "select one exact allele to read gnomAD population data"
+                )
+                .into(),
+                ..missing
+            });
+        }
+    }
     (
         collected.sources,
         collected.problems,

@@ -1,0 +1,17 @@
+feature: variant-population
+live_check: Public MyVariant, ClinVar, ClinGen Allele Registry and gnomAD replies.
+story: An rsID shared by two alleles explains why a candidate must be selected. An exact ClinVar identity still joins to gnomAD.
+replay: variant/round-two-population
+steps:
+  - run: [get, variant, rs80282562, clinvar, population]
+    expect:
+      /result/resolution: candidates
+      /result/candidates/*/sections/population/reason: {equals: [no-join-id, no-join-id]}
+      /problems/*/field: {equals: ["input: multiple candidate alleles match this input; select one exact allele to read gnomAD population data"]}
+      /next/0/kind: disambiguate
+      /next/1/kind: disambiguate
+  - run: [get, variant, "clinvar:864024", clinvar, population]
+    expect:
+      /result/resolution: resolved
+      /result/candidates/0/sections/population/data/variant: "7-50528133-T-A"
+      /result/candidates/0/sections/population/data/exome/ac: 43

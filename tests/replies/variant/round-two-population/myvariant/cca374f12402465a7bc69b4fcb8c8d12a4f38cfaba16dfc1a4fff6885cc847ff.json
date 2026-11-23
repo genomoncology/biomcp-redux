@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=clinvar.variant_id%3A864024&size=1000&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann%2Cchrom%2Chg19%2Chg38%2Cclingen.caid&assembly=hg38",
+  "exchanges": [
+    {
+      "fetched": 1795471457,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 5501,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":31,"total":1,"max_score":1.0,"hits":[{"_id":"chr7:g.50528133T>A","_score":1.0,"chrom":"7","clingen":{"caid":"CA4262295"},"clinvar":{"_license":"http://bit.ly/2SQdcI0","variant_id":864024},"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":{"symbol":"DDC"},"rsid":"rs200362242"},"hg38":{"end":50528133,"start":50528133},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":[{"effect":"splice_region_variant&intron_variant","feature_id":"NM_000790.3","feature_type":"transcript","gene_id":"DDC","genename":"DDC","hgvs_c":"c.714+4A>T","putative_impact":"LOW","rank":"6","total":"14","transcript_biotype":"protein_coding"},{"effect":"splice_region_variant&intron_variant","feature_id":"NM_001242886.1","feature_type":"transcript","gene_id":"DDC","genename":"DDC","hgvs_c":"c.600+4A>T","putative_impact":"LOW","rank":"5","total":"13","transcript_biotype":"protein_coding"},{"effect":"splice_region_variant&intron_variant","feature_id":"NM_001242888.1","feature_type":"transcript","gene_id":"DDC","genename":"DDC","hgvs_c":"c.480+4A>T","putative_impact":"LOW","rank":"4","total":"12","transcript_biotype":"protein_coding"},{"effect":"splice_region_variant&intron_variant","feature_id":"NM_001082971.1","feature_type":"transcript","gene_id":"DDC","genename":"DDC","hgvs_c":"c.714+4A>T","putative_impact":"LOW","rank":"6","total":"14","transcript_biotype":"protein_coding"},{"effect":"splice_region_variant&intron_variant","feature_id":"NM_001242890.1","feature_type":"transcript","gene_id":"DDC","genename":"DDC","hgvs_c":"c.714+4A>T","putative_impact":"LOW","rank":"6","total":"9","transcript_biotype":"protein_coding"},{"distance_to_feature":"3626","effect":"upstream_gene_variant","feature_id":"NR_033845.1","feature_type":"transcript","gene_id":"DDC-AS1","genename":"DDC-AS1","hgvs_c":"n.-3626T>A","putative_impact":"MODIFIER","transcript_biotype":"pseudogene"},{"effect":"intron_variant","feature_id":"NM_001242887.1","feature_type":"transcript","gene_id":"DDC","genename":"DDC","hgvs_c":"c.570+1075A>T","putative_impact":"MODIFIER","rank":"5","total":"13","transcript_biotype":"protein_coding"},{"effect":"intron_variant","feature_id":"NM_001242889.1","feature_type":"transcript","gene_id":"DDC","genename":"DDC","hgvs_c":"c.435+9727A>T","putative_impact":"MODIFIER","rank":"4","total":"12","transcript_biotype":"protein_coding"}]}}]}
+      }
+    }
+  ]
+}
