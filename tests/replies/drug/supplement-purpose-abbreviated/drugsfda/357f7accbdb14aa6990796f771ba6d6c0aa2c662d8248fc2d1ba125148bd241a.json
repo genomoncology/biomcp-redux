@@ -1,0 +1,56 @@
+{
+  "source": "drugsfda",
+  "method": "GET",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA215256%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1793907755,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-20",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "application_number": "NDA215256",
+              "sponsor_name": "Example sponsor",
+              "submissions": [
+                {
+                  "submission_number": "24",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "submission_status_date": "20250818",
+                  "submission_class_code": "EFFICACY",
+                  "application_docs": [
+                    {
+                      "id": "83118",
+                      "type": "Letter",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/215256Orig1s024ltr.pdf"
+                    }
+                  ]
+                },
+                {
+                  "submission_number": "23",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "submission_status_date": "20250510",
+                  "submission_class_code": "EFFICACY"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

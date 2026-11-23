@@ -155,6 +155,7 @@
         "label-history reads only the label sections in valid_values; give --label-section one of them, or read another section with: get drug <NAME> label --label-section NAME",
         "--offset needs --every-version, and label-history also needs --find TEXT and --label-section with a section from valid_values; add what is missing, or drop --offset (also spelled --section-offset)",
         "--offset needs --every-version, and label-history reads only the label sections in valid_values; add --every-version and give --label-section one of them, or read another section with: get drug <NAME> label --label-section NAME",
+        "Give one FDA letter ID per call. Repeat the call with each document ID.",
         "next reads the named FDA approval document. Search for the phrase in the document text in the reply.",
         "next reads the application's FDA submissions, with any decision dates kept. To find when text first appeared, use label-history with --label-section and --find.",
         "next uses the equivalent section name for the historical text search.",

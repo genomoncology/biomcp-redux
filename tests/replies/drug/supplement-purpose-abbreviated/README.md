@@ -1,0 +1,1 @@
+Synthetic Drugs@FDA application and one-page letter. The letter uses the abbreviated purpose wording of FDA document 83118 with an invented indication sentence. The other submission has no linked letter.

@@ -62,6 +62,7 @@ singleton! {
  from valid_values; add what is missing, or drop --offset (also spelled --section-offset)",
  LabelHistoryOffsetSection => "--offset needs --every-version, and label-history reads only the label sections in valid_values; add \
  --every-version and give --label-section one of them, or read another section with: get drug <NAME> label --label-section NAME",
+ DrugApprovalDocumentList => "Give one FDA letter ID per call. Repeat the call with each document ID.",
  DrugApprovalDocumentFind => "next reads the named FDA approval document. Search for the phrase in the document text in the reply.",
  DrugHistoryApprovals => "next reads the application's FDA submissions, with any decision dates kept. To find when text first appeared, \
   use label-history with --label-section and --find.",

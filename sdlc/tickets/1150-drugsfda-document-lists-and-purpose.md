@@ -1,6 +1,7 @@
 # 1150 — drugsfda-document-lists-and-purpose
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: af9ec37114dff9c60ce81d95daa3ba4435db5634
 
 Milestone: 7
 

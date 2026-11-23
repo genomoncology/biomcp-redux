@@ -70,6 +70,16 @@ fn next(
 }
 
 fn drug(fields: &mut Map<String, Value>, cause: &QueryInvalid) -> Option<ErrorMessage> {
+    if cause.message() == Some(ErrorMessage::DrugApprovalDocumentList) {
+        let id = fields
+            .get("document_id")?
+            .as_str()?
+            .split(',')
+            .map(str::trim)
+            .find(|id| !id.is_empty() && id.bytes().all(|byte| byte.is_ascii_digit()))?;
+        fields.insert("document_id".into(), json!(id));
+        return cause.message();
+    }
     match fields.get("section")?.as_array()?.as_slice() {
         [section] if section == "label-history" => history(fields, cause),
         [section] if section == "label" => current_label(fields, cause),

@@ -14,18 +14,21 @@
         "drugsfda"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/page/total": 4,
         "/page/returned": 4,
-        "/incomplete": [
-          {
-            "at": "/result/approvals/data/records/2/supplement_purpose",
-            "source": "drugsfda",
-            "reason": "not-stated"
-          }
-        ],
+        "": {
+          "omits": ["incomplete"]
+        },
         "/result/approvals/data/records/2/submission_number": "5",
-        "/result/approvals/data/records/2/supplement_purpose/state": "unavailable",
+        "/result/approvals/data/records/2/supplement_purpose": {
+          "equals": {
+            "state": "stated",
+            "text": "This “Prior Approval” sNDA provides for the new indication of Krazati (adagrasib) in combination with cetuximab for the treatment of adult patients with KRAS G12C- mutated locally advanced or metastatic colorectal cancer who have been previously treated with fluoropyrimidine-, oxaliplatin-, and irinotecan-based chemotherapy.",
+            "document_id": "79124",
+            "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/216340Orig1s005ltr.pdf"
+          }
+        },
         "/sources/0/state": "ok"
       },
       "max_bytes": 5600
