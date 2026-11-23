@@ -1,0 +1,79 @@
+{
+  "source": "drugsfda",
+  "method": "GET",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22BLA761363%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1793907755,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-20",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "application_number": "BLA761363",
+              "sponsor_name": "Example sponsor",
+              "submissions": [
+                {
+                  "submission_number": "1",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "application_docs": [
+                    {
+                      "id": "83960",
+                      "type": "Letter"
+                    }
+                  ]
+                },
+                {
+                  "submission_number": "2",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "application_docs": [
+                    {
+                      "id": "84364",
+                      "type": "Letter"
+                    }
+                  ]
+                },
+                {
+                  "submission_number": "3",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "application_docs": [
+                    {
+                      "id": "85547",
+                      "type": "Letter"
+                    }
+                  ]
+                },
+                {
+                  "submission_number": "4",
+                  "submission_type": "SUPPL",
+                  "submission_status": "AP",
+                  "application_docs": [
+                    {
+                      "id": "86877",
+                      "type": "Letter"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

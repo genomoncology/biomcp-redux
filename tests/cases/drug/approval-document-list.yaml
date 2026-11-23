@@ -1,10 +1,10 @@
 feature: drug-approvals
 story: A comma list is refused as input, with a runnable request for one document and instructions to repeat it for each ID.
-live_check: No source read is needed for the refusal.
+live_check: Synthetic application. No source read is needed for the refusal.
+replay: drug/approval-document-list
 steps:
   - run: [get, drug, BLA761363, approvals, --source, drugsfda, --document-id, "83960,84364,85547,86877"]
     mcp: [get, drug, BLA761363, approvals, --source, drugsfda, --document-id, "83960,84364,85547,86877"]
-    offline: true
     exit: 2
     is_error: true
     expect:
