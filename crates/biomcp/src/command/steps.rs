@@ -47,7 +47,22 @@ fn followups<'a>(
     retryable: bool,
     allow_fresh: bool,
 ) -> impl Iterator<Item = (StepKind, Cow<'a, Action>)> {
-    let retry = retryable && result.next.is_empty();
+    let missing = retryable
+        && !result.next.iter().any(|step| {
+            matches!(
+                step.1,
+                Action::Run { .. } | Action::PubmedSearch(_) | Action::AuthorPapers(_)
+            )
+        });
+    let retry = |request: &Request| {
+        (
+            StepKind::Restart,
+            Cow::Owned(Action::Run {
+                request: request.clone(),
+                fresh: false,
+            }),
+        )
+    };
     result
         .next
         .iter()
@@ -60,25 +75,11 @@ fn followups<'a>(
                     fresh: true,
                 } = &step.1
             {
-                return (
-                    StepKind::Restart,
-                    Cow::Owned(Action::Run {
-                        request: request.clone(),
-                        fresh: false,
-                    }),
-                );
+                return retry(request);
             }
             (step.0, Cow::Borrowed(&step.1))
         })
-        .chain(retry.then(|| {
-            (
-                StepKind::Restart,
-                Cow::Owned(Action::Run {
-                    request: request.clone(),
-                    fresh: false,
-                }),
-            )
-        }))
+        .chain(missing.then(|| retry(request)))
 }
 
 const PAGING: [&str; 6] = [
