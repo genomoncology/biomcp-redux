@@ -14,6 +14,9 @@ pub(super) fn standalone(schema: &Value, call: &Call, reply: &str) -> Vec<List> 
     if call.entity == "gwas" && reply == "gwas-page" && requested(call, "associations") {
         return items(schema);
     }
+    if call.entity == "disease" && reply == "disease-validity" && requested(call, "gene_validity") {
+        return items(schema);
+    }
     let paths: &[(&[&str], bool)] = match (call.entity.as_str(), reply) {
         ("adverse-event", "adverse-event-drugs") if requested(call, "drugs") => {
             &[(&["drugs", "records"], true)]

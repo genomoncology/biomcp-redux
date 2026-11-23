@@ -87,6 +87,9 @@ pub(super) struct GetFields<I = Text> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub(super) submitter: Option<Text>,
+    /// Match publisher titles starting with ID text. Gene validity only.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(super) source_title_prefix: bool,
 }
 crate::query::validation::checked_query!(DiseaseGet, GetFields);
 impl DiseaseGet {
@@ -107,6 +110,7 @@ impl DiseaseGet {
             interval: None,
             classification: None,
             submitter: None,
+            source_title_prefix: false,
         })
     }
 
@@ -130,6 +134,7 @@ impl DiseaseGet {
                 interval: None,
                 classification: None,
                 submitter: None,
+                source_title_prefix: false,
             },
         })
     }
@@ -151,6 +156,7 @@ impl DiseaseGet {
             interval: None,
             classification: None,
             submitter: None,
+            source_title_prefix: false,
         })
     }
 
@@ -279,5 +285,10 @@ impl DiseaseGet {
     /// Exact source submitter or expert panel.
     pub fn submitter(&self) -> Option<&Text> {
         self.fields.submitter.as_ref()
+    }
+
+    /// Literal publisher title prefix in the caller's spelling.
+    pub fn source_title_prefix(&self) -> Option<&Text> {
+        self.fields.source_title_prefix.then_some(&self.record)
     }
 }

@@ -159,6 +159,8 @@ pub enum KeyKind {
     Xref,
     /// Indexed band text.
     Band,
+    /// Folded title from a gene-disease curation export.
+    CurationTitle,
 }
 /// One literal indexed lookup.
 #[derive(Clone, Copy, Debug)]
@@ -172,6 +174,9 @@ pub enum Find<'a> {
     AnyExact(KeyKind, &'a [&'a str]),
     /// Literal key prefix.
     Prefix(KeyKind, &'a str),
+    /// Find a literal prefix, or return all rows if the key namespace is absent.
+    /// The caller must check the prefix on returned rows.
+    PrefixOrUnindexed(KeyKind, &'a str),
     /// Literal words combined with AND.
     Words(&'a str),
 }
