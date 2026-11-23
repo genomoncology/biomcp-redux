@@ -14,14 +14,14 @@ pub(crate) struct Decoded<T> {
     pub(crate) pagination: Option<crate::Pagination>,
 }
 #[derive(serde::Serialize)]
-struct Wire {
+pub(crate) struct Wire {
     fetched: Option<i64>,
-    status: u16,
+    pub(crate) status: u16,
     content_type: String,
     content_range: Option<String>,
     pagination: Option<crate::Pagination>,
     #[serde(skip)] // Raw and decoded body scanning stays separate from metadata.
-    body: Vec<u8>,
+    pub(crate) body: Vec<u8>,
     retry_after: Option<Duration>,
 }
 pub(crate) enum Failure {
@@ -280,7 +280,7 @@ impl Leg<'_> {
         Err(self.failure(Reason::Unavailable, None).into())
     }
 
-    fn observe_exchange<T: Reply>(
+    pub(crate) fn observe_exchange<T: Reply>(
         &self,
         prepared: &Prepared,
         exchange: &Result<Wire, Failure>,
@@ -318,7 +318,7 @@ impl Leg<'_> {
         }
     }
 
-    fn exchange<T: Reply>(
+    pub(crate) fn exchange<T: Reply>(
         &self,
         prepared: &Prepared,
         codec: &Read<T>,

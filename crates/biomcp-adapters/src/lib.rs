@@ -55,6 +55,8 @@ pub mod semantic_scholar;
 mod xml_element;
 
 pub mod guidance;
+/// Authenticated checks of the registered source credentials.
+pub mod key_check;
 pub mod registry;
 
 /// Sentence resemblance in native provider order.

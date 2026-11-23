@@ -73,9 +73,9 @@ mod housekeeping;
 mod http;
 mod http_capacity;
 mod http_limits;
+mod key_check;
 #[cfg(unix)]
 mod key_input;
-mod key_check;
 mod key_registration;
 pub(super) mod launch;
 mod licensed_cache;

@@ -34,14 +34,24 @@ impl Request {
     pub(super) fn source_keys(&self) -> io::Result<biomcp_fetch::Secrets> {
         let mut secrets = biomcp_fetch::Secrets::default();
         for name in biomcp_query::sources::keys() {
-            if let Some(value) = self.one(&name.header())? {
-                if value.is_empty() || value.len() > 8192 || value.chars().any(char::is_control) {
-                    return Err(malformed());
-                }
-                secrets.insert(name, biomcp_fetch::Secret::new(value));
+            if let Some(secret) = self.source_key(name)? {
+                secrets.insert(name, secret);
             }
         }
         Ok(secrets)
+    }
+    pub(super) fn source_key(
+        &self,
+        name: biomcp_fetch::SecretName,
+    ) -> io::Result<Option<biomcp_fetch::Secret>> {
+        self.one(&name.header())?
+            .map(|value| {
+                if value.is_empty() || value.len() > 8192 || value.chars().any(char::is_control) {
+                    return Err(malformed());
+                }
+                Ok(biomcp_fetch::Secret::new(value))
+            })
+            .transpose()
     }
     pub(super) fn one(&self, name: &str) -> io::Result<Option<&str>> {
         let mut values = self

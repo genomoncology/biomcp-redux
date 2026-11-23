@@ -1,0 +1,28 @@
+{
+  "method": "POST",
+  "source": "alphagenome",
+  "url": "https://gdmscience.googleapis.com/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/GetMetadata",
+  "post": {
+    "request_content_type": "application/grpc; schema=alphagenome.key-check/1",
+    "request_body_sha256": "470fa49f13b8e7ebe3cce75f6dfc7accf0b2b4d453edfdd9d898979e252184a4"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/grpc",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": ""
+      },
+      "rpc": {
+        "protocol": "grpc/1",
+        "messages": [],
+        "terminal": null,
+        "interruption": "deadline-exceeded",
+        "delay_ms": 60000
+      }
+    }
+  ]
+}

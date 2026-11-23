@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?limit=1",
+  "exchanges": [
+    {
+      "status": 403,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": {
+            "code": "API_KEY_INVALID",
+            "message": "An invalid API key was supplied"
+          }
+        }
+      }
+    }
+  ]
+}

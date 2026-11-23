@@ -1,6 +1,7 @@
 //! Encode AlphaGenome requests and admit complete bounded provider replies.
 mod envelope;
 mod envelope_budget;
+pub(crate) mod key_check;
 mod preflight;
 mod proto;
 mod request;

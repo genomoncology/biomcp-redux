@@ -7,6 +7,7 @@ mod grammar;
 mod help;
 mod housekeeping;
 mod incomplete;
+mod key_check;
 mod key_order;
 mod keys;
 mod mcp;

@@ -28,6 +28,7 @@ mod cache_request;
 mod containment;
 mod deadline;
 mod isolate;
+mod key_check;
 pub use isolate::{Contained, Isolate, IsolatedRead, Isolator};
 mod declaration;
 mod destination;

@@ -4,6 +4,7 @@ mod authority;
 mod call;
 mod chunked;
 mod connections;
+mod key_check;
 mod logging;
 mod metadata;
 mod wire;
@@ -191,6 +192,10 @@ impl Service {
             } else {
                 (405, Some(json!({"error":"Method not allowed"})), None)
             };
+        }
+        if request.path == key_check::PATH && self.globals.hosted && self.address.ip().is_loopback()
+        {
+            return self.key_check(request);
         }
         if request.path != "/mcp" {
             return (404, Some(json!({"error":"Not found"})), None);
