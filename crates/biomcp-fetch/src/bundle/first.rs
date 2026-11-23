@@ -37,14 +37,14 @@ struct FirstFailure {
 }
 
 impl FirstFailure {
-    fn report(self, leg: &Leg<'_>) -> crate::SourceError {
+    fn report(self, leg: &Leg<'_>, fallback: Reason) -> crate::SourceError {
         let until = self
             .publisher_until
             .map_or(self.until, |publisher| publisher.max(self.until));
         let remaining = until.saturating_sub(now()).max(0) as u64;
         let reason = self
             .publisher_status
-            .map_or(Reason::Syncing, crate::retry::status_reason);
+            .map_or(fallback, crate::retry::status_reason);
         let mut error = leg.failure(reason, self.publisher_status);
         // The rate-limit guidance already carries the timing. Keep the first-fetch context alongside it.
         if self.publisher_status.is_some() {
@@ -126,6 +126,7 @@ impl Leg<'_> {
     pub(super) fn first_fetch<R: Row>(
         &self,
         bundle: &Bundle<R>,
+        failure_reason: Reason,
         fetch: impl FnOnce(&Size) -> Result<(), RequestError>,
     ) -> Result<(), RequestError> {
         let cache = self.bundle_cache()?;
@@ -134,7 +135,9 @@ impl Leg<'_> {
             match cache.admit_first(bundle.name, self.budget())? {
                 Admission::Published => return Ok(()),
                 Admission::Fetch(claim) => break claim,
-                Admission::Failed(failure) => return Err(failure.report(self).into()),
+                Admission::Failed(failure) => {
+                    return Err(failure.report(self, failure_reason).into());
+                }
                 Admission::Waiting => {
                     self.wait_for_bundle(bundle, waited)?;
                     waited = true;
@@ -155,7 +158,7 @@ impl Leg<'_> {
                 params![bundle.name, claim, failure.until, failure.message, failure.publisher_status, failure.publisher_until],
             ).map(drop).map_err(db_error)
         })?;
-        let reported = failure.report(self);
+        let reported = failure.report(self, failure_reason);
         match error {
             RequestError::Source(_) => Err(reported.into()),
             local => Err(local),

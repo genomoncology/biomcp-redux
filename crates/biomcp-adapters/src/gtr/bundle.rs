@@ -48,7 +48,7 @@ pub(super) fn read(
     leg: &Leg<'_>,
     find: Find<'_>,
 ) -> Result<(Vec<SetRow<Native>>, BundleInfo), RequestError> {
-    leg.stored_set_rows(&SET, find)
+    leg.stored_set_rows_reporting_failure(&SET, find)
 }
 /// Synchronize both native files atomically and count identities before any status filter.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {

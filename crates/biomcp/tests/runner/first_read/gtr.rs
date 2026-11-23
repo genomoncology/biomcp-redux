@@ -50,7 +50,9 @@ fn oversized() -> Check {
     invoke(&env, cached(&["sync", "gtr"], &cache, Some(&recording)), 0)?;
     let card = invoke(&env, cached(GET, &cache, None), 0)?;
     if card["result"]["header"]["id"] != "GTR000527948.7" {
-        return Err(format!("explicit sync did not make the requested card readable: {card}"));
+        return Err(format!(
+            "explicit sync did not make the requested card readable: {card}"
+        ));
     }
     Ok(())
 }

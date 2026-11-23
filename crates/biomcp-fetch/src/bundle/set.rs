@@ -1,6 +1,7 @@
 //! Complete multi-file publication through the ordinary checked-byte transport.
 use super::{Bundle, BundleInfo, Row, RowFormat, parse, store};
 use crate::{Fetch, Freshness, RequestError, SourceSpec};
+use biomcp_types::Reason;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::marker::PhantomData;
@@ -77,7 +78,7 @@ impl Fetch {
 }
 impl crate::Leg<'_> {
     /// Publish a whole set within this leg's deadline. An automatic first read passes its
-    /// byte ceiling; a set over it, or out of time, stays missing and answers `syncing`.
+    /// byte ceiling; a set over it, or out of time, stays missing.
     fn publish_set<R: Row>(
         &self,
         set: &BundleSet<R>,
@@ -228,8 +229,29 @@ impl crate::Leg<'_> {
         set: &BundleSet<R>,
         find: super::Find<'_>,
     ) -> Result<(Vec<SetRow<R>>, BundleInfo), RequestError> {
-        self.name_busy(self.read_stored_rows(&set.stored(), find, |size| {
-            self.publish_set(set, Some(size)).map(drop)
-        }))
+        self.read_set_rows(set, find, Reason::Syncing)
+    }
+
+    /// Read a complete set and report a finished first-fetch failure as unavailable.
+    /// Active publishers still report syncing, and publisher HTTP refusals keep their reasons.
+    pub fn stored_set_rows_reporting_failure<R: Row>(
+        &self,
+        set: &BundleSet<R>,
+        find: super::Find<'_>,
+    ) -> Result<(Vec<SetRow<R>>, BundleInfo), RequestError> {
+        self.read_set_rows(set, find, Reason::Unavailable)
+    }
+
+    fn read_set_rows<R: Row>(
+        &self,
+        set: &BundleSet<R>,
+        find: super::Find<'_>,
+        failure_reason: Reason,
+    ) -> Result<(Vec<SetRow<R>>, BundleInfo), RequestError> {
+        self.name_busy(
+            self.read_stored_rows(&set.stored(), find, failure_reason, |size| {
+                self.publish_set(set, Some(size)).map(drop)
+            }),
+        )
     }
 }
