@@ -4995,7 +4995,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Read or save a trial PDF.",
+      "description": "Read a trial PDF.",
       "properties": {
         "command": {
           "const": "trial-document",

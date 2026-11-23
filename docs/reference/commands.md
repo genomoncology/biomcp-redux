@@ -5488,15 +5488,12 @@ Options:
 
 ```
 
-Read or save a trial PDF. Sources: ctgov.
-Options apply to every listed source unless their description restricts them.
+Read a trial PDF. Sources: ctgov.
 Paging: --offset; --section-offset is the same option.
 
 - `file`: Exact listed PDF filename.
-Form: trial document INPUT FILE; not --file.
 - `--find`: Case-insensitive phrase search with pages. Value form: string; example: --find 'Wald chi-square p-value'.
 - `input`: ClinicalTrials.gov ID.
-Form: trial document INPUT FILE; not --input.
 - `--replace`: Replace an existing file. Value form: boolean; example: --replace.
 - `--save`: Save the original PDF to a file or folder. Value form: string; example: --save protocol.pdf.
 - `--section-offset`: Zero-based part or hit offset. Value form: integer; example: --section-offset 0.
