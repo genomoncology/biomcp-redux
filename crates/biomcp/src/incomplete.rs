@@ -79,6 +79,37 @@ pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Inc
     envelope.incomplete = found;
 }
 
+/// Keep a missing supplement letter attached to its submission after field selection.
+pub(crate) fn projected_purpose(reply: &mut Value) {
+    let Some(incomplete) = reply.get("incomplete").and_then(Value::as_array) else {
+        return;
+    };
+    let moved: Vec<_> = incomplete
+        .iter()
+        .enumerate()
+        .filter_map(|(index, item)| {
+            let at = item.get("at")?.as_str()?;
+            let row = at.strip_suffix("/supplement_purpose")?;
+            if !row.starts_with("/result/approvals/data/records/") || reply.pointer(at).is_some() {
+                return None;
+            }
+            let submission = format!("{row}/submission_number");
+            reply.pointer(&submission)?;
+            Some((index, submission))
+        })
+        .collect();
+    if let Some(incomplete) = reply.get_mut("incomplete").and_then(Value::as_array_mut) {
+        for (index, at) in moved {
+            if let Some(location) = incomplete
+                .get_mut(index)
+                .and_then(|item| item.get_mut("at"))
+            {
+                *location = Value::String(at);
+            }
+        }
+    }
+}
+
 /// What the walk over a reply's result found.
 #[derive(Default)]
 struct Marks {
