@@ -1,20 +1,23 @@
 //! Read native GenCC submissions by disease without merging contributor assertions.
-use crate::curation::{CurationMatches, Lookup};
+use crate::curation::{CurationLookup, CurationMatches};
 use crate::{Mapped, bundle_mapping, raw::Field};
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::{DiseaseCuration, DiseaseCurationGene, DiseaseId, Source};
+use biomcp_types::{DiseaseCuration, DiseaseCurationGene, Source};
 
-/// Read each stored GenCC submission whose native disease ID or title matches.
-pub fn by_disease(leg: &Leg<'_>, id: &DiseaseId) -> Result<CurationMatches, RequestError> {
-    let lookup = Lookup::new(id);
-    let (rows, snapshot) = leg.stored_rows(&super::SUBMISSIONS, Lookup::find(&lookup.key()))?;
+/// Read each stored GenCC submission matching a native disease identity or title prefix.
+pub fn by_disease(
+    leg: &Leg<'_>,
+    lookup: CurationLookup<'_>,
+) -> Result<CurationMatches, RequestError> {
+    let key = lookup.key();
+    let (rows, snapshot) = leg.stored_rows(&super::SUBMISSIONS, lookup.find(&key))?;
     let mut refusals = bundle_mapping::bundle_refusals(&snapshot);
     let mut problems = bundle_mapping::bundle_problems(Source::Gencc, &snapshot);
     let value = rows
         .into_iter()
         .filter(|row| {
             let (id, name) = row.disease_keys();
-            lookup.matches(id, name)
+            lookup.matches(id, name, &key)
         })
         .filter_map(|row| {
             let gene_symbol = row.gene_symbol.as_ref().and_then(Field::as_ref).cloned();

@@ -3336,32 +3336,38 @@ Options:
           Default MyDisease, or both sources for gene validity; help get disease
           Default MyDisease, or both sources for gene validity.
 
+      --source-title-prefix[=<source_title_prefix>]
+          Match publisher titles starting with ID text. Gene validity only.
+
+          [default: false]
+          [possible values: true, false]
+
       --submitter <submitter>
           Exact GenCC submitter or ClinGen panel.
 
 ```
 
 Get disease details and source statistics. Sources: clingen, gencc, monarch, mydisease, ols, orphadata, seer.
-Listed choices accept any letter case; replies use their listed spelling.
-Options apply to every listed source unless their description restricts them.
+Choices ignore case. Replies use listed spelling.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
-- `--age-range`: Source age-range code. Value form: string; example: --age-range 1.
-- `--classification`: Exact gene validity classification. Value form: string; example: --classification limited.
-- `--dataset`: Requested dataset code. Value form: string; example: --dataset 4.
+- `--age-range`: Source age-range code. Value form: string; example: 1.
+- `--classification`: Exact gene validity classification. Value form: string; example: limited.
+- `--dataset`: Requested dataset code. Value form: string; example: 4.
 - `id`: Disease CURIE, SEER site code or name, or exact curation name.
 Form: get disease ID SECTION; not --id.
-- `--interval`: Survival interval code. Value form: string; example: --interval 5.
-- `--ontology`: OLS ontology. Defaults to the ID’s ontology or MONDO. Value form: string; example: --ontology mondo.
+- `--interval`: Survival interval code. Value form: string; example: 5.
+- `--ontology`: OLS ontology. Defaults to the ID’s ontology or MONDO. Value form: string; example: mondo.
 - `--period`: Incidence period code. Value form: string; example: --period 5.
 - `--race`: Source race code. Value form: string; example: --race 1.
 - `section`: Omit for the identity card… (full rule with the sections).
 Form: get disease ID SECTION; not --section.
 - `--section-limit`: Rows per page. Default 5, Monarch genes 2, phenotypes 1. Value form: integer; example: --section-limit 1.
 - `--section-offset`: Section row offset. Value form: integer; example: --section-offset 1.
-- `--sex`: Source sex code. Value form: string; example: --sex 3.
-- `--source`: Default MyDisease, or both sources for gene validity. Value form: string; example: --source seer.
-- `--submitter`: Exact GenCC submitter or ClinGen panel. Value form: string; example: --submitter 'Other Expert Panel'.
+- `--sex`: Source sex code. Value form: string; example: 3.
+- `--source`: Default MyDisease, or both sources for gene validity. Value form: string; example: seer.
+- `--source-title-prefix`: Match publisher titles starting with ID text. Gene validity only. Value form: boolean; example: --source-title-prefix.
+- `--submitter`: Exact GenCC submitter or ClinGen panel. Value form: string; example: 'Other Expert Panel'.
 
 Omit for the identity card.
 

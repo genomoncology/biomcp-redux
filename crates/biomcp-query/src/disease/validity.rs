@@ -2,17 +2,17 @@
 use super::page::{empty, page_info, run, slice};
 use crate::{Action, Bundle, Ctx, Outcome, status};
 use biodata::Text;
-use biomcp_adapters::{CurationMatches, clingen, gencc, received_date};
+use biomcp_adapters::{CurationLookup, CurationMatches, clingen, gencc, received_date};
 use biomcp_fetch::{Deadline, Leg, RequestError, SourceSpec};
 use biomcp_types::{
-    DiseaseCuration, DiseaseCurationCoverage, DiseaseGet, DiseaseId, DiseaseValidity, ReplyBody,
-    Request, Source, SourceOutcome, SourceState, StepKind,
+    DiseaseCuration, DiseaseCurationCoverage, DiseaseGet, DiseaseValidity, ReplyBody, Request,
+    Source, SourceOutcome, SourceState, StepKind,
 };
 
 struct Publisher {
     bundle: Bundle,
     spec: &'static SourceSpec,
-    read: fn(&Leg<'_>, &DiseaseId) -> Result<CurationMatches, RequestError>,
+    read: fn(&Leg<'_>, CurationLookup<'_>) -> Result<CurationMatches, RequestError>,
 }
 type ReadResult = (Bundle, SourceOutcome, Result<CurationMatches, RequestError>);
 
@@ -36,7 +36,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
         .iter()
         .filter(|publisher| selected.contains(&publisher.bundle.source()))
         .map(|publisher| {
-            Box::new(move || publisher.fetch(cx, query.id(), deadline))
+            Box::new(move || publisher.fetch(cx, query, deadline))
                 as Box<dyn FnOnce() -> ReadResult + Send>
         })
         .collect();
@@ -111,9 +111,13 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
 }
 
 impl Publisher {
-    fn fetch(&self, cx: &Ctx<'_>, id: &DiseaseId, deadline: Deadline<'_>) -> ReadResult {
+    fn fetch(&self, cx: &Ctx<'_>, query: &DiseaseGet, deadline: Deadline<'_>) -> ReadResult {
         let leg = cx.fetch.leg(self.spec, deadline).fresh(cx.fresh);
-        let result = (self.read)(&leg, id);
+        let lookup = query.source_title_prefix().map_or(
+            CurationLookup::Exact(query.id()),
+            CurationLookup::TitlePrefix,
+        );
+        let result = (self.read)(&leg, lookup);
         let source = status::source(
             self.bundle.source(),
             leg.finish(),

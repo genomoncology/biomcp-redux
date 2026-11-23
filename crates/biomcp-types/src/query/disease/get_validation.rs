@@ -17,6 +17,9 @@ impl TryFrom<GetFields> for DiseaseGet {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         let validity = v.section == Some(DiseaseSection::GeneValidity);
+        if !validity && v.source_title_prefix {
+            return Err(QueryInvalid::new(&["section", "source_title_prefix"]));
+        }
         if !validity && (v.classification.is_some() || v.submitter.is_some()) {
             return Err(QueryInvalid::new(&[
                 "section",
@@ -70,6 +73,7 @@ impl TryFrom<GetFields> for DiseaseGet {
                 interval: v.interval,
                 classification: v.classification,
                 submitter: v.submitter,
+                source_title_prefix: v.source_title_prefix,
             },
         })
     }
@@ -143,6 +147,9 @@ fn get_id(
     validity: bool,
 ) -> Result<DiseaseId, QueryInvalid> {
     if validity {
+        if v.source_title_prefix {
+            return Ok(DiseaseId::CurationName(v.id.clone()));
+        }
         let concept = canonical(v.id.as_str()).parse();
         return Ok(concept.map_or_else(
             |_| DiseaseId::CurationName(v.id.clone()),

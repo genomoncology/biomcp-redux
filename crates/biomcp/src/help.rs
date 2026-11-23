@@ -159,13 +159,11 @@ fn section_help(
         let cased = command
             .description
             .lines()
-            .any(|line| line == crate::grammar::ENUM_CASE_GUIDANCE);
+            .find_map(argument_details::case_guidance);
         command.description = format!("get {entity} {section}. Sources: {}.", names.join(", "));
-        if cased {
+        if let Some(guidance) = cased {
             command.description.push('\n');
-            command
-                .description
-                .push_str(crate::grammar::ENUM_CASE_GUIDANCE);
+            command.description.push_str(guidance);
         }
         // An example that names neither the section nor its sources reads something else.
         command.examples.retain(|example| {
