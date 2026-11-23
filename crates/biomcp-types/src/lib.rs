@@ -146,7 +146,10 @@ pub use response::{
     TrialSections, TrialSite,
 };
 pub use response::{TrialConditionResolution, TrialPage, TrialSiteCount, TrialSiteCounts};
-pub use response::{TrialDocumentResult, TrialDocumentSaved};
+pub use response::{
+    TrialDocumentHit, TrialDocumentReadResult, TrialDocumentResult, TrialDocumentSaveQuery,
+    TrialDocumentSaved, TrialDocumentText,
+};
 pub use response::{
     VariantCard, VariantGetQuery, VariantHeader, VariantResolution, VariantTranscript,
 };

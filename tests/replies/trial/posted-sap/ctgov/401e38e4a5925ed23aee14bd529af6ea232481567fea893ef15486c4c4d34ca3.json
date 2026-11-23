@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://cdn.clinicaltrials.gov/large-docs/66/NCT01467466/SAP_001.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795393337,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 398,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "401e38e4a5925ed23aee14bd529af6ea232481567fea893ef15486c4c4d34ca3-0.bin"
+      }
+    }
+  ]
+}

@@ -16,6 +16,7 @@ macro_rules! reply_types {
             biomarker_page: $crate::BiomarkerPage => "biomarker-page",
             biomarker_result: $crate::BiomarkerResult => "biomarker-result",
             organization_page: $crate::OrganizationPage => "organization-page",
+            trial_document_read_result: $crate::TrialDocumentReadResult => "trial-document-read-result",
             trial_document_result: $crate::TrialDocumentResult => "trial-document-result",
             health: $crate::Health => "health",
             schema_catalog: $crate::SchemaCatalog => "schema-catalog",

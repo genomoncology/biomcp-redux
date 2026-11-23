@@ -107,7 +107,7 @@ pub fn run_with_arm_projection(
         Request::SearchVariant(query) => crate::variant::search::discover(cx, query),
         Request::VariantRecurrence(query) => crate::variant::recurrence::run(cx, query),
         Request::GetVariant(query) => crate::variant::lookup(cx, query),
-        Request::TrialDocument(query) => crate::trial::document::download(cx, query, false).out,
+        Request::TrialDocument(query) => crate::trial::document::run(cx, query),
         Request::GetTrial(query) => crate::trial::get::get(cx, query, arm_projection),
         Request::SearchTrial(query) => crate::trial::search_bound(cx, query),
         Request::ArticlePdf(query) => crate::article::pdf::download(cx, query, false).out,

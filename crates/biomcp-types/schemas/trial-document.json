@@ -16,32 +16,44 @@
   "$id": "biomcp.trial-document/2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL.",
+  "description": "Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).",
   "properties": {
     "file": {
       "$ref": "#/$defs/Text",
-      "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+      "description": "Exact listed PDF filename.",
       "x-positional": 1
+    },
+    "find": {
+      "$ref": "#/$defs/Text",
+      "description": "Case-insensitive phrase search with pages."
     },
     "input": {
       "$ref": "#/$defs/NctId",
-      "description": "Exact registry identity.",
+      "description": "ClinicalTrials.gov ID.",
       "x-positional": 0
     },
     "replace": {
-      "description": "Replace an existing file only when explicitly requested.",
+      "description": "Replace an existing file.",
       "type": "boolean"
     },
     "save": {
       "$ref": "#/$defs/Text",
-      "description": "Caller-owned file or existing folder."
+      "description": "Save the original PDF to a file or folder."
+    },
+    "section_offset": {
+      "description": "Zero-based part or hit offset.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
     }
   },
   "required": [
     "input",
-    "file",
-    "save"
+    "file"
   ],
   "title": "TrialDocumentGet",
-  "type": "object"
+  "type": "object",
+  "x-reply-query-titles": [
+    "TrialDocumentSaveQuery"
+  ]
 }

@@ -105,9 +105,11 @@
       "expect": {
         "/result/commands/0/arguments/*/name": [
           "file",
+          "--find",
           "input",
           "--replace",
-          "--save"
+          "--save",
+          "--section-offset"
         ],
         "/result/commands/0/examples": {
           "count": 1

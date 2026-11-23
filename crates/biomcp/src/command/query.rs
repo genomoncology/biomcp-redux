@@ -15,7 +15,9 @@ pub(super) fn run_request(
     let request = &configured_request;
     let cx = super::query_context(fetch, fresh, settings)?;
     Ok(match request {
-        Request::TrialDocument(query) => crate::save::trial::document(&cx, query, allow_save),
+        Request::TrialDocument(query) if let Some(path) = &query.save => {
+            crate::save::trial::document(&cx, query, path, allow_save)
+        }
         Request::ArticlePdf(query) => crate::save::run(&cx, query, allow_save),
         Request::ArticleText(query) if query.save().is_some() => {
             crate::save::article::text(&cx, query, allow_save)

@@ -45,6 +45,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
         let own = command.command.join(" ");
         let rule = command.section_rule.clone();
         let concise = command.command == ["get", "disease"];
+        let trial_document = command.command == ["trial", "document"];
         let mut example_values =
             (concise || command.command == ["search", "drug"]).then(BTreeSet::new);
         let mut cased = false;
@@ -53,7 +54,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             cased |= !argument.choices.is_empty() && argument.value_type != "boolean";
             if !argument.name.starts_with("--") {
                 // Agents guess `--section`; say the word goes bare in its place.
-                if argument.position.is_some() {
+                if argument.position.is_some() && !trial_document {
                     let flag = if argument.aliases.is_empty()
                         && !flags.contains(&format!("--{}", argument.name))
                     {
@@ -83,7 +84,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
         } else {
             SOURCE_OPTIONS
         };
-        let scope = (!flags.is_empty() && !concise).then_some(scope);
+        let scope = (!flags.is_empty() && !concise && !trial_document).then_some(scope);
         append_option_guidance(command, cased, concise, scope);
         if let Some(line) = schema.as_ref().and_then(crate::grammar::paging::help_line) {
             command.description.push('\n');

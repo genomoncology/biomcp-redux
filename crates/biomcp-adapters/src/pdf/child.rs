@@ -23,6 +23,7 @@ pub fn serve(input: &[u8]) -> Vec<u8> {
             let mut header = serde_json::Map::from_iter([
                 ("state".into(), json!(read.state)),
                 ("pages".into(), json!(read.pages)),
+                ("page_starts".into(), json!(read.page_starts)),
                 ("missing".into(), json!(read.missing.map(missing_name))),
             ]);
             if read.private_symbol && read.state.readable() {
@@ -77,6 +78,7 @@ fn refused() -> Embedded {
         pages: None,
         state: PdfTextState::Refused,
         text: String::new(),
+        page_starts: Vec::new(),
         missing: None,
         private_symbol: false,
     }
@@ -98,7 +100,7 @@ fn decoded(answer: &[u8]) -> Result<Result<Embedded, Reason>, Malformed> {
             serde_json::from_value(reason.clone()).map_err(|_| Malformed)?
         ));
     }
-    let state = serde_json::from_value(header.get("state").ok_or(Malformed)?.clone())
+    let state: PdfTextState = serde_json::from_value(header.get("state").ok_or(Malformed)?.clone())
         .map_err(|_| Malformed)?;
     let pages = match header.get("pages") {
         Some(Value::Number(pages)) => {
@@ -113,10 +115,24 @@ fn decoded(answer: &[u8]) -> Result<Result<Embedded, Reason>, Malformed> {
     };
     let text =
         String::from_utf8(text.get(1..).ok_or(Malformed)?.to_vec()).map_err(|_| Malformed)?;
+    let page_starts: Vec<usize> =
+        serde_json::from_value(header.get("page_starts").ok_or(Malformed)?.clone())
+            .map_err(|_| Malformed)?;
+    if state.readable()
+        && (Some(page_starts.len()) != pages.map(|n| n as usize)
+            || page_starts.first() != Some(&0)
+            || !page_starts.is_sorted()
+            || !page_starts
+                .iter()
+                .all(|start| text.is_char_boundary(*start)))
+    {
+        return Err(Malformed);
+    }
     Ok(Ok(Embedded {
         pages,
         state,
         text,
+        page_starts,
         missing,
         private_symbol: match header.get("private_symbol") {
             Some(Value::Bool(value)) => *value,
