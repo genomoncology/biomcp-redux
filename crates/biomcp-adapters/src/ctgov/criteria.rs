@@ -145,16 +145,12 @@ enum Layout {
 fn layout(text: &str) -> Option<Layout> {
     let (mut arms, mut inclusion, mut exclusion) = (false, false, false);
     for line in text.lines() {
-        if arm_heading(line).is_some() {
-            arms = true;
-            continue;
-        }
         match heading(line) {
             Some((true, _)) => exclusion = true,
             Some((false, _)) => inclusion = true,
-            None if markdown_heading(line).is_some() || other_criteria_heading(line) => {
-                return None;
-            }
+            None if arm_heading(line).is_some() => arms = true,
+            None if markdown_heading(line).is_some() => return None,
+            None if other_criteria_heading(line) => return None,
             None => {}
         }
     }
