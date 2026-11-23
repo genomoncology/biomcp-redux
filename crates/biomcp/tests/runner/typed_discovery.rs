@@ -156,7 +156,10 @@ pub(super) fn short_source_routes() -> Result<(), String> {
         let path = fixtures().join(format!("cases/mcp/typed/short-source-{case}.yaml"));
         let case = crate::runner::case_data::read_case(&path)?;
         let mut config = crate::runner::launch::case_config(&case);
-        config["mcp_catalog"] = json!("compact");
+        config
+            .as_object_mut()
+            .ok_or("expected a case configuration object")?
+            .insert("mcp_catalog".into(), json!("compact"));
         env.config(&config).map_err(|error| error.to_string())?;
         let replay = fixtures()
             .join("replies")
@@ -173,15 +176,7 @@ pub(super) fn short_source_routes() -> Result<(), String> {
             .pointer("/result/structuredContent/tools/0/description")
             .and_then(Value::as_str)
             .ok_or("missing compact tool description")?;
-        let arguments = description
-            .match_indices("{\"action\":\"")
-            .filter_map(|(offset, _)| {
-                serde_json::Deserializer::from_str(&description[offset..])
-                    .into_iter::<Value>()
-                    .next()?
-                    .ok()
-            })
-            .find(|example| example.to_string().contains(field))
+        let arguments = copied_example(description, field)
             .ok_or_else(|| format!("{name} description has no {field} example"))?;
         let call = request(
             json!("example"),
@@ -195,9 +190,22 @@ pub(super) fn short_source_routes() -> Result<(), String> {
             .get("result")
             .ok_or("missing result")?;
         let value = crate::runner::mcp::one_value(result)?;
-        if result["isError"] != false || value.pointer(pointer) != Some(&expected) {
+        if result.get("isError") != Some(&json!(false)) || value.pointer(pointer) != Some(&expected)
+        {
             return Err(format!("{name} copied example returned {value}"));
         }
     }
     Ok(())
+}
+
+fn copied_example(description: &str, field: &str) -> Option<Value> {
+    description
+        .match_indices("{\"action\":\"")
+        .filter_map(|(offset, _)| {
+            serde_json::Deserializer::from_str(description.get(offset..)?)
+                .into_iter::<Value>()
+                .next()?
+                .ok()
+        })
+        .find(|example| example.to_string().contains(field))
 }
