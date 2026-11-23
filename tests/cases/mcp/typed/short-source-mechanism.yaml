@@ -10,7 +10,8 @@ steps:
       /page/total: 15
       /result/items/0/name: Anzupgo
       /result/items/0/application_numbers: [NDA219155]
-      /result/items/0/matched_sentence: {includes: 'Mechanism of Action'}
+      /result/items/0/matched_sentence: >-
+        12.1 Mechanism of Action Delgocitinib, a Janus kinase (JAK) inhibitor, inhibits the activity of JAK1, JAK2, JAK3, and tyrosine kinase 2 (TYK2).
       /next/*/kind: {includes: page}
   - mcp_call:
       name: drug

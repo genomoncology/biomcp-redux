@@ -7,5 +7,7 @@ steps:
     expect:
       /result/document/state: no-text
       /result/document/url: https://www.accessdata.fda.gov/cdrh_docs/pdf17/P170019B.pdf
-      /sources/0/notices/*/message: {includes: "The regulatory section gives FDA's device record."}
+      /sources/0/notices/*/message:
+        includes: >-
+          No summary text was read. Open the PDF URL for the summary. The regulatory section gives FDA's device record.
       /next/0/args: {includes_all_of: [get, diagnostic, P170019, regulatory, --source, fda-pma]}

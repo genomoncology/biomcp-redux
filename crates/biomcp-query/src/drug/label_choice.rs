@@ -148,8 +148,13 @@ pub(super) fn recover(
     disclose(
         discovery,
         format!(
-            "The holder label for {application} could not be read. The fallback label is a repackager's copy. \
-             For FDA approval documents, use get drug {application} approvals --source drugsfda."
+            "The holder label for {application} could not be read. The fallback label is a repackager's copy."
+        ),
+    );
+    disclose(
+        discovery,
+        format!(
+            "For FDA approval documents, use get drug {application} approvals --source drugsfda."
         ),
     );
     None
