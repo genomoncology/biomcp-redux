@@ -17,6 +17,7 @@ pub(super) struct SearchResponse {
 #[derive(Deserialize)]
 pub(super) struct Hit {
     pub obo_id: Option<Field<Curie>>,
+    pub short_form: Option<Field<Text>>,
     pub label: Option<Field<NativeText>>,
     pub ontology_name: String,
     pub iri: Option<Field<Text>>,

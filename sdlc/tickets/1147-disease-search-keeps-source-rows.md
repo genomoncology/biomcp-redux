@@ -1,6 +1,7 @@
 # 1147 — disease-search-keeps-source-rows
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e4f3b76d055cc30791e37649fd42e051e6d1fd33
 
 Milestone: 7
 
