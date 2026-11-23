@@ -8,6 +8,8 @@ use super::MIGRATIONS;
 
 /// The project every command uses until projects can be chosen.
 pub const PROJECT: &str = "default";
+/// Qualifier selecting an item saved without an explicit source.
+pub const DEFAULT_ITEM_SOURCE: &str = "default";
 /// Longest accepted name, in characters.
 pub const NAME_CHARS: usize = 80;
 /// Longest accepted note, in characters.
@@ -24,7 +26,7 @@ pub fn request_key(request: &biomcp_types::Request) -> String {
 }
 
 /// Why a saved-work command could not finish.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SavedError {
     /// A newer build wrote the file; it was not changed.
     Newer,
@@ -40,6 +42,10 @@ pub enum SavedError {
     ItemUnknown,
     /// The list holds the ID under more than one entity or source.
     Ambiguous,
+    /// An item removal needs an entity to distinguish its matching records.
+    RemoveEntity(Box<[Text]>),
+    /// An item removal needs a source to distinguish its matching records.
+    RemoveSource(Box<[Text]>),
 }
 
 /// Refuse a name or note over its limit in characters.
@@ -108,6 +114,33 @@ fn check_compatibility(connection: &Connection) -> Result<(), SavedError> {
         Err(SavedError::Newer)
     } else {
         Ok(())
+    }
+}
+
+fn remove_qualifier(keys: &[(String, String)]) -> SavedError {
+    let values = |names: Vec<&str>| {
+        names
+            .into_iter()
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .filter_map(|name| Text::new(name).ok())
+            .collect::<Box<[_]>>()
+    };
+    let entities = values(keys.iter().map(|(entity, _)| entity.as_str()).collect());
+    if entities.len() > 1 {
+        SavedError::RemoveEntity(entities)
+    } else {
+        SavedError::RemoveSource(values(
+            keys.iter()
+                .map(|(_, source)| {
+                    if source.is_empty() {
+                        DEFAULT_ITEM_SOURCE
+                    } else {
+                        source.as_str()
+                    }
+                })
+                .collect(),
+        ))
     }
 }
 
@@ -236,20 +269,38 @@ impl SavedStore {
     /// Remove items with these identifiers from a list. Return the list and the identifiers
     /// it did not hold; a remove that removes nothing leaves `modified` as it was.
     pub fn list_remove(&mut self, name: &str, ids: &[Text]) -> Result<Saved, SavedError> {
+        self.list_remove_qualified(name, ids, None, None)
+    }
+
+    /// Remove only uniquely matched items, using the given entity and source qualifiers.
+    /// An empty source qualifies an item saved without a source.
+    pub fn list_remove_qualified(
+        &mut self,
+        name: &str,
+        ids: &[Text],
+        entity: Option<&str>,
+        source: Option<&str>,
+    ) -> Result<Saved, SavedError> {
         self.write(|tx, now| {
             let id = list_id(tx, name)?.ok_or(SavedError::Unknown)?;
             let mut missing = Vec::new();
             let mut removed = Vec::new();
             for item in ids {
-                let count = tx.execute(
-                    "DELETE FROM saved_list_item WHERE list=?1 AND id=?2",
-                    params![id, item.as_str()],
-                )?;
-                if count > 0 {
-                    super::notes::delete_item(tx, &id, item.as_str())?;
-                    removed.push(item);
-                } else if !removed.contains(&item) && !missing.contains(item) {
-                    missing.push(item.clone());
+                let keys = super::notes::item_keys(tx, &id, item.as_str(), entity, source)?;
+                match keys.as_slice() {
+                    [(entity, source)] => {
+                        tx.execute(
+                            "DELETE FROM saved_list_item WHERE list=?1 AND id=?2 AND entity=?3 AND source=?4",
+                            params![id, item.as_str(), entity, source],
+                        )?;
+                        super::notes::delete_item(tx, &id, item.as_str(), entity, source)?;
+                        removed.push(item);
+                    }
+                    [] if !removed.contains(&item) && !missing.contains(item) => {
+                        missing.push(item.clone());
+                    }
+                    [] => {}
+                    _ => return Err(remove_qualifier(&keys)),
                 }
             }
             if !removed.is_empty() {
