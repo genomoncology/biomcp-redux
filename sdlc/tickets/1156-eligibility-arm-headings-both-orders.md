@@ -1,6 +1,7 @@
 # 1156 — eligibility-arm-headings-both-orders
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6ff8a5aa89c5eb0431261fa16f7b201ecd1569c9 (with 1154)
 
 Milestone: 7
 

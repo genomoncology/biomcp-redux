@@ -1,6 +1,7 @@
 # 1154 — pdf-find-keeps-line-start
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2db2c96aaa537876a9785871672b635abc776f60
 
 Milestone: 7
 

@@ -1,0 +1,27 @@
+{
+  "feature": "trial-get",
+  "story": "Eligibility keeps the raw registry text when an unfamiliar heading could start another cohort.",
+  "replay": "trial/eligibility/unknown-heading",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04937062",
+        "eligibility"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/criteria": "# Alpha Arm\nInclusion Criteria:\n* Alpha include\nExclusion Criteria:\n* Alpha exclude\n# Cohort B\nInclusion Criteria:\n* B include\nExclusion Criteria:\n* B exclude",
+        "/result/items/0/sections/eligibility/data/not_split": "The registry text has an unrecognized heading, so it is not split; read criteria.",
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "arms",
+            "inclusion",
+            "exclusion"
+          ]
+        }
+      }
+    }
+  ]
+}
