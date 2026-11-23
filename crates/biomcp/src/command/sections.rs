@@ -17,7 +17,7 @@ pub(super) fn run(
     fresh: bool,
     globals: &crate::grammar::Globals,
     encoding: Encoding,
-    allow_save: bool,
+    allow_fresh: bool,
 ) -> io::Result<Outcome> {
     let mut parts = Vec::new();
     let mut identity = None;
@@ -27,7 +27,15 @@ pub(super) fn run(
     let requested = requested(query).map_err(io::Error::other)?;
     for (request, result) in super::run_parts(fetch, &requested, fresh, settings)? {
         if !sectioned(&result.body) {
-            return super::response(fetch, request, result, fresh, globals, encoding, allow_save);
+            return super::response(
+                fetch,
+                request,
+                result,
+                fresh,
+                globals,
+                encoding,
+                allow_fresh,
+            );
         }
         local |= result.local.is_some();
         let input = match &request {
@@ -35,7 +43,13 @@ pub(super) fn run(
             _ => None,
         };
         let (meta, body) = super::finished(
-            fetch, &request, result, fresh, globals, encoding, allow_save,
+            fetch,
+            &request,
+            result,
+            fresh,
+            globals,
+            encoding,
+            allow_fresh,
         )?;
         parts.push(
             body.visit(Part {

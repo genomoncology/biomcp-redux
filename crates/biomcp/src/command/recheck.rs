@@ -91,6 +91,7 @@ pub(crate) fn recheck(
             true,
             &globals,
             Encoding::Json,
+            context.is_none(),
         )?;
         let envelope: Value = serde_json::from_slice(outcome.bytes()?).map_err(io::Error::other)?;
         let status = envelope.get("status").and_then(Value::as_str);

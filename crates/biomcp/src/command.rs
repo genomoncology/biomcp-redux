@@ -323,10 +323,16 @@ fn response(
     fresh: bool,
     globals: &crate::grammar::Globals,
     encoding: Encoding,
-    allow_save: bool,
+    allow_fresh: bool,
 ) -> io::Result<Outcome> {
     let (meta, body) = finished(
-        fetch, &request, result, fresh, globals, encoding, allow_save,
+        fetch,
+        &request,
+        result,
+        fresh,
+        globals,
+        encoding,
+        allow_fresh,
     )?;
     if matches!(body, biomcp_types::ReplyData::PoolError { mismatch: false })
         && let Some((argument, message)) = saved::fault(&request)
@@ -351,12 +357,12 @@ fn finished(
     fresh: bool,
     globals: &crate::grammar::Globals,
     encoding: Encoding,
-    allow_save: bool,
+    allow_fresh: bool,
 ) -> io::Result<(ResponseMeta, biomcp_types::ReplyData)> {
     result
         .finish(fetch, request, fresh)
         .map_err(io::Error::other)?;
-    let steps = steps::next(request, &result, globals, allow_save && !globals.hosted)?;
+    let steps = steps::next(request, &result, globals, allow_fresh && !globals.hosted)?;
     let meta = ResponseMeta {
         encoding,
         exit: response_status(&result),
