@@ -75,6 +75,7 @@ mod http_capacity;
 mod http_limits;
 #[cfg(unix)]
 mod key_input;
+mod key_check;
 mod key_registration;
 pub(super) mod launch;
 mod licensed_cache;
@@ -303,6 +304,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(corporate::trials());
     trials.extend(drug_identity::trials());
     trials.extend(source_queries::trials());
+    trials.extend(key_check::trials());
     trials.extend(key_registration::trials());
     trials.extend(pdf::trials());
     trials.push(skill::trial());
