@@ -3348,7 +3348,7 @@ Options:
 ```
 
 Get disease details and source statistics. Sources: clingen, gencc, monarch, mydisease, ols, orphadata, seer.
-Choices ignore case; replies use listed spelling.
+Choices ignore case. Replies use listed spelling.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--age-range`: Source age-range code. Value form: string; example: 1.

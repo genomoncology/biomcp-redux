@@ -363,7 +363,7 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
         let call = Call::of(verb, entity, sections);
         return (!call_lists(&call).is_empty()).then(|| {
             if entity == "disease" {
-                "--fields a,b keeps columns; a.b keeps nested fields."
+                "--fields a,b keeps columns. Use a.b for nested fields."
             } else {
                 "--fields a,b keeps only those columns of a named section's rows; a.b names a value inside one."
             }

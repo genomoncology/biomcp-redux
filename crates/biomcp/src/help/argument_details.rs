@@ -164,7 +164,7 @@ pub(super) const SOURCE_OPTIONS: &str =
     "Options apply to every listed source unless their description restricts them.";
 pub(super) const LOCAL_OPTIONS: &str =
     "Options are local to the command and independent of source selection.";
-const SHORT_ENUM_CASE_GUIDANCE: &str = "Choices ignore case; replies use listed spelling.";
+const SHORT_ENUM_CASE_GUIDANCE: &str = "Choices ignore case. Replies use listed spelling.";
 pub(super) fn case_guidance(line: &str) -> Option<&'static str> {
     [crate::grammar::ENUM_CASE_GUIDANCE, SHORT_ENUM_CASE_GUIDANCE]
         .into_iter()
