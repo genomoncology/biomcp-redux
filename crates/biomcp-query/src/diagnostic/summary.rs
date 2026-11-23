@@ -3,7 +3,8 @@ use super::{empty, next};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{fda_pma, pdf};
 use biomcp_types::{
-    DiagnosticGet, DiagnosticSummary, PageInfo, PdfText, PdfTextHit, ReplyBody, Request, StepKind,
+    DiagnosticGet, DiagnosticSection, DiagnosticSummary, PageInfo, PdfText, PdfTextHit, ReplyBody,
+    Request, SourceNotice, SourceOutcome, StepKind,
 };
 pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     let mut out = empty(DiagnosticSummary::into_reply(q.clone(), None));
@@ -46,6 +47,9 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
             true,
         );
     }
+    if result.as_ref().is_ok_and(|reply| !reply.0.state.readable()) {
+        unread(cx, q, &mut out, &mut source);
+    }
     out.sources.push(source);
     match result {
         Ok((document, Some((find, text)))) => {
@@ -82,6 +86,31 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     }
     command.finish(deadline.remaining());
     out
+}
+
+fn unread(cx: &Ctx<'_>, q: &DiagnosticGet, out: &mut Outcome, source: &mut SourceOutcome) {
+    source.notices.push(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: concat!(
+            "No summary text was read. Open the PDF URL for the summary. ",
+            "The regulatory section gives FDA's device record.",
+        )
+        .into(),
+        retry_after_seconds: None,
+    });
+    if let Some(regulatory) = crate::next::checked(
+        q.with_section(DiagnosticSection::Regulatory),
+        q.source().source(),
+        &mut out.problems,
+    ) {
+        next::push(
+            out,
+            StepKind::Section,
+            &[q.source().source()],
+            Request::GetDiagnostic(regulatory),
+            cx.fresh,
+        );
+    }
 }
 
 /// Answer a find with whole passages paged like article text's find.

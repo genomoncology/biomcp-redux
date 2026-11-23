@@ -123,12 +123,13 @@ pub(super) fn recover(
     let application = repackaged_application(candidates).cloned()?;
     let mut holders = find_holders(&within(cx, deadline.remaining()), &application, discovery);
     holders.sort_by(|a, b| a.0.cmp(&b.0));
-    let (_, holder) = holders.first()?;
-    let read = crate::next::checked(
-        super::selected_as(&within(cx, deadline.remaining()), queries, &holder.id),
-        DrugSource::OpenfdaLabel.source(),
-        &mut discovery.problems,
-    );
+    let read = holders.first().and_then(|(_, holder)| {
+        crate::next::checked(
+            super::selected_as(&within(cx, deadline.remaining()), queries, &holder.id),
+            DrugSource::OpenfdaLabel.source(),
+            &mut discovery.problems,
+        )
+    });
     if let Some(read) = read.filter(|parts| {
         parts
             .iter()
@@ -148,6 +149,12 @@ pub(super) fn recover(
         discovery,
         format!(
             "The holder label for {application} could not be read. The fallback label is a repackager's copy."
+        ),
+    );
+    disclose(
+        discovery,
+        format!(
+            "For FDA approval documents, use get drug {application} approvals --source drugsfda."
         ),
     );
     None

@@ -1,0 +1,23 @@
+feature: drug-label-mechanism
+story: The copyable mechanism call keeps its selected fields and a continuation.
+live_check: Recorded openFDA pages, with no provider requests.
+replay: drug/label-mechanism
+config: {mcp_tool_mode: typed, mcp_typed_output_schema: true}
+steps:
+  - run: [search, drug, --source, openfda-label, --application-type, 'nda,bla',
+          --mechanism-of-action, Janus kinase, --limit, '3', --fields, 'name,application_numbers,matched_sentence']
+    expect: &page
+      /page/returned: 3
+      /page/total: 15
+      /result/items/0/name: Anzupgo
+      /result/items/0/application_numbers: [NDA219155]
+      /result/items/0/matched_sentence: >-
+        12.1 Mechanism of Action Delgocitinib, a Janus kinase (JAK) inhibitor, inhibits the activity of JAK1, JAK2, JAK3, and tyrosine kinase 2 (TYK2).
+      /next/*/kind: {includes: page}
+  - mcp_call:
+      name: drug
+      arguments:
+        action: search
+        search: {source: openfda-label, application_type: [nda, bla], mechanism_of_action: Janus kinase, limit: 3}
+        fields: [name, application_numbers, matched_sentence]
+    expect: *page

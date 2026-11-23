@@ -1,0 +1,16 @@
+feature: diagnostic-cdx
+story: A prefixed FDA application finds both companion diagnostic claims.
+live_check: Recorded FDA tables.
+replay: diagnostic/cdx-group-join
+config: {mcp_tool_mode: typed, mcp_typed_output_schema: true}
+steps:
+  - run: [sync, fda-cdx]
+    expect: {/status: complete}
+  - run: [search, diagnostic, --source, fda-cdx, --drug-application, NDA219042]
+    expect: &claims
+      /page/total: 2
+      /result/items/*/device_ids: [[P200010/S027], [P160045/S049]]
+  - mcp_call:
+      name: diagnostic
+      arguments: {action: search, search: {source: fda-cdx, drug_application: NDA219042}}
+    expect: *claims

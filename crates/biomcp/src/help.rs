@@ -8,6 +8,7 @@ pub(crate) mod guide;
 pub(crate) use discovery::{plain, relations};
 pub(crate) const FRONT_MAP: &str = include_str!(concat!(env!("OUT_DIR"), "/front-map.txt"));
 mod schema_fields;
+pub(crate) mod source_routes;
 use schema_fields::{resolve, value_type};
 mod public_grammar;
 mod source_settings;

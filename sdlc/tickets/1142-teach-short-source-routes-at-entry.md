@@ -1,6 +1,7 @@
 # 1142 — teach-short-source-routes-at-entry
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0905b709e27d5dbde22e221e1ec265179d8c78d3
 
 Milestone: 7
 
