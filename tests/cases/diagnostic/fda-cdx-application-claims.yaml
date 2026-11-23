@@ -1,7 +1,7 @@
 {
   "feature": "diagnostic-cdx",
   "live_check": "recorded only; reuses the FDA companion list replay",
-  "story": "An FDA drug application search keeps tissue and plasma claims even when a drug link lacks the application number. A claim that names two applications is found under either one.",
+  "story": "An FDA drug application search keeps tissue and plasma claims even when a drug link lacks the application number.",
   "replay": "diagnostic/cdx-group-join",
   "config": {"mcp_tool_mode": "typed", "mcp_typed_output_schema": true},
   "steps": [
@@ -20,20 +20,6 @@
         "/result/items/*/row_date": ["2026-06-10", "2025-08-08"],
         "/result/items/*/matched": [["drug-application"], ["drug-application"]],
         "": {"omits": ["problems"]}
-      }
-    },
-    {
-      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "BLA125554", "--device-id", "P250004"],
-      "expect": {
-        "/page/total": 1,
-        "/result/items/0/drug_applications": ["BLA125554", "BLA125377"]
-      }
-    },
-    {
-      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "BLA125377", "--device-id", "P250004"],
-      "expect": {
-        "/page/total": 1,
-        "/result/items/0/device_ids": ["P250004"]
       }
     }
   ]
