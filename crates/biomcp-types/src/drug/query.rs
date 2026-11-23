@@ -108,7 +108,7 @@ impl TryFrom<GetFields> for DrugGet {
             && fields.section.contains(&DrugSection::Label)
             && let Some(sections) = fields.label_section.as_mut()
         {
-            super::normalize_label_numbers(sections)?;
+            super::normalize_label_numbers(sections, fields.find.is_empty())?;
         }
         let native_id =
             if let Some(ids) = label_find::batch(&fields.input, &fields.find, &fields.section)? {

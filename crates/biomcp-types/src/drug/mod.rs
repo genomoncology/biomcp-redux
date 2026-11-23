@@ -122,7 +122,11 @@ const NUMBERED_LABEL_HEADINGS: [&str; 17] = [
 ];
 
 /// Resolve printed section numbers before splitting a request into individual label reads.
-fn normalize_label_numbers(sections: &mut biodata::Text) -> Result<(), crate::QueryInvalid> {
+fn normalize_label_numbers(
+    sections: &mut biodata::Text,
+    allow_subsections: bool,
+) -> Result<(), crate::QueryInvalid> {
+    use std::borrow::Cow;
     let selectors = sections.as_str().split(',').map(str::trim);
     let numbered = |selector: &str| {
         selector
@@ -135,15 +139,31 @@ fn normalize_label_numbers(sections: &mut biodata::Text) -> Result<(), crate::Qu
     let invalid = || crate::QueryInvalid::new(&["label_section"]);
     let headings = selectors
         .map(|selector| {
-            if numbered(selector) {
-                selector
-                    .parse::<usize>()
-                    .ok()
-                    .and_then(|number| number.checked_sub(1))
-                    .and_then(|index| NUMBERED_LABEL_HEADINGS.get(index).copied())
-                    .ok_or_else(invalid)
-            } else {
-                Ok(selector)
+            if !numbered(selector) {
+                return Ok(Cow::Borrowed(selector));
+            }
+            let (major, subsection) = selector
+                .split_once('.')
+                .map_or((selector, None), |(major, tail)| (major, Some(tail)));
+            let heading = major
+                .parse::<usize>()
+                .ok()
+                .and_then(|number| number.checked_sub(1))
+                .and_then(|index| NUMBERED_LABEL_HEADINGS.get(index).copied())
+                .ok_or_else(invalid)?;
+            match subsection {
+                None => Ok(Cow::Borrowed(heading)),
+                Some(tail)
+                    if allow_subsections
+                        && tail.split('.').all(|part| {
+                            !part.is_empty()
+                                && part.len() <= 2
+                                && part.bytes().all(|byte| byte.is_ascii_digit())
+                        }) =>
+                {
+                    Ok(Cow::Owned(format!("{heading}:{selector}")))
+                }
+                Some(_) => Err(invalid()),
             }
         })
         .collect::<Result<Vec<_>, _>>()?;
