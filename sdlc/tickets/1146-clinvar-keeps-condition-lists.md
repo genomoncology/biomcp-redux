@@ -1,6 +1,7 @@
 # 1146 — clinvar-keeps-condition-lists
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4916c66a1f2dcc606eae5d1564a03e28c3097bfc
 
 Milestone: 7
 
