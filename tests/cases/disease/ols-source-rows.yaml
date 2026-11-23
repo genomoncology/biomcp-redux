@@ -1,0 +1,120 @@
+{
+  "feature": "disease-ols",
+  "live_check": "Recorded public OLS hits and response-only controls. No live requests.",
+  "story": "OLS disease search keeps imported gene and cross-species terms in source order and pages by source rows.",
+  "replay": "disease/ols-source-rows",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "disease",
+        "SLC6A1",
+        "--limit",
+        "12"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 4,
+            "total": 4
+          }
+        },
+        "/result/items/0/concept/id": "HGNC:11042",
+        "/result/items/1/concept/id": "MONDO:0014633",
+        "/result/items/2/concept/id": "HGNC:27960",
+        "/result/items/3/concept/id": "HGNC:31399",
+        "/next": {
+          "count": 1
+        },
+        "/next/0/args/2": "MONDO:0014633"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "disease",
+        "SLC6A1",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 2,
+            "total": 4
+          }
+        },
+        "/next/1/kind": "page",
+        "/next/1/args": {
+          "includes_all_of": [
+            "--offset",
+            "2"
+          ]
+        },
+        "/result/items/1/concept/id": "MONDO:0014633"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "disease",
+        "SLC6A1",
+        "--limit",
+        "2",
+        "--offset",
+        "2"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page": {
+          "equals": {
+            "offset": 2,
+            "returned": 2,
+            "total": 4
+          }
+        },
+        "/result/items/0/concept/id": "HGNC:27960",
+        "/result/items/1/concept": {
+          "omits": [
+            "id"
+          ]
+        },
+        "/result/items/1/concept/label": "SLC6A17",
+        "/sources/0/notices/0/message": "OLS returned 1 row without a usable identifier on this page.",
+        "": {
+          "omits": [
+            "next"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "disease",
+        "STXBP1",
+        "--limit",
+        "12"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page": {
+          "equals": {
+            "offset": 0,
+            "returned": 4,
+            "total": 4
+          }
+        },
+        "/result/items/0/concept/id": "HGNC:11444",
+        "/result/items/1/concept/id": "NCBIGene:102120803",
+        "/result/items/2/concept/id": "MONDO:1012925",
+        "/result/items/3/concept/id": "MONDO:0012812",
+        "/result/items/2/concept/label": "encephalopathy, STXBP1-related, crab-eating macaque",
+        "/sources/0/notices/0/message": "MONDO results can include non-human terms. The source labels retain any stated species."
+      }
+    }
+  ]
+}
