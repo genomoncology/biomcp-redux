@@ -1,0 +1,40 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/search?q=SLC6A1&rows=2&start=2&ontology=mondo&groupField=iri",
+  "exchanges": [
+    {
+      "fetched": 1795389680,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 2555,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "response": {
+            "numFound": 4,
+            "start": 2,
+            "docs": [
+              {
+                "iri": "http://identifiers.org/hgnc/27960",
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "short_form": "27960",
+                "label": "SLC6A19",
+                "obo_id": "27960",
+                "type": "class"
+              },
+              {
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "label": "SLC6A17",
+                "type": "class"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

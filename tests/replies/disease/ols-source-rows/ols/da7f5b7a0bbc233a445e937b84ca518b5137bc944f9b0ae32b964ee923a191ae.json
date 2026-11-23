@@ -1,0 +1,41 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/search?q=SLC6A1&rows=2&start=0&ontology=mondo&groupField=iri",
+  "exchanges": [
+    {
+      "fetched": 1795389678,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 410,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "response": {
+            "numFound": 4,
+            "start": 0,
+            "docs": [
+              {
+                "iri": "http://identifiers.org/hgnc/11042",
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "short_form": "11042",
+                "label": "SLC6A1",
+                "obo_id": "11042",
+                "type": "class"
+              },
+              {
+                "ontology_name": "mondo",
+                "ontology_prefix": "MONDO",
+                "short_form": "MONDO_0014633",
+                "label": "epilepsy with myoclonic atonic seizures",
+                "type": "class"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
