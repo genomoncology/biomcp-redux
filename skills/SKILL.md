@@ -35,7 +35,8 @@ Only gene/protein/article/trial get batch IDs (CLI space/comma, typed `get.id` l
 - `get drug NAME label --source openfda-label --label-section 1,14`. Check the holder.
 - `get drug NDA021588 approvals --source drugsfda` lists letter IDs; one `--document-id` per read.
 - `biomcp search drug Enbrel --source purple-book --presentations --limit 3`. Follow `next`; use the presentation date.
-- `search drug --source openfda-label --application-type nda,bla --mechanism-of-action "Janus kinase" --limit 3 --fields name,application_numbers,matched_sentence`.
+- `search drug --source openfda-label --application-type nda,bla
+  --mechanism-of-action "Janus kinase" --limit 3 --fields name,application_numbers,matched_sentence`.
 - `search drug --indication "pancreatic cancer" --source openfda-label --limit 2`. Literal label matches. Read `total` and follow `next`.
   Avoid `biomcp search drug --indication "pancreatic cancer" --source openfda-label --limit 50`; long pages can be clipped.
 

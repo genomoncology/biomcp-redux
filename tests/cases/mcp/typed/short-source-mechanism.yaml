@@ -4,7 +4,8 @@ live_check: Recorded openFDA pages, with no provider requests.
 replay: drug/label-mechanism
 config: {mcp_tool_mode: typed, mcp_typed_output_schema: true}
 steps:
-  - run: [search, drug, --source, openfda-label, --application-type, 'nda,bla', --mechanism-of-action, Janus kinase, --limit, '3', --fields, 'name,application_numbers,matched_sentence']
+  - run: [search, drug, --source, openfda-label, --application-type, 'nda,bla',
+          --mechanism-of-action, Janus kinase, --limit, '3', --fields, 'name,application_numbers,matched_sentence']
     expect: &page
       /page/returned: 3
       /page/total: 15
