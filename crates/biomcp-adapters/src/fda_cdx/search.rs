@@ -1,5 +1,6 @@
 use super::biomarker::names;
 use super::date::{key, row_date};
+use super::identity::{ApplicationMention, application_mention};
 use biodata::{CompanionDiagnosticRelation, PartialDate};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
 use biomcp_types::{CompanionDiagnosticRow, DiagnosticSearch, Problem, ProblemCode, Source};
@@ -19,10 +20,10 @@ pub struct Search {
 /// Search source-owned fields without refreshing the stored list or parsing clinical text.
 pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, RequestError> {
     let invalid_reply = biomcp_fetch::bad_reply(biomcp_types::Source::FdaCdx, None);
-    let find = if let Some(id) = query.device_id() {
+    // Stored cross-references cover link-confirmed applications only.
+    let application = query.drug_application();
+    let find = if let Some(id) = query.device_id().filter(|_| application.is_none()) {
         Find::Exact(KeyKind::Id, id.as_str())
-    } else if let Some(id) = query.drug_application() {
-        Find::Exact(KeyKind::Xref, id.as_str())
     } else {
         Find::Exact(KeyKind::Band, "all")
     };
@@ -35,22 +36,26 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     }
     let snapshot = info.content_revision.as_deref().ok_or(invalid_reply)?;
     let mut matching = Vec::new();
+    let mut unreadable = Vec::new();
     for row in rows {
         let native = row.value;
+        if let Some(id) = application {
+            match application_mention(&drug_cell(&native.relation).text, id) {
+                ApplicationMention::Match => {}
+                ApplicationMention::OtherKind if !native.drug_conflict => continue,
+                ApplicationMention::OtherKind | ApplicationMention::Missing => {
+                    unreadable.extend(unjoined(&native, id.as_str().get(3..).unwrap_or_default()));
+                    continue;
+                }
+            }
+        }
         if matches(&native.relation, query) {
             let date = row_date(&device_cell(&native.relation).text);
             matching.push((native, date));
         }
     }
     let (items, total, mut conflicts) = page(query, matching);
-    if let Some(id) = query.drug_application() {
-        // A row that mentions the asked application but joins nothing is named, not dropped.
-        let digits = id.as_str().get(3..).unwrap_or_default();
-        let (all, _) = super::bundle::read(leg, Find::Exact(KeyKind::Band, "all"))?;
-        for row in all {
-            conflicts.extend(unjoined(&row.value, digits));
-        }
-    }
+    conflicts.extend(unreadable);
     let mut problems: Vec<Problem> = conflicts
         .into_iter()
         .map(|(table, index, field, code)| Problem {
@@ -107,14 +112,13 @@ fn page(
 }
 type Dated = (super::raw::Native, Option<PartialDate>);
 type Conflict = (u8, u32, &'static str, ProblemCode);
-/// Problems for a row that mentions the application digits but joins no application.
+/// Problems for a row that may refer to the application but has no readable match.
 fn unjoined(row: &super::raw::Native, digits: &str) -> Vec<(u8, u32, &'static str, ProblemCode)> {
     if !mentions(&row.relation, digits) {
         return Vec::new();
     }
     let mut found = conflicts_of(row);
     if found.is_empty() && applications(&row.relation).is_empty() {
-        // The text names it but no link carries an application number.
         let (table, index) = place(&row.relation);
         found.push((table, index, "drug", ProblemCode::ValueUnknown));
     }
@@ -122,12 +126,15 @@ fn unjoined(row: &super::raw::Native, digits: &str) -> Vec<(u8, u32, &'static st
 }
 /// Whether the row's drug cell text or a link address contains the application digits.
 fn mentions(row: &CompanionDiagnosticRelation, digits: &str) -> bool {
-    let cell = match row {
-        CompanionDiagnosticRelation::Individual { cells, .. } => &cells.drug,
-        CompanionDiagnosticRelation::Group { cells, .. } => &cells.drug_group,
-    };
+    let cell = drug_cell(row);
     !digits.is_empty()
         && (cell.text.contains(digits) || cell.links.iter().any(|l| l.href.contains(digits)))
+}
+fn drug_cell(row: &CompanionDiagnosticRelation) -> &biodata::DiagnosticCell {
+    match row {
+        CompanionDiagnosticRelation::Individual { cells, .. } => &cells.drug,
+        CompanionDiagnosticRelation::Group { cells, .. } => &cells.drug_group,
+    }
 }
 /// Table and physical row position.
 fn place(row: &CompanionDiagnosticRelation) -> (u8, u32) {
@@ -204,22 +211,11 @@ fn changed_revision() -> RequestError {
     .into()
 }
 fn matches(row: &CompanionDiagnosticRelation, query: &DiagnosticSearch) -> bool {
-    let (devices, drugs, biomarker) = match row {
+    let (devices, biomarker) = match row {
         CompanionDiagnosticRelation::Individual {
-            device_ids,
-            drug_applications,
-            cells,
-            ..
-        } => (
-            device_ids,
-            drug_applications,
-            Some(cells.biomarker.text.as_ref()),
-        ),
-        CompanionDiagnosticRelation::Group {
-            device_ids,
-            drug_applications,
-            ..
-        } => (device_ids, drug_applications, None),
+            device_ids, cells, ..
+        } => (device_ids, Some(cells.biomarker.text.as_ref())),
+        CompanionDiagnosticRelation::Group { device_ids, .. } => (device_ids, None),
     };
     query.device_id().is_none_or(|q| {
         devices.iter().any(|id| {
@@ -231,11 +227,8 @@ fn matches(row: &CompanionDiagnosticRelation, query: &DiagnosticSearch) -> bool 
                         .is_some_and(|(base, _)| base == q.as_str())
         })
     }) && query
-        .drug_application()
-        .is_none_or(|q| drugs.iter().any(|v| &v.id == q))
-        && query
-            .biomarker()
-            .is_none_or(|q| biomarker.is_some_and(|cell| names(cell, q.as_str())))
+        .biomarker()
+        .is_none_or(|q| biomarker.is_some_and(|cell| names(cell, q.as_str())))
         && query
             .name()
             .is_none_or(|q| !super::row::name_match(row, q.as_str()).is_empty())

@@ -1,0 +1,26 @@
+{
+  "feature": "diagnostic-cdx",
+  "live_check": "recorded only; reuses the FDA companion list replay",
+  "story": "An FDA drug application search keeps tissue and plasma claims even when a drug link lacks the application number.",
+  "replay": "diagnostic/cdx-group-join",
+  "config": {"mcp_tool_mode": "typed", "mcp_typed_output_schema": true},
+  "steps": [
+    {
+      "run": ["sync", "fda-cdx"],
+      "expect": {"/result/rows": 244}
+    },
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {"action": "search", "search": {"source": "fda-cdx", "drug_application": "NDA219042"}}
+      },
+      "expect": {
+        "/page/total": 2,
+        "/result/items/*/device_ids": [["P200010/S027"], ["P160045/S049"]],
+        "/result/items/*/row_date": ["2026-06-10", "2025-08-08"],
+        "/result/items/*/matched": [["drug-application"], ["drug-application"]],
+        "": {"omits": ["problems"]}
+      }
+    }
+  ]
+}
