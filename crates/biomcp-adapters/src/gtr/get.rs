@@ -57,7 +57,7 @@ pub fn get(
             Native::Relation(r) => match map::relation(&r, &mut cx, &mut refusals) {
                 Some(GtrTestRelation::Gene(gene)) => genes.push(gene.into()),
                 Some(GtrTestRelation::Condition(condition)) => conditions.push(condition.into()),
-                None => {}
+                Some(GtrTestRelation::Method(_)) | None => {}
             },
         }
     }
