@@ -77,7 +77,11 @@ fn lead(text: &str, at: usize) -> usize {
     if let Some(gap) = preceding.rfind('\n') {
         return begin + gap + 1;
     }
-    if begin == 0 || text.as_bytes()[begin - 1] == b'\n' {
+    if begin == 0
+        || text
+            .get(..begin)
+            .is_some_and(|before| before.ends_with('\n'))
+    {
         return begin;
     }
     preceding.find(' ').map_or(begin, |gap| begin + gap + 1)
