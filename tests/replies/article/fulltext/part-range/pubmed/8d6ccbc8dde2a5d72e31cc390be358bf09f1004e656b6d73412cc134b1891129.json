@@ -1,0 +1,38 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "c59520515b9d261b60491bb5dc4602f5dbe162b1c0df4684a60def60ebadfb49"
+  },
+  "exchanges": [
+    {
+      "fetched": 1792839535,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "result": {
+            "uids": [
+              "39214094"
+            ],
+            "39214094": {
+              "uid": "39214094",
+              "title": "Synthetic readable record.",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "value": "39214094"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 use crate::{Ctx, Outcome, status};
 use biodata::Pmid;
 use biomcp_adapters::pubmed;
-use biomcp_fetch::{Leg, RequestError};
+use biomcp_fetch::{Deadline, Leg, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{Article, ArticleInput};
 use biomcp_types::{
@@ -12,8 +12,57 @@ use biomcp_types::{
 /// Resolve and hydrate article cards under one absolute command deadline.
 pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
-    let leg = cx.fetch.leg(&pubmed::SPEC, deadline).fresh(cx.fresh);
+    let mut deadline = command.deadline();
+    let mut out = read(cx, query, &mut deadline, false);
+    super::next::get(query, &mut out);
+    command.finish(deadline.remaining());
+    out
+}
+
+/// Return the abstract card with the text reader's observed fulltext outcome.
+pub(super) fn closed_card<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleGet,
+    deadline: &mut Deadline<'a>,
+    reader: Outcome,
+) -> Outcome {
+    let card = read(cx, query, deadline, true);
+    let resolved = matches!(&card.body, ReplyData::ArticleCards { body: Some(cards), .. }
+        if cards.items.iter().any(|item| matches!(item.answer, Some(ArticleResolution::Resolved { .. }))));
+    let (mut out, extra) = if resolved {
+        (card, reader)
+    } else {
+        (reader, card)
+    };
+    let partial = !resolved || out.status() == Status::Partial || extra.status() == Status::Partial;
+    for source in extra.sources {
+        if let Some(existing) = out
+            .sources
+            .iter_mut()
+            .find(|row| row.source == source.source)
+        {
+            status::retain_source_state(existing, &source);
+        } else {
+            out.sources.push(source);
+        }
+    }
+    status::append(&mut out.problems, extra.problems);
+    out.local = out.local.or(extra.local);
+    out.dropped |= extra.dropped;
+    status::item(&mut out, true, false, partial);
+    if resolved {
+        super::next::get(query, &mut out);
+    }
+    out
+}
+
+fn read<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleGet,
+    deadline: &mut Deadline<'a>,
+    known_not_open: bool,
+) -> Outcome {
+    let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let mut resolutions = Vec::new();
     let mut ids = Vec::new();
@@ -21,14 +70,16 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     let mut local = None;
     for input in query.input() {
         let result = pubmed::resolve_ids(&leg, input, cx.ncbi_email.as_ref());
-        if let Err(e) = result {
-            error.get_or_insert(e);
-            local = local.or(status::local(e));
-        }
-        if let Ok(found) = &result {
-            for id in found {
-                if !ids.contains(id) {
-                    ids.push(*id);
+        match &result {
+            Err(e) => {
+                error.get_or_insert(*e);
+                local = local.or(status::local(*e));
+            }
+            Ok(found) => {
+                for id in found {
+                    if !ids.contains(id) {
+                        ids.push(*id);
+                    }
                 }
             }
         }
@@ -73,8 +124,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
             local,
         },
     );
-    let mut deadline = deadline.after_stage(started.saturating_sub(remaining));
-    super::preprint::cards(cx, &mut deadline, &mut out);
+    *deadline = deadline.after_stage(started.saturating_sub(remaining));
+    super::preprint::cards(cx, deadline, &mut out);
     let requested = if let ReplyData::ArticleCards {
         body: Some(cards), ..
     } = &mut out.body
@@ -83,12 +134,12 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     } else {
         false
     };
-    if requested {
+    if known_not_open {
+        super::sections::fulltext::mark_not_open(&mut out);
+    } else if requested {
         super::sections::indexing::join(query, &records, &mut out);
-        super::sections::run(cx, &mut deadline, query, &mut out);
+        super::sections::run(cx, deadline, query, &mut out);
     }
-    super::next::get(query, &mut out);
-    command.finish(deadline.remaining());
     out
 }
 pub(super) type Record = (pubmed::FetchedArticle, Option<i64>);

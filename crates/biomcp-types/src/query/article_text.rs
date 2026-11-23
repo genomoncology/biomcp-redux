@@ -1,7 +1,7 @@
 use super::gene::{QueryInvalid, present};
 use crate::{ArticleInput, Text};
 use serde::{Deserialize, Serialize};
-/// Return the abstract card by default, or explicitly read body text.
+/// Read body text. A bare PMID starts at part 1.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -15,7 +15,7 @@ struct Fields {
     /// PubMed or PMC identity. DOI selectors are not accepted by the reader.
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
     input: ArticleInput,
-    /// One-based outline part; omit reader selectors for the abstract card.
+    /// One-based body part. Bare PMIDs start at 1. Other IDs default to the abstract card.
     #[serde(
         default,
         deserialize_with = "present",
@@ -87,17 +87,26 @@ impl TryFrom<Fields> for ArticleText {
     }
 }
 impl ArticleText {
-    /// Normalize the default reader view to the existing abstract-bearing article card.
+    /// Begin at part 1 for a bare PMID and retain the card default for other IDs.
     pub fn into_request(self) -> crate::Request {
-        if self.0.part.is_none()
+        if self.is_unselected() && !matches!(self.0.input, ArticleInput::Pmid(_)) {
+            return crate::Request::GetArticle(crate::ArticleGet::single(self.0.input));
+        }
+        crate::Request::ArticleText(self)
+    }
+    /// Read the first body part or fall back to the card for a PMID without selectors.
+    pub fn is_default_pmid(&self) -> bool {
+        matches!(self.0.input, ArticleInput::Pmid(_)) && self.is_unselected()
+    }
+    fn is_unselected(&self) -> bool {
+        self.0.part.is_none()
             && self.0.find.is_none()
             && self.0.variant.is_none()
             && self.0.save.is_none()
-        {
-            crate::Request::GetArticle(crate::ArticleGet::single(self.0.input))
-        } else {
-            crate::Request::ArticleText(self)
-        }
+    }
+    /// Build the default reader for a checked PubMed ID.
+    pub fn from_pmid(id: crate::Pmid) -> Self {
+        Self(Fields::new(ArticleInput::Pmid(id)))
     }
     /// Build a part selector used in source continuation actions.
     pub fn part(input: ArticleInput, part: u32) -> Result<Self, QueryInvalid> {
@@ -125,7 +134,7 @@ impl ArticleText {
     }
     /// Selected part.
     pub fn selected_part(&self) -> Option<u32> {
-        self.0.part
+        self.0.part.or_else(|| self.is_default_pmid().then_some(1))
     }
     /// Literal search term.
     pub fn find(&self) -> Option<&Text> {
