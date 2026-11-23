@@ -230,7 +230,7 @@ fn supplement_start(intro: &str) -> Option<usize> {
     let subject = intro.get(start..)?;
     (subject.contains("supplement")
         || matches!(
-            subject.split_whitespace().last(),
+            subject.split_whitespace().next_back(),
             Some("sNDA" | "sBLA" | "sANDA")
         ))
     .then_some(start)
