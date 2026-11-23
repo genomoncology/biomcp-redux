@@ -1,0 +1,140 @@
+//! Short source reads for CLI entity help and typed tool descriptions.
+
+pub(crate) struct Route {
+    pub entity: &'static str,
+    pub source: &'static str,
+    pub cli: &'static str,
+    pub typed: &'static str,
+    pub note: &'static str,
+}
+
+pub(crate) const ROUTES: &[Route] = &[
+    Route {
+        entity: "drug",
+        source: "openfda-label",
+        cli: r#"search drug --indication "pancreatic cancer" --source openfda-label --limit 2"#,
+        typed: r#"Search openfda-label with indication="pancreatic cancer", limit=2."#,
+        note: "Follow next for more labels. Indications match literal wording.",
+    },
+    Route {
+        entity: "drug",
+        source: "openfda-label",
+        cli: concat!(
+            r#"search drug --source openfda-label --application-type nda,bla "#,
+            r#"--mechanism-of-action "Janus kinase" --limit 3 --fields name,application_numbers,matched_sentence"#,
+        ),
+        typed: concat!(
+            r#"{"action":"search","search":{"source":"openfda-label","application_type":["nda","bla"],"#,
+            r#""mechanism_of_action":"Janus kinase","limit":3},"fields":["name","application_numbers","matched_sentence"]}"#,
+        ),
+        note: "Follow next for more labels. Totals count matching label wording.",
+    },
+    Route {
+        entity: "drug",
+        source: "openfda-label",
+        cli: "get drug Aimovig label --source openfda-label --label-section 1,14",
+        typed: r#"Get Aimovig with source=openfda-label, section=label, label_section=["1","14"]."#,
+        note: "Sections 1 and 14 are indications and clinical studies. Check the application and label holder.",
+    },
+    Route {
+        entity: "drug",
+        source: "purple-book",
+        cli: "search drug Enbrel --source purple-book --presentations --limit 3",
+        typed: r#"Search Enbrel with source=purple-book, presentations=true, limit=3."#,
+        note: "Follow next. Use the presentation's licensure date if reported.",
+    },
+    Route {
+        entity: "drug",
+        source: "drugsfda",
+        cli: "get drug NDA021588 approvals --source drugsfda --document-id 64255",
+        typed: r#"Get NDA021588 with source=drugsfda, section=approvals, document_id="64255"."#,
+        note: "List approvals first for application_docs IDs. Read one letter per call. Check the letter for its stated purpose.",
+    },
+    Route {
+        entity: "disease",
+        source: "clingen",
+        cli: r#"get disease "Fanconi anemia" gene-validity --source clingen --source-title-prefix --limit 2"#,
+        typed: concat!(
+            r#"{"action":"get","get":{"id":"Fanconi anemia","section":"gene-validity","#,
+            r#""source":"clingen","source_title_prefix":true,"section_limit":2}}"#,
+        ),
+        note: "A publisher title prefix matches wording. It does not establish disease equivalence.",
+    },
+    Route {
+        entity: "disease",
+        source: "hpo",
+        cli: "search disease --source hpo --phenotype HP:0001083",
+        typed: r#"{"action":"search","search":{"source":"hpo","phenotype":["HP:0001083"]}}"#,
+        note: "Omit the tag for the current release. HPO marks IEA annotations as derived from OMIM clinical features.",
+    },
+    Route {
+        entity: "disease",
+        source: "ols",
+        cli: r#"search disease SLC6A1 --source ols --limit 2"#,
+        typed: r#"Search SLC6A1 with source=ols, limit=2."#,
+        note: "Follow next for source terms. Check IDs, ontology and any unidentified rows reported in problems.",
+    },
+    Route {
+        entity: "diagnostic",
+        source: "fda-cdx",
+        cli: "search diagnostic --source fda-cdx --drug-application NDA219042",
+        typed: r#"{"action":"search","search":{"source":"fda-cdx","drug_application":"NDA219042"}}"#,
+        note: "Both FDA tables. For a named combination partner use --regimen-partner PALBOCICLIB (typed: regimen_partner).",
+    },
+    Route {
+        entity: "diagnostic",
+        source: "fda-pma",
+        cli: r#"get diagnostic P150047 summary --source fda-pma --find "Limit of Detection""#,
+        typed: r#"Get P150047 with source=fda-pma, section=summary, find="Limit of Detection"."#,
+        note: "Base PMA summary. For a supplement's regulatory description, select regulatory with its supplement number.",
+    },
+    Route {
+        entity: "gene",
+        source: "gnomad",
+        cli: "get gene TP53 BCR constraint --constraint-release v4.0 --section-only --fields loeuf,transcript",
+        typed: r#"Get id=["TP53","BCR"], section=constraint, constraint_release="v4.0", section_only=true, fields=["loeuf","transcript"]."#,
+        note: "Check the release, transcript and availability for each gene.",
+    },
+    Route {
+        entity: "variant",
+        source: "clinvar",
+        cli: "get variant clinvar:546089 clinvar",
+        typed: r#"Get clinvar:546089 with section=clinvar."#,
+        note: "Read each ClinVar record's condition list and IDs before attributing its classification to a condition.",
+    },
+    Route {
+        entity: "trial",
+        source: "ctgov",
+        cli: "search trial --condition melanoma --limit 3",
+        typed: r#"Search with condition=melanoma, limit=3."#,
+        note: "Follow next for more registry records.",
+    },
+    Route {
+        entity: "trial",
+        source: "ctgov",
+        cli: "get trial NCT01844505 flow --limit 2 --fields record,data.title,data.milestones",
+        typed: r#"Get NCT01844505 with section=flow, limit=2, fields=["record","data.title","data.milestones"]."#,
+        note: "Follow next for more flow records. Keep only columns you need.",
+    },
+    Route {
+        entity: "trial",
+        source: "ctgov",
+        cli: "get trial NCT00535626 locations --lat 42.36 --lon -71.06 --limit 2 --fields facility,distance_mi",
+        typed: r#"Get NCT00535626 with section=locations, lat="42.36", lon="-71.06", limit=2, fields=["facility","distance_mi"]."#,
+        note: "Follow next for sites. Check source contacts for recruitment.",
+    },
+    Route {
+        entity: "trial",
+        source: "ctgov",
+        cli: "get trial NCT04937062 eligibility",
+        typed: r#"Get NCT04937062 with section=eligibility."#,
+        note: "Read criteria under their registry arm headings and keep study-wide ages separate. Follow next.",
+    },
+    Route {
+        entity: "article",
+        source: "pmc-oa",
+        cli: "article text 28944238",
+        typed: r#"{"action":"text","text":{"input":"28944238"}}"#,
+        note: "CLI alias: get article 28944238 text. Both open part 1 of an open PMC body. Use get with fulltext for the outline.",
+    },
+];

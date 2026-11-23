@@ -137,14 +137,12 @@ pub(super) fn tool(
             ));
         }
     }
-    if *name == "disease" && sources.contains("hpo") {
-        parts.push(
-            concat!(
-                "Current HPO release: ",
-                r#"{"action":"search","search":{"source":"hpo","phenotype":["HP:0001083"]}}."#,
-            )
-            .into(),
-        );
+    for route in crate::help::source_routes::ROUTES
+        .iter()
+        .filter(|route| route.entity == *name && sources.contains(route.source))
+        .filter(|route| !super::catalog::mentions_excluded(route.note, excluded))
+    {
+        parts.push(format!("{} {}", route.typed, route.note));
     }
     let others = actions
         .iter()

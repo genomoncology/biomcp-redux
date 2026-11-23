@@ -120,3 +120,84 @@ pub(super) fn hosted() -> Result<(), String> {
     }
     Ok(())
 }
+
+pub(super) fn short_source_routes() -> Result<(), String> {
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    for (case, name, field, pointer, expected) in [
+        (
+            "mechanism",
+            "drug",
+            "mechanism_of_action",
+            "/page/returned",
+            json!(3),
+        ),
+        (
+            "curation",
+            "disease",
+            "source_title_prefix",
+            "/page/returned",
+            json!(2),
+        ),
+        (
+            "cdx",
+            "diagnostic",
+            "drug_application",
+            "/page/total",
+            json!(2),
+        ),
+        (
+            "pmid",
+            "article",
+            "28944238",
+            "/result/pmcid",
+            json!("PMC5606870"),
+        ),
+    ] {
+        let path = fixtures().join(format!("cases/mcp/typed/short-source-{case}.yaml"));
+        let case = crate::runner::case_data::read_case(&path)?;
+        let mut config = crate::runner::launch::case_config(&case);
+        config["mcp_catalog"] = json!("compact");
+        env.config(&config).map_err(|error| error.to_string())?;
+        let replay = fixtures()
+            .join("replies")
+            .join(case.replay.ok_or("missing replay")?);
+        let globals = env.globals(Some(&replay), false);
+        if let Some(sync) = case.steps.first().and_then(|step| step.run.as_deref())
+            && sync.first().is_some_and(|word| word == "sync")
+        {
+            crate::runner::trial_get::command(&env, sync, &globals, 0)?;
+        }
+        let definition = discovery("definition", json!({"name":name}));
+        let replies = exchange_with_globals(&env, &[definition], &globals)?;
+        let description = reply(&replies, &json!("definition"))?
+            .pointer("/result/structuredContent/tools/0/description")
+            .and_then(Value::as_str)
+            .ok_or("missing compact tool description")?;
+        let arguments = description
+            .match_indices("{\"action\":\"")
+            .filter_map(|(offset, _)| {
+                serde_json::Deserializer::from_str(&description[offset..])
+                    .into_iter::<Value>()
+                    .next()?
+                    .ok()
+            })
+            .find(|example| example.to_string().contains(field))
+            .ok_or_else(|| format!("{name} description has no {field} example"))?;
+        let call = request(
+            json!("example"),
+            "tools/call",
+            json!({
+                "name":"call_tool","arguments":{"name":name,"arguments":arguments}
+            }),
+        );
+        let replies = exchange_with_globals(&env, &[call], &globals)?;
+        let result = reply(&replies, &json!("example"))?
+            .get("result")
+            .ok_or("missing result")?;
+        let value = crate::runner::mcp::one_value(result)?;
+        if result["isError"] != false || value.pointer(pointer) != Some(&expected) {
+            return Err(format!("{name} copied example returned {value}"));
+        }
+    }
+    Ok(())
+}

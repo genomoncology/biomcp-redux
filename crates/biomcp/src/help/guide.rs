@@ -37,6 +37,12 @@ pub(super) fn tool_page(
         text.push_str("\nWorked examples:\n");
         text.push_str(&examples);
     }
+    for route in super::source_routes::ROUTES
+        .iter()
+        .filter(|route| route.entity == tool)
+    {
+        text.push_str(&format!("\n- `biomcp {}`. {}", route.cli, route.note));
+    }
     Ok(Some(super::topic(entity, text)))
 }
 

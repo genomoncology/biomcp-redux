@@ -2,28 +2,32 @@ feature: agent-skill
 live_check: Local help and shipped skill; no provider requests.
 story: The entry points show source-specific short calls with paging and evidence limits.
 steps:
-  - run: [help, drug]
+  - run: [--format, md, help, drug]
     expect:
-      /result/commands/0/description:
+      "":
         includes_all_of:
           - '--mechanism-of-action "Janus kinase" --limit 3 --fields name,application_numbers,matched_sentence'
-          - '--section-limit 2'
-          - 'Follow next'
-  - run: [help, disease]
+  - run: [--format, md, help, trial]
     expect:
-      /result/commands/0/description:
+      "":
+        includes_all_of:
+          - '--limit 2'
+          - 'Follow next'
+  - run: [--format, md, help, disease]
+    expect:
+      "":
         includes_all_of:
           - 'get disease "Fanconi anemia" gene-validity --source clingen --source-title-prefix'
           - 'disease equivalence'
-  - run: [help, diagnostic]
+  - run: [--format, md, help, diagnostic]
     expect:
-      /result/commands/0/description:
+      "":
         includes_all_of:
           - '--drug-application NDA219042'
           - '--regimen-partner'
-  - run: [help, article]
+  - run: [--format, md, help, article]
     expect:
-      /result/commands/0/description:
+      "":
         includes_all_of: ['article text 28944238', 'get article 28944238 text']
   - run: [--format, md, skill, render]
     expect:

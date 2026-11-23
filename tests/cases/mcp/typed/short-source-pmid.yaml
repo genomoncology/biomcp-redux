@@ -1,0 +1,17 @@
+feature: article-fulltext
+story: Both CLI forms and the typed text action open the first PMC body part.
+live_check: Recorded PubMed and PMC body.
+replay: article/fulltext/live-introduction
+config: {mcp_tool_mode: typed, mcp_typed_output_schema: true}
+steps:
+  - run: [article, text, '28944238']
+    expect: &body
+      /result/pmcid: PMC5606870
+      /result/content/data/part: 1
+      /result/content/data/heading_path/0: Introduction
+  - run: [get, article, '28944238', text]
+    expect: *body
+  - mcp_call:
+      name: article
+      arguments: {action: text, text: {input: '28944238'}}
+    expect: *body

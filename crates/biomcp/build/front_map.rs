@@ -10,8 +10,7 @@ use std::{
 pub(crate) const DEFAULT_CHARACTER_LIMIT: usize = 4000;
 use typed_front_map::TRAPS;
 /// The map's pointer to what it leaves out; it replaces the shared first trap line.
-const MORE: &str =
-    "Sources/components: help sources. By question: help questions. Worked calls: help examples.";
+const MORE: &str = "Sources/components: help sources. By question: help questions. Calls: help examples or help ENTITY.";
 
 #[derive(Default)]
 struct Entity {

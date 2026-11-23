@@ -20,12 +20,6 @@ pub(super) fn instructions(
     } else {
         INSTRUCTIONS.into()
     };
-    if mode == crate::config::ToolMode::Typed && !compact {
-        instructions.push_str(&format!(
-            "\nFor search_tools, tools/list _meta {{\"{}\":true}}.",
-            super::discovery::COMPACT_KEY
-        ));
-    }
     instructions.push('\n');
     instructions.push_str(crate::grammar::ENUM_CASE_GUIDANCE);
     instructions
@@ -93,7 +87,7 @@ use crate::config::ReplyForm;
 const DESCRIPTION: &str = concat!(
     "Run a BioMCP CLI command. arguments has exactly one field: args, an array of command words (strings), ",
     "without the biomcp executable. Example: {\"args\":[\"help\"]}. Start with help for the command map; ",
-    "Use help <command> for options, help skill render for the agent guide, and schema <id> for the reply schema. ",
+    "Use help <entity> for short source reads, help <command> for options, and help skill render for the agent guide. ",
     "Replies are JSON source evidence with status, problems and next commands; inspect them before interpreting results."
 );
 
