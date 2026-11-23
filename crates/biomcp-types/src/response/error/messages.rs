@@ -28,6 +28,7 @@ singleton! {
  ArgumentMissing => "required option missing: add error.option with a value valid_values accepts",
  ArgumentNoValue => "option given without a value: give error.option a value valid_values accepts",
  ArgumentUnknown => "unknown option: this command has no error.option; run next, or use an option valid_values lists",
+ ArgumentInactiveAction => "Put arguments in the action's object named in valid_values.",
  GeneSourceSection => "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD.",
  GeneSearchSource => "search gene does not take --source. It looks up HGNC names and aliases. Use get disease NAME gene-validity for disease curation.",
  PathwaySourceImplicit => "get pathway rejects --source. The Reactome stable ID selects Reactome.",

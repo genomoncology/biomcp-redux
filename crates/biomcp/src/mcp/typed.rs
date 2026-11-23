@@ -221,18 +221,20 @@ pub(super) fn parse(
             cause(action),
         )));
     };
-    if let Some(key) = fields
-        .keys()
-        .find(|key| !matches!(key.as_str(), "action" | "fields") && *key != action)
-    {
-        let valid = [String::from("action"), action.to_owned()];
-        return Some(Err(rejected(
-            key,
-            &valid,
-            None,
-            catalog,
-            ErrorMessage::ArgumentUnknown,
-        )));
+    let paths = crate::grammar::command_paths();
+    let path = paths
+        .iter()
+        .copied()
+        .find(|&(verb, entity, _)| name(verb, entity) == command)?;
+    if let Some((key, message)) = arguments::unexpected(&fields, action, placed, &paths) {
+        let mut valid = vec![action.to_owned()];
+        let help = if message == ErrorMessage::ArgumentInactiveAction {
+            Some(vec!["help".into(), path.0.into(), path.1.into()])
+        } else {
+            valid.insert(0, "action".into());
+            None
+        };
+        return Some(Err(rejected(key, &valid, help, catalog, message)));
     }
     let mut values = fields.get(action).cloned().unwrap_or_else(|| json!({}));
     let chosen = match refusal::take_fields(fields.get("fields"), &mut values) {
@@ -241,9 +243,6 @@ pub(super) fn parse(
             return Some(Err(rejected("fields", &[], None, catalog, cause)));
         }
     };
-    let path = crate::grammar::command_paths()
-        .into_iter()
-        .find(|&(verb, entity, _)| name(verb, entity) == command)?;
     command_call(
         root,
         path,
@@ -339,7 +338,7 @@ fn rejected(
 ) -> Rejected {
     let args = fix.unwrap_or_else(|| vec!["help".into()]);
     let step = biomcp_types::Step {
-        kind: if args.len() == 1 {
+        kind: if args.first().is_some_and(|word| word == "help") {
             biomcp_types::StepKind::Configure
         } else {
             biomcp_types::StepKind::Section
