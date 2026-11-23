@@ -2,7 +2,7 @@
 use super::{Check, Stub, configured, invoke, words};
 use crate::runner::{configuration::cached, launch::fixtures, transcript};
 use libtest_mimic::Trial;
-use serde_json::json;
+use serde_json::{Value, json};
 
 const GET: &[&str] = &["get", "diagnostic", "GTR000527948.7", "--source", "gtr"];
 const SEARCH: &[&str] = &["search", "diagnostic", "--source", "gtr", "--gene", "EGFR"];
@@ -35,12 +35,13 @@ fn oversized() -> Check {
         return Err(format!("expected one first fetch, got {requests:?}"));
     }
     for reply in [get, search] {
-        let message = reply["sources"][0]["notices"][0]["message"]
-            .as_str()
+        let message = reply
+            .pointer("/sources/0/notices/0/message")
+            .and_then(Value::as_str)
             .unwrap_or_default();
-        if reply["sources"][0]["state"] != "failed"
+        if reply.pointer("/sources/0/state") != Some(&json!("failed"))
             || !message.contains("size limit")
-            || reply["next"][0]["args"] != json!(["sync", "gtr"])
+            || reply.pointer("/next/0/args") != Some(&json!(["sync", "gtr"]))
         {
             return Err(format!("missing size refusal and sync command: {reply}"));
         }
@@ -49,7 +50,7 @@ fn oversized() -> Check {
     let cache = env.root().join("case-cache");
     invoke(&env, cached(&["sync", "gtr"], &cache, Some(&recording)), 0)?;
     let card = invoke(&env, cached(GET, &cache, None), 0)?;
-    if card["result"]["header"]["id"] != "GTR000527948.7" {
+    if card.pointer("/result/header/id") != Some(&json!("GTR000527948.7")) {
         return Err(format!(
             "explicit sync did not make the requested card readable: {card}"
         ));
