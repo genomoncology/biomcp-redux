@@ -4,7 +4,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{fda_pma, pdf};
 use biomcp_types::{
     DiagnosticGet, DiagnosticSection, DiagnosticSummary, PageInfo, PdfText, PdfTextHit, ReplyBody,
-    Request, StepKind,
+    Request, SourceNotice, SourceOutcome, StepKind,
 };
 /// Escaped bytes of one found passage, half a fragment: enough to reach a numbered table set
 /// below the heading that matched (P150047's Table 15 ends 1,741 bytes after its heading).
@@ -57,30 +57,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     if let Ok((document, _)) = &result
         && !document.state.readable()
     {
-        source
-            .notices
-            .push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: concat!(
-                    "No summary text was read. Open the PDF URL for the summary. ",
-                    "The regulatory section gives FDA's device record.",
-                )
-                .into(),
-                retry_after_seconds: None,
-            });
-        if let Some(regulatory) = crate::next::checked(
-            q.with_section(DiagnosticSection::Regulatory),
-            q.source().source(),
-            &mut out.problems,
-        ) {
-            next::push(
-                &mut out,
-                StepKind::Section,
-                &[q.source().source()],
-                Request::GetDiagnostic(regulatory),
-                cx.fresh,
-            );
-        }
+        unread(cx, q, &mut out, &mut source);
     }
     out.sources.push(source);
     match result {
@@ -118,6 +95,31 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     }
     command.finish(deadline.remaining());
     out
+}
+
+fn unread(cx: &Ctx<'_>, q: &DiagnosticGet, out: &mut Outcome, source: &mut SourceOutcome) {
+    source.notices.push(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: concat!(
+            "No summary text was read. Open the PDF URL for the summary. ",
+            "The regulatory section gives FDA's device record.",
+        )
+        .into(),
+        retry_after_seconds: None,
+    });
+    if let Some(regulatory) = crate::next::checked(
+        q.with_section(DiagnosticSection::Regulatory),
+        q.source().source(),
+        &mut out.problems,
+    ) {
+        next::push(
+            out,
+            StepKind::Section,
+            &[q.source().source()],
+            Request::GetDiagnostic(regulatory),
+            cx.fresh,
+        );
+    }
 }
 
 /// Answer a find with whole passages paged like article text's find.
