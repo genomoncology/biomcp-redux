@@ -91,7 +91,10 @@ fn hosted(budgets: &mut Vec<String>) -> Result<(), String> {
 }
 
 fn trial_document(server: &Server, hosted: &Value) -> Result<(), String> {
-    let tools = hosted["result"]["tools"].as_array().ok_or("hosted tools")?;
+    let tools = hosted
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
+        .ok_or("hosted tools")?;
     let command = super::typed_catalog::command(tools, "trial_document")
         .ok_or("hosted catalog omits trial document reads")?;
     let fields = command
