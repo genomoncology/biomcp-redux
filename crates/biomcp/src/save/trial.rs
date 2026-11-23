@@ -1,11 +1,12 @@
 //! Trial downloads share the single destination check and atomic file writer.
 use super::SaveTarget;
+use biodata::Text;
 use biomcp_query::{Ctx, Outcome};
 use biomcp_types::TrialDocumentGet;
 pub(crate) fn document(
     cx: &Ctx<'_>,
     query: &TrialDocumentGet,
-    path: &biomcp_types::Text,
+    path: &Text,
     allow: bool,
 ) -> Outcome {
     let target = allow

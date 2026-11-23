@@ -4991,7 +4991,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Save a clinical trial document.",
+      "description": "Read or save a clinical trial document.",
       "properties": {
         "command": {
           "const": "trial-document",
@@ -5001,6 +5001,10 @@
           "$ref": "#/$defs/Text",
           "description": "Exact filename from the registry manifest; never a URL or inferred path.",
           "x-positional": 1
+        },
+        "find": {
+          "$ref": "#/$defs/Text",
+          "description": "Case-insensitive phrase to find, with PDF page numbers."
         },
         "input": {
           "$ref": "#/$defs/NctId",
@@ -5013,16 +5017,24 @@
         },
         "save": {
           "$ref": "#/$defs/Text",
-          "description": "Caller-owned file or existing folder."
+          "description": "Save original bytes to a caller-owned file or folder instead of reading text."
+        },
+        "section_offset": {
+          "description": "Zero-based text part or match offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
         "command",
         "input",
-        "file",
-        "save"
+        "file"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "TrialDocumentSaveQuery"
+      ]
     },
     {
       "additionalProperties": false,

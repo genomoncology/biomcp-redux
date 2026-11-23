@@ -4730,7 +4730,7 @@
         },
         "url": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Original FDA document URL.",
+          "description": "Original document URL.",
           "format": "uri"
         }
       },
