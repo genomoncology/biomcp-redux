@@ -6,8 +6,8 @@ use biomcp_fetch::{Deadline, Leg, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{Article, ArticleInput};
 use biomcp_types::{
-    ArticleCardItem, ArticleCards, ArticleGet, ArticleMatch, ArticleResolution, ReplyData, Source,
-    SourceState, Status,
+    ArticleCardItem, ArticleCards, ArticleGet, ArticleMatch, ArticleResolution, ArticleSectionWord,
+    ReplyData, Source, SourceState, Status,
 };
 /// Resolve and hydrate article cards under one absolute command deadline.
 pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
@@ -19,14 +19,19 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &ArticleGet) -> Outcome {
     out
 }
 
-/// Return the abstract card with the text reader's observed fulltext outcome.
-pub(super) fn closed_card<'a>(
+/// Hydrate the abstract and link without opening another PMC reader.
+pub(super) fn text_card<'a>(
     cx: &Ctx<'a>,
-    query: &ArticleGet,
+    input: &ArticleInput,
     deadline: &mut Deadline<'a>,
-    reader: Outcome,
-) -> Outcome {
-    let card = read(cx, query, deadline, true);
+) -> (ArticleGet, Outcome) {
+    let query = ArticleGet::single_with_section(input.clone(), ArticleSectionWord::Fulltext);
+    let card = read(cx, &query, deadline, true);
+    (query, card)
+}
+
+/// Return the abstract card with the text reader's observed fulltext outcome.
+pub(super) fn closed_card(query: &ArticleGet, card: Outcome, reader: Outcome) -> Outcome {
     let resolved = matches!(&card.body, ReplyData::ArticleCards { body: Some(cards), .. }
         if cards.items.iter().any(|item| matches!(item.answer, Some(ArticleResolution::Resolved { .. }))));
     let (mut out, extra) = if resolved {
@@ -35,6 +40,16 @@ pub(super) fn closed_card<'a>(
         (reader, card)
     };
     let partial = !resolved || out.status() == Status::Partial || extra.status() == Status::Partial;
+    carry(&mut out, extra);
+    status::item(&mut out, true, false, partial);
+    if resolved {
+        super::next::get(query, &mut out);
+    }
+    out
+}
+
+/// Keep the diagnostics and provenance from both PubMed reads.
+pub(super) fn carry(out: &mut Outcome, extra: Outcome) {
     for source in extra.sources {
         if let Some(existing) = out
             .sources
@@ -49,11 +64,6 @@ pub(super) fn closed_card<'a>(
     status::append(&mut out.problems, extra.problems);
     out.local = out.local.or(extra.local);
     out.dropped |= extra.dropped;
-    status::item(&mut out, true, false, partial);
-    if resolved {
-        super::next::get(query, &mut out);
-    }
-    out
 }
 
 fn read<'a>(

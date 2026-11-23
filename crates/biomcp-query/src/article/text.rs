@@ -8,8 +8,8 @@ use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleGet, ArticleSectionWord, ArticleText, ArticleTextResult, Reason, ReplyData, Request,
-    Section, Source, StepKind, TextContent, TextHit,
+    ArticleGet, ArticleResolution, ArticleText, ArticleTextResult, Reason, ReplyData, Request,
+    Section, Source, Status, StepKind, TextContent, TextHit,
 };
 /// Read a bounded part or find page through the same transport and command budget.
 pub(crate) fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
@@ -47,7 +47,16 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
         out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError(option));
         return super::save::Download { out, file: None };
     };
-    let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
+    let mut card = None;
+    let result = execute(
+        cx,
+        query,
+        &selection,
+        &mut deadline,
+        &mut out,
+        &mut save,
+        &mut card,
+    );
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
         crate::status::item(&mut out, false, true, false);
@@ -78,9 +87,15 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
         && matches!(&out.body, ReplyData::ArticleTextResult { body: Some(body), .. }
             if matches!(body.content, Section::Unavailable { reason: Reason::NotOpen, .. }))
     {
-        let card =
-            ArticleGet::single_with_section(query.input().clone(), ArticleSectionWord::Fulltext);
-        out = super::get::closed_card(cx, &card, &mut deadline, out);
+        let (request, card) =
+            card.unwrap_or_else(|| super::get::text_card(cx, query.input(), &mut deadline));
+        out = super::get::closed_card(&request, card, out);
+    } else if let Some((_, card)) = card {
+        let partial = card.status() == Status::Partial;
+        super::get::carry(&mut out, card);
+        if out.status() == Status::Complete {
+            status::item(&mut out, true, false, partial);
+        }
     }
     command.finish(deadline.remaining());
     super::next::text(query, &mut out);
@@ -137,13 +152,40 @@ fn execute<'a>(
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
     save: &mut super::save::State,
+    card: &mut Option<(ArticleGet, Outcome)>,
 ) -> Result<(), RequestError> {
     if let ArticleInput::EuropePmc(id) = query.input() {
         return preprint(cx, query, selection, id, deadline, out, save);
     }
-    let Some(id) = resolve(cx, query.input(), deadline, out)? else {
+    let mut id = resolve(cx, query.input(), deadline, out)?;
+    if id.is_none() && query.is_default_pmid() {
+        let detail = super::get::text_card(cx, query.input(), deadline);
+        if let ReplyData::ArticleCards {
+            body: Some(cards), ..
+        } = &detail.1.body
+        {
+            id = cards.items.iter().find_map(|item| match &item.answer {
+                Some(ArticleResolution::Resolved { card, .. }) => card.pmcid,
+                _ => None,
+            });
+        }
+        *card = Some(detail);
+    }
+    let Some(id) = id else {
         return Ok(());
     };
+    read_pmc(cx, query, selection, id, deadline, out, save)
+}
+
+fn read_pmc<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleText,
+    selection: &super::protein_change::Selection,
+    id: Pmcid,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+    save: &mut super::save::State,
+) -> Result<(), RequestError> {
     let leg = cx.fetch.leg(&pmc_oa::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let pmid = match query.input() {
