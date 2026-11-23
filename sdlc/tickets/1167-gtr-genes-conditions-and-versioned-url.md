@@ -1,6 +1,7 @@
 # 1167 — gtr-genes-conditions-and-versioned-url
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4b4736a4e6749565559be5218f242c2d0e0b56cc
 
 Milestone: 7
 

@@ -207,7 +207,7 @@ pub(super) fn page(
         .map(
             |id| match versions.get(id).map(Vec::as_slice).unwrap_or_default() {
                 [v] => Ok(DiagnosticCandidate::Resolved {
-                    header: map::header(v, xml.get(id), &mut problems)?,
+                    header: map::header(v, xml.get(id), &mut problems, map::Link::Listing)?,
                     matched: None,
                     name_match: matches.get(id).copied().flatten(),
                 }),

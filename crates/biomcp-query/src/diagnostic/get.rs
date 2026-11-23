@@ -1,10 +1,11 @@
 use super::{empty, finish, next, unsupported};
 use crate::{Ctx, Outcome, status};
-use biodata::{GtrTestId, GtrTestRelation};
+use biodata::{GtrGeneReference, GtrTestId, GtrTestRelation, Text};
 use biomcp_adapters::gtr;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiagnosticCard, DiagnosticConditions, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource,
+    DiagnosticCard, DiagnosticConditionReference, DiagnosticConditionRow, DiagnosticConditions,
+    DiagnosticCountUnit, DiagnosticGeneRow, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource,
     DiagnosticMethods, DiagnosticSection, PageInfo, Request, Source, StepKind,
 };
 use std::collections::BTreeSet;
@@ -65,15 +66,12 @@ fn selected(
 ) {
     out.include_refusals(record.refusals);
     status::append(&mut out.problems, record.problems);
-    {
-        let (found, identity_failed, unavailable) =
-            if record.card.is_some() || q.section().is_some() && !record.relations.is_empty() {
-                (true, false, false)
-            } else {
-                (false, false, false)
-            };
-        crate::status::item(out, found, identity_failed, unavailable);
-    };
+    let found = record.card.is_some() || q.section().is_some() && !record.relations.is_empty();
+    status::item(out, found, false, false);
+    let count_unit = record
+        .version_labels
+        .is_empty()
+        .then_some(DiagnosticCountUnit::NativeRelationRows);
     match q.section() {
         None => {
             if let Some(card) = &record.card {
@@ -98,9 +96,13 @@ fn selected(
                 record.card.map(|v| DiagnosticCard::GtrTest(Box::new(v))),
             );
         }
-        Some(DiagnosticSection::Genes) => genes(out, echo, q, id, record.relations, fresh),
+        Some(DiagnosticSection::Genes) => {
+            let rows = gene_rows(record.relations, record.version_labels);
+            genes(out, echo, q, id, rows, count_unit, fresh);
+        }
         Some(DiagnosticSection::Conditions) => {
-            conditions(out, echo, q, id, record.relations, fresh)
+            let rows = condition_rows(record.relations, record.version_labels);
+            conditions(out, echo, q, id, rows, count_unit, fresh);
         }
         Some(DiagnosticSection::Methods) => {
             let total = record.methods.len();
@@ -140,24 +142,71 @@ fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fre
     }
 }
 
+fn relation_page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fresh: bool) {
+    if total == 0
+        && matches!(
+            out.status(),
+            biomcp_types::Status::Complete | biomcp_types::Status::Partial
+        )
+    {
+        status::item(out, true, false, true);
+        status::missing(out, biodata::text!("/result/items"), Source::Gtr, None);
+    }
+    page(out, q, returned, total, fresh);
+}
+
+fn gene_rows(relations: Vec<GtrTestRelation>, labels: Vec<Text>) -> Vec<DiagnosticGeneRow> {
+    relations
+        .into_iter()
+        .filter_map(|row| match row {
+            GtrTestRelation::Gene(gene) => Some(gene.into()),
+            _ => None,
+        })
+        .chain(labels.into_iter().map(|label| DiagnosticGeneRow {
+            test_type: None,
+            object_name: label.as_str().into(),
+            gene: GtrGeneReference {
+                label: Some(label),
+                ncbi_gene_id: None,
+            },
+            native_gene_or_snomed_ct_id: None,
+            native_medgen: None,
+            mim_number: "".into(),
+        }))
+        .collect()
+}
+
+fn condition_rows(
+    relations: Vec<GtrTestRelation>,
+    labels: Vec<Text>,
+) -> Vec<DiagnosticConditionRow> {
+    relations
+        .into_iter()
+        .filter_map(|row| match row {
+            GtrTestRelation::Condition(condition) => Some(condition.into()),
+            _ => None,
+        })
+        .chain(labels.into_iter().map(|label| DiagnosticConditionRow {
+            test_type: None,
+            condition: DiagnosticConditionReference {
+                id: None,
+                label: Some(label),
+            },
+            mim_number: "".into(),
+            snomed_ct_id: "".into(),
+        }))
+        .collect()
+}
+
 fn genes(
     out: &mut Outcome,
     echo: &DiagnosticGet,
     q: &DiagnosticGet,
     test_id: &GtrTestId,
-    relations: Vec<GtrTestRelation>,
+    rows: Vec<DiagnosticGeneRow>,
+    count_unit: Option<DiagnosticCountUnit>,
     fresh: bool,
 ) {
-    let rows: Vec<_> = relations
-        .into_iter()
-        .filter_map(|r| {
-            if let GtrTestRelation::Gene(v) = r {
-                Some(v)
-            } else {
-                None
-            }
-        })
-        .collect();
     let distinct_id_total = Some(
         rows.iter()
             .filter_map(|r| r.gene.ncbi_gene_id())
@@ -195,11 +244,11 @@ fn genes(
             );
         }
     }
-    page(out, q, items.len(), total, fresh);
+    relation_page(out, q, items.len(), total, fresh);
     out.body = (DiagnosticGenes {
         test_id: test_id.clone(),
-        items: items.into_vec().into_iter().map(Into::into).collect(),
-        count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
+        items,
+        count_unit,
         distinct_id_total,
     })
     .with_query(echo.clone());
@@ -210,22 +259,14 @@ fn conditions(
     echo: &DiagnosticGet,
     q: &DiagnosticGet,
     test_id: &GtrTestId,
-    relations: Vec<GtrTestRelation>,
+    rows: Vec<DiagnosticConditionRow>,
+    count_unit: Option<DiagnosticCountUnit>,
     fresh: bool,
 ) {
-    let rows: Vec<_> = relations
-        .into_iter()
-        .filter_map(|r| {
-            if let GtrTestRelation::Condition(v) = r {
-                Some(v)
-            } else {
-                None
-            }
-        })
-        .collect();
     let distinct_id_total = Some(
         rows.iter()
-            .map(|r| r.condition.id.to_string())
+            .filter_map(|r| r.condition.id.as_ref())
+            .map(ToString::to_string)
             .collect::<BTreeSet<_>>()
             .len() as u64,
     );
@@ -235,11 +276,11 @@ fn conditions(
         .skip(q.section_offset() as usize)
         .take(q.section_limit() as usize)
         .collect::<Box<[_]>>();
-    page(out, q, items.len(), total, fresh);
+    relation_page(out, q, items.len(), total, fresh);
     out.body = (DiagnosticConditions {
         test_id: test_id.clone(),
-        items: items.into_vec().into_iter().map(Into::into).collect(),
-        count_unit: Some(biomcp_types::DiagnosticCountUnit::NativeRelationRows),
+        items,
+        count_unit,
         distinct_id_total,
     })
     .with_query(echo.clone());

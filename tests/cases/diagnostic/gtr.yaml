@@ -97,7 +97,7 @@
       "max_bytes": 2171,
       "expect": {
         "/result/kind": "gtr-test",
-        "/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/6692/",
+        "/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/6692.3/",
         "/result/header/laboratory/name": "Synthetic \"quoted\" laboratory",
         "/result/clia_number": "",
         "/result/header/specimens/*": {

@@ -1,7 +1,7 @@
 use super::{bundle, map, raw::Native};
-use biodata::{GtrMethod, GtrTestRelation};
+use biodata::{GtrMethod, GtrTestRelation, GtrTestVersion, Text};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
-use biomcp_types::{DiagnosticGet, GtrCard, Problem};
+use biomcp_types::{DiagnosticGet, DiagnosticSection, GtrCard, Problem};
 /// Exact source identity and independent relation collections under one local snapshot.
 #[derive(Debug)]
 pub struct Record {
@@ -15,6 +15,8 @@ pub struct Record {
     pub conflict: Option<Problem>,
     /// Native relation rows, including rows without a current card.
     pub relations: Vec<GtrTestRelation>,
+    /// Exact version labels for a requested section with no readable relation rows of that kind.
+    pub version_labels: Vec<Text>,
     /// Independent method lists with original indices.
     pub methods: Vec<GtrMethod>,
     /// Stored snapshot identity.
@@ -58,32 +60,63 @@ pub fn get(
     } else {
         None
     };
+    let version = versions.first().filter(|_| conflict.is_none());
+    let before = cx.list.len();
+    cx.record = crate::mapped::record(id);
+    let version_labels = version.map_or_else(Vec::new, |v| {
+        version_labels(v, query.section(), &relations, &mut cx)
+    });
+    if cx.list.len() != before {
+        refusals = crate::Refusal::Refused;
+    }
     let mut problems = cx.list;
-    let card = if conflict.is_none()
-        && let Some(v) = versions.first()
-    {
+    let card = if let Some(v) = version {
         let lab = lab(leg, &v.lab_id, &info)?;
         Some(map::card(v, xml.as_ref(), lab.as_ref(), &mut problems)?)
     } else {
         None
     };
-    let methods = if conflict.is_none() {
-        versions
-            .first()
-            .map(|v| map::methods(v))
-            .unwrap_or_default()
-    } else {
-        Vec::new()
-    };
+    let methods = version.map(|v| map::methods(v)).unwrap_or_default();
     Ok(Record {
         refusals,
         problems,
         card,
         conflict,
         relations,
+        version_labels,
         methods,
         info,
     })
+}
+
+/// Historical versions can carry labels even when the separate relation report has no rows.
+fn version_labels(
+    version: &GtrTestVersion,
+    section: Option<DiagnosticSection>,
+    relations: &[GtrTestRelation],
+    cx: &mut crate::mapped::Problems,
+) -> Vec<Text> {
+    let (cell, field) = match section {
+        Some(DiagnosticSection::Genes)
+            if !relations
+                .iter()
+                .any(|row| matches!(row, GtrTestRelation::Gene(_))) =>
+        {
+            (&version.genes, "genes")
+        }
+        Some(DiagnosticSection::Conditions)
+            if !relations
+                .iter()
+                .any(|row| matches!(row, GtrTestRelation::Condition(_))) =>
+        {
+            (&version.condition_identifiers, "condition_identifiers")
+        }
+        _ => return Vec::new(),
+    };
+    cell.split('|')
+        .filter(|value| !value.is_empty())
+        .filter_map(|value| cx.checked_text(field, Some(value)))
+        .collect()
 }
 /// The laboratory's XML row, read under the card's snapshot.
 fn lab(

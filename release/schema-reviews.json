@@ -9790,6 +9790,12 @@
   ],
   "required_removals": [
     {
+      "schema": "biomcp.diagnostic-conditions/7",
+      "path": "/result/items/[]/condition",
+      "field": "id",
+      "review": "Ticket 1167: the version report can list a condition label without a MedGen ID. The conditions section keeps the label and omits the ID for these rows. Relation-report rows keep their source IDs."
+    },
+    {
       "schema": "biomcp.trial-cards/11",
       "path": "/result/items/[]/sections/eligibility/@state=data/data",
       "field": "criteria",

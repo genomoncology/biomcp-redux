@@ -201,7 +201,7 @@ fn candidate(
 ) -> Result<DiagnosticCandidate, RequestError> {
     Ok(match versions {
         [v] if v.now_current.as_ref() == "1" => DiagnosticCandidate::Resolved {
-            header: map::header(v, xml, problems)?,
+            header: map::header(v, xml, problems, map::Link::Listing)?,
             matched: Some(relation),
             name_match,
         },

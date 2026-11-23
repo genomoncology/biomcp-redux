@@ -3154,7 +3154,7 @@ Paging: --limit and --offset; --section-limit and --section-offset are the same 
 Form: get diagnostic ID SECTION; not --id.
 - `section`: GTR: genes, conditions, methods. PMA: regulatory,… (full rule with the sections).
 Form: get diagnostic ID SECTION; not --section.
-- `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer; example: --section-limit 2.
+- `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer; example: --section-limit 70.
 - `--section-offset`: Zero-based source row or fragment offset. Value form: integer; example: --section-offset 9.
 - `--source`: Explicit source: GTR accession/version, WHO Product ID, PMA P number,
 510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY or Z-NNNN-YY. Value form: string; example: --source who-ivd.
