@@ -1,0 +1,1 @@
+Synthetic CA123643 paging replay. CAR and MyVariant identity replies come from the hotspots-caid replay. The hotspot reply adds a fourth synthetic row. The CIViC replies contain two synthetic profiles and two pages each of evidence and assertions for the first profile. These rows test paging and carry no clinical meaning.

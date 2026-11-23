@@ -1,0 +1,92 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "3026b022e4aa1132148d2576c6994559e41a0d28a5f6c784ab71bb3480488006"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 1,
+              "nodes": [
+                {
+                  "id": 120,
+                  "name": "BRAF V600E",
+                  "link": "/molecular-profiles/120",
+                  "isComplex": false,
+                  "variants": [
+                    {
+                      "id": 12,
+                      "name": "V600E",
+                      "link": "/variants/12",
+                      "alleleRegistryId": "CA123643",
+                      "hgvsDescriptions": [
+                        "NP_004324.2:p.Val600Glu"
+                      ],
+                      "feature": {
+                        "name": "BRAF"
+                      }
+                    }
+                  ],
+                  "evidenceItems": {
+                    "totalCount": 3,
+                    "nodes": [
+                      {
+                        "id": 1411,
+                        "status": "ACCEPTED",
+                        "evidenceType": "PREDICTIVE",
+                        "evidenceLevel": "A",
+                        "evidenceDirection": "DOES_NOT_SUPPORT",
+                        "significance": "RESISTANCE",
+                        "disease": {
+                          "name": "melanoma",
+                          "doid": "1909"
+                        },
+                        "therapies": [
+                          {
+                            "name": "dabrafenib"
+                          }
+                        ],
+                        "therapyInteractionType": null,
+                        "source": {
+                          "citationId": "25741868",
+                          "sourceType": "PUBMED"
+                        }
+                      }
+                    ],
+                    "pageInfo": {
+                      "hasNextPage": false,
+                      "endCursor": null
+                    }
+                  },
+                  "assertions": {
+                    "totalCount": 2,
+                    "nodes": [],
+                    "pageInfo": {
+                      "hasNextPage": false,
+                      "endCursor": null
+                    }
+                  }
+                }
+              ],
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": null
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
