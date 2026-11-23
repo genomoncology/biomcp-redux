@@ -10,7 +10,7 @@ Agents get from BioMCP what they went around it for in round 2: the population r
 
 ## Why
 
-Round 2 eval (biomcp-code-mode-redux branch wip/pilot-b, runs/round-2-sol.md; batches r2-apb-{l,b,o}, per-run call logs): with BioMCP available, CLI agents still made about 75 direct gnomAD calls (BioMCP's variant card reported `no-join-id` for population, e.g. rs80282562 and ClinVar 864024), about 60 FDA approval-letter fetches (BioMCP returned the letter URL under `application_docs` but not its text, e.g. BLA761352 approvals), and about 75 whole-paper Europe PMC fullTextXML reads plus about 40 PMC article page reads to search a paper for a number. Ian, 2026-11-23: "Is there anything we can do to make BioMCP support more of this stuff?"
+Round 2 eval (the eval repository, runs/round-2-sol.md; batches r2-apb-{l,b,o}, per-run call logs): with BioMCP available, CLI agents still made about 75 direct gnomAD calls (BioMCP's variant card reported `no-join-id` for population, e.g. rs80282562 and ClinVar 864024), about 60 FDA approval-letter fetches (BioMCP returned the letter URL under `application_docs` but not its text, e.g. BLA761352 approvals), and about 75 whole-paper Europe PMC fullTextXML reads plus about 40 PMC article page reads to search a paper for a number. Product owner, 2026-11-23: "Is there anything we can do to make BioMCP support more of this stuff?"
 
 ## Proof
 
