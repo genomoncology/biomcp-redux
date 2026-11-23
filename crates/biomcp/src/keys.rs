@@ -12,6 +12,7 @@ pub(crate) enum Command {
     Set(SecretName, bool),
     List,
     Remove(SecretName),
+    Check(crate::key_check::Source),
 }
 pub(crate) fn names() -> Vec<&'static str> {
     biomcp_query::sources::keys()
@@ -44,6 +45,7 @@ pub(crate) fn grammar() -> clap::Command {
                         .help("Replace an existing stored credential."),
                 )),
         )
+        .subcommand(crate::key_check::grammar())
         .subcommand(
             clap::Command::new("remove")
                 .after_help("Example: biomcp key remove oncokb")
@@ -60,6 +62,11 @@ pub(crate) fn parse(matches: &clap::ArgMatches) -> Result<Command, crate::gramma
     let source = matches
         .get_one::<String>("source")
         .ok_or_else(crate::grammar::ParseInvalid::default)?;
+    if verb == "check" {
+        return crate::key_check::Source::parse(source)
+            .map(Command::Check)
+            .ok_or_else(crate::grammar::ParseInvalid::default);
+    }
     let name = biomcp_query::sources::keys()
         .iter()
         .copied()
@@ -77,6 +84,9 @@ pub(crate) fn run(
     settings: &crate::config::Settings,
     encoding: crate::command::Encoding,
 ) -> io::Result<crate::command::Outcome> {
+    if let Command::Check(source) = command {
+        return crate::key_check::cli(source, globals, settings, encoding);
+    }
     match run_inner(command, globals, settings) {
         Ok(value) => encoding.encode(
             biomcp_types::Envelope::new(
@@ -166,7 +176,7 @@ fn run_inner(
             }
             (name, biomcp_types::KeyState::None)
         }
-        Command::List => return Err(Failure::Local),
+        Command::List | Command::Check(_) => return Err(Failure::Local),
     };
     crate::config::key_file::write(&path, &value)?;
     Ok(biomcp_types::RegisteredKeys {

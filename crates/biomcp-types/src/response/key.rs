@@ -94,3 +94,70 @@ impl super::ResponseBody for SwitchableSources {
     const SCHEMA: &'static str = "biomcp.switchable-sources/2";
     type Query = super::EmptyQuery;
 }
+
+/// The result of checking a source credential with its publisher.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(tag = "status", rename_all = "kebab-case")]
+pub enum KeyCheck {
+    /// The publisher accepted the authenticated request.
+    Working {
+        /// Source name accepted by the key check command.
+        source: String,
+    },
+    /// The publisher rejected the credential.
+    Rejected {
+        /// Source name accepted by the key check command.
+        source: String,
+        /// The safe publisher reason.
+        reason: String,
+    },
+    /// No conclusion about the credential.
+    CouldNotCheck {
+        /// Source name accepted by the key check command.
+        source: String,
+        /// Why the check could not establish whether the key works.
+        reason: String,
+    },
+    /// The source does not require a credential.
+    NoKeyRequired {
+        /// Source name accepted by the key check command.
+        source: String,
+    },
+}
+impl super::ResponseBody for KeyCheck {
+    const SCHEMA: &'static str = "biomcp.key-check/1";
+    type Query = super::EmptyQuery;
+}
+
+impl KeyCheck {
+    /// Label a check result with the source's command name.
+    pub fn new(source: &str, status: KeyCheckStatus) -> Self {
+        let source = source.into();
+        match status {
+            KeyCheckStatus::Working => Self::Working { source },
+            KeyCheckStatus::Rejected { reason } => Self::Rejected { source, reason },
+            KeyCheckStatus::CouldNotCheck { reason } => Self::CouldNotCheck { source, reason },
+            KeyCheckStatus::NoKeyRequired => Self::NoKeyRequired { source },
+        }
+    }
+}
+
+/// The outcome before the command attaches its source name.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum KeyCheckStatus {
+    /// The publisher accepted the authenticated request.
+    Working,
+    /// The publisher rejected the credential.
+    Rejected {
+        /// The safe publisher reason.
+        reason: String,
+    },
+    /// No conclusion about the credential.
+    CouldNotCheck {
+        /// Why the check could not establish whether the key works.
+        reason: String,
+    },
+    /// The source does not require a credential.
+    NoKeyRequired,
+}

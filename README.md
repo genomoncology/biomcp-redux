@@ -18,6 +18,8 @@ Before commercial use, [configure local source exclusions](docs/configuration.md
 
 Use `biomcp key set oncokb` to enter your own key at a prompt that hides input. Keys stay in the configuration folder and out of shell history. `biomcp key list` reports credential names and origins without values. Source-specific environment variables remain available; `biomcp help key oncokb` explains the supported names. A source that requires your account or license sends no request without your key. An optional key raises its source's limit; the source remains available at its public limit without it.
 
+Use `biomcp key check ncbi` to test the configured key with its publisher. Checks are also available for `nci`, `openfda`, `alphagenome` and `semantic-scholar`. ClinicalTrials.gov (`ctgov`) requires no key.
+
 For company networks, `ca_bundle` adds PEM certificates to platform trust and keeps verification enabled. `proxy` sets an explicit HTTP or HTTPS proxy. Otherwise BioMCP prefers `https_proxy`, `http_proxy` and `no_proxy` over `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`. Use `biomcp help network ca_bundle` or `biomcp help network proxy` for details.
 
 ## Ask a question

@@ -1,5 +1,7 @@
 //! Persistent MCP key snapshots and real filesystem ownership require process/file inspection.
 use super::launch::Environment;
+#[path = "key_check.rs"]
+mod key_check;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
@@ -7,7 +9,7 @@ use std::{io::Write, process::Stdio};
 const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         #[cfg(unix)]
         transcript_trial("key-registration/input-before-lock", || {
             super::key_input::check().map_err(Into::into)
@@ -31,13 +33,24 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("key-registration/key-reload-http", || {
             super::key_reload::check(true, true).map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(key_check::trials());
+    trials
 }
 pub(super) fn invoke(
     env: &Environment,
     args: &[&str],
     input: &str,
     exit: i32,
+) -> Result<Value, String> {
+    invoke_without_keys(env, args, input, exit, &[FIRST, SECOND])
+}
+pub(super) fn invoke_without_keys(
+    env: &Environment,
+    args: &[&str],
+    input: &str,
+    exit: i32,
+    keys: &[&str],
 ) -> Result<Value, String> {
     let args = args.iter().map(|s| (*s).into()).collect::<Vec<_>>();
     let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
@@ -54,13 +67,7 @@ pub(super) fn invoke(
         .write_all(input.as_bytes())
         .map_err(|e| e.to_string())?;
     let output = child.wait_with_output().map_err(|e| e.to_string())?;
-    command
-        .record(output.status, &output.stdout, "cli")
-        .map_err(|e| e.to_string())?;
-    if output.status.code() != Some(exit) {
-        return Err(format!("wrong exit: {:?}", output.status));
-    }
-    for marker in [FIRST, SECOND] {
+    for marker in keys {
         if output
             .stdout
             .windows(marker.len())
@@ -69,6 +76,12 @@ pub(super) fn invoke(
         {
             return Err("credential leaked in process output".into());
         }
+    }
+    command
+        .record(output.status, &output.stdout, "cli")
+        .map_err(|e| e.to_string())?;
+    if output.status.code() != Some(exit) {
+        return Err(format!("wrong exit: {:?}", output.status));
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }

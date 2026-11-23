@@ -1,6 +1,7 @@
 # 1166 — key-check-command
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d7c5bf41003d1de110e14fad10de03cf3cf633f5
 
 Milestone: 7
 

@@ -394,6 +394,7 @@ fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, V
             "Print generated command help.",
         ),
         (vec!["key", "list"], crate::keys::LIST_HELP),
+        (vec!["key", "check", "<source>"], crate::key_check::HELP),
         (
             vec!["key", "set", "<source>", "[--replace]"],
             "Register one credential from a no-echo prompt or one standard-input line. Use --config PATH to choose the configuration file.",

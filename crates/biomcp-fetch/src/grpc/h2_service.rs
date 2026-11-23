@@ -14,6 +14,7 @@ use tonic::codegen::{
 pub(super) struct Single {
     pub(super) sender: h2::client::SendRequest<Bytes>,
     pub(super) limits: Limits,
+    invalid_key_message: Option<fn(&[u8]) -> bool>,
     pub(super) state: std::sync::Arc<super::control::CallState>,
 }
 impl Service<Request<tonic::body::Body>> for Single {
@@ -27,6 +28,7 @@ impl Service<Request<tonic::body::Body>> for Single {
         let sender = self.sender.clone();
         let self_limits = self.limits;
         let state = self.state.clone();
+        let invalid_key_message = self.invalid_key_message;
         let limit = self_limits.wire_bytes;
         Box::pin(async move {
             let mut sender = sender.ready().await.map_err(|_| unavailable())?;
@@ -60,7 +62,7 @@ impl Service<Request<tonic::body::Body>> for Single {
             if response.status() != http::StatusCode::OK {
                 return Err(http_failure(response.status().as_u16()));
             }
-            safe_headers(response.headers_mut(), self_limits)?;
+            safe_headers(response.headers_mut(), self_limits, invalid_key_message)?;
             terminal(response.headers(), &state);
             Ok(response.map(|stream| Receive {
                 stream,
@@ -68,6 +70,7 @@ impl Service<Request<tonic::body::Body>> for Single {
                 bytes: 0,
                 phase: Phase::Data,
                 limits: self_limits,
+                invalid_key_message,
                 state,
             }))
         })
@@ -89,6 +92,7 @@ pub(super) struct Receive {
     bytes: usize,
     phase: Phase,
     limits: Limits,
+    invalid_key_message: Option<fn(&[u8]) -> bool>,
     state: std::sync::Arc<super::control::CallState>,
 }
 enum Phase {
@@ -137,7 +141,7 @@ impl Body for Receive {
         match trailers {
             Poll::Pending => Poll::Pending,
             Poll::Ready(Ok(Some(mut headers))) => {
-                let checked = safe_headers(&mut headers, self.limits);
+                let checked = safe_headers(&mut headers, self.limits, self.invalid_key_message);
                 if checked.is_ok() {
                     terminal(&headers, &self.state);
                 }
@@ -155,6 +159,7 @@ pub(super) async fn establish(
     socket: super::connect::Socket,
     limits: Limits,
     state: std::sync::Arc<super::control::CallState>,
+    invalid_key_message: Option<fn(&[u8]) -> bool>,
 ) -> Result<
     (
         Single,
@@ -175,6 +180,7 @@ pub(super) async fn establish(
         Single {
             sender,
             limits,
+            invalid_key_message,
             state,
         },
         connection,
@@ -184,7 +190,11 @@ pub(super) async fn establish(
 fn unavailable() -> tonic::Status {
     tonic::Status::unavailable("stream unavailable")
 }
-fn safe_headers(headers: &mut http::HeaderMap, limits: Limits) -> Result<(), tonic::Status> {
+fn safe_headers(
+    headers: &mut http::HeaderMap,
+    limits: Limits,
+    invalid_key_message: Option<fn(&[u8]) -> bool>,
+) -> Result<(), tonic::Status> {
     let bad = || tonic::Status::data_loss("invalid metadata");
     if headers.len() > limits.metadata_fields {
         return Err(bad());
@@ -225,6 +235,15 @@ fn safe_headers(headers: &mut http::HeaderMap, limits: Limits) -> Result<(), ton
         .is_some_and(|v| v != "identity")
     {
         return Err(bad());
+    }
+    // Keep the canonical authentication status and discard the publisher's message.
+    if safe.get("grpc-status").is_some_and(|status| status == "3")
+        && let Some(recognize) = invalid_key_message
+        && headers
+            .get("grpc-message")
+            .is_some_and(|message| recognize(message.as_bytes()))
+    {
+        safe.insert("grpc-status", http::HeaderValue::from_static("16"));
     }
     *headers = safe;
     Ok(())

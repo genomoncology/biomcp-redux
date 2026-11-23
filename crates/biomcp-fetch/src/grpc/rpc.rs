@@ -18,6 +18,7 @@ pub struct GrpcEndpoint {
     pub(super) schema: &'static str,
     pub(super) fresh: crate::Freshness,
     limits: Option<super::Limits>,
+    invalid_key_message: Option<fn(&[u8]) -> bool>,
 }
 impl SourceSpec {
     /// Declare one read-only streaming method. Every invocation makes one application attempt.
@@ -27,11 +28,19 @@ impl SourceSpec {
             path,
             schema: "",
             limits: None,
+            invalid_key_message: None,
             fresh: crate::Freshness::Never,
         }
     }
 }
 impl GrpcEndpoint {
+    /// Recognize a publisher's invalid-key message on a fixed authenticated probe.
+    /// The recognizer sees bounded raw metadata and must never retain its value.
+    pub const fn invalid_key_message(mut self, recognize: fn(&[u8]) -> bool) -> Self {
+        self.invalid_key_message = Some(recognize);
+        self
+    }
+
     /// Declare source ceilings; every field can only tighten the caller's global bound.
     pub const fn bounded(mut self, limits: super::Limits) -> Self {
         self.limits = Some(limits);
@@ -109,6 +118,7 @@ impl Leg<'_> {
                 key: key.map(|(name, value)| (name, Secret::new(value))),
                 body: prost::bytes::Bytes::copy_from_slice(body),
                 limits,
+                invalid_key_message: endpoint.invalid_key_message,
                 deadline: self.budget().local(),
                 stop,
                 events,

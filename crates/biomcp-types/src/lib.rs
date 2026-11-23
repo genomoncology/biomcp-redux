@@ -29,7 +29,7 @@ mod query;
 // `unreachable_pub` reports a missing crate-root re-export.
 mod response;
 pub use response::{HpoDiseaseMatch, HpoDiseasePage, HpoGeneLink, HpoTermMatch};
-pub use response::{SchemaCatalog, SchemaEntry};
+pub use response::{KeyCheck, KeyCheckStatus, SchemaCatalog, SchemaEntry};
 pub use response::{
     SourceDateTime, SourceDateTimeValue, SourceLocalTimestampValue, SourceTimestamp,
     SourceTimestampTimezone, SourceTimestampValue, SourceUpdated,

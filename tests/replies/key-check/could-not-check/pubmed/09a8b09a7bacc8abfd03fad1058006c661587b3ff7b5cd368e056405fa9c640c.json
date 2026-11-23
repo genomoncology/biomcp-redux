@@ -1,0 +1,25 @@
+{
+  "method": "GET",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/einfo.fcgi?db=pubmed&retmode=json",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 60000,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "einforesult": {
+            "dbinfo": [
+              {
+                "dbname": "pubmed"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

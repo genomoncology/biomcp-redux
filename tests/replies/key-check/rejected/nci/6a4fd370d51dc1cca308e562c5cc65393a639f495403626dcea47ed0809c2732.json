@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "nci",
+  "url": "https://clinicaltrialsapi.cancer.gov/api/v2/trials?size=1&include=none",
+  "exchanges": [
+    {
+      "status": 403,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "message": "Forbidden"
+        }
+      }
+    }
+  ]
+}

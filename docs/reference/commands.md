@@ -6473,6 +6473,7 @@ Usage: biomcp key [OPTIONS] <COMMAND>
 Commands:
   list    List source credentials and their origins without showing values.
   set
+  check   Check one configured key with its publisher. Show whether it works and why a check failed.
   remove
 
 Options:
@@ -6608,6 +6609,57 @@ Options are local to the command and independent of source selection.
 - `source`: Source credential name to register or remove.
 Form: key set SOURCE; not --source.
 - `--replace`: Replace an existing stored credential. Value form: boolean; example: --replace.
+
+## biomcp key check
+
+```text
+Check one configured key with its publisher. Show whether it works and why a check failed.
+
+Usage: biomcp key check [OPTIONS] <source>
+
+Arguments:
+  <source>
+          Source to check.
+
+          [possible values: ncbi, semantic-scholar, alphagenome, nci, openfda, ctgov]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+Example: biomcp key check ncbi
+
+```
+
+Check one configured key with its publisher. Show whether it works and why a check failed.
+Listed choices accept any letter case; replies use their listed spelling.
+
+- `source`: Source to check.
+Form: key check SOURCE; not --source.
 
 ## biomcp key remove
 
@@ -10854,6 +10906,7 @@ Usage: biomcp help key [OPTIONS] [source] [COMMAND]
 Commands:
   list    List supported discovery topics.
   set
+  check
   remove
 
 Arguments:
@@ -10974,6 +11027,44 @@ Options:
 ```
 
 Describe help key set.
+
+
+## biomcp help key check
+
+```text
+Usage: biomcp help key check [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help key check.
 
 
 ## biomcp help key remove
