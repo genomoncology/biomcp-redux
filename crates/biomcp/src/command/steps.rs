@@ -1,6 +1,6 @@
 //! Spell checked follow-ups and retain the caller's global restrictions.
 use biomcp_query::Action;
-use biomcp_types::{Request, SourceOutcome, StepKind};
+use biomcp_types::{ReplyData, Request, StepKind, VariantResolution};
 use std::{borrow::Cow, io};
 pub(super) fn next(
     request: &biomcp_types::Request,
@@ -8,7 +8,7 @@ pub(super) fn next(
     globals: &crate::grammar::Globals,
     allow_fresh: bool,
 ) -> io::Result<Vec<biomcp_types::Step>> {
-    let retryable = result.sources.iter().any(SourceOutcome::retryable);
+    let retryable = has_failed_read(result);
     let mut steps = followups(request, result, retryable, allow_fresh)
         .filter(|(_, action)| !globals.hosted || !super::mcp_policy::hosted_refused(action))
         .map(|(kind, action)| {
@@ -39,6 +39,23 @@ pub(super) fn next(
         steps.push((step, Vec::new()));
     }
     Ok(source_steps(globals, steps))
+}
+
+fn has_failed_read(result: &biomcp_query::Outcome) -> bool {
+    result
+        .sources
+        .iter()
+        .filter(|source| source.retryable())
+        .any(|source| match &result.body {
+            // Transcript fit is an optional lookup after a provider answers. Retry a requested
+            // normalization when its own result is unavailable.
+            ReplyData::VariantNormalization {
+                body: Some(body), ..
+            } => body.results.iter().any(|row| {
+                row.source == source.source && row.outcome == VariantResolution::Unavailable
+            }),
+            _ => true,
+        })
 }
 
 fn followups<'a>(
