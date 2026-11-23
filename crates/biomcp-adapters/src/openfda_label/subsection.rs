@@ -28,7 +28,7 @@ impl Heading<'_> {
 }
 
 /// openFDA may join paragraphs with spaces. Accept a number after a sentence, closed
-/// reference or line break, with a heading title following; ignore inline references.
+/// reference, line break or flattened table, with a heading title following; ignore inline references.
 pub(super) fn headings(parts: &[String]) -> Vec<Heading<'_>> {
     let mut found = Vec::new();
     for (part, text) in parts.iter().enumerate() {
@@ -62,6 +62,7 @@ fn heading_at(part: usize, text: &str, at: usize) -> Option<Heading<'_>> {
     if !boundary.is_empty()
         && !boundary.ends_with(['\n', '\r', '.', ')', ']'])
         && !after_parent(boundary, major)
+        && !after_flattened_table(boundary, major)
     {
         return None;
     }
@@ -82,6 +83,22 @@ fn after_parent(before: &str, major: &str) -> bool {
         .split_once(char::is_whitespace)
         .is_some_and(|(number, title)| {
             number == major && title.chars().all(|ch| !ch.is_lowercase())
+        })
+}
+
+/// A numbered field can flatten the last table row and the next heading onto one line.
+fn after_flattened_table(before: &str, major: &str) -> bool {
+    let mut words = before.split_whitespace();
+    if words.next() != Some(major) {
+        return false;
+    }
+    let abbreviation = |word: &str| word.len() <= 3 && word.bytes().all(|b| b.is_ascii_uppercase());
+    words
+        .next_back()
+        .zip(words.next_back())
+        .is_some_and(|(last, previous)| {
+            abbreviation(previous)
+                && (abbreviation(last) || last.bytes().all(|b| b.is_ascii_digit() || b == b'.'))
         })
 }
 
