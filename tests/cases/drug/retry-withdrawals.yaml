@@ -1,0 +1,67 @@
+{
+  "feature": "drug-fda-withdrawn-approvals",
+  "story": "An empty withdrawal search offers a runnable example by year that keeps the page size.",
+  "live_check": "Replay only",
+  "replay": "drug/fda-withdrawn-approvals",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-withdrawn-approvals",
+        "--limit",
+        "50"
+      ],
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/args": {
+          "includes": "2026"
+        }
+      },
+      "exit": 2
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/query": "2026",
+        "/query/limit": 50,
+        "/page/total": 3,
+        "/result/items/0/drug": "Zepzelca (lurbinectedin)"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "source": "fda-withdrawn-approvals",
+            "limit": 50
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/arguments/search/query": "2026"
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/query": "2026",
+        "/query/limit": 50,
+        "/page/total": 3,
+        "/result/items/0/drug": "Zepzelca (lurbinectedin)"
+      }
+    }
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
+}
