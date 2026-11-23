@@ -1,0 +1,45 @@
+{
+  "feature": "trial-get",
+  "story": "Eligibility keeps each arm's own criteria when the registry puts Arm before or after the label.",
+  "replay": "trial/eligibility/mixed-order",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04937062",
+        "eligibility"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/arms": [
+          {
+            "heading": "Alpha Arm",
+            "inclusion": [
+              "* Alpha include"
+            ],
+            "exclusion": [
+              "* Alpha exclude"
+            ]
+          },
+          {
+            "heading": "Arm B",
+            "inclusion": [
+              "* B include"
+            ],
+            "exclusion": [
+              "* B exclude"
+            ]
+          }
+        ],
+        "/result/items/0/sections/eligibility/data": {
+          "omits": [
+            "criteria",
+            "inclusion",
+            "exclusion"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -11,6 +11,9 @@ const NOT_SPLIT: &str = concat!(
     "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, ",
     "or has another line ending in \"criteria:\", so it is not split; read criteria."
 );
+const UNKNOWN_HEADING: &str =
+    "The registry text has an unrecognized heading, so it is not split; read criteria.";
+
 pub(super) fn render(
     query: &TrialGet,
     snapshot: &Snapshot,
@@ -33,7 +36,13 @@ pub(super) fn render(
         .map_or(text.len(), |(i, _)| i);
     let (fragment, criterion_continues) = fragment(text, start, splits);
     let split = criteria::split_page(text, start, fragment);
-    let not_split = (!splits && !text.is_empty()).then(|| NOT_SPLIT.into());
+    let not_split = (!splits && !text.is_empty()).then(|| {
+        if criteria::has_unrecognized_markdown_heading(text) {
+            UNKNOWN_HEADING.into()
+        } else {
+            NOT_SPLIT.into()
+        }
+    });
     let criteria = split.is_none().then(|| fragment.into());
     let criteria::Page { unscoped, arms } = split.unwrap_or_default();
     let criteria::Split {

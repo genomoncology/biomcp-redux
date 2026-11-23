@@ -1,1 +1,3 @@
-ClinicalTrials.gov study NCT01467466 and the U.S. Department of Veterans Affairs' PRESERVE statistical analysis plan were recorded with `biomcp --record` on 2026-11-22. The [posted PDF](https://cdn.clinicaltrials.gov/large-docs/66/NCT01467466/SAP_001.pdf) is unchanged (SHA-256 fafaa5ac1453b61db719afa0c88bd7c2999228833a587089064893de8ddbaef0). The registry dates the document 2016-08-26, and the PDF cover names version 2.0. The find case uses physical PDF page 17.
+The trimmed ClinicalTrials.gov replay for NCT01467466 retains the SAP manifest date of 2016-08-26. Its 24-page PDF is synthetic. The cover names version 2.0, and the search phrase appears on physical page 17. The extracted text spans more than one reply part.
+
+Regenerate the PDF from the repository root with `python3 scripts/posted_sap_fixture.py`.

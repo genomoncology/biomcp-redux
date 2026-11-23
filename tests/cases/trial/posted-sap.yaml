@@ -1,6 +1,5 @@
 {
   "feature": "trial-publications",
-  "live_check": "A posted VA trial SAP, replayed from the unchanged registry response and PDF",
   "story": "A caller can find a passage and its physical PDF page or read a part of a posted trial plan, with the registry date and the version printed on the cover.",
   "replay": "trial/posted-sap",
   "config": {
@@ -13,6 +12,7 @@
       "expect": {
         "/result/content/data/document/date": "2016-08-26",
         "/result/content/data/version": "2.0",
+        "/result/content/data/text/pages": 24,
         "/result/content/data/hits/0/page": 17,
         "/result/content/data/hits/0/text": {"equals_file": "posted-sap-match.json"}
       }
@@ -43,8 +43,8 @@
       "run": ["trial", "document", "NCT01467466", "SAP_001.pdf", "--save", "plan.pdf"],
       "expect": {
         "/status": "complete",
-        "/result/file/data/bytes": 508539,
-        "/result/file/data/sha256": "fafaa5ac1453b61db719afa0c88bd7c2999228833a587089064893de8ddbaef0"
+        "/result/file/data/bytes": 9080,
+        "/result/file/data/sha256": "9121f235f30f6d463f8db77dc84092040bd577ace31dfa90b79da0dbf8cf8c8d"
       }
     }
   ]
