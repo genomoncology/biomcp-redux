@@ -12,7 +12,7 @@
       "expect": {
         "/result/content/data/text/pages": 335,
         "/result/content/data/hits/0/page": 36,
-        "/result/content/data/hits/0/text": "race was tabulated.",
+        "/result/content/data/hits/0/text": "Baseline race was tabulated.",
         "/sources/0/notices/0/message": "This call covers PDF pages 1–100 of 335.",
         "/next/0/kind": "page"
       }
@@ -44,7 +44,7 @@
       },
       "expect": {
         "/result/content/data/hits/0/page": 36,
-        "/result/content/data/hits/0/text": "race was tabulated."
+        "/result/content/data/hits/0/text": "Baseline race was tabulated."
       }
     },
     {
@@ -65,6 +65,20 @@
       }
     },
     {
+      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "147", "--find", "events"],
+      "expect": {
+        "/status": "complete",
+        "/result/content/data/hits/0/page": 147,
+        "/result/content/data/hits/0/text": "No events were observed."
+      }
+    },
+    {
+      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "147", "--section-offset", "0"],
+      "expect": {
+        "/result/content/data/text/text": "No events were observed.\n"
+      }
+    },
+    {
       "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "301"],
       "expect": {
         "/status": "partial",
@@ -79,7 +93,7 @@
       "follow": "configure",
       "expect": {
         "/status": "complete",
-        "/result/file/data/sha256": "2eb759be0d7bfe7c86e614842c2a40fc370a232994622fdd3f9799aff35c03aa"
+        "/result/file/data/sha256": "cfc3f5dadc3c66c73d458e58e4271336a87131643c8738eff3f0ffb44af7bef1"
       }
     },
     {
