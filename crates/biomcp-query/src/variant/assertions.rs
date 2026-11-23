@@ -5,8 +5,8 @@ use biomcp_fetch::Deadline;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    AssertionSource, PageInfo, Reason, Request, Section, StepKind, VariantAssertion,
-    VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
+    AssertionDetail, AssertionKind, AssertionSource, PageInfo, Reason, Request, Section, StepKind,
+    VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
 };
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -314,12 +314,24 @@ fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> Varian
         .collect::<Vec<_>>();
     if query.assertion().is_none() {
         for row in &mut rows {
-            if !row.statement_unmapped {
-                row.detail = None;
-            }
-            if let Some(s) = &mut row.statement {
-                s.citations = Box::default();
-                s.criteria = Box::default();
+            if let Some(statement) = &mut row.statement {
+                row.detail = row
+                    .detail
+                    .take()
+                    .filter(|detail| {
+                        row.kind == AssertionKind::Rcv
+                            && (statement.condition.is_none()
+                                || detail.conditions.iter().any(|condition| {
+                                    condition.id.is_none() && condition.accession.is_some()
+                                }))
+                    })
+                    .map(|detail| AssertionDetail {
+                        conditions: detail.conditions,
+                        conditions_missing: detail.conditions_missing,
+                        ..Default::default()
+                    });
+                statement.citations = Box::default();
+                statement.criteria = Box::default();
             }
         }
     }

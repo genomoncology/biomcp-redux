@@ -268,6 +268,10 @@
           },
           "type": "array"
         },
+        "conditions_missing": {
+          "description": "ClinVar supplied no conditions for this RCV.",
+          "type": "boolean"
+        },
         "document": {
           "anyOf": [
             {
@@ -3266,7 +3270,7 @@
               "type": "null"
             }
           ],
-          "description": "Original source detail, returned only for an explicitly selected record."
+          "description": "Original source detail. Compact RCV rows retain conditions the statement cannot express."
         },
         "domain": {
           "$ref": "#/$defs/Reply_AssertionDomain",
