@@ -5394,7 +5394,7 @@ Read trial groups and public documents.
 Usage: biomcp trial [OPTIONS] <COMMAND>
 
 Commands:
-  document  Read or save one listed trial PDF. Reads up to 25 MiB and 100 pages, one 6144-byte fragment at a time.
+  document  Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).
 
 Options:
       --format <format>
@@ -5432,20 +5432,20 @@ Read trial groups and public documents.
 ## biomcp trial document
 
 ```text
-Read or save one listed trial PDF. Reads up to 25 MiB and 100 pages, one 6144-byte fragment at a time.
+Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).
 
 Usage: biomcp trial document [OPTIONS] <input> <file>
 
 Arguments:
   <input>
-          Exact registry identity.
+          ClinicalTrials.gov ID.
 
   <file>
-          Exact filename from the registry manifest; never a URL or inferred path.
+          Exact listed PDF filename.
 
 Options:
       --find <find>
-          Case-insensitive phrase to find, with PDF page numbers.
+          Case-insensitive phrase search with pages.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -5457,16 +5457,16 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --replace[=<replace>]
-          Replace an existing file only when explicitly requested.
+          Replace an existing file.
 
           [default: false]
           [possible values: true, false]
 
       --save <save>
-          Save original bytes to a caller-owned file or folder instead of reading text.
+          Save the original PDF to a file or folder.
 
       --section-offset <section_offset>
-          Zero-based text part or match offset.
+          Zero-based part or hit offset.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -5488,18 +5488,18 @@ Options:
 
 ```
 
-Read or save a clinical trial document. Sources: ctgov.
+Read or save a trial PDF. Sources: ctgov.
 Options apply to every listed source unless their description restricts them.
 Paging: --offset; --section-offset is the same option.
 
-- `file`: Exact filename from the registry manifest; never a URL or inferred path.
+- `file`: Exact listed PDF filename.
 Form: trial document INPUT FILE; not --file.
-- `--find`: Case-insensitive phrase to find, with PDF page numbers. Value form: string; example: --find 'Wald chi-square p-value'.
-- `input`: Exact registry identity.
+- `--find`: Case-insensitive phrase search with pages. Value form: string; example: --find 'Wald chi-square p-value'.
+- `input`: ClinicalTrials.gov ID.
 Form: trial document INPUT FILE; not --input.
-- `--replace`: Replace an existing file only when explicitly requested. Value form: boolean; example: --replace.
-- `--save`: Save original bytes to a caller-owned file or folder instead of reading text. Value form: string; example: --save protocol.pdf.
-- `--section-offset`: Zero-based text part or match offset. Value form: integer; example: --section-offset 0.
+- `--replace`: Replace an existing file. Value form: boolean; example: --replace.
+- `--save`: Save the original PDF to a file or folder. Value form: string; example: --save protocol.pdf.
+- `--section-offset`: Zero-based part or hit offset. Value form: integer; example: --section-offset 0.
 
 ## biomcp variant
 

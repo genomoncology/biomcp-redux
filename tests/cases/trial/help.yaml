@@ -105,15 +105,17 @@
       "expect": {
         "/result/commands/0/arguments/*/name": [
           "file",
+          "--find",
           "input",
           "--replace",
-          "--save"
+          "--save",
+          "--section-offset"
         ],
         "/result/commands/0/examples": {
           "count": 1
         }
       },
-      "max_bytes": 1278,
+      "max_bytes": 1444,
       "run": [
         "help",
         "trial",

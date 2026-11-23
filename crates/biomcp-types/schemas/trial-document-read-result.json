@@ -1123,32 +1123,32 @@
       "type": "object"
     },
     "Reply_TrialDocumentGet": {
-      "description": "Read or save one listed trial PDF. Reads up to 25 MiB and 100 pages, one 6144-byte fragment at a time.",
+      "description": "Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).",
       "properties": {
         "file": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+          "description": "Exact listed PDF filename.",
           "x-positional": 1
         },
         "find": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Case-insensitive phrase to find, with PDF page numbers."
+          "description": "Case-insensitive phrase search with pages."
         },
         "input": {
           "$ref": "#/$defs/Reply_NctId",
-          "description": "Exact registry identity.",
+          "description": "ClinicalTrials.gov ID.",
           "x-positional": 0
         },
         "replace": {
-          "description": "Replace an existing file only when explicitly requested.",
+          "description": "Replace an existing file.",
           "type": "boolean"
         },
         "save": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Save original bytes to a caller-owned file or folder instead of reading text."
+          "description": "Save the original PDF to a file or folder."
         },
         "section_offset": {
-          "description": "Zero-based text part or match offset.",
+          "description": "Zero-based part or hit offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
