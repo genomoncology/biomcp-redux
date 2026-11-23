@@ -1,27 +1,14 @@
 {
   "feature": "query-validation",
-  "live_check": "local-only validation; no source requests",
+  "live_check": "Recorded article body and local argument validation.",
+  "replay": "article/fulltext/part-range",
   "story": "Wrong forms agents typed in the baseline are refused with the argument at fault and the call that works: a section under another name, a label heading or source typed as a section, a record word in the section's place, words split from one value, text where the command takes none (said as text outside an option, not a refused value, 1081), a source typed as an option, and a section the default source lacks.",
   "steps": [
     {
-      "run": [
-        "get",
-        "article",
-        "24996524",
-        "text"
-      ],
-      "exit": 2,
-      "is_error": true,
+      "run": ["get", "article", "28944238", "text"],
       "expect": {
-        "/status": "usage",
-        "/error/code": "usage.arguments",
-        "/error/option": "--section",
-        "/next/0/args": [
-          "get",
-          "article",
-          "24996524",
-          "fulltext"
-        ]
+        "/status": "complete",
+        "/result/content/data/part": 1
       }
     },
     {

@@ -1,11 +1,11 @@
 {
   "feature": "article-fulltext",
   "live_check": "public",
-  "story": "A PubMed record without a PMC identity reports that no open body is available.",
+  "story": "An explicit body part for a PubMed record without a PMC identity reports that no open body is available.",
   "replay": "article/evidence/source",
   "steps": [
     {
-      "run": ["article", "text", "17611497"],
+      "run": ["article", "text", "17611497", "--part", "1"],
       "expect": {
         "/result/content": {"equals": {"state": "unavailable", "source": "pmc-oa", "reason": "not-open"}},
         "/next/0/args": ["get", "article", "17611497"]

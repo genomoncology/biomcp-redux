@@ -88,18 +88,25 @@ impl TryFrom<Fields> for ArticleText {
 }
 impl ArticleText {
     /// Begin at part 1 for a bare PMID and retain the card default for other IDs.
-    pub fn into_request(mut self) -> crate::Request {
-        if self.0.part.is_none()
+    pub fn into_request(self) -> crate::Request {
+        if self.is_unselected() && !matches!(self.0.input, ArticleInput::Pmid(_)) {
+            return crate::Request::GetArticle(crate::ArticleGet::single(self.0.input));
+        }
+        crate::Request::ArticleText(self)
+    }
+    /// Read the first body part or fall back to the card for a PMID without selectors.
+    pub fn is_default_pmid(&self) -> bool {
+        matches!(self.0.input, ArticleInput::Pmid(_)) && self.is_unselected()
+    }
+    fn is_unselected(&self) -> bool {
+        self.0.part.is_none()
             && self.0.find.is_none()
             && self.0.variant.is_none()
             && self.0.save.is_none()
-        {
-            if !matches!(self.0.input, ArticleInput::Pmid(_)) {
-                return crate::Request::GetArticle(crate::ArticleGet::single(self.0.input));
-            }
-            self.0.part = Some(1);
-        }
-        crate::Request::ArticleText(self)
+    }
+    /// Build the default reader for a checked PubMed ID.
+    pub fn from_pmid(id: crate::Pmid) -> Self {
+        Self(Fields::new(ArticleInput::Pmid(id)))
     }
     /// Build a part selector used in source continuation actions.
     pub fn part(input: ArticleInput, part: u32) -> Result<Self, QueryInvalid> {
@@ -127,7 +134,7 @@ impl ArticleText {
     }
     /// Selected part.
     pub fn selected_part(&self) -> Option<u32> {
-        self.0.part
+        self.0.part.or_else(|| self.is_default_pmid().then_some(1))
     }
     /// Literal search term.
     pub fn find(&self) -> Option<&Text> {

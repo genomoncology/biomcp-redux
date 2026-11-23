@@ -32,10 +32,10 @@ pub(super) fn article_text(
     if fields.len() != 1 || !word.as_str()?.eq_ignore_ascii_case("text") {
         return None;
     }
-    let input = biomcp_types::ArticleInput::Pmid(id.as_str()?.parse().ok()?);
-    biomcp_types::ArticleText::part(input, 1)
-        .ok()
-        .map(biomcp_types::Request::ArticleText)
+    let id = id.as_str()?.parse().ok()?;
+    Some(biomcp_types::Request::ArticleText(
+        biomcp_types::ArticleText::from_pmid(id),
+    ))
 }
 
 /// A publisher passed to gene get's unsupported --source flag can name a section.

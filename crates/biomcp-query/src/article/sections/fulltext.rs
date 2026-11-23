@@ -19,6 +19,22 @@ pub(super) fn without_copy(card: &Article<Capped<Text>>) -> Section<FullText> {
     }
 }
 
+/// Carry a reader's known result over to the abstract without another PMC read.
+pub(in crate::article) fn mark_not_open(out: &mut Outcome) {
+    if let biomcp_types::ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &mut out.body
+    {
+        for sections in cards
+            .items
+            .iter_mut()
+            .filter_map(|item| item.sections.as_mut())
+        {
+            sections.fulltext = Some(Section::unavailable(Source::PmcOa, Reason::NotOpen));
+        }
+    }
+}
+
 /// Load one document for both sections, preserving a single source request sequence.
 pub(super) fn run<'a>(
     cx: &Ctx<'a>,
