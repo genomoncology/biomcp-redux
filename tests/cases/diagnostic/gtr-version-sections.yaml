@@ -1,7 +1,7 @@
 {
   "feature": "diagnostic-gtr",
   "story": "Exact GTR gets keep the version in the link and read that version's section data when the relation report has no rows for it.",
-  "verified": "NCBI's GTR test_version.gz and test_condition_gene.txt were recorded on 2026-11-23 and cut to GTR000527948.3, GTR000527948.7 and GTR000004542.11, with cells unchanged. The XML stub has no test or lab rows. NCBI's /gtr/tests/527948.3/ lists 70 genes and Solid tumor.",
+  "verified": "NCBI's GTR test_version.gz and test_condition_gene.txt were recorded on 2026-11-23 and cut to GTR000527948.3, GTR000527948.7 and GTR000004542.11, with cells unchanged. The XML stub contains one unrelated synthetic lab. NCBI's /gtr/tests/527948.3/ lists 70 genes and Solid tumor.",
   "replay": "diagnostic/gtr-version-sections",
   "steps": [
     {
