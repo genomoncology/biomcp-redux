@@ -44,21 +44,19 @@ fn option_char(character: char) -> bool {
     character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.')
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(try_from = "String")]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub(super) struct NamedOption(String);
 
-impl TryFrom<String> for NamedOption {
-    type Error = &'static str;
-
-    fn try_from(text: String) -> Result<Self, Self::Error> {
+impl<'de> Deserialize<'de> for NamedOption {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let text = String::deserialize(deserializer)?;
         let valid = text
             .strip_prefix(PREFIX)
             .and_then(|text| text.strip_suffix(SUFFIX))
             .is_some_and(valid_option);
         valid
             .then_some(Self(text))
-            .ok_or("invalid unknown-option message")
+            .ok_or_else(|| serde::de::Error::custom("invalid unknown-option message"))
     }
 }
 

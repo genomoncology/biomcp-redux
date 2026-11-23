@@ -17,14 +17,14 @@ pub(super) fn project(
         .and_then(Value::as_array)
         .is_some_and(|sources| {
             sources.iter().any(|source| {
-                source["state"] == "failed"
+                source.get("state").and_then(Value::as_str) == Some("failed")
                     && matches!(
-                        source["reason"].as_str(),
+                        source.get("reason").and_then(Value::as_str),
                         Some("deadline-exceeded" | "unavailable")
                     )
             })
         });
-    let failed = value["status"] == "failed";
+    let failed = value.get("status").and_then(Value::as_str) == Some("failed");
     let mut calls = Vec::new();
     for path in crate::schema::steps::paths(&schema, &schema, value)
         .into_iter()
