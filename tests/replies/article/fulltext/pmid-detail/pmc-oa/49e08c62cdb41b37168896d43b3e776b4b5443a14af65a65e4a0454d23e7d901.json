@@ -7,7 +7,7 @@
       "fetched": 1792839535,
       "status": 200,
       "content_type": "binary/octet-stream",
-      "delay_ms": 0,
+      "delay_ms": 2000,
       "retry_after_ms": null,
       "body": {
         "kind": "text",

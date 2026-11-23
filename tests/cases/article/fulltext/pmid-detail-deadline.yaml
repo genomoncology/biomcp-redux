@@ -1,0 +1,13 @@
+feature: article-fulltext
+story: A PMC read discovered in the detailed PubMed record reports its deadline when the body cannot finish.
+live_check: Local synthetic replay only.
+replay: article/fulltext/pmid-detail
+config:
+  command_timeout_seconds: 1
+steps:
+  - run: [article, text, "28944238"]
+    exit: 4
+    expect:
+      /status: failed
+      /sources/1/source: pmc-oa
+      /sources/1/reason: deadline-exceeded
