@@ -139,6 +139,7 @@ pub(super) fn kind(k: KeyKind) -> u8 {
         KeyKind::Alias => 3,
         KeyKind::Xref => 4,
         KeyKind::Band => 5,
+        KeyKind::CurationTitle => 6,
     }
 }
 pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
@@ -329,6 +330,15 @@ fn prefix_end(s: &str) -> Option<String> {
     None
 }
 
+fn has_key_kind(c: &Connection, name: &str, key: KeyKind) -> Result<bool, CacheError> {
+    c.query_row(
+        "SELECT EXISTS(SELECT 1 FROM bundle_key WHERE bundle=?1 AND kind=?2)",
+        params![name, kind(key)],
+        |row| row.get(0),
+    )
+    .map_err(db_error)
+}
+
 fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<String>, CacheError> {
     let (query, a, b, k) = match find {
         Find::AnyExact(k, values) => (
@@ -350,16 +360,14 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
             None,
             kind(k),
         ),
-        Find::ExactOrUnindexed(k, v) => {
-            let indexed = c
-                .query_row(
-                    "SELECT EXISTS(SELECT 1 FROM bundle_key WHERE bundle=?1 AND kind=?2)",
-                    params![name, kind(k)],
-                    |row| row.get::<_, bool>(0),
-                )
-                .map_err(|error| db_error(error))?;
-            if indexed {
-                return selected_rows(c, name, Find::Exact(k, v));
+        Find::ExactOrUnindexed(k, v) | Find::PrefixOrUnindexed(k, v) => {
+            if has_key_kind(c, name, k)? {
+                let indexed = if matches!(find, Find::PrefixOrUnindexed(..)) {
+                    Find::Prefix(k, v)
+                } else {
+                    Find::Exact(k, v)
+                };
+                return selected_rows(c, name, indexed);
             }
             (
                 "SELECT row FROM bundle_row WHERE bundle=?1 ORDER BY n",

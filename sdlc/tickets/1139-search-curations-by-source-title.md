@@ -1,6 +1,7 @@
 # 1139 — search-curations-by-source-title
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0ff41f286f404a5d27ab762cb190cfe38478f236
 
 Milestone: 7
 
