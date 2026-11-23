@@ -1,0 +1,72 @@
+{
+  "feature": "diagnostic-pma",
+  "story": "A PMA summary and supplement conflict offers the specific supplement card.",
+  "live_check": "Replay only",
+  "replay": "diagnostic/pma-supplement-retry",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P190032",
+        "summary",
+        "--source",
+        "fda-pma",
+        "--supplement",
+        "S023",
+        "--find",
+        "H1047R"
+      ],
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/args": {
+          "includes": "S023"
+        }
+      },
+      "exit": 2
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/id": "P190032",
+        "/result/header/supplement_number": "S023"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "P190032",
+            "section": [
+              "summary"
+            ],
+            "source": "fda-pma",
+            "supplement": "S023",
+            "find": "H1047R"
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/arguments/get/supplement": "S023"
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/id": "P190032",
+        "/result/header/supplement_number": "S023"
+      }
+    }
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
+}

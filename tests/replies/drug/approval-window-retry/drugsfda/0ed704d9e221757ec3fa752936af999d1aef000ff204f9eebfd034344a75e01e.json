@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/203214Orig1s028;208246Orig1s013;213082Orig1s003ltr.pdf",
+  "exchanges": [
+    {
+      "fetched": 1795149457,
+      "status": 404,
+      "content_type": "application/json",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": "synthetic unavailable letter"
+        }
+      }
+    }
+  ]
+}

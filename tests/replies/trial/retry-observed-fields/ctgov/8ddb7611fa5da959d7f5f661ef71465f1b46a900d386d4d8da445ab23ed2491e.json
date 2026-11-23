@@ -1,0 +1,62 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle&pageSize=100&query.term=%28%22sacituzumab%20tirumotecan%22%20OR%20%22MK-2870%22%20OR%20%22SKB264%22%20OR%20%22sac-TMT%22%29%20AND%20AREA%5BPhase%5DPHASE3",
+  "exchanges": [
+    {
+      "fetched": 1794409799,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 138,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "totalCount": 1,
+          "studies": [
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT06081959",
+                  "briefTitle": "Study of SKB264 for Locally Advanced, Recurrent or Metastatic HR+/HER2- Breast Cancer",
+                  "officialTitle": "A Randomized, Open-label, Multicenter Phase 3 Study of SKB264 Versus Treatment of Physician's Choice (TPC) in Patients With Unresectable Locally Advanced, Recurrent or Metastatic HR+/HER2- Breast Cancer Who Had Failed at Least One Line of Chemotherapy"
+                },
+                "statusModule": {
+                  "overallStatus": "RECRUITING",
+                  "startDateStruct": {
+                    "date": "2023-10-31",
+                    "type": "ACTUAL"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2026-12-31",
+                    "type": "ESTIMATED"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2026-05-08",
+                    "type": "ACTUAL"
+                  }
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE3"
+                  ]
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "Sichuan Kelun-Biotech Biopharmaceutical Co., Ltd."
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Metastatic Breast Cancer"
+                  ]
+                }
+              },
+              "hasResults": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
