@@ -1,6 +1,6 @@
 //! Validate the source and section selectors of a drug read.
 use super::{DrugSection, DrugSource, label_find, query::GetFields};
-use crate::QueryInvalid;
+use crate::{CivicClaimKind, QueryInvalid};
 
 pub(super) fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     if fields.section.contains(&DrugSection::Markets)
