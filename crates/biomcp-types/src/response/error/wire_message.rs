@@ -1,12 +1,16 @@
-//! Refusal prose can include the caller's rejected option name.
+//! Fixed refusal prose and the checked message that names an unknown option.
 use super::ErrorMessage;
 use serde::{Deserialize, Serialize};
+
+const PREFIX: &str = "Unknown option ";
+const SUFFIX: &str = ". Use an option listed in valid_values or follow the suggested call.";
+const EMPTY: &str = "\"\"";
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub(super) enum WireMessage {
     Fixed(ErrorMessage),
-    NamedOption(String),
+    NamedOption(NamedOption),
 }
 
 impl From<ErrorMessage> for WireMessage {
@@ -20,21 +24,62 @@ impl WireMessage {
         let Some(option) = option.filter(|_| message == ErrorMessage::ArgumentUnknown) else {
             return message.into();
         };
-        let mut name = String::with_capacity(option.len());
+        let mut text = String::from(PREFIX);
         for character in option.chars() {
-            if character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.') {
-                name.push(character);
+            if option_char(character) {
+                text.push(character);
             } else {
-                name.extend(character.escape_unicode());
+                text.extend(character.escape_unicode());
             }
         }
-        if name.is_empty() {
-            name.push_str("\"\"");
+        if option.is_empty() {
+            text.push_str(EMPTY);
         }
-        Self::NamedOption(format!(
-            "Unknown option {name}. Use an option listed in valid_values or follow the suggested call."
-        ))
+        text.push_str(SUFFIX);
+        Self::NamedOption(NamedOption(text))
     }
+}
+
+fn option_char(character: char) -> bool {
+    character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.')
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "String")]
+pub(super) struct NamedOption(String);
+
+impl TryFrom<String> for NamedOption {
+    type Error = &'static str;
+
+    fn try_from(text: String) -> Result<Self, Self::Error> {
+        let valid = text
+            .strip_prefix(PREFIX)
+            .and_then(|text| text.strip_suffix(SUFFIX))
+            .is_some_and(valid_option);
+        valid
+            .then_some(Self(text))
+            .ok_or("invalid unknown-option message")
+    }
+}
+
+fn valid_option(name: &str) -> bool {
+    if name == EMPTY {
+        return true;
+    }
+    let mut parts = name.split(r"\u{");
+    !name.is_empty()
+        && parts
+            .next()
+            .is_some_and(|plain| plain.chars().all(option_char))
+        && parts.all(|part| {
+            part.split_once('}').is_some_and(|(hex, plain)| {
+                (1..=6).contains(&hex.len())
+                    && hex
+                        .bytes()
+                        .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+                    && plain.chars().all(option_char)
+            })
+        })
 }
 
 #[cfg(feature = "schema")]
@@ -45,14 +90,37 @@ impl schemars::JsonSchema for WireMessage {
 
     fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         let mut schema = <ErrorMessage as schemars::JsonSchema>::json_schema(generator);
-        if let Some(values) = schema.ensure_object().remove("enum") {
-            schema.insert("x-extensible-enum".into(), values);
+        let mut pattern = String::from("^(?:");
+        if let Some(values) = schema.ensure_object().remove("enum")
+            && let Some(values) = values.as_array()
+        {
+            for literal in values.iter().filter_map(|value| value.as_str()) {
+                escape_pattern(&mut pattern, literal);
+                pattern.push('|');
+            }
         }
+        escape_pattern(&mut pattern, PREFIX);
+        pattern.push_str(r"(?:(?:[A-Za-z0-9_.-]|\\u\{[0-9a-f]{1,6}\})+|");
+        escape_pattern(&mut pattern, EMPTY);
+        pattern.push(')');
+        escape_pattern(&mut pattern, SUFFIX);
+        pattern.push_str(")$");
+        schema.insert("pattern".into(), pattern.into());
         schema.insert(
             "description".into(),
             "Error guidance. An unknown-option message can include the rejected option name."
                 .into(),
         );
         schema
+    }
+}
+
+#[cfg(feature = "schema")]
+fn escape_pattern(pattern: &mut String, literal: &str) {
+    for character in literal.chars() {
+        if r"\^$.*+?()[]{}|".contains(character) {
+            pattern.push('\\');
+        }
+        pattern.push(character);
     }
 }
