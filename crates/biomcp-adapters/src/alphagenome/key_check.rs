@@ -7,7 +7,8 @@ use prost::Message;
 
 const METADATA: GrpcEndpoint = super::SPEC
     .grpc("/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/GetMetadata")
-    .checked("alphagenome.key-check/1", biomcp_fetch::Freshness::Never);
+    .checked("alphagenome.key-check/1", biomcp_fetch::Freshness::Never)
+    .google_key_check();
 
 pub(crate) fn check(leg: &Leg<'_>) -> Result<(), RequestError> {
     let request = super::proto::MetadataRequest {

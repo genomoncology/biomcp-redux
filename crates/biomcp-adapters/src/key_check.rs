@@ -18,9 +18,6 @@ pub const fn supported(name: SecretName) -> bool {
 
 /// Make one publisher request using the effective registered credential.
 pub fn run(fetch: &Fetch, name: SecretName, budget: Duration) -> KeyCheckStatus {
-    if !fetch.has_key(name) {
-        return unavailable(Reason::NoKey);
-    }
     let declaration = crate::decl::decl(crate::decl::key_source(name));
     let leg = fetch.leg(declaration.spec, fetch.deadline(budget));
     if name == SecretName::AlphaGenomeApiKey {

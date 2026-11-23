@@ -13,9 +13,14 @@ pub(super) async fn execute(
     tls: std::sync::Arc<rustls::ClientConfig>,
 ) -> Result<(), Reason> {
     let socket = connect::open(&command.uri, command.proxy.as_ref(), tls, command.limits).await?;
-    let (single, connection) = h2_service::establish(socket, command.limits, command.state.clone())
-        .await
-        .map_err(|_| Reason::Unavailable)?;
+    let (single, connection) = h2_service::establish(
+        socket,
+        command.limits,
+        command.state.clone(),
+        command.google_key_check,
+    )
+    .await
+    .map_err(|_| Reason::Unavailable)?;
     let call = stream(command, single);
     tokio::pin!(call);
     tokio::pin!(connection);

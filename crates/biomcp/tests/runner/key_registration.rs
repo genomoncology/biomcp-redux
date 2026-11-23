@@ -39,6 +39,15 @@ pub(super) fn invoke(
     input: &str,
     exit: i32,
 ) -> Result<Value, String> {
+    invoke_without_keys(env, args, input, exit, &[FIRST, SECOND])
+}
+pub(super) fn invoke_without_keys(
+    env: &Environment,
+    args: &[&str],
+    input: &str,
+    exit: i32,
+    keys: &[&str],
+) -> Result<Value, String> {
     let args = args.iter().map(|s| (*s).into()).collect::<Vec<_>>();
     let mut command = env.command(env!("CARGO_BIN_EXE_biomcp"), &args);
     let mut child = command
@@ -54,13 +63,7 @@ pub(super) fn invoke(
         .write_all(input.as_bytes())
         .map_err(|e| e.to_string())?;
     let output = child.wait_with_output().map_err(|e| e.to_string())?;
-    command
-        .record(output.status, &output.stdout, "cli")
-        .map_err(|e| e.to_string())?;
-    if output.status.code() != Some(exit) {
-        return Err(format!("wrong exit: {:?}", output.status));
-    }
-    for marker in [FIRST, SECOND] {
+    for marker in keys {
         if output
             .stdout
             .windows(marker.len())
@@ -69,6 +72,12 @@ pub(super) fn invoke(
         {
             return Err("credential leaked in process output".into());
         }
+    }
+    command
+        .record(output.status, &output.stdout, "cli")
+        .map_err(|e| e.to_string())?;
+    if output.status.code() != Some(exit) {
+        return Err(format!("wrong exit: {:?}", output.status));
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
 }

@@ -14,6 +14,7 @@ use tonic::codegen::{
 pub(super) struct Single {
     pub(super) sender: h2::client::SendRequest<Bytes>,
     pub(super) limits: Limits,
+    google_key_check: bool,
     pub(super) state: std::sync::Arc<super::control::CallState>,
 }
 impl Service<Request<tonic::body::Body>> for Single {
@@ -27,6 +28,7 @@ impl Service<Request<tonic::body::Body>> for Single {
         let sender = self.sender.clone();
         let self_limits = self.limits;
         let state = self.state.clone();
+        let google_key_check = self.google_key_check;
         let limit = self_limits.wire_bytes;
         Box::pin(async move {
             let mut sender = sender.ready().await.map_err(|_| unavailable())?;
@@ -60,7 +62,7 @@ impl Service<Request<tonic::body::Body>> for Single {
             if response.status() != http::StatusCode::OK {
                 return Err(http_failure(response.status().as_u16()));
             }
-            safe_headers(response.headers_mut(), self_limits)?;
+            safe_headers(response.headers_mut(), self_limits, google_key_check)?;
             terminal(response.headers(), &state);
             Ok(response.map(|stream| Receive {
                 stream,
@@ -68,6 +70,7 @@ impl Service<Request<tonic::body::Body>> for Single {
                 bytes: 0,
                 phase: Phase::Data,
                 limits: self_limits,
+                google_key_check,
                 state,
             }))
         })
@@ -89,6 +92,7 @@ pub(super) struct Receive {
     bytes: usize,
     phase: Phase,
     limits: Limits,
+    google_key_check: bool,
     state: std::sync::Arc<super::control::CallState>,
 }
 enum Phase {
@@ -137,7 +141,7 @@ impl Body for Receive {
         match trailers {
             Poll::Pending => Poll::Pending,
             Poll::Ready(Ok(Some(mut headers))) => {
-                let checked = safe_headers(&mut headers, self.limits);
+                let checked = safe_headers(&mut headers, self.limits, self.google_key_check);
                 if checked.is_ok() {
                     terminal(&headers, &self.state);
                 }
@@ -155,6 +159,7 @@ pub(super) async fn establish(
     socket: super::connect::Socket,
     limits: Limits,
     state: std::sync::Arc<super::control::CallState>,
+    google_key_check: bool,
 ) -> Result<
     (
         Single,
@@ -175,6 +180,7 @@ pub(super) async fn establish(
         Single {
             sender,
             limits,
+            google_key_check,
             state,
         },
         connection,
@@ -184,7 +190,11 @@ pub(super) async fn establish(
 fn unavailable() -> tonic::Status {
     tonic::Status::unavailable("stream unavailable")
 }
-fn safe_headers(headers: &mut http::HeaderMap, limits: Limits) -> Result<(), tonic::Status> {
+fn safe_headers(
+    headers: &mut http::HeaderMap,
+    limits: Limits,
+    google_key_check: bool,
+) -> Result<(), tonic::Status> {
     let bad = || tonic::Status::data_loss("invalid metadata");
     if headers.len() > limits.metadata_fields {
         return Err(bad());
@@ -226,6 +236,19 @@ fn safe_headers(headers: &mut http::HeaderMap, limits: Limits) -> Result<(), ton
     {
         return Err(bad());
     }
+    // Keep the canonical authentication status and discard the publisher's message.
+    if google_key_check
+        && safe.get("grpc-status").is_some_and(|status| status == "3")
+        && headers.get("grpc-message").is_some_and(|message| {
+            matches!(
+                message.as_bytes(),
+                b"API key not valid. Please pass a valid API key."
+                    | b"API%20key%20not%20valid.%20Please%20pass%20a%20valid%20API%20key."
+            )
+        })
+    {
+        safe.insert("grpc-status", http::HeaderValue::from_static("16"));
+    }
     *headers = safe;
     Ok(())
 }
@@ -237,5 +260,39 @@ fn terminal(headers: &http::HeaderMap, state: &super::control::CallState) {
         .and_then(|v| v.parse().ok())
     {
         state.set_terminal(code);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Limits, http, safe_headers};
+
+    #[test]
+    fn key_check_recognizes_only_the_publisher_invalid_key_message() -> Result<(), tonic::Status> {
+        for (message, expected) in [
+            ("API key not valid. Please pass a valid API key.", "16"),
+            (
+                "API%20key%20not%20valid.%20Please%20pass%20a%20valid%20API%20key.",
+                "16",
+            ),
+            ("Malformed request", "3"),
+        ] {
+            let mut headers = http::HeaderMap::new();
+            headers.insert("grpc-status", http::HeaderValue::from_static("3"));
+            headers.insert("grpc-message", http::HeaderValue::from_static(message));
+            safe_headers(&mut headers, Limits::DEFAULT, true)?;
+            assert_eq!(
+                headers
+                    .get("grpc-status")
+                    .and_then(|value| value.to_str().ok()),
+                Some(expected),
+                "only a recognized publisher error should change the status"
+            );
+            assert!(
+                !headers.contains_key("grpc-message"),
+                "provider message was retained"
+            );
+        }
+        Ok(())
     }
 }

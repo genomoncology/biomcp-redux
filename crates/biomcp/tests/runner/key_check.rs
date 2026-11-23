@@ -1,5 +1,9 @@
 //! Exercise source credential checks through the CLI and hosted HTTP.
-use super::{key_registration::invoke, launch::Environment, transcript::trial};
+use super::{
+    key_registration::{invoke, invoke_without_keys},
+    launch::Environment,
+    transcript::trial,
+};
 use libtest_mimic::Trial;
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -57,7 +61,7 @@ fn provider(source: &str, field: &str, rejection: &str) -> Result<(), String> {
             .map(String::as_str)
             .chain(["key", "check", source])
             .collect::<Vec<_>>();
-        let reply = invoke(&env, &args, "", 0)?;
+        let reply = invoke_without_keys(&env, &args, "", 0, &[KEY])?;
         check(&reply["result"], source, status, reason)?;
     }
     Ok(())
@@ -107,6 +111,13 @@ fn hosted() -> Result<(), String> {
         return Err("internal route accepted a credential in its body".into());
     }
     let headers = format!("x-biomcp-key-ncbi-api-key: {KEY}\r\n");
+    if server
+        .request_with_headers("POST", path, body, &headers.repeat(2))?
+        .0
+        != 400
+    {
+        return Err("internal route accepted duplicate credential headers".into());
+    }
     let reply = super::request_keys::call(&server, &["key", "check", "ncbi"], &headers, false)?;
     if !reply.to_string().contains("usage.mcp_unavailable") {
         return Err("MCP allowed a key check".into());
@@ -122,5 +133,23 @@ fn hosted() -> Result<(), String> {
     if plain.request_with_headers("POST", path, body, &headers)?.0 != 404 {
         return Err("ordinary HTTP exposed the internal route".into());
     }
-    plain.stop()
+    plain.stop()?;
+
+    let mut exposed = super::http::Server::configured_globals(
+        "0.0.0.0:0",
+        None,
+        None,
+        None,
+        Some("127.0.0.1"),
+        &["--hosted".into()],
+    )?;
+    exposed.address.set_ip(std::net::Ipv4Addr::LOCALHOST.into());
+    if exposed
+        .request_with_headers("POST", path, body, &headers)?
+        .0
+        != 404
+    {
+        return Err("a non-loopback listener exposed the internal route".into());
+    }
+    exposed.stop()
 }

@@ -35,7 +35,15 @@ impl Leg<'_> {
         let exchange = self.exchange(&request, &read, None);
         self.observe_exchange(&request, &exchange, started.elapsed(), &read);
         match exchange {
-            Ok(wire) => Ok(inspect(wire.status, &wire.body)),
+            Ok(wire) => {
+                let result = inspect(wire.status, &wire.body);
+                if self.budget().expired() {
+                    return Err(self
+                        .failure(Reason::DeadlineExceeded, Some(wire.status))
+                        .into());
+                }
+                Ok(result)
+            }
             Err(Failure::Local(error)) => Err(error),
             Err(Failure::Transport(error)) => {
                 let mut failure = self.failure(crate::tls::reason(&error), None);

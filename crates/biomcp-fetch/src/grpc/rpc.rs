@@ -18,6 +18,7 @@ pub struct GrpcEndpoint {
     pub(super) schema: &'static str,
     pub(super) fresh: crate::Freshness,
     limits: Option<super::Limits>,
+    google_key_check: bool,
 }
 impl SourceSpec {
     /// Declare one read-only streaming method. Every invocation makes one application attempt.
@@ -27,11 +28,18 @@ impl SourceSpec {
             path,
             schema: "",
             limits: None,
+            google_key_check: false,
             fresh: crate::Freshness::Never,
         }
     }
 }
 impl GrpcEndpoint {
+    /// Recognize Google's invalid API key error on a fixed authenticated probe.
+    pub const fn google_key_check(mut self) -> Self {
+        self.google_key_check = true;
+        self
+    }
+
     /// Declare source ceilings; every field can only tighten the caller's global bound.
     pub const fn bounded(mut self, limits: super::Limits) -> Self {
         self.limits = Some(limits);
@@ -109,6 +117,7 @@ impl Leg<'_> {
                 key: key.map(|(name, value)| (name, Secret::new(value))),
                 body: prost::bytes::Bytes::copy_from_slice(body),
                 limits,
+                google_key_check: endpoint.google_key_check,
                 deadline: self.budget().local(),
                 stop,
                 events,
