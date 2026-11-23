@@ -61,7 +61,7 @@ pub(super) fn answer(
                 hits,
             },
         }),
-        file: None,
+        file: Section::NotApplicable,
     }
     .with_query(query.clone());
 }

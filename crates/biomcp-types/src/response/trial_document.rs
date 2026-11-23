@@ -44,9 +44,8 @@ pub struct TrialDocumentResult {
     /// Text or a source failure for a read.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub content: Option<Section<TrialDocumentText>>,
-    /// Saved receipt or a source failure for a save.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub file: Option<Section<TrialDocumentSaved>>,
+    /// Saved receipt or failure for a save; not applicable for a read.
+    pub file: Section<TrialDocumentSaved>,
 }
 impl super::ResponseBody for TrialDocumentResult {
     const SCHEMA: &'static str = "biomcp.trial-document/8";

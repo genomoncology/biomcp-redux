@@ -155,7 +155,11 @@ fn placeholder(query: &TrialDocumentGet, reason: Option<Reason>) -> ReplyData {
     }
     TrialDocumentResult {
         content: query.save.is_none().then(|| section(reason)),
-        file: query.save.is_some().then(|| section(reason)),
+        file: if query.save.is_some() {
+            section(reason)
+        } else {
+            Section::NotApplicable
+        },
     }
     .with_query(query.clone())
 }

@@ -101,7 +101,7 @@ impl Reply for SaveReply {
             };
             body = Some(biomcp_types::TrialDocumentResult {
                 content: None,
-                file: Some(Section::Data {
+                file: Section::Data {
                     source: biomcp_types::Source::ClinicalTrialsGov,
                     data: biomcp_types::TrialDocumentSaved {
                         path,
@@ -109,7 +109,7 @@ impl Reply for SaveReply {
                         sha256,
                         document,
                     },
-                }),
+                },
             });
         }
         biomcp_types::TrialDocumentResult::into_reply(query, body)
