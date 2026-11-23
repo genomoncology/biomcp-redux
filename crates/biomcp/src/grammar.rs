@@ -3,6 +3,7 @@ mod arguments;
 mod batch_ids;
 pub(crate) use batch_ids::input_help as batch_id_help;
 mod choices;
+mod conflicts;
 mod context;
 pub(crate) use choices::ENUM_CASE_GUIDANCE;
 mod command_words;
@@ -555,6 +556,7 @@ fn request(
                     None
                 }
             })
+            .or_else(|| conflicts::invalid(command.via, (verb, entity), normalized, &cause, fields))
             .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause, fields))
             .unwrap_or_else(|| {
                 errors::checked_invalid(command.via, verb, entity, normalized, &cause)

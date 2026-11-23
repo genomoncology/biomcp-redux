@@ -234,38 +234,24 @@ pub(super) fn parse(
             ErrorMessage::ArgumentUnknown,
         )));
     }
-    let chosen = match fields.get("fields").map(chosen_fields) {
-        Some(Some(chosen)) => chosen,
-        None => None,
-        Some(None) => {
-            return Some(Err(rejected(
-                "fields",
-                &[],
-                None,
-                catalog,
-                ErrorMessage::ArgumentValue,
-            )));
+    let mut values = fields.get(action).cloned().unwrap_or_else(|| json!({}));
+    let chosen = match refusal::take_fields(fields.get("fields"), &mut values) {
+        Ok(chosen) => chosen,
+        Err(cause) => {
+            return Some(Err(rejected("fields", &[], None, catalog, cause)));
         }
     };
     let path = crate::grammar::command_paths()
         .into_iter()
         .find(|&(verb, entity, _)| name(verb, entity) == command)?;
-    let values = fields.get(action).cloned().unwrap_or_else(|| json!({}));
-    let mut call = command_call(root, path, action, &values, fresh, catalog);
-    if let (Some(Ok(call)), Some(chosen)) = (&mut call, chosen) {
-        call.args.insert(0, format!("--fields={chosen}").into());
-    }
-    call
-}
-
-/// A typed `fields` list as one comma-joined option value; none when empty, refused unless text.
-fn chosen_fields(value: &Value) -> Option<Option<String>> {
-    let names = value
-        .as_array()?
-        .iter()
-        .map(|name| name.as_str().filter(|name| !name.contains(',')))
-        .collect::<Option<Vec<_>>>()?;
-    Some((!names.is_empty()).then(|| names.join(",")))
+    command_call(
+        root,
+        path,
+        action,
+        &values,
+        (fresh, chosen.as_deref()),
+        catalog,
+    )
 }
 
 /// Check one action's object against its command's schema and spell its CLI call.
@@ -274,7 +260,7 @@ fn command_call(
     (verb, entity, id): (&'static str, &'static str, &'static str),
     action: &str,
     values: &Value,
-    fresh: bool,
+    (fresh, chosen): (bool, Option<&str>),
     catalog: Catalog,
 ) -> Option<Result<super::research::Call, Rejected>> {
     let schema = schema(id).ok()?;
@@ -311,12 +297,15 @@ fn command_call(
         let mut error = refusal::arguments(&refused, &["help", verb, entity])?;
         if let Some(specific) = specific {
             error = specific;
-        } else if let biomcp_types::UsageError::Arguments(usage) = &mut error
-            && refusal::unknown(&input, &values).as_ref() == Some(&refused.argument)
-            && let Some(step) = refusal::fix(root, &args, &input, &values)
-        {
-            // A real fix replaces help, as on the command line.
-            usage.next = vec![step];
+        } else if let biomcp_types::UsageError::Arguments(usage) = &mut error {
+            let steps = refusal::split(root, (verb, entity), &schema, &values, &refused, chosen);
+            if !steps.is_empty() {
+                usage.next = steps;
+            } else if refusal::unknown(&input, &values).as_ref() == Some(&refused.argument)
+                && let Some(step) = refusal::fix(root, &args, &input, &values)
+            {
+                usage.next = vec![step];
+            }
         }
         return Some(Err(Rejected {
             error,
@@ -328,6 +317,9 @@ fn command_call(
     let mut args = arguments::cli(root, verb, entity, &schema, &values)?;
     if fresh {
         args.insert(2, "--fresh".into());
+    }
+    if let Some(chosen) = chosen {
+        args.insert(0, format!("--fields={chosen}").into());
     }
     Some(Ok(super::research::Call {
         args,
