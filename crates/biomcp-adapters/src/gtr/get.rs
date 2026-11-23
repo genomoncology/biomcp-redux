@@ -1,5 +1,5 @@
 use super::{bundle, map, raw::Native};
-use biodata::{GtrGeneReference, GtrMethod, GtrTestRelation, Text};
+use biodata::{GtrGeneReference, GtrMethod, GtrTestRelation, GtrTestVersion, Text};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
 use biomcp_types::{
     DiagnosticConditionReference, DiagnosticConditionRow, DiagnosticCountUnit, DiagnosticGeneRow,
@@ -66,73 +66,22 @@ pub fn get(
     } else {
         None
     };
-    let mut count_unit = Some(DiagnosticCountUnit::NativeRelationRows);
-    if conflict.is_none()
-        && let Some(v) = versions.first()
-    {
-        let before = cx.list.len();
-        cx.record = crate::mapped::record(id);
-        // Historical versions can carry labels even when the separate relation report has no rows.
-        match query.section() {
-            Some(DiagnosticSection::Genes) if genes.is_empty() => {
-                genes.extend(
-                    labels(&v.genes, "genes", &mut cx).map(|label| DiagnosticGeneRow {
-                        test_type: None,
-                        object_name: label.as_str().into(),
-                        gene: GtrGeneReference {
-                            label: Some(label),
-                            ncbi_gene_id: None,
-                        },
-                        native_gene_or_snomed_ct_id: None,
-                        native_medgen: None,
-                        mim_number: "".into(),
-                    }),
-                );
-                count_unit = genes
-                    .is_empty()
-                    .then_some(DiagnosticCountUnit::NativeRelationRows);
-            }
-            Some(DiagnosticSection::Conditions) if conditions.is_empty() => {
-                conditions.extend(
-                    labels(&v.condition_identifiers, "condition_identifiers", &mut cx).map(
-                        |label| DiagnosticConditionRow {
-                            test_type: None,
-                            condition: DiagnosticConditionReference {
-                                id: None,
-                                label: Some(label),
-                            },
-                            mim_number: "".into(),
-                            snomed_ct_id: "".into(),
-                        },
-                    ),
-                );
-                count_unit = conditions
-                    .is_empty()
-                    .then_some(DiagnosticCountUnit::NativeRelationRows);
-            }
-            _ => {}
-        }
-        if cx.list.len() != before {
-            refusals = crate::Refusal::Refused;
-        }
+    let version = versions.first().filter(|_| conflict.is_none());
+    let before = cx.list.len();
+    cx.record = crate::mapped::record(id);
+    let from_version = version
+        .is_some_and(|v| version_labels(v, query.section(), &mut genes, &mut conditions, &mut cx));
+    if cx.list.len() != before {
+        refusals = crate::Refusal::Refused;
     }
     let mut problems = cx.list;
-    let card = if conflict.is_none()
-        && let Some(v) = versions.first()
-    {
+    let card = if let Some(v) = version {
         let lab = lab(leg, &v.lab_id, &info)?;
         Some(map::card(v, xml.as_ref(), lab.as_ref(), &mut problems)?)
     } else {
         None
     };
-    let methods = if conflict.is_none() {
-        versions
-            .first()
-            .map(|v| map::methods(v))
-            .unwrap_or_default()
-    } else {
-        Vec::new()
-    };
+    let methods = version.map(|v| map::methods(v)).unwrap_or_default();
     Ok(Record {
         refusals,
         problems,
@@ -140,10 +89,55 @@ pub fn get(
         conflict,
         genes,
         conditions,
-        count_unit,
+        count_unit: (!from_version).then_some(DiagnosticCountUnit::NativeRelationRows),
         methods,
         info,
     })
+}
+
+/// Historical versions can carry labels even when the separate relation report has no rows.
+fn version_labels(
+    version: &GtrTestVersion,
+    section: Option<DiagnosticSection>,
+    genes: &mut Vec<DiagnosticGeneRow>,
+    conditions: &mut Vec<DiagnosticConditionRow>,
+    cx: &mut crate::mapped::Problems,
+) -> bool {
+    match section {
+        Some(DiagnosticSection::Genes) if genes.is_empty() => {
+            genes.extend(
+                labels(&version.genes, "genes", cx).map(|label| DiagnosticGeneRow {
+                    test_type: None,
+                    object_name: label.as_str().into(),
+                    gene: GtrGeneReference {
+                        label: Some(label),
+                        ncbi_gene_id: None,
+                    },
+                    native_gene_or_snomed_ct_id: None,
+                    native_medgen: None,
+                    mim_number: "".into(),
+                }),
+            );
+            !genes.is_empty()
+        }
+        Some(DiagnosticSection::Conditions) if conditions.is_empty() => {
+            conditions.extend(
+                labels(&version.condition_identifiers, "condition_identifiers", cx).map(|label| {
+                    DiagnosticConditionRow {
+                        test_type: None,
+                        condition: DiagnosticConditionReference {
+                            id: None,
+                            label: Some(label),
+                        },
+                        mim_number: "".into(),
+                        snomed_ct_id: "".into(),
+                    }
+                }),
+            );
+            !conditions.is_empty()
+        }
+        _ => false,
+    }
 }
 
 fn labels<'a>(
