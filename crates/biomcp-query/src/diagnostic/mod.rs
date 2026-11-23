@@ -17,7 +17,7 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::gtr;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    DiagnosticPage, DiagnosticSearch, DiagnosticSearchSource, PageInfo, Request, Source,
+    DiagnosticPage, DiagnosticSearch, DiagnosticSearchSource, PageInfo, Reason, Request, Source,
     SourceState, Status, StepKind,
 };
 pub(crate) use get::get;
@@ -55,14 +55,13 @@ fn finish_bundle(
     {
         crate::status::item(out, true, false, true);
     }
-    if out
-        .sources
+    if out.sources.iter().any(|s| {
+        matches!(s.state, SourceState::Syncing | SourceState::Stale)
+            || (s.source, s.reason) == (Source::Gtr, Some(Reason::Unavailable))
+    }) && !out
+        .next
         .iter()
-        .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
-        && !out
-            .next
-            .iter()
-            .any(|step| step.1 == Action::Sync { bundle })
+        .any(|step| step.1 == Action::Sync { bundle })
     {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,

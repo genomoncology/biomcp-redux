@@ -1,6 +1,7 @@
 # 1165 — gtr-first-read-within-size-limit
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0508d7fcb4a79dc8217e65209cd36902d56598d7
 
 Milestone: 7
 
