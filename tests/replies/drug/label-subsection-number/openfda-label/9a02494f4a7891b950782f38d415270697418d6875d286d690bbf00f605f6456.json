@@ -1,0 +1,43 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%2211111111-1111-1111-1111-111111111111%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1793329799,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-10-28",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "set_id": "11111111-1111-1111-1111-111111111111",
+              "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "version": "1",
+              "effective_time": "20261120",
+              "openfda": {
+                "brand_name": [
+                  "Example"
+                ]
+              },
+              "clinical_studies": [
+                "14 CLINICAL STUDIES 14.1 First Study Read the report. Table 1 ALPHA 1 SD NA 5.6 14.2 Second Study Read this report. Table 2 BETA 1 SD NA NA 14.3 Third Study Read the follow-up."
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

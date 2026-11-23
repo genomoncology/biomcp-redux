@@ -1,8 +1,8 @@
 {
   "feature": "article-get",
-  "live_check": "synthetic recorded article card and local argument validation; no live source calls",
-  "story": "Omitted reader selectors return the existing abstract card; explicit invalid body selectors retain numeric guidance.",
-  "replay": "article/get/synthetic-derived",
+  "live_check": "Synthetic article body and abstract replays with local argument validation.",
+  "story": "A bare PMID opens the first available body part or returns the abstract and not-open state. Invalid explicit parts keep numeric guidance.",
+  "replay": "article/fulltext/part-range",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
@@ -14,27 +14,34 @@
         "arguments": {
           "action": "text",
           "text": {
-            "input": "33123537"
+            "input": "28944238"
           }
         }
       },
       "expect": {
         "/status": "complete",
-        "/query/input": [
-          "33123537"
-        ],
+        "/result/pmcid": "PMC5606870",
+        "/result/content/data/part": 1,
+        "/result/content/data/markdown": "## First section\n\nFirst body paragraph."
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "article",
+        "arguments": {
+          "action": "text",
+          "text": {
+            "input": "39214094"
+          }
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/card/title": "Synthetic readable record.",
         "/result/items/0/answer/card/abstract_parts": {
           "count": 1
         },
-        "/result/items/0": {
-          "omits": [
-            "sections"
-          ]
-        },
-        "/sources": {
-          "count": 1
-        },
-        "/sources/0/source": "pubmed"
+        "/result/items/0/sections/fulltext/reason": "not-open"
       }
     },
     {
@@ -124,7 +131,7 @@
           "action": "get",
           "get": {
             "input": [
-              "33123537"
+              "28944238"
             ]
           }
         }

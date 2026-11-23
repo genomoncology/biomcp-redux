@@ -34,6 +34,12 @@ impl ArticleGet {
             section: Box::default(),
         })
     }
+    /// Build a card request for one checked identity and section.
+    pub fn single_with_section(input: ArticleInput, section: ArticleSectionWord) -> Self {
+        let mut query = Self::single(input);
+        query.0.section = vec![section].into();
+        query
+    }
     /// Check batch bounds.
     pub fn new(input: Box<[ArticleInput]>) -> Result<Self, QueryInvalid> {
         Self::with_sections(input, Box::default())

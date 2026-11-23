@@ -1,0 +1,15 @@
+feature: drug-label
+story: A dotted label section number selects just that subsection, even after a table flattened onto the same line.
+live_check: synthetic
+replay: drug/label-subsection-number
+steps:
+  - run: [get, drug, "11111111-1111-1111-1111-111111111111", label, --source, openfda-label, --label-section, "14.2"]
+    expect:
+      /status: complete
+      /result/label/data/heading: 14.2 Second Study
+      /result/label/data/text: 14.2 Second Study Read this report. Table 2 BETA 1 SD NA NA
+  - run: [get, drug, "11111111-1111-1111-1111-111111111111", label, --source, openfda-label, --label-section, "14.3"]
+    expect:
+      /status: complete
+      /result/label/data/heading: 14.3 Third Study
+      /result/label/data/text: 14.3 Third Study Read the follow-up.

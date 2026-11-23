@@ -104,6 +104,12 @@ impl TryFrom<GetFields> for DrugGet {
             .unwrap_or_else(|| inferred_source(&fields.section));
         (fields.source, fields.input) = (Some(source), source.listed_case(fields.input));
         validate_sections(&fields)?;
+        if source == DrugSource::OpenfdaLabel
+            && fields.section.contains(&DrugSection::Label)
+            && let Some(sections) = fields.label_section.as_mut()
+        {
+            super::normalize_label_numbers(sections, fields.find.is_empty())?;
+        }
         let native_id =
             if let Some(ids) = label_find::batch(&fields.input, &fields.find, &fields.section)? {
                 NativeDrugId::LabelBatch(ids)

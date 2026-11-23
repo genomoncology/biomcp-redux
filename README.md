@@ -34,6 +34,8 @@ Which PubMed articles match AKT1 E17K?
 biomcp search article 'AKT1 E17K'
 ```
 
+Use `biomcp article text PMID` or `biomcp get article PMID text` to read the first part of an open PMC body. Use `get article PMID fulltext` for the outline and `article text PMID --part N` for a numbered part.
+
 Which registered trials match melanoma?
 
 ```sh

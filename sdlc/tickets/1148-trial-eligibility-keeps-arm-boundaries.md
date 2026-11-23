@@ -1,6 +1,7 @@
 # 1148 — trial-eligibility-keeps-arm-boundaries
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 906bf4b6b43fd6aa98d219ec45d324c308545fed
 
 Milestone: 7
 
