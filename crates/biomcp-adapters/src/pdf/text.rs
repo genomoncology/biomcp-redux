@@ -13,6 +13,7 @@ pub const MAX_EXPANDED_BYTES: usize = 4 * 1024 * 1024;
 pub const FRAGMENT_BYTES: usize = 6144;
 
 /// The status and any readable text from a PDF download.
+#[derive(Debug)]
 pub struct DownloadedText {
     /// The extraction status, even when no text could be read.
     pub status: PdfText,
