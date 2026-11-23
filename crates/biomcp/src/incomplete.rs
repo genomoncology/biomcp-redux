@@ -98,8 +98,15 @@ pub(crate) fn projected_purpose(reply: &mut Value) {
             Some((index, submission))
         })
         .collect();
-    for (index, at) in moved {
-        reply["incomplete"][index]["at"] = Value::String(at);
+    if let Some(incomplete) = reply.get_mut("incomplete").and_then(Value::as_array_mut) {
+        for (index, at) in moved {
+            if let Some(location) = incomplete
+                .get_mut(index)
+                .and_then(|item| item.get_mut("at"))
+            {
+                *location = Value::String(at);
+            }
+        }
     }
 }
 
