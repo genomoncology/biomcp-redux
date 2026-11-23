@@ -133,7 +133,10 @@ pub use nci_detail::{
     NciEligibilityStructured, NciIntervention, NciOutcome, NciTextPage, NciTrialSections,
 };
 mod trial_document;
-pub use trial_document::{TrialDocumentResult, TrialDocumentSaved};
+pub use trial_document::{
+    TrialDocumentHit, TrialDocumentReadResult, TrialDocumentResult, TrialDocumentSaveQuery,
+    TrialDocumentSaved, TrialDocumentText,
+};
 
 mod variant_assertions;
 pub use variant_assertions::{

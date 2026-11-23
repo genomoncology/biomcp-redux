@@ -4995,7 +4995,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Save a clinical trial document.",
+      "description": "Read a trial PDF.",
       "properties": {
         "command": {
           "const": "trial-document",
@@ -5003,30 +5003,42 @@
         },
         "file": {
           "$ref": "#/$defs/Text",
-          "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+          "description": "Exact listed PDF filename.",
           "x-positional": 1
+        },
+        "find": {
+          "$ref": "#/$defs/Text",
+          "description": "Case-insensitive phrase search with pages."
         },
         "input": {
           "$ref": "#/$defs/NctId",
-          "description": "Exact registry identity.",
+          "description": "ClinicalTrials.gov ID.",
           "x-positional": 0
         },
         "replace": {
-          "description": "Replace an existing file only when explicitly requested.",
+          "description": "Replace an existing file.",
           "type": "boolean"
         },
         "save": {
           "$ref": "#/$defs/Text",
-          "description": "Caller-owned file or existing folder."
+          "description": "Save the original PDF to a file or folder."
+        },
+        "section_offset": {
+          "description": "Zero-based part or hit offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "required": [
         "command",
         "input",
-        "file",
-        "save"
+        "file"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "TrialDocumentSaveQuery"
+      ]
     },
     {
       "additionalProperties": false,

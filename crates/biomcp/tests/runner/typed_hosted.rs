@@ -51,6 +51,7 @@ fn hosted(budgets: &mut Vec<String>) -> Result<(), String> {
     let hosted = catalog(&server, None, budgets)?;
     capture("restricted", &hosted, budgets)?;
     assert_hosted(&hosted)?;
+    trial_document(&server, &hosted)?;
     source_fields(&hosted)?;
     source_help(&server)?;
     refused_source(&server)?;
@@ -85,6 +86,87 @@ fn hosted(budgets: &mut Vec<String>) -> Result<(), String> {
         != Some(&json!("usage.mcp_unavailable"))
     {
         return Err(format!("omitted tool escaped execution policy: {reply}"));
+    }
+    Ok(())
+}
+
+fn trial_document(server: &Server, hosted: &Value) -> Result<(), String> {
+    let tools = hosted
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
+        .ok_or("hosted tools")?;
+    let command = super::typed_catalog::command(tools, "trial_document")
+        .ok_or("hosted catalog omits trial document reads")?;
+    let fields = command
+        .pointer("/inputSchema/properties")
+        .and_then(Value::as_object)
+        .ok_or("trial document fields")?;
+    if ["find", "section_offset"]
+        .iter()
+        .any(|field| !fields.contains_key(*field))
+        || ["save", "replace"]
+            .iter()
+            .any(|field| fields.contains_key(*field))
+    {
+        return Err(format!(
+            "hosted trial document has wrong options: {fields:?}"
+        ));
+    }
+
+    let call = |host: &Server, arguments| {
+        let request = request(
+            json!(7),
+            "tools/call",
+            super::typed_catalog::call(&command, &arguments),
+        );
+        host.request("POST", "/mcp", &request.to_string())
+            .map(|(_, reply)| reply)
+    };
+    // Each read gets its own replay of the original provider exchanges.
+    for (arguments, pointer, expected) in [
+        (
+            json!({"id":"NCT01467466","file":"SAP_001.pdf","section_offset":0}),
+            "/text/text",
+            "Statistical Analysis Plan v2.0",
+        ),
+        (
+            json!({"id":"NCT01467466","file":"SAP_001.pdf","find":"Wald chi-square p-value"}),
+            "/hits/0/text",
+            "Wald chi-square p-value",
+        ),
+    ] {
+        let replay = Server::configured_globals(
+            "127.0.0.1:0",
+            Some(json!({"mcp_tool_mode":"typed"})),
+            Some(super::super::launch::fixtures().join("replies/trial/posted-sap")),
+            None,
+            None,
+            &["--hosted".into()],
+        )?;
+        let reply = call(&replay, arguments)?;
+        if !reply
+            .pointer(&format!(
+                "/result/structuredContent/result/content/data{pointer}"
+            ))
+            .and_then(Value::as_str)
+            .is_some_and(|text| text.contains(expected))
+        {
+            return Err(format!("hosted trial document read failed: {reply}"));
+        }
+    }
+
+    let save = server.environment().root().join("trial.pdf");
+    let reply = call(
+        server,
+        json!({"id":"NCT01467466","file":"SAP_001.pdf","save":save}),
+    )?;
+    if reply.pointer("/result/structuredContent/error/code")
+        != Some(&json!("usage.mcp_unavailable"))
+        || save.exists()
+    {
+        return Err(format!(
+            "hosted trial document save escaped refusal: {reply}"
+        ));
     }
     Ok(())
 }
@@ -211,12 +293,7 @@ fn assert_hosted(hosted: &Value) -> Result<(), String> {
         .ok_or("hosted tools")?;
     if crate::runner::protocol::typed_catalog::commands(tools)
         .iter()
-        .any(|tool| {
-            matches!(
-                tool["name"].as_str(),
-                Some("article_pdf" | "trial_document")
-            )
-        })
+        .any(|tool| tool["name"].as_str() == Some("article_pdf"))
     {
         return Err("hosted catalog advertises mandatory save".into());
     }
@@ -288,7 +365,7 @@ fn catalog(
             && (instructions.contains("oncokb")
                 || instructions
                     .split(|c: char| !c.is_alphanumeric() && c != '_')
-                    .any(|word| matches!(word, "pdf" | "document")))
+                    .any(|word| word == "pdf"))
     {
         return Err("hosted instructions advertise refused tools/sources or exceed budget".into());
     }

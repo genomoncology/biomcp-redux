@@ -6,6 +6,7 @@ pub mod store;
 mod context;
 mod next;
 mod openfda_text;
+mod pdf_find;
 mod run;
 mod status;
 mod text_find;

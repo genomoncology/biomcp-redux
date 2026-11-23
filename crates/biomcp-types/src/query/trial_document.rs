@@ -1,20 +1,30 @@
 use crate::{NctId, Text};
 use serde::{Deserialize, Serialize};
-#[doc = " Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never \
-    read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL."]
+/// Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-reply-query-titles" = ["TrialDocumentSaveQuery"])))]
 pub struct TrialDocumentGet {
-    /// Exact registry identity.
+    /// ClinicalTrials.gov ID.
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
     pub input: NctId,
-    /// Exact filename from the registry manifest; never a URL or inferred path.
+    /// Exact listed PDF filename.
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=1)))]
     pub file: Text,
-    /// Caller-owned file or existing folder.
-    pub save: Text,
-    /// Replace an existing file only when explicitly requested.
+    /// Case-insensitive phrase search with pages.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub find: Option<Text>,
+    /// Zero-based part or hit offset.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "u32"))]
+    pub section_offset: Option<u32>,
+    /// Save the original PDF to a file or folder.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub save: Option<Text>,
+    /// Replace an existing file.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub replace: bool,
 }

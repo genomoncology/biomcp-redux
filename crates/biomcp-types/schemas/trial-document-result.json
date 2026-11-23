@@ -1060,12 +1060,25 @@
       ],
       "type": "object"
     },
-    "Reply_TrialDocumentGet": {
-      "description": "Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL.",
+    "Reply_TrialDocumentResult": {
+      "description": "Original trial PDF download.",
+      "properties": {
+        "file": {
+          "$ref": "#/$defs/Reply_Section_TrialDocumentSaved",
+          "description": "Saved receipt, confirmed absence, or a source failure."
+        }
+      },
+      "required": [
+        "file"
+      ],
+      "type": "object"
+    },
+    "Reply_TrialDocumentSaveQuery": {
+      "description": "The exact trial document and destination echoed by an original-byte save.",
       "properties": {
         "file": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact filename from the registry manifest; never a URL or inferred path.",
+          "description": "Exact filename from the registry manifest.",
           "x-positional": 1
         },
         "input": {
@@ -1086,19 +1099,6 @@
         "input",
         "file",
         "save"
-      ],
-      "type": "object"
-    },
-    "Reply_TrialDocumentResult": {
-      "description": "Original trial PDF download, never document text.",
-      "properties": {
-        "file": {
-          "$ref": "#/$defs/Reply_Section_TrialDocumentSaved",
-          "description": "Saved receipt, confirmed absence, or a source failure."
-        }
-      },
-      "required": [
-        "file"
       ],
       "type": "object"
     },
@@ -1211,7 +1211,7 @@
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/Reply_TrialDocumentGet",
+      "$ref": "#/$defs/Reply_TrialDocumentSaveQuery",
       "description": "Parsed query."
     },
     "result": {

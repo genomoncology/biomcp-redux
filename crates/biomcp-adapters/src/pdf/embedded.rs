@@ -12,6 +12,8 @@ pub struct Embedded {
     pub state: PdfTextState,
     /// The whole embedded text, pages in order.
     pub text: String,
+    /// UTF-8 byte offset of each physical page, including pages without text.
+    pub page_starts: Vec<usize>,
     /// Why a partial read may miss text.
     pub missing: Option<PdfMissing>,
     /// A private-use Symbol character was kept in the text.
@@ -30,6 +32,7 @@ pub fn embedded(
         pages: None,
         state: PdfTextState::NoText,
         text: String::new(),
+        page_starts: Vec::new(),
         missing: None,
         private_symbol: false,
     };
@@ -70,6 +73,7 @@ pub fn embedded(
         return Ok(result);
     }
     let (mut text, mut unsound, mut skipped) = (String::new(), Vec::new(), false);
+    let mut page_starts = Vec::with_capacity(pages.len());
     let mut fonts = super::cmap::Cache::default();
     for page in pages.values() {
         check()?;
@@ -90,6 +94,7 @@ pub fn embedded(
             return Ok(result);
         }
         let at = text.len();
+        page_starts.push(at);
         unsound.extend(
             part.unsound
                 .iter()
@@ -100,7 +105,7 @@ pub fn embedded(
         result.private_symbol |= part.private_symbol;
     }
     check()?;
-    Ok(settle(result, text, &unsound, skipped))
+    Ok(settle(result, text, page_starts, &unsound, skipped))
 }
 
 /// The read's state and text once every page is read.
@@ -117,6 +122,7 @@ fn refused(bytes: &[u8], expired: &dyn Fn() -> bool) -> Result<Option<PdfTextSta
 fn settle(
     mut result: Embedded,
     mut text: String,
+    mut page_starts: Vec<usize>,
     unsound: &[(usize, usize)],
     skipped: bool,
 ) -> Embedded {
@@ -131,7 +137,7 @@ fn settle(
         .collect();
     let judged = shown.join(" ");
     if super::garbled::garbled(&judged) {
-        let kept = without(&text, unsound);
+        let kept = without(&text, unsound, &mut page_starts);
         if kept.trim().len() < judged.len() {
             result.state = PdfTextState::Garbled;
             return result;
@@ -153,18 +159,28 @@ fn settle(
             PdfTextState::Text
         };
         result.text = text;
+        result.page_starts = page_starts;
     }
     result
 }
 
 /// `text` without the byte `spans`, which are in order and do not overlap.
-fn without(text: &str, spans: &[(usize, usize)]) -> String {
+fn without(text: &str, spans: &[(usize, usize)], page_starts: &mut [usize]) -> String {
     let mut kept = String::with_capacity(text.len());
     let mut from = 0;
+    let mut pages = page_starts.iter_mut().peekable();
     for (start, end) in spans {
+        while pages.peek().is_some_and(|page| **page <= *start) {
+            if let Some(page) = pages.next() {
+                *page = kept.len() + (*page - from);
+            }
+        }
         kept.push_str(text.get(from..*start).unwrap_or_default());
         kept.push(' ');
         from = *end;
+    }
+    for page in pages {
+        *page = kept.len() + (*page - from);
     }
     kept.push_str(text.get(from..).unwrap_or_default());
     kept

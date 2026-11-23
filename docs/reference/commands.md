@@ -5394,7 +5394,7 @@ Read trial groups and public documents.
 Usage: biomcp trial [OPTIONS] <COMMAND>
 
 Commands:
-  document  Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL.
+  document  Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).
 
 Options:
       --format <format>
@@ -5432,35 +5432,41 @@ Read trial groups and public documents.
 ## biomcp trial document
 
 ```text
-Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. CLI and stdio MCP support saves; HTTP refuses with the source URL.
+Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).
 
-Usage: biomcp trial document [OPTIONS] --save <save> <input> <file>
+Usage: biomcp trial document [OPTIONS] <input> <file>
 
 Arguments:
   <input>
-          Exact registry identity.
+          ClinicalTrials.gov ID.
 
   <file>
-          Exact filename from the registry manifest; never a URL or inferred path.
+          Exact listed PDF filename.
 
 Options:
+      --find <find>
+          Case-insensitive phrase search with pages.
+
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
 
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
       --replace[=<replace>]
-          Replace an existing file only when explicitly requested.
+          Replace an existing file.
 
           [default: false]
           [possible values: true, false]
 
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups. Example: --disable-sources civic.
-
       --save <save>
-          Caller-owned file or existing folder.
+          Save the original PDF to a file or folder.
+
+      --section-offset <section_offset>
+          Zero-based part or hit offset.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -5482,15 +5488,15 @@ Options:
 
 ```
 
-Save a clinical trial document. Sources: ctgov.
-Options apply to every listed source unless their description restricts them.
+Read a trial PDF. Sources: ctgov.
+Paging: --offset; --section-offset is the same option.
 
-- `file`: Exact filename from the registry manifest; never a URL or inferred path.
-Form: trial document INPUT FILE; not --file.
-- `input`: Exact registry identity.
-Form: trial document INPUT FILE; not --input.
-- `--replace`: Replace an existing file only when explicitly requested. Value form: boolean; example: --replace.
-- `--save`: Caller-owned file or existing folder. Value form: string; example: --save protocol.pdf.
+- `file`: Exact listed PDF filename.
+- `--find`: Case-insensitive phrase search with pages. Value form: string; example: --find 'Wald chi-square p-value'.
+- `input`: ClinicalTrials.gov ID.
+- `--replace`: Replace an existing file. Value form: boolean; example: --replace.
+- `--save`: Save the original PDF to a file or folder. Value form: string; example: --save protocol.pdf.
+- `--section-offset`: Zero-based part or hit offset. Value form: integer; example: --section-offset 0.
 
 ## biomcp variant
 
