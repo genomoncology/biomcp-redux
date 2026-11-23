@@ -157,7 +157,7 @@ fn drug_label_page(catalog: &str) -> Result<(), String> {
     expect(&last, "/page/offset", &json!(1))?;
     expect(
         &last,
-        "/result/label_section",
+        "/result/label/data/heading",
         &json!("package_label_principal_display_panel"),
     )?;
     if !page_steps(&last).is_empty() {
