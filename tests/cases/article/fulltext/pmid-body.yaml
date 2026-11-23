@@ -9,15 +9,13 @@
       "expect": {
         "/result/pmcid": "PMC5606870",
         "/result/content/data/part": 1,
-        "/result/content/data/markdown": {"includes": "Colorectal cancer (CRC) is the third"}
+        "/result/content/data/heading_path/0": "Introduction"
       }
     },
     {
-      "run": ["get", "article", "28944238", "text"],
+      "run": ["get", "article", "28944238", "text", "--format", "md"],
       "expect": {
-        "/result/pmcid": "PMC5606870",
-        "/result/content/data/part": 1,
-        "/result/content/data/markdown": {"includes": "Colorectal cancer (CRC) is the third"}
+        "": {"includes": "Colorectal cancer (CRC) is the third"}
       }
     }
   ]
