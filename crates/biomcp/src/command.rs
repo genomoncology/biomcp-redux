@@ -248,7 +248,9 @@ pub(crate) fn execute(
         } if !query.label_batch().is_empty()
             || query.parts().is_ok_and(|parts| parts.len() > 1) =>
         {
-            sections::run(fetch, settings, &query, fresh, globals, encoding)
+            sections::run(
+                fetch, settings, &query, fresh, globals, encoding, allow_save,
+            )
         }
         Action::Run { request, fresh } => {
             let result = run_request(
@@ -259,7 +261,7 @@ pub(crate) fn execute(
                 allow_save,
                 &globals.fields,
             )?;
-            response(fetch, request, result, fresh, globals, encoding)
+            response(fetch, request, result, fresh, globals, encoding, allow_save)
         }
     }
 }
@@ -321,8 +323,11 @@ fn response(
     fresh: bool,
     globals: &crate::grammar::Globals,
     encoding: Encoding,
+    allow_save: bool,
 ) -> io::Result<Outcome> {
-    let (meta, body) = finished(fetch, &request, result, fresh, globals, encoding)?;
+    let (meta, body) = finished(
+        fetch, &request, result, fresh, globals, encoding, allow_save,
+    )?;
     if matches!(body, biomcp_types::ReplyData::PoolError { mismatch: false })
         && let Some((argument, message)) = saved::fault(&request)
     {
@@ -346,11 +351,12 @@ fn finished(
     fresh: bool,
     globals: &crate::grammar::Globals,
     encoding: Encoding,
+    allow_save: bool,
 ) -> io::Result<(ResponseMeta, biomcp_types::ReplyData)> {
     result
         .finish(fetch, request, fresh)
         .map_err(io::Error::other)?;
-    let steps = steps::next(request, &result, globals)?;
+    let steps = steps::next(request, &result, globals, allow_save && !globals.hosted)?;
     let meta = ResponseMeta {
         encoding,
         exit: response_status(&result),

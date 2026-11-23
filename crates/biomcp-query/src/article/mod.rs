@@ -62,6 +62,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
             ),
         );
     }
+    next::pubmed_alternative(cx, query, &mut out);
     out
 }
 /// Sentences kept out of the store and given back to this reply.

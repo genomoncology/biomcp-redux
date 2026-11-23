@@ -75,6 +75,15 @@ impl SourceOutcome {
         self.status = status.into();
     }
 
+    /// A failed upstream read can be retried without changing its selectors.
+    pub fn retryable(&self) -> bool {
+        self.state == SourceState::Failed
+            && matches!(
+                self.reason,
+                Some(crate::Reason::DeadlineExceeded | crate::Reason::Unavailable)
+            )
+    }
+
     /// Copy the complete source status without separating state from reason.
     pub fn status(&self) -> SourceStatus {
         self.status.status()

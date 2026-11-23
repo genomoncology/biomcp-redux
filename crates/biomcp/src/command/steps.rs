@@ -1,21 +1,23 @@
 //! Spell checked follow-ups and retain the caller's global restrictions.
-use std::io;
+use biomcp_query::Action;
+use biomcp_types::{Request, SourceOutcome, StepKind};
+use std::{borrow::Cow, io};
 pub(super) fn next(
     request: &biomcp_types::Request,
     result: &biomcp_query::Outcome,
     globals: &crate::grammar::Globals,
+    allow_fresh: bool,
 ) -> io::Result<Vec<biomcp_types::Step>> {
-    let mut steps = result
-        .next
-        .iter()
-        .filter(|step| !globals.hosted || !super::mcp_policy::hosted_refused(&step.1))
-        .map(|step| {
-            let mut spelled = crate::spell::step(step.0, &step.1)?;
+    let retryable = result.sources.iter().any(SourceOutcome::retryable);
+    let mut steps = followups(request, result, retryable, allow_fresh)
+        .filter(|(_, action)| !globals.hosted || !super::mcp_policy::hosted_refused(action))
+        .map(|(kind, action)| {
+            let mut spelled = crate::spell::step(kind, &action)?;
             // A section a card lists comes with the options that section takes.
-            if step.0 == biomcp_types::StepKind::Section
+            if kind == StepKind::Section
                 && let biomcp_query::Action::Run {
                     request: section, ..
-                } = &step.1
+                } = action.as_ref()
             {
                 spelled.options = crate::grammar::options(section);
                 // Trial help lists the site filters together. Keep section links to paging options.
@@ -28,7 +30,7 @@ pub(super) fn next(
             let carried = if globals.fields.is_empty() {
                 Vec::new()
             } else {
-                crate::fields::carried(step.0, &step.1, &globals.fields)
+                crate::fields::carried(kind, &action, &globals.fields)
             };
             Ok((spelled, carried))
         })
@@ -37,6 +39,46 @@ pub(super) fn next(
         steps.push((step, Vec::new()));
     }
     Ok(source_steps(globals, steps))
+}
+
+fn followups<'a>(
+    request: &'a Request,
+    result: &'a biomcp_query::Outcome,
+    retryable: bool,
+    allow_fresh: bool,
+) -> impl Iterator<Item = (StepKind, Cow<'a, Action>)> {
+    let retry = retryable && result.next.is_empty();
+    result
+        .next
+        .iter()
+        .map(move |step| {
+            if retryable
+                && !allow_fresh
+                && step.0 == StepKind::Fresh
+                && let Action::Run {
+                    request,
+                    fresh: true,
+                } = &step.1
+            {
+                return (
+                    StepKind::Restart,
+                    Cow::Owned(Action::Run {
+                        request: request.clone(),
+                        fresh: false,
+                    }),
+                );
+            }
+            (step.0, Cow::Borrowed(&step.1))
+        })
+        .chain(retry.then(|| {
+            (
+                StepKind::Restart,
+                Cow::Owned(Action::Run {
+                    request: request.clone(),
+                    fresh: false,
+                }),
+            )
+        }))
 }
 
 const PAGING: [&str; 6] = [

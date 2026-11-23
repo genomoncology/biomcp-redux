@@ -1,5 +1,7 @@
 //! The versioned error response and its conversion from usage failures.
-use super::{ErrorCode, ErrorMessage, ErrorStatus, literals::ErrorSchema};
+use super::{
+    ErrorCode, ErrorMessage, ErrorStatus, literals::ErrorSchema, wire_message::WireMessage,
+};
 use crate::{CacheProblem, Step, StepKind, UsageError};
 use serde::{Deserialize, Serialize};
 
@@ -21,10 +23,10 @@ struct ErrorDetail {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     unplaced: Option<Box<[crate::Text]>>,
     code: ErrorCode,
-    message: ErrorMessage,
+    message: WireMessage,
 }
 
-/// A versioned error response. Of rejected caller values it repeats only `error.unplaced` names: letters, digits, `_` and `.`, up to 64 characters.
+/// A versioned error response. It may include rejected option names and checked `error.unplaced` field names.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ErrorEnvelope {
@@ -50,36 +52,36 @@ impl From<crate::UsageError> for ErrorEnvelope {
             UsageError::Arguments(arguments) => out.next = out.error.arguments(arguments),
             UsageError::Schema => {
                 out.error.code = ErrorCode::SchemaUsage;
-                out.error.message = ErrorMessage::SchemaUsage;
+                out.error.message = ErrorMessage::SchemaUsage.into();
             }
             UsageError::UnknownCommand { next } => {
                 out.error.code = ErrorCode::UnknownCommand;
-                out.error.message = ErrorMessage::UnknownCommand;
+                out.error.message = ErrorMessage::UnknownCommand.into();
                 out.next = vec![next];
             }
             UsageError::Retired(message, next) => out.retired(message, next),
             UsageError::McpUnavailable(message) => {
                 out.error.code = ErrorCode::McpUnavailable;
-                out.error.message = message;
+                out.error.message = message.into();
             }
             UsageError::HostedKey(source) => {
                 out.error.code = ErrorCode::McpUnavailable;
-                out.error.message = ErrorMessage::HostedKey;
+                out.error.message = ErrorMessage::HostedKey.into();
                 out.error.source = Some(source);
             }
             UsageError::McpResultTooBroad { cap } => {
                 out.error.code = ErrorCode::TooBroad;
-                out.error.message = ErrorMessage::McpResultTooBroad;
+                out.error.message = ErrorMessage::McpResultTooBroad.into();
                 out.error.count = Some(cap);
             }
             UsageError::BiomarkerTooBroad => {
                 out.error.code = ErrorCode::TooBroad;
-                out.error.message = ErrorMessage::BiomarkerTooBroad;
+                out.error.message = ErrorMessage::BiomarkerTooBroad.into();
                 out.error.source = Some(crate::Source::Nci);
             }
             UsageError::OrganizationTooBroad => {
                 out.error.code = ErrorCode::TooBroad;
-                out.error.message = ErrorMessage::OrganizationTooBroad;
+                out.error.message = ErrorMessage::OrganizationTooBroad.into();
                 out.error.source = Some(crate::Source::Nci);
             }
             UsageError::UnsupportedAdverseEvent => {}
@@ -99,22 +101,22 @@ impl From<crate::UsageError> for ErrorEnvelope {
             UsageError::UnsupportedFilter { source, option } => {
                 out.error.filter(source, option.as_str())
             }
-            UsageError::NciDiseaseError => out.error.message = ErrorMessage::NciDisease,
+            UsageError::NciDiseaseError => out.error.message = ErrorMessage::NciDisease.into(),
             UsageError::VariantQueryPolicyError => {
-                out.error.message = ErrorMessage::VariantQueryPolicy
+                out.error.message = ErrorMessage::VariantQueryPolicy.into();
             }
             UsageError::PdfSaveRefused(link) => out.error.url = Some(link.url),
             UsageError::ArticleSaveRefused(url) => out.error.url = Some(url),
             UsageError::TooManyPmids { count } => {
                 out.error.code = ErrorCode::TooManyPmids;
-                out.error.message = ErrorMessage::TooManyPmids;
+                out.error.message = ErrorMessage::TooManyPmids.into();
                 out.error.count = Some(count);
             }
             selector @ UsageError::SourceSelector { .. } => out.source_selector(selector),
             fields @ UsageError::FieldsUnknown { .. } => out.fields_unknown(fields),
             UsageError::PoolMismatch { restart } => {
                 out.error.code = ErrorCode::PoolMismatch;
-                out.error.message = ErrorMessage::PoolMismatch;
+                out.error.message = ErrorMessage::PoolMismatch.into();
                 out.next = vec![restart];
             }
         }
@@ -135,7 +137,7 @@ impl ErrorEnvelope {
         {
             self.error
                 .source_selector(source, "--fields".into(), valid_values);
-            self.error.message = message;
+            self.error.message = message.into();
             self.error.unplaced = (!unplaced.is_empty()).then_some(unplaced);
             self.next = next;
         }
@@ -143,7 +145,7 @@ impl ErrorEnvelope {
 
     fn retired(&mut self, message: ErrorMessage, next: Vec<Step>) {
         self.error.code = ErrorCode::Retired;
-        self.error.message = message;
+        self.error.message = message.into();
         self.error.valid_values = retired_values(message);
         self.next = next;
     }
@@ -158,13 +160,13 @@ impl ErrorEnvelope {
         } = usage
         {
             self.error.source_selector(source, option, valid_values);
-            self.error.message = message;
+            self.error.message = message.into();
             self.next = next;
         }
     }
     fn article_part_range(&mut self, input: crate::ArticleInput, last: u32) {
         self.error.option = Some("--part".into());
-        self.error.message = ErrorMessage::ArgumentValue;
+        self.error.message = ErrorMessage::ArgumentValue.into();
         self.error.count = Some(u64::from(last));
         self.error.valid_values = Some(if last == 0 {
             Box::default()
@@ -223,7 +225,7 @@ impl ErrorEnvelope {
                 count: None,
                 unplaced: None,
                 code,
-                message,
+                message: message.into(),
             },
             local_error: None,
             next: Vec::new(),
@@ -235,17 +237,18 @@ impl ErrorDetail {
     fn trial_continuation(&mut self, message: ErrorMessage) {
         self.source = Some(crate::Source::ClinicalTrialsGov);
         self.option = Some("--next-page".into());
-        self.message = message;
+        self.message = message.into();
     }
     fn arguments(&mut self, arguments: crate::UsageArguments) -> Vec<Step> {
         self.option = arguments.argument;
-        self.message = arguments.message.unwrap_or_else(|| {
+        let message = arguments.message.unwrap_or_else(|| {
             if self.option.is_some() && arguments.valid_values.is_some() {
                 ErrorMessage::ArgumentValue
             } else {
                 ErrorMessage::Arguments
             }
         });
+        self.message = WireMessage::for_argument(message, self.option.as_deref());
         self.valid_values = arguments.valid_values;
         arguments.next
     }
@@ -263,7 +266,7 @@ impl ErrorDetail {
         self.source = Some(source);
         self.option = Some(option.into());
         self.code = ErrorCode::UnsupportedFilter;
-        self.message = ErrorMessage::UnsupportedFilter;
+        self.message = ErrorMessage::UnsupportedFilter.into();
     }
 }
 fn retired_values(message: ErrorMessage) -> Option<Box<[crate::Text]>> {

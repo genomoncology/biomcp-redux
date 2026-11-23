@@ -12,6 +12,18 @@ pub(super) fn project(
     let text =
         crate::schema::find(id).ok_or_else(|| std::io::Error::other("missing reply schema"))?;
     let schema: Value = serde_json::from_str(text).map_err(std::io::Error::other)?;
+    let retryable = value
+        .get("sources")
+        .and_then(Value::as_array)
+        .is_some_and(|sources| {
+            sources.iter().any(|source| {
+                source["state"] == "failed"
+                    && matches!(
+                        source["reason"].as_str(),
+                        Some("deadline-exceeded" | "unavailable")
+                    )
+            })
+        });
     let mut calls = Vec::new();
     for path in crate::schema::steps::paths(&schema, &schema, value)
         .into_iter()
@@ -21,7 +33,7 @@ pub(super) fn project(
             let words = step.get("args")?.as_array()?;
             let Some(args) = without_globals(root, words) else {
                 if step.get("kind").and_then(Value::as_str) == Some("fresh") {
-                    return drug_refresh(root, words, tools);
+                    return refresh(root, words, tools, retryable);
                 }
                 return None;
             };
@@ -53,11 +65,12 @@ pub(super) fn project(
     Ok(calls)
 }
 
-/// The command tool accepts drug refreshes on transports that permit the fresh flag.
-fn drug_refresh(
+/// Keep a checked refresh on transports that permit the fresh flag.
+fn refresh(
     root: &crate::grammar::Root,
     words: &[Value],
     tools: &super::grouping::Catalog,
+    retryable: bool,
 ) -> Option<Value> {
     use biomcp_types::Request::{GetDrug, GetDrugMarkets, SearchDrug};
     let args = words
@@ -65,13 +78,15 @@ fn drug_refresh(
         .map(|word| word.as_str().map(std::ffi::OsString::from))
         .collect::<Option<Vec<_>>>()?;
     let mut parsed = crate::grammar::parse(root, &args).ok()?;
-    if !matches!(
-        parsed.action,
-        Some(biomcp_query::Action::Run {
-            request: GetDrug(_) | GetDrugMarkets(_) | SearchDrug(_),
-            fresh: true,
-        })
-    ) || !tools.permits(&mut parsed)
+    let Some(biomcp_query::Action::Run {
+        request,
+        fresh: true,
+    }) = &parsed.action
+    else {
+        return None;
+    };
+    if !(retryable || matches!(request, GetDrug(_) | GetDrugMarkets(_) | SearchDrug(_)))
+        || !tools.permits(&mut parsed)
     {
         return None;
     }

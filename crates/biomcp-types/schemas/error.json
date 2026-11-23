@@ -108,8 +108,9 @@
       "type": "object"
     },
     "Reply_ErrorMessage": {
-      "description": "Fixed input-free error and migration guidance.",
-      "enum": [
+      "description": "Error guidance. An unknown-option message can include the rejected option name.",
+      "type": "string",
+      "x-extensible-enum": [
         "biomarker search is too broad; narrow --name or get one exact NCIt code",
         "organization search is too broad; narrow --name, --city, --state, --country, --postal-code, --family or --lat/--lon/--distance",
         "normalization accepts reference-qualified HGVS, or chromosome genomic HGVS with CAR and --build; convert rsIDs, clinvar:N, VCV accessions and genomic coordinates with get variant <ID> first",
@@ -399,8 +400,7 @@
         "moved to the diagnostic entity",
         "pool expired; restart the search",
         "pool selectors do not match this search"
-      ],
-      "type": "string"
+      ]
     },
     "Reply_ErrorSchema": {
       "enum": [
@@ -640,7 +640,7 @@
   },
   "$id": "biomcp.error/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "A versioned error response. Of rejected caller values it repeats only `error.unplaced` names: letters, digits, `_` and `.`, up to 64 characters.",
+  "description": "A versioned error response. It may include rejected option names and checked `error.unplaced` field names.",
   "properties": {
     "error": {
       "$ref": "#/$defs/Reply_ErrorDetail"

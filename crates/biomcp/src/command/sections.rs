@@ -17,6 +17,7 @@ pub(super) fn run(
     fresh: bool,
     globals: &crate::grammar::Globals,
     encoding: Encoding,
+    allow_save: bool,
 ) -> io::Result<Outcome> {
     let mut parts = Vec::new();
     let mut identity = None;
@@ -26,14 +27,16 @@ pub(super) fn run(
     let requested = requested(query).map_err(io::Error::other)?;
     for (request, result) in super::run_parts(fetch, &requested, fresh, settings)? {
         if !sectioned(&result.body) {
-            return super::response(fetch, request, result, fresh, globals, encoding);
+            return super::response(fetch, request, result, fresh, globals, encoding, allow_save);
         }
         local |= result.local.is_some();
         let input = match &request {
             Request::GetDrug(query) if batch => Some(query.input().clone()),
             _ => None,
         };
-        let (meta, body) = super::finished(fetch, &request, result, fresh, globals, encoding)?;
+        let (meta, body) = super::finished(
+            fetch, &request, result, fresh, globals, encoding, allow_save,
+        )?;
         parts.push(
             body.visit(Part {
                 meta,
