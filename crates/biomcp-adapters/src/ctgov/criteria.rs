@@ -166,7 +166,7 @@ pub fn split_page(text: &str, start: usize, page: &str) -> Option<Page> {
         let left = start.max(block_start);
         let right = end.min(block_end);
         if left < right {
-            let criteria = split_items(
+            let criteria = split_scope(
                 text.get(block_start..block_end)?,
                 left - block_start,
                 text.get(left..right)?,
@@ -188,27 +188,30 @@ pub fn split_page(text: &str, start: usize, page: &str) -> Option<Page> {
     Some(out)
 }
 
-// Split within one scope. An item includes any more deeply indented lines.
-fn split_items(text: &str, start: usize, page: &str) -> Option<Split> {
-    let first_line = text.lines().next()?;
-    if text.lines().any(|line| {
-        section(line).is_none() && arm_heading(line).is_none() && other_criteria_heading(line)
+fn split_scope(text: &str, start: usize, page: &str) -> Option<Split> {
+    if !text.lines().any(|line| {
+        heading(line).is_none() && arm_heading(line).is_none() && other_criteria_heading(line)
     }) {
-        // Keep ambiguous text in its own scope without reassigning any criterion.
-        let heading_end = if arm_heading(first_line).is_some() {
-            text.find('\n').map_or(text.len(), |offset| offset + 1)
-        } else {
-            0
-        };
-        let preamble = page
-            .get(heading_end.saturating_sub(start)..)
-            .unwrap_or_default()
-            .trim();
-        return Some(Split {
-            preamble: (!preamble.is_empty()).then(|| preamble.into()),
-            ..Split::default()
-        });
+        return split_items(text, start, page);
     }
+    // Keep ambiguous text in its own scope without reassigning any criterion.
+    let heading_end = if arm_heading(text.lines().next()?).is_some() {
+        text.find('\n').map_or(text.len(), |offset| offset + 1)
+    } else {
+        0
+    };
+    let preamble = page
+        .get(heading_end.saturating_sub(start)..)
+        .unwrap_or_default()
+        .trim();
+    Some(Split {
+        preamble: (!preamble.is_empty()).then(|| preamble.into()),
+        ..Split::default()
+    })
+}
+
+// An item includes any more deeply indented lines.
+fn split_items(text: &str, start: usize, page: &str) -> Option<Split> {
     let before = text.get(..start)?;
     let starts_on_line = before.is_empty() || before.ends_with('\n');
     let line_start = before.rfind('\n').map_or(0, |index| index + 1);
