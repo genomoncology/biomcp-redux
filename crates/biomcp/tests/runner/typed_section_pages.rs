@@ -117,7 +117,7 @@ fn candidate_pages(catalog: &str) -> Result<(), String> {
         let pages = page_steps(&page);
         let next = pages
             .iter()
-            .find(|step| step["arguments"]["action"] == "get");
+            .find(|step| step.pointer("/arguments/action").and_then(Value::as_str) == Some("get"));
         if offset < 2 {
             page = follow(
                 &env,
@@ -175,19 +175,18 @@ fn replay(catalog: &str, path: &str, extra: &[&str]) -> Result<(Environment, Vec
 }
 
 fn follow(env: &Environment, globals: &[String], step: &Value) -> Result<Value, String> {
-    call(
-        env,
-        globals,
-        json!({"name":step["name"],"arguments":step["arguments"]}),
-    )
+    let name = step.get("name").ok_or("continuation tool name")?;
+    let arguments = step.get("arguments").ok_or("continuation arguments")?;
+    call(env, globals, json!({"name":name,"arguments":arguments}))
 }
 
 fn page_steps(reply: &Value) -> Vec<&Value> {
-    reply["next"]
-        .as_array()
+    reply
+        .get("next")
+        .and_then(Value::as_array)
         .into_iter()
         .flatten()
-        .filter(|step| step["kind"] == "page")
+        .filter(|step| step.get("kind").and_then(Value::as_str) == Some("page"))
         .collect()
 }
 
