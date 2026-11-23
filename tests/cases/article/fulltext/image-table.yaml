@@ -1,0 +1,21 @@
+feature: article-fulltext
+live_check: Synthetic results tables.
+story: A whole-paper search finds a structured table row and the reader discloses when another table has no readable rows.
+replay: article/fulltext/synthetic-image-table
+steps:
+  - run: [article, text, PMC5606870, --find, "123.45"]
+    expect:
+      /result/content/data/hits/0/markdown: |-
+        **Table 1.** Measured results
+
+        | Arm | Rate |
+        | --- | --- |
+        | Control | 123.45 |
+      /problems/0/field: "table.rows: one or more tables have no readable rows"
+  - run: [article, text, PMC5606870, --part, "3"]
+    expect:
+      /result/content/data/markdown: |-
+        **Table 2.** Results reported as an image
+
+        _Table rows unavailable._
+      /problems/0/field: "table.rows: one or more tables have no readable rows"

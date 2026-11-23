@@ -141,7 +141,10 @@ pub(crate) const ROUTES: &[Route] = &[
         entity: "article",
         source: "pmc-oa",
         cli: "article text 28944238",
-        typed: r#"{"action":"text","text":{"input":"28944238"}}. Open PMC body. Use fulltext for the outline."#,
-        note: "CLI alias: get article 28944238 text. Both open part 1 of an open PMC body. Use get with fulltext for the outline.",
+        typed: r#"{"action":"text","text":{"input":"28944238"}}. Find searches the whole open paper. Get fulltext gives the outline."#,
+        note: concat!(
+            "Alias: get article 28944238 text. Opens part 1. Get fulltext gives the outline. ",
+            "--find TEXT searches the whole paper. --save PATH writes its Markdown.",
+        ),
     },
 ];

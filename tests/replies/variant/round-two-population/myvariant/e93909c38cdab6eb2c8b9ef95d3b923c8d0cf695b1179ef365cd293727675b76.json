@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=rs80282562&size=1000&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann%2Cchrom%2Chg19%2Chg38%2Cclingen.caid&assembly=hg38",
+  "exchanges": [
+    {
+      "fetched": 1795471450,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 266,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":5,"total":2,"max_score":5.173973,"hits":[{"_id":"chr7:g.117534318G>C","_score":5.173973,"chrom":"7","clingen":{"caid":"CA368976470"},"clinvar":{"_license":"http://bit.ly/2SQdcI0","variant_id":1685614},"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":{"symbol":"CFTR"},"rsid":"rs80282562"},"hg38":{"end":117534318,"start":117534318},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":{"cdna":{"length":"6131","position":"664"},"cds":{"length":"4443","position":"532"},"effect":"missense_variant","feature_id":"NM_000492.3","feature_type":"transcript","gene_id":"CFTR","genename":"CFTR","hgvs_c":"c.532G>C","hgvs_p":"p.Gly178Arg","protein":{"length":"1480","position":"178"},"putative_impact":"MODERATE","rank":"5","total":"27","transcript_biotype":"protein_coding"}}},{"_id":"chr7:g.117534318G>A","_score":3.111351,"chrom":"7","clingen":{"caid":"CA328125"},"clinvar":{"_license":"http://bit.ly/2SQdcI0","variant_id":48692},"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":{"symbol":"CFTR"},"rsid":"rs80282562"},"hg38":{"end":117534318,"start":117534318},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":{"cdna":{"length":"6131","position":"664"},"cds":{"length":"4443","position":"532"},"effect":"missense_variant","feature_id":"NM_000492.3","feature_type":"transcript","gene_id":"CFTR","genename":"CFTR","hgvs_c":"c.532G>A","hgvs_p":"p.Gly178Arg","protein":{"length":"1480","position":"178"},"putative_impact":"MODERATE","rank":"5","total":"27","transcript_biotype":"protein_coding"}}}]}
+      }
+    }
+  ]
+}
