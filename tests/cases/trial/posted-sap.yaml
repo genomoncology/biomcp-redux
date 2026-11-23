@@ -1,0 +1,50 @@
+{
+  "feature": "trial-publications",
+  "live_check": "A posted VA trial SAP, replayed from the unchanged registry response and PDF",
+  "story": "A caller can find a passage and its physical PDF page or read a part of a posted trial plan, with the registry date and the version printed on the cover.",
+  "replay": "trial/posted-sap",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": ["trial", "document", "NCT01467466", "SAP_001.pdf", "--find", "Wald chi-square p-value"],
+      "expect": {
+        "/result/content/data/document/date": "2016-08-26",
+        "/result/content/data/version": "2.0",
+        "/result/content/data/hits/0/page": 17,
+        "/result/content/data/hits/0/text": {"includes": "Wald chi-square p-value"}
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "document",
+          "document": {"id": "NCT01467466", "file": "SAP_001.pdf", "find": "Wald chi-square p-value"}
+        }
+      },
+      "expect": {
+        "/result/content/data/hits/0/page": 17,
+        "/result/content/data/hits/0/text": {"includes": "Wald chi-square p-value"}
+      }
+    },
+    {
+      "run": ["trial", "document", "NCT01467466", "SAP_001.pdf"],
+      "expect": {
+        "/result/content/data/text/offset": 0,
+        "/result/content/data/text/text": {"includes": "Statistical Analysis Plan v2.0"},
+        "/next/0/kind": "page"
+      }
+    },
+    {
+      "run": ["trial", "document", "NCT01467466", "SAP_001.pdf", "--save", "plan.pdf"],
+      "expect": {
+        "/status": "complete",
+        "/result/file/data/bytes": 508539,
+        "/result/file/data/sha256": "fafaa5ac1453b61db719afa0c88bd7c2999228833a587089064893de8ddbaef0"
+      }
+    }
+  ]
+}
