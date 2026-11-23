@@ -36,10 +36,7 @@ impl Source {
                 (sources::key_name(secret), status)
             }
         };
-        KeyCheck {
-            source: source.into(),
-            status,
-        }
+        KeyCheck::new(source, status)
     }
 }
 
