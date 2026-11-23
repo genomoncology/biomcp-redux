@@ -18,7 +18,7 @@ A reply is `complete` only when every source in `sources` answered or was skippe
 
 ## Trial documents
 
-The reply preserves the source URL, document metadata and license without granting reuse rights. `trial document` reads embedded text from up to 100 physical pages per call. Follow `next` to continue, or use `--page-start N` to start at a specific page. Part and match offsets apply within those pages. If text extraction is refused, use the CLI save command when offered or open the source URL.
+The reply preserves the source URL, document metadata and license without granting reuse rights. `trial document` reads embedded text from up to 100 physical pages per call and can find a phrase regardless of case. Follow `next` to continue, or use `--page-start N` to start at a specific page. Part and match offsets apply within those pages. If text extraction is refused, use the CLI save command when offered or open the source URL.
 
 ## FDA safety signals and withdrawn approvals
 

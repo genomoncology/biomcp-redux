@@ -29,7 +29,8 @@
       "follow": "page",
       "expect": {
         "/query/page_start": 201,
-        "/result/content/data/hits": [],
+        "/result/content/data": {"omits": ["hits"]},
+        "/result/content/data/text/state": "no-text",
         "/next/0/kind": "page"
       }
     },

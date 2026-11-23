@@ -107,6 +107,7 @@
           "file",
           "--find",
           "input",
+          "--page-start",
           "--replace",
           "--save",
           "--section-offset"

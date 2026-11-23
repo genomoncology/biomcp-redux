@@ -27,7 +27,7 @@ pub(crate) fn other_name(schema: &Value, name: &str) -> Option<&'static str> {
 pub(crate) const HELP_PREFIX: &str = "Paging: ";
 
 /// The one help line that names the options paging this command's lists.
-pub(crate) fn help_line(schema: &Value) -> Option<String> {
+pub(crate) fn help_line(schema: &Value, compact_alias: bool) -> Option<String> {
     let has = |field: &str| schema.pointer(&format!("/properties/{field}")).is_some();
     let flag = |field: &str| format!("--{}", field.replace('_', "-"));
     let mut names: Vec<_> = PAIRS
@@ -60,6 +60,8 @@ pub(crate) fn help_line(schema: &Value) -> Option<String> {
         )
     } else if others.is_empty() {
         format!("{HELP_PREFIX}{names}.")
+    } else if compact_alias {
+        format!("{HELP_PREFIX}{names} = {others}.")
     } else {
         format!("{HELP_PREFIX}{names}; {others} {same}.")
     })

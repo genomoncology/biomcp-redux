@@ -25,7 +25,7 @@ pub(super) fn answer(
     let first = query.page_start.unwrap_or(NonZeroU32::MIN).get();
     let offset = query.section_offset.unwrap_or_default();
     let mut version = None;
-    let mut hits = query.find.is_some().then(Box::default);
+    let mut hits = None;
     let mut following = None;
     if let Some(read) = read {
         let cover_end = read.page_starts.get(1).copied().unwrap_or(read.text.len());
@@ -37,7 +37,7 @@ pub(super) fn answer(
             if let Some(page) = text_find::page(&all, offset, pdf_find::FIND_BYTES, |hit| {
                 Some(pdf::escaped_bytes(&hit.text) + 32)
             }) {
-                hits = Some(page.hits.into());
+                hits = (!page.hits.is_empty()).then(|| page.hits.into());
                 following = page.following;
                 out.page = Some(page.info);
             } else {
