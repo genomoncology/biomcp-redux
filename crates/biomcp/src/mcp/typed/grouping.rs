@@ -263,16 +263,3 @@ pub(super) fn advertised(command: &str, arguments: &Value) -> Value {
     }
     arguments
 }
-
-/// Distinguish candidate paging from section paging while retaining the existing aliases.
-pub(super) fn advertise_paging(schema: &Value, input: &mut Value) {
-    if crate::grammar::paging::both(schema)
-        && let Some(fields) = input.get_mut("properties").and_then(Value::as_object_mut)
-    {
-        for (candidate, list) in crate::grammar::paging::CANDIDATES {
-            if let Some(field) = fields.get(list) {
-                fields.insert(candidate.into(), field.clone());
-            }
-        }
-    }
-}
