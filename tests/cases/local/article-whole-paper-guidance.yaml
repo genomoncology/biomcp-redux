@@ -7,4 +7,4 @@ steps:
       "": {includes_all_of: ["--find TEXT searches the whole paper", "--save PATH writes its Markdown"]}
   - run: [--format, md, skill, render]
     expect:
-      "": {includes_all_of: ["`--find TEXT` searches the whole paper", "`--save PATH` writes its Markdown"]}
+      "": {includes_all_of: ["`--find TEXT` searches all", "`--save PATH` writes Markdown"]}
