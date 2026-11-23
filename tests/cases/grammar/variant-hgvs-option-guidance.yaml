@@ -1,0 +1,10 @@
+feature: query-validation
+story: Variant search names the rejected HGVS option and points to the command that accepts it.
+live_check: local-only validation; no source requests
+steps:
+  - run: [search, variant, --hgvs, 'NM_000790.4:c.714+4A>T']
+    offline: true
+    exit: 2
+    expect:
+      /error/option: --hgvs
+      /error/message: "Unknown variant search option --hgvs. Use variant normalize --hgvs for an HGVS expression."

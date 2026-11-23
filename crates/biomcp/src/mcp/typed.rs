@@ -275,10 +275,12 @@ fn command_call(
         (!validation::valid(&input, &values)).then(|| {
             let unknown = refusal::unknown(&input, &values);
             forms::Refused {
-                cause: if unknown.is_some() {
-                    ErrorMessage::ArgumentUnknown
-                } else {
-                    ErrorMessage::ArgumentValue
+                cause: match unknown.as_deref() {
+                    Some("hgvs") if (verb, entity) == ("search", "variant") => {
+                        ErrorMessage::ArgumentHgvsSearch
+                    }
+                    Some(_) => ErrorMessage::ArgumentUnknown,
+                    None => ErrorMessage::ArgumentValue,
                 },
                 argument: unknown.unwrap_or_else(|| action.into()),
                 valid: refusal::names(&input, &forms),
