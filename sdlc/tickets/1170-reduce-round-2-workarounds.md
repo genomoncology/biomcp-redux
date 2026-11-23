@@ -1,6 +1,7 @@
 # 1170 — reduce-round-2-workarounds
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: bd0c70dac8f292959665b280675abc7ba3a2b95b
 
 Milestone: 7
 

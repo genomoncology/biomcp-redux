@@ -1,0 +1,180 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22BLA761352%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1795471458,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 413,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-20",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20250131",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "submission_property_type": [
+            {
+              "code": "Orphan"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20260508",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "submission_property_type": [
+            {
+              "code": "Orphan"
+            }
+          ],
+          "application_docs": [
+            {
+              "id": "85877",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/761352Orig1s010ltr.pdf",
+              "date": "20260511",
+              "type": "Letter"
+            },
+            {
+              "id": "85948",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/761352s010lbl.pdf",
+              "date": "20260518",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20241204",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 1",
+          "submission_class_code_description": "Type 1 - New Molecular Entity",
+          "submission_property_type": [
+            {
+              "code": "Orphan"
+            }
+          ],
+          "application_docs": [
+            {
+              "id": "80507",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/761352s001lbl.pdf",
+              "date": "20241204",
+              "type": "Label"
+            },
+            {
+              "id": "80513",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/761352Orig1s000ltr.pdf",
+              "date": "20241205",
+              "type": "Letter"
+            },
+            {
+              "id": "80811",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/761352Orig1s000TOC.html",
+              "date": "20250103",
+              "type": "Review"
+            }
+          ]
+        }
+      ],
+      "application_number": "BLA761352",
+      "sponsor_name": "MERUS N.V.",
+      "openfda": {
+        "application_number": [
+          "BLA761352"
+        ],
+        "brand_name": [
+          "BIZENGRI"
+        ],
+        "generic_name": [
+          "ZENOCUTUZUMAB"
+        ],
+        "manufacturer_name": [
+          "Merus US, Inc.",
+          "Partner Therapeutics, Inc."
+        ],
+        "product_ndc": [
+          "83077-100",
+          "71837-1000"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "INTRAVENOUS"
+        ],
+        "substance_name": [
+          "ZENOCUTUZUMAB"
+        ],
+        "rxcui": [
+          "2699594",
+          "2699601"
+        ],
+        "spl_id": [
+          "0ba12e0b-78b7-4ef0-b8fd-5127f0b16581",
+          "777005ee-d019-4976-abb4-b998cf68e05f"
+        ],
+        "spl_set_id": [
+          "2a33e782-fc75-4dba-b77c-a44536ac13a5",
+          "203daea4-fc87-40a4-a92f-ba2351b16de1"
+        ],
+        "package_ndc": [
+          "83077-100-01",
+          "83077-100-02",
+          "71837-1000-1",
+          "71837-1000-2"
+        ],
+        "unii": [
+          "AE72RB1W1X"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "BIZENGRI",
+          "active_ingredients": [
+            {
+              "name": "ZENOCUTUZUMAB-ZBCO",
+              "strength": "375MG/18.75ML"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "INJECTION",
+          "route": "SOLUTION",
+          "marketing_status": "Prescription"
+        }
+      ]
+    }
+  ]
+}
+      }
+    }
+  ]
+}

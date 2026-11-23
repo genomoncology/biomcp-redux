@@ -34,12 +34,8 @@ pub(super) fn body(
             body::append(&mut parts, group, &mut rows, problems)?;
             for index in cited {
                 if emitted.insert(index) {
-                    body::append(
-                        &mut parts,
-                        table::group(*tables.get(index).ok_or(BadReply)?, &path)?,
-                        &mut rows,
-                        problems,
-                    )?;
+                    let group = table::group(*tables.get(index).ok_or(BadReply)?, &path, problems)?;
+                    body::append(&mut parts, group, &mut rows, problems)?;
                 }
             }
         }
@@ -52,7 +48,8 @@ pub(super) fn body(
     }
     for (index, table) in tables.into_iter().enumerate() {
         if !emitted.contains(&index) {
-            body::append(&mut parts, table::group(table, &[])?, &mut rows, problems)?;
+            let group = table::group(table, &[], problems)?;
+            body::append(&mut parts, group, &mut rows, problems)?;
         }
     }
     Ok((parts, rows.values))

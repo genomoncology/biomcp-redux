@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "pmc-oa",
+  "url": "https://pmc-oa-opendata.s3.amazonaws.com/PMC5606870.12/PMC5606870.12.xml?md5=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "exchanges": [
+    {
+      "fetched": 1792839535,
+      "status": 200,
+      "content_type": "binary/octet-stream",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<article><front><article-meta><article-id pub-id-type=\"pmc\">5606870</article-id></article-meta></front><body><sec><title>Results</title><p>See <xref ref-type=\"table\" rid=\"t1\">Table 1</xref> and <xref ref-type=\"table\" rid=\"t2\">Table 2</xref>.</p><table-wrap id=\"t1\"><label>Table 1</label><caption><title>Measured results</title></caption><table><thead><tr><th>Arm</th><th>Rate</th></tr></thead><tbody><tr><td>Control</td><td>123.45</td></tr></tbody></table></table-wrap><table-wrap id=\"t2\"><label>Table 2</label><caption><title>Results reported as an image</title></caption><graphic href=\"table2.png\"/></table-wrap></sec></body></article>"
+      }
+    }
+  ]
+}
