@@ -1,5 +1,4 @@
 //! Bounded, case-insensitive passages from embedded PDF text.
-use std::ops::Range;
 
 /// Escaped bytes of one found passage.
 const PASSAGE_BYTES: usize = 3072;
@@ -8,22 +7,31 @@ const LEAD_BYTES: usize = 512;
 /// Escaped bytes of one find page, matching article text.
 pub(crate) const FIND_BYTES: usize = 12_000;
 
+pub(crate) struct Passage<'a> {
+    pub(crate) start: usize,
+    pub(crate) text: &'a str,
+}
+
 /// A match starts a passage with a little lead text. Later matches inside it add no passage.
 pub(crate) fn passages<'a>(
     text: &'a str,
     needles: &'a [String],
-) -> impl Iterator<Item = Range<usize>> + 'a {
+) -> impl Iterator<Item = Passage<'a>> + 'a {
     let mut covered = 0;
     std::iter::from_fn(move || {
         let at = next_match(text, covered, needles)?;
         let begin = lead(text, at).max(covered);
         let end = passage_end(text, begin, at);
-        let past = text[at..]
+        let past = text
+            .get(at..)?
             .chars()
             .next()
             .map_or(text.len(), |c| at + c.len_utf8());
         covered = end.max(past);
-        Some(begin..end)
+        Some(Passage {
+            start: begin,
+            text: text.get(begin..end)?.trim(),
+        })
     })
 }
 fn next_match(text: &str, from: usize, needles: &[String]) -> Option<usize> {
@@ -65,9 +73,10 @@ fn lead(text: &str, at: usize) -> usize {
     while !text.is_char_boundary(begin) {
         begin += 1;
     }
-    text[begin..at]
+    let preceding = text.get(begin..at).unwrap_or_default();
+    preceding
         .rfind('\n')
-        .or_else(|| text[begin..at].find(' '))
+        .or_else(|| preceding.find(' '))
         .map_or(begin, |gap| begin + gap + 1)
 }
 /// End within the passage size, at the last line break after the match when there is one.
@@ -75,7 +84,7 @@ fn passage_end(text: &str, begin: usize, at: usize) -> usize {
     let mut size = 0;
     let mut end = begin;
     let mut line_end = None;
-    for (offset, c) in text[begin..].char_indices() {
+    for (offset, c) in text.get(begin..).unwrap_or_default().char_indices() {
         size += biomcp_adapters::pdf::escaped_bytes(c.encode_utf8(&mut [0; 4]));
         if size > PASSAGE_BYTES {
             break;

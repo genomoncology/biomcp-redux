@@ -2,8 +2,8 @@
 use crate::{Outcome, pdf_find, status, text_find};
 use biomcp_adapters::pdf::{self, Embedded};
 use biomcp_types::{
-    PageInfo, PdfText, ReplyBody, Request, Section, Source, StepKind, TrialDocument,
-    TrialDocumentGet, TrialDocumentHit, TrialDocumentResult, TrialDocumentText,
+    PdfText, ReplyBody, Request, Section, Source, StepKind, TrialDocument, TrialDocumentGet,
+    TrialDocumentHit, TrialDocumentResult, TrialDocumentText,
 };
 
 pub(super) fn answer(
@@ -16,12 +16,11 @@ pub(super) fn answer(
 ) {
     let offset = query.section_offset.unwrap_or_default();
     let mut version = None;
-    let mut hits = query.find.as_ref().map(|_| Box::default());
+    let mut hits = query.find.is_some().then(Box::default);
     let mut following = None;
     if let Some(read) = read {
-        version = cover_version(
-            &read.text[..read.page_starts.get(1).copied().unwrap_or(read.text.len())],
-        );
+        let cover_end = read.page_starts.get(1).copied().unwrap_or(read.text.len());
+        version = read.text.get(..cover_end).and_then(cover_version);
         if let Some(find) = &query.find {
             let all = passages(&read, find.as_str());
             if let Some(page) = text_find::page(&all, offset, pdf_find::FIND_BYTES, |hit| {
@@ -31,14 +30,14 @@ pub(super) fn answer(
                 following = page.following;
                 out.page = Some(page.info);
             } else {
-                out.page = Some(page_info(offset, 0, all.len() as u64));
+                out.page = Some(status::page_info(offset, 0, all.len() as u64));
             }
         } else {
             pdf::part(&mut text, &read.text, offset);
             let returned = u32::from(text.text.is_some());
             let next = offset + returned;
             following = (returned != 0 && next < text.total).then_some(next);
-            out.page = Some(page_info(offset, returned, text.total.into()));
+            out.page = Some(status::page_info(offset, returned, text.total.into()));
         }
     }
     if let Some(next) = following {
@@ -67,16 +66,6 @@ pub(super) fn answer(
     .with_query(query.clone());
 }
 
-fn page_info(offset: u32, returned: u32, total: u64) -> PageInfo {
-    PageInfo {
-        offset,
-        returned,
-        total,
-        pool: None,
-        truncated: None,
-    }
-}
-
 fn passages(read: &Embedded, find: &str) -> Vec<TrialDocumentHit> {
     let needles = [find.to_lowercase()];
     let ends = read
@@ -91,10 +80,10 @@ fn passages(read: &Embedded, find: &str) -> Vec<TrialDocumentHit> {
         .zip(ends)
         .enumerate()
         .flat_map(|(index, (start, end))| {
-            let page = &read.text[start..end];
-            pdf_find::passages(page, &needles).map(move |range| TrialDocumentHit {
+            let page = read.text.get(start..end).unwrap_or_default();
+            pdf_find::passages(page, &needles).map(move |passage| TrialDocumentHit {
                 page: (index + 1) as u32,
-                text: page[range].trim().into(),
+                text: passage.text.into(),
             })
         })
         .collect()

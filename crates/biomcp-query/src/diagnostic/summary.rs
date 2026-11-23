@@ -135,11 +135,11 @@ fn found(
 pub(super) fn passages(text: &str, needles: &[String]) -> Vec<PdfTextHit> {
     let starts = pdf::fragment_starts(text);
     crate::pdf_find::passages(text, needles)
-        .map(|range| PdfTextHit {
+        .map(|passage| PdfTextHit {
             fragment: starts
-                .partition_point(|s| *s <= range.start)
+                .partition_point(|s| *s <= passage.start)
                 .saturating_sub(1) as u32,
-            text: text[range].trim().into(),
+            text: passage.text.into(),
         })
         .collect()
 }

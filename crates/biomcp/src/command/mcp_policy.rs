@@ -29,8 +29,8 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
         if globals.fresh {
             return Some(UsageError::argument("--fresh".into()));
         }
-        // Plain HTTP writes no file, so a command that must save is refused before any source
-        // request. An optional save still reads its source and refuses with the source link.
+        // Refuse original-byte saves before asking a source. Article text and supplement
+        // save refusals still include their resolved source links.
         if let Action::Run { request, .. } = action
             && (must_save(request)
                 || matches!(request, Request::TrialDocument(query) if query.save.is_some()))

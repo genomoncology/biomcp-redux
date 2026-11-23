@@ -90,20 +90,23 @@ fn execute(cx: &Ctx<'_>, query: &TrialDocumentGet, action: Action) -> Download {
                 .map(|(text, read)| Some(Document::Text(document, text, read))),
         }
     });
-    let error = result.as_ref().err().copied();
-    if let Some(error) = error {
-        status::item(&mut out, false, true, false);
-        out.local = status::local(error);
-        out.body = placeholder(
-            query,
-            Some(status::reason(error).unwrap_or(Reason::Unavailable)),
-        );
-    }
+    let (result, error) = match result {
+        Ok(result) => (result, None),
+        Err(error) => {
+            status::item(&mut out, false, true, false);
+            out.local = status::local(error);
+            out.body = placeholder(
+                query,
+                Some(status::reason(error).unwrap_or(Reason::Unavailable)),
+            );
+            (None, Some(error))
+        }
+    };
     let remaining = leg.command_remaining();
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
     command.finish(remaining);
-    let file = match result.ok().flatten() {
+    let file = match result {
         Some(Document::File(document, bytes)) => Some((document, bytes)),
         Some(Document::Text(document, content, read)) => {
             super::text::answer(&mut out, query, document, content, read, cx.fresh);

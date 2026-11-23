@@ -100,7 +100,7 @@ fn decoded(answer: &[u8]) -> Result<Result<Embedded, Reason>, Malformed> {
             serde_json::from_value(reason.clone()).map_err(|_| Malformed)?
         ));
     }
-    let state = serde_json::from_value(header.get("state").ok_or(Malformed)?.clone())
+    let state: PdfTextState = serde_json::from_value(header.get("state").ok_or(Malformed)?.clone())
         .map_err(|_| Malformed)?;
     let pages = match header.get("pages") {
         Some(Value::Number(pages)) => {
