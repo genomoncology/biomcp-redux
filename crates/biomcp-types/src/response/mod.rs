@@ -133,7 +133,8 @@ pub use nci_detail::{
 };
 mod trial_document;
 pub use trial_document::{
-    TrialDocumentHit, TrialDocumentResult, TrialDocumentSaved, TrialDocumentText,
+    TrialDocumentHit, TrialDocumentReadResult, TrialDocumentResult, TrialDocumentSaveQuery,
+    TrialDocumentSaved, TrialDocumentText,
 };
 
 mod variant_assertions;

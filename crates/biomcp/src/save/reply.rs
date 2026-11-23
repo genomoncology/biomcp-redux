@@ -88,7 +88,7 @@ impl Reply for SaveReply {
     }
     fn trial_document_result(
         self,
-        query: biomcp_types::TrialDocumentGet,
+        query: biomcp_types::TrialDocumentSaveQuery,
         mut body: Option<biomcp_types::TrialDocumentResult>,
     ) -> ReplyData {
         if let Some((document, bytes)) = self.trial {
@@ -100,7 +100,6 @@ impl Reply for SaveReply {
                 return ReplyData::Usage(UsageError::ArticleSaveRefused(document.url));
             };
             body = Some(biomcp_types::TrialDocumentResult {
-                content: None,
                 file: Section::Data {
                     source: biomcp_types::Source::ClinicalTrialsGov,
                     data: biomcp_types::TrialDocumentSaved {

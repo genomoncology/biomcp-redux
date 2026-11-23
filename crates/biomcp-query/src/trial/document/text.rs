@@ -3,7 +3,7 @@ use crate::{Outcome, pdf_find, status, text_find};
 use biomcp_adapters::pdf::{self, Embedded};
 use biomcp_types::{
     PdfText, ReplyBody, Request, Section, Source, StepKind, TrialDocument, TrialDocumentGet,
-    TrialDocumentHit, TrialDocumentResult, TrialDocumentText,
+    TrialDocumentHit, TrialDocumentReadResult, TrialDocumentText,
 };
 
 pub(super) fn answer(
@@ -51,8 +51,8 @@ pub(super) fn answer(
         ));
     }
     status::pdf_item(out, Source::ClinicalTrialsGov, &text);
-    out.body = TrialDocumentResult {
-        content: Some(Section::Data {
+    out.body = TrialDocumentReadResult {
+        content: Section::Data {
             source: Source::ClinicalTrialsGov,
             data: TrialDocumentText {
                 document,
@@ -60,8 +60,7 @@ pub(super) fn answer(
                 text,
                 hits,
             },
-        }),
-        file: Section::NotApplicable,
+        },
     }
     .with_query(query.clone());
 }

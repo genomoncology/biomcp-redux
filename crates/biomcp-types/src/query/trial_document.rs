@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-reply-query-titles" = ["TrialDocumentSaveQuery"])))]
 pub struct TrialDocumentGet {
     /// Exact registry identity.
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]

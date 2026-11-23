@@ -37,17 +37,42 @@ pub struct TrialDocumentHit {
     /// Verbatim embedded text around the match.
     pub text: Box<str>,
 }
-/// Read or save the selected trial PDF.
+/// Read the embedded text of the selected trial PDF.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct TrialDocumentReadResult {
+    /// Text or a source failure for a read.
+    pub content: Section<TrialDocumentText>,
+}
+impl super::ResponseBody for TrialDocumentReadResult {
+    const SCHEMA: &'static str = "biomcp.trial-document-text/1";
+    type Query = crate::TrialDocumentGet;
+}
+/// Original trial PDF download.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct TrialDocumentResult {
-    /// Text or a source failure for a read.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub content: Option<Section<TrialDocumentText>>,
-    /// Saved receipt or failure for a save; not applicable for a read.
+    /// Saved receipt, confirmed absence, or a source failure.
     pub file: Section<TrialDocumentSaved>,
 }
 impl super::ResponseBody for TrialDocumentResult {
     const SCHEMA: &'static str = "biomcp.trial-document/8";
-    type Query = crate::TrialDocumentGet;
+    type Query = TrialDocumentSaveQuery;
+}
+/// The exact trial document and destination echoed by an original-byte save.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct TrialDocumentSaveQuery {
+    /// Exact registry identity.
+    #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
+    pub input: crate::NctId,
+    /// Exact filename from the registry manifest.
+    #[cfg_attr(feature="schema", schemars(extend("x-positional"=1)))]
+    pub file: Text,
+    /// Caller-owned file or existing folder.
+    pub save: Text,
+    /// Replace an existing file only when explicitly requested.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub replace: bool,
 }

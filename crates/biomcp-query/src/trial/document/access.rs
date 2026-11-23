@@ -4,8 +4,8 @@ use biodata::TrialDocument;
 use biomcp_adapters::ctgov;
 use biomcp_fetch::Leg;
 use biomcp_types::{
-    Reason, ReplyBody, ReplyData, Section, Source, TrialDocumentGet, TrialDocumentResult,
-    UsageError,
+    Reason, ReplyBody, ReplyData, Section, Source, TrialDocumentGet, TrialDocumentReadResult,
+    TrialDocumentResult, TrialDocumentSaveQuery, UsageError,
 };
 
 const SOURCE: Source = Source::ClinicalTrialsGov;
@@ -153,13 +153,19 @@ fn placeholder(query: &TrialDocumentGet, reason: Option<Reason>) -> ReplyData {
             |reason| Section::unavailable(SOURCE, reason),
         )
     }
-    TrialDocumentResult {
-        content: query.save.is_none().then(|| section(reason)),
-        file: if query.save.is_some() {
-            section(reason)
-        } else {
-            Section::NotApplicable
-        },
+    match &query.save {
+        Some(path) => TrialDocumentResult {
+            file: section(reason),
+        }
+        .with_query(TrialDocumentSaveQuery {
+            input: query.input,
+            file: query.file.clone(),
+            save: path.clone(),
+            replace: query.replace,
+        }),
+        None => TrialDocumentReadResult {
+            content: section(reason),
+        }
+        .with_query(query.clone()),
     }
-    .with_query(query.clone())
 }
