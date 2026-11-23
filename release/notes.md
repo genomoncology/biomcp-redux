@@ -10,6 +10,8 @@ MCP uses `single` mode by default: the `biomcp` tool accepts a CLI argument arra
 
 Command help now includes summaries from shared command metadata, and typed tool descriptions use those summaries. `help` accepts a command path and returns the existing command help. For `get` errors, follow the returned `next` action: an identifier with the accepted shape but no source record keeps its existing help advice.
 
+Run `biomcp serve --tool-mode typed --catalog compact` to discover typed tools with `search_tools` and invoke them with `call_tool`. See the [MCP tools reference](../docs/configuration.md#mcp-tools).
+
 Run `biomcp mcp-config` to generate stdio wiring for the installed executable. The client starts `biomcp serve` with the selected tool mode. HTTP uses `biomcp serve --http [ADDR]` with `/mcp`; it refuses browser origins and requires allowed hosts for non-loopback listeners. Hosted deployments need caller credential isolation and source pacing configuration. See the [MCP setup](https://github.com/genomoncology/biomcp/blob/main/README.md#connect-an-mcp-client).
 
 The [upgrade table](https://github.com/genomoncology/biomcp/blob/main/sdlc/planning/upgrade.md#commands) lists every 0.9 leaf command and each removed or deferred option, with its replacement or retirement ruling. Read the linked entity sections for positional sections and aliases. The [1.0 command reference](https://github.com/genomoncology/biomcp/blob/main/docs/reference/commands.md) gives accepted arguments. Major changes include:
@@ -118,6 +120,7 @@ Adverse events:
 
 Trials:
 
+- `trial document --page-start PAGE` starts a part read or phrase search at a physical PDF page. The reply offers the next page window when more pages remain. See the [trial document reference](../docs/reference/commands.md#biomcp-trial-document).
 - `get trial NCT...` shows `enrollment`, its count with `ACTUAL` or `ESTIMATED`, and a stopped trial's `why_stopped` text.
 - `get trial NCT... eligibility` lists the registry's own inclusion and exclusion lines, word for word, in `inclusion` and `exclusion`, with any text before the first heading in `preamble`. These replace `criteria`, which is then absent. The split uses only the "Inclusion Criteria" and "Exclusion Criteria" headings. Text without both headings, or with another line ending in "criteria:", stays whole in `criteria` with a `not_split` notice. A list is absent from a page that holds none of its section.
 - `get trial ID flow` and `get trial ID baseline` return participant flow and baseline characteristics without the posted outcomes.
