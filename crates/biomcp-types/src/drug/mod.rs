@@ -100,6 +100,57 @@ pub fn openfda_label_field(name: &str) -> Option<&'static str> {
         .copied()
 }
 
+/// Primary openFDA fields for the standard prescribing-information headings (21 CFR 201.56(d)(1)).
+const NUMBERED_LABEL_HEADINGS: [&str; 17] = [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "dosage_forms_and_strengths",
+    "contraindications",
+    "warnings_and_cautions",
+    "adverse_reactions",
+    "drug_interactions",
+    "use_in_specific_populations",
+    "drug_abuse_and_dependence",
+    "overdosage",
+    "description",
+    "clinical_pharmacology",
+    "nonclinical_toxicology",
+    "clinical_studies",
+    "references",
+    "how_supplied",
+    "information_for_patients",
+];
+
+/// Resolve printed section numbers before splitting a request into individual label reads.
+fn normalize_label_numbers(sections: &mut biodata::Text) -> Result<(), crate::QueryInvalid> {
+    let selectors = sections.as_str().split(',').map(str::trim);
+    let numbered = |selector: &str| {
+        selector
+            .trim_start_matches(['+', '-'])
+            .starts_with(|c: char| c.is_ascii_digit())
+    };
+    if !selectors.clone().any(numbered) {
+        return Ok(());
+    }
+    let invalid = || crate::QueryInvalid::new(&["label_section"]);
+    let headings = selectors
+        .map(|selector| {
+            if numbered(selector) {
+                selector
+                    .parse::<usize>()
+                    .ok()
+                    .and_then(|number| number.checked_sub(1))
+                    .and_then(|index| NUMBERED_LABEL_HEADINGS.get(index).copied())
+                    .ok_or_else(invalid)
+            } else {
+                Ok(selector)
+            }
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    *sections = biodata::Text::new(&headings.join(",")).map_err(|_| invalid())?;
+    Ok(())
+}
+
 /// Default submission page size for a native Drugs@FDA application.
 pub const DEFAULT_DRUG_APPROVALS_LIMIT: u32 = 10;
 
