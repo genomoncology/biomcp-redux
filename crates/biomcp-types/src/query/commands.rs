@@ -288,7 +288,7 @@ macro_rules! command_types {
                 "article", "supplement", ArticleSupplement, "article-supplement", "biomcp.article-supplement/3", ArticleSupplement,
                 "article-supplement", "biomcp.article-supplement/3", "biomcp.article-supplement/3", 42, Direct
             );
-            /// Get the abstract card by default, or explicitly read article body text.
+            /// Read body text. A bare PMID starts at part 1.
             ArticleText(ArticleText) => (
                 "article", "text", ArticleText, "article-text", "biomcp.article-text/4", ArticleText, "article-text", "biomcp.article-text/4",
                 "biomcp.article-text/4", 44, Direct

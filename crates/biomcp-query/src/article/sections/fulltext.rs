@@ -1,14 +1,40 @@
 use crate::{Ctx, Outcome, status};
-use biodata::Pmcid;
+use biodata::{Pmcid, Text};
 use biomcp_adapters::pmc_oa;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleResolution, ArticleSupplement, ArticleText, FullText, Reason, Request, Section, Source,
-    StepKind, Supplements,
+    Article, ArticleResolution, ArticleSupplement, ArticleText, Capped, FullText, Reason, Request,
+    Section, Source, StepKind, Supplements,
 };
 type Identity = (Pmcid, Option<biodata::Pmid>);
 type Content = Result<Option<(FullText, Supplements)>, Reason>;
+
+/// A PubMed article without a PMC link has no open copy through this reader.
+pub(super) fn without_copy(card: &Article<Capped<Text>>) -> Section<FullText> {
+    if card.pmid.is_some() && card.book_title.is_none() && card.bookshelf_url.is_none() {
+        Section::unavailable(Source::PmcOa, Reason::NotOpen)
+    } else {
+        Section::NotApplicable
+    }
+}
+
+/// Carry a reader's known result over to the abstract without another PMC read.
+pub(in crate::article) fn mark_not_open(out: &mut Outcome) {
+    if let biomcp_types::ReplyData::ArticleCards {
+        body: Some(cards), ..
+    } = &mut out.body
+    {
+        for sections in cards
+            .items
+            .iter_mut()
+            .filter_map(|item| item.sections.as_mut())
+        {
+            sections.fulltext = Some(Section::unavailable(Source::PmcOa, Reason::NotOpen));
+        }
+    }
+}
+
 /// Load one document for both sections, preserving a single source request sequence.
 pub(super) fn run<'a>(
     cx: &Ctx<'a>,

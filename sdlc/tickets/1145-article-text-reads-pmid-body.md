@@ -1,6 +1,7 @@
 # 1145 — article-text-reads-pmid-body
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2e01ded8e4545922be85f8e823765ff5948ee140
 
 Milestone: 7
 

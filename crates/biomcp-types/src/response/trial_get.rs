@@ -98,10 +98,13 @@ pub struct TrialEligibilityPage {
     /// Checked request for the next intact fragment, absent when complete.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub continuation: Option<crate::TrialGet>,
-    /// Source minimum age.
+    /// Scope of the registry age fields.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub age_scope: Option<TrialEligibilityAgeScope>,
+    /// Study-wide source minimum age.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum_age: Option<TrialAgeBound>,
-    /// Source maximum age.
+    /// Study-wide source maximum age.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum_age: Option<TrialAgeBound>,
     /// Source sex field.
@@ -123,10 +126,13 @@ pub struct TrialEligibilityPage {
     /// or item; other pages may hold them.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exclusion: Option<Vec<Box<str>>>,
+    /// Named eligibility arms on this page, in source order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub arms: Vec<TrialEligibilityArm>,
     /// Why the text is not split: it lacks one of the two headings or has another line ending in "criteria:", so `criteria` holds it whole.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub not_split: Option<Box<str>>,
-    /// Exact original text fragment, including whitespace; absent when `preamble`, `inclusion` and `exclusion` replace it.
+    /// Exact original text fragment, including whitespace; absent when structured criteria replace it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Box<str>"))]
     pub criteria: Option<Box<str>>,
@@ -137,6 +143,43 @@ pub struct TrialEligibilityPage {
     pub offset: u32,
     /// Complete original text length in Unicode scalar values.
     pub total_characters: u32,
+}
+/// The registry age bounds apply to the study as a whole.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum TrialEligibilityAgeScope {
+    /// Study-level age bounds, separate from the criteria text.
+    StudyWide,
+}
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for TrialEligibilityAgeScope {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "TrialEligibilityAgeScope".into()
+    }
+    fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        schemars::json_schema!({
+            "type": "string",
+            "enum": [Self::StudyWide],
+            "description": "The registry age bounds apply to the study as a whole."
+        })
+    }
+}
+
+/// This page's criteria under one registry arm heading.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct TrialEligibilityArm {
+    /// Registry arm title, repeated on continuation pages for this arm.
+    pub heading: Box<str>,
+    /// This arm's text outside an identifiable criteria list.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub preamble: Option<Box<str>>,
+    /// The arm's inclusion items on this page, in source order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inclusion: Option<Vec<Box<str>>>,
+    /// The arm's exclusion items on this page, in source order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exclusion: Option<Vec<Box<str>>>,
 }
 /// Whole-record page retaining collection order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

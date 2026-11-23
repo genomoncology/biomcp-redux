@@ -16,7 +16,7 @@
   "$id": "biomcp.article-text/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Return the abstract card by default, or explicitly read body text.",
+  "description": "Read body text. A bare PMID starts at part 1.",
   "properties": {
     "find": {
       "$ref": "#/$defs/Text",
@@ -35,7 +35,7 @@
       "type": "integer"
     },
     "part": {
-      "description": "One-based outline part; omit reader selectors for the abstract card.",
+      "description": "One-based body part. Bare PMIDs start at 1. Other IDs default to the abstract card.",
       "format": "uint32",
       "minimum": 1,
       "type": "integer"

@@ -5,12 +5,10 @@ mod sites;
 use super::Snapshot;
 use crate::{Outcome, TrialArmProjection};
 use biodata::{NctId, Text};
-use biomcp_adapters::ctgov::criteria;
-
 use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::{
-    Request, Section, Source, SourceRecord, StepKind, TrialCardItem, TrialEligibilityPage,
-    TrialGet, TrialRecords, TrialSection, TrialSections,
+    Request, Section, Source, SourceRecord, StepKind, TrialCardItem, TrialGet, TrialRecords,
+    TrialSection, TrialSections,
 };
 
 /// A character offset must fall inside the text; a record offset past the end is an empty page.
@@ -42,7 +40,7 @@ pub(super) fn render(
     let id = snapshot.detail.card.nct_id;
     let mut sections = TrialSections::default();
     if requested(TrialSection::Eligibility) {
-        sections.eligibility = Some(eligibility(query, &snapshot, pool.as_ref(), out));
+        sections.eligibility = Some(eligibility::render(query, &snapshot, pool.as_ref(), out));
     }
     results::render(query, &snapshot, pool.as_ref(), &mut sections, out)?;
     records_sections(
@@ -98,61 +96,6 @@ pub(super) fn render(
             .collect(),
         failure: None,
     })
-}
-const NOT_SPLIT: &str = concat!(
-    "The registry text lacks an Inclusion Criteria or an Exclusion Criteria heading, ",
-    "or has another line ending in \"criteria:\", so it is not split; read criteria."
-);
-fn eligibility(
-    query: &TrialGet,
-    snapshot: &Snapshot,
-    pool: Option<&Text>,
-    out: &mut Outcome,
-) -> Section<TrialEligibilityPage> {
-    let id = snapshot.detail.card.nct_id;
-    let Some(e) = snapshot.detail.eligibility.as_ref() else {
-        return Section::Empty {
-            source: Source::ClinicalTrialsGov,
-            record: record(id),
-        };
-    };
-    let text = e.criteria.as_ref().map_or("", |s| s.as_str());
-    let total = text.chars().count() as u32;
-    let splits = criteria::splits(text);
-    let (fragment, criterion_continues) =
-        eligibility::fragment(text, query.offset() as usize, splits);
-    let start = text
-        .char_indices()
-        .nth(query.offset() as usize)
-        .map_or(text.len(), |(i, _)| i);
-    let split = criteria::split(text, start, fragment);
-    let not_split = (!splits && !text.is_empty()).then(|| NOT_SPLIT.into());
-    let criteria = split.is_none().then(|| fragment.into());
-    let criteria::Split {
-        preamble,
-        inclusion,
-        exclusion,
-    } = split.unwrap_or_default();
-    let end = query.offset() + fragment.chars().count() as u32;
-    advance(query, id, TrialSection::Eligibility, pool, end, total, out);
-    Section::Data {
-        source: Source::ClinicalTrialsGov,
-        data: TrialEligibilityPage {
-            continuation: continuation(query, id, TrialSection::Eligibility, pool, end, total),
-            minimum_age: e.minimum_age.clone(),
-            maximum_age: e.maximum_age.clone(),
-            sex: e.sex,
-            healthy_volunteers: e.healthy_volunteers,
-            not_split,
-            preamble,
-            inclusion,
-            exclusion,
-            criteria,
-            criterion_continues,
-            offset: query.offset(),
-            total_characters: total,
-        },
-    }
 }
 pub(in crate::trial) fn records<T: Clone>(
     query: &TrialGet,

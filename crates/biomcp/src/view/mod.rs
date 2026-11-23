@@ -97,10 +97,15 @@ impl View<'_> {
             return;
         };
         state_note(value, out);
+        let arm_section = fields
+            .get("arms")
+            .and_then(Value::as_array)
+            .zip(eligibility_arm_schema(schema, self.root));
         for (name, value) in fields {
             // The coordinate note already leads the text as prose.
             if name == "schema"
                 || name == "coordinate_note"
+                || (name == "arms" && arm_section.is_some())
                 || (name == "query"
                     && (value.is_null()
                         || value.as_object().is_some_and(serde_json::Map::is_empty)))
@@ -140,7 +145,32 @@ impl View<'_> {
                 out.push_str(&format!("**{}:** {}\n\n", escape(name), scalar(value)));
             }
         }
+        if let Some((arms, item_schema)) = arm_section {
+            self.eligibility_arms(arms, item_schema, depth, out);
+        }
     }
+
+    fn eligibility_arms(
+        &self,
+        arms: &[Value],
+        item_schema: &Value,
+        depth: usize,
+        out: &mut String,
+    ) {
+        let depth = depth.min(4);
+        heading("arms", depth, out);
+        for arm in arms {
+            let mut criteria = arm.clone();
+            let title = criteria
+                .as_object_mut()
+                .and_then(|fields| fields.remove("heading"));
+            if let Some(title) = title.as_ref().and_then(Value::as_str) {
+                out.push_str(&format!("{} {}\n\n", "#".repeat(depth + 1), escape(title)));
+            }
+            self.object(&criteria, item_schema, depth + 2, out);
+        }
+    }
+
     fn render(&self, value: &Value, schema: &Value, depth: usize, out: &mut String) {
         match value {
             Value::Object(_) => self.object(value, schema, depth, out),
@@ -260,6 +290,12 @@ fn state_note(value: &Value, out: &mut String) {
         _ => {}
     }
 }
+fn eligibility_arm_schema<'a>(node: &'a Value, root: &'a Value) -> Option<&'a Value> {
+    let item = member(property(node, "arms", root)?, "items", root)?;
+    (item.get("$ref").and_then(Value::as_str) == Some("#/$defs/Reply_TrialEligibilityArm"))
+        .then_some(item)
+}
+
 fn heading(name: &str, depth: usize, out: &mut String) {
     out.push_str(&format!(
         "{} {}\n\n",

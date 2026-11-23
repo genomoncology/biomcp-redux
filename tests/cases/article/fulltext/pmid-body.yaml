@@ -1,0 +1,22 @@
+{
+  "feature": "article-fulltext",
+  "live_check": "public",
+  "story": "Both PMID command forms open the first body part.",
+  "replay": "article/fulltext/live-introduction",
+  "steps": [
+    {
+      "run": ["article", "text", "28944238"],
+      "expect": {
+        "/result/pmcid": "PMC5606870",
+        "/result/content/data/part": 1,
+        "/result/content/data/heading_path/0": "Introduction"
+      }
+    },
+    {
+      "run": ["get", "article", "28944238", "text", "--format", "md"],
+      "expect": {
+        "": {"includes": "Colorectal cancer (CRC) is the third"}
+      }
+    }
+  ]
+}

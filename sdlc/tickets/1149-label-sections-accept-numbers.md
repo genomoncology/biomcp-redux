@@ -1,6 +1,7 @@
 # 1149 — label-sections-accept-numbers
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: acb5bcfcba53217751fb501ec2d328353022ffdd
 
 Milestone: 7
 

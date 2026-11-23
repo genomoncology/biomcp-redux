@@ -2446,9 +2446,74 @@
       ],
       "type": "object"
     },
+    "Reply_TrialEligibilityAgeScope": {
+      "description": "The registry age bounds apply to the study as a whole.",
+      "enum": [
+        "study-wide"
+      ],
+      "type": "string"
+    },
+    "Reply_TrialEligibilityArm": {
+      "description": "This page's criteria under one registry arm heading.",
+      "properties": {
+        "exclusion": {
+          "description": "The arm's exclusion items on this page, in source order.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "heading": {
+          "description": "Registry arm title, repeated on continuation pages for this arm.",
+          "type": "string"
+        },
+        "inclusion": {
+          "description": "The arm's inclusion items on this page, in source order.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "preamble": {
+          "description": "This arm's text outside an identifiable criteria list.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "heading"
+      ],
+      "type": "object"
+    },
     "Reply_TrialEligibilityPage": {
       "description": "Character paging preserves source whitespace and counts Unicode scalar values.",
       "properties": {
+        "age_scope": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialEligibilityAgeScope"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Scope of the registry age fields."
+        },
+        "arms": {
+          "description": "Named eligibility arms on this page, in source order.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialEligibilityArm"
+          },
+          "type": "array"
+        },
         "continuation": {
           "anyOf": [
             {
@@ -2461,7 +2526,7 @@
           "description": "Checked request for the next intact fragment, absent when complete."
         },
         "criteria": {
-          "description": "Exact original text fragment, including whitespace; absent when `preamble`, `inclusion` and `exclusion` replace it.",
+          "description": "Exact original text fragment, including whitespace; absent when structured criteria replace it.",
           "type": "string"
         },
         "criterion_continues": {
@@ -2505,7 +2570,7 @@
               "type": "null"
             }
           ],
-          "description": "Source maximum age."
+          "description": "Study-wide source maximum age."
         },
         "minimum_age": {
           "anyOf": [
@@ -2516,7 +2581,7 @@
               "type": "null"
             }
           ],
-          "description": "Source minimum age."
+          "description": "Study-wide source minimum age."
         },
         "not_split": {
           "description": "Why the text is not split: it lacks one of the two headings or has another line ending in \"criteria:\", so `criteria` holds it whole.",

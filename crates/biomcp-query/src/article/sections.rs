@@ -41,7 +41,7 @@ pub(super) fn prepare(query: &ArticleGet, items: &mut [ArticleCardItem]) -> bool
                 fulltext: (selected(query, ArticleSectionWord::Fulltext)
                     && card.pmcid.is_none()
                     && card.europepmc_id.is_none())
-                .then_some(Section::NotApplicable),
+                .then(|| fulltext::without_copy(card)),
             });
         }
         item.more = [

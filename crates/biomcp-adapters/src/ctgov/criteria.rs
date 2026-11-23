@@ -1,6 +1,24 @@
 //! The registry's own "Inclusion Criteria" and "Exclusion Criteria" headings and list lines; never eligibility rules.
 
-/// One page of the registry text, split at its own headings.
+/// One page of registry criteria, with any named arms in source order.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct Page {
+    /// Criteria outside a named arm.
+    pub unscoped: Split,
+    /// Named arms with text or headings on this page.
+    pub arms: Vec<Arm>,
+}
+
+/// Criteria under a registry arm heading.
+#[derive(Debug, PartialEq, Eq)]
+pub struct Arm {
+    /// The registry title without its heading markup or inline criteria label.
+    pub heading: Box<str>,
+    /// Criteria within this arm, which may continue on another page.
+    pub criteria: Split,
+}
+
+/// Registry text within one scope, split at its criteria headings.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Split {
     /// This page's text before the first heading, trimmed.
@@ -71,8 +89,39 @@ fn list_marker(line: &str) -> bool {
             .is_some_and(|rest| rest.starts_with(['.', ')']))
 }
 
-/// Whether the whole text carries both headings and no other line ends in "criteria:".
+/// A Markdown arm heading, optionally ending in an inline inclusion or exclusion label.
+pub fn arm_heading(line: &str) -> Option<(&str, Option<bool>)> {
+    let line = line.trim_start();
+    let markup = line.strip_prefix('\\').unwrap_or(line);
+    let title = trim(markup.strip_prefix('#')?);
+    let title = title.trim_end_matches(':').trim_end();
+    let lower = title.to_ascii_lowercase();
+    for (suffix, excluded) in [
+        (" exclusion criteria", true),
+        (" inclusion criteria", false),
+    ] {
+        if let Some(name) = lower.strip_suffix(suffix)
+            && name.ends_with(" arm")
+        {
+            return title.get(..name.len()).map(|name| (name, Some(excluded)));
+        }
+    }
+    lower.ends_with(" arm").then_some((title, None))
+}
+
+fn section(line: &str) -> Option<(bool, &str)> {
+    match arm_heading(line) {
+        Some((_, excluded)) => excluded.map(|excluded| (excluded, "")),
+        None => heading(line),
+    }
+}
+
+/// Whether the registry marks arms, or unambiguously marks both criteria lists.
 pub fn splits(text: &str) -> bool {
+    text.lines().any(|line| arm_heading(line).is_some()) || splits_lists(text)
+}
+
+fn splits_lists(text: &str) -> bool {
     let (mut inclusion, mut exclusion) = (false, false);
     for line in text.lines() {
         match heading(line) {
@@ -85,21 +134,91 @@ pub fn splits(text: &str) -> bool {
     inclusion && exclusion
 }
 
-/// Splits one page of `text`, starting at byte `start`, into the registry's items.
-///
-/// An item is a line below a heading together with the more deeply indented lines
-/// that follow it, as the registry's nested list markers lay them out.
+/// Splits a page of unscoped criteria into the registry's own inclusion and exclusion items.
 pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
-    if !splits(text) {
-        return None;
+    splits_lists(text)
+        .then(|| split_items(text, start, page))
+        .flatten()
+}
+
+/// Splits a page beginning at byte `start` into registry arms and items.
+pub fn split_page(text: &str, start: usize, page: &str) -> Option<Page> {
+    let end = start.checked_add(page.len())?;
+    let mut arms = text
+        .split_inclusive('\n')
+        .scan(0, |offset, line| {
+            let position = *offset;
+            *offset += line.len();
+            Some((position, line))
+        })
+        .filter_map(|(position, line)| arm_heading(line).map(|(title, _)| (position, Some(title))))
+        .peekable();
+    if arms.peek().is_none() {
+        return split(text, start, page).map(|unscoped| Page {
+            unscoped,
+            arms: Vec::new(),
+        });
     }
+    let boundaries = arms.chain(std::iter::once((text.len(), None)));
+    let mut out = Page::default();
+    let (mut block_start, mut title) = (0, None);
+    for (block_end, next_title) in boundaries {
+        let left = start.max(block_start);
+        let right = end.min(block_end);
+        if left < right {
+            let criteria = split_scope(
+                text.get(block_start..block_end)?,
+                left - block_start,
+                text.get(left..right)?,
+            )?;
+            if let Some(title) = title {
+                out.arms.push(Arm {
+                    heading: Box::from(title),
+                    criteria,
+                });
+            } else {
+                out.unscoped = criteria;
+            }
+        }
+        if block_end >= end {
+            break;
+        }
+        (block_start, title) = (block_end, next_title);
+    }
+    Some(out)
+}
+
+fn split_scope(text: &str, start: usize, page: &str) -> Option<Split> {
+    if !text.lines().any(|line| {
+        heading(line).is_none() && arm_heading(line).is_none() && other_criteria_heading(line)
+    }) {
+        return split_items(text, start, page);
+    }
+    // Keep ambiguous text in its own scope without reassigning any criterion.
+    let heading_end = if arm_heading(text.lines().next()?).is_some() {
+        text.find('\n').map_or(text.len(), |offset| offset + 1)
+    } else {
+        0
+    };
+    let preamble = page
+        .get(heading_end.saturating_sub(start)..)
+        .unwrap_or_default()
+        .trim();
+    Some(Split {
+        preamble: (!preamble.is_empty()).then(|| preamble.into()),
+        ..Split::default()
+    })
+}
+
+// An item includes any more deeply indented lines.
+fn split_items(text: &str, start: usize, page: &str) -> Option<Split> {
     let before = text.get(..start)?;
     let starts_on_line = before.is_empty() || before.ends_with('\n');
     let line_start = before.rfind('\n').map_or(0, |index| index + 1);
     let whole_line = text.get(line_start..)?.lines().next();
-    let continued_heading = whole_line.filter(|_| !starts_on_line).and_then(heading);
-    let mut section = continued_heading
-        .or_else(|| text.get(..line_start)?.lines().rev().find_map(heading))
+    let continued_heading = whole_line.filter(|_| !starts_on_line).and_then(section);
+    let mut excluded = continued_heading
+        .or_else(|| text.get(..line_start)?.lines().rev().find_map(section))
         .map(|(excluded, _)| excluded);
     let mut out = Split::default();
     let mut preamble = String::new();
@@ -120,19 +239,30 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
     {
         let complete_start = index > 0 || starts_on_line;
         let complete_end = line.len() == source_line.len();
+        if let Some((_, inline)) = arm_heading(
+            whole_line
+                .filter(|_| !complete_start)
+                .unwrap_or(source_line),
+        ) {
+            excluded = inline;
+            if let Some(inline) = inline {
+                list(&mut out, inline);
+            }
+            continue;
+        }
         if complete_start
             && (complete_end || heading(source_line).is_some())
-            && let Some((excluded, rest)) = heading(line)
+            && let Some((new_section, rest)) = heading(line)
         {
-            close(&mut out, &mut item, section);
-            section = Some(excluded);
-            list(&mut out, excluded);
+            close(&mut out, &mut item, excluded);
+            excluded = Some(new_section);
+            list(&mut out, new_section);
             if !rest.is_empty() {
                 item = Some((0, rest.to_owned()));
             }
             continue;
         }
-        if section.is_none() {
+        if excluded.is_none() {
             preamble.push_str(line);
             continue;
         }
@@ -142,12 +272,12 @@ pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
             Some((first, body)) if indent > *first => body.push_str(line),
             _ if line.trim().is_empty() => {}
             _ => {
-                close(&mut out, &mut item, section);
+                close(&mut out, &mut item, excluded);
                 item = Some((indent, line.to_owned()));
             }
         }
     }
-    close(&mut out, &mut item, section);
+    close(&mut out, &mut item, excluded);
     let preamble = preamble.trim();
     out.preamble = (!preamble.is_empty()).then(|| preamble.into());
     Some(out)

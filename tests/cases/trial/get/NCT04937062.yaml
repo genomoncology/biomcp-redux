@@ -1,0 +1,53 @@
+{
+  "live_check": "public",
+  "feature": "trial-get",
+  "story": "Trial eligibility keeps each arm's inclusion and exclusion criteria together across pages, with study-wide age bounds labelled separately.",
+  "replay": "trial/get/NCT04937062",
+  "verified": "The actual CLI recorded the public ClinicalTrials.gov detail and version replies on 2026-11-22.",
+  "steps": [
+    {
+      "run": ["get", "trial", "NCT04937062", "eligibility"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/arms": {"count": 2},
+        "/result/items/0/sections/eligibility/data/age_scope": "study-wide",
+        "/result/items/0/sections/eligibility/data/minimum_age/raw": "0 Months",
+        "/result/items/0/sections/eligibility/data/maximum_age/raw": "17 Years",
+        "/result/items/0/sections/eligibility/data/arms/0/heading": "STXBP1 / SLC6A1 ARM",
+        "/result/items/0/sections/eligibility/data/arms/0/inclusion": {"count": 10},
+        "/result/items/0/sections/eligibility/data/arms/0/inclusion/1": "* Is between 2 months and 17 years of age, inclusive.",
+        "/result/items/0/sections/eligibility/data/arms/0/exclusion": {"count": 12},
+        "/result/items/0/sections/eligibility/data/arms/0/exclusion/11": "* Pancreatic insufficiency or intestinal malabsorption",
+        "/result/items/0/sections/eligibility/data/arms/1/heading": "MONOGENETIC DEE ARM",
+        "/result/items/0/sections/eligibility/data/arms/1/inclusion": {"count": 9},
+        "/result/items/0/sections/eligibility/data/arms/1/inclusion/1": "* Is between 0 months and 15 years of age, inclusive.",
+        "/result/items/0/sections/eligibility/data/arms/1/exclusion": {"count": 1},
+        "/result/items/0/sections/eligibility/data": {"omits": ["criteria", "inclusion", "exclusion"]}
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/eligibility/data/arms": {"count": 1},
+        "/result/items/0/sections/eligibility/data/arms/0/heading": "MONOGENETIC DEE ARM",
+        "/result/items/0/sections/eligibility/data/arms/0/exclusion": {"count": 11},
+        "/result/items/0/sections/eligibility/data/arms/0/exclusion/10": "* Pancreatic insufficiency or intestinal malabsorption",
+        "/result/items/0/sections/eligibility/data/arms/0": {"omits": ["inclusion", "preamble"]},
+        "/result/items/0/sections/eligibility/data": {"omits": ["continuation", "criteria", "inclusion", "exclusion"]}
+      }
+    },
+    {
+      "run": ["get", "trial", "NCT04937062", "eligibility", "--format", "md"],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "##### STXBP1 / SLC6A1 ARM\n\n###### Exclusion",
+            "##### MONOGENETIC DEE ARM\n\n###### Exclusion",
+            "**age\\_scope:** study-wide"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -8,8 +8,8 @@ use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleText, ArticleTextResult, Reason, ReplyData, Request, Section, Source, StepKind,
-    TextContent, TextHit,
+    ArticleGet, ArticleSectionWord, ArticleText, ArticleTextResult, Reason, ReplyData, Request,
+    Section, Source, StepKind, TextContent, TextHit,
 };
 /// Read a bounded part or find page through the same transport and command budget.
 pub(crate) fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
@@ -30,7 +30,11 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
         (ArticleTextResult {
             text_withheld: None,
             pmcid: None,
-            content: Section::NotApplicable,
+            content: if matches!(query.input(), ArticleInput::Pmid(_)) {
+                Section::unavailable(Source::PmcOa, Reason::NotOpen)
+            } else {
+                Section::NotApplicable
+            },
         })
         .with_query(query.clone()),
     );
@@ -44,7 +48,6 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
         return super::save::Download { out, file: None };
     };
     let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
-    command.finish(deadline.remaining());
     if let Err(error) = result {
         out.local = out.local.or(status::local(error));
         crate::status::item(&mut out, false, true, false);
@@ -71,6 +74,15 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
             true,
         ));
     }
+    if query.is_default_pmid()
+        && matches!(&out.body, ReplyData::ArticleTextResult { body: Some(body), .. }
+            if matches!(body.content, Section::Unavailable { reason: Reason::NotOpen, .. }))
+    {
+        let card =
+            ArticleGet::single_with_section(query.input().clone(), ArticleSectionWord::Fulltext);
+        out = super::get::closed_card(cx, &card, &mut deadline, out);
+    }
+    command.finish(deadline.remaining());
     super::next::text(query, &mut out);
     super::save::Download {
         out,

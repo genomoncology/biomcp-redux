@@ -5728,7 +5728,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Get the abstract card by default, or explicitly read article body text.",
+      "description": "Read body text. A bare PMID starts at part 1.",
       "properties": {
         "command": {
           "const": "article-text",
@@ -5751,7 +5751,7 @@
           "type": "integer"
         },
         "part": {
-          "description": "One-based outline part; omit reader selectors for the abstract card.",
+          "description": "One-based body part. Bare PMIDs start at 1. Other IDs default to the abstract card.",
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
