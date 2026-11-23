@@ -100,7 +100,8 @@ impl Reply for SaveReply {
                 return ReplyData::Usage(UsageError::ArticleSaveRefused(document.url));
             };
             body = Some(biomcp_types::TrialDocumentResult {
-                file: Section::Data {
+                content: None,
+                file: Some(Section::Data {
                     source: biomcp_types::Source::ClinicalTrialsGov,
                     data: biomcp_types::TrialDocumentSaved {
                         path,
@@ -108,7 +109,7 @@ impl Reply for SaveReply {
                         sha256,
                         document,
                     },
-                },
+                }),
             });
         }
         biomcp_types::TrialDocumentResult::into_reply(query, body)

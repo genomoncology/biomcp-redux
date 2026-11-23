@@ -32,7 +32,8 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
         // Plain HTTP writes no file, so a command that must save is refused before any source
         // request. An optional save still reads its source and refuses with the source link.
         if let Action::Run { request, .. } = action
-            && must_save(request)
+            && (must_save(request)
+                || matches!(request, Request::TrialDocument(query) if query.save.is_some()))
         {
             return Some(UsageError::argument("--save".into()));
         }
@@ -68,6 +69,7 @@ fn saves(request: &Request) -> bool {
         || match request {
             Request::ArticleText(query) => query.save().is_some(),
             Request::ArticleSupplement(query) => query.save().is_some(),
+            Request::TrialDocument(query) => query.save.is_some(),
             _ => false,
         }
 }
@@ -81,7 +83,7 @@ fn must_save(request: &Request) -> bool {
 fn hidden_save(request: &Request) -> bool {
     let destination = match request {
         Request::ArticlePdf(query) => Some(&query.save),
-        Request::TrialDocument(query) => Some(&query.save),
+        Request::TrialDocument(query) => query.save.as_ref(),
         Request::ArticleText(query) => query.save(),
         Request::ArticleSupplement(query) => query.save(),
         _ => None,

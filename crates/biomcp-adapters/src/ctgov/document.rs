@@ -33,3 +33,17 @@ fn document_error(reason: Reason) -> RequestError {
     }
     .into()
 }
+
+/// Read a checked registry manifest entry with the bounded, isolated PDF reader.
+pub fn text(
+    leg: &Leg<'_>,
+    document: &TrialDocument,
+) -> Result<(biomcp_types::PdfText, Option<crate::pdf::Embedded>), RequestError> {
+    crate::pdf::from_download(
+        leg,
+        super::SPEC.source,
+        &document.url,
+        crate::pdf::MAX_PAGES,
+        || download(leg, document),
+    )
+}

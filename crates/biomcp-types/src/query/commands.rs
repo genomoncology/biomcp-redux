@@ -253,7 +253,7 @@ macro_rules! command_types {
                 "search", "variant", VariantSearch, "variant-search", "biomcp.variant-search/5", VariantSearch, "variant-search",
                 "biomcp.variant-search/5", "biomcp.variant-search/5", 55, Direct
             );
-            /// Save a clinical trial document.
+            /// Read or save a clinical trial document.
             TrialDocument(TrialDocumentGet) => (
                 "trial", "document", TrialDocumentGet, "trial-document", "biomcp.trial-document/2", TrialDocumentGet, "trial-document",
                 "biomcp.trial-document/2", "biomcp.trial-document/2", 51, Direct

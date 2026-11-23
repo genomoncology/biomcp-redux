@@ -1,4 +1,4 @@
-//! FDA-published PDF text; article downloads retain their existing behavior.
+//! Bounded embedded text for source-selected public PDFs.
 use biomcp_fetch::{Leg, RequestError, SourceSpec};
 use biomcp_types::{PdfMissing, PdfText, PdfTextState, Reason, Source, SourceNotice};
 /// Maximum pages admitted before extracting text.
@@ -47,12 +47,16 @@ pub fn read(
     offset: u32,
 ) -> Result<PdfText, RequestError> {
     let (mut result, text) = whole(leg, spec, url)?;
+    part(&mut result, &text, offset);
+    Ok(result)
+}
+/// Set the zero-based text fragment without changing extraction state or bounds.
+pub fn part(result: &mut PdfText, text: &str, offset: u32) {
     result.offset = offset;
-    result.text = crate::text_parts::split(&text, FRAGMENT_BYTES)
+    result.text = crate::text_parts::split(text, FRAGMENT_BYTES)
         .into_iter()
         .nth(offset as usize)
         .map(Into::into);
-    Ok(result)
 }
 /// Byte positions where each continuable fragment of the whole extracted text starts.
 pub fn fragment_starts(text: &str) -> Vec<usize> {
@@ -89,6 +93,24 @@ fn bounded(
     url: &biodata::Text,
     pages: usize,
 ) -> Result<(PdfText, String), RequestError> {
+    // FDA's historical document links use HTTP; retain the published spelling in the reply.
+    let https = url
+        .as_str()
+        .strip_prefix("http://www.accessdata.fda.gov/")
+        .map(|path| format!("https://www.accessdata.fda.gov/{path}"));
+    from_download(leg, spec.source, url, pages, || {
+        super::download::from_source(leg, spec, https.as_deref().unwrap_or(url.as_str()))
+    })
+    .map(|(result, read)| (result, read.map_or_else(String::new, |read| read.text)))
+}
+
+pub(crate) fn from_download(
+    leg: &Leg<'_>,
+    source: Source,
+    url: &biodata::Text,
+    pages: usize,
+    download: impl FnOnce() -> Result<Vec<u8>, RequestError>,
+) -> Result<(PdfText, Option<super::Embedded>), RequestError> {
     let mut result = PdfText {
         url: url.clone(),
         pages: None,
@@ -99,34 +121,27 @@ fn bounded(
         missing: None,
         private_symbol: false,
     };
-    // FDA's historical document links use HTTP; retain that published spelling in the reply.
-    let https = url
-        .as_str()
-        .strip_prefix("http://www.accessdata.fda.gov/")
-        .map(|path| format!("https://www.accessdata.fda.gov/{path}"));
     let isolated = leg.admit_isolated_read()?;
-    let bytes =
-        match super::download::from_source(leg, spec, https.as_deref().unwrap_or(url.as_str())) {
-            Ok(bytes) => bytes,
-            Err(RequestError::Source(source)) if source.reason == Reason::TooLarge => {
-                result.state = PdfTextState::TooLarge;
-                return Ok((result, String::new()));
-            }
-            Err(error) => return Err(error),
-        };
+    let bytes = match download() {
+        Ok(bytes) => bytes,
+        Err(RequestError::Source(error)) if error.reason == Reason::TooLarge => {
+            result.state = PdfTextState::TooLarge;
+            return Ok((result, None));
+        }
+        Err(error) => return Err(error),
+    };
     let deadline = leg.local_deadline();
     let read = super::child::read(isolated.as_ref(), &bytes, pages, &deadline)
-        .map_err(|reason| error(spec.source, reason))?;
+        .map_err(|reason| error(source, reason))?;
     result.pages = read.pages;
     result.state = read.state;
     result.missing = read.missing;
     if !result.state.readable() {
-        return Ok((result, String::new()));
+        return Ok((result, None));
     }
     result.private_symbol = read.private_symbol;
-    let text = read.text;
-    result.total = fragment_starts(&text).len() as u32;
-    Ok((result, text))
+    result.total = fragment_starts(&read.text).len() as u32;
+    Ok((result, Some(read)))
 }
 
 /// The reply notice for a partial read, saying what was cut or skipped, or for a damaged file,

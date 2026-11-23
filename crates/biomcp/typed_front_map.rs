@@ -118,7 +118,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             (
                 "document",
                 "trial_document",
-                "save a protocol or consent file",
+                "read or save a posted protocol or plan",
             ),
             (
                 "organization_search",
