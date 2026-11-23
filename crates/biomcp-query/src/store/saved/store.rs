@@ -137,15 +137,12 @@ pub(super) fn item_keys(
     Ok(keys)
 }
 
-fn remove_qualifier(keys: &[(String, String)]) -> SavedError {
+fn remove_qualifier(keys: &[(String, String)]) -> Result<SavedError, SavedError> {
     let values = |names: std::collections::BTreeSet<&str>| {
-        names
-            .into_iter()
-            .filter_map(|name| Text::new(name).ok())
-            .collect::<Box<[_]>>()
+        names.into_iter().map(text).collect::<Result<Box<[_]>, _>>()
     };
-    let entities = values(keys.iter().map(|(entity, _)| entity.as_str()).collect());
-    if entities.len() > 1 {
+    let entities = values(keys.iter().map(|(entity, _)| entity.as_str()).collect())?;
+    Ok(if entities.len() > 1 {
         SavedError::RemoveEntity(entities)
     } else {
         SavedError::RemoveSource(values(
@@ -158,8 +155,8 @@ fn remove_qualifier(keys: &[(String, String)]) -> SavedError {
                     }
                 })
                 .collect(),
-        ))
-    }
+        )?)
+    })
 }
 
 impl SavedStore {
@@ -318,7 +315,7 @@ impl SavedStore {
                         missing.push(item.clone());
                     }
                     [] => {}
-                    _ => return Err(remove_qualifier(&keys)),
+                    _ => return Err(remove_qualifier(&keys)?),
                 }
             }
             if !removed.is_empty() {
