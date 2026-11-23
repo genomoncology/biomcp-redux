@@ -120,7 +120,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
                 .filter_map(|name| super::paging::listed(command, spelling, name))
                 .map(|name| biodata::Text::new(&format!("--{name}")).ok())
                 .collect::<Option<Vec<_>>>()?;
-            let message = ErrorMessage::ArgumentUnknown;
+            let message = super::validation::unknown_option_message(path, spelling);
             (spelling.to_owned(), Some(values.into()), message)
         } else {
             return None;

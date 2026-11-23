@@ -1,0 +1,37 @@
+feature: article-get
+story: A typed article get ignores an inactive search object filled with empty fields and declared defaults, and refuses an inactive search with a real query.
+live_check: synthetic response case
+replay: article/get/synthetic-derived
+config:
+  mcp_tool_mode: typed
+steps:
+  - mcp_call:
+      name: article
+      arguments:
+        action: get
+        search:
+          query: ""
+          author: null
+          source: pubmed
+          sort: rank
+          limit: 10
+          offset: 0
+          exact_term: false
+        get:
+          id: "33123537"
+    expect:
+      /result/items/0/answer/resolution: resolved
+  - mcp_call:
+      name: article
+      arguments:
+        action: get
+        search:
+          query: AKT1
+        get:
+          id: "33123537"
+    offline: true
+    is_error: true
+    expect:
+      /error/option: search
+      /error/valid_values: [get]
+      /next/0/arguments/command: get article

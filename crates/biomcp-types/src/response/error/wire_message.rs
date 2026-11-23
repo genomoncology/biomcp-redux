@@ -17,19 +17,23 @@ impl From<ErrorMessage> for WireMessage {
 
 impl WireMessage {
     pub(super) fn for_argument(message: ErrorMessage, option: Option<&str>) -> Self {
-        if message == ErrorMessage::ArgumentUnknown
-            && let Some(option) = option.filter(|name| {
-                !name.is_empty()
-                    && name.bytes().all(|byte| {
-                        byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.')
-                    })
-            })
-        {
-            return Self::NamedOption(format!(
-                "Unknown option {option}. Use an option listed in valid_values or follow the suggested call."
-            ));
+        let Some(option) = option.filter(|_| message == ErrorMessage::ArgumentUnknown) else {
+            return message.into();
+        };
+        let mut name = String::with_capacity(option.len());
+        for character in option.chars() {
+            if character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.') {
+                name.push(character);
+            } else {
+                name.extend(character.escape_unicode());
+            }
         }
-        message.into()
+        if name.is_empty() {
+            name.push_str("\"\"");
+        }
+        Self::NamedOption(format!(
+            "Unknown option {name}. Use an option listed in valid_values or follow the suggested call."
+        ))
     }
 }
 

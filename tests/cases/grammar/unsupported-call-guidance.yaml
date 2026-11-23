@@ -1,0 +1,26 @@
+feature: query-validation
+story: A guessed GWAS command points to the real lookup, and MCP fetch explains that it needs a search result ID for a PDF URL.
+live_check: local-only validation; no source requests
+config:
+  mcp_tool_mode: typed
+steps:
+  - run: [variant, gwas-get, GCST000022]
+    offline: true
+    exit: 2
+    expect:
+      /error/code: usage.unknown_command
+      /next/0/args: [help, get, gwas]
+  - run: [study, gwas-get, GCST000022, associations]
+    offline: true
+    exit: 2
+    expect:
+      /next/0/args: [help, get, gwas]
+  - mcp_call:
+      name: fetch
+      arguments:
+        id: https://www.ema.europa.eu/en/documents/product-information/forxiga-epar-product-information_en.pdf
+    offline: true
+    is_error: true
+    expect:
+      /error/option: id
+      /error/message: "Fetch takes an ID returned by search. BioMCP cannot fetch arbitrary URLs."

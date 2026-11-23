@@ -119,8 +119,13 @@ fn takes_value(
 }
 
 pub(super) fn unknown_command(args: &[OsString], root: &Command) -> Option<Vec<String>> {
-    if super::command_words(root, args).next() == Some("schema") {
-        return None;
+    let mut commands = super::command_words(root, args);
+    match (commands.next(), commands.next()) {
+        (Some("schema"), _) => return None,
+        (Some("variant" | "study"), Some("gwas-get")) => {
+            return Some(vec!["get".into(), "gwas".into()]);
+        }
+        _ => {}
     }
     let mut command = root;
     let mut path: Vec<String> = Vec::new();

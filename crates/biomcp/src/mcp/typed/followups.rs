@@ -24,6 +24,7 @@ pub(super) fn project(
                     )
             })
         });
+    let failed = value["status"] == "failed";
     let mut calls = Vec::new();
     for path in crate::schema::steps::paths(&schema, &schema, value)
         .into_iter()
@@ -33,7 +34,7 @@ pub(super) fn project(
             let words = step.get("args")?.as_array()?;
             let Some(args) = without_globals(root, words) else {
                 if step.get("kind").and_then(Value::as_str) == Some("fresh") {
-                    return refresh(root, words, tools, retryable);
+                    return refresh(root, words, tools, (retryable, failed));
                 }
                 return None;
             };
@@ -70,9 +71,9 @@ fn refresh(
     root: &crate::grammar::Root,
     words: &[Value],
     tools: &super::grouping::Catalog,
-    retryable: bool,
+    (retryable, failed): (bool, bool),
 ) -> Option<Value> {
-    use biomcp_types::Request::{GetDrug, GetDrugMarkets, SearchDrug};
+    use biomcp_types::Request;
     let args = words
         .iter()
         .map(|word| word.as_str().map(std::ffi::OsString::from))
@@ -85,9 +86,15 @@ fn refresh(
     else {
         return None;
     };
-    if !(retryable || matches!(request, GetDrug(_) | GetDrugMarkets(_) | SearchDrug(_)))
-        || !tools.permits(&mut parsed)
-    {
+    let supported = retryable
+        || match request {
+            Request::GetDrug(_) | Request::GetDrugMarkets(_) | Request::SearchDrug(_) => true,
+            Request::SearchArticle(_)
+            | Request::ArticleCitations(_)
+            | Request::ArticleReferences(_) => failed,
+            _ => false,
+        };
+    if !supported || !tools.permits(&mut parsed) {
         return None;
     }
     Some(json!({"kind":"fresh","name":"biomcp","arguments":{"args":words}}))

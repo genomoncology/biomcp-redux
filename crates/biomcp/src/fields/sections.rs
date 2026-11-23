@@ -114,7 +114,11 @@ pub(super) fn lists(schema: &Value, call: &Call) -> Vec<List> {
         return extra;
     }
     if call.words.is_empty() {
-        return Vec::new();
+        return if stem(schema) == "article-cards" {
+            items(schema)
+        } else {
+            Vec::new()
+        };
     }
     let mut walk = Walk {
         root: schema,

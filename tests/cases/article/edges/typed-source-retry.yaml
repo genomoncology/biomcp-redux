@@ -1,0 +1,20 @@
+feature: article-semantic-sections
+live_check: synthetic response case
+story: A failed Semantic Scholar citation lookup through typed MCP carries an executable fresh retry with its field selection.
+replay: article/edges/synthetic-unavailable
+config:
+  mcp_tool_mode: typed
+steps:
+  - mcp_call:
+      name: biomcp
+      arguments:
+        args: [article, citations, "23000897", --source, semantic-scholar, --fields, "pmid,header.title"]
+    is_error: true
+    expect:
+      /status: failed
+      /sources/0/source: semantic-scholar
+      /sources/0/reason: unavailable
+      /next/0/kind: fresh
+      /next/0/name: biomcp
+      /next/0/arguments/args:
+        includes_all_of: [article, citations, "23000897", semantic-scholar, --fresh, "--fields=pmid,header.title"]
