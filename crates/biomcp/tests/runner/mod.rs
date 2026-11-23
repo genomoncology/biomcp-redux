@@ -73,7 +73,6 @@ mod housekeeping;
 mod http;
 mod http_capacity;
 mod http_limits;
-mod key_check;
 #[cfg(unix)]
 mod key_input;
 mod key_registration;

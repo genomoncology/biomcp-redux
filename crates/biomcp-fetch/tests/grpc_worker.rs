@@ -531,3 +531,30 @@ fn stream_worker_rejects_callback_completion_after_the_absolute_deadline() -> Ch
     );
     fixture.finish()
 }
+
+#[test]
+fn key_check_recognizes_only_the_publisher_invalid_key_message() -> support::Check {
+    let fixture = support::Fixture::new(support::Hold::None, 3, false, false)?;
+    let fetch = Fetch::open(FetchConfig {
+        network: fixture.network(None, "")?,
+        ..Default::default()
+    })?;
+    let source = fixture.with_quota(false, KeyUse::None, &QUOTA);
+    let endpoint = source.grpc("/synthetic.KeyCheck/Check");
+    for (endpoint, expected) in [
+        (endpoint, Reason::BadReply),
+        (
+            endpoint.invalid_key_message(|message| message == b"echo-synthetic-secret"),
+            Reason::Rejected,
+        ),
+    ] {
+        let leg = fetch.leg(source, fetch.deadline(Duration::from_secs(10)));
+        let result = leg.grpc(&endpoint, b"", |_| Ok(()));
+        if !matches!(result, Err(biomcp_fetch::RequestError::Source(error)) if error.reason == expected)
+        {
+            return Err(format!("expected the sanitized gRPC status {expected}").into());
+        }
+    }
+    fixture.finish()?;
+    Ok(())
+}

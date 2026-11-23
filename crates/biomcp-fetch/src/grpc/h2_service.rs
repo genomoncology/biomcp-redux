@@ -258,33 +258,3 @@ fn terminal(headers: &http::HeaderMap, state: &super::control::CallState) {
         state.set_terminal(code);
     }
 }
-
-#[cfg(test)]
-#[test]
-fn key_check_recognizes_only_the_publisher_invalid_key_message() -> Result<(), tonic::Status> {
-    for (message, expected) in [
-        ("publisher-invalid-key", "16"),
-        ("other publisher error", "3"),
-    ] {
-        let mut headers = http::HeaderMap::new();
-        headers.insert("grpc-status", http::HeaderValue::from_static("3"));
-        headers.insert("grpc-message", http::HeaderValue::from_static(message));
-        safe_headers(
-            &mut headers,
-            Limits::DEFAULT,
-            Some(|message| message == b"publisher-invalid-key"),
-        )?;
-        assert_eq!(
-            headers
-                .get("grpc-status")
-                .and_then(|value| value.to_str().ok()),
-            Some(expected),
-            "only a recognized publisher error should change the status"
-        );
-        assert!(
-            !headers.contains_key("grpc-message"),
-            "provider message was retained"
-        );
-    }
-    Ok(())
-}

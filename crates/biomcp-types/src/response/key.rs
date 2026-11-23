@@ -98,7 +98,7 @@ impl super::ResponseBody for SwitchableSources {
 /// The result of checking a source credential with its publisher.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[serde(tag = "status", rename_all = "snake_case")]
+#[serde(tag = "status", rename_all = "kebab-case")]
 pub enum KeyCheck {
     /// The publisher accepted the authenticated request.
     Working {

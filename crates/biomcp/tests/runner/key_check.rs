@@ -1,29 +1,12 @@
 //! Exercise source credential checks through the CLI and hosted HTTP.
-use super::{
-    key_registration::{invoke, invoke_without_keys},
-    launch::Environment,
-    transcript::trial,
-};
+use super::invoke_without_keys;
+use crate::runner::{self, launch::Environment, transcript::trial};
 use libtest_mimic::Trial;
 
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![
-        trial("source-key-check/keyless", || {
-            let env = Environment::new()?;
-            let reply = invoke(&env, &["--offline", "key", "check", "ctgov"], "", 0)?;
-            if reply
-                .pointer("/result/status")
-                .and_then(serde_json::Value::as_str)
-                != Some("no_key_required")
-            {
-                return Err("ClinicalTrials.gov did not report that it needs no key".into());
-            }
-            Ok(())
-        }),
-        trial("source-key-check/hosted-caller-only", || {
-            hosted().map_err(Into::into)
-        }),
-    ];
+    let mut trials = vec![trial("source-key-check/hosted-caller-only", || {
+        hosted().map_err(Into::into)
+    })];
     trials.extend(PROVIDERS.iter().map(|&(source, field, rejection)| {
         trial(format!("source-key-check/{source}"), move || {
             provider(source, field, rejection).map_err(Into::into)
@@ -49,7 +32,7 @@ fn provider(source: &str, field: &str, rejection: &str) -> Result<(), String> {
     for (status, reason) in [
         ("working", None),
         ("rejected", Some(rejection)),
-        ("could_not_check", Some("deadline-exceeded")),
+        ("could-not-check", Some("deadline-exceeded")),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         env.config(&serde_json::json!({"keys": {field: KEY}}))
@@ -73,7 +56,7 @@ fn provider(source: &str, field: &str, rejection: &str) -> Result<(), String> {
 }
 
 fn fixtures() -> std::path::PathBuf {
-    super::launch::fixtures().join("replies/key-check")
+    runner::launch::fixtures().join("replies/key-check")
 }
 
 fn check(
@@ -101,7 +84,7 @@ fn hosted() -> Result<(), String> {
     use serde_json::json;
     let path = "/internal/key-check";
     let body = r#"{"source":"ncbi"}"#;
-    let mut server = super::http::Server::configured_globals(
+    let mut server = runner::http::Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"keys":{"ncbi_api_key":"synthetic-server-key-check"}})),
         Some(fixtures().join("working")),
@@ -113,7 +96,7 @@ fn hosted() -> Result<(), String> {
     if status != 200 {
         return Err(format!("missing caller key returned HTTP {status}"));
     }
-    check(&reply, "ncbi", "could_not_check", Some("no-key"))?;
+    check(&reply, "ncbi", "could-not-check", Some("no-key"))?;
     let attempted_key = json!({"source":"ncbi", "key":KEY});
     if server.request("POST", path, &attempted_key.to_string())?.0 != 400 {
         return Err("internal route accepted a credential in its body".into());
@@ -126,7 +109,7 @@ fn hosted() -> Result<(), String> {
     {
         return Err("internal route accepted duplicate credential headers".into());
     }
-    let reply = super::request_keys::call(&server, &["key", "check", "ncbi"], &headers, false)?;
+    let reply = runner::request_keys::call(&server, &["key", "check", "ncbi"], &headers, false)?;
     if !reply.to_string().contains("usage.mcp_unavailable") {
         return Err("MCP allowed a key check".into());
     }
@@ -136,16 +119,16 @@ fn hosted() -> Result<(), String> {
     }
     check(&reply, "ncbi", "working", None)?;
     let (_, reply) = server.request("POST", path, body)?;
-    check(&reply, "ncbi", "could_not_check", Some("no-key"))?;
+    check(&reply, "ncbi", "could-not-check", Some("no-key"))?;
     server.stop()?;
 
-    let mut plain = super::http::Server::start()?;
+    let mut plain = runner::http::Server::start()?;
     if plain.request_with_headers("POST", path, body, &headers)?.0 != 404 {
         return Err("ordinary HTTP exposed the internal route".into());
     }
     plain.stop()?;
 
-    let mut exposed = super::http::Server::configured_globals(
+    let mut exposed = runner::http::Server::configured_globals(
         "0.0.0.0:0",
         None,
         None,

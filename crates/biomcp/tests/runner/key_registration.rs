@@ -1,5 +1,7 @@
 //! Persistent MCP key snapshots and real filesystem ownership require process/file inspection.
 use super::launch::Environment;
+#[path = "key_check.rs"]
+mod key_check;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::Value;
@@ -32,7 +34,7 @@ pub(super) fn trials() -> Vec<Trial> {
             super::key_reload::check(true, true).map_err(Into::into)
         }),
     ];
-    trials.extend(super::key_check::trials());
+    trials.extend(key_check::trials());
     trials
 }
 pub(super) fn invoke(

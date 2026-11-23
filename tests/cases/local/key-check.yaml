@@ -1,0 +1,20 @@
+feature: source-key-check
+story: A key check identifies keyless sources and refuses invalid command arguments.
+steps:
+  - run: ["key", "check", "ctgov", "--offline"]
+    expect:
+      /result/source: ctgov
+      /result/status: no-key-required
+  - run: ["help", "key", "check"]
+    expect:
+      /result/commands/0/command: ["key", "check"]
+  - run: ["key", "check", "ctgov", "--unknown-option"]
+    exit: 2
+    is_error: true
+    expect:
+      /error/code: usage.arguments
+  - run: ["help", "key", "check", "--unknown-option"]
+    exit: 2
+    is_error: true
+    expect:
+      /error/code: usage.arguments
