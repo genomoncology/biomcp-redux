@@ -3358,12 +3358,12 @@ Paging: --limit and --offset; --section-limit and --section-offset are the same 
 Form: get disease ID SECTION; not --id.
 - `--interval`: Survival interval code. Value form: string; example: 5.
 - `--ontology`: OLS ontology. Defaults to the ID’s ontology or MONDO. Value form: string; example: mondo.
-- `--period`: Incidence period code. Value form: string; example: 5.
-- `--race`: Source race code. Value form: string; example: 1.
+- `--period`: Incidence period code. Value form: string; example: --period 5.
+- `--race`: Source race code. Value form: string; example: --race 1.
 - `section`: Omit for the identity card… (full rule with the sections).
 Form: get disease ID SECTION; not --section.
-- `--section-limit`: Rows per page. Default 5, Monarch genes 2, phenotypes 1. Value form: integer; example: 1.
-- `--section-offset`: Section row offset. Value form: integer; example: 1.
+- `--section-limit`: Rows per page. Default 5, Monarch genes 2, phenotypes 1. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Section row offset. Value form: integer; example: --section-offset 1.
 - `--sex`: Source sex code. Value form: string; example: 3.
 - `--source`: Default MyDisease, or both sources for gene validity. Value form: string; example: seer.
 - `--source-title-prefix`: Match publisher titles starting with ID text. Gene validity only. Value form: boolean; example: --source-title-prefix.

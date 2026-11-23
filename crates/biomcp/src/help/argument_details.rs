@@ -45,7 +45,8 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
         let own = command.command.join(" ");
         let rule = command.section_rule.clone();
         let concise = command.command == ["get", "disease"];
-        let mut example_values = (command.command == ["search", "drug"]).then(BTreeSet::new);
+        let mut example_values =
+            (concise || command.command == ["search", "drug"]).then(BTreeSet::new);
         let mut cased = false;
         for argument in &mut command.arguments {
             drop_pointer(&mut argument.description, &own, rule.as_deref());
@@ -72,16 +73,9 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 .filter(|_| selectable)
                 .map(|schema| only_sources(schema, &argument.name, &sources))
                 .unwrap_or_default();
-            let sample = example_values.as_mut().map_or_else(
-                || {
-                    if concise {
-                        example_value(&sample, &argument.name).unwrap_or(&sample)
-                    } else {
-                        &sample
-                    }
-                },
-                |seen| short_example(&sample, &argument.name, &only, seen),
-            );
+            let sample = example_values.as_mut().map_or(sample.as_str(), |seen| {
+                short_example(&sample, &argument.name, &only, seen)
+            });
             option_sentence(argument, sample, &only);
         }
         let scope = if sources.is_empty() {
@@ -124,12 +118,11 @@ fn short_example<'a>(
     sources: &[String],
     seen: &mut BTreeSet<(String, Vec<String>)>,
 ) -> &'a str {
-    example_value(sample, name)
+    sample
+        .strip_prefix(name)
+        .and_then(|suffix| suffix.strip_prefix([' ', '=']))
         .filter(|&value| seen.insert((value.to_owned(), sources.to_vec())))
         .unwrap_or(sample)
-}
-fn example_value<'a>(sample: &'a str, name: &str) -> Option<&'a str> {
-    sample.strip_prefix(name)?.strip_prefix([' ', '='])
 }
 /// One sentence per option that names the option, so no option repeats another's.
 fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
