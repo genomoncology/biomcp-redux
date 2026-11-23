@@ -55,7 +55,11 @@ fn http_reply(name: SecretName, status: u16, bytes: &[u8]) -> KeyCheckStatus {
     let body = serde_json::from_slice::<Value>(bytes).unwrap_or(Value::Null);
     if status != 429 && status < 500 {
         let detail = match name {
-            SecretName::NcbiApiKey if body["error"] == "API key invalid" => Some("API key invalid"),
+            SecretName::NcbiApiKey
+                if body.get("error").and_then(Value::as_str) == Some("API key invalid") =>
+            {
+                Some("API key invalid")
+            }
             SecretName::OpenfdaApiKey
                 if body.pointer("/error/code").and_then(Value::as_str)
                     == Some("API_KEY_INVALID") =>
@@ -89,9 +93,10 @@ fn valid(name: SecretName, body: &Value) -> bool {
         SecretName::NcbiApiKey => body
             .pointer("/einforesult/dbinfo")
             .is_some_and(Value::is_array),
-        SecretName::OpenfdaApiKey => body["results"].is_array(),
+        SecretName::OpenfdaApiKey => body.get("results").is_some_and(Value::is_array),
         SecretName::NciApiKey | SecretName::SemanticScholarApiKey => {
-            body["total"].is_u64() && body["data"].is_array()
+            body.get("total").is_some_and(Value::is_u64)
+                && body.get("data").is_some_and(Value::is_array)
         }
         _ => false,
     }
