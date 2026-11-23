@@ -71,6 +71,9 @@
                 "date": "2026-08-24",
                 "type": "ACTUAL"
               }
+            },
+            "designModule": {
+              "studyType": "INTERVENTIONAL"
             }
           },
           "documentSection": {

@@ -1,4 +1,5 @@
 //! Bounded embedded text for source-selected public PDFs.
+use super::embedded::Pages;
 use biomcp_fetch::{Leg, RequestError, SourceSpec};
 use biomcp_types::{PdfMissing, PdfText, PdfTextState, Reason, Source, SourceNotice};
 /// Maximum pages admitted before extracting text.
@@ -10,6 +11,17 @@ pub const LABEL_PAGES: usize = 400;
 pub const MAX_EXPANDED_BYTES: usize = 4 * 1024 * 1024;
 /// Escaped JSON text bytes returned in one continuable fragment.
 pub const FRAGMENT_BYTES: usize = 6144;
+
+/// The status and any readable text from a PDF download.
+pub struct DownloadedText {
+    /// The extraction status, even when no text could be read.
+    pub status: PdfText,
+    /// Extracted text with page boundaries.
+    pub read: Option<super::Embedded>,
+    /// The original bytes fit within the download limit and can be saved.
+    pub can_save: bool,
+}
+
 fn error(source: Source, reason: Reason) -> RequestError {
     biomcp_fetch::SourceError {
         source,
@@ -98,19 +110,24 @@ fn bounded(
         .as_str()
         .strip_prefix("http://www.accessdata.fda.gov/")
         .map(|path| format!("https://www.accessdata.fda.gov/{path}"));
-    from_download(leg, spec.source, url, pages, || {
+    from_download(leg, spec.source, url, Pages::Whole(pages), || {
         super::download::from_source(leg, spec, https.as_deref().unwrap_or(url.as_str()))
     })
-    .map(|(result, read)| (result, read.map_or_else(String::new, |read| read.text)))
+    .map(|result| {
+        (
+            result.status,
+            result.read.map_or_else(String::new, |read| read.text),
+        )
+    })
 }
 
 pub(crate) fn from_download(
     leg: &Leg<'_>,
     source: Source,
     url: &biodata::Text,
-    pages: usize,
+    pages: Pages,
     download: impl FnOnce() -> Result<Vec<u8>, RequestError>,
-) -> Result<(PdfText, Option<super::Embedded>), RequestError> {
+) -> Result<DownloadedText, RequestError> {
     let mut result = PdfText {
         url: url.clone(),
         pages: None,
@@ -126,7 +143,11 @@ pub(crate) fn from_download(
         Ok(bytes) => bytes,
         Err(RequestError::Source(error)) if error.reason == Reason::TooLarge => {
             result.state = PdfTextState::TooLarge;
-            return Ok((result, None));
+            return Ok(DownloadedText {
+                status: result,
+                read: None,
+                can_save: false,
+            });
         }
         Err(error) => return Err(error),
     };
@@ -136,12 +157,15 @@ pub(crate) fn from_download(
     result.pages = read.pages;
     result.state = read.state;
     result.missing = read.missing;
-    if !result.state.readable() {
-        return Ok((result, None));
+    if result.state.readable() {
+        result.private_symbol = read.private_symbol;
+        result.total = fragment_starts(&read.text).len() as u32;
     }
-    result.private_symbol = read.private_symbol;
-    result.total = fragment_starts(&read.text).len() as u32;
-    Ok((result, Some(read)))
+    Ok(DownloadedText {
+        read: result.state.readable().then_some(read),
+        status: result,
+        can_save: true,
+    })
 }
 
 /// The reply notice for a partial read, saying what was cut or skipped, or for a damaged file,

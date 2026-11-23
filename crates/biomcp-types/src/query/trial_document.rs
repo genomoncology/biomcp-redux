@@ -1,6 +1,6 @@
 use crate::{NctId, Text};
 use serde::{Deserialize, Serialize};
-/// Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).
+/// Read or save a listed trial PDF (25 MiB; read up to 100 pages per call).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -16,7 +16,11 @@ pub struct TrialDocumentGet {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     pub find: Option<Text>,
-    /// Zero-based part or hit offset.
+    /// First physical page to read or search (1-based, default 1).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "std::num::NonZeroU32"))]
+    pub page_start: Option<std::num::NonZeroU32>,
+    /// Zero-based part or hit offset within the selected pages.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "u32"))]
     pub section_offset: Option<u32>,

@@ -3,6 +3,7 @@ use biodata::TrialDocument;
 use biomcp_fetch::Input;
 use biomcp_fetch::{Leg, RequestError, SourceError};
 use biomcp_types::Reason;
+use std::num::NonZeroU32;
 /// Download only a source manifest entry produced by the checked registry projection.
 pub fn download(leg: &Leg<'_>, document: &TrialDocument) -> Result<Vec<u8>, RequestError> {
     if !document
@@ -38,12 +39,13 @@ fn document_error(reason: Reason) -> RequestError {
 pub fn read_text(
     leg: &Leg<'_>,
     document: &TrialDocument,
-) -> Result<(biomcp_types::PdfText, Option<crate::pdf::Embedded>), RequestError> {
+    first: NonZeroU32,
+) -> Result<crate::pdf::DownloadedText, RequestError> {
     crate::pdf::from_download(
         leg,
         super::SPEC.source,
         &document.url,
-        crate::pdf::MAX_PAGES,
+        crate::pdf::Pages::Window(first),
         || download(leg, document),
     )
 }

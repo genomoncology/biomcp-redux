@@ -60,7 +60,7 @@ pub(crate) fn serve(limits: ChildLimits) -> ExitCode {
     {
         return ExitCode::FAILURE;
     }
-    // The PDF follows one short line giving its page bound.
+    // The PDF follows a short header giving the page selection.
     let most = biomcp_query::pdf_child::MAX_BYTES.saturating_add(9);
     let mut bytes = Vec::new();
     let read = std::io::stdin().lock().take(most).read_to_end(&mut bytes);
@@ -68,7 +68,7 @@ pub(crate) fn serve(limits: ChildLimits) -> ExitCode {
         return ExitCode::FAILURE;
     }
     #[cfg(debug_assertions)]
-    if let Ok((_, pdf)) = biomcp_query::pdf_child::pages(&bytes) {
+    if let Ok(pdf) = biomcp_query::pdf_child::input_pdf(&bytes) {
         exercise(pdf);
     }
     let answer = biomcp_query::pdf_child::serve(&bytes);

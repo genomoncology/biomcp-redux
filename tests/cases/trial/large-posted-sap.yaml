@@ -12,7 +12,8 @@
       "expect": {
         "/result/content/data/text/pages": 335,
         "/result/content/data/hits/0/page": 36,
-        "/result/content/data/hits/0/text": "Baseline race was tabulated.",
+        "/result/content/data/hits/0/text": {"includes": "race was tabulated."},
+        "/sources/0/notices/0/message": "This call covers PDF pages 1–100 of 335.",
         "/next/0/kind": "page"
       }
     },
@@ -42,7 +43,14 @@
       },
       "expect": {
         "/result/content/data/hits/0/page": 36,
-        "/result/content/data/hits/0/text": "Baseline race was tabulated."
+        "/result/content/data/hits/0/text": {"includes": "race was tabulated."}
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/query/page_start": 101,
+        "/result/content/data/hits/0/page": 146
       }
     },
     {
@@ -50,6 +58,7 @@
       "expect": {
         "/result/content/data/text/pages": 335,
         "/result/content/data/text/state": "text",
+        "/result/content/data/text/text": {"includes": "Statistical analysis plan"},
         "/page/returned": 1,
         "/next/0/kind": "page"
       }
@@ -60,6 +69,7 @@
         "/status": "partial",
         "/result/content/data/text/pages": 335,
         "/result/content/data/text/state": "too-large",
+        "/sources/0/notices/0/message": "The selected pages exceed the expanded-content limit.",
         "/next/0/kind": "configure",
         "/next/0/args": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--save", "SAP_001.pdf"]
       }

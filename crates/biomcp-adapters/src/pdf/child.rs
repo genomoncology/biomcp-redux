@@ -7,17 +7,17 @@
 //! standard input and writes one header line of JSON, then the text. A child that is killed,
 //! crashes or answers in any other form becomes the `refused` state, never a guess.
 
-use super::embedded::Embedded;
+use super::embedded::{Embedded, Pages, extract};
 use biomcp_types::{PdfMissing, PdfTextState, Reason};
 use serde_json::{Value, json};
+use std::num::NonZeroU32;
 
 /// Most bytes a child's answer may hold: the whole text and its header.
 pub const MAX_OUTPUT: usize = super::MAX_EXPANDED_BYTES + 4096;
 
-/// The child's side: read the PDF after the parent's first line, which gives the most pages
-/// to read, and encode the result for the parent.
+/// The child's side: extract the requested pages and encode the result for the parent.
 pub fn serve(input: &[u8]) -> Vec<u8> {
-    let read = pages(input).and_then(|(pages, bytes)| super::embedded(bytes, pages, &|| false));
+    let read = request(input).and_then(|(pages, bytes)| extract(bytes, pages, &|| false));
     let (header, text) = match read {
         Ok(read) => {
             let mut header = serde_json::Map::from_iter([
@@ -39,8 +39,17 @@ pub fn serve(input: &[u8]) -> Vec<u8> {
     out
 }
 
-/// The page bound the parent wrote on the input's first line, and the PDF after it.
-pub fn pages(input: &[u8]) -> Result<(usize, &[u8]), Reason> {
+/// The PDF after the parent's page selection.
+pub fn input_pdf(input: &[u8]) -> Result<&[u8], Reason> {
+    request(input).map(|(_, pdf)| pdf)
+}
+
+fn request(input: &[u8]) -> Result<(Pages, &[u8]), Reason> {
+    if let [b'w', a, b, c, d, b'\n', pdf @ ..] = input {
+        let first =
+            NonZeroU32::new(u32::from_be_bytes([*a, *b, *c, *d])).ok_or(Reason::BadReply)?;
+        return Ok((Pages::Window(first), pdf));
+    }
     let line = input
         .iter()
         .take(8)
@@ -51,23 +60,29 @@ pub fn pages(input: &[u8]) -> Result<(usize, &[u8]), Reason> {
         .map_err(|_| Reason::BadReply)?
         .parse()
         .map_err(|_| Reason::BadReply)?;
-    Ok((pages, rest.get(1..).ok_or(Reason::BadReply)?))
+    Ok((Pages::Whole(pages), rest.get(1..).ok_or(Reason::BadReply)?))
 }
 
-/// The parent's side: read `bytes`, at most `pages` pages, in an admitted worker if configured.
+/// The parent's side: read the selected pages in an admitted worker if configured.
 pub(super) fn read(
     isolated: Option<&biomcp_fetch::IsolatedRead<'_>>,
     bytes: &[u8],
-    pages: usize,
+    pages: Pages,
     deadline: &biomcp_fetch::LocalDeadline,
 ) -> Result<Embedded, Reason> {
     let Some(isolated) = isolated else {
-        return super::embedded(bytes, pages, &|| deadline.expired());
+        return extract(bytes, pages, &|| deadline.expired());
     };
-    let mut input = format!("{pages}\n").into_bytes();
+    let mut input = match pages {
+        Pages::Whole(limit) => format!("{limit}\n").into_bytes(),
+        Pages::Window(first) => {
+            let [a, b, c, d] = first.get().to_be_bytes();
+            vec![b'w', a, b, c, d, b'\n']
+        }
+    };
     input.extend_from_slice(bytes);
     match isolated.run(&input, MAX_OUTPUT, deadline) {
-        Ok(answer) => decoded(&answer).unwrap_or_else(|Malformed| Ok(refused())),
+        Ok(answer) => decoded(&answer, pages).unwrap_or_else(|Malformed| Ok(refused())),
         Err(biomcp_fetch::Contained) => Ok(refused()),
     }
 }
@@ -88,7 +103,7 @@ fn refused() -> Embedded {
 struct Malformed;
 
 /// The child's answer.
-fn decoded(answer: &[u8]) -> Result<Result<Embedded, Reason>, Malformed> {
+fn decoded(answer: &[u8], selection: Pages) -> Result<Result<Embedded, Reason>, Malformed> {
     let line = answer
         .iter()
         .position(|byte| *byte == b'\n')
@@ -118,8 +133,9 @@ fn decoded(answer: &[u8]) -> Result<Result<Embedded, Reason>, Malformed> {
     let page_starts: Vec<usize> =
         serde_json::from_value(header.get("page_starts").ok_or(Malformed)?.clone())
             .map_err(|_| Malformed)?;
+    let expected = pages.and_then(|n| selection.range(n as usize));
     if state.readable()
-        && (Some(page_starts.len()) != pages.map(|n| n as usize)
+        && (Some(page_starts.len()) != expected.map(|range| range.len())
             || page_starts.first() != Some(&0)
             || !page_starts.is_sorted()
             || !page_starts
