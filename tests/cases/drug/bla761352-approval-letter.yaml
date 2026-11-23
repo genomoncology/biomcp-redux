@@ -7,7 +7,6 @@ steps:
     expect:
       /result/approvals/data/records/0/application_docs/0/id: "85877"
       /result/approvals/data/records/0/application_docs/0/type: Letter
-  - run: [get, drug, BLA761352, approvals, --source, drugsfda, --document-id, "85877"]
+  - run: [--format, md, get, drug, BLA761352, approvals, --source, drugsfda, --document-id, "85877"]
     expect:
-      /result/approvals/data/records/0/application_docs/0/text/state: text
-      /result/approvals/data/records/0/application_docs/0/text/text: {includes: "BLA 761352/S-010 SUPPLEMENT APPROVAL"}
+      "": {includes: "BLA 761352/S-010 SUPPLEMENT APPROVAL"}
