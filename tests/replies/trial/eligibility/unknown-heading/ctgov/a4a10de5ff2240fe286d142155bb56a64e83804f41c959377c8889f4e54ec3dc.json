@@ -1,0 +1,38 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies/NCT04937062",
+  "exchanges": [
+    {
+      "fetched": 1795389628,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "protocolSection": {
+            "identificationModule": {
+              "nctId": "NCT04937062",
+              "briefTitle": "Synthetic trial eligibility replay"
+            },
+            "statusModule": {
+              "overallStatus": "ACTIVE_NOT_RECRUITING"
+            },
+            "eligibilityModule": {
+              "eligibilityCriteria": "# Alpha Arm\nInclusion Criteria:\n* Alpha include\nExclusion Criteria:\n* Alpha exclude\n# Cohort B\nInclusion Criteria:\n* B include\nExclusion Criteria:\n* B exclude",
+              "healthyVolunteers": false,
+              "sex": "ALL",
+              "minimumAge": "0 Months",
+              "maximumAge": "17 Years",
+              "stdAges": [
+                "CHILD"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

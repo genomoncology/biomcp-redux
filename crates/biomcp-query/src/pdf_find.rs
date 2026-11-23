@@ -67,17 +67,24 @@ fn first_match(line: &str, needles: &[String]) -> Option<usize> {
         found
     })
 }
-/// Start up to the lead before the match, after a line break or space when one is there.
+/// Keep the line start within the lead budget, or skip a clipped word.
 fn lead(text: &str, at: usize) -> usize {
     let mut begin = at.saturating_sub(LEAD_BYTES);
     while !text.is_char_boundary(begin) {
         begin += 1;
     }
     let preceding = text.get(begin..at).unwrap_or_default();
-    preceding
-        .rfind('\n')
-        .or_else(|| preceding.find(' '))
-        .map_or(begin, |gap| begin + gap + 1)
+    if let Some(gap) = preceding.rfind('\n') {
+        return begin + gap + 1;
+    }
+    if begin == 0
+        || text
+            .get(..begin)
+            .is_some_and(|before| before.ends_with('\n'))
+    {
+        return begin;
+    }
+    preceding.find(' ').map_or(begin, |gap| begin + gap + 1)
 }
 /// End within the passage size, at the last line break after the match when there is one.
 fn passage_end(text: &str, begin: usize, at: usize) -> usize {

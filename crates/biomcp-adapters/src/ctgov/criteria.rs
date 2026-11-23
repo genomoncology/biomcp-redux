@@ -91,22 +91,38 @@ fn list_marker(line: &str) -> bool {
 
 /// A Markdown arm heading, optionally ending in an inline inclusion or exclusion label.
 pub fn arm_heading(line: &str) -> Option<(&str, Option<bool>)> {
-    let line = line.trim_start();
-    let markup = line.strip_prefix('\\').unwrap_or(line);
-    let title = trim(markup.strip_prefix('#')?);
-    let title = title.trim_end_matches(':').trim_end();
+    let title = markdown_heading(line)?.trim_end_matches(':').trim_end();
     let lower = title.to_ascii_lowercase();
     for (suffix, excluded) in [
         (" exclusion criteria", true),
         (" inclusion criteria", false),
     ] {
         if let Some(name) = lower.strip_suffix(suffix)
-            && name.ends_with(" arm")
+            && arm_title(name)
         {
             return title.get(..name.len()).map(|name| (name, Some(excluded)));
         }
     }
-    lower.ends_with(" arm").then_some((title, None))
+    arm_title(&lower).then_some((title, None))
+}
+
+fn arm_title(lower: &str) -> bool {
+    lower.ends_with(" arm") || lower.starts_with("arm ")
+}
+
+fn markdown_heading(line: &str) -> Option<&str> {
+    let line = line.trim_start();
+    line.strip_prefix('\\')
+        .unwrap_or(line)
+        .strip_prefix('#')
+        .map(trim)
+}
+
+/// Whether a Markdown heading could change the scope of the criteria lists.
+pub fn has_unrecognized_markdown_heading(text: &str) -> bool {
+    text.lines().any(|line| {
+        markdown_heading(line).is_some() && arm_heading(line).is_none() && heading(line).is_none()
+    })
 }
 
 fn section(line: &str) -> Option<(bool, &str)> {
@@ -118,47 +134,57 @@ fn section(line: &str) -> Option<(bool, &str)> {
 
 /// Whether the registry marks arms, or unambiguously marks both criteria lists.
 pub fn splits(text: &str) -> bool {
-    text.lines().any(|line| arm_heading(line).is_some()) || splits_lists(text)
+    layout(text).is_some()
 }
 
-fn splits_lists(text: &str) -> bool {
-    let (mut inclusion, mut exclusion) = (false, false);
+enum Layout {
+    Lists,
+    Arms,
+}
+
+fn layout(text: &str) -> Option<Layout> {
+    let (mut arms, mut inclusion, mut exclusion) = (false, false, false);
     for line in text.lines() {
         match heading(line) {
             Some((true, _)) => exclusion = true,
             Some((false, _)) => inclusion = true,
-            None if other_criteria_heading(line) => return false,
+            None if arm_heading(line).is_some() => arms = true,
+            None if markdown_heading(line).is_some() => return None,
+            None if other_criteria_heading(line) => return None,
             None => {}
         }
     }
-    inclusion && exclusion
+    if arms {
+        Some(Layout::Arms)
+    } else {
+        (inclusion && exclusion).then_some(Layout::Lists)
+    }
 }
 
 /// Splits a page of unscoped criteria into the registry's own inclusion and exclusion items.
 pub fn split(text: &str, start: usize, page: &str) -> Option<Split> {
-    splits_lists(text)
+    matches!(layout(text), Some(Layout::Lists))
         .then(|| split_items(text, start, page))
         .flatten()
 }
 
 /// Splits a page beginning at byte `start` into registry arms and items.
 pub fn split_page(text: &str, start: usize, page: &str) -> Option<Page> {
+    if matches!(layout(text)?, Layout::Lists) {
+        return split_items(text, start, page).map(|unscoped| Page {
+            unscoped,
+            arms: Vec::new(),
+        });
+    }
     let end = start.checked_add(page.len())?;
-    let mut arms = text
+    let arms = text
         .split_inclusive('\n')
         .scan(0, |offset, line| {
             let position = *offset;
             *offset += line.len();
             Some((position, line))
         })
-        .filter_map(|(position, line)| arm_heading(line).map(|(title, _)| (position, Some(title))))
-        .peekable();
-    if arms.peek().is_none() {
-        return split(text, start, page).map(|unscoped| Page {
-            unscoped,
-            arms: Vec::new(),
-        });
-    }
+        .filter_map(|(position, line)| arm_heading(line).map(|(title, _)| (position, Some(title))));
     let boundaries = arms.chain(std::iter::once((text.len(), None)));
     let mut out = Page::default();
     let (mut block_start, mut title) = (0, None);
@@ -166,7 +192,7 @@ pub fn split_page(text: &str, start: usize, page: &str) -> Option<Page> {
         let left = start.max(block_start);
         let right = end.min(block_end);
         if left < right {
-            let criteria = split_scope(
+            let criteria = split_items(
                 text.get(block_start..block_end)?,
                 left - block_start,
                 text.get(left..right)?,
@@ -186,28 +212,6 @@ pub fn split_page(text: &str, start: usize, page: &str) -> Option<Page> {
         (block_start, title) = (block_end, next_title);
     }
     Some(out)
-}
-
-fn split_scope(text: &str, start: usize, page: &str) -> Option<Split> {
-    if !text.lines().any(|line| {
-        heading(line).is_none() && arm_heading(line).is_none() && other_criteria_heading(line)
-    }) {
-        return split_items(text, start, page);
-    }
-    // Keep ambiguous text in its own scope without reassigning any criterion.
-    let heading_end = if arm_heading(text.lines().next()?).is_some() {
-        text.find('\n').map_or(text.len(), |offset| offset + 1)
-    } else {
-        0
-    };
-    let preamble = page
-        .get(heading_end.saturating_sub(start)..)
-        .unwrap_or_default()
-        .trim();
-    Some(Split {
-        preamble: (!preamble.is_empty()).then(|| preamble.into()),
-        ..Split::default()
-    })
 }
 
 // An item includes any more deeply indented lines.
