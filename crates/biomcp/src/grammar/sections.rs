@@ -17,7 +17,14 @@ const SYNONYMS: &[(&str, &str, &str)] = &[
 ];
 
 /// A single PMID followed by `text` takes the same reader path as `article text`.
-pub(super) fn article_text(value: &Value) -> Option<biomcp_types::Request> {
+pub(super) fn article_text(
+    verb: &str,
+    entity: &str,
+    value: &Value,
+) -> Option<biomcp_types::Request> {
+    if (verb, entity) != ("get", "article") {
+        return None;
+    }
     let fields = value.as_object()?;
     let [id, word] = fields.get("input")?.as_array()?.as_slice() else {
         return None;

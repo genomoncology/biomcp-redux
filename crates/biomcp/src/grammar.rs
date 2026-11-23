@@ -522,9 +522,7 @@ fn request(
     fields: &[String],
 ) -> Result<Request, ParseInvalid> {
     let value = request_arguments(verb, entity, matches)?;
-    if (verb, entity) == ("get", "article")
-        && let Some(reader) = sections::article_text(&value)
-    {
+    if let Some(reader) = sections::article_text(verb, entity, &value) {
         return Ok(reader);
     }
     let command = biomcp_types::COMMANDS
