@@ -127,6 +127,8 @@ fn hosted() -> Result<(), String> {
         return Err(format!("caller key check returned HTTP {status}"));
     }
     check(&reply, "ncbi", "working", None)?;
+    let (_, reply) = server.request("POST", path, body)?;
+    check(&reply, "ncbi", "could_not_check", Some("no-key"))?;
     server.stop()?;
 
     let mut plain = super::http::Server::start()?;

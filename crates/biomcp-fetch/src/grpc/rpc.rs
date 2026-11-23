@@ -18,7 +18,7 @@ pub struct GrpcEndpoint {
     pub(super) schema: &'static str,
     pub(super) fresh: crate::Freshness,
     limits: Option<super::Limits>,
-    google_key_check: bool,
+    invalid_key_message: Option<fn(&[u8]) -> bool>,
 }
 impl SourceSpec {
     /// Declare one read-only streaming method. Every invocation makes one application attempt.
@@ -28,15 +28,16 @@ impl SourceSpec {
             path,
             schema: "",
             limits: None,
-            google_key_check: false,
+            invalid_key_message: None,
             fresh: crate::Freshness::Never,
         }
     }
 }
 impl GrpcEndpoint {
-    /// Recognize Google's invalid API key error on a fixed authenticated probe.
-    pub const fn google_key_check(mut self) -> Self {
-        self.google_key_check = true;
+    /// Recognize a publisher's invalid-key message on a fixed authenticated probe.
+    /// The recognizer sees bounded raw metadata and must never retain its value.
+    pub const fn invalid_key_message(mut self, recognize: fn(&[u8]) -> bool) -> Self {
+        self.invalid_key_message = Some(recognize);
         self
     }
 
@@ -117,7 +118,7 @@ impl Leg<'_> {
                 key: key.map(|(name, value)| (name, Secret::new(value))),
                 body: prost::bytes::Bytes::copy_from_slice(body),
                 limits,
-                google_key_check: endpoint.google_key_check,
+                invalid_key_message: endpoint.invalid_key_message,
                 deadline: self.budget().local(),
                 stop,
                 events,

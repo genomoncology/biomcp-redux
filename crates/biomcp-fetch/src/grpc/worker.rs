@@ -23,7 +23,7 @@ pub(super) struct Command {
     pub(super) key: Option<(&'static str, Secret)>,
     pub(super) body: prost::bytes::Bytes,
     pub(super) limits: Limits,
-    pub(super) google_key_check: bool,
+    pub(super) invalid_key_message: Option<fn(&[u8]) -> bool>,
     pub(super) deadline: LocalDeadline,
     pub(super) stop: Arc<Stop>,
     pub(super) events: mpsc::SyncSender<Event>,

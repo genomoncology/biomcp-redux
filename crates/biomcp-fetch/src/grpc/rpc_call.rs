@@ -17,7 +17,7 @@ pub(super) async fn execute(
         socket,
         command.limits,
         command.state.clone(),
-        command.google_key_check,
+        command.invalid_key_message,
     )
     .await
     .map_err(|_| Reason::Unavailable)?;

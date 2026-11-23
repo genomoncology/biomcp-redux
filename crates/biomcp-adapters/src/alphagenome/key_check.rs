@@ -8,7 +8,15 @@ use prost::Message;
 const METADATA: GrpcEndpoint = super::SPEC
     .grpc("/google.gdm.gdmscience.alphagenome.v1main.DnaModelService/GetMetadata")
     .checked("alphagenome.key-check/1", biomcp_fetch::Freshness::Never)
-    .google_key_check();
+    .invalid_key_message(invalid_key_message);
+
+fn invalid_key_message(message: &[u8]) -> bool {
+    matches!(
+        message,
+        b"API key not valid. Please pass a valid API key."
+            | b"API%20key%20not%20valid.%20Please%20pass%20a%20valid%20API%20key."
+    )
+}
 
 pub(crate) fn check(leg: &Leg<'_>) -> Result<(), RequestError> {
     let request = super::proto::MetadataRequest {
