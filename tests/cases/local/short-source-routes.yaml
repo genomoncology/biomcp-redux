@@ -13,6 +13,7 @@ steps:
         includes_all_of:
           - '--limit 2'
           - 'Follow next'
+          - 'trial document NCT01467466 SAP_001.pdf --find "Wald chi-square p-value"'
   - run: [--format, md, help, disease]
     expect:
       "":

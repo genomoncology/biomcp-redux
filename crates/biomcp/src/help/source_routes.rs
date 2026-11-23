@@ -131,6 +131,13 @@ pub(crate) const ROUTES: &[Route] = &[
         note: "Read criteria under their registry arm headings and keep study-wide ages separate. Follow next.",
     },
     Route {
+        entity: "trial",
+        source: "ctgov",
+        cli: r#"trial document NCT01467466 SAP_001.pdf --find "Wald chi-square p-value""#,
+        typed: r#"Document id=NCT01467466, file="SAP_001.pdf", find="Wald chi-square p-value"."#,
+        note: "Use the reported version, registry date and PDF page.",
+    },
+    Route {
         entity: "article",
         source: "pmc-oa",
         cli: "article text 28944238",
