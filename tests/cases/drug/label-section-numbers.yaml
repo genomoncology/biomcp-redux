@@ -1,0 +1,63 @@
+{
+  "feature": "drug-label",
+  "story": "Printed prescribing-information section numbers select the corresponding openFDA fields. An unsupported number lists valid fields, and a mapped field missing from this label is reported as missing.",
+  "replay": "drug/label-printed-names",
+  "config": {
+    "mcp_tool_mode": "typed"
+  },
+  "steps": [
+    {
+      "run": [
+        "get", "drug", "Aimovig", "label", "--source", "openfda-label", "--label-section", "1,14"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/parts/*/reply/result/label/state": ["data", "data"],
+        "/result/parts/*/reply/result/label/data/heading": ["indications_and_usage", "clinical_studies"]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "Aimovig",
+            "source": "openfda-label",
+            "section": "label",
+            "label_section": ["1", "14"]
+          }
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/result/parts/*/reply/result/label/state": ["data", "data"],
+        "/result/parts/*/reply/result/label/data/heading": ["indications_and_usage", "clinical_studies"]
+      }
+    },
+    {
+      "run": [
+        "get", "drug", "Aimovig", "label", "--source", "openfda-label", "--label-section", "1,99"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--label-section",
+        "/error/valid_values/*": {
+          "includes_all_of": ["indications_and_usage", "clinical_studies"]
+        }
+      }
+    },
+    {
+      "run": [
+        "get", "drug", "Aimovig", "label", "--source", "openfda-label", "--label-section", "15"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/state": "empty",
+        "/result/hint": "AIMOVIG's label (set b998ed05-94b0-47fd-b28f-cddd1e128fd8, version 25) has no references section; sections lists the sections it has, and label_section (--label-section on the command line) reads one"
+      }
+    }
+  ]
+}
