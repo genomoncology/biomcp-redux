@@ -159,6 +159,14 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     {
         return Err(QueryInvalid::new(&["document_id", "source", "section"]));
     }
+    if fields
+        .document_id
+        .as_ref()
+        .is_some_and(|id| id.as_str().contains(','))
+    {
+        return Err(QueryInvalid::new(&["document_id"])
+            .with_message(crate::ErrorMessage::DrugApprovalDocumentList));
+    }
     let approvals = fields.source == Some(DrugSource::Drugsfda)
         && fields.section.as_ref() == [DrugSection::Approvals];
     let held = !fields.section.is_empty()

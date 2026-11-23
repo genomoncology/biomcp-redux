@@ -227,7 +227,13 @@ fn proposed_purpose(text: &str) -> Option<String> {
 
 fn supplement_start(intro: &str) -> Option<usize> {
     let start = intro.rfind("This ")?;
-    intro.get(start..)?.contains("supplement").then_some(start)
+    let subject = intro.get(start..)?;
+    (subject.contains("supplement")
+        || matches!(
+            subject.split_whitespace().last(),
+            Some("sNDA" | "sBLA" | "sANDA")
+        ))
+    .then_some(start)
 }
 
 fn closing_marker(text: &str) -> Option<usize> {

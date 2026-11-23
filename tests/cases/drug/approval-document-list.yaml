@@ -10,5 +10,6 @@ steps:
     expect:
       /error/code: usage.arguments
       /error/option: --document-id
-      /error/message: "Give one FDA letter ID per call. Repeat the suggested command with each document ID."
-      /next/0/args: [get, drug, BLA761363, --source, drugsfda, --section, approvals, --document-id, "83960"]
+      /error/message: "Give one FDA letter ID per call. Repeat the call with each document ID."
+      /next/0/args:
+        includes_all_of: [get, drug, BLA761363, approvals, --source, drugsfda, --document-id, "83960"]

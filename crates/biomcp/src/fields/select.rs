@@ -351,6 +351,7 @@ pub(crate) fn project(value: &mut Value, chosen: &Chosen) -> io::Result<()> {
     for list in sections::lists(&schema, &chosen.call) {
         narrow::list(value, &list, &chosen.names);
     }
+    crate::incomplete::projected_purpose(value);
     Ok(())
 }
 
