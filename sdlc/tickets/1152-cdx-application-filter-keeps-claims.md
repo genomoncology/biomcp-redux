@@ -1,6 +1,7 @@
 # 1152 — cdx-application-filter-keeps-claims
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9e343f465df6dbdbc9cb002c356eb951bf5597a1
 
 Milestone: 7
 
