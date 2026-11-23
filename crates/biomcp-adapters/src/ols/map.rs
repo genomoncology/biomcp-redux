@@ -1,14 +1,14 @@
 use super::{Record, raw, xrefs};
 use crate::mapped::{Problems, record as record_text};
 use crate::{Mapped, raw::Field};
-use biodata::{Attribution, Curie, DiseaseSynonym, Text};
+use biodata::{Attribution, Curie, DiseaseSynonym, Error, Text};
 use biomcp_fetch::{InputError, RequestError};
 use biomcp_types::{
     ComponentLabel, ComponentTerms, DiseaseCard, DiseaseConcept, DiseaseOntology, DiseaseSection,
     Source,
 };
 pub(super) fn attribution(
-    id: &Curie,
+    id: Option<&Curie>,
     iri: Option<Text>,
     ontology: DiseaseOntology,
 ) -> Result<Attribution, RequestError> {
@@ -16,7 +16,7 @@ pub(super) fn attribution(
         approved: None,
         published: None,
         source: crate::mapped::text(ontology.as_str()).map_err(|_| InputError::Serialization)?,
-        record: record_text(id),
+        record: id.and_then(record_text),
         url: iri,
         version: None,
         release: None,
@@ -65,7 +65,7 @@ pub(super) fn record(
             Field::Invalid(_) => Err(()),
         }),
     );
-    let attribution = attribution(&term.obo_id, iri, ontology)?;
+    let attribution = attribution(Some(&term.obo_id), iri, ontology)?;
     let synonyms = synonyms(&term, &attribution);
     let xrefs = xrefs::map(&mut term, &attribution)?;
     let mut sections = Vec::new();
@@ -160,24 +160,29 @@ fn ids(values: &[Field<String>], field: &str, problems: &mut Problems) -> Option
         values
             .iter()
             .filter_map(|v| {
-                problems.required(
-                    field,
-                    match v {
-                        Field::Value(v) => iri_id(v.as_str()),
-                        Field::Invalid(_) => None,
-                    },
-                )
+                let id = match v {
+                    Field::Value(v) => iri_id(v.as_str()),
+                    Field::Invalid(_) => Err(Error::CurieInvalid),
+                };
+                problems.optional(field, Some(id))
             })
             .collect(),
     )
 }
-fn iri_id(value: &str) -> Option<Curie> {
-    if let Some(native) = value.strip_prefix("http://purl.obolibrary.org/obo/") {
-        let (prefix, local) = native.split_once('_')?;
-        format!("{prefix}:{local}").parse().ok()
+pub(super) fn iri_id(value: &str) -> Result<Curie, Error> {
+    if let Some(native) = value
+        .strip_prefix("http://purl.obolibrary.org/obo/")
+        .or_else(|| value.strip_prefix("https://purl.obolibrary.org/obo/"))
+    {
+        short_form_id(native)
     } else {
-        value.parse().ok()
+        value.parse()
     }
+}
+
+pub(super) fn short_form_id(value: &str) -> Result<Curie, Error> {
+    let (prefix, local) = value.split_once('_').ok_or(Error::CurieInvalid)?;
+    format!("{prefix}:{local}").parse()
 }
 
 fn synonyms(term: &raw::Term, attribution: &Attribution) -> Mapped<Vec<DiseaseSynonym>> {
