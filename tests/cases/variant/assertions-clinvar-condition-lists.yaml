@@ -12,8 +12,6 @@ steps:
   - variant
   - clinvar:546089
   - clinvar
-  - --limit
-  - '50'
   expect: &conditions
     /status: complete
     /result/candidates/0/sections/clinvar/data/total: 4
@@ -68,5 +66,4 @@ steps:
         id: clinvar:546089
         section:
         - clinvar
-        section_limit: 50
   expect: *conditions
