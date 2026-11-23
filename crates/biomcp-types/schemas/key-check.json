@@ -121,7 +121,7 @@
               "type": "string"
             },
             "status": {
-              "const": "could_not_check",
+              "const": "could-not-check",
               "type": "string"
             }
           },
@@ -140,7 +140,7 @@
               "type": "string"
             },
             "status": {
-              "const": "no_key_required",
+              "const": "no-key-required",
               "type": "string"
             }
           },
