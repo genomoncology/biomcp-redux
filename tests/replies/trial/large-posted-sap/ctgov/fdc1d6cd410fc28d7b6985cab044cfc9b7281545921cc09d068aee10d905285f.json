@@ -1,0 +1,97 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies/NCT05104866",
+  "exchanges": [
+    {
+      "fetched": 1795420830,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "protocolSection": {
+            "identificationModule": {
+              "nctId": "NCT05104866",
+              "orgStudyIdInfo": {
+                "id": "D9268C00001"
+              },
+              "secondaryIdInfos": [
+                {
+                  "id": "2023-509631-37-00",
+                  "type": "REGISTRY",
+                  "domain": "CTIS (EU)"
+                },
+                {
+                  "id": "2020-005620-12",
+                  "type": "EUDRACT_NUMBER"
+                }
+              ],
+              "organization": {
+                "fullName": "AstraZeneca",
+                "class": "INDUSTRY"
+              },
+              "briefTitle": "A Phase-3, Open-Label, Randomized Study of Dato-DXd Versus Investigator's Choice of Chemotherapy (ICC) in Participants With Inoperable or Metastatic HR-Positive, HER2-Negative Breast Cancer Who Have Been Treated With One or Two Prior Lines of Systemic Chemotherapy (TROPION-Breast01)",
+              "officialTitle": "A Phase-3, Open-Label, Randomized Study of Dato-DXd Versus Investigator's Choice of Chemotherapy (ICC) in Participants With Inoperable or Metastatic HR-Positive, HER2-Negative Breast Cancer Who Have Been Treated With One or Two Prior Lines of Systemic Chemotherapy (TROPION-Breast01)"
+            },
+            "statusModule": {
+              "statusVerifiedDate": "2026-07",
+              "overallStatus": "ACTIVE_NOT_RECRUITING",
+              "expandedAccessInfo": {
+                "hasExpandedAccess": false
+              },
+              "startDateStruct": {
+                "date": "2021-10-18",
+                "type": "ACTUAL"
+              },
+              "primaryCompletionDateStruct": {
+                "date": "2024-07-24",
+                "type": "ACTUAL"
+              },
+              "completionDateStruct": {
+                "date": "2026-12-31",
+                "type": "ESTIMATED"
+              },
+              "studyFirstSubmitDate": "2021-10-04",
+              "studyFirstSubmitQcDate": "2021-11-02",
+              "studyFirstPostDateStruct": {
+                "date": "2021-11-03",
+                "type": "ACTUAL"
+              },
+              "resultsFirstSubmitDate": "2025-07-23",
+              "resultsFirstSubmitQcDate": "2026-02-03",
+              "resultsFirstPostDateStruct": {
+                "date": "2026-02-04",
+                "type": "ACTUAL"
+              },
+              "lastUpdateSubmitDate": "2026-08-05",
+              "lastUpdatePostDateStruct": {
+                "date": "2026-08-24",
+                "type": "ACTUAL"
+              }
+            }
+          },
+          "documentSection": {
+            "largeDocumentModule": {
+              "largeDocs": [
+                {
+                  "typeAbbrev": "SAP",
+                  "hasProtocol": false,
+                  "hasSap": true,
+                  "hasIcf": false,
+                  "label": "Statistical Analysis Plan",
+                  "date": "2023-08-17",
+                  "uploadDate": "2025-07-23T13:12",
+                  "filename": "SAP_001.pdf",
+                  "size": 37513
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

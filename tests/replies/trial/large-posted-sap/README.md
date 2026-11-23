@@ -1,0 +1,1 @@
+The NCT05104866 registry reply is trimmed to the study identity, status, and SAP manifest entry. The PDF is a synthetic 335-page substitute with shared page resources and matches on physical pages 36 and 146. The final page exceeds the expanded-content limit.

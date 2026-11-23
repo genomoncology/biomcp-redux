@@ -1,0 +1,75 @@
+{
+  "feature": "trial-publications",
+  "story": "A caller can find phrases and read parts of a large posted plan, continue into later pages, and save the original PDF when a page exceeds the reader's safety limit.",
+  "replay": "trial/large-posted-sap",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--find", "race"],
+      "expect": {
+        "/result/content/data/text/pages": 335,
+        "/result/content/data/hits/0/page": 36,
+        "/result/content/data/hits/0/text": "Baseline race was tabulated.",
+        "/next/0/kind": "page"
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/query/page_start": 101,
+        "/result/content/data/hits/0/page": 146,
+        "/result/content/data/hits/0/text": "Race subgroup results were reported."
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/query/page_start": 201,
+        "/result/content/data/hits": [],
+        "/next/0/kind": "page"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "document",
+          "document": {"id": "NCT05104866", "file": "SAP_001.pdf", "find": "race"}
+        }
+      },
+      "expect": {
+        "/result/content/data/hits/0/page": 36,
+        "/result/content/data/hits/0/text": "Baseline race was tabulated."
+      }
+    },
+    {
+      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--section-offset", "0"],
+      "expect": {
+        "/result/content/data/text/pages": 335,
+        "/result/content/data/text/state": "text",
+        "/page/returned": 1,
+        "/next/0/kind": "page"
+      }
+    },
+    {
+      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "301"],
+      "expect": {
+        "/status": "partial",
+        "/result/content/data/text/pages": 335,
+        "/result/content/data/text/state": "too-large",
+        "/next/0/kind": "configure",
+        "/next/0/args": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--save", "SAP_001.pdf"]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/result/file/data/sha256": "2eb759be0d7bfe7c86e614842c2a40fc370a232994622fdd3f9799aff35c03aa"
+      }
+    }
+  ]
+}
