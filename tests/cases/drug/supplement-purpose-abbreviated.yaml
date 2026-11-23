@@ -1,0 +1,24 @@
+feature: drug-approvals
+story: An FDA letter can state a supplement’s purpose with an abbreviation. If a letter is missing, a projected reply points to the affected submission.
+live_check: Synthetic application and letter based on the wording of FDA document 83118.
+replay: drug/supplement-purpose-abbreviated
+steps:
+  - run: [get, drug, NDA215256, approvals, --source, drugsfda, --document-id, "83118"]
+    expect:
+      /status: complete
+      /result/approvals/data/records/0/supplement_purpose:
+        equals:
+          state: stated
+          document_id: "83118"
+          url: https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/215256Orig1s024ltr.pdf
+          text: "This “Prior Approval” sNDA provides for the addition of a new indication."
+  - run: [get, drug, NDA215256, approvals, --source, drugsfda, "--fields=submission_number"]
+    expect:
+      /status: partial
+      /result/approvals/data/records/1/submission_number: "23"
+      /result/approvals/data/records/1:
+        omits: [supplement_purpose]
+      /incomplete:
+        - at: /result/approvals/data/records/1/submission_number
+          source: drugsfda
+          reason: not-found
