@@ -54,9 +54,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
             true,
         );
     }
-    if let Ok((document, _)) = &result
-        && !document.state.readable()
-    {
+    if result.as_ref().is_ok_and(|reply| !reply.0.state.readable()) {
         unread(cx, q, &mut out, &mut source);
     }
     out.sources.push(source);
