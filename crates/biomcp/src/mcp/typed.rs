@@ -153,6 +153,7 @@ fn build_catalog(
                 .collect();
             let description = description::render(verb, entity, &schema, &excluded);
             let mut input = arguments::input_with_limit(&schema, enum_limit);
+            grouping::advertise_paging(&schema, &mut input);
             forms::advertise(&mut input, &forms::forms(verb, &schema));
             forms::unadvertise(&mut input, &schema);
             let caller_schema = catalog::caller_schema(schema, verb, entity, &excluded);

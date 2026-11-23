@@ -70,6 +70,8 @@ fn read<'a>(
     population_reason: Option<Reason>,
     section: VariantSection,
 ) -> Completed<'a> {
+    // Provider continuations carry only the section whose page advanced.
+    let query = &query.for_section(section);
     let mut sections = VariantSections::default();
     let mut collected = Collected::default();
     let candidates = std::slice::from_ref(candidate);

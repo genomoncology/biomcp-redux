@@ -13,19 +13,18 @@ pub(super) fn trials() -> Vec<Trial> {
         .map(|catalog| {
             trial(
                 format!("mcp-parity/typed-section-pages-{catalog}"),
-                move || check(catalog).map_err(Into::into),
+                move || {
+                    check(catalog)?;
+                    candidate_pages(catalog)?;
+                    drug_label_page(catalog).map_err(Into::into)
+                },
             )
         })
         .collect()
 }
 
 fn check(catalog: &str) -> Result<(), String> {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let mut globals = env.globals(
-        Some(&fixtures().join("replies/variant/typed-section-pages")),
-        false,
-    );
-    globals.extend(["--tool-mode", "typed", "--catalog", catalog].map(str::to_owned));
+    let (env, globals) = replay(catalog, "variant/typed-section-pages", &[])?;
     let first = call(
         &env,
         &globals,
@@ -86,11 +85,7 @@ fn check(catalog: &str) -> Result<(), String> {
             .ok_or_else(|| {
                 format!("missing {section} continuation with {selector}={position}: {pages:?}")
             })?;
-        let last = call(
-            &env,
-            &globals,
-            json!({"name":step["name"],"arguments":step["arguments"]}),
-        )?;
+        let last = follow(&env, &globals, step)?;
         let base = format!("{sections}/{section}/data");
         expect(&last, &format!("{base}/{row}"), &expected)?;
         if selector == "section_offset" {
@@ -104,6 +99,87 @@ fn check(catalog: &str) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn candidate_pages(catalog: &str) -> Result<(), String> {
+    let (env, globals) = replay(catalog, "paging/variant", &[])?;
+    let mut page = call(
+        &env,
+        &globals,
+        json!({"name":"variant","arguments":{"action":"get","get":{
+            "id":"rs113488022","section":"clinvar","candidate_limit":1
+        }}}),
+    )?;
+    for offset in 0..3 {
+        expect(&page, "/page/offset", &json!(offset))?;
+        expect(&page, "/page/returned", &json!(1))?;
+        expect(&page, "/query/section_offset", &json!(0))?;
+        let pages = page_steps(&page);
+        let next = pages
+            .iter()
+            .find(|step| step["arguments"]["action"] == "get");
+        if offset < 2 {
+            page = follow(
+                &env,
+                &globals,
+                next.ok_or("missing candidate continuation")?,
+            )?;
+        } else if next.is_some() {
+            return Err("last candidate page offered another candidate continuation".into());
+        }
+    }
+    Ok(())
+}
+
+fn drug_label_page(catalog: &str) -> Result<(), String> {
+    let (env, globals) = replay(
+        catalog,
+        "drug/label-discovery",
+        &["--disable-sources", "mychem,chembl"],
+    )?;
+    let first = call(
+        &env,
+        &globals,
+        json!({"name":"drug","arguments":{"action":"get","get":{
+            "id":"98b197ea-bca4-427e-8737-97f70a3262bc","source":"openfda-label","section":"label","section_limit":1,
+            "label_section":["spl_product_data_elements","package_label_principal_display_panel","warnings_and_cautions"]
+        }}}),
+    )?;
+    let part = first
+        .pointer("/result/parts/1/reply")
+        .ok_or("second label part")?;
+    expect(part, "/page/offset", &json!(0))?;
+    let pages = page_steps(part);
+    let [step] = pages.as_slice() else {
+        return Err(format!("expected one label continuation, got {pages:?}"));
+    };
+    let last = follow(&env, &globals, step)?;
+    expect(&last, "/page/offset", &json!(1))?;
+    expect(
+        &last,
+        "/result/label_section",
+        &json!("package_label_principal_display_panel"),
+    )?;
+    if !page_steps(&last).is_empty() {
+        return Err("last label page offered another continuation".into());
+    }
+    Ok(())
+}
+
+fn replay(catalog: &str, path: &str, extra: &[&str]) -> Result<(Environment, Vec<String>), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let mut globals = env.globals(Some(&fixtures().join("replies").join(path)), false);
+    globals.extend(["--tool-mode", "typed", "--catalog", catalog].map(str::to_owned));
+    globals.extend(extra.iter().map(|arg| (*arg).to_owned()));
+    Ok((env, globals))
+}
+
+fn follow(env: &Environment, globals: &[String], step: &Value) -> Result<Value, String> {
+    call(
+        env,
+        globals,
+        json!({"name":step["name"],"arguments":step["arguments"]}),
+    )
 }
 
 fn page_steps(reply: &Value) -> Vec<&Value> {
