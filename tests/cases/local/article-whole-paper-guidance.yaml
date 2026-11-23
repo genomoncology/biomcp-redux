@@ -1,0 +1,10 @@
+feature: agent-skill
+live_check: Local help and shipped skill.
+story: Article help and the installed skill teach whole-paper search and saving at the first full-text route.
+steps:
+  - run: [--format, md, help, article]
+    expect:
+      "": {includes_all_of: ["--find TEXT searches the whole paper", "--save PATH writes its Markdown"]}
+  - run: [--format, md, skill, render]
+    expect:
+      "": {includes_all_of: ["`--find TEXT` searches the whole paper", "`--save PATH` writes its Markdown"]}

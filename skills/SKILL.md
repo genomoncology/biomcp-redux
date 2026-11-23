@@ -18,6 +18,7 @@ A `no-key` reply will not change on retry. Observe publisher retry times. Stale 
 Only gene/protein/article/trial get batch IDs (CLI space/comma, typed `get.id` lists).
 
 `article text 28944238` or `get article 28944238 text` opens part 1 of an open PMC body. `fulltext` gives the outline.
+`--find TEXT` searches the whole paper. `--save PATH` writes its Markdown.
 
 ## Short reads
 
