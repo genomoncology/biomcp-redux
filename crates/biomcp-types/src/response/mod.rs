@@ -184,7 +184,8 @@ mod diagnostic;
 pub use diagnostic::*;
 mod gtr_relations;
 pub use gtr_relations::{
-    DiagnosticConditionRow, DiagnosticConditions, DiagnosticGeneRow, DiagnosticGenes,
+    DiagnosticConditionReference, DiagnosticConditionRow, DiagnosticConditions, DiagnosticGeneRow,
+    DiagnosticGenes,
 };
 mod diagnostic_companion;
 pub use diagnostic_companion::*;

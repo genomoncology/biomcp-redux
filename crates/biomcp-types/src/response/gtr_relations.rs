@@ -2,8 +2,7 @@
 use super::DiagnosticCountUnit;
 use crate::DiagnosticGet;
 use biodata::{
-    Curie, GtrConditionReference, GtrConditionRelation, GtrGeneReference, GtrGeneRelation,
-    GtrTestId, GtrTestType,
+    Curie, GtrConditionRelation, GtrGeneReference, GtrGeneRelation, GtrTestId, GtrTestType, Text,
 };
 use serde::{Deserialize, Serialize};
 
@@ -48,19 +47,35 @@ pub struct DiagnosticConditionRow {
     /// Native source test type.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub test_type: Option<GtrTestType>,
-    /// Source-given MedGen concept.
-    pub condition: GtrConditionReference,
+    /// Source-given condition identity or label.
+    pub condition: DiagnosticConditionReference,
     /// Native MIM cell, including empty.
     pub mim_number: Box<str>,
     /// Native SNOMED CT cell, including empty.
     pub snomed_ct_id: Box<str>,
 }
 
+/// A condition from the relation report or the exact version's list of labels.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiagnosticConditionReference {
+    /// Native MedGen identity, when the relation report supplies it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Curie"))]
+    pub id: Option<Curie>,
+    /// Native source label.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+}
+
 impl From<GtrConditionRelation> for DiagnosticConditionRow {
     fn from(row: GtrConditionRelation) -> Self {
         Self {
             test_type: row.test_type,
-            condition: row.condition,
+            condition: DiagnosticConditionReference {
+                id: Some(row.condition.id),
+                label: row.condition.label,
+            },
             mim_number: row.mim_number,
             snomed_ct_id: row.snomed_ct_id,
         }

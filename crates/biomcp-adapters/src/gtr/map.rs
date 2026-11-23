@@ -23,20 +23,23 @@ fn optional(
         Some(crate::raw::Field::Value(value.to_owned())),
     )
 }
+pub(super) enum Link {
+    Listing,
+    ExactVersion,
+}
+
 pub(super) fn header(
     v: &GtrTestVersion,
     xml: Option<&XmlTest>,
     problems: &mut Vec<biomcp_types::Problem>,
+    link: Link,
 ) -> Result<GtrHeader, RequestError> {
-    // The publisher's web route uses the numeric test base; the typed ID keeps
-    // the complete accession/version independently of this current listing link.
-    let base = v
+    let (base, version) = v
         .test_accession_ver
         .as_str()
         .strip_prefix("GTR")
         .and_then(|id| id.split_once('.'))
-        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?
-        .0;
+        .ok_or_else(|| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?;
     let base: u32 = base
         .parse()
         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?;
@@ -71,7 +74,11 @@ pub(super) fn header(
             .filter_map(|value| optional(value, "SpecimenType", v, problems))
             .collect(),
         url: Text::new(&format!(
-            "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/{base}/"
+            "https://www.ncbi.nlm.nih.gov/gtr/tests/{}",
+            match link {
+                Link::Listing => format!("classic/{base}/"),
+                Link::ExactVersion => format!("{base}.{version}/"),
+            }
         ))
         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?,
     })
@@ -87,7 +94,7 @@ pub(super) fn card(
     lab: Option<&XmlLab>,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<GtrCard, RequestError> {
-    let header = header(v, xml, problems)?;
+    let header = header(v, xml, problems, Link::ExactVersion)?;
     let lab = lab.filter(|lab| *lab.id == *v.lab_id);
     let test = xml.filter(|x| x.id == v.test_accession_ver);
     let laboratory_certifications = certifications(lab, v, problems);

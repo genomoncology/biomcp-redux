@@ -1,7 +1,10 @@
 use super::{bundle, map, raw::Native};
-use biodata::{GtrMethod, GtrTestRelation};
+use biodata::{GtrGeneReference, GtrMethod, GtrTestRelation, Text};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
-use biomcp_types::{DiagnosticGet, GtrCard, Problem};
+use biomcp_types::{
+    DiagnosticConditionReference, DiagnosticConditionRow, DiagnosticCountUnit, DiagnosticGeneRow,
+    DiagnosticGet, DiagnosticSection, GtrCard, Problem,
+};
 /// Exact source identity and independent relation collections under one local snapshot.
 #[derive(Debug)]
 pub struct Record {
@@ -13,8 +16,12 @@ pub struct Record {
     pub card: Option<GtrCard>,
     /// Conflict supplied before any current flag selection.
     pub conflict: Option<Problem>,
-    /// Native relation rows, including rows without a current card.
-    pub relations: Vec<GtrTestRelation>,
+    /// Native gene relations or the exact version's gene labels.
+    pub genes: Vec<DiagnosticGeneRow>,
+    /// Native condition relations or the exact version's condition labels.
+    pub conditions: Vec<DiagnosticConditionRow>,
+    /// Native relation row count unit, omitted for labels from the version report.
+    pub count_unit: Option<DiagnosticCountUnit>,
     /// Independent method lists with original indices.
     pub methods: Vec<GtrMethod>,
     /// Stored snapshot identity.
@@ -30,7 +37,8 @@ pub fn get(
     super::revision(query.bundle_revision(), &info)?;
     let mut versions = Vec::new();
     let mut xml = None;
-    let mut relations = Vec::new();
+    let mut genes = Vec::new();
+    let mut conditions = Vec::new();
     let mut cx = crate::mapped::Problems {
         source: biomcp_types::Source::Gtr,
         record: None,
@@ -46,11 +54,11 @@ pub fn get(
                 refusals = crate::Refusal::Refused;
                 r.disclose(&mut cx);
             }
-            Native::Relation(r) => {
-                if let Some(relation) = map::relation(&r, &mut cx, &mut refusals) {
-                    relations.push(relation);
-                }
-            }
+            Native::Relation(r) => match map::relation(&r, &mut cx, &mut refusals) {
+                Some(GtrTestRelation::Gene(gene)) => genes.push(gene.into()),
+                Some(GtrTestRelation::Condition(condition)) => conditions.push(condition.into()),
+                None => {}
+            },
         }
     }
     let conflict = if versions.len() > 1 {
@@ -58,6 +66,56 @@ pub fn get(
     } else {
         None
     };
+    let mut count_unit = Some(DiagnosticCountUnit::NativeRelationRows);
+    if conflict.is_none()
+        && let Some(v) = versions.first()
+    {
+        let before = cx.list.len();
+        cx.record = crate::mapped::record(id);
+        // Historical versions can carry labels even when the separate relation report has no rows.
+        match query.section() {
+            Some(DiagnosticSection::Genes) if genes.is_empty() => {
+                genes.extend(
+                    labels(&v.genes, "genes", &mut cx).map(|label| DiagnosticGeneRow {
+                        test_type: None,
+                        object_name: label.as_str().into(),
+                        gene: GtrGeneReference {
+                            label: Some(label),
+                            ncbi_gene_id: None,
+                        },
+                        native_gene_or_snomed_ct_id: None,
+                        native_medgen: None,
+                        mim_number: "".into(),
+                    }),
+                );
+                count_unit = genes
+                    .is_empty()
+                    .then_some(DiagnosticCountUnit::NativeRelationRows);
+            }
+            Some(DiagnosticSection::Conditions) if conditions.is_empty() => {
+                conditions.extend(
+                    labels(&v.condition_identifiers, "condition_identifiers", &mut cx).map(
+                        |label| DiagnosticConditionRow {
+                            test_type: None,
+                            condition: DiagnosticConditionReference {
+                                id: None,
+                                label: Some(label),
+                            },
+                            mim_number: "".into(),
+                            snomed_ct_id: "".into(),
+                        },
+                    ),
+                );
+                count_unit = conditions
+                    .is_empty()
+                    .then_some(DiagnosticCountUnit::NativeRelationRows);
+            }
+            _ => {}
+        }
+        if cx.list.len() != before {
+            refusals = crate::Refusal::Refused;
+        }
+    }
     let mut problems = cx.list;
     let card = if conflict.is_none()
         && let Some(v) = versions.first()
@@ -80,10 +138,22 @@ pub fn get(
         problems,
         card,
         conflict,
-        relations,
+        genes,
+        conditions,
+        count_unit,
         methods,
         info,
     })
+}
+
+fn labels<'a>(
+    cell: &'a str,
+    field: &'a str,
+    cx: &'a mut crate::mapped::Problems,
+) -> impl Iterator<Item = Text> + 'a {
+    cell.split('|')
+        .filter(|value| !value.is_empty())
+        .filter_map(move |value| cx.checked_text(field, Some(value)))
 }
 /// The laboratory's XML row, read under the card's snapshot.
 fn lab(
