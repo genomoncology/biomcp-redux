@@ -1,6 +1,7 @@
 # 1157 — saved-remove-refuses-ambiguous-id
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a2ada00dd0b6452259599ea6519422baa3573b2a (with 1155)
 
 Milestone: 7
 
