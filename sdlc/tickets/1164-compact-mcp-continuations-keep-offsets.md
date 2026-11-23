@@ -1,6 +1,7 @@
 # 1164 — compact-mcp-continuations-keep-offsets
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d876386d273e3f7f3eb71b9fdc77df834487881c
 
 Milestone: 7
 

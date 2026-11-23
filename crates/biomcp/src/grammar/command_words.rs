@@ -39,7 +39,15 @@ pub(crate) fn cli(
             positional.push((index, words(value)));
             continue;
         }
-        let flag = argument.get_long()?;
+        let flag = if super::paging::both(schema)
+            && super::paging::CANDIDATES
+                .iter()
+                .any(|&(_, list)| key == list)
+        {
+            super::paging::flag(schema, &values, key)
+        } else {
+            format!("--{}", argument.get_long()?)
+        };
         if let Some(boolean) = value.as_bool()
             && matches!(
                 argument.get_action(),
@@ -47,9 +55,9 @@ pub(crate) fn cli(
             )
         {
             if argument.is_require_equals_set() {
-                args.push(format!("--{flag}={boolean}").into());
+                args.push(format!("{flag}={boolean}").into());
             } else if boolean {
-                args.push(format!("--{flag}").into());
+                args.push(flag.into());
             }
             continue;
         }
@@ -60,10 +68,10 @@ pub(crate) fn cli(
             .and_then(|field| field.get("x-comma-separated"))
             == Some(&Value::Bool(true))
         {
-            args.push(format!("--{flag}={}", values.join(",")).into());
+            args.push(format!("{flag}={}", values.join(",")).into());
         } else {
             for value in values {
-                args.push(format!("--{flag}={value}").into());
+                args.push(format!("{flag}={value}").into());
             }
         }
     }

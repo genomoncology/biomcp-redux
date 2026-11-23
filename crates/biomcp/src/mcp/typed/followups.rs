@@ -105,10 +105,11 @@ fn options_for(
         .tools
         .iter()
         .find(|tool| tool.get("name") == call.get("name"))?;
-    let mut properties = tool.pointer("/inputSchema/properties")?;
+    let mut schema = tool.get("inputSchema")?;
     if let Some(action) = call.pointer("/arguments/action").and_then(Value::as_str) {
-        properties = properties.get(action)?.get("properties")?;
+        schema = schema.get("properties")?.get(action)?;
     }
+    let properties = schema.get("properties")?;
     let command = super::name(args.first()?.as_str()?, args.get(1)?.as_str()?);
     let mut typed = serde_json::Map::new();
     let action = call.pointer("/arguments/action").and_then(Value::as_str);
@@ -121,7 +122,7 @@ fn options_for(
         let Some(name) = named.as_object().and_then(|fields| fields.keys().next()) else {
             continue;
         };
-        if properties.get(name).is_some() {
+        if property(schema, name).is_some() {
             typed.insert(name.clone(), placeholder.clone());
         }
     }
@@ -202,6 +203,23 @@ pub(super) fn allowed(call: &Value, tools: &[Value]) -> bool {
         .is_some_and(|tool| choices(&tool["inputSchema"], &call["arguments"]))
 }
 
+/// Candidate aliases use the corresponding list field's schema. A typed action
+/// accepts these grammar aliases without repeating the paging fields in its schema.
+fn property<'a>(schema: &'a Value, key: &str) -> Option<&'a Value> {
+    let fields = schema.get("properties")?;
+    fields.get(key).or_else(|| {
+        if schema.get("additionalProperties") == Some(&Value::Bool(false))
+            || !crate::grammar::paging::both(schema)
+        {
+            return None;
+        }
+        let (_, field) = crate::grammar::paging::CANDIDATES
+            .into_iter()
+            .find(|(candidate, _)| *candidate == key)?;
+        fields.get(field)
+    })
+}
+
 // The canonical parser already checks types, ranges and required fields. The
 // advertised schema can additionally remove fields and narrow enum choices.
 fn choices(schema: &Value, value: &Value) -> bool {
@@ -224,18 +242,14 @@ fn choices(schema: &Value, value: &Value) -> bool {
     }
     match value {
         Value::Object(fields) => fields.iter().all(|(key, value)| {
-            schema
-                .get("properties")
-                .and_then(|fields| fields.get(key))
-                .map_or_else(
-                    // A schema that names its fields offers only those, whether or not it
-                    // also forbids others: a suggested call never uses an unadvertised one.
-                    || {
-                        schema.get("properties").is_none()
-                            && schema.get("additionalProperties") != Some(&Value::Bool(false))
-                    },
-                    |node| choices(node, value),
-                )
+            property(schema, key).map_or_else(
+                // Keep suggestions on known fields even where the action admits extra names.
+                || {
+                    schema.get("properties").is_none()
+                        && schema.get("additionalProperties") != Some(&Value::Bool(false))
+                },
+                |node| choices(node, value),
+            )
         }),
         Value::Array(values) => schema
             .get("items")

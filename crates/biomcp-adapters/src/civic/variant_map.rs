@@ -230,16 +230,18 @@ fn claim_page<T>(
     kind: CivicClaimKind,
     exact: bool,
 ) -> Result<CivicClaimPage, RequestError> {
-    let next =
-        if exact && (raw.page_info.has_next_page || raw.nodes.is_empty() && raw.total_count > 0) {
-            Some(
-                query
-                    .with_civic_page(profile, kind, raw.page_info.end_cursor.clone())
-                    .map_err(|_| failure(Reason::BadReply))?,
-            )
-        } else {
-            None
-        };
+    let next = if exact
+        && query.civic_kind().is_none_or(|active| active == kind)
+        && (raw.page_info.has_next_page || raw.nodes.is_empty() && raw.total_count > 0)
+    {
+        Some(
+            query
+                .with_civic_page(profile, kind, raw.page_info.end_cursor.clone())
+                .map_err(|_| failure(Reason::BadReply))?,
+        )
+    } else {
+        None
+    };
     Ok(CivicClaimPage {
         returned: if exact { raw.nodes.len() as u32 } else { 0 },
         total: raw.total_count,

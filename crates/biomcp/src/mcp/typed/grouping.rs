@@ -243,9 +243,23 @@ pub(super) fn call(canonical: Value, catalog: &Catalog) -> Option<Value> {
 
 /// A registry command's arguments under their advertised names.
 pub(super) fn advertised(command: &str, arguments: &Value) -> Value {
-    let forms = crate::grammar::command_paths()
+    let Some((verb, schema)) = crate::grammar::command_paths()
         .into_iter()
         .find(|(verb, entity, _)| super::name(verb, entity) == command)
-        .and_then(|(verb, _, id)| Some(super::forms::forms(verb, &super::schema(id).ok()?)));
-    super::forms::advertised_arguments(arguments, &forms.unwrap_or_default())
+        .and_then(|(verb, _, id)| Some((verb, super::schema(id).ok()?)))
+    else {
+        return arguments.clone();
+    };
+    let mut arguments =
+        super::forms::advertised_arguments(arguments, &super::forms::forms(verb, &schema));
+    if crate::grammar::paging::both(&schema)
+        && let Some(fields) = arguments.as_object_mut()
+    {
+        for (candidate, list) in crate::grammar::paging::CANDIDATES {
+            if let Some(value) = fields.remove(list) {
+                fields.insert(candidate.into(), value);
+            }
+        }
+    }
+    arguments
 }

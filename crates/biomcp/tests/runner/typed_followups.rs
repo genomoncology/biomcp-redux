@@ -8,6 +8,8 @@ use super::super::{
 use serde_json::{Value, json};
 #[path = "typed_owned_followups.rs"]
 mod owned;
+#[path = "typed_section_pages.rs"]
+mod section_pages;
 #[path = "../../src/schema/steps.rs"]
 mod step_paths;
 
@@ -17,6 +19,7 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         || check().map_err(Into::into),
     )];
     trials.extend(owned::trials());
+    trials.extend(section_pages::trials());
     trials
 }
 

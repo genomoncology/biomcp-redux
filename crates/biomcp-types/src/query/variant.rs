@@ -311,6 +311,24 @@ impl VariantGet {
         self.0.section = sections;
         self
     }
+    /// Select one section with its own filters and the existing page selectors.
+    pub fn for_section(&self, section: VariantSection) -> Self {
+        let mut query = self.clone();
+        let fields = &mut query.0;
+        fields.section = Box::new([section]);
+        if !matches!(section, VariantSection::Civic | VariantSection::All) {
+            fields.civic_profile = None;
+            fields.civic_kind = None;
+            fields.civic_cursor = None;
+            fields.evidence_filter = Default::default();
+            fields.disease = None;
+            fields.drug = None;
+        }
+        if !matches!(section, VariantSection::Clinvar | VariantSection::All) {
+            fields.clinvar_kind = None;
+        }
+        query
+    }
     /// Caller tumor context, never inferred from an allele or gene.
     pub fn tumor_type(&self) -> Option<&crate::Text> {
         self.0.tumor_type.as_ref()

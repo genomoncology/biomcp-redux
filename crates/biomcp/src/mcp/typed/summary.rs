@@ -52,11 +52,9 @@ pub(super) fn translate(
     let normalized = crate::grammar::request_arguments(verb, entity, matches).ok()?;
     let mut arguments = serde_json::Map::new();
     for key in input.get("properties")?.as_object()?.keys() {
-        if let Some(value) = normalized.get(key)
-            && (matches.value_source(key) == Some(clap::parser::ValueSource::CommandLine)
-                || schema.pointer(&format!("/properties/{key}/x-trailing-section"))
-                    == Some(&json!(true)))
-        {
+        // The grammar already selected explicit values and resolved aliases.
+        // A normalized field like section_offset need not have a match under its own name.
+        if let Some(value) = normalized.get(key) {
             arguments.insert(key.clone(), value.clone());
         } else if input.pointer(&format!("/properties/{key}/type")) == Some(&json!("boolean"))
             && matches.value_source(key) == Some(clap::parser::ValueSource::CommandLine)
