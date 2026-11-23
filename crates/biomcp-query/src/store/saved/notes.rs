@@ -5,7 +5,9 @@ use biodata::Text;
 use biomcp_types::{NoteTargetKind, SavedNote, SavedNoteTarget, SavedRef, SavedSkipped, Source};
 use rusqlite::{Connection, OptionalExtension, params};
 
-use super::store::{NOTE_CHARS, PROJECT, list_id, search_id, seconds, text, unsigned, within};
+use super::store::{
+    NOTE_CHARS, PROJECT, item_keys, list_id, search_id, seconds, text, unsigned, within,
+};
 use super::{SavedError, SavedStore};
 
 /// What a new note is attached to.
@@ -111,15 +113,7 @@ fn resolve(connection: &Connection, target: NoteTarget<'_>) -> Result<Key, Saved
             source,
         } => {
             let record = list_id(connection, list)?.ok_or(SavedError::Unknown)?;
-            let mut statement = connection.prepare(
-                "SELECT entity,source FROM saved_list_item WHERE list=?1 AND id=?2 \
-                 AND (?3 IS NULL OR entity=?3) AND (?4 IS NULL OR source=?4) ORDER BY rowid",
-            )?;
-            let found: Vec<(String, String)> = statement
-                .query_map(params![record, id, entity, source], |row| {
-                    Ok((row.get(0)?, row.get(1)?))
-                })?
-                .collect::<Result<_, _>>()?;
+            let found = item_keys(connection, &record, id, entity, source)?;
             let [(entity, source)] = <[_; 1]>::try_from(found).map_err(|found| {
                 if found.is_empty() {
                     SavedError::ItemUnknown
@@ -184,11 +178,17 @@ pub(super) fn delete_record(connection: &Connection, record: &str) -> Result<(),
     Ok(())
 }
 
-/// Delete the notes on one list's items with this ID.
-pub(super) fn delete_item(connection: &Connection, list: &str, id: &str) -> Result<(), SavedError> {
+/// Delete the notes attached to this exact saved item.
+pub(super) fn delete_item(
+    connection: &Connection,
+    list: &str,
+    id: &str,
+    entity: &str,
+    source: &str,
+) -> Result<(), SavedError> {
     connection.execute(
-        "DELETE FROM saved_note WHERE record=?1 AND kind='item' AND item=?2",
-        params![list, id],
+        "DELETE FROM saved_note WHERE record=?1 AND kind='item' AND item=?2 AND entity=?3 AND source=?4",
+        params![list, id, entity, source],
     )?;
     Ok(())
 }

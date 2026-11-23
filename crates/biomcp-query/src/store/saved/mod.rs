@@ -12,7 +12,8 @@ pub use snapshot::{
     FLOOR_SECONDS, NewSnapshot, SNAPSHOT_ROWS, SnapshotRow, compare, failed, not_due, now,
 };
 pub use store::{
-    COMPATIBILITY, NAME_CHARS, NOTE_CHARS, NewItem, PROJECT, SavedError, SavedStore, request_key,
+    COMPATIBILITY, DEFAULT_ITEM_SOURCE, NAME_CHARS, NOTE_CHARS, NewItem, PROJECT, SavedError,
+    SavedStore, request_key,
 };
 
 #[cfg(test)]

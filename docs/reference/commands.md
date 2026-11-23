@@ -12972,7 +12972,7 @@ Example: biomcp saved list add braf-genes --entity gene BRAF
 ```text
 Remove items with these IDs from a list.
 
-Usage: biomcp saved list remove <NAME> <ID>...
+Usage: biomcp saved list remove [OPTIONS] <NAME> <ID>...
 
 Arguments:
   <NAME>
@@ -12980,6 +12980,13 @@ Arguments:
 
   <ID>...
           IDs to remove.
+
+Options:
+      --entity <entity>
+          Entity of the saved item.
+
+      --source <source>
+          Source of the saved item. Use default for items saved without a source.
 
 Example: biomcp saved list remove braf-genes BRAF
 

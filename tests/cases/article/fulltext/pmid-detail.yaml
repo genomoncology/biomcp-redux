@@ -1,0 +1,12 @@
+feature: article-fulltext
+story: A PMID opens the first part of the PMC copy named only in the detailed PubMed record.
+live_check: Local synthetic replay only.
+replay: article/fulltext/pmid-detail
+steps:
+  - run: [article, text, "28944238"]
+    expect:
+      /status: complete
+      /result/pmcid: PMC5606870
+      /result/content/source: pmc-oa
+      /result/content/data/part: 1
+      /result/content/data/markdown: "## First section\n\nFirst body paragraph."

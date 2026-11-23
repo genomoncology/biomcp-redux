@@ -7,7 +7,9 @@
 use crate::command::{Encoding, Outcome};
 use crate::exit::Status as Exit;
 use biodata::Text;
-use biomcp_query::store::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
+use biomcp_query::store::saved::{
+    DEFAULT_ITEM_SOURCE, NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore,
+};
 use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Saved, Source, Status, UsageArguments, UsageError,
 };
@@ -112,7 +114,11 @@ pub(crate) fn grammar() -> Command {
                         .about("Remove items with these IDs from a list.")
                         .after_help("Example: biomcp saved list remove braf-genes BRAF")
                         .arg(name("List name.").required(true))
-                        .arg(ids("IDs to remove.")),
+                        .arg(ids("IDs to remove."))
+                        .arg(Arg::new("entity").long("entity").help("Entity of the saved item."))
+                        .arg(Arg::new("source").long("source").help(
+                            "Source of the saved item. Use default for items saved without a source.",
+                        )),
                 ),
         )
 }
@@ -405,10 +411,21 @@ fn list(root: &crate::grammar::Root, at: At<'_>, matches: &ArgMatches) -> io::Re
         else {
             return usage(encoding, UsageError::argument("ID".into()));
         };
+        let entity = matches.get_one::<String>("entity").map(String::as_str);
+        let source = match matches.get_one::<String>("source").map(String::as_str) {
+            Some(DEFAULT_ITEM_SOURCE) => Some(String::new()),
+            Some(source) => match source.parse::<Source>() {
+                Ok(source) => Some(source.to_string()),
+                Err(_) => return usage(encoding, UsageError::argument("--source".into())),
+            },
+            None => None,
+        };
         let result = match open(at, false)? {
             Err(outcome) => return Ok(outcome),
             Ok(None) => Err(SavedError::Unknown),
-            Ok(Some(mut store)) => store.list_remove(name.as_str(), &ids),
+            Ok(Some(mut store)) => {
+                store.list_remove_qualified(name.as_str(), &ids, entity, source.as_deref())
+            }
         };
         return reply(encoding, result, "NAME");
     }
@@ -513,6 +530,8 @@ pub(crate) fn failure(
         SavedError::Taken => ErrorMessage::SavedNameTaken,
         SavedError::Unknown if argument == "--note" => ErrorMessage::SavedNoteUnknown,
         SavedError::Unknown => ErrorMessage::SavedRecordUnknown,
+        SavedError::RemoveEntity(values) => return missing_qualifier(encoding, "--entity", values),
+        SavedError::RemoveSource(values) => return missing_qualifier(encoding, "--source", values),
         SavedError::TooLong | SavedError::ItemUnknown | SavedError::Ambiguous => {
             return usage(encoding, UsageError::argument(argument.into()));
         }
@@ -523,6 +542,18 @@ pub(crate) fn failure(
             argument: Some(argument.into()),
             message: Some(message),
             valid_values: None,
+            next: Vec::new(),
+        }),
+    )
+}
+
+fn missing_qualifier(encoding: Encoding, option: &str, values: Box<[Text]>) -> io::Result<Outcome> {
+    usage(
+        encoding,
+        UsageError::Arguments(UsageArguments {
+            argument: Some(option.into()),
+            message: Some(ErrorMessage::ArgumentMissing),
+            valid_values: Some(values),
             next: Vec::new(),
         }),
     )

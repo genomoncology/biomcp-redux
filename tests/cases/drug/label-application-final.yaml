@@ -1,0 +1,12 @@
+feature: drug-name-get
+story: An explicit application lookup refuses a final label that names a different application, even when the SPL set ID agrees.
+live_check: Local synthetic replay only.
+replay: drug/label-application-final
+steps:
+  - run: [get, drug, BLA761154, label, --source, openfda-label, --label-section, how_supplied]
+    exit: 4
+    expect:
+      /status: failed
+      /sources/0/reason: bad-reply
+      /problems/0/field: openfda.application_number
+      "": {omits: [result]}

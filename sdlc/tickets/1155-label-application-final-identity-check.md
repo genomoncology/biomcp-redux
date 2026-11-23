@@ -1,6 +1,7 @@
 # 1155 — label-application-final-identity-check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a6a7b040c7dc9498487b008eb414495634a1fa29
 
 Milestone: 7
 

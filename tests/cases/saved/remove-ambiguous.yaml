@@ -1,0 +1,65 @@
+feature: saved-work
+story: CLI and typed MCP reject ambiguous removal without changing any record or note, and accept a qualified removal.
+live_check: Local saved state only.
+config:
+  mcp_tool_mode: typed
+  mcp_typed_output_schema: true
+steps:
+  - run: [saved, list, add, review, --entity, article, "12345"]
+    expect: {/status: complete}
+  - run: [saved, list, add, review, --entity, gene, "12345", BRAF]
+    expect: {/status: complete}
+  - run: [saved, note, review, --item, "12345", --entity, article, article-note]
+    expect: {/status: complete}
+  - run: [saved, note, review, --item, "12345", --entity, gene, gene-note]
+    expect: {/status: complete}
+  - run: [saved, list, remove, review, BRAF, "12345"]
+    exit: 2
+    expect:
+      /error/code: usage.arguments
+      /error/option: --entity
+      /error/valid_values: {equals: [article, gene]}
+  - mcp_call:
+      name: saved
+      arguments:
+        action: list_remove
+        list_remove: {name: review, ids: ["12345"]}
+    is_error: true
+    expect:
+      /error/code: usage.arguments
+      /error/option: entity
+      /error/valid_values: {equals: [article, gene]}
+  - run: [saved, export]
+    expect:
+      /result/lists/0/items/*/ref/id: {equals: ["12345", "12345", BRAF]}
+      /result/user_notes/*/text: {equals: [article-note, gene-note]}
+  - run: [saved, list, remove, review, --entity, gene, "12345"]
+    expect:
+      /result/lists/0/items/*/ref/entity: {equals: [article, gene]}
+      /result/lists/0/items/*/ref/id: {equals: ["12345", BRAF]}
+  - run: [saved, export]
+    expect:
+      /result/user_notes/*/text: {equals: [article-note]}
+  - mcp_call:
+      name: saved
+      arguments:
+        action: list_remove
+        list_remove: {name: review, entity: article, ids: ["12345"]}
+    expect:
+      /result/lists/0/items/*/ref/id: {equals: [BRAF]}
+  - run: [saved, export]
+    expect:
+      /result: {omits: [user_notes]}
+  - run: [saved, list, add, labels, --entity, drug, Aspirin]
+    expect: {/status: complete}
+  - run: [saved, list, add, labels, --entity, drug, --source, openfda-label, Aspirin]
+    expect: {/status: complete}
+  - run: [saved, list, remove, labels, --entity, drug, Aspirin]
+    exit: 2
+    expect:
+      /error/option: --source
+      /error/valid_values: {equals: [default, openfda-label]}
+  - run: [saved, list, remove, labels, --source, default, Aspirin]
+    expect:
+      /result/lists/0/items: {count: 1}
+      /result/lists/0/items/0/ref/source: openfda-label
