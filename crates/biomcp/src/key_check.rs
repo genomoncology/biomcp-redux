@@ -3,7 +3,7 @@ use biomcp_fetch::{Fetch, SecretName};
 use biomcp_query::sources;
 use biomcp_types::{Envelope, KeyCheck, KeyCheckStatus, Reason, Status};
 
-const KEYLESS: &str = "ctgov";
+const KEYLESS: biomcp_types::Source = biomcp_types::Source::ClinicalTrialsGov;
 pub(crate) const HELP: &str =
     "Check one configured key with its publisher. Show whether it works and why a check failed.";
 
@@ -15,7 +15,7 @@ pub(crate) enum Source {
 
 impl Source {
     pub(crate) fn parse(word: &str) -> Option<Self> {
-        if word == KEYLESS {
+        if word == <&str>::from(KEYLESS) {
             return Some(Self::ClinicalTrials);
         }
         supported()
@@ -25,7 +25,7 @@ impl Source {
 
     pub(crate) fn run(self, fetch: Option<&Fetch>, settings: &crate::config::Settings) -> KeyCheck {
         let (source, status) = match self {
-            Self::ClinicalTrials => (KEYLESS, KeyCheckStatus::NoKeyRequired),
+            Self::ClinicalTrials => (KEYLESS.into(), KeyCheckStatus::NoKeyRequired),
             Self::Keyed(secret) => {
                 let status = fetch.map_or_else(
                     || KeyCheckStatus::CouldNotCheck {
@@ -52,7 +52,7 @@ fn supported() -> impl Iterator<Item = SecretName> {
 pub(crate) fn grammar() -> clap::Command {
     let names: Vec<_> = supported()
         .map(sources::key_name)
-        .chain([KEYLESS])
+        .chain([KEYLESS.into()])
         .collect();
     clap::Command::new("check")
         .about(HELP)

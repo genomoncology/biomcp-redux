@@ -9,8 +9,8 @@ pub(super) const PATH: &str = "/internal/key-check";
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Check<'a> {
-    source: &'a str,
+struct Check {
+    source: String,
 }
 
 impl Service {
@@ -21,9 +21,9 @@ impl Service {
         if request.method != "POST" {
             return (405, Some(json!({"error":"Method not allowed"})), None);
         }
-        let Some(source) = serde_json::from_slice::<Check<'_>>(&request.body)
+        let Some(source) = serde_json::from_slice::<Check>(&request.body)
             .ok()
-            .and_then(|input| Source::parse(input.source))
+            .and_then(|input| Source::parse(&input.source))
         else {
             return (400, Some(json!({"error":"Invalid key check source"})), None);
         };
