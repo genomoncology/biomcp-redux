@@ -65,20 +65,6 @@
       }
     },
     {
-      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "147", "--find", "events"],
-      "expect": {
-        "/status": "complete",
-        "/result/content/data/hits/0/page": 147,
-        "/result/content/data/hits/0/text": "No events were observed."
-      }
-    },
-    {
-      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "147", "--section-offset", "0"],
-      "expect": {
-        "/result/content/data/text/text": "No events were observed.\n"
-      }
-    },
-    {
       "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "301"],
       "expect": {
         "/status": "partial",
@@ -94,6 +80,20 @@
       "expect": {
         "/status": "complete",
         "/result/file/data/sha256": "cfc3f5dadc3c66c73d458e58e4271336a87131643c8738eff3f0ffb44af7bef1"
+      }
+    },
+    {
+      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "147", "--find", "events"],
+      "expect": {
+        "/status": "complete",
+        "/result/content/data/hits/0/page": 147,
+        "/result/content/data/hits/0/text": "No events were observed."
+      }
+    },
+    {
+      "run": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "147", "--section-offset", "0"],
+      "expect": {
+        "/result/content/data/text/text": "No events were observed.\n"
       }
     },
     {
