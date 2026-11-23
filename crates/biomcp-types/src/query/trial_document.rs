@@ -1,6 +1,6 @@
 use crate::{NctId, Text};
 use serde::{Deserialize, Serialize};
-/// Read or save a listed trial PDF (25 MiB; read up to 100 pages per call).
+/// Read or save a listed trial PDF (25 MiB, 100 pages per read).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

@@ -12,7 +12,7 @@
       "expect": {
         "/result/content/data/text/pages": 335,
         "/result/content/data/hits/0/page": 36,
-        "/result/content/data/hits/0/text": {"includes": "race was tabulated."},
+        "/result/content/data/hits/0/text": "race was tabulated.",
         "/sources/0/notices/0/message": "This call covers PDF pages 1–100 of 335.",
         "/next/0/kind": "page"
       }
@@ -43,7 +43,7 @@
       },
       "expect": {
         "/result/content/data/hits/0/page": 36,
-        "/result/content/data/hits/0/text": {"includes": "race was tabulated."}
+        "/result/content/data/hits/0/text": "race was tabulated."
       }
     },
     {
@@ -58,7 +58,7 @@
       "expect": {
         "/result/content/data/text/pages": 335,
         "/result/content/data/text/state": "text",
-        "/result/content/data/text/text": {"includes": "Statistical analysis plan"},
+        "/result/content/data/text/text": "Statistical analysis plan\nBaseline race was tabulated.\n",
         "/page/returned": 1,
         "/next/0/kind": "page"
       }
@@ -79,6 +79,15 @@
       "expect": {
         "/status": "complete",
         "/result/file/data/sha256": "2eb759be0d7bfe7c86e614842c2a40fc370a232994622fdd3f9799aff35c03aa"
+      }
+    },
+    {
+      "mcp": ["trial", "document", "NCT05104866", "SAP_001.pdf", "--page-start", "301"],
+      "http": true,
+      "expect": {
+        "/status": "partial",
+        "/result/content/data/text/pages": 335,
+        "/sources/0/notices/1/message": "Save the original PDF in the CLI with `biomcp trial document --save=SAP_001.pdf -- NCT05104866 SAP_001.pdf`."
       }
     }
   ]
