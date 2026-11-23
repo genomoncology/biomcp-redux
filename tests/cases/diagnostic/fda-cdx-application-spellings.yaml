@@ -28,7 +28,8 @@
     {
       "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "BLA219001"],
       "expect": {
-        "/page/total": 0
+        "/page/total": 0,
+        "": {"omits": ["problems"]}
       }
     }
   ]

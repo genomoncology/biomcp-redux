@@ -55,6 +55,42 @@ fn applications(text: &str) -> Vec<FdaDrugApplication> {
     }
     result
 }
+pub(super) enum ApplicationMention {
+    Match,
+    OtherKind,
+    Missing,
+}
+
+/// Search the application as written in the FDA cell, even without a usable link.
+pub(super) fn application_mention(text: &str, asked: &FdaDrugApplication) -> ApplicationMention {
+    let Some((kind, number)) = asked.as_str().split_at_checked(3) else {
+        return ApplicationMention::Missing;
+    };
+    let mut mention = ApplicationMention::Missing;
+    let mut preceding = "";
+    for word in text
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .filter(|word| !word.is_empty())
+    {
+        let prefixed = if word == number {
+            Some(preceding)
+        } else {
+            word.strip_suffix(number)
+                .filter(|prefix| is_application_kind(prefix))
+        };
+        if let Some(prefix) = prefixed {
+            if !is_application_kind(prefix) || prefix.eq_ignore_ascii_case(kind) {
+                return ApplicationMention::Match;
+            }
+            mention = ApplicationMention::OtherKind;
+        }
+        preceding = word;
+    }
+    mention
+}
+fn is_application_kind(word: &str) -> bool {
+    word.eq_ignore_ascii_case("NDA") || word.eq_ignore_ascii_case("BLA")
+}
 pub(super) fn drugs(cell: &DiagnosticCell) -> (Box<[DiagnosticDrugApplication]>, bool) {
     let text = applications(&cell.text);
     let mut result = Vec::new();
