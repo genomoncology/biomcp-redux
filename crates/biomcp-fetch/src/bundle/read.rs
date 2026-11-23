@@ -211,14 +211,17 @@ impl Leg<'_> {
         bundle: &Bundle<R>,
         find: Find<'_>,
     ) -> Result<(Vec<R>, BundleInfo), RequestError> {
-        self.name_busy(self.read_stored_rows(bundle, find, |size| {
-            self.sync_for_read(bundle, Some(size)).map(drop)
-        }))
+        self.name_busy(
+            self.read_stored_rows(bundle, find, biomcp_types::Reason::Syncing, |size| {
+                self.sync_for_read(bundle, Some(size)).map(drop)
+            }),
+        )
     }
     pub(super) fn read_stored_rows<R: Row>(
         &self,
         bundle: &Bundle<R>,
         find: Find<'_>,
+        failure_reason: biomcp_types::Reason,
         first: impl FnOnce(&super::first::Size) -> Result<(), RequestError>,
     ) -> Result<(Vec<R>, BundleInfo), RequestError> {
         self.bundle_source(bundle)?;
@@ -241,7 +244,7 @@ impl Leg<'_> {
         }
         // Offline and replay never fetch; a live first read fetches the missing copy (1055).
         if snapshot.is_none() && matches!(self.fetch.mode, Mode::Live { .. }) {
-            self.first_fetch(bundle, first)?;
+            self.first_fetch(bundle, failure_reason, first)?;
             snapshot = cache.stored_bundle(bundle.name, find, self.budget())?;
         }
         let store::StoredBundle { meta, rows, sample } =
