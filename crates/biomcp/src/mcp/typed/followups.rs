@@ -12,6 +12,7 @@ pub(super) fn project(
     let text =
         crate::schema::find(id).ok_or_else(|| std::io::Error::other("missing reply schema"))?;
     let schema: Value = serde_json::from_str(text).map_err(std::io::Error::other)?;
+    let failed = value.get("status").and_then(Value::as_str) == Some("failed");
     let mut calls = Vec::new();
     for path in crate::schema::steps::paths(&schema, &schema, value)
         .into_iter()
@@ -21,7 +22,7 @@ pub(super) fn project(
             let words = step.get("args")?.as_array()?;
             let Some(args) = without_globals(root, words) else {
                 if step.get("kind").and_then(Value::as_str) == Some("fresh") {
-                    return drug_refresh(root, words, tools);
+                    return refresh(root, words, tools, failed);
                 }
                 return None;
             };
@@ -53,26 +54,34 @@ pub(super) fn project(
     Ok(calls)
 }
 
-/// The command tool accepts drug refreshes on transports that permit the fresh flag.
-fn drug_refresh(
+/// Keep a checked refresh as a command-tool call where the transport permits it.
+fn refresh(
     root: &crate::grammar::Root,
     words: &[Value],
     tools: &super::grouping::Catalog,
+    failed: bool,
 ) -> Option<Value> {
-    use biomcp_types::Request::{GetDrug, GetDrugMarkets, SearchDrug};
+    use biomcp_types::Request;
     let args = words
         .iter()
         .map(|word| word.as_str().map(std::ffi::OsString::from))
         .collect::<Option<Vec<_>>>()?;
     let mut parsed = crate::grammar::parse(root, &args).ok()?;
-    if !matches!(
-        parsed.action,
-        Some(biomcp_query::Action::Run {
-            request: GetDrug(_) | GetDrugMarkets(_) | SearchDrug(_),
-            fresh: true,
-        })
-    ) || !tools.permits(&mut parsed)
-    {
+    let Some(biomcp_query::Action::Run {
+        request,
+        fresh: true,
+    }) = &parsed.action
+    else {
+        return None;
+    };
+    let supported = match request {
+        Request::GetDrug(_) | Request::GetDrugMarkets(_) | Request::SearchDrug(_) => true,
+        Request::SearchArticle(_)
+        | Request::ArticleCitations(_)
+        | Request::ArticleReferences(_) => failed,
+        _ => false,
+    };
+    if !supported || !tools.permits(&mut parsed) {
         return None;
     }
     Some(json!({"kind":"fresh","name":"biomcp","arguments":{"args":words}}))

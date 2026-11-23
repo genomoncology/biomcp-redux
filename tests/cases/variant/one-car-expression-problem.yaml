@@ -1,0 +1,11 @@
+feature: variant-identity
+live_check: synthetic response case
+story: A variant card reports one CAR expression problem per record and keeps recognized representations.
+replay: variant/duplicate-car-expression
+steps:
+  - run: [get, variant, 'NM_004333.4:c.1799T>A', --disable-sources, myvariant]
+    expect:
+      /result/resolution: resolved
+      /result/candidates/0/identity/representations/0/expression/value: 'NC_000007.14:g.140753336A>T'
+      /problems/*/field:
+        equals: [representations.expression]

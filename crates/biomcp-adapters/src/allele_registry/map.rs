@@ -73,6 +73,16 @@ fn rejection(raw: &RawAllele, error: &Text) -> Resolution {
     }
 }
 
+fn expression_problem(record: &Text, problems: &mut Vec<Problem>) {
+    let field = "representations.expression";
+    if !problems
+        .iter()
+        .any(|problem| problem.field.as_ref() == field)
+    {
+        problems.push(problem(Source::AlleleRegistry, Some(record.clone()), field));
+    }
+}
+
 fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &mut Vec<Problem>) {
     let mut fields = crate::mapped::Problems {
         source: Source::AlleleRegistry,
@@ -90,13 +100,9 @@ fn genomic(g: Genomic, record: &Text, out: &mut Vec<Representation>, problems: &
     problems.extend(fields.list);
     for notation in notations {
         let expression = match Expression::hgvs(notation.clone()) {
-            Ok(v) => v,
+            Ok(value) => value,
             Err(_) => {
-                problems.push(problem(
-                    Source::AlleleRegistry,
-                    Some(record.clone()),
-                    "representations.expression",
-                ));
+                expression_problem(record, problems);
                 continue;
             }
         };

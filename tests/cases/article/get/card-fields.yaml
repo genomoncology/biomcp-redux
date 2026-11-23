@@ -1,0 +1,15 @@
+feature: article-get
+live_check: synthetic response case
+story: A caller can keep an article card or select a field inside it using the get call.
+replay: article/get/synthetic-derived
+steps:
+  - run: [get, article, "33123537", --fields, answer.card]
+    expect:
+      /fields: [answer.card]
+      /result/items/0/answer/card/doi: 10.3389/fcell.2020.573599
+  - run: [get, article, "33123537", --fields, answer.card.title]
+    expect:
+      /fields: [answer.card.title]
+      /result/items/0/answer/card/title: Effect of AKT1 (p. E17K) Hotspot Mutation on Malignant Tumorigenesis and Prognosis.
+      /result/items/0/answer/card:
+        omits: [abstract_parts]
