@@ -35,7 +35,7 @@ pub(super) fn fallback(
             )
         })
         .collect::<Option<Vec<_>>>()?;
-    let found = get_parts(cx, &resolved);
+    let found = read_parts(cx, &resolved);
     let application = application.to_string();
     let verified = found.iter().all(|out| match &out.body {
         // An application can have several labels. Keep the choice page and its follow-up calls.
@@ -67,13 +67,34 @@ fn belongs(header: &biomcp_types::DrugHeader, application: &str) -> bool {
         .any(|number| number.as_str() == application)
 }
 
+/// Refuse final label content that disagrees with the explicit application.
+pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
+    read_parts(cx, queries)
+        .into_iter()
+        .map(|mut out| {
+            if let Some(query) = queries.first()
+                && !verified_label(&out, query.input().as_str())
+            {
+                match &mut out.body {
+                    ReplyData::DrugLabel { body, .. } if body.is_some() => *body = None,
+                    ReplyData::DrugCard { body, .. } if body.is_some() => *body = None,
+                    _ => return out,
+                }
+                out.next.clear();
+                return super::rejected_input(query.source(), "openfda.application_number", out);
+            }
+            out
+        })
+        .collect()
+}
+
 /// Get every part from the application's one label, or answer once with the labels to choose
 /// from when it has none or several.
 #[expect(
     clippy::disallowed_methods,
     reason = "Times nested commands, which charge their own command clocks; it opens no leg (1038)"
 )]
-pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
+fn read_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let Some(query) = queries.first() else {
         return Vec::new();
     };
