@@ -35,7 +35,7 @@ fn document_error(reason: Reason) -> RequestError {
 }
 
 /// Read a checked registry manifest entry with the bounded, isolated PDF reader.
-pub fn text(
+pub fn read_text(
     leg: &Leg<'_>,
     document: &TrialDocument,
 ) -> Result<(biomcp_types::PdfText, Option<crate::pdf::Embedded>), RequestError> {

@@ -14,7 +14,7 @@
         "/result/content/data/document/date": "2016-08-26",
         "/result/content/data/version": "2.0",
         "/result/content/data/hits/0/page": 17,
-        "/result/content/data/hits/0/text": {"includes": "Wald chi-square p-value"}
+        "/result/content/data/hits/0/text": {"equals_file": "posted-sap-match.json"}
       }
     },
     {
@@ -27,14 +27,15 @@
       },
       "expect": {
         "/result/content/data/hits/0/page": 17,
-        "/result/content/data/hits/0/text": {"includes": "Wald chi-square p-value"}
+        "/result/content/data/hits/0/text": {"equals_file": "posted-sap-match.json"}
       }
     },
     {
-      "run": ["trial", "document", "NCT01467466", "SAP_001.pdf"],
+      "run": ["trial", "document", "NCT01467466", "SAP_001.pdf", "--section-offset", "0"],
       "expect": {
         "/result/content/data/text/offset": 0,
-        "/result/content/data/text/text": {"includes": "Statistical Analysis Plan v2.0"},
+        "/result/content/data/text/text": {"max_bytes": 6146},
+        "/page/returned": 1,
         "/next/0/kind": "page"
       }
     },

@@ -86,7 +86,7 @@ fn execute(cx: &Ctx<'_>, query: &TrialDocumentGet, action: Action) -> Download {
             }
             Action::Download => ctgov::document::download(&leg, &document)
                 .map(|bytes| Some(Document::File(document, bytes))),
-            Action::Read => ctgov::document::text(&leg, &document)
+            Action::Read => ctgov::document::read_text(&leg, &document)
                 .map(|(text, read)| Some(Document::Text(document, text, read))),
         }
     });
