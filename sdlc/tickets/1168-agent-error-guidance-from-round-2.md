@@ -10,7 +10,7 @@ When an agent makes one of the mistakes seen in round 2's 120 Sol runs, BioMCP's
 
 ## Why
 
-Round 2 (biomcp-code-mode-redux branch wip/pilot-b, runs/round-2-sol.md; batches r2-apb-{l,b,o} under ~/workspace/data/agent-runs/batches, calls in results/*/1/record/calls-01-answer.jsonl) logged these against 1.0.0-3ce84f683315:
+Round 2 (pilot B, runs/round-2-sol.md; retained batches r2-apb-{l,b,o}, calls in results/*/1/record/calls-01-answer.jsonl) logged these against 1.0.0-3ce84f683315:
 
 1. Typed tools reject schema-filled calls. The chatbot sends both the `search` and `get` objects with every field empty or default, e.g. drug `{"action":"get","search":{...all empty...},"get":{...}}`. BioMCP answers `usage.arguments`, 46 times across article, drug, diagnostic and trial. An object that the action does not use and that holds only empty or default values should be ignored; a non-empty one should get an error naming the action's object.
 2. The message "unknown option: this command has no error.option; run next, or use an option valid_values lists" reads as an unfilled template (seen in typed tools and `search variant --hgvs`). It should name the rejected option.
