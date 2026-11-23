@@ -1,0 +1,39 @@
+{
+  "feature": "diagnostic-gtr",
+  "story": "Exact GTR gets keep the version in the link and read that version's section data when the relation report has no rows for it.",
+  "verified": "NCBI's GTR test_version.gz and test_condition_gene.txt were recorded on 2026-11-23 and cut to GTR000527948.3, GTR000527948.7 and GTR000004542.11, with cells unchanged. The XML stub has no test or lab rows. NCBI's /gtr/tests/527948.3/ lists 70 genes and Solid tumor.",
+  "replay": "diagnostic/gtr-version-sections",
+  "steps": [
+    {
+      "run": ["sync", "gtr"],
+      "expect": {"/status": "complete"}
+    },
+    {
+      "run": ["get", "diagnostic", "GTR000527948.3", "--source", "gtr"],
+      "expect": {"/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/527948.3/"}
+    },
+    {
+      "run": ["get", "diagnostic", "GTR000527948.3", "--source", "gtr", "genes", "--section-limit", "70"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 70,
+        "/page/returned": 70,
+        "/result/test_id": "GTR000527948.3",
+        "/result/items/0/gene": {"equals": {"label": "AKT1"}},
+        "/result/items/69/gene/label": "VHL"
+      }
+    },
+    {
+      "run": ["get", "diagnostic", "GTR000527948.3", "--source", "gtr", "conditions"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/condition": {"equals": {"label": "Solid tumor"}}
+      }
+    },
+    {
+      "run": ["get", "diagnostic", "GTR000004542.11", "--source", "gtr", "genes"],
+      "expect": {"/status": "partial", "/page/total": 0, "/result/test_id": "GTR000004542.11"}
+    }
+  ]
+}
