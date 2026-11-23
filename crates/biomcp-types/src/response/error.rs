@@ -2,6 +2,7 @@
 mod envelope;
 mod literals;
 mod messages;
+mod wire_message;
 
 pub use envelope::ErrorEnvelope;
 pub use literals::{ErrorCode, ErrorStatus};

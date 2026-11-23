@@ -1,0 +1,31 @@
+feature: article-search
+story: A timed-out Europe PMC search offers the same search terms and page size on PubMed.
+live_check: synthetic response case
+replay: article/search/synthetic-europepmc-deadline
+steps:
+  - run: [search, article, tebentafusp, --source, europepmc, --exact-term, --limit, "3"]
+    exit: 4
+    expect:
+      /status: failed
+      /sources/0/source: europepmc
+      /sources/0/reason: deadline-exceeded
+      /next/0/args:
+        includes_all_of: [search, article, tebentafusp, --source, pubmed, --exact-term, --limit, "3"]
+        excludes: europepmc
+  - follow: restart
+    expect:
+      /status: complete
+      /sources/0/source: pubmed
+      /page/total: 0
+  - mcp: [search, article, tebentafusp, --source, europepmc, --exact-term, --limit, "3"]
+    http: true
+    is_error: true
+    expect:
+      /status: failed
+      /sources/0/reason: deadline-exceeded
+      /next/0/args:
+        includes_all_of: [search, article, tebentafusp, --source, pubmed, --exact-term, --limit, "3"]
+        excludes: --fresh
+      /next/1/args:
+        includes_all_of: [search, article, tebentafusp, --source, europepmc, --exact-term, --limit, "3"]
+        excludes: --fresh

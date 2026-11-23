@@ -1,5 +1,6 @@
 """Exercise documentation contracts through the checker command."""
 
+import json
 import re
 import shutil
 import subprocess
@@ -289,6 +290,14 @@ def main():
         result = check(root)
         assert result.returncode != 0 and "NCIt example C9120" in result.stderr, result
         cautions.unlink()
+        schema = root / "crates/biomcp-types/schemas/option-message-test.json"
+        schema.parent.mkdir(parents=True, exist_ok=True)
+        schema.write_text('{\n  "pattern": "^Use NCIT:C3224$"\n}\n')
+        result = check(root)
+        assert result.returncode != 0 and "option-message-test.json:2: NCIt example C3224" in result.stderr, result
+        schema.write_text(json.dumps({"pattern": r"^Use NCIT:C3224 \(melanoma\)$"}, indent=2))
+        assert check(root).returncode == 0, check(root).stderr
+        schema.unlink()
         commercial_check(root, readme, original_readme)
         tools_check(root, readme, original_readme)
         manifest = root / "manifest.json"

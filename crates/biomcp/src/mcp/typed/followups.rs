@@ -12,6 +12,18 @@ pub(super) fn project(
     let text =
         crate::schema::find(id).ok_or_else(|| std::io::Error::other("missing reply schema"))?;
     let schema: Value = serde_json::from_str(text).map_err(std::io::Error::other)?;
+    let retryable = value
+        .get("sources")
+        .and_then(Value::as_array)
+        .is_some_and(|sources| {
+            sources.iter().any(|source| {
+                source.get("state").and_then(Value::as_str) == Some("failed")
+                    && matches!(
+                        source.get("reason").and_then(Value::as_str),
+                        Some("deadline-exceeded" | "unavailable")
+                    )
+            })
+        });
     let failed = value.get("status").and_then(Value::as_str) == Some("failed");
     let mut calls = Vec::new();
     for path in crate::schema::steps::paths(&schema, &schema, value)
@@ -22,7 +34,7 @@ pub(super) fn project(
             let words = step.get("args")?.as_array()?;
             let Some(args) = without_globals(root, words) else {
                 if step.get("kind").and_then(Value::as_str) == Some("fresh") {
-                    return refresh(root, words, tools, failed);
+                    return refresh(root, words, tools, (retryable, failed));
                 }
                 return None;
             };
@@ -54,12 +66,12 @@ pub(super) fn project(
     Ok(calls)
 }
 
-/// Keep a checked refresh as a command-tool call where the transport permits it.
+/// Keep a checked refresh on transports that permit the fresh flag.
 fn refresh(
     root: &crate::grammar::Root,
     words: &[Value],
     tools: &super::grouping::Catalog,
-    failed: bool,
+    (retryable, failed): (bool, bool),
 ) -> Option<Value> {
     use biomcp_types::Request;
     let args = words
@@ -74,13 +86,14 @@ fn refresh(
     else {
         return None;
     };
-    let supported = match request {
-        Request::GetDrug(_) | Request::GetDrugMarkets(_) | Request::SearchDrug(_) => true,
-        Request::SearchArticle(_)
-        | Request::ArticleCitations(_)
-        | Request::ArticleReferences(_) => failed,
-        _ => false,
-    };
+    let supported = retryable
+        || match request {
+            Request::GetDrug(_) | Request::GetDrugMarkets(_) | Request::SearchDrug(_) => true,
+            Request::SearchArticle(_)
+            | Request::ArticleCitations(_)
+            | Request::ArticleReferences(_) => failed,
+            _ => false,
+        };
     if !supported || !tools.permits(&mut parsed) {
         return None;
     }

@@ -23,7 +23,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "disease",
-        "/error/message": "unknown option: this command has no error.option; run next, or use an option valid_values lists"
+        "/error/message": "Unknown option disease. Use an option listed in valid_values or follow the suggested call."
       }
     },
     {

@@ -437,6 +437,9 @@ pub(crate) fn carried(kind: StepKind, action: &Action, fields: &[String]) -> Vec
         {
             known(request, fields)
         }
+        Action::PubmedSearch(query) if kind == StepKind::Restart => {
+            known(&Request::SearchArticle(query.clone()), fields)
+        }
         _ => Vec::new(),
     }
 }

@@ -1,21 +1,23 @@
 //! Spell checked follow-ups and retain the caller's global restrictions.
-use std::io;
+use biomcp_query::Action;
+use biomcp_types::{ReplyData, Request, StepKind, VariantResolution};
+use std::{borrow::Cow, io};
 pub(super) fn next(
     request: &biomcp_types::Request,
     result: &biomcp_query::Outcome,
     globals: &crate::grammar::Globals,
+    allow_fresh: bool,
 ) -> io::Result<Vec<biomcp_types::Step>> {
-    let mut steps = result
-        .next
-        .iter()
-        .filter(|step| !globals.hosted || !super::mcp_policy::hosted_refused(&step.1))
-        .map(|step| {
-            let mut spelled = crate::spell::step(step.0, &step.1)?;
+    let retryable = has_failed_read(result);
+    let mut steps = followups(request, result, retryable, allow_fresh)
+        .filter(|(_, action)| !globals.hosted || !super::mcp_policy::hosted_refused(action))
+        .map(|(kind, action)| {
+            let mut spelled = crate::spell::step(kind, &action)?;
             // A section a card lists comes with the options that section takes.
-            if step.0 == biomcp_types::StepKind::Section
+            if kind == StepKind::Section
                 && let biomcp_query::Action::Run {
                     request: section, ..
-                } = &step.1
+                } = action.as_ref()
             {
                 spelled.options = crate::grammar::options(section);
                 // Trial help lists the site filters together. Keep section links to paging options.
@@ -28,7 +30,7 @@ pub(super) fn next(
             let carried = if globals.fields.is_empty() {
                 Vec::new()
             } else {
-                crate::fields::carried(step.0, &step.1, &globals.fields)
+                crate::fields::carried(kind, &action, &globals.fields)
             };
             Ok((spelled, carried))
         })
@@ -37,6 +39,71 @@ pub(super) fn next(
         steps.push((step, Vec::new()));
     }
     Ok(source_steps(globals, steps))
+}
+
+fn has_failed_read(result: &biomcp_query::Outcome) -> bool {
+    result
+        .sources
+        .iter()
+        .filter(|source| {
+            // A missing local bundle already has its own synchronization guidance.
+            source.retryable()
+                && !result
+                    .next
+                    .iter()
+                    .any(|step| step.0 == StepKind::Sync && step.2.contains(&source.source))
+        })
+        .any(|source| match &result.body {
+            // Transcript fit is an optional lookup after a provider answers. Retry a requested
+            // normalization when its own result is unavailable.
+            ReplyData::VariantNormalization {
+                body: Some(body), ..
+            } => body.results.iter().any(|row| {
+                row.source == source.source && row.outcome == VariantResolution::Unavailable
+            }),
+            _ => true,
+        })
+}
+
+fn followups<'a>(
+    request: &'a Request,
+    result: &'a biomcp_query::Outcome,
+    retryable: bool,
+    allow_fresh: bool,
+) -> impl Iterator<Item = (StepKind, Cow<'a, Action>)> {
+    let missing = retryable
+        && !result.next.iter().any(|step| {
+            matches!(
+                step.1,
+                Action::Run { .. } | Action::PubmedSearch(_) | Action::AuthorPapers(_)
+            )
+        });
+    let retry = |request: &Request| {
+        (
+            StepKind::Restart,
+            Cow::Owned(Action::Run {
+                request: request.clone(),
+                fresh: false,
+            }),
+        )
+    };
+    result
+        .next
+        .iter()
+        .map(move |step| {
+            if retryable
+                && !allow_fresh
+                && step.0 == StepKind::Fresh
+                && let Action::Run {
+                    request,
+                    fresh: true,
+                } = &step.1
+            {
+                return retry(request);
+            }
+            (step.0, Cow::Borrowed(&step.1))
+        })
+        .chain(missing.then(|| retry(request)))
 }
 
 const PAGING: [&str; 6] = [

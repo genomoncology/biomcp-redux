@@ -18,7 +18,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--country",
-        "/error/message": "unknown option: this command has no error.option; run next, or use an option valid_values lists",
+        "/error/message": "Unknown option --country. Use an option listed in valid_values or follow the suggested call.",
         "/error/valid_values/0": "--civic-cursor",
         "/next/0/args": [
           "get",

@@ -125,6 +125,32 @@ fn push(next: &mut Vec<crate::next::Step>, kind: StepKind, sources: &[Source], r
     }
 }
 
+/// Offer the same selectors on PubMed when the selected Europe PMC search fails.
+pub(super) fn pubmed_alternative(
+    cx: &crate::Ctx<'_>,
+    query: &biomcp_types::ArticleSearch,
+    out: &mut Outcome,
+) {
+    use biomcp_types::ArticleSource;
+    if query.sources().contains(&ArticleSource::Europepmc)
+        && !query.sources().contains(&ArticleSource::Pubmed)
+        && !cx.fetch.disabled(Source::PubMed)
+        && out
+            .sources
+            .iter()
+            .any(|source| source.source == Source::EuropePmc && source.retryable())
+    {
+        out.next.insert(
+            0,
+            crate::next::Step::new(
+                StepKind::Restart,
+                &[Source::PubMed],
+                Action::PubmedSearch(query.with_source(ArticleSource::Pubmed)),
+            ),
+        );
+    }
+}
+
 /// A short complete pool offers caller-controlled alternatives without running them.
 pub(super) fn search(
     query: &biomcp_types::ArticleSearch,
