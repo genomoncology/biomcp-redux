@@ -295,7 +295,7 @@ def main():
         schema.write_text('{\n  "pattern": "^Use NCIT:C3224$"\n}\n')
         result = check(root)
         assert result.returncode != 0 and "option-message-test.json:2: NCIt example C3224" in result.stderr, result
-        schema.write_text(json.dumps({"pattern": r"^Use NCIT:C3224 \(melanoma\)$"}))
+        schema.write_text(json.dumps({"pattern": r"^Use NCIT:C3224 \(melanoma\)$"}, indent=2))
         assert check(root).returncode == 0, check(root).stderr
         schema.unlink()
         commercial_check(root, readme, original_readme)
