@@ -1,0 +1,84 @@
+{
+  "feature": "drug-label",
+  "live_check": "Replay only",
+  "replay": "drug/label-printed-names",
+  "story": "A current-label find without a heading offers a bounded safety-section match with the same drug and text.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Aimovig",
+        "label",
+        "--source",
+        "openfda-label",
+        "--find",
+        "Raynaud"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/next/0/args": {
+          "includes_all_of": [
+            "Aimovig",
+            "Raynaud",
+            "warnings_and_cautions,adverse_reactions"
+          ]
+        }
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/find": [
+          "Raynaud"
+        ],
+        "/result/identity/id": "b998ed05-94b0-47fd-b28f-cddd1e128fd8",
+        "/result/parts/*/reply/result/label/data/search/matched": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "Aimovig",
+            "section": "label",
+            "source": "openfda-label",
+            "find": "Raynaud"
+          }
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/next/0/arguments/get/id": "Aimovig",
+        "/next/0/arguments/get/find": [
+          "Raynaud"
+        ]
+      }
+    },
+    {
+      "follow": "configure",
+      "expect": {
+        "/status": "complete",
+        "/query/find": [
+          "Raynaud"
+        ],
+        "/result/identity/id": "b998ed05-94b0-47fd-b28f-cddd1e128fd8",
+        "/result/parts/*/reply/result/label/data/search/matched": [
+          true,
+          true
+        ]
+      }
+    }
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
+}

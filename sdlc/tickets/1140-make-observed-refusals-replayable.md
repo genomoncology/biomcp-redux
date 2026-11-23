@@ -1,6 +1,7 @@
 # 1140 — make-observed-refusals-replayable
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 08c489c8482777ee49b25e55337ff85f7e6e6c7d
 
 Milestone: 7
 

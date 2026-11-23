@@ -140,7 +140,7 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
 }
 
 /// A refusal with one known correction. FDA communication IDs come from search, markets
-/// takes a name and at most a source, and label history needs a supported heading and mode.
+/// takes a name and at most a source, and label history offsets need every-version mode.
 pub(super) fn fixed(
     via: Rewrite,
     path: (&str, &str),
@@ -171,14 +171,6 @@ pub(super) fn fixed(
         }
         biomcp_types::ErrorMessage::LabelHistoryOffset => {
             fields.insert("every_version".into(), Value::Bool(true));
-        }
-        biomcp_types::ErrorMessage::LabelHistorySectionUnknown
-        | biomcp_types::ErrorMessage::LabelHistoryOffsetSection => {
-            let heading = fields.get("label_section").and_then(Value::as_str);
-            let heading = biomcp_types::openfda_label_field(heading?)?;
-            fields.retain(|name, _| name == "input");
-            fields.insert("section".into(), Value::Array(vec!["label".into()]));
-            fields.insert("label_section".into(), Value::from(heading));
         }
         _ => return None,
     }
