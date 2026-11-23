@@ -1,12 +1,12 @@
 use super::{empty, finish, next, unsupported};
 use crate::{Ctx, Outcome, status};
-use biodata::GtrTestId;
+use biodata::{GtrGeneReference, GtrTestId, GtrTestRelation, Text};
 use biomcp_adapters::gtr;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiagnosticCard, DiagnosticConditionRow, DiagnosticConditions, DiagnosticCountUnit,
-    DiagnosticGeneRow, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource, DiagnosticMethods,
-    DiagnosticSection, PageInfo, Request, Source, StepKind,
+    DiagnosticCard, DiagnosticConditionReference, DiagnosticConditionRow, DiagnosticConditions,
+    DiagnosticCountUnit, DiagnosticGeneRow, DiagnosticGenes, DiagnosticGet, DiagnosticGetSource,
+    DiagnosticMethods, DiagnosticSection, PageInfo, Request, Source, StepKind,
 };
 use std::collections::BTreeSet;
 /// Read one exact GTR test or its independently paged native relations.
@@ -66,18 +66,12 @@ fn selected(
 ) {
     out.include_refusals(record.refusals);
     status::append(&mut out.problems, record.problems);
-    let found = record.card.is_some()
-        || q.section().is_some() && !(record.genes.is_empty() && record.conditions.is_empty());
-    let missing = found
-        && match q.section() {
-            Some(DiagnosticSection::Genes) => record.genes.is_empty(),
-            Some(DiagnosticSection::Conditions) => record.conditions.is_empty(),
-            _ => false,
-        };
-    status::item(out, found, false, missing);
-    if missing {
-        status::missing(out, biodata::text!("/result/items"), Source::Gtr, None);
-    }
+    let found = record.card.is_some() || q.section().is_some() && !record.relations.is_empty();
+    status::item(out, found, false, false);
+    let count_unit = record
+        .version_labels
+        .is_empty()
+        .then_some(DiagnosticCountUnit::NativeRelationRows);
     match q.section() {
         None => {
             if let Some(card) = &record.card {
@@ -103,17 +97,13 @@ fn selected(
             );
         }
         Some(DiagnosticSection::Genes) => {
-            genes(out, echo, q, id, record.genes, record.count_unit, fresh)
+            let rows = gene_rows(record.relations, record.version_labels);
+            genes(out, echo, q, id, rows, count_unit, fresh);
         }
-        Some(DiagnosticSection::Conditions) => conditions(
-            out,
-            echo,
-            q,
-            id,
-            record.conditions,
-            record.count_unit,
-            fresh,
-        ),
+        Some(DiagnosticSection::Conditions) => {
+            let rows = condition_rows(record.relations, record.version_labels);
+            conditions(out, echo, q, id, rows, count_unit, fresh);
+        }
         Some(DiagnosticSection::Methods) => {
             let total = record.methods.len();
             let items = record
@@ -150,6 +140,62 @@ fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fre
             fresh,
         );
     }
+}
+
+fn relation_page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fresh: bool) {
+    if total == 0
+        && matches!(
+            out.status(),
+            biomcp_types::Status::Complete | biomcp_types::Status::Partial
+        )
+    {
+        status::item(out, true, false, true);
+        status::missing(out, biodata::text!("/result/items"), Source::Gtr, None);
+    }
+    page(out, q, returned, total, fresh);
+}
+
+fn gene_rows(relations: Vec<GtrTestRelation>, labels: Vec<Text>) -> Vec<DiagnosticGeneRow> {
+    relations
+        .into_iter()
+        .filter_map(|row| match row {
+            GtrTestRelation::Gene(gene) => Some(gene.into()),
+            _ => None,
+        })
+        .chain(labels.into_iter().map(|label| DiagnosticGeneRow {
+            test_type: None,
+            object_name: label.as_str().into(),
+            gene: GtrGeneReference {
+                label: Some(label),
+                ncbi_gene_id: None,
+            },
+            native_gene_or_snomed_ct_id: None,
+            native_medgen: None,
+            mim_number: "".into(),
+        }))
+        .collect()
+}
+
+fn condition_rows(
+    relations: Vec<GtrTestRelation>,
+    labels: Vec<Text>,
+) -> Vec<DiagnosticConditionRow> {
+    relations
+        .into_iter()
+        .filter_map(|row| match row {
+            GtrTestRelation::Condition(condition) => Some(condition.into()),
+            _ => None,
+        })
+        .chain(labels.into_iter().map(|label| DiagnosticConditionRow {
+            test_type: None,
+            condition: DiagnosticConditionReference {
+                id: None,
+                label: Some(label),
+            },
+            mim_number: "".into(),
+            snomed_ct_id: "".into(),
+        }))
+        .collect()
 }
 
 fn genes(
@@ -198,7 +244,7 @@ fn genes(
             );
         }
     }
-    page(out, q, items.len(), total, fresh);
+    relation_page(out, q, items.len(), total, fresh);
     out.body = (DiagnosticGenes {
         test_id: test_id.clone(),
         items,
@@ -230,7 +276,7 @@ fn conditions(
         .skip(q.section_offset() as usize)
         .take(q.section_limit() as usize)
         .collect::<Box<[_]>>();
-    page(out, q, items.len(), total, fresh);
+    relation_page(out, q, items.len(), total, fresh);
     out.body = (DiagnosticConditions {
         test_id: test_id.clone(),
         items,

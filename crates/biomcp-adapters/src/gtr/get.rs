@@ -1,10 +1,7 @@
 use super::{bundle, map, raw::Native};
-use biodata::{GtrGeneReference, GtrMethod, GtrTestRelation, GtrTestVersion, Text};
+use biodata::{GtrMethod, GtrTestRelation, GtrTestVersion, Text};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
-use biomcp_types::{
-    DiagnosticConditionReference, DiagnosticConditionRow, DiagnosticCountUnit, DiagnosticGeneRow,
-    DiagnosticGet, DiagnosticSection, GtrCard, Problem,
-};
+use biomcp_types::{DiagnosticGet, DiagnosticSection, GtrCard, Problem};
 /// Exact source identity and independent relation collections under one local snapshot.
 #[derive(Debug)]
 pub struct Record {
@@ -16,12 +13,10 @@ pub struct Record {
     pub card: Option<GtrCard>,
     /// Conflict supplied before any current flag selection.
     pub conflict: Option<Problem>,
-    /// Native gene relations or the exact version's gene labels.
-    pub genes: Vec<DiagnosticGeneRow>,
-    /// Native condition relations or the exact version's condition labels.
-    pub conditions: Vec<DiagnosticConditionRow>,
-    /// Native relation row count unit, omitted for labels from the version report.
-    pub count_unit: Option<DiagnosticCountUnit>,
+    /// Native relation rows, including rows without a current card.
+    pub relations: Vec<GtrTestRelation>,
+    /// Exact version labels for a requested section with no readable relation rows of that kind.
+    pub version_labels: Vec<Text>,
     /// Independent method lists with original indices.
     pub methods: Vec<GtrMethod>,
     /// Stored snapshot identity.
@@ -37,8 +32,7 @@ pub fn get(
     super::revision(query.bundle_revision(), &info)?;
     let mut versions = Vec::new();
     let mut xml = None;
-    let mut genes = Vec::new();
-    let mut conditions = Vec::new();
+    let mut relations = Vec::new();
     let mut cx = crate::mapped::Problems {
         source: biomcp_types::Source::Gtr,
         record: None,
@@ -54,11 +48,11 @@ pub fn get(
                 refusals = crate::Refusal::Refused;
                 r.disclose(&mut cx);
             }
-            Native::Relation(r) => match map::relation(&r, &mut cx, &mut refusals) {
-                Some(GtrTestRelation::Gene(gene)) => genes.push(gene.into()),
-                Some(GtrTestRelation::Condition(condition)) => conditions.push(condition.into()),
-                Some(GtrTestRelation::Method(_)) | None => {}
-            },
+            Native::Relation(r) => {
+                if let Some(relation) = map::relation(&r, &mut cx, &mut refusals) {
+                    relations.push(relation);
+                }
+            }
         }
     }
     let conflict = if versions.len() > 1 {
@@ -69,8 +63,9 @@ pub fn get(
     let version = versions.first().filter(|_| conflict.is_none());
     let before = cx.list.len();
     cx.record = crate::mapped::record(id);
-    let from_version = version
-        .is_some_and(|v| version_labels(v, query.section(), &mut genes, &mut conditions, &mut cx));
+    let version_labels = version.map_or_else(Vec::new, |v| {
+        version_labels(v, query.section(), &relations, &mut cx)
+    });
     if cx.list.len() != before {
         refusals = crate::Refusal::Refused;
     }
@@ -87,9 +82,8 @@ pub fn get(
         problems,
         card,
         conflict,
-        genes,
-        conditions,
-        count_unit: (!from_version).then_some(DiagnosticCountUnit::NativeRelationRows),
+        relations,
+        version_labels,
         methods,
         info,
     })
@@ -99,55 +93,30 @@ pub fn get(
 fn version_labels(
     version: &GtrTestVersion,
     section: Option<DiagnosticSection>,
-    genes: &mut Vec<DiagnosticGeneRow>,
-    conditions: &mut Vec<DiagnosticConditionRow>,
+    relations: &[GtrTestRelation],
     cx: &mut crate::mapped::Problems,
-) -> bool {
-    match section {
-        Some(DiagnosticSection::Genes) if genes.is_empty() => {
-            genes.extend(
-                labels(&version.genes, "genes", cx).map(|label| DiagnosticGeneRow {
-                    test_type: None,
-                    object_name: label.as_str().into(),
-                    gene: GtrGeneReference {
-                        label: Some(label),
-                        ncbi_gene_id: None,
-                    },
-                    native_gene_or_snomed_ct_id: None,
-                    native_medgen: None,
-                    mim_number: "".into(),
-                }),
-            );
-            !genes.is_empty()
+) -> Vec<Text> {
+    let (cell, field) = match section {
+        Some(DiagnosticSection::Genes)
+            if !relations
+                .iter()
+                .any(|row| matches!(row, GtrTestRelation::Gene(_))) =>
+        {
+            (&version.genes, "genes")
         }
-        Some(DiagnosticSection::Conditions) if conditions.is_empty() => {
-            conditions.extend(
-                labels(&version.condition_identifiers, "condition_identifiers", cx).map(|label| {
-                    DiagnosticConditionRow {
-                        test_type: None,
-                        condition: DiagnosticConditionReference {
-                            id: None,
-                            label: Some(label),
-                        },
-                        mim_number: "".into(),
-                        snomed_ct_id: "".into(),
-                    }
-                }),
-            );
-            !conditions.is_empty()
+        Some(DiagnosticSection::Conditions)
+            if !relations
+                .iter()
+                .any(|row| matches!(row, GtrTestRelation::Condition(_))) =>
+        {
+            (&version.condition_identifiers, "condition_identifiers")
         }
-        _ => false,
-    }
-}
-
-fn labels<'a>(
-    cell: &'a str,
-    field: &'a str,
-    cx: &'a mut crate::mapped::Problems,
-) -> impl Iterator<Item = Text> + 'a {
+        _ => return Vec::new(),
+    };
     cell.split('|')
         .filter(|value| !value.is_empty())
-        .filter_map(move |value| cx.checked_text(field, Some(value)))
+        .filter_map(|value| cx.checked_text(field, Some(value)))
+        .collect()
 }
 /// The laboratory's XML row, read under the card's snapshot.
 fn lab(
