@@ -91,6 +91,9 @@ def ncit_examples(root):
         except (UnicodeDecodeError, OSError):
             continue
         for number, line in enumerate(text.splitlines(), 1):
+            if name.startswith("crates/biomcp-types/schemas/") and line.lstrip().startswith('"pattern":'):
+                # A JSON-encoded regex escapes the literal parentheses around concept names.
+                line = line.replace(r"\\(", "(").replace(r"\\)", ")")
             for code in NCIT_CODE.findall(line):
                 concept = NCIT_EXAMPLES.get(code)
                 if concept is None or f"{code} ({concept}".lower() not in line.lower():
