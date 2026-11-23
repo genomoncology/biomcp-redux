@@ -7,7 +7,7 @@ use std::{io::Write, process::Stdio};
 const FIRST: &str = "synthetic-registration-first";
 const SECOND: &str = "synthetic-registration-second";
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
         #[cfg(unix)]
         transcript_trial("key-registration/input-before-lock", || {
             super::key_input::check().map_err(Into::into)
@@ -31,7 +31,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("key-registration/key-reload-http", || {
             super::key_reload::check(true, true).map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(super::key_check::trials());
+    trials
 }
 pub(super) fn invoke(
     env: &Environment,

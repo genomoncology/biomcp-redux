@@ -304,7 +304,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(corporate::trials());
     trials.extend(drug_identity::trials());
     trials.extend(source_queries::trials());
-    trials.extend(key_check::trials());
     trials.extend(key_registration::trials());
     trials.extend(pdf::trials());
     trials.push(skill::trial());

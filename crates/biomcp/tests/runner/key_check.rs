@@ -62,7 +62,12 @@ fn provider(source: &str, field: &str, rejection: &str) -> Result<(), String> {
             .chain(["key", "check", source])
             .collect::<Vec<_>>();
         let reply = invoke_without_keys(&env, &args, "", 0, &[KEY])?;
-        check(&reply["result"], source, status, reason)?;
+        check(
+            reply.get("result").ok_or("missing key check result")?,
+            source,
+            status,
+            reason,
+        )?;
     }
     Ok(())
 }
@@ -80,7 +85,10 @@ fn check(
     if reply.to_string().contains(KEY) {
         return Err("credential leaked in the key check reply".into());
     }
-    if reply["source"] != source || reply["status"] != status || reply["reason"].as_str() != reason
+    let field = |name| reply.get(name).and_then(serde_json::Value::as_str);
+    if field("source") != Some(source)
+        || field("status") != Some(status)
+        || field("reason") != reason
     {
         return Err(format!(
             "wrong key check result for {source} ({status}): {reply}"
