@@ -10,7 +10,7 @@ The three round-2 guidance items that ticket 1168 left partly done are finished:
 
 ## Why
 
-Round 2 eval (biomcp-code-mode-redux branch wip/pilot-b, runs/round-2-sol.md; batches r2-apb-{l,b,o} under ~/workspace/data/agent-runs/batches, calls in results/*/1/record/calls-01-answer.jsonl): Europe PMC search failed all 42 times it was tried (15 s source deadline; Europe PMC took 9 to 13 s per quoted search even when idle), each with `next: []`, and agents went to Europe PMC directly about 40 times. Ticket 1168 scoped the unknown-option wording to HGVS because three tests (`usage-unknown-option`, `usage-names-the-cause`, `typed-refusals-name-the-cause`) assert the old wording "unknown option: this command has no error.option; run next, or use an option valid_values lists"; that wording is the defect, so those assertions change with it (PM ruling, 2026-11-23). Ticket 1168 offered retries only in typed stdio.
+Round 2 eval (the eval repository, runs/round-2-sol.md; batches r2-apb-{l,b,o}, per-run call logs): Europe PMC search failed all 42 times it was tried (15 s source deadline; Europe PMC took 9 to 13 s per quoted search even when idle), each with `next: []`, and agents went to Europe PMC directly about 40 times. Ticket 1168 scoped the unknown-option wording to HGVS because three tests (`usage-unknown-option`, `usage-names-the-cause`, `typed-refusals-name-the-cause`) assert the old wording "unknown option: this command has no error.option; run next, or use an option valid_values lists"; that wording is the defect, so those assertions change with it (PM ruling, 2026-11-23). Ticket 1168 offered retries only in typed stdio.
 
 ## Proof
 
