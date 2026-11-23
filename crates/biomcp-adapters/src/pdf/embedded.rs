@@ -1,6 +1,28 @@
 //! Embedded text of PDF bytes already in hand, bounded by pages and expanded size.
 use super::page::{Halt, too_large};
 use biomcp_types::{PdfMissing, PdfTextState, Reason};
+use std::num::NonZeroU32;
+
+/// Pages to extract after the document passes the whole-file safety checks.
+#[derive(Clone, Copy)]
+pub(crate) enum Pages {
+    /// Refuse if the whole document exceeds this page count.
+    Whole(usize),
+    /// Extract up to the normal page limit, starting at this physical page.
+    Window(NonZeroU32),
+}
+
+impl Pages {
+    pub(super) fn range(self, count: usize) -> Option<std::ops::Range<usize>> {
+        match self {
+            Self::Whole(limit) => (count <= limit).then_some(0..count),
+            Self::Window(first) => {
+                let start = (first.get() as usize - 1).min(count);
+                Some(start..start.saturating_add(super::MAX_PAGES).min(count))
+            }
+        }
+    }
+}
 
 /// The text read from one PDF; `text` is empty unless `state` is text, so gibberish is never
 /// returned as text.
@@ -25,6 +47,14 @@ pub struct Embedded {
 pub fn embedded(
     bytes: &[u8],
     max_pages: usize,
+    expired: &dyn Fn() -> bool,
+) -> Result<Embedded, Reason> {
+    extract(bytes, Pages::Whole(max_pages), expired)
+}
+
+pub(super) fn extract(
+    bytes: &[u8],
+    selection: Pages,
     expired: &dyn Fn() -> bool,
 ) -> Result<Embedded, Reason> {
     let limit = super::MAX_EXPANDED_BYTES;
@@ -68,14 +98,14 @@ pub fn embedded(
     check()?;
     let pages = document.get_pages();
     result.pages = Some(u32::try_from(pages.len()).unwrap_or(u32::MAX));
-    if pages.len() > max_pages {
+    let Some(range) = selection.range(pages.len()) else {
         result.state = PdfTextState::TooLarge;
         return Ok(result);
-    }
+    };
     let (mut text, mut unsound, mut skipped) = (String::new(), Vec::new(), false);
-    let mut page_starts = Vec::with_capacity(pages.len());
+    let mut page_starts = Vec::with_capacity(range.len());
     let mut fonts = super::cmap::Cache::default();
-    for page in pages.values() {
+    for page in pages.values().skip(range.start).take(range.len()) {
         check()?;
         let part = match super::page::page(&document, *page, limit, &mut fonts, expired) {
             Ok(part) => part,

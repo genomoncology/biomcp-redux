@@ -7,6 +7,7 @@ use biomcp_types::{
     Reason, ReplyBody, ReplyData, Section, Source, TrialDocumentGet, TrialDocumentReadResult,
     TrialDocumentResult, TrialDocumentSaveQuery, UsageError,
 };
+use std::num::NonZeroU32;
 
 const SOURCE: Source = Source::ClinicalTrialsGov;
 
@@ -26,11 +27,7 @@ enum Action {
 }
 
 enum Document {
-    Text(
-        TrialDocument,
-        biomcp_types::PdfText,
-        Option<biomcp_adapters::pdf::Embedded>,
-    ),
+    Text(TrialDocument, biomcp_adapters::pdf::DownloadedText),
     File(TrialDocument, Vec<u8>),
 }
 
@@ -54,6 +51,7 @@ pub fn download(cx: &Ctx<'_>, query: &TrialDocumentGet, allow: bool) -> Download
         .as_ref()
         .map(|_| "--find")
         .or(query.section_offset.map(|_| "--section-offset"))
+        .or(query.page_start.map(|_| "--page-start"))
     {
         return Download {
             out: status::ready(ReplyData::Usage(UsageError::argument(option.into()))),
@@ -86,8 +84,11 @@ fn execute(cx: &Ctx<'_>, query: &TrialDocumentGet, action: Action) -> Download {
             }
             Action::Download => ctgov::document::download(&leg, &document)
                 .map(|bytes| Some(Document::File(document, bytes))),
-            Action::Read => ctgov::document::read_text(&leg, &document)
-                .map(|(text, read)| Some(Document::Text(document, text, read))),
+            Action::Read => {
+                let first = query.page_start.unwrap_or(NonZeroU32::MIN);
+                ctgov::document::read_text(&leg, &document, first)
+                    .map(|read| Some(Document::Text(document, read)))
+            }
         }
     });
     let (result, error) = match result {
@@ -108,8 +109,8 @@ fn execute(cx: &Ctx<'_>, query: &TrialDocumentGet, action: Action) -> Download {
     command.finish(remaining);
     let file = match result {
         Some(Document::File(document, bytes)) => Some((document, bytes)),
-        Some(Document::Text(document, content, read)) => {
-            super::text::answer(&mut out, query, document, content, read, cx.fresh);
+        Some(Document::Text(document, content)) => {
+            super::text::answer(&mut out, query, document, content, cx.fresh);
             None
         }
         None => None,

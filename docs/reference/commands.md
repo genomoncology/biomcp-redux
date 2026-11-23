@@ -5394,7 +5394,7 @@ Read trial groups and public documents.
 Usage: biomcp trial [OPTIONS] <COMMAND>
 
 Commands:
-  document  Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).
+  document  Read or save a listed trial PDF (25 MiB, 100 pages per read).
 
 Options:
       --format <format>
@@ -5432,20 +5432,20 @@ Read trial groups and public documents.
 ## biomcp trial document
 
 ```text
-Read or save a listed trial PDF (25 MiB, 100 pages, 6144 escaped bytes per part).
+Read or save a listed trial PDF (25 MiB, 100 pages per read).
 
 Usage: biomcp trial document [OPTIONS] <input> <file>
 
 Arguments:
   <input>
-          ClinicalTrials.gov ID.
+          NCT ID.
 
   <file>
-          Exact listed PDF filename.
+          Listed PDF name.
 
 Options:
       --find <find>
-          Case-insensitive phrase search with pages.
+          Find a phrase, ignoring case.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -5456,23 +5456,26 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --page-start <page_start>
+          First PDF page (default 1).
+
       --replace[=<replace>]
-          Replace an existing file.
+          Overwrite.
 
           [default: false]
           [possible values: true, false]
 
       --save <save>
-          Save the original PDF to a file or folder.
-
-      --section-offset <section_offset>
-          Zero-based part or hit offset.
+          Save to a file or folder.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --section-offset <section_offset>
+          Part or hit offset from 0.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5489,14 +5492,15 @@ Options:
 ```
 
 Read a trial PDF. Sources: ctgov.
-Paging: --offset; --section-offset is the same option.
+Paging: --offset = --section-offset.
 
-- `file`: Exact listed PDF filename.
-- `--find`: Case-insensitive phrase search with pages. Value form: string; example: --find 'Wald chi-square p-value'.
-- `input`: ClinicalTrials.gov ID.
-- `--replace`: Replace an existing file. Value form: boolean; example: --replace.
-- `--save`: Save the original PDF to a file or folder. Value form: string; example: --save protocol.pdf.
-- `--section-offset`: Zero-based part or hit offset. Value form: integer; example: --section-offset 0.
+- `file`: Listed PDF name.
+- `--find`: Find a phrase, ignoring case. Value form: string; example: race.
+- `input`: NCT ID.
+- `--page-start`: First PDF page (default 1). Value form: integer; example: 301.
+- `--replace`: Overwrite. Value form: boolean; example: --replace.
+- `--save`: Save to a file or folder. Value form: string; example: protocol.pdf.
+- `--section-offset`: Part or hit offset from 0. Value form: integer; example: 0.
 
 ## biomcp variant
 

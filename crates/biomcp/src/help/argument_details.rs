@@ -1,4 +1,5 @@
 //! Combine schema argument facts, recorded examples and registry source coverage.
+use crate::grammar::paging::help_line;
 use biomcp_types::{HelpArgument, HelpCommand};
 use std::collections::BTreeSet;
 
@@ -47,7 +48,8 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
         let concise = command.command == ["get", "disease"];
         let trial_document = command.command == ["trial", "document"];
         let mut example_values =
-            (concise || command.command == ["search", "drug"]).then(BTreeSet::new);
+            (concise || trial_document || command.command == ["search", "drug"])
+                .then(BTreeSet::new);
         let mut cased = false;
         for argument in &mut command.arguments {
             drop_pointer(&mut argument.description, &own, rule.as_deref());
@@ -86,7 +88,10 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
         };
         let scope = (!flags.is_empty() && !concise && !trial_document).then_some(scope);
         append_option_guidance(command, cased, concise, scope);
-        if let Some(line) = schema.as_ref().and_then(crate::grammar::paging::help_line) {
+        if let Some(line) = schema
+            .as_ref()
+            .and_then(|schema| help_line(schema, trial_document))
+        {
             command.description.push('\n');
             command.description.push_str(&line);
         }
