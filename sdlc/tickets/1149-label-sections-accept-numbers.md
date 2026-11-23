@@ -20,3 +20,8 @@ Found 2026-11-22 by scouts exploring BioMCP for multi-entity questions (about 76
 ## Proof
 
 - `--label-section 1,14` on a replayed label returns the two sections (or a refusal naming `indications_and_usage,clinical_studies`); a truly missing section is reported as missing.
+
+
+## Amendment, 2026-11-22
+
+A round 2 scout found the same empty reply for a numbered subsection: the targeted `14.3` selector on Bizengri's label returned nothing although the full label contains section 14.3. Subsection numbers are in scope.
