@@ -5,7 +5,9 @@ use biodata::Text;
 use biomcp_types::{NoteTargetKind, SavedNote, SavedNoteTarget, SavedRef, SavedSkipped, Source};
 use rusqlite::{Connection, OptionalExtension, params};
 
-use super::store::{NOTE_CHARS, PROJECT, list_id, search_id, seconds, text, unsigned, within};
+use super::store::{
+    NOTE_CHARS, PROJECT, item_keys, list_id, search_id, seconds, text, unsigned, within,
+};
 use super::{SavedError, SavedStore};
 
 /// What a new note is attached to.
@@ -174,26 +176,6 @@ pub(super) fn ids(connection: &Connection, scope: Scope<'_>) -> Result<Vec<Strin
 pub(super) fn delete_record(connection: &Connection, record: &str) -> Result<(), SavedError> {
     connection.execute("DELETE FROM saved_note WHERE record=?1", [record])?;
     Ok(())
-}
-
-/// Find the exact saved item keys matching the supplied qualifiers.
-pub(super) fn item_keys(
-    connection: &Connection,
-    list: &str,
-    id: &str,
-    entity: Option<&str>,
-    source: Option<&str>,
-) -> Result<Vec<(String, String)>, SavedError> {
-    let mut statement = connection.prepare(
-        "SELECT entity,source FROM saved_list_item WHERE list=?1 AND id=?2 \
-         AND (?3 IS NULL OR entity=?3) AND (?4 IS NULL OR source=?4)",
-    )?;
-    let keys = statement
-        .query_map(params![list, id, entity, source], |row| {
-            Ok((row.get(0)?, row.get(1)?))
-        })?
-        .collect::<Result<_, _>>()?;
-    Ok(keys)
 }
 
 /// Delete the notes attached to this exact saved item.

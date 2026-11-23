@@ -117,11 +117,29 @@ fn check_compatibility(connection: &Connection) -> Result<(), SavedError> {
     }
 }
 
+/// Find the exact saved item keys matching the supplied qualifiers.
+pub(super) fn item_keys(
+    connection: &Connection,
+    list: &str,
+    id: &str,
+    entity: Option<&str>,
+    source: Option<&str>,
+) -> Result<Vec<(String, String)>, SavedError> {
+    let mut statement = connection.prepare(
+        "SELECT entity,source FROM saved_list_item WHERE list=?1 AND id=?2 \
+         AND (?3 IS NULL OR entity=?3) AND (?4 IS NULL OR source=?4)",
+    )?;
+    let keys = statement
+        .query_map(params![list, id, entity, source], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })?
+        .collect::<Result<_, _>>()?;
+    Ok(keys)
+}
+
 fn remove_qualifier(keys: &[(String, String)]) -> SavedError {
-    let values = |names: Vec<&str>| {
+    let values = |names: std::collections::BTreeSet<&str>| {
         names
-            .into_iter()
-            .collect::<std::collections::BTreeSet<_>>()
             .into_iter()
             .filter_map(|name| Text::new(name).ok())
             .collect::<Box<[_]>>()
@@ -286,7 +304,7 @@ impl SavedStore {
             let mut missing = Vec::new();
             let mut removed = Vec::new();
             for item in ids {
-                let keys = super::notes::item_keys(tx, &id, item.as_str(), entity, source)?;
+                let keys = item_keys(tx, &id, item.as_str(), entity, source)?;
                 match keys.as_slice() {
                     [(entity, source)] => {
                         tx.execute(

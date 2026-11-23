@@ -50,3 +50,16 @@ steps:
   - run: [saved, export]
     expect:
       /result: {omits: [user_notes]}
+  - run: [saved, list, add, labels, --entity, drug, Aspirin]
+    expect: {/status: complete}
+  - run: [saved, list, add, labels, --entity, drug, --source, openfda-label, Aspirin]
+    expect: {/status: complete}
+  - run: [saved, list, remove, labels, --entity, drug, Aspirin]
+    exit: 2
+    expect:
+      /error/option: --source
+      /error/valid_values: {equals: [default, openfda-label]}
+  - run: [saved, list, remove, labels, --source, default, Aspirin]
+    expect:
+      /result/lists/0/items: {count: 1}
+      /result/lists/0/items/0/ref/source: openfda-label
