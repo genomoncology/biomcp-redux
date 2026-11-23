@@ -4,8 +4,8 @@ use biomcp_adapters::ols;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGet, DiseasePage, DiseaseSearch, DiseaseSection, DiseaseSynonyms, DiseaseXrefs,
-    ReplyData, Request, Source, StepKind,
+    DiseaseGet, DiseaseHeader, DiseaseOntology, DiseasePage, DiseaseSearch, DiseaseSection,
+    DiseaseSynonyms, DiseaseXrefs, ReplyData, Request, Source, SourceNotice, StepKind,
 };
 /// Discover one source-ordered page from one explicit ontology.
 pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
@@ -24,51 +24,88 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
         })
         .with_query(query.clone()),
     );
-    out.sources
-        .push(status::source(Source::Ols, leg.finish(), error));
-    out.local = error.and_then(status::local);
-    if let Ok(page) = reply {
-        out.include_refusals(page.rows.refusals);
-        let returned = page.rows.value.len() as u32;
-        for row in &page.rows.value {
-            if let Some(id) = &row.concept.id
-                && let Some(get) = crate::next::checked(
-                    id.to_string()
-                        .parse()
-                        .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
-                        .and_then(|id| DiseaseGet::ols(id, row.ontology)),
-                    Source::Ols,
-                    &mut out.problems,
-                )
+    let mut source = status::source(Source::Ols, leg.finish(), error);
+    match reply {
+        Ok(page) => {
+            let returned = page.received;
+            let total = page.total;
+            let count = page.missing_ids();
+            let rows = page.into_display_rows();
+            out.include_refusals(rows.refusals);
+            if count > 0 {
+                let noun = if count == 1 { "row" } else { "rows" };
+                source.notices.push(search_notice(format!(
+                    "OLS returned {count} {noun} without a usable identifier on this page."
+                )));
+            }
+            if returned > 0 && query.ontology() == Some(DiseaseOntology::Mondo) {
+                source.notices.push(search_notice(
+                "MONDO results can include non-human terms. The source labels retain any stated species.".into(),
+            ));
+            }
+            disambiguate(&mut out, &rows.value);
+            let offset = query.offset();
+            let end = u64::from(offset) + u64::from(returned);
+            let total = if returned == 0 { total.min(end) } else { total };
+            if let Some(next) = offset.checked_add(returned)
+                && returned > 0
+                && end < total
             {
                 out.next.push(crate::next::Step::new(
-                    StepKind::Disambiguate,
+                    StepKind::Page,
                     &[biomcp_types::Source::Ols],
-                    run(Request::GetDisease(get)),
+                    run(Request::SearchDisease(query.at_offset(next))),
                 ));
             }
+            out.page = Some(page_info(offset, returned, total));
+            out.problems.extend(rows.problems);
+            if let ReplyData::DiseasePage {
+                body: Some(body), ..
+            } = &mut out.body
+            {
+                body.items = rows.value.into();
+            }
         }
-        if page.received > 0 && u64::from(query.offset()) + u64::from(page.received) < page.total {
-            out.next.push(crate::next::Step::new(
-                StepKind::Page,
-                &[biomcp_types::Source::Ols],
-                run(Request::SearchDisease(
-                    query.at_offset(query.offset().saturating_add(page.received)),
-                )),
-            ));
-        }
-        out.page = Some(page_info(query.offset(), returned, page.total));
-        out.problems.extend(page.rows.problems);
-        if let ReplyData::DiseasePage {
-            body: Some(body), ..
-        } = &mut out.body
-        {
-            body.items = page.rows.value.into();
-        }
+        Err(error) => out.local = status::local(error),
+    }
+    out.sources.push(source);
+    if out.page.is_some() {
         crate::status::search(&mut out);
     }
     command.finish(deadline.remaining());
     out
+}
+fn disambiguate(out: &mut Outcome, rows: &[DiseaseHeader]) {
+    // Imported gene records keep their source links instead of disease get commands.
+    for row in rows {
+        if let Some(id) = &row.concept.id
+            && !id.as_str().split_once(':').is_some_and(|(prefix, _)| {
+                prefix.eq_ignore_ascii_case("HGNC") || prefix.eq_ignore_ascii_case("NCBIGene")
+            })
+            && let Some(get) = crate::next::checked(
+                id.to_string()
+                    .parse()
+                    .map_err(|_| biomcp_types::QueryInvalid::new(&["id"]))
+                    .and_then(|id| DiseaseGet::ols(id, row.ontology)),
+                Source::Ols,
+                &mut out.problems,
+            )
+        {
+            out.next.push(crate::next::Step::new(
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::Ols],
+                run(Request::GetDisease(get)),
+            ));
+        }
+    }
+}
+
+fn search_notice(message: String) -> SourceNotice {
+    SourceNotice::RequestGuidance {
+        message: message.into(),
+        data_date: None,
+        retry_after_seconds: None,
+    }
 }
 /// Get an exact OLS record; section slicing reuses the checked original response.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {

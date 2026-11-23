@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "fda-cdx",
+  "url": "https://www.fda.gov/medical-devices/in-vitro-diagnostics/list-fda-authorized-companion-diagnostic-devices-in-vitro-and-imaging-tools",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<table><thead><tr><th>Diagnostic Name (Manufacturer)</th><th>Indication - Sample Type</th><th>Drug Trade Name (Generic) NDA / BLA</th><th>Biomarker(s)</th><th>Biomarker(s) (Details)</th><th>PMA / 510(k) /<br>513(f)(2) / HDE (Approval / Clearance / Grant Date)</th></tr></thead>\n<tbody>\n<tr><td>Synthetic compound claim</td><td>Synthetic tissue context</td><td>First drug (nDa-219001/S010) / Second drug (125001)</td><td>KRAS</td><td>G12C</td><td>P250001 (08/08/2025)</td></tr>\n<tr><td>Synthetic unreadable claim</td><td>Synthetic tissue context</td><td>Other drug <a href=\"https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&amp;ApplNo=125001\">application unavailable</a></td><td>KRAS</td><td>G12C</td><td>P250002 (08/08/2025)</td></tr>\n</tbody></table>\n<table><thead><tr><th>Diagnostic Name<br>(Manufacturer)</th><th>Indication(s) - Sample Type</th><th>PMA (Approval Date)</th><th>Device Indication for a Specific Group of Oncology Therapeutic Products and Trade Name (Generic) – NDA/BLA</th></tr></thead>\n<tbody></tbody></table>"
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "feature": "diagnostic-cdx",
+  "live_check": "synthetic authored replies; no live provider observation",
+  "story": "A single FDA row can name a prefixed and a bare application. Either application finds it, an explicitly prefixed number keeps its type, and an unreadable drug cell is reported.",
+  "replay": "diagnostic/fda-cdx-application-spellings",
+  "steps": [
+    {
+      "run": ["sync", "fda-cdx"],
+      "expect": {"/result/rows": 2}
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "NDA219001"],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/diagnostic": "Synthetic compound claim",
+        "": {"omits": ["problems"]}
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "BLA125001"],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/diagnostic": "Synthetic compound claim",
+        "/problems/*/code": ["identity.conflict"],
+        "/problems/*/field": ["drug"]
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "BLA219001"],
+      "expect": {
+        "/page/total": 0,
+        "": {"omits": ["problems"]}
+      }
+    }
+  ]
+}

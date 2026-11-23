@@ -1,0 +1,69 @@
+feature: variant-identity
+story: ClinVar variant reads keep all RCV conditions and mark an RCV whose conditions are absent.
+replay: variant/assertions/clinvar-condition-lists
+config:
+  mcp_tool_mode: typed
+  mcp_typed_output_schema: true
+verified: Excerpt from NCBI EFetch for VCV000546089.47. The three real RCVs retain their condition lists. RCV999999999 is a synthetic copy of
+  an RCV with its ClassifiedConditionList removed.
+steps:
+- run:
+  - get
+  - variant
+  - clinvar:546089
+  - clinvar
+  expect: &conditions
+    /status: complete
+    /result/candidates/0/sections/clinvar/data/total: 4
+    /result/candidates/0/sections/clinvar/data/assertions/0/record: RCV000778145
+    /result/candidates/0/sections/clinvar/data/assertions/0/statement/condition:
+      equals:
+        id: MedGen:C4551768
+        label: Cerebral arteriopathy, autosomal dominant, with subcortical infarcts and leukoencephalopathy, type 1
+    /result/candidates/0/sections/clinvar/data/assertions/1/record: RCV000763038
+    /result/candidates/0/sections/clinvar/data/assertions/1/detail/conditions:
+    - database: MedGen
+      accession: C4551768
+      id: MedGen:C4551768
+      label: Cerebral arteriopathy, autosomal dominant, with subcortical infarcts and leukoencephalopathy, type 1
+    - database: MedGen
+      accession: C1851710
+      id: MedGen:C1851710
+      label: Lateral meningocele syndrome
+    - database: MedGen
+      accession: C3809084
+      id: MedGen:C3809084
+      label: Myofibromatosis, infantile, 2
+    /result/candidates/0/sections/clinvar/data/assertions/2/record: RCV999999999
+    /result/candidates/0/sections/clinvar/data/assertions/2/detail/conditions_missing: true
+    /result/candidates/0/sections/clinvar/data/assertions/3/record: RCV007091897
+    /result/candidates/0/sections/clinvar/data/assertions/3/detail/conditions:
+    - database: MedGen
+      accession: C4551768
+      id: MedGen:C4551768
+      label: Cerebral arteriopathy, autosomal dominant, with subcortical infarcts and leukoencephalopathy, type 1
+    - database: MedGen
+      accession: C6065897
+      id: MedGen:C6065897
+      label: Cerebral arteriopathy, autosomal recessive, with subcortical infarcts and leukoencephalopathy 1
+    - database: MedGen
+      accession: C1720859
+      id: MedGen:C1720859
+      label: Familial partial lipodystrophy, Kobberling type
+    - database: MedGen
+      accession: C1851710
+      id: MedGen:C1851710
+      label: Lateral meningocele syndrome
+    - database: MedGen
+      accession: C3809084
+      id: MedGen:C3809084
+      label: Myofibromatosis, infantile, 2
+- mcp_call:
+    name: variant
+    arguments:
+      action: get
+      get:
+        id: clinvar:546089
+        section:
+        - clinvar
+  expect: *conditions

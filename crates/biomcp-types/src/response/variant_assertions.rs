@@ -45,7 +45,7 @@ pub struct VariantAssertion {
     /// Native assertion whose category the common model cannot represent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unmapped: Option<UnmappedAssertion>,
-    /// Original source detail, returned only for an explicitly selected record.
+    /// Original source detail. Compact RCV rows retain conditions the statement cannot express.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub detail: Option<AssertionDetail>,
 }
@@ -96,6 +96,9 @@ pub struct AssertionDetail {
     /// All source conditions; ID-only conditions stay ID-only.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub conditions: Box<[AssertionCondition]>,
+    /// ClinVar supplied no conditions for this RCV.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub conditions_missing: bool,
     /// Native trait relationships, kept separate from assertion conditions.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub condition_relationships: Box<[AssertionConditionRelationship]>,
