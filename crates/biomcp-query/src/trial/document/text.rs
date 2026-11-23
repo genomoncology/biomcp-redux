@@ -1,9 +1,10 @@
 //! Bounded trial PDF reply parts, literal matches and version information.
 use crate::{Outcome, pdf_find, status, text_find};
+use biodata::TrialDocument;
 use biomcp_adapters::pdf::{self, Embedded};
 use biomcp_types::{
-    PdfText, ReplyBody, Request, Section, Source, StepKind, TrialDocument, TrialDocumentGet,
-    TrialDocumentHit, TrialDocumentReadResult, TrialDocumentText,
+    PdfText, ReplyBody, Request, Section, Source, StepKind, TrialDocumentGet, TrialDocumentHit,
+    TrialDocumentReadResult, TrialDocumentText,
 };
 
 pub(super) fn answer(
