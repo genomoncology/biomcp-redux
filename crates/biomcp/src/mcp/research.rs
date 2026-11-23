@@ -121,6 +121,17 @@ pub(super) fn execute(
             biomcp_types::UsageError::argument("--fields".into()),
             crate::command::Encoding::Mcp,
         )?
+    } else if matches!(&call.projection, Projection::Fetch(id)
+        if id.starts_with("https://") || id.starts_with("http://"))
+    {
+        crate::command::usage_envelope(
+            biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
+                argument: Some("id".into()),
+                message: Some(biomcp_types::ErrorMessage::FetchUrl),
+                ..Default::default()
+            }),
+            crate::command::Encoding::Mcp,
+        )?
     } else if matches!(call.projection, Projection::Saved) {
         crate::saved_mcp::tool(&call.args, context)?
     } else if http {

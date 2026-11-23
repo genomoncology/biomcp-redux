@@ -58,6 +58,14 @@ pub(super) fn checked(
     })
 }
 
+pub(super) fn unknown_option_message(path: &[&str], spelling: &str) -> biomcp_types::ErrorMessage {
+    use biomcp_types::ErrorMessage;
+    match (path, spelling) {
+        (["search", "variant"], "--hgvs") => ErrorMessage::ArgumentHgvsSearch,
+        _ => ErrorMessage::ArgumentUnknown,
+    }
+}
+
 /// Fixed messages saying the command takes no such option here, or not without another, so
 /// the fix is to drop it or add what it needs, and there is no value to choose.
 fn drops_option(message: biomcp_types::ErrorMessage) -> bool {

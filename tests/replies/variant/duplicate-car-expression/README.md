@@ -1,0 +1,1 @@
+Synthetic copy of the CAR HGVS reply in variant/id-forms. Two genomic entries add three deliberately unrecognized expression strings. The valid BRAF representation and existing public identifiers are unchanged.
