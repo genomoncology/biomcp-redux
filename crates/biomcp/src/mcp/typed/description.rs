@@ -140,9 +140,8 @@ pub(super) fn tool(
     for route in crate::help::source_routes::ROUTES
         .iter()
         .filter(|route| route.entity == *name && sources.contains(route.source))
-        .filter(|route| !super::catalog::mentions_excluded(route.note, excluded))
     {
-        parts.push(format!("{} {}", route.typed, route.note));
+        parts.push(route.typed.into());
     }
     let others = actions
         .iter()
