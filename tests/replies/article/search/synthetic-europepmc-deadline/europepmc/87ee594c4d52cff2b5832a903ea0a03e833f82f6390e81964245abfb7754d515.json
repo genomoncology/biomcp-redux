@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "europepmc",
+  "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=tebentafusp&format=json&resultType=lite&pageSize=100",
+  "exchanges": [
+    {
+      "fetched": 1794434679,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 60000,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "hitCount": 0,
+          "resultList": {
+            "result": []
+          }
+        }
+      }
+    }
+  ]
+}

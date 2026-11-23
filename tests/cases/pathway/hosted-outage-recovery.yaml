@@ -1,0 +1,19 @@
+feature: pathway-failures
+story: A hosted caller can retry an unavailable Reactome card with the call offered in the reply.
+live_check: authored synthetic pathway outage
+replay: pathway/unavailable
+steps:
+  - mcp: [get, pathway, R-HSA-6802952]
+    hosted: true
+    is_error: true
+    expect:
+      /status: failed
+      /sources/0/source: reactome
+      /sources/0/reason: unavailable
+      /next/0/args: [get, pathway, R-HSA-6802952]
+  - mcp: [get, pathway, R-HSA-6802952]
+    hosted: true
+    is_error: true
+    expect:
+      /status: failed
+      /sources/0/reason: unavailable
