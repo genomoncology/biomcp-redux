@@ -1,0 +1,59 @@
+feature: disease-gene-validity
+story: A literal publisher-title prefix pages matching assertions from both sources and reports a missing export.
+live_check: Synthetic ClinGen and GenCC export replies. No provider requests.
+replay: disease/curation-title-prefix
+steps:
+  - run: [get, disease, Fanconi anemia, gene-validity, --source-title-prefix]
+    expect:
+      /status: partial
+      /sources/*/state: [ok, syncing]
+      /result/coverage/*/source: [clingen]
+      /result/coverage/0/export_rows: 3
+      /page/total: 2
+  - run: [sync, gencc]
+    expect:
+      /status: complete
+      /result/rows: 5
+  - run: [get, disease, Fanconi anemia, gene-validity]
+    expect:
+      /status: complete
+      /page/total: 2
+  - run: [get, disease, fAnCoNi ANEMIA, gene-validity, --source-title-prefix, --limit, '2']
+    expect:
+      /status: complete
+      /page/total: 5
+      /page/returned: 2
+      /result/coverage/*/export_rows: [3, 5]
+      /result/coverage/*/matched: [2, 3]
+      /sources/*/count: [2, 3]
+      /sources/*/retrieved_count: [2, 0]
+      /next/0/args: {includes_all_of: [--source-title-prefix, --offset, '2']}
+      /result/items/*/assertion/disease: [Fanconi anemia, 'Fanconi anemia, type A']
+      /result/items/*/assertion/mondo_id: ['MONDO:0019391', 'MONDO:0005835']
+      /result/items/*/assertion/classification: [Definitive, Limited]
+      /result/items/*/assertion/expert_panel: [Fixture Expert Panel, Other Expert Panel]
+      /result/items/*/assertion/classification_date: ['2024-01-01', '2024-01-02']
+  - run: [get, disease, fAnCoNi ANEMIA, gene-validity, --source-title-prefix, --offset, '2', --fields, 'gene_symbol,assertion']
+    mcp: [get, disease, fAnCoNi ANEMIA, gene-validity, --source-title-prefix, --offset, '2', --fields, 'gene_symbol,assertion']
+    expect:
+      /page/total: 5
+      /page/returned: 3
+      /sources/*/retrieved_count: [0, 3]
+      /result/items/*/gene_symbol: [MLH1, MSH2, MSH6]
+      /result/items/*/assertion/disease: [Fanconi anemia, 'Fanconi anemia, type B', 'Fanconi anemia% subtype']
+      /result/items/*/assertion/id: [SGC-001, SGC-002, SGC-003]
+      /result/items/*/assertion/disease_id: ['MONDO:0019391', 'MONDO:0005835', 'MONDO:0005835']
+      /result/items/*/assertion/classification: [Strong, Limited, Strong]
+      /result/items/*/assertion/submitter: [Fixture Submitter, Other Submitter, Fixture Submitter]
+      /result/items/*/assertion/evaluated_date: ['2024-01-03', '2024-01-04', '2024-01-05']
+  - run: [get, disease, 'fanconi anemia%', gene-validity, --source, gencc, --source-title-prefix, --fields, assertion.classification]
+    expect:
+      /page/total: 1
+      /sources/*/source: [gencc]
+      /result/items/0: {omits: [gene_symbol]}
+      /result/items/0/assertion: {omits: [submitter, evaluated_date]}
+      /result/items/0/assertion/classification: Strong
+  - run: [get, disease, éRYTHROCYTE, gene-validity, --source, gencc, --source-title-prefix]
+    expect:
+      /page/total: 1
+      /result/items/0/assertion/id: SGC-005
