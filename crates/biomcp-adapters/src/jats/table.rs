@@ -14,14 +14,18 @@ struct Cells {
     references: Box<[Text]>,
     paragraphs: Vec<super::references::Paragraph>,
 }
-pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply> {
+pub(super) fn group(
+    table: Element<'_>,
+    path: &[Text],
+    problems: &mut crate::mapped::Problems,
+) -> Result<Group, BadReply> {
     let label = table.value(&["label"])?.unwrap_or_else(|| "Table".into());
     let caption = table.child("caption")?;
     let text = caption
         .map(|v| markdown::inline(v.0))
         .transpose()?
         .unwrap_or_default();
-    let caption = format!("**{}.** {}", label.trim_end_matches('.'), text.trim());
+    let mut caption = format!("**{}.** {}", label.trim_end_matches('.'), text.trim());
     let mut source = Vec::new();
     let mut expanded = 0usize;
     for row in blocks::descendants(table.0, "tr")? {
@@ -38,6 +42,10 @@ pub(super) fn group(table: Element<'_>, path: &[Text]) -> Result<Group, BadReply
         }
     }
     let width = source.iter().map(|r| r.expanded.len()).max().unwrap_or(0);
+    if width == 0 {
+        problems.required::<()>("table.rows: one or more tables have no readable rows", None);
+        caption.push_str("\n\n_Table rows unavailable._");
+    }
     let mut rendered = Vec::new();
     for cells in source {
         let mut md: Vec<_> = cells
