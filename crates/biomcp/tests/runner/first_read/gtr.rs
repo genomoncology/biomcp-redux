@@ -5,6 +5,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 const GET: &[&str] = &["get", "diagnostic", "GTR000527948.7", "--source", "gtr"];
+const GENES: &[&str] = &[
+    "get",
+    "diagnostic",
+    "GTR000527948.7",
+    "--source",
+    "gtr",
+    "genes",
+];
 const SEARCH: &[&str] = &["search", "diagnostic", "--source", "gtr", "--gene", "EGFR"];
 
 pub(super) fn trials() -> Vec<Trial> {
@@ -49,10 +57,12 @@ fn oversized() -> Check {
     let recording = fixtures().join("replies/diagnostic/gtr-egfr");
     let cache = env.root().join("case-cache");
     invoke(&env, cached(&["sync", "gtr"], &cache, Some(&recording)), 0)?;
-    let card = invoke(&env, cached(GET, &cache, None), 0)?;
-    if card.pointer("/result/header/id") != Some(&json!("GTR000527948.7")) {
+    let genes = invoke(&env, cached(GENES, &cache, None), 0)?;
+    if genes.pointer("/result/test_id") != Some(&json!("GTR000527948.7"))
+        || genes.pointer("/result/items/0/gene/ncbi_gene_id") != Some(&json!("1956"))
+    {
         return Err(format!(
-            "explicit sync did not make the requested card readable: {card}"
+            "explicit sync did not make the requested test's gene readable: {genes}"
         ));
     }
     Ok(())
