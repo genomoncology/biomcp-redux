@@ -1,0 +1,13 @@
+feature: drug-approvals
+live_check: Public FDA application and supplement approval letter.
+story: The native Letter ID returned for BLA761352 reads the FDA text for its own submission.
+replay: drug/bla761352-letter
+steps:
+  - run: [get, drug, BLA761352, approvals, --source, drugsfda, --limit, "200"]
+    expect:
+      /result/approvals/data/records/0/application_docs/0/id: "85877"
+      /result/approvals/data/records/0/application_docs/0/type: Letter
+  - run: [get, drug, BLA761352, approvals, --source, drugsfda, --document-id, "85877"]
+    expect:
+      /result/approvals/data/records/0/application_docs/0/text/state: text
+      /result/approvals/data/records/0/application_docs/0/text/text: {includes: "BLA 761352/S-010 SUPPLEMENT APPROVAL"}
