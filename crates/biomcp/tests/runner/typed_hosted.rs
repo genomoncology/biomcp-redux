@@ -122,7 +122,7 @@ fn trial_document(server: &Server, hosted: &Value) -> Result<(), String> {
         host.request("POST", "/mcp", &request.to_string())
             .map(|(_, reply)| reply)
     };
-    // Each read gets its own replay of the original provider exchanges.
+    // Each read gets its own replay of the manifest and synthetic PDF.
     for (arguments, pointer, expected) in [
         (
             json!({"id":"NCT01467466","file":"SAP_001.pdf","section_offset":0}),
