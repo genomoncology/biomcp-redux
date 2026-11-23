@@ -1,6 +1,7 @@
 //! Features diagnostic-cdx and disease-orphadata: a live first read fetches a missing small list;
 //! an offline one never fetches.
 mod ema;
+mod gtr;
 mod parity;
 mod publisher;
 
@@ -34,6 +35,7 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
     ];
     trials.extend(ema::trials());
+    trials.extend(gtr::trials());
     trials.extend(parity::trials());
     trials.extend(publisher::trials());
     trials
