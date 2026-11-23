@@ -77,11 +77,9 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
     if query.is_default_pmid()
         && matches!(&out.body, ReplyData::ArticleTextResult { body: Some(body), .. }
             if matches!(body.content, Section::Unavailable { reason: Reason::NotOpen, .. }))
-        && let Ok(card) = ArticleGet::with_sections(
-            vec![query.input().clone()].into(),
-            vec![ArticleSectionWord::Fulltext].into(),
-        )
     {
+        let card =
+            ArticleGet::single_with_section(query.input().clone(), ArticleSectionWord::Fulltext);
         out = super::get::closed_card(cx, &card, &mut deadline, out);
     }
     command.finish(deadline.remaining());

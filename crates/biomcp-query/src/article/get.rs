@@ -70,14 +70,16 @@ fn read<'a>(
     let mut local = None;
     for input in query.input() {
         let result = pubmed::resolve_ids(&leg, input, cx.ncbi_email.as_ref());
-        if let Err(e) = result {
-            error.get_or_insert(e);
-            local = local.or(status::local(e));
-        }
-        if let Ok(found) = &result {
-            for id in found {
-                if !ids.contains(id) {
-                    ids.push(*id);
+        match &result {
+            Err(e) => {
+                error.get_or_insert(*e);
+                local = local.or(status::local(*e));
+            }
+            Ok(found) => {
+                for id in found {
+                    if !ids.contains(id) {
+                        ids.push(*id);
+                    }
                 }
             }
         }
