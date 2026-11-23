@@ -45,7 +45,14 @@ fn has_failed_read(result: &biomcp_query::Outcome) -> bool {
     result
         .sources
         .iter()
-        .filter(|source| source.retryable())
+        .filter(|source| {
+            // A missing local bundle already has its own synchronization guidance.
+            source.retryable()
+                && !result
+                    .next
+                    .iter()
+                    .any(|step| step.0 == StepKind::Sync && step.2.contains(&source.source))
+        })
         .any(|source| match &result.body {
             // Transcript fit is an optional lookup after a provider answers. Retry a requested
             // normalization when its own result is unavailable.
