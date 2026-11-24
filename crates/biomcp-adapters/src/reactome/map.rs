@@ -1,6 +1,8 @@
 use super::raw;
 use crate::{mapped::Problems, raw::Field};
-use biodata::{Pathway, PathwayId, PathwayLiteratureRef, PathwaySpecies, PathwaySummation, Text};
+use biodata::{
+    Pathway, PathwayId, PathwayLiteratureRef, PathwaySpecies, PathwaySummation, ReactomeId, Text,
+};
 use biomcp_types::{PathwayCard, PathwayHeader, PathwaySection, Source};
 
 pub(super) fn fields(record: &str) -> Problems {
@@ -36,11 +38,13 @@ pub(super) fn metadata(
     let value = problems.optional(field, native_text(value).map(admit));
     problems.required(field, value)
 }
-fn identity(id: &str, species: &str, class: &str) -> Option<PathwayId> {
-    if species != "Homo sapiens" || !matches!(class, "Pathway" | "TopLevelPathway") {
+pub(super) fn identity(id: &str, species: &str, class: &str) -> Option<ReactomeId> {
+    if species != "Homo sapiens"
+        || !matches!(class, "Pathway" | "TopLevelPathway" | "CellLineagePath")
+    {
         return None;
     }
-    Some(PathwayId::Reactome(id.parse::<biodata::ReactomeId>().ok()?))
+    id.parse().ok()
 }
 pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHeader> {
     let id = identity(&row.st_id, row.species.first()?, &row.exact_type)?;
@@ -60,7 +64,7 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
         }),
     );
     Some(PathwayHeader {
-        id,
+        id: PathwayId::Reactome(id),
         name,
         species: PathwaySpecies::Human,
         version: None,
@@ -77,7 +81,7 @@ pub(super) fn header(row: &raw::Card, problems: &mut Problems) -> Option<Pathway
     });
     let version = problems.required("version", version.and_then(|v| crate::mapped::text(v).ok()));
     Some(PathwayHeader {
-        id,
+        id: PathwayId::Reactome(id),
         name,
         species: PathwaySpecies::Human,
         version,
