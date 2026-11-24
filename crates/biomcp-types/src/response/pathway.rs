@@ -93,7 +93,7 @@ impl ResponseBody for PathwayCard {
     type Query = PathwayGet;
 }
 
-/// Independent source-ordered distinct membership references and their observed counts.
+/// Source-ordered pathway membership and its observed counts.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayGenes {
@@ -102,14 +102,14 @@ pub struct PathwayGenes {
     /// Native Reactome database release for this observation, separate from pathway version.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub release: Option<Text>,
-    /// Mapped human genes across the full Reactome reference list, before paging.
+    /// Mapped human genes and unmapped gene-product references across the full relation, before paging.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gene_count: Option<PathwayGeneCount>,
     // The total comes before the rows (0942): a reader of only the start sees it.
     /// Reference rows in the whole collection, equal to `page.total`.
     #[serde(default)]
     pub total: u64,
-    /// Distinct-reference total and continuation.
+    /// Membership total and continuation.
     pub page: PathwayPageInfo,
     /// Only with `gene_products`: rows left out as non-gene references, which `total` excludes (1045).
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -118,7 +118,7 @@ pub struct PathwayGenes {
     pub reference_occurrences: u64,
     /// All native physical entities, never described as gene counts.
     pub physical_entities: u64,
-    /// Distinct namespaced source references in first occurrence order.
+    /// Distinct Reactome references or WikiPathways genes in first occurrence order.
     #[serde(default)]
     pub items: Box<[PathwayMember]>,
 }
@@ -128,15 +128,15 @@ pub struct PathwayGenes {
 pub struct PathwayGeneCount {
     /// Mapping and reference scope for both counts.
     pub scope: PathwayGeneCountScope,
-    /// Unique HGNC IDs from exact, unambiguous UniProt base-accession matches.
+    /// Unique HGNC IDs from exact, unambiguous source-reference matches.
     pub distinct: u64,
-    /// Gene-product reference rows without a unique HGNC match.
+    /// Gene-product references or WikiPathways nodes without a unique HGNC match.
     pub unmapped: u64,
 }
 biodata::wire_enum! {
     /// Reference collection and mapping used for a pathway's human-gene count.
     PathwayGeneCountScope {
-        #[doc = "All Reactome gene-product references, mapped to HGNC; excludes non-gene references."] HgncGeneProducts => "hgnc-gene-products"
+        #[doc = "Gene-product references mapped to HGNC; excludes non-gene references."] HgncGeneProducts => "hgnc-gene-products"
     }
 }
 /// Distinct references a gene-products read left out, such as ChEBI small molecules.

@@ -1,10 +1,13 @@
-//! A complete GPML relation is checked once and retained before any page is selected.
-use super::{relation::Saved, relation::Selection};
+//! A complete GPML relation is mapped and retained before any page is selected.
+use super::relation::{Saved, Selection};
 use crate::{Ctx, Outcome, status};
 use biodata::{PathwayId, PathwaySpecies};
 use biomcp_adapters::wikipathways;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{PathwayGenes, PathwayHeader, PathwayPageInfo, PathwayTotalKind, Source};
+use biomcp_types::{
+    PathwayGeneCount, PathwayGeneCountScope, PathwayGenes, PathwayHeader, PathwayPageInfo,
+    PathwayTotalKind, Source, SourceState,
+};
 
 pub(super) fn fetch(
     cx: &Ctx<'_>,
@@ -29,48 +32,66 @@ pub(super) fn fetch(
             return Ok(None);
         }
         let mapped = wikipathways::members(&leg, id)?;
-        let rows = mapped.value;
-        let count = rows.items.len();
-        Ok::<_, RequestError>(Some(Saved {
-            dropped: card.refusals == biomcp_adapters::Refusal::Refused
-                || mapped.refusals == biomcp_adapters::Refusal::Refused,
-            genes: Some(PathwayGenes {
-                header: PathwayHeader {
-                    id: q.id.clone(),
-                    name: rows.name,
-                    species: PathwaySpecies::Human,
-                    version: None,
-                    revision: Some(rows.version),
-                },
-                release: None,
-                gene_count: None,
-                total: count as u64,
-                items: rows.items.into(),
-                page: PathwayPageInfo {
-                    offset: 0,
-                    returned: count as u32,
-                    total: count as u64,
-                    total_kind: PathwayTotalKind::DataNodes,
-                    next_offset: None,
-                    pool: None,
-                },
-                left_out: None,
-                reference_occurrences: count as u64,
-                physical_entities: rows.data_nodes,
-            }),
-            events: None,
-            sources: Vec::new(),
-            problems: card.problems.into_iter().chain(mapped.problems).collect(),
-        }))
+        Ok::<_, RequestError>(Some((card, mapped)))
     })();
     out.sources.push(status::source(
         Source::WikiPathways,
         leg.finish(),
         reply.as_ref().err().copied(),
     ));
-    let Some(mut saved) = reply? else {
+    let Some((card, mapped)) = reply? else {
         return Ok(None);
     };
-    saved.sources = out.sources.clone();
-    Ok(Some(saved))
+    let rows = mapped.value;
+    let reference_occurrences = rows.items.len() as u64;
+    let mut problems: Vec<_> = card.problems.into_iter().chain(mapped.problems).collect();
+    let mut sources = out.sources.clone();
+    let (items, unresolved) = super::gpml_membership::resolve(
+        cx,
+        rows.items,
+        deadline,
+        q.fresh,
+        &mut sources,
+        &mut problems,
+    );
+    let total = items.len() as u64;
+    let skipped_join = sources
+        .iter()
+        .any(|source| source.source == Source::Hgnc && source.state == SourceState::Skipped);
+    Ok(Some(Saved {
+        dropped: card.refusals == biomcp_adapters::Refusal::Refused
+            || mapped.refusals == biomcp_adapters::Refusal::Refused
+            || skipped_join,
+        genes: Some(PathwayGenes {
+            header: PathwayHeader {
+                id: q.id.clone(),
+                name: rows.name,
+                species: PathwaySpecies::Human,
+                version: None,
+                revision: Some(rows.version),
+            },
+            release: None,
+            gene_count: Some(PathwayGeneCount {
+                scope: PathwayGeneCountScope::HgncGeneProducts,
+                distinct: total,
+                unmapped: rows.unmapped + unresolved,
+            }),
+            total,
+            items: items.into(),
+            page: PathwayPageInfo {
+                offset: 0,
+                returned: total as u32,
+                total,
+                total_kind: PathwayTotalKind::Observed,
+                next_offset: None,
+                pool: None,
+            },
+            left_out: None,
+            reference_occurrences,
+            physical_entities: rows.data_nodes,
+        }),
+        events: None,
+        sources,
+        problems,
+    }))
 }

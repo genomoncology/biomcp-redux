@@ -18,7 +18,7 @@
   "$id": "biomcp.pathway-genes-query/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Read Reactome references or WikiPathways GeneProduct nodes. Reactome gives its database release and counts distinct HGNC genes and unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.",
+  "description": "Read Reactome references or distinct WikiPathways genes. Both count mapped HGNC genes and unmapped gene products before paging. Reactome gives its release, and details shows physical contexts. No enrichment, therapy, response or actionability.",
   "properties": {
     "details": {
       "$ref": "#/$defs/Details",
@@ -26,7 +26,7 @@
       "x-positional": 1
     },
     "gene_products": {
-      "description": "Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.",
+      "description": "Keep only Reactome gene-product references. The left_out field counts the rest by namespace. WikiPathways already returns distinct HGNC genes.",
       "type": "boolean"
     },
     "id": {

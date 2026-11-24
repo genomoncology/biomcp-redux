@@ -2590,7 +2590,7 @@
           "x-positional": 1
         },
         "gene_products": {
-          "description": "Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.",
+          "description": "Keep only Reactome gene-product references. The left_out field counts the rest by namespace. WikiPathways already returns distinct HGNC genes.",
           "type": "boolean"
         },
         "id": {

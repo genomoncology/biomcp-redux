@@ -4,18 +4,20 @@ use super::{
     gpml_raw::{Document, MAX_BYTES},
 };
 use crate::Mapped;
-use crate::mapped::{Problems, record};
+use crate::mapped::{Problems, problem, record};
 use biodata::{PathwayMember, PathwaySourceRef, Text, WikiPathwaysId};
 use biomcp_fetch::{Freshness, Leg, RequestError};
 use biomcp_fetch::{Input, Read};
 use biomcp_types::Source;
 use std::collections::BTreeSet;
 
-/// Complete GeneProduct nodes and observed source node counts, before paging.
+/// Gene-product references and observed source node counts, before mapping.
 #[derive(Debug)]
 pub struct Members {
-    /// Whole native GeneProduct data nodes, including repeated references.
+    /// Native gene-product data nodes with references, including repeated references.
     pub items: Vec<PathwayMember>,
+    /// Gene-product nodes that could not supply a usable reference row.
+    pub unmapped: u64,
     /// GPML's own full WP identifier and r revision, never the catalog's date.
     pub version: Text,
     /// GPML's source-stated pathway name.
@@ -67,9 +69,31 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
     }
     let data_nodes = document.nodes.len() as u64;
     let mut refusals = crate::Refusal::None;
+    let mut unmapped = 0;
     for node in document.nodes {
-        if let Some(member) = member(node, &duplicates, &mut p, &mut refusals)? {
+        let Some(kind @ ("GeneProduct" | "Protein" | "Rna")) = node.kind.as_deref() else {
+            if node.namespace.as_deref().is_none_or(str::is_empty) {
+                p.required::<()>(
+                    &format!(
+                        "data_nodes.{}.xref",
+                        node.kind.as_deref().unwrap_or("unknown")
+                    ),
+                    None,
+                );
+            }
+            continue;
+        };
+        if let Some(member) = member(&node, kind, &duplicates, &mut p, &mut refusals)? {
             items.push(member);
+        } else {
+            unmapped += 1;
+            let record = node
+                .id
+                .as_deref()
+                .and_then(|id| p.text("genes.node_id", Some(id)))
+                .or_else(|| p.text("genes.name", node.label.as_deref()));
+            p.list
+                .push(problem(Source::WikiPathways, record, "genes.gene"));
         }
     }
     let name = p.text("name", document.name.as_deref());
@@ -77,6 +101,7 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
         refusals,
         value: Members {
             items,
+            unmapped,
             version: document.version.parse().map_err(|_| invalid())?,
             name,
             data_nodes,
@@ -86,23 +111,12 @@ pub fn members(leg: &Leg<'_>, id: &WikiPathwaysId) -> Result<Mapped<Members>, Re
 }
 
 fn member(
-    node: super::gpml_raw::Node,
+    node: &super::gpml_raw::Node,
+    kind: &str,
     duplicates: &BTreeSet<String>,
     p: &mut Problems,
     refusals: &mut crate::Refusal,
 ) -> Result<Option<PathwayMember>, RequestError> {
-    if node.kind.as_deref() != Some("GeneProduct") {
-        if node.namespace.as_deref().is_none_or(str::is_empty) {
-            p.required::<()>(
-                &format!(
-                    "data_nodes.{}.xref",
-                    node.kind.as_deref().unwrap_or("unknown")
-                ),
-                None,
-            );
-        }
-        return Ok(None);
-    }
     let node_id = p.optional(
         "genes.node_id",
         node.id.as_deref().map(|v| {
@@ -120,15 +134,18 @@ fn member(
         *refusals = crate::Refusal::Refused;
         return Ok(None);
     }
+    let Some(native) = node.value.as_deref().filter(|value| !value.is_empty()) else {
+        return Ok(None);
+    };
     let value = p.optional(
         "genes.reference",
-        node.value.as_deref().map(|v| {
-            Text::new(v)
+        Some(
+            Text::new(native)
                 .map_err(|_| ())
-                .and_then(|t| if t.as_str() == v { Ok(t) } else { Err(()) })
-        }),
+                .and_then(|t| if t.as_str() == native { Ok(t) } else { Err(()) }),
+        ),
     );
-    let Some(value) = p.required("genes.reference", value) else {
+    let Some(value) = value else {
         *refusals = crate::Refusal::Refused;
         return Ok(None);
     };
@@ -148,7 +165,7 @@ fn member(
         name: p.text("genes.name", node.label.as_deref()),
         source_url: None,
         gene: None,
-        schema_class: Some("GeneProduct".parse().map_err(|_| invalid())?),
+        schema_class: Some(kind.parse().map_err(|_| invalid())?),
         physical_context_count: 1,
         participants: None,
     }))

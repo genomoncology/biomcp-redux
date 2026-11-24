@@ -4674,7 +4674,7 @@ Read pathway genes and source events.
 Usage: biomcp pathway [OPTIONS] <COMMAND>
 
 Commands:
-  genes   Read Reactome references or WikiPathways GeneProduct nodes. Reactome gives its database release and counts distinct HGNC genes and unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.
+  genes   Read Reactome references or distinct WikiPathways genes. Both count mapped HGNC genes and unmapped gene products before paging. Reactome gives its release, and details shows physical contexts. No enrichment, therapy, response or actionability.
   events  Read Reactome event objects and unresolved source integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
 
 Options:
@@ -4713,7 +4713,7 @@ Read pathway genes and source events.
 ## biomcp pathway genes
 
 ```text
-Read Reactome references or WikiPathways GeneProduct nodes. Reactome gives its database release and counts distinct HGNC genes and unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.
+Read Reactome references or distinct WikiPathways genes. Both count mapped HGNC genes and unmapped gene products before paging. Reactome gives its release, and details shows physical contexts. No enrichment, therapy, response or actionability.
 
 Usage: biomcp pathway genes [OPTIONS] <id> [details]
 
@@ -4733,7 +4733,7 @@ Options:
           [possible values: json, md]
 
       --gene-products[=<gene_products>]
-          Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.
+          Keep only Reactome gene-product references. The left_out field counts the rest by namespace. WikiPathways already returns distinct HGNC genes.
 
           [default: false]
           [possible values: true, false]
@@ -4777,7 +4777,7 @@ Paging: --limit and --offset.
 
 - `details`: Include every physical entity context for these references; never clips source text.
 Form: pathway genes ID DETAILS; not --details.
-- `--gene-products`: Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products. Value form: boolean; example: --gene-products.
+- `--gene-products`: Keep only Reactome gene-product references. The left_out field counts the rest by namespace. WikiPathways already returns distinct HGNC genes. Value form: boolean; example: --gene-products.
 - `id`: Checked source-owned human pathway identity.
 Form: pathway genes ID DETAILS; not --id.
 - `--limit`: Five complete relation rows by default, at most 200. Value form: integer; example: --limit 50.

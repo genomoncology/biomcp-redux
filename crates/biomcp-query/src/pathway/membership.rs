@@ -137,14 +137,6 @@ pub(super) fn present(
     }
     if reactome {
         report_unmapped(&body.items, &mut out.problems);
-    } else {
-        super::gpml_membership::resolve(
-            cx,
-            &mut body.items,
-            deadline,
-            &mut out.sources,
-            &mut out.problems,
-        );
     }
     super::relation_steps::genes(&body, query, &mut out.next, &mut out.problems);
     // The pathway card was read first, so an empty relation is a complete answer, not an unknown pathway.
@@ -152,8 +144,8 @@ pub(super) fn present(
     out.body = body.with_query(query.clone());
 }
 /// Leave out non-gene Reactome references from the retained relation and count them by
-/// namespace, so the total and paging count kept rows. WikiPathways rows are GeneProduct
-/// nodes already, so nothing is left out there (1045).
+/// namespace, so the total and paging count kept rows. WikiPathways already returns
+/// only mapped genes, so nothing is left out there (1045).
 fn keep_gene_products(body: &mut biomcp_types::PathwayGenes) {
     let mut left_out = biomcp_types::PathwayLeftOut {
         rows: 0,

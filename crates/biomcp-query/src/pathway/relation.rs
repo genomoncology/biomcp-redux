@@ -128,16 +128,16 @@ fn read_inner(
         restart(q, out);
         return Ok(());
     }
+    // Older WikiPathways pools hold unjoined native nodes and use different offsets.
+    let namespace = match q.id {
+        PathwayId::Wikipathways(_) => "pathway-relation-hgnc",
+        PathwayId::Reactome(_) => "pathway-relation",
+    };
+    let key = source_snapshot::key(namespace, &(q.id, q.genes))?;
     let loaded = if q.fresh {
         None
     } else {
-        source_snapshot::find::<Saved>(
-            cx,
-            &source_snapshot::key("pathway-relation", &(q.id, q.genes))?,
-            q.pool,
-            deadline,
-        )?
-        .0
+        source_snapshot::find::<Saved>(cx, &key, q.pool, deadline)?.0
     };
     let (saved, pool) = match loaded {
         Some((saved, pool)) => (saved, Some(pool)),
@@ -158,7 +158,7 @@ fn read_inner(
             let pool = crate::publish::keep(
                 source_snapshot::publish(
                     cx,
-                    &source_snapshot::key("pathway-relation", &(q.id, q.genes))?,
+                    &key,
                     &saved,
                     saved
                         .genes

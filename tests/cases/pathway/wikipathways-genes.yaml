@@ -1,0 +1,44 @@
+{
+  "feature": "pathway-wikipathways-genes",
+  "live_check": "local-only; the second pathway is a synthetic control",
+  "story": "A WikiPathways caller can page distinct human genes across legacy and current gene-product nodes, including EGFR in WP437. Exact cross-references join across namespaces, and unresolvable nodes are counted and identified.",
+  "verified": "WP437 revision 141382 and its catalog rows were captured on 2026-11-24. The HGNC recording keeps its header and the original rows matching the captured Entrez IDs. Synthetic WP9999998 uses the same HGNC rows to exercise other namespaces and missing or unsupported references.",
+  "replay": "pathway/wikipathways-genes",
+  "steps": [
+    {
+      "run": ["sync", "wikipathways"],
+      "expect": {"/status": "complete"}
+    },
+    {
+      "run": ["pathway", "genes", "WP437", "--limit", "200"],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 162,
+        "/result/page/total": 162,
+        "/result/page/returned": 162,
+        "/result/gene_count/distinct": 162,
+        "/result/gene_count/unmapped": 0,
+        "/result/reference_occurrences": 195,
+        "/result/physical_entities": 195,
+        "/result/items": {"count": 162},
+        "/result/items/*/gene": {"count": 162, "unique": true, "includes": "HGNC:3236"}
+      }
+    },
+    {
+      "run": ["pathway", "genes", "WP9999998", "--gene-products"],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 3,
+        "/result/page/returned": 3,
+        "/result/page/total": 3,
+        "/result/gene_count": {"equals": {"scope": "hgnc-gene-products", "distinct": 3, "unmapped": 2}},
+        "/result/reference_occurrences": 5,
+        "/result/physical_entities": 7,
+        "/result/items/*/gene": {"equals": ["HGNC:10840", "HGNC:3236", "HGNC:3326"]},
+        "/result/items/1/physical_context_count": 2,
+        "/problems/*/record": {"equals": ["no-xref", "unknown"]},
+        "/problems/*/field": {"equals": ["genes.gene", "genes.gene"]}
+      }
+    }
+  ]
+}

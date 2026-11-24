@@ -119,7 +119,7 @@ pathway-wikipathways: Explicitly synchronize both metadata catalogs atomically a
 study-files: Read bounded native DataHub file references and study license links without fetching data files.
 phenotype-sections: A caller pages native source synonyms, cross references and direct hierarchy links from one retained term reply.
 phenotype-ancestors: A caller asks whether one HP term sits under another in one call: the `ancestors` section lists every ancestor of the term up to the HP root, with labels, from OLS, and it still answers when Monarch is down.
-pathway-wikipathways-genes: Read exact human pathway GeneProduct data nodes from bounded publisher GPML and page the retained relation without name-based identifier inference.
+pathway-wikipathways-genes: Page distinct HGNC genes from human WikiPathways GPML using exact gene-product references, with counts and disclosures for unmapped nodes.
 phenotype-associations: A caller pages exact direct Monarch disease and human gene association rows without clinical inference or identity repair.
 phenotype-set-ranking: A caller gives a set of HP IDs and reads Monarch's one ranked list of human genes or diseases, with each score, the metric named and Monarch's 50-row limit stated; a set holding an HP ID Monarch does not know is refused.
 gwas-get: Read exact Catalog association and study records and their independent native context sections.

@@ -1,6 +1,7 @@
 # 1173 — wikipathways-genes-beyond-entrez
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 12ca09aa0ac9775f24e9504611d393fd46efd109
 
 Milestone: 7
 

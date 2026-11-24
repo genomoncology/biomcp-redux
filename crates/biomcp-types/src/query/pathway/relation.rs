@@ -38,7 +38,7 @@ fields!(GeneFields, "^(R-HSA-|WP)[1-9][0-9]*$",
     #[serde(default, deserialize_with = "super::super::gene::present", skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Details", extend("x-positional" = 1)))]
     details: Option<Details>,
-    /// Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.
+    /// Keep only Reactome gene-product references. The left_out field counts the rest by namespace. WikiPathways already returns distinct HGNC genes.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     gene_products: bool,
 );
@@ -84,8 +84,8 @@ impl crate::Paged for $name {
     };
 }
 relation!(PathwayGenesQuery, GeneFields, "GeneFields", valid_genes,
-    "Read Reactome references or WikiPathways GeneProduct nodes. Reactome gives its database release and counts distinct HGNC genes and \
-        unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.",
+    "Read Reactome references or distinct WikiPathways genes. Both count mapped HGNC genes and unmapped gene products before paging. \
+        Reactome gives its release, and details shows physical contexts. No enrichment, therapy, response or actionability.",
     details: None, gene_products: false
 );
 relation!(
