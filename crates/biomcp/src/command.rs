@@ -578,7 +578,7 @@ fn pool_error(
 }
 
 pub(crate) fn usage_envelope(error: UsageError, encoding: Encoding) -> io::Result<Outcome> {
-    encoding.encode(ErrorEnvelope::from(error), crate::exit::Status::Usage)
+    encoding.usage(error)
 }
 
 fn response_status(result: &biomcp_query::Outcome) -> crate::exit::Status {

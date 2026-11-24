@@ -1,6 +1,8 @@
 feature: query-validation
 story: A source name after help sources suggests the source list, which includes the requested source.
 live_check: local-only command guidance; no source requests
+config:
+  mcp_tool_mode: typed
 steps:
   - run: [help, sources, ema]
     exit: 2
@@ -11,3 +13,14 @@ steps:
       /status: complete
       /result/header: x-biomcp-exclude-sources
       /result/entries/*/source: {includes: ema}
+  - mcp_call:
+      name: help
+      arguments: {command: sources ema}
+    is_error: true
+    expect:
+      /next/0/name: help
+      /next/0/arguments/command: sources
+  - follow: configure
+    expect:
+      /status: complete
+      /query/command: [sources]

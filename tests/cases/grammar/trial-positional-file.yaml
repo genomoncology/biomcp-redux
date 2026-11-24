@@ -12,3 +12,11 @@ steps:
     expect:
       /status: complete
       /result/content/data/hits/0/page: 17
+  - run: [trial, document, NCT01467466, --file, SAP_001.pdf]
+    exit: 2
+    expect:
+      /next/0/args: [trial, document, NCT01467466, SAP_001.pdf]
+  - follow: configure
+    expect:
+      /status: complete
+      /result/content/data/text/offset: 0
