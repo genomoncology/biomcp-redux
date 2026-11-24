@@ -1,6 +1,7 @@
 # 1174 — pathway-search-unknown-reactome-value
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9e24d8c47ca3de5559bf14c5a19bb9d871b54d02
 
 Milestone: 7
 

@@ -1,6 +1,9 @@
 use super::raw;
 use crate::{mapped::Problems, raw::Field};
-use biodata::{Pathway, PathwayId, PathwayLiteratureRef, PathwaySpecies, PathwaySummation, Text};
+use biodata::{
+    Pathway, PathwayId, PathwayLiteratureRef, PathwaySpecies, PathwaySummation, ReactomeId, Text,
+};
+use biomcp_fetch::BadReply;
 use biomcp_types::{PathwayCard, PathwayHeader, PathwaySection, Source};
 
 pub(super) fn fields(record: &str) -> Problems {
@@ -36,22 +39,27 @@ pub(super) fn metadata(
     let value = problems.optional(field, native_text(value).map(admit));
     problems.required(field, value)
 }
-fn identity(id: &str, species: &str, class: &str) -> Option<PathwayId> {
-    if species != "Homo sapiens" || !matches!(class, "Pathway" | "TopLevelPathway") {
-        return None;
+pub(super) fn identity(id: &str, species: &str, class: &str) -> Result<ReactomeId, BadReply> {
+    if species != "Homo sapiens"
+        || !matches!(class, "Pathway" | "TopLevelPathway" | "CellLineagePath")
+    {
+        return Err(BadReply);
     }
-    Some(PathwayId::Reactome(id.parse::<biodata::ReactomeId>().ok()?))
+    id.parse().map_err(|_| BadReply)
 }
 pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHeader> {
-    let id = identity(&row.st_id, row.species.first()?, &row.exact_type)?;
     if row.species.len() != 1 {
         return None;
     }
+    let id = problems.optional(
+        "identity",
+        Some(identity(&row.st_id, row.species.first()?, &row.exact_type)),
+    )?;
     // Reactome inserts only these highlight spans into the native display name.
     let name = problems.optional(
         "name",
         row.name.as_ref().map(|field| {
-            let value = field.as_ref().ok_or(biomcp_fetch::BadReply)?;
+            let value = field.as_ref().ok_or(BadReply)?;
             crate::mapped::source_text(
                 &value
                     .replace("<span class=\"highlighting\" >", "")
@@ -60,7 +68,7 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
         }),
     );
     Some(PathwayHeader {
-        id,
+        id: PathwayId::Reactome(id),
         name,
         species: PathwaySpecies::Human,
         version: None,
@@ -68,7 +76,10 @@ pub(super) fn hit(row: &raw::Hit, problems: &mut Problems) -> Option<PathwayHead
     })
 }
 pub(super) fn header(row: &raw::Card, problems: &mut Problems) -> Option<PathwayHeader> {
-    let id = identity(&row.st_id, &row.species_name, &row.schema_class)?;
+    let id = problems.optional(
+        "identity",
+        Some(identity(&row.st_id, &row.species_name, &row.schema_class)),
+    )?;
     let name = metadata(problems, "name", row.display_name.as_ref(), false);
     let prefix = format!("{}.", row.st_id);
     let version = native_text(row.st_id_version.as_ref()).filter(|v| {
@@ -77,7 +88,7 @@ pub(super) fn header(row: &raw::Card, problems: &mut Problems) -> Option<Pathway
     });
     let version = problems.required("version", version.and_then(|v| crate::mapped::text(v).ok()));
     Some(PathwayHeader {
-        id,
+        id: PathwayId::Reactome(id),
         name,
         species: PathwaySpecies::Human,
         version,
