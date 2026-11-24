@@ -420,7 +420,7 @@
       "description": "Distinct mapped human genes and unmapped gene-product references before paging.",
       "properties": {
         "distinct": {
-          "description": "Unique HGNC IDs from exact, unambiguous UniProt base-accession matches.",
+          "description": "Unique HGNC IDs from exact, unambiguous source-reference matches.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
@@ -430,7 +430,7 @@
           "description": "Mapping and reference scope for both counts."
         },
         "unmapped": {
-          "description": "Gene-product reference rows without a unique HGNC match.",
+          "description": "Gene-product references or WikiPathways nodes without a unique HGNC match.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
@@ -451,7 +451,7 @@
       "type": "string"
     },
     "Reply_PathwayGenes": {
-      "description": "Independent source-ordered distinct membership references and their observed counts.",
+      "description": "Source-ordered pathway membership and its observed counts.",
       "properties": {
         "gene_count": {
           "anyOf": [
@@ -462,7 +462,7 @@
               "type": "null"
             }
           ],
-          "description": "Mapped human genes across the full Reactome reference list, before paging."
+          "description": "Mapped human genes and unmapped gene-product references across the full relation, before paging."
         },
         "header": {
           "$ref": "#/$defs/Reply_PathwayHeader",
@@ -470,7 +470,7 @@
         },
         "items": {
           "default": [],
-          "description": "Distinct namespaced source references in first occurrence order.",
+          "description": "Distinct Reactome references or WikiPathways genes in first occurrence order.",
           "items": {
             "$ref": "#/$defs/Reply_PathwayMember"
           },
@@ -489,7 +489,7 @@
         },
         "page": {
           "$ref": "#/$defs/Reply_PathwayPageInfo",
-          "description": "Distinct-reference total and continuation."
+          "description": "Membership total and continuation."
         },
         "physical_entities": {
           "description": "All native physical entities, never described as gene counts.",

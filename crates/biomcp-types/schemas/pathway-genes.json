@@ -152,7 +152,7 @@
       "description": "Distinct mapped human genes and unmapped gene-product references before paging.",
       "properties": {
         "distinct": {
-          "description": "Unique HGNC IDs from exact, unambiguous UniProt base-accession matches.",
+          "description": "Unique HGNC IDs from exact, unambiguous source-reference matches.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
@@ -162,7 +162,7 @@
           "description": "Mapping and reference scope for both counts."
         },
         "unmapped": {
-          "description": "Gene-product reference rows without a unique HGNC match.",
+          "description": "Gene-product references or WikiPathways nodes without a unique HGNC match.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
@@ -183,7 +183,7 @@
       "type": "string"
     },
     "Reply_PathwayGenes": {
-      "description": "Independent source-ordered distinct membership references and their observed counts.",
+      "description": "Source-ordered pathway membership and its observed counts.",
       "properties": {
         "gene_count": {
           "anyOf": [
@@ -194,7 +194,7 @@
               "type": "null"
             }
           ],
-          "description": "Mapped human genes across the full Reactome reference list, before paging."
+          "description": "Mapped human genes and unmapped gene-product references across the full relation, before paging."
         },
         "header": {
           "$ref": "#/$defs/Reply_PathwayHeader",
@@ -202,7 +202,7 @@
         },
         "items": {
           "default": [],
-          "description": "Distinct namespaced source references in first occurrence order.",
+          "description": "Distinct Reactome references or WikiPathways genes in first occurrence order.",
           "items": {
             "$ref": "#/$defs/Reply_PathwayMember"
           },
@@ -221,7 +221,7 @@
         },
         "page": {
           "$ref": "#/$defs/Reply_PathwayPageInfo",
-          "description": "Distinct-reference total and continuation."
+          "description": "Membership total and continuation."
         },
         "physical_entities": {
           "description": "All native physical entities, never described as gene counts.",
@@ -263,7 +263,7 @@
       "type": "object"
     },
     "Reply_PathwayGenesQuery": {
-      "description": "Read Reactome references or WikiPathways GeneProduct nodes. Reactome gives its database release and counts distinct HGNC genes and unmapped gene-product references before paging. Details shows physical contexts. No enrichment, therapy, response or actionability.",
+      "description": "Read Reactome references or distinct WikiPathways genes. Both count mapped HGNC genes and unmapped gene products before paging. Reactome gives its release, and details shows physical contexts. No enrichment, therapy, response or actionability.",
       "properties": {
         "details": {
           "$ref": "#/$defs/Reply_Details",
@@ -271,7 +271,7 @@
           "x-positional": 1
         },
         "gene_products": {
-          "description": "Keep only gene-product references (UniProt, Ensembl, NCBI Gene); left_out counts the rest by namespace. WikiPathways rows are already gene products.",
+          "description": "Keep only Reactome gene-product references. The left_out field counts the rest by namespace. WikiPathways already returns distinct HGNC genes.",
           "type": "boolean"
         },
         "id": {

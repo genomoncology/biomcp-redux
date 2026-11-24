@@ -1,88 +1,171 @@
-//! Joins use the GPML Xref's native namespace and value, never its label.
+//! Join GPML references to HGNC and collapse repeated nodes before paging.
 use crate::{Ctx, status};
-use biodata::{Gene, PathwayMember};
+use biodata::{EnsemblGeneId, Gene, GeneSymbol, HgncId, NcbiGeneId, PathwayMember, UniProtIsoform};
 use biomcp_adapters::hgnc;
 use biomcp_fetch::{Deadline, Find, KeyKind};
 use biomcp_types::{Problem, ProblemCode, Source, SourceOutcome};
+use std::collections::{HashMap, HashSet};
+
+#[derive(Clone, Eq, Hash, PartialEq)]
+enum Key {
+    Xref(String),
+    Id(HgncId),
+    Symbol(String),
+}
 
 pub(super) fn resolve(
     cx: &Ctx<'_>,
-    rows: &mut [PathwayMember],
+    rows: Vec<PathwayMember>,
     deadline: Deadline<'_>,
+    fresh: bool,
     sources: &mut Vec<SourceOutcome>,
     problems: &mut Vec<Problem>,
-) {
-    let mut candidates = Vec::new();
+) -> (Vec<PathwayMember>, u64) {
+    let mut keys = HashSet::new();
+    let mut members = Vec::new();
+    let mut unmapped = 0;
+    for row in rows {
+        match key(&row) {
+            Ok(Some(key)) => {
+                keys.insert(key.clone());
+                members.push((row, key));
+            }
+            Ok(None) | Err(_) => {
+                unmapped += 1;
+                report_unmapped(row, problems);
+            }
+        }
+    }
+    let matches = lookup(cx, &keys, deadline, fresh, sources, problems);
+    let mut by_gene = HashMap::<HgncId, usize>::new();
+    let mut distinct: Vec<PathwayMember> = Vec::new();
+    for (mut row, key) in members {
+        let Some(id) = matches.get(&key).copied().flatten() else {
+            unmapped += 1;
+            report_unmapped(row, problems);
+            continue;
+        };
+        let index = *by_gene.entry(id).or_insert(distinct.len());
+        if let Some(first) = distinct.get_mut(index) {
+            first.physical_context_count += row.physical_context_count;
+        } else {
+            row.gene = Some(id);
+            distinct.push(row);
+        }
+    }
+    (distinct, unmapped)
+}
+
+fn lookup(
+    cx: &Ctx<'_>,
+    keys: &HashSet<Key>,
+    deadline: Deadline<'_>,
+    fresh: bool,
+    sources: &mut Vec<SourceOutcome>,
+    problems: &mut Vec<Problem>,
+) -> HashMap<Key, Option<HgncId>> {
+    let mut matches = HashMap::new();
     for kind in [KeyKind::Xref, KeyKind::Id, KeyKind::Symbol] {
-        let keys: Vec<_> = rows
-            .iter()
-            .filter_map(key)
-            .filter(|(k, _)| std::mem::discriminant(k) == std::mem::discriminant(&kind))
-            .map(|(_, v)| v)
-            .collect();
-        if keys.is_empty() {
+        let values: Vec<_> = keys.iter().filter_map(|key| key.selector(kind)).collect();
+        if values.is_empty() {
             continue;
         }
-        let names: Vec<_> = keys.iter().map(String::as_str).collect();
-        let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(cx.fresh);
+        let names: Vec<_> = values.iter().map(String::as_str).collect();
+        let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(fresh);
         let mapped = hgnc::lookup(&leg, Find::AnyExact(kind, &names));
-        let outcome = status::source(Source::Hgnc, leg.finish(), mapped.as_ref().err().copied());
+        let (genes, error) = match mapped {
+            Ok(mapped) => {
+                problems.extend(mapped.problems);
+                (mapped.value, None)
+            }
+            Err(error) => (Vec::new(), Some(error)),
+        };
+        let outcome = status::source(Source::Hgnc, leg.finish(), error);
         if let Some(existing) = sources.iter_mut().find(|s| s.source == Source::Hgnc) {
             status::retain_source_state(existing, &outcome);
         } else {
             sources.push(outcome);
         }
-        if let Ok(mapped) = mapped {
-            candidates.extend(mapped.value);
-            problems.extend(mapped.problems);
+        for gene in genes {
+            index(gene, &mut matches);
         }
     }
-    for row in rows {
-        let mut genes = candidates
-            .iter()
-            .filter(|gene| exact(row, gene))
-            .map(|g| g.hgnc_id)
-            .collect::<Vec<_>>();
-        genes.sort();
-        genes.dedup();
-        row.gene = (genes.len() == 1).then(|| genes.first().copied()).flatten();
-        if row.gene.is_none() {
-            problems.push(Problem {
-                source: Source::WikiPathways,
-                record: row.node_id.clone(),
-                field: "genes.gene".into(),
-                code: ProblemCode::ValueUnknown,
-            });
+    matches
+}
+
+fn index(gene: Gene, matches: &mut HashMap<Key, Option<HgncId>>) {
+    let id = gene.hgnc_id;
+    let keys = [Key::Id(id), Key::Symbol(gene.symbol.to_string())]
+        .into_iter()
+        .chain(gene.entrez_id.map(|id| Key::Xref(format!("entrez:{id}"))))
+        .chain(
+            gene.ensembl_id
+                .map(|id| Key::Xref(format!("ensembl:{}", id.base()))),
+        )
+        .chain(
+            gene.uniprot
+                .into_iter()
+                .map(|id| Key::Xref(format!("uniprot:{id}"))),
+        );
+    for key in keys {
+        matches
+            .entry(key)
+            .and_modify(|matched| {
+                if *matched != Some(id) {
+                    *matched = None;
+                }
+            })
+            .or_insert(Some(id));
+    }
+}
+
+fn report_unmapped(row: PathwayMember, problems: &mut Vec<Problem>) {
+    problems.push(Problem {
+        source: Source::WikiPathways,
+        record: row.node_id.or(row.name).or(Some(row.reference.id)),
+        field: "genes.gene".into(),
+        code: ProblemCode::ValueUnknown,
+    });
+}
+
+impl Key {
+    fn selector(&self, kind: KeyKind) -> Option<String> {
+        match (self, kind) {
+            (Self::Id(id), KeyKind::Id) => Some(id.to_string()),
+            (Self::Xref(key), KeyKind::Xref) | (Self::Symbol(key), KeyKind::Symbol) => {
+                Some(key.clone())
+            }
+            _ => None,
         }
     }
 }
-fn key(row: &PathwayMember) -> Option<(KeyKind, String)> {
+
+fn key(row: &PathwayMember) -> Result<Option<Key>, biodata::Error> {
     let value = row.reference.id.as_str();
-    match row.reference.namespace.as_deref()? {
-        "Entrez Gene" if value.parse::<biodata::NcbiGeneId>().is_ok() => {
-            Some((KeyKind::Xref, format!("entrez:{value}")))
+    let key = match row.reference.namespace.as_deref() {
+        Some("Entrez Gene") => {
+            let id: NcbiGeneId = value.parse()?;
+            Key::Xref(format!("entrez:{id}"))
         }
-        "Ensembl" if value.parse::<biodata::EnsemblGeneId>().is_ok() => {
-            Some((KeyKind::Xref, format!("ensembl:{value}")))
+        Some("Ensembl") => {
+            let id: EnsemblGeneId = value.parse()?;
+            Key::Xref(format!("ensembl:{}", id.base()))
         }
-        "HGNC" if hgnc_id(value).is_some() => Some((KeyKind::Id, hgnc_id(value)?.to_string())),
-        "HGNC" if value.parse::<biodata::GeneSymbol>().is_ok() => {
-            Some((KeyKind::Symbol, value.into()))
+        Some("UniProt" | "Uniprot" | "UniProtKB") => {
+            let id: UniProtIsoform = value.parse()?;
+            let base = id
+                .as_str()
+                .split_once('-')
+                .map_or(id.as_str(), |(base, _)| base);
+            Key::Xref(format!("uniprot:{base}"))
         }
-        _ => None,
-    }
-}
-fn exact(row: &PathwayMember, gene: &Gene) -> bool {
-    let value = row.reference.id.as_str();
-    match row.reference.namespace.as_deref() {
-        Some("Entrez Gene") => gene.entrez_id.is_some_and(|id| id.to_string() == value),
-        Some("Ensembl") => gene
-            .ensembl_id
-            .as_ref()
-            .is_some_and(|id| id.to_string() == value),
-        Some("HGNC") => hgnc_id(value) == Some(gene.hgnc_id) || gene.symbol.as_str() == value,
-        _ => false,
-    }
+        Some("HGNC") => match hgnc_id(value) {
+            Some(id) => Key::Id(id),
+            None => Key::Symbol(value.parse::<GeneSymbol>()?.to_string()),
+        },
+        _ => return Ok(None),
+    };
+    Ok(Some(key))
 }
 
 fn hgnc_id(value: &str) -> Option<biodata::HgncId> {

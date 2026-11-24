@@ -10,12 +10,12 @@
       "expect": {"/status": "complete"}
     },
     {
-      "run": ["pathway", "genes", "WP437", "--limit", "50"],
-      "walk": {"items": "/result/items", "max_pages": 4},
+      "run": ["pathway", "genes", "WP437", "--limit", "200"],
       "expect": {
         "/status": "complete",
         "/result/total": 162,
         "/result/page/total": 162,
+        "/result/page/returned": 162,
         "/result/gene_count/distinct": 162,
         "/result/gene_count/unmapped": 0,
         "/result/reference_occurrences": 195,
@@ -31,12 +31,12 @@
         "/result/total": 3,
         "/result/page/returned": 3,
         "/result/page/total": 3,
-        "/result/gene_count": {"scope": "hgnc-gene-products", "distinct": 3, "unmapped": 2},
+        "/result/gene_count": {"equals": {"scope": "hgnc-gene-products", "distinct": 3, "unmapped": 2}},
         "/result/reference_occurrences": 5,
         "/result/physical_entities": 7,
         "/result/items/*/gene": {"equals": ["HGNC:10840", "HGNC:3236", "HGNC:3326"]},
         "/result/items/1/physical_context_count": 2,
-        "/problems/*/record": {"equals": ["unknown", "no-xref"]},
+        "/problems/*/record": {"equals": ["no-xref", "unknown"]},
         "/problems/*/field": {"equals": ["genes.gene", "genes.gene"]}
       }
     }
