@@ -143,7 +143,9 @@ fn key(row: &PathwayMember) -> Result<Option<Key>, biodata::Error> {
     let value = row.reference.id.as_str();
     let key = match row.reference.namespace.as_deref() {
         Some("Entrez Gene") => {
-            let id: NcbiGeneId = value.parse()?;
+            let id = value
+                .parse::<NcbiGeneId>()
+                .map_err(|_| biodata::Error::NcbiGeneIdInvalid)?;
             Key::Xref(format!("entrez:{id}"))
         }
         Some("Ensembl") => {
