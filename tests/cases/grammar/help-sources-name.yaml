@@ -1,0 +1,12 @@
+feature: query-validation
+story: A source name after help sources suggests the source list, which includes the requested source.
+live_check: local-only command guidance; no source requests
+steps:
+  - run: [help, sources, ema]
+    exit: 2
+    expect:
+      /next/0/args: [source, list]
+  - follow: configure
+    expect:
+      /status: complete
+      /result/header: x-biomcp-exclude-sources

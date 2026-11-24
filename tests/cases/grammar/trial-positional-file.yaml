@@ -1,0 +1,14 @@
+feature: query-validation
+story: A trial document usage reply moves the file into position and preserves the phrase search when followed.
+live_check: retained replay; no source requests
+replay: trial/posted-sap
+steps:
+  - run: [trial, document, NCT01467466, --file, SAP_001.pdf, --find, Wald chi-square p-value]
+    exit: 2
+    expect:
+      /error/option: --file
+      /next/0/args: [trial, document, NCT01467466, SAP_001.pdf, --find, Wald chi-square p-value]
+  - follow: configure
+    expect:
+      /status: complete
+      /result/content/data/hits/0/page: 17
