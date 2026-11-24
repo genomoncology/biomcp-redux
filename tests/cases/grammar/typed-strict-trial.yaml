@@ -1,0 +1,25 @@
+feature: mcp-parity
+story: A schema-filling trial client leaves filters unset and still gets the unfiltered melanoma search.
+live_check: retained replay; no source requests
+replay: trial/condition
+config:
+  mcp_tool_mode: typed
+steps:
+  - mcp_call:
+      name: trial
+      arguments:
+        action: search
+        fields: null
+        search:
+          condition: melanoma
+          acronym: ""
+          phase: null
+          sex: null
+          sponsor_type: null
+        get: null
+        document: {id: NCT02578680, file: ""}
+    expect:
+      /status: complete
+      /query/condition: [melanoma]
+      /page/total: 3780
+      /result/items/0/nct_id: NCT04631731

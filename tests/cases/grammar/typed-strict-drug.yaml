@@ -1,0 +1,23 @@
+feature: mcp-parity
+story: A drug get with a blank CIViC cursor and unset evidence level still reads the requested label.
+live_check: retained replay; no source requests
+replay: drug/label-no-boxed-warning
+config:
+  mcp_tool_mode: typed
+steps:
+  - mcp_call:
+      name: drug
+      arguments:
+        action: get
+        get:
+          id: pembrolizumab
+          section: label
+          label_section: boxed_warning
+          civic_cursor: ""
+          evidence_level: null
+        search: {query: "", limit: 1}
+        pgx_get: null
+    expect:
+      /status: complete
+      /result/identity/name: KEYTRUDA
+      /result/label/state: empty
