@@ -76,8 +76,8 @@ pub fn pathways(
     let mut refusals = crate::Refusal::None;
     let mut problems = map::fields(accession.as_str());
     for row in rows.0 {
-        let Some(id) = map::identity(&row.st_id, &row.species_name, &row.schema_class) else {
-            problems.required::<()>("pathways", None);
+        let identity = map::identity(&row.st_id, &row.species_name, &row.schema_class);
+        let Some(id) = problems.optional("pathways", Some(identity)) else {
             refusals = crate::Refusal::Refused;
             continue;
         };
