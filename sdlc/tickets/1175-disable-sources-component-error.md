@@ -1,6 +1,7 @@
 # 1175 — disable-sources-component-error
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8acf294a51c9a82524c8b32a4b061cb924ff5770
 
 Milestone: 7
 

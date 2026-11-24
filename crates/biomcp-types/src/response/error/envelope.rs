@@ -15,6 +15,9 @@ struct ErrorDetail {
     source: Option<crate::Source>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     option: Option<Box<str>>,
+    /// The rejected source exclusion when it names a registered component.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    value: Option<crate::Text>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     valid_values: Option<Box<[crate::Text]>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -26,7 +29,7 @@ struct ErrorDetail {
     message: WireMessage,
 }
 
-/// A versioned error response. It may include rejected option names and checked `error.unplaced` field names.
+/// A versioned error response. It may include rejected option, field and registered component names.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ErrorEnvelope {
@@ -50,6 +53,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
         );
         match usage {
             UsageError::Arguments(arguments) => out.next = out.error.arguments(arguments),
+            exclusion @ UsageError::SourceExclusion { .. } => out.error.exclusion(exclusion),
             UsageError::Schema => {
                 out.error.code = ErrorCode::SchemaUsage;
                 out.error.message = ErrorMessage::SchemaUsage.into();
@@ -221,6 +225,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
+                value: None,
                 valid_values: None,
                 count: None,
                 unplaced: None,
@@ -234,6 +239,18 @@ impl ErrorEnvelope {
 }
 
 impl ErrorDetail {
+    fn exclusion(&mut self, usage: UsageError) {
+        if let UsageError::SourceExclusion {
+            value,
+            valid_values,
+        } = usage
+        {
+            self.source_selector(None, "--disable-sources".into(), valid_values);
+            self.value = value;
+            self.message = ErrorMessage::ArgumentValue.into();
+        }
+    }
+
     fn trial_continuation(&mut self, message: ErrorMessage) {
         self.source = Some(crate::Source::ClinicalTrialsGov);
         self.option = Some("--next-page".into());
