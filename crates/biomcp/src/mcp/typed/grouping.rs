@@ -78,6 +78,17 @@ pub(super) fn catalog(
     }
     tools.push(super::help::tool(output_schema)?);
     tools.extend(super::super::protocol::tools(context.root, read_only)?);
+    // MCP tool schemas default to 2020-12. Omit the repeated default in typed discovery.
+    for tool in &mut tools {
+        for key in ["inputSchema", "outputSchema"] {
+            if let Some(schema) = tool.get_mut(key).and_then(Value::as_object_mut)
+                && schema.get("$schema").and_then(Value::as_str)
+                    == Some(super::super::protocol::SCHEMA_DIALECT)
+            {
+                schema.shift_remove("$schema");
+            }
+        }
+    }
     Ok(Catalog {
         tools,
         commands: commands
@@ -140,7 +151,7 @@ fn entity(
     properties.insert(
         "action".into(),
         json!({"type":"string","description":format!(
-            "One of: {}. Fill that action's object. Use null or empty text for unused inputs. Help lists all choices.",
+            "One of: {}. Fill its object. Null or \"\" omits.",
             names.join(", ")
         )}),
     );
