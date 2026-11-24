@@ -53,15 +53,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
         );
         match usage {
             UsageError::Arguments(arguments) => out.next = out.error.arguments(arguments),
-            UsageError::SourceExclusion {
-                value,
-                valid_values,
-            } => {
-                out.error.option = Some("--disable-sources".into());
-                out.error.value = value;
-                out.error.valid_values = Some(valid_values);
-                out.error.message = ErrorMessage::ArgumentValue.into();
-            }
+            exclusion @ UsageError::SourceExclusion { .. } => out.error.exclusion(exclusion),
             UsageError::Schema => {
                 out.error.code = ErrorCode::SchemaUsage;
                 out.error.message = ErrorMessage::SchemaUsage.into();
@@ -247,6 +239,18 @@ impl ErrorEnvelope {
 }
 
 impl ErrorDetail {
+    fn exclusion(&mut self, usage: UsageError) {
+        if let UsageError::SourceExclusion {
+            value,
+            valid_values,
+        } = usage
+        {
+            self.source_selector(None, "--disable-sources".into(), valid_values);
+            self.value = value;
+            self.message = ErrorMessage::ArgumentValue.into();
+        }
+    }
+
     fn trial_continuation(&mut self, message: ErrorMessage) {
         self.source = Some(crate::Source::ClinicalTrialsGov);
         self.option = Some("--next-page".into());
