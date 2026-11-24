@@ -37,14 +37,17 @@ fn normalize(schema: &mut Value, path: &str) -> Result<Option<Value>, String> {
     if schema.get("oneOf").is_some() {
         return Err(format!("{path}: strict function schemas use anyOf"));
     }
-    let Some(properties) = schema.get("properties").and_then(Value::as_object) else {
+    let originally_required = schema
+        .get("required")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let Some(properties) = schema.get_mut("properties").and_then(Value::as_object_mut) else {
         return Ok(None);
     };
-    let originally_required = schema["required"].as_array().cloned().unwrap_or_default();
     let names = properties.keys().cloned().collect::<Vec<_>>();
     let mut sample = serde_json::Map::new();
-    for name in &names {
-        let property = &mut schema["properties"][name];
+    for (name, property) in properties {
         let field = format!("{path}.{name}");
         let nested = normalize(property, &field)?;
         let validator = jsonschema::validator_for(property).map_err(|error| error.to_string())?;
@@ -72,8 +75,9 @@ fn normalize(schema: &mut Value, path: &str) -> Result<Option<Value>, String> {
             return Err(format!("{field}: no sample value for required property"));
         }
     }
-    schema["required"] = json!(names);
-    schema["additionalProperties"] = json!(false);
+    let fields = schema.as_object_mut().ok_or("schema must be an object")?;
+    fields.insert("required".into(), json!(names));
+    fields.insert("additionalProperties".into(), json!(false));
     let sample = Value::Object(sample);
     jsonschema::validator_for(schema)
         .map_err(|error| error.to_string())?
