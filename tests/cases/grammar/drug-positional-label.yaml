@@ -16,5 +16,5 @@ steps:
   - run: [get, drug, 98b197ea-bca4-427e-8737-97f70a3262bc, --section]
     exit: 2
     expect:
+      /status: usage
       /error/option: --section
-      /next/0/args: [help, get, drug]
