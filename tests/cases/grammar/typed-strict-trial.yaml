@@ -13,6 +13,7 @@ steps:
         search:
           condition: melanoma
           acronym: ""
+          limit: null
           phase: null
           sex: null
           sponsor_type: null
@@ -21,5 +22,6 @@ steps:
     expect:
       /status: complete
       /query/condition: [melanoma]
+      /query/limit: 10
       /page/total: 3780
       /result/items/0/nct_id: NCT04631731

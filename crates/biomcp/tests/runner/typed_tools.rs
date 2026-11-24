@@ -195,7 +195,6 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
         json!({"source":"not-a-source"}),
         json!({"limit":"not-a-number"}),
         json!({"limit":true}),
-        json!({"limit":null}),
         json!({"limit":{"value":10}}),
         json!({"unexpected":"value"}),
         json!([]),

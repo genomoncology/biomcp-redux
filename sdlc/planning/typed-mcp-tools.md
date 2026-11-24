@@ -45,7 +45,8 @@ Experiment 513's 14-tool Python prototype set the bar: the single tool cost 0.83
 
 ### Inputs
 
-- Compact schemas, with each property keeping its own description (taken before a `$ref` is resolved) cut to 80 characters, no descriptions on `items` or `anyOf` branches, no nullable branches on optional fields, and enums only up to a configurable size (default 30), above which the description names the accepted form and the help call.
+- Compact schemas, with each property keeping its own description (taken before a `$ref` is resolved) cut to 80 characters, no descriptions on `items` or `anyOf` branches, and enums only up to a configurable size (default 30), above which the description names the accepted form and the help call.
+- Strict clients must send every field, so optional inputs offer null or an explicit unset choice ([ticket 1172](../tickets/1172-typed-tools-strict-clients.md)). The existing per-tool and catalog budgets still apply.
 - Names accepted wherever the command accepts them (0599 drug names, gene symbols, trial and variant text).
 
 ### Outputs and errors

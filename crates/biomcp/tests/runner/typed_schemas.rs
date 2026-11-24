@@ -58,13 +58,6 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             if nested_description(property, true) {
                 failures.push(format!("{name}.{key}: nested description"));
             }
-            let required = schema
-                .get("required")
-                .and_then(Value::as_array)
-                .is_some_and(|v| v.contains(&json!(key)));
-            if !required && nullable(property) {
-                failures.push(format!("{name}.{key}: optional nullable branch"));
-            }
             if oversized_enum(property, 30) {
                 failures.push(format!("{name}.{key}: oversized enum"));
             }
@@ -223,17 +216,6 @@ fn nested_description(node: &Value, top: bool) -> bool {
                     .any(|(k, v)| k != "description" && nested_description(v, false))
         }
         Value::Array(nodes) => nodes.iter().any(|n| nested_description(n, false)),
-        _ => false,
-    }
-}
-fn nullable(node: &Value) -> bool {
-    match node {
-        Value::Object(map) => {
-            map.get("type").is_some_and(|v| {
-                v == "null" || v.as_array().is_some_and(|a| a.contains(&json!("null")))
-            }) || map.values().any(nullable)
-        }
-        Value::Array(nodes) => nodes.iter().any(nullable),
         _ => false,
     }
 }
