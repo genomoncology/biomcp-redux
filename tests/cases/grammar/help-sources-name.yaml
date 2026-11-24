@@ -10,3 +10,4 @@ steps:
     expect:
       /status: complete
       /result/header: x-biomcp-exclude-sources
+      /result/entries/*/source: {includes: ema}

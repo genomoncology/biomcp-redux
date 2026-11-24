@@ -16,4 +16,4 @@ steps:
     expect:
       /status: complete
       /query/text: AKT1 E17K
-      /result/items/0: {exists: true}
+      /result/items: {count: 10}
