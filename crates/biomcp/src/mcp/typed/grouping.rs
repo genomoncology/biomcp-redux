@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
 /// The typed `fields` list, for search, subcommand and section rows alike (1071).
-const FIELDS: &str = "Row columns to keep, or a.b inside one; help names them";
+const FIELDS: &str = "Row columns or a.b. See help.";
 
 pub(in crate::mcp) struct Catalog {
     pub(super) tools: Vec<Value>,
@@ -77,7 +77,6 @@ pub(super) fn catalog(
         tools.push(super::saved::tool(output_schema)?);
     }
     tools.push(super::help::tool(output_schema)?);
-    tools.extend(super::super::protocol::tools(context.root, read_only)?);
     // MCP tool schemas default to 2020-12. Omit the repeated default in typed discovery.
     for tool in &mut tools {
         for key in ["inputSchema", "outputSchema"] {
@@ -89,6 +88,7 @@ pub(super) fn catalog(
             }
         }
     }
+    tools.extend(super::super::protocol::tools(context.root, read_only)?);
     Ok(Catalog {
         tools,
         commands: commands
