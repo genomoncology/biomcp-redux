@@ -1,0 +1,10 @@
+feature: pathway-reactome
+story: Searching pathways by EGFR includes the human cell lineage pathway Reactome returns and reports a complete result.
+verified: Reactome's UniProt mapping for P00533 returned 37 pathways, including R-HSA-9927432 as CellLineagePath. The HGNC recording retains only the EGFR row.
+replay: pathway/egfr
+steps:
+- run: [search, pathway, --gene, EGFR, --limit, '50']
+  expect:
+    /status: complete
+    /result/page/total: 37
+    /result/items/*/id/id: {includes: R-HSA-9927432}
