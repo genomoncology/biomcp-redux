@@ -1,0 +1,27 @@
+feature: source-controls
+live_check: local-only validation
+story: CLI and MCP in typed mode name unsupported COSMIC selectors and list the accepted source names and terms groups.
+config:
+  mcp_tool_mode: typed
+  mcp_typed_output_schema: true
+steps:
+  - run: [get, gene, BRAF, --disable-sources, cosmic]
+    mcp: [get, gene, BRAF, --disable-sources, cosmic]
+    exit: 2
+    is_error: true
+    expect:
+      /status: usage
+      /error/code: usage.arguments
+      /error/option: --disable-sources
+      /error/value: cosmic
+      /error/valid_values: {includes_all_of: [myvariant, open, noncommercial, licensed]}
+  - run: [get, gene, BRAF, --disable-sources, "myvariant:cosmic"]
+    mcp: [get, gene, BRAF, --disable-sources, "myvariant:cosmic"]
+    exit: 2
+    is_error: true
+    expect:
+      /status: usage
+      /error/code: usage.arguments
+      /error/option: --disable-sources
+      /error/value: "myvariant:cosmic"
+      /error/valid_values: {includes_all_of: [myvariant, open, noncommercial, licensed]}
