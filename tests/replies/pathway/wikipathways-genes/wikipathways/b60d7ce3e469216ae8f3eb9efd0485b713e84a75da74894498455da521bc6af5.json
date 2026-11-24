@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "wikipathways",
+  "url": "https://www.wikipathways.org/json/getPathwayInfo.json",
+  "exchanges": [
+    {
+      "fetched": 1795552024,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 120,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"pathwayInfo\": [{\"id\": \"WP437\", \"url\": \"https://www.wikipathways.org/instance/WP437\", \"name\": \"EGF/EGFR signaling\", \"species\": \"Homo sapiens\", \"revision\": \"2025-11-12\", \"authors\": \"A.Pandey, MaintBot, Nsalomonis, Michiel, AlexanderPico, Khanspers, NetPath, Christine Chichester, Zari, L Dupuis, Egonw, Eweitz, Finterly\", \"description\": \"Epidermal growth factor receptor (EGFR) also known as ErbB1/HER1 is a member of the ErbB family of receptor tyrosine kinases  which also includes ErbB2 (Neu, HER2), ErbB3 (HER3) and ErbB4 (HER4). S...\", \"citedIn\": \"\"}, {\"id\": \"WP9999998\", \"url\": \"https://www.wikipathways.org/instance/WP9999998\", \"name\": \"Synthetic gene-reference controls\", \"species\": \"Homo sapiens\", \"revision\": \"2025-11-12\", \"authors\": \"A.Pandey, MaintBot, Nsalomonis, Michiel, AlexanderPico, Khanspers, NetPath, Christine Chichester, Zari, L Dupuis, Egonw, Eweitz, Finterly\", \"description\": \"Epidermal growth factor receptor (EGFR) also known as ErbB1/HER1 is a member of the ErbB family of receptor tyrosine kinases  which also includes ErbB2 (Neu, HER2), ErbB3 (HER3) and ErbB4 (HER4). S...\", \"citedIn\": \"\"}]}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "wikipathways",
+  "url": "https://www.wikipathways.org/wikipathways-assets/pathways/WP9999998/WP9999998.gpml",
+  "exchanges": [
+    {
+      "fetched": 1795552035,
+      "status": 200,
+      "content_type": "application/octet-stream",
+      "delay_ms": 194,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<Pathway xmlns=\"http://pathvisio.org/GPML/2013a\" Name=\"Synthetic gene-reference controls\" Data-Source=\"WikiPathways\" Version=\"WP9999998_r1\" Organism=\"Homo sapiens\">\n  <DataNode Type=\"GeneProduct\" GraphId=\"ens\" TextLabel=\"SHC1\"><Xref Database=\"Ensembl\" ID=\"ENSG00000160691\" /></DataNode>\n  <DataNode Type=\"Protein\" GraphId=\"uniprot\" TextLabel=\"EGFR\"><Xref Database=\"UniProt\" ID=\"P00533\" /></DataNode>\n  <DataNode Type=\"GeneProduct\" GraphId=\"hgnc\" TextLabel=\"ELK4\"><Xref Database=\"HGNC\" ID=\"3326\" /></DataNode>\n  <DataNode Type=\"Protein\" GraphId=\"egfr2\" TextLabel=\"EGFR\"><Xref Database=\"Entrez Gene\" ID=\"1956\" /></DataNode>\n  <DataNode Type=\"Rna\" GraphId=\"unknown\" TextLabel=\"EGFR\"><Xref Database=\"Unsupported\" ID=\"1956\" /></DataNode>\n  <DataNode Type=\"GeneProduct\" GraphId=\"no-xref\" TextLabel=\"Unreferenced node\" />\n  <DataNode Type=\"Metabolite\" GraphId=\"metabolite\" TextLabel=\"Metabolite\"><Xref Database=\"ChEBI\" ID=\"CHEBI:15377\" /></DataNode>\n</Pathway>\n"
+      }
+    }
+  ]
+}
