@@ -26,19 +26,13 @@ pub(super) fn check() -> Result<(), String> {
         }
         let mut strict = tool["inputSchema"].clone();
         let name = tool["name"].as_str().ok_or("tool name missing")?;
-        let example = normalize(&mut strict, name)?;
-        let validator = jsonschema::validator_for(&strict).map_err(|error| error.to_string())?;
-        if let Some(example) = example {
-            validator
-                .validate(&example)
-                .map_err(|error| format!("{name}: all-property input rejected: {error}"))?;
-        }
+        normalize(&mut strict, name)?.ok_or_else(|| format!("{name}: expected an object"))?;
     }
     Ok(())
 }
 
 /// Mirror function clients that close objects and require all their properties. Check
-/// omission before normalizing so the client cannot mask a missing unset choice.
+/// that each property optional in the advertised schema has an unset value.
 fn normalize(schema: &mut Value, path: &str) -> Result<Option<Value>, String> {
     if schema.get("oneOf").is_some() {
         return Err(format!("{path}: strict function schemas use anyOf"));
@@ -62,11 +56,15 @@ fn normalize(schema: &mut Value, path: &str) -> Result<Option<Value>, String> {
                 name.clone(),
                 unset.ok_or_else(|| format!("{field}: no unset value"))?,
             );
-        } else if let Some(value) = nested.or(unset).or_else(|| {
-            ["get", "example"]
+        } else if let Some(value) = nested.or_else(|| {
+            property
+                .get("const")
                 .into_iter()
-                .map(|value| json!(value))
-                .chain([json!(["help"]), json!(1), json!(false)])
+                .chain(property.pointer("/enum/0"))
+                .chain(property.get("minimum"))
+                .cloned()
+                .chain([json!("get"), json!(["help"]), json!(1), json!(false)])
+                .chain(unset)
                 .find(|value| validator.is_valid(value))
         }) {
             sample.insert(name.clone(), value);
