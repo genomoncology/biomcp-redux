@@ -201,6 +201,20 @@ pub(super) struct Refused {
     pub(super) cause: biomcp_types::ErrorMessage,
 }
 
+/// Drop placeholders only for known arguments, before resolving duplicate spellings.
+pub(super) fn omit_unset(values: &mut Value, forms: &[Form], input: &Value, schema: &Value) {
+    use crate::grammar::paging;
+    if let Some(fields) = values.as_object_mut() {
+        fields.retain(|name, value| {
+            !super::arguments::unset(value)
+                || !(input["properties"].get(field(forms, name)).is_some()
+                    || paging::other_name(schema, name).is_some()
+                    || (paging::both(schema)
+                        && paging::CANDIDATES.iter().any(|(key, _)| *key == name)))
+        });
+    }
+}
+
 /// Move every accepted name onto its registry field and make a one-item list one value.
 /// `input` is the command's compact schema under its registry names.
 pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Result<(), Refused> {

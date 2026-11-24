@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
 /// The typed `fields` list, for search, subcommand and section rows alike (1071).
-const FIELDS: &str = "Row columns to keep, or a.b inside one; help names them";
+const FIELDS: &str = "Row columns or a.b. See help.";
 
 pub(in crate::mcp) struct Catalog {
     pub(super) tools: Vec<Value>,
@@ -66,14 +66,28 @@ pub(super) fn catalog(
     excluded: BTreeSet<biomcp_types::Source>,
 ) -> io::Result<Catalog> {
     let output_schema = discovery && crate::config::mcp_typed_schema_options(context.settings).0;
+    let enum_limit = crate::config::mcp_typed_schema_options(context.settings).1;
     let mut tools = ENTITY_TOOLS
         .iter()
-        .filter_map(|tool| entity(tool, &commands, output_schema, &excluded).transpose())
+        .filter_map(|tool| {
+            entity(tool, &commands, output_schema, &excluded, enum_limit).transpose()
+        })
         .collect::<io::Result<Vec<_>>>()?;
     if super::saved::offered(context.globals) {
         tools.push(super::saved::tool(output_schema)?);
     }
     tools.push(super::help::tool(output_schema)?);
+    // MCP tool schemas default to 2020-12. Omit the repeated default in typed discovery.
+    for tool in &mut tools {
+        for key in ["inputSchema", "outputSchema"] {
+            if let Some(schema) = tool.get_mut(key).and_then(Value::as_object_mut)
+                && schema.get("$schema").and_then(Value::as_str)
+                    == Some(super::super::protocol::SCHEMA_DIALECT)
+            {
+                schema.shift_remove("$schema");
+            }
+        }
+    }
     tools.extend(super::super::protocol::tools(context.root, read_only)?);
     Ok(Catalog {
         tools,
@@ -111,6 +125,7 @@ fn entity(
     commands: &[Command],
     output_schema: bool,
     excluded: &BTreeSet<biomcp_types::Source>,
+    enum_limit: usize,
 ) -> io::Result<Option<Value>> {
     let &(name, _, placed, _, _) = tool;
     let actions = placed
@@ -136,12 +151,13 @@ fn entity(
     properties.insert(
         "action".into(),
         json!({"type":"string","description":format!(
-            "One of: {}. Its arguments go in the object of the same name.",
+            "One of: {}. Fill its object. Null or \"\" omits.",
             names.join(", ")
         )}),
     );
     for (action, _, command) in &actions {
         let mut input = command.input.clone();
+        super::arguments::advertise_action(&mut input, command.path, enum_limit);
         if let Some(fields) = input.as_object_mut() {
             fields.shift_remove("$schema");
             fields.insert(
@@ -158,7 +174,7 @@ fn entity(
     {
         properties.insert(
             "fields".into(),
-            json!({"type":"array","items":{"type":"string"},"description":FIELDS}),
+            json!({"type":["array","null"],"items":{"type":"string"},"description":FIELDS}),
         );
     }
     let description = entity_description(tool, &actions, excluded);

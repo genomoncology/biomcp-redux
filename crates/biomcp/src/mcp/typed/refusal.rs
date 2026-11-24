@@ -178,7 +178,9 @@ pub(super) fn take_fields(
     use biomcp_types::ErrorMessage;
     let nested = action
         .as_object_mut()
-        .and_then(|fields| fields.remove("fields"));
+        .and_then(|fields| fields.remove("fields"))
+        .filter(|value| !super::arguments::unset(value));
+    let top = top.filter(|value| !super::arguments::unset(value));
     if let (Some(top), Some(nested)) = (top, &nested)
         && top != nested
     {

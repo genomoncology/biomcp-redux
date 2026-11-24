@@ -39,6 +39,8 @@ mod typed_hosted;
 mod typed_reply;
 #[path = "typed_schemas.rs"]
 mod typed_schemas;
+#[path = "typed_strict.rs"]
+mod typed_strict;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -58,6 +60,9 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(hosted_surface::trials());
     trials.extend(typed::trials());
     trials.extend([
+        transcript_trial("mcp-parity/typed-strict-schema", || {
+            typed_strict::check().map_err(Into::into)
+        }),
         transcript_trial("mcp-typed-discovery/compact", || {
             typed_discovery::check().map_err(Into::into)
         }),

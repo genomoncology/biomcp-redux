@@ -1,0 +1,21 @@
+feature: mcp-parity
+story: A diagnostic search with blank bundle fields still finds the requested FDA applicant.
+live_check: retained replay; no source requests
+replay: diagnostic/pma-name-applicant
+config:
+  mcp_tool_mode: typed
+steps:
+  - mcp_call:
+      name: diagnostic
+      arguments:
+        action: search
+        search:
+          query: ""
+          source: fda-pma
+          manufacturer: Tempus
+          bundle_revision: ""
+        get: null
+    expect:
+      /status: complete
+      /page/total: 6
+      /result/items/0/header/pma_number: P210011

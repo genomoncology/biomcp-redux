@@ -1,6 +1,7 @@
 # 1172 — typed-tools-strict-clients
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 39b2b4b6d75ea31260f5797412e3047b8ec4c948
 
 Milestone: 7
 
