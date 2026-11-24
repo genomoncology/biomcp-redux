@@ -500,8 +500,7 @@ impl Globals {
         self.check()
     }
     fn check(&self) -> Result<(), ParseInvalid> {
-        biomcp_query::sources::disabled(&self.disable_sources)
-            .map_err(|_| ParseInvalid::default())?;
+        source_refusal::check_exclusions(&self.disable_sources)?;
         if usize::from(self.replay.is_some())
             + usize::from(self.record.is_some())
             + usize::from(self.offline)

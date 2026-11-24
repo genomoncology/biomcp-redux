@@ -99,6 +99,17 @@
             "array",
             "null"
           ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The rejected source exclusion when it names a registered component."
         }
       },
       "required": [
@@ -350,7 +361,7 @@
   },
   "$id": "biomcp.error/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "A versioned error response. It may include rejected option names and checked `error.unplaced` field names.",
+  "description": "A versioned error response. It may include rejected option, field and registered component names.",
   "properties": {
     "error": {
       "$ref": "#/$defs/Reply_ErrorDetail"
