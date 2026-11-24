@@ -1,0 +1,20 @@
+feature: query-validation
+story: A drug label usage reply places the section after the record ID, preserves the label options, and runs when followed.
+live_check: retained replay; no source requests
+replay: drug/label-discovery
+steps:
+  - run: [get, drug, 98b197ea-bca4-427e-8737-97f70a3262bc, --section=label, --source, openfda-label, --label-section, warnings_and_cautions]
+    exit: 2
+    expect:
+      /error/option: --section
+      /next/0/args: [get, drug, 98b197ea-bca4-427e-8737-97f70a3262bc, label, --label-section, warnings_and_cautions, --source, openfda-label]
+  - follow: configure
+    expect:
+      /status: complete
+      /result/identity/id: 98b197ea-bca4-427e-8737-97f70a3262bc
+      /result/label/state: empty
+  - run: [get, drug, 98b197ea-bca4-427e-8737-97f70a3262bc, --section]
+    exit: 2
+    expect:
+      /status: usage
+      /error/option: --section

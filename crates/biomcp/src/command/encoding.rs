@@ -52,6 +52,23 @@ impl Encoding {
             Some(crate::grammar::Format::Json) | None => Self::Json,
         }
     }
+    pub(crate) fn usage(self, mut error: biomcp_types::UsageError) -> io::Result<Outcome> {
+        if matches!(self, Self::Mcp)
+            && let biomcp_types::UsageError::Arguments(arguments) = &mut error
+        {
+            for step in &mut arguments.next {
+                // The local source list is a CLI command. MCP exposes the source list as help.
+                if matches!(step.args.as_ref(), [verb, leaf] if &**verb == "source" && &**leaf == "list")
+                {
+                    step.args = ["help".into(), "sources".into()].into();
+                }
+            }
+        }
+        self.encode(
+            biomcp_types::ErrorEnvelope::from(error),
+            crate::exit::Status::Usage,
+        )
+    }
     pub(crate) fn encode(
         self,
         reply: impl serde::Serialize,

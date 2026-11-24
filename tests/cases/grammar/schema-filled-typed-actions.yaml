@@ -1,5 +1,5 @@
 feature: article-get
-story: A typed article get ignores an inactive search object filled with empty fields and declared defaults, and refuses an inactive search with a real query.
+story: A typed article get resolves the requested article even when an inactive search object contains defaults or a real query.
 live_check: synthetic response case
 replay: article/get/synthetic-derived
 config:
@@ -30,8 +30,6 @@ steps:
         get:
           id: "33123537"
     offline: true
-    is_error: true
     expect:
-      /error/option: search
-      /error/valid_values: [get]
-      /next/0/arguments/command: get article
+      /result/items/0/answer/resolution: resolved
+      /result/items/0/answer/card/pmid: "33123537"

@@ -1,6 +1,7 @@
 # 1171 — typed-tools-ignore-other-actions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6a2e09de084560405e863e83bdb1f7999af0b42b
 
 Milestone: 7
 

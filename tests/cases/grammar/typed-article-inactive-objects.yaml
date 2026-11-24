@@ -1,0 +1,19 @@
+feature: mcp-parity
+story: A typed article search uses its query and returns records when the client also supplies other actions' minimum values.
+live_check: retained replay; no source requests
+replay: article/search/live
+config:
+  mcp_tool_mode: typed
+steps:
+  - mcp_call:
+      name: article
+      arguments:
+        action: search
+        search: {query: AKT1 E17K}
+        text: {part: 1}
+        citations: {limit: 1, source: icite}
+        grant_search: {fiscal_year: 2026, limit: 1}
+    expect:
+      /status: complete
+      /query/text: AKT1 E17K
+      /result/items: {count: 10}
