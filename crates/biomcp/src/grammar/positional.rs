@@ -204,7 +204,11 @@ pub(super) fn split(
 
 /// A positional word no argument took and no fix places: the command's last positional
 /// argument, or `positional` where it takes none, with its options and help.
-pub(super) fn unplaced(command: &Command, path: &[&str]) -> Option<UsageArguments> {
+pub(super) fn unplaced(
+    command: &Command,
+    path: &[&str],
+    word: Option<&str>,
+) -> Option<UsageArguments> {
     if command.has_subcommands() {
         return group(command);
     }
@@ -231,11 +235,24 @@ pub(super) fn unplaced(command: &Command, path: &[&str]) -> Option<UsageArgument
         .filter_map(|argument| argument.get_long())
         .map(|name| biodata::Text::new(&format!("--{name}")).ok())
         .collect::<Option<Vec<_>>>()?;
+    let next = if path == ["help", "sources"]
+        && word
+            .and_then(biomcp_query::sources::switchable_source)
+            .is_some()
+    {
+        Step {
+            kind: biomcp_types::StepKind::Configure,
+            args: ["source".into(), "list".into()].into(),
+            options: Default::default(),
+        }
+    } else {
+        super::validation::help(path.iter().copied())
+    };
     Some(UsageArguments {
         argument: Some(argument.into()),
         message: None,
         valid_values: (!options.is_empty()).then(|| options.into()),
-        next: vec![super::validation::help(path.iter().copied())],
+        next: vec![next],
     })
 }
 
@@ -311,15 +328,15 @@ const SHORT_FLAGS: [(&str, &str); 4] = [
     ("-l", "--limit"),
 ];
 
-/// An option spelled another way: a short flag this command lacks, `--section` where the
-/// section is a positional word, or underscores for dashes. Answered with the call in the
-/// command's own spelling; the typed spelling is not accepted.
+/// A short flag this command lacks, a flag for a positional word, or underscores for dashes.
+/// Return the checked call in the command's own spelling.
 pub(super) fn respelled(
     root: &Command,
     path: &[&str],
     spelling: &str,
     args: &[OsString],
 ) -> Option<Step> {
+    let spelling = spelling.split('=').next()?;
     let &[verb, entity] = path else { return None };
     let command = root.find_subcommand(verb)?.find_subcommand(entity)?;
     let has = |long: &str| {
@@ -342,13 +359,19 @@ pub(super) fn respelled(
         && has(long)
     {
         *args.get_mut(index)? = word.replacen(spelling, long, 1).into();
-    } else if spelling == "--section"
+    } else if matches!(spelling, "--section" | "--file")
         && command
             .get_positionals()
-            .any(|arg| arg.get_id() == "section")
+            .any(|arg| arg.get_id() == &spelling[2..])
     {
-        let value = args.remove(index + 1);
-        args.remove(index);
+        let (value, width) = match word.split_once('=') {
+            Some((_, value)) => (OsString::from(value), 1),
+            None => (args.get(index + 1)?.clone(), 2),
+        };
+        if value.is_empty() || value.to_str()?.starts_with('-') {
+            return None;
+        }
+        args.drain(index..index + width);
         args.push(value);
     } else if spelling.starts_with("--") && dashed != spelling && has(&dashed) {
         *args.get_mut(index)? = word.replacen(spelling, &dashed, 1).into();

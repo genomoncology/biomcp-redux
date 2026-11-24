@@ -253,7 +253,7 @@ pub(super) fn parse_invalid(
     if let Some(spelling) = spelling
         && let Some(arguments) = super::positional::fix(root, &path, args)
             .or_else(|| super::words::excess(root, &path, args))
-            .or_else(|| super::positional::unplaced(command, &path))
+            .or_else(|| super::positional::unplaced(command, &path, Some(spelling)))
     {
         let mut arguments = arguments;
         if spelling.starts_with('-')
@@ -279,7 +279,7 @@ pub(super) fn parse_invalid(
         // A command group answers a word it does not name with its commands.
         usage: message.map(UsageError::message).or_else(|| {
             (command.has_subcommands() && !path.is_empty())
-                .then(|| super::positional::unplaced(command, &path))
+                .then(|| super::positional::unplaced(command, &path, None))
                 .flatten()
                 .map(UsageError::Arguments)
         }),

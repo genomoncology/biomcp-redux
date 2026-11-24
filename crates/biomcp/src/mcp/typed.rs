@@ -203,16 +203,17 @@ pub(super) fn parse(
         .iter()
         .find(|(tool, ..)| *tool == called)?;
     catalog.current = Some((*tool).into());
+    let empty = serde_json::Map::new();
     let fields = match params.get("arguments") {
-        Some(Value::Object(fields)) => fields.clone(),
-        Some(Value::Null) | None => serde_json::Map::new(),
+        Some(Value::Object(fields)) => fields,
+        Some(Value::Null) | None => &empty,
         Some(_) => return None,
     };
     let action = fields.get("action").and_then(Value::as_str);
     let Some(&(action, command, _)) = placed.iter().find(|(placed, _, _)| Some(*placed) == action)
     else {
         let actions = catalog.actions(tool);
-        let section = action.and_then(|word| refusal::section(root, placed, word, &fields));
+        let section = action.and_then(|word| refusal::section(root, placed, word, fields));
         return Some(Err(rejected(
             "action",
             &actions,
@@ -221,21 +222,22 @@ pub(super) fn parse(
             cause(action),
         )));
     };
-    let paths = crate::grammar::command_paths();
-    let path = paths
-        .iter()
-        .copied()
-        .find(|&(verb, entity, _)| name(verb, entity) == command)?;
-    if let Some((key, message)) = arguments::unexpected(&fields, action, placed, &paths) {
-        let mut valid = vec![action.to_owned()];
-        let help = if message == ErrorMessage::ArgumentInactiveAction {
-            Some(vec!["help".into(), path.0.into(), path.1.into()])
-        } else {
-            valid.insert(0, "action".into());
-            None
-        };
-        return Some(Err(rejected(key, &valid, help, catalog, message)));
+    // Schema-filling clients may populate every action. Only the chosen payload is read.
+    if let Some(key) = fields.keys().find(|key| {
+        !matches!(key.as_str(), "action" | "fields")
+            && !placed.iter().any(|(name, ..)| *name == key.as_str())
+    }) {
+        return Some(Err(rejected(
+            key,
+            &["action".into(), action.into()],
+            None,
+            catalog,
+            ErrorMessage::ArgumentUnknown,
+        )));
     }
+    let path = crate::grammar::command_paths()
+        .into_iter()
+        .find(|&(verb, entity, _)| name(verb, entity) == command)?;
     let mut values = fields.get(action).cloned().unwrap_or_else(|| json!({}));
     let chosen = match refusal::take_fields(fields.get("fields"), &mut values) {
         Ok(chosen) => chosen,
