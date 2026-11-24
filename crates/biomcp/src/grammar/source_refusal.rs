@@ -1,7 +1,7 @@
 //! Explain rejected source selectors and exclusions.
-use biodata::PathwayId;
+use biodata::{PathwayId, Text};
 use biomcp_query::sources as registry;
-use biomcp_types::{ErrorMessage, Request, Rewrite, Source, Text, UsageArguments, UsageError};
+use biomcp_types::{ErrorMessage, Request, Rewrite, Source, UsageArguments, UsageError};
 use clap::Command;
 use std::ffi::OsString;
 
