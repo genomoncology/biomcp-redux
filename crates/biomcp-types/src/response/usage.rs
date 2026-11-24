@@ -50,6 +50,13 @@ pub enum UsageError {
     },
     /// Generic checked arguments and fixed grammar guidance.
     Arguments(UsageArguments),
+    /// An unrecognized source exclusion selector.
+    SourceExclusion {
+        /// The rejected selector when it names a registered component.
+        value: Option<crate::Text>,
+        /// The registered switches and terms groups.
+        valid_values: Box<[crate::Text]>,
+    },
     /// An invalid schema identity.
     Schema,
     /// An unknown command and its grammar-owned recovery.

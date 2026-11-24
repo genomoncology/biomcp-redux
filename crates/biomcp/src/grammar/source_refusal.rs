@@ -1,8 +1,45 @@
-//! Explain source flags that a lookup does not accept.
+//! Explain rejected source selectors and exclusions.
 use biodata::PathwayId;
-use biomcp_types::{ErrorMessage, Request, Rewrite, Source, UsageArguments, UsageError};
+use biomcp_query::sources as registry;
+use biomcp_types::{ErrorMessage, Request, Rewrite, Source, Text, UsageArguments, UsageError};
 use clap::Command;
 use std::ffi::OsString;
+
+pub(super) fn check_exclusions(names: &[String]) -> Result<(), super::ParseInvalid> {
+    registry::disabled(names).map(|_| ()).map_err(|_| {
+        let accepted = registry::switchable()
+            .into_iter()
+            .map(|source| source.to_string())
+            .chain(
+                registry::disable_groups()
+                    .into_iter()
+                    .map(|group| group.group.as_str().to_owned()),
+            )
+            .collect::<Vec<_>>();
+        let value = names
+            .iter()
+            .find(|name| !accepted.contains(name))
+            .filter(|name| {
+                registry::components().any(|component| {
+                    name.as_str() == component.name
+                        || name.split_once(':').is_some_and(|(source, field)| {
+                            field == component.name && source == <&str>::from(component.source)
+                        })
+                })
+            })
+            .and_then(|name| Text::new(name).ok());
+        super::ParseInvalid {
+            usage: Some(UsageError::SourceExclusion {
+                value,
+                valid_values: accepted
+                    .iter()
+                    .filter_map(|name| Text::new(name).ok())
+                    .collect(),
+            }),
+            ..super::ParseInvalid::default()
+        }
+    })
+}
 
 pub(crate) fn for_command(
     root: &Command,

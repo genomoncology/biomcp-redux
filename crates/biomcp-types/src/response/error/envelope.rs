@@ -15,6 +15,9 @@ struct ErrorDetail {
     source: Option<crate::Source>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     option: Option<Box<str>>,
+    /// The rejected source exclusion when it names a registered component.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    value: Option<crate::Text>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     valid_values: Option<Box<[crate::Text]>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -26,7 +29,7 @@ struct ErrorDetail {
     message: WireMessage,
 }
 
-/// A versioned error response. It may include rejected option names and checked `error.unplaced` field names.
+/// A versioned error response. It may include rejected option, field and registered component names.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ErrorEnvelope {
@@ -50,6 +53,15 @@ impl From<crate::UsageError> for ErrorEnvelope {
         );
         match usage {
             UsageError::Arguments(arguments) => out.next = out.error.arguments(arguments),
+            UsageError::SourceExclusion {
+                value,
+                valid_values,
+            } => {
+                out.error.option = Some("--disable-sources".into());
+                out.error.value = value;
+                out.error.valid_values = Some(valid_values);
+                out.error.message = ErrorMessage::ArgumentValue.into();
+            }
             UsageError::Schema => {
                 out.error.code = ErrorCode::SchemaUsage;
                 out.error.message = ErrorMessage::SchemaUsage.into();
@@ -221,6 +233,7 @@ impl ErrorEnvelope {
                 url: None,
                 source: None,
                 option: None,
+                value: None,
                 valid_values: None,
                 count: None,
                 unplaced: None,
