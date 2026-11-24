@@ -6,7 +6,7 @@ use biomcp_adapters::wikipathways;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     PathwayGeneCount, PathwayGeneCountScope, PathwayGenes, PathwayHeader, PathwayPageInfo,
-    PathwayTotalKind, Source,
+    PathwayTotalKind, Source, SourceState,
 };
 
 pub(super) fn fetch(
@@ -55,9 +55,13 @@ pub(super) fn fetch(
         &mut problems,
     );
     let total = items.len() as u64;
+    let skipped_join = sources
+        .iter()
+        .any(|source| source.source == Source::Hgnc && source.state == SourceState::Skipped);
     Ok(Some(Saved {
         dropped: card.refusals == biomcp_adapters::Refusal::Refused
-            || mapped.refusals == biomcp_adapters::Refusal::Refused,
+            || mapped.refusals == biomcp_adapters::Refusal::Refused
+            || skipped_join,
         genes: Some(PathwayGenes {
             header: PathwayHeader {
                 id: q.id.clone(),

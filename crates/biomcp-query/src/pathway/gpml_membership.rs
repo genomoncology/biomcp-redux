@@ -65,31 +65,30 @@ fn lookup(
     problems: &mut Vec<Problem>,
 ) -> HashMap<Key, Option<HgncId>> {
     let mut matches = HashMap::new();
+    if keys.is_empty() {
+        return matches;
+    }
+    let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(fresh);
+    let mut error = None;
     for kind in [KeyKind::Xref, KeyKind::Id, KeyKind::Symbol] {
         let values: Vec<_> = keys.iter().filter_map(|key| key.selector(kind)).collect();
         if values.is_empty() {
             continue;
         }
         let names: Vec<_> = values.iter().map(String::as_str).collect();
-        let leg = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(fresh);
-        let mapped = hgnc::lookup(&leg, Find::AnyExact(kind, &names));
-        let (genes, error) = match mapped {
+        match hgnc::lookup(&leg, Find::AnyExact(kind, &names)) {
             Ok(mapped) => {
                 problems.extend(mapped.problems);
-                (mapped.value, None)
+                for gene in mapped.value {
+                    index(gene, &mut matches);
+                }
             }
-            Err(error) => (Vec::new(), Some(error)),
-        };
-        let outcome = status::source(Source::Hgnc, leg.finish(), error);
-        if let Some(existing) = sources.iter_mut().find(|s| s.source == Source::Hgnc) {
-            status::retain_source_state(existing, &outcome);
-        } else {
-            sources.push(outcome);
-        }
-        for gene in genes {
-            index(gene, &mut matches);
+            Err(failure) => {
+                error.get_or_insert(failure);
+            }
         }
     }
+    sources.push(status::source(Source::Hgnc, leg.finish(), error));
     matches
 }
 

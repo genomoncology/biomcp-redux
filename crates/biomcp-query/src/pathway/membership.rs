@@ -140,11 +140,7 @@ pub(super) fn present(
     }
     super::relation_steps::genes(&body, query, &mut out.next, &mut out.problems);
     // The pathway card was read first, so an empty relation is a complete answer, not an unknown pathway.
-    let skipped_join = !reactome
-        && out.sources.iter().any(|source| {
-            source.source == Source::Hgnc && source.state == biomcp_types::SourceState::Skipped
-        });
-    crate::status::item(out, true, false, skipped_join);
+    crate::status::item(out, true, false, false);
     out.body = body.with_query(query.clone());
 }
 /// Leave out non-gene Reactome references from the retained relation and count them by
