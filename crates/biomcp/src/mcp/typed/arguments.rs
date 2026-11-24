@@ -153,3 +153,65 @@ pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
 }
 
 pub(super) use crate::grammar::command_arguments as cli;
+
+/// MCP clients may fill an unused argument with either placeholder.
+pub(super) fn unset(value: &Value) -> bool {
+    value.is_null() || value.as_str() == Some("")
+}
+
+pub(super) fn advertise_action(
+    schema: &mut Value,
+    (verb, entity, _): (&str, &str, &str),
+    enum_limit: usize,
+) {
+    let required = schema.get("required").cloned().unwrap_or_default();
+    if let Some(properties) = schema.get_mut("properties").and_then(Value::as_object_mut) {
+        for (name, node) in properties {
+            // These long vocabularies stay in command help and validation. Repeating them
+            // here would exceed the trial search and variant get action budgets.
+            if matches!(
+                (verb, entity, name.as_str()),
+                ("search", "trial", "status") | ("get", "variant", "evidence_significance")
+            ) && let Some(fields) = node.as_object_mut()
+            {
+                fields.remove("enum");
+            }
+            if !required
+                .as_array()
+                .is_some_and(|keys| keys.contains(&json!(name)))
+            {
+                advertise_unset(node, enum_limit);
+            }
+        }
+    }
+    advertise_unset(schema, enum_limit);
+}
+
+/// Give an optional property an unset value. Free text already admits the empty
+/// string, which saves repeating a null type on every text property.
+pub(super) fn advertise_unset(node: &mut Value, enum_limit: usize) {
+    let Some(fields) = node.as_object_mut() else {
+        return;
+    };
+    if let Some(Value::Array(choices)) = fields.get_mut("enum") {
+        if choices.len() < enum_limit {
+            choices.push(Value::Null);
+        } else {
+            fields.remove("enum");
+        }
+    }
+    let constrained = fields.contains_key("enum");
+    if let Some(kind) = fields.get_mut("type") {
+        match kind {
+            Value::String(text) if text == "string" && !constrained => {}
+            Value::Array(kinds) => {
+                if !kinds.contains(&json!("string")) && !kinds.contains(&json!("null")) {
+                    kinds.push(json!("null"));
+                }
+            }
+            _ => *kind = json!([kind, "null"]),
+        }
+    } else if let Some(Value::Array(branches)) = fields.get_mut("anyOf") {
+        branches.push(json!({"type":"null"}));
+    }
+}

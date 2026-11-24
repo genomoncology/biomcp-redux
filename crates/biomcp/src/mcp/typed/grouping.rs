@@ -66,9 +66,12 @@ pub(super) fn catalog(
     excluded: BTreeSet<biomcp_types::Source>,
 ) -> io::Result<Catalog> {
     let output_schema = discovery && crate::config::mcp_typed_schema_options(context.settings).0;
+    let enum_limit = crate::config::mcp_typed_schema_options(context.settings).1;
     let mut tools = ENTITY_TOOLS
         .iter()
-        .filter_map(|tool| entity(tool, &commands, output_schema, &excluded).transpose())
+        .filter_map(|tool| {
+            entity(tool, &commands, output_schema, &excluded, enum_limit).transpose()
+        })
         .collect::<io::Result<Vec<_>>>()?;
     if super::saved::offered(context.globals) {
         tools.push(super::saved::tool(output_schema)?);
@@ -111,6 +114,7 @@ fn entity(
     commands: &[Command],
     output_schema: bool,
     excluded: &BTreeSet<biomcp_types::Source>,
+    enum_limit: usize,
 ) -> io::Result<Option<Value>> {
     let &(name, _, placed, _, _) = tool;
     let actions = placed
@@ -136,12 +140,13 @@ fn entity(
     properties.insert(
         "action".into(),
         json!({"type":"string","description":format!(
-            "One of: {}. Its arguments go in the object of the same name.",
+            "One of: {}. Fill that action's object. Use null or empty text for unused inputs. Help lists all choices.",
             names.join(", ")
         )}),
     );
     for (action, _, command) in &actions {
         let mut input = command.input.clone();
+        super::arguments::advertise_action(&mut input, command.path, enum_limit);
         if let Some(fields) = input.as_object_mut() {
             fields.shift_remove("$schema");
             fields.insert(
@@ -158,7 +163,7 @@ fn entity(
     {
         properties.insert(
             "fields".into(),
-            json!({"type":"array","items":{"type":"string"},"description":FIELDS}),
+            json!({"type":["array","null"],"items":{"type":"string"},"description":FIELDS}),
         );
     }
     let description = entity_description(tool, &actions, excluded);

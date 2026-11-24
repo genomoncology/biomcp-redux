@@ -268,6 +268,7 @@ fn command_call(
     let input = arguments::input(&schema);
     let forms = forms::forms(verb, &schema);
     let mut values = values.clone();
+    forms::omit_unset(&mut values, &forms, &input, &schema);
     let normalized = forms::normalize(&mut values, &forms, &input);
     // Either paging name reaches the field the command reads it from (1061).
     if let Some(fields) = values.as_object_mut() {
