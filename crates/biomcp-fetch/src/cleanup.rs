@@ -25,40 +25,53 @@ impl crate::CacheAccess {
         owners: &[SchemaOwner],
         retained_query_namespaces: &[u32],
     ) -> Result<u64, CacheError> {
-        let active = self.path();
-        let Some(current) = active
-            .file_name()
-            .and_then(|n| n.to_str())
-            .and_then(namespace)
-        else {
-            return Ok(0);
+        clean_incompatible_files(self.path(), owners, retained_query_namespaces)
+    }
+}
+
+/// Clean verified obsolete files even when the active database cannot be opened.
+pub fn clean_incompatible_files(
+    active: &Path,
+    owners: &[SchemaOwner],
+    retained_query_namespaces: &[u32],
+) -> Result<u64, CacheError> {
+    let Some(current) = active
+        .file_name()
+        .and_then(|n| n.to_str())
+        .and_then(namespace)
+    else {
+        return Ok(0);
+    };
+    let Some(parent) = active.parent() else {
+        return Ok(0);
+    };
+    let mut removed = 0;
+    for entry in fs::read_dir(parent).map_err(|_| CacheError::Filesystem)? {
+        let entry = entry.map_err(|_| CacheError::Filesystem)?;
+        let kind = entry.file_type().map_err(|_| CacheError::Filesystem)?;
+        let name = entry.file_name();
+        let Some(version) = name.to_str().and_then(namespace) else {
+            continue;
         };
-        let Some(parent) = active.parent() else {
-            return Ok(0);
-        };
-        let mut removed = 0;
-        for entry in fs::read_dir(parent).map_err(|_| CacheError::Filesystem)? {
-            let entry = entry.map_err(|_| CacheError::Filesystem)?;
-            let kind = entry.file_type().map_err(|_| CacheError::Filesystem)?;
-            let name = entry.file_name();
-            let Some(version) = name.to_str().and_then(namespace) else {
-                continue;
-            };
-            if !kind.is_file()
-                || version == current
-                || version.0 == current.0 && retained_query_namespaces.contains(&version.1)
-                || version.0 > current.0
-                || version.1 > current.1
-            {
-                continue;
-            }
-            if owned_file(&entry.path(), owners)? {
-                remove_database(&entry.path())?;
+        if !kind.is_file()
+            || version == current
+            || version.0 == current.0 && retained_query_namespaces.contains(&version.1)
+            || version.0 > current.0
+            || version.1 > current.1
+        {
+            continue;
+        }
+        let path = entry.path();
+        match owned_file(&path, owners) {
+            Ok(true) => {
+                remove_database(&path)?;
                 removed += 1;
             }
+            Ok(false) | Err(CacheError::Corrupt) => {}
+            Err(error) => return Err(error),
         }
-        Ok(removed)
     }
+    Ok(removed)
 }
 pub(crate) fn namespace(name: &str) -> Option<(u32, u32)> {
     let (fetch, query) = name

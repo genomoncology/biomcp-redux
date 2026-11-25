@@ -4,7 +4,7 @@
     reason = "Keep wall time and SQLite state inside the reviewed store boundary"
 )]
 mod cleanup;
-pub use cleanup::clean;
+pub use cleanup::{clean, clean_without_active};
 mod evidence;
 mod trial;
 pub(crate) use evidence::EvidenceState;

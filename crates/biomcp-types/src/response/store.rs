@@ -12,6 +12,9 @@ pub struct StoreClean {
     pub snapshots: u64,
     /// Older incompatible cache files.
     pub files: u64,
+    /// Damaged active cache file left for the operator, when only obsolete files could be cleaned.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub skipped_cache: Option<String>,
 }
 impl super::ResponseBody for StoreClean {
     const SCHEMA: &'static str = "biomcp.store-clean/5";
