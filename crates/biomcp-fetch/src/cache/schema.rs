@@ -252,12 +252,10 @@ fn create_reply_schema(tx: &Transaction<'_>, version: Option<u32>) -> Result<(),
 #[track_caller]
 pub(crate) fn db_error(error: rusqlite::Error) -> CacheError {
     crate::record_sqlite_error("fetch", &error);
-    if matches!(
-        error.sqlite_error_code(),
-        Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
-    ) {
-        CacheError::Busy
-    } else {
-        CacheError::Database
+    use rusqlite::ErrorCode;
+    match error.sqlite_error_code() {
+        Some(ErrorCode::DatabaseBusy | ErrorCode::DatabaseLocked) => CacheError::Busy,
+        Some(ErrorCode::DatabaseCorrupt | ErrorCode::NotADatabase) => CacheError::Corrupt,
+        _ => CacheError::Database,
     }
 }

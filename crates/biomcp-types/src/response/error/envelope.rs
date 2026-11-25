@@ -39,6 +39,9 @@ pub struct ErrorEnvelope {
     /// Bounded cache or recording failure when local startup cannot open its store or capture.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub local_error: Option<CacheProblem>,
+    /// Path to a damaged cache file that needs local attention.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cache_path: Option<String>,
     /// Typed restart when a snapshot cannot answer this query.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub next: Vec<Step>,
@@ -233,6 +236,7 @@ impl ErrorEnvelope {
                 message: message.into(),
             },
             local_error: None,
+            cache_path: None,
             next: Vec::new(),
         }
     }
