@@ -139,8 +139,7 @@ pub(super) fn check() -> Result<(), String> {
                     .ok_or("first result missing")?;
                 // A hosted first reply is already HTTP; only local mode pairs stdio with HTTP.
                 let http = (!hosted).then(|| http_reply(&server, call)).transpose()?;
-                let expected_form = form.or(hosted.then_some("both"));
-                let value = check_pair(first, http.as_ref(), expected_form, index)
+                let value = check_pair(first, http.as_ref(), form, index)
                     .map_err(|error| format!("hosted={hosted}: {error}"))?;
                 if form.is_none() {
                     reference.push(value);
@@ -249,15 +248,14 @@ fn invalid_settings() -> Result<(), String> {
     Ok(())
 }
 
-/// Check where the reply carries JSON. An unset form means the local default.
+/// Check where the reply carries JSON. An unset form means both copies.
 pub(super) fn check_content(result: &Value, form: Option<&str>) -> Result<Value, String> {
     let blocks = result
         .get("content")
         .and_then(Value::as_array)
         .ok_or("content list missing")?;
     let structured = result.get("structuredContent");
-    let failed = result.get("isError") == Some(&json!(true));
-    let form = form.unwrap_or(if failed { "both" } else { "once" });
+    let form = form.unwrap_or("both");
     if form == "once" {
         if !blocks.is_empty() {
             return Err("once requires empty content".into());
