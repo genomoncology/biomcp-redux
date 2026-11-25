@@ -1,0 +1,51 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=snpeff.ann.genename%3AEGFR%20AND%20snpeff.ann.hgvs_p%3A%28%22L858R%22%20OR%20%22Leu858Arg%22%20OR%20%22p.L858R%22%20OR%20%22p.Leu858Arg%22%29&size=10&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann",
+  "exchanges": [
+    {
+      "fetched": 1795577407,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 266,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 5,
+          "total": 2,
+          "max_score": 30.170769,
+          "hits": [
+            {
+              "_id": "chr7:g.55259515_55259516delinsGA",
+              "chrom": "7",
+              "dbsnp": {
+                "rsid": "rs1057519848",
+                "gene": {
+                  "symbol": "EGFR"
+                }
+              }
+            },
+            {
+              "_id": "chr7:g.55259515T>G",
+              "chrom": "7",
+              "hg19": {
+                "end": 55259515,
+                "start": 55259515
+              },
+              "dbsnp": {
+                "rsid": "rs121434568",
+                "gene": {
+                  "symbol": "EGFR"
+                }
+              },
+              "clinvar": {
+                "variant_id": 16609
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

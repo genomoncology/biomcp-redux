@@ -2227,7 +2227,7 @@ Options:
           Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
 
       --gene <gene>
-          Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
+          Checked gene symbol for a SnpEff substitution or ClinVar coding/synonymous selector.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -2283,10 +2283,10 @@ Paging: --limit and --offset.
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly. Value form: string; example: --build GRCh37.
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Value form: string; example: --coding 'c.333G>T'.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Value form: string; example: --condition 'Carcinoma of colon (CRC)'.
-- `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector. Value form: string; example: --gene EGFR.
+- `--gene`: Checked gene symbol for a SnpEff substitution or ClinVar coding/synonymous selector. Value form: string; example: --gene EGFR.
 - `--has`: Require the selected component's identifier field. Only source-proven mappings are offered. Value form: string; example: --has clinvar.
-- `--limit`: Source candidates per page, default 10, maximum 100; all candidates remain candidates. Value form: integer; example: --limit 50.
-- `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer; example: --offset 0.
+- `--limit`: Source candidates per page, default 10, maximum 100; all candidates remain candidates. Value form: integer; example: --limit 1.
+- `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer; example: --offset 1.
 - `--protein`: Explicit substitution or synonymous change using checked amino-acid codes. Value form: string; example: --protein L858R.
 - `--query`: Gene and protein shorthand such as BRAF V600E. With --source myvariant this is raw MyVariant text, passed and echoed unchanged when component policy allows. Value form: string; example: --query CA123643.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string; example: --region chr7:140453136-140453136.

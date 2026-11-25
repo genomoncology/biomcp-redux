@@ -1,6 +1,7 @@
 # 1176 — protein-change-variant-search-selector
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8d44830dfc0ad2ba90d04973961d2fc03fb9e8a6
 
 Milestone: 7
 

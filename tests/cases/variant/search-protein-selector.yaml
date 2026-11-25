@@ -1,0 +1,123 @@
+{
+  "feature": "variant-search",
+  "live_check": "synthetic projection of native identity facts",
+  "replay": "variant/search/protein-selector",
+  "story": "Default protein search includes changes spanning two bases, preserves native candidate order, and keeps the confirmed BRAF V600E allele.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BRAF",
+        "--protein",
+        "V600K"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/record/id": {
+          "equals": [
+            "chr7:g.140453136_140453137delinsTT"
+          ]
+        },
+        "/result/selector_terms/name": "SnpEff MIT",
+        "/page/returned": 1,
+        "/page/total": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BRAF",
+        "--protein",
+        "V600R"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/record/id": {
+          "equals": [
+            "chr7:g.140453136_140453137delinsCT",
+            "chr7:g.140453136_140453137delinsCG"
+          ]
+        },
+        "/result/selector_terms/name": "SnpEff MIT",
+        "/page/returned": 2,
+        "/page/total": 2
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "KRAS",
+        "--protein",
+        "G12F"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/record/id": {
+          "equals": [
+            "chr12:g.25398284_25398285delinsAA"
+          ]
+        },
+        "/result/selector_terms/name": "SnpEff MIT",
+        "/page/returned": 1,
+        "/page/total": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "EGFR",
+        "--protein",
+        "L858R"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/record/id": {
+          "equals": [
+            "chr7:g.55259515_55259516delinsGA",
+            "chr7:g.55259515T>G"
+          ]
+        },
+        "/result/selector_terms/name": "SnpEff MIT",
+        "/page/returned": 2,
+        "/page/total": 2,
+        "/problems/*/field": {
+          "equals": [
+            "next",
+            "representations.build"
+          ]
+        },
+        "/result/items/1/identity/representations/0/build": "GRCh37"
+      },
+      "max_bytes": 1566
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--gene",
+        "BRAF",
+        "--protein",
+        "V600E"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/record/id": {
+          "equals": [
+            "chr7:g.140453136A>T"
+          ]
+        },
+        "/result/selector_terms/name": "SnpEff MIT",
+        "/page/returned": 1,
+        "/page/total": 2
+      }
+    }
+  ]
+}

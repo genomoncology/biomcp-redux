@@ -8671,7 +8671,7 @@
         },
         "gene": {
           "$ref": "#/$defs/Reply_GeneSymbol",
-          "description": "Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector."
+          "description": "Checked gene symbol for a SnpEff substitution or ClinVar coding/synonymous selector."
         },
         "has": {
           "$ref": "#/$defs/Reply_VariantSearchField",

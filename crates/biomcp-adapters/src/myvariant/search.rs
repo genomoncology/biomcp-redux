@@ -99,8 +99,6 @@ fn mapped_page(
     query: &VariantSearch,
     reference: &Leg<'_>,
 ) -> SearchPage {
-    let fallback =
-        query.uses_dbnsfp_selector() && super::components::disabled_on_leg(leg, "dbnsfp");
     let mut excluded = 0;
     let mut reference_error = None;
     let mut rows = Mapped {
@@ -121,7 +119,7 @@ fn mapped_page(
         };
         let id = hit.id.clone();
         let build = super::search_build::source_build(&hit);
-        if fallback {
+        if query.uses_protein_selector() {
             match super::corroboration::confirmed(&hit, leg, reference) {
                 Ok(true) => {}
                 result => {

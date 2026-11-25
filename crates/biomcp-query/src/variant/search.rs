@@ -8,6 +8,7 @@ use biomcp_types::{
     PageInfo, ReplyData, Request, Source, StepKind, VariantGet, VariantPage, VariantResolver,
     VariantSearch,
 };
+const PROTEIN_COMPONENT: &str = myvariant::components::SNPEFF.name;
 /// Discover one source-native page; a zero result remains distinct from a failed source.
 pub(crate) fn discover(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -36,10 +37,10 @@ pub(super) fn search<'a>(
     let leg = cx.fetch.leg(spec, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let terms = component_terms("clinvar", query.uses_clinvar_filters());
-    let (selector, source_query) = selector(cx, query);
-    let selector_terms = component_terms(selector, query.uses_dbnsfp_selector());
+    let source_query = query.source_query();
+    let selector_terms = component_terms(PROTEIN_COMPONENT, query.uses_protein_selector());
     let reply = match (&terms, &selector_terms) {
-        (Ok(_), Ok(_)) => fetch_page(cx, &leg, query, selector, &source_query, *deadline),
+        (Ok(_), Ok(_)) => fetch_page(cx, &leg, query, &source_query, *deadline),
         (Err(error), _) | (_, Err(error)) => Err(*error),
     };
     let terms = terms.ok().flatten();
@@ -102,18 +103,10 @@ pub(super) fn search<'a>(
     status::search(&mut out);
     out
 }
-fn selector(cx: &Ctx<'_>, query: &VariantSearch) -> (&'static str, String) {
-    if myvariant::components::disabled(cx.fetch, "dbnsfp") {
-        ("snpeff", query.snpeff_source_query())
-    } else {
-        ("dbnsfp", query.source_query())
-    }
-}
 fn fetch_page(
     cx: &Ctx<'_>,
     leg: &biomcp_fetch::Leg<'_>,
     query: &VariantSearch,
-    selector: &str,
     source_query: &str,
     deadline: biomcp_fetch::Deadline<'_>,
 ) -> Result<SearchPage, biomcp_fetch::RequestError> {
@@ -127,7 +120,8 @@ fn fetch_page(
         });
     }
     if (query.uses_clinvar_filters() && myvariant::components::disabled(cx.fetch, "clinvar"))
-        || (query.uses_dbnsfp_selector() && myvariant::components::disabled(cx.fetch, selector))
+        || (query.uses_protein_selector()
+            && myvariant::components::disabled(cx.fetch, PROTEIN_COMPONENT))
     {
         return Err(biomcp_fetch::SourceError::disabled(Source::MyVariant).into());
     }

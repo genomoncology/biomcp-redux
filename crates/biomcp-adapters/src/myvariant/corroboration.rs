@@ -1,4 +1,4 @@
-//! Same-record allowed identifiers or a checked assembly-qualified reference confirm fallback rows.
+//! Same-record allowed identifiers or a checked assembly-qualified reference confirm SnpEff rows.
 use super::raw::Hit;
 use crate::raw::{Field, OneOrMany};
 use biodata::VariantId;

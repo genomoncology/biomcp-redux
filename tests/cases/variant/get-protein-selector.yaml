@@ -1,0 +1,78 @@
+{
+  "feature": "variant-identity",
+  "live_check": "synthetic projection of native identity facts",
+  "replay": "variant/search/protein-selector",
+  "story": "Default gene and protein lookup returns each candidate for substitutions that can span two bases.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V600K"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/resolution": "candidates",
+        "/result/candidates/*/record/id": {
+          "equals": [
+            "chr7:g.140453136_140453137delinsTT"
+          ]
+        },
+        "/page/total": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V600R"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/resolution": "candidates",
+        "/result/candidates/*/record/id": {
+          "equals": [
+            "chr7:g.140453136_140453137delinsCT",
+            "chr7:g.140453136_140453137delinsCG"
+          ]
+        },
+        "/page/total": 2
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "KRAS G12F"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/resolution": "candidates",
+        "/result/candidates/*/record/id": {
+          "equals": [
+            "chr12:g.25398284_25398285delinsAA"
+          ]
+        },
+        "/page/total": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "EGFR L858R"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/resolution": "candidates",
+        "/result/candidates/*/record/id": {
+          "equals": [
+            "chr7:g.55259515_55259516delinsGA",
+            "chr7:g.55259515T>G"
+          ]
+        },
+        "/page/total": 2
+      }
+    }
+  ]
+}

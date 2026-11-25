@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_000007.13&rettype=fasta&retmode=text&strand=1&seq_start=140453136&seq_stop=140453136&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1795577408,
+      "status": 200,
+      "content_type": "text/plain",
+      "delay_ms": 371,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "bdcea123ff6adff3a101b471f96aaf1ba91540a5cd4697547e492f4d46b31a95-0.bin"
+      }
+    }
+  ]
+}

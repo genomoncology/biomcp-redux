@@ -1,10 +1,10 @@
 {
   "feature": "variant-search",
-  "live_check": "public",
+  "live_check": "synthetic projection of native identity facts",
   "replay": "variant/search/L858R",
-  "story": "Explicit MyVariant L858R candidates retain the source identities and query",
+  "story": "The final one-row page of the EGFR L858R search retains the confirmed assembly, candidate identity and native total.",
   "harvest": "sdlc/planning/slices/variant.md",
-  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim tests/replies/variant/search/README.md identifies the retained actual candidate identities, totals and native order. The compact identity-only response omits annotation content and build metadata; nightly execution checks the public source query.",
+  "verified": "2026-11-24; compact SnpEff identity projection retaining source chromosome and coordinate metadata. The replay page is sliced from the observed two-row source response.",
   "steps": [
     {
       "run": [
@@ -15,7 +15,11 @@
         "--protein",
         "L858R",
         "--build",
-        "GRCh37"
+        "GRCh37",
+        "--limit",
+        "1",
+        "--offset",
+        "1"
       ],
       "max_bytes": 1248,
       "expect": {
@@ -25,14 +29,14 @@
           "equals": {
             "gene": "EGFR",
             "protein": "L858R",
-            "limit": 10,
-            "offset": 0,
+            "limit": 1,
+            "offset": 1,
             "build": "GRCh37"
           }
         },
         "/result": {
           "equals": {
-            "source_query": "dbnsfp.genename:EGFR AND dbnsfp.hgvsp:\"p.L858R\"",
+            "source_query": "snpeff.ann.genename:EGFR AND snpeff.ann.hgvs_p:(\"L858R\" OR \"Leu858Arg\" OR \"p.L858R\" OR \"p.Leu858Arg\")",
             "build": "GRCh37",
             "items": [
               {
@@ -47,7 +51,13 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr7:g.55259515T>G"
-                      }
+                      },
+                      "build": "GRCh37"
+                    }
+                  ],
+                  "genes": [
+                    {
+                      "label": "EGFR"
                     }
                   ]
                 },
@@ -69,33 +79,23 @@
               }
             ],
             "selector_terms": {
-              "usage": "noncommercial",
-              "name": "dbNSFP academic branch and individual component terms",
-              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+              "usage": "open",
+              "name": "SnpEff MIT",
+              "url": "https://github.com/pcingola/SnpEff/blob/master/LICENSE.md"
             }
           }
         },
         "/page": {
           "equals": {
-            "offset": 0,
+            "offset": 1,
             "returned": 1,
-            "total": 1
+            "total": 2
           }
         },
         "/sources/0/source": "myvariant",
-        "/problems": {
-          "equals": [
-            {
-              "source": "myvariant",
-              "field": "next",
-              "code": "value.unknown"
-            },
-            {
-              "source": "myvariant",
-              "record": "chr7:g.55259515T>G",
-              "field": "representations.build",
-              "code": "value.unknown"
-            }
+        "": {
+          "omits": [
+            "problems"
           ]
         }
       }
