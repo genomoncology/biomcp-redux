@@ -69,7 +69,10 @@ fn plain_http() -> Result<(), String> {
         .pointer("/result/tools")
         .and_then(Value::as_array)
         .ok_or_else(|| format!("HTTP {status} tools/list: {reply}"))?;
-    if tools.iter().any(|tool| tool["name"] == "saved") {
+    if tools
+        .iter()
+        .any(|tool| tool.get("name") == Some(&json!("saved")))
+    {
         return Err("plain HTTP offers the saved tool".into());
     }
     let (_, refused) = call(&server, "saved", json!({"action":"show"}), "")?;
@@ -78,13 +81,15 @@ fn plain_http() -> Result<(), String> {
     }
     let search = json!({"action":"search","search":{"condition":"melanoma"}});
     let (_, page) = call(&server, "trial", search, "")?;
-    if page["status"] != "complete"
+    if page.get("status") != Some(&json!("complete"))
         || page
             .pointer("/page/returned")
             .and_then(Value::as_u64)
             .unwrap_or(0)
             == 0
-        || steps(&page).iter().any(|step| step["kind"] == "save")
+        || steps(&page)
+            .iter()
+            .any(|step| step.get("kind") == Some(&json!("save")))
     {
         return Err(format!(
             "expected a complete search page with results and no save step: {page}"
