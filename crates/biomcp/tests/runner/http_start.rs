@@ -15,16 +15,25 @@ pub(super) fn errors() -> super::Check {
         .err()
         .ok_or("a second listener bound the occupied port")?
         .to_string();
+    let busy = busy.to_string();
     let env = Environment::new().map_err(|error| error.to_string())?;
-    for (address, code, cause) in [
-        (busy.to_string(), 5, cause.as_str()),
+    for (options, code, expected) in [
+        (vec!["--http", &busy], 5, vec![busy.as_str(), &cause]),
         (
-            "localhost:8080".into(),
+            vec!["--http", "localhost:8080"],
             2,
-            "expected an IP address and port",
+            vec!["localhost:8080", "expected an IP address and port"],
+        ),
+        (
+            vec!["--http", "--allow-host", "bad host"],
+            2,
+            vec!["--allow-host", "bad host", "hostname or IP address"],
         ),
     ] {
-        let args = vec!["serve".into(), "--http".into(), address.clone()];
+        let args = std::iter::once("serve")
+            .chain(options)
+            .map(str::to_owned)
+            .collect::<Vec<_>>();
         let output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &args)
             .output()
@@ -32,11 +41,10 @@ pub(super) fn errors() -> super::Check {
         let stderr = String::from_utf8_lossy(&output.stderr);
         if output.status.code() != Some(code)
             || !output.stdout.is_empty()
-            || !stderr.contains(&address)
-            || !stderr.contains(cause)
+            || !expected.iter().all(|text| stderr.contains(text))
         {
             return Err(format!(
-                "serve --http {address}: expected exit {code} and stderr naming {address} and {cause:?}; got {} and {stderr:?}",
+                "{args:?}: expected exit {code} and stderr containing {expected:?}; got {} and {stderr:?}",
                 output.status
             ));
         }
