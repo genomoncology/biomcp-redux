@@ -1,6 +1,7 @@
 # 1180 — docs-examples-and-release-notes
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: dc24264e4b04671befc2a8ca6d3645d41af4e7a5
 
 Milestone: 7
 

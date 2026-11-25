@@ -31,6 +31,9 @@ def replace_block(text, start, end, generated):
 FAKE_SERVER = """#!/usr/bin/env python3
 import json, sys
 ACTIONS = %s
+if sys.argv[1] == "sync":
+    print(json.dumps({"status": "complete", "result": {"rows": 1}}))
+    sys.exit(0)
 tools = []
 for name in %s:
     schema = {"type": "object", "required": ["action"], "additionalProperties": False,
@@ -40,8 +43,15 @@ for name in %s:
     tools.append({"name": name, "inputSchema": schema})
 for line in sys.stdin:
     message = json.loads(line)
-    if message.get("id") == 2:
-        print(json.dumps({"jsonrpc": "2.0", "id": 2, "result": {"tools": tools}}), flush=True)
+    if message.get("method") == "tools/list":
+        result = {"tools": tools}
+    elif message.get("method") == "tools/call":
+        reply = ({"tools": [{"name": "trial"}]} if message["params"]["name"] == "search_tools"
+                 else {"status": "complete", "result": {"items": [{}]}})
+        result = {"structuredContent": reply}
+    else:
+        continue
+    print(json.dumps({"jsonrpc": "2.0", "id": message["id"], "result": result}), flush=True)
 """
 
 
