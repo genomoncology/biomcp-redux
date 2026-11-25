@@ -4,7 +4,7 @@
   "replay": "variant/search/Arg117Gly",
   "story": "Explicit MyVariant Arg117Gly candidates retain the source identities and query",
   "harvest": "sdlc/planning/slices/variant.md",
-  "verified": "2026-10-24; factual identity anchors from external0088-source-captures; synthetic response projection, not a fresh whole-source claim tests/replies/variant/search/README.md identifies the retained actual candidate identities, totals and native order. The compact identity-only response omits annotation content and build metadata; nightly execution checks the public source query.",
+  "verified": "2026-11-24; compact SnpEff identity projection retaining source chromosome and coordinate metadata.",
   "steps": [
     {
       "run": [
@@ -32,7 +32,7 @@
         },
         "/result": {
           "equals": {
-            "source_query": "dbnsfp.genename:CHEK2 AND dbnsfp.hgvsp:\"p.Arg117Gly\"",
+            "source_query": "snpeff.ann.genename:CHEK2 AND snpeff.ann.hgvs_p:(\"R117G\" OR \"Arg117Gly\" OR \"p.R117G\" OR \"p.Arg117Gly\")",
             "build": "GRCh37",
             "items": [
               {
@@ -47,7 +47,13 @@
                       "expression": {
                         "syntax": "hgvs.g",
                         "value": "chr22:g.29121326T>C"
-                      }
+                      },
+                      "build": "GRCh37"
+                    }
+                  ],
+                  "genes": [
+                    {
+                      "label": "CHEK2"
                     }
                   ]
                 },
@@ -69,9 +75,9 @@
               }
             ],
             "selector_terms": {
-              "usage": "noncommercial",
-              "name": "dbNSFP academic branch and individual component terms",
-              "url": "https://sites.google.com/site/jpopgen/dbNSFP"
+              "usage": "open",
+              "name": "SnpEff MIT",
+              "url": "https://github.com/pcingola/SnpEff/blob/master/LICENSE.md"
             }
           }
         },
@@ -83,19 +89,9 @@
           }
         },
         "/sources/0/source": "myvariant",
-        "/problems": {
-          "equals": [
-            {
-              "source": "myvariant",
-              "field": "next",
-              "code": "value.unknown"
-            },
-            {
-              "source": "myvariant",
-              "record": "chr22:g.29121326T>C",
-              "field": "representations.build",
-              "code": "value.unknown"
-            }
+        "": {
+          "omits": [
+            "problems"
           ]
         }
       }

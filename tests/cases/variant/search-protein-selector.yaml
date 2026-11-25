@@ -87,8 +87,16 @@
         },
         "/result/selector_terms/name": "SnpEff MIT",
         "/page/returned": 2,
-        "/page/total": 2
-      }
+        "/page/total": 2,
+        "/problems/*/field": {
+          "equals": [
+            "next",
+            "representations.build"
+          ]
+        },
+        "/result/items/1/identity/representations/0/build": "GRCh37"
+      },
+      "max_bytes": 1566
     },
     {
       "run": [

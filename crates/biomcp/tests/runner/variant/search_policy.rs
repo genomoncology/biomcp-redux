@@ -24,10 +24,8 @@ pub(super) fn enabled() -> Result<(), String> {
         .output()
         .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    if value.pointer("/result/source_query")
-        != Some(&json!("dbnsfp.genename:BRAF AND dbnsfp.hgvsp:\"p.V600E\""))
-        || value.pointer("/result/selector_terms/usage") != Some(&json!("noncommercial"))
-    {
+    check_reply(&value)?;
+    if value.pointer("/result/selector_terms/usage") != Some(&json!("open")) {
         return Err(format!("enabled selector changed: {value}"));
     }
     super::super::network_stub::retain_replay_owner(env.shared_root().as_ref())
@@ -42,7 +40,12 @@ pub(super) fn enabled() -> Result<(), String> {
     let [(_, request)] = requests.as_slice() else {
         return Err("enabled selector must send one source request".into());
     };
-    if !request.starts_with("GET /v1/query?q=dbnsfp.genename%3ABRAF%20AND%20dbnsfp.hgvsp%3A%22p.V600E%22&size=10&from=0&fields=") {
+    let prefix = concat!(
+        "GET /v1/query?q=snpeff.ann.genename%3ABRAF%20AND%20snpeff.ann.hgvs_p%3A%28",
+        "%22V600E%22%20OR%20%22Val600Glu%22%20OR%20%22p.V600E%22%20OR%20%22p.Val600Glu%22%29",
+        "&size=10&from=0&fields="
+    );
+    if !request.starts_with(prefix) {
         return Err(format!("enabled selector changed request bytes: {request}"));
     }
     Ok(())
