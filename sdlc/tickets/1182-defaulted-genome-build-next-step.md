@@ -1,6 +1,7 @@
 # 1182 — defaulted-genome-build-next-step
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 15a5fe045a2113143cfed7063d364f8b3dd65831
 
 Milestone: 7
 

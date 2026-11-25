@@ -3,8 +3,46 @@ use crate::Action;
 use biomcp_types::Paged;
 
 use biomcp_types::{
-    Request, Section, Source, StepKind, VariantGet, VariantHeader, VariantResolution,
+    Problem, Request, Section, Source, SourceNotice, SourceOutcome, StepKind, VariantGet,
+    VariantHeader, VariantResolution,
 };
+
+pub(super) fn alternate_build(
+    fetch: &biomcp_fetch::Fetch,
+    query: &VariantGet,
+    resolution: VariantResolution,
+    sources: &mut [SourceOutcome],
+    problems: &mut Vec<Problem>,
+) -> Option<crate::next::Step> {
+    if resolution != VariantResolution::Absent
+        || !query.build_defaulted()
+        || !query.input().single_base_coordinate()
+    {
+        return None;
+    }
+    let source = sources.iter_mut().find(|s| s.source == Source::MyVariant)?;
+    source.notices.push(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: format!(
+            "{} was assumed because no genome build was supplied.",
+            query.myvariant_build()
+        )
+        .into(),
+        retry_after_seconds: None,
+    });
+    let retry = crate::next::checked(
+        query.with_build(biodata::Build::GRCh37),
+        source.source,
+        problems,
+    )?;
+    Some(crate::next::Step::run(
+        StepKind::Configure,
+        &super::next_sources(fetch, &retry),
+        Request::GetVariant(retry),
+        false,
+    ))
+}
+
 pub(super) fn collect(
     fetch: &biomcp_fetch::Fetch,
     candidates: &[VariantHeader],
