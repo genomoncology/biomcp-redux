@@ -43,7 +43,13 @@
         "/query/build": "GRCh38",
         "/sources/0/notices/0/message": "GRCh38 was assumed because no genome build was supplied.",
         "/next/0/kind": "configure",
-        "/next/0/args": ["get", "variant", "7-140453136-A-T", "--build", "GRCh37"]
+        "/next/0/name": "variant",
+        "/next/0/arguments": {
+          "equals": {
+            "action": "get",
+            "get": {"id": "7-140453136-A-T", "build": "GRCh37"}
+          }
+        }
       }
     },
     {
