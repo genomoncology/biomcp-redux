@@ -11,12 +11,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "json",
-        "value": {
-          "took": 2,
-          "total": 2,
-          "max_score": 25.613976,
-          "hits": []
-        }
+        "value": {"took":2,"total":2,"max_score":25.613976,"hits":[]}
       }
     }
   ]
