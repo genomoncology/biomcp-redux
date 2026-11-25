@@ -1,0 +1,65 @@
+{
+  "feature": "variant-identity",
+  "live_check": "synthetic MyVariant 404 for the reported GRCh38 lookup",
+  "replay": "variant/id-forms",
+  "story": "An absent single-base coordinate explains the assumed build and offers an explicit GRCh37 retry only when the caller omitted the build.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": ["get", "variant", "7-140453136-A-T"],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/query/build": "GRCh38",
+        "/sources/0/reason": "not-found",
+        "/sources/0/notices/0/message": "GRCh38 was assumed because no genome build was supplied.",
+        "/next/0/kind": "configure",
+        "/next/0/args": ["get", "variant", "7-140453136-A-T", "--build", "GRCh37"]
+      }
+    },
+    {
+      "run": ["get", "variant", "7-140453136-A-T", "--build", "GRCh38"],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/query/build": "GRCh38",
+        "/sources/0": {"omits": ["notices"]},
+        "": {"omits": ["next"]}
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "get",
+          "get": {"id": "7-140453136-A-T"}
+        }
+      },
+      "expect": {
+        "/status": "absent",
+        "/query/build": "GRCh38",
+        "/sources/0/notices/0/message": "GRCh38 was assumed because no genome build was supplied.",
+        "/next/0/kind": "configure",
+        "/next/0/args": ["get", "variant", "7-140453136-A-T", "--build", "GRCh37"]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "get",
+          "get": {"id": "7-140453136-A-T", "build": "GRCh38"}
+        }
+      },
+      "expect": {
+        "/status": "absent",
+        "/query/build": "GRCh38",
+        "/sources/0": {"omits": ["notices"]},
+        "": {"omits": ["next"]}
+      }
+    }
+  ]
+}
