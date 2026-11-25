@@ -6,6 +6,44 @@ use serde_json::json;
 use std::{net::SocketAddr, process::Stdio, time::Duration};
 // Bound child initialization before a trial begins sending HTTP requests.
 const HTTP_STARTUP_GUARD: Duration = Duration::from_secs(15);
+
+pub(super) fn errors() -> super::Check {
+    use std::net::TcpListener;
+    let listener = TcpListener::bind("127.0.0.1:0").map_err(|error| error.to_string())?;
+    let busy = listener.local_addr().map_err(|error| error.to_string())?;
+    let cause = TcpListener::bind(busy)
+        .err()
+        .ok_or("a second listener bound the occupied port")?
+        .to_string();
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    for (address, code, cause) in [
+        (busy.to_string(), 5, cause.as_str()),
+        (
+            "localhost:8080".into(),
+            2,
+            "expected an IP address and port",
+        ),
+    ] {
+        let args = vec!["serve".into(), "--http".into(), address.clone()];
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .output()
+            .map_err(|error| error.to_string())?;
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        if output.status.code() != Some(code)
+            || !output.stdout.is_empty()
+            || !stderr.contains(&address)
+            || !stderr.contains(cause)
+        {
+            return Err(format!(
+                "serve --http {address}: expected exit {code} and stderr naming {address} and {cause:?}; got {} and {stderr:?}",
+                output.status
+            ));
+        }
+    }
+    Ok(())
+}
+
 impl Server {
     pub(super) fn configured_key(
         bind: &str,
