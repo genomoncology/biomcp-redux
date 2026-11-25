@@ -46,6 +46,7 @@ else:
 '''
 DOCKER = r'''import hashlib, io, json, os, pathlib, shutil, subprocess, sys, tarfile, tempfile
 args = sys.argv[1:]
+help_reply = {'result': {'commands': ['get']}}
 with open(os.environ['DOCKER_RECORD'], 'a') as stream:
     stream.write(json.dumps(args) + '\n')
 if args[0] == 'save':
@@ -119,7 +120,7 @@ elif '/bin/cat' in args:
 elif args[-2] == 'schema':
     print(json.dumps({'$id': args[-1]}))
 elif args[-1] == 'help':
-    print('{"result":{"commands":["get"]}}')
+    print(json.dumps(help_reply))
 elif '--entrypoint' in args and args[args.index('--entrypoint') + 1] == '/bin/sh':
     assert 'BIOMCP_TEST_FIXTURES=/tmp/check/fixtures' in args, args
     with tempfile.TemporaryDirectory() as root:
@@ -132,8 +133,15 @@ elif args[-1] == 'serve':
         value = json.loads(frame)
         if 'id' not in value:
             continue
-        result = ({'serverInfo': {'version': '1.0.0'}} if value['id'] == 1 else
-                  {'tools': [{'name': 'biomcp'}]} if value['id'] == 2 else {})
+        if value['method'] == 'initialize':
+            result = {'serverInfo': {'version': '1.0.0'}}
+        elif value['method'] == 'tools/list':
+            result = {'tools': [{'name': 'biomcp'}]}
+        else:
+            assert value['method'] == 'tools/call', value
+            assert value['params'] == {'name': 'biomcp', 'arguments': {'args': ['help']}}, value
+            result = {'isError': False, 'structuredContent': help_reply,
+                      'content': [{'type': 'text', 'text': json.dumps(help_reply)}]}
         print(json.dumps({'jsonrpc': '2.0', 'id': value['id'], 'result': result}))
 '''
 
