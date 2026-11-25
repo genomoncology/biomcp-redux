@@ -55,7 +55,15 @@ pub(crate) fn serve(
     root: Arc<crate::grammar::Root>,
     settings: Arc<crate::config::Settings>,
 ) -> Result<(), StartError> {
-    let address: SocketAddr = address.parse().map_err(|_| StartError::Usage)?;
+    let address: SocketAddr = address.parse().map_err(|_| {
+        crate::output::diagnostic(
+            format!(
+                "biomcp: invalid HTTP bind address {address:?}; expected an IP address and port\n"
+            )
+            .as_bytes(),
+        );
+        StartError::Usage
+    })?;
     let names = crate::config::http_hosts(&settings)
         .map_err(|error| StartError::Configuration(error.into()))?;
     let mut allowed = names
@@ -89,7 +97,12 @@ pub(crate) fn serve(
     {
         return Err(StartError::Configuration(error.clone()));
     }
-    let listener = TcpListener::bind(address).map_err(|_| StartError::Local)?;
+    let listener = TcpListener::bind(address).map_err(|error| {
+        crate::output::diagnostic(
+            format!("biomcp: could not bind HTTP listener at {address}: {error}\n").as_bytes(),
+        );
+        StartError::Local
+    })?;
     let address = listener.local_addr().map_err(|_| StartError::Local)?;
     let recovery = fetch.is_err().then(|| Arc::new(super::Recovery::new()));
     let service = Arc::new(Service {
