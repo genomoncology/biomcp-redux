@@ -10,6 +10,19 @@ pub(super) fn kind(error: Option<RequestError>) -> Option<CacheProblem> {
     }
 }
 
+pub(super) fn startup_for_action(
+    action: &biomcp_query::Action,
+    error: crate::config::StartupError,
+    encoding: super::Encoding,
+) -> std::io::Result<super::Outcome> {
+    match (action, error) {
+        (biomcp_query::Action::StoreClean, crate::config::StartupError::DamagedCache(path)) => {
+            super::maintenance::clean_without_active(&path, encoding)
+        }
+        (_, error) => startup(error, encoding),
+    }
+}
+
 pub(crate) fn startup(
     error: crate::config::StartupError,
     encoding: super::Encoding,

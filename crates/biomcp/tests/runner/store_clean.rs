@@ -56,16 +56,20 @@ fn damaged() -> Check {
     )?;
 
     let error = invoke(&env, &["--offline", "health"], "", 5)?;
-    if error["cache_path"].as_str() != path.to_str()
-        || !error["error"]["message"]
-            .as_str()
+    if error.get("cache_path").and_then(Value::as_str) != path.to_str()
+        || !error
+            .pointer("/error/message")
+            .and_then(Value::as_str)
             .is_some_and(|message| message.contains("move the file"))
     {
         return Err(format!("cache error omitted the path or remedy: {error}").into());
     }
     let result = invoke(&env, &["store", "clean"], "", 0)?;
-    if result["result"]["files"] != 1
-        || result["result"]["skipped_cache"].as_str() != path.to_str()
+    if result.pointer("/result/files").and_then(Value::as_u64) != Some(1)
+        || result
+            .pointer("/result/skipped_cache")
+            .and_then(Value::as_str)
+            != path.to_str()
         || old.exists()
         || std::fs::read(path)? != bytes
     {

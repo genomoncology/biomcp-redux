@@ -114,12 +114,7 @@ fn dispatch_using(
     };
     let transport = match transport::fetch(&parsed.globals, settings, context)? {
         Ok(fetch) => fetch,
-        Err(crate::config::StartupError::DamagedCache(path))
-            if matches!(action, Action::StoreClean) =>
-        {
-            return maintenance::clean_without_active(&path, encoding);
-        }
-        Err(error) => return local::startup(error, encoding),
+        Err(error) => return local::startup_for_action(&action, error, encoding),
     };
     let settings = transport.settings.as_deref().unwrap_or(settings);
     let outcome = execute(
