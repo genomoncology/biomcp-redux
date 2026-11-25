@@ -8,6 +8,7 @@ use biomcp_types::{
     PageInfo, ReplyData, Request, Source, StepKind, VariantGet, VariantPage, VariantResolver,
     VariantSearch,
 };
+const PROTEIN_COMPONENT: &str = myvariant::components::SNPEFF.name;
 /// Discover one source-native page; a zero result remains distinct from a failed source.
 pub(crate) fn discover(cx: &Ctx<'_>, query: &VariantSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -37,10 +38,7 @@ pub(super) fn search<'a>(
     let started = leg.remaining();
     let terms = component_terms("clinvar", query.uses_clinvar_filters());
     let source_query = query.source_query();
-    let selector_terms = component_terms(
-        myvariant::components::SNPEFF.name,
-        query.uses_protein_selector(),
-    );
+    let selector_terms = component_terms(PROTEIN_COMPONENT, query.uses_protein_selector());
     let reply = match (&terms, &selector_terms) {
         (Ok(_), Ok(_)) => fetch_page(cx, &leg, query, &source_query, *deadline),
         (Err(error), _) | (_, Err(error)) => Err(*error),
@@ -123,7 +121,7 @@ fn fetch_page(
     }
     if (query.uses_clinvar_filters() && myvariant::components::disabled(cx.fetch, "clinvar"))
         || (query.uses_protein_selector()
-            && myvariant::components::disabled(cx.fetch, myvariant::components::SNPEFF.name))
+            && myvariant::components::disabled(cx.fetch, PROTEIN_COMPONENT))
     {
         return Err(biomcp_fetch::SourceError::disabled(Source::MyVariant).into());
     }
