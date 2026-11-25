@@ -1,6 +1,7 @@
 # 1187 — linux-release-tests-in-landing-gate
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9e676fe2b0d1d4101d2eaeef6e97a7a0887a31ca
 
 Milestone: 7
 

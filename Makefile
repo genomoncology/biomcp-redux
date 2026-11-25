@@ -34,7 +34,7 @@ TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_
 .PHONY: landing-gate full-suite plain-cli-build fmt lint ratchets test audit coverage unreached
 
 landing-gate:
-	+$(PYTHON) scripts/landing_gate.py
+	+BIOMCP_LANDING_GATE=1 $(PYTHON) scripts/landing_gate.py
 
 full-suite:
 	+$(PYTHON) scripts/landing_gate.py --full
@@ -42,6 +42,9 @@ full-suite:
 # Keep these sequential even when the caller uses make -j.
 .PHONY: pre-job check-cheap proof tool-proofs changed-tool-proofs gate-stage-check
 pre-job: check-cheap
+ifeq ($(BIOMCP_LANDING_GATE),1)
+	+$(PYTHON) scripts/timed_stage.py release-tests $(MAKE) --no-print-directory release-tests
+endif
 
 LINT_GOALS = unused-dependencies check-no-default-features lint-workspace lint-tools lint-rustdoc
 
@@ -150,9 +153,8 @@ docs-check:
 	cargo test --locked -p biomcp --test cases readme/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
 	$(PYTHON) release/toolchain.py check
-	$(PYTHON) -m unittest release.test_toolchain
 	$(PYTHON) release/tools.py
-	$(PYTHON) -m unittest release.test_tools release.test_linux release.test_mutations
+	$(PYTHON) -m unittest $(RELEASE_TEST_SUITES)
 	+$(MAKE) --no-print-directory first-read-check
 	+$(MAKE) --no-print-directory rights
 	$(PYTHON) scripts/test_docs.py
@@ -166,9 +168,25 @@ docs-check:
 	$(PYTHON) scripts/test_trials.py
 	$(PYTHON) scripts/test_cache_process_load.py
 	$(PYTHON) scripts/test_nightly_live_check.py
-	$(PYTHON) -m unittest release.test_installer release.test_checks release.test_gate release.test_windows release.test_artifacts.ReleaseCommands
-	$(PYTHON) -m unittest release.test_workflow release.test_security release.test_licenses release.test_docs
-	$(PYTHON) -m unittest release.test_source_revision release.test_workflow_contracts release.test_publication release.test_promotion
+	$(PYTHON) -m unittest release.test_checks.ReviewedPublicHistory release.test_checks.ReviewedSiblingHistory release.test_security
+	$(PYTHON) -m unittest release.test_gate.InstalledCli.test_installed_cli_rows_bind_results_and_fail_on_cli_exit
+
+# Release fixtures use local files, stubs and loopback servers. Keep the
+# installed-CLI rows test in docs-check until its stub answers MCP help.
+RELEASE_TEST_SUITES = release.test_linux release.test_artifacts.ReleaseCommands \
+		release.test_checks.SmokeSchema release.test_checks.OptimizedSmoke release.test_docs \
+		release.test_gate.TimeoutConfiguration release.test_gate.InstalledCli.test_suite_limit_allows_runner_slowdown \
+		release.test_gate.InstalledCli.test_suite_limit_stops_real_hung_child \
+		release.test_gate.InstalledCli.test_archive_bootstrap_preserves_tooling_and_product_identity \
+		release.test_installer release.test_licenses release.test_mutations release.test_promotion release.test_publication \
+		release.test_section release.test_source_revision release.test_toolchain release.test_tools release.test_windows \
+		release.test_workflow release.test_workflow_contracts
+
+.PHONY: release-tests
+release-tests:
+	unset BIOMCP_TEST_ARCHIVE_BOOTSTRAP BIOMCP_TEST_CLAUDE_INSTALL BIOMCP_TEST_PINNED_INSTALLER; \
+		$(PYTHON) -m unittest $(RELEASE_TEST_SUITES)
+
 .PHONY: release-linux
 release-linux:
 	sh release/linux.sh $(CONTAINER_ARGS)
