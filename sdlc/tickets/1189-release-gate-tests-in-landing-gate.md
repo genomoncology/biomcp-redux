@@ -1,6 +1,7 @@
 # 1189 — release-gate-tests-in-landing-gate
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8849bcde4cd135b67246ccb2688f513cbe541c74
 
 Milestone: 7
 

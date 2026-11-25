@@ -169,15 +169,11 @@ docs-check:
 	$(PYTHON) scripts/test_cache_process_load.py
 	$(PYTHON) scripts/test_nightly_live_check.py
 	$(PYTHON) -m unittest release.test_checks.ReviewedPublicHistory release.test_checks.ReviewedSiblingHistory release.test_security
-	$(PYTHON) -m unittest release.test_gate.InstalledCli.test_installed_cli_rows_bind_results_and_fail_on_cli_exit
 
-# Release fixtures use local files, stubs and loopback servers. Keep the
-# installed-CLI rows test in docs-check until its stub answers MCP help.
+# Release fixtures use local files, stubs and loopback servers.
 RELEASE_TEST_SUITES = release.test_linux release.test_artifacts.ReleaseCommands \
 		release.test_checks.SmokeSchema release.test_checks.OptimizedSmoke release.test_docs \
-		release.test_gate.TimeoutConfiguration release.test_gate.InstalledCli.test_suite_limit_allows_runner_slowdown \
-		release.test_gate.InstalledCli.test_suite_limit_stops_real_hung_child \
-		release.test_gate.InstalledCli.test_archive_bootstrap_preserves_tooling_and_product_identity \
+		release.test_gate \
 		release.test_installer release.test_licenses release.test_mutations release.test_promotion release.test_publication \
 		release.test_section release.test_source_revision release.test_toolchain release.test_tools release.test_windows \
 		release.test_workflow release.test_workflow_contracts
