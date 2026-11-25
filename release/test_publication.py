@@ -71,6 +71,30 @@ class Publication(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('differs from the staged install.sh', result.stderr)
 
+    def test_pre_tag_check_reports_both_installer_hashes_on_mismatch(self):
+        from release.local_server import server
+        from release.smoke import environment
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            site = root / 'site'
+            site.mkdir()
+            candidate = root / 'install.sh'
+            expected = b'#!/bin/sh\nexit 99\n'
+            candidate.write_bytes(expected)
+            with server(site) as base:
+                command = [sys.executable, 'release/check_installer.py', str(candidate),
+                           '--url', base + '/install.sh']
+                for served in (expected, expected.replace(b'\n', b'\r\n')):
+                    with self.subTest(served=served):
+                        (site / 'install.sh').write_bytes(served)
+                        result = subprocess.run(command, env=environment(root), capture_output=True, text=True, timeout=30)
+                        if served == expected:
+                            self.assertEqual(result.returncode, 0, result.stderr)
+                        else:
+                            self.assertNotEqual(result.returncode, 0)
+                            self.assertIn('served SHA-256 ' + hashlib.sha256(served).hexdigest(), result.stderr)
+                            self.assertIn('candidate SHA-256 ' + hashlib.sha256(expected).hexdigest(), result.stderr)
+
     def test_public_installer_stops_before_running_different_bytes(self):
         from release.published import installer
         with tempfile.TemporaryDirectory() as temporary:
