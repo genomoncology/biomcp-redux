@@ -13,7 +13,7 @@ enum InputKind {
     Id(crate::VariantId),
     Hgvs(crate::HgvsText),
     Chromosome,
-    Coordinates(String),
+    Coordinates { hgvs: String, single_base: bool },
     Protein(Box<(crate::GeneSymbol, super::ProteinQuery)>),
 }
 /// Namespace selected solely from the published identifier form.
@@ -68,8 +68,8 @@ impl VariantInput {
                     .parse()
                     .map_err(|_| Error::VariantInputInvalid)?,
             )
-        } else if let Some(hgvs) = coordinates(value.as_ref()) {
-            InputKind::Coordinates(hgvs)
+        } else if let Some(coordinates) = coordinates(value.as_ref()) {
+            coordinates
         } else if let Ok(hgvs) = value.parse::<crate::HgvsText>() {
             InputKind::Hgvs(hgvs)
         } else if crate::Expression::new(crate::ExpressionSyntax::HgvsG, text.clone(), None).is_ok()
@@ -106,20 +106,33 @@ impl VariantInput {
     }
     /// Coordinates use GRCh38 unless the caller supplies another assembly.
     pub fn coordinate_form(&self) -> bool {
-        matches!(self.kind, InputKind::Coordinates(_))
+        matches!(self.kind, InputKind::Coordinates { .. })
+    }
+    /// A VCF-style coordinate with one reference base and one alternate base.
+    pub fn single_base_coordinate(&self) -> bool {
+        matches!(
+            self.kind,
+            InputKind::Coordinates {
+                single_base: true,
+                ..
+            }
+        )
     }
     /// Full VCF REF/ALT for source validation, before shared padding is removed.
     pub fn coordinate_validation(&self, build: crate::Build) -> Option<String> {
-        if !self.coordinate_form() {
+        if !matches!(
+            self.kind,
+            InputKind::Coordinates {
+                single_base: false,
+                ..
+            }
+        ) {
             return None;
         }
         let parts: Vec<_> = self.as_str().split('-').collect();
         let [chromosome, position, reference, alternate] = parts.as_slice() else {
             return None;
         };
-        if reference.len() == 1 && alternate.len() == 1 {
-            return None;
-        }
         let chromosome = chromosome.strip_prefix("chr").unwrap_or(chromosome);
         let chromosome: biodata::Chromosome = (if chromosome == "M" { "MT" } else { chromosome })
             .parse()
@@ -174,7 +187,7 @@ impl VariantInput {
     }
     /// Native resolver input omits a checked parenthetical gene label.
     pub fn native_hgvs(&self) -> Cow<'_, str> {
-        if let InputKind::Coordinates(hgvs) = &self.kind {
+        if let InputKind::Coordinates { hgvs, .. } = &self.kind {
             return Cow::Borrowed(hgvs);
         }
         if let Some(body) = self.as_str().strip_prefix("chrM:") {
@@ -213,11 +226,11 @@ impl VariantInput {
             InputKind::Id(_) => VariantNamespace::Unsupported,
             InputKind::Hgvs(_) => VariantNamespace::Hgvs,
             InputKind::Protein(_) => VariantNamespace::Protein,
-            InputKind::Chromosome | InputKind::Coordinates(_) => VariantNamespace::Chromosome,
+            InputKind::Chromosome | InputKind::Coordinates { .. } => VariantNamespace::Chromosome,
         }
     }
 }
-fn coordinates(value: &str) -> Option<String> {
+fn coordinates(value: &str) -> Option<InputKind> {
     let mut parts = value.split('-');
     let chromosome = parts
         .next()?
@@ -226,11 +239,12 @@ fn coordinates(value: &str) -> Option<String> {
     let chromosome = if chromosome == "M" { "MT" } else { chromosome };
     let _: biodata::Chromosome = chromosome.parse().ok()?;
     let position = parts.next()?;
+    let start: u64 = position.parse().ok()?;
     let reference = parts.next()?;
     let alternate = parts.next()?;
     if parts.next().is_some()
         || position.starts_with('0')
-        || position.parse::<u64>().ok()? == 0
+        || start == 0
         || reference.is_empty()
         || alternate.is_empty()
         || !reference
@@ -240,7 +254,12 @@ fn coordinates(value: &str) -> Option<String> {
     {
         return None;
     }
-    let change = coordinate_change(position.parse().ok()?, reference, alternate)?;
+    let single_base = reference.len() == 1 && alternate.len() == 1;
+    let change = if single_base {
+        format!("{start}{reference}>{alternate}")
+    } else {
+        coordinate_change(start, reference, alternate)?
+    };
     let expression = format!("chr{chromosome}:g.{change}");
     crate::Expression::new(
         crate::ExpressionSyntax::HgvsG,
@@ -248,14 +267,14 @@ fn coordinates(value: &str) -> Option<String> {
         None,
     )
     .ok()?;
-    Some(expression)
+    Some(InputKind::Coordinates {
+        hgvs: expression,
+        single_base,
+    })
 }
 // VCF 4.4 REF/ALT padding and HGVS DNA deletion/insertion/delins grammar.
 // Source validation retains the original REF, including shared bases.
 fn coordinate_change(position: u64, reference: &str, alternate: &str) -> Option<String> {
-    if reference.len() == 1 && alternate.len() == 1 {
-        return Some(format!("{position}{reference}>{alternate}"));
-    }
     let original_reference = reference;
     let original_alternate = alternate;
     let mut start = position;

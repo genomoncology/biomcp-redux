@@ -94,6 +94,10 @@ struct Fields<R: ResolverChoice = VariantResolver> {
         skip_serializing_if = "Option::is_none"
     )]
     build: Option<Build>,
+    // Preserve omission during execution while serializing the effective coordinate build.
+    #[serde(skip)]
+    #[cfg_attr(feature = "schema", schemars(skip))]
+    build_defaulted: bool,
     /// Candidate rows per page.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -154,6 +158,7 @@ impl VariantGet {
             drug: v.drug,
             resolver: VariantResolver::answered(outcome),
             build: v.build,
+            build_defaulted: false,
             limit: v.limit,
             offset: v.offset,
         })
@@ -230,7 +235,8 @@ impl TryFrom<Fields> for VariantGet {
         }
         // OncoKB's key, build and tumor checks run with the section (1004): a missing key
         // skips it like any licensed section, and missing context names its help step.
-        let mut query = Self::new(fields.input, fields.resolver, fields.build)?;
+        let build = fields.build.filter(|_| !fields.build_defaulted);
+        let mut query = Self::new(fields.input, fields.resolver, build)?;
         query.0.tumor_type = fields.tumor_type;
         query.0.civic_profile = fields.civic_profile;
         query.0.civic_kind = fields.civic_kind;
@@ -256,7 +262,8 @@ impl VariantGet {
         resolver: VariantResolver,
         build: Option<Build>,
     ) -> Result<Self, super::gene::QueryInvalid> {
-        let build = build.or_else(|| input.coordinate_form().then_some(Self::DEFAULT_BUILD));
+        let build_defaulted = build.is_none() && input.coordinate_form();
+        let build = build.or_else(|| build_defaulted.then_some(Self::DEFAULT_BUILD));
         if input.namespace() == VariantNamespace::Unsupported {
             return Err(super::gene::QueryInvalid::new(&["input"]));
         }
@@ -287,6 +294,7 @@ impl VariantGet {
             drug: None,
             resolver,
             build,
+            build_defaulted,
             limit: default_limit(),
             offset: 0,
         }))
@@ -386,6 +394,7 @@ impl VariantGet {
     pub fn for_candidate(&self, input: VariantInput) -> Result<Self, super::gene::QueryInvalid> {
         let mut fields = self.0.clone();
         fields.input = input;
+        fields.build_defaulted = false;
         fields.offset = 0;
         fields.try_into()
     }
@@ -393,6 +402,7 @@ impl VariantGet {
     pub fn with_build(&self, build: Build) -> Result<Self, super::gene::QueryInvalid> {
         let mut fields = self.0.clone();
         fields.build = Some(build);
+        fields.build_defaulted = false;
         fields.try_into()
     }
     /// Named section rows per page.
@@ -443,11 +453,16 @@ impl VariantGet {
     /// Echo the assembly selected for a MyVariant identity request.
     pub fn with_myvariant_build(mut self) -> Self {
         self.0.build = Some(self.myvariant_build());
+        self.0.build_defaulted = false;
         self
     }
-    /// Caller assembly; never a default.
+    /// Assembly selected by the caller or defaulted for coordinate input.
     pub fn build(&self) -> Option<Build> {
         self.0.build
+    }
+    /// Whether BioMCP selected the assembly for the coordinate input.
+    pub fn build_defaulted(&self) -> bool {
+        self.0.build_defaulted
     }
 }
 impl crate::Paged for VariantGet {
