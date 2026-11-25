@@ -56,12 +56,9 @@ pub(crate) fn serve(
     settings: Arc<crate::config::Settings>,
 ) -> Result<(), StartError> {
     let address: SocketAddr = address.parse().map_err(|_| {
-        crate::output::diagnostic(
-            format!(
-                "biomcp: invalid HTTP bind address {address:?}; expected an IP address and port\n"
-            )
-            .as_bytes(),
-        );
+        let cause = "expected an IP address and port";
+        let message = format!("biomcp: invalid HTTP bind address {address:?}; {cause}\n");
+        crate::output::diagnostic(message.as_bytes());
         StartError::Usage
     })?;
     let names = crate::config::http_hosts(&settings)
