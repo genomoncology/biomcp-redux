@@ -1,6 +1,7 @@
 # 1186 — plugin-release-stub-text-part
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5cf8460edd4ad36d9222058093ee50d04aee1829
 
 Milestone: 7
 
