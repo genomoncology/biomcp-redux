@@ -427,6 +427,6 @@ pub(super) fn rejection(
         id,
         &super::research::Completed { outcome },
         modern,
-        (context.globals, context.settings),
+        context.settings,
     ))
 }
