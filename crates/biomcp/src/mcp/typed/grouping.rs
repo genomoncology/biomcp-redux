@@ -73,7 +73,7 @@ pub(super) fn catalog(
             entity(tool, &commands, output_schema, &excluded, enum_limit).transpose()
         })
         .collect::<io::Result<Vec<_>>>()?;
-    if super::saved::offered(context.globals) {
+    if super::saved::offered(context.globals, read_only) {
         tools.push(super::saved::tool(output_schema)?);
     }
     tools.push(super::help::tool(output_schema)?);

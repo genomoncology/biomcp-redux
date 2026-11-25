@@ -29,6 +29,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-http/local-health-and-discovery", || {
             lifecycle().map_err(Into::into)
         }),
+        transcript_trial("mcp-http/start-errors", || {
+            start::errors().map_err(Into::into)
+        }),
         transcript_trial(
             "mcp-http/revisions-parity-and-concurrent-identities",
             || protocols().map_err(Into::into),
