@@ -1,5 +1,5 @@
 //! Cleanup is exercised through the isolated real command and shared SQLite file.
-use super::launch::Environment;
+use super::{key_registration::invoke, launch::Environment};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use rusqlite::{Connection, params};
@@ -50,13 +50,16 @@ fn damaged() -> Check {
     std::fs::write(&path, bytes)?;
     let old = directory.join("cache-1-2.sqlite");
     Connection::open(&old)?.execute_batch(
-        "CREATE TABLE meta(owner TEXT,version INTEGER); INSERT INTO meta VALUES ('biomcp-query',4); CREATE TABLE pool(id TEXT);",
+        "CREATE TABLE meta(owner TEXT,version INTEGER);
+         INSERT INTO meta VALUES ('biomcp-query',4);
+         CREATE TABLE pool(id TEXT);",
     )?;
 
-    let invoke = super::key_registration::invoke;
     let error = invoke(&env, &["--offline", "health"], "", 5)?;
     if error["cache_path"].as_str() != path.to_str()
-        || !error["error"]["message"].as_str().is_some_and(|message| message.contains("move the file"))
+        || !error["error"]["message"]
+            .as_str()
+            .is_some_and(|message| message.contains("move the file"))
     {
         return Err(format!("cache error omitted the path or remedy: {error}").into());
     }
@@ -66,7 +69,10 @@ fn damaged() -> Check {
         || old.exists()
         || std::fs::read(path)? != bytes
     {
-        return Err(format!("cleanup did not skip the damaged file and remove the obsolete file: {result}").into());
+        return Err(format!(
+            "cleanup did not skip the damaged file and remove the obsolete file: {result}"
+        )
+        .into());
     }
     Ok(())
 }

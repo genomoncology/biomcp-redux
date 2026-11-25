@@ -66,6 +66,9 @@ impl std::fmt::Debug for ReplayCache {
     }
 }
 impl ReplayCache {
+    /// The SQLite file inside an explicitly owned case-cache directory.
+    pub const DATABASE_FILE: &str = "replay.sqlite";
+
     /// Allocate an isolated cache whose files live until its last owner drops.
     pub fn temporary() -> Result<Self, CacheError> {
         Self::temporary_with_owners(&[])
@@ -74,7 +77,7 @@ impl ReplayCache {
     pub fn temporary_with_owners(owners: &[crate::SchemaOwner]) -> Result<Self, CacheError> {
         let directory = tempfile::tempdir().map_err(|_| CacheError::Filesystem)?;
         let cache = Arc::new(Cache::open_with_owners(
-            &directory.path().join("replay.sqlite"),
+            &directory.path().join(Self::DATABASE_FILE),
             owners,
         )?);
         Ok(Self(Arc::new(CaseCache {
@@ -102,7 +105,7 @@ impl ReplayCache {
             return Err(CacheError::Filesystem);
         }
         let cache = Arc::new(Cache::open_with_owners(
-            &path.join("replay.sqlite"),
+            &path.join(Self::DATABASE_FILE),
             owners,
         )?);
         Ok(Self(Arc::new(CaseCache {
@@ -124,7 +127,7 @@ impl ReplayCache {
             let name = entry.file_name();
             if ![
                 ".biomcp-case",
-                "replay.sqlite",
+                Self::DATABASE_FILE,
                 "replay.sqlite-wal",
                 "replay.sqlite-shm",
                 "replay.open-lock",
@@ -141,12 +144,12 @@ impl ReplayCache {
         }
         if fs::read(path.join(".biomcp-case")).map_err(|_| CacheError::Version)?
             != b"biomcp.replay-case/1\n"
-            || !path.join("replay.sqlite").is_file()
+            || !path.join(Self::DATABASE_FILE).is_file()
         {
             return Err(CacheError::Version);
         }
         let cache = Arc::new(Cache::open_with_owners(
-            &path.join("replay.sqlite"),
+            &path.join(Self::DATABASE_FILE),
             owners,
         )?);
         Ok(Self(Arc::new(CaseCache {

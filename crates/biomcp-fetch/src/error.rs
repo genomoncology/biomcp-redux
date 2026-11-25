@@ -107,6 +107,8 @@ impl std::error::Error for FetchError {}
 pub enum CacheError {
     /// A SQLite operation failed.
     Database,
+    /// SQLite identified the cache file as damaged or unreadable as a database.
+    Corrupt,
     /// Cache JSON could not be encoded or decoded.
     Encoding,
     /// A cache filesystem operation failed.
@@ -126,6 +128,7 @@ impl fmt::Display for CacheError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
             Self::Database => "fetch.cache_database",
+            Self::Corrupt => "fetch.cache_corrupt",
             Self::Encoding => "fetch.cache_encoding",
             Self::Filesystem => "fetch.cache_filesystem",
             Self::Internal => "fetch.cache_internal",
@@ -141,7 +144,7 @@ impl From<CacheError> for biomcp_types::CacheProblem {
     fn from(error: CacheError) -> Self {
         match error {
             CacheError::Busy => Self::Busy,
-            CacheError::Database => Self::Database,
+            CacheError::Database | CacheError::Corrupt => Self::Database,
             CacheError::Encoding => Self::Encoding,
             CacheError::Filesystem => Self::Filesystem,
             CacheError::Internal => Self::Internal,

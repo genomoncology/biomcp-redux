@@ -20,6 +20,18 @@ pub(crate) fn startup(
             envelope.local_error = Some(error.into());
             envelope
         }
+        crate::config::StartupError::DamagedCache(path) => {
+            let mut envelope = if matches!(encoding, super::Encoding::Mcp) {
+                ErrorEnvelope::local()
+            } else {
+                let mut envelope =
+                    ErrorEnvelope::local_message(biomcp_types::ErrorMessage::DamagedCache);
+                envelope.cache_path = Some(path.to_string_lossy().into_owned());
+                envelope
+            };
+            envelope.local_error = Some(CacheProblem::Database);
+            envelope
+        }
         // A --record folder that already holds a capture says so instead of a bare failure (0954).
         crate::config::StartupError::Recording(error) => {
             let mut envelope = ErrorEnvelope::local();
