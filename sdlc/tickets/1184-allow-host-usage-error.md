@@ -1,6 +1,7 @@
 # 1184 — allow-host-usage-error
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8983e311d40e553e5217922975030693a203f822
 
 Milestone: 7
 
