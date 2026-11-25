@@ -92,18 +92,13 @@ pub(crate) fn hosted_max_use(
         .unwrap_or_default())
 }
 
-/// Hosted servers keep both copies until every client hosting serves is checked
-/// (sdlc/tickets/0587-mcp-reply-once.md, 0837-mcp-replies-are-sent-once.md).
-pub(crate) fn mcp_reply_form(
-    globals: &crate::grammar::Globals,
-    settings: &Settings,
-) -> Option<ReplyForm> {
+pub(crate) fn mcp_reply_form(settings: &Settings) -> ReplyForm {
     settings
         .as_ref()
         .ok()
         .and_then(Option::as_ref)
         .and_then(|file| file.mcp_reply_form)
-        .or(globals.hosted.then_some(ReplyForm::Both))
+        .unwrap_or(ReplyForm::Both)
 }
 
 pub(crate) const DEFAULT_TYPED_ENUM_LIMIT: usize = 30;

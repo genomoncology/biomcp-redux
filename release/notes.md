@@ -226,7 +226,7 @@ The source credential names `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_A
 - `drug_label_bytes`: how much label text one `--label-section` reply returns, from 6144 through 32768 bytes.
 - `transcript_fit_seconds`: how long `variant normalize` waits for each check of which transcript a mismatched reference base fits.
 - `mcp_queue_wait_seconds` and `mcp_queue_max_calls`: how long, and on stdio how many, MCP calls over the call limit wait for a turn, instead of being refused at once. `0` turns waiting off. Plain `serve --http` now queues too, and its `http_max_connections` defaults to twice its call limit. A call that waits too long gets `error.data.retry_after_seconds`.
-- `mcp_reply_form` accepts `once`, the new default for local servers: each reply carries its JSON one time, and a typed reply has no summary line. Hosted servers keep `both`.
+- `mcp_reply_form` defaults to `both` in local and hosted servers, so older clients can read the JSON as text. Set it to `once` to send just the structured JSON.
 - Source pacing defaults: openFDA allows 4 requests in flight at its unchanged rate, and keyless NCBI E-utilities calls pace at 5 requests per 2 seconds.
 
 ## Output migration
