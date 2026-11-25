@@ -38,8 +38,8 @@ Mount a Docker named volume at the container's `XDG_CACHE_HOME` path to keep the
 | --- | --- | --- | --- |
 | `gene` | Genes, with pharmacogenomics and GWAS views | `search`, `get`, `pgx`, `pgx_get`, `gwas` | `{"action":"get","get":{"id":"BRAF"}}` |
 | `variant` | Variants, with normalization, source assertions, population frequency, recurrence and GWAS views | `search`, `get`, `normalize`, `assertions`, `population`, `recurrence`, `gwas`, `gwas_get` | `{"action":"get","get":{"id":"rs113488022"}}` |
-| `disease` | Diseases, with a GWAS view | `search`, `get`, `gwas` | `{"action":"get","get":{"id":"melanoma"}}` |
-| `drug` | Drugs, with a pharmacogenomics view | `search`, `get`, `pgx_get` | `{"action":"get","get":{"id":"imatinib","section":"approvals"}}` |
+| `disease` | Diseases such as NCIT:C3224 (melanoma), with a GWAS view | `search`, `get`, `gwas` | `{"action":"get","get":{"id":"NCIT:C3224","source":"ols"}}` |
+| `drug` | Drugs, with a pharmacogenomics view | `search`, `get`, `pgx_get` | `{"action":"get","get":{"id":"NDA021588","section":"approvals"}}` (Gleevec, imatinib) |
 | `trial` | ClinicalTrials.gov trials, with organization and biomarker helpers | `search`, `get`, `document`, `organization_search`, `biomarker_search`, `biomarker_get` | `{"action":"search","search":{"condition":["melanoma"]}}` |
 | `article` | Articles, with full text, PDFs, supplements, citation walks and author helpers | `search`, `get`, `text`, `pdf`, `supplement`, `citations`, `references`, `citation_evidence`, `recommendations`, `author_search`, `author_get`, `author_papers` | `{"action":"search","search":{"query":"AKT1 E17K"}}` |
 | `protein` | Proteins, with features, isoforms, domains, structures, sequence and complexes | `search`, `get`, `features`, `isoforms`, `domains`, `complexes`, `complex_members`, `structures`, `sequence` | `{"action":"get","get":{"id":"P04637"}}` |

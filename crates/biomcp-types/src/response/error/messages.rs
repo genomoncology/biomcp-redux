@@ -90,6 +90,7 @@ singleton! {
  SavedAccount => "saved work in hosted mode needs a signed-in account; sign in to save searches, lists and notes",
  HostedKey => "add the source key in your account settings", UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
+ DamagedCache => "the cache file is damaged. Stop BioMCP and move the file and its WAL and SHM sidecars aside before retrying.",
 
         GwasSearchArguments => "use: search gwas with --gene, --trait, --trait-id, --variant, --study or --pubmed; \
             --include-child-traits requires --trait-id; --extended-geneset requires --gene; use exact GCST \

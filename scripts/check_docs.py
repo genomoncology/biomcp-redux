@@ -8,6 +8,7 @@ import json
 import shlex
 from pathlib import Path
 
+import configuration_examples
 from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, rows, table, upgrade
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -264,12 +265,13 @@ def schema_errors(schema, value, root, path="$"):
 
 
 def validate_examples(root, executable):
-    """Each example must pass its tool's input schema, as 0758 requires of tool descriptions."""
+    """Check the served schemas and run the configuration guide examples."""
     tools = catalog(executable)
     if set(tools) != ENTITY_TOOLS | SHARED_TOOLS:
         raise ValueError(f"typed server offers {sorted(tools)}, not the 13 entity tools and the shared tools")
     seen = set()
-    for where, tool, call in example_calls(root):
+    examples = example_calls(root)
+    for where, tool, call in examples:
         schema = tools[tool]["inputSchema"]
         # The served schemas take action as any string, so check it names one of the tool's action objects.
         if call["action"] == "action" or call["action"] not in schema.get("properties", {}):
@@ -283,6 +285,8 @@ def validate_examples(root, executable):
     for old, tool, action in mapping(root):
         if tool in tools and f'"{action}"' not in json.dumps(tools[tool]["inputSchema"]) and action != "none":
             raise ValueError(f"release notes map {old} to {tool} {action}, which the server does not offer")
+
+    configuration_examples.check(root, executable, examples, ENTITY_TOOLS)
 
 
 def commercial_setup(root):
@@ -398,7 +402,7 @@ def check(root, executable=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
-    parser.add_argument("--executable", type=Path, help="biomcp executable; validates example calls against its tool schemas")
+    parser.add_argument("--executable", type=Path, help="biomcp executable for tool schemas and configuration example replays")
     args = parser.parse_args()
     try:
         check(args.root, args.executable)

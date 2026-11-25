@@ -1,6 +1,7 @@
 # 1178 — pre-tag-installer-match-check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b196995b32f0ae4f42c61356622a005eb9d2fcb3
 
 Milestone: 7
 

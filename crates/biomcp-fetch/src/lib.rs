@@ -16,6 +16,7 @@ mod cache_access;
 mod trial_cursor;
 pub use trial_cursor::TrialCursorKey;
 mod cleanup;
+pub use cleanup::clean_incompatible_files;
 mod config_default;
 mod sqlite_diagnostic;
 mod store_size;

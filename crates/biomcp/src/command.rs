@@ -114,7 +114,7 @@ fn dispatch_using(
     };
     let transport = match transport::fetch(&parsed.globals, settings, context)? {
         Ok(fetch) => fetch,
-        Err(error) => return local::startup(error, encoding),
+        Err(error) => return local::startup_for_action(&action, error, encoding),
     };
     let settings = transport.settings.as_deref().unwrap_or(settings);
     let outcome = execute(
