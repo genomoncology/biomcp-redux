@@ -122,7 +122,7 @@ pub struct VariantSearch(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
+    /// Checked gene symbol for a SnpEff substitution or ClinVar coding/synonymous selector.
     #[serde(
         default,
         deserialize_with = "present",
@@ -363,8 +363,8 @@ impl VariantSearch {
     pub fn raw_query(&self) -> bool {
         self.0.query.is_some()
     }
-    /// Whether the declared selector searches dbNSFP's gene and protein fields.
-    pub fn uses_dbnsfp_selector(&self) -> bool {
+    /// Whether the declared selector searches SnpEff's gene and protein fields.
+    pub fn uses_protein_selector(&self) -> bool {
         self.0.protein.as_ref().is_some_and(|p| !p.is_synonymous())
     }
     /// Whether the caller selected native ClinVar coding or synonymous notation.
@@ -388,7 +388,7 @@ impl VariantSearch {
                 .as_ref()
                 .is_some_and(|p| p.forms().iter().any(|form| form == notation))
     }
-    /// Exact declared source query; no alternative notation or free-text guessing.
+    /// Exact source query, using checked protein spellings for SnpEff substitutions.
     pub fn source_query(&self) -> String {
         if let Some(q) = &self.0.query {
             return q.to_string();
@@ -401,29 +401,9 @@ impl VariantSearch {
         {
             return format!("{gene}[GENE] AND \"{protein}\"[VRNM]");
         }
-        let mut term = if let Some(region) = &self.0.region {
-            region.to_string()
-        } else {
-            match (&self.0.gene, &self.0.protein) {
-                (Some(g), Some(p)) => format!(
-                    "dbnsfp.genename:{} AND dbnsfp.hgvsp:\"p.{}\"",
-                    literal(g.as_str()),
-                    literal(p.as_str().strip_prefix("p.").unwrap_or(p.as_str()))
-                ),
-                _ => String::new(),
-            }
-        };
-        self.0.append_filters(&mut term);
-        term
-    }
-    /// Open SnpEff selector using the same literal protein forms as transcript matching.
-    /// Other selectors retain their ordinary source query.
-    pub fn snpeff_source_query(&self) -> String {
-        if !self.uses_dbnsfp_selector() {
-            return self.source_query();
-        }
-        let mut term = match (&self.0.gene, &self.0.protein) {
-            (Some(gene), Some(protein)) => {
+        let mut term = match (&self.0.region, &self.0.gene, &self.0.protein) {
+            (Some(region), _, _) => region.to_string(),
+            (_, Some(gene), Some(protein)) => {
                 let forms = protein
                     .forms()
                     .map(|p| format!("\"{}\"", literal(&p)))

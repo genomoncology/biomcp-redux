@@ -1,0 +1,41 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=snpeff.ann.genename%3ACHEK2%20AND%20snpeff.ann.hgvs_p%3A%28%22R117G%22%20OR%20%22Arg117Gly%22%20OR%20%22p.R117G%22%20OR%20%22p.Arg117Gly%22%29&size=10&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann&assembly=hg19",
+  "exchanges": [
+    {
+      "fetched": 1795577543,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 247,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 8,
+          "total": 1,
+          "max_score": 29.77252,
+          "hits": [
+            {
+              "_id": "chr22:g.29121326T>C",
+              "chrom": "22",
+              "hg19": {
+                "end": 29121326,
+                "start": 29121326
+              },
+              "dbsnp": {
+                "rsid": "rs28909982",
+                "gene": {
+                  "symbol": "CHEK2"
+                }
+              },
+              "clinvar": {
+                "variant_id": 128071
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
