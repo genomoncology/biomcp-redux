@@ -7,6 +7,8 @@ mod source_age;
 
 #[path = "label_priority.rs"]
 mod label_priority;
+#[path = "mcp_local_reply.rs"]
+mod local_reply;
 #[path = "pool_parity.rs"]
 mod pool_parity;
 #[path = "recent_parity.rs"]
@@ -108,6 +110,7 @@ pub(super) fn trials() -> Vec<Trial> {
         trials.extend(typed::proof_trials());
     }
     trials.extend(reply_form::trials());
+    trials.extend(local_reply::trials());
     trials.extend(reply_size::trials());
     trials.extend(super::store_clean::trials());
     trials.extend(super::saved_files::trials());

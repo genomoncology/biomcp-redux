@@ -326,12 +326,7 @@ impl Server {
             return Ok(None);
         }
         Ok(Some(match outcome {
-            Ok(outcome) => typed::tool_result(
-                call.id,
-                &outcome,
-                call.modern,
-                (&self.globals, &*self.settings),
-            ),
+            Ok(outcome) => typed::tool_result(call.id, &outcome, call.modern, &self.settings),
             Err(_) => protocol::error(call.id, -32603, "Internal error"),
         }))
     }

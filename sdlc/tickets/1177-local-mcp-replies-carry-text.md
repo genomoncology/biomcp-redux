@@ -1,6 +1,7 @@
 # 1177 — local-mcp-replies-carry-text
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6c9fe302d9c6d7611ffb2b2dcc87b1d84f97c3da
 
 Milestone: 7
 

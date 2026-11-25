@@ -1,4 +1,4 @@
-//! Ten recorded calls measure the default MCP reply: its JSON once, and no server path.
+//! Ten recorded calls measure default and explicit one-copy MCP replies and check for server paths.
 use super::super::{
     case_data, launch,
     launch::Environment,
@@ -32,24 +32,27 @@ pub(super) fn trials() -> Vec<Trial> {
 
 fn check() -> Result<(), String> {
     for mode in ["single", "typed"] {
-        let mut totals = (0, 0);
-        for name in CASES {
-            let (wire, model) = measure(name, mode)?;
-            totals = (totals.0 + wire, totals.1 + model);
+        for form in [None, Some("once")] {
+            let mut totals = (0, 0);
+            for name in CASES {
+                let (wire, model) = measure(name, mode, form)?;
+                totals = (totals.0 + wire, totals.1 + model);
+            }
+            writeln!(
+                std::io::stdout(),
+                "MCP_REPLY_SIZE mode={mode} form={} case=total wire_bytes={} json_copies_bytes={}",
+                form.unwrap_or("default"),
+                totals.0,
+                totals.1
+            )
+            .map_err(|e| e.to_string())?;
         }
-        writeln!(
-            std::io::stdout(),
-            "MCP_REPLY_SIZE mode={mode} case=total wire_bytes={} json_copies_bytes={}",
-            totals.0,
-            totals.1
-        )
-        .map_err(|e| e.to_string())?;
     }
     Ok(())
 }
 
 /// Returns the result's bytes and the bytes of every JSON copy and summary it carries.
-fn measure(name: &str, mode: &str) -> Result<(usize, usize), String> {
+fn measure(name: &str, mode: &str, form: Option<&str>) -> Result<(usize, usize), String> {
     let case = case_data::read_case(&launch::fixtures().join("cases").join(name))?;
     let args = case
         .steps
@@ -58,10 +61,11 @@ fn measure(name: &str, mode: &str) -> Result<(usize, usize), String> {
         .ok_or_else(|| format!("{name}: first step runs nothing"))?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let mut config = launch::case_config(&case);
-    config
-        .as_object_mut()
-        .ok_or("case config object")?
-        .insert("mcp_tool_mode".into(), json!(mode));
+    let fields = config.as_object_mut().ok_or("case config object")?;
+    fields.insert("mcp_tool_mode".into(), json!(mode));
+    if let Some(form) = form {
+        fields.insert("mcp_reply_form".into(), json!(form));
+    }
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
     let config_path = env.root().join("config/biomcp/config.json");
@@ -92,11 +96,12 @@ fn measure(name: &str, mode: &str) -> Result<(usize, usize), String> {
     let path = server_path(result, &config_path.to_string_lossy());
     writeln!(
         std::io::stdout(),
-        "MCP_REPLY_SIZE mode={mode} case={name} wire_bytes={wire} text_bytes={text} \
-         structured_bytes={structured} server_path_in_next={path}"
+        "MCP_REPLY_SIZE mode={mode} form={} case={name} wire_bytes={wire} text_bytes={text} \
+         structured_bytes={structured} server_path_in_next={path}",
+        form.unwrap_or("default")
     )
     .map_err(|e| e.to_string())?;
-    super::reply_form::check_content(result, None).map_err(|e| format!("{name}: {e}"))?;
+    super::reply_form::check_content(result, form).map_err(|e| format!("{name}: {e}"))?;
     if path {
         return Err(format!(
             "{name}: a next step names the server's configuration file"
