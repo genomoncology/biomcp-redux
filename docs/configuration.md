@@ -41,7 +41,7 @@ Mount a Docker named volume at the container's `XDG_CACHE_HOME` path to keep the
 | `disease` | Diseases such as NCIT:C3224 (melanoma), with a GWAS view | `search`, `get`, `gwas` | `{"action":"get","get":{"id":"NCIT:C3224","source":"ols"}}` |
 | `drug` | Drugs, with a pharmacogenomics view | `search`, `get`, `pgx_get` | `{"action":"get","get":{"id":"NDA021588","section":"approvals"}}` (Gleevec, imatinib) |
 | `trial` | ClinicalTrials.gov trials, with organization and biomarker helpers | `search`, `get`, `document`, `organization_search`, `biomarker_search`, `biomarker_get` | `{"action":"search","search":{"condition":["melanoma"]}}` |
-| `article` | Articles, with full text, PDFs, supplements, citation walks and author helpers | `search`, `get`, `text`, `pdf`, `supplement`, `citations`, `references`, `citation_evidence`, `recommendations`, `author_search`, `author_get`, `author_papers` | `{"action":"search","search":{"query":"AKT1 E17K"}}` |
+| `article` | Articles, with full text, PDFs, supplements, citation walks and author helpers | `search`, `get`, `text`, `pdf`, `supplement`, `citations`, `references`, `citation_evidence`, `recommendations`, `author_search`, `author_get`, `author_papers`, `grant_search` | `{"action":"search","search":{"query":"AKT1 E17K"}}` |
 | `protein` | Proteins, with features, isoforms, domains, structures, sequence and complexes | `search`, `get`, `features`, `isoforms`, `domains`, `complexes`, `complex_members`, `structures`, `sequence` | `{"action":"get","get":{"id":"P04637"}}` |
 | `pathway` | Pathways, with their genes and events | `search`, `get`, `genes`, `events` | `{"action":"search","search":{"query":"MAPK"}}` |
 | `phenotype` | Phenotype terms | `search`, `get` | `{"action":"search","search":{"query":"seizure"}}` |
@@ -75,7 +75,7 @@ Typed mode includes compact output schemas for entity tools, `help` and `saved` 
 
 `mcp_typed_tool_limit` and `mcp_typed_definition_bytes` set positive ceilings on the typed catalog. The defaults are 20 tools and 192 KiB of compact UTF-8 definitions. Setting `"mcp_typed_output_schema": false` uses a 128 KiB byte ceiling. An explicit `mcp_typed_definition_bytes` value overrides either default. These ceilings apply to the full typed list. [Typed budget configuration](../crates/biomcp/src/config/mcp.rs)
 
-The 18-tool default typed `tools/list` catalog measured **190,876 bytes** over stdio. This measures the `tools` array, including descriptions, annotations and output schemas. The JSON-RPC envelope and server instructions are outside that count. A catalog exceeding either ceiling returns an error naming the required size and configured limits.
+The 18-tool default typed `tools/list` catalog measured **193,718 bytes** over stdio. This measures the `tools` array, including descriptions, annotations and output schemas. The JSON-RPC envelope and server instructions are outside that count. A catalog exceeding either ceiling returns an error naming the required size and configured limits.
 
 ## Compact gene constraint batches
 

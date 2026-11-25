@@ -1,6 +1,7 @@
 # 1185 — configuration-guide-grant-search-and-size
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ff176e1e7fdda9d3bb2fcfbbc23b81f42391e7e1
 
 Milestone: 7
 
