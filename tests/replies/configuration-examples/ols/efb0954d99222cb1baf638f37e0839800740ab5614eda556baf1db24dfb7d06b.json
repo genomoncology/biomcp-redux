@@ -1,0 +1,30 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/ontologies/ncit/terms?obo_id=NCIT%3AC3224",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_embedded": {
+            "terms": [
+              {
+                "iri": "http://purl.obolibrary.org/obo/NCIT_C3224",
+                "label": "Melanoma",
+                "ontology_name": "ncit",
+                "ontology_prefix": "NCIT",
+                "short_form": "NCIT_C3224",
+                "obo_id": "NCIT:C3224"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
