@@ -13,6 +13,8 @@ mod pool_parity;
 pub(super) mod recent_parity;
 #[path = "mcp_reply_form.rs"]
 mod reply_form;
+#[path = "mcp_local_reply.rs"]
+mod local_reply;
 #[path = "mcp_reply_size.rs"]
 mod reply_size;
 #[path = "protocol_schemas.rs"]
@@ -108,6 +110,7 @@ pub(super) fn trials() -> Vec<Trial> {
         trials.extend(typed::proof_trials());
     }
     trials.extend(reply_form::trials());
+    trials.extend(local_reply::trials());
     trials.extend(reply_size::trials());
     trials.extend(super::store_clean::trials());
     trials.extend(super::saved_files::trials());
