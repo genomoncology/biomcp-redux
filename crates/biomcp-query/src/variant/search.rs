@@ -37,8 +37,10 @@ pub(super) fn search<'a>(
     let started = leg.remaining();
     let terms = component_terms("clinvar", query.uses_clinvar_filters());
     let source_query = query.source_query();
-    let selector_terms =
-        component_terms(myvariant::components::SNPEFF.name, query.uses_protein_selector());
+    let selector_terms = component_terms(
+        myvariant::components::SNPEFF.name,
+        query.uses_protein_selector(),
+    );
     let reply = match (&terms, &selector_terms) {
         (Ok(_), Ok(_)) => fetch_page(cx, &leg, query, &source_query, *deadline),
         (Err(error), _) | (_, Err(error)) => Err(*error),
