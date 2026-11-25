@@ -1,5 +1,5 @@
 //! Cleanup is exercised through the isolated real command and shared SQLite file.
-use super::launch::Environment;
+use super::{key_registration::invoke, launch::Environment};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use rusqlite::{Connection, params};
@@ -11,6 +11,9 @@ pub(super) fn trials() -> Vec<Trial> {
     vec![
         transcript_trial("store-clean/expired-owned-state", || {
             clean().map_err(|e| e.to_string().into())
+        }),
+        transcript_trial("store-clean/damaged-active-cache", || {
+            damaged().map_err(|e| e.to_string().into())
         }),
         transcript_trial("store-clean/publish-preserves-live-reader", || {
             publish().map_err(|e| e.to_string().into())
@@ -37,6 +40,45 @@ fn active(env: &Environment) -> PathBuf {
         biomcp_fetch::CACHE_NAMESPACE_VERSION,
         biomcp_query::store::CACHE_NAMESPACE_VERSION
     ))
+}
+fn damaged() -> Check {
+    let env = Environment::new()?;
+    let path = active(&env);
+    let directory = path.parent().ok_or("missing cache directory")?;
+    std::fs::create_dir_all(directory)?;
+    let bytes = b"deliberately damaged cache file";
+    std::fs::write(&path, bytes)?;
+    let old = directory.join("cache-1-2.sqlite");
+    Connection::open(&old)?.execute_batch(
+        "CREATE TABLE meta(owner TEXT,version INTEGER);
+         INSERT INTO meta VALUES ('biomcp-query',4);
+         CREATE TABLE pool(id TEXT);",
+    )?;
+
+    let error = invoke(&env, &["--offline", "health"], "", 5)?;
+    if error.get("cache_path").and_then(Value::as_str) != path.to_str()
+        || !error
+            .pointer("/error/message")
+            .and_then(Value::as_str)
+            .is_some_and(|message| message.contains("move the file"))
+    {
+        return Err(format!("cache error omitted the path or remedy: {error}").into());
+    }
+    let result = invoke(&env, &["store", "clean"], "", 0)?;
+    if result.pointer("/result/files").and_then(Value::as_u64) != Some(1)
+        || result
+            .pointer("/result/skipped_cache")
+            .and_then(Value::as_str)
+            != path.to_str()
+        || old.exists()
+        || std::fs::read(path)? != bytes
+    {
+        return Err(format!(
+            "cleanup did not skip the damaged file and remove the obsolete file: {result}"
+        )
+        .into());
+    }
+    Ok(())
 }
 fn seed(cx: &Connection) -> Check {
     cx.execute_batch(

@@ -76,6 +76,14 @@ A calibration that hits the cap before all selected mutants finish is incomplete
 
 ## Publish an approved release
 
+Before pushing the tag, run this from the checkout of the exact commit to be tagged:
+
+```sh
+python3 release/check_installer.py release/install.sh
+```
+
+The check fetches the installer from biomcp.org and compares it byte for byte with the file staging will copy. If they differ, it reports both SHA-256 hashes and exits with an error. Hold the tag until the site serves the matching file. The hosted release rehearsal and the tag workflow repeat the check against the actual staged file in `staged-payload`, before any channel publishes.
+
 Ian must explicitly approve pushing a release tag. After the tag push, the workflow qualifies and stages the candidate, publishes every channel, checks installs and promotes without a manual pause. The `pypi` environment matches the existing PyPI Trusted Publisher. Other publication and promotion jobs retain `release-publication` for channel credentials and release-tag policies; neither environment adds a manual approval pause. PyPI publication follows the container push; Homebrew and installer publication follow the public release assets; MCP Registry publication follows PyPI. The final install jobs require `biomcp version` from every public channel to match the tag. After all installs pass, the workflow promotes GitHub and GHCR latest pointers. Promotion copies the attested container digest and compares every published stable release; an older release or a failed release query leaves both pointers unchanged. A failed publication can leave some channels published. Inspect the failed job before retrying; PyPI versions cannot be replaced.
 
 The two latest updates cannot form one transaction. GHCR updates first. If the GitHub update fails, the job fails and GHCR may already point to the candidate. Inspect the public GHCR latest digest, GitHub latest version and the failed run's candidate digest before retrying. Rerun only the failed promotion job from the same run. It rechecks every published stable version before updating either pointer. If a newer stable release now exists, recover through that newer release's checked promotion job. Never roll either pointer back blindly.

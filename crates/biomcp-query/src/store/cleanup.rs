@@ -62,3 +62,14 @@ pub fn clean(
         .clean_incompatible_files(&[super::OWNER], super::CACHE_NAMESPACES)?;
     Ok(counts)
 }
+
+/// Clean only verified obsolete files, leaving the damaged active file for the operator.
+pub fn clean_without_active(path: &std::path::Path) -> Result<StoreClean, CacheError> {
+    let files =
+        biomcp_fetch::clean_incompatible_files(path, &[super::OWNER], super::CACHE_NAMESPACES)?;
+    Ok(StoreClean {
+        files,
+        skipped_cache: Some(path.to_string_lossy().into_owned()),
+        ..StoreClean::default()
+    })
+}

@@ -139,7 +139,7 @@ unreached:
 	sh scripts/coverage.sh unreached
 
 # The landing gate runs this after pre-job builds the debug binary: documented
-# example calls must pass their tool schemas, and the first read must hold.
+# example calls must pass their tool schemas, configuration examples must run, and the first read must hold.
 .PHONY: first-read-check
 first-read-check:
 	$(PYTHON) scripts/check_docs.py --executable "$(BIOMCP_DEBUG)"

@@ -1,6 +1,7 @@
 # 1181 — damaged-cache-file-error
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3d36a29edd787f8d93f45df6299917982907b9c3
 
 Milestone: 7
 

@@ -238,6 +238,7 @@ pub(crate) fn request_defaults(
 #[derive(Clone, Debug)]
 pub(crate) enum StartupError {
     Cache(biomcp_fetch::CacheError),
+    DamagedCache(PathBuf),
     Recording(biomcp_fetch::RecordError),
     Configuration(ConfigError),
     Local,
@@ -308,17 +309,24 @@ fn fetch_using(
         .case_cache
         .as_ref()
         .map(|path| {
-            if globals.replay.is_some() && !path.exists() {
+            let result = if globals.replay.is_some() && !path.exists() {
                 ReplayCache::create_case_with_owners(path, &[biomcp_query::store::OWNER])
             } else {
                 ReplayCache::open_case_with_owners(path, &[biomcp_query::store::OWNER])
-            }
+            };
+            result.map_err(|error| match error {
+                biomcp_fetch::CacheError::Corrupt => {
+                    StartupError::DamagedCache(path.join(ReplayCache::DATABASE_FILE))
+                }
+                _ => error.into(),
+            })
         })
-        .transpose()
-        .map_err(StartupError::from)?;
-    if !matches!(mode, Mode::Replay { .. })
-        && replay_cache.is_none()
-        && let Some(parent) = cache.as_ref().and_then(|path| path.parent())
+        .transpose()?;
+    let local_cache = cache
+        .clone()
+        .filter(|_| !matches!(mode, Mode::Replay { .. }));
+    if replay_cache.is_none()
+        && let Some(parent) = local_cache.as_ref().and_then(|path| path.parent())
     {
         create_private_directory(parent).map_err(|_| StartupError::Local)?;
     }
@@ -353,6 +361,9 @@ fn fetch_using(
         ..file::bundle_settings(file)
     })
     .map_err(|error| match error {
+        biomcp_fetch::FetchError::Cache(biomcp_fetch::CacheError::Corrupt) => local_cache
+            .map(StartupError::DamagedCache)
+            .unwrap_or(StartupError::Cache(biomcp_fetch::CacheError::Corrupt)),
         biomcp_fetch::FetchError::Cache(error) => error.into(),
         biomcp_fetch::FetchError::Recording(error) => StartupError::Recording(error),
         biomcp_fetch::FetchError::Proxy => ConfigError::field("proxy").into(),
