@@ -146,9 +146,11 @@ for line in sys.stdin:
 for line in sys.stdin:
     frame = json.loads(line)
     if 'id' not in frame: continue
+    help_result = {'result': {'commands': []}}
     reply = {1: {'serverInfo': {'version': '1.0.0'}},
              2: {'tools': [{'name': 'biomcp'}]},
-             3: {'isError': False, 'structuredContent': {'result': {'commands': []}}}}[frame['id']]
+             3: {'isError': False, 'structuredContent': help_result,
+                 'content': [{'type': 'text', 'text': json.dumps(help_result)}]}}[frame['id']]
     print(json.dumps({'jsonrpc': '2.0', 'id': frame['id'], 'result': reply}), flush=True)
 ''')
             with self.assertRaisesRegex(ValueError, 'did not return help commands'):
