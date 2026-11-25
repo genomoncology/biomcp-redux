@@ -136,12 +136,6 @@ impl std::fmt::Display for ProteinQuery {
         f.write_str(&self.original)
     }
 }
-impl ProteinQuery {
-    /// Caller spelling, with synonymous changes written in canonical HGVS form.
-    pub(crate) fn as_str(&self) -> &str {
-        &self.original
-    }
-}
 text_value!(ProteinQuery, "ProteinQuery", protein_pattern(true));
 
 pub(super) fn protein_pattern(synonymous: bool) -> String {
