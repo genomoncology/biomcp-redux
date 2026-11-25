@@ -88,7 +88,33 @@ def hosted_replies(binary, flags, env, frames):
         process.wait(timeout=30)
 
 
-def first_read_sizes(binary, env):
+def check_configuration_catalog(root, tools, size):
+    guide = (root / "docs/configuration.md").read_text()
+    section = re.search(r"^## MCP tools\n(.*?)(?=^## |\Z)", guide, re.M | re.S)
+    require(section, "configuration guide lacks the MCP tools section")
+    documented = {name: set(re.findall(r"`([a-z_]+)`", actions)) for name, actions in
+                  re.findall(r"^\| `([a-z_]+)` \|[^|]*\|([^|]*)\|", section[1], re.M)}
+    problems = []
+    for tool in tools:
+        properties = tool["inputSchema"]["properties"]
+        name = tool["name"]
+        if "action" not in properties or name == "saved":
+            continue
+        served = set(properties) - {"action", "fields"}
+        listed = documented.pop(name, set())
+        if served != listed:
+            problems.append(f"{name} actions in the configuration guide: missing {sorted(served - listed)}, "
+                            f"extra {sorted(listed - served)}")
+    if documented:
+        problems.append(f"unknown entity tools in the configuration guide: {sorted(documented)}")
+    measured = re.search(r"default typed `tools/list` catalog measured \*\*([\d,]+) bytes\*\*", section[1])
+    if not measured or measured[1] != f"{size:,}":
+        recorded = f"{measured[1]} bytes" if measured else "no size"
+        problems.append(f"configuration guide records {recorded} for the default typed catalog; served {size:,} bytes")
+    require(not problems, "\n".join(problems))
+
+
+def first_read_sizes(binary, env, repo):
     """Measure what every connection loads: initialize instructions and the tools list."""
     sizes = {}
     for mode, flags in FIRST_READ_MODES.items():
@@ -115,6 +141,8 @@ def first_read_sizes(binary, env):
         tools = replies[2]["result"]["tools"]
         row = {"instructions_characters": len(instructions), "instructions_bytes": len(instructions.encode()),
                "tools_bytes": compact_bytes(tools), "tools": len(tools)}
+        if mode == "typed":
+            check_configuration_catalog(repo, tools, row["tools_bytes"])
         row["first_call_bytes"] = row["instructions_bytes"] + row["tools_bytes"]
         if mode == "typed-compact":
             for index, field in ((3, "discovery_summary_bytes"), (4, "discovery_definition_bytes")):
@@ -260,7 +288,8 @@ def main():
         guidance = "Listed choices accept any letter case; replies use their listed spelling."
         require(reply["result"]["instructions"] == front + "\n" + guidance,
                 "server instructions differ from the front map and its guidance line")
-        sizes = first_read_sizes(binary, env)
+        repo = Path(__file__).resolve().parents[1]
+        sizes = first_read_sizes(binary, env, repo)
         sizes["skill_characters"] = len(rendered)
         (args.output / "first-read-sizes.json").write_text(json.dumps(sizes, indent=2) + "\n")
         print(json.dumps({"first_read": sizes}))
