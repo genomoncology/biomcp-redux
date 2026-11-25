@@ -11,10 +11,14 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        super::pool_contract::SAVED_FOLDER.0,
-        || hosted().map_err(Into::into),
-    )]
+    vec![
+        transcript_trial(super::pool_contract::SAVED_FOLDER.0, || {
+            hosted().map_err(Into::into)
+        }),
+        transcript_trial("mcp-http/saved-work-disabled", || {
+            plain_http().map_err(Into::into)
+        }),
+    ]
 }
 
 const HEADER: &str = "x-biomcp-account";
@@ -48,6 +52,50 @@ fn call(
 
 fn account(name: &str) -> String {
     format!("{HEADER}: {name}\r\n")
+}
+
+fn plain_http() -> Result<(), String> {
+    let server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(json!({"mcp_tool_mode":"typed"})),
+        Some(fixtures().join("replies/trial/condition")),
+        None,
+        None,
+        &[],
+    )?;
+    let list = super::mcp::request(json!(1), "tools/list", json!({}));
+    let (status, reply) = server.request("POST", "/mcp", &list.to_string())?;
+    let tools = reply
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
+        .ok_or_else(|| format!("HTTP {status} tools/list: {reply}"))?;
+    if tools
+        .iter()
+        .any(|tool| tool.get("name") == Some(&json!("saved")))
+    {
+        return Err("plain HTTP offers the saved tool".into());
+    }
+    let (_, refused) = call(&server, "saved", json!({"action":"show"}), "")?;
+    if refused.pointer("/error/code") != Some(&json!(-32602)) {
+        return Err(format!("plain HTTP must refuse a saved call: {refused}"));
+    }
+    let search = json!({"action":"search","search":{"condition":"melanoma"}});
+    let (_, page) = call(&server, "trial", search, "")?;
+    if page.get("status") != Some(&json!("complete"))
+        || page
+            .pointer("/page/returned")
+            .and_then(Value::as_u64)
+            .unwrap_or(0)
+            == 0
+        || steps(&page)
+            .iter()
+            .any(|step| step.get("kind") == Some(&json!("save")))
+    {
+        return Err(format!(
+            "expected a complete search page with results and no save step: {page}"
+        ));
+    }
+    Ok(())
 }
 
 fn hosted() -> Result<(), String> {

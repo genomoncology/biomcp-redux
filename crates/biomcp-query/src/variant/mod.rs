@@ -86,6 +86,13 @@ fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadli
         page.as_ref(),
         &mut problems,
     );
+    next.extend(continuations::alternate_build(
+        cx.fetch,
+        query,
+        resolution,
+        &mut sources,
+        &mut problems,
+    ));
     next.extend(oncokb::next(query, &sources));
     next.extend(alphagenome::next(&sources));
     crate::status::finish(

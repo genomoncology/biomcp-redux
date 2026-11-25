@@ -20,10 +20,9 @@ const ACTIONS: [(&str, &[&str]); 8] = [
     ("delete", &["name", "note", "all"]),
 ];
 
-/// Whether this server offers saved work: always locally, and in hosted mode only when it
-/// was started with a saved-work folder.
-pub(super) fn offered(globals: &crate::grammar::Globals) -> bool {
-    !globals.hosted || globals.saved_folder.is_some()
+/// Stdio uses the local saved-work file. HTTP requires a configured account folder.
+pub(super) fn offered(globals: &crate::grammar::Globals, http: bool) -> bool {
+    !http || globals.saved_folder.is_some()
 }
 
 /// The tool. Its fields are named but others are not forbidden, as on entity tools: the
