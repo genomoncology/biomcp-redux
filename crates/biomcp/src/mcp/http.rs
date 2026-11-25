@@ -76,7 +76,15 @@ pub(crate) fn serve(
     allowed.extend(
         hosts
             .iter()
-            .map(|host| Authority::parse(host).ok_or(StartError::Usage))
+            .map(|host| {
+                Authority::parse(host).ok_or_else(|| {
+                    let message = format!(
+                        "biomcp: invalid --allow-host value {host:?}: expected a hostname or IP address (bracket IPv6), with an optional port\n"
+                    );
+                    crate::output::diagnostic(message.as_bytes());
+                    StartError::Usage
+                })
+            })
             .collect::<Result<Vec<_>, _>>()?,
     );
     let hosts = allowed;
