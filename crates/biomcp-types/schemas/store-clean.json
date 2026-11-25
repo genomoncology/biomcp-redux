@@ -802,6 +802,13 @@
           "minimum": 0,
           "type": "integer"
         },
+        "skipped_cache": {
+          "description": "Damaged active cache file left for the operator, when only obsolete files could be cleaned.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "snapshots": {
           "description": "Expired trial and citation snapshots.",
           "format": "uint64",
