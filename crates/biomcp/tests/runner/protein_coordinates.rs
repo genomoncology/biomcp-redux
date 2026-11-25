@@ -26,7 +26,6 @@ pub(super) fn check(env: &Environment, args: &[&str], first: &Value) -> Result<(
     }
     guidance(&markdown)?;
     let args: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();
-    // The default form sends a success once, as structured data that carries the note itself.
     let messages = super::mcp::exchange(
         env,
         &[super::mcp::request(
@@ -36,11 +35,18 @@ pub(super) fn check(env: &Environment, args: &[&str], first: &Value) -> Result<(
         )],
     )?;
     let reply = messages.first().ok_or("missing protein MCP reply")?;
-    if reply.pointer("/result/content") != Some(&json!([])) {
-        return Err(format!("default protein MCP reply sent text: {reply}"));
+    let result = reply.get("result").ok_or("missing protein MCP result")?;
+    if result.pointer("/content/0/type") != Some(&json!("text"))
+        || result
+            .pointer("/content/0/text")
+            .and_then(Value::as_str)
+            .is_none()
+    {
+        return Err("default protein MCP reply lacks a text block".into());
     }
-    let structured = reply
-        .pointer("/result/structuredContent")
+    super::mcp::one_value(result)?;
+    let structured = result
+        .get("structuredContent")
         .ok_or("protein structured reply")?;
     if structured.pointer(&format!("{pointer}/start/min")) != Some(&json!(start))
         || structured.pointer(&format!("{pointer}/end/min")) != Some(&json!(end))

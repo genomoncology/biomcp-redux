@@ -160,10 +160,12 @@ else:
     cache = pathlib.Path(os.environ['XDG_CACHE_HOME'])
     cache.mkdir(parents=True, exist_ok=True)
     (cache / 'reply.sqlite').touch()
+    help_reply = {'result': {'commands': ['get']}}
     for value in [
         {'jsonrpc': '2.0', 'id': 1, 'result': {'serverInfo': {'version': '1'}}},
         {'jsonrpc': '2.0', 'id': 2, 'result': {'tools': [{'name': 'biomcp'}]}},
-        {'jsonrpc': '2.0', 'id': 3, 'result': {}},
+        {'jsonrpc': '2.0', 'id': 3, 'result': {'isError': False, 'structuredContent': help_reply,
+         'content': [{'type': 'text', 'text': json.dumps(help_reply)}]}},
     ]:
         print(json.dumps(value))
 """

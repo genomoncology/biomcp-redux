@@ -190,11 +190,12 @@ def case_suite(command, env, root, fixtures, timeout=None, expected_filtered=Non
 
 
 def mcp_probe(command, env, root, version, call_args=None):
+    call_args = call_args or ["help"]
     frames = [
         {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": {"name": "installed-gate", "version": "1"}}},
         {"jsonrpc": "2.0", "method": "notifications/initialized"},
         {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
-        {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "biomcp", "arguments": {"args": call_args or ["get", "gene", "KRAS", "--offline"]}}},
+        {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "biomcp", "arguments": {"args": call_args}}},
     ]
     result = subprocess.run(command, input="".join(json.dumps(f) + "\n" for f in frames), env=env, cwd=root, capture_output=True, text=True, timeout=60)
     replies = [json.loads(line) for line in result.stdout.splitlines()]
@@ -205,9 +206,13 @@ def mcp_probe(command, env, root, version, call_args=None):
     require(indexed[1]["result"]["serverInfo"]["version"] == version, "MCP version differs")
     require(indexed[2]["result"]["tools"][0]["name"] == "biomcp", "MCP tool differs")
 
+    reply = indexed[3]["result"]
+    value = reply.get("structuredContent")
     if call_args == ["help"]:
-        reply = indexed[3]["result"]
-        value = reply.get("structuredContent") or json.loads(reply["content"][0]["text"])
-        require(not reply.get("isError") and value["result"]["commands"],
+        require(not reply.get("isError") and isinstance(value, dict) and value.get("result", {}).get("commands"),
                 "installed plugin command did not return help commands")
+    blocks = reply.get("content", [])
+    require(reply.get("isError") is False and len(blocks) == 1 and blocks[0].get("type") == "text"
+            and blocks[0].get("text"), "successful MCP reply lacks a text part")
+    require(json.loads(blocks[0]["text"]) == value, "MCP text differs from structured content")
     return [tool["name"] for tool in indexed[2]["result"]["tools"]]

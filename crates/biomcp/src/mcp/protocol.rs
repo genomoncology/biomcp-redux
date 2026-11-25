@@ -123,7 +123,7 @@ pub(super) fn tool_result(
     id: Value,
     outcome: &crate::command::Outcome,
     modern: bool,
-    form: Option<ReplyForm>,
+    form: ReplyForm,
 ) -> Value {
     let failed = !matches!(
         outcome.status,
@@ -153,17 +153,12 @@ pub(super) fn discovery_result(
     if !within_cap(&value) {
         return error(id, -32603, "Output schema unavailable");
     }
-    let form = crate::config::mcp_reply_form(context.globals, context.settings);
+    let form = crate::config::mcp_reply_form(context.settings);
     result(id, content(value, false, form), modern)
 }
 
 // The JSON value is the whole text: no status line or summary precedes it.
-fn content(value: Value, failed: bool, form: Option<ReplyForm>) -> Value {
-    let form = form.unwrap_or(if failed {
-        ReplyForm::Both
-    } else {
-        ReplyForm::Once
-    });
+fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
     let text = || json!([{"type":"text","text":value.to_string()}]);
     match form {
         ReplyForm::Once => {

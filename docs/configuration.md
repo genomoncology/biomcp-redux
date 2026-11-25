@@ -179,7 +179,7 @@ Set `mcp_reply_form` to choose where MCP tools put the JSON reply over stdio and
 - `structured-only` puts JSON in `structuredContent` and includes a one-line note in `content`.
 - `text-only` puts JSON in a text block in `content`.
 
-With the setting omitted, local servers use the `once` layout for successes and the `both` layout for errors. Hosted servers (`serve --hosted --http`) default to `both` for every reply. Choose `both` for a client that shows only text. Use `text-only` only with a client that ignores the output schema, since MCP requires structured results from tools that declare one. When included, the output schema describes the JSON value in every form. Next steps in MCP replies never carry the server's `--config` path.
+Local and hosted servers default to `both`. The text block lets older clients read the reply. Set `"mcp_reply_form": "once"` if your client reads `structuredContent` and you want a single copy. Use `text-only` only with a client that ignores the output schema, since MCP requires structured results from tools that declare one. When included, the output schema describes the JSON value in every form. Next steps in MCP replies never carry the server's `--config` path.
 
 ## Hosted servers
 
