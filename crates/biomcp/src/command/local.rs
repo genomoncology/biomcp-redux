@@ -10,6 +10,19 @@ pub(super) fn kind(error: Option<RequestError>) -> Option<CacheProblem> {
     }
 }
 
+pub(super) fn startup_for_action(
+    action: &biomcp_query::Action,
+    error: crate::config::StartupError,
+    encoding: super::Encoding,
+) -> std::io::Result<super::Outcome> {
+    match (action, error) {
+        (biomcp_query::Action::StoreClean, crate::config::StartupError::DamagedCache(path)) => {
+            super::maintenance::clean_without_active(&path, encoding)
+        }
+        (_, error) => startup(error, encoding),
+    }
+}
+
 pub(crate) fn startup(
     error: crate::config::StartupError,
     encoding: super::Encoding,
@@ -18,6 +31,18 @@ pub(crate) fn startup(
         crate::config::StartupError::Cache(error) => {
             let mut envelope = ErrorEnvelope::local();
             envelope.local_error = Some(error.into());
+            envelope
+        }
+        crate::config::StartupError::DamagedCache(path) => {
+            let mut envelope = if matches!(encoding, super::Encoding::Mcp) {
+                ErrorEnvelope::local()
+            } else {
+                let mut envelope =
+                    ErrorEnvelope::local_message(biomcp_types::ErrorMessage::DamagedCache);
+                envelope.cache_path = Some(path.to_string_lossy().into_owned());
+                envelope
+            };
+            envelope.local_error = Some(CacheProblem::Database);
             envelope
         }
         // A --record folder that already holds a capture says so instead of a bare failure (0954).
