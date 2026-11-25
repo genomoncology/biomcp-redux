@@ -1,6 +1,7 @@
 # 1183 — release-container-stub-reply
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f9d4333492769f6abaaf35107e91623aca14d19b
 
 Milestone: 7
 
