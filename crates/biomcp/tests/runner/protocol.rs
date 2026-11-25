@@ -7,14 +7,14 @@ mod source_age;
 
 #[path = "label_priority.rs"]
 mod label_priority;
+#[path = "mcp_local_reply.rs"]
+mod local_reply;
 #[path = "pool_parity.rs"]
 mod pool_parity;
 #[path = "recent_parity.rs"]
 pub(super) mod recent_parity;
 #[path = "mcp_reply_form.rs"]
 mod reply_form;
-#[path = "mcp_local_reply.rs"]
-mod local_reply;
 #[path = "mcp_reply_size.rs"]
 mod reply_size;
 #[path = "protocol_schemas.rs"]

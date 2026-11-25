@@ -38,7 +38,7 @@ fn replies(revision: &str, config: Option<Value>, expected: &str) -> Result<[Val
     if let Some(config) = &config {
         env.config(config).map_err(|e| e.to_string())?;
     }
-    let globals = env.globals(None, true);
+    let globals = ["--offline".into()];
     let server = Server::configured_globals("127.0.0.1:0", config, None, None, None, &globals)?;
     let params = json!({"name":"biomcp","arguments":{"args":["help"]}});
     let call = if revision == LEGACY {
