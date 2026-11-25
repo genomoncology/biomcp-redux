@@ -1,0 +1,41 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=dbnsfp.genename%3AEGFR%20AND%20dbnsfp.hgvsp%3A%22p.L858R%22&size=10&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann",
+  "exchanges": [
+    {
+      "fetched": 1795577407,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 243,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 6,
+          "total": 1,
+          "max_score": 26.254612,
+          "hits": [
+            {
+              "_id": "chr7:g.55259515T>G",
+              "chrom": "7",
+              "hg19": {
+                "end": 55259515,
+                "start": 55259515
+              },
+              "dbsnp": {
+                "rsid": "rs121434568",
+                "gene": {
+                  "symbol": "EGFR"
+                }
+              },
+              "clinvar": {
+                "variant_id": 16609
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

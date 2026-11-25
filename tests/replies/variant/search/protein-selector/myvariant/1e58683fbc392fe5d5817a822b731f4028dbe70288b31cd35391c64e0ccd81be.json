@@ -1,0 +1,49 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=snpeff.ann.genename%3ABRAF%20AND%20snpeff.ann.hgvs_p%3A%28%22V600E%22%20OR%20%22Val600Glu%22%20OR%20%22p.V600E%22%20OR%20%22p.Val600Glu%22%29&size=10&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann",
+  "exchanges": [
+    {
+      "fetched": 1795577407,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 248,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 7,
+          "total": 2,
+          "max_score": 28.353167,
+          "hits": [
+            {
+              "_id": "chr7:g.140453136C>T",
+              "chrom": "7",
+              "hg19": {
+                "end": 140453136,
+                "start": 140453136
+              }
+            },
+            {
+              "_id": "chr7:g.140453136A>T",
+              "chrom": "7",
+              "hg19": {
+                "end": 140453136,
+                "start": 140453136
+              },
+              "dbsnp": {
+                "rsid": "rs113488022",
+                "gene": {
+                  "symbol": "BRAF"
+                }
+              },
+              "clinvar": {
+                "variant_id": 13961
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
