@@ -1,6 +1,7 @@
 # 1188 — release-gate-stub-help-reply
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a21168dacadf1a288c2d2a0f8e732322d96a6c3a
 
 Milestone: 7
 

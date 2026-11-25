@@ -197,10 +197,12 @@ else:
 
 
     def test_broken_installed_commands_fail_under_optimization(self):
+        help_reply = {"result": {"commands": ["get"]}}
         replies = [
             {"jsonrpc": "2.0", "id": 1, "result": {"serverInfo": {"version": "1"}}},
             {"jsonrpc": "2.0", "id": 2, "result": {"tools": [{"name": "biomcp"}]}},
-            {"jsonrpc": "2.0", "id": 3, "result": {}},
+            {"jsonrpc": "2.0", "id": 3, "result": {"isError": False, "structuredContent": help_reply,
+             "content": [{"type": "text", "text": json.dumps(help_reply)}]}},
         ]
         cases = [("schema", {"$id": "wrong"}, "schema identity"),
                  ("help", {"result": {"commands": []}}, "help commands")]

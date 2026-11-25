@@ -18,6 +18,7 @@ from release.artifacts import binary_archive, platform_tag, wheel
 
 CANDIDATE = r'''import json, os, pathlib, sys
 args = sys.argv[1:]
+help_reply = {'result': {'commands': ['get']}}
 with open(LOG, 'a') as stream:
     stream.write(json.dumps({'binary': sys.argv[0], 'args': args}) + '\n')
 if args[0] in ('version', 'health'):
@@ -44,7 +45,7 @@ if args[0] in ('version', 'health'):
 elif args[0] == 'schema':
     print(json.dumps({'$id': args[1]}))
 elif args[0] == 'help':
-    print('{"result":{"commands":["get"]}}')
+    print(json.dumps(help_reply))
 elif args == ['serve']:
     cache = pathlib.Path(os.environ['XDG_CACHE_HOME'])
     cache.mkdir(parents=True, exist_ok=True)
@@ -53,8 +54,13 @@ elif args == ['serve']:
         value = json.loads(frame)
         if 'id' not in value:
             continue
-        result = ({'serverInfo': {'version': '1.0.0'}} if value['id'] == 1 else
-                  {'tools': [{'name': 'biomcp'}]} if value['id'] == 2 else {})
+        replies = {
+            'initialize': {'serverInfo': {'version': '1.0.0'}},
+            'tools/list': {'tools': [{'name': 'biomcp'}]},
+            'tools/call': {'isError': False, 'structuredContent': help_reply,
+                           'content': [{'type': 'text', 'text': json.dumps(help_reply)}]},
+        }
+        result = replies[value['method']]
         print(json.dumps({'jsonrpc': '2.0', 'id': value['id'], 'result': result}))
 else:
     sys.exit('provider path is forbidden in this fixture')
