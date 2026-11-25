@@ -73,6 +73,7 @@ class Publication(unittest.TestCase):
 
     def test_pre_tag_check_reports_both_installer_hashes_on_mismatch(self):
         from release.local_server import server
+        from release.smoke import environment
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             site = root / 'site'
@@ -86,7 +87,7 @@ class Publication(unittest.TestCase):
                 for served in (expected, expected.replace(b'\n', b'\r\n')):
                     with self.subTest(served=served):
                         (site / 'install.sh').write_bytes(served)
-                        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                        result = subprocess.run(command, env=environment(root), capture_output=True, text=True, timeout=30)
                         if served == expected:
                             self.assertEqual(result.returncode, 0, result.stderr)
                         else:

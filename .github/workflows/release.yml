@@ -303,6 +303,8 @@ jobs:
         env:
           VERSION: ${{ needs.candidate.outputs.version }}
         run: python release/published.py installer-bytes --version "$VERSION" --served release --artifacts staged
+      - name: Compare the public installer with the staged bytes
+        run: python release/check_installer.py staged/install.sh
 
   publish-github:
     needs: [candidate, stage, staged-homebrew, staged-payload]
