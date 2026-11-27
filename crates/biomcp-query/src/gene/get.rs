@@ -30,6 +30,19 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
         .iter()
         .map(|input| resolve_item(&leg, input, &mut problems, &mut hgnc_error, &mut local))
         .collect();
+    let genes = sections::prepare(query, &mut items);
+    let mappings = if requested.contains(&biomcp_types::GeneSection::Pathways) {
+        sections::pathway_mappings(&leg, &genes)
+    } else {
+        Vec::new()
+    };
+    for error in mappings
+        .iter()
+        .filter_map(|(_, keys)| keys.as_ref().err().copied())
+    {
+        hgnc_error = hgnc_error.or(Some(error));
+        local = local.or_else(|| status::local(error));
+    }
     let hgnc = status::source(Source::Hgnc, leg.finish(), hgnc_error);
     if hgnc.state == SourceState::Stale {
         for item in &mut items {
@@ -39,8 +52,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
         }
     }
     let mut sources = vec![hgnc];
-    let genes = sections::prepare(query, &mut items);
-    let mut jobs = sections::jobs(cx, deadline, query, &genes);
+    let mut jobs = sections::jobs(cx, deadline, query, &genes, &mappings);
     if !query.section_only()
         && let Some(job) = mygene_job(cx, deadline, &genes)
     {

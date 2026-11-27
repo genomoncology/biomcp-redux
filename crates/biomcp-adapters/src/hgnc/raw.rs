@@ -23,6 +23,7 @@ pub(super) struct Gene {
     pub entrez_id: Option<String>,
     pub ensembl_gene_id: Option<String>,
     pub uniprot_ids: Option<String>,
+    pub mirbase: Option<String>,
     pub omim_id: Option<String>,
     pub mane_select: Option<String>,
 }

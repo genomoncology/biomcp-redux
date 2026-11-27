@@ -64,7 +64,6 @@ fn mapping_ids(
     let identity = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(fresh);
     let resolved = gene::resolve(&identity, input);
     let error = resolved.as_ref().err().copied();
-    let report = identity.finish();
     // Prefer HGNC when an accession-shaped value also names a gene or alias.
     if (matches!(&resolved, Ok(r) if matches!(r.value, GeneResolution::NotFound { .. }))
         || error.is_some())
@@ -77,12 +76,23 @@ fn mapping_ids(
             problems: Vec::new(),
         });
     }
-    out.sources
-        .push(status::source(Source::Hgnc, report, error));
-    let resolved = resolved.inspect_err(|_| skip_reactome(out))?;
+    let mapped = resolved.and_then(|resolved| gene_mappings(&identity, input, resolved));
+    out.sources.push(status::source(
+        Source::Hgnc,
+        identity.finish(),
+        mapped.as_ref().err().copied(),
+    ));
+    mapped.inspect_err(|_| skip_reactome(out))
+}
+
+fn gene_mappings(
+    identity: &biomcp_fetch::Leg<'_>,
+    input: &GeneInput,
+    resolved: Mapped<GeneResolution>,
+) -> Result<Mapped<Vec<MappingId>>, RequestError> {
     let mut problems = resolved.problems;
     let value = match resolved.value {
-        GeneResolution::Resolved { gene, .. } => MappingId::for_gene(&gene),
+        GeneResolution::Resolved { gene, .. } => MappingId::for_gene(identity, &gene)?,
         _ => {
             problems.push(Problem {
                 source: Source::Hgnc,

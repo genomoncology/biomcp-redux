@@ -3,16 +3,26 @@ use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
 
 use biomcp_adapters::reactome::{self, MappingId};
-use biomcp_fetch::Deadline;
-use biomcp_types::{Capped, GeneSection, Section, SourceRecord};
+use biomcp_fetch::{Deadline, Leg, RequestError};
+use biomcp_types::{Capped, GeneSection, Reason, Section, SourceRecord, SourceStatus};
 const LIMIT: usize = 25;
-pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
-    let mappings: Vec<_> = genes
+
+pub(in crate::gene) type Mappings = Vec<(HgncId, Result<Vec<MappingId>, RequestError>)>;
+
+pub(in crate::gene) fn mappings(identity: &Leg<'_>, genes: &[(HgncId, Gene)]) -> Mappings {
+    genes
         .iter()
-        .map(|(id, gene)| (*id, MappingId::for_gene(gene)))
-        .collect();
+        .map(|(id, gene)| (*id, MappingId::for_gene(identity, gene)))
+        .collect()
+}
+
+pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, mappings: &Mappings) -> SectionResult {
     let mut ids = Vec::new();
-    for id in mappings.iter().flat_map(|(_, keys)| keys) {
+    for id in mappings
+        .iter()
+        .filter_map(|(_, keys)| keys.as_ref().ok())
+        .flatten()
+    {
         if !ids.contains(&id) {
             ids.push(id);
         }
@@ -25,11 +35,24 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     let local = results
         .iter()
         .find_map(|result| result.as_ref().err().copied().and_then(status::local));
-    let source = status::source(GeneSection::Pathways.source(), leg.finish(), error);
+    let mut source = status::source(GeneSection::Pathways.source(), leg.finish(), error);
+    if ids.is_empty() {
+        source.set_status(SourceStatus::Skipped(Some(Reason::NoJoinId)));
+    }
     let mut dropped = false;
     let mut problems = Vec::new();
     let mut values = Vec::new();
-    for (id, keys) in &mappings {
+    for (id, keys) in mappings {
+        let Ok(keys) = keys else {
+            values.push((
+                *id,
+                SectionValue::Pathways(Section::unavailable(
+                    GeneSection::Pathways.source(),
+                    Reason::NoJoinId,
+                )),
+            ));
+            continue;
+        };
         let mut pathways = Vec::new();
         let mut failure = None;
         for key in keys {

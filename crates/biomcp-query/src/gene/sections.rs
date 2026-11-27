@@ -6,6 +6,7 @@ mod expression;
 mod gencc;
 mod oncokb;
 mod pathways;
+pub(super) use pathways::{Mappings as PathwayMappings, mappings as pathway_mappings};
 mod protein;
 mod value;
 use super::get::SourceJob;
@@ -173,6 +174,7 @@ pub(super) fn jobs<'a>(
     deadline: Deadline<'a>,
     query: &GeneGet,
     genes: &'a [(HgncId, Gene)],
+    mappings: &'a PathwayMappings,
 ) -> Vec<SourceJob<'a>> {
     let mut jobs: Vec<SourceJob<'a>> = Vec::new();
     let requested = requested(query);
@@ -236,9 +238,9 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(expression::run(cx, deadline, genes))
         }));
     }
-    if requested.contains(&GeneSection::Pathways) && !genes.is_empty() {
+    if !mappings.is_empty() {
         jobs.push(Box::new(move || {
-            super::get::Job::Section(pathways::run(cx, deadline, genes))
+            super::get::Job::Section(pathways::run(cx, deadline, mappings))
         }));
     }
     if !query.section_only() && !genes.is_empty() {

@@ -1,6 +1,6 @@
 //! Lowest-level human pathway mappings from Reactome.
 use crate::{Mapped, quotas};
-use biodata::{EnsemblGeneId, Gene, GeneSymbol, UniProtAcc};
+use biodata::{EnsemblGeneId, Gene, GeneSymbol, LocusType, UniProtAcc};
 use biomcp_fetch::{Input, Read};
 
 use biomcp_fetch::{
@@ -54,23 +54,32 @@ pub enum MappingId {
     UniProt(UniProtAcc),
     /// Ensembl stable gene identifier.
     Ensembl(EnsemblGeneId),
+    /// miRBase precursor accession published by HGNC.
+    MirBase(String),
     /// Approved gene symbol, accepted by Reactome's Ensembl mapping route.
     Symbol(GeneSymbol),
 }
 
 impl MappingId {
-    /// Keep the UniProt relation when available. Without it, Reactome may index
-    /// different entities by the Ensembl ID and the approved gene symbol.
-    pub fn for_gene(gene: &Gene) -> Vec<Self> {
+    /// Keep the UniProt relation when available. Without it, use the identifiers
+    /// Reactome indexes for the gene and its non-coding products.
+    pub fn for_gene(identity: &Leg<'_>, gene: &Gene) -> Result<Vec<Self>, RequestError> {
         if !gene.uniprot.is_empty() {
-            return gene.uniprot.iter().cloned().map(Self::UniProt).collect();
+            return Ok(gene.uniprot.iter().cloned().map(Self::UniProt).collect());
         }
-        gene.ensembl_id
-            .iter()
-            .cloned()
-            .map(Self::Ensembl)
-            .chain([Self::Symbol(gene.symbol.clone())])
-            .collect()
+        let mut ids = Vec::new();
+        if let Some(id) = &gene.ensembl_id {
+            ids.push(Self::Ensembl(id.clone()));
+        }
+        if gene.locus_type == Some(LocusType::MicroRna)
+            && let Some(id) = crate::hgnc::mirbase(identity, gene.hgnc_id)?
+        {
+            ids.push(Self::MirBase(id));
+        }
+        if ids.is_empty() {
+            ids.push(Self::Symbol(gene.symbol.clone()));
+        }
+        Ok(ids)
     }
 
     /// Reactome resource and exact identifier sent to its mapping endpoint.
@@ -78,6 +87,7 @@ impl MappingId {
         match self {
             Self::UniProt(id) => ("UniProt", id.as_str()),
             Self::Ensembl(id) => ("Ensembl", id.base()),
+            Self::MirBase(id) => ("miRBase", id),
             Self::Symbol(symbol) => ("Ensembl", symbol.as_str()),
         }
     }
