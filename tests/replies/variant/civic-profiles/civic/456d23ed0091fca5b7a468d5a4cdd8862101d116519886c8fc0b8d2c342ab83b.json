@@ -1,0 +1,71 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "16c7271069869bd354900ea79df90a770f70f43bba0a99fdedd18bdbd03dfca7"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 1,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 5117,
+                  "name": "TMB High",
+                  "rawName": "#VID4943",
+                  "link": "/molecular-profiles/5117",
+                  "isComplex": false,
+                  "variants": [
+                    {
+                      "id": 4943,
+                      "name": "High",
+                      "link": "/variants/4943",
+                      "feature": {
+                        "id": 61745,
+                        "name": "TMB",
+                        "featureType": "FACTOR",
+                        "featureInstance": {
+                          "ncitId": "C150128"
+                        }
+                      }
+                    }
+                  ],
+                  "evidenceItems": {
+                    "totalCount": 53,
+                    "pageInfo": {
+                      "hasNextPage": true,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  },
+                  "assertions": {
+                    "totalCount": 1,
+                    "pageInfo": {
+                      "hasNextPage": true,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "4dcb319cda3dc6b9643e2dc2ae1443f7181d8cf5f9cff736da844dd04c6cecdb"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 1,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 4716,
+                  "name": "CDKN2A Loss OR CDKN2A Mutation",
+                  "rawName": "#VID554 OR #VID2704",
+                  "link": "/molecular-profiles/4716",
+                  "isComplex": true,
+                  "variants": [
+                    {
+                      "id": 554,
+                      "name": "Loss",
+                      "link": "/variants/554",
+                      "feature": {
+                        "id": 14,
+                        "name": "CDKN2A",
+                        "featureType": "GENE",
+                        "featureInstance": {}
+                      },
+                      "alleleRegistryId": null,
+                      "hgvsDescriptions": []
+                    },
+                    {
+                      "id": 2704,
+                      "name": "Mutation",
+                      "link": "/variants/2704",
+                      "feature": {
+                        "id": 14,
+                        "name": "CDKN2A",
+                        "featureType": "GENE",
+                        "featureInstance": {}
+                      },
+                      "alleleRegistryId": null,
+                      "hgvsDescriptions": []
+                    }
+                  ],
+                  "evidenceItems": {
+                    "totalCount": 2,
+                    "pageInfo": {
+                      "hasNextPage": true,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  },
+                  "assertions": {
+                    "totalCount": 0,
+                    "pageInfo": {
+                      "hasNextPage": false,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

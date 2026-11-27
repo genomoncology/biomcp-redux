@@ -1,0 +1,145 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "f266a1ecf672cce3d9bce3ca560133a085f85a7247056b3345cc7f67fb22e952"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794872249,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 325,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "therapy": {
+              "id": 5,
+              "name": "Imatinib",
+              "link": "/therapies/5"
+            },
+            "evidenceItems": {
+              "totalCount": 94,
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "Mg"
+              },
+              "nodes": [
+                {
+                  "id": 15,
+                  "status": "ACCEPTED",
+                  "significance": "RESISTANCE",
+                  "disease": {
+                    "name": "Gastrointestinal Stromal Tumor",
+                    "doid": "9253"
+                  },
+                  "therapies": [
+                    {
+                      "id": 5,
+                      "name": "Imatinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "source": {
+                    "citationId": "15928335",
+                    "sourceType": "PUBMED"
+                  },
+                  "molecularProfile": {
+                    "id": 99,
+                    "name": "PDGFRA D842V",
+                    "rawName": "#VID99",
+                    "link": "/molecular-profiles/99",
+                    "isComplex": false,
+                    "variants": [
+                      {
+                        "id": 99,
+                        "name": "D842V",
+                        "link": "/variants/99",
+                        "feature": {
+                          "id": 38,
+                          "name": "PDGFRA",
+                          "featureType": "GENE",
+                          "featureInstance": {}
+                        },
+                        "alleleRegistryId": "CA123194",
+                        "hgvsDescriptions": [
+                          "NM_006206.4:c.2525A>T",
+                          "NP_006197.1:p.Asp842Val",
+                          "ENST00000257290.5:c.2525A>T",
+                          "NC_000004.11:g.55152093A>T"
+                        ],
+                        "coordinates": {
+                          "referenceBuild": "GRCH37"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": 16,
+                  "status": "ACCEPTED",
+                  "significance": "RESISTANCE",
+                  "disease": {
+                    "name": "Gastrointestinal Stromal Tumor",
+                    "doid": "9253"
+                  },
+                  "therapies": [
+                    {
+                      "id": 5,
+                      "name": "Imatinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "source": {
+                    "citationId": "16954519",
+                    "sourceType": "PUBMED"
+                  },
+                  "molecularProfile": {
+                    "id": 99,
+                    "name": "PDGFRA D842V",
+                    "rawName": "#VID99",
+                    "link": "/molecular-profiles/99",
+                    "isComplex": false,
+                    "variants": [
+                      {
+                        "id": 99,
+                        "name": "D842V",
+                        "link": "/variants/99",
+                        "feature": {
+                          "id": 38,
+                          "name": "PDGFRA",
+                          "featureType": "GENE",
+                          "featureInstance": {}
+                        },
+                        "alleleRegistryId": "CA123194",
+                        "hgvsDescriptions": [
+                          "NM_006206.4:c.2525A>T",
+                          "NP_006197.1:p.Asp842Val",
+                          "ENST00000257290.5:c.2525A>T",
+                          "NC_000004.11:g.55152093A>T"
+                        ],
+                        "coordinates": {
+                          "referenceBuild": "GRCH37"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

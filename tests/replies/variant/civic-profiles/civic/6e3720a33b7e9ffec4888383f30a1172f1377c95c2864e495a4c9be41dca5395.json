@@ -1,0 +1,52 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "bf98322321bed80acdd877045432bfa99df532d523b990c1ce21780b2ed791cb"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "assertions": {
+              "totalCount": 1,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 134,
+                  "status": "SUBMITTED",
+                  "assertionType": "PREDICTIVE",
+                  "assertionDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "ampLevel": "TIER_I_LEVEL_A",
+                  "disease": {
+                    "name": "Solid Tumor",
+                    "doid": null
+                  },
+                  "therapies": [
+                    {
+                      "name": "Pembrolizumab"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "variantOrigin": "SOMATIC"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

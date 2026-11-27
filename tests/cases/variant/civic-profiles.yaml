@@ -1,0 +1,221 @@
+{
+  "feature": "variant-civic",
+  "live_check": "public",
+  "story": "Read native evidence and assertions by CIViC profile ID or exact name without an allele or required therapy. Disease, drug and evidence selectors apply before paging. Drug and profile reads agree on the submitted TMB High evidence.",
+  "verified": "CIViC CC0 https://civicdb.org/releases/licensing. Public keyless GraphQL responses recorded on 2026-11-27. MSI High is profile 5118; EID1940 belongs to the separate BRAF V600E AND MSI High profile.",
+  "replay": "variant/civic-profiles",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "MSI High",
+        "civic",
+        "--disease",
+        "Colorectal",
+        "--evidence-status",
+        "accepted",
+        "--evidence-significance",
+        "sensitivityresponse",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/feature_type": "factor",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID12561",
+        "/sources/*/source": [
+          "civic"
+        ],
+        "/result/candidates/0/sections/civic/data/profiles/0/record/id": "5118",
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/ncit_id": "C36318",
+        "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total": 2,
+        "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/next/input": "5118"
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID12562",
+        "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total": 2
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "5877",
+        "civic",
+        "--disease",
+        "Renal Wilms' Tumor",
+        "--evidence-status",
+        "submitted",
+        "--evidence-significance",
+        "poor_outcome"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/feature_type": "region",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID12836",
+        "/sources/*/source": [
+          "civic"
+        ],
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/iscn_name": "del(17p)",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/status": "SUBMITTED"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "ETV6::NTRK3 Fusion",
+        "civic",
+        "--disease",
+        "Congenital Mesoblastic Nephroma",
+        "--evidence-status",
+        "accepted",
+        "--evidence-significance",
+        "positive"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/feature_type": "fusion",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID10841",
+        "/sources/*/source": [
+          "civic"
+        ],
+        "/result/candidates/0/sections/civic/data/profiles/0/assertion_page/total": 2,
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/2/record/id": "AID61"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "ETV6::NTRK3",
+        "civic"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/state": "empty",
+        "/sources/*/source": [
+          "civic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CDKN2A Loss OR CDKN2A Mutation",
+        "civic",
+        "--disease",
+        "Biliary Tract Cancer",
+        "--drug",
+        "Palbociclib",
+        "--evidence-status",
+        "accepted",
+        "--evidence-significance",
+        "sensitivityresponse"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/feature_type": "gene",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID11654",
+        "/sources/*/source": [
+          "civic"
+        ],
+        "/result/candidates/0/sections/civic/data/profiles/0/members/*/feature_type": [
+          "gene",
+          "gene"
+        ],
+        "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total": 1
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA397842035",
+        "civic",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/state": "unavailable",
+        "/result/candidates/0/sections/civic/reason": "no-join-id"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "TP53 R158G",
+        "civic"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/feature_type": "gene",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID10560",
+        "/sources/*/source": [
+          "civic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "TMB High",
+        "civic",
+        "--disease",
+        "Solid Tumor",
+        "--drug",
+        "Pembrolizumab",
+        "--evidence-status",
+        "submitted",
+        "--evidence-significance",
+        "sensitivityresponse"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/feature_type": "factor",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID12082",
+        "/sources/*/source": [
+          "civic"
+        ],
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/ncit_id": "C150128",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/status": "SUBMITTED",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/1/status": "SUBMITTED",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/1/record/id": "EID12086"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "138",
+        "civic",
+        "--source",
+        "civic",
+        "--civic-profile",
+        "5117",
+        "--civic-kind",
+        "evidence",
+        "--section-limit",
+        "2",
+        "--evidence-status",
+        "submitted"
+      ],
+      "expect": {
+        "/result/civic/data/evidence/records/*/claim/record/id": [
+          "EID12082",
+          "EID12086"
+        ],
+        "/result/civic/data/evidence/records/*/claim/status": [
+          "SUBMITTED",
+          "SUBMITTED"
+        ]
+      }
+    }
+  ]
+}

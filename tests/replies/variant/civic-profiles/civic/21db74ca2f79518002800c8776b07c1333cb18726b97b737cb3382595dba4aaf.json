@@ -1,0 +1,55 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "8e93305898de1bb65b8bcc22d4413dc63d294fb55fc3130adda1e6422e2c011b"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "evidenceItems": {
+              "totalCount": 2,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "Mg"
+              },
+              "nodes": [
+                {
+                  "id": 12562,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "A",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Colorectal Cancer",
+                    "doid": "9256"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Ipilimumab/Nivolumab Regimen"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "39874977",
+                    "sourceType": "PUBMED"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -40,14 +40,15 @@ pub fn variant(
 ) -> Result<Mapped<VariantCivic>, RequestError> {
     if query.input().namespace() == VariantNamespace::CivicProfile {
         let id = match query.input().as_str().parse() {
-            Ok(id) => id,
-            Err(_) => super::variant_profile::exact_id(leg, query.input().text())?
-                .ok_or_else(|| failure(Reason::NotFound))?,
+            Ok(id) => Some(id),
+            Err(_) => super::variant_profile::exact_id(leg, query.input().text())?,
         };
-        if query.civic_profile().is_some_and(|profile| profile != id) {
-            return Err(failure(Reason::NotFound));
-        }
-        return profiles(leg, query, None, Some(id));
+        return match id {
+            Some(id) if query.civic_profile().is_none_or(|profile| profile == id) => {
+                profiles(leg, query, None, Some(id))
+            }
+            _ => Ok(map::empty()),
+        };
     }
     let allele = candidate
         .identity

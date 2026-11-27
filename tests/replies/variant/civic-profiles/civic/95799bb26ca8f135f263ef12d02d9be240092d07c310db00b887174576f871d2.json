@@ -1,0 +1,67 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "1df6f75f834fd4be3759a407ac3f957fa1031ae51900b4b848fd90c458df34d9"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "assertions": {
+              "totalCount": 2,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "Mg"
+              },
+              "nodes": [
+                {
+                  "id": 61,
+                  "status": "ACCEPTED",
+                  "assertionType": "PREDICTIVE",
+                  "assertionDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "ampLevel": "TIER_I_LEVEL_A",
+                  "disease": {
+                    "name": "Congenital Mesoblastic Nephroma",
+                    "doid": "4773"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Larotrectinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "variantOrigin": "SOMATIC"
+                },
+                {
+                  "id": 71,
+                  "status": "ACCEPTED",
+                  "assertionType": "DIAGNOSTIC",
+                  "assertionDirection": "SUPPORTS",
+                  "significance": "POSITIVE",
+                  "ampLevel": "TIER_I_LEVEL_A",
+                  "disease": {
+                    "name": "Congenital Mesoblastic Nephroma",
+                    "doid": "4773"
+                  },
+                  "therapies": [],
+                  "therapyInteractionType": null,
+                  "variantOrigin": "SOMATIC"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

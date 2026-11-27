@@ -103,10 +103,10 @@ pub use response::{
     RnaAbundance, RnaUnit, TissueNtpm,
 };
 pub use response::{
-    CivicClaimPage, CivicCondition, CivicMember, CivicMembership, CivicNativeClaim, CivicProfile,
-    CivicStatement, CivicTherapy, HotspotAlternate, HotspotMembership, HotspotRecord,
-    OncokbCitation, OncokbConcept, OncokbVariantRecord, VariantCivic, VariantHotspots,
-    VariantOncokb, VariantSections,
+    CivicClaimPage, CivicCondition, CivicFeatureType, CivicMember, CivicMembership,
+    CivicNativeClaim, CivicProfile, CivicStatement, CivicTherapy, HotspotAlternate,
+    HotspotMembership, HotspotRecord, OncokbCitation, OncokbConcept, OncokbVariantRecord,
+    VariantCivic, VariantHotspots, VariantOncokb, VariantSections,
 };
 pub use response::{
     ConfigurationHealth, ConfigurationNotice, ConfigurationNoticeCode, ConfigurationVariable,

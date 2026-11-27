@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 URL = 'https://civicdb.org/api/graphql'
 COMMON = 'id status significance disease{name doid} therapies{id name} therapyInteractionType'
 EVIDENCE = 'evidenceType evidenceLevel evidenceDirection source{citationId sourceType}'
-MEMBERS = 'molecularProfile{id name rawName link isComplex variants{id name link feature{id name} ... on GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}'
+MEMBERS = 'molecularProfile{id name rawName link isComplex variants{id name link feature{id name featureType featureInstance{... on Factor{ncitId}}} ... on RegionVariant{iscnName} ... on GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}'
 
 
 def record(case, request, data):

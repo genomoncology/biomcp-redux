@@ -18,6 +18,18 @@ pub(super) fn identity(value: Option<Field<u64>>, field: &str, cx: &mut Problems
         Some(if raw::id(value) { Ok(value) } else { Err(()) }),
     )
 }
+pub(super) fn empty() -> Mapped<VariantCivic> {
+    Mapped {
+        refusals: crate::Refusal::None,
+        value: VariantCivic {
+            total: 0,
+            profiles: Box::default(),
+            page: bounds(0, 0, 0),
+            next: None,
+        },
+        problems: Vec::new(),
+    }
+}
 pub(super) fn page(
     raw: raw::Connection<raw::Profile>,
     query: &VariantGet,
