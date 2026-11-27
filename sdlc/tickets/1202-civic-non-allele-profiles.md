@@ -10,6 +10,11 @@ An agent can read CIViC evidence and assertions for any CIViC molecular profile,
 
 The BioMCP PM chooses how the lookup is addressed. Options: (a) `get variant` accepts a CIViC molecular profile ID or exact profile name when `civic` is the only section; (b) a CIViC profile form on `search variant` that returns profile IDs for `get variant --civic-profile`; (c) gene-level evidence on `get gene ... civic` for features that are genes, with Factors and Regions under (a) or (b). Recommendation: (a), because it keeps one command for "evidence about this alteration" and reuses the existing `--disease`, `--drug`, significance and status filters.
 
+Two further requirements (BioMCP PM, 2026-11-27):
+
+- Empty versus can't look: when BioMCP cannot confirm a CIViC match, for example a gene variant with no ClinGen allele ID, the reply never says `complete` with nothing. It either returns the candidate profile, labelled as a name match, or reports the CIViC source as incomplete with the reason.
+- Reach census: a test, run as a pm job, reads CIViC's own nightly data release and counts the share of evidence items each BioMCP route reaches (variant, drug, profile lookup), broken down by profile type: gene variant with a ClinGen allele ID, gene variant without one, factor (such as TMB or MSI), fusion, region, and with or without a therapy. It records today's numbers before the fix and the numbers after it, and fails when reach drops below the recorded after-fix figures.
+
 ## Why
 
 CIViC 2026 (Nucleic Acids Research, doi:10.1093/nar/gkag1156) made Features the top-level entity, with Fusions, Factors for genome-wide biomarkers such as MSI and TMB, and Regions for cytogenetic changes. Today `get variant` reaches CIViC only through a CAid, `get gene ... civic` gives a count and a description, and `get drug ... civic` reaches any profile only through a therapy. So prognostic, diagnostic, oncogenic and predisposing evidence for a Factor, a Region, a Fusion or a categorical variant has no route at all. Every Region evidence item in CIViC on 2026-11-27 was prognostic with no therapy, and MSI High's prognostic items (EID1940, EID12039, the paper's own example) were unreachable.
@@ -28,6 +33,7 @@ Checked 2026-11-27 against live CIViC GraphQL and the 1.0.0 build at d1c6afa3def
 
 ## Proof
 
+- Proof: the reach census job's before and after numbers, with the after numbers kept as its floor; an outside-in case where TP53 R158G (no ClinGen allele ID) returns a labelled name match or an incomplete CIViC source with its reason, never `complete` with no rows.
 - Proof: outside-in cases that fail today: the four witnesses above return their evidence items with disease and drug filters applied, recorded once from live CIViC; a member of the TMB High profile states feature type Factor and its NCIt ID; a 17p Deletion member states Region and its ISCN name; the drug and variant routes return the same statuses for one profile with submitted items.
 
 ## Starts from

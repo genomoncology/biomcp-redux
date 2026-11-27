@@ -8,6 +8,8 @@ Milestone: 7
 
 `get drug <therapy> civic --evidence-status submitted` returns CIViC's submitted evidence rows instead of dropping each one with a `status value.unknown` problem, and the drug and variant routes return the same statuses when `--evidence-status` is omitted, or each route's help says which statuses it returns.
 
+The drug route honors a user's `--evidence-status` on every request branch it builds; `drug_request.rs:49` hard-codes `status:ACCEPTED` today (BioMCP PM, 2026-11-27).
+
 ## Why
 
 CIViC holds more submitted (not yet moderated) evidence than accepted evidence for many therapies, and the CIViC MCP benchmark counts both. The flag is offered and accepted, but every row it asks for is thrown away, so an agent sees a total with no rows and cannot check them.
@@ -23,6 +25,7 @@ Checked 2026-11-27 against live CIViC GraphQL and the 1.0.0 build at d1c6afa3def
 
 ## Proof
 
+- Proof: an outside-in case for each drug request branch shows the requested status reaching the CIViC query, including the branch at `drug_request.rs:49`.
 - Proof: an outside-in case on a recorded osimertinib reply returns the submitted resistance rows with status `SUBMITTED`; a case without `--evidence-status` shows the default the help states, the same on the drug and variant routes; existing accepted-only replies are unchanged.
 
 ## Starts from
