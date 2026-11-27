@@ -9,8 +9,6 @@ mod source_age;
 mod label_priority;
 #[path = "mcp_local_reply.rs"]
 mod local_reply;
-#[path = "mcp_tool_metadata.rs"]
-mod tool_metadata;
 #[path = "pool_parity.rs"]
 mod pool_parity;
 #[path = "recent_parity.rs"]
@@ -21,6 +19,8 @@ mod reply_form;
 mod reply_size;
 #[path = "protocol_schemas.rs"]
 mod schemas;
+#[path = "mcp_tool_metadata.rs"]
+mod tool_metadata;
 #[path = "typed_tools.rs"]
 mod typed;
 #[path = "typed_bridge.rs"]
