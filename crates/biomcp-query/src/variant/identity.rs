@@ -20,6 +20,15 @@ pub(super) struct Identity {
     /// Source whose rows were kept, when it differs from the input's own resolver.
     pub resolver: Option<Source>,
 }
+
+pub(super) fn for_get(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> Identity {
+    if requested(query) && !cx.fetch.disabled(Source::Gnomad) {
+        super::population_identity::resolve(cx, query, deadline)
+    } else {
+        read(cx, query, deadline)
+    }
+}
+
 pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> Identity {
     let mut found = Identity::default();
     let spec = super::source(query);
@@ -130,11 +139,9 @@ pub(super) fn registry_alias(
     found: &mut Identity,
 ) {
     let native = query.input().source_id();
-    let (prefix, lookup) = match query.input().namespace() {
-        biomcp_types::VariantNamespace::ClinVar => {
-            ("clinvar:", allele_registry::by_clinvar as fn(&_, _) -> _)
-        }
-        biomcp_types::VariantNamespace::Rs => ("rs", allele_registry::by_rsid as _),
+    let prefix = match query.input().namespace() {
+        biomcp_types::VariantNamespace::ClinVar => "clinvar:",
+        biomcp_types::VariantNamespace::Rs => "rs",
         _ => return,
     };
     let Some(Ok(number)) = native.strip_prefix(prefix).map(str::parse::<u64>) else {
@@ -145,7 +152,11 @@ pub(super) fn registry_alias(
         .leg(&allele_registry::SPEC, deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = lookup(&leg, number);
+    let result = if prefix == "rs" {
+        allele_registry::by_rsid(&leg, number)
+    } else {
+        allele_registry::by_clinvar(&leg, number)
+    };
     found.elapsed += started.saturating_sub(leg.remaining());
     let report = leg.finish();
     let rows = match result {
