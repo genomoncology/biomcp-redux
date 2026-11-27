@@ -8,15 +8,11 @@ pub(super) struct Molecule {
     parent_molecule_chembl_id: Option<String>,
 }
 impl Molecule {
-    pub(super) fn matches(&self, field: &str, id: &str) -> bool {
+    pub(super) fn belongs_to(&self, parent: &str) -> bool {
         chembl_id(&self.molecule_chembl_id)
-            && match field {
-                PARENT => self.parent_molecule_chembl_id.as_deref() == Some(id),
-                _ => self.molecule_chembl_id == id,
-            }
+            && self.parent_molecule_chembl_id.as_deref() == Some(parent)
     }
 }
-pub(super) const PARENT: &str = "parent_molecule_chembl_id";
 
 pub(super) fn chembl_id(id: &str) -> bool {
     id.strip_prefix("CHEMBL")

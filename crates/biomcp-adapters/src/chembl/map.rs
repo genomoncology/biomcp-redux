@@ -208,19 +208,18 @@ pub struct Mechanism(pub(super) RawMechanism, pub(super) String);
 #[derive(Debug)]
 pub struct Indication(pub(super) RawIndication, pub(super) String);
 impl Molecule {
-    pub(super) fn relation_filter(
-        &self,
-    ) -> Result<(&'static str, &str), biomcp_fetch::RequestError> {
+    pub(super) fn relation_parent(&self) -> Result<&str, biomcp_fetch::RequestError> {
         match &self.0.molecule_hierarchy {
             Some(hierarchy) if super::scope::chembl_id(&hierarchy.parent_chembl_id) => {
-                Ok((super::scope::PARENT, &hierarchy.parent_chembl_id))
+                Ok(&hierarchy.parent_chembl_id)
             }
             None if !self
                 .problems()
                 .iter()
                 .any(|p| p.field.as_ref() == "molecule_hierarchy") =>
             {
-                Ok(("molecule_chembl_id", &self.0.molecule_chembl_id))
+                // ChEMBL virtual parents have no hierarchy object of their own.
+                Ok(&self.0.molecule_chembl_id)
             }
             _ => Err(biomcp_fetch::bad_reply(
                 biomcp_types::Source::Chembl,

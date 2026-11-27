@@ -84,18 +84,18 @@ pub fn mechanisms(
     limit: u32,
     offset: u32,
 ) -> Result<(Mechanisms, biomcp_fetch::ReplyMetadata), RequestError> {
-    let (field, id) = molecule.relation_filter()?;
+    let parent = molecule.relation_parent()?;
     leg.call(
         &MECHANISMS,
         Input::Params(&[
-            (field, Arg::Text(id)),
+            ("parent_molecule_chembl_id", Arg::Text(parent)),
             ("limit", Arg::Num(limit.into())),
             ("offset", Arg::Num(offset.into())),
         ]),
         biomcp_fetch::Read::json()
             .check(&|r: &Mechanisms| {
                 page(&r.window, limit, offset)?;
-                if r.molecules.iter().all(|row| row.matches(field, id)) {
+                if r.molecules.iter().all(|row| row.belongs_to(parent)) {
                     Ok(())
                 } else {
                     Err(BadReply)
@@ -112,18 +112,18 @@ pub fn indications(
     limit: u32,
     offset: u32,
 ) -> Result<(Indications, biomcp_fetch::ReplyMetadata), RequestError> {
-    let (field, id) = molecule.relation_filter()?;
+    let parent = molecule.relation_parent()?;
     leg.call(
         &INDICATIONS,
         Input::Params(&[
-            (field, Arg::Text(id)),
+            ("parent_molecule_chembl_id", Arg::Text(parent)),
             ("limit", Arg::Num(limit.into())),
             ("offset", Arg::Num(offset.into())),
         ]),
         biomcp_fetch::Read::json()
             .check(&|r: &Indications| {
                 page(&r.window, limit, offset)?;
-                if r.molecules.iter().all(|row| row.matches(field, id)) {
+                if r.molecules.iter().all(|row| row.belongs_to(parent)) {
                     Ok(())
                 } else {
                     Err(BadReply)

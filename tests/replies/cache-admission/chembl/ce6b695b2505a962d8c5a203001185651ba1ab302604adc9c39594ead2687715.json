@@ -1,7 +1,7 @@
 {
   "source": "chembl",
   "method": "GET",
-  "url": "https://www.ebi.ac.uk/chembl/api/data/drug_indication.json?molecule_chembl_id=CHEMBL941&limit=1&offset=0",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/drug_indication.json?parent_molecule_chembl_id=CHEMBL941&limit=1&offset=0",
   "exchanges": [
     {
       "status": 200,
@@ -15,7 +15,8 @@
             {
               "drugind_id": 0,
               "molecule_chembl_id": "CHEMBL941",
-              "max_phase_for_ind": {}
+              "max_phase_for_ind": {},
+              "parent_molecule_chembl_id": "CHEMBL941"
             }
           ],
           "page_meta": {

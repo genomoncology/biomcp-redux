@@ -38,6 +38,17 @@
         "/result/indications/data/records/*/attribution/record": ["57441", "68560"]
       },
       "max_bytes": 4000
+    },
+    {
+      "run": ["get", "drug", "CHEMBL1181829", "targets", "--source", "chembl", "--section-limit", "1"],
+      "expect": {
+        "/result/identity/id": "CHEMBL1181829",
+        "/page/total": 1,
+        "/page/returned": 1,
+        "/result/targets/data/records/0/drug/id": "CHEMBL192986",
+        "/result/targets/data/records/0/attribution/record": "4397"
+      },
+      "max_bytes": 2000
     }
   ]
 }
