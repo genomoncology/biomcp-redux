@@ -33,7 +33,7 @@ pub(super) fn check(server: &Server) -> Check {
             }
         }
     }
-    let headers = format!("{base}MCP-Protocol-Version: 2099-01-01\r\n");
+    let headers = format!("{base}MCP-Protocol-Version: 2024-11-05\r\n");
     let body = legacy(9, "tools/list", json!({})).to_string();
     let (status, reply, _) = server.raw("POST", "/mcp", &host, &headers, &body)?;
     if status != 400
@@ -41,10 +41,10 @@ pub(super) fn check(server: &Server) -> Check {
     {
         return Err(format!("unsupported revision: {status} {reply:?}"));
     }
-    november_2024_refused(server, base)
+    november_2024_fallback(server, base)
 }
 
-fn november_2024_refused(server: &Server, base: &str) -> Check {
+fn november_2024_fallback(server: &Server, base: &str) -> Check {
     let init = legacy(
         10,
         "initialize",
@@ -61,15 +61,16 @@ fn november_2024_refused(server: &Server, base: &str) -> Check {
         "MCP-Protocol-Version: 2025-03-26\r\n",
     ] {
         let headers = format!("{base}{version_header}");
-        let (status, reply, _) = server.raw("POST", "/mcp", &host, &headers, &init)?;
-        let error = reply.as_ref().and_then(|reply| reply.get("error"));
-        if status != 400
-            || error.and_then(|error| error.get("code")) != Some(&json!(-32022))
-            || error.and_then(|error| error.pointer("/data/requested"))
-                != Some(&json!("2024-11-05"))
+        let (status, reply, response) = server.raw("POST", "/mcp", &host, &headers, &init)?;
+        if status != 200
+            || reply
+                .as_ref()
+                .and_then(|reply| reply.pointer("/result/protocolVersion"))
+                != Some(&json!("2025-11-25"))
+            || !response.contains("MCP-Protocol-Version: 2025-11-25\r\n")
         {
             return Err(format!(
-                "stdio-only revision accepted over HTTP: {status} {reply:?}"
+                "HTTP did not offer its legacy fallback: {status} {reply:?}"
             ));
         }
     }

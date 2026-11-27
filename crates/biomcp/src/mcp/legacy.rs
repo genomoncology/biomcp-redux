@@ -6,8 +6,9 @@ pub(super) fn initialize(
     params: &Value,
     mode: crate::config::ToolMode,
     context: crate::command::Context<'_>,
+    revisions: &[&'static str],
 ) -> Option<(&'static str, Value)> {
-    let revision = revision(params.get("protocolVersion")?.as_str()?);
+    let revision = revision(params.get("protocolVersion")?.as_str()?, revisions);
     params.get("capabilities")?.as_object()?;
     let info = params.get("clientInfo")?;
     info.get("name")?.as_str()?;
@@ -19,9 +20,10 @@ pub(super) fn initialize(
 
 // Pinned lifecycle version negotiation preserves a supported requested revision.
 // https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle#version-negotiation
-pub(super) fn revision(requested: &str) -> &'static str {
-    protocol::REVISIONS[1..]
+pub(super) fn revision(requested: &str, revisions: &[&'static str]) -> &'static str {
+    revisions
         .iter()
+        .skip(1)
         .copied()
         .find(|revision| *revision == requested)
         .unwrap_or(protocol::REVISIONS[1])

@@ -17,7 +17,7 @@ pub(super) enum Message {
 pub(super) fn message(
     frame: &[u8],
     version: &mut ReplyVersion,
-    revisions: &[&str],
+    revisions: &[&'static str],
     read_only: bool,
     context: crate::command::Context<'_>,
     mode: crate::config::ToolMode,
@@ -56,7 +56,7 @@ pub(super) fn message(
             return Message::Reply(error);
         }
     } else if method == "initialize" {
-        let Some((revision, result)) = legacy::initialize(&params, mode, context) else {
+        let Some((revision, result)) = legacy::initialize(&params, mode, context, revisions) else {
             return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
         };
         *version = if revision == protocol::NOVEMBER_2024 {

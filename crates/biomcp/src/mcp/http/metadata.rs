@@ -79,17 +79,14 @@ fn revision(request: &Request, value: &Value, id: &Value) -> Result<&'static str
     } else {
         None
     };
-    let revision = if requested == Some(protocol::NOVEMBER_2024) {
-        protocol::NOVEMBER_2024
-    } else {
-        header
-            .or_else(|| requested.map(crate::mcp::legacy::revision))
-            // Legacy HTTP cannot recover a negotiated revision without session state.
-            // https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#protocol-version-header
-            .unwrap_or(protocol::REVISIONS[3])
-    };
-    // The final revision requires the earlier HTTP+SSE transport.
     let supported = protocol::HTTP_REVISIONS;
+    let revision = header
+        // Negotiate the stdio-only revision during initialize, even if echoed in the header.
+        .filter(|_| requested != Some(protocol::NOVEMBER_2024))
+        .or_else(|| requested.map(|requested| crate::mcp::legacy::revision(requested, supported)))
+        // Legacy HTTP cannot recover a negotiated revision without session state.
+        // https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#protocol-version-header
+        .unwrap_or(protocol::REVISIONS[3]);
     let Some(revision) = supported
         .iter()
         .copied()
