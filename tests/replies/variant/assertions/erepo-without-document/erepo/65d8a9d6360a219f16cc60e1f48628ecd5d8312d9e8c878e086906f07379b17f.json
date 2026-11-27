@@ -1,0 +1,40 @@
+{
+  "exchanges": [
+    {
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": [
+            {
+              "caId": "CA16609653",
+              "classification": "Uncertain Significance",
+              "condition": "Glanzmann thrombasthenia",
+              "docVersion": "1.0.0",
+              "ep": "Platelet Disorders VCEP",
+              "gene": "ITGB3",
+              "metCodes": [
+                "PM3_Supporting",
+                "PM2_Supporting",
+                "PP3"
+              ],
+              "mondoId": "MONDO:0100326",
+              "uuid": "41c8341f-4839-430a-a638-fc7a01eb1ea4"
+            }
+          ],
+          "status": {
+            "code": 200,
+            "name": "OK"
+          }
+        }
+      },
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "fetched": 1795811158,
+      "retry_after_ms": null,
+      "status": 200
+    }
+  ],
+  "method": "GET",
+  "source": "erepo",
+  "url": "https://erepo.clinicalgenome.org/evrepo/api/summary/classifications?columns=caId&values=CA16609653&matchTypes=exact&pgSize=3&pg=1"
+}

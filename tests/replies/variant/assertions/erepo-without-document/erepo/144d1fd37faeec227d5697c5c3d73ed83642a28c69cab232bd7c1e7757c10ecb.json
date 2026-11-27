@@ -1,0 +1,58 @@
+{
+  "exchanges": [
+    {
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": [
+            {
+              "caId": "CA024693",
+              "classification": "Likely Pathogenic",
+              "condition": "RYR1-related myopathy",
+              "docVersion": "1.0.0",
+              "ep": "Congenital Myopathies VCEP",
+              "gene": "RYR1",
+              "metCodes": [
+                "PS3_Supporting",
+                "PM3_Strong",
+                "PP3"
+              ],
+              "mondoId": "MONDO:0100150",
+              "uuid": "1a931b8c-98a9-4132-b42f-7907b15f752d"
+            },
+            {
+              "PCERDocID": "PCER000004005",
+              "caId": "CA024693",
+              "classification": "Pathogenic",
+              "condition": "malignant hyperthermia, susceptibility to, 1",
+              "docVersion": "1.0.0",
+              "ep": "Malignant Hyperthermia Susceptibility VCEP",
+              "gene": "RYR1",
+              "metCodes": [
+                "PP1_Strong",
+                "PP3_Moderate",
+                "PS3_Moderate",
+                "PS4",
+                "PM1"
+              ],
+              "mondoId": "MONDO:0007783",
+              "uuid": "b0889437-dc2e-4a8f-b0e4-59876af6b15b"
+            }
+          ],
+          "status": {
+            "code": 200,
+            "name": "OK"
+          }
+        }
+      },
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "fetched": 1795811158,
+      "retry_after_ms": null,
+      "status": 200
+    }
+  ],
+  "method": "GET",
+  "source": "erepo",
+  "url": "https://erepo.clinicalgenome.org/evrepo/api/summary/classifications?columns=caId&values=CA024693&matchTypes=exact&pgSize=3&pg=1"
+}

@@ -1,0 +1,31 @@
+{
+  "feature": "variant-identity",
+  "live_check": "recorded ClinGen summary classifications projected to the fields used in this case",
+  "story": "An eRepo classification without a summary document keeps its panel and criteria, and sharing the allele with a linked classification keeps both rows.",
+  "replay": "variant/assertions/erepo-without-document",
+  "steps": [
+    {
+      "run": ["variant", "assertions", "CA16609653", "--source", "erepo"],
+      "expect": {
+        "/status": "complete",
+        "": {"omits": ["problems"]},
+        "/result/total": 1,
+        "/result/assertions/0/statement/attribution": {"omits": ["record", "url"]},
+        "/result/assertions/0/statement/attribution/submitter": "Platelet Disorders VCEP",
+        "/result/assertions/0/statement/classification/label": "Uncertain Significance",
+        "/result/assertions/0/statement/criteria": ["PM3_Supporting", "PM2_Supporting", "PP3"]
+      }
+    },
+    {
+      "run": ["get", "variant", "CA024693", "erepo"],
+      "expect": {
+        "/status": "complete",
+        "/result/candidates/0/sections/erepo/data/total": 2,
+        "/result/candidates/0/sections/erepo/data/assertions/0/statement/attribution": {"omits": ["record", "url"]},
+        "/result/candidates/0/sections/erepo/data/assertions/0/statement/classification/label": "Likely Pathogenic",
+        "/result/candidates/0/sections/erepo/data/assertions/1/statement/attribution/record": "PCER000004005",
+        "/result/candidates/0/sections/erepo/data/assertions/1/statement/attribution/url": "https://erepo.clinicalgenome.org/evrepo/ui/classification/b0889437-dc2e-4a8f-b0e4-59876af6b15b?version=1.0.0"
+      }
+    }
+  ]
+}
