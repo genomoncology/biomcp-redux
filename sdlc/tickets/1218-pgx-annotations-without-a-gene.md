@@ -2,7 +2,7 @@
 
 Status: OPEN.
 
-Waits for: Ian's ruling on reopening the variant-first and drug-first PGx routes that 0166 and 0168 dropped (PM, 2026-11-27). Only the gene-less reach part may start before that ruling, and every gene-less entry point is itself a variant-first route, so nothing starts yet.
+Ruling: Ian, 2026-11-27, on the recommendation that variant-first and drug-first pharmacogenomic routes come back because some gene-less annotations are level 1A: "Yes on your rec." This supersedes the route drops in tickets 0166 and 0168. Build option (a): `search pgx --variant <rsID>` and `--drug <name>`.
 
 Milestone: 10
 
