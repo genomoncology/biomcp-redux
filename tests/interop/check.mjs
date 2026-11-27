@@ -37,7 +37,7 @@ try {
   const text = result.content.find(({ type }) => type === "text");
   const reply = JSON.parse(text.text);
   assert.equal(reply.status, "complete");
-  assert.equal(reply.result.items[0].nct_id, record);
+  assert.equal(reply.result.items[0].card.nct_id, record);
   if (modernSdk) {
     assert.deepEqual(result.structuredContent, reply);
   }

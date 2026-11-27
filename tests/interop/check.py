@@ -28,7 +28,7 @@ async def check_python(case, mode, revision):
         text = next(block.text for block in result.content if block.type == "text")
         reply = json.loads(text)
         assert reply["status"] == "complete", reply["status"]
-        assert reply["result"]["items"][0]["nct_id"] == case["record"]
+        assert reply["result"]["items"][0]["card"]["nct_id"] == case["record"]
         assert result.structured_content == reply
 
 
