@@ -95,6 +95,9 @@ fn read(
     Ok(match q.section() {
         None => {
             let page = cpic::card(leg, q)?;
+            if page.total == 0 {
+                *empty_reason = Some(format!("CPIC has no gene record for {}.", q.gene()));
+            }
             *consumed = page.consumed;
             refusals.include(page.refusals);
             problems.extend(page.problems);
@@ -146,6 +149,9 @@ fn read(
         }
         Some(PgxSection::Diplotype) => {
             let page = cpic::diplotype(leg, q)?;
+            if page.total == 0 {
+                *empty_reason = Some(diplotype_miss(leg, q));
+            }
             *consumed = page.consumed;
             refusals.include(page.refusals);
             problems.extend(page.problems);
@@ -157,6 +163,21 @@ fn read(
         }
         Some(PgxSection::Annotations) => return Err(biomcp_fetch::InputError::Serialization.into()),
     })
+}
+fn diplotype_miss(leg: &Leg<'_>, q: &PgxGet) -> String {
+    let gene = q.gene();
+    let reason = format!("CPIC diplotype spelling not found for {gene}.");
+    match cpic::diplotype_examples(leg, gene) {
+        Ok(examples) if !examples.is_empty() => {
+            format!("{reason} Examples: {}.", examples.join(", "))
+        }
+        Ok(_) => reason,
+        Err(error) => {
+            let cause = status::reason(error)
+                .map_or_else(|| "a local error".to_owned(), |reason| reason.to_string());
+            format!("{reason} Reading example spellings failed ({cause}).")
+        }
+    }
 }
 /// Say why a gene and drug have no recommendation rows, from CPIC's own pair row.
 /// The pair read only explains; when it fails, the notice names that failure instead.

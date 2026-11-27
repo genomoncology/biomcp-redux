@@ -25,10 +25,10 @@ Read the native tables independently and retain their identifiers and source att
 ## 3. Retrieve and inspect
 
 ```sh
-biomcp get pgx --gene DPYD --source cpic diplotype --diplotype '*1/*2A'
+biomcp get pgx --gene DPYD --source cpic diplotype --diplotype 'c.1905+1G>A (*2A)/Reference'
 ```
 
-Read the echoed diplotype and the source-provided matching rows. Do not combine rows into a locally computed phenotype or dosing instruction.
+Use CPIC’s spelling for each allele. Either allele order and letter case work. A miss can give examples of CPIC’s spellings for that gene.
 
 ## Next
 

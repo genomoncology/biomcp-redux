@@ -2,8 +2,7 @@
 use super::SPEC;
 use crate::{mapped::Problems, pgx_sources::Native, raw::Field};
 use biodata::{
-    PgxDiplotypeResult, PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxPair,
-    PgxRecommendation,
+    PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxPair, PgxRecommendation,
 };
 use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
@@ -100,18 +99,33 @@ pub(super) fn read<T: serde::de::DeserializeOwned + Native>(
         problems: problems.list,
     })
 }
-/// Search exact gene pairs at `offset`, preserving native level namespaces and row order.
+/// Search gene pairs at `offset`, preserving native level namespaces and row order.
 pub(super) fn pairs(
     leg: &Leg<'_>,
     query: &PgxSearch,
     offset: u32,
     limit: u32,
 ) -> Result<Page<PgxPair>, RequestError> {
-    let gene = format!("eq.{}", query.gene());
-    let level = query.cpic_level().map(|v| format!("eq.{}", v.as_str()));
+    let symbol = query.gene().as_str();
+    let page = pairs_for_gene(leg, query, offset, limit, &format!("eq.{symbol}"));
+    if page.as_ref().is_ok_and(|p| p.total == 0) {
+        return pairs_for_gene(leg, query, offset, limit, &super::case_insensitive(symbol));
+    }
+    page
+}
+pub(super) fn pairs_for_gene(
+    leg: &Leg<'_>,
+    query: &PgxSearch,
+    offset: u32,
+    limit: u32,
+    gene: &str,
+) -> Result<Page<PgxPair>, RequestError> {
+    let level = query
+        .cpic_level()
+        .map(|v| format!("eq.{}", v.as_str().to_ascii_uppercase()));
     let mut args = vec![
         ("select", Arg::Text("*")),
-        ("genesymbol", Arg::Text(&gene)),
+        ("genesymbol", Arg::Text(gene)),
         ("order", Arg::Text("pairid.asc")),
         ("limit", Arg::Num(limit.into())),
         ("offset", Arg::Num(offset.into())),
@@ -129,16 +143,29 @@ pub(super) fn pairs(
         |rows: &[PgxPair], _range| {
             rows.iter().all(|r| {
                 &r.genesymbol == query.gene()
-                    && query
-                        .cpic_level()
-                        .is_none_or(|v| r.cpiclevel.as_deref() == Some(v.as_str()))
+                    && query.cpic_level().is_none_or(|v| {
+                        r.cpiclevel
+                            .as_deref()
+                            .is_some_and(|level| level.eq_ignore_ascii_case(v.as_str()))
+                    })
             }) && ordered(rows.iter().map(|r| r.pairid.id))
         },
     )
 }
 /// Select only the seven reviewed native identity fields.
 pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, RequestError> {
-    let gene = format!("eq.{}", query.gene());
+    let symbol = query.gene().as_str();
+    let page = card_for_gene(leg, query, &format!("eq.{symbol}"))?;
+    if page.total == 0 {
+        return card_for_gene(leg, query, &super::case_insensitive(symbol));
+    }
+    Ok(page)
+}
+fn card_for_gene(
+    leg: &Leg<'_>,
+    query: &PgxGet,
+    gene: &str,
+) -> Result<Page<PgxGeneIdentity>, RequestError> {
     read::<super::raw::PgxGeneIdentity>(
         leg,
         super::GENE_PATH,
@@ -147,7 +174,7 @@ pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, Requ
                 "select",
                 Arg::Text("symbol,hgncid,ncbiid,ensemblid,clinpgxid,lookupmethod,version"),
             ),
-            ("symbol", Arg::Text(&gene)),
+            ("symbol", Arg::Text(gene)),
             ("limit", Arg::Num(5)),
             ("offset", Arg::Num(0)),
         ],
@@ -253,33 +280,6 @@ pub fn guidelines(
         |rows: &[PgxGuidelineReference], _range| {
             rows.iter()
                 .all(|r| r.genes.iter().any(|g| &g.symbol == query.gene()))
-        },
-    )
-}
-/// Retrieve every mapping for the unchanged expression; literal empty is success.
-pub fn diplotype(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxDiplotypeResult>, RequestError> {
-    let expression = query
-        .diplotype()
-        .ok_or(biomcp_fetch::InputError::Serialization)?;
-    let gene = format!("eq.{}", query.gene());
-    let value = format!("eq.{expression}");
-    read::<super::raw::PgxDiplotypeResult>(
-        leg,
-        "/diplotype",
-        &[
-            ("select", Arg::Text("*")),
-            ("genesymbol", Arg::Text(&gene)),
-            ("diplotype", Arg::Text(&value)),
-            ("limit", Arg::Num(query.section_limit().into())),
-            ("offset", Arg::Num(query.section_offset().into())),
-        ],
-        query.section_offset(),
-        query.section_limit(),
-        true,
-        |rows: &[PgxDiplotypeResult], _range| {
-            rows.iter().all(|r| {
-                &r.genesymbol == query.gene() && r.diplotype.as_ref() == expression.to_string()
-            })
         },
     )
 }
