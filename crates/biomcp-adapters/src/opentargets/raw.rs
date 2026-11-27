@@ -79,7 +79,10 @@ pub(super) struct Drug {
     /// Complete native indication collection without invented server paging.
     pub indications: Rows<Indication>,
     /// Native mechanism collection, null when the source has no mechanisms.
-    #[serde(rename = "mechanismsOfAction", deserialize_with = "Option::deserialize")]
+    #[serde(
+        rename = "mechanismsOfAction",
+        deserialize_with = "Option::deserialize"
+    )]
     pub mechanisms_of_action: Option<Rows<Mechanism>>,
 }
 /// A native returned collection.
