@@ -1,0 +1,26 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=imatch.%5Eg6pd%24&order=pairid.asc&limit=5&offset=0&cpiclevel=imatch.%5Ec%24",
+  "exchanges": [
+    {
+      "fetched": 1792918640,
+      "status": 200,
+      "content_type": "application/json",
+      "content_range": "0-0/1",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "genesymbol": "G6PD",
+            "pairid": 1,
+            "cpiclevel": "C",
+            "drugname": "Synthetic drug"
+          }
+        ]
+      }
+    }
+  ]
+}

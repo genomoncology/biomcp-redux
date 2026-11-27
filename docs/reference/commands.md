@@ -3060,7 +3060,7 @@ Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string; example: --annotation-id <annotation-id> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
-- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string; example: --diplotype '*1/*2A'; only with --source cpic.
+- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string; example: --diplotype 'c.1905+1G>A (*2A)/Reference'; only with --source cpic.
 - `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string; example: --drug-id RxNorm:343047; only with --source cpic.
 - `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
 - `--kind`: One ClinPGx collection; clinical is the default only on annotations. Value form: string; example: --kind clinical; only with --source clinpgx.

@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/diplotype?select=%2A&genesymbol=eq.CYP2C19&diplotype=eq.%2A1%2F%2A999&limit=5&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1792918640,
+      "status": 200,
+      "content_type": "application/json",
+      "content_range": "*/0",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": []
+      }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 # 1217 — cpic-diplotype-spelling-and-order
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 70cc4e766ed5a66f3dc71989fe7cd3f8dc246f3f
 
 Milestone: 10
 

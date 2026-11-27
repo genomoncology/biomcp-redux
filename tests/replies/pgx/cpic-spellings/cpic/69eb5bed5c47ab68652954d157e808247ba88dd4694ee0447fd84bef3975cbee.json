@@ -1,0 +1,32 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/diplotype?select=genesymbol%2Cdiplotype&genesymbol=eq.CYP2C19&order=diplotype.asc&limit=3&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1792918640,
+      "status": 206,
+      "content_type": "application/json",
+      "content_range": "0-2/1234",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "genesymbol": "CYP2C19",
+            "diplotype": "*1/*1"
+          },
+          {
+            "genesymbol": "CYP2C19",
+            "diplotype": "*1/*2"
+          },
+          {
+            "genesymbol": "CYP2C19",
+            "diplotype": "*2/*2"
+          }
+        ]
+      }
+    }
+  ]
+}

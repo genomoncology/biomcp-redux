@@ -67,12 +67,13 @@
         "cpic",
         "diplotype",
         "--diplotype",
-        "*1/*2A"
+        "c.1905+1G>A (*2A)/Reference"
       ],
       "expect": {
         "/status": "complete",
         "/query/gene": "DPYD",
-        "/query/source": "cpic"
+        "/query/source": "cpic",
+        "/result/diplotypes/0/diplotype": "c.1905+1G>A (*2A)/Reference"
       },
       "max_bytes": 907
     },
