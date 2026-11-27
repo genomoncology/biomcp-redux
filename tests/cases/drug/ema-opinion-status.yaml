@@ -35,6 +35,15 @@
       }
     },
     {
+      "run": ["get", "drug", "Keytruda", "markets", "--disable-sources", "drugsfda"],
+      "expect": {
+        "/status": "partial",
+        "/result/markets/0": {"source": "drugsfda", "state": "failed", "reason": "disabled"},
+        "/incomplete/0": {"at": "/result/markets/0", "source": "drugsfda", "reason": "disabled"},
+        "/result/markets/1/state": "found"
+      }
+    },
+    {
       "run": ["get", "drug", "EMEA/H/C/003820", "regulatory", "--source", "ema"],
       "expect": {
         "/status": "complete",
