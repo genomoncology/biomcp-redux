@@ -103,7 +103,10 @@ fn compare_frames(
         if before == after {
             continue;
         }
-        if matches!(frame["method"].as_str(), Some("server/discover" | "tools/list")) {
+        if matches!(
+            frame["method"].as_str(),
+            Some("server/discover" | "tools/list")
+        ) {
             // The transport cases verify the current catalog cache policy.
             let mut before: Value = serde_json::from_str(before).map_err(|e| e.to_string())?;
             let mut after: Value = serde_json::from_str(after).map_err(|e| e.to_string())?;

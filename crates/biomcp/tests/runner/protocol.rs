@@ -5,10 +5,10 @@ mod purple_book;
 #[path = "source_age.rs"]
 mod source_age;
 
-#[path = "label_priority.rs"]
-mod label_priority;
 #[path = "mcp_cache_fields.rs"]
 mod cache_fields;
+#[path = "label_priority.rs"]
+mod label_priority;
 #[path = "mcp_local_reply.rs"]
 mod local_reply;
 #[path = "pool_parity.rs"]

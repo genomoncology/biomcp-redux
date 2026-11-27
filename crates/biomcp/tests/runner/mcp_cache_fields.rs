@@ -68,7 +68,8 @@ fn stdio() -> Result<(), String> {
         .get(1)
         .and_then(|reply| reply.get("result"))
         .ok_or("missing legacy tools/list result")?;
-    if !list["tools"].is_array() || list.get("ttlMs").is_some() || list.get("cacheScope").is_some() {
+    if !list["tools"].is_array() || list.get("ttlMs").is_some() || list.get("cacheScope").is_some()
+    {
         return Err("expected a 2025-11-25 tool list without cache fields".into());
     }
     Ok(())
