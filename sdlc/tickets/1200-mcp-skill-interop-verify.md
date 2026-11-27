@@ -1,6 +1,7 @@
 # 1200 — mcp-skill-interop-verify
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b076e2e31239ac48f1c8917e7cf35cf0f4c5c258
 
 Milestone: 7
 

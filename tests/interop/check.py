@@ -1,10 +1,11 @@
-"""Exercise the official MCP clients against one recorded stdio read."""
+"""Exercise official MCP clients against a recorded stdio read and the research skill."""
 
 import asyncio
 import json
 import subprocess
 import sys
 import tempfile
+import time
 from importlib.metadata import version
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from mcp import Client, StdioServerParameters
 CURRENT = "2026-07-28"
 LEGACY = "2025-11-25"
 TYPESCRIPT = "@modelcontextprotocol/client"
+INSPECTOR = "@modelcontextprotocol/inspector"
 HERE = Path(__file__).resolve().parent
 
 
@@ -30,6 +32,22 @@ async def check_python(case, mode, revision):
         assert reply["status"] == "complete", reply["status"]
         assert reply["result"]["items"][0]["card"]["nct_id"] == case["record"]
         assert result.structured_content == reply
+
+
+def check_inspector(node, server):
+    command = [
+        node, HERE / "node_modules/.bin/mcp-inspector", "--cli",
+        "--protocol-era", "modern", "--method", "skills/list", "--verify", "--require-digests",
+    ]
+    for key, value in server["env"].items():
+        command.extend(["-e", f"{key}={value}"])
+    command.extend(["--", server["command"], *server["args"]])
+    started = time.monotonic()
+    result = subprocess.run(command, cwd=server["cwd"], env=server["env"])
+    elapsed = time.monotonic() - started
+    print(f"MCP Inspector skills verification took {elapsed:.3f}s (exit {result.returncode})", flush=True)
+    if result.returncode:
+        raise SystemExit(result.returncode)
 
 
 def check(binary, node, package, sdk_version, mode, revision):
@@ -54,7 +72,9 @@ def check(binary, node, package, sdk_version, mode, revision):
             "call": {"name": "biomcp", "arguments": {"args": ["get", "trial", record]}},
             "record": record,
         }
-        if package == "mcp":
+        if package == INSPECTOR:
+            check_inspector(node, case["server"])
+        elif package == "mcp":
             asyncio.run(check_python(case, mode, revision))
         else:
             case_file = root / "case.json"
@@ -65,6 +85,7 @@ def check(binary, node, package, sdk_version, mode, revision):
 
 def main(binary, node):
     dependencies = json.loads((HERE / "package.json").read_text())["dependencies"]
+    check(binary, node, INSPECTOR, dependencies[INSPECTOR], "modern", CURRENT)
     for mode, revision in [("auto", CURRENT), ("legacy", LEGACY)]:
         check(binary, node, TYPESCRIPT, dependencies[TYPESCRIPT], mode, revision)
         check(binary, node, "mcp", version("mcp"), mode, revision)

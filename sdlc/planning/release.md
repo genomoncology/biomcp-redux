@@ -21,3 +21,7 @@ The channel producers live in [release/](../../release/), [manifest.json](../../
 The installer verifies archive checksums and extracts Windows ZIP archives in supported shells. Published formulas select release URLs. Versioned releases remain available when a new release replaces the channel's current version.
 
 Read the [0.9 upgrade note](upgrade.md) before changing client configuration. Its generated command list comes from the same slice accounting as the roadmap ledger. `make docs-check` rejects drift in either generated view and rejects a deferred or dropped leaf that appears in the generated command reference.
+
+## Manual checks
+
+- Confirm that the `biomcp-research` MCP skill appears and loads in an interactive Claude Code session (v2.1.331 or later) and in claude.ai with the BioMCP connector.

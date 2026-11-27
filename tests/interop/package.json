@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@modelcontextprotocol/client": "2.4.0",
+    "@modelcontextprotocol/inspector": "2.17.0",
     "mcp-2024-11-05": "npm:@modelcontextprotocol/sdk@1.0.4",
     "mcp-2025-03-26": "npm:@modelcontextprotocol/sdk@1.11.0",
     "mcp-2025-06-18": "npm:@modelcontextprotocol/sdk@1.13.3",
