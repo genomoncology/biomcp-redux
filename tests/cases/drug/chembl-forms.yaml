@@ -1,0 +1,54 @@
+{
+  "feature": "drug-native-sources",
+  "story": "ChEMBL drug sections read the full molecule family, and each row identifies its recorded form.",
+  "live_check": "public",
+  "verified": "ChEMBL CC BY-SA 3.0 (https://chembl.github.io/chembl-licensing/). Publisher replies captured 2026-11-27 without credentials.",
+  "replay": "drug/native-chembl",
+  "steps": [
+    {
+      "run": ["get", "drug", "CHEMBL941", "targets", "--source", "chembl", "--section-limit", "4"],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "CHEMBL941",
+        "/page/total": 4,
+        "/page/returned": 4,
+        "/result/targets/data/records/*/drug/id": ["CHEMBL1642", "CHEMBL1642", "CHEMBL1642", "CHEMBL1642"],
+        "/result/targets/data/records/*/attribution/record": ["304", "418", "451", "8630"]
+      },
+      "max_bytes": 4500
+    },
+    {
+      "run": ["get", "drug", "CHEMBL1642", "targets", "--source", "chembl", "--section-limit", "4"],
+      "expect": {
+        "/result/identity/id": "CHEMBL1642",
+        "/page/total": 4,
+        "/result/targets/data/records/*/attribution/record": ["304", "418", "451", "8630"]
+      },
+      "max_bytes": 4500
+    },
+    {
+      "run": ["get", "drug", "imatinib", "indications", "--source", "chembl", "--section-limit", "2", "--section-offset", "35"],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "CHEMBL941",
+        "/page/total": 134,
+        "/page/offset": 35,
+        "/page/returned": 2,
+        "/result/indications/data/records/*/source_molecule": ["CHEMBL1642", "CHEMBL941"],
+        "/result/indications/data/records/*/attribution/record": ["57441", "68560"]
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": ["get", "drug", "CHEMBL1181829", "targets", "--source", "chembl", "--section-limit", "1"],
+      "expect": {
+        "/result/identity/id": "CHEMBL1181829",
+        "/page/total": 1,
+        "/page/returned": 1,
+        "/result/targets/data/records/0/drug/id": "CHEMBL192986",
+        "/result/targets/data/records/0/attribution/record": "4397"
+      },
+      "max_bytes": 2000
+    }
+  ]
+}

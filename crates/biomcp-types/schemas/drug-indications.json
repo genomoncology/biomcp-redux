@@ -653,6 +653,18 @@
           },
           "type": "array"
         },
+        "source_molecule": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ChEMBL molecule ID on which the indication was recorded.",
+          "x-kept": true
+        },
         "stage": {
           "anyOf": [
             {

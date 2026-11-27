@@ -14,6 +14,7 @@ pub fn targets(
     let mut refusals = crate::Refusal::None;
     let mut rejected = Vec::new();
     for r in rows {
+        let source_drug = source_drug(drug, &r.1)?;
         let r = r.0;
         refusals.include(r.refusals);
         let target_identity = r.target_identity();
@@ -59,7 +60,7 @@ pub fn targets(
             &mut refusals,
         );
         records.push(DrugTargetRelation::new(
-            drug.clone(),
+            source_drug,
             None,
             target,
             relation,
@@ -84,6 +85,7 @@ pub fn indications(
     let mut refusals = crate::Refusal::None;
     let mut rejected = Vec::new();
     for r in rows {
+        let source_drug = source_drug(drug, &r.1)?;
         let r = r.0;
         refusals.include(r.refusals);
         let mut problems = Problems {
@@ -117,7 +119,7 @@ pub fn indications(
             &mut refusals,
         );
         records.push(DrugIndicationClaim {
-            drug: drug.clone(),
+            drug: source_drug,
             indication,
             disease_references: diseases.into(),
             stage: r.max_phase_for_ind.map(|value| DrugStage {
@@ -137,6 +139,21 @@ pub fn indications(
         problems: rejected,
     })
 }
+fn source_drug(drug: &DrugIdentity, molecule: &str) -> Result<DrugIdentity, Error> {
+    let id = molecule.parse()?;
+    if id == drug.id {
+        return Ok(drug.clone());
+    }
+    Ok(DrugIdentity {
+        id,
+        namespace: drug.namespace.clone(),
+        name: None,
+        identity_level: biodata::DrugIdentityLevel::Unknown,
+        r#type: None,
+        url: None,
+    })
+}
+
 fn references(
     rows: Vec<Reference>,
     field: &str,
@@ -186,11 +203,31 @@ fn attribution(record: String) -> Result<Attribution, Error> {
 pub struct Molecule(pub(super) super::raw::Molecule);
 /// Accepted mechanism storage with private provider fields.
 #[derive(Debug)]
-pub struct Mechanism(pub(super) RawMechanism);
+pub struct Mechanism(pub(super) RawMechanism, pub(super) String);
 /// Accepted indication storage with private provider fields.
 #[derive(Debug)]
-pub struct Indication(pub(super) RawIndication);
+pub struct Indication(pub(super) RawIndication, pub(super) String);
 impl Molecule {
+    pub(super) fn relation_parent(&self) -> Result<&str, biomcp_fetch::RequestError> {
+        match &self.0.molecule_hierarchy {
+            Some(hierarchy) if super::scope::chembl_id(&hierarchy.parent_chembl_id) => {
+                Ok(&hierarchy.parent_chembl_id)
+            }
+            None if !self
+                .problems()
+                .iter()
+                .any(|p| p.field.as_ref() == "molecule_hierarchy") =>
+            {
+                // ChEMBL virtual parents have no hierarchy object of their own.
+                Ok(&self.0.molecule_chembl_id)
+            }
+            _ => Err(biomcp_fetch::bad_reply(
+                biomcp_types::Source::Chembl,
+                Some(200),
+            )),
+        }
+    }
+
     /// Match complete native preferred or synonym names, retaining native trade-name classification.
     pub fn name_match(&self, name: &str) -> Option<biomcp_types::DrugNameMatch> {
         let exact = |value: &str| biomcp_types::DrugNameMatch::same_name(value, name);

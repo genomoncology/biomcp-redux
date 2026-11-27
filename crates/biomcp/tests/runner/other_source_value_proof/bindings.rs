@@ -11,7 +11,7 @@ pub(super) fn mechanism(directory: &Path, registry: &Registry) -> Check {
         .pointer_mut("/mechanisms/0")
         .ok_or("native mechanism")?;
     *row.get_mut("mec_id").ok_or("native mechanism identity")? = json!({"bad_shape":true});
-    *row.get_mut("molecule_chembl_id")
+    *row.get_mut("parent_molecule_chembl_id")
         .ok_or("native molecule binding")? = json!("CHEMBL941");
     let mutation = Mutation {
         file: "015.json",

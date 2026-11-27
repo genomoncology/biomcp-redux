@@ -77,25 +77,25 @@ pub fn molecule(
     .map(|received| (received.value, received.meta))
     .map(|(row, meta)| (map::Molecule(row), meta))
 }
-/// Read native mechanisms without resolving a target record by name or substituting a drug ID.
+/// Read a native page of mechanisms across the molecule family.
 pub fn mechanisms(
     leg: &Leg<'_>,
-    id: &biodata::DrugId,
+    molecule: &Molecule,
     limit: u32,
     offset: u32,
 ) -> Result<(Mechanisms, biomcp_fetch::ReplyMetadata), RequestError> {
-    let id = id.to_string();
+    let parent = molecule.relation_parent()?;
     leg.call(
         &MECHANISMS,
         Input::Params(&[
-            ("molecule_chembl_id", Arg::Text(&id)),
+            ("parent_molecule_chembl_id", Arg::Text(parent)),
             ("limit", Arg::Num(limit.into())),
             ("offset", Arg::Num(offset.into())),
         ]),
         biomcp_fetch::Read::json()
             .check(&|r: &Mechanisms| {
                 page(&r.window, limit, offset)?;
-                if r.molecules.iter().all(|molecule| molecule == &id) {
+                if r.molecules.iter().all(|row| row.belongs_to(parent)) {
                     Ok(())
                 } else {
                     Err(BadReply)
@@ -105,25 +105,25 @@ pub fn mechanisms(
     )
     .map(|received| (received.value, received.meta))
 }
-/// Read native indication rows and clinical phases without interpreting them as authorization.
+/// Read a native page of indications across the molecule family.
 pub fn indications(
     leg: &Leg<'_>,
-    id: &biodata::DrugId,
+    molecule: &Molecule,
     limit: u32,
     offset: u32,
 ) -> Result<(Indications, biomcp_fetch::ReplyMetadata), RequestError> {
-    let id = id.to_string();
+    let parent = molecule.relation_parent()?;
     leg.call(
         &INDICATIONS,
         Input::Params(&[
-            ("molecule_chembl_id", Arg::Text(&id)),
+            ("parent_molecule_chembl_id", Arg::Text(parent)),
             ("limit", Arg::Num(limit.into())),
             ("offset", Arg::Num(offset.into())),
         ]),
         biomcp_fetch::Read::json()
             .check(&|r: &Indications| {
                 page(&r.window, limit, offset)?;
-                if r.molecules.iter().all(|molecule| molecule == &id) {
+                if r.molecules.iter().all(|row| row.belongs_to(parent)) {
                     Ok(())
                 } else {
                     Err(BadReply)

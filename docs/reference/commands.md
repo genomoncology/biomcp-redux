@@ -3540,7 +3540,7 @@ Only with section interactions. Value form: string; example: --partner DDInter90
 - `section`: Source sections.
 Form: get drug INPUT SECTION...; not --section.
 - `--section-limit`: Page size. Requires a section. Max 200 for approvals, interactions, label, regulatory, xrefs and essential-medicines, 50 elsewhere. Value form: integer; example: --section-limit 2.
-- `--section-offset`: Section offset. With label-history --every-version, start at this version. Requires a section. Value form: integer; example: --section-offset 1.
+- `--section-offset`: Section offset. With label-history --every-version, start at this version. Requires a section. Value form: integer; example: --section-offset 35.
 - `--source`: Omit to infer the source from the section. Identity and mixed sections default to MyChem. Value form: string; example: --source ema.
 
 Named disclosures of the selected source, each its own part of one reply; empty means identity only.

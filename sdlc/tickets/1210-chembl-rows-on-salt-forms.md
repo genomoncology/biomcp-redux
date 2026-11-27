@@ -1,6 +1,7 @@
 # 1210 — chembl-rows-on-salt-forms
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: aaa4eabfc0dc7bee7ed17a52a524b7caf378080e
 
 Milestone: 10
 

@@ -67,7 +67,7 @@ impl Reply for Molecules {
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedMechanisms")]
 pub struct Mechanisms {
-    pub(super) molecules: Vec<String>,
+    pub(super) molecules: Vec<super::scope::Molecule>,
     /// Accepted native rows.
     pub window: crate::NativeWindow<Mechanism>,
     /// Rejected row identities.
@@ -90,13 +90,14 @@ impl From<ReceivedMechanisms> for Mechanisms {
         let mut refusals = crate::Refusal::None;
         let mut molecules = Vec::new();
         for row in page.mechanisms {
-            molecules.push(row.scope.molecule_chembl_id);
+            molecules.push(row.scope.clone());
+            let molecule = row.scope.molecule_chembl_id;
             problems.record = None;
             if let Some(mut row) = problems.field("mec_id", Some(row.value)) {
                 if row.mec_id > 0 {
                     refusals.include(row.refusals);
                     row.refusals = crate::Refusal::None;
-                    rows.push(Mechanism(row));
+                    rows.push(Mechanism(row, molecule));
                 } else {
                     refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(row.mec_id);
@@ -144,7 +145,7 @@ impl Reply for Mechanisms {
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedIndications")]
 pub struct Indications {
-    pub(super) molecules: Vec<String>,
+    pub(super) molecules: Vec<super::scope::Molecule>,
     /// Accepted native rows.
     pub window: crate::NativeWindow<Indication>,
     /// Rejected row identities.
@@ -167,13 +168,14 @@ impl From<ReceivedIndications> for Indications {
         let mut refusals = crate::Refusal::None;
         let mut molecules = Vec::new();
         for row in page.drug_indications {
-            molecules.push(row.scope.molecule_chembl_id);
+            molecules.push(row.scope.clone());
+            let molecule = row.scope.molecule_chembl_id;
             problems.record = None;
             if let Some(mut row) = problems.field("drugind_id", Some(row.value)) {
                 if row.drugind_id > 0 {
                     refusals.include(row.refusals);
                     row.refusals = crate::Refusal::None;
-                    rows.push(Indication(row));
+                    rows.push(Indication(row, molecule));
                 } else {
                     refusals = crate::Refusal::Refused;
                     problems.record = crate::mapped::record(row.drugind_id);

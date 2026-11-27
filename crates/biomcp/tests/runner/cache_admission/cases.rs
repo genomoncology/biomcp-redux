@@ -17,7 +17,7 @@ pub(super) const OWNERS: &[Owner] = &[
     Owner {
         name: "chembl-mechanisms",
         feature: "drug-native-sources",
-        recording: "replies/cache-admission/chembl/343cd05f0f98cc08ca45330cbd92aeb4af4492c56509760000e97cf09066e1c0.json",
+        recording: "replies/cache-admission/chembl/7102c05e819cdfec940d93a55de6782bedbe0aff70764eee9b6940f9b6f6df31.json",
         rows: "/mechanisms",
         identity: "/mechanisms/0/mec_id",
         accepted_identity: "1",
@@ -30,7 +30,7 @@ pub(super) const OWNERS: &[Owner] = &[
     Owner {
         name: "chembl-indications",
         feature: "drug-native-sources",
-        recording: "replies/cache-admission/chembl/4d86a2eb37c724f1f3b09c148c87d46d828e86020825af08a5fe1aa6bc667c75.json",
+        recording: "replies/cache-admission/chembl/ce6b695b2505a962d8c5a203001185651ba1ab302604adc9c39594ead2687715.json",
         rows: "/drug_indications",
         identity: "/drug_indications/0/drugind_id",
         accepted_identity: "1",
