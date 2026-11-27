@@ -19,7 +19,9 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         return studies::search(cx, q);
     }
     if q.p_value().is_some() {
-        return threshold::search(cx, q);
+        let mut out = threshold::search(cx, q);
+        next::empty_trait(q, &mut out);
+        return out;
     }
     let mut out = empty(q);
     let command = cx.fetch.command_deadline(cx.budget);
@@ -63,10 +65,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             qualifying_total: None,
         })
         .with_query(biomcp_types::GwasPageQuery::Search(q.clone()));
-        {
-            let unavailable = false;
-            crate::status::item(&mut out, true, false, unavailable);
-        };
+        crate::status::item(&mut out, true, false, false);
     }
     let mut source = status::source(Source::Gwas, leg.finish(), error);
     if let Some((accepted, total)) = counts {
@@ -92,6 +91,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     status::search(&mut out);
     out.local = error.and_then(status::local);
     command.finish(deadline.remaining());
+    next::empty_trait(q, &mut out);
     out
 }
 

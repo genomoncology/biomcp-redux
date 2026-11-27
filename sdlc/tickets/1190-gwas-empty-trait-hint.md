@@ -1,6 +1,7 @@
 # 1190 — gwas-empty-trait-hint
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 41f32c8683e4b85b721bf20da5ed4f83b3a0803b
 
 Milestone: 7
 
