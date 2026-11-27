@@ -1,6 +1,7 @@
 # 1201 — saved-delete-all-asks-to-confirm
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: cb042185a9f09914d692d48ed2e4a85e4f5b2cfe
 
 Milestone: 7
 

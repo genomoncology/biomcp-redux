@@ -122,6 +122,7 @@ fn load_service(directory: &Path) -> Result<LoadService, Box<dyn std::error::Err
         settings: Arc::new(Ok(None)),
         fetch: Ok(Arc::new(fetch)),
         recovery: None,
+        local_key: None,
     });
     Ok((listener, service, writers))
 }

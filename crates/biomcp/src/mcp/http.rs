@@ -49,6 +49,7 @@ struct Service {
     settings: Arc<crate::config::Settings>,
     fetch: Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     recovery: Option<Arc<super::Recovery>>,
+    local_key: Option<Arc<biomcp_fetch::TrialCursorKey>>,
 }
 pub(crate) fn serve(
     address: &str,
@@ -107,6 +108,7 @@ pub(crate) fn serve(
     let service = Arc::new(Service {
         calls: Calls::default(),
         connections: admission::Slots::new(max_connections),
+        local_key: super::elicitation::local_key(),
         hosted_max_use,
         max_calls,
         queue_wait: crate::config::queue_wait(&settings),
@@ -257,7 +259,6 @@ impl Service {
         context.secrets = keys.as_ref();
         context.excluded = Some(&caller.excluded);
         let mut version = ReplyVersion::for_revision(revision);
-        let modern = version == ReplyVersion::Current;
         let result = match super::rpc::message(
             &request.body,
             &mut version,
@@ -266,7 +267,12 @@ impl Service {
             context,
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
         ) {
-            super::rpc::Message::Reply(reply) => reply,
+            super::rpc::Message::Reply(reply) | super::rpc::Message::Initialized { reply, .. } => {
+                reply
+            }
+            super::rpc::Message::ClientResponse { id, .. } => {
+                super::protocol::error(id, -32600, "Invalid Request")
+            }
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool {
                 id,
@@ -277,7 +283,7 @@ impl Service {
             }
         };
         let status = match result.pointer("/error/code").and_then(Value::as_i64) {
-            Some(-32601) if modern => 404,
+            Some(-32601) if revision == super::protocol::REVISIONS[0] => 404,
             _ => 200,
         };
         (status, Some(result), Some(revision))
@@ -397,6 +403,12 @@ impl Service {
                 .declared_use
                 .unwrap_or(crate::command::DeclaredUse::Restricted)
         });
+        let confirmation =
+            if version == ReplyVersion::Current && super::elicitation::delete_all(&call) {
+                super::current::confirmation(params)
+            } else {
+                None
+            };
         let result = self.calls.run(
             self,
             ToolCall {
@@ -408,6 +420,7 @@ impl Service {
                 excluded: caller.excluded,
                 scope,
                 account: caller.account,
+                confirmation,
             },
             peer,
         );

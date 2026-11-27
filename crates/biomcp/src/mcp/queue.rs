@@ -1,5 +1,4 @@
 //! Stdio calls over the concurrency limit wait their turn in arrival order.
-use super::protocol::ReplyVersion;
 use serde_json::Value;
 use std::{
     collections::VecDeque,
@@ -7,12 +6,11 @@ use std::{
     time::{Duration, Instant},
 };
 
-pub(super) type Work = Box<dyn FnOnce() -> io::Result<super::research::Completed> + Send>;
+pub(super) type Work = Box<dyn FnOnce() -> io::Result<Value> + Send>;
 
 pub(super) struct Waiting {
     pub(super) key: String,
     pub(super) id: Value,
-    pub(super) version: ReplyVersion,
     pub(super) cancellation: Option<biomcp_fetch::Cancellation>,
     pub(super) work: Work,
     arrived: Instant,
@@ -49,14 +47,12 @@ impl Queue {
         &mut self,
         key: String,
         id: Value,
-        version: ReplyVersion,
         cancellation: Option<biomcp_fetch::Cancellation>,
         work: Work,
     ) {
         self.waiting.push_back(Waiting {
             key,
             id,
-            version,
             cancellation,
             work,
             arrived: Instant::now(),

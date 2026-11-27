@@ -7,9 +7,10 @@ pub(super) fn initialize(
     mode: crate::config::ToolMode,
     context: crate::command::Context<'_>,
     revisions: &[&'static str],
-) -> Option<(ReplyVersion, Value)> {
+) -> Option<(ReplyVersion, Value, Option<bool>)> {
     let revision = revision(params.get("protocolVersion")?.as_str()?, revisions);
-    params.get("capabilities")?.as_object()?;
+    let capabilities = params.get("capabilities")?;
+    capabilities.as_object()?;
     let info = params.get("clientInfo")?;
     info.get("name")?.as_str()?;
     info.get("version")?.as_str()?;
@@ -17,7 +18,13 @@ pub(super) fn initialize(
     let result = json!({"protocolVersion":revision,
         "capabilities":super::skills::capabilities(context, false),
         "serverInfo":protocol::info(version), "instructions":protocol::instructions(mode, context)});
-    Some((version, result))
+    // June 2025 introduced forms. November 2025 added the explicit mode field.
+    let form = match revision {
+        "2025-06-18" if super::elicitation::supports_form(capabilities) => Some(false),
+        "2025-11-25" if super::elicitation::supports_form(capabilities) => Some(true),
+        _ => None,
+    };
+    Some((version, result, form))
 }
 
 // Pinned lifecycle version negotiation preserves a supported requested revision.
@@ -46,5 +53,26 @@ pub(super) fn project_tools(tools: &mut [Value], version: ReplyVersion) {
             // March 2025 defines the tool title inside annotations.
             annotations.insert("title".into(), title);
         }
+    }
+}
+
+pub(super) fn wait_for_form(
+    sender: &std::sync::mpsc::SyncSender<super::Event>,
+    key: String,
+    preview: &biomcp_query::store::saved::DeletePreview,
+    explicit_mode: bool,
+    budget: std::time::Duration,
+) -> super::elicitation::Decision {
+    use super::elicitation::{self, Decision};
+    let (respond, response) = std::sync::mpsc::sync_channel(1);
+    let prompt = super::Event::Form {
+        key,
+        params: elicitation::form(preview, explicit_mode),
+        respond,
+    };
+    if sender.send(prompt).is_ok() && response.recv_timeout(budget) == Ok(true) {
+        Decision::Approve
+    } else {
+        Decision::Decline
     }
 }

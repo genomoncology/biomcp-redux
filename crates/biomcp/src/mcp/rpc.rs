@@ -4,6 +4,14 @@ use super::{current, discovery, legacy, protocol};
 use serde_json::{Value, json};
 pub(super) enum Message {
     Reply(Value),
+    Initialized {
+        reply: Value,
+        form: Option<bool>,
+    },
+    ClientResponse {
+        id: Value,
+        approved: bool,
+    },
     Tool {
         id: Value,
         params: Value,
@@ -25,6 +33,9 @@ pub(super) fn message(
     let Ok(value) = serde_json::from_slice::<Value>(frame) else {
         return Message::Reply(protocol::error(Value::Null, -32700, "Parse error"));
     };
+    if let Some(response) = client_response(&value) {
+        return response;
+    }
     if !protocol::validate(&value) {
         let id = value
             .get("id")
@@ -54,12 +65,7 @@ pub(super) fn message(
             return Message::Reply(error);
         }
     } else if method == "initialize" {
-        let Some((negotiated, result)) = legacy::initialize(&params, mode, context, revisions)
-        else {
-            return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
-        };
-        *version = negotiated;
-        return Message::Reply(protocol::result(id.clone(), result, false));
+        return initialize(id, &params, version, revisions, context, mode);
     } else if *version == ReplyVersion::Current {
         return Message::Reply(json!({"jsonrpc":"2.0","id":id,"error":{
             "code":-32602,
@@ -101,6 +107,44 @@ pub(super) fn message(
     Message::Reply(protocol::result(id.clone(), result, modern))
 }
 
+fn initialize(
+    id: &Value,
+    params: &Value,
+    version: &mut ReplyVersion,
+    revisions: &[&'static str],
+    context: crate::command::Context<'_>,
+    mode: crate::config::ToolMode,
+) -> Message {
+    let Some((negotiated, result, form)) = legacy::initialize(params, mode, context, revisions)
+    else {
+        return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
+    };
+    *version = negotiated;
+    Message::Initialized {
+        reply: protocol::result(id.clone(), result, false),
+        form,
+    }
+}
+
+fn client_response(value: &Value) -> Option<Message> {
+    if value.get("jsonrpc").and_then(Value::as_str) != Some("2.0")
+        || value.get("method").is_some()
+        || value.get("params").is_some()
+    {
+        return None;
+    }
+    let id = value.get("id").filter(|id| protocol::valid_id(id))?;
+    let approved = match (value.get("result"), value.get("error")) {
+        (Some(result), None) if result.is_object() => super::elicitation::approved(result),
+        (None, Some(error)) if error.is_object() => false,
+        _ => return None,
+    };
+    Some(Message::ClientResponse {
+        id: id.clone(),
+        approved,
+    })
+}
+
 fn tools(
     id: &Value,
     params: &Value,
@@ -136,11 +180,14 @@ fn call(
     if typed && discovery::called(&params) {
         return Message::Reply(discovery::call(id, &params, context, read_only, version));
     }
-    if typed && params.get("name").and_then(Value::as_str) == Some(discovery::DISPATCH) {
-        let Some(target) = discovery::target(&params) else {
+    if typed
+        && params.get("name").and_then(Value::as_str) == Some(discovery::DISPATCH)
+        && let Some(fields) = params.as_object_mut()
+    {
+        let Some(target) = discovery::target(fields) else {
             return Message::Reply(protocol::error(id, -32602, "Invalid params"));
         };
-        params = target;
+        fields.extend(target);
     }
     Message::Tool {
         id,
