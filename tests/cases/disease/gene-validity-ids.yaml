@@ -27,10 +27,16 @@ steps:
       /result/items/10/assertion/id: SGC-122539
   - run: [get, disease, 'OMIM:182212', gene-validity, --section-limit, '11']
     expect: *shprintzen_goldberg
-  - run: [get, disease, 'ORPHA:676', gene-validity, --source, gencc, --section-limit, '15']
-    expect:
+  - run: [get, disease, 'MONDO:0008185', gene-validity, --source, gencc, --section-limit, '15']
+    expect: &hereditary_pancreatitis
       /status: complete
       /page/total: 15
+      /result/coverage/0/matched: 15
+      /result/items/*/assertion/id: [SGC-100152, SGC-102547, SGC-102565, SGC-103577, SGC-105925, SGC-109223, SGC-109363, SGC-109443, SGC-109821, SGC-112388, SGC-114350, SGC-115484, SGC-120754, SGC-175823, SGC-177828]
+  - run: [get, disease, 'ORPHA:676', gene-validity, --source, gencc, --section-limit, '15']
+    expect: *hereditary_pancreatitis
+  - run: [get, disease, 'Orphanet:676', gene-validity, --source, gencc, --section-limit, '1']
+    expect:
       /sources/*/source: [mydisease, gencc]
       /sources/1/notices/*/message: {includes_all_of: [Coverage excludes curations for descendant diseases.]}
-      /result/items/*/assertion/id: {includes_all_of: [SGC-102547, SGC-102565, SGC-115484]}
+      /next/0/args: {includes_all_of: ['Orphanet:676', --offset, '1']}

@@ -34,6 +34,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
     let deadline = command.deadline();
     let mut out = empty(body(query, Vec::new(), Vec::new()));
     let resolved = resolve(cx, query, selected, deadline, &mut out);
+    // A checked MONDO mapping takes precedence so that both identifiers page the same rows.
     let lookup = query.source_title_prefix().map_or(
         CurationLookup::Exact(resolved.as_ref().unwrap_or_else(|| query.id())),
         CurationLookup::TitlePrefix,
