@@ -96,7 +96,7 @@ pub fn targets(
     let mut p = problems(&drug.id.to_string());
     let mut values = Vec::new();
     let mut refusals = crate::Refusal::None;
-    for row in rows.0.rows {
+    for row in rows.0.into_iter().flat_map(|collection| collection.rows) {
         let Some(row) = p.required_field("mechanismsOfAction", Some(row)) else {
             refusals = crate::Refusal::Refused;
             continue;
@@ -247,7 +247,7 @@ pub struct Drug(pub(super) super::raw::Drug);
 /// Native mechanism collection retained privately until mapping.
 #[derive(Debug, serde::Deserialize)]
 #[serde(transparent)]
-pub struct Mechanisms(Rows<Mechanism>);
+pub struct Mechanisms(Option<Rows<Mechanism>>);
 /// Native indication collection retained privately until mapping.
 #[derive(Debug, serde::Deserialize)]
 #[serde(transparent)]
