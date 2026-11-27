@@ -2,8 +2,8 @@
 use super::{DrugGet, DrugHeader, DrugRecords};
 use crate::{ResponseBody, Section};
 use biodata::{
-    Attribution, DrugDiseaseReference, DrugIdentity, DrugIndicationClaim, DrugNativeReference,
-    DrugStage, Text,
+    Attribution, DrugDiseaseReference, DrugId, DrugIdentity, DrugIndicationClaim,
+    DrugNativeReference, DrugStage, Text,
 };
 use serde::{Deserialize, Serialize};
 
@@ -36,6 +36,10 @@ pub struct DrugIndicationsPart {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugIndicationRow {
+    /// ChEMBL molecule ID on which the indication was recorded.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-kept" = true)))]
+    pub source_molecule: Option<DrugId>,
     /// Complete native indication wording.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub indication: Option<Text>,
@@ -64,6 +68,8 @@ impl DrugIndicationRow {
     /// The owning reply supplies the drug identity and, for Open Targets, attribution.
     pub fn from_claim(claim: DrugIndicationClaim, include_attribution: bool) -> Self {
         Self {
+            source_molecule: (claim.attribution.source.as_str() == "chembl")
+                .then_some(claim.drug.id),
             indication: claim.indication,
             disease_references: claim.disease_references,
             stage: claim.stage,

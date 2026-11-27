@@ -59,7 +59,7 @@ variant-civic: Preserve CIViC exact profile membership and separate native claim
 variant-hotspots: Retain native transcript and residue counts without an inferred variant join.
 variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups.
 variant-help: Variant help gives executable examples and explicit migration steps without clinical interpretation.
-drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications, retry empty name lookups using uniquely source-stated aliases and disclose other sources with matches, without inferring authorization.
+drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications, include all ChEMBL forms with each row’s source molecule, retry empty name lookups using uniquely source-stated aliases and disclose other sources with matches, without inferring authorization.
 drug-ema: Explicitly synchronize EMA medicines and read separate native candidates for a drug name together with its bounded source-stated other names by default (each medicine once; only the typed name with --exact-term), exact identity cards and source-scoped regulatory dates; a live first read fetches a missing copy, and reads never refresh a stored one.
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context and shared native evidence level and status selectors.
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references.

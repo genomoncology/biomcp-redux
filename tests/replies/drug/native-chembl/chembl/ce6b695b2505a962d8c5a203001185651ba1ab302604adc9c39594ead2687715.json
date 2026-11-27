@@ -1,0 +1,54 @@
+{
+  "method": "GET",
+  "source": "chembl",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/drug_indication.json?parent_molecule_chembl_id=CHEMBL941&limit=1&offset=0",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "drug_indications": [
+            {
+              "drugind_id": 23307,
+              "efo_id": "EFO:0000339",
+              "efo_term": "chronic myelogenous leukemia",
+              "indication_refs": [
+                {
+                  "ref_id": "NCT00015834,NCT00030394,NCT00038649,NCT00040105,NCT00047502,NCT00048672,NCT00049192,NCT00050531,NCT00054431,NCT00070499,NCT00081926,NCT00088231,NCT00101088,NCT00114959,NCT00124748,NCT00146913,NCT00171158,NCT00171223,NCT00171899,NCT00210119,NCT00219726,NCT00219739,NCT00219752,NCT00219765,NCT00390897,NCT00415909,NCT00511303,NCT00514488,NCT00594555,NCT00702403,NCT00845221,NCT01003054,NCT01221376,NCT01400074,NCT01578213,NCT01795716,NCT01827930,NCT02204644,NCT02687425,NCT02709083,NCT03241199,NCT04626024,NCT05623774",
+                  "ref_type": "ClinicalTrials",
+                  "ref_url": "https://clinicaltrials.gov/search?term=NCT00015834%20NCT00030394%20NCT00038649%20NCT00040105%20NCT00047502%20NCT00048672%20NCT00049192%20NCT00050531%20NCT00054431%20NCT00070499%20NCT00081926%20NCT00088231%20NCT00101088%20NCT00114959%20NCT00124748%20NCT00146913%20NCT00171158%20NCT00171223%20NCT00171899%20NCT00210119%20NCT00219726%20NCT00219739%20NCT00219752%20NCT00219765%20NCT00390897%20NCT00415909%20NCT00511303%20NCT00514488%20NCT00594555%20NCT00702403%20NCT00845221%20NCT01003054%20NCT01221376%20NCT01400074%20NCT01578213%20NCT01795716%20NCT01827930%20NCT02204644%20NCT02687425%20NCT02709083%20NCT03241199%20NCT04626024%20NCT05623774"
+                },
+                {
+                  "ref_id": "0e9927ab-771e-4c2d-881e-7031c40bf205",
+                  "ref_type": "DailyMed",
+                  "ref_url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0e9927ab-771e-4c2d-881e-7031c40bf205"
+                },
+                {
+                  "ref_id": "211ef2da-2868-4a77-8055-1cb2cd78e24b",
+                  "ref_type": "DailyMed",
+                  "ref_url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=211ef2da-2868-4a77-8055-1cb2cd78e24b"
+                }
+              ],
+              "max_phase_for_ind": "4.0",
+              "mesh_heading": "Leukemia, Myelogenous, Chronic, BCR-ABL Positive",
+              "mesh_id": "D015464",
+              "molecule_chembl_id": "CHEMBL1642",
+              "parent_molecule_chembl_id": "CHEMBL941"
+            }
+          ],
+          "page_meta": {
+            "limit": 1,
+            "next": "/chembl/api/data/drug_indication.json?limit=1&offset=1&parent_molecule_chembl_id=CHEMBL941",
+            "offset": 0,
+            "previous": null,
+            "total_count": 134
+          }
+        }
+      }
+    }
+  ]
+}

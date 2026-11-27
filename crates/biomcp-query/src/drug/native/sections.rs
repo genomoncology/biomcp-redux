@@ -36,14 +36,7 @@ pub(super) fn chembl(
     let offset = query.section_offset().unwrap_or(0);
     match query.sections() {
         [DrugSection::Targets] => {
-            let (mut page, meta) = chembl::mechanisms(
-                leg,
-                &query
-                    .native_input()
-                    .map_err(|_| biomcp_fetch::InputError::Serialization)?,
-                limit,
-                offset,
-            )?;
+            let (mut page, meta) = chembl::mechanisms(leg, &row, limit, offset)?;
             let records = chembl::map_targets(&drug, std::mem::take(&mut page.window.rows))
                 .map_err(|_| failure(source))?;
             out.problems.extend(page.problems);
@@ -59,14 +52,7 @@ pub(super) fn chembl(
             );
         }
         [DrugSection::Indications] => {
-            let (mut page, meta) = chembl::indications(
-                leg,
-                &query
-                    .native_input()
-                    .map_err(|_| biomcp_fetch::InputError::Serialization)?,
-                limit,
-                offset,
-            )?;
+            let (mut page, meta) = chembl::indications(leg, &row, limit, offset)?;
             let records = chembl::map_indications(&drug, std::mem::take(&mut page.window.rows))
                 .map_err(|_| failure(source))?;
             out.problems.extend(page.problems);

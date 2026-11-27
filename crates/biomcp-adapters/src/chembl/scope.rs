@@ -2,9 +2,25 @@
 use crate::raw::Field;
 use biomcp_fetch::{RawValue, decode_bundle_document};
 use serde::{Deserialize, de::DeserializeOwned};
-#[derive(Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub(super) struct Molecule {
     pub molecule_chembl_id: String,
+    parent_molecule_chembl_id: Option<String>,
+}
+impl Molecule {
+    pub(super) fn matches(&self, field: &str, id: &str) -> bool {
+        chembl_id(&self.molecule_chembl_id)
+            && match field {
+                PARENT => self.parent_molecule_chembl_id.as_deref() == Some(id),
+                _ => self.molecule_chembl_id == id,
+            }
+    }
+}
+pub(super) const PARENT: &str = "parent_molecule_chembl_id";
+
+pub(super) fn chembl_id(id: &str) -> bool {
+    id.strip_prefix("CHEMBL")
+        .is_some_and(|digits| !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()))
 }
 #[derive(Debug)]
 pub(super) struct Row<T, Scope = Molecule> {
