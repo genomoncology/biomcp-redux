@@ -1,0 +1,36 @@
+feature: disease-gene-validity
+story: OMIM and Orphanet IDs resolve to the same curations as the MONDO ID, including submissions under the original identifier.
+live_check: Public ClinGen, GenCC and MyDisease data recorded on 2026-11-27.
+replay: disease/gene-validity-ids
+steps:
+  - run: [sync, gencc]
+    expect:
+      /status: complete
+      /result/rows: 24
+  - run: [get, disease, 'MONDO:0008426', gene-validity, --section-limit, '11']
+    expect: &shprintzen_goldberg
+      /status: complete
+      /page/total: 11
+      /page/returned: 11
+      /result/coverage/*/matched: [2, 9]
+      /result/items/*/gene_id: ['HGNC:10896', 'HGNC:3603', 'HGNC:10896', 'HGNC:10896', 'HGNC:3603', 'HGNC:10896', 'HGNC:3603', 'HGNC:10896', 'HGNC:10896', 'HGNC:10896', 'HGNC:10896']
+      /result/items/0/assertion/classification: Definitive
+      /result/items/1/assertion/classification: Disputed
+      /result/items/2/assertion/id: SGC-100001
+      /result/items/3/assertion/id: SGC-105634
+      /result/items/4/assertion/id: SGC-106511
+      /result/items/5/assertion/id: SGC-108922
+      /result/items/6/assertion/id: SGC-109553
+      /result/items/7/assertion/id: SGC-109843
+      /result/items/8/assertion/id: SGC-119202
+      /result/items/9/assertion/id: SGC-120739
+      /result/items/10/assertion/id: SGC-122539
+  - run: [get, disease, 'OMIM:182212', gene-validity, --section-limit, '11']
+    expect: *shprintzen_goldberg
+  - run: [get, disease, 'ORPHA:676', gene-validity, --source, gencc, --section-limit, '15']
+    expect:
+      /status: complete
+      /page/total: 15
+      /sources/*/source: [mydisease, gencc]
+      /sources/1/notices/*/message: {includes_all_of: [Coverage excludes curations for descendant diseases.]}
+      /result/items/*/assertion/id: {includes_all_of: [SGC-102547, SGC-102565, SGC-115484]}

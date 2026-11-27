@@ -1,0 +1,16 @@
+{
+  "method": "GET",
+  "source": "clingen",
+  "url": "https://search.clinicalgenome.org/kb/gene-validity/download",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/csv",
+      "delay_ms": 0,
+      "body": {
+        "kind": "text",
+        "value": "CLINGEN GENE DISEASE VALIDITY CURATIONS,,,,,,,,,\nFILE CREATED: 2026-11-27,,,,,,,,,\nWEBPAGE: https://search.clinicalgenome.org/kb/gene-validity,,,,,,,,,\n+++++++++++,++++++++++++++,+++++++++++++,++++++++++++++++++,+++++++++,+++++++++,++++++++++++++,+++++++++++++,+++++++++++++++++++,+++++++++++++++++++\nGENE SYMBOL,GENE ID (HGNC),DISEASE LABEL,DISEASE ID (MONDO),MOI,SOP,CLASSIFICATION,ONLINE REPORT,CLASSIFICATION DATE,GCEP\n+++++++++++,++++++++++++++,+++++++++++++,++++++++++++++++++,+++++++++,+++++++++,++++++++++++++,+++++++++++++,+++++++++++++++++++,+++++++++++++++++++\nPRSS1,HGNC:9475,hereditary chronic pancreatitis,MONDO:0008185,AD,SOP7,Definitive,https://search.clinicalgenome.org/kb/gene-validity/CGGV:assertion_d271c52b-b0bb-4e9b-a745-ea03dc716fa0-2020-07-30T205014.833Z,2020-07-30T20:50:14.833Z,Hereditary Cancer Gene Curation Expert Panel\nSKI,HGNC:10896,Shprintzen-Goldberg syndrome,MONDO:0008426,AD,SOP10,Definitive,https://search.clinicalgenome.org/kb/gene-validity/CGGV:assertion_019ffb7a-be5f-482d-9adf-e28d5aadaede-2024-07-23T160000.000Z,2024-07-23T16:00:00.000Z,Craniofacial Malformations Gene Curation Expert Panel\nFBN1,HGNC:3603,Shprintzen-Goldberg syndrome,MONDO:0008426,AD,SOP9,Disputed,https://search.clinicalgenome.org/kb/gene-validity/CGGV:assertion_42caf14d-6400-475b-88f3-a8a24a0832c0-2021-12-01T110000.000Z,2021-12-01T11:00:00.000Z,Intellectual Disability and Autism Gene Curation Expert Panel\n"
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "method": "GET",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease/ORPHANET%3A676?fields=mondo%2Cdisease_ontology",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_id": "MONDO:0008185",
+          "mondo": {
+            "mondo": "MONDO:0008185",
+            "label": "hereditary chronic pancreatitis",
+            "xrefs": {
+              "orphanet": [
+                "676"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

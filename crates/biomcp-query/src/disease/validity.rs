@@ -5,8 +5,8 @@ use biodata::Text;
 use biomcp_adapters::{CurationLookup, CurationMatches, clingen, gencc, received_date};
 use biomcp_fetch::{Deadline, Leg, RequestError, SourceSpec};
 use biomcp_types::{
-    DiseaseCuration, DiseaseCurationCoverage, DiseaseGet, DiseaseValidity, ReplyBody, Request,
-    Source, SourceOutcome, SourceState, StepKind,
+    DiseaseCuration, DiseaseCurationCoverage, DiseaseGet, DiseaseId, DiseaseValidity, Reason,
+    ReplyBody, Request, Source, SourceNotice, SourceOutcome, SourceState, SourceStatus, StepKind,
 };
 
 struct Publisher {
@@ -32,21 +32,29 @@ static PUBLISHERS: [Publisher; 2] = [
 pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
+    let mut out = empty(body(query, Vec::new(), Vec::new()));
+    let resolved = resolve(cx, query, selected, deadline, &mut out);
+    let lookup = query.source_title_prefix().map_or(
+        CurationLookup::Exact(resolved.as_ref().unwrap_or_else(|| query.id())),
+        CurationLookup::TitlePrefix,
+    );
     let jobs = PUBLISHERS
         .iter()
         .filter(|publisher| selected.contains(&publisher.bundle.source()))
         .map(|publisher| {
-            Box::new(move || publisher.fetch(cx, query, deadline))
+            Box::new(move || publisher.fetch(cx, lookup, deadline))
                 as Box<dyn FnOnce() -> ReadResult + Send>
         })
         .collect();
 
     let mut rows = Vec::new();
     let mut coverage = Vec::new();
-    let mut out = empty(body(query, Vec::new(), Vec::new()));
     for (bundle, mut source, result) in crate::fan_out::run(jobs) {
         match result {
             Ok(result) => {
+                source.notices.push(guidance(
+                    "Coverage excludes curations for descendant diseases.".into(),
+                ));
                 let matched = result.rows.value.len() as u64;
                 let before = rows.len();
                 rows.extend(
@@ -105,18 +113,56 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
     }
     out.page = Some(page_info(query.section_offset(), returned, total));
     out.body = body(query, items, coverage);
-    status::search(&mut out);
+    status::search_for(&mut out, selected);
     command.finish(deadline.remaining());
     out
 }
 
+fn resolve(
+    cx: &Ctx<'_>,
+    query: &DiseaseGet,
+    selected: &[Source],
+    deadline: Deadline<'_>,
+    out: &mut Outcome,
+) -> Option<DiseaseId> {
+    let DiseaseId::Concept(id) = query.id() else {
+        return None;
+    };
+    if !gencc::has_submitted_disease_namespace(id.as_str())
+        || selected.iter().all(|source| cx.fetch.disabled(*source))
+    {
+        return None;
+    }
+    let resolved = super::mydisease::mondo(cx, query, id, deadline, out);
+    let source = &mut out.sources[0];
+    if source.reason == Some(Reason::NotFound) {
+        source.set_status(SourceStatus::Ok);
+    }
+    if resolved.is_none() {
+        source.notices.push(guidance(format!(
+            "No MONDO mapping was available for {id}. Coverage is limited to the requested identifier."
+        )));
+    }
+    out.dropped |= source.state != SourceState::Ok;
+    resolved.map(DiseaseId::Concept)
+}
+
+fn guidance(message: String) -> SourceNotice {
+    SourceNotice::RequestGuidance {
+        data_date: None,
+        message: message.into(),
+        retry_after_seconds: None,
+    }
+}
+
 impl Publisher {
-    fn fetch(&self, cx: &Ctx<'_>, query: &DiseaseGet, deadline: Deadline<'_>) -> ReadResult {
+    fn fetch(
+        &self,
+        cx: &Ctx<'_>,
+        lookup: CurationLookup<'_>,
+        deadline: Deadline<'_>,
+    ) -> ReadResult {
         let leg = cx.fetch.leg(self.spec, deadline).fresh(cx.fresh);
-        let lookup = query.source_title_prefix().map_or(
-            CurationLookup::Exact(query.id()),
-            CurationLookup::TitlePrefix,
-        );
         let result = (self.read)(&leg, lookup);
         let source = status::source(
             self.bundle.source(),
