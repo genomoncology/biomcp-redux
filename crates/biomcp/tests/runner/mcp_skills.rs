@@ -1,14 +1,14 @@
 //! The published research skill as seen by stdio and HTTP MCP clients.
 use crate::runner::{
     http::Server,
-    launch::Environment,
+    launch::{Environment, checkout},
     mcp::{exchange_with_globals, request},
     transcript::trial,
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
-use std::{collections::BTreeSet, fs, path::Path};
+use std::{collections::BTreeSet, fs};
 
 const ROOT: &str = "skill://biomcp-research/";
 const GUIDE: &str = "skill://biomcp-research/SKILL.md";
@@ -260,7 +260,7 @@ fn check_file(file: &Value, read: &Value, replies: &[Value]) -> Check {
 }
 
 fn use_cases() -> std::path::PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../skills/use-cases")
+    checkout().join("../../skills/use-cases")
 }
 
 fn match_resources(reply: &Value, expected: BTreeSet<&str>) -> Check {
