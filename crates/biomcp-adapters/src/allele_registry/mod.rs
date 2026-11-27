@@ -47,6 +47,14 @@ pub enum Resolution {
 pub fn hgvs(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     Ok(map::allele(read(leg, input, false)?, None))
 }
+/// Qualify a chromosome alias on the explicit build and resolve its unchanged description.
+pub fn chromosome_hgvs(
+    leg: &Leg<'_>,
+    input: &str,
+    build: biodata::Build,
+) -> Result<Resolution, RequestError> {
+    hgvs(leg, &qualify(input, Some(build))?)
+}
 /// Read a canonical source record directly, without another resolver.
 pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     Ok(map::allele(read(leg, input, true)?, Some(input)))

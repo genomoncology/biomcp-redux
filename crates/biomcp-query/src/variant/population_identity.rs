@@ -30,10 +30,13 @@ pub(super) fn resolve(
     let mut found = super::identity::read(cx, query, deadline);
     let has_allele = super::population::join(&found.rows).is_some()
         || matches!(found.rows.as_slice(), [row] if registry_indel(row));
-    if matches!(
-        query.input().namespace(),
-        VariantNamespace::Rs | VariantNamespace::ClinVar
-    ) && !cx.fetch.disabled(Source::AlleleRegistry)
+    let registry_form = match query.input().namespace() {
+        VariantNamespace::Rs | VariantNamespace::ClinVar => true,
+        VariantNamespace::Chromosome => !query.input().coordinate_form(),
+        _ => false,
+    };
+    if registry_form
+        && !cx.fetch.disabled(Source::AlleleRegistry)
         && found.rows.len() <= 1
         && !has_allele
         && !found

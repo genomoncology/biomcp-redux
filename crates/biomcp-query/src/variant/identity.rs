@@ -3,8 +3,10 @@
 use crate::{Ctx, status};
 use biodata::VariantId;
 use biomcp_adapters::allele_registry;
-use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader};
+use biomcp_fetch::{Deadline, Leg, RequestError};
+use biomcp_types::{
+    Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader, VariantNamespace,
+};
 
 #[derive(Default)]
 pub(super) struct Identity {
@@ -138,25 +140,12 @@ pub(super) fn registry_alias(
     deadline: Deadline<'_>,
     found: &mut Identity,
 ) {
-    let native = query.input().source_id();
-    let prefix = match query.input().namespace() {
-        biomcp_types::VariantNamespace::ClinVar => "clinvar:",
-        biomcp_types::VariantNamespace::Rs => "rs",
-        _ => return,
-    };
-    let Some(Ok(number)) = native.strip_prefix(prefix).map(str::parse::<u64>) else {
-        return;
-    };
     let leg = cx
         .fetch
         .leg(&allele_registry::SPEC, deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = if prefix == "rs" {
-        allele_registry::by_rsid(&leg, number)
-    } else {
-        allele_registry::by_clinvar(&leg, number)
-    };
+    let result = registry_lookup(&leg, query);
     found.elapsed += started.saturating_sub(leg.remaining());
     let report = leg.finish();
     let rows = match result {
@@ -197,6 +186,26 @@ pub(super) fn registry_alias(
         found.resolver = Some(Source::AlleleRegistry);
         found.reason = None;
         found.error = None;
+    }
+}
+
+fn registry_lookup(
+    leg: &Leg<'_>,
+    query: &VariantGet,
+) -> Result<Vec<allele_registry::Resolution>, RequestError> {
+    let native = query.input().source_id();
+    let number = |prefix| native.strip_prefix(prefix).and_then(|id| id.parse().ok());
+    match query.input().namespace() {
+        VariantNamespace::ClinVar => number("clinvar:")
+            .map_or_else(|| Ok(Vec::new()), |id| allele_registry::by_clinvar(leg, id)),
+        VariantNamespace::Rs => {
+            number("rs").map_or_else(|| Ok(Vec::new()), |id| allele_registry::by_rsid(leg, id))
+        }
+        VariantNamespace::Chromosome => {
+            allele_registry::chromosome_hgvs(leg, &native, query.myvariant_build())
+                .map(|row| vec![row])
+        }
+        _ => Ok(Vec::new()),
     }
 }
 fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
