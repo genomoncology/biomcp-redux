@@ -120,14 +120,14 @@ pub(super) fn candidate(query: &VariantGet, source: Source) -> VariantHeader {
 }
 
 fn status(sources: &[biomcp_types::SourceOutcome], incomplete: bool) -> biomcp_types::Status {
-    if sources.iter().any(|source| {
+    let civic_join_missing = sources.iter().any(|source| {
         source.source == Source::Civic && source.reason == Some(biomcp_types::Reason::NoJoinId)
-    }) {
-        crate::status::item_status(true, false, true)
-    } else if sources.is_empty()
-        || sources
-            .iter()
-            .all(|s| s.state == biomcp_types::SourceState::Failed)
+    });
+    if !civic_join_missing
+        && (sources.is_empty()
+            || sources
+                .iter()
+                .all(|s| s.state == biomcp_types::SourceState::Failed))
     {
         crate::status::item_status(false, true, false)
     } else if sources.iter().any(|s| {
