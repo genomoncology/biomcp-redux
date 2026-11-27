@@ -280,8 +280,7 @@ fn run_case_owned(
 }
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
-    let mut trials = Vec::new();
-    trials.extend(argument_recovery::trials());
+    let mut trials = argument_recovery::trials();
     trials.extend(enum_case::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
