@@ -3,24 +3,19 @@ use biodata::{Build, Chromosome, Representation, Text, Variant};
 use biomcp_adapters::cbioportal::Mutation;
 use biomcp_types::{Problem, ProblemCode, Source};
 use std::collections::BTreeSet;
-pub(super) fn count(identity: &Variant, rows: &[Mutation], study: &Text) -> (u64, Vec<Problem>) {
+pub(super) fn count(identity: &Variant, rows: &[Mutation]) -> (u64, usize) {
     let mut samples = BTreeSet::new();
-    let mut problems = Vec::new();
+    let mut uncomparable = 0;
     for row in rows {
         match matches(identity, row) {
             Some(true) => {
                 samples.insert(row.sample_id.as_str());
             }
             Some(false) => {}
-            None => problems.push(problem(
-                Source::Cbioportal,
-                study.as_str(),
-                "mutation.exact_allele",
-            )),
+            None => uncomparable += 1,
         }
     }
-    problems.dedup();
-    (samples.len() as u64, problems)
+    (samples.len() as u64, uncomparable)
 }
 pub(super) fn supported(r: &Representation) -> bool {
     r.build
@@ -38,7 +33,7 @@ fn matches(identity: &Variant, row: &Mutation) -> Option<bool> {
         "GRCh38" | "38" => Build::GRCh38,
         _ => return None,
     };
-    let chromosome = row.chr.as_ref()?.as_str().parse::<Chromosome>().ok()?;
+    let chromosome = row.chromosome?;
     let reference = row
         .reference_allele
         .as_ref()?

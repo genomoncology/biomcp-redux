@@ -2,7 +2,7 @@
   "feature": "variant-recurrence",
   "live_check": "synthetic",
   "replay": "variant/recurrence",
-  "story": "An unreadable allele and a refused sample identity make the observations partial.",
+  "story": "An unreadable allele and an unreadable chromosome make the observations partial.",
   "steps": [
     {
       "run": [

@@ -1,12 +1,12 @@
 //! Accepted mutation facts for exact query-layer matching.
-use biodata::Text;
+use biodata::{Chromosome, Text};
 /// Checked source mutation fields after admission and optional-value mapping.
 #[derive(Debug)]
 pub struct Mutation {
     /// Source sample identity, used only for page-local distinct counting.
     pub sample_id: Text,
-    /// Source chromosome.
-    pub chr: Option<Text>,
+    /// Primary chromosome resolved from the source spelling.
+    pub chromosome: Option<Chromosome>,
     /// Source one-based inclusive start.
     pub start_position: Option<u64>,
     /// Source one-based inclusive end.
@@ -21,7 +21,10 @@ pub struct Mutation {
 pub(super) fn mutation(row: super::raw::Mutation) -> Mutation {
     Mutation {
         sample_id: row.sample_id,
-        chr: row.chr,
+        chromosome: row
+            .chr
+            .as_ref()
+            .and_then(|chr| crate::raw::chromosome(chr.as_str())),
         start_position: row.start_position,
         end_position: row.end_position,
         reference_allele: row.reference_allele,

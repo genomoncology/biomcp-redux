@@ -110,8 +110,8 @@
           {
             "molecularProfileId": "msk_impact_2017_mutations",
             "studyId": "msk_impact_2017",
+            "sampleId": "synthetic-unreadable-chromosome",
             "entrezGeneId": 367,
-            "chr": "23",
             "startPosition": 66943552,
             "endPosition": 66943552,
             "referenceAllele": "A",
