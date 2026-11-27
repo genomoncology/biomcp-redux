@@ -1,6 +1,7 @@
 //! Stdio scheduling and the single response writer.
 mod current;
 mod discovery;
+mod elicitation;
 mod framing;
 mod hosted;
 pub(crate) mod http;
@@ -19,7 +20,7 @@ mod worker;
 
 use framing::Frame;
 use protocol::ReplyVersion;
-use serde_json::Value;
+use serde_json::{Value, json};
 use std::{
     collections::BTreeMap,
     io::{self, Write},
@@ -32,12 +33,17 @@ const MAX_RETAINED_EVENTS: usize = 32;
 
 enum Event {
     Input(Frame),
-    Completed(String, io::Result<research::Completed>),
+    Completed(String, io::Result<Value>),
+    Form {
+        key: String,
+        params: Value,
+        respond: mpsc::SyncSender<bool>,
+    },
 }
 
 struct Call {
     id: Value,
-    version: ReplyVersion,
+    form: Option<(Value, mpsc::SyncSender<bool>)>,
     cancelled: bool,
     cancellation: Option<biomcp_fetch::Cancellation>,
     worker: thread::JoinHandle<()>,
@@ -50,6 +56,8 @@ struct Server {
     max_calls: usize,
     queue: queue::Queue,
     version: ReplyVersion,
+    legacy_form: Option<bool>,
+    form_sequence: u64,
     globals: crate::grammar::Globals,
     root: std::sync::Arc<crate::grammar::Root>,
     settings: std::sync::Arc<crate::config::Settings>,
@@ -72,6 +80,8 @@ pub(crate) fn serve(
         max_calls: crate::config::mcp_capacity(&settings),
         queue: queue::Queue::new(&settings),
         version: ReplyVersion::Current,
+        legacy_form: None,
+        form_sequence: 0,
         globals,
         root,
         settings,
@@ -87,10 +97,12 @@ pub(crate) fn serve(
             None => None,
             Some(Event::Input(Frame::Eof)) => {
                 eof = true;
+                server.close_forms();
                 None
             }
             Some(Event::Input(Frame::Malformed)) => {
                 eof = true;
+                server.close_forms();
                 Some(protocol::error(Value::Null, -32700, "Parse error"))
             }
             Some(Event::Input(Frame::Oversized)) => {
@@ -98,6 +110,12 @@ pub(crate) fn serve(
             }
             Some(Event::Input(Frame::Message(frame))) => server.message(&frame)?,
             Some(Event::Completed(key, outcome)) => server.complete(&key, outcome)?,
+            Some(Event::Form {
+                key,
+                params,
+                respond,
+            }) if !eof => server.form(&key, params, respond),
+            Some(Event::Form { .. }) => None,
         });
         for reply in replies {
             let mut bytes = serde_json::to_vec(&reply)?;
@@ -158,6 +176,21 @@ impl Server {
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
         ) {
             rpc::Message::Reply(reply) => Ok(Some(reply)),
+            rpc::Message::Initialized { reply, form } => {
+                self.legacy_form = form;
+                Ok(Some(reply))
+            }
+            rpc::Message::ClientResponse { id, approved } => {
+                if let Some(call) = self.active.values_mut().find(|call| {
+                    call.form
+                        .as_ref()
+                        .is_some_and(|(pending, _)| *pending == id)
+                }) && let Some((_, sender)) = call.form.take()
+                {
+                    let _ = sender.send(approved);
+                }
+                Ok(None)
+            }
             rpc::Message::Tool {
                 id,
                 params,
@@ -234,23 +267,76 @@ impl Server {
             ),
         };
         let scope = recovery.as_ref().and(cancellation.clone());
+        let form_scope = cancellation.clone();
+        let modern = (version == ReplyVersion::Current)
+            .then(|| current::confirmation(params))
+            .flatten();
+        let legacy = (version != ReplyVersion::Current)
+            .then_some(self.legacy_form)
+            .flatten();
+        let sender = self.sender.clone();
+        let worker_key = key.clone();
+        let budget = self.queue.budget;
+        let worker_id = id.clone();
         let work: queue::Work = Box::new(move || {
             let mut context = crate::command::Context::new(&globals, &fetch, &root, &settings);
             context.recovery = recovery.as_deref();
             context.scope = scope.as_ref();
-            research::execute(&call, context, false)
+            let mut request = elicitation::Call {
+                id: worker_id,
+                version,
+                context,
+            };
+            if let Some(confirmation) = modern {
+                request.context.scope = form_scope.as_ref();
+                request.confirm(&call, false, |request, preview| {
+                    confirmation.answer(request, preview)
+                })
+            } else if let Some(explicit_mode) = legacy {
+                request.context.scope = form_scope.as_ref();
+                request.confirm(&call, false, |_, preview| {
+                    let (respond, response) = mpsc::sync_channel(1);
+                    let prompt = Event::Form {
+                        key: worker_key,
+                        params: elicitation::form(preview, explicit_mode),
+                        respond,
+                    };
+                    if sender.send(prompt).is_ok() && response.recv_timeout(budget) == Ok(true) {
+                        elicitation::Decision::Approve
+                    } else {
+                        elicitation::Decision::Decline
+                    }
+                })
+            } else {
+                request.run(&call, false)
+            }
         });
         if full {
-            self.queue.push(key, id, version, cancellation, work);
+            self.queue.push(key, id, cancellation, work);
         } else {
-            self.start_call(key, id, version, cancellation, work)?;
+            self.start_call(key, id, cancellation, work)?;
         }
         Ok(None)
+    }
+
+    fn form(&mut self, key: &str, params: Value, respond: mpsc::SyncSender<bool>) -> Option<Value> {
+        let call = self.active.get_mut(key).filter(|call| !call.cancelled)?;
+        self.form_sequence = self.form_sequence.checked_add(1)?;
+        let id = json!(format!("elicitation-{}", self.form_sequence));
+        call.form = Some((id.clone(), respond));
+        Some(json!({"jsonrpc":"2.0","id":id,"method":elicitation::METHOD,"params":params}))
+    }
+
+    fn close_forms(&mut self) {
+        for call in self.active.values_mut() {
+            call.form.take();
+        }
     }
 
     fn cancel(&mut self, key: &str) {
         if let Some(call) = self.active.get_mut(key) {
             call.cancelled = true;
+            call.form.take();
             if let Some(cancellation) = &call.cancellation {
                 cancellation.cancel();
             }
@@ -282,13 +368,7 @@ impl Server {
         while self.active.len() < self.max_calls
             && let Some(call) = self.queue.pop()
         {
-            self.start_call(
-                call.key,
-                call.id,
-                call.version,
-                call.cancellation,
-                call.work,
-            )?;
+            self.start_call(call.key, call.id, call.cancellation, call.work)?;
         }
         Ok(())
     }
@@ -301,9 +381,8 @@ impl Server {
         &mut self,
         key: String,
         id: Value,
-        version: ReplyVersion,
         cancellation: Option<biomcp_fetch::Cancellation>,
-        work: impl FnOnce() -> io::Result<research::Completed> + Send + 'static,
+        work: impl FnOnce() -> io::Result<Value> + Send + 'static,
     ) -> io::Result<()> {
         let sender = self.sender.clone();
         let worker_key = key.clone();
@@ -318,7 +397,7 @@ impl Server {
             key,
             Call {
                 id,
-                version,
+                form: None,
                 cancelled: false,
                 cancellation,
                 worker,
@@ -328,11 +407,7 @@ impl Server {
         Ok(())
     }
 
-    fn complete(
-        &mut self,
-        key: &str,
-        outcome: io::Result<research::Completed>,
-    ) -> io::Result<Option<Value>> {
+    fn complete(&mut self, key: &str, outcome: io::Result<Value>) -> io::Result<Option<Value>> {
         let Some(call) = self.active.remove(key) else {
             return Ok(None);
         };
@@ -344,7 +419,7 @@ impl Server {
             return Ok(None);
         }
         Ok(Some(match outcome {
-            Ok(outcome) => typed::tool_result(call.id, &outcome, call.version, &self.settings),
+            Ok(reply) => reply,
             Err(_) => protocol::error(call.id, -32603, "Internal error"),
         }))
     }

@@ -14,7 +14,11 @@ use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Saved, Source, Status, UsageArguments, UsageError,
 };
 use clap::{Arg, ArgAction, ArgMatches, Command};
-use std::{ffi::OsString, io, path::Path};
+use std::{
+    ffi::OsString,
+    io,
+    path::{Path, PathBuf},
+};
 
 /// Where a saved command reads and writes, and how it answers.
 #[derive(Clone, Copy)]
@@ -278,21 +282,28 @@ pub(crate) fn checked_name(name: &str) -> Option<Text> {
         .filter(|name| name.as_str().chars().count() <= NAME_CHARS)
 }
 
-/// Open the saved file; a read of a missing file opens nothing and creates nothing.
-pub(crate) fn open(at: At<'_>, create: bool) -> io::Result<Result<Option<SavedStore>, Outcome>> {
-    let encoding = at.encoding;
-    let path = match at
+/// Resolve a saved-work file, using the account path when supplied.
+pub(crate) fn path(at: At<'_>) -> io::Result<Result<PathBuf, Outcome>> {
+    match at
         .file
         .map(Path::to_path_buf)
         .map_or_else(crate::config::saved_path, |path| Ok(Some(path)))
     {
-        Ok(Some(path)) => path,
-        Ok(None) => return failure(encoding, SavedError::Database, "").map(Err),
-        Err(error) => {
-            return encoding
-                .encode(ErrorEnvelope::configuration(error.0), Exit::Local)
-                .map(Err);
-        }
+        Ok(Some(path)) => Ok(Ok(path)),
+        Ok(None) => failure(at.encoding, SavedError::Database, "").map(Err),
+        Err(error) => at
+            .encoding
+            .encode(ErrorEnvelope::configuration(error.0), Exit::Local)
+            .map(Err),
+    }
+}
+
+/// Open the saved file; a read of a missing file opens nothing and creates nothing.
+pub(crate) fn open(at: At<'_>, create: bool) -> io::Result<Result<Option<SavedStore>, Outcome>> {
+    let encoding = at.encoding;
+    let path = match path(at)? {
+        Ok(path) => path,
+        Err(outcome) => return Ok(Err(outcome)),
     };
     if !create && !path.exists() {
         return Ok(Ok(None));

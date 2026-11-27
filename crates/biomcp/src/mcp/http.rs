@@ -266,7 +266,12 @@ impl Service {
             context,
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
         ) {
-            super::rpc::Message::Reply(reply) => reply,
+            super::rpc::Message::Reply(reply) | super::rpc::Message::Initialized { reply, .. } => {
+                reply
+            }
+            super::rpc::Message::ClientResponse { id, .. } => {
+                super::protocol::error(id, -32600, "Invalid Request")
+            }
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool {
                 id,
@@ -408,6 +413,11 @@ impl Service {
                 excluded: caller.excluded,
                 scope,
                 account: caller.account,
+                confirmation: if version == ReplyVersion::Current {
+                    super::current::confirmation(params)
+                } else {
+                    None
+                },
             },
             peer,
         );

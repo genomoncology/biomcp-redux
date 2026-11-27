@@ -54,3 +54,71 @@ pub(super) fn discover(
     json!({"supportedVersions":revisions,"instructions":protocol::instructions(mode, context),
         "capabilities":super::skills::capabilities(context, true)})
 }
+
+/// The retried request echoes the form response and opaque state at the params level.
+pub(super) enum Confirmation {
+    Initial,
+    Answer { state: String, result: Value },
+    Invalid,
+}
+
+pub(super) fn confirmation(params: &Value) -> Option<Confirmation> {
+    let supports_form = params
+        .get("_meta")
+        .and_then(|meta| meta.get(CAPABILITIES_KEY))
+        .is_some_and(super::elicitation::supports_form);
+    let state = params.get("requestState");
+    let responses = params.get("inputResponses");
+    match (supports_form, state, responses) {
+        (false, None, None) => None,
+        (true, None, None) => Some(Confirmation::Initial),
+        (true, Some(Value::String(state)), Some(Value::Object(responses))) => {
+            Some(match responses.get(super::elicitation::INPUT) {
+                Some(result) => Confirmation::Answer {
+                    state: state.clone(),
+                    result: result.clone(),
+                },
+                None => Confirmation::Initial,
+            })
+        }
+        _ => Some(Confirmation::Invalid),
+    }
+}
+
+impl Confirmation {
+    pub(super) fn answer(
+        self,
+        call: &super::elicitation::Call<'_>,
+        preview: &biomcp_query::store::saved::DeletePreview,
+    ) -> super::elicitation::Decision {
+        use super::elicitation::{self, Decision};
+        match self {
+            Self::Initial => {
+                let Some(state) = elicitation::state(call, preview) else {
+                    return Decision::Reply(protocol::error(
+                        call.id.clone(),
+                        -32603,
+                        "Internal error",
+                    ));
+                };
+                Decision::Reply(protocol::input_required(
+                    call.id.clone(),
+                    json!({"inputRequests":{(elicitation::INPUT):{
+                        "method":elicitation::METHOD,"params":elicitation::form(preview, true)
+                    }}, "requestState":state}),
+                ))
+            }
+            Self::Answer { state, result } if elicitation::matches_state(&state, call, preview) => {
+                if elicitation::approved(&result) {
+                    Decision::Approve
+                } else {
+                    Decision::Decline
+                }
+            }
+            Self::Answer { .. } => Decision::Stale,
+            Self::Invalid => {
+                Decision::Reply(protocol::error(call.id.clone(), -32602, "Invalid params"))
+            }
+        }
+    }
+}

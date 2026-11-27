@@ -4,7 +4,7 @@ use super::ReplyVersion;
 use super::Service;
 use crate::{
     command::Context,
-    mcp::{protocol, research, worker},
+    mcp::{current, elicitation, protocol, research, worker},
 };
 use biomcp_fetch::{Cancellation, Secrets};
 use serde_json::Value;
@@ -51,6 +51,7 @@ pub(super) struct ToolCall {
     pub(super) scope: Option<Cancellation>,
     /// Hosted mode's checked account header.
     pub(super) account: Option<String>,
+    pub(super) confirmation: Option<current::Confirmation>,
 }
 
 impl Calls {
@@ -68,6 +69,7 @@ impl Calls {
             declared_use,
             scope,
             account,
+            confirmation,
         } = work;
         let budget = crate::config::budget(&service.settings);
         let patience = service
@@ -111,15 +113,16 @@ impl Calls {
                     scope: worker_scope.as_ref(),
                     account: account.as_deref(),
                 };
-                let outcome = worker::execute(|| {
-                    research::execute(&call, context, true).map(|outcome| {
-                        super::super::typed::tool_result(
-                            worker_id,
-                            &outcome,
-                            version,
-                            context.settings,
-                        )
-                    })
+                let request = elicitation::Call {
+                    id: worker_id,
+                    version,
+                    context,
+                };
+                let outcome = worker::execute(|| match confirmation {
+                    Some(confirmation) => request.confirm(&call, true, |request, preview| {
+                        confirmation.answer(request, preview)
+                    }),
+                    None => request.run(&call, true),
                 });
                 let _ = sender.send(outcome);
             });
@@ -462,6 +465,7 @@ mod tests {
                 declared_use: Some(crate::command::DeclaredUse::Academic),
                 scope: Some(Cancellation::with_budget(DEADLOCK_GUARD)),
                 account: None,
+                confirmation: None,
             },
             None,
         );

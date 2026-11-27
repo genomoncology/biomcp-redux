@@ -182,9 +182,21 @@ pub(super) fn tools(root: &crate::grammar::Root, read_only: bool) -> std::io::Re
     Ok(tools)
 }
 
-pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
-    if modern && let Some(object) = value.as_object_mut() {
-        object.insert("resultType".into(), json!("complete"));
+pub(super) fn result(id: Value, value: Value, modern: bool) -> Value {
+    if modern {
+        current_result(id, value, "complete")
+    } else {
+        json!({"jsonrpc":"2.0","id":id,"result":value})
+    }
+}
+
+pub(super) fn input_required(id: Value, value: Value) -> Value {
+    current_result(id, value, "input_required")
+}
+
+fn current_result(id: Value, mut value: Value, kind: &str) -> Value {
+    if let Some(object) = value.as_object_mut() {
+        object.insert("resultType".into(), json!(kind));
         object.insert(
             "_meta".into(),
             json!({"io.modelcontextprotocol/serverInfo":info(ReplyVersion::Current)}),

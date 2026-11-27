@@ -7,9 +7,10 @@ pub(super) fn initialize(
     mode: crate::config::ToolMode,
     context: crate::command::Context<'_>,
     revisions: &[&'static str],
-) -> Option<(ReplyVersion, Value)> {
+) -> Option<(ReplyVersion, Value, Option<bool>)> {
     let revision = revision(params.get("protocolVersion")?.as_str()?, revisions);
-    params.get("capabilities")?.as_object()?;
+    let capabilities = params.get("capabilities")?;
+    capabilities.as_object()?;
     let info = params.get("clientInfo")?;
     info.get("name")?.as_str()?;
     info.get("version")?.as_str()?;
@@ -17,7 +18,13 @@ pub(super) fn initialize(
     let result = json!({"protocolVersion":revision,
         "capabilities":super::skills::capabilities(context, false),
         "serverInfo":protocol::info(version), "instructions":protocol::instructions(mode, context)});
-    Some((version, result))
+    // June 2025 introduced forms. November 2025 added the explicit mode field.
+    let form = match revision {
+        "2025-06-18" if super::elicitation::supports_form(capabilities) => Some(false),
+        "2025-11-25" if super::elicitation::supports_form(capabilities) => Some(true),
+        _ => None,
+    };
+    Some((version, result, form))
 }
 
 // Pinned lifecycle version negotiation preserves a supported requested revision.

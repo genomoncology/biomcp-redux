@@ -210,6 +210,7 @@ dependencies = [
  "libtest-mimic",
  "nix",
  "quick-xml",
+ "ring",
  "rpassword",
  "rusqlite",
  "rustix",

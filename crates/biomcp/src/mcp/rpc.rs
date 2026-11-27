@@ -4,6 +4,14 @@ use super::{current, discovery, legacy, protocol};
 use serde_json::{Value, json};
 pub(super) enum Message {
     Reply(Value),
+    Initialized {
+        reply: Value,
+        form: Option<bool>,
+    },
+    ClientResponse {
+        id: Value,
+        approved: bool,
+    },
     Tool {
         id: Value,
         params: Value,
@@ -25,6 +33,20 @@ pub(super) fn message(
     let Ok(value) = serde_json::from_slice::<Value>(frame) else {
         return Message::Reply(protocol::error(Value::Null, -32700, "Parse error"));
     };
+    if value.get("jsonrpc") == Some(&json!("2.0"))
+        && value.get("method").is_none()
+        && let Some(id) = value.get("id").filter(|id| protocol::valid_id(id))
+        && (value.get("result").is_some_and(Value::is_object)
+            ^ value.get("error").is_some_and(Value::is_object))
+    {
+        return Message::ClientResponse {
+            id: id.clone(),
+            approved: value.get("error").is_none()
+                && value
+                    .get("result")
+                    .is_some_and(super::elicitation::approved),
+        };
+    }
     if !protocol::validate(&value) {
         let id = value
             .get("id")
@@ -54,12 +76,16 @@ pub(super) fn message(
             return Message::Reply(error);
         }
     } else if method == "initialize" {
-        let Some((negotiated, result)) = legacy::initialize(&params, mode, context, revisions)
+        let Some((negotiated, result, form)) =
+            legacy::initialize(&params, mode, context, revisions)
         else {
             return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
         };
         *version = negotiated;
-        return Message::Reply(protocol::result(id.clone(), result, false));
+        return Message::Initialized {
+            reply: protocol::result(id.clone(), result, false),
+            form,
+        };
     } else if *version == ReplyVersion::Current {
         return Message::Reply(json!({"jsonrpc":"2.0","id":id,"error":{
             "code":-32602,
@@ -140,7 +166,8 @@ fn call(
         let Some(target) = discovery::target(&params) else {
             return Message::Reply(protocol::error(id, -32602, "Invalid params"));
         };
-        params = target;
+        params["name"] = target["name"].clone();
+        params["arguments"] = target["arguments"].clone();
     }
     Message::Tool {
         id,

@@ -109,7 +109,7 @@ fn version(connection: &Connection) -> Result<usize, SavedError> {
 }
 
 /// Refuse a file that says it needs a newer reader; a missing key means 1.
-fn check_compatibility(connection: &Connection) -> Result<(), SavedError> {
+pub(super) fn check_compatibility(connection: &Connection) -> Result<(), SavedError> {
     if meta(connection, "compatibility")?.unwrap_or(1) > COMPATIBILITY {
         Err(SavedError::Newer)
     } else {
@@ -344,27 +344,43 @@ impl SavedStore {
     /// Delete the search or list with this name, or everything, with their notes, and return
     /// what was deleted.
     pub fn delete(&mut self, name: Option<&str>) -> Result<Saved, SavedError> {
+        self.write(|tx, _| delete(tx, name))
+    }
+
+    /// Check the approved targets again under the same write lock as the deletion.
+    pub fn delete_confirmed(
+        &mut self,
+        preview: &super::DeletePreview,
+        cancelled: impl FnOnce() -> bool,
+    ) -> Result<Option<Saved>, SavedError> {
         self.write(|tx, _| {
-            let deleted = select(tx, name)?;
-            if name.is_none() {
-                tx.execute("DELETE FROM saved_note", [])?;
+            if super::DeletePreview::read(tx)? != *preview || cancelled() {
+                return Ok(None);
             }
-            for search in deleted.searches.iter().flatten() {
-                super::notes::delete_record(tx, search.id.as_str())?;
-                super::snapshot::delete_snapshots(tx, search.id.as_str())?;
-                tx.execute("DELETE FROM saved_search WHERE id=?1", [search.id.as_str()])?;
-            }
-            for list in deleted.lists.iter().flatten() {
-                super::notes::delete_record(tx, list.id.as_str())?;
-                tx.execute(
-                    "DELETE FROM saved_list_item WHERE list=?1",
-                    [list.id.as_str()],
-                )?;
-                tx.execute("DELETE FROM saved_list WHERE id=?1", [list.id.as_str()])?;
-            }
-            Ok(deleted)
+            delete(tx, None).map(Some)
         })
     }
+}
+
+fn delete(tx: &Transaction<'_>, name: Option<&str>) -> Result<Saved, SavedError> {
+    let deleted = select(tx, name)?;
+    if name.is_none() {
+        tx.execute("DELETE FROM saved_note", [])?;
+    }
+    for search in deleted.searches.iter().flatten() {
+        super::notes::delete_record(tx, search.id.as_str())?;
+        super::snapshot::delete_snapshots(tx, search.id.as_str())?;
+        tx.execute("DELETE FROM saved_search WHERE id=?1", [search.id.as_str()])?;
+    }
+    for list in deleted.lists.iter().flatten() {
+        super::notes::delete_record(tx, list.id.as_str())?;
+        tx.execute(
+            "DELETE FROM saved_list_item WHERE list=?1",
+            [list.id.as_str()],
+        )?;
+        tx.execute("DELETE FROM saved_list WHERE id=?1", [list.id.as_str()])?;
+    }
+    Ok(deleted)
 }
 
 pub(super) fn seconds(now: u64) -> Result<i64, SavedError> {

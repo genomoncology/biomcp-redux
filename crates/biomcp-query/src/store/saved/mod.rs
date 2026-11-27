@@ -4,10 +4,12 @@
 //! [`MIGRATIONS`], and a file written by a newer build is refused untouched.
 mod migrations;
 mod notes;
+mod preview;
 mod snapshot;
 mod store;
 pub use migrations::MIGRATIONS;
 pub use notes::NoteTarget;
+pub use preview::DeletePreview;
 pub use snapshot::{
     FLOOR_SECONDS, NewSnapshot, SNAPSHOT_ROWS, SnapshotRow, compare, failed, not_due, now,
 };

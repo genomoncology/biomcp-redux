@@ -10,6 +10,8 @@ fn panicking_worker_completes_with_internal_error() {
         max_calls: crate::config::DEFAULT_MCP_CAPACITY,
         queue: super::super::queue::Queue::new(&Ok(None)),
         version: ReplyVersion::Current,
+        legacy_form: None,
+        form_sequence: 0,
         globals: crate::grammar::Globals::default(),
         root: std::sync::Arc::new(crate::grammar::Root::new(clap::Command::new(
             "worker-fixture",
@@ -19,13 +21,9 @@ fn panicking_worker_completes_with_internal_error() {
         recovery: None,
     };
     server
-        .start_call(
-            "panic".into(),
-            json!("panic"),
-            ReplyVersion::Current,
-            None,
-            || panic!("injected worker failure"),
-        )
+        .start_call("panic".into(), json!("panic"), None, || {
+            panic!("injected worker failure")
+        })
         .unwrap();
     let Event::Completed(key, outcome) = receiver
         .recv_timeout(std::time::Duration::from_secs(5))

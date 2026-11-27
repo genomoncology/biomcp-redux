@@ -77,7 +77,7 @@ pub(crate) fn tool(args: &[OsString], context: Context<'_>) -> io::Result<Outcom
 }
 
 /// The saved file for this call: the data folder's locally, or the account's in hosted mode.
-fn file(context: Context<'_>) -> Result<Option<PathBuf>, UsageError> {
+pub(crate) fn file(context: Context<'_>) -> Result<Option<PathBuf>, UsageError> {
     if !context.globals.hosted {
         return Ok(None);
     }
