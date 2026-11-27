@@ -2,7 +2,9 @@ use super::relation::{self, Echo, Selection};
 use crate::{Ctx, Outcome, status};
 use biomcp_fetch::Deadline;
 use biomcp_types::Paged;
-use biomcp_types::{PathwayCard, PathwayGet, PathwaySection, Reason, ReplyData, Section, Source};
+use biomcp_types::{
+    PathwayCard, PathwayGenes, PathwayGet, PathwaySection, Reason, ReplyData, Section, Source,
+};
 pub(super) fn attach(
     cx: &Ctx<'_>,
     q: &PathwayGet,
@@ -48,25 +50,7 @@ pub(super) fn attach(
             .unwrap_or(Reason::BadReply);
         match result.body {
             ReplyData::PathwayGenes { body, .. } => {
-                card.genes = Some(body.map_or_else(
-                    || Section::unavailable(source, reason),
-                    |data| {
-                        if source == Source::WikiPathways
-                            && data.total == 0
-                            && data
-                                .gene_count
-                                .as_ref()
-                                .is_some_and(|count| count.unmapped == 0)
-                        {
-                            Section::Empty {
-                                source,
-                                record: None,
-                            }
-                        } else {
-                            Section::Data { source, data }
-                        }
-                    },
-                ))
+                card.genes = Some(genes_section(body, source, reason));
             }
             ReplyData::PathwayEvents { body, .. } => {
                 card.events = Some(body.map_or_else(
@@ -91,6 +75,30 @@ pub(super) fn attach(
         out.problems.extend(result.problems);
         out.next.extend(result.next);
         out.local = out.local.or(result.local);
+    }
+}
+
+fn genes_section(
+    body: Option<PathwayGenes>,
+    source: Source,
+    reason: Reason,
+) -> Section<PathwayGenes> {
+    match body {
+        Some(data)
+            if source == Source::WikiPathways
+                && data.total == 0
+                && data
+                    .gene_count
+                    .as_ref()
+                    .is_some_and(|count| count.unmapped == 0) =>
+        {
+            Section::Empty {
+                source,
+                record: None,
+            }
+        }
+        Some(data) => Section::Data { source, data },
+        None => Section::unavailable(source, reason),
     }
 }
 
