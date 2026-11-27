@@ -20,6 +20,7 @@ Blocks 1.0. Those clients reject a 2026-07-28 `tools/list` result that lacks the
 
 - PM decision (2026-11-27): `ttlMs` is one named constant chosen from how long a catalog stays valid within one server process (the catalog changes only on restart or configuration change); name the reason beside it.
 - PM decision (2026-11-27): older revisions get no new fields.
+- PM decision (2026-11-27): the typed catalog ceiling of 196,608 bytes is never raised. After 1197 it has about 101 bytes to spare. If this change pushes any measured catalog over its ceiling, trim catalog text instead, for example tool titles that only repeat the tool name; if that can't be done without losing meaning, stop and report the sizes.
 
 ## Keeps
 
