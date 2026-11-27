@@ -32,7 +32,7 @@
       ],
       "expect": {
         "/query/input": "7-140753336-A-T",
-        "/sources/0/source": "myvariant",
+        "/sources/0/source": "gnomad",
         "/sources/0/state": "ok",
         "/query": {
           "omits": [
