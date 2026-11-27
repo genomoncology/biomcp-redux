@@ -207,38 +207,37 @@ impl Server {
         }
     }
 
+    fn parse_tool(
+        &self,
+        id: &Value,
+        params: &Value,
+        version: ReplyVersion,
+    ) -> Result<research::Call, Value> {
+        let context =
+            crate::command::Context::new(&self.globals, &self.fetch, &self.root, &self.settings);
+        let call = typed::parse(
+            context,
+            params,
+            crate::config::mcp_tool_mode(&self.globals, &self.settings),
+            self.globals.fresh,
+            false,
+        )
+        .ok_or_else(|| protocol::error(id.clone(), -32602, "Invalid params"))?;
+        call.map_err(|rejected| {
+            typed::rejection(id.clone(), rejected, version, context, false)
+                .unwrap_or_else(|_| protocol::error(id.clone(), -32603, "Internal error"))
+        })
+    }
+
     fn admit(
         &mut self,
         id: Value,
         params: &Value,
         version: ReplyVersion,
     ) -> io::Result<Option<Value>> {
-        let Some(call) = typed::parse(
-            crate::command::Context::new(&self.globals, &self.fetch, &self.root, &self.settings),
-            params,
-            crate::config::mcp_tool_mode(&self.globals, &self.settings),
-            self.globals.fresh,
-            false,
-        ) else {
-            return Ok(Some(protocol::error(id, -32602, "Invalid params")));
-        };
-        let call = match call {
+        let call = match self.parse_tool(&id, params, version) {
             Ok(call) => call,
-            Err(rejected) => {
-                return typed::rejection(
-                    id,
-                    rejected,
-                    version,
-                    crate::command::Context::new(
-                        &self.globals,
-                        &self.fetch,
-                        &self.root,
-                        &self.settings,
-                    ),
-                    false,
-                )
-                .map(Some);
-            }
+            Err(reply) => return Ok(Some(reply)),
         };
         let key = id.to_string();
         if self.active.contains_key(&key) || self.queue.contains(&key) {
@@ -295,17 +294,7 @@ impl Server {
             } else if let Some(explicit_mode) = legacy {
                 request.context.scope = form_scope.as_ref();
                 request.confirm(&call, false, |_, preview| {
-                    let (respond, response) = mpsc::sync_channel(1);
-                    let prompt = Event::Form {
-                        key: worker_key,
-                        params: elicitation::form(preview, explicit_mode),
-                        respond,
-                    };
-                    if sender.send(prompt).is_ok() && response.recv_timeout(budget) == Ok(true) {
-                        elicitation::Decision::Approve
-                    } else {
-                        elicitation::Decision::Decline
-                    }
+                    legacy::wait_for_form(&sender, worker_key, preview, explicit_mode, budget)
                 })
             } else {
                 request.run(&call, false)

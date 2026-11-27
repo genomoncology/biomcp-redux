@@ -55,3 +55,24 @@ pub(super) fn project_tools(tools: &mut [Value], version: ReplyVersion) {
         }
     }
 }
+
+pub(super) fn wait_for_form(
+    sender: &std::sync::mpsc::SyncSender<super::Event>,
+    key: String,
+    preview: &biomcp_query::store::saved::DeletePreview,
+    explicit_mode: bool,
+    budget: std::time::Duration,
+) -> super::elicitation::Decision {
+    use super::elicitation::{self, Decision};
+    let (respond, response) = std::sync::mpsc::sync_channel(1);
+    let prompt = super::Event::Form {
+        key,
+        params: elicitation::form(preview, explicit_mode),
+        respond,
+    };
+    if sender.send(prompt).is_ok() && response.recv_timeout(budget) == Ok(true) {
+        Decision::Approve
+    } else {
+        Decision::Decline
+    }
+}

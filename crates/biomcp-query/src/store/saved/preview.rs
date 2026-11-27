@@ -5,7 +5,7 @@ use sha2::{Digest, Sha256};
 use std::{path::Path, time::Duration};
 
 /// The counts shown to the user and a digest of the corresponding target IDs.
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct DeletePreview {
     /// Searches, lists and notes, in that order.
     pub counts: [usize; 3],
@@ -35,11 +35,11 @@ impl DeletePreview {
     fn counts_and_digest(connection: Option<&Connection>) -> Result<Self, SavedError> {
         let mut counts = [0; 3];
         let mut digest = Sha256::new();
-        for (index, table) in ["saved_search", "saved_list", "saved_note"]
-            .into_iter()
-            .enumerate()
+        for (count, table) in counts
+            .iter_mut()
+            .zip(["saved_search", "saved_list", "saved_note"])
         {
-            digest.update([index as u8]);
+            digest.update(table.as_bytes());
             let Some(connection) = connection else {
                 continue;
             };
@@ -57,7 +57,7 @@ impl DeletePreview {
                     let id = row.get_ref(0)?.as_str().map_err(|_| SavedError::Database)?;
                     digest.update(id.len().to_be_bytes());
                     digest.update(id.as_bytes());
-                    counts[index] += 1;
+                    *count += 1;
                 }
             }
         }

@@ -52,11 +52,20 @@ pub(super) fn tools(read_only: bool) -> Vec<Value> {
     ]
 }
 
-pub(super) fn target(params: &Value) -> Option<Value> {
+pub(super) fn target(
+    params: &serde_json::Map<String, Value>,
+) -> Option<serde_json::Map<String, Value>> {
     let arguments = params.get("arguments")?.as_object()?;
     let name = arguments.get("name")?.as_str()?;
     let input = arguments.get("arguments")?.as_object()?;
-    (arguments.len() == 2 && typed::served(name)).then(|| json!({"name":name,"arguments":input}))
+    (arguments.len() == 2 && typed::served(name)).then(|| {
+        [
+            ("name".into(), json!(name)),
+            ("arguments".into(), json!(input)),
+        ]
+        .into_iter()
+        .collect()
+    })
 }
 
 fn search_tool() -> Value {

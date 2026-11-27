@@ -10,7 +10,6 @@ use ring::{
 use serde_json::{Value, json};
 use std::{
     io,
-    sync::OnceLock,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -32,7 +31,8 @@ fn delete_all(call: &research::Call) -> bool {
 }
 
 pub(super) fn approved(result: &Value) -> bool {
-    result["action"] == "accept" && result.pointer("/content/confirm") == Some(&Value::Bool(true))
+    result.get("action").and_then(Value::as_str) == Some("accept")
+        && result.pointer("/content/confirm") == Some(&Value::Bool(true))
 }
 
 pub(super) struct Call<'a> {
@@ -148,7 +148,11 @@ pub(super) fn form(preview: &DeletePreview, explicit_mode: bool) -> Value {
 // Use one process key to authenticate the saved targets, caller account and expiration.
 // No saved identifiers or pending confirmations travel in the token or live on the server.
 const STATE_BYTES: usize = 8 + ring::digest::SHA256_OUTPUT_LEN;
-static KEY: OnceLock<Option<hmac::Key>> = OnceLock::new();
+#[expect(
+    clippy::disallowed_types,
+    reason = "Generate the process signing key once"
+)]
+static KEY: std::sync::OnceLock<Option<hmac::Key>> = std::sync::OnceLock::new();
 
 fn key() -> Option<&'static hmac::Key> {
     KEY.get_or_init(|| {
@@ -190,8 +194,10 @@ pub(super) fn matches_state(state: &str, call: &Call<'_>, preview: &DeletePrevie
     {
         return false;
     }
-    let (expiration, tag) = bytes.split_at(8);
-    u64::from_be_bytes(bytes[..8].try_into().unwrap_or_default()) >= now()
+    let Some((expiration, tag)) = bytes.split_at_checked(8) else {
+        return false;
+    };
+    u64::from_be_bytes(expiration.try_into().unwrap_or_default()) >= now()
         && key().is_some_and(|key| {
             hmac::verify(
                 key,
