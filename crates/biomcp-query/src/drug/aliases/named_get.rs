@@ -33,6 +33,12 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
     let [out] = outcomes.as_slice() else {
         return outcomes;
     };
+    if query.uses_default_identity_source()
+        && out.status() == Status::Failed
+        && let Some(recovered) = chembl_identity(&within(cx, deadline.remaining()), query, out)
+    {
+        return vec![recovered];
+    }
     if !matches!(out.body, ReplyData::Usage(_)) || !usable(out, query.source()) {
         return outcomes;
     }
@@ -89,6 +95,38 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
             part
         })
         .collect()
+}
+
+fn chembl_identity(cx: &Ctx<'_>, query: &DrugGet, primary: &Outcome) -> Option<Outcome> {
+    let ReplyData::DrugCard {
+        query: attempted, ..
+    } = &primary.body
+    else {
+        return None;
+    };
+    let mychem = primary
+        .sources
+        .iter()
+        .find(|row| row.source == DrugSource::Mychem.source())?;
+    let chembl = DrugGet::named(query.input().clone(), DrugSource::Chembl).ok()?;
+    let mut found = get(cx, &chembl);
+    if !matches!(found.body, ReplyData::DrugCard { body: Some(_), .. }) {
+        return None;
+    }
+    // The carried components share MyChem's failure. Only MyChem itself was asked for that record.
+    found.sources.push(mychem.clone());
+    let failure = if attempted.input() == query.input() {
+        "MyChem.info could not resolve the requested name.".into()
+    } else {
+        format!("MyChem.info could not serve record {}.", attempted.input())
+    };
+    notice(
+        &mut found,
+        DrugSource::Mychem,
+        format!("{failure} Resolved the requested name through ChEMBL."),
+    );
+    status::item(&mut found, true, false, true);
+    Some(found)
 }
 
 pub(super) fn retry_name(
