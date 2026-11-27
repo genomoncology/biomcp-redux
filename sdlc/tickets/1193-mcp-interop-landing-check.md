@@ -1,6 +1,7 @@
 # 1193 — mcp-interop-landing-check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: fdbea81174cfeba4605f7256183f7585d3ffa65b
 
 Milestone: 7
 
