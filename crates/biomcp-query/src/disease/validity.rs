@@ -99,24 +99,36 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
         }
     }
     let returned = items.len() as u32;
-    let offset = query.section_offset().saturating_add(returned);
-    if returned > 0 && u64::from(offset) < total {
-        let available: Vec<_> = selected
-            .iter()
-            .copied()
-            .filter(|source| !cx.fetch.disabled(*source))
-            .collect();
-        out.next.push(crate::next::Step::new(
-            StepKind::Page,
-            &available,
-            run(Request::GetDisease(query.at_section_offset(offset))),
-        ));
-    }
     out.page = Some(page_info(query.section_offset(), returned, total));
+    out.next
+        .extend(next_page(cx, query, selected, returned, total));
     out.body = body(query, items, coverage);
     status::search_for(&mut out, selected);
     command.finish(deadline.remaining());
     out
+}
+
+fn next_page(
+    cx: &Ctx<'_>,
+    query: &DiseaseGet,
+    selected: &[Source],
+    returned: u32,
+    total: u64,
+) -> Option<crate::next::Step> {
+    let offset = query.section_offset().saturating_add(returned);
+    if returned == 0 || u64::from(offset) >= total {
+        return None;
+    }
+    let available: Vec<_> = selected
+        .iter()
+        .copied()
+        .filter(|source| !cx.fetch.disabled(*source))
+        .collect();
+    Some(crate::next::Step::new(
+        StepKind::Page,
+        &available,
+        run(Request::GetDisease(query.at_section_offset(offset))),
+    ))
 }
 
 fn resolve(
@@ -135,7 +147,7 @@ fn resolve(
         return None;
     }
     let resolved = super::mydisease::mondo(cx, query, id, deadline, out);
-    let source = &mut out.sources[0];
+    let source = out.sources.last_mut()?;
     if source.reason == Some(Reason::NotFound) {
         source.set_status(SourceStatus::Ok);
     }
