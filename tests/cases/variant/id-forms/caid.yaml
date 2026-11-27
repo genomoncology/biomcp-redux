@@ -117,9 +117,12 @@
         "/result/candidates/0/sections/hotspots/reason": "no-join-id",
         "/result/candidates/0/sections/oncokb/reason": "no-key",
         "/result/candidates/0/sections/alphagenome/reason": "no-key",
-        "/result/candidates/0/sections/predict/state": "empty",
-        "/result/candidates/0/sections/conservation/state": "empty",
-        "/result/candidates/0/sections/cosmic/state": "empty"
+        "/result/candidates/0/sections/predict/state": "unavailable",
+        "/result/candidates/0/sections/predict/reason": "no-join-id",
+        "/result/candidates/0/sections/conservation/state": "unavailable",
+        "/result/candidates/0/sections/conservation/reason": "not-found",
+        "/result/candidates/0/sections/cosmic/state": "unavailable",
+        "/result/candidates/0/sections/cosmic/reason": "no-join-id"
       }
     }
   ]
