@@ -37,7 +37,8 @@ pub(super) fn exact_id(leg: &Leg<'_>, name: &Text) -> Result<Option<u64>, Reques
     let mut after = None;
     loop {
         let body = serde_json::json!({
-            "query": "query($name:String!,$after:String){molecularProfiles(name:$name,first:50,after:$after){totalCount pageInfo{hasNextPage endCursor} nodes{id name}}}",
+            "query": "query($name:String!,$after:String){molecularProfiles(name:$name,first:50,after:$after){totalCount \
+                pageInfo{hasNextPage endCursor} nodes{id name}}}",
             "variables": {"name": name, "after": after}
         });
         let reply: Response = leg
