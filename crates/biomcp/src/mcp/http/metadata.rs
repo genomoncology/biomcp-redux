@@ -69,30 +69,34 @@ pub(super) fn validate(request: &Request, value: &Value) -> Result<&'static str,
 }
 fn revision(request: &Request, value: &Value, id: &Value) -> Result<&'static str, Value> {
     let mismatch = || protocol::error(id.clone(), -32020, "Header mismatch");
-    let revision = request
+    let header = request
         .one("mcp-protocol-version")
         .map_err(|_| mismatch())?;
-    let revision = revision
-        .or_else(|| {
-            (value.get("method") == Some(&json!("initialize")))
-                .then(|| {
-                    value
-                        .pointer("/params/protocolVersion")
-                        .and_then(Value::as_str)
-                })
-                .flatten()
-                .map(crate::mcp::legacy::revision)
-        })
-        // Legacy HTTP cannot recover a negotiated revision without session state.
-        // https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#protocol-version-header
-        .unwrap_or(protocol::REVISIONS[3]);
-    let Some(revision) = protocol::REVISIONS
+    let requested = if value.get("method") == Some(&json!("initialize")) {
+        value
+            .pointer("/params/protocolVersion")
+            .and_then(Value::as_str)
+    } else {
+        None
+    };
+    let revision = if requested == Some(protocol::NOVEMBER_2024) {
+        protocol::NOVEMBER_2024
+    } else {
+        header
+            .or_else(|| requested.map(crate::mcp::legacy::revision))
+            // Legacy HTTP cannot recover a negotiated revision without session state.
+            // https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#protocol-version-header
+            .unwrap_or(protocol::REVISIONS[3])
+    };
+    // The final revision requires the earlier HTTP+SSE transport.
+    let supported = protocol::HTTP_REVISIONS;
+    let Some(revision) = supported
         .iter()
         .copied()
         .find(|supported| *supported == revision)
     else {
         return Err(json!({"jsonrpc":"2.0","id":id,"error":{"code":-32022,
-            "message":"Unsupported protocol version","data":{"supported":protocol::REVISIONS,"requested":revision}}}));
+            "message":"Unsupported protocol version","data":{"supported":supported,"requested":revision}}}));
     };
     Ok(revision)
 }

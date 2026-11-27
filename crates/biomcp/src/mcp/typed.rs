@@ -75,11 +75,10 @@ pub(super) fn prepare_with_catalog(
 pub(super) fn tool_result(
     id: Value,
     completed: &super::research::Completed,
-    modern: bool,
+    version: super::protocol::ReplyVersion,
     settings: &crate::config::Settings,
 ) -> Value {
-    let form = crate::config::mcp_reply_form(settings);
-    super::protocol::tool_result(id, &completed.outcome, modern, form)
+    super::protocol::tool_result(id, &completed.outcome, version, settings)
 }
 
 use biomcp_types::ErrorMessage;
@@ -389,7 +388,7 @@ pub(super) struct Rejected {
 pub(super) fn rejection(
     id: Value,
     mut rejected: Rejected,
-    modern: bool,
+    version: super::protocol::ReplyVersion,
     context: crate::command::Context<'_>,
     read_only: bool,
 ) -> io::Result<Value> {
@@ -426,7 +425,7 @@ pub(super) fn rejection(
     Ok(tool_result(
         id,
         &super::research::Completed { outcome },
-        modern,
+        version,
         context.settings,
     ))
 }

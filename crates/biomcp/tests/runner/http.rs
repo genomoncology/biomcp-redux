@@ -340,6 +340,38 @@ fn legacy_versions(server: &Server) -> Check {
     {
         return Err(format!("unsupported revision: {status} {reply:?}"));
     }
+    november_2024_refused(server, base)
+}
+
+fn november_2024_refused(server: &Server, base: &str) -> Check {
+    let init = legacy(
+        10,
+        "initialize",
+        json!({
+            "protocolVersion":"2024-11-05","capabilities":{},
+            "clientInfo":{"name":"local-proof","version":"1"}
+        }),
+    )
+    .to_string();
+    let host = server.address.to_string();
+    for version_header in [
+        "",
+        "MCP-Protocol-Version: 2024-11-05\r\n",
+        "MCP-Protocol-Version: 2025-03-26\r\n",
+    ] {
+        let headers = format!("{base}{version_header}");
+        let (status, reply, _) = server.raw("POST", "/mcp", &host, &headers, &init)?;
+        let error = reply.as_ref().and_then(|reply| reply.get("error"));
+        if status != 400
+            || error.and_then(|error| error.get("code")) != Some(&json!(-32022))
+            || error.and_then(|error| error.pointer("/data/requested"))
+                != Some(&json!("2024-11-05"))
+        {
+            return Err(format!(
+                "stdio-only revision accepted over HTTP: {status} {reply:?}"
+            ));
+        }
+    }
     Ok(())
 }
 fn concurrent(server: &Server, globals: &[String]) -> Check {
@@ -583,7 +615,7 @@ fn metadata_cases(server: &Server) -> Check {
     if status != 404 || reply.pointer("/error/code") != Some(&json!(-32601)) {
         return Err("unsupported modern method needs HTTP 404 and RPC -32601".into());
     }
-    let headers = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2024-11-05\r\n";
+    let headers = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2024-10-07\r\n";
     let (status, reply, _) = server.raw(
         "POST",
         "/mcp",

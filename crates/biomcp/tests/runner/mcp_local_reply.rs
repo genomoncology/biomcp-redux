@@ -4,7 +4,7 @@ use super::super::{
     launch::Environment,
     mcp::{exchange_wire, request},
 };
-use super::reply_form::check_content;
+use super::{reply, reply_form::check_content};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
@@ -13,7 +13,7 @@ const LEGACY: &str = "2025-03-26";
 const CURRENT: &str = "2026-07-28";
 
 pub(super) fn trials() -> Vec<Trial> {
-    [LEGACY, CURRENT]
+    let mut trials: Vec<_> = [LEGACY, CURRENT]
         .into_iter()
         .map(|revision| {
             transcript_trial(
@@ -21,7 +21,58 @@ pub(super) fn trials() -> Vec<Trial> {
                 move || check(revision).map_err(Into::into),
             )
         })
-        .collect()
+        .collect();
+    trials.push(transcript_trial("mcp-parity/stdio-2024-11-05", || {
+        november_2024().map_err(Into::into)
+    }));
+    trials
+}
+
+fn november_2024() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"mcp_reply_form":"once"}))
+        .map_err(|e| e.to_string())?;
+    let frames = [
+        json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{
+            "protocolVersion":"2024-11-05","capabilities":{},
+            "clientInfo":{"name":"local-proof","version":"1"}}}),
+        json!({"jsonrpc":"2.0","method":"notifications/initialized"}),
+        json!({"jsonrpc":"2.0","id":2,"method":"tools/list"}),
+        json!({"jsonrpc":"2.0","id":3,"method":"tools/call",
+            "params":{"name":"biomcp","arguments":{"args":["help"]}}}),
+    ];
+    let replies = exchange_wire(&env, &frames, &["--offline".into()], None)?;
+    let init = reply(&replies, &json!(1))?;
+    if init.pointer("/result/protocolVersion") != Some(&json!("2024-11-05")) {
+        return Err("stdio did not negotiate 2024-11-05".into());
+    }
+    let list = reply(&replies, &json!(2))?;
+    let tools = list["result"]["tools"]
+        .as_array()
+        .ok_or("tool listing missing")?;
+    if !tools.iter().any(|tool| tool["name"] == "biomcp")
+        || tools.iter().any(|tool| {
+            tool.as_object().is_none_or(|fields| {
+                fields
+                    .keys()
+                    .any(|name| !matches!(name.as_str(), "name" | "description" | "inputSchema"))
+            })
+        })
+    {
+        return Err("tool listing did not use the 2024-11-05 tool shape".into());
+    }
+    let call = &reply(&replies, &json!(3))?["result"];
+    if call["isError"] != false
+        || call.as_object().is_none_or(|fields| {
+            fields
+                .keys()
+                .any(|name| !matches!(name.as_str(), "content" | "isError"))
+        })
+    {
+        return Err("help call did not succeed with a legacy tool result".into());
+    }
+    check_content(call, Some("text-only"))?;
+    Ok(())
 }
 
 fn check(revision: &str) -> Result<(), String> {

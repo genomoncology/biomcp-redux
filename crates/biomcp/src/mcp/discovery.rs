@@ -1,5 +1,6 @@
 //! Opt-in tool discovery over the same filtered catalog as ordinary typed listing.
-use super::{protocol, typed};
+use super::protocol::ReplyVersion;
+use super::{legacy, protocol, typed};
 use crate::command::Context;
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
@@ -78,7 +79,7 @@ pub(super) fn call(
     params: &Value,
     context: Context<'_>,
     read_only: bool,
-    modern: bool,
+    version: ReplyVersion,
 ) -> Value {
     let Some(args) = params
         .get("arguments")
@@ -104,10 +105,13 @@ pub(super) fn call(
         }
         _ => return protocol::error(id, -32602, "Invalid params"),
     };
-    let Ok(tools) = result else {
+    let Ok(mut tools) = result else {
         return protocol::error(id, -32603, "Output schema unavailable");
     };
-    protocol::discovery_result(id, json!({"tools":tools}), modern, context)
+    if version == ReplyVersion::November2024 {
+        legacy::project_tools(&mut tools);
+    }
+    protocol::discovery_result(id, json!({"tools":tools}), version, context)
 }
 
 fn search(tools: &[Value], query: &str) -> Vec<Value> {
