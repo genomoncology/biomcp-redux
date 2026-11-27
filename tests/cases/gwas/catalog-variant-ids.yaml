@@ -1,0 +1,34 @@
+{
+  "feature": "gwas-get",
+  "story": "Catalog positions and HLA alleles retain their source identifiers and types. Recovering a position makes the Alzheimer page complete.",
+  "live_check": "recorded Catalog position and Alzheimer page, plus an authored HLA and unknown identifier reply",
+  "replay": "gwas/catalog-variant-ids",
+  "steps": [
+    {
+      "run": ["get", "gwas", "association:117751220"],
+      "expect": {
+        "/status": "complete",
+        "": {"omits": ["problems"]},
+        "/result/association": {"omits": ["alleles"]},
+        "/result/association/catalog_alleles/0": {"identifier": "chr4:6965877", "kind": "position", "allele": "?"}
+      }
+    },
+    {
+      "run": ["search", "gwas", "--trait", "Alzheimer disease", "--limit", "5"],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 5,
+        "/result/items/0/catalog_alleles/0": {"identifier": "chr19:44908684", "kind": "position", "allele": "T"},
+        "/result/items/1/alleles/0/rs_id": "rs814573"
+      }
+    },
+    {
+      "run": ["get", "gwas", "association:6114"],
+      "expect": {
+        "/result/association/catalog_alleles/0": {"identifier": "HLA-DRB1*15:01", "kind": "hla_allele", "allele": "?"},
+        "/problems": {"count": 1},
+        "/problems/0/field": "snp_allele.rs_id"
+      }
+    }
+  ]
+}
