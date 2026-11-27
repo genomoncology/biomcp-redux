@@ -2,13 +2,15 @@
   "feature": "variant-identity",
   "live_check": "synthetic projection of native identity facts",
   "replay": "variant/search/protein-selector",
-  "story": "Default gene and protein lookup returns each candidate for substitutions that can span two bases.",
+  "story": "Explicit GRCh37 gene and protein lookup returns each candidate for substitutions that can span two bases.",
   "steps": [
     {
       "run": [
         "get",
         "variant",
-        "BRAF V600K"
+        "BRAF V600K",
+        "--build",
+        "GRCh37"
       ],
       "expect": {
         "/status": "complete",
@@ -25,7 +27,9 @@
       "run": [
         "get",
         "variant",
-        "BRAF V600R"
+        "BRAF V600R",
+        "--build",
+        "GRCh37"
       ],
       "expect": {
         "/status": "complete",
@@ -43,7 +47,9 @@
       "run": [
         "get",
         "variant",
-        "KRAS G12F"
+        "KRAS G12F",
+        "--build",
+        "GRCh37"
       ],
       "expect": {
         "/status": "complete",
@@ -60,7 +66,9 @@
       "run": [
         "get",
         "variant",
-        "EGFR L858R"
+        "EGFR L858R",
+        "--build",
+        "GRCh37"
       ],
       "expect": {
         "/status": "complete",
