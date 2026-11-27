@@ -41,7 +41,7 @@ fn stdio() -> Result<(), String> {
         for frame in frames {
             let reply = replies
                 .iter()
-                .find(|reply| reply["id"] == frame["id"])
+                .find(|reply| reply.get("id") == frame.get("id"))
                 .ok_or("missing stdio catalog reply")?;
             check_fields(&frame, reply, scope)?;
         }
@@ -81,7 +81,11 @@ fn http() -> Result<(), String> {
         for frame in catalog_requests() {
             let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
             if status != 200 {
-                return Err(format!("HTTP {} returned {status}", frame["method"]));
+                let method = frame
+                    .get("method")
+                    .and_then(Value::as_str)
+                    .ok_or("missing HTTP catalog method")?;
+                return Err(format!("HTTP {method} returned {status}"));
             }
             check_fields(&frame, &reply, scope)?;
         }

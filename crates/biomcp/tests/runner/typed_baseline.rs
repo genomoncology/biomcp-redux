@@ -104,14 +104,14 @@ fn compare_frames(
             continue;
         }
         if matches!(
-            frame["method"].as_str(),
+            frame.get("method").and_then(Value::as_str),
             Some("server/discover" | "tools/list")
         ) {
             // The transport cases verify the current catalog cache policy.
             let mut before: Value = serde_json::from_str(before).map_err(|e| e.to_string())?;
             let mut after: Value = serde_json::from_str(after).map_err(|e| e.to_string())?;
             for result in [&mut before, &mut after] {
-                if let Some(result) = result["result"].as_object_mut() {
+                if let Some(result) = result.get_mut("result").and_then(Value::as_object_mut) {
                     result.remove("ttlMs");
                     result.remove("cacheScope");
                 }
