@@ -313,8 +313,7 @@ pub(crate) fn generate(
                 .collect(),
         );
     }
-    let mut lines =
-        vec!["Search by query, get by id. help(command|questions|examples|sources).".into()];
+    let mut lines = vec!["Search query, get id. help(command|questions|examples|sources).".into()];
     for (tool, _, placed, _, _) in ENTITY_TOOLS {
         let mut actions = BTreeSet::new();
         let mut names = Vec::new();
@@ -333,7 +332,7 @@ pub(crate) fn generate(
             ));
         }
     }
-    lines.push("Fetch uses search IDs.".into());
+    lines.push("Fetch by search ID.".into());
     for (source, example) in [
         (
             "clingen",
