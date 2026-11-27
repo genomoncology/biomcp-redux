@@ -154,7 +154,7 @@ const RESULT_CHARACTER_CAP: usize = 150_000;
 use crate::config::ReplyForm;
 
 const DESCRIPTION: &str = concat!(
-    "Run a BioMCP CLI command with {\"args\":[\"help\"]}. Use help for the command map, ",
+    "Run a BioMCP CLI command. Example: {\"args\":[\"help\"]}. Start with help for the command map, ",
     "help <entity> for source reads, help <command> for options, and help skill render for the agent guide. ",
     "Check the JSON reply's status, problems and next commands before using the evidence."
 );
