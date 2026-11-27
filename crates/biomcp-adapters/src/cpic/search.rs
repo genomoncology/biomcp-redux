@@ -15,9 +15,9 @@ pub fn search(leg: &Leg<'_>, query: &PgxSearch) -> Result<Page<PgxPair>, Request
             if u64::from(query.offset()) < first.total {
                 if let Some(pair) = first.items.first()
                     && (pair.genesymbol.as_str() != query.gene().as_str()
-                        || query.cpic_level().is_some_and(|level| {
-                            pair.cpiclevel.as_deref() != Some(level.as_str())
-                        }))
+                        || query
+                            .cpic_level()
+                            .is_some_and(|level| pair.cpiclevel.as_deref() != Some(level.as_str())))
                 {
                     return pair_page(leg, query, query.offset(), query.limit(), true);
                 }

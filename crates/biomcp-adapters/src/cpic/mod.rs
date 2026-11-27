@@ -41,7 +41,7 @@ fn regex_literal(value: &str) -> String {
     let mut escaped = String::with_capacity(value.len());
     for ch in value.chars() {
         if r"\.^$|?*+()[]{}".contains(ch) {
-            escaped.push('\');
+            escaped.push('\\');
         }
         escaped.push(ch);
     }

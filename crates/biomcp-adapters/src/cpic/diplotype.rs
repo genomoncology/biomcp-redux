@@ -71,7 +71,8 @@ fn read_rows(
         query.section_limit(),
         true,
         |rows: &[PgxDiplotypeResult], _range| {
-            rows.iter().all(|r| &r.genesymbol == query.gene() && matches(&r.diplotype))
+            rows.iter()
+                .all(|r| &r.genesymbol == query.gene() && matches(&r.diplotype))
         },
     )
 }
