@@ -5,8 +5,9 @@ use biomcp_fetch::Deadline;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    AssertionDetail, AssertionKind, AssertionSource, PageInfo, Reason, Request, Section, StepKind,
-    VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet, VariantHeader,
+    AssertionDetail, AssertionKind, AssertionSource, ClinvarIncluded, PageInfo, Reason, Request,
+    Section, StepKind, VariantAssertion, VariantAssertions, VariantAssertionsGet, VariantGet,
+    VariantHeader,
 };
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -241,32 +242,36 @@ fn read(
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     let native = query.input().source_id();
     let input = native.as_ref();
+    let selection = query
+        .assertion()
+        .map(|id| (id, query.version().map(|v| v.as_str())));
     let result = match query.source() {
         AssertionSource::Clinvar => biomcp_adapters::clinvar::assertions(
             &leg,
             input.strip_prefix("clinvar:").unwrap_or(input),
-            query
-                .assertion()
-                .map(|id| (id, query.version().map(|v| v.as_str()))),
-        ),
-        AssertionSource::Erepo => biomcp_adapters::erepo::assertions(
-            &leg,
-            input,
-            query
-                .assertion()
-                .map(|id| (id, query.version().map(|v| v.as_str()))),
-        ),
+            selection,
+        )
+        .map(|mapped| {
+            (
+                mapped.value.rows,
+                mapped.value.included_only,
+                mapped.problems,
+                mapped.refusals,
+            )
+        }),
+        AssertionSource::Erepo => biomcp_adapters::erepo::assertions(&leg, input, selection)
+            .map(|mapped| (mapped.value, None, mapped.problems, mapped.refusals)),
     };
     let error = result.as_ref().err().copied();
     let outcome = status::source(spec.source, leg.finish(), error);
     let mut dropped = false;
     let mut problems = Vec::new();
     let section = match result {
-        Ok(rows) => {
-            dropped = rows.refusals == biomcp_adapters::Refusal::Refused;
-            problems = rows.problems;
-            let data = page(query, rows.value);
-            if data.page.total == 0 {
+        Ok((rows, included_only, mapped_problems, refusals)) => {
+            dropped = refusals == biomcp_adapters::Refusal::Refused;
+            problems = mapped_problems;
+            let data = page(query, rows, included_only);
+            if data.page.total == 0 && data.included_only.is_none() {
                 Section::Empty {
                     source: spec.source,
                     record: None,
@@ -291,7 +296,11 @@ fn read(
         dropped,
     )
 }
-fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> VariantAssertions {
+fn page(
+    query: &VariantAssertionsGet,
+    mut rows: Vec<VariantAssertion>,
+    included_only: Option<ClinvarIncluded>,
+) -> VariantAssertions {
     if let Some(id) = query.assertion() {
         let id = id.to_string();
         rows.retain(|r| {
@@ -342,6 +351,7 @@ fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> Varian
     VariantAssertions {
         total,
         assertions: rows.into(),
+        included_only,
         page: PageInfo {
             offset: query.offset(),
             returned,
@@ -357,6 +367,7 @@ fn empty(query: &VariantAssertionsGet) -> VariantAssertions {
     VariantAssertions {
         total: 0,
         assertions: Box::default(),
+        included_only: None,
         page: PageInfo {
             offset: query.offset(),
             returned: 0,

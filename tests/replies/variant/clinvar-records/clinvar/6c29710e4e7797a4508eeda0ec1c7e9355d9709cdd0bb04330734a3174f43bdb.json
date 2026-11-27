@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=clinvar&id=242709&rettype=vcv&is_variationid=true&retmode=xml&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1795814044,
+      "status": 200,
+      "content_type": "application/xml",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<ClinVarResult-Set>\n  <VariationArchive VariationID=\"242709\" VariationName=\"NM_000558.3(HBA1):c.239C&gt;G (p.Ala80Gly)\" VariationType=\"single nucleotide variant\" Accession=\"VCV000242709\" Version=\"1\" RecordType=\"included\" NumberOfSubmissions=\"0\" NumberOfSubmitters=\"0\" DateLastUpdated=\"2026-11-22\" DateCreated=\"2016-07-24\">\n    <RecordStatus>current</RecordStatus>\n    <Species>Homo sapiens</Species>\n    <IncludedRecord>\n      <Classifications>\n        <GermlineClassification NumberOfSubmissions=\"0\" NumberOfSubmitters=\"0\">\n          <ReviewStatus>no classification for the single variant</ReviewStatus>\n          <Description>no classification for the single variant</Description>\n        </GermlineClassification>\n        <SomaticClinicalImpact NumberOfSubmissions=\"0\" NumberOfSubmitters=\"0\">\n          <ReviewStatus>no classification for the single variant</ReviewStatus>\n          <Description>no classification for the single variant</Description>\n        </SomaticClinicalImpact>\n        <OncogenicityClassification NumberOfSubmissions=\"0\" NumberOfSubmitters=\"0\">\n          <ReviewStatus>no classification for the single variant</ReviewStatus>\n          <Description>no classification for the single variant</Description>\n        </OncogenicityClassification>\n      </Classifications>\n      <ClassifiedVariationList>\n        <ClassifiedVariation VariationID=\"15762\" Accession=\"VCV000015762\" Version=\"3\" />\n      </ClassifiedVariationList>\n    </IncludedRecord>\n  </VariationArchive>\n</ClinVarResult-Set>"
+      }
+    }
+  ]
+}

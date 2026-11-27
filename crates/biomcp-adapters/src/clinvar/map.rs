@@ -1,4 +1,5 @@
-pub(super) use crate::mapped::text;
+//! Preserve ClinVar classification domains and submission provenance.
+use crate::mapped::text;
 use crate::xml_element::Element;
 use biodata::{Attribution, VariantRef};
 
@@ -14,6 +15,17 @@ const DOMAINS: [(&str, AssertionDomain); 3] = [
     ),
     ("OncogenicityClassification", AssertionDomain::Oncogenicity),
 ];
+pub(super) fn has_classification(class: Option<Element<'_>>) -> Result<bool, BadReply> {
+    let Some(class) = class else {
+        return Ok(false);
+    };
+    for (name, _) in DOMAINS {
+        if class.child(name)?.is_some() {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
 pub(super) fn aggregate(
     record: Element<'_>,
     class: Element<'_>,
@@ -88,6 +100,7 @@ pub(super) fn submission(
     subject: VariantRef,
     problems: &mut crate::mapped::Problems,
     refusals: &mut crate::Refusal,
+    evidence_only: bool,
 ) -> Result<Vec<VariantAssertion>, BadReply> {
     problems.record = None;
     let Some(accession) = record.child("ClinVarAccession")? else {
@@ -95,13 +108,20 @@ pub(super) fn submission(
         *refusals = crate::Refusal::Refused;
         return Ok(Vec::new());
     };
-    let Some(class) = record.child("Classification")? else {
+    let class = record.child("Classification")?;
+    let unclassified_record = evidence_only && !has_classification(class)?;
+    if class.is_none() && !unclassified_record {
         return Ok(Vec::new());
-    };
+    }
+    let evaluated = class
+        .map(|class| class.attr("DateLastEvaluated"))
+        .transpose()?
+        .flatten();
+    let submitter = accession.attr("SubmitterName")?;
     let Some(attribution) = attribution(
         accession,
-        class.attr("DateLastEvaluated")?,
-        accession.attr("SubmitterName")?,
+        evaluated,
+        submitter,
         AssertionKind::Scv,
         problems,
     )?
@@ -110,7 +130,38 @@ pub(super) fn submission(
         return Ok(Vec::new());
     };
     let detail = super::detail::submission(record, problems)?;
+    if unclassified_record {
+        return Ok(vec![unclassified(
+            AssertionKind::Scv,
+            attribution,
+            class,
+            subject,
+            detail,
+            problems,
+        )?]);
+    }
+    let class = class.ok_or(BadReply)?;
     let review = problems.text("review_status", class.value(&["ReviewStatus"])?.as_deref());
+    classified_submission(
+        class,
+        attribution,
+        subject,
+        detail,
+        review,
+        problems,
+        refusals,
+    )
+}
+
+fn classified_submission(
+    class: Element<'_>,
+    attribution: Attribution,
+    subject: VariantRef,
+    detail: AssertionDetail,
+    review: Option<biodata::Text>,
+    problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
+) -> Result<Vec<VariantAssertion>, BadReply> {
     let mut rows = Vec::new();
     for (name, domain) in DOMAINS {
         let Some(value) = class.child(name)? else {
@@ -154,6 +205,57 @@ pub(super) fn submission(
     }
     Ok(rows)
 }
+pub(super) fn unclassified_rcv(
+    record: Element<'_>,
+    group: Option<Element<'_>>,
+    subject: VariantRef,
+    conditions: Vec<AssertionCondition>,
+    problems: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
+) -> Result<Option<VariantAssertion>, BadReply> {
+    let Some(attribution) = attribution(record, None, None, AssertionKind::Rcv, problems)? else {
+        *refusals = crate::Refusal::Refused;
+        return Ok(None);
+    };
+    let detail = AssertionDetail {
+        conditions_missing: conditions.is_empty(),
+        conditions: conditions.into(),
+        ..Default::default()
+    };
+    unclassified(
+        AssertionKind::Rcv,
+        attribution,
+        group,
+        subject,
+        detail,
+        problems,
+    )
+    .map(Some)
+}
+
+fn unclassified(
+    kind: AssertionKind,
+    attribution: Attribution,
+    group: Option<Element<'_>>,
+    subject: VariantRef,
+    detail: AssertionDetail,
+    problems: &mut crate::mapped::Problems,
+) -> Result<VariantAssertion, BadReply> {
+    let review = group
+        .map(|group| group.value(&["ReviewStatus"]))
+        .transpose()?
+        .flatten();
+    Ok(crate::assertion::row(
+        kind,
+        AssertionDomain::Unclassified,
+        text("no classification provided")?,
+        attribution,
+        subject,
+        detail,
+        problems.text("review_status", review.as_deref()),
+    ))
+}
+
 fn attribution(
     record: Element<'_>,
     evaluated: Option<String>,

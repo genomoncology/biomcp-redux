@@ -921,7 +921,8 @@
       "enum": [
         "germline",
         "somatic_clinical_impact",
-        "oncogenicity"
+        "oncogenicity",
+        "unclassified"
       ],
       "type": "string"
     },
@@ -1718,6 +1719,38 @@
       "required": [
         "id",
         "allele_id"
+      ],
+      "type": "object"
+    },
+    "Reply_ClinvarIncluded": {
+      "description": "ClinVar record with no direct submissions and the VCV records that include it.",
+      "properties": {
+        "included_in": {
+          "description": "Including ClinVar accessions, with versions when supplied.",
+          "items": {
+            "$ref": "#/$defs/Reply_VcvId"
+          },
+          "type": "array"
+        },
+        "record": {
+          "$ref": "#/$defs/Reply_VcvId",
+          "description": "Accession of the included-only record."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Version of the included-only record."
+        }
+      },
+      "required": [
+        "record",
+        "included_in"
       ],
       "type": "object"
     },
@@ -7116,6 +7149,17 @@
             "$ref": "#/$defs/Reply_VariantAssertion"
           },
           "type": "array"
+        },
+        "included_only": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ClinvarIncluded"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ClinVar record that appears only as a member of other variations."
         },
         "next": {
           "anyOf": [

@@ -1,5 +1,6 @@
 use crate::{
-    Attribution, Concept, Curie, PageInfo, PartialDate, Pmid, Statement, Text, VariantAssertionsGet,
+    Attribution, Concept, Curie, PageInfo, PartialDate, Pmid, Statement, Text,
+    VariantAssertionsGet, VcvId,
 };
 use serde::{Deserialize, Serialize};
 /// One source-ordered page, with native record and classification boundaries intact.
@@ -12,6 +13,9 @@ pub struct VariantAssertions {
     /// Source assertion rows in native order.
     #[serde(default)]
     pub assertions: Box<[VariantAssertion]>,
+    /// ClinVar record that appears only as a member of other variations.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub included_only: Option<ClinvarIncluded>,
     /// Page bounds over native rows.
     pub page: PageInfo,
     /// Typed continuation preserving source and selectors.
@@ -21,6 +25,18 @@ pub struct VariantAssertions {
 impl super::ResponseBody for VariantAssertions {
     const SCHEMA: &'static str = "biomcp.variant-assertions/9";
     type Query = VariantAssertionsGet;
+}
+/// ClinVar record with no direct submissions and the VCV records that include it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ClinvarIncluded {
+    /// Accession of the included-only record.
+    pub record: VcvId,
+    /// Version of the included-only record.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<Text>,
+    /// Including ClinVar accessions, with versions when supplied.
+    pub included_in: Box<[VcvId]>,
 }
 /// A native record/domain pair, never a vote or merged classification.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -195,6 +211,8 @@ biodata::wire_enum! {
         SomaticClinicalImpact=>"somatic_clinical_impact",
         /// Somatic oncogenicity.
         Oncogenicity=>"oncogenicity",
+        /// A ClinVar record with no classification assigned.
+        Unclassified=>"unclassified",
     }
 }
 

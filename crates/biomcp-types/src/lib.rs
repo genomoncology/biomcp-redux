@@ -175,8 +175,8 @@ pub use response::TrialHeader;
 pub use query::{AssertionId, AssertionSource, ClinvarRecordKind, VariantAssertionsGet};
 pub use response::{
     AssertionAssessment, AssertionCondition, AssertionConditionRelationship, AssertionDetail,
-    AssertionDocument, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion,
-    VariantAssertions,
+    AssertionDocument, AssertionDomain, AssertionKind, ClinvarIncluded, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
 };
 
 pub use query::{

@@ -142,8 +142,8 @@ pub use trial_document::{
 mod variant_assertions;
 pub use variant_assertions::{
     AssertionAssessment, AssertionCondition, AssertionConditionRelationship, AssertionDetail,
-    AssertionDocument, AssertionDomain, AssertionKind, UnmappedAssertion, VariantAssertion,
-    VariantAssertions,
+    AssertionDocument, AssertionDomain, AssertionKind, ClinvarIncluded, UnmappedAssertion,
+    VariantAssertion, VariantAssertions,
 };
 mod variant_civic;
 pub use variant_civic::{

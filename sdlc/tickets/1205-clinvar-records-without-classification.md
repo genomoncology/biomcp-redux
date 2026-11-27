@@ -1,6 +1,7 @@
 # 1205 — clinvar-records-without-classification
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 03aaff9ed0228598d92beec574e7e1654c4b4846
 
 Milestone: 10
 

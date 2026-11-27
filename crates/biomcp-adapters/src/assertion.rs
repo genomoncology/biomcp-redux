@@ -110,6 +110,7 @@ fn proposition(domain: AssertionDomain, label: &Text) -> Option<Proposition> {
     match domain {
         AssertionDomain::SomaticClinicalImpact => Some(Proposition::ClinicalSignificance),
         AssertionDomain::Oncogenicity => Some(Proposition::Oncogenicity),
+        AssertionDomain::Unclassified => None,
         AssertionDomain::Germline => match label.as_str().to_ascii_lowercase().as_str() {
             "pathogenic"
             | "likely pathogenic"
