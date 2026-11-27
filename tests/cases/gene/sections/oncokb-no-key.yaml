@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic response case",
   "feature": "gene-oncokb",
-  "story": "A missing user key skips OncoKB without changing gene status",
+  "story": "An explicitly requested OncoKB section with no key makes the gene reply partial",
   "replay": "gene/oncokb-synthetic/no-key",
   "steps": [
     {
@@ -12,7 +12,7 @@
         "oncokb"
       ],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items/0/sections/oncokb/state": "skipped",
         "/result/items/0/sections/oncokb/reason": "no-key",
         "/sources": {

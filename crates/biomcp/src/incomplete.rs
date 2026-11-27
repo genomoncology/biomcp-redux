@@ -1,5 +1,4 @@
-//! The one owner of the reply's status words (1059): a failed, stale or syncing source row makes
-//! an answered reply `partial`, and every `partial` reply says at its top what is missing.
+//! Settle reply status and list the requested data that could not be read.
 use biomcp_types::{Envelope, Incomplete, ResponseBody, Source, SourceState, Status};
 use serde_json::Value;
 
@@ -25,14 +24,8 @@ const MISSING_STATES: [&str; 15] = [
     "syncing",
 ];
 
-/// Downgrade a `complete` reply beside a failed source row, then list what a `partial` reply is
-/// missing: failed source rows, result nodes marked missing, and the command's own entries;
-/// refused records and source notices only when nothing else explains.
-///
-/// A section skipped because the caller disabled its source is not missing data, for every
-/// section of every entity, wherever a command marked it. When no sibling section of that record
-/// was read, though, nothing the caller asked for there was answered: the skip is listed with
-/// reason `disabled` and the reply is `partial`, never `complete` with silently empty content.
+/// Downgrade a `complete` reply when a requested section could not be read or a source failed.
+/// For a `partial` reply, list these gaps alongside any other evidence of missing data.
 pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Incomplete>) {
     let mut found: Vec<Incomplete> = envelope
         .sources
@@ -53,15 +46,15 @@ pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Inc
         .and_then(|result| serde_json::to_value(result).ok())
     {
         let fallback = envelope.sources.first().map(|row| row.source);
-        walk(&result, "/result".into(), fallback, false, &mut marks);
+        walk(&result, "/result".into(), fallback, &mut marks);
     }
-    if envelope.status == Status::Complete && !(found.is_empty() && marks.disabled.is_empty()) {
+    if envelope.status == Status::Complete && (!found.is_empty() || marks.unread_section) {
         envelope.status = Status::Partial;
     }
     if envelope.status != Status::Partial {
         return;
     }
-    for item in marks.missing.into_iter().chain(marks.disabled).chain(named) {
+    for item in marks.missing.into_iter().chain(named) {
         if !found.contains(&item) {
             found.push(item);
         }
@@ -71,10 +64,6 @@ pub(crate) fn settle<B: ResponseBody>(envelope: &mut Envelope<B>, named: Vec<Inc
     }
     if found.is_empty() {
         found = notices(&envelope.sources);
-    }
-    // A reply whose only gap is a skip the caller asked for is whole.
-    if found.is_empty() && marks.quiet {
-        envelope.status = Status::Complete;
     }
     envelope.incomplete = found;
 }
@@ -115,10 +104,8 @@ pub(crate) fn projected_purpose(reply: &mut Value) {
 struct Marks {
     /// Nodes marked missing.
     missing: Vec<Incomplete>,
-    /// Caller-disabled skips with no read sibling, listed with reason `disabled`.
-    disabled: Vec<Incomplete>,
-    /// A caller-disabled skip beside read data, which is not missing.
-    quiet: bool,
+    /// At least one requested section was skipped or unavailable.
+    unread_section: bool,
 }
 
 /// A record or field the source sent but BioMCP refused: one entry per source and code.
@@ -162,58 +149,32 @@ fn entry(at: String, source: Source, reason: Option<biomcp_types::Reason>) -> Op
     })
 }
 
-fn state(value: &Value) -> Option<&str> {
-    value.get("state").and_then(Value::as_str)
-}
-
-/// A node skipped because the caller disabled its source.
-fn disabled(value: &Value) -> bool {
-    state(value) == Some("skipped")
-        && value.get("reason").and_then(Value::as_str) == Some("disabled")
-}
-
 /// Collect nodes marked missing, naming the nearest source stated on the node or above it.
-/// `listed` says a caller-disabled skip here has no read sibling.
-fn walk(value: &Value, at: String, source: Option<Source>, listed: bool, marks: &mut Marks) {
+fn walk(value: &Value, at: String, source: Option<Source>, marks: &mut Marks) {
     match value {
         Value::Object(map) => {
             let source = map
                 .get("source")
                 .and_then(|value| serde_json::from_value(value.clone()).ok())
                 .or(source);
-            if disabled(value) {
-                match source {
-                    Some(source) if listed => marks.disabled.extend(entry(
-                        at,
-                        source,
-                        Some(biomcp_types::Reason::Disabled),
-                    )),
-                    _ => marks.quiet = true,
-                }
-                return;
-            }
-            if state(value).is_some_and(|state| MISSING_STATES.contains(&state))
+            if let Some(state) = map.get("state").and_then(Value::as_str)
+                && MISSING_STATES.contains(&state)
                 && let Some(source) = source
             {
                 let reason = map
                     .get("reason")
                     .and_then(|value| serde_json::from_value(value.clone()).ok());
+                marks.unread_section |= matches!(state, "skipped" | "unavailable");
                 marks.missing.extend(entry(at, source, reason));
                 return;
             }
-            // A sibling with any other state, such as `data` or `empty`, was read.
-            let read = map.values().any(|child| {
-                state(child).is_some_and(|s| {
-                    !disabled(child) && !MISSING_STATES.contains(&s) && s != "not-applicable"
-                })
-            });
             for (key, child) in map {
-                walk(child, format!("{at}/{}", escape(key)), source, !read, marks);
+                walk(child, format!("{at}/{}", escape(key)), source, marks);
             }
         }
         Value::Array(items) => {
             for (index, child) in items.iter().enumerate() {
-                walk(child, format!("{at}/{index}"), source, false, marks);
+                walk(child, format!("{at}/{index}"), source, marks);
             }
         }
         _ => {}

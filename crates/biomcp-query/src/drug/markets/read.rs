@@ -7,8 +7,8 @@ use biodata::Text;
 use biomcp_adapters::drugsfda;
 use biomcp_types::{
     DrugGet, DrugHeader, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet, DrugSearch,
-    DrugSection, DrugSource, ReplyBody, ReplyData, Request, Section, Source, SourceState, Status,
-    StepKind,
+    DrugSection, DrugSource, Reason, ReplyBody, ReplyData, Request, Section, Source, SourceState,
+    SourceStatus, Status, StepKind,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
@@ -17,24 +17,38 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
     let name = query.input();
     // `--source` reads only that market; its row is the same as in a call that reads them all.
     let mut markets = Vec::new();
-    if query.reads(DrugSource::Drugsfda) {
-        markets.push(fda(&within(cx, deadline.remaining()), name, &mut out));
-    }
-    if query.reads(DrugSource::Ema) {
-        markets.push(ema(&within(cx, deadline.remaining()), name, &mut out));
-    }
-    if query.reads(DrugSource::WhoPq) {
-        markets.push(crate::drug::who::market(
-            &within(cx, deadline.remaining()),
-            name,
-            &mut out,
-        ));
+    for market in [DrugSource::Drugsfda, DrugSource::Ema, DrugSource::WhoPq] {
+        if !query.reads(market) {
+            continue;
+        }
+        let source = market.source();
+        if cx.fetch.disabled(source) {
+            let mut skipped = row(market);
+            skipped.state = DrugMarketState::Failed;
+            skipped.reason = Some(Reason::Disabled);
+            markets.push(skipped);
+            add_source(
+                &mut out,
+                biomcp_adapters::registry::outcome(
+                    source,
+                    SourceStatus::Skipped(Some(Reason::Disabled)),
+                ),
+            );
+            continue;
+        }
+        let cx = within(cx, deadline.remaining());
+        markets.push(match market {
+            DrugSource::Drugsfda => fda(&cx, name, &mut out),
+            DrugSource::Ema => ema(&cx, name, &mut out),
+            _ => crate::drug::who::market(&cx, name, &mut out),
+        });
     }
     status::get(
         &mut out,
         markets.iter().map(|market| match market.state {
             DrugMarketState::Found => Status::Complete,
             DrugMarketState::NoRecord => Status::Absent,
+            DrugMarketState::Failed if market.reason == Some(Reason::Disabled) => Status::Partial,
             DrugMarketState::Failed => Status::Failed,
         }),
     );

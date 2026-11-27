@@ -1,6 +1,4 @@
-//! Every replayed reply's status word matches its sources (1059): `complete` never sits beside a
-//! failed, stale or syncing source row, every `partial` reply says what it is missing, and every
-//! `incomplete` entry points inside the reply.
+//! Check the completeness contract across all replayed entity replies and other commands.
 use serde_json::Value;
 
 pub(super) fn check(reply: &Value) -> Result<(), String> {
@@ -33,6 +31,9 @@ pub(super) fn check(reply: &Value) -> Result<(), String> {
     }
     let entries = listed.len();
     match status {
+        Some("complete") if reply.get("result").is_some_and(unread_section) => {
+            Err("status words: a complete reply has a skipped or unavailable section".into())
+        }
         Some("complete") if failed || entries > 0 => {
             Err("status words: a complete reply has a failed, stale or syncing source row or an incomplete entry".into())
         }
@@ -42,6 +43,19 @@ pub(super) fn check(reply: &Value) -> Result<(), String> {
         Some("partial" | "complete") | None => Ok(()),
         Some(_) if entries > 0 => Err("status words: only a partial reply has incomplete entries".into()),
         Some(_) => Ok(()),
+    }
+}
+
+fn unread_section(value: &Value) -> bool {
+    match value {
+        Value::Object(map) => {
+            matches!(
+                map.get("state").and_then(Value::as_str),
+                Some("skipped" | "unavailable")
+            ) || map.values().any(unread_section)
+        }
+        Value::Array(items) => items.iter().any(unread_section),
+        _ => false,
     }
 }
 

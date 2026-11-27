@@ -28,8 +28,13 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
             Source::Orphadata,
             SourceStatus::Skipped(Some(Reason::NoJoinId)),
         ));
-        out.page = Some(page_info(query.section_offset(), 0, 0));
-        status::item(&mut out, false, false, false);
+        status::item(&mut out, true, false, true);
+        status::missing(
+            &mut out,
+            biodata::text!("/result/items"),
+            Source::Orphadata,
+            Some(Reason::NoJoinId),
+        );
         command.finish(deadline.remaining());
         return out;
     }
