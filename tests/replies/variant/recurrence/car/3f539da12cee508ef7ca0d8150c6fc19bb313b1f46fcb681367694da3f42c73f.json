@@ -1,0 +1,37 @@
+{
+  "method": "GET",
+  "source": "car",
+  "url": "https://reg.genome.network/allele?hgvs=NC_000024.9%3Ag.2655000A%3EG&fields=none%2B%40id%2BcommunityStandardTitle%2BgenomicAlleles%2BtranscriptAlleles.MANE%2BexternalRecords.dbSNP%2BexternalRecords.ClinVarVariations",
+  "exchanges": [
+    {
+      "fetched": 1792870631,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "@id": "http://reg.genome.network/allele/CA90000002",
+          "genomicAlleles": [
+            {
+              "chromosome": "Y",
+              "referenceGenome": "GRCh37",
+              "hgvs": [
+                "NC_000024.9:g.2655000A>G"
+              ],
+              "coordinates": [
+                {
+                  "start": 2654999,
+                  "end": 2655000,
+                  "referenceAllele": "A",
+                  "allele": "G"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

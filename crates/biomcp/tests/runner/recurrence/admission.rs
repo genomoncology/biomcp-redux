@@ -12,7 +12,9 @@ pub(super) fn check() -> Result<(), String> {
         let (hosts, mut routes) = cache_admission::routes("variant/recurrence")?;
         let entry = routes
             .iter_mut()
-            .find(|(target, _)| target.contains("/mutations?"))
+            .find(|(target, _)| {
+                target.contains("/mutations?") && target.contains("entrezGeneId=673&")
+            })
             .ok_or("recorded mutation page")?;
         let target = entry.0.clone();
         let step = prepare(first, control, &mut entry.1)?;

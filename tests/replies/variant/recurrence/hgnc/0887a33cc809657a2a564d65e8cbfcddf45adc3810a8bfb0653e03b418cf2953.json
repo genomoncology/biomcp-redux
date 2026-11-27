@@ -11,7 +11,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "text",
-        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tentrez_id\nHGNC:1097\tBRAF\tSynthetic BRAF record\tprotein-coding gene\tgene with protein product\tApproved\t673\n"
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tentrez_id\nHGNC:1097\tBRAF\tSynthetic BRAF record\tprotein-coding gene\tgene with protein product\tApproved\t673\nHGNC:644\tAR\tSynthetic AR record\tprotein-coding gene\tgene with protein product\tApproved\t367\nHGNC:11311\tSRY\tSynthetic SRY record\tprotein-coding gene\tgene with protein product\tApproved\t6736\nHGNC:7455\tMT-ND1\tSynthetic MT-ND1 record\tprotein-coding gene\tgene with protein product\tApproved\t4535\n"
       }
     }
   ]

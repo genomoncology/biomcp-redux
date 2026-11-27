@@ -5,7 +5,9 @@ use crate::{Ctx, Outcome, status};
 
 use biomcp_adapters::{cbioportal, hgnc};
 use biomcp_fetch::{Deadline, Find, KeyKind, RequestError};
-use biomcp_types::{Reason, Request, Source, StepKind, VariantRecurrence, VariantRecurrenceQuery};
+use biomcp_types::{
+    Reason, Request, Source, SourceNotice, StepKind, VariantRecurrence, VariantRecurrenceQuery,
+};
 /// Read one native page without inventing an assayed denominator or selecting an ambiguous allele.
 pub(crate) fn run(cx: &Ctx<'_>, query: &VariantRecurrenceQuery) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -69,8 +71,30 @@ fn execute(
     let window = rows.window;
     out.include_refusals(window.refusals());
     metadata(query, &cohort, out);
-    let (count, problems) = matching::count(&identity, &window.rows, query.study());
-    out.problems.extend(problems);
+    let (count, uncomparable) = matching::count(&identity, &window.rows);
+    if uncomparable > 0 {
+        out.problems.push(matching::problem(
+            Source::Cbioportal,
+            query.study().as_str(),
+            "mutation.exact_allele",
+        ));
+    }
+    let uncomparable = uncomparable + (window.received() as usize - window.rows.len());
+    if uncomparable > 0
+        && let Some(source) = out
+            .sources
+            .iter_mut()
+            .find(|s| s.source == Source::Cbioportal)
+    {
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: format!(
+                "Could not compare {uncomparable} mutation rows with the requested allele."
+            )
+            .into(),
+            retry_after_seconds: None,
+        });
+    }
     let more = window.has_more();
     let mut body = empty();
     body.identity = Some(identity);
@@ -82,13 +106,12 @@ fn execute(
     body.all_pages_read = query.page() == 0 && !more;
     body.more = more;
     out.body = body.with_query(query.clone());
-    {
-        let unavailable = !(out
+    let unavailable = uncomparable > 0
+        || out
             .sources
             .iter()
-            .all(|s| s.state == biomcp_types::SourceState::Ok));
-        crate::status::item(out, true, false, unavailable);
-    };
+            .any(|s| s.state != biomcp_types::SourceState::Ok);
+    status::item(out, true, false, unavailable);
     if more && let Some(next) = query.next_page() {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
