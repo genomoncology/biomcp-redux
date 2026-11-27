@@ -173,14 +173,13 @@ impl TryFrom<Fields> for VariantGet {
             .input
             .for_get(fields.section.as_ref() == [VariantSection::Civic])
             .map_err(|_| super::gene::QueryInvalid::new(&["input"]))?;
+        let civic_section = fields
+            .section
+            .iter()
+            .any(|s| matches!(s, VariantSection::Civic | VariantSection::All));
         let civic_filtered =
             !fields.evidence_filter.is_empty() || fields.disease.is_some() || fields.drug.is_some();
-        if civic_filtered
-            && !fields
-                .section
-                .iter()
-                .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
-        {
+        if civic_filtered && !civic_section {
             return Err(super::gene::QueryInvalid::new(&[
                 "evidence_level",
                 "evidence_status",
@@ -226,12 +225,7 @@ impl TryFrom<Fields> for VariantGet {
                 "civic_profile",
             ]));
         }
-        if fields.civic_profile.is_some()
-            && !fields
-                .section
-                .iter()
-                .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
-        {
+        if fields.civic_profile.is_some() && !civic_section {
             return Err(super::gene::QueryInvalid::new(&[
                 "civic_profile",
                 "section",

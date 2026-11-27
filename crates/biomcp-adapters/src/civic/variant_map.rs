@@ -126,12 +126,8 @@ fn map(
         cx,
     );
     context_bad |= cx.list.len() != before_subject;
-    let membership = if allele.is_none() {
-        CivicMembership::Profile
-    } else {
-        membership(exact, context_bad, &record, cx)
-    };
-    let attached = allele.is_none() || exact;
+    let membership = membership(allele, exact, context_bad, &record, cx);
+    let attached = membership != CivicMembership::Candidate;
     let mut evidence_page = claim_page(
         &raw.evidence_items,
         query,
@@ -177,11 +173,15 @@ fn map(
     }))
 }
 fn membership(
+    allele: Option<&str>,
     exact: bool,
     context_bad: bool,
     record: &SourceRecord,
     cx: &mut Problems,
 ) -> CivicMembership {
+    if allele.is_none() {
+        return CivicMembership::Profile;
+    }
     if exact {
         return CivicMembership::Exact;
     }
