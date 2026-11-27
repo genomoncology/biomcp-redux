@@ -211,6 +211,13 @@ impl GwasSearch {
     pub fn trait_id(&self) -> Option<&GwasTraitId> {
         self.0.trait_id.as_ref()
     }
+    /// Start a new search with an explicitly chosen catalog trait ID.
+    pub fn choose_trait(&self, id: GwasTraitId) -> Self {
+        let mut query = self.restart();
+        query.0.r#trait = None;
+        query.0.trait_id = Some(id);
+        query
+    }
     /// Checked gene selector.
     pub fn gene(&self) -> Option<&GeneSymbol> {
         self.0.gene.as_ref()

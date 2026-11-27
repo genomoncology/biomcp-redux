@@ -1,0 +1,25 @@
+{
+  "feature": "gwas-search",
+  "story": "Changing only the case of an exact trait name preserves its association page and total.",
+  "replay": "gwas/trait-case",
+  "steps": [
+    {
+      "run": ["search", "gwas", "--trait", "Breast carcinoma"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 2094,
+        "/page/returned": 3,
+        "/result/items/0/id": "association:41310323"
+      }
+    },
+    {
+      "run": ["search", "gwas", "--trait", "breast carcinoma"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 2094,
+        "/page/returned": 3,
+        "/result/items/0/id": "association:41310323"
+      }
+    }
+  ]
+}

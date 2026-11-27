@@ -63,8 +63,14 @@ pub(super) fn row(row: &Selectors, q: &GwasSearch) -> bool {
         || q.trait_id().is_some_and(|id| {
             !q.include_child_traits() && !row.traits().any(|t| t.efo_id.as_str() == id.to_string())
         })
-        || q.trait_label()
-            .is_some_and(|label| !row.traits().any(|t| t.efo_trait.as_ref() == Some(label)))
+        || q.trait_label().is_some_and(|label| {
+            let folded = label.as_str().to_lowercase();
+            !row.traits().any(|t| {
+                t.efo_trait
+                    .as_ref()
+                    .is_some_and(|name| name.as_str().to_lowercase() == folded)
+            })
+        })
     {
         return false;
     }

@@ -1,6 +1,7 @@
 # 1219 — gwas-trait-name-matching
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d5e07dccbac857b08b8428cc5244d6b8321e33f5
 
 Milestone: 10
 

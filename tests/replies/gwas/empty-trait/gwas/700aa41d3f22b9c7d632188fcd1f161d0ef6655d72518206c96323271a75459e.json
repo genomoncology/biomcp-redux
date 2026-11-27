@@ -1,0 +1,16 @@
+{
+  "source": "gwas",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/efo-traits?efo_trait=type%202%20diabetes&page=0&size=10",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "body": {
+        "kind": "text",
+        "value": "{\"_embedded\":{\"efo_traits\":[{\"efo_trait\":\"age of onset of type 2 diabetes mellitus\",\"uri\":\"http://purl.obolibrary.org/obo/OBA_2001013\",\"efo_id\":\"OBA_2001013\",\"_links\":{\"self\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/efo-traits/OBA_2001013\"}}},{\"efo_trait\":\"type 2 diabetes nephropathy\",\"uri\":\"http://www.ebi.ac.uk/efo/EFO_0004997\",\"efo_id\":\"EFO_0004997\",\"_links\":{\"self\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/efo-traits/EFO_0004997\"}}},{\"efo_trait\":\"type 2 diabetes mellitus\",\"uri\":\"http://purl.obolibrary.org/obo/MONDO_0005148\",\"efo_id\":\"MONDO_0005148\",\"_links\":{\"self\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/efo-traits/MONDO_0005148\"}}}]},\"_links\":{\"self\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/efo-traits?efo_trait=type%202%20diabetes&page=0&size=10\"}},\"page\":{\"size\":10,\"totalElements\":3,\"totalPages\":1,\"number\":0}}"
+      }
+    }
+  ]
+}

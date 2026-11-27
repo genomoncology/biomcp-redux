@@ -7,6 +7,7 @@ pub(crate) use get::get;
 mod next;
 mod studies;
 mod threshold;
+mod traits;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::gwas;
 use biomcp_types::{
@@ -18,14 +19,15 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     if q.studies() {
         return studies::search(cx, q);
     }
+    let command = cx.fetch.command_deadline(cx.budget);
+    let deadline = command.deadline();
     if q.p_value().is_some() {
-        let mut out = threshold::search(cx, q);
-        next::empty_trait(q, &mut out);
+        let mut out = threshold::search(cx, q, deadline);
+        traits::resolve(cx, q, deadline, &mut out);
+        command.finish(deadline.remaining());
         return out;
     }
     let mut out = empty(q);
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     let result = gwas::search(&leg, q);
     let error = result.as_ref().err().copied();
@@ -90,8 +92,8 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     out.sources.push(source);
     status::search(&mut out);
     out.local = error.and_then(status::local);
+    traits::resolve(cx, q, deadline, &mut out);
     command.finish(deadline.remaining());
-    next::empty_trait(q, &mut out);
     out
 }
 
