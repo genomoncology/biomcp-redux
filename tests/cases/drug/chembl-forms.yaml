@@ -1,0 +1,21 @@
+{
+  "feature": "drug-native-sources",
+  "story": "ChEMBL drug sections read the full molecule family, and each row identifies its recorded form.",
+  "live_check": "public",
+  "verified": "ChEMBL CC BY-SA 3.0 (https://chembl.github.io/chembl-licensing/). Publisher replies captured 2026-11-27 without credentials.",
+  "replay": "drug/native-chembl",
+  "steps": [
+    {
+      "run": ["get", "drug", "CHEMBL941", "targets", "--source", "chembl", "--section-limit", "4"],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "CHEMBL941",
+        "/page/total": 4,
+        "/page/returned": 4,
+        "/result/targets/data/records/*/drug/id": ["CHEMBL1642", "CHEMBL1642", "CHEMBL1642", "CHEMBL1642"],
+        "/result/targets/data/records/*/attribution/record": ["304", "418", "451", "8630"]
+      },
+      "max_bytes": 4500
+    }
+  ]
+}
