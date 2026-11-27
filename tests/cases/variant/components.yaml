@@ -50,8 +50,10 @@
       "run": [
         "get",
         "variant",
-        "rs113488022",
-        "predict"
+        "chr7:g.140753336A>T",
+        "predict",
+        "--build",
+        "GRCh38"
       ],
       "expect": {
         "/status": "partial",
