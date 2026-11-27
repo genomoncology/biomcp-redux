@@ -17,7 +17,9 @@
           ],
           "targets": null
         }
-      }
+      },
+      "delay_ms": 0,
+      "retry_after_ms": null
     }
   ]
 }

@@ -48,7 +48,7 @@ struct Row {
     schema_class: String,
 }
 /// An identifier accepted by the Reactome pathway mapping endpoint.
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum MappingId {
     /// UniProt protein accession.
     UniProt(UniProtAcc),

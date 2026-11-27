@@ -6,7 +6,7 @@ mod expression;
 mod gencc;
 mod oncokb;
 mod pathways;
-pub(super) use pathways::{Mappings as PathwayMappings, mappings as pathway_mappings};
+pub(super) use pathways::{Mapping as PathwayMapping, mappings as pathway_mappings};
 mod protein;
 mod value;
 use super::get::SourceJob;
@@ -174,7 +174,7 @@ pub(super) fn jobs<'a>(
     deadline: Deadline<'a>,
     query: &GeneGet,
     genes: &'a [(HgncId, Gene)],
-    mappings: &'a PathwayMappings,
+    mappings: &'a [PathwayMapping],
 ) -> Vec<SourceJob<'a>> {
     let mut jobs: Vec<SourceJob<'a>> = Vec::new();
     let requested = requested(query);

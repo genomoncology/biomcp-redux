@@ -32,25 +32,12 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
         .collect();
     let genes = sections::prepare(query, &mut items);
     let mappings = if requested.contains(&biomcp_types::GeneSection::Pathways) {
-        sections::pathway_mappings(&leg, &genes)
+        sections::pathway_mappings(&leg, &genes, &mut hgnc_error, &mut local)
     } else {
         Vec::new()
     };
-    for error in mappings
-        .iter()
-        .filter_map(|(_, keys)| keys.as_ref().err().copied())
-    {
-        hgnc_error = hgnc_error.or(Some(error));
-        local = local.or_else(|| status::local(error));
-    }
     let hgnc = status::source(Source::Hgnc, leg.finish(), hgnc_error);
-    if hgnc.state == SourceState::Stale {
-        for item in &mut items {
-            if item.status == Status::Complete {
-                item.status = crate::status::item_status(true, false, true);
-            }
-        }
-    }
+    mark_stale_identity(hgnc.state, &mut items);
     let mut sources = vec![hgnc];
     let mut jobs = sections::jobs(cx, deadline, query, &genes, &mappings);
     if !query.section_only()
@@ -101,6 +88,17 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
     out.incomplete = incomplete;
     out
 }
+fn mark_stale_identity(state: SourceState, items: &mut [GeneItem]) {
+    if state == SourceState::Stale {
+        for item in items
+            .iter_mut()
+            .filter(|item| item.status == Status::Complete)
+        {
+            item.status = status::item_status(true, false, true);
+        }
+    }
+}
+
 fn mygene_job<'a>(
     cx: &'a Ctx<'a>,
     deadline: Deadline<'a>,
