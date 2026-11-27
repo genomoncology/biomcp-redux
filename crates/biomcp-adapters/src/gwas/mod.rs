@@ -14,6 +14,7 @@ use biomcp_types::Source;
 mod map;
 pub use map::Association;
 pub use search::search;
+pub use search::traits::{TraitCandidate, TraitMatch, trait_exists, trait_matches};
 use std::time::Duration;
 /// Current catalog API; retired v1 is never used.
 pub static SPEC: SourceSpec = SourceSpec {

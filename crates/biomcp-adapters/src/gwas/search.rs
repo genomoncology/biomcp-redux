@@ -5,6 +5,7 @@ use biomcp_fetch::{Arg, BadReply, Leg, RequestError};
 use biomcp_types::GwasSearch;
 use std::collections::BTreeMap;
 pub(super) mod identity;
+pub(super) mod traits;
 
 const NATIVE_PAGE_SIZE: u32 = 10;
 

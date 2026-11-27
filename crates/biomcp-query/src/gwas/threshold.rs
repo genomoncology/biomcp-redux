@@ -39,9 +39,7 @@ impl Saved {
             })
     }
 }
-pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
+pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch, deadline: Deadline<'_>) -> Outcome {
     let mut out = crate::status::empty(biomcp_types::GwasPage::into_reply(
         biomcp_types::GwasPageQuery::Search(q.clone()),
         None,
@@ -78,7 +76,6 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             &mut out.problems,
         );
     }
-    command.finish(deadline.remaining());
     out
 }
 fn key(q: &GwasSearch) -> Result<Vec<u8>, RequestError> {
