@@ -187,7 +187,7 @@ fn named_deletions(env: &Environment, peer: &mut Peer) -> Result<(), String> {
 
 fn hosted() -> Result<(), String> {
     let folder = tempfile::tempdir().map_err(|e| e.to_string())?;
-    let server = Server::configured_globals(
+    let mut server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"mcp_tool_mode":"typed"})),
         None,

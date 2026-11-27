@@ -9,7 +9,6 @@ license.workspace = true
 shlex.workspace = true
 biomcp-types = { workspace = true, features = ["schema"] }
 sha2.workspace = true
-ring.workspace = true
 rpassword = "=7.5.4"
 tempfile.workspace = true
 base64.workspace = true

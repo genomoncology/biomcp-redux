@@ -1,12 +1,8 @@
 //! Confirmation for the typed saved tool's delete-all action.
 use super::{protocol, research, typed};
 use crate::{command::Context, saved, saved_mcp};
-use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+use biomcp_fetch::TrialCursorKey;
 use biomcp_query::store::saved::DeletePreview;
-use ring::{
-    hmac,
-    rand::{SecureRandom, SystemRandom},
-};
 use serde_json::{Value, json};
 use std::{
     io,
@@ -145,22 +141,20 @@ pub(super) fn form(preview: &DeletePreview, explicit_mode: bool) -> Value {
     form
 }
 
-// Use one process key to authenticate the saved targets, caller account and expiration.
-// No saved identifiers or pending confirmations travel in the token or live on the server.
-const STATE_BYTES: usize = 8 + ring::digest::SHA256_OUTPUT_LEN;
+// Reuse the hosted continuation key across workers, with a distinct binding.
 #[expect(
     clippy::disallowed_types,
-    reason = "Generate the process signing key once"
+    reason = "Generate the local continuation key once"
 )]
-static KEY: std::sync::OnceLock<Option<hmac::Key>> = std::sync::OnceLock::new();
+static LOCAL_KEY: std::sync::OnceLock<Option<TrialCursorKey>> = std::sync::OnceLock::new();
 
-fn key() -> Option<&'static hmac::Key> {
-    KEY.get_or_init(|| {
-        let mut bytes = [0; 32];
-        SystemRandom::new().fill(&mut bytes).ok()?;
-        Some(hmac::Key::new(hmac::HMAC_SHA256, &bytes))
-    })
-    .as_ref()
+fn key<'a>(context: Context<'a>) -> Option<&'a TrialCursorKey> {
+    context
+        .fetch
+        .as_ref()
+        .ok()
+        .and_then(|fetch| fetch.trial_cursor_key())
+        .or_else(|| LOCAL_KEY.get_or_init(TrialCursorKey::generate).as_ref())
 }
 
 fn now() -> u64 {
@@ -170,40 +164,27 @@ fn now() -> u64 {
         .as_secs()
 }
 
-fn binding(expiration: &[u8], account: Option<&str>, preview: &DeletePreview) -> Vec<u8> {
+fn binding(call: &Call<'_>, preview: &DeletePreview) -> Vec<u8> {
     [
-        b"saved/delete/all",
-        expiration,
-        &preview.digest,
-        account.unwrap_or_default().as_bytes(),
+        b"mcp/saved/delete/all/1",
+        preview.digest.as_slice(),
+        call.context.account.unwrap_or_default().as_bytes(),
     ]
     .concat()
 }
 
 pub(super) fn state(call: &Call<'_>, preview: &DeletePreview) -> Option<String> {
     // A form has its own lifetime across requests and holds no tool slot.
-    let expiration = now().checked_add(300)?.to_be_bytes();
-    let tag = hmac::sign(key()?, &binding(&expiration, call.context.account, preview));
-    Some(URL_SAFE_NO_PAD.encode([expiration.as_slice(), tag.as_ref()].concat()))
+    let expiration = now().checked_add(300)?.to_be_bytes().to_vec();
+    key(call.context)?
+        .seal(expiration, &binding(call, preview))
+        .ok()
 }
 
 pub(super) fn matches_state(state: &str, call: &Call<'_>, preview: &DeletePreview) -> bool {
-    let mut bytes = [0; STATE_BYTES];
-    if state.len() != (STATE_BYTES * 4).div_ceil(3)
-        || URL_SAFE_NO_PAD.decode_slice(state, &mut bytes).ok() != Some(STATE_BYTES)
-    {
-        return false;
-    }
-    let Some((expiration, tag)) = bytes.split_at_checked(8) else {
+    let Some(bytes) = key(call.context).and_then(|key| key.open(state, &binding(call, preview)))
+    else {
         return false;
     };
-    u64::from_be_bytes(expiration.try_into().unwrap_or_default()) >= now()
-        && key().is_some_and(|key| {
-            hmac::verify(
-                key,
-                &binding(expiration, call.context.account, preview),
-                tag,
-            )
-            .is_ok()
-        })
+    <[u8; 8]>::try_from(bytes).is_ok_and(|expires| u64::from_be_bytes(expires) > now())
 }

@@ -1,4 +1,4 @@
-//! Protect the opaque registry continuation shared by hosted tasks.
+//! Protect opaque continuations, including those shared by hosted tasks.
 use crate::{CacheError, Fetch};
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use ring::{
@@ -11,7 +11,7 @@ const MAX_PAYLOAD_BYTES: usize = 8 * 1024;
 const MAX_ENVELOPE_CHARS: usize =
     ((MAX_PAYLOAD_BYTES + aead::NONCE_LEN + aead::MAX_TAG_LEN) * 4).div_ceil(3);
 
-/// Dedicated process key for portable hosted trial continuations.
+/// Key for authenticated, purpose-bound continuations.
 pub struct TrialCursorKey(aead::LessSafeKey);
 
 impl std::fmt::Debug for TrialCursorKey {
@@ -30,7 +30,18 @@ impl TrialCursorKey {
         if URL_SAFE_NO_PAD.encode(&key) != encoded {
             return None;
         }
-        let key = aead::UnboundKey::new(&aead::CHACHA20_POLY1305, &key).ok()?;
+        Self::from_bytes(&key)
+    }
+
+    /// Generate a process-local key when no shared key was configured.
+    pub fn generate() -> Option<Self> {
+        let mut bytes = [0; 32];
+        SystemRandom::new().fill(&mut bytes).ok()?;
+        Self::from_bytes(&bytes)
+    }
+
+    fn from_bytes(bytes: &[u8]) -> Option<Self> {
+        let key = aead::UnboundKey::new(&aead::CHACHA20_POLY1305, bytes).ok()?;
         Some(Self(aead::LessSafeKey::new(key)))
     }
 
@@ -78,7 +89,7 @@ impl Fetch {
         self
     }
 
-    /// Expose the codec only for a hosted request with a configured process key.
+    /// Expose the configured shared key for hosted continuations.
     pub fn trial_cursor_key(&self) -> Option<&TrialCursorKey> {
         self.hosted.then_some(())?;
         self.trial_cursor_key.as_deref()
