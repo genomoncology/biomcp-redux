@@ -32,7 +32,15 @@ struct Node {
     types: Vec<String>,
 }
 
-impl Reply for GeneXrefs {}
+impl Reply for GeneXrefs {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.pathway.organism == "Homo sapiens" {
+            Ok(())
+        } else {
+            Err(BadReply)
+        }
+    }
+}
 
 impl GeneXrefs {
     /// Join on node identity and the exact native reference. Ambiguous mappings stay unresolved.
@@ -75,10 +83,7 @@ pub fn gene_xrefs(
     let id = id.to_string();
     let check = |value: &GeneXrefs| {
         let pathway = &value.pathway;
-        if pathway.id != id
-            || pathway.organism != "Homo sapiens"
-            || pathway.data_source_version != revision
-        {
+        if pathway.id != id || pathway.data_source_version != revision {
             return Err(BadReply);
         }
         Ok(())
