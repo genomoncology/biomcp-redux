@@ -20,7 +20,7 @@ steps:
   - run: [get, pgx, --gene, CYP2C19, --source, cpic, diplotype, --diplotype, '*1/*999']
     expect:
       /status: complete
-      /result/diplotypes: {count: 0}
+      /result: {omits: [diplotypes]}
       /sources/0/notices/*/message:
         includes: 'CPIC diplotype spelling not found for CYP2C19. Examples: *1/*1, *1/*2, *2/*2.'
     max_bytes: 907
