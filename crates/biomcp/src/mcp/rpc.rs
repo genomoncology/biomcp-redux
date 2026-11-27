@@ -84,6 +84,15 @@ pub(super) fn message(
             Err(reply) => return Message::Reply(reply),
         },
         "tools/call" => return call(id.clone(), params, typed, read_only, version, context),
+        _ if super::skills::handles(method, context, modern) => {
+            return Message::Reply(super::skills::reply(
+                id.clone(),
+                method,
+                &params,
+                context,
+                modern,
+            ));
+        }
         _ => return Message::Reply(protocol::error(id.clone(), -32601, "Method not found")),
     };
     if modern && matches!(method, "server/discover" | "tools/list") {

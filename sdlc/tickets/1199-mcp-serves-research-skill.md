@@ -1,6 +1,7 @@
 # 1199 — mcp-serves-research-skill
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4e980d26af8a3f04c2d521b9f9e83ad74b06908b
 
 Milestone: 7
 

@@ -1,6 +1,6 @@
 //! The process argument and settings boundary.
 mod mcp;
-pub(crate) use mcp::{mcp_catalog, mcp_typed_budget};
+pub(crate) use mcp::{mcp_catalog, mcp_skills, mcp_typed_budget};
 pub(crate) mod credentials;
 pub(crate) mod key_file;
 mod pacing;

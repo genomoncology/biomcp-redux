@@ -51,5 +51,6 @@ pub(super) fn discover(
     context: crate::command::Context<'_>,
     revisions: &[&str],
 ) -> Value {
-    json!({"supportedVersions":revisions,"instructions":protocol::instructions(mode, context),"capabilities":{"tools":{}}})
+    json!({"supportedVersions":revisions,"instructions":protocol::instructions(mode, context),
+        "capabilities":super::skills::capabilities(context, true)})
 }

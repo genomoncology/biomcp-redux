@@ -21,6 +21,8 @@ mod reply_form;
 mod reply_size;
 #[path = "protocol_schemas.rs"]
 mod schemas;
+#[path = "mcp_skills.rs"]
+mod skills;
 #[path = "mcp_tool_metadata.rs"]
 mod tool_metadata;
 #[path = "typed_tools.rs"]
@@ -69,6 +71,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(hosted_surface::trials());
     trials.extend(typed::trials());
     trials.extend(cache_fields::trials());
+    trials.extend(skills::trials());
     trials.extend([
         transcript_trial("mcp-parity/typed-strict-schema", || {
             typed_strict::check().map_err(Into::into)
