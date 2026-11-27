@@ -50,6 +50,8 @@ pub(super) struct Association {
     pub efo_traits: Vec<Trait>,
     /// Source effect alleles, never interpreted as a classification.
     pub snp_allele: Vec<EffectAllele>,
+    /// Source effect alleles with a position or an HLA name.
+    pub catalog_alleles: Vec<biomcp_types::GwasCatalogAllele>,
     /// Reported association p value.
     pub p_value: Option<FiniteNumber>,
     /// Source exact mantissa, independent of rounded p_value.
@@ -115,20 +117,20 @@ impl From<ReceivedTrait> for Trait {
     }
 }
 
-/// Effect allele qualified by its exact source rsID.
+/// Effect allele with its identifier in the source's `rs_id` field.
 #[derive(Debug, Deserialize)]
 #[serde(from = "ReceivedEffectAllele")]
 pub(super) struct EffectAllele {
     /// Rejected display metadata.
     pub problems: Vec<biomcp_types::Problem>,
-    /// Source rsID.
+    /// Source variant identifier.
     pub rs_id: Text,
     /// Source effect allele text, not normalized.
     pub effect_allele: Option<Text>,
 }
 #[derive(Debug, Deserialize)]
 struct ReceivedEffectAllele {
-    /// Source rsID.
+    /// Source variant identifier.
     pub rs_id: Text,
     /// Source effect allele text, not normalized.
     pub effect_allele: Option<crate::raw::Field<Text>>,

@@ -119,8 +119,8 @@ pub use response::{
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{
-    GnomadCounts, GwasAssociation, GwasEffectAllele, GwasTrait, VariantGwas, VariantPopulation,
-    VariantPopulationResult,
+    GnomadCounts, GwasAssociation, GwasCatalogAllele, GwasCatalogAlleleKind, GwasEffectAllele,
+    GwasTrait, VariantGwas, VariantPopulation, VariantPopulationResult,
 };
 pub use response::{
     Help, HelpArgument, HelpCommand, HelpQuery, HelpWord, KeyHelp, KeyState, KeyTier, Oncokb,

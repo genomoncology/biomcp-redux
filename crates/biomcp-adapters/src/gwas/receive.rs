@@ -2,6 +2,7 @@
 use super::raw::{EffectAllele, Trait};
 use crate::native_text::NativeText;
 use biodata::{FiniteNumber, Text};
+use biomcp_types::{GwasCatalogAllele, GwasCatalogAlleleKind};
 use serde::Deserialize;
 /// A source association retains publisher labels and numbers unchanged.
 #[derive(Debug, Deserialize)]
@@ -81,6 +82,7 @@ impl From<ReceivedAssociation> for super::raw::Association {
             reported_trait,
             efo_traits,
             snp_allele,
+            catalog_alleles: Vec::new(),
             p_value: problems.required_field("p_value", row.p_value),
             p_value_mantissa: problems.field("pvalue_mantissa", row.p_value_mantissa),
             p_value_exponent: problems.field("pvalue_exponent", row.p_value_exponent),
@@ -101,6 +103,7 @@ impl From<ReceivedAssociation> for super::raw::Association {
             problems: Vec::new(),
         };
         check_metadata(&mut value, &mut problems);
+        admit_alleles(&mut value, &mut problems);
         value.problems = problems.list;
         value
     }
@@ -153,12 +156,43 @@ fn check_metadata(value: &mut super::raw::Association, problems: &mut crate::map
         }
         valid
     });
-    value.snp_allele.retain(|v| {
-        let valid = v.rs_id.as_str().parse::<biodata::RsId>().is_ok();
-        if !valid {
+}
+
+fn admit_alleles(value: &mut super::raw::Association, problems: &mut crate::mapped::Problems) {
+    for allele in std::mem::take(&mut value.snp_allele) {
+        let identifier = allele.rs_id.as_str();
+        if identifier.parse::<biodata::RsId>().is_ok() {
+            value.snp_allele.push(allele);
+        } else if let Some(kind) = catalog_allele_kind(identifier) {
+            value.catalog_alleles.push(GwasCatalogAllele {
+                identifier: allele.rs_id,
+                kind,
+                allele: allele.effect_allele,
+            });
+        } else {
             value.refusals = crate::Refusal::Refused;
             problems.required::<()>("snp_allele.rs_id", None);
         }
-        valid
-    });
+    }
+}
+
+fn catalog_allele_kind(identifier: &str) -> Option<GwasCatalogAlleleKind> {
+    if let Some((chromosome, position)) = identifier.strip_prefix("chr").and_then(|s| s.split_once(':'))
+        && !chromosome.is_empty()
+        && chromosome
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'.'))
+        && position.bytes().all(|b| b.is_ascii_digit())
+        && position.parse::<std::num::NonZeroU64>().is_ok()
+    {
+        return Some(GwasCatalogAlleleKind::Position);
+    }
+    let (locus, allele) = identifier.strip_prefix("HLA-")?.split_once('*')?;
+    let digits = allele.trim_end_matches(|c: char| c.is_ascii_uppercase());
+    (!locus.is_empty()
+        && locus.bytes().all(|b| b.is_ascii_alphanumeric())
+        && digits
+            .split(':')
+            .all(|part| !part.is_empty() && part.bytes().all(|b| b.is_ascii_digit())))
+    .then_some(GwasCatalogAlleleKind::HlaAllele)
 }
