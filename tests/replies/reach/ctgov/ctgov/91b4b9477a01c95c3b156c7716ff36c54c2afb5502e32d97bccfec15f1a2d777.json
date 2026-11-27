@@ -1,0 +1,88 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies/NCT09999000",
+  "exchanges": [
+    {
+      "fetched": 1795814400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "protocolSection": {
+            "identificationModule": {
+              "nctId": "NCT09999000",
+              "briefTitle": "Registry value-list fixture"
+            },
+            "statusModule": {
+              "overallStatus": "ACTIVE_NOT_RECRUITING"
+            },
+            "designModule": {
+              "studyType": "EXPANDED_ACCESS",
+              "phases": [
+                "NA",
+                "EARLY_PHASE1",
+                "PHASE1",
+                "PHASE2",
+                "PHASE3",
+                "PHASE4"
+              ]
+            },
+            "armsInterventionsModule": {
+              "interventions": [
+                {
+                  "name": "Registry type BEHAVIORAL",
+                  "type": "BEHAVIORAL"
+                },
+                {
+                  "name": "Registry type BIOLOGICAL",
+                  "type": "BIOLOGICAL"
+                },
+                {
+                  "name": "Registry type COMBINATION_PRODUCT",
+                  "type": "COMBINATION_PRODUCT"
+                },
+                {
+                  "name": "Registry type DEVICE",
+                  "type": "DEVICE"
+                },
+                {
+                  "name": "Registry type DIAGNOSTIC_TEST",
+                  "type": "DIAGNOSTIC_TEST"
+                },
+                {
+                  "name": "Registry type DIETARY_SUPPLEMENT",
+                  "type": "DIETARY_SUPPLEMENT"
+                },
+                {
+                  "name": "Registry type DRUG",
+                  "type": "DRUG"
+                },
+                {
+                  "name": "Registry type GENETIC",
+                  "type": "GENETIC"
+                },
+                {
+                  "name": "Registry type PROCEDURE",
+                  "type": "PROCEDURE"
+                },
+                {
+                  "name": "Registry type RADIATION",
+                  "type": "RADIATION"
+                },
+                {
+                  "name": "Registry type OTHER",
+                  "type": "OTHER"
+                }
+              ]
+            }
+          },
+          "hasResults": false
+        }
+      }
+    }
+  ]
+}

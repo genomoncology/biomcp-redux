@@ -1,0 +1,27 @@
+{
+  "feature": "cpic-pgx",
+  "story": "CPIC returns every pair in the published MT-RNR1 slice.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/cpic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "MT-RNR1",
+        "--source",
+        "cpic",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 11,
+        "/result/items": {
+          "count": 11
+        }
+      }
+    }
+  ]
+}

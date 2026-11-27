@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://rest.genenames.org/fetch/symbol/EPCAM",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json;charset=utf-8",
+      "delay_ms": 142,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"responseHeader":{"status":0,"QTime":1},"response":{"numFound":1,"start":0,"numFoundExact":true,"docs":[{"vega_id":"OTTHUMG00000128853","locus_group":"protein-coding gene","date_symbol_changed":"2008-12-16T00:00:00Z","gene_group_id":[471,1691],"orphanet":226018,"symbol":"EPCAM","date_approved_reserved":"1995-10-02T00:00:00Z","entrez_id":"4072","date_name_changed":"2008-12-16T00:00:00Z","prev_symbol":["M4S1","MIC18","TACSTD1"],"ena":["M33011"],"cd":"CD326","gene_group":["CD molecules","MicroRNA protein coding host genes"],"mgd_id":["MGI:106653"],"ensembl_gene_id":"ENSG00000119888","ccds_id":["CCDS1833"],"pubmed_id":[8382772,11306819],"agr":"HGNC:11529","refseq_accession":["NM_002354"],"mane_select":["ENST00000263735.9","NM_002354.3"],"alias_name":["trophoblast cell surface antigen 1"],"date_modified":"2023-01-20T00:00:00Z","locus_type":"gene with protein product","gencc":"HGNC:11529","hgnc_id":"HGNC:11529","alias_symbol":["Ly74","TROP1","GA733-2","EGP34","EGP40","EGP-2","KSA","CD326","Ep-CAM","HEA125","KS1/4","MK-1","MH99","MOC31","MOC-31","323/A3","17-1A","TACST-1","CO-17A","ESA","BerEp4","Ber-Ep4"],"rgd_id":["RGD:621365"],"ucsc_id":"uc002rvx.4","uniprot_ids":["P16422"],"prev_name":["antigen identified by monoclonal antibody AUA1","tumor-associated calcium signal transducer 1"],"location":"2p21","lsdb":["Global Variome shared LOVD|https://databases.lovd.nl/shared/genes/EPCAM","LRG_215|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_215.xml"],"uuid":"4a2d4407-a6cb-423f-8ebe-c5bffcc062c4","omim_id":["185535"],"name":"epithelial cell adhesion molecule","status":"Approved"}]}}
+      }
+    }
+  ]
+}

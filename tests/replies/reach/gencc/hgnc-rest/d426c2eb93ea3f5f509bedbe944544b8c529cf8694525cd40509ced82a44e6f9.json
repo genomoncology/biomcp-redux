@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://rest.genenames.org/fetch/symbol/MSH2",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json;charset=utf-8",
+      "delay_ms": 147,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"responseHeader":{"status":0,"QTime":1},"response":{"numFound":1,"start":0,"numFoundExact":true,"docs":[{"locus_type":"gene with protein product","alias_name":["DNA mismatch repair protein Msh2"],"date_modified":"2023-01-20T00:00:00Z","agr":"HGNC:7325","refseq_accession":["NM_000251"],"mane_select":["ENST00000233146.7","NM_000251.3"],"pubmed_id":[8484120,9843200],"name":"mutS homolog 2","lsdb":["Hereditary Non-Polyposis Colorectal Cancer, HNPCC|http://www.insight-group.org/","Global Variome shared LOVD|https://databases.lovd.nl/shared/genes/MSH2","MSH2 database at LOVD-China|http://genomed.org/LOVD/HNPCC/home.php?select_db=MSH2","LOVD - Leiden Open Variation Database|http://proteomics.bio21.unimelb.edu.au/lovd/genes/MSH2","LRG_218|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_218.xml"],"uuid":"5deb3b93-993b-4d7e-88dd-2a305e9fe5c6","omim_id":["609309"],"status":"Approved","alias_symbol":["HNPCC","HNPCC1","MSH-2"],"gencc":"HGNC:7325","hgnc_id":"HGNC:7325","prev_name":["mutS (E. coli) homolog 2 (colon cancer, nonpolyposis type 1)","mutS homolog 2, colon cancer, nonpolyposis type 1 (E. coli)"],"uniprot_ids":["P43246"],"location":"2p21-p16.3","cosmic":"MSH2","ucsc_id":"uc002rvy.3","rgd_id":["RGD:620786"],"gene_group_id":[1026,3643],"orphanet":123487,"locus_group":"protein-coding gene","symbol":"MSH2","vega_id":"OTTHUMG00000128861","mgd_id":["MGI:101816"],"ena":["U03911"],"gene_group":["MutS homologs","BRCA1-associated genome surveillance complex"],"ccds_id":["CCDS1834","CCDS58709","CCDS92750"],"ensembl_gene_id":"ENSG00000095002","entrez_id":"4436","date_name_changed":"2013-09-12T00:00:00Z","date_approved_reserved":"1993-07-28T00:00:00Z","prev_symbol":["COCA1"]}]}}
+      }
+    }
+  ]
+}

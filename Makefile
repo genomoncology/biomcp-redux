@@ -112,9 +112,17 @@ test:
 audit:
 	cargo deny --locked check licenses advisories bans sources
 
-.PHONY: cases
+.PHONY: cases reach-check
 cases:
+ifeq ($(BIOMCP_LANDING_GATE),1)
+	cargo test --locked -p biomcp --test cases -- --skip reach/ $(if $(strip $(RUST_TEST_THREADS)),--test-threads $(RUST_TEST_THREADS))
+	+$(PYTHON) scripts/timed_stage.py reach-check $(MAKE) --no-print-directory reach-check
+else
 	cargo test --locked -p biomcp --test cases $(TEST_THREADS)
+endif
+
+reach-check:
+	cargo test --locked -p biomcp --test cases reach/ $(TEST_THREADS)
 
 .PHONY: rights
 rights:

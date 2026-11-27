@@ -1,0 +1,44 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "35c90eb1acca6fc191a95f60beaa92636498f51fd16056d6645ca15dab18111c"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794946851,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "query": "6326",
+            "HGNC": "10588",
+            "_id": "6326",
+            "_version": 1,
+            "entrezgene": "6326",
+            "genomic_pos": {
+              "chr": "2",
+              "end": 165392310,
+              "ensemblgene": "ENSG00000136531",
+              "start": 165194993,
+              "strand": 1
+            },
+            "genomic_pos_hg19": {
+              "chr": "2",
+              "end": 166248818,
+              "start": 166095912,
+              "strand": 1
+            },
+            "summary": "Voltage-gated sodium channels are transmembrane glycoprotein complexes composed of a large alpha subunit with four repeat domains, each of which is composed of six membrane-spanning segments, and one or more regulatory beta subunits. Voltage-gated sodium channels function in the generation and propagation of action potentials in neurons and muscle. This gene encodes one member of the sodium channel alpha subunit gene family. Allelic variants of this gene are associated with seizure disorders and autism spectrum disorder. Alternative splicing results in multiple transcript variants. [provided by RefSeq, Nov 2016]."
+          }
+        ]
+      }
+    }
+  ]
+}

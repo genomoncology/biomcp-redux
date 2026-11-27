@@ -1,0 +1,30 @@
+{
+  "feature": "variant-assertions",
+  "story": "ClinVar returns all published submissions for the sampled duplication class.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clinvar/duplication",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:5015392",
+        "--source",
+        "clinvar",
+        "--kind",
+        "scv"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 1,
+        "/result/page/returned": 1,
+        "/result/assertions/*/record": {
+          "count": 1,
+          "includes_all_of": [
+            "SCV008092637"
+          ]
+        }
+      }
+    }
+  ]
+}

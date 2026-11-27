@@ -1,0 +1,162 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.SLCO1B1&order=pairid.asc&limit=20&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1795814400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "pairid": 110135,
+            "drugid": "RxNorm:36567",
+            "drugname": "simvastatin",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": "SLCO1B1, ABCG2, CYP2C9, and Statins",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166264281",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "22617227",
+              "24918167",
+              "35152405"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110259,
+            "drugid": "RxNorm:2049846",
+            "drugname": "elagolix",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "B/C",
+            "clinpgxlevel": null,
+            "pgxtesting": "Informative PGx",
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110361,
+            "drugid": "RxNorm:6851",
+            "drugname": "methotrexate",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "C",
+            "clinpgxlevel": "3",
+            "pgxtesting": null,
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110381,
+            "drugid": "RxNorm:42463",
+            "drugname": "pravastatin",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": "SLCO1B1, ABCG2, CYP2C9, and Statins",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166264281",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "35152405"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110391,
+            "drugid": "RxNorm:301542",
+            "drugname": "rosuvastatin",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": "SLCO1B1, ABCG2, CYP2C9, and Statins",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166264281",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Informative PGx",
+            "pmids": [
+              "35152405"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 1556298,
+            "drugid": "RxNorm:861634",
+            "drugname": "pitavastatin",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": "SLCO1B1, ABCG2, CYP2C9, and Statins",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166264281",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "35152405"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 1556299,
+            "drugid": "RxNorm:83367",
+            "drugname": "atorvastatin",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": "SLCO1B1, ABCG2, CYP2C9, and Statins",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166264281",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "35152405"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 1556300,
+            "drugid": "RxNorm:6472",
+            "drugname": "lovastatin",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": "SLCO1B1, ABCG2, CYP2C9, and Statins",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166264281",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "35152405"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 1556301,
+            "drugid": "RxNorm:41127",
+            "drugname": "fluvastatin",
+            "genesymbol": "SLCO1B1",
+            "guidelinename": "SLCO1B1, ABCG2, CYP2C9, and Statins",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166264281",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "35152405"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          }
+        ]
+      },
+      "content_range": "0-8/9"
+    }
+  ]
+}

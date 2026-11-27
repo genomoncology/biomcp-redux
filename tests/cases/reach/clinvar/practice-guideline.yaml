@@ -1,0 +1,33 @@
+{
+  "feature": "variant-assertions",
+  "story": "ClinVar returns all published submissions for the sampled practice-guideline class.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clinvar/practice-guideline",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:633943",
+        "--source",
+        "clinvar",
+        "--kind",
+        "scv"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 4,
+        "/result/page/returned": 4,
+        "/result/assertions/*/record": {
+          "count": 4,
+          "includes_all_of": [
+            "SCV000921104",
+            "SCV000921105",
+            "SCV000922071",
+            "SCV000922871"
+          ]
+        }
+      }
+    }
+  ]
+}

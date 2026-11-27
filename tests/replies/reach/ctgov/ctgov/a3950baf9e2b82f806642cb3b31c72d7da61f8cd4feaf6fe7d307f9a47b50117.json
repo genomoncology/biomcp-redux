@@ -1,0 +1,32 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies/NCT09999007",
+  "exchanges": [
+    {
+      "fetched": 1795814400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "protocolSection": {
+            "identificationModule": {
+              "nctId": "NCT09999007",
+              "briefTitle": "Registry value-list fixture"
+            },
+            "statusModule": {
+              "overallStatus": "WITHDRAWN"
+            },
+            "designModule": {
+              "studyType": "INTERVENTIONAL"
+            }
+          },
+          "hasResults": false
+        }
+      }
+    }
+  ]
+}

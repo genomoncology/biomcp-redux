@@ -1,0 +1,59 @@
+{
+  "feature": "gene-clingen",
+  "story": "ClinGen imports the release and returns separately sampled validity, dosage labels, dosage evidence and region rows.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clingen",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "clingen"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 7518
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "MLH1",
+        "clingen"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/clingen/data/validity/*/mondo_id": {
+          "includes": "MONDO:0005835"
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "SCN2A",
+        "clingen"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency",
+        "/result/items/0/sections/clingen/data/haploinsufficiency_evidence/score": 3
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-46760"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/clingen_regions_matched": 1,
+        "/result/regions/*/id": [
+          "ISCA-46760"
+        ]
+      }
+    }
+  ]
+}

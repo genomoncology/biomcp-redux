@@ -1,0 +1,27 @@
+{
+  "feature": "cpic-pgx",
+  "story": "CPIC returns every pair in the published SLCO1B1 slice.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/cpic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "SLCO1B1",
+        "--source",
+        "cpic",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 9,
+        "/result/items": {
+          "count": 9
+        }
+      }
+    }
+  ]
+}

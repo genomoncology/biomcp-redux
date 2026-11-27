@@ -1,0 +1,31 @@
+{
+  "feature": "variant-assertions",
+  "story": "ClinVar returns all published submissions for the sampled conflicting-classifications class.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clinvar/conflicting-classifications",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:3571594",
+        "--source",
+        "clinvar",
+        "--kind",
+        "scv"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 2,
+        "/result/page/returned": 2,
+        "/result/assertions/*/record": {
+          "count": 2,
+          "includes_all_of": [
+            "SCV005620650",
+            "SCV005777460"
+          ]
+        }
+      }
+    }
+  ]
+}
