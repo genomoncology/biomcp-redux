@@ -1,0 +1,50 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=snpeff.ann.genename%3ATP53%20AND%20snpeff.ann.hgvs_p%3A%28%22R249S%22%20OR%20%22Arg249Ser%22%20OR%20%22p.R249S%22%20OR%20%22p.Arg249Ser%22%29&size=1&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann&assembly=hg19",
+  "exchanges": [
+    {
+      "fetched": 1794952835,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "total": 2,
+          "hits": [
+            {
+              "_id": "chr17:g.7577534C>A",
+              "chrom": "17",
+              "hg19": {
+                "end": 7577534,
+                "start": 7577534
+              },
+              "dbsnp": {
+                "gene": {
+                  "symbol": "TP53"
+                },
+                "rsid": "rs28934571"
+              },
+              "clinvar": {
+                "variant_id": 12352
+              },
+              "snpeff": {
+                "ann": [
+                  {
+                    "feature_id": "NM_000546.5",
+                    "feature_type": "transcript",
+                    "genename": "TP53",
+                    "hgvs_c": "c.747G>T",
+                    "hgvs_p": "p.Arg249Ser"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

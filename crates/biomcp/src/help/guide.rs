@@ -37,6 +37,11 @@ pub(super) fn tool_page(
         text.push_str("\nWorked examples:\n");
         text.push_str(&examples);
     }
+    if tool == "variant" {
+        text.push_str(
+            "\nGene and protein get queries default to GRCh38. COSMIC and CADD predictions use the resolved allele's GRCh37 representation.",
+        );
+    }
     for route in super::source_routes::ROUTES
         .iter()
         .filter(|route| route.entity == tool)

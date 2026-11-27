@@ -102,6 +102,8 @@ The result counts distinct matched samples on that page. The default page of 5,0
 
 ## Historical COSMIC fragments
 
+For a GRCh38 allele, `get variant` reads COSMIC and CADD predictions from MyVariant's GRCh37 index using the same allele's source-qualified GRCh37 representation. The section reports `unavailable` with `no-join-id` if that representation is missing, or `not-found` if the index lacks the requested annotation. Conservation uses MyVariant's dbNSFP fields.
+
 Each fragment names its MyVariant parent record, preserves the component's original spellings and reports its identity as unverified. The reply shows the snapshot version, source upload date, source warning and component terms. It does not establish that the fragment and parent describe the same allele. Source frequencies retain their published values without inferred units or denominators.
 
 ## Prediction, conservation and source assertions

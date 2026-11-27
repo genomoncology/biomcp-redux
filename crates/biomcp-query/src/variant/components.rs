@@ -29,9 +29,23 @@ pub(super) fn target(candidates: &[VariantHeader]) -> Option<(String, Build)> {
         .into_iter()
         .find_map(|build| super::join_for_build(candidate, build).map(|id| (id, build)))
 }
+pub(super) fn grch37_id(candidates: &[VariantHeader]) -> Option<String> {
+    let [candidate] = candidates else { return None };
+    super::join_id(candidate)
+}
+
+pub(super) fn no_join<T>(query: &VariantGet) -> super::sections::Result<T> {
+    let section = if query.myvariant_build() == Build::GRCh37 {
+        Section::NotApplicable
+    } else {
+        Section::unavailable(Source::MyVariant, Reason::NoJoinId)
+    };
+    (section, Vec::new(), Vec::new(), None, false)
+}
+
 pub(super) fn measurements(
     cx: &Ctx<'_>,
-    _query: &VariantGet,
+    query: &VariantGet,
     candidates: &[VariantHeader],
     deadline: &mut Deadline<'_>,
     conservation: bool,
@@ -43,7 +57,16 @@ pub(super) fn measurements(
         return skipped();
     }
     let Some((id, build)) = target(candidates) else {
-        return (Section::NotApplicable, Vec::new(), Vec::new(), None, false);
+        return no_join(query);
+    };
+    let cross_build = build == Build::GRCh38 && query.myvariant_build() == Build::GRCh38;
+    let (id, build) = if cross_build && cadd {
+        let Some(id) = grch37_id(candidates) else {
+            return no_join(query);
+        };
+        (id, Build::GRCh37)
+    } else {
+        (id, build)
     };
     let leg = cx.fetch.leg(&myvariant::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -65,6 +88,8 @@ pub(super) fn measurements(
                     source: Source::MyVariant,
                     reason: Reason::NoJoinId,
                 }
+            } else if cross_build && missing_measurements(&mapped.value, cadd) {
+                Section::unavailable(Source::MyVariant, Reason::NotFound)
             } else if mapped.value.scores.is_empty()
                 && mapped.value.context.is_empty()
                 && (problems.is_empty() || problems.iter().any(|p| p.field.as_ref() == "_id"))
@@ -92,4 +117,14 @@ pub(super) fn measurements(
         error.and_then(status::local),
         dropped,
     )
+}
+
+fn missing_measurements(data: &VariantPredictors, cadd: bool) -> bool {
+    if cadd {
+        return !data
+            .scores
+            .iter()
+            .any(|score| score.method.as_str().starts_with("cadd."));
+    }
+    data.scores.is_empty() && data.context.is_empty()
 }

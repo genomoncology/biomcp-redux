@@ -1,0 +1,46 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=snpeff.ann.genename%3ABRAF%20AND%20snpeff.ann.hgvs_p%3A%28%22V9998E%22%20OR%20%22Val9998Glu%22%20OR%20%22p.V9998E%22%20OR%20%22p.Val9998Glu%22%29&size=10&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann&assembly=hg38",
+  "exchanges": [
+    {
+      "fetched": 1794952835,
+      "status": 503,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": "synthetic publisher outage"
+        }
+      }
+    },
+    {
+      "fetched": 1794952835,
+      "status": 503,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": "synthetic publisher outage"
+        }
+      }
+    },
+    {
+      "fetched": 1794952835,
+      "status": 503,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": "synthetic publisher outage"
+        }
+      }
+    }
+  ]
+}
