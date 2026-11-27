@@ -6,38 +6,8 @@ use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     GnomadCounts, Problem, ProblemCode, Reason, Section, Source, SourceNotice, SourceOutcome,
-    VariantGet, VariantHeader, VariantPopulation, VariantSections,
+    VariantGet, VariantHeader, VariantPopulation,
 };
-
-pub(super) fn without_candidate(
-    cx: &Ctx<'_>,
-    query: &VariantGet,
-    deadline: Deadline<'_>,
-    reason: Option<Reason>,
-) -> (
-    VariantHeader,
-    Vec<SourceOutcome>,
-    Vec<Problem>,
-    Option<RequestError>,
-    bool,
-) {
-    let mut candidate = super::direct::candidate(query, Source::Gnomad);
-    let blocked = if super::population_identity::use_native_coordinate(cx.fetch, query) {
-        None
-    } else {
-        Some(reason.unwrap_or(Reason::NoJoinId))
-    };
-    let (population, sources, mut problems, local, refused) =
-        section(cx, query, &[], deadline, blocked);
-    if blocked == Some(Reason::NoJoinId) {
-        problems.push(super::identity::missing(Source::Gnomad));
-    }
-    candidate.sections = Some(Box::new(VariantSections {
-        population: Some(population),
-        ..VariantSections::default()
-    }));
-    (candidate, sources, problems, local, refused)
-}
 
 /// Read only gnomAD after one unambiguous source allele has been established.
 pub(super) fn section(

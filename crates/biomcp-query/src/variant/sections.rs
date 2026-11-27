@@ -3,7 +3,7 @@ use crate::Ctx;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     AssertionSource, Problem, Reason, Section, Source, SourceOutcome, VariantGet, VariantHeader,
-    VariantSection, VariantSections,
+    VariantResolution, VariantSection, VariantSections,
 };
 pub(super) type Result<T> = (
     Section<T>,
@@ -13,6 +13,62 @@ pub(super) type Result<T> = (
     bool,
 );
 type Completed<'a> = (VariantSections, Collected, Deadline<'a>);
+
+pub(super) fn apply_resolved(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    candidates: &mut Vec<VariantHeader>,
+    deadline: &mut Deadline<'_>,
+    resolution: &mut VariantResolution,
+    reason: Option<Reason>,
+) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>, bool) {
+    let population = super::identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
+    let native = population && super::population_identity::use_native_coordinate(cx.fetch, query);
+    let reason = if native && *resolution != VariantResolution::Candidates {
+        None
+    } else {
+        super::population_reason(population, *resolution, reason)
+    };
+    if !population || !candidates.is_empty() || *resolution == VariantResolution::Candidates {
+        return apply(cx, query, candidates, deadline, reason);
+    }
+    let blocked = if native {
+        None
+    } else {
+        Some(reason.unwrap_or(Reason::NoJoinId))
+    };
+    let mut collected = Collected::default();
+    let population = collected.keep(super::population::section(
+        cx,
+        query,
+        &[],
+        *deadline,
+        blocked,
+    ));
+    if *resolution != VariantResolution::Rejected {
+        *resolution = if matches!(
+            population,
+            Section::Unavailable { .. } | Section::Skipped { .. }
+        ) {
+            VariantResolution::Unavailable
+        } else {
+            VariantResolution::Unresolved
+        };
+    }
+    let mut candidate = super::direct::candidate(query, Source::Gnomad);
+    candidate.sections = Some(Box::new(VariantSections {
+        population: Some(population),
+        ..VariantSections::default()
+    }));
+    candidates.push(candidate);
+    (
+        collected.sources,
+        collected.problems,
+        collected.local,
+        collected.incomplete,
+    )
+}
+
 pub(super) fn apply<'a>(
     cx: &Ctx<'_>,
     query: &VariantGet,
