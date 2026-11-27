@@ -45,8 +45,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "variant",
-        "Genetic variants and mutations, such as BRAF V600E or an rsID: clinical \
-         significance, population frequency, cancer evidence and predictions",
+        "Variant clinical significance, population frequency, cancer evidence and predictions",
         &[
             ("search", "search_variant", ""),
             ("get", "get_variant", ""),
@@ -54,7 +53,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             (
                 "assertions",
                 "variant_assertions",
-                "ClinVar or ClinGen classifications",
+                "ClinVar or ClinGen records",
             ),
             (
                 "population",
