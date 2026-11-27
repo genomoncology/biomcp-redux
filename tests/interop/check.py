@@ -18,7 +18,8 @@ HERE = Path(__file__).resolve().parent
 
 
 async def check_python(case, mode, revision):
-    async with Client(StdioServerParameters(**case["server"]), mode=mode) as client:
+    server = StdioServerParameters(**case["server"])
+    async with Client(server, mode=mode, read_timeout_seconds=15) as client:
         assert client.protocol_version == revision, client.protocol_version
         call = case["call"]
         listing = await client.list_tools()
