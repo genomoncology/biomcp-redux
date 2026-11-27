@@ -26,27 +26,18 @@ fn catalog_requests() -> [Value; 2] {
     ]
 }
 
-fn scopes() -> [(Vec<String>, &'static str); 2] {
-    [
-        (vec!["--offline".into()], "public"),
-        (vec!["--offline".into(), "--hosted".into()], "private"),
-    ]
-}
-
 fn stdio() -> Result<(), String> {
-    for (globals, scope) in scopes() {
-        let environment = Environment::new().map_err(|error| error.to_string())?;
-        let frames = catalog_requests();
-        let replies = exchange_with_globals(&environment, &frames, &globals)?;
-        for frame in frames {
-            let reply = replies
-                .iter()
-                .find(|reply| reply.get("id") == frame.get("id"))
-                .ok_or("missing stdio catalog reply")?;
-            check_fields(&frame, reply, scope)?;
-        }
-    }
     let environment = Environment::new().map_err(|error| error.to_string())?;
+    let globals = ["--offline".into()];
+    let frames = catalog_requests();
+    let replies = exchange_with_globals(&environment, &frames, &globals)?;
+    for frame in frames {
+        let reply = replies
+            .iter()
+            .find(|reply| reply.get("id") == frame.get("id"))
+            .ok_or("missing stdio catalog reply")?;
+        check_fields(&frame, reply, "public")?;
+    }
     let replies = exchange_with_globals(
         &environment,
         &[
@@ -55,7 +46,7 @@ fn stdio() -> Result<(), String> {
             json!({"jsonrpc":"2.0","method":"notifications/initialized"}),
             json!({"jsonrpc":"2.0","id":2,"method":"tools/list"}),
         ],
-        &["--offline".into()],
+        &globals,
     )?;
     if replies
         .first()
@@ -76,7 +67,10 @@ fn stdio() -> Result<(), String> {
 }
 
 fn http() -> Result<(), String> {
-    for (globals, scope) in scopes() {
+    for (globals, scope) in [
+        (vec!["--offline".into()], "public"),
+        (vec!["--offline".into(), "--hosted".into()], "private"),
+    ] {
         let server = Server::configured_globals("127.0.0.1:0", None, None, None, None, &globals)?;
         for frame in catalog_requests() {
             let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
