@@ -3,6 +3,7 @@ use crate::{Ctx, status};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     Problem, Reason, Section, Source, SourceOutcome, VariantCivic, VariantGet, VariantHeader,
+    VariantNamespace,
 };
 
 pub(super) fn section(
@@ -40,15 +41,10 @@ pub(super) fn section(
         .is_ok_and(|mapped| mapped.refusals == biomcp_adapters::Refusal::Refused);
     let mut source = status::source(Source::Civic, leg.finish(), error);
     let no_join = error.and_then(crate::status::reason) == Some(Reason::NoJoinId)
-        || result.as_ref().is_ok_and(|mapped| {
-            mapped.value.profiles.is_empty()
-                && mapped.problems.iter().any(|problem| {
-                    matches!(
-                        problem.field.as_str(),
-                        "hgvs_p" | "hgvs_p.civic_protein_search"
-                    )
-                })
-        });
+        || query.input().namespace() != VariantNamespace::CivicProfile
+            && result
+                .as_ref()
+                .is_ok_and(|mapped| mapped.value.page.total == 0);
     if no_join {
         source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
             data_date: None,
