@@ -17,6 +17,7 @@ pub(crate) use typed::example_calls;
 mod worker;
 
 use framing::Frame;
+use protocol::ReplyVersion;
 use serde_json::Value;
 use std::{
     collections::BTreeMap,
@@ -35,7 +36,7 @@ enum Event {
 
 struct Call {
     id: Value,
-    modern: bool,
+    version: ReplyVersion,
     cancelled: bool,
     cancellation: Option<biomcp_fetch::Cancellation>,
     worker: thread::JoinHandle<()>,
@@ -47,7 +48,7 @@ struct Server {
     active: BTreeMap<String, Call>,
     max_calls: usize,
     queue: queue::Queue,
-    legacy: bool,
+    version: ReplyVersion,
     globals: crate::grammar::Globals,
     root: std::sync::Arc<crate::grammar::Root>,
     settings: std::sync::Arc<crate::config::Settings>,
@@ -69,7 +70,7 @@ pub(crate) fn serve(
         active: BTreeMap::new(),
         max_calls: crate::config::mcp_capacity(&settings),
         queue: queue::Queue::new(&settings),
-        legacy: false,
+        version: ReplyVersion::Current,
         globals,
         root,
         settings,
@@ -149,13 +150,18 @@ impl Server {
     fn message(&mut self, frame: &[u8]) -> io::Result<Option<Value>> {
         match rpc::message(
             frame,
-            &mut self.legacy,
+            &mut self.version,
+            &protocol::REVISIONS,
             self.globals.hosted,
             crate::command::Context::new(&self.globals, &self.fetch, &self.root, &self.settings),
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
         ) {
             rpc::Message::Reply(reply) => Ok(Some(reply)),
-            rpc::Message::Tool { id, params, modern } => self.admit(id, &params, modern),
+            rpc::Message::Tool {
+                id,
+                params,
+                version,
+            } => self.admit(id, &params, version),
             rpc::Message::Notification { method, params } => {
                 if method == "notifications/cancelled"
                     && let Some(id) = params.get("requestId").filter(|id| protocol::valid_id(id))
@@ -167,7 +173,12 @@ impl Server {
         }
     }
 
-    fn admit(&mut self, id: Value, params: &Value, modern: bool) -> io::Result<Option<Value>> {
+    fn admit(
+        &mut self,
+        id: Value,
+        params: &Value,
+        version: ReplyVersion,
+    ) -> io::Result<Option<Value>> {
         let Some(call) = typed::parse(
             crate::command::Context::new(&self.globals, &self.fetch, &self.root, &self.settings),
             params,
@@ -183,7 +194,7 @@ impl Server {
                 return typed::rejection(
                     id,
                     rejected,
-                    modern,
+                    version,
                     crate::command::Context::new(
                         &self.globals,
                         &self.fetch,
@@ -229,9 +240,9 @@ impl Server {
             research::execute(&call, context, false)
         });
         if full {
-            self.queue.push(key, id, modern, cancellation, work);
+            self.queue.push(key, id, version, cancellation, work);
         } else {
-            self.start_call(key, id, modern, cancellation, work)?;
+            self.start_call(key, id, version, cancellation, work)?;
         }
         Ok(None)
     }
@@ -270,7 +281,13 @@ impl Server {
         while self.active.len() < self.max_calls
             && let Some(call) = self.queue.pop()
         {
-            self.start_call(call.key, call.id, call.modern, call.cancellation, call.work)?;
+            self.start_call(
+                call.key,
+                call.id,
+                call.version,
+                call.cancellation,
+                call.work,
+            )?;
         }
         Ok(())
     }
@@ -283,7 +300,7 @@ impl Server {
         &mut self,
         key: String,
         id: Value,
-        modern: bool,
+        version: ReplyVersion,
         cancellation: Option<biomcp_fetch::Cancellation>,
         work: impl FnOnce() -> io::Result<research::Completed> + Send + 'static,
     ) -> io::Result<()> {
@@ -300,7 +317,7 @@ impl Server {
             key,
             Call {
                 id,
-                modern,
+                version,
                 cancelled: false,
                 cancellation,
                 worker,
@@ -326,7 +343,7 @@ impl Server {
             return Ok(None);
         }
         Ok(Some(match outcome {
-            Ok(outcome) => typed::tool_result(call.id, &outcome, call.modern, &self.settings),
+            Ok(outcome) => typed::tool_result(call.id, &outcome, call.version, &self.settings),
             Err(_) => protocol::error(call.id, -32603, "Internal error"),
         }))
     }

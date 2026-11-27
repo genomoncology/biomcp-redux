@@ -1,5 +1,6 @@
 //! Own bounded HTTP tool workers through completion and return hosted whole-call timeouts.
 //! A call over the limit waits its turn in arrival order, within its own deadline.
+use super::ReplyVersion;
 use super::Service;
 use crate::{
     command::Context,
@@ -40,7 +41,7 @@ struct Active {
 }
 pub(super) struct ToolCall {
     pub(super) id: Value,
-    pub(super) modern: bool,
+    pub(super) version: ReplyVersion,
     pub(super) call: research::Call,
     pub(super) secrets: Option<Secrets>,
     pub(super) excluded: std::collections::BTreeSet<biomcp_types::Source>,
@@ -60,7 +61,7 @@ impl Calls {
     pub(super) fn run(&self, service: &Service, work: ToolCall, peer: Option<&TcpStream>) -> Value {
         let ToolCall {
             id,
-            modern,
+            version,
             call,
             secrets,
             excluded,
@@ -115,7 +116,7 @@ impl Calls {
                         super::super::typed::tool_result(
                             worker_id,
                             &outcome,
-                            modern,
+                            version,
                             context.settings,
                         )
                     })
@@ -274,7 +275,7 @@ fn wait(
 
 #[cfg(test)]
 mod tests {
-    use super::{Active, Calls, Service, ToolCall};
+    use super::{Active, Calls, ReplyVersion, Service, ToolCall};
     use crate::config::DEFAULT_HTTP_CAPACITY as MAX_CONNECTIONS;
     use crate::{
         config::StartupError,
@@ -450,7 +451,7 @@ mod tests {
             &service,
             ToolCall {
                 id: json!(1),
-                modern: false,
+                version: ReplyVersion::Legacy,
                 call: Call {
                     args: Vec::new(),
                     projection: Projection::Cli,

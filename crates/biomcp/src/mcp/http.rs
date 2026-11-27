@@ -1,4 +1,6 @@
 //! Bounded blocking HTTP transport with independent request protocol state.
+use super::protocol::ReplyVersion;
+
 mod admission;
 mod authority;
 mod call;
@@ -254,18 +256,27 @@ impl Service {
         context.declared_use = caller.declared_use;
         context.secrets = keys.as_ref();
         context.excluded = Some(&caller.excluded);
-        let mut legacy = revision != super::protocol::REVISIONS[0];
+        let mut version = if revision == super::protocol::REVISIONS[0] {
+            ReplyVersion::Current
+        } else {
+            ReplyVersion::Legacy
+        };
         let result = match super::rpc::message(
             &request.body,
-            &mut legacy,
+            &mut version,
+            super::protocol::HTTP_REVISIONS,
             true,
             context,
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
         ) {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
-            super::rpc::Message::Tool { id, params, modern } => {
-                return self.tool(request, id, &params, modern, (revision, caller), peer);
+            super::rpc::Message::Tool {
+                id,
+                params,
+                version,
+            } => {
+                return self.tool(request, id, &params, version, (revision, caller), peer);
             }
         };
         let status = if result.pointer("/error/code") == Some(&json!(-32601)) {
@@ -339,7 +350,7 @@ impl Service {
         request: &wire::Request,
         id: Value,
         params: &Value,
-        modern: bool,
+        version: ReplyVersion,
         (revision, caller): (&'static str, Caller),
         peer: Option<&TcpStream>,
     ) -> (u16, Option<Value>, Option<&'static str>) {
@@ -374,7 +385,7 @@ impl Service {
             scope: scope.as_ref(),
             account: caller.account.as_deref(),
         };
-        let call = match self.parse_tool(&id, params, modern, context) {
+        let call = match self.parse_tool(&id, params, version, context) {
             Ok(call) => call,
             Err(reply) => return (200, Some(reply), Some(revision)),
         };
@@ -387,7 +398,7 @@ impl Service {
             self,
             ToolCall {
                 id,
-                modern,
+                version,
                 call,
                 secrets: keys,
                 declared_use,
@@ -403,7 +414,7 @@ impl Service {
         &self,
         id: &Value,
         params: &Value,
-        modern: bool,
+        version: ReplyVersion,
         context: crate::command::Context<'_>,
     ) -> Result<super::research::Call, Value> {
         let call = super::typed::parse(
@@ -415,7 +426,7 @@ impl Service {
         )
         .ok_or_else(|| super::protocol::error(id.clone(), -32602, "Invalid params"))?;
         call.map_err(|rejected| {
-            super::typed::rejection(id.clone(), rejected, modern, context, true)
+            super::typed::rejection(id.clone(), rejected, version, context, true)
                 .unwrap_or_else(|_| super::protocol::error(id.clone(), -32603, "Internal error"))
         })
     }

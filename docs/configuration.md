@@ -95,6 +95,8 @@ Each resolved row includes its requested input, HGNC ID and symbol, and the cons
 
 ## HTTP capacity
 
+MCP revision `2024-11-05` is available over stdio only. Its HTTP transport requires a separate SSE endpoint that announces the POST endpoint. BioMCP's `/mcp` endpoint uses Streamable HTTP and offers `2025-11-25` when an HTTP client requests `2024-11-05` in `initialize`. Subsequent HTTP requests with an unsupported `MCP-Protocol-Version` header receive HTTP 400.
+
 `http_max_calls` limits tool calls in flight. `http_max_connections` limits open non-health HTTP connections. Each key accepts a positive integer. The server refuses `http_max_connections` when it is below `http_max_calls`. Pending framing readers and active requests share the connection cap. Framing readers share the existing worker bound of twice the connection setting plus one. `/health` uses neither the connection cap nor the tool call cap, but idle or incomplete sockets can exhaust framing workers and make it return 503. A front end that forwards complete requests avoids this raw-socket limit.
 
 Use the same names as flags on `serve --http`: `--http_max_calls` and `--http_max_connections`. The call default lives in [`DEFAULT_HTTP_CAPACITY`](../crates/biomcp/src/config.rs). With no connection setting, the server allows twice its call limit, so one call can wait behind each running call. Raise connections above calls to let discovery requests answer while tool calls occupy their slots.
@@ -180,6 +182,8 @@ Set `mcp_reply_form` to choose where MCP tools put the JSON reply over stdio and
 - `text-only` puts JSON in a text block in `content`.
 
 Local and hosted servers default to `both`. The text block lets older clients read the reply. Set `"mcp_reply_form": "once"` if your client reads `structuredContent` and you want a single copy. Use `text-only` only with a client that ignores the output schema, since MCP requires structured results from tools that declare one. When included, the output schema describes the JSON value in every form. Next steps in MCP replies never carry the server's `--config` path.
+
+For stdio sessions that negotiate `2024-11-05`, BioMCP always sends JSON in a text block. Tool listings for those sessions omit annotations and output schemas.
 
 ## Hosted servers
 

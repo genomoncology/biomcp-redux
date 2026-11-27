@@ -1,4 +1,5 @@
 //! Transport-independent RPC admission and protocol responses.
+use super::protocol::ReplyVersion;
 use super::{current, discovery, legacy, protocol};
 use serde_json::{Value, json};
 pub(super) enum Message {
@@ -6,7 +7,7 @@ pub(super) enum Message {
     Tool {
         id: Value,
         params: Value,
-        modern: bool,
+        version: ReplyVersion,
     },
     Notification {
         method: String,
@@ -15,7 +16,8 @@ pub(super) enum Message {
 }
 pub(super) fn message(
     frame: &[u8],
-    legacy: &mut bool,
+    version: &mut ReplyVersion,
+    revisions: &[&'static str],
     read_only: bool,
     context: crate::command::Context<'_>,
     mode: crate::config::ToolMode,
@@ -45,29 +47,44 @@ pub(super) fn message(
     if !protocol::valid_params(method, &params) {
         return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
     }
-    let modern = current::identified(&params)
-        || method == "server/discover"
-        || !*legacy && method != "initialize";
+    let modern = *version != ReplyVersion::November2024
+        && (current::identified(&params)
+            || method == "server/discover"
+            || *version == ReplyVersion::Current && method != "initialize");
     if modern {
-        if let Err(error) = current::validate(id, &params) {
+        if let Err(error) = current::validate(id, &params, revisions) {
             return Message::Reply(error);
         }
     } else if method == "initialize" {
-        let Some(result) = legacy::initialize(&params, mode, context) else {
+        let Some((revision, result)) = legacy::initialize(&params, mode, context, revisions) else {
             return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
         };
-        *legacy = true;
+        *version = if revision == protocol::NOVEMBER_2024 {
+            ReplyVersion::November2024
+        } else {
+            ReplyVersion::Legacy
+        };
         return Message::Reply(protocol::result(id.clone(), result, false));
     }
+    let version = if modern {
+        ReplyVersion::Current
+    } else {
+        *version
+    };
     let typed = mode == crate::config::ToolMode::Typed;
     let result = match method {
         "ping" => json!({}),
-        "server/discover" => current::discover(mode, context),
+        "server/discover" if modern => current::discover(mode, context, revisions),
         "tools/list" => match tools(id, &params, typed, read_only, context) {
-            Ok(tools) => json!({"tools":tools}),
+            Ok(mut tools) => {
+                if version == ReplyVersion::November2024 {
+                    legacy::project_tools(&mut tools);
+                }
+                json!({"tools":tools})
+            }
             Err(reply) => return Message::Reply(reply),
         },
-        "tools/call" => return call(id.clone(), params, typed, read_only, modern, context),
+        "tools/call" => return call(id.clone(), params, typed, read_only, version, context),
         _ => return Message::Reply(protocol::error(id.clone(), -32601, "Method not found")),
     };
     Message::Reply(protocol::result(id.clone(), result, modern))
@@ -102,11 +119,11 @@ fn call(
     mut params: Value,
     typed: bool,
     read_only: bool,
-    modern: bool,
+    version: ReplyVersion,
     context: crate::command::Context<'_>,
 ) -> Message {
     if typed && discovery::called(&params) {
-        return Message::Reply(discovery::call(id, &params, context, read_only, modern));
+        return Message::Reply(discovery::call(id, &params, context, read_only, version));
     }
     if typed && params.get("name").and_then(Value::as_str) == Some(discovery::DISPATCH) {
         let Some(target) = discovery::target(&params) else {
@@ -114,5 +131,9 @@ fn call(
         };
         params = target;
     }
-    Message::Tool { id, params, modern }
+    Message::Tool {
+        id,
+        params,
+        version,
+    }
 }

@@ -1,5 +1,5 @@
 //! Stateless 2026-07-28 protocol edge.
-use super::protocol::{self, CAPABILITIES_KEY, REVISIONS, VERSION_KEY};
+use super::protocol::{self, CAPABILITIES_KEY, VERSION_KEY};
 use serde_json::{Value, json};
 
 pub(super) fn identified(params: &Value) -> bool {
@@ -17,7 +17,7 @@ pub(super) fn identified(params: &Value) -> bool {
         })
 }
 
-pub(super) fn validate(id: &Value, params: &Value) -> Result<(), Value> {
+pub(super) fn validate(id: &Value, params: &Value, revisions: &[&str]) -> Result<(), Value> {
     let meta = params.get("_meta");
     let version = meta
         .and_then(|m| m.get(VERSION_KEY))
@@ -29,10 +29,10 @@ pub(super) fn validate(id: &Value, params: &Value) -> Result<(), Value> {
     {
         return Err(protocol::error(id.clone(), -32602, "Invalid params"));
     }
-    if version != REVISIONS.first().copied() {
+    if version != revisions.first().copied() {
         return Err(json!({"jsonrpc":"2.0", "id":id, "error":{
             "code":-32022,"message":"Unsupported protocol version",
-            "data":{"supported":REVISIONS,"requested":version}}}));
+            "data":{"supported":revisions,"requested":version}}}));
     }
     Ok(())
 }
@@ -40,6 +40,7 @@ pub(super) fn validate(id: &Value, params: &Value) -> Result<(), Value> {
 pub(super) fn discover(
     mode: crate::config::ToolMode,
     context: crate::command::Context<'_>,
+    revisions: &[&str],
 ) -> Value {
-    json!({"supportedVersions":REVISIONS,"instructions":protocol::instructions(mode, context),"capabilities":{"tools":{}}})
+    json!({"supportedVersions":revisions,"instructions":protocol::instructions(mode, context),"capabilities":{"tools":{}}})
 }

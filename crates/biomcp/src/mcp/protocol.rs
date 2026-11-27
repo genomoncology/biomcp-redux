@@ -24,9 +24,34 @@ pub(super) fn instructions(
     instructions.push_str(crate::grammar::ENUM_CASE_GUIDANCE);
     instructions
 }
-pub(super) const REVISIONS: [&str; 4] = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
+pub(super) const NOVEMBER_2024: &str = "2024-11-05";
+pub(super) const REVISIONS: [&str; 5] = [
+    "2026-07-28",
+    "2025-11-25",
+    "2025-06-18",
+    "2025-03-26",
+    NOVEMBER_2024,
+];
+pub(super) const HTTP_REVISIONS: &[&str] = REVISIONS.split_at(4).0;
 pub(super) const VERSION_KEY: &str = "io.modelcontextprotocol/protocolVersion";
 pub(super) const CAPABILITIES_KEY: &str = "io.modelcontextprotocol/clientCapabilities";
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum ReplyVersion {
+    Current,
+    Legacy,
+    November2024,
+}
+
+impl ReplyVersion {
+    fn form(self, settings: &crate::config::Settings) -> ReplyForm {
+        if self == Self::November2024 {
+            ReplyForm::TextOnly
+        } else {
+            crate::config::mcp_reply_form(settings)
+        }
+    }
+}
 
 pub(super) fn info() -> Value {
     json!({"name":"biomcp", "version":env!("CARGO_PKG_VERSION")})
@@ -122,9 +147,11 @@ pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
 pub(super) fn tool_result(
     id: Value,
     outcome: &crate::command::Outcome,
-    modern: bool,
-    form: ReplyForm,
+    version: ReplyVersion,
+    settings: &crate::config::Settings,
 ) -> Value {
+    let modern = version == ReplyVersion::Current;
+    let form = version.form(settings);
     let failed = !matches!(
         outcome.status,
         crate::exit::Status::Success | crate::exit::Status::Absent
@@ -147,14 +174,18 @@ pub(super) fn tool_result(
 pub(super) fn discovery_result(
     id: Value,
     value: Value,
-    modern: bool,
+    version: ReplyVersion,
     context: crate::command::Context<'_>,
 ) -> Value {
     if !within_cap(&value) {
         return error(id, -32603, "Output schema unavailable");
     }
-    let form = crate::config::mcp_reply_form(context.settings);
-    result(id, content(value, false, form), modern)
+    let form = version.form(context.settings);
+    result(
+        id,
+        content(value, false, form),
+        version == ReplyVersion::Current,
+    )
 }
 
 // The JSON value is the whole text: no status line or summary precedes it.
