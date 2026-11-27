@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
     MyVariant identity lookups default to GRCh38; --build overrides it. \
     Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E \
     or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein \
-    phrase such as BRAF V600E searches for checked allele candidates. \
+    phrase such as BRAF V600E searches for checked allele candidates. With civic alone, use a CIViC profile ID or exact name. \
     Every candidate remains available; source assertions do not classify the variant for the caller."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]

@@ -440,7 +440,11 @@ impl schemars::JsonSchema for GetLookupInput {
         "VariantGetLookupInput".into()
     }
     fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
-        schemars::json_schema!({"type": "string", "minLength": 1, "maxLength": VariantInput::MAX_BYTES})
+        schemars::json_schema!({
+            "type": "string",
+            "pattern": format!(r"^[^
+        ]{{1,{}}}$", VariantInput::MAX_BYTES),
+        })
     }
 }
 
