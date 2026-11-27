@@ -144,6 +144,7 @@ fn validation_frames() -> Result<Vec<Value>, String> {
         request(json!(1), "server/discover", json!({})),
         unsupported,
         json!({"jsonrpc":"2.0","id":3,"method":"ping"}),
+        json!({"jsonrpc":"2.0","id":"early-list","method":"tools/list"}),
         request(json!(4), "unknown", json!({})),
         request(
             json!(5),
@@ -220,7 +221,6 @@ fn validation() -> Check {
     }
     for (id, code) in [
         (2, -32022),
-        (3, -32602),
         (4, -32601),
         (5, -32602),
         (6, -32602),
@@ -239,6 +239,16 @@ fn validation() -> Check {
     ] {
         if reply(&replies, &json!(id))?.pointer("/error/code") != Some(&json!(code)) {
             return Err(format!("wrong validation code for {id}: {replies:?}"));
+        }
+    }
+    for id in [json!(3), json!("early-list")] {
+        let error = json!({
+            "code": -32602,
+            "message": "Server is not initialized yet. Send initialize first.",
+            "data": {"requiredMethod": "initialize"}
+        });
+        if reply(&replies, &id)?.get("error") != Some(&error) {
+            return Err(format!("wrong initialization error for {id}: {replies:?}"));
         }
     }
     if reply(&replies, &json!(8))?.pointer("/result/protocolVersion") != Some(&json!("2025-11-25"))
