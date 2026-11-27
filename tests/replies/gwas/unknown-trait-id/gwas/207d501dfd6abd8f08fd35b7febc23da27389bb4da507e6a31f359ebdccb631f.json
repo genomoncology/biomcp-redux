@@ -1,0 +1,16 @@
+{
+  "source": "gwas",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/efo-traits/EFO%3A0000305",
+  "exchanges": [
+    {
+      "status": 404,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "body": {
+        "kind": "text",
+        "value": "{\"errorCode\":404,\"error\":\"Not Found\",\"errorMessage\":\"EFO Trait with Id: EFO:0000305 not found\",\"servicePath\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/efo-traits/EFO%3A0000305\",\"timestamp\":\"2026-11-27T23:41:26\"}"
+      }
+    }
+  ]
+}

@@ -12,6 +12,14 @@
         "/page/returned": 0,
         "/result/items": []
       }
+    },
+    {
+      "run": ["search", "gwas", "--trait-id", "EFO:0000305"],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/sources/0/reason": "not-found"
+      }
     }
   ]
 }
