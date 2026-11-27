@@ -47,8 +47,9 @@ fn november_2024() -> Result<(), String> {
         return Err("stdio did not negotiate 2024-11-05".into());
     }
     let list = reply(&replies, &json!(2))?;
-    let tools = list["result"]["tools"]
-        .as_array()
+    let tools = list
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
         .ok_or("tool listing missing")?;
     if !tools.iter().any(|tool| tool["name"] == "biomcp")
         || tools.iter().any(|tool| {
