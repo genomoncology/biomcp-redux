@@ -23,7 +23,7 @@ def invoke(executable, env, *args):
 
 
 def export_rows(capture, source):
-    path, = (capture / source).glob("*.json")
+    path, = (capture / source / source).glob("*.json")
     body = json.loads(path.read_text())["exchanges"][0]["body"]["value"]
     lines = io.StringIO(body)
     if source == "clingen":
@@ -86,12 +86,12 @@ def main():
     with tempfile.TemporaryDirectory(prefix="biomcp-validity-") as home:
         env = {name: os.environ[name] for name in PASSED_ENVIRONMENT if name in os.environ}
         env.update(HOME=home, XDG_CACHE_HOME=home + "/cache", XDG_CONFIG_HOME=home + "/config")
-        capture = Path(home) / "capture"
-        synced = invoke(args.executable, env, "--record", capture, "sync", "gencc")
+        capture = Path(home)
+        synced = invoke(args.executable, env, "--record", capture / "gencc", "sync", "gencc")
         if synced["status"] != "complete":
             raise SystemExit(f"GenCC export capture returned {synced['status']}")
         # Read the validity export alone. Explicit ClinGen sync downloads dosage as well.
-        warm = invoke(args.executable, env, "--record", capture, "get", "disease",
+        warm = invoke(args.executable, env, "--record", capture / "clingen", "get", "disease",
                       "MONDO:0008426", "gene-validity", "--source", "clingen")
         if warm["status"] != "complete":
             raise SystemExit(f"ClinGen export capture returned {warm['status']}")
