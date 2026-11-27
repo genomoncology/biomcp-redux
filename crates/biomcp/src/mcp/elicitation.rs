@@ -130,8 +130,8 @@ pub(super) fn form(preview: &DeletePreview, explicit_mode: bool) -> Value {
         "message":format!("Permanently delete all saved work? Searches ({searches}), lists ({lists}), notes ({notes})."),
         "requestedSchema":{"type":"object","properties":{"confirm":{"type":"boolean"}},"required":["confirm"]}
     });
-    if explicit_mode {
-        form["mode"] = json!("form");
+    if explicit_mode && let Some(params) = form.as_object_mut() {
+        params.insert("mode".into(), json!("form"));
     }
     form
 }

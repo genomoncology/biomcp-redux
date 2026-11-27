@@ -49,17 +49,26 @@ fn save_search(env: &Environment, name: &str) -> Result<(), String> {
     Ok(())
 }
 
+fn field<'a>(value: &'a Value, path: &str) -> &'a Value {
+    value.pointer(path).unwrap_or(&Value::Null)
+}
+
 fn prompt(form: &Value, message: &str) {
     assert_eq!(
-        form["method"], "elicitation/create",
+        field(form, "/method"),
+        "elicitation/create",
         "delete-all requests elicitation"
     );
-    let params = &form["params"];
-    assert_eq!(params["mode"], "form", "the request uses form mode");
-    assert_eq!(params["message"], message, "the message gives counts only");
+    let params = field(form, "/params");
+    assert_eq!(field(params, "/mode"), "form", "the request uses form mode");
     assert_eq!(
-        params["requestedSchema"],
-        json!({
+        field(params, "/message"),
+        message,
+        "the message gives counts only"
+    );
+    assert_eq!(
+        field(params, "/requestedSchema"),
+        &json!({
             "type":"object","properties":{"confirm":{"type":"boolean"}},"required":["confirm"]
         }),
         "confirmation is one required boolean"
@@ -87,19 +96,7 @@ fn stdio() -> Result<(), String> {
     )?;
     let file = saved_file(&env);
     let before = std::fs::read(&file).map_err(|e| e.to_string())?;
-    let mut peer = Peer::with_globals(&env, &["--tool-mode".into(), "typed".into()])?;
-    peer.send(
-        &json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{
-            "protocolVersion":"2025-11-25","clientInfo":{"name":"saved-proof","version":"1"},
-            "capabilities":{"elicitation":{"form":{}}}
-        }}),
-    )?;
-    let init = peer.next()?;
-    assert_eq!(
-        init["result"]["protocolVersion"], "2025-11-25",
-        "negotiates the legacy revision"
-    );
-    peer.send(&json!({"jsonrpc":"2.0","method":"notifications/initialized"}))?;
+    let mut peer = legacy_peer(&env)?;
 
     for (id, result) in [
         (2, json!({"action":"decline"})),
@@ -118,21 +115,24 @@ fn stdio() -> Result<(), String> {
             before,
             "asking leaves the file unchanged"
         );
-        peer.send(&json!({"jsonrpc":"2.0","id":elicitation["id"],"result":result}))?;
+        peer.send(&json!({"jsonrpc":"2.0","id":field(&elicitation, "/id"),"result":result}))?;
         let reply = peer.next()?;
         assert_eq!(
-            reply["id"], id,
+            field(&reply, "/id"),
+            &json!(id),
             "the final reply correlates to the original call"
         );
         if id == 5 {
-            let deleted = one_value(&reply["result"])?;
+            let deleted = one_value(field(&reply, "/result"))?;
             assert_eq!(
-                deleted["result"]["searches"][0]["name"], "private-search",
+                field(&deleted, "/result/searches/0/name"),
+                "private-search",
                 "accept returns the deleted search"
             );
         } else {
             assert_eq!(
-                reply["result"]["content"][0]["text"], "Nothing was deleted.",
+                field(&reply, "/result/content/0/text"),
+                "Nothing was deleted.",
                 "the reply reports no deletion"
             );
             assert_eq!(
@@ -145,12 +145,31 @@ fn stdio() -> Result<(), String> {
     let shown: Value =
         serde_json::from_slice(&run(&env, &["saved", "show"])?).map_err(|e| e.to_string())?;
     assert_eq!(
-        shown["result"],
-        json!({"searches":[],"lists":[]}),
+        field(&shown, "/result"),
+        &json!({"searches":[],"lists":[]}),
         "accept emptied the saved file"
     );
     named_deletions(&env, &mut peer)?;
     peer.finish()
+}
+
+fn legacy_peer(env: &Environment) -> Result<Peer, String> {
+    let mut peer = Peer::with_globals(env, &["--tool-mode".into(), "typed".into()])?;
+    peer.send(
+        &json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{
+            "protocolVersion":"2025-11-25","clientInfo":{"name":"saved-proof","version":"1"},
+            "capabilities":{"elicitation":{"form":{}}}
+        }}),
+    )?;
+    let init = peer.next()?;
+    assert_eq!(
+        field(&init, "/result/protocolVersion"),
+        "2025-11-25",
+        "negotiates the legacy revision"
+    );
+    peer.send(&json!({"jsonrpc":"2.0","method":"notifications/initialized"}))?;
+
+    Ok(peer)
 }
 
 fn named_deletions(env: &Environment, peer: &mut Peer) -> Result<(), String> {
@@ -169,15 +188,19 @@ fn named_deletions(env: &Environment, peer: &mut Peer) -> Result<(), String> {
         ),
         (
             7,
-            json!({"note":note["result"]["user_notes"][0]["id"]}),
+            json!({"note":field(&note, "/result/user_notes/0/id")}),
             "/result/user_notes/0/text",
             json!("one-note"),
         ),
     ] {
         peer.send(&delete(id, target))?;
         let reply = peer.next()?;
-        assert_eq!(reply["id"], id, "a named deletion answers directly");
-        let deleted = one_value(&reply["result"])?;
+        assert_eq!(
+            field(&reply, "/id"),
+            &json!(id),
+            "a named deletion answers directly"
+        );
+        let deleted = one_value(field(&reply, "/result"))?;
         assert_eq!(
             deleted.pointer(pointer),
             Some(&wanted),
@@ -199,19 +222,23 @@ fn hosted_call(id: u32, args: Value) -> Value {
 
 fn hosted_delete(id: u32) -> Value {
     let mut frame = hosted_call(id, arguments(json!({"all":true})));
-    frame["params"]["_meta"]["io.modelcontextprotocol/clientCapabilities"]["elicitation"] =
-        json!({"form":{}});
+    if let Some(capabilities) =
+        frame.pointer_mut("/params/_meta/io.modelcontextprotocol~1clientCapabilities")
+    {
+        *capabilities = json!({"elicitation":{"form":{}}});
+    }
     frame
 }
 
 fn ask(server: &Server, id: u32) -> Result<(String, Value), String> {
     let reply = http_wire(server, &hosted_delete(id), ACCOUNT)?;
-    let result = &reply["result"];
+    let result = field(&reply, "/result");
     assert_eq!(
-        result["resultType"], "input_required",
+        field(result, "/resultType"),
+        "input_required",
         "HTTP returns an input-required result"
     );
-    let inputs = result["inputRequests"]
+    let inputs = field(result, "/inputRequests")
         .as_object()
         .ok_or("missing input requests")?;
     assert_eq!(inputs.len(), 1, "delete-all requests one form");
@@ -221,17 +248,23 @@ fn ask(server: &Server, id: u32) -> Result<(String, Value), String> {
         "Permanently delete all saved work? Searches (0), lists (1), notes (0).",
     );
     assert!(
-        result["requestState"].is_string(),
+        field(result, "/requestState").is_string(),
         "the response includes opaque request state"
     );
-    Ok((key.clone(), result["requestState"].clone()))
+    Ok((key.clone(), field(result, "/requestState").clone()))
 }
 
 fn accept(server: &Server, id: u32, (key, state): (String, Value)) -> Result<Value, String> {
     let mut frame = hosted_delete(id);
-    frame["params"]["requestState"] = state;
-    frame["params"]["inputResponses"] =
-        json!({(key):{"action":"accept","content":{"confirm":true}}});
+    let params = frame
+        .get_mut("params")
+        .and_then(Value::as_object_mut)
+        .ok_or("missing tool params")?;
+    params.insert("requestState".into(), state);
+    params.insert(
+        "inputResponses".into(),
+        json!({(key):{"action":"accept","content":{"confirm":true}}}),
+    );
     http_wire(server, &frame, ACCOUNT)
 }
 
@@ -271,24 +304,26 @@ fn hosted() -> Result<(), String> {
     add(4, "replacement")?;
     let stale = accept(&second, 5, waiting)?;
     assert_eq!(
-        stale["result"]["content"][0]["text"],
+        field(&stale, "/result/content/0/text"),
         "Saved work changed or confirmation expired. Nothing was deleted.",
         "a different list with the same count needs its own confirmation"
     );
     let accepted = accept(&second, 7, ask(&first, 6)?)?;
     assert_eq!(
-        accepted["result"]["resultType"], "complete",
+        field(&accepted, "/result/resultType"),
+        "complete",
         "another worker can complete the retry"
     );
-    let deleted = &accepted["result"]["structuredContent"];
+    let deleted = field(&accepted, "/result/structuredContent");
     assert_eq!(
-        deleted["result"]["lists"][0]["name"], "replacement",
+        field(deleted, "/result/lists/0/name"),
+        "replacement",
         "the approved list was deleted"
     );
     let shown = http_wire(&second, &hosted_call(8, json!({"action":"show"})), ACCOUNT)?;
     assert_eq!(
-        one_value(&shown["result"])?["result"],
-        json!({"searches":[],"lists":[]}),
+        field(&one_value(field(&shown, "/result"))?, "/result"),
+        &json!({"searches":[],"lists":[]}),
         "the account's saved file is empty"
     );
     first.stop()?;

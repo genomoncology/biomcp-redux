@@ -257,7 +257,6 @@ impl Service {
         context.secrets = keys.as_ref();
         context.excluded = Some(&caller.excluded);
         let mut version = ReplyVersion::for_revision(revision);
-        let modern = version == ReplyVersion::Current;
         let result = match super::rpc::message(
             &request.body,
             &mut version,
@@ -282,7 +281,7 @@ impl Service {
             }
         };
         let status = match result.pointer("/error/code").and_then(Value::as_i64) {
-            Some(-32601) if modern => 404,
+            Some(-32601) if revision == super::protocol::REVISIONS[0] => 404,
             _ => 200,
         };
         (status, Some(result), Some(revision))
