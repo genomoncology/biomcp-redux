@@ -32,7 +32,12 @@ steps:
     expect:
       /status: complete
       /result/identity/symbol: G6PD
-  - run: [search, pgx, --gene, G6PD, --source, cpic, --cpic-level, c]
+  - run: [search, pgx, --gene, G6PD, --source, cpic, --cpic-level, C]
+    expect:
+      /status: complete
+      /result/page/total: 1
+      /result/items/0/cpiclevel: C
+  - run: [search, pgx, --gene, g6pd, --source, cpic, --cpic-level, c]
     expect:
       /status: complete
       /result/page/total: 1

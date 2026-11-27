@@ -106,26 +106,31 @@ pub(super) fn pairs(
     offset: u32,
     limit: u32,
 ) -> Result<Page<PgxPair>, RequestError> {
-    let symbol = query.gene().as_str();
-    let page = pairs_for_gene(leg, query, offset, limit, &format!("eq.{symbol}"));
+    let page = pair_page(leg, query, offset, limit, false);
     if page.as_ref().is_ok_and(|p| p.total == 0) {
-        return pairs_for_gene(leg, query, offset, limit, &super::case_insensitive(symbol));
+        return pair_page(leg, query, offset, limit, true);
     }
     page
 }
-pub(super) fn pairs_for_gene(
+pub(super) fn pair_page(
     leg: &Leg<'_>,
     query: &PgxSearch,
     offset: u32,
     limit: u32,
-    gene: &str,
+    ignore_case: bool,
 ) -> Result<Page<PgxPair>, RequestError> {
-    let level = query
-        .cpic_level()
-        .map(|v| format!("eq.{}", v.as_str().to_ascii_uppercase()));
+    let filter = |value: &str| {
+        if ignore_case {
+            super::case_insensitive(value)
+        } else {
+            format!("eq.{value}")
+        }
+    };
+    let gene = filter(query.gene().as_str());
+    let level = query.cpic_level().map(|v| filter(v.as_str()));
     let mut args = vec![
         ("select", Arg::Text("*")),
-        ("genesymbol", Arg::Text(gene)),
+        ("genesymbol", Arg::Text(&gene)),
         ("order", Arg::Text("pairid.asc")),
         ("limit", Arg::Num(limit.into())),
         ("offset", Arg::Num(offset.into())),
