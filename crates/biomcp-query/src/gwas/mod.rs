@@ -65,10 +65,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
             qualifying_total: None,
         })
         .with_query(biomcp_types::GwasPageQuery::Search(q.clone()));
-        {
-            let unavailable = false;
-            crate::status::item(&mut out, true, false, unavailable);
-        };
+        crate::status::item(&mut out, true, false, false);
     }
     let mut source = status::source(Source::Gwas, leg.finish(), error);
     if let Some((accepted, total)) = counts {
