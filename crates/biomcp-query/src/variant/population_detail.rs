@@ -43,7 +43,6 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         Section::Data { .. } => status::item_status(true, false, read.dropped),
         _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
         Section::Empty { .. } => status::item_status(read.dropped, false, read.dropped),
-        _ if read.identity_absent => status::item_status(read.dropped, false, read.dropped),
         _ if read.population_refused => status::item_status(true, false, true),
         _ => status::item_status(false, true, false),
     };
@@ -56,7 +55,14 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
                 groups,
                 candidates: std::mem::take(&mut read.candidates).into(),
             })
-            .with_query(query.answered_query(read.sources.first())),
+            .with_query(
+                query.answered_query(
+                    read.sources
+                        .iter()
+                        .find(|s| Some(s.source) == read.resolver)
+                        .or_else(|| read.sources.first()),
+                ),
+            ),
             page,
             sources: read.sources,
             problems: read.problems,
@@ -69,7 +75,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
 }
 struct PopulationRead {
     dropped: bool,
-    identity_absent: bool,
+    resolver: Option<Source>,
     population_refused: bool,
     population: Section<biomcp_types::VariantPopulation>,
     groups: Vec<GnomadCounts>,
@@ -85,7 +91,7 @@ fn read(
 ) -> PopulationRead {
     let mut read = PopulationRead {
         dropped: false,
-        identity_absent: false,
+        resolver: None,
         population_refused: false,
         population: Section::unavailable(Source::Gnomad, Reason::NoJoinId),
         groups: Vec::new(),
@@ -98,21 +104,28 @@ fn read(
         read.population = Section::unavailable(Source::Gnomad, Reason::Disabled);
         return read;
     }
-    if let Ok(identity) = query.identity() {
-        let found = super::identity::read(cx, &identity, deadline);
+    let identity = match query.identity() {
+        Ok(identity) => identity,
+        Err(_) => {
+            read.population = Section::unavailable(Source::Gnomad, Reason::Rejected);
+            return read;
+        }
+    };
+    if !super::population_identity::use_native_coordinate(cx.fetch, &identity) {
+        let found = super::population_identity::resolve(cx, &identity, deadline);
         deadline = deadline.after_stage(found.elapsed);
+        read.resolver = found.resolver;
         read.dropped = found.dropped;
         read.sources = found.sources;
         read.problems = found.problems;
         read.local = found.local;
         read.candidates = found.rows;
         if let Some(reason) = found.reason {
-            read.identity_absent = reason == Reason::NotFound;
             read.population = Section::unavailable(Source::Gnomad, reason);
             return read;
         }
     }
-    let joined = super::population_identity::read(cx, &read.candidates, deadline);
+    let joined = super::population_identity::read(cx, &identity, &read.candidates, deadline);
     deadline = deadline.after_stage(joined.elapsed);
     read.sources.extend(joined.sources);
     read.problems.extend(joined.problems);
@@ -137,6 +150,7 @@ fn read(
         cx,
         query,
         &id,
+        joined.unnormalized,
         &read.candidates,
         &mut read.problems,
         deadline,
@@ -188,6 +202,7 @@ fn load(
     cx: &Ctx<'_>,
     query: &VariantPopulationQuery,
     id: &str,
+    unnormalized: bool,
     candidates: &[biomcp_types::VariantHeader],
     problems: &mut Vec<biomcp_types::Problem>,
     deadline: biomcp_fetch::Deadline<'_>,
@@ -216,7 +231,7 @@ fn load(
     });
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Gnomad, leg.finish(), error);
-    let section = super::population::source_section(result, id, dropped, &mut source);
+    let section = super::population::source_section(result, id, dropped, unnormalized, &mut source);
     (
         section,
         groups,

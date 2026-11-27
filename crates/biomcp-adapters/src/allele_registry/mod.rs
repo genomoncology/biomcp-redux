@@ -47,6 +47,14 @@ pub enum Resolution {
 pub fn hgvs(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     Ok(map::allele(read(leg, input, false)?, None))
 }
+/// Qualify a chromosome alias on the explicit build and resolve its unchanged description.
+pub fn chromosome_hgvs(
+    leg: &Leg<'_>,
+    input: &str,
+    build: biodata::Build,
+) -> Result<Resolution, RequestError> {
+    hgvs(leg, &qualify(input, Some(build))?)
+}
 /// Read a canonical source record directly, without another resolver.
 pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     Ok(map::allele(read(leg, input, true)?, Some(input)))
@@ -54,18 +62,27 @@ pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
 /// Find the registry alleles that state one exact ClinVar variation as their own record.
 /// Rows that do not carry that variation are left out; no other resolver is consulted.
 pub fn by_clinvar(leg: &Leg<'_>, variation: u64) -> Result<Vec<Resolution>, RequestError> {
-    let id = variation.to_string();
+    by_external_id(leg, "ClinVar.variationId", variation, "clinvar:")
+}
+/// Find the registry alleles that state the requested dbSNP ID.
+pub fn by_rsid(leg: &Leg<'_>, rs: u64) -> Result<Vec<Resolution>, RequestError> {
+    by_external_id(leg, "dbSNP.rs", rs, "rs")
+}
+fn by_external_id(
+    leg: &Leg<'_>,
+    parameter: &str,
+    number: u64,
+    prefix: &str,
+) -> Result<Vec<Resolution>, RequestError> {
+    let id = number.to_string();
     let reply = leg
         .call(
             &ALLELES,
-            Input::Params(&[
-                ("ClinVar.variationId", Arg::Text(&id)),
-                ("fields", Arg::Text(FIELDS)),
-            ]),
+            Input::Params(&[(parameter, Arg::Text(&id)), ("fields", Arg::Text(FIELDS))]),
             biomcp_fetch::Read::<raw::Alleles>::json(),
         )?
         .value;
-    let expected = format!("clinvar:{id}");
+    let expected = format!("{prefix}{id}");
     Ok(reply
         .0
         .into_iter()

@@ -26,9 +26,10 @@
       "exit": 4,
       "expect": {
         "/status": "failed",
+        "/result/population/state": "unavailable",
+        "/result/population/reason": "no-join-id",
         "": {
           "omits": [
-            "result",
             "next"
           ]
         }

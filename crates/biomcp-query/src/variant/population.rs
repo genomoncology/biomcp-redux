@@ -8,10 +8,11 @@ use biomcp_types::{
     GnomadCounts, Problem, ProblemCode, Reason, Section, Source, SourceNotice, SourceOutcome,
     VariantGet, VariantHeader, VariantPopulation,
 };
+
 /// Read only gnomAD after one unambiguous source allele has been established.
 pub(super) fn section(
     cx: &Ctx<'_>,
-    _query: &VariantGet,
+    query: &VariantGet,
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
     blocked: Option<Reason>,
@@ -25,7 +26,7 @@ pub(super) fn section(
             false,
         );
     }
-    let joined = super::population_identity::read(cx, candidates, deadline);
+    let joined = super::population_identity::read(cx, query, candidates, deadline);
     let Some(id) = joined.id else {
         let mut result = missing(joined.reason.unwrap_or(Reason::NoJoinId));
         result.1 = joined.sources;
@@ -46,7 +47,7 @@ pub(super) fn section(
     });
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Gnomad, leg.finish(), error);
-    let value = source_section(result, &id, dropped, &mut source);
+    let value = source_section(result, &id, dropped, joined.unnormalized, &mut source);
     (
         value,
         joined.sources.into_iter().chain([source]).collect(),
@@ -60,6 +61,7 @@ pub(super) fn source_section(
     result: Result<Option<VariantPopulation>, RequestError>,
     id: &str,
     dropped: bool,
+    unnormalized: bool,
     source: &mut SourceOutcome,
 ) -> Section<VariantPopulation> {
     match result {
@@ -68,6 +70,7 @@ pub(super) fn source_section(
             data,
         },
         Ok(None) if dropped => Section::unavailable(Source::Gnomad, Reason::BadReply),
+        Ok(None) if unnormalized => Section::unavailable(Source::Gnomad, Reason::NoJoinId),
         Ok(None) => no_record(id, source),
         Err(e) => Section::unavailable(
             Source::Gnomad,
@@ -141,7 +144,22 @@ pub(super) fn summary(
         .first()
         .and_then(|row| row.identity.ids.first())
         .cloned()
-        .map(biodata::VariantRef::allele);
+        .map_or_else(
+            || coordinate_subject(raw.variant_id.as_str()),
+            |id| Ok(biodata::VariantRef::allele(id)),
+        );
+    let subject = match subject {
+        Ok(subject) => Some(subject),
+        Err(_) => {
+            problems.push(Problem {
+                source: Source::Gnomad,
+                record: Some(raw.variant_id.clone()),
+                field: "subject".into(),
+                code: ProblemCode::ValueUnknown,
+            });
+            None
+        }
+    };
     let mut project = |subset: &gnomad::variant::Subset,
                        data_type,
                        va: Option<&Vec<gnomad::variant::CohortFrequency>>,
@@ -189,6 +207,28 @@ pub(super) fn summary(
         genome,
         joint: joint(raw, problems),
     })
+}
+fn coordinate_subject(id: &str) -> Result<biodata::VariantRef, RequestError> {
+    let bad_id = || biomcp_fetch::bad_reply(Source::Gnomad, None);
+    let input = id
+        .parse::<biomcp_types::VariantInput>()
+        .map_err(|_| bad_id())?;
+    let hgvs = match input.coordinate_validation(Build::GRCh38) {
+        Some(hgvs) => hgvs,
+        None => {
+            let native = input.native_hgvs();
+            let (chromosome, description) = native
+                .strip_prefix("chr")
+                .and_then(|hgvs| hgvs.split_once(':'))
+                .ok_or_else(bad_id)?;
+            let chromosome = Chromosome::parse(chromosome).map_err(|_| bad_id())?;
+            let accession = chromosome.accession(Build::GRCh38);
+            format!("{accession}:{description}")
+        }
+    };
+    hgvs.parse()
+        .map(biodata::VariantRef::allele_hgvs)
+        .map_err(|_| bad_id())
 }
 fn joint(raw: &gnomad::variant::Variant, problems: &[Problem]) -> Section<Box<GnomadCounts>> {
     match &raw.joint {

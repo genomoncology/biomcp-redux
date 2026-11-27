@@ -24,11 +24,12 @@
         },
         "": {
           "omits": [
-            "result",
             "next"
           ]
         },
-        "/sources/1/reason": "bad-reply"
+        "/sources/1/reason": "bad-reply",
+        "/result/population/state": "unavailable",
+        "/result/population/reason": "bad-reply"
       }
     },
     {

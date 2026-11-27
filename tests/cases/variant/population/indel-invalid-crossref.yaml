@@ -28,10 +28,11 @@
         },
         "": {
           "omits": [
-            "result",
             "next"
           ]
-        }
+        },
+        "/result/population/state": "unavailable",
+        "/result/population/reason": "no-join-id"
       }
     }
   ]

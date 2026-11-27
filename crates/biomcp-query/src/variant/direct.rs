@@ -27,6 +27,9 @@ pub(super) fn source(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Option<
         return Some(source);
     }
     match (query.input().namespace(), section) {
+        (_, S::Population) if super::population_identity::use_native_coordinate(fetch, query) => {
+            Some(source)
+        }
         (VariantNamespace::Ca, S::Civic | S::Erepo) | (VariantNamespace::ClinVar, S::Clinvar) => {
             Some(source)
         }
@@ -54,25 +57,7 @@ pub(super) fn get(
     source: Source,
     mut deadline: Deadline<'_>,
 ) -> Outcome {
-    let requested = query.input().identity().cloned();
-    let mut candidates = vec![VariantHeader {
-        identity: Variant {
-            ids: Box::default(),
-            representations: Box::default(),
-            genes: Box::default(),
-        },
-        requested,
-        source,
-        record: biomcp_types::SourceRecord {
-            namespace: biodata::IdentifierNamespace::Unknown,
-            id: query.input().text().clone(),
-            url: None,
-        },
-        transcripts: Box::default(),
-        myvariant: None,
-        sections: None,
-        component_terms: Box::default(),
-    }];
+    let mut candidates = vec![candidate(query, source)];
     let (sources, mut problems, local, incomplete) =
         super::sections::apply(cx, query, &mut candidates, &mut deadline, None);
     let status = status(&sources, incomplete);
@@ -110,6 +95,27 @@ pub(super) fn get(
             local,
         },
     )
+}
+
+pub(super) fn candidate(query: &VariantGet, source: Source) -> VariantHeader {
+    VariantHeader {
+        identity: Variant {
+            ids: Box::default(),
+            representations: Box::default(),
+            genes: Box::default(),
+        },
+        requested: query.input().identity().cloned(),
+        source,
+        record: biomcp_types::SourceRecord {
+            namespace: biodata::IdentifierNamespace::Unknown,
+            id: query.input().text().clone(),
+            url: None,
+        },
+        transcripts: Box::default(),
+        myvariant: None,
+        sections: None,
+        component_terms: Box::default(),
+    }
 }
 
 fn status(sources: &[biomcp_types::SourceOutcome], incomplete: bool) -> biomcp_types::Status {

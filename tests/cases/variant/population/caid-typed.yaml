@@ -104,9 +104,10 @@
           }
         }
       },
-      "exit": 1,
+      "exit": 4,
+      "is_error": true,
       "expect": {
-        "/status": "absent",
+        "/status": "failed",
         "/result/population/state": "unavailable",
         "/result/population/reason": "not-found",
         "/result/population": {"omits": ["record"]}

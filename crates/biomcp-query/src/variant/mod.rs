@@ -44,18 +44,14 @@ fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadli
     if let Some(source) = direct::source(cx.fetch, query) {
         return direct::get(cx, query, source, *deadline);
     }
-    let spec = source(query);
-    let population = identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
-    let found = identity::read(cx, query, *deadline);
-    let resolver = found.resolver.unwrap_or(spec.source);
+    let found = identity::for_get(cx, query, *deadline);
+    let resolver = found.resolver.unwrap_or_else(|| source(query).source);
     *deadline = deadline.after_stage(found.elapsed);
-    let found_resolution = identity_resolution(&found);
+    let mut resolution = identity_resolution(&found);
     let mut dropped = found.dropped;
     let mut problems = found.problems;
     let mut candidates = found.rows;
     let mut rejection = found.rejection;
-    let mut resolution = found_resolution;
-    let population_reason = population_reason(population, resolution, found.reason);
     let mut sources = found.sources;
     let mut local = found.local;
     if query.sections().is_empty()
@@ -73,8 +69,14 @@ fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadli
     }
     match_transcripts(query, &mut candidates);
     let page = candidate_page(query, resolution, &mut candidates);
-    let (section_sources, section_problems, section_error, incomplete) =
-        sections::apply(cx, query, &mut candidates, deadline, population_reason);
+    let (section_sources, section_problems, section_error, incomplete) = sections::apply_resolved(
+        cx,
+        query,
+        &mut candidates,
+        deadline,
+        &mut resolution,
+        found.reason,
+    );
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);

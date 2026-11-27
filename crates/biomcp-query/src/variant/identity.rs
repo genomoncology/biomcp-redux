@@ -3,8 +3,10 @@
 use crate::{Ctx, status};
 use biodata::VariantId;
 use biomcp_adapters::allele_registry;
-use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader};
+use biomcp_fetch::{Deadline, Leg, RequestError};
+use biomcp_types::{
+    Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader, VariantNamespace,
+};
 
 #[derive(Default)]
 pub(super) struct Identity {
@@ -20,6 +22,15 @@ pub(super) struct Identity {
     /// Source whose rows were kept, when it differs from the input's own resolver.
     pub resolver: Option<Source>,
 }
+
+pub(super) fn for_get(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> Identity {
+    if requested(query) && !cx.fetch.disabled(Source::Gnomad) {
+        super::population_identity::resolve(cx, query, deadline)
+    } else {
+        read(cx, query, deadline)
+    }
+}
+
 pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> Identity {
     let mut found = Identity::default();
     let spec = super::source(query);
@@ -119,20 +130,22 @@ fn clinvar_registry(
     {
         return false;
     }
-    let native = query.input().source_id();
-    let Some(Ok(variation)) = native
-        .as_ref()
-        .strip_prefix("clinvar:")
-        .map(str::parse::<u64>)
-    else {
-        return false;
-    };
+    registry_alias(cx, query, deadline, found);
+    true
+}
+
+pub(super) fn registry_alias(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    deadline: Deadline<'_>,
+    found: &mut Identity,
+) {
     let leg = cx
         .fetch
         .leg(&allele_registry::SPEC, deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = allele_registry::by_clinvar(&leg, variation);
+    let result = registry_lookup(&leg, query);
     found.elapsed += started.saturating_sub(leg.remaining());
     let report = leg.finish();
     let rows = match result {
@@ -148,27 +161,56 @@ fn clinvar_registry(
                 .push(status::source(Source::AlleleRegistry, report, Some(error)));
             found.local = found.local.or(status::local(error));
             found.reason = found.reason.or(status::reason(error));
-            return true;
+            return;
         }
     };
+    let mut aliases = Vec::new();
+    let mut refused = false;
     for row in rows {
         match row {
             allele_registry::Resolution::Found(mapped) => {
-                found.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+                refused |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                 found.problems.extend(mapped.problems);
-                found.rows.push(mapped.value);
+                aliases.push(mapped.value);
             }
             allele_registry::Resolution::Rejected(_) => {}
             allele_registry::Resolution::Refused(problems) => {
-                found.dropped = true;
+                refused = true;
                 found.problems.extend(problems);
             }
         }
     }
-    if !found.rows.is_empty() {
+    found.dropped |= refused;
+    if !aliases.is_empty() && !refused {
+        found.rows = aliases;
         found.resolver = Some(Source::AlleleRegistry);
+        found.reason = None;
+        found.error = None;
     }
-    true
+}
+
+fn registry_lookup(
+    leg: &Leg<'_>,
+    query: &VariantGet,
+) -> Result<Vec<allele_registry::Resolution>, RequestError> {
+    let native = query.input().source_id();
+    let number = |prefix| {
+        let bad_id = || biomcp_fetch::bad_reply(Source::AlleleRegistry, None);
+        native
+            .strip_prefix(prefix)
+            .ok_or_else(bad_id)?
+            .parse::<u64>()
+            .map_err(|_| bad_id())
+    };
+    match query.input().namespace() {
+        VariantNamespace::ClinVar => allele_registry::by_clinvar(leg, number("clinvar:")?),
+        VariantNamespace::Rs => allele_registry::by_rsid(leg, number("rs")?),
+        VariantNamespace::Chromosome => {
+            allele_registry::chromosome_hgvs(leg, &native, query.myvariant_build())
+                .map(|row| vec![row])
+        }
+        _ => Ok(Vec::new()),
+    }
 }
 fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
     let [row] = found.rows.as_mut_slice() else {
