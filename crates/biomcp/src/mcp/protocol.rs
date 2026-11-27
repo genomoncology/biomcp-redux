@@ -25,7 +25,7 @@ pub(super) fn instructions(
     if crate::config::mcp_skills(context.settings) {
         instructions.push_str("\nLoad ");
         instructions.push_str(super::skills::GUIDE_URI);
-        instructions.push_str(" for multi-step research.");
+        instructions.push_str(" for multi-step work.");
     }
     instructions
 }

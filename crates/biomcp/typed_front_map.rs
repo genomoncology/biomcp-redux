@@ -314,7 +314,7 @@ pub(crate) fn generate(
         );
     }
     let mut lines =
-        vec!["Search: query. Get: id. help(command|questions|examples|sources).".into()];
+        vec!["Search by query, get by id. help(command|questions|examples|sources).".into()];
     for (tool, _, placed, _, _) in ENTITY_TOOLS {
         let mut actions = BTreeSet::new();
         let mut names = Vec::new();
@@ -333,15 +333,15 @@ pub(crate) fn generate(
             ));
         }
     }
-    lines.push("search/fetch: research with result IDs.".into());
+    lines.push("Fetch uses search IDs.".into());
     for (source, example) in [
         (
             "clingen",
-            r#"disease get: id="Fanconi anemia", section=gene-validity, source=clingen, source_title_prefix=true."#,
+            r#"disease get id="Fanconi anemia" section=gene-validity source=clingen source_title_prefix=true"#,
         ),
         (
             "openfda-label",
-            r#"drug search: source=openfda-label, mechanism_of_action="Janus kinase", limit=3."#,
+            r#"drug search source=openfda-label mechanism_of_action="Janus kinase" limit=3"#,
         ),
     ] {
         if !excluded.contains(source) {
