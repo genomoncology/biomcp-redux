@@ -1,0 +1,51 @@
+feature: variant-population
+story: A native GRCh38 ID reaches an exome-only record without MyVariant. Exact dbSNP and ClinVar aliases reach the same indel as VCF and transcript HGVS. An unresolved GRCh37 coordinate explains why gnomAD could not be queried.
+live_check: Public gnomAD, ClinGen Allele Registry and MyVariant replies.
+replay: variant-population/held-alleles
+steps:
+  - run: [variant, population, 17-7673174-A-T]
+    expect:
+      /status: complete
+      /sources/*/source: {equals: [gnomad]}
+      /result/population/data/variant: 17-7673174-A-T
+      /result/population/data/exome/ac: 4
+  - run: [get, variant, 17-7673174-A-T, population]
+    expect:
+      /status: complete
+      /sources/*/source: {equals: [gnomad]}
+      /result/candidates/0/sections/population/data/variant: 17-7673174-A-T
+      /result/candidates/0/sections/population/data/exome/ac: 4
+  - run: [variant, population, "NC_000017.11:g.7673174A>T"]
+    expect:
+      /result/population/data/variant: 17-7673174-A-T
+      /result/population/data/exome/ac: 4
+  - run: [variant, population, 17-43057065-G-GG]
+    expect:
+      /result/population/data/variant: 17-43057062-T-TG
+      /result/population/data/exome/ac: 101
+  - run: [variant, population, rs80357906]
+    expect:
+      /result/population/data/variant: 17-43057062-T-TG
+      /result/population/data/exome/ac: 101
+  - run: [get, variant, "clinvar:17677", population]
+    expect:
+      /result/candidates/0/sections/population/data/variant: 17-43057062-T-TG
+      /result/candidates/0/sections/population/data/exome/ac: 101
+  - run: [variant, population, "NM_007294.4:c.5266dup"]
+    expect:
+      /result/population/data/variant: 17-43057062-T-TG
+      /result/population/data/exome/ac: 101
+  - run: [variant, population, 17-7673174-A-T, --build, GRCh37]
+    exit: 4
+    expect:
+      /status: failed
+      /sources/*/source: {equals: [myvariant]}
+      /result/population/state: unavailable
+      /result/population/reason: not-found
+  - run: [get, variant, 17-7673174-A-T, population, --build, GRCh37]
+    exit: 4
+    expect:
+      /status: failed
+      /result/resolution: unavailable
+      /result/candidates/0/sections/population/state: unavailable
+      /result/candidates/0/sections/population/reason: not-found

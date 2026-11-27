@@ -1,8 +1,45 @@
 //! One population join owner for get-variant sections and the population command.
 use crate::{Ctx, status};
+use biodata::Build;
 use biomcp_adapters::allele_registry;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{Problem, Reason, Source, SourceOutcome, VariantHeader};
+use biomcp_types::{
+    Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader, VariantNamespace,
+};
+
+pub(super) fn native_snv(query: &VariantGet) -> Option<&str> {
+    let id = query.input().as_str();
+    let id = id.strip_prefix("chr").unwrap_or(id);
+    let (chromosome, _) = id.split_once('-')?;
+    (query.build() == Some(Build::GRCh38)
+        && query.input().single_base_coordinate()
+        && !matches!(chromosome, "M" | "MT"))
+    .then_some(id)
+}
+
+pub(super) fn resolve(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    deadline: Deadline<'_>,
+) -> super::identity::Identity {
+    let mut found = super::identity::read(cx, query, deadline);
+    let has_allele = super::population::join(&found.rows).is_some()
+        || matches!(found.rows.as_slice(), [row] if registry_indel(row));
+    if matches!(
+        query.input().namespace(),
+        VariantNamespace::Rs | VariantNamespace::ClinVar
+    ) && !cx.fetch.disabled(Source::AlleleRegistry)
+        && found.rows.len() <= 1
+        && !has_allele
+        && !found
+            .sources
+            .iter()
+            .any(|source| source.source == Source::AlleleRegistry)
+    {
+        super::identity::registry_alias(cx, query, deadline.after_stage(found.elapsed), &mut found);
+    }
+    found
+}
 
 #[derive(Default)]
 pub(super) struct Join {
@@ -14,22 +51,23 @@ pub(super) struct Join {
     pub elapsed: std::time::Duration,
 }
 
-pub(super) fn read(cx: &Ctx<'_>, rows: &[VariantHeader], deadline: Deadline<'_>) -> Join {
+pub(super) fn read(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    rows: &[VariantHeader],
+    deadline: Deadline<'_>,
+) -> Join {
     let mut join = Join {
-        id: super::population::join(rows),
+        id: native_snv(query)
+            .map(str::to_owned)
+            .or_else(|| super::population::join(rows)),
         ..Join::default()
     };
     if join.id.is_some() {
         return join;
     }
     let [row] = rows else { return join };
-    if !row.identity.representations.iter().any(|r| {
-        r.source == Source::AlleleRegistry.text()
-            && r.build == Some(biodata::Build::GRCh38)
-            && r.allele.as_ref().is_some_and(|a| {
-                a.reference().to_string().len() != 1 || a.alternate().to_string().len() != 1
-            })
-    }) {
+    if !registry_indel(row) {
         return join;
     }
     let ids: std::collections::BTreeSet<_> = row
@@ -63,4 +101,14 @@ pub(super) fn read(cx: &Ctx<'_>, rows: &[VariantHeader], deadline: Deadline<'_>)
         }
     }
     join
+}
+
+fn registry_indel(row: &VariantHeader) -> bool {
+    row.identity.representations.iter().any(|r| {
+        r.source == Source::AlleleRegistry.text()
+            && r.build == Some(Build::GRCh38)
+            && r.allele.as_ref().is_some_and(|a| {
+                a.reference().to_string().len() != 1 || a.alternate().to_string().len() != 1
+            })
+    })
 }

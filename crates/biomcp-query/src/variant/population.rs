@@ -6,12 +6,41 @@ use biomcp_adapters::gnomad;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     GnomadCounts, Problem, ProblemCode, Reason, Section, Source, SourceNotice, SourceOutcome,
-    VariantGet, VariantHeader, VariantPopulation,
+    VariantGet, VariantHeader, VariantPopulation, VariantSections,
 };
+
+pub(super) fn without_candidate(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    deadline: Deadline<'_>,
+    reason: Option<Reason>,
+) -> (
+    VariantHeader,
+    Vec<SourceOutcome>,
+    Vec<Problem>,
+    Option<RequestError>,
+    bool,
+) {
+    let mut candidate = super::direct::candidate(query, Source::Gnomad);
+    let blocked = super::population_identity::native_snv(query)
+        .is_none()
+        .then_some(reason.unwrap_or(Reason::NoJoinId));
+    let (population, sources, mut problems, local, refused) =
+        section(cx, query, &[], deadline, blocked);
+    if blocked == Some(Reason::NoJoinId) {
+        problems.push(super::identity::missing(Source::Gnomad));
+    }
+    candidate.sections = Some(Box::new(VariantSections {
+        population: Some(population),
+        ..VariantSections::default()
+    }));
+    (candidate, sources, problems, local, refused)
+}
+
 /// Read only gnomAD after one unambiguous source allele has been established.
 pub(super) fn section(
     cx: &Ctx<'_>,
-    _query: &VariantGet,
+    query: &VariantGet,
     candidates: &[VariantHeader],
     deadline: Deadline<'_>,
     blocked: Option<Reason>,
@@ -25,7 +54,7 @@ pub(super) fn section(
             false,
         );
     }
-    let joined = super::population_identity::read(cx, candidates, deadline);
+    let joined = super::population_identity::read(cx, query, candidates, deadline);
     let Some(id) = joined.id else {
         let mut result = missing(joined.reason.unwrap_or(Reason::NoJoinId));
         result.1 = joined.sources;
@@ -141,7 +170,8 @@ pub(super) fn summary(
         .first()
         .and_then(|row| row.identity.ids.first())
         .cloned()
-        .map(biodata::VariantRef::allele);
+        .map(biodata::VariantRef::allele)
+        .or_else(|| snv_subject(raw.variant_id.as_str()));
     let mut project = |subset: &gnomad::variant::Subset,
                        data_type,
                        va: Option<&Vec<gnomad::variant::CohortFrequency>>,
@@ -189,6 +219,19 @@ pub(super) fn summary(
         genome,
         joint: joint(raw, problems),
     })
+}
+fn snv_subject(id: &str) -> Option<biodata::VariantRef> {
+    let mut parts = id.split('-');
+    let chromosome = parts.next()?.parse::<Chromosome>().ok()?;
+    let position = parts.next()?;
+    let reference = parts.next()?;
+    let alternate = parts.next()?;
+    if reference.len() != 1 || alternate.len() != 1 || parts.next().is_some() {
+        return None;
+    }
+    let accession = chromosome.accession(Build::GRCh38);
+    let hgvs = format!("{accession}:g.{position}{reference}>{alternate}");
+    hgvs.parse().ok().map(biodata::VariantRef::allele_hgvs)
 }
 fn joint(raw: &gnomad::variant::Variant, problems: &[Problem]) -> Section<Box<GnomadCounts>> {
     match &raw.joint {

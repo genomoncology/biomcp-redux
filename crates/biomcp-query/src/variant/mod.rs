@@ -46,7 +46,11 @@ fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadli
     }
     let spec = source(query);
     let population = identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
-    let found = identity::read(cx, query, *deadline);
+    let found = if population {
+        population_identity::resolve(cx, query, *deadline)
+    } else {
+        identity::read(cx, query, *deadline)
+    };
     let resolver = found.resolver.unwrap_or(spec.source);
     *deadline = deadline.after_stage(found.elapsed);
     let found_resolution = identity_resolution(&found);
@@ -73,11 +77,32 @@ fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadli
     }
     match_transcripts(query, &mut candidates);
     let page = candidate_page(query, resolution, &mut candidates);
-    let (section_sources, section_problems, section_error, incomplete) =
+    let (section_sources, section_problems, section_error, mut incomplete) =
         sections::apply(cx, query, &mut candidates, deadline, population_reason);
     sources.extend(section_sources);
     problems.extend(section_problems);
     local = local.or(section_error);
+    if population && candidates.is_empty() && resolution != VariantResolution::Candidates {
+        let (candidate, more, issues, error, refused) =
+            population::without_candidate(cx, query, *deadline, found.reason);
+        if resolution != VariantResolution::Rejected {
+            resolution = if candidate
+                .sections
+                .as_ref()
+                .and_then(|s| s.population.as_ref())
+                .is_some_and(|section| matches!(section, biomcp_types::Section::Data { .. }))
+            {
+                VariantResolution::Unresolved
+            } else {
+                VariantResolution::Unavailable
+            };
+        }
+        candidates.push(candidate);
+        sources.extend(more);
+        problems.extend(issues);
+        local = local.or(error);
+        incomplete |= refused;
+    }
     let mut next = next(
         cx.fetch,
         query,

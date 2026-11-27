@@ -119,20 +119,33 @@ fn clinvar_registry(
     {
         return false;
     }
+    registry_alias(cx, query, deadline, found);
+    true
+}
+
+pub(super) fn registry_alias(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    deadline: Deadline<'_>,
+    found: &mut Identity,
+) {
     let native = query.input().source_id();
-    let Some(Ok(variation)) = native
-        .as_ref()
-        .strip_prefix("clinvar:")
-        .map(str::parse::<u64>)
-    else {
-        return false;
+    let (prefix, lookup) = match query.input().namespace() {
+        biomcp_types::VariantNamespace::ClinVar => {
+            ("clinvar:", allele_registry::by_clinvar as fn(&_, _) -> _)
+        }
+        biomcp_types::VariantNamespace::Rs => ("rs", allele_registry::by_rsid as _),
+        _ => return,
+    };
+    let Some(Ok(number)) = native.strip_prefix(prefix).map(str::parse::<u64>) else {
+        return;
     };
     let leg = cx
         .fetch
         .leg(&allele_registry::SPEC, deadline)
         .fresh(cx.fresh);
     let started = leg.remaining();
-    let result = allele_registry::by_clinvar(&leg, variation);
+    let result = lookup(&leg, number);
     found.elapsed += started.saturating_sub(leg.remaining());
     let report = leg.finish();
     let rows = match result {
@@ -148,27 +161,32 @@ fn clinvar_registry(
                 .push(status::source(Source::AlleleRegistry, report, Some(error)));
             found.local = found.local.or(status::local(error));
             found.reason = found.reason.or(status::reason(error));
-            return true;
+            return;
         }
     };
+    let mut aliases = Vec::new();
+    let mut refused = false;
     for row in rows {
         match row {
             allele_registry::Resolution::Found(mapped) => {
-                found.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+                refused |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                 found.problems.extend(mapped.problems);
-                found.rows.push(mapped.value);
+                aliases.push(mapped.value);
             }
             allele_registry::Resolution::Rejected(_) => {}
             allele_registry::Resolution::Refused(problems) => {
-                found.dropped = true;
+                refused = true;
                 found.problems.extend(problems);
             }
         }
     }
-    if !found.rows.is_empty() {
+    found.dropped |= refused;
+    if !aliases.is_empty() && !refused {
+        found.rows = aliases;
         found.resolver = Some(Source::AlleleRegistry);
+        found.reason = None;
+        found.error = None;
     }
-    true
 }
 fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
     let [row] = found.rows.as_mut_slice() else {

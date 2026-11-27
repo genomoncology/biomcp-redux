@@ -107,6 +107,19 @@ impl Outcome {
                     .results
                     .iter()
                     .any(|result| !result.messages.is_empty()),
+                ReplyData::VariantPopulationResult {
+                    body: Some(body), ..
+                } => {
+                    matches!(body.population, biomcp_types::Section::Unavailable { .. })
+                        && !self.sources.iter().any(|s| s.source == Source::Gnomad)
+                }
+                ReplyData::VariantCard {
+                    body: Some(body), ..
+                } => body.candidates.iter().any(|row| {
+                    row.sections
+                        .as_ref()
+                        .is_some_and(|s| s.population.is_some())
+                }),
                 _ => false,
             }
     }

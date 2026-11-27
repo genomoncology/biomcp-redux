@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/variant/chr17%3Ag.7673174A%3ET?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann%2Cchrom%2Chg19%2Chg38%2Cclingen.caid&assembly=hg19",
+  "exchanges": [
+    {
+      "fetched": 1795814646,
+      "status": 404,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "code": 404,
+          "success": false,
+          "error": "Not Found."
+        }
+      }
+    }
+  ]
+}
