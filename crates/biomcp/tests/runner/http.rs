@@ -9,6 +9,8 @@ use std::{
     process::Child,
     time::Duration,
 };
+#[path = "http_revisions.rs"]
+mod revisions;
 #[path = "http_start.rs"]
 mod start;
 type Check = Result<(), String>;
@@ -269,7 +271,7 @@ fn legacy_headers() -> &'static str {
 }
 fn protocols() -> Check {
     let server = Server::start()?;
-    legacy_versions(&server)?;
+    revisions::check(&server)?;
     let discover = super::mcp::request(json!(7), "server/discover", json!({}));
     server.request("POST", "/mcp", &discover.to_string())?;
     let list = legacy(7, "tools/list", json!({}));
@@ -300,79 +302,6 @@ fn protocols() -> Check {
         return Err("replayed HTTP call lost stdio parity".into());
     }
     concurrent(&server, &globals)
-}
-fn legacy_versions(server: &Server) -> Check {
-    let base = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\n";
-    let host = server.address.to_string();
-    for revision in ["2025-11-25", "2025-06-18", "2025-03-26"] {
-        let explicit = format!("MCP-Protocol-Version: {revision}\r\n");
-        for version_header in [explicit, String::new()] {
-            let headers = format!("{base}{version_header}");
-            let init = json!({"jsonrpc":"2.0","id":7,"method":"initialize","params":{
-                "protocolVersion":revision,"capabilities":{},"clientInfo":{"name":"local-proof","version":"1"}}});
-            let call = json!({"jsonrpc":"2.0","id":8,"method":"tools/call",
-                "params":{"name":"biomcp","arguments":{"args":["help"]}}});
-            for (request, pointer, expected) in [
-                (init, "/result/protocolVersion", json!(revision)),
-                (call, "/result/isError", json!(false)),
-            ] {
-                let fallback = version_header.is_empty() && pointer == "/result/isError";
-                let transport_revision = if fallback { "2025-03-26" } else { revision };
-                let body = request.to_string();
-                let (status, reply, response) =
-                    server.raw("POST", "/mcp", &host, &headers, &body)?;
-                if status != 200
-                    || reply.as_ref().and_then(|v| v.pointer(pointer)) != Some(&expected)
-                    || !response
-                        .contains(&format!("MCP-Protocol-Version: {transport_revision}\r\n"))
-                    || response.to_ascii_lowercase().contains("session-id")
-                {
-                    return Err(format!("legacy {revision}: {status} {reply:?}"));
-                }
-            }
-        }
-    }
-    let headers = format!("{base}MCP-Protocol-Version: 2099-01-01\r\n");
-    let body = legacy(9, "tools/list", json!({})).to_string();
-    let (status, reply, _) = server.raw("POST", "/mcp", &host, &headers, &body)?;
-    if status != 400
-        || reply.as_ref().and_then(|v| v.pointer("/error/code")) != Some(&json!(-32022))
-    {
-        return Err(format!("unsupported revision: {status} {reply:?}"));
-    }
-    november_2024_refused(server, base)
-}
-
-fn november_2024_refused(server: &Server, base: &str) -> Check {
-    let init = legacy(
-        10,
-        "initialize",
-        json!({
-            "protocolVersion":"2024-11-05","capabilities":{},
-            "clientInfo":{"name":"local-proof","version":"1"}
-        }),
-    )
-    .to_string();
-    let host = server.address.to_string();
-    for version_header in [
-        "",
-        "MCP-Protocol-Version: 2024-11-05\r\n",
-        "MCP-Protocol-Version: 2025-03-26\r\n",
-    ] {
-        let headers = format!("{base}{version_header}");
-        let (status, reply, _) = server.raw("POST", "/mcp", &host, &headers, &init)?;
-        let error = reply.as_ref().and_then(|reply| reply.get("error"));
-        if status != 400
-            || error.and_then(|error| error.get("code")) != Some(&json!(-32022))
-            || error.and_then(|error| error.pointer("/data/requested"))
-                != Some(&json!("2024-11-05"))
-        {
-            return Err(format!(
-                "stdio-only revision accepted over HTTP: {status} {reply:?}"
-            ));
-        }
-    }
-    Ok(())
 }
 fn concurrent(server: &Server, globals: &[String]) -> Check {
     // Distinct replies expose cross-client ID and protocol state mistakes.
