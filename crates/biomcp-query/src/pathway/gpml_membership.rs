@@ -22,28 +22,22 @@ pub(super) fn resolve(
     problems: &mut Vec<Problem>,
     xrefs: impl FnOnce() -> Option<GeneXrefs>,
 ) -> (Vec<PathwayMember>, u64) {
-    let keys: HashSet<_> = rows
-        .iter()
-        .filter_map(|row| key(row).ok().flatten())
-        .collect();
-    let matches = lookup(cx, &keys, deadline, fresh, sources, problems);
-    let known = |row: &PathwayMember| {
-        key(row)
-            .ok()
-            .flatten()
-            .and_then(|key| matches.get(&key).copied().flatten())
-    };
-    let mut members: Vec<_> = rows
-        .into_iter()
-        .map(|mut row| {
-            row.gene = known(&row);
-            row
-        })
-        .collect();
+    let mut members = rows;
+    let keys: Vec<_> = members.iter().map(key).collect();
+    join(cx, &mut members, keys, deadline, fresh, sources, problems);
     if members.iter().any(can_join)
         && let Some(xrefs) = xrefs()
     {
-        join_publisher(cx, &mut members, &xrefs, deadline, fresh, sources, problems);
+        let keys = members
+            .iter()
+            .map(|row| {
+                can_join(row)
+                    .then(|| xrefs.entrez(row))
+                    .flatten()
+                    .map(|id| Key::Xref(format!("entrez:{id}")))
+            })
+            .collect();
+        join(cx, &mut members, keys, deadline, fresh, sources, problems);
     }
     let mut by_gene = HashMap::<HgncId, usize>::new();
     let mut distinct: Vec<PathwayMember> = Vec::new();
@@ -68,24 +62,15 @@ fn can_join(row: &PathwayMember) -> bool {
     row.gene.is_none() && row.node_id.is_some() && row.reference.namespace.as_deref().is_some()
 }
 
-fn join_publisher(
+fn join(
     cx: &Ctx<'_>,
     members: &mut [PathwayMember],
-    xrefs: &GeneXrefs,
+    keys: Vec<Option<Key>>,
     deadline: Deadline<'_>,
     fresh: bool,
     sources: &mut Vec<SourceOutcome>,
     problems: &mut Vec<Problem>,
 ) {
-    let keys: Vec<_> = members
-        .iter()
-        .map(|row| {
-            can_join(row)
-                .then(|| xrefs.entrez(row))
-                .flatten()
-                .map(|id| Key::Xref(format!("entrez:{id}")))
-        })
-        .collect();
     let matches = lookup(
         cx,
         &keys.iter().flatten().cloned().collect(),
@@ -192,21 +177,19 @@ impl Key {
     }
 }
 
-fn key(row: &PathwayMember) -> Result<Option<Key>, biodata::Error> {
+fn key(row: &PathwayMember) -> Option<Key> {
     let value = row.reference.id.as_str();
     let key = match row.reference.namespace.as_deref() {
         Some("Entrez Gene") => {
-            let id = value
-                .parse::<NcbiGeneId>()
-                .map_err(|_| biodata::Error::NcbiGeneIdInvalid)?;
+            let id = value.parse::<NcbiGeneId>().ok()?;
             Key::Xref(format!("entrez:{id}"))
         }
         Some("Ensembl") => {
-            let id: EnsemblGeneId = value.parse()?;
+            let id: EnsemblGeneId = value.parse().ok()?;
             Key::Xref(format!("ensembl:{}", id.base()))
         }
         Some("UniProt" | "Uniprot" | "UniProtKB") => {
-            let id: UniProtIsoform = value.parse()?;
+            let id: UniProtIsoform = value.parse().ok()?;
             let base = id
                 .as_str()
                 .split_once('-')
@@ -215,11 +198,11 @@ fn key(row: &PathwayMember) -> Result<Option<Key>, biodata::Error> {
         }
         Some("HGNC") => match hgnc_id(value) {
             Some(id) => Key::Id(id),
-            None => Key::Symbol(value.parse::<GeneSymbol>()?.to_string()),
+            None => Key::Symbol(value.parse::<GeneSymbol>().ok()?.to_string()),
         },
-        _ => return Ok(None),
+        _ => return None,
     };
-    Ok(Some(key))
+    Some(key)
 }
 
 fn hgnc_id(value: &str) -> Option<biodata::HgncId> {

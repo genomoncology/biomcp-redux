@@ -10,7 +10,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "text",
-        "value": "{\"pathwayInfo\": [{\"id\": \"WP4324\", \"url\": \"https://www.wikipathways.org/instance/WP4324\", \"name\": \"Mitochondrial complex I assembly model OXPHOS system\", \"species\": \"Homo sapiens\", \"revision\": \"2025-03-07\", \"description\": \"\", \"citedIn\": \"\"}, {\"id\": \"WP5639\", \"url\": \"https://www.wikipathways.org/instance/WP5639\", \"name\": \"Ketogenic diet in epileptogenesis\", \"species\": \"Homo sapiens\", \"revision\": \"2026-08-09\", \"description\": \"\", \"citedIn\": \"\"}, {\"id\": \"WP5423\", \"url\": \"https://www.wikipathways.org/instance/WP5423\", \"name\": \"Synthesis of acylcarnitines\", \"species\": \"Homo sapiens\", \"revision\": \"2026-08-11\", \"description\": \"\", \"citedIn\": \"\"}]}"
+        "value": "{\"pathwayInfo\": [{\"id\": \"WP4324\", \"url\": \"https://www.wikipathways.org/instance/WP4324\", \"name\": \"Mitochondrial complex I assembly model OXPHOS system\", \"species\": \"Homo sapiens\", \"revision\": \"2025-03-07\", \"description\": \"\", \"citedIn\": \"\", \"datanodes\": \"\", \"annotations\": \"\"}, {\"id\": \"WP5639\", \"url\": \"https://www.wikipathways.org/instance/WP5639\", \"name\": \"Ketogenic diet in epileptogenesis\", \"species\": \"Homo sapiens\", \"revision\": \"2026-08-09\", \"description\": \"\", \"citedIn\": \"\", \"datanodes\": \"\", \"annotations\": \"\"}, {\"id\": \"WP5423\", \"url\": \"https://www.wikipathways.org/instance/WP5423\", \"name\": \"Synthesis of acylcarnitines\", \"species\": \"Homo sapiens\", \"revision\": \"2026-08-11\", \"description\": \"\", \"citedIn\": \"\", \"datanodes\": \"\", \"annotations\": \"\"}]}"
       }
     }
   ]

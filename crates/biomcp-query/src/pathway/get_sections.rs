@@ -50,7 +50,22 @@ pub(super) fn attach(
             ReplyData::PathwayGenes { body, .. } => {
                 card.genes = Some(body.map_or_else(
                     || Section::unavailable(source, reason),
-                    |data| Section::Data { source, data },
+                    |data| {
+                        if source == Source::WikiPathways
+                            && data.total == 0
+                            && data
+                                .gene_count
+                                .as_ref()
+                                .is_some_and(|count| count.unmapped == 0)
+                        {
+                            Section::Empty {
+                                source,
+                                record: None,
+                            }
+                        } else {
+                            Section::Data { source, data }
+                        }
+                    },
                 ))
             }
             ReplyData::PathwayEvents { body, .. } => {

@@ -147,8 +147,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/genes/data/total": 0,
-        "/result/genes/data/gene_count/unmapped": 0
+        "/result/genes/state": "empty"
       }
     }
   ]
