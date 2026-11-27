@@ -1,0 +1,31 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every INSULIN ASPART biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "INSULIN ASPART",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/*/bla": [
+          "BLA761188",
+          "BLA761325",
+          "BLA761497"
+        ],
+        "/result/items/*/presentation_count": [
+          2,
+          2,
+          2
+        ]
+      }
+    }
+  ]
+}

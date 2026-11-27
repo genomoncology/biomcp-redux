@@ -1,0 +1,29 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every ECULIZUMAB biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "ECULIZUMAB",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 2,
+        "/result/items/*/bla": [
+          "BLA761333",
+          "BLA761340"
+        ],
+        "/result/items/*/presentation_count": [
+          1,
+          1
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every STELARA biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "STELARA",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 10,
+        "/result/items/*/bla": [
+          "BLA761285",
+          "BLA761331",
+          "BLA761338",
+          "BLA761343",
+          "BLA761364",
+          "BLA761373",
+          "BLA761379",
+          "BLA761406",
+          "BLA761419",
+          "BLA761425"
+        ],
+        "/result/items/*/presentation_count": [
+          5,
+          1,
+          4,
+          4,
+          3,
+          5,
+          4,
+          6,
+          4,
+          1
+        ]
+      }
+    }
+  ]
+}

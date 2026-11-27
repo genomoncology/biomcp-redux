@@ -1,0 +1,41 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every PEGFILGRASTIM biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "PEGFILGRASTIM",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 8,
+        "/result/items/*/bla": [
+          "BLA761039",
+          "BLA761045",
+          "BLA761075",
+          "BLA761084",
+          "BLA761111",
+          "BLA761147",
+          "BLA761173",
+          "BLA761212"
+        ],
+        "/result/items/*/presentation_count": [
+          3,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  ]
+}

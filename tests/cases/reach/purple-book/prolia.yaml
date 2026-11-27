@@ -1,0 +1,45 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every PROLIA biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "PROLIA",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 10,
+        "/result/items/*/bla": [
+          "BLA761362",
+          "BLA761385",
+          "BLA761392",
+          "BLA761398",
+          "BLA761404",
+          "BLA761424",
+          "BLA761436",
+          "BLA761439",
+          "BLA761444",
+          "BLA761456"
+        ],
+        "/result/items/*/presentation_count": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          1
+        ]
+      }
+    }
+  ]
+}

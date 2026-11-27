@@ -1,0 +1,37 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every AVASTIN biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "AVASTIN",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 6,
+        "/result/items/*/bla": [
+          "BLA761028",
+          "BLA761099",
+          "BLA761175",
+          "BLA761198",
+          "BLA761231",
+          "BLA761268"
+        ],
+        "/result/items/*/presentation_count": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every EYLEA biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "EYLEA",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 6,
+        "/result/items/*/bla": [
+          "BLA761274",
+          "BLA761298",
+          "BLA761350",
+          "BLA761377",
+          "BLA761378",
+          "BLA761382"
+        ],
+        "/result/items/*/presentation_count": [
+          3,
+          3,
+          1,
+          2,
+          3,
+          3
+        ]
+      }
+    }
+  ]
+}
