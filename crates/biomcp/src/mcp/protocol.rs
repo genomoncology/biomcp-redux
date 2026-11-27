@@ -86,6 +86,21 @@ pub(super) fn named_tool(title: &str, mut tool: Value) -> Value {
     tool
 }
 
+pub(super) fn display_name(name: &str) -> String {
+    name.split('_')
+        .map(|word| {
+            let mut chars = word.chars();
+            chars
+                .next()
+                .into_iter()
+                .map(|first| first.to_ascii_uppercase())
+                .chain(chars)
+                .collect::<String>()
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 pub(super) fn error(id: Value, code: i32, message: &str) -> Value {
     json!({"jsonrpc":"2.0", "id":id, "error":{"code":code,"message":message}})
 }

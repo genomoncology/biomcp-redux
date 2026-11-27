@@ -9,21 +9,20 @@ pub(super) fn tools(root: &crate::grammar::Root) -> io::Result<Vec<Value>> {
     [
         (
             "search",
-            "Search BioMCP",
             "query",
             "Search BioMCP source headers. Prefix a CLI entity and its arguments, or supply article query text.",
         ),
         (
             "fetch",
-            "Fetch BioMCP Record",
             "id",
             "Fetch a search result using its exact id. Returns the CLI record as Markdown with source metadata.",
         ),
     ]
     .into_iter()
-    .map(|(name, title, key, description)| {
+    .map(|(name, key, description)| {
         let output = super::output_schema::for_tool(root, name)?;
-        Ok(super::protocol::named_tool(title, json!({"name":name,
+        let title = format!("{} BioMCP", super::protocol::display_name(name));
+        Ok(super::protocol::named_tool(&title, json!({"name":name,
 "description":description,
 "inputSchema":{"$schema":super::protocol::SCHEMA_DIALECT,"type":"object",
 "properties":{key:{"type":"string","description":description}},
