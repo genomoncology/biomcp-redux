@@ -1,7 +1,7 @@
 {
   "source": "gwas",
   "method": "GET",
-  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&efo_trait=Alzheimer+disease&page=0&size=5&sort=p_value",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&efo_trait=Alzheimer%20disease&page=0&size=5&sort=p_value",
   "exchanges": [
     {
       "status": 200,
