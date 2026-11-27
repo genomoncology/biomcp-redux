@@ -1,6 +1,7 @@
 # 1198 — mcp-interop-pinned-node
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3c16c495383e9f6a0921a6bda5813f652ccf923d
 
 Milestone: 7
 

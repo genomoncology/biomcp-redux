@@ -2,7 +2,6 @@
 
 import asyncio
 import json
-import shlex
 import subprocess
 import sys
 import tempfile
@@ -33,7 +32,7 @@ async def check_python(case, mode, revision):
         assert result.structured_content == reply
 
 
-def check(binary, package, sdk_version, mode, revision):
+def check(binary, node, package, sdk_version, mode, revision):
     label = f"{package}@{sdk_version} {mode} {revision}"
     print(f"MCP interop {label}", flush=True)
     with tempfile.TemporaryDirectory(prefix="biomcp-interop-") as directory:
@@ -60,24 +59,21 @@ def check(binary, package, sdk_version, mode, revision):
         else:
             case_file = root / "case.json"
             case_file.write_text(json.dumps(case), encoding="utf-8")
-            command = shlex.join(["node", "check.mjs", package, mode, revision, str(case_file)])
-            result = subprocess.run(["npx", "--offline", "--call", command], cwd=HERE)
-            if result.returncode:
-                raise SystemExit(result.returncode)
+            subprocess.run([node, HERE / "check.mjs", package, mode, revision, case_file], check=True)
     print(f"MCP interop passed {label}", flush=True)
 
 
-def main(binary):
+def main(binary, node):
     dependencies = json.loads((HERE / "package.json").read_text())["dependencies"]
     for mode, revision in [("auto", CURRENT), ("legacy", LEGACY)]:
-        check(binary, TYPESCRIPT, dependencies[TYPESCRIPT], mode, revision)
-        check(binary, "mcp", version("mcp"), mode, revision)
+        check(binary, node, TYPESCRIPT, dependencies[TYPESCRIPT], mode, revision)
+        check(binary, node, "mcp", version("mcp"), mode, revision)
     for package, pin in dependencies.items():
         if package.startswith("mcp-"):
             revision = package.removeprefix("mcp-")
             mode = "auto" if revision == CURRENT else "legacy"
-            check(binary, package, pin.rsplit("@", 1)[1], mode, revision)
+            check(binary, node, package, pin.rsplit("@", 1)[1], mode, revision)
 
 
 if __name__ == "__main__":
-    main(Path(sys.argv[1]).resolve(strict=True))
+    main(*(Path(arg).resolve(strict=True) for arg in sys.argv[1:]))
