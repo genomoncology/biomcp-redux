@@ -1,5 +1,5 @@
 use crate::{Ctx, Outcome, gene, status};
-use biodata::{PathwayId, PathwaySpecies, UniProtAcc};
+use biodata::{PathwayId, PathwaySpecies, Text, UniProtAcc};
 use biomcp_adapters::{
     Mapped, hgnc,
     reactome::{self, MappingId},
@@ -63,26 +63,31 @@ fn mapping_ids(
 ) -> Result<Mapped<Vec<MappingId>>, RequestError> {
     let identity = cx.fetch.leg(&hgnc::SPEC, deadline).fresh(fresh);
     let resolved = gene::resolve(&identity, input);
-    let error = resolved.as_ref().err().copied();
+    let unresolved = match &resolved {
+        Ok(mapped) => matches!(mapped.value, GeneResolution::NotFound { .. }),
+        Err(_) => true,
+    };
     // Prefer HGNC when an accession-shaped value also names a gene or alias.
-    if (matches!(&resolved, Ok(r) if matches!(r.value, GeneResolution::NotFound { .. }))
-        || error.is_some())
-        && let GeneInput::Text(text) = input
-        && let Ok(id) = UniProtAcc::new(&text.as_str().to_ascii_uppercase())
-    {
-        return Ok(Mapped {
+    let accession = match input {
+        GeneInput::Text(text) => Some(UniProtAcc::new(&text.as_str().to_ascii_uppercase())),
+        _ => None,
+    };
+    match accession {
+        Some(Ok(id)) if unresolved => Ok(Mapped {
             refusals: biomcp_adapters::Refusal::None,
             value: vec![MappingId::UniProt(id)],
             problems: Vec::new(),
-        });
+        }),
+        _ => {
+            let mapped = resolved.and_then(|resolved| gene_mappings(&identity, input, resolved));
+            out.sources.push(status::source(
+                Source::Hgnc,
+                identity.finish(),
+                mapped.as_ref().err().copied(),
+            ));
+            mapped.inspect_err(|_| skip_reactome(out))
+        }
     }
-    let mapped = resolved.and_then(|resolved| gene_mappings(&identity, input, resolved));
-    out.sources.push(status::source(
-        Source::Hgnc,
-        identity.finish(),
-        mapped.as_ref().err().copied(),
-    ));
-    mapped.inspect_err(|_| skip_reactome(out))
 }
 
 fn gene_mappings(
@@ -96,7 +101,7 @@ fn gene_mappings(
         _ => {
             problems.push(Problem {
                 source: Source::Hgnc,
-                record: input.to_string().parse().ok(),
+                record: Some(Text::new(&input.to_string()).map_err(|_| InputError::Serialization)?),
                 field: "gene".into(),
                 code: ProblemCode::ValueUnknown,
             });

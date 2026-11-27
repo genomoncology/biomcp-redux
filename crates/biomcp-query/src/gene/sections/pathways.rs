@@ -32,11 +32,7 @@ pub(in crate::gene) fn mappings(
 
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, mappings: &[Mapping]) -> SectionResult {
     let mut ids = Vec::new();
-    for id in mappings
-        .iter()
-        .filter_map(|(_, keys)| keys.as_ref().ok())
-        .flatten()
-    {
+    for id in mappings.iter().flat_map(|(_, keys)| keys.iter().flatten()) {
         if !ids.contains(&id) {
             ids.push(id);
         }
