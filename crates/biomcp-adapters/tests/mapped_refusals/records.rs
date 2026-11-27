@@ -185,7 +185,7 @@ fn pathways() -> Check {
             return Err("Reactome native pathway records missing".into());
         }
         let leg = fetch.leg(&reactome::SPEC, fetch.deadline(Duration::from_secs(20)));
-        let mapped = reactome::pathways(&leg, &"P04637".parse()?)?;
+        let mapped = reactome::pathways(&leg, &reactome::MappingId::UniProt("P04637".parse()?))?;
         let expected = if case == "identity" {
             Refusal::Refused
         } else {

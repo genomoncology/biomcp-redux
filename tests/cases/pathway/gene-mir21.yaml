@@ -7,6 +7,6 @@ steps:
   expect:
     /status: complete
     /result/page/total: 2
-    /result/items/*/id/id: [R-HSA-8943723, R-HSA-9725371]
+    /result/items/*/id/id: [R-HSA-9725371, R-HSA-8943723]
     /sources/1/source: reactome
     /sources/1/state: ok

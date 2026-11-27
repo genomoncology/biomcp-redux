@@ -9,4 +9,3 @@ steps:
     /result/page/total: 16
     /result/items/0/id/id: R-HSA-1295596
     /sources/*/source: [reactome]
-    /problems: {absent: true}

@@ -1,9 +1,11 @@
 //! Lowest-level human pathway mappings from Reactome.
 use crate::{Mapped, quotas};
-use biodata::UniProtAcc;
+use biodata::{EnsemblGeneId, Gene, GeneSymbol, UniProtAcc};
 use biomcp_fetch::{Input, Read};
 
-use biomcp_fetch::{Arg, BadReply, Freshness, KeyUse, Leg, Reply, RequestError, SourceSpec};
+use biomcp_fetch::{
+    Arg, BadReply, Freshness, KeyUse, Leg, PathSegment, Reply, RequestError, SourceSpec,
+};
 use biomcp_types::{PathwayRef, Source};
 use serde::Deserialize;
 use std::time::Duration;
@@ -45,14 +47,52 @@ struct Row {
     species_name: String,
     schema_class: String,
 }
-/// Fetch one accession; a checked 404 is an empty mapping.
-pub fn pathways(
-    leg: &Leg<'_>,
-    accession: &UniProtAcc,
-) -> Result<Mapped<Vec<PathwayRef>>, RequestError> {
+/// An identifier accepted by the Reactome pathway mapping endpoint.
+#[derive(Clone, PartialEq, Eq)]
+pub enum MappingId {
+    /// UniProt protein accession.
+    UniProt(UniProtAcc),
+    /// Ensembl stable gene identifier.
+    Ensembl(EnsemblGeneId),
+    /// Approved gene symbol, accepted by Reactome's Ensembl mapping route.
+    Symbol(GeneSymbol),
+}
+
+impl MappingId {
+    /// Keep the UniProt relation when available. Without it, Reactome may index
+    /// different entities by the Ensembl ID and the approved gene symbol.
+    pub fn for_gene(gene: &Gene) -> Vec<Self> {
+        if !gene.uniprot.is_empty() {
+            return gene.uniprot.iter().cloned().map(Self::UniProt).collect();
+        }
+        gene.ensembl_id
+            .iter()
+            .cloned()
+            .map(Self::Ensembl)
+            .chain([Self::Symbol(gene.symbol.clone())])
+            .collect()
+    }
+
+    /// Reactome resource and exact identifier sent to its mapping endpoint.
+    pub fn parts(&self) -> (&'static str, &str) {
+        match self {
+            Self::UniProt(id) => ("UniProt", id.as_str()),
+            Self::Ensembl(id) => ("Ensembl", id.base()),
+            Self::Symbol(symbol) => ("Ensembl", symbol.as_str()),
+        }
+    }
+}
+
+/// Fetch one Reactome mapping; a checked 404 is an empty mapping.
+pub fn pathways(leg: &Leg<'_>, id: &MappingId) -> Result<Mapped<Vec<PathwayRef>>, RequestError> {
+    let (resource, id) = id.parts();
     let endpoint = SPEC
-        .get("/data/mapping/UniProt")
-        .with_path(format!("/data/mapping/UniProt/{accession}/pathways"))?
+        .get("/data/mapping")
+        .with_segments(&[
+            PathSegment::new(resource)?,
+            PathSegment::new(id)?,
+            PathSegment::new("pathways")?,
+        ])
         .fresh(Freshness::Days(7));
     let rows = match leg
         .call(
@@ -74,7 +114,7 @@ pub fn pathways(
     };
     let mut value = Vec::new();
     let mut refusals = crate::Refusal::None;
-    let mut problems = map::fields(accession.as_str());
+    let mut problems = map::fields(id);
     for row in rows.0 {
         let identity = map::identity(&row.st_id, &row.species_name, &row.schema_class);
         let Some(id) = problems.optional("pathways", Some(identity)) else {

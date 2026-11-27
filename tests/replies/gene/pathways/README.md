@@ -2,4 +2,4 @@ Identity and MyGene replies reuse the existing public gene captures. HGNC is tri
 The synthetic empty and mixed cases edit only HGNC accession lists. The mixed MyGene reply projects the existing captured three-identity batch to BRAF and TP53, with its request identity recomputed. Synthetic failure exchanges are edited Reactome captures, with all three retry exchanges for HTTP 500.
 The synthetic union case repeats one HGNC accession, adds a second real accession, and injects a duplicate mapping plus nonhuman, wrong-class, wrong-ID and empty-name rows. It asserts the accepted union and mapping problem.
 
-The Ensembl mapping replies for MIR21 and MALAT1 were captured from Reactome's Content Service using their approved symbols and stable Ensembl IDs. The HGNC slice also includes the unchanged MALAT1 row from the published complete set.
+Reactome Content Service replies retain the Ensembl mappings for the MIR21 symbol and stable ID, and the 404 for LINC03128. The HGNC fixture includes the unchanged LINC03128 row from the published complete set.

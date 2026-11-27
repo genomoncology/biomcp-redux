@@ -79,7 +79,7 @@ fn applicable(section: GeneSection, gene: &Gene) -> bool {
         GeneSection::ClinVar => gene.entrez_id.is_some(),
         GeneSection::Constraint => constraint::applicable(gene),
         GeneSection::Expression => expression::applicable(gene),
-        GeneSection::Pathways => pathways::applicable(gene),
+        GeneSection::Pathways => true,
         GeneSection::Oncokb => gene.entrez_id.is_some(),
     }
 }
@@ -236,11 +236,7 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(expression::run(cx, deadline, genes))
         }));
     }
-    if requested.contains(&GeneSection::Pathways)
-        && genes
-            .iter()
-            .any(|(_, gene)| applicable(GeneSection::Pathways, gene))
-    {
+    if requested.contains(&GeneSection::Pathways) && !genes.is_empty() {
         jobs.push(Box::new(move || {
             super::get::Job::Section(pathways::run(cx, deadline, genes))
         }));

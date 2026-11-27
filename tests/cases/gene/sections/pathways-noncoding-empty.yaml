@@ -1,12 +1,12 @@
 feature: gene-pathways
-story: MALAT1 has no UniProt accession and Reactome finds no pathways by its Ensembl ID or symbol.
+story: LINC03128 has no external gene or protein accession, and Reactome answers that its approved symbol has no pathways.
 replay: gene/pathways
 steps:
-- run: [get, gene, MALAT1, pathways, --section-only]
+- run: [get, gene, LINC03128, pathways]
   expect:
     /status: complete
     /result/items/0/sections/pathways/state: empty
     /result/items/0/sections/pathways/record/namespace: Ensembl
-    /result/items/0/sections/pathways/record/id: ENSG00000251562
+    /result/items/0/sections/pathways/record/id: LINC03128
     /sources/1/source: reactome
     /sources/1/state: ok

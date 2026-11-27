@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "reactome",
-  "url": "https://reactome.org/ContentService/data/mapping/Ensembl/ENSG00000251562/pathways?species=9606",
+  "url": "https://reactome.org/ContentService/data/mapping/Ensembl/LINC03128/pathways?species=9606",
   "exchanges": [
     {
       "status": 404,
@@ -11,9 +11,9 @@
         "value": {
           "code": 404,
           "reason": "NOT_FOUND",
-          "url": "http://reactome.org/ContentService/data/mapping/Ensembl/ENSG00000251562/pathways",
+          "url": "http://reactome.org/ContentService/data/mapping/Ensembl/LINC03128/pathways",
           "messages": [
-            "No pathways found for Ensembl:ENSG00000251562"
+            "No pathways found for Ensembl:LINC03128"
           ],
           "targets": null
         }

@@ -2,24 +2,23 @@ use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
 
-use biomcp_adapters::reactome;
+use biomcp_adapters::reactome::{self, MappingId};
 use biomcp_fetch::Deadline;
 use biomcp_types::{Capped, GeneSection, Section, SourceRecord};
 const LIMIT: usize = 25;
-pub(super) fn applicable(gene: &Gene) -> bool {
-    !gene.uniprot.is_empty()
-}
 pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
+    let mappings: Vec<_> = genes
+        .iter()
+        .map(|(id, gene)| (*id, MappingId::for_gene(gene)))
+        .collect();
     let mut ids = Vec::new();
-    for (_, gene) in genes {
-        for id in &gene.uniprot {
-            if !ids.contains(id) {
-                ids.push(id.clone());
-            }
+    for id in mappings.iter().flat_map(|(_, keys)| keys) {
+        if !ids.contains(&id) {
+            ids.push(id);
         }
     }
     let leg = cx.fetch.leg(&reactome::SPEC, deadline).fresh(cx.fresh);
-    let results = leg.batch(&ids, reactome::pathways);
+    let results = leg.batch(&ids, |leg, id| reactome::pathways(leg, id));
     let error = results
         .iter()
         .find_map(|result| result.as_ref().err().copied());
@@ -30,11 +29,11 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
     let mut dropped = false;
     let mut problems = Vec::new();
     let mut values = Vec::new();
-    for (id, gene) in genes.iter().filter(|(_, gene)| applicable(gene)) {
+    for (id, keys) in &mappings {
         let mut pathways = Vec::new();
         let mut failure = None;
-        for accession in &gene.uniprot {
-            let Some(index) = ids.iter().position(|id| id == accession) else {
+        for key in keys {
+            let Some(index) = ids.iter().position(|id| *id == key) else {
                 continue;
             };
             let Some(result) = results.get(index) else {
@@ -65,10 +64,10 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         } else if pathways.is_empty() {
             Section::Empty {
                 source: GeneSection::Pathways.source(),
-                record: gene
-                    .uniprot
-                    .first()
-                    .and_then(|id| SourceRecord::asked(Some("UniProt"), id)),
+                record: keys.first().and_then(|key| {
+                    let (namespace, id) = key.parts();
+                    SourceRecord::asked(Some(namespace), id)
+                }),
             }
         } else {
             let total = u64::try_from(pathways.len()).unwrap_or(u64::MAX);
