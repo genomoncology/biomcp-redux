@@ -1,6 +1,7 @@
 # 1212 — gene-validity-by-omim-or-orphanet-id
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5d485602ece6d9759c1ead7996e262cec96d871a
 
 Milestone: 10
 

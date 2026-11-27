@@ -132,6 +132,26 @@
         "/status": "complete",
         "/page/total": 0
       }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "ORPHA:999999001",
+        "gene-validity",
+        "--source",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/sources/*/source": [
+          "mydisease",
+          "gencc"
+        ],
+        "/result/items/0/assertion/id": "SGC-001",
+        "/result/items/0/assertion/disease_id": "MONDO:0019391"
+      }
     }
   ]
 }

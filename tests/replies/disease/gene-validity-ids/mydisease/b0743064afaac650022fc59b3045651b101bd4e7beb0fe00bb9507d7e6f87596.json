@@ -1,0 +1,27 @@
+{
+  "method": "GET",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease/OMIM%3A182212?fields=mondo%2Cdisease_ontology",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_id": "MONDO:0008426",
+          "mondo": {
+            "mondo": "MONDO:0008426",
+            "label": "Shprintzen-Goldberg syndrome",
+            "xrefs": {
+              "omim": [
+                "182212"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

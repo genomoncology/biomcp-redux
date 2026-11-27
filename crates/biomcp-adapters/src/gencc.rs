@@ -8,7 +8,7 @@ use biomcp_fetch::{
     SourceSpec,
 };
 use biomcp_types::{GenccGene, GenccSubmission, Source, SyncResult};
-pub use by_disease::by_disease;
+pub use by_disease::{by_disease, has_submitted_disease_namespace};
 use serde::Deserialize;
 use std::{marker::PhantomData, time::Duration};
 
@@ -103,6 +103,7 @@ struct Submission {
     sgc_id: Option<Field<Text>>,
     version_number: Option<Field<Text>>,
     disease_curie: Option<Field<Text>>,
+    submitted_as_disease_id: Option<Field<Text>>,
     disease_title: Option<Field<NativeText>>,
     classification_curie: Option<Field<Text>>,
     classification_title: Option<Field<NativeText>>,
@@ -130,6 +131,12 @@ impl Row for Submission {
         };
         let (id, name) = self.disease_keys();
         crate::curation::index(&mut keys, id, name);
+        if !keys.exact.is_empty() {
+            keys.exact.extend(
+                self.submitted_disease_keys()
+                    .map(|key| (KeyKind::Alias, key.into())),
+            );
+        }
         keys
     }
 }
