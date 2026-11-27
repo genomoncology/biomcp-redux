@@ -3,7 +3,6 @@ use super::{current, protocol, typed::catalog};
 use crate::{command::Context, skill::research};
 use biomcp_types::Source;
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
 use std::{collections::BTreeSet, ffi::OsString, io};
 
 const EXTENSION: &str = "io.modelcontextprotocol/skills";
@@ -87,7 +86,7 @@ fn entry(context: Context<'_>) -> io::Result<Value> {
     let resources: Vec<_> = files(context, None)?
         .into_iter()
         .map(|file| {
-            json!({"uri":file.uri(),"digest":format!("sha256:{:x}", Sha256::digest(file.text)),
+            json!({"uri":file.uri(),"digest":format!("sha256:{}", crate::skill::digest(file.text.as_bytes())),
                 "size":file.text.len()})
         })
         .collect();

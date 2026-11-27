@@ -246,11 +246,15 @@ fn check_file(file: &Value, read: &Value, replies: &[Value]) -> Check {
             .ok_or("expected a reference URI")?;
         fs::read_to_string(use_cases().join(name)).map_err(|error| error.to_string())?
     };
+    let hash: String = Sha256::digest(text)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
     if content["uri"] != name
         || content["mimeType"] != "text/markdown"
         || text != expected
         || file["size"] != text.len()
-        || file["digest"] != format!("sha256:{:x}", Sha256::digest(text))
+        || file["digest"] != format!("sha256:{hash}")
     {
         return Err(format!(
             "resource bytes, size or digest disagree for {name}"

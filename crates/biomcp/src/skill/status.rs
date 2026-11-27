@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, fs, io, path::Path};
 pub(super) const STAMP: &str = ".biomcp-skill.json";
-pub(super) fn digest(text: &[u8]) -> String {
+pub(crate) fn digest(text: &[u8]) -> String {
     Sha256::digest(text)
         .iter()
         .map(|byte| format!("{byte:02x}"))

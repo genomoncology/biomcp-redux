@@ -3,6 +3,7 @@ mod install;
 pub(crate) mod research;
 mod status;
 use clap::{Arg, Command};
+pub(crate) use status::digest;
 use std::{io, path::PathBuf};
 pub(super) const ASSETS: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/skills.rs"));
 #[derive(Debug)]
