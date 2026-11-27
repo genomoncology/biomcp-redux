@@ -15,6 +15,7 @@ enum InputKind {
     Chromosome,
     Coordinates { hgvs: String, single_base: bool },
     Protein(Box<(crate::GeneSymbol, super::ProteinQuery)>),
+    CivicProfile,
 }
 /// Namespace selected solely from the published identifier form.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -31,6 +32,8 @@ pub enum VariantNamespace {
     Chromosome,
     /// Checked gene and protein substitution, admitted only by variant get.
     Protein,
+    /// Native CIViC molecular-profile ID or exact name.
+    CivicProfile,
     /// Identifier vocabulary is recognized but this get slice has no source route.
     Unsupported,
 }
@@ -87,7 +90,32 @@ impl VariantInput {
                 kind: InputKind::Protein(Box::new(pair)),
             });
         }
-        Self::new(value)
+        Self::new(value).or_else(|_| Self::civic_profile(value))
+    }
+
+    fn civic_profile(value: &str) -> Result<Self, Error> {
+        let text = crate::Text::new(value).map_err(|_| Error::VariantInputInvalid)?;
+        if text.as_str() != value || value.len() > Self::MAX_BYTES {
+            return Err(Error::VariantInputInvalid);
+        }
+        Ok(Self {
+            text,
+            kind: InputKind::CivicProfile,
+        })
+    }
+
+    pub(super) fn for_get(mut self, civic_only: bool) -> Result<Self, Error> {
+        let numeric = self.as_str().bytes().all(|b| b.is_ascii_digit());
+        if civic_only && (numeric || self.protein().is_some()) {
+            if numeric && self.as_str().parse::<i32>().ok().is_none_or(|id| id <= 0) {
+                return Err(Error::VariantInputInvalid);
+            }
+            self.kind = InputKind::CivicProfile;
+        }
+        if !civic_only && matches!(self.kind, InputKind::CivicProfile) {
+            return Err(Error::VariantInputInvalid);
+        }
+        Ok(self)
     }
 
     pub(super) fn protein(&self) -> Option<&(crate::GeneSymbol, super::ProteinQuery)> {
@@ -226,6 +254,7 @@ impl VariantInput {
             InputKind::Id(_) => VariantNamespace::Unsupported,
             InputKind::Hgvs(_) => VariantNamespace::Hgvs,
             InputKind::Protein(_) => VariantNamespace::Protein,
+            InputKind::CivicProfile => VariantNamespace::CivicProfile,
             InputKind::Chromosome | InputKind::Coordinates { .. } => VariantNamespace::Chromosome,
         }
     }
@@ -402,7 +431,7 @@ impl schemars::JsonSchema for LookupInput {
     }
 }
 
-/// Variant get also accepts a checked gene/protein phrase.
+/// Variant get also accepts exact source profile names containing spaces.
 #[cfg(feature = "schema")]
 pub(super) struct GetLookupInput;
 #[cfg(feature = "schema")]
@@ -410,21 +439,8 @@ impl schemars::JsonSchema for GetLookupInput {
     fn schema_name() -> std::borrow::Cow<'static, str> {
         "VariantGetLookupInput".into()
     }
-    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
-        let mut schema = LookupInput::json_schema(generator);
-        if let Some(pattern) = schema.get("pattern").and_then(|value| value.as_str()) {
-            let gene = crate::GeneSymbol::pattern();
-            let protein = super::protein_change::protein_pattern(false);
-            let shorthand = format!(
-                r"^(?=[ -~]{{1,{}}}$) *{} +{} *$",
-                VariantInput::MAX_BYTES,
-                gene.trim_start_matches('^').trim_end_matches('$'),
-                protein.trim_start_matches('^').trim_end_matches('$')
-            );
-            let pattern = format!("(?:{pattern})|(?:{shorthand})");
-            schema.insert("pattern".into(), pattern.into());
-        }
-        schema
+    fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        schemars::json_schema!({"type": "string", "minLength": 1, "maxLength": VariantInput::MAX_BYTES})
     }
 }
 

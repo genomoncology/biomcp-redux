@@ -47,11 +47,28 @@ pub(super) struct Member {
     pub allele_registry_id: Option<Field<Text>>,
     pub hgvs_descriptions: Option<Field<Vec<Field<Text>>>>,
     pub feature: Option<Field<Feature>>,
+    pub iscn_name: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(super) struct Feature {
     pub id: Option<Field<u64>>,
     pub name: Option<Field<NativeText>>,
+    pub feature_type: Option<Field<FeatureType>>,
+    pub feature_instance: Option<Field<FeatureInstance>>,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub(super) enum FeatureType {
+    Gene,
+    Fusion,
+    Factor,
+    Region,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct FeatureInstance {
+    pub ncit_id: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -140,23 +157,25 @@ impl Profiles {
                         || profile.assertions.progresses(query.civic_cursor()))
             })
     }
-    pub(super) fn matches(&self, allele: &str, profile: Option<u64>) -> bool {
+    pub(super) fn matches(&self, allele: Option<&str>, profile: Option<u64>) -> bool {
         self.data.molecular_profiles.nodes.iter().all(|p| {
             profile.is_none_or(|id| p.id.as_ref().and_then(Field::as_ref) == Some(&id))
-                && p.variants
-                    .as_ref()
-                    .and_then(Field::as_ref)
-                    .is_some_and(|members| {
-                        members.iter().filter_map(Field::as_ref).any(|m| {
-                            m.id.as_ref()
-                                .and_then(Field::as_ref)
-                                .is_some_and(|value| id(*value))
-                                && m.allele_registry_id
-                                    .as_ref()
+                && allele.is_none_or(|allele| {
+                    p.variants
+                        .as_ref()
+                        .and_then(Field::as_ref)
+                        .is_some_and(|members| {
+                            members.iter().filter_map(Field::as_ref).any(|m| {
+                                m.id.as_ref()
                                     .and_then(Field::as_ref)
-                                    .is_some_and(|id| id.as_str() == allele)
+                                    .is_some_and(|value| id(*value))
+                                    && m.allele_registry_id
+                                        .as_ref()
+                                        .and_then(Field::as_ref)
+                                        .is_some_and(|id| id.as_str() == allele)
+                            })
                         })
-                    })
+                })
         })
     }
 }

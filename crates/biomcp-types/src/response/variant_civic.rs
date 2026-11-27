@@ -70,6 +70,15 @@ pub struct CivicMember {
     /// Native feature identifier, distinct from the variant identifier.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub feature_record: Option<crate::Curie>,
+    /// Native CIViC feature type.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub feature_type: Option<CivicFeatureType>,
+    /// NCI Thesaurus identifier for a Factor, when stated.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ncit_id: Option<Text>,
+    /// Native ISCN name for a Region variant, when stated.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub iscn_name: Option<Text>,
     /// Every native notation, without selecting a transcript or repairing a spelling.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub hgvs_descriptions: Box<[Text]>,
@@ -185,5 +194,17 @@ biodata::wire_enum! {
         Protein => "protein",
         /// Only a source name matched; no claim is attached to an allele.
         Candidate => "candidate",
+        /// The caller selected the CIViC profile itself.
+        Profile => "profile",
+    }
+}
+
+biodata::wire_enum! {
+    /// Native CIViC feature type.
+    CivicFeatureType {
+        Gene => "gene",
+        Fusion => "fusion",
+        Factor => "factor",
+        Region => "region",
     }
 }

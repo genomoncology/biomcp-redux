@@ -1,14 +1,14 @@
 use super::{variant_map::identity, variant_raw as raw};
 use crate::{mapped::Problems, raw::Field};
 use biodata::{GeneSymbol, HgvsText, Text, VariantRef};
-use biomcp_types::{CivicMember, SourceRecord};
+use biomcp_types::{CivicFeatureType, CivicMember, SourceRecord};
 pub(super) fn member(raw: raw::Member, cx: &mut Problems) -> Option<(CivicMember, Option<Text>)> {
     let id = identity(raw.id, "variants.id", cx)?;
     cx.record = crate::mapped::record(id);
     let before = cx.list.len();
     let label = cx.source_field("variants.name", raw.name);
     let feature = cx.field("feature", raw.feature);
-    let (feature, feature_record) = if let Some(feature) = feature {
+    let (feature, feature_record, feature_type, ncit_id) = if let Some(feature) = feature {
         let name = cx.source_field("feature.name", feature.name);
         let id = cx.field("feature.id", feature.id).and_then(|id| {
             cx.optional(
@@ -20,10 +20,22 @@ pub(super) fn member(raw: raw::Member, cx: &mut Problems) -> Option<(CivicMember
                 }),
             )
         });
-        (name, id)
+        let kind = cx
+            .field("feature.featureType", feature.feature_type)
+            .map(|kind| match kind {
+                raw::FeatureType::Gene => CivicFeatureType::Gene,
+                raw::FeatureType::Fusion => CivicFeatureType::Fusion,
+                raw::FeatureType::Factor => CivicFeatureType::Factor,
+                raw::FeatureType::Region => CivicFeatureType::Region,
+            });
+        let ncit_id = cx
+            .field("feature.featureInstance", feature.feature_instance)
+            .and_then(|factor| cx.field("feature.featureInstance.ncitId", factor.ncit_id));
+        (name, id, kind, ncit_id)
     } else {
-        (None, None)
+        (None, None, None, None)
     };
+    let iscn_name = cx.field("variants.iscnName", raw.iscn_name);
     let hgvs_descriptions = cx.fields("hgvsDescriptions", raw.hgvs_descriptions);
     let caid = cx.field("alleleRegistryId", raw.allele_registry_id);
     let complete = cx.list.len() == before;
@@ -39,6 +51,9 @@ pub(super) fn member(raw: raw::Member, cx: &mut Problems) -> Option<(CivicMember
             label,
             feature,
             feature_record,
+            feature_type,
+            ncit_id,
+            iscn_name,
             hgvs_descriptions,
             subject,
         },

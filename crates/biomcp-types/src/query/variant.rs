@@ -30,8 +30,8 @@ fn lookup_input<'de, D: serde::Deserializer<'de>>(
 )]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields<R: ResolverChoice = VariantResolver> {
-    #[doc = "rs/CA/clinvar:N/VCV/HGVS/VCF\n\
-        rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E."]
+    #[doc = "Variant or CIViC profile\n\
+        rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E. With civic alone, a bare integer is a CIViC profile ID, and a profile name must match exactly."]
     #[serde(deserialize_with = "lookup_input")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[cfg_attr(
@@ -168,7 +168,11 @@ impl VariantGet {
 crate::query::validation::checked_query!(VariantGet, Fields);
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
-    fn try_from(fields: Fields) -> Result<Self, Self::Error> {
+    fn try_from(mut fields: Fields) -> Result<Self, Self::Error> {
+        fields.input = fields
+            .input
+            .for_get(fields.section.as_ref() == [VariantSection::Civic])
+            .map_err(|_| super::gene::QueryInvalid::new(&["input"]))?;
         let civic_filtered =
             !fields.evidence_filter.is_empty() || fields.disease.is_some() || fields.drug.is_some();
         if civic_filtered
@@ -385,6 +389,10 @@ impl VariantGet {
         cursor: Option<crate::Text>,
     ) -> Result<Self, super::gene::QueryInvalid> {
         let mut fields = self.0.clone();
+        if fields.input.namespace() == VariantNamespace::CivicProfile {
+            fields.input = VariantInput::lookup(&profile.to_string())
+                .map_err(|_| super::gene::QueryInvalid::new(&["input"]))?;
+        }
         fields.civic_profile = Some(profile);
         fields.civic_kind = Some(kind);
         fields.civic_cursor = cursor;

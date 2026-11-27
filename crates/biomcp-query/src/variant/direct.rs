@@ -33,6 +33,7 @@ pub(super) fn source(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Option<
         (VariantNamespace::Ca, S::Civic | S::Erepo) | (VariantNamespace::ClinVar, S::Clinvar) => {
             Some(source)
         }
+        (VariantNamespace::CivicProfile, S::Civic) => Some(source),
         (VariantNamespace::Rs, S::Gwas) => Some(source),
         _ => None,
     }

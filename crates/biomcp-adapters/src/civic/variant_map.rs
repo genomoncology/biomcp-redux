@@ -21,7 +21,8 @@ pub(super) fn identity(value: Option<Field<u64>>, field: &str, cx: &mut Problems
 pub(super) fn page(
     raw: raw::Connection<raw::Profile>,
     query: &VariantGet,
-    allele: &str,
+    allele: Option<&str>,
+    selected: Option<u64>,
 ) -> Result<Mapped<VariantCivic>, RequestError> {
     let consumed = raw.nodes.len();
     let mut cx = Problems {
@@ -40,7 +41,7 @@ pub(super) fn page(
         }
     }
     let page = bounds(
-        if query.civic_profile().is_some() {
+        if selected.is_some() {
             0
         } else {
             query.section_offset()
@@ -48,7 +49,7 @@ pub(super) fn page(
         profiles.len(),
         raw.total_count,
     );
-    let next = if query.civic_profile().is_none() && raw.page_info.has_next_page {
+    let next = if selected.is_none() && raw.page_info.has_next_page {
         Some(
             query.at_section_offset(
                 query
@@ -74,7 +75,7 @@ pub(super) fn page(
 fn map(
     raw: raw::Profile,
     query: &VariantGet,
-    allele: &str,
+    allele: Option<&str>,
     cx: &mut Problems,
     refusals: &mut crate::Refusal,
 ) -> Result<Option<CivicProfile>, RequestError> {
@@ -113,23 +114,28 @@ fn map(
         cx,
     );
     context_bad |= cx.list.len() != before_subject;
-    let membership = membership(exact, context_bad, &record, cx);
+    let membership = if allele.is_none() {
+        CivicMembership::Profile
+    } else {
+        membership(exact, context_bad, &record, cx)
+    };
+    let attached = allele.is_none() || exact;
     let mut evidence_page = claim_page(
         &raw.evidence_items,
         query,
         id,
         CivicClaimKind::Evidence,
-        exact,
+        attached,
     )?;
     let mut assertion_page = claim_page(
         &raw.assertions,
         query,
         id,
         CivicClaimKind::Assertions,
-        exact,
+        attached,
     )?;
     let mut statements = Vec::new();
-    if exact {
+    if attached {
         let (claims, evidence_returned) = claims(
             raw.evidence_items.nodes,
             raw.assertions.nodes,
@@ -204,7 +210,7 @@ fn claims(
 }
 fn checked_members(
     raw: Box<[raw::Member]>,
-    allele: &str,
+    allele: Option<&str>,
     cx: &mut Problems,
     refusals: &mut crate::Refusal,
 ) -> (Vec<CivicMember>, bool) {
@@ -214,7 +220,7 @@ fn checked_members(
     for value in raw.into_vec() {
         cx.record = parent.clone();
         if let Some((member, caid)) = member(value, cx) {
-            exact |= caid.as_ref().is_some_and(|id| id.as_str() == allele);
+            exact |= caid.as_ref().is_some_and(|id| Some(id.as_str()) == allele);
             members.push(member);
         } else {
             *refusals = crate::Refusal::Refused;

@@ -38,10 +38,29 @@ pub(super) fn section(
     let dropped = result
         .as_ref()
         .is_ok_and(|mapped| mapped.refusals == biomcp_adapters::Refusal::Refused);
-    let source = status::source(Source::Civic, leg.finish(), error);
+    let mut source = status::source(Source::Civic, leg.finish(), error);
+    let no_join = error.and_then(crate::status::reason) == Some(Reason::NoJoinId)
+        || result.as_ref().is_ok_and(|mapped| {
+            mapped.value.profiles.is_empty()
+                && mapped.problems.iter().any(|problem| {
+                    matches!(
+                        problem.field.as_str(),
+                        "hgvs_p" | "hgvs_p.civic_protein_search"
+                    )
+                })
+        });
+    if no_join {
+        source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
+            data_date: None,
+            message: "A CIViC profile may exist even when this allele cannot be joined. Use its CIViC profile ID or exact name with civic alone.".into(),
+            retry_after_seconds: None,
+        });
+    }
     let (value, problems) = match result {
         Ok(mapped) => (
-            if mapped.value.profiles.is_empty() {
+            if no_join {
+                Section::unavailable(Source::Civic, Reason::NoJoinId)
+            } else if mapped.value.profiles.is_empty() {
                 Section::Empty {
                     source: Source::Civic,
                     record: None,

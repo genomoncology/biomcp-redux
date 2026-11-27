@@ -55,7 +55,7 @@ trial-help: Discover trial commands through schema-generated help and executable
 variant-recurrence: Retrieve bounded exact-allele sample observations in an explicitly selected cBioPortal cohort without inferring a denominator.
 variant-normalization: A caller sends unchanged HGVS to named services and receives independent source mappings, warnings and versions.
 variant-assertions: Retrieve source-native ClinVar and ClinGen assertions without merging classification domains or mistaking source absence for unknown allele identity.
-variant-civic: Preserve CIViC exact profile membership and separate native claim pages, join CIViC variants stating the same protein change when no profile carries the exact allele, honour the section limit, and select evidence by native level, status, disease and drug.
+variant-civic: Read evidence and assertions by CIViC profile ID or exact name with civic alone, report member feature types and source identifiers, preserve CIViC exact profile membership and separate native claim pages, join CIViC variants stating the same protein change when no profile carries the exact allele, honour the section limit, and select evidence by native level, status, significance, disease and drug.
 variant-hotspots: Retain native transcript and residue counts without an inferred variant join.
 variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups.
 variant-help: Variant help gives executable examples and explicit migration steps without clinical interpretation.

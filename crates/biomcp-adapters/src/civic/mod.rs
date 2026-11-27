@@ -13,6 +13,7 @@ mod variant;
 mod variant_claims;
 mod variant_filter;
 mod variant_map;
+mod variant_profile;
 mod variant_protein;
 mod variant_raw;
 mod variant_subject;
@@ -41,6 +42,8 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(8),
     command_budget: None,
 };
+const MEMBER_FEATURE: &str = "feature{id name featureType featureInstance{... on Factor{ncitId}}} \
+    ... on RegionVariant{iscnName}";
 const GENES: Endpoint = SPEC
     .post_json("/api/graphql")
     .idempotent()
