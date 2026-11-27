@@ -45,7 +45,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "variant",
-        "Variant clinical significance, population frequency, cancer evidence and predictions",
+        "Read genetic variants, their clinical significance, allele frequencies, cancer evidence and predictions",
         &[
             ("search", "search_variant", ""),
             ("get", "get_variant", ""),
@@ -53,7 +53,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             (
                 "assertions",
                 "variant_assertions",
-                "ClinVar or ClinGen records",
+                "ClinVar and ClinGen records",
             ),
             (
                 "population",
