@@ -1,0 +1,30 @@
+{
+  "feature": "drug-native-sources",
+  "story": "Open Targets returns its indication for a drug with no mechanism collection and reports the targets section as empty.",
+  "live_check": "public",
+  "verified": "Drug and data version replies captured 2026-11-27 from https://api.platform.opentargets.org/api/v4/graphql. Platform data is CC0 1.0 under https://platform-docs.opentargets.org/licence.",
+  "replay": "drug/opentargets-without-mechanisms",
+  "steps": [
+    {
+      "run": ["get", "drug", "CHEMBL3301579", "indications", "--source", "opentargets"],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "CHEMBL3301579",
+        "/page/total": 1,
+        "/result/indications/data/records/0/indication": "urothelial carcinoma",
+        "/result/indications/data/records/0/disease_references/0/id": "MONDO_0040679",
+        "/result/indications/data/records/0/stage/value": "APPROVAL"
+      }
+    },
+    {
+      "run": ["get", "drug", "CHEMBL3301579", "targets", "--source", "opentargets"],
+      "exit": 1,
+      "expect": {
+        "/result/identity/id": "CHEMBL3301579",
+        "/result/targets/state": "empty",
+        "/sources/0/state": "ok",
+        "/page/total": 0
+      }
+    }
+  ]
+}
