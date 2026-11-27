@@ -15,7 +15,7 @@ steps:
     expect:
       /status: partial
       /result/population/state: unavailable
-      /incomplete/0: {at: /result/population, source: gnomad, reason: no-join-id}
+      /incomplete/0: {equals: {at: /result/population, source: gnomad, reason: no-join-id}}
   - run: [get, variant, "clinvar:864024", clinvar, population]
     expect:
       /result/resolution: resolved

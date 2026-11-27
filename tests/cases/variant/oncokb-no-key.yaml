@@ -14,11 +14,11 @@
       "exit": 0,
       "expect": {
         "/status": "partial",
-        "/incomplete/0": {
+        "/incomplete/0": {"equals": {
           "at": "/result/candidates/0/sections/oncokb",
           "source": "oncokb",
           "reason": "no-key"
-        },
+        }},
         "/result/candidates/0/sections/oncokb/state": "skipped",
         "/result/candidates/0/sections/oncokb/reason": "no-key",
         "/sources": {

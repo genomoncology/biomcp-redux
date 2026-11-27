@@ -145,7 +145,7 @@
       "expect": {
         "/status": "partial",
         "": {"omits": ["page"]},
-        "/incomplete/0": {"at": "/result/items", "source": "orphadata", "reason": "no-join-id"},
+        "/incomplete/0": {"equals": {"at": "/result/items", "source": "orphadata", "reason": "no-join-id"}},
         "/sources/1/source": "orphadata",
         "/sources/1/state": "skipped",
         "/sources/1/reason": "no-join-id"
