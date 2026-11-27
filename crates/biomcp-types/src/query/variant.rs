@@ -305,7 +305,7 @@ impl VariantGet {
         crate::VariantSearch::for_shorthand(
             gene.clone(),
             protein.clone(),
-            self.build(),
+            Some(self.myvariant_build()),
             self.limit(),
             self.offset(),
         )

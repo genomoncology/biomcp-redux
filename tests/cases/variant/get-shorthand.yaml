@@ -1,6 +1,6 @@
 {
   "feature": "variant-identity",
-  "live_check": "synthetic projection of native identity facts",
+  "live_check": "Synthetic shorthand replies use the GRCh38 BRAF allele from the CAR recording and preserve GRCh37 paging replies.",
   "replay": "variant/search/shorthand",
   "story": "A checked get keeps the established card and actual candidates, with source-native absence and failures kept distinct.",
   "config": {
@@ -19,6 +19,21 @@
         "/status": "complete",
         "/query/input": "BRAF V600E",
         "/result/resolution": "resolved",
+        "/result/candidates/0/record/id": "chr7:g.140753336A>T",
+        "/query/build": "GRCh38",
+        "/query/build_defaulted": true
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V600E",
+        "--build",
+        "GRCh37"
+      ],
+      "expect": {
+        "/query/build": "GRCh37",
         "/result/candidates/0/record/id": "chr7:g.140453136A>T"
       }
     },
@@ -34,7 +49,9 @@
         "/status": "complete",
         "/query/input": "BRAF V600E",
         "/result/resolution": "resolved",
-        "/result/candidates/0/record/id": "chr7:g.140453136A>T"
+        "/result/candidates/0/record/id": "chr7:g.140753336A>T",
+        "/query/build": "GRCh38",
+        "/query/build_defaulted": true
       }
     },
     {
@@ -52,7 +69,9 @@
         "/status": "complete",
         "/query/input": "BRAF V600E",
         "/result/resolution": "resolved",
-        "/result/candidates/0/record/id": "chr7:g.140453136A>T"
+        "/result/candidates/0/record/id": "chr7:g.140753336A>T",
+        "/query/build": "GRCh38",
+        "/query/build_defaulted": true
       }
     },
     {
@@ -70,7 +89,9 @@
         "/status": "complete",
         "/query/input": "BRAF V600E",
         "/result/resolution": "resolved",
-        "/result/candidates/0/record/id": "chr7:g.140453136A>T"
+        "/result/candidates/0/record/id": "chr7:g.140753336A>T",
+        "/query/build": "GRCh38",
+        "/query/build_defaulted": true
       }
     },
     {
@@ -91,21 +112,25 @@
         "/status": "complete",
         "/query/input": "BRAF V600E",
         "/result/resolution": "resolved",
-        "/result/candidates/0/record/id": "chr7:g.140453136A>T",
+        "/result/candidates/0/record/id": "chr7:g.140753336A>T",
         "/result/candidates/0/sections/clinvar/state": "data",
         "/sources/*/source": {
           "equals": [
             "myvariant",
             "clinvar"
           ]
-        }
+        },
+        "/query/build": "GRCh38",
+        "/query/build_defaulted": true
       }
     },
     {
       "run": [
         "get",
         "variant",
-        "TP53 R249S"
+        "TP53 R249S",
+        "--build",
+        "GRCh37"
       ],
       "expect": {
         "/schema": "biomcp.variant-card/16",
@@ -134,7 +159,9 @@
         "variant",
         "TP53 R249S",
         "--limit",
-        "1"
+        "1",
+        "--build",
+        "GRCh37"
       ],
       "expect": {
         "/schema": "biomcp.variant-card/16",
@@ -150,6 +177,8 @@
           "get",
           "variant",
           "TP53 R249S",
+          "--build",
+          "GRCh37",
           "--limit",
           "1",
           "--offset",
@@ -165,7 +194,9 @@
         "--limit",
         "1",
         "--offset",
-        "1"
+        "1",
+        "--build",
+        "GRCh37"
       ],
       "expect": {
         "/result/resolution": "candidates",

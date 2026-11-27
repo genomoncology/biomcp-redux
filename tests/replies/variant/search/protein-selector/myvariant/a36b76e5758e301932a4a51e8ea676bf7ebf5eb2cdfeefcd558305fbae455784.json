@@ -1,0 +1,34 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=snpeff.ann.genename%3AKRAS%20AND%20snpeff.ann.hgvs_p%3A%28%22G12F%22%20OR%20%22Gly12Phe%22%20OR%20%22p.G12F%22%20OR%20%22p.Gly12Phe%22%29&size=10&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Cchrom%2Chg19%2Chg38%2Csnpeff.ann&assembly=hg19",
+  "exchanges": [
+    {
+      "fetched": 1795577406,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 258,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 6,
+          "total": 1,
+          "max_score": 35.406105,
+          "hits": [
+            {
+              "_id": "chr12:g.25398284_25398285delinsAA",
+              "chrom": "12",
+              "dbsnp": {
+                "rsid": "rs2135806231",
+                "gene": {
+                  "symbol": "KRAS"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

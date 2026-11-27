@@ -104,7 +104,9 @@
   "args": [
    "get",
    "variant",
-   "TP53 R249S"
+   "TP53 R249S",
+   "--build",
+   "GRCh37"
   ],
   "replay": "paging/walks/variant-candidates",
   "small": 1,

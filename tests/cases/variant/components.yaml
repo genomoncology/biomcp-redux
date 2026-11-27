@@ -26,6 +26,44 @@
           "includes": "clinvar:13961"
         }
       }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA123643",
+        "cosmic",
+        "predict"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/cosmic/state": "data",
+        "/result/candidates/0/sections/cosmic/data/records/0/cosmic_id": "COSM999999",
+        "/result/candidates/0/sections/cosmic/data/records/0/myvariant_record": "chr7:g.140453136A>T",
+        "/result/candidates/0/sections/predict/state": "data",
+        "/result/candidates/0/sections/predict/data/scores/0/method": "cadd.phred",
+        "/result/candidates/0/sections/predict/data/scores/0/score": 1.5,
+        "/result/candidates/0/sections/predict/data/scores/3/method": "dbnsfp.revel.score",
+        "/result/candidates/0/sections/predict/data/scores/3/score": 0.6
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "chr7:g.140753336A>T",
+        "predict",
+        "--build",
+        "GRCh38"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/candidates/0/sections/predict/state": "data",
+        "/result/candidates/0/sections/predict/data/scores/0/method": "dbnsfp.revel.score",
+        "/result/candidates/0/sections/predict/data/scores/0/score": 0.6,
+        "/sources/*/notices/*/message": {
+          "includes": "CADD unavailable in MyVariant's GRCh37 index (no-join-id)."
+        }
+      }
     }
   ]
 }
