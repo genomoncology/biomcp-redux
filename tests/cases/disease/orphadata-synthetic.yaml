@@ -141,10 +141,11 @@
         "--source",
         "orphadata"
       ],
-      "exit": 1,
+      "exit": 0,
       "expect": {
-        "/status": "absent",
-        "/page/total": 0,
+        "/status": "partial",
+        "": {"omits": ["page"]},
+        "/incomplete/0": {"equals": {"at": "/result/items", "source": "orphadata", "reason": "no-join-id"}},
         "/sources/1/source": "orphadata",
         "/sources/1/state": "skipped",
         "/sources/1/reason": "no-join-id"

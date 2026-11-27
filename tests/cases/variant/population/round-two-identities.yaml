@@ -5,11 +5,17 @@ replay: variant/round-two-population
 steps:
   - run: [get, variant, rs80282562, clinvar, population]
     expect:
+      /status: partial
       /result/resolution: candidates
       /result/candidates/*/sections/population/reason: {equals: [no-join-id, no-join-id]}
       /problems/*/field: {equals: ["input: multiple candidate alleles match this input; select one exact allele to read gnomAD population data"]}
       /next/0/kind: disambiguate
       /next/1/kind: disambiguate
+  - run: [variant, population, rs80282562]
+    expect:
+      /status: partial
+      /result/population/state: unavailable
+      /incomplete/0: {equals: {at: /result/population, source: gnomad, reason: no-join-id}}
   - run: [get, variant, "clinvar:864024", clinvar, population]
     expect:
       /result/resolution: resolved

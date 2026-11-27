@@ -1,6 +1,7 @@
 # 1208 — complete-status-when-a-section-could-not-look
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f02d397e75a86cde2163fce9d1ef92d8857060ac
 
 Milestone: 10
 

@@ -36,7 +36,7 @@
         }
       },
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/items/0/answer/card/title": "Synthetic readable record.",
         "/result/items/0/answer/card/abstract_parts": {
           "count": 1
