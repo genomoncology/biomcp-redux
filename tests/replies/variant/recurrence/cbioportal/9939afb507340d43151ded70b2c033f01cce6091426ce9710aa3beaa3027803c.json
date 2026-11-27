@@ -1,0 +1,103 @@
+{
+  "method": "GET",
+  "source": "cbioportal",
+  "url": "https://www.cbioportal.org/api/molecular-profiles/msk_impact_2017_mutations/mutations?sampleListId=msk_impact_2017_all&entrezGeneId=367&projection=SUMMARY&pageSize=5000&pageNumber=0",
+  "exchanges": [
+    {
+      "fetched": 1792870639,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "molecularProfileId": "msk_impact_2017_mutations",
+            "studyId": "msk_impact_2017",
+            "sampleId": "synthetic-ar-1",
+            "entrezGeneId": 367,
+            "chr": "23",
+            "startPosition": 66943552,
+            "endPosition": 66943552,
+            "referenceAllele": "A",
+            "variantAllele": "G",
+            "ncbiBuild": "GRCh37"
+          },
+          {
+            "molecularProfileId": "msk_impact_2017_mutations",
+            "studyId": "msk_impact_2017",
+            "sampleId": "synthetic-ar-2",
+            "entrezGeneId": 367,
+            "chr": "23",
+            "startPosition": 66943552,
+            "endPosition": 66943552,
+            "referenceAllele": "A",
+            "variantAllele": "G",
+            "ncbiBuild": "GRCh37"
+          },
+          {
+            "molecularProfileId": "msk_impact_2017_mutations",
+            "studyId": "msk_impact_2017",
+            "sampleId": "synthetic-ar-3",
+            "entrezGeneId": 367,
+            "chr": "23",
+            "startPosition": 66943552,
+            "endPosition": 66943552,
+            "referenceAllele": "A",
+            "variantAllele": "G",
+            "ncbiBuild": "GRCh37"
+          },
+          {
+            "molecularProfileId": "msk_impact_2017_mutations",
+            "studyId": "msk_impact_2017",
+            "sampleId": "synthetic-ar-4",
+            "entrezGeneId": 367,
+            "chr": "23",
+            "startPosition": 66943552,
+            "endPosition": 66943552,
+            "referenceAllele": "A",
+            "variantAllele": "G",
+            "ncbiBuild": "GRCh37"
+          },
+          {
+            "molecularProfileId": "msk_impact_2017_mutations",
+            "studyId": "msk_impact_2017",
+            "sampleId": "synthetic-ar-5",
+            "entrezGeneId": 367,
+            "chr": "23",
+            "startPosition": 66943552,
+            "endPosition": 66943552,
+            "referenceAllele": "A",
+            "variantAllele": "G",
+            "ncbiBuild": "GRCh37"
+          },
+          {
+            "molecularProfileId": "msk_impact_2017_mutations",
+            "studyId": "msk_impact_2017",
+            "sampleId": "synthetic-ar-6",
+            "entrezGeneId": 367,
+            "chr": "23",
+            "startPosition": 66943552,
+            "endPosition": 66943552,
+            "referenceAllele": "A",
+            "variantAllele": "G",
+            "ncbiBuild": "GRCh37"
+          },
+          {
+            "molecularProfileId": "msk_impact_2017_mutations",
+            "studyId": "msk_impact_2017",
+            "sampleId": "synthetic-other-allele",
+            "entrezGeneId": 367,
+            "chr": "23",
+            "startPosition": 66943552,
+            "endPosition": 66943552,
+            "referenceAllele": "A",
+            "variantAllele": "T",
+            "ncbiBuild": "GRCh37"
+          }
+        ]
+      }
+    }
+  ]
+}

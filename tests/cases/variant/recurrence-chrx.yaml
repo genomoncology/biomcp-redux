@@ -1,0 +1,35 @@
+{
+  "feature": "variant-recurrence",
+  "live_check": "synthetic",
+  "replay": "variant/recurrence",
+  "story": "The recorded AR allele matches six distinct samples on source chromosome 23.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "recurrence",
+        "NC_000023.10:g.66943552A>G",
+        "--source",
+        "cbioportal",
+        "--gene",
+        "AR",
+        "--study",
+        "msk_impact_2017",
+        "--profile",
+        "msk_impact_2017_mutations",
+        "--sample-set",
+        "msk_impact_2017_all",
+        "--build",
+        "GRCh37",
+        "--limit",
+        "5000"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/observed_sample_count": 6,
+        "/result/examined_rows": 7,
+        "/result/all_pages_read": true
+      }
+    }
+  ]
+}
