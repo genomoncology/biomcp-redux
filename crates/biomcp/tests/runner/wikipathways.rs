@@ -1,13 +1,19 @@
 //! Feature pathway-wikipathways: explicit atomic catalog replacement and reads that never refresh stored catalogs.
 use super::launch::Environment;
 use super::pathway_budgets as budgets;
+mod census;
 mod concurrent;
 type Check = Result<(), String>;
-pub(super) fn trial() -> libtest_mimic::Trial {
-    super::transcript::trial(
-        "pathway-wikipathways/concurrent-readers-during-pair-replacement",
-        || concurrent::run().map_err(Into::into),
-    )
+pub(super) fn trials() -> [libtest_mimic::Trial; 2] {
+    [
+        super::transcript::trial(
+            "pathway-wikipathways/concurrent-readers-during-pair-replacement",
+            || concurrent::run().map_err(Into::into),
+        ),
+        libtest_mimic::Trial::test("pathway-wikipathways-genes/census-20261110", || {
+            census::run().map_err(|error| error.to_string().into())
+        }),
+    ]
 }
 use serde_json::{Value, json};
 use std::{

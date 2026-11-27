@@ -1,0 +1,17 @@
+{
+  "source": "wikipathways",
+  "method": "GET",
+  "url": "https://www.wikipathways.org/wikipathways-assets/pathways/WP9999998/WP9999998.json",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"pathway\":{\"id\":\"WP9999998\",\"organism\":\"Homo sapiens\",\"dataSourceVersion\":\"WP9999998_r1\"},\"entitiesById\":{\"egfr2\":{\"gpmlElementName\":\"DataNode\",\"wpType\":\"Protein\",\"xrefDataSource\":\"RefSeq\",\"xrefIdentifier\":\"NP_005219.2\",\"type\":[\"Entrez Gene:1956\"]}}}"
+      }
+    }
+  ]
+}

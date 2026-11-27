@@ -128,9 +128,9 @@ fn read_inner(
         restart(q, out);
         return Ok(());
     }
-    // Older WikiPathways pools hold unjoined native nodes and use different offsets.
+    // Older WikiPathways pools lack publisher cross-references and may have different offsets.
     let namespace = match q.id {
-        PathwayId::Wikipathways(_) => "pathway-relation-hgnc",
+        PathwayId::Wikipathways(_) => "pathway-relation-wikipathways",
         PathwayId::Reactome(_) => "pathway-relation",
     };
     let key = source_snapshot::key(namespace, &(q.id, q.genes))?;

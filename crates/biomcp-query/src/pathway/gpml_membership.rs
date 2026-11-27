@@ -1,7 +1,7 @@
 //! Join GPML references to HGNC and collapse repeated nodes before paging.
 use crate::{Ctx, status};
 use biodata::{EnsemblGeneId, Gene, GeneSymbol, HgncId, NcbiGeneId, PathwayMember, UniProtIsoform};
-use biomcp_adapters::hgnc;
+use biomcp_adapters::{hgnc, wikipathways::GeneXrefs};
 use biomcp_fetch::{Deadline, Find, KeyKind};
 use biomcp_types::{Problem, ProblemCode, Source, SourceOutcome};
 use std::collections::{HashMap, HashSet};
@@ -20,27 +20,31 @@ pub(super) fn resolve(
     fresh: bool,
     sources: &mut Vec<SourceOutcome>,
     problems: &mut Vec<Problem>,
+    xrefs: impl FnOnce() -> Option<GeneXrefs>,
 ) -> (Vec<PathwayMember>, u64) {
-    let mut keys = HashSet::new();
-    let mut members = Vec::new();
-    let mut unmapped = 0;
-    for row in rows {
-        match key(&row) {
-            Ok(Some(key)) => {
-                keys.insert(key.clone());
-                members.push((row, key));
-            }
-            Ok(None) | Err(_) => {
-                unmapped += 1;
-                report_unmapped(row, problems);
-            }
-        }
+    let mut members = rows;
+    // Rows without a direct key can still join through the publisher export.
+    let keys = members.iter().map(|row| key(row).unwrap_or(None)).collect();
+    join(cx, &mut members, keys, deadline, fresh, sources, problems);
+    if members.iter().any(can_join)
+        && let Some(xrefs) = xrefs()
+    {
+        let keys = members
+            .iter()
+            .map(|row| {
+                can_join(row)
+                    .then(|| xrefs.entrez(row))
+                    .flatten()
+                    .map(|id| Key::Xref(format!("entrez:{id}")))
+            })
+            .collect();
+        join(cx, &mut members, keys, deadline, fresh, sources, problems);
     }
-    let matches = lookup(cx, &keys, deadline, fresh, sources, problems);
     let mut by_gene = HashMap::<HgncId, usize>::new();
     let mut distinct: Vec<PathwayMember> = Vec::new();
-    for (mut row, key) in members {
-        let Some(id) = matches.get(&key).copied().flatten() else {
+    let mut unmapped = 0;
+    for row in members {
+        let Some(id) = row.gene else {
             unmapped += 1;
             report_unmapped(row, problems);
             continue;
@@ -49,11 +53,38 @@ pub(super) fn resolve(
         if let Some(first) = distinct.get_mut(index) {
             first.physical_context_count += row.physical_context_count;
         } else {
-            row.gene = Some(id);
             distinct.push(row);
         }
     }
     (distinct, unmapped)
+}
+
+fn can_join(row: &PathwayMember) -> bool {
+    row.gene.is_none() && row.node_id.is_some() && row.reference.namespace.as_deref().is_some()
+}
+
+fn join(
+    cx: &Ctx<'_>,
+    members: &mut [PathwayMember],
+    keys: Vec<Option<Key>>,
+    deadline: Deadline<'_>,
+    fresh: bool,
+    sources: &mut Vec<SourceOutcome>,
+    problems: &mut Vec<Problem>,
+) {
+    let matches = lookup(
+        cx,
+        &keys.iter().flatten().cloned().collect(),
+        deadline,
+        fresh,
+        sources,
+        problems,
+    );
+    for (row, key) in members.iter_mut().zip(keys) {
+        if let Some(key) = key {
+            row.gene = matches.get(&key).copied().flatten();
+        }
+    }
 }
 
 fn lookup(
@@ -88,7 +119,15 @@ fn lookup(
             }
         }
     }
-    sources.push(status::source(Source::Hgnc, leg.finish(), error));
+    let incoming = status::source(Source::Hgnc, leg.finish(), error);
+    if let Some(existing) = sources
+        .iter_mut()
+        .find(|source| source.source == Source::Hgnc)
+    {
+        status::retain_source_state(existing, &incoming);
+    } else {
+        sources.push(incoming);
+    }
     matches
 }
 

@@ -2,7 +2,7 @@
   "feature": "pathway-wikipathways-genes",
   "live_check": "local-only; the second pathway is a synthetic control",
   "story": "A WikiPathways caller can page distinct human genes across legacy and current gene-product nodes, including EGFR in WP437. Exact cross-references join across namespaces, and unresolvable nodes are counted and identified.",
-  "verified": "WP437 revision 141382 and its catalog rows were captured on 2026-11-24. The HGNC recording keeps its header and the original rows matching the captured Entrez IDs. Synthetic WP9999998 uses the same HGNC rows to exercise other namespaces and missing or unsupported references.",
+  "verified": "WP437 revision 141382 and its catalog rows were captured on 2026-11-24. The HGNC recording keeps its header and the original rows matching the captured Entrez IDs. Synthetic WP9999998 uses the same HGNC rows to exercise other namespaces, an exact publisher RefSeq mapping and missing or unsupported references.",
   "replay": "pathway/wikipathways-genes",
   "steps": [
     {
@@ -27,7 +27,7 @@
     {
       "run": ["pathway", "genes", "WP9999998", "--gene-products"],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/total": 3,
         "/result/page/returned": 3,
         "/result/page/total": 3,

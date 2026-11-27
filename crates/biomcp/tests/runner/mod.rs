@@ -280,8 +280,7 @@ fn run_case_owned(
 }
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
-    let mut trials = Vec::new();
-    trials.extend(argument_recovery::trials());
+    let mut trials = argument_recovery::trials();
     trials.extend(enum_case::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
@@ -342,7 +341,8 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(gwas_search::trials());
     trials.extend(diagnostic_who::trials());
     trials.extend(help_contract::trials());
-    trials.extend([wikipathways::trial(), word_next::trial()]);
+    trials.extend(wikipathways::trials());
+    trials.push(word_next::trial());
     trials.extend(variant_civic::trials());
     trials.extend(protein_domains::trials());
     trials.extend(faers_get::trials());

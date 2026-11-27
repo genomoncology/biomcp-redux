@@ -27,8 +27,7 @@
       "run": ["get", "pathway", "WP5034", "genes"],
       "expect": {
         "/status": "complete",
-        "/result/genes/data/total": 0,
-        "/result/genes/data/page/total": 0,
+        "/result/genes/state": "empty",
         "/sources/0/state": "ok"
       }
     },

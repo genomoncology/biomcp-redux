@@ -1,6 +1,7 @@
 # 1215 — wikipathways-genes-lost
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3c493b1a4d075e4dc956e27370bbcbf26a088f2a
 
 Milestone: 10
 
