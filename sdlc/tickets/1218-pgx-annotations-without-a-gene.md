@@ -2,7 +2,9 @@
 
 Status: OPEN.
 
-Milestone: 7
+Waits for: Ian's ruling on reopening the variant-first and drug-first PGx routes that 0166 and 0168 dropped (PM, 2026-11-27). Only the gene-less reach part may start before that ruling, and every gene-less entry point is itself a variant-first route, so nothing starts yet.
+
+Milestone: 10
 
 ## Outcome
 

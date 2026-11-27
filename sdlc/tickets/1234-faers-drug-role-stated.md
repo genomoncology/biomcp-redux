@@ -2,11 +2,11 @@
 
 Status: OPEN.
 
-Milestone: 7
+Milestone: 10
 
 ## Outcome
 
-`search adverse-event <drug>` states in help and in the reply that FAERS counts include reports where the drug is listed in any role, and offers a filter for reports where the drug is the suspect.
+`search adverse-event <drug>` states in help and in the reply that FAERS counts include reports where the drug is listed in any role, and offers a configurable drug-role option, defaulting to any role, with a suspect-only choice.
 
 ## Why
 
@@ -29,7 +29,7 @@ Checked 2026-11-27 against the live source and the 1.0.0 build at 4efd1dcb2426. 
 
 ## Keeps
 
-- Keeps: the default total is unchanged unless the PM rules the default should be suspect-only.
+- Keeps: the default counts reports where the drug has any role (PM ruling 2026-11-27). The role is a configurable option with that default, and the reply's `query` and help state which role was counted.
 
 ## Defers
 

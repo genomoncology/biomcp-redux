@@ -80,6 +80,14 @@ Unknown: the rule for reading a saved record after its schema's major version ch
 
 Done when: an agent saves a collection and a query in one session, a later session lists what changed, the same commands work against the hosted account, and the user exports everything as typed JSON.
 
+## 10. Source reach
+
+Delivers: every record class a source holds is reachable through a BioMCP route, or is marked unsupported in that source's help; a reply never reads "complete" when BioMCP could not look; and fixed choices (dataset, build, drug role, default filters) are stated in the reply and can be changed.
+
+Serves: the CIViC benchmark pilot (biomcp-eval record of 2026-11-27) and the source reach census (`records/2026-11-27-source-reach-census.md`), which found record classes with no route in most sources.
+
+Done when: tickets 1204 to 1241 have landed or been ruled out by name; the standing offline reach check runs in the landing gate; and the weekly live census reports reach at or above its recorded floor for each source.
+
 ## Later, unordered
 
 Each waits for a consumer or for Ian. None has tickets.
