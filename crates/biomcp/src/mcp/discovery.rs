@@ -38,14 +38,17 @@ pub(super) fn called(params: &Value) -> bool {
 pub(super) fn tools(read_only: bool) -> Vec<Value> {
     vec![
         search_tool(),
-        json!({
-            "name": DISPATCH,
-            "description":"Run a typed tool by name with its arguments. The reply follows that tool's contract. Use search_tools for its definition.",
-            "inputSchema":{"type":"object","properties":{"name":{"type":"string"},"arguments":{"type":"object"}},
-                "required":["name","arguments"],"additionalProperties":false},
-            "outputSchema":{"type":"object","description":"The selected tool's reply. Its own outputSchema describes the fields when available."},
-            "annotations":{"readOnlyHint":read_only}
-        }),
+        protocol::named_tool(
+            "Call Tool",
+            json!({
+                "name": DISPATCH,
+                "description":"Run a typed tool by name with its arguments. The reply follows that tool's contract. Use search_tools for its definition.",
+                "inputSchema":{"type":"object","properties":{"name":{"type":"string"},"arguments":{"type":"object"}},
+                    "required":["name","arguments"],"additionalProperties":false},
+                "outputSchema":{"type":"object","description":"The selected tool's reply. Its own outputSchema describes the fields when available."},
+                "annotations":{"readOnlyHint":read_only}
+            }),
+        ),
     ]
 }
 
@@ -57,21 +60,24 @@ pub(super) fn target(params: &Value) -> Option<Value> {
 }
 
 fn search_tool() -> Value {
-    json!({
-        "name":NAME,
-        "description":"Find typed tools by task (query), or load one full definition (name). Use call_tool to run a discovered tool.",
-        "inputSchema":{
-            "type":"object",
-            "properties":{"query":{"type":"string","minLength":1},"name":{"type":"string","minLength":1}},
-            "oneOf":[{"required":["query"]},{"required":["name"]}],
-            "additionalProperties":false
-        },
-        "outputSchema":{"type":"object","required":["tools"],"properties":{
-            "tools":{"type":"array","items":{"type":"object","required":["name","description"],
-                "properties":{"name":{"type":"string"},"description":{"type":"string"}}}}
-        }},
-        "annotations":{"readOnlyHint":true,"destructiveHint":false,"openWorldHint":false}
-    })
+    protocol::named_tool(
+        "Find Tools",
+        json!({
+            "name":NAME,
+            "description":"Find typed tools by task (query), or load one full definition (name). Use call_tool to run a discovered tool.",
+            "inputSchema":{
+                "type":"object",
+                "properties":{"query":{"type":"string","minLength":1},"name":{"type":"string","minLength":1}},
+                "oneOf":[{"required":["query"]},{"required":["name"]}],
+                "additionalProperties":false
+            },
+            "outputSchema":{"type":"object","required":["tools"],"properties":{
+                "tools":{"type":"array","items":{"type":"object","required":["name","description"],
+                    "properties":{"name":{"type":"string"},"description":{"type":"string"}}}}
+            }},
+            "annotations":{"readOnlyHint":true,"destructiveHint":false,"openWorldHint":false}
+        }),
+    )
 }
 
 pub(super) fn call(
@@ -108,9 +114,7 @@ pub(super) fn call(
     let Ok(mut tools) = result else {
         return protocol::error(id, -32603, "Output schema unavailable");
     };
-    if version == ReplyVersion::November2024 {
-        legacy::project_tools(&mut tools);
-    }
+    legacy::project_tools(&mut tools, version);
     protocol::discovery_result(id, json!({"tools":tools}), version, context)
 }
 

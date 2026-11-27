@@ -25,11 +25,12 @@ pub(super) fn instructions(
     instructions
 }
 pub(super) const NOVEMBER_2024: &str = "2024-11-05";
+const MARCH_2025: &str = "2025-03-26";
 pub(super) const REVISIONS: [&str; 5] = [
     "2026-07-28",
     "2025-11-25",
     "2025-06-18",
-    "2025-03-26",
+    MARCH_2025,
     NOVEMBER_2024,
 ];
 pub(super) const HTTP_REVISIONS: &[&str] = REVISIONS.split_at(4).0;
@@ -40,10 +41,20 @@ pub(super) const CAPABILITIES_KEY: &str = "io.modelcontextprotocol/clientCapabil
 pub(super) enum ReplyVersion {
     Current,
     Legacy,
+    March2025,
     November2024,
 }
 
 impl ReplyVersion {
+    pub(super) fn for_revision(revision: &str) -> Self {
+        match revision {
+            NOVEMBER_2024 => Self::November2024,
+            MARCH_2025 => Self::March2025,
+            _ if revision == REVISIONS[0] => Self::Current,
+            _ => Self::Legacy,
+        }
+    }
+
     fn form(self, settings: &crate::config::Settings) -> ReplyForm {
         if self == Self::November2024 {
             ReplyForm::TextOnly
@@ -53,8 +64,26 @@ impl ReplyVersion {
     }
 }
 
-pub(super) fn info() -> Value {
-    json!({"name":"biomcp", "version":env!("CARGO_PKG_VERSION")})
+pub(super) fn info(version: ReplyVersion) -> Value {
+    let mut info = json!({"name":"biomcp", "version":env!("CARGO_PKG_VERSION")});
+    if matches!(version, ReplyVersion::Current | ReplyVersion::Legacy)
+        && let Some(fields) = info.as_object_mut()
+    {
+        fields.insert("title".into(), json!("BioMCP"));
+    }
+    info
+}
+
+pub(super) fn named_tool(title: &str, mut tool: Value) -> Value {
+    if let Some(fields) = tool.as_object_mut() {
+        fields.insert("title".into(), json!(title));
+        if let Some(annotations) = fields.get_mut("annotations").and_then(Value::as_object_mut)
+            && annotations.get("readOnlyHint").and_then(Value::as_bool) == Some(true)
+        {
+            annotations.insert("idempotentHint".into(), json!(true));
+        }
+    }
+    tool
 }
 
 pub(super) fn error(id: Value, code: i32, message: &str) -> Value {
@@ -117,12 +146,15 @@ const DESCRIPTION: &str = concat!(
 );
 
 pub(super) fn tool(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Value> {
-    Ok(json!({"name":"biomcp", "description":DESCRIPTION,
+    Ok(named_tool(
+        "BioMCP",
+        json!({"name":"biomcp", "description":DESCRIPTION,
         "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true},
         "inputSchema":{"$schema":SCHEMA_DIALECT,"type":"object","properties":{
             "args":{"type":"array","items":{"type":"string"},
                 "description":"CLI command words, without biomcp. Example: [\"help\"]"}},
-            "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool(root, "biomcp")?}))
+            "required":["args"],"additionalProperties":false},"outputSchema":super::output_schema::for_tool(root, "biomcp")?}),
+    ))
 }
 
 pub(super) fn tools(root: &crate::grammar::Root, read_only: bool) -> std::io::Result<Vec<Value>> {
@@ -136,7 +168,7 @@ pub(super) fn result(id: Value, mut value: Value, modern: bool) -> Value {
         object.insert("resultType".into(), json!("complete"));
         object.insert(
             "_meta".into(),
-            json!({"io.modelcontextprotocol/serverInfo":info()}),
+            json!({"io.modelcontextprotocol/serverInfo":info(ReplyVersion::Current)}),
         );
     }
     json!({"jsonrpc":"2.0","id":id,"result":value})

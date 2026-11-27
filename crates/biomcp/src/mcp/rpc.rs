@@ -56,14 +56,11 @@ pub(super) fn message(
             return Message::Reply(error);
         }
     } else if method == "initialize" {
-        let Some((revision, result)) = legacy::initialize(&params, mode, context, revisions) else {
+        let Some((negotiated, result)) = legacy::initialize(&params, mode, context, revisions)
+        else {
             return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
         };
-        *version = if revision == protocol::NOVEMBER_2024 {
-            ReplyVersion::November2024
-        } else {
-            ReplyVersion::Legacy
-        };
+        *version = negotiated;
         return Message::Reply(protocol::result(id.clone(), result, false));
     }
     let version = if modern {
@@ -77,9 +74,7 @@ pub(super) fn message(
         "server/discover" if modern => current::discover(mode, context, revisions),
         "tools/list" => match tools(id, &params, typed, read_only, context) {
             Ok(mut tools) => {
-                if version == ReplyVersion::November2024 {
-                    legacy::project_tools(&mut tools);
-                }
+                legacy::project_tools(&mut tools, version);
                 json!({"tools":tools})
             }
             Err(reply) => return Message::Reply(reply),

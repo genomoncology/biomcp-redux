@@ -46,7 +46,19 @@ pub(super) fn check() -> Result<(), String> {
         }
         check_catalog(&replies, "typed", title_path, 18)?;
     }
-    Ok(())
+    http_legacy()
+}
+
+fn http_legacy() -> Result<(), String> {
+    let server = crate::runner::http::Server::start()?;
+    let body = json!({"jsonrpc":"2.0","id":"http","method":"tools/list"}).to_string();
+    let headers = "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2025-03-26\r\n";
+    let (status, response, _) =
+        server.raw("POST", "/mcp", &server.address.to_string(), headers, &body)?;
+    let response = response
+        .filter(|_| status == 200)
+        .ok_or_else(|| format!("HTTP tools/list returned HTTP {status}"))?;
+    check_catalog(&[response], "http", "/annotations/title", 3)
 }
 
 fn check_catalog(
@@ -62,7 +74,10 @@ fn check_catalog(
         .filter(|tools| tools.len() == count)
         .ok_or_else(|| format!("{id}: expected {count} tools"))?;
     for tool in tools {
-        let name = tool.get("name").and_then(Value::as_str).ok_or("tool name")?;
+        let name = tool
+            .get("name")
+            .and_then(Value::as_str)
+            .ok_or("tool name")?;
         let title = tool.pointer(title_path).and_then(Value::as_str);
         if !title.is_some_and(|title| title.starts_with(char::is_uppercase))
             || title_path != "/title" && tool.get("title").is_some()
@@ -75,7 +90,8 @@ fn check_catalog(
             .ok_or_else(|| format!("{name}: missing readOnlyHint"))?;
         let expected = match name {
             "help" | "search" | "fetch" | "search_tools" => true,
-            "saved" | "biomcp" | "call_tool" => false,
+            "biomcp" => id == "http",
+            "saved" | "call_tool" => false,
             _ => read_only,
         };
         if read_only != expected

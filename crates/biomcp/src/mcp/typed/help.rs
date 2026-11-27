@@ -14,7 +14,7 @@ pub(super) fn tool(output_schema: bool) -> std::io::Result<Value> {
             super::super::output_shape::for_help()?,
         );
     }
-    Ok(tool)
+    Ok(super::super::protocol::named_tool("Help", tool))
 }
 pub(super) fn parse(params: &Value) -> Option<super::super::research::Call> {
     let fields = params.get("arguments")?.as_object()?;

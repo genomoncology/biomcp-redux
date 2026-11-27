@@ -78,7 +78,7 @@ pub(super) fn tool(output_schema: bool) -> std::io::Result<Value> {
             super::super::output_shape::for_saved()?,
         );
     }
-    Ok(tool)
+    Ok(super::super::protocol::named_tool("Saved", tool))
 }
 
 /// Check a `saved` call and spell its command-line words.

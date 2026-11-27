@@ -194,7 +194,20 @@ fn entity(
             super::super::output_shape::for_commands(&paths)?,
         );
     }
-    Ok(Some(tool))
+    let title = name
+        .split('_')
+        .map(|word| {
+            let mut chars = word.chars();
+            chars
+                .next()
+                .into_iter()
+                .map(|first| first.to_ascii_uppercase())
+                .chain(chars)
+                .collect::<String>()
+        })
+        .collect::<Vec<_>>()
+        .join(" ");
+    Ok(Some(super::super::protocol::named_tool(&title, tool)))
 }
 
 fn entity_description(
