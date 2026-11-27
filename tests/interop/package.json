@@ -1,0 +1,12 @@
+{
+  "name": "biomcp-mcp-interop",
+  "private": true,
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "mcp-2024-11-05": "npm:@modelcontextprotocol/sdk@1.0.4",
+    "mcp-2025-03-26": "npm:@modelcontextprotocol/sdk@1.11.0",
+    "mcp-2025-06-18": "npm:@modelcontextprotocol/sdk@1.13.3",
+    "mcp-2025-11-25": "npm:@modelcontextprotocol/sdk@1.25.3",
+    "mcp-2026-07-28": "npm:@modelcontextprotocol/client@2.3.0"
+  }
+}

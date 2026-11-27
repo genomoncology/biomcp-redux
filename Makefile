@@ -44,6 +44,7 @@ full-suite:
 pre-job: check-cheap
 ifeq ($(BIOMCP_LANDING_GATE),1)
 	+$(PYTHON) scripts/timed_stage.py release-tests $(MAKE) --no-print-directory release-tests
+	+$(PYTHON) scripts/timed_stage.py mcp-interop $(MAKE) --no-print-directory mcp-interop
 endif
 
 LINT_GOALS = unused-dependencies check-no-default-features lint-workspace lint-tools lint-rustdoc
@@ -182,6 +183,14 @@ RELEASE_TEST_SUITES = release.test_linux release.test_artifacts.ReleaseCommands 
 release-tests:
 	unset BIOMCP_TEST_ARCHIVE_BOOTSTRAP BIOMCP_TEST_CLAUDE_INSTALL BIOMCP_TEST_PINNED_INSTALLER; \
 		$(PYTHON) -m unittest $(RELEASE_TEST_SUITES)
+
+.PHONY: mcp-interop
+# Runs on the landing-gate job with Node and uv. Only dependency setup can fetch;
+# client sessions use the debug binary and a local replay.
+mcp-interop:
+	npm --prefix tests/interop ci --ignore-scripts --no-audit --no-fund --prefer-offline
+	uv sync --project tests/interop --locked --python "$(PYTHON)"
+	uv run --project tests/interop --locked --offline --no-sync python tests/interop/check.py "$(abspath $(BIOMCP_DEBUG))"
 
 .PHONY: release-linux
 release-linux:
