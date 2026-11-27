@@ -148,7 +148,10 @@
       ],
       "expect": {
         "/result/candidates/0/sections/civic/state": "unavailable",
-        "/result/candidates/0/sections/civic/reason": "no-join-id"
+        "/result/candidates/0/sections/civic/reason": "no-join-id",
+        "/status": "partial",
+        "/sources/0/state": "failed",
+        "/sources/0/reason": "no-join-id"
       }
     },
     {

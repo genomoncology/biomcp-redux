@@ -129,6 +129,9 @@ fn profiles(
         if allele.is_none() && !reply.matches(allele, profile) {
             return Err(failure(Reason::BadReply));
         }
+        if reply.has_errors() && reply.data.molecular_profiles.nodes.is_empty() {
+            return Err(failure(Reason::BadReply));
+        }
         partial |= reply.has_errors();
         let connection = reply.data.molecular_profiles;
         if profile.is_some()

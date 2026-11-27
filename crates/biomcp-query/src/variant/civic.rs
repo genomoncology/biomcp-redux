@@ -2,8 +2,8 @@ use crate::{Ctx, status};
 
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    Problem, Reason, Section, Source, SourceOutcome, VariantCivic, VariantGet, VariantHeader,
-    VariantNamespace,
+    CivicMembership, Problem, Reason, Section, Source, SourceOutcome, SourceStatus, VariantCivic,
+    VariantGet, VariantHeader, VariantNamespace,
 };
 
 pub(super) fn section(
@@ -42,10 +42,15 @@ pub(super) fn section(
     let mut source = status::source(Source::Civic, leg.finish(), error);
     let no_join = error.and_then(crate::status::reason) == Some(Reason::NoJoinId)
         || query.input().namespace() != VariantNamespace::CivicProfile
-            && result
-                .as_ref()
-                .is_ok_and(|mapped| mapped.value.page.total == 0);
+            && result.as_ref().is_ok_and(|mapped| {
+                mapped
+                    .value
+                    .profiles
+                    .iter()
+                    .all(|profile| profile.membership == CivicMembership::Candidate)
+            });
     if no_join {
+        source.set_status(SourceStatus::Failed(Some(Reason::NoJoinId)));
         source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
             data_date: None,
             message: "A CIViC profile may exist even when this allele cannot be joined. Use its CIViC profile ID or exact name with civic alone.".into(),

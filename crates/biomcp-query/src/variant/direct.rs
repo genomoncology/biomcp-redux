@@ -120,7 +120,11 @@ pub(super) fn candidate(query: &VariantGet, source: Source) -> VariantHeader {
 }
 
 fn status(sources: &[biomcp_types::SourceOutcome], incomplete: bool) -> biomcp_types::Status {
-    if sources.is_empty()
+    if sources.iter().any(|source| {
+        source.source == Source::Civic && source.reason == Some(biomcp_types::Reason::NoJoinId)
+    }) {
+        crate::status::item_status(true, false, true)
+    } else if sources.is_empty()
         || sources
             .iter()
             .all(|s| s.state == biomcp_types::SourceState::Failed)
