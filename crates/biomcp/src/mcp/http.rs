@@ -402,6 +402,12 @@ impl Service {
                 .declared_use
                 .unwrap_or(crate::command::DeclaredUse::Restricted)
         });
+        let confirmation =
+            if version == ReplyVersion::Current && super::elicitation::delete_all(&call) {
+                super::current::confirmation(params)
+            } else {
+                None
+            };
         let result = self.calls.run(
             self,
             ToolCall {
@@ -413,11 +419,7 @@ impl Service {
                 excluded: caller.excluded,
                 scope,
                 account: caller.account,
-                confirmation: if version == ReplyVersion::Current {
-                    super::current::confirmation(params)
-                } else {
-                    None
-                },
+                confirmation,
             },
             peer,
         );

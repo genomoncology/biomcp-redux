@@ -119,9 +119,9 @@ impl Calls {
                     context,
                 };
                 let outcome = worker::execute(|| match confirmation {
-                    Some(confirmation) => request.confirm(&call, true, |request, preview| {
-                        confirmation.answer(request, preview)
-                    }),
+                    Some(confirmation) => {
+                        request.confirm(|request, preview| confirmation.answer(request, preview))
+                    }
                     None => request.run(&call, true),
                 });
                 let _ = sender.send(outcome);

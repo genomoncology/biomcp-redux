@@ -267,12 +267,11 @@ impl Server {
         };
         let scope = recovery.as_ref().and(cancellation.clone());
         let form_scope = cancellation.clone();
-        let modern = (version == ReplyVersion::Current)
-            .then(|| current::confirmation(params))
-            .flatten();
-        let legacy = (version != ReplyVersion::Current)
-            .then_some(self.legacy_form)
-            .flatten();
+        let (modern, legacy) = match (elicitation::delete_all(&call), version) {
+            (true, ReplyVersion::Current) => (current::confirmation(params), None),
+            (true, _) => (None, self.legacy_form),
+            _ => (None, None),
+        };
         let sender = self.sender.clone();
         let worker_key = key.clone();
         let budget = self.queue.budget;
@@ -288,12 +287,10 @@ impl Server {
             };
             if let Some(confirmation) = modern {
                 request.context.scope = form_scope.as_ref();
-                request.confirm(&call, false, |request, preview| {
-                    confirmation.answer(request, preview)
-                })
+                request.confirm(|request, preview| confirmation.answer(request, preview))
             } else if let Some(explicit_mode) = legacy {
                 request.context.scope = form_scope.as_ref();
-                request.confirm(&call, false, |_, preview| {
+                request.confirm(|_, preview| {
                     legacy::wait_for_form(&sender, worker_key, preview, explicit_mode, budget)
                 })
             } else {

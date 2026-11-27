@@ -21,7 +21,7 @@ pub(super) fn supports_form(capabilities: &Value) -> bool {
         .is_some_and(|modes| modes.is_empty() || modes.get("form").is_some_and(Value::is_object))
 }
 
-fn delete_all(call: &research::Call) -> bool {
+pub(super) fn delete_all(call: &research::Call) -> bool {
     matches!(call.projection, research::Projection::Saved)
         && call.args == ["saved", "delete", "--all"]
 }
@@ -50,13 +50,8 @@ impl Call<'_> {
 
     pub(super) fn confirm(
         self,
-        call: &research::Call,
-        http: bool,
         answer: impl FnOnce(&Self, &DeletePreview) -> Decision,
     ) -> io::Result<Value> {
-        if !delete_all(call) {
-            return self.run(call, http);
-        }
         let encoding = crate::command::Encoding::Mcp;
         let file = match saved_mcp::file(self.context) {
             Ok(file) => file,
