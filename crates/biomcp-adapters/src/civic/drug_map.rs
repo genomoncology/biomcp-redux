@@ -1,7 +1,7 @@
 use super::{drug_raw as raw, variant_claims, variant_map};
 use crate::{mapped::Problems, raw::Field};
 use biodata::VariantRef;
-use biomcp_types::{DrugCivicClaim, DrugCivicMember, DrugCivicProfile, DrugGet};
+use biomcp_types::{CivicStatus, DrugCivicClaim, DrugCivicMember, DrugCivicProfile, DrugGet};
 
 pub(super) fn context(
     raw: Option<Field<raw::Profile>>,
@@ -62,7 +62,13 @@ fn build(
     cx: &mut Problems,
 ) -> Option<DrugCivicClaim> {
     if mapped.claim.status.as_ref().is_some_and(|status| {
-        !status.is_unknown() && !matches!(status, biomcp_types::CivicStatus::Accepted)
+        !status.is_unknown()
+            && query
+                .evidence_filter()
+                .evidence_status
+                .map_or(matches!(status, CivicStatus::Rejected), |selected| {
+                    !status.as_str().eq_ignore_ascii_case(selected.as_str())
+                })
     }) {
         cx.required::<()>("status", None);
         return None;

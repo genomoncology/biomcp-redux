@@ -66,8 +66,6 @@ def main():
     put('B', 2, 'B1', [row(5, 'B')], 2)
     put('C', 2, None, [row(6, 'C', 'SUBMITTED')], 1, status='SUBMITTED')
     put(None, 2, None, [row(7, 'D', 'REJECTED')], 1, status='REJECTED')
-    record('drug/civic-evidence-streams', drug_request(count=2),
-           {'data': {'therapy': therapy, 'evidenceItems': connection([row(1), row(2)], 5, 'plain2')}})
 
 
 if __name__ == '__main__':

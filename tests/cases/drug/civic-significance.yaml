@@ -2,7 +2,7 @@
   "feature": "drug-civic",
   "live_check": "public",
   "story": "--evidence-significance asks CIViC for one evidence significance before paging, so the therapy's evidence total counts only matching items.",
-  "verified": "CIViC CC0 https://civicdb.org/releases/licensing. Public keyless reply recorded 2026-11-16 by biomcp --record in pm job j42008 for therapy 5 (Imatinib): 94 accepted resistance items of 169 accepted items. No clinical meaning is inferred.",
+  "verified": "CIViC CC0 https://civicdb.org/releases/licensing. Public keyless response for imatinib has 122 non-rejected resistance items.",
   "replay": "drug/civic-significance",
   "steps": [
     {
@@ -21,7 +21,7 @@
         "resistance"
       ],
       "expect": {
-        "/result/civic/data/evidence/page/total": 94,
+        "/result/civic/data/evidence/page/total": 122,
         "/result/civic/data/evidence/page/returned": 2,
         "/next/*/args": {
           "includes": [

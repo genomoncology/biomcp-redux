@@ -1329,7 +1329,7 @@
               "type": "null"
             }
           ],
-          "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
+          "description": "Status\nDefaults to accepted and submitted. Select rejected explicitly.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "find": {
           "description": "Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.\nCurrent labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.\nOnly with section label or label-history.",
@@ -4142,7 +4142,7 @@
               "type": "null"
             }
           ],
-          "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
+          "description": "Status\nDefaults to accepted and submitted. Select rejected explicitly.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "input": {
           "$ref": "#/$defs/Reply_VariantGetLookupInput",

@@ -1,5 +1,5 @@
 //! Native drug claim requests retain query filters and source stream cursors.
-use super::{GENES, drug_raw as raw, variant::failure};
+use super::{GENES, drug_raw as raw, evidence_filter, variant::failure};
 use biodata::Text;
 use biomcp_fetch::{Input, Leg, Read, RequestError};
 use biomcp_types::{CivicClaimKind, DrugGet, Reason};
@@ -44,9 +44,9 @@ fn fetch_native(
             ),
         };
         let filter = if kind == CivicClaimKind::Evidence {
-            super::evidence_filter::arguments(query.evidence_filter(), level, "status:ACCEPTED")
+            evidence_filter::arguments(query.evidence_filter(), level)
         } else {
-            "status:ACCEPTED".into()
+            evidence_filter::NON_REJECTED.into()
         };
         format!(
             "{name}(therapyId:$id{profile},{filter},first:{count},after:$after){{totalCount \
@@ -99,7 +99,7 @@ pub(super) fn fetch(
         return fetch_native(leg, id, query, kind, after, count, None);
     }
     let mut therapy = None;
-    let evidence_items = super::evidence_filter::page(
+    let evidence_items = evidence_filter::page(
         query.evidence_filter(),
         after,
         count,

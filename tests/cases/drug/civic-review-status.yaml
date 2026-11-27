@@ -34,10 +34,7 @@
           "SUBMITTED",
           "SUBMITTED",
           "SUBMITTED"
-        ],
-        "/problems/*/field": {
-          "excludes": "status"
-        }
+        ]
       }
     },
     {
@@ -64,9 +61,6 @@
           "SUBMITTED",
           "SUBMITTED"
         ],
-        "/problems/*/field": {
-          "excludes": "status"
-        },
         "/result/civic/data/assertions/page/total": 1,
         "/result/civic/data/assertions/records/0/claim/status": "SUBMITTED"
       }

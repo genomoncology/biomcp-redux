@@ -121,7 +121,7 @@ fn check_request(query: &str, variables: &Value) -> Result<(), String> {
     for field in ["evidenceItems", "assertions"] {
         if query.contains(&format!("{field}(")) {
             if !query.contains(&format!(
-                "{field}(therapyId:$id{profile},status:ACCEPTED,first:1,after:$after)"
+                "{field}(therapyId:$id{profile},status:NON_REJECTED,first:1,after:$after)"
             )) {
                 return Err(format!(
                     "{field} changed its therapy, status or page selector"

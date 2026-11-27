@@ -5,19 +5,17 @@ use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::{CivicEvidenceFilter, CivicEvidenceLevel, Reason};
 
+pub(super) const NON_REJECTED: &str = "status:NON_REJECTED";
+
 #[derive(Default)]
 struct Cursor {
     level: usize,
     after: Option<Text>,
 }
 
-pub(super) fn arguments(
-    filter: &CivicEvidenceFilter,
-    level: Option<CivicEvidenceLevel>,
-    default_status: &str,
-) -> String {
+pub(super) fn arguments(filter: &CivicEvidenceFilter, level: Option<CivicEvidenceLevel>) -> String {
     let status = filter.evidence_status.map_or_else(
-        || default_status.to_owned(),
+        || NON_REJECTED.to_owned(),
         |status| format!("status:{}", status.as_str().to_ascii_uppercase()),
     );
     let status = match filter.evidence_significance {
