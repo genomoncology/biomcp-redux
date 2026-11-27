@@ -63,6 +63,7 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = typed_followups::trials();
+    trials.extend(super::saved_elicitation::trials());
     trials.push(transcript_trial("mcp-parity/tool-metadata", || {
         tool_metadata::check().map_err(Into::into)
     }));

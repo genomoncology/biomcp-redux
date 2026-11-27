@@ -22,7 +22,7 @@ pub(super) fn trials() -> Vec<Trial> {
 }
 
 /// Where the product resolves saved.sqlite inside an isolated test environment.
-fn saved_file(env: &Environment) -> PathBuf {
+pub(super) fn saved_file(env: &Environment) -> PathBuf {
     if cfg!(windows) {
         env.root().join("config/biomcp/saved.sqlite")
     } else {
@@ -30,7 +30,7 @@ fn saved_file(env: &Environment) -> PathBuf {
     }
 }
 
-fn run(env: &Environment, args: &[&str]) -> Result<Vec<u8>, String> {
+pub(super) fn run(env: &Environment, args: &[&str]) -> Result<Vec<u8>, String> {
     let args: Vec<String> = args.iter().map(|arg| (*arg).to_owned()).collect();
     let output = env
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
