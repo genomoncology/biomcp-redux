@@ -1,7 +1,7 @@
 //! A public request cannot intentionally break a worker invariant.
 #[test]
 fn panicking_worker_completes_with_internal_error() {
-    use super::super::{Event, Server};
+    use super::super::{Event, ReplyVersion, Server};
     use serde_json::json;
     let (sender, receiver) = std::sync::mpsc::sync_channel(32);
     let mut server = Server {
@@ -9,7 +9,7 @@ fn panicking_worker_completes_with_internal_error() {
         active: std::collections::BTreeMap::new(),
         max_calls: crate::config::DEFAULT_MCP_CAPACITY,
         queue: super::super::queue::Queue::new(&Ok(None)),
-        legacy: false,
+        version: ReplyVersion::Current,
         globals: crate::grammar::Globals::default(),
         root: std::sync::Arc::new(crate::grammar::Root::new(clap::Command::new(
             "worker-fixture",
@@ -19,9 +19,13 @@ fn panicking_worker_completes_with_internal_error() {
         recovery: None,
     };
     server
-        .start_call("panic".into(), json!("panic"), true, None, || {
-            panic!("injected worker failure")
-        })
+        .start_call(
+            "panic".into(),
+            json!("panic"),
+            ReplyVersion::Current,
+            None,
+            || panic!("injected worker failure"),
+        )
         .unwrap();
     let Event::Completed(key, outcome) = receiver
         .recv_timeout(std::time::Duration::from_secs(5))

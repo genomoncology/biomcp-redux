@@ -275,7 +275,7 @@ fn wait(
 
 #[cfg(test)]
 mod tests {
-    use super::{Active, Calls, Service, ToolCall};
+    use super::{Active, Calls, ReplyVersion, Service, ToolCall};
     use crate::config::DEFAULT_HTTP_CAPACITY as MAX_CONNECTIONS;
     use crate::{
         config::StartupError,
