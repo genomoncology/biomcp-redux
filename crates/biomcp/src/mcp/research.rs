@@ -22,10 +22,15 @@ pub(super) fn tools(root: &crate::grammar::Root) -> io::Result<Vec<Value>> {
     .map(|(name, key, description)| {
         let output = super::output_schema::for_tool(root, name)?;
         let title = format!("{} BioMCP", super::protocol::display_name(name));
+        let input_description = if key == "query" {
+            "Article text or a CLI entity query."
+        } else {
+            "Exact ID from search results."
+        };
         Ok(super::protocol::named_tool(&title, json!({"name":name,
 "description":description,
 "inputSchema":{"$schema":super::protocol::SCHEMA_DIALECT,"type":"object",
-"properties":{key:{"type":"string"}},
+"properties":{key:{"type":"string","description":input_description}},
 "required":[key],
 "additionalProperties":false},
 "outputSchema":output,
