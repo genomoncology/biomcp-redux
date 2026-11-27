@@ -16,8 +16,13 @@ pub(super) fn check(server: &Server) -> Check {
             for (request, pointer, expected) in [
                 (init, "/result/protocolVersion", json!(revision)),
                 (call, "/result/isError", json!(false)),
+                (
+                    legacy(9, "unavailable-method", json!({})),
+                    "/error/code",
+                    json!(-32601),
+                ),
             ] {
-                let fallback = version_header.is_empty() && pointer == "/result/isError";
+                let fallback = version_header.is_empty() && pointer != "/result/protocolVersion";
                 let transport_revision = if fallback { "2025-03-26" } else { revision };
                 let body = request.to_string();
                 let (status, reply, response) =
