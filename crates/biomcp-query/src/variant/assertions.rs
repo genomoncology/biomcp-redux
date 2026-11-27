@@ -331,7 +331,10 @@ fn page(query: &VariantAssertionsGet, mut rows: Vec<VariantAssertion>) -> Varian
                         ..Default::default()
                     });
                 statement.citations = Box::default();
-                statement.criteria = Box::default();
+                // A summary without a document ID has no detail view for its criteria.
+                if row.kind != AssertionKind::Erepo || row.record.is_some() {
+                    statement.criteria = Box::default();
+                }
             }
         }
     }

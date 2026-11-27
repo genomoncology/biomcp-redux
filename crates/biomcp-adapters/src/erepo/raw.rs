@@ -44,7 +44,7 @@ pub(super) struct Record {
     #[serde(rename = "caId")]
     pub ca_id: String,
     #[serde(rename = "PCERDocID")]
-    pub id: String,
+    pub id: Option<String>,
     #[serde(rename = "docVersion")]
     pub version: String,
     classification: Option<Field<NativeText>>,
@@ -71,12 +71,12 @@ impl Record {
     pub(super) fn matches(&self, caid: &str) -> bool {
         self.ca_id == caid
             && self.ca_id.parse::<biodata::VariantId>().is_ok()
-            && !self.id.trim().is_empty()
+            && self.id.as_ref().is_none_or(|id| !id.trim().is_empty())
             && !self.version.trim().is_empty()
     }
     pub(super) fn map(mut self, caid: &str, cx: &mut Problems) -> Option<VariantAssertion> {
-        cx.record = cx.text("PCERDocID", Some(&self.id));
-        let id = cx.required("PCERDocID", cx.record.clone())?;
+        cx.record = cx.text("PCERDocID", self.id.as_deref());
+        let id = cx.record.clone();
         let version = cx.text("docVersion", Some(&self.version))?;
         let allele = cx.optional("caId", Some(self.ca_id.parse::<biodata::VariantId>()))?;
         if self.ca_id != caid {
@@ -84,7 +84,7 @@ impl Record {
             return None;
         }
         let uuid = cx.field("uuid", self.uuid.take());
-        let url = uuid.as_deref().and_then(|uuid| {
+        let url = id.as_ref().and(uuid.as_deref()).and_then(|uuid| {
             cx.text(
                 "uuid",
                 Some(&format!(
@@ -97,7 +97,7 @@ impl Record {
             approved: None,
             published: None,
             source: Source::Erepo.text(),
-            record: Some(id),
+            record: id,
             version: Some(version),
             release: None,
             submitter: cx.source_field("ep", self.ep.take()),

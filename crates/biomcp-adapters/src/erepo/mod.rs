@@ -45,7 +45,7 @@ pub fn assertions(
         let id = id.as_str();
         let record = records
             .iter()
-            .find(|r| r.id == id)
+            .find(|r| r.id.as_deref() == Some(id))
             .ok_or_else(|| biomcp_fetch::bad_reply(Source::Erepo, None))?;
         // The summary names its own exact current document version.
         // Older selections use their own SEPIO body and cannot borrow these facts.
@@ -132,10 +132,10 @@ fn records(leg: &Leg<'_>, caid: &str) -> Result<Mapped<Vec<raw::Record>>, Reques
                 refusals = crate::Refusal::Refused;
                 continue;
             };
-            cx.record = cx.text("PCERDocID", Some(&row.id));
+            cx.record = cx.text("PCERDocID", row.id.as_deref());
             let version = cx.text("docVersion", Some(&row.version));
             let allele = cx.optional("caId", Some(row.ca_id.parse::<biodata::VariantId>()));
-            if cx.record.is_some() && version.is_some() && allele.is_some() {
+            if (row.id.is_none() || cx.record.is_some()) && version.is_some() && allele.is_some() {
                 if row.ca_id == caid {
                     rows.push(row);
                 } else {
