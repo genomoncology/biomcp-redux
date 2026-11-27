@@ -51,7 +51,9 @@
         "--evidence-status",
         "submitted",
         "--evidence-significance",
-        "poor_outcome"
+        "poor_outcome",
+        "--section-limit",
+        "2"
       ],
       "expect": {
         "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
@@ -75,7 +77,9 @@
         "--evidence-status",
         "accepted",
         "--evidence-significance",
-        "positive"
+        "positive",
+        "--section-limit",
+        "2"
       ],
       "expect": {
         "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
@@ -115,7 +119,9 @@
         "--evidence-status",
         "accepted",
         "--evidence-significance",
-        "sensitivityresponse"
+        "sensitivityresponse",
+        "--section-limit",
+        "2"
       ],
       "expect": {
         "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
@@ -174,7 +180,9 @@
         "--evidence-status",
         "submitted",
         "--evidence-significance",
-        "sensitivityresponse"
+        "sensitivityresponse",
+        "--section-limit",
+        "2"
       ],
       "expect": {
         "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",

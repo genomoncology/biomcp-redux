@@ -2391,7 +2391,7 @@ Commands:
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
   trial          Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
-  variant        Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. Every candidate remains available; source assertions do not classify the variant for the caller.
+  variant        Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. With civic alone, use a CIViC profile ID or exact name. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Options:
       --format <format>
@@ -3809,14 +3809,14 @@ Optional intact source sections. Default cards only; diseases and summary requir
 ## biomcp get variant
 
 ```text
-Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. With civic alone, use a CIViC profile ID or exact name. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          rs/CA/clinvar:N/VCV/HGVS/VCF
-          rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E.
+          Variant or CIViC profile
+          rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E. With civic alone, a bare integer is a CIViC profile ID, and a profile name must match exactly.
 
   [section]...
           Sections; help get variant
@@ -3941,20 +3941,20 @@ Source CIViC claim collection within the selected profile. Only with section civ
 - `--clinvar-kind`: Kind
 ClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
 - `--disease`: Disease
-CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
+CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease Colorectal.
 - `--drug`: Drug
-CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all. Value form: string; example: --drug erlotinib.
+CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all. Value form: string; example: --drug Palbociclib.
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
 - `--evidence-significance`: Significance
 Source CIViC evidence significance, such as resistance or sensitivityresponse.
-Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance sensitivityresponse.
 - `--evidence-status`: Status
 Defaults to accepted and submitted. Also filters drug assertions.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
-- `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
-rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E.
+- `input`: Variant or CIViC profile
+rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E. With civic alone, a bare integer is a CIViC profile ID, and a profile name must match exactly.
 Form: get variant INPUT SECTION...; not --input.
 - `--limit`: Candidate rows per page. Value form: integer; example: --limit 1.
 - `--offset`: Candidate rows to skip in source order. Value form: integer; example: --offset 1.
