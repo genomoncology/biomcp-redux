@@ -1,17 +1,19 @@
 {
   "feature": "gwas-search",
-  "story": "An exact trait label with no associations explains the match rule and offers a disease search for the same text.",
+  "story": "A short name offers catalog trait names and IDs without returning their associations.",
   "replay": "gwas/empty-trait",
   "steps": [
     {
       "run": ["search", "gwas", "--trait", "type 2 diabetes"],
+      "exit": 1,
       "expect": {
-        "/status": "complete",
+        "/status": "absent",
         "/page/total": 0,
         "/page/returned": 0,
-        "/sources/0/notices/0/message": "--trait matches only the exact GWAS Catalog trait label. Search diseases for an ontology ID to pass as --trait-id.",
+        "/result/items": [],
+        "/sources/0/notices/0/message": "Similar GWAS Catalog traits: type 2 diabetes mellitus (MONDO_0005148), type 2 diabetes nephropathy (EFO_0004997), age of onset of type 2 diabetes mellitus (OBA_2001013).",
         "/next/0/kind": "disambiguate",
-        "/next/0/args": ["search", "disease", "type 2 diabetes"]
+        "/next/0/args": ["search", "gwas", "--trait-id", "MONDO_0005148"]
       }
     }
   ]

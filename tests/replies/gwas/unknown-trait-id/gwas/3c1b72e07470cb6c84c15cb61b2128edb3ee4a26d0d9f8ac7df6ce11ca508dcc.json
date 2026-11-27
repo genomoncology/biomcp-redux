@@ -1,0 +1,16 @@
+{
+  "source": "gwas",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&efo_id=EFO_0000305&page=0&show_child_trait=false&size=3&sort=p_value",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "body": {
+        "kind": "text",
+        "value": "{\"_links\":{\"self\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&efo_id=EFO_0000305&show_child_trait=false&page=0&size=3&sort=p_value\"}},\"page\":{\"size\":3,\"totalElements\":0,\"totalPages\":0,\"number\":0}}"
+      }
+    }
+  ]
+}
