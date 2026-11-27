@@ -58,6 +58,13 @@
           ],
           "description": "Source beta text, including units and direction."
         },
+        "catalog_alleles": {
+          "description": "Effect alleles identified by a Catalog position or HLA name.",
+          "items": {
+            "$ref": "#/$defs/Reply_GwasCatalogAllele"
+          },
+          "type": "array"
+        },
         "ci_lower": {
           "anyOf": [
             {
@@ -221,6 +228,47 @@
       "type": "string",
       "x-enum-descriptions": [
         "Native locus and reported gene context."
+      ]
+    },
+    "Reply_GwasCatalogAllele": {
+      "description": "Effect allele paired with a Catalog identifier outside dbSNP.",
+      "properties": {
+        "allele": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source allele text."
+        },
+        "identifier": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Identifier as supplied by the Catalog."
+        },
+        "kind": {
+          "$ref": "#/$defs/Reply_GwasCatalogAlleleKind",
+          "description": "Kind of Catalog identifier."
+        }
+      },
+      "required": [
+        "identifier",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "Reply_GwasCatalogAlleleKind": {
+      "description": "Catalog identifier syntax.",
+      "enum": [
+        "position",
+        "hla_allele"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Catalog chromosome and position with no inferred assembly.",
+        "Named HLA allele."
       ]
     },
     "Reply_GwasEffectAllele": {

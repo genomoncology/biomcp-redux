@@ -158,15 +158,13 @@ pub struct GwasCatalogAllele {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub allele: Option<Text>,
 }
-/// Catalog identifier syntax.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum GwasCatalogAlleleKind {
-    /// Catalog chromosome and position with no inferred assembly.
-    Position,
-    /// Named HLA allele.
-    HlaAllele,
+biodata::wire_enum! {
+    described
+    /// Catalog identifier syntax.
+    GwasCatalogAlleleKind {
+        #[doc = "Catalog chromosome and position with no inferred assembly."] Position => "position",
+        #[doc = "Named HLA allele."] HlaAllele => "hla_allele"
+    }
 }
 /// Population summary and one explicitly requested ancestry-detail page.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

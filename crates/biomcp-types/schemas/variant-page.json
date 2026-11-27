@@ -2586,6 +2586,13 @@
           ],
           "description": "Source beta text, including units and direction."
         },
+        "catalog_alleles": {
+          "description": "Effect alleles identified by a Catalog position or HLA name.",
+          "items": {
+            "$ref": "#/$defs/Reply_GwasCatalogAllele"
+          },
+          "type": "array"
+        },
         "ci_lower": {
           "anyOf": [
             {
@@ -2727,6 +2734,47 @@
       "description": "A positive Catalog association ID qualified by resource kind.",
       "pattern": "^association:(?:18446744073709551615|[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|1844674407370955[0-0][0-9]{3}|18446744073709551[0-5][0-9]{2}|184467440737095516[0-0][0-9]{1}|1844674407370955161[0-4][0-9]{0})$",
       "type": "string"
+    },
+    "Reply_GwasCatalogAllele": {
+      "description": "Effect allele paired with a Catalog identifier outside dbSNP.",
+      "properties": {
+        "allele": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source allele text."
+        },
+        "identifier": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Identifier as supplied by the Catalog."
+        },
+        "kind": {
+          "$ref": "#/$defs/Reply_GwasCatalogAlleleKind",
+          "description": "Kind of Catalog identifier."
+        }
+      },
+      "required": [
+        "identifier",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "Reply_GwasCatalogAlleleKind": {
+      "description": "Catalog identifier syntax.",
+      "enum": [
+        "position",
+        "hla_allele"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        "Catalog chromosome and position with no inferred assembly.",
+        "Named HLA allele."
+      ]
     },
     "Reply_GwasEffectAllele": {
       "description": "Catalog effect allele paired with its exact rsID.",
