@@ -30,7 +30,7 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
     let Some(query) = queries.first() else {
         return outcomes;
     };
-    let [out] = outcomes.as_slice() else {
+    let [out] = outcomes.as_mut_slice() else {
         return outcomes;
     };
     if query.uses_default_identity_source()
@@ -97,7 +97,7 @@ pub(in crate::drug) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outco
         .collect()
 }
 
-fn chembl_identity(cx: &Ctx<'_>, query: &DrugGet, primary: &Outcome) -> Option<Outcome> {
+fn chembl_identity(cx: &Ctx<'_>, query: &DrugGet, primary: &mut Outcome) -> Option<Outcome> {
     let ReplyData::DrugCard {
         query: attempted, ..
     } = &primary.body
@@ -108,13 +108,25 @@ fn chembl_identity(cx: &Ctx<'_>, query: &DrugGet, primary: &Outcome) -> Option<O
         .sources
         .iter()
         .find(|row| row.source == DrugSource::Mychem.source())?;
-    let chembl = DrugGet::named(query.input().clone(), DrugSource::Chembl).ok()?;
+    let chembl = crate::next::checked(
+        DrugGet::named(query.input().clone(), DrugSource::Chembl),
+        DrugSource::Chembl.source(),
+        &mut primary.problems,
+    )?;
     let mut found = get(cx, &chembl);
     if !matches!(found.body, ReplyData::DrugCard { body: Some(_), .. }) {
         return None;
     }
     // The carried components share MyChem's failure. Only MyChem itself was asked for that record.
-    found.sources.push(mychem.clone());
+    if let Some(existing) = found
+        .sources
+        .iter_mut()
+        .find(|row| row.source == mychem.source)
+    {
+        status::retain_source_state(existing, mychem);
+    } else {
+        found.sources.push(mychem.clone());
+    }
     let failure = if attempted.input() == query.input() {
         "MyChem.info could not resolve the requested name.".into()
     } else {
@@ -125,7 +137,8 @@ fn chembl_identity(cx: &Ctx<'_>, query: &DrugGet, primary: &Outcome) -> Option<O
         DrugSource::Mychem,
         format!("{failure} Resolved the requested name through ChEMBL."),
     );
-    status::item(&mut found, true, false, true);
+    status::append(&mut found.problems, primary.problems.iter().cloned());
+    status::item(&mut found, true, false, false);
     Some(found)
 }
 
