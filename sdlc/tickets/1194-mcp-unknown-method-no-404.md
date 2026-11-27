@@ -1,6 +1,7 @@
 # 1194 — mcp-unknown-method-no-404
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9d728ab0dfddf6f2285382149292b9d9a1ea13c2
 
 Milestone: 7
 

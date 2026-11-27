@@ -371,6 +371,9 @@ fn admission() -> Check {
     if server.raw("GET", "/health", "clinic.example", "", "")?.0 != 200 {
         return Err("explicit allowed Host was rejected".into());
     }
+    if server.raw("POST", "/missing", "clinic.example", "", "")?.0 != 404 {
+        return Err("unknown HTTP path needs HTTP 404".into());
+    }
     metadata_cases(&server)?;
     let host = server.address.to_string();
     for (authority, headers) in [

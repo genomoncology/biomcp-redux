@@ -256,7 +256,8 @@ impl Service {
         context.declared_use = caller.declared_use;
         context.secrets = keys.as_ref();
         context.excluded = Some(&caller.excluded);
-        let mut version = if revision == super::protocol::REVISIONS[0] {
+        let modern = revision == super::protocol::REVISIONS[0];
+        let mut version = if modern {
             ReplyVersion::Current
         } else {
             ReplyVersion::Legacy
@@ -279,10 +280,9 @@ impl Service {
                 return self.tool(request, id, &params, version, (revision, caller), peer);
             }
         };
-        let status = if result.pointer("/error/code") == Some(&json!(-32601)) {
-            404
-        } else {
-            200
+        let status = match result.pointer("/error/code").and_then(Value::as_i64) {
+            Some(-32601) if modern => 404,
+            _ => 200,
         };
         (status, Some(result), Some(revision))
     }
