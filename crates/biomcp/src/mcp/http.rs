@@ -280,10 +280,9 @@ impl Service {
                 return self.tool(request, id, &params, version, (revision, caller), peer);
             }
         };
-        let status = if modern && result.pointer("/error/code") == Some(&json!(-32601)) {
-            404
-        } else {
-            200
+        let status = match result.pointer("/error/code").and_then(Value::as_i64) {
+            Some(-32601) if modern => 404,
+            _ => 200,
         };
         (status, Some(result), Some(revision))
     }
