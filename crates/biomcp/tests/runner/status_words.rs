@@ -49,10 +49,12 @@ pub(super) fn check(reply: &Value) -> Result<(), String> {
 fn unread_section(value: &Value) -> bool {
     match value {
         Value::Object(map) => {
-            matches!(
-                map.get("state").and_then(Value::as_str),
-                Some("skipped" | "unavailable")
-            ) || map.values().any(unread_section)
+            (!map.contains_key("use")
+                && matches!(
+                    map.get("state").and_then(Value::as_str),
+                    Some("skipped" | "unavailable")
+                ))
+                || map.values().any(unread_section)
         }
         Value::Array(items) => items.iter().any(unread_section),
         _ => false,

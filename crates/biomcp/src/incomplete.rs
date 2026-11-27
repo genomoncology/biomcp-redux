@@ -164,7 +164,9 @@ fn walk(value: &Value, at: String, source: Option<Source>, marks: &mut Marks) {
                 let reason = map
                     .get("reason")
                     .and_then(|value| serde_json::from_value(value.clone()).ok());
-                marks.unread_section |= matches!(state, "skipped" | "unavailable");
+                // A nested source outcome carries `use` and can describe an optional read.
+                marks.unread_section |=
+                    matches!(state, "skipped" | "unavailable") && !map.contains_key("use");
                 marks.missing.extend(entry(at, source, reason));
                 return;
             }
