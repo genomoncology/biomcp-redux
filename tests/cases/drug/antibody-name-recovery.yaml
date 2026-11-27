@@ -1,0 +1,46 @@
+feature: drug-name-get
+story: A default name lookup recovers through ChEMBL when MyChem's selected record is missing or has the wrong identity, and identifies the source and record it used.
+live_check: public
+replay: drug/antibody-name-recovery
+steps:
+  - run: [get, drug, pembrolizumab]
+    exit: 0
+    expect:
+      /status: partial
+      /query/source: chembl
+      /result/header/id: CHEMBL3137343
+      /result/header/name_resolution/input: pembrolizumab
+      /sources/1/source: mychem
+      /sources/1/reason: not-found
+      /sources/1/notices/0/message: 'MyChem.info could not serve record 187051801. Resolved the requested name through ChEMBL.'
+    max_bytes: 9000
+  - run: [get, drug, pembrolizumab, --source, chembl]
+    exit: 0
+    expect:
+      /status: complete
+      /result/header/id: CHEMBL3137343
+    max_bytes: 9000
+  - run: [get, drug, adalimumab]
+    exit: 0
+    expect:
+      /status: partial
+      /query/source: chembl
+      /result/header/id: CHEMBL1201580
+      /result/header/name_resolution/input: adalimumab
+      /sources/1/source: mychem
+      /sources/1/reason: bad-reply
+      /sources/1/notices/0/message: 'MyChem.info could not serve record 178101561. Resolved the requested name through ChEMBL.'
+    max_bytes: 9000
+  - run: [get, drug, adalimumab, --source, chembl]
+    exit: 0
+    expect:
+      /status: complete
+      /result/header/id: CHEMBL1201580
+    max_bytes: 9000
+  - run: [get, drug, pembrolizumab, --source, mychem]
+    exit: 4
+    expect:
+      /status: failed
+      /query/input: '187051801'
+      /query/source: mychem
+    max_bytes: 9000
