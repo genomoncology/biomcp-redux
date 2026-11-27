@@ -27,7 +27,7 @@
     {
       "run": ["pathway", "genes", "WP9999998", "--gene-products"],
       "expect": {
-        "/status": "complete",
+        "/status": "partial",
         "/result/total": 3,
         "/result/page/returned": 3,
         "/result/page/total": 3,

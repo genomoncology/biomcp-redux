@@ -34,18 +34,22 @@ pub(super) fn fetch(
         let mapped = wikipathways::members(&leg, id)?;
         Ok::<_, RequestError>(Some((card, mapped)))
     })();
-    out.sources.push(status::source(
-        Source::WikiPathways,
-        leg.finish(),
-        reply.as_ref().err().copied(),
-    ));
-    let Some((card, mapped)) = reply? else {
-        return Ok(None);
+    let (card, mapped) = match reply {
+        Ok(Some(pair)) => pair,
+        other => {
+            out.sources.push(status::source(
+                Source::WikiPathways,
+                leg.finish(),
+                other.as_ref().err().copied(),
+            ));
+            return other.map(|_| None);
+        }
     };
     let rows = mapped.value;
     let reference_occurrences = rows.items.len() as u64;
     let mut problems: Vec<_> = card.problems.into_iter().chain(mapped.problems).collect();
     let mut sources = out.sources.clone();
+    let mut xref_error = None;
     let (items, unresolved) = super::gpml_membership::resolve(
         cx,
         rows.items,
@@ -53,15 +57,28 @@ pub(super) fn fetch(
         q.fresh,
         &mut sources,
         &mut problems,
+        || match wikipathways::gene_xrefs(&leg, id, rows.version.as_str()) {
+            Ok(xrefs) => Some(xrefs),
+            Err(error) => {
+                xref_error = Some(error);
+                None
+            }
+        },
+    );
+    sources.insert(
+        0,
+        status::source(Source::WikiPathways, leg.finish(), xref_error),
     );
     let total = items.len() as u64;
+    let unmapped = rows.unmapped + unresolved;
     let skipped_join = sources
         .iter()
         .any(|source| source.source == Source::Hgnc && source.state == SourceState::Skipped);
     Ok(Some(Saved {
         dropped: card.refusals == biomcp_adapters::Refusal::Refused
             || mapped.refusals == biomcp_adapters::Refusal::Refused
-            || skipped_join,
+            || skipped_join
+            || unmapped > 0,
         genes: Some(PathwayGenes {
             header: PathwayHeader {
                 id: q.id.clone(),
@@ -74,7 +91,7 @@ pub(super) fn fetch(
             gene_count: Some(PathwayGeneCount {
                 scope: PathwayGeneCountScope::HgncGeneProducts,
                 distinct: total,
-                unmapped: rows.unmapped + unresolved,
+                unmapped,
             }),
             total,
             items: items.into(),

@@ -1,0 +1,155 @@
+{
+  "feature": "pathway-wikipathways-genes",
+  "live_check": "public",
+  "story": "WikiPathways gene membership keeps native gene nodes, joins publisher cross-references, and counts unmappable nodes. A missing Data-Source does not prevent a pathway read.",
+  "verified": "GPML and distinct Entrez IDs come from the 20261110 WikiPathways release. The pathway JSON recordings retain node and cross-reference fields from the same revisions. HGNC rows and catalog entries are scoped to the recorded requests.",
+  "replay": "pathway/wikipathways-gene-reach",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "wikipathways"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": [
+        "pathway",
+        "genes",
+        "WP4324",
+        "--limit",
+        "100"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/total": 56,
+        "/result/gene_count/unmapped": 16,
+        "/result/items/*/gene": {
+          "unique": true,
+          "count": 56,
+          "includes_all_of": [
+            "HGNC:1321",
+            "HGNC:17194",
+            "HGNC:18828",
+            "HGNC:20278",
+            "HGNC:20372",
+            "HGNC:21034",
+            "HGNC:21497",
+            "HGNC:21868",
+            "HGNC:23987",
+            "HGNC:24530",
+            "HGNC:25496",
+            "HGNC:26050",
+            "HGNC:26927",
+            "HGNC:28086",
+            "HGNC:28625",
+            "HGNC:28816",
+            "HGNC:29548",
+            "HGNC:29918",
+            "HGNC:30536",
+            "HGNC:30883",
+            "HGNC:7455",
+            "HGNC:7456",
+            "HGNC:7459",
+            "HGNC:7460",
+            "HGNC:7461",
+            "HGNC:7462",
+            "HGNC:7683",
+            "HGNC:7684",
+            "HGNC:7685",
+            "HGNC:7686",
+            "HGNC:7688",
+            "HGNC:7690",
+            "HGNC:7691",
+            "HGNC:7692",
+            "HGNC:7694",
+            "HGNC:7695",
+            "HGNC:7696",
+            "HGNC:7697",
+            "HGNC:7698",
+            "HGNC:7699",
+            "HGNC:7700",
+            "HGNC:7701",
+            "HGNC:7702",
+            "HGNC:7703",
+            "HGNC:7704",
+            "HGNC:7705",
+            "HGNC:7706",
+            "HGNC:7707",
+            "HGNC:7708",
+            "HGNC:7710",
+            "HGNC:7711",
+            "HGNC:7712",
+            "HGNC:7713",
+            "HGNC:7716",
+            "HGNC:7717",
+            "HGNC:7719"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "WP5639",
+        "genes",
+        "--section-limit",
+        "100"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/genes/data/total": 27,
+        "/result/genes/data/gene_count/unmapped": 0,
+        "/result/genes/data/items/*/gene": {
+          "unique": true,
+          "count": 27,
+          "includes_all_of": [
+            "HGNC:10429",
+            "HGNC:10984",
+            "HGNC:11005",
+            "HGNC:12518",
+            "HGNC:13315",
+            "HGNC:14932",
+            "HGNC:1516",
+            "HGNC:16400",
+            "HGNC:16952",
+            "HGNC:21065",
+            "HGNC:24827",
+            "HGNC:3432",
+            "HGNC:393",
+            "HGNC:4092",
+            "HGNC:4335",
+            "HGNC:4852",
+            "HGNC:4853",
+            "HGNC:4854",
+            "HGNC:5007",
+            "HGNC:59",
+            "HGNC:6218",
+            "HGNC:6257",
+            "HGNC:6535",
+            "HGNC:7782",
+            "HGNC:7997",
+            "HGNC:9236",
+            "HGNC:9257"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pathway",
+        "WP5423",
+        "genes"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/genes/data/total": 0,
+        "/result/genes/data/gene_count/unmapped": 0
+      }
+    }
+  ]
+}

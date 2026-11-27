@@ -52,7 +52,7 @@ impl Document {
     fn document_header(tag: &BytesStart<'_>) -> Result<Self, BadReply> {
         if tag.name().as_ref() != "Pathway"
             || required(tag, "xmlns")? != NAMESPACE
-            || required(tag, "Data-Source")? != "WikiPathways"
+            || attribute(tag, "Data-Source")?.is_some_and(|source| source != "WikiPathways")
         {
             return Err(BadReply);
         }
