@@ -57,7 +57,9 @@ fn stdio() -> Result<(), String> {
         ],
         &["--offline".into()],
     )?;
-    if replies.first().and_then(|reply| reply.pointer("/result/protocolVersion"))
+    if replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/protocolVersion"))
         != Some(&json!("2025-11-25"))
     {
         return Err("expected a 2025-11-25 initialization result".into());
@@ -74,8 +76,7 @@ fn stdio() -> Result<(), String> {
 
 fn http() -> Result<(), String> {
     for (globals, scope) in scopes() {
-        let server =
-            Server::configured_globals("127.0.0.1:0", None, None, None, None, &globals)?;
+        let server = Server::configured_globals("127.0.0.1:0", None, None, None, None, &globals)?;
         for frame in catalog_requests() {
             let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
             if status != 200 {

@@ -1,4 +1,4 @@
-//! Compare raw single-tool wire replies with the verified unchanged product baseline.
+//! Compare single-tool wire replies with the verified product baseline.
 use super::super::super::{
     launch::{self, Environment},
     mcp::request,
@@ -102,6 +102,20 @@ fn compare_frames(
         let after = new.get(&id).ok_or("current reply")?;
         if before == after {
             continue;
+        }
+        if matches!(frame["method"].as_str(), Some("server/discover" | "tools/list")) {
+            // The transport cases verify the current catalog cache policy.
+            let mut before: Value = serde_json::from_str(before).map_err(|e| e.to_string())?;
+            let mut after: Value = serde_json::from_str(after).map_err(|e| e.to_string())?;
+            for result in [&mut before, &mut after] {
+                if let Some(result) = result["result"].as_object_mut() {
+                    result.remove("ttlMs");
+                    result.remove("cacheScope");
+                }
+            }
+            if before == after {
+                continue;
+            }
         }
         return Err(format!(
             "unapproved single RAW frame {id}: frozen={before}; current={after}"

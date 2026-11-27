@@ -72,7 +72,7 @@ pub(super) fn message(
         *version
     };
     let typed = mode == crate::config::ToolMode::Typed;
-    let result = match method {
+    let mut result = match method {
         "ping" => json!({}),
         "server/discover" if modern => current::discover(mode, context, revisions),
         "tools/list" => match tools(id, &params, typed, read_only, context) {
@@ -87,6 +87,9 @@ pub(super) fn message(
         "tools/call" => return call(id.clone(), params, typed, read_only, version, context),
         _ => return Message::Reply(protocol::error(id.clone(), -32601, "Method not found")),
     };
+    if modern && matches!(method, "server/discover" | "tools/list") {
+        current::add_catalog_cache_fields(&mut result, context.globals.hosted);
+    }
     Message::Reply(protocol::result(id.clone(), result, modern))
 }
 
