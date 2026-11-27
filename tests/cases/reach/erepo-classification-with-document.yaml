@@ -1,0 +1,24 @@
+{
+  "feature": "variant-assertions",
+  "story": "The sampled ClinGen Evidence Repository classification retains its linked summary document.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/erepo",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "CA1620124",
+        "--source",
+        "erepo"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 1,
+        "/result/assertions/0/statement/attribution/record": "PCER000013990",
+        "/result/assertions/0/statement/classification/label": "Uncertain Significance"
+      }
+    }
+  ],
+  "verified": "One published summary row from the 2026-11-27 census, projected to the adapter fields. The source allele ID and document ID are unchanged."
+}

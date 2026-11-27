@@ -1,6 +1,6 @@
 {
   "feature": "cpic-pgx",
-  "story": "CPIC returns every pair in the published SLCO1B1 slice.",
+  "story": "CPIC returns every pair in its SLCO1B1 slice, including levels A, B/C, C.",
   "live_check": "Offline pinned source reach check.",
   "replay": "reach/cpic",
   "steps": [
@@ -20,7 +20,29 @@
         "/result/page/total": 9,
         "/result/items": {
           "count": 9
-        }
+        },
+        "/result/items/*/pairid/id": [
+          110135,
+          110259,
+          110361,
+          110381,
+          110391,
+          1556298,
+          1556299,
+          1556300,
+          1556301
+        ],
+        "/result/items/*/cpiclevel": [
+          "A",
+          "B/C",
+          "C",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A"
+        ]
       }
     }
   ]
