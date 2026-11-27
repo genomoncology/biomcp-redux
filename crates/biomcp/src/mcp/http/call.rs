@@ -81,10 +81,10 @@ impl Calls {
                 return protocol::capacity(id, service.max_calls, waited, retry);
             }
         };
-        let expired = scope
+        if scope
             .as_ref()
-            .is_some_and(|scope| scope.remaining().is_zero());
-        if expired {
+            .is_some_and(|scope| scope.remaining().is_zero())
+        {
             return protocol::timeout(id);
         }
         let globals = service.globals.clone();
