@@ -148,7 +148,7 @@ fn key<'a>(context: Context<'a>) -> Option<&'a TrialCursorKey> {
         .fetch
         .as_ref()
         .ok()
-        .and_then(|fetch| fetch.trial_cursor_key())
+        .and_then(|fetch| fetch.continuation_key())
         .or_else(|| LOCAL_KEY.get_or_init(TrialCursorKey::generate).as_ref())
 }
 

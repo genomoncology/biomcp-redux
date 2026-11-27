@@ -89,9 +89,14 @@ impl Fetch {
         self
     }
 
-    /// Expose the configured shared key for hosted continuations.
+    /// Return the shared key stored on the server transport.
+    pub fn continuation_key(&self) -> Option<&TrialCursorKey> {
+        self.trial_cursor_key.as_deref()
+    }
+
+    /// Expose the shared key to a hosted trial request.
     pub fn trial_cursor_key(&self) -> Option<&TrialCursorKey> {
         self.hosted.then_some(())?;
-        self.trial_cursor_key.as_deref()
+        self.continuation_key()
     }
 }

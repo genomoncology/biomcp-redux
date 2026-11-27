@@ -280,7 +280,7 @@ fn hosted() -> Result<(), String> {
         accepted["result"]["resultType"], "complete",
         "another worker can complete the retry"
     );
-    let deleted = one_value(&accepted["result"])?;
+    let deleted = &accepted["result"]["structuredContent"];
     assert_eq!(
         deleted["result"]["lists"][0]["name"], "replacement",
         "the approved list was deleted"
