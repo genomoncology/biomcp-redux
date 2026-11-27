@@ -286,8 +286,10 @@ def main():
         require(process.returncode == 0 and not process.stderr, f"serve failed: {process.stderr}")
         reply = json.loads(process.stdout.splitlines()[0])
         guidance = "Listed choices accept any letter case; replies use their listed spelling."
-        require(reply["result"]["instructions"] == front + "\n" + guidance,
-                "server instructions differ from the front map and its guidance line")
+        instructions, skill_pointer = reply["result"]["instructions"].rsplit("\n", 1)
+        require(instructions == front + "\n" + guidance
+                and "skill://biomcp-research/SKILL.md" in skill_pointer,
+                "server instructions differ from the front map, guidance and skill pointer")
         repo = Path(__file__).resolve().parents[1]
         sizes = first_read_sizes(binary, env, repo)
         sizes["skill_characters"] = len(rendered)

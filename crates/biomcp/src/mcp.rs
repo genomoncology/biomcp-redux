@@ -11,6 +11,7 @@ mod protocol;
 mod queue;
 pub(crate) mod research;
 mod rpc;
+mod skills;
 pub(crate) mod typed;
 /// Each use case's worked example with the typed call this server derives from its command.
 pub(crate) use typed::example_calls;

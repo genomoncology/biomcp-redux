@@ -15,7 +15,8 @@ pub(super) fn initialize(
     info.get("version")?.as_str()?;
     let version = ReplyVersion::for_revision(revision);
     let result = json!({"protocolVersion":revision,
-        "capabilities":{"tools":{}}, "serverInfo":protocol::info(version), "instructions":protocol::instructions(mode, context)});
+        "capabilities":super::skills::capabilities(context, false),
+        "serverInfo":protocol::info(version), "instructions":protocol::instructions(mode, context)});
     Some((version, result))
 }
 

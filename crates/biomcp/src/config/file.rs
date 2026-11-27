@@ -69,6 +69,7 @@ impl ConfigError {
 pub(crate) struct ConfigFile {
     pub(super) hosted_max_use: Option<crate::command::DeclaredUse>,
     pub(super) mcp_tool_mode: Option<ToolMode>,
+    pub(super) mcp_skills: Option<bool>,
     pub(super) mcp_catalog: Option<McpCatalog>,
     pub(super) mcp_reply_form: Option<ReplyForm>,
     pub(super) mcp_typed_output_schema: Option<bool>,
@@ -217,6 +218,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
     let file = ConfigFile {
         hosted_max_use: take(&mut map, "hosted_max_use")?,
         mcp_tool_mode: take(&mut map, "mcp_tool_mode")?,
+        mcp_skills: take(&mut map, "mcp_skills")?,
         mcp_catalog: take(&mut map, "mcp_catalog")?,
         mcp_reply_form: take(&mut map, "mcp_reply_form")?,
         mcp_typed_output_schema: take(&mut map, "mcp_typed_output_schema")?,

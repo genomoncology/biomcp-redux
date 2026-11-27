@@ -127,6 +127,14 @@ pub(crate) fn mcp_tool_mode(globals: &Globals, settings: &Settings) -> ToolMode 
 
 pub(crate) type Settings = Result<Option<ConfigFile>, ConfigError>;
 
+pub(crate) fn mcp_skills(settings: &Settings) -> bool {
+    configured(settings)
+        .ok()
+        .flatten()
+        .and_then(|file| file.mcp_skills)
+        .unwrap_or(true)
+}
+
 fn configured(settings: &Settings) -> Result<Option<&ConfigFile>, ConfigError> {
     settings.as_ref().map(Option::as_ref).map_err(Clone::clone)
 }

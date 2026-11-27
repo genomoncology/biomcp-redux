@@ -1,5 +1,6 @@
 //! Embedded, case-backed agent guidance with explicit local installation.
 mod install;
+pub(crate) mod research;
 mod status;
 use clap::{Arg, Command};
 use std::{io, path::PathBuf};

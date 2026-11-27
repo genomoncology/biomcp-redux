@@ -22,6 +22,11 @@ pub(super) fn instructions(
     };
     instructions.push('\n');
     instructions.push_str(crate::grammar::ENUM_CASE_GUIDANCE);
+    if crate::config::mcp_skills(context.settings) {
+        instructions.push_str("\nLoad ");
+        instructions.push_str(super::skills::GUIDE_URI);
+        instructions.push_str(" for multi-step research.");
+    }
     instructions
 }
 pub(super) const NOVEMBER_2024: &str = "2024-11-05";

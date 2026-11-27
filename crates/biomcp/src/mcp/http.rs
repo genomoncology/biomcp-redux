@@ -329,16 +329,23 @@ impl Service {
         request: &wire::Request,
         value: &Value,
     ) -> io::Result<Option<biomcp_fetch::Secrets>> {
-        (self.globals.hosted
-            && crate::config::mcp_tool_mode(&self.globals, &self.settings)
-                == crate::config::ToolMode::Typed
-            && match value.get("method").and_then(Value::as_str) {
+        let method = value.get("method").and_then(Value::as_str);
+        let typed = crate::config::mcp_tool_mode(&self.globals, &self.settings)
+            == crate::config::ToolMode::Typed;
+        let catalog = typed
+            && match method {
                 Some("tools/list" | "server/discover" | "initialize") => true,
                 Some("tools/call") => value.get("params").is_some_and(super::discovery::called),
                 _ => false,
-            })
-        .then(|| request.source_keys())
-        .transpose()
+            };
+        let skills = crate::config::mcp_skills(&self.settings)
+            && matches!(
+                method,
+                Some("skills/list" | "skills/get" | "resources/list" | "resources/read")
+            );
+        (self.globals.hosted && (catalog || skills))
+            .then(|| request.source_keys())
+            .transpose()
     }
 
     fn tool(

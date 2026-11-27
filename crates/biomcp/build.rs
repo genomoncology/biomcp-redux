@@ -340,6 +340,7 @@ fn embed_skills() -> Result<(), Box<dyn Error>> {
     }
     let examples = first_read::examples(&directory.join("use-cases"))?;
     let out = PathBuf::from(env::var("OUT_DIR")?);
+    embed_research_frontmatter(&out)?;
     fs::write(
         out.join("question-map.txt"),
         first_read::question_map(&biomcp_types::command_paths())?,
@@ -356,6 +357,28 @@ fn embed_skills() -> Result<(), Box<dyn Error>> {
         PathBuf::from(env::var("OUT_DIR")?).join("skills.rs"),
         format!("&[\n{entries}]\n"),
     )?;
+    Ok(())
+}
+
+fn embed_research_frontmatter(out: &std::path::Path) -> Result<(), Box<dyn Error>> {
+    let guide = "src/skill/biomcp-research/SKILL.md";
+    println!("cargo:rerun-if-changed={guide}");
+    let text = fs::read_to_string(guide)?;
+    let (frontmatter, _) = text
+        .strip_prefix("---\n")
+        .and_then(|text| text.split_once("\n---\n"))
+        .ok_or("research skill must start with YAML frontmatter")?;
+    let fields: serde_json::Value = serde_saphyr::from_str(frontmatter)?;
+    if fields["name"] != "biomcp-research"
+        || fields["description"]
+            .as_str()
+            .is_none_or(|text| text.trim().is_empty() || text.chars().count() > 1024)
+    {
+        return Err(
+            "research skill requires its name and a description of 1–1,024 characters".into(),
+        );
+    }
+    fs::write(out.join("research-frontmatter.json"), fields.to_string())?;
     Ok(())
 }
 fn skill_files(

@@ -66,6 +66,8 @@ A client can also request the compact list from a full typed server by including
 
 Typed mode includes compact output schemas for entity tools, `help` and `saved` by default. These schemas describe the reply envelope, the names and JSON types of the result's top-level fields, and one row's fields when applicable. Use the advertised schema ID with `biomcp schema <id>` for the full contract. Command help also lists reply schema IDs. Set `"mcp_typed_output_schema": false` to omit the compact schemas. The shared `biomcp`, research `search` and `fetch` tools advertise their output schemas in either setting.
 
+`mcp_skills` defaults to `true`. BioMCP serves the `biomcp-research` skill for multi-step evidence questions over stdio and HTTP. Clients can discover it through Skills over MCP or list and read its Markdown resources starting at `skill://biomcp-research/SKILL.md`. Hosted manifests omit worked examples that require excluded sources. Set `"mcp_skills": false` to disable skill discovery and resource reads.
+
 `mcp_typed_enum_limit` sets the largest input choice list advertised inline (default 30). Larger lists use strings, with accepted values checked by the CLI parser. Each action's description names its section choices. Both settings apply only to typed discovery, and each tool's `action` list always names every action. This configuration selects typed mode with the default schemas and choice limit.
 
 ```json
