@@ -6,14 +6,14 @@ use serde::Deserialize;
 use std::collections::HashMap;
 
 /// The publisher's cross-references, indexed by GPML node ID.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GeneXrefs {
     pathway: Pathway,
     entities_by_id: HashMap<String, Node>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Pathway {
     id: String,
@@ -21,7 +21,7 @@ struct Pathway {
     organism: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Node {
     gpml_element_name: String,
