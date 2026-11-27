@@ -46,6 +46,9 @@ fn november_2024() -> Result<(), String> {
     if init.pointer("/result/protocolVersion") != Some(&json!("2024-11-05")) {
         return Err("stdio did not negotiate 2024-11-05".into());
     }
+    if init.pointer("/result/serverInfo/title").is_some() {
+        return Err("serverInfo title is unavailable in MCP 2024-11-05".into());
+    }
     let list = reply(&replies, &json!(2))?;
     let tools = list
         .pointer("/result/tools")

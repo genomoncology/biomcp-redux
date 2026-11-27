@@ -1,6 +1,7 @@
 # 1197 — mcp-tool-titles-hints
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2f4d9d6cb2b156cb2612f222d88749638fcc5ef9
 
 Milestone: 7
 

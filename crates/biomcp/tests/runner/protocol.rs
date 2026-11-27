@@ -21,6 +21,8 @@ mod reply_form;
 mod reply_size;
 #[path = "protocol_schemas.rs"]
 mod schemas;
+#[path = "mcp_tool_metadata.rs"]
+mod tool_metadata;
 #[path = "typed_tools.rs"]
 mod typed;
 #[path = "typed_bridge.rs"]
@@ -59,6 +61,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = typed_followups::trials();
+    trials.push(transcript_trial("mcp-parity/tool-metadata", || {
+        tool_metadata::check().map_err(Into::into)
+    }));
     trials.push(purple_book::trial());
     trials.extend(recent_parity::trials());
     trials.extend(hosted_surface::trials());

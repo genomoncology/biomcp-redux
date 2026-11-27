@@ -256,12 +256,8 @@ impl Service {
         context.declared_use = caller.declared_use;
         context.secrets = keys.as_ref();
         context.excluded = Some(&caller.excluded);
-        let modern = revision == super::protocol::REVISIONS[0];
-        let mut version = if modern {
-            ReplyVersion::Current
-        } else {
-            ReplyVersion::Legacy
-        };
+        let mut version = ReplyVersion::for_revision(revision);
+        let modern = version == ReplyVersion::Current;
         let result = match super::rpc::message(
             &request.body,
             &mut version,
