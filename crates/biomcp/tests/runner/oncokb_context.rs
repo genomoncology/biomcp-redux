@@ -58,7 +58,7 @@ fn run() -> Result<(), String> {
             "all omitted the explicit context help step: {missing}"
         ));
     }
-    empty_components(&missing)?;
+    component_states(&missing)?;
     let cold: Vec<_> = observed.try_iter().collect();
     let mcp = super::mcp::call_with_globals(&env, &all, false, &[])?;
     let warm: Vec<_> = observed.try_iter().collect();
@@ -165,22 +165,29 @@ fn unrelated_sources() -> Vec<String> {
 }
 
 // The synthetic parent deliberately lacks all three added component payloads.
-fn empty_components(value: &Value) -> Result<(), String> {
-    for name in ["predict", "conservation", "cosmic"] {
-        if value.pointer(&format!("/result/candidates/0/sections/{name}/state"))
-            != Some(&json!("empty"))
+fn component_states(value: &Value) -> Result<(), String> {
+    for (name, state, reason) in [
+        ("predict", "empty", None),
+        ("conservation", "unavailable", Some("not-found")),
+        ("cosmic", "unavailable", Some("no-join-id")),
+    ] {
+        let section = format!("/result/candidates/0/sections/{name}");
+        if value.pointer(&format!("{section}/state")) != Some(&json!(state))
+            || value
+                .pointer(&format!("{section}/reason"))
+                .and_then(Value::as_str)
+                != reason
         {
-            return Err(format!("all did not preserve empty {name}: {value}"));
+            return Err(format!("all did not preserve {name} as {state}: {value}"));
         }
     }
     Ok(())
 }
 fn component_requests(requests: &[(String, String)]) -> Result<usize, String> {
     for fields in [
-        "fields=_id%2Ccadd.phred%2Ccadd.rawscore%2Ccadd.sift%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.polyphen2\
+        "fields=_id%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.polyphen2\
                     %2Cdbnsfp.revel%2Cdbnsfp.mutationtaster",
         "fields=_id%2Cdbnsfp.hgvsp%2Cdbnsfp.ensembl.transcriptid%2Cdbnsfp.gerp%2B%2B%2Cdbnsfp.phastcons%2Cdbnsfp.phylop%2Cdbnsfp.siphy_29way",
-        "fields=_id%2Ccosmic",
     ] {
         let count = requests
             .iter()
@@ -195,5 +202,5 @@ fn component_requests(requests: &[(String, String)]) -> Result<usize, String> {
             ));
         }
     }
-    Ok(3)
+    Ok(2)
 }

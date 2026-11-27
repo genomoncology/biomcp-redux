@@ -12,8 +12,7 @@
         "predict"
       ],
       "expect": {
-        "/result/candidates/0/sections/predict/state": "unavailable",
-        "/result/candidates/0/sections/predict/reason": "no-join-id",
+        "/result/candidates/0/sections/predict/state": "empty",
         "/result/candidates/0/identity/representations/0": {
           "omits": [
             "build"
