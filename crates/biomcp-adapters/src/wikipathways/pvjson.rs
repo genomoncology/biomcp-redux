@@ -1,6 +1,6 @@
 //! Gene cross-references supplied by the publisher for the same GPML revision.
 use super::{SPEC, gpml_raw::MAX_BYTES};
-use biodata::{NcbiGeneId, PathwayMember, WikiPathwaysId};
+use biodata::{PathwayMember, WikiPathwaysId};
 use biomcp_fetch::{BadReply, Freshness, Input, Leg, Read, Reply, RequestError};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -28,8 +28,8 @@ struct Node {
     wp_type: Option<String>,
     xref_data_source: Option<String>,
     xref_identifier: Option<String>,
-    #[serde(rename = "type", default)]
-    types: Vec<String>,
+    #[serde(rename = "type")]
+    types: Option<Vec<String>>,
 }
 
 impl Reply for GeneXrefs {
@@ -44,7 +44,7 @@ impl Reply for GeneXrefs {
 
 impl GeneXrefs {
     /// Join on node identity and the exact native reference. Ambiguous mappings stay unresolved.
-    pub fn entrez(&self, row: &PathwayMember) -> Option<NcbiGeneId> {
+    pub fn entrez(&self, row: &PathwayMember) -> Option<&str> {
         let node = self.entities_by_id.get(row.node_id.as_ref()?.as_str())?;
         if node.gpml_element_name != "DataNode"
             || !matches!(
@@ -58,13 +58,14 @@ impl GeneXrefs {
         }
         let mut ids = node
             .types
+            .as_ref()?
             .iter()
             .filter_map(|kind| kind.strip_prefix("Entrez Gene:"));
         let first = ids.next()?;
         if ids.any(|other| other != first) {
             return None;
         }
-        first.parse().ok()
+        Some(first)
     }
 }
 

@@ -23,7 +23,8 @@ pub(super) fn resolve(
     xrefs: impl FnOnce() -> Option<GeneXrefs>,
 ) -> (Vec<PathwayMember>, u64) {
     let mut members = rows;
-    let keys: Vec<_> = members.iter().map(key).collect();
+    // Rows without a direct key can still join through the publisher export.
+    let keys = members.iter().map(|row| key(row).unwrap_or(None)).collect();
     join(cx, &mut members, keys, deadline, fresh, sources, problems);
     if members.iter().any(can_join)
         && let Some(xrefs) = xrefs()
@@ -177,19 +178,21 @@ impl Key {
     }
 }
 
-fn key(row: &PathwayMember) -> Option<Key> {
+fn key(row: &PathwayMember) -> Result<Option<Key>, biodata::Error> {
     let value = row.reference.id.as_str();
     let key = match row.reference.namespace.as_deref() {
         Some("Entrez Gene") => {
-            let id = value.parse::<NcbiGeneId>().ok()?;
+            let id = value
+                .parse::<NcbiGeneId>()
+                .map_err(|_| biodata::Error::NcbiGeneIdInvalid)?;
             Key::Xref(format!("entrez:{id}"))
         }
         Some("Ensembl") => {
-            let id: EnsemblGeneId = value.parse().ok()?;
+            let id: EnsemblGeneId = value.parse()?;
             Key::Xref(format!("ensembl:{}", id.base()))
         }
         Some("UniProt" | "Uniprot" | "UniProtKB") => {
-            let id: UniProtIsoform = value.parse().ok()?;
+            let id: UniProtIsoform = value.parse()?;
             let base = id
                 .as_str()
                 .split_once('-')
@@ -198,11 +201,11 @@ fn key(row: &PathwayMember) -> Option<Key> {
         }
         Some("HGNC") => match hgnc_id(value) {
             Some(id) => Key::Id(id),
-            None => Key::Symbol(value.parse::<GeneSymbol>().ok()?.to_string()),
+            None => Key::Symbol(value.parse::<GeneSymbol>()?.to_string()),
         },
-        _ => return None,
+        _ => return Ok(None),
     };
-    Some(key)
+    Ok(Some(key))
 }
 
 fn hgnc_id(value: &str) -> Option<biodata::HgncId> {
