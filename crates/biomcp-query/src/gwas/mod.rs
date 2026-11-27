@@ -18,9 +18,16 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     if q.studies() {
         return studies::search(cx, q);
     }
-    if q.p_value().is_some() {
-        return threshold::search(cx, q);
-    }
+    let mut out = if q.p_value().is_some() {
+        threshold::search(cx, q)
+    } else {
+        associations(cx, q)
+    };
+    next::empty_trait(q, &mut out);
+    out
+}
+
+fn associations(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let mut out = empty(q);
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();

@@ -1,6 +1,8 @@
 //! One source-order navigation policy for an association page.
-use biomcp_types::Source;
-use biomcp_types::{GwasPageQuery, GwasSearch, Request, StepKind};
+use crate::Outcome;
+use biomcp_types::{
+    DiseaseSearch, GwasPageQuery, GwasSearch, Request, Source, SourceNotice, Status, StepKind,
+};
 type Steps = Vec<crate::next::Step>;
 pub(super) fn search(
     query: &GwasSearch,
@@ -80,4 +82,36 @@ pub(super) fn search(
 }
 fn push(next: &mut Steps, kind: StepKind, request: Request, fresh: bool, source: Source) {
     next.push(crate::next::Step::run(kind, &[source], request, fresh));
+}
+
+pub(super) fn empty_trait(query: &GwasSearch, out: &mut Outcome) {
+    // Check the native total so an empty window or p-value cut does not imply a label miss.
+    if out.status() == Status::Complete
+        && out.page.as_ref().is_some_and(|page| page.returned == 0)
+        && query.trait_id().is_none()
+        && let Some(label) = query.trait_label()
+        && let Some(source) = out
+            .sources
+            .iter_mut()
+            .find(|source| source.source == Source::Gwas && source.count == Some(0))
+        && let Some(disease) = crate::next::checked(
+            DiseaseSearch::ols_named(label.as_str()),
+            Source::Gwas,
+            &mut out.problems,
+        )
+    {
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: "--trait matches only the exact GWAS Catalog trait label. Search diseases \
+                      for an ontology ID to pass as --trait-id."
+                .into(),
+            retry_after_seconds: None,
+        });
+        out.next.push(crate::next::Step::run(
+            StepKind::Disambiguate,
+            &[Source::Ols, Source::Mondo],
+            Request::SearchDisease(disease),
+            false,
+        ));
+    }
 }

@@ -128,6 +128,19 @@ impl TryFrom<SearchFields> for DiseaseSearch {
     }
 }
 impl DiseaseSearch {
+    /// Search OLS for a disease name in the default ontology.
+    pub fn ols_named(text: &str) -> Result<Self, QueryInvalid> {
+        Self::try_from(SearchFields {
+            text: Some(text.into()),
+            source: Some(DiseaseSource::Ols),
+            phenotype: Box::default(),
+            hpo_release: None,
+            ontology: None,
+            limit: default_limit(),
+            offset: 0,
+        })
+    }
+
     /// Select the SEER site catalog with the standard page bounds.
     pub fn seer() -> Result<Self, QueryInvalid> {
         Self::try_from(SearchFields {
