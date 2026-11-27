@@ -185,8 +185,8 @@ release-tests:
 		$(PYTHON) -m unittest $(RELEASE_TEST_SUITES)
 
 .PHONY: mcp-interop
-# Runs on the landing-gate job with Node and uv. Only dependency setup can fetch;
-# client sessions use the debug binary and a local replay.
+# The landing-gate worker has Node and uv. Dependency setup can fetch packages.
+# Client sessions use the debug binary and a local replay.
 mcp-interop:
 	npm --prefix tests/interop ci --ignore-scripts --no-audit --no-fund --prefer-offline
 	uv sync --project tests/interop --locked --python "$(PYTHON)"

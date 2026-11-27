@@ -61,7 +61,9 @@ def check(binary, package, sdk_version, mode, revision):
             case_file = root / "case.json"
             case_file.write_text(json.dumps(case), encoding="utf-8")
             command = shlex.join(["node", "check.mjs", package, mode, revision, str(case_file)])
-            subprocess.run(["npx", "--offline", "--call", command], cwd=HERE, check=True)
+            result = subprocess.run(["npx", "--offline", "--call", command], cwd=HERE)
+            if result.returncode:
+                raise SystemExit(result.returncode)
     print(f"MCP interop passed {label}", flush=True)
 
 
