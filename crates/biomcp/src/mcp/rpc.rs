@@ -48,9 +48,7 @@ pub(super) fn message(
         return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
     }
     let modern = *version != ReplyVersion::November2024
-        && (current::identified(&params)
-            || method == "server/discover"
-            || *version == ReplyVersion::Current && method != "initialize");
+        && (current::identified(&params) || method == "server/discover");
     if modern {
         if let Err(error) = current::validate(id, &params, revisions) {
             return Message::Reply(error);
@@ -65,6 +63,12 @@ pub(super) fn message(
             ReplyVersion::Legacy
         };
         return Message::Reply(protocol::result(id.clone(), result, false));
+    } else if *version == ReplyVersion::Current {
+        return Message::Reply(json!({"jsonrpc":"2.0","id":id,"error":{
+            "code":-32602,
+            "message":"Server is not initialized yet. Send initialize first.",
+            "data":{"requiredMethod":"initialize"}
+        }}));
     }
     let version = if modern {
         ReplyVersion::Current
