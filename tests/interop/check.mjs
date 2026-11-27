@@ -44,6 +44,20 @@ try {
   if (modernSdk) {
     assert.deepEqual(result.structuredContent, reply);
   }
+  if (clientPackage === "@modelcontextprotocol/client" && mode === "auto") {
+    step = "skills/list";
+    const { SkillsClient } = await import("@modelcontextprotocol/client/ext/skills");
+    const skills = new SkillsClient(client);
+    const { skills: entries } = await skills.list();
+    const research = entries.find(({ frontmatter }) => frontmatter.name === "biomcp-research");
+    assert(research, "biomcp-research skill missing");
+    step = "read SKILL.md";
+    assert.equal((await skills.read(research)).verified, true);
+    const reference = "references/09-trial-recruitment.md";
+    step = `read ${reference}`;
+    assert.equal((await skills.read(research, reference)).verified, true);
+    console.log(`TypeScript SDK verified biomcp-research SKILL.md and ${reference}`);
+  }
 } catch (error) {
   console.error(`${step} failed`);
   throw error;
