@@ -167,6 +167,10 @@ fn legacy_peer(env: &Environment) -> Result<Peer, String> {
         "2025-11-25",
         "negotiates the legacy revision"
     );
+    assert!(
+        field(&init, "/result/capabilities/resources").is_object(),
+        "a form-capable legacy client also discovers research skill resources"
+    );
     peer.send(&json!({"jsonrpc":"2.0","method":"notifications/initialized"}))?;
 
     Ok(peer)

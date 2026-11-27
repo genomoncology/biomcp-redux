@@ -65,16 +65,7 @@ pub(super) fn message(
             return Message::Reply(error);
         }
     } else if method == "initialize" {
-        let Some((negotiated, result, form)) =
-            legacy::initialize(&params, mode, context, revisions)
-        else {
-            return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
-        };
-        *version = negotiated;
-        return Message::Initialized {
-            reply: protocol::result(id.clone(), result, false),
-            form,
-        };
+        return initialize(id, &params, version, revisions, context, mode);
     } else if *version == ReplyVersion::Current {
         return Message::Reply(json!({"jsonrpc":"2.0","id":id,"error":{
             "code":-32602,
@@ -114,6 +105,25 @@ pub(super) fn message(
         current::add_catalog_cache_fields(&mut result, context.globals.hosted);
     }
     Message::Reply(protocol::result(id.clone(), result, modern))
+}
+
+fn initialize(
+    id: &Value,
+    params: &Value,
+    version: &mut ReplyVersion,
+    revisions: &[&'static str],
+    context: crate::command::Context<'_>,
+    mode: crate::config::ToolMode,
+) -> Message {
+    let Some((negotiated, result, form)) = legacy::initialize(params, mode, context, revisions)
+    else {
+        return Message::Reply(protocol::error(id.clone(), -32602, "Invalid params"));
+    };
+    *version = negotiated;
+    Message::Initialized {
+        reply: protocol::result(id.clone(), result, false),
+        form,
+    }
 }
 
 fn client_response(value: &Value) -> Option<Message> {
