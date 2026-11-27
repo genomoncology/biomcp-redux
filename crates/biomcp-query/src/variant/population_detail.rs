@@ -107,7 +107,7 @@ fn read(
     let Ok(identity) = query.identity() else {
         return read;
     };
-    if super::population_identity::native_snv(&identity).is_none() {
+    if !super::population_identity::use_native_coordinate(cx.fetch, &identity) {
         let found = super::population_identity::resolve(cx, &identity, deadline);
         deadline = deadline.after_stage(found.elapsed);
         read.resolver = found.resolver;
@@ -146,6 +146,7 @@ fn read(
         cx,
         query,
         &id,
+        joined.unnormalized,
         &read.candidates,
         &mut read.problems,
         deadline,
@@ -197,6 +198,7 @@ fn load(
     cx: &Ctx<'_>,
     query: &VariantPopulationQuery,
     id: &str,
+    unnormalized: bool,
     candidates: &[biomcp_types::VariantHeader],
     problems: &mut Vec<biomcp_types::Problem>,
     deadline: biomcp_fetch::Deadline<'_>,
@@ -225,7 +227,7 @@ fn load(
     });
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Gnomad, leg.finish(), error);
-    let section = super::population::source_section(result, id, dropped, &mut source);
+    let section = super::population::source_section(result, id, dropped, unnormalized, &mut source);
     (
         section,
         groups,

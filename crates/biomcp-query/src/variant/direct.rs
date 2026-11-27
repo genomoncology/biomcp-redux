@@ -27,7 +27,7 @@ pub(super) fn source(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Option<
         return Some(source);
     }
     match (query.input().namespace(), section) {
-        (_, S::Population) if super::population_identity::native_snv(query).is_some() => {
+        (_, S::Population) if super::population_identity::use_native_coordinate(fetch, query) => {
             Some(source)
         }
         (VariantNamespace::Ca, S::Civic | S::Erepo) | (VariantNamespace::ClinVar, S::Clinvar) => {

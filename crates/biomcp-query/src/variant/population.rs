@@ -22,9 +22,11 @@ pub(super) fn without_candidate(
     bool,
 ) {
     let mut candidate = super::direct::candidate(query, Source::Gnomad);
-    let blocked = super::population_identity::native_snv(query)
-        .is_none()
-        .then_some(reason.unwrap_or(Reason::NoJoinId));
+    let blocked = if super::population_identity::use_native_coordinate(cx.fetch, query) {
+        None
+    } else {
+        Some(reason.unwrap_or(Reason::NoJoinId))
+    };
     let (population, sources, mut problems, local, refused) =
         section(cx, query, &[], deadline, blocked);
     if blocked == Some(Reason::NoJoinId) {
@@ -75,7 +77,7 @@ pub(super) fn section(
     });
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::Gnomad, leg.finish(), error);
-    let value = source_section(result, &id, dropped, &mut source);
+    let value = source_section(result, &id, dropped, joined.unnormalized, &mut source);
     (
         value,
         joined.sources.into_iter().chain([source]).collect(),
@@ -89,6 +91,7 @@ pub(super) fn source_section(
     result: Result<Option<VariantPopulation>, RequestError>,
     id: &str,
     dropped: bool,
+    unnormalized: bool,
     source: &mut SourceOutcome,
 ) -> Section<VariantPopulation> {
     match result {
@@ -97,6 +100,7 @@ pub(super) fn source_section(
             data,
         },
         Ok(None) if dropped => Section::unavailable(Source::Gnomad, Reason::BadReply),
+        Ok(None) if unnormalized => Section::unavailable(Source::Gnomad, Reason::NoJoinId),
         Ok(None) => no_record(id, source),
         Err(e) => Section::unavailable(
             Source::Gnomad,
@@ -171,7 +175,7 @@ pub(super) fn summary(
         .and_then(|row| row.identity.ids.first())
         .cloned()
         .map(biodata::VariantRef::allele)
-        .or_else(|| snv_subject(raw.variant_id.as_str()));
+        .or_else(|| coordinate_subject(raw.variant_id.as_str()));
     let mut project = |subset: &gnomad::variant::Subset,
                        data_type,
                        va: Option<&Vec<gnomad::variant::CohortFrequency>>,
@@ -220,7 +224,11 @@ pub(super) fn summary(
         joint: joint(raw, problems),
     })
 }
-fn snv_subject(id: &str) -> Option<biodata::VariantRef> {
+fn coordinate_subject(id: &str) -> Option<biodata::VariantRef> {
+    let input = id.parse::<biomcp_types::VariantInput>().ok()?;
+    if let Some(hgvs) = input.coordinate_validation(Build::GRCh38) {
+        return hgvs.parse().ok().map(biodata::VariantRef::allele_hgvs);
+    }
     let mut parts = id.split('-');
     let chromosome = parts.next()?.parse::<Chromosome>().ok()?;
     let position = parts.next()?;

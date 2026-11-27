@@ -23,6 +23,11 @@ steps:
     expect:
       /result/population/data/variant: 17-43057062-T-TG
       /result/population/data/exome/ac: 101
+  - run: [--disable-sources, car, variant, population, 17-43057062-T-TG]
+    expect:
+      /status: complete
+      /sources/*/source: {equals: [gnomad]}
+      /result/population/data/variant: 17-43057062-T-TG
   - run: [variant, population, rs80357906]
     expect:
       /result/population/data/variant: 17-43057062-T-TG

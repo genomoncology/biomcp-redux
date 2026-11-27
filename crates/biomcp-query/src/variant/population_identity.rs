@@ -7,14 +7,19 @@ use biomcp_types::{
     Problem, Reason, Source, SourceOutcome, VariantGet, VariantHeader, VariantNamespace,
 };
 
-pub(super) fn native_snv(query: &VariantGet) -> Option<&str> {
+fn native_coordinate(query: &VariantGet) -> Option<&str> {
     let id = query.input().as_str();
     let id = id.strip_prefix("chr").unwrap_or(id);
     let (chromosome, _) = id.split_once('-')?;
     (query.build() == Some(Build::GRCh38)
-        && query.input().single_base_coordinate()
+        && query.input().coordinate_form()
         && !matches!(chromosome, "M" | "MT"))
     .then_some(id)
+}
+
+pub(super) fn use_native_coordinate(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> bool {
+    native_coordinate(query).is_some()
+        && (query.input().single_base_coordinate() || fetch.disabled(Source::AlleleRegistry))
 }
 
 pub(super) fn resolve(
@@ -49,6 +54,8 @@ pub(super) struct Join {
     pub local: Option<RequestError>,
     pub reason: Option<Reason>,
     pub elapsed: std::time::Duration,
+    /// A raw indel ID can hit directly, but only normalization can establish an absence.
+    pub unnormalized: bool,
 }
 
 pub(super) fn read(
@@ -57,10 +64,30 @@ pub(super) fn read(
     rows: &[VariantHeader],
     deadline: Deadline<'_>,
 ) -> Join {
+    if query.input().single_base_coordinate()
+        && let Some(id) = native_coordinate(query)
+    {
+        return Join {
+            id: Some(id.into()),
+            ..Join::default()
+        };
+    }
+    let mut join = canonical(cx, rows, deadline);
+    if join.id.is_none()
+        && join.reason.is_none()
+        && join.problems.is_empty()
+        && rows.len() < 2
+        && let Some(id) = native_coordinate(query)
+    {
+        join.id = Some(id.into());
+        join.unnormalized = true;
+    }
+    join
+}
+
+fn canonical(cx: &Ctx<'_>, rows: &[VariantHeader], deadline: Deadline<'_>) -> Join {
     let mut join = Join {
-        id: native_snv(query)
-            .map(str::to_owned)
-            .or_else(|| super::population::join(rows)),
+        id: super::population::join(rows),
         ..Join::default()
     };
     if join.id.is_some() {

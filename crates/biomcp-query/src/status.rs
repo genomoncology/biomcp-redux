@@ -111,7 +111,10 @@ impl Outcome {
                     body: Some(body), ..
                 } => {
                     matches!(body.population, biomcp_types::Section::Unavailable { .. })
-                        && !self.sources.iter().any(|s| s.source == Source::Gnomad)
+                        && !self
+                            .sources
+                            .iter()
+                            .any(|s| s.source == Source::Gnomad && s.state == SourceState::Failed)
                 }
                 ReplyData::VariantCard {
                     body: Some(body), ..
