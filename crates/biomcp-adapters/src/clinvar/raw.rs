@@ -53,12 +53,13 @@ impl XmlReply for Records {
             record: reply.accession.as_ref().and_then(crate::mapped::record),
             list: Vec::new(),
         };
-        let id = problems.required(
+        let id = problems.optional(
             "VariationID",
-            reply
-                .id
-                .as_ref()
-                .and_then(|id| format!("clinvar:{id}").parse().ok()),
+            Some(reply.id.as_ref().ok_or(BadReply).and_then(|id| {
+                format!("clinvar:{id}")
+                    .parse::<biodata::VariantId>()
+                    .map_err(|_| BadReply)
+            })),
         );
         if let Some(classified) = archive.child("ClassifiedRecord")? {
             let subject = match id {
