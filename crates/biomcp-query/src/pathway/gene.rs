@@ -66,18 +66,16 @@ fn mapping_ids(
     let error = resolved.as_ref().err().copied();
     let report = identity.finish();
     // Prefer HGNC when an accession-shaped value also names a gene or alias.
-    if matches!(&resolved, Ok(r) if matches!(r.value, GeneResolution::NotFound { .. }))
-        || error.is_some()
+    if (matches!(&resolved, Ok(r) if matches!(r.value, GeneResolution::NotFound { .. }))
+        || error.is_some())
+        && let GeneInput::Text(text) = input
+        && let Ok(id) = UniProtAcc::new(&text.as_str().to_ascii_uppercase())
     {
-        if let GeneInput::Text(text) = input
-            && let Ok(id) = UniProtAcc::new(&text.as_str().to_ascii_uppercase())
-        {
-            return Ok(Mapped {
-                refusals: biomcp_adapters::Refusal::None,
-                value: vec![MappingId::UniProt(id)],
-                problems: Vec::new(),
-            });
-        }
+        return Ok(Mapped {
+            refusals: biomcp_adapters::Refusal::None,
+            value: vec![MappingId::UniProt(id)],
+            problems: Vec::new(),
+        });
     }
     out.sources
         .push(status::source(Source::Hgnc, report, error));
