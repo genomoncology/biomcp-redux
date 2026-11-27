@@ -1,6 +1,6 @@
 {
   "feature": "variant-assertions",
-  "story": "ClinVar returns all published submissions for the sampled conflicting-classifications class.",
+  "story": "The sampled ClinVar aggregate preserves its published review status \u201ccriteria provided, conflicting classifications\u201d.",
   "live_check": "Offline pinned source reach check.",
   "replay": "reach/clinvar/conflicting-classifications",
   "steps": [
@@ -12,19 +12,15 @@
         "--source",
         "clinvar",
         "--kind",
-        "scv"
+        "vcv"
       ],
       "expect": {
         "/status": "complete",
-        "/result/page/total": 2,
-        "/result/page/returned": 2,
-        "/result/assertions/*/record": {
-          "count": 2,
-          "includes_all_of": [
-            "SCV005620650",
-            "SCV005777460"
-          ]
-        }
+        "/result/page/total": 1,
+        "/result/assertions/*/record": [
+          "VCV003571594"
+        ],
+        "/result/assertions/0/statement/strength/label": "criteria provided, conflicting classifications"
       }
     }
   ]
