@@ -177,8 +177,9 @@ fn admit_alleles(value: &mut super::raw::Association, problems: &mut crate::mapp
 }
 
 fn catalog_allele_kind(identifier: &str) -> Option<GwasCatalogAlleleKind> {
-    if let Some((chromosome, position)) =
-        identifier.strip_prefix("chr").and_then(|s| s.split_once(':'))
+    if let Some((chromosome, position)) = identifier
+        .strip_prefix("chr")
+        .and_then(|s| s.split_once(':'))
         && !chromosome.is_empty()
         && chromosome
             .bytes()
