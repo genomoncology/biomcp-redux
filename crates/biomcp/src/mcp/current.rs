@@ -2,6 +2,15 @@
 use super::protocol::{self, CAPABILITIES_KEY, VERSION_KEY};
 use serde_json::{Value, json};
 
+// Catalogs stay stable until restart or reconfiguration. Recheck within a minute
+// so clients pick up those changes promptly.
+const CATALOG_TTL_MS: u64 = 60_000;
+
+pub(super) fn add_catalog_cache_fields(result: &mut Value, hosted: bool) {
+    result["ttlMs"] = json!(CATALOG_TTL_MS);
+    result["cacheScope"] = json!(if hosted { "private" } else { "public" });
+}
+
 pub(super) fn identified(params: &Value) -> bool {
     params
         .get("_meta")

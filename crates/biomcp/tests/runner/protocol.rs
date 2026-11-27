@@ -5,6 +5,8 @@ mod purple_book;
 #[path = "source_age.rs"]
 mod source_age;
 
+#[path = "mcp_cache_fields.rs"]
+mod cache_fields;
 #[path = "label_priority.rs"]
 mod label_priority;
 #[path = "mcp_local_reply.rs"]
@@ -61,6 +63,7 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.extend(recent_parity::trials());
     trials.extend(hosted_surface::trials());
     trials.extend(typed::trials());
+    trials.extend(cache_fields::trials());
     trials.extend([
         transcript_trial("mcp-parity/typed-strict-schema", || {
             typed_strict::check().map_err(Into::into)

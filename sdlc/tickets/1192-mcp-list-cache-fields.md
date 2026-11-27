@@ -1,6 +1,7 @@
 # 1192 — mcp-list-cache-fields
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: cedae7f53f856e4347c4bac41ef2ad0e84f41dcf
 
 Milestone: 7
 
