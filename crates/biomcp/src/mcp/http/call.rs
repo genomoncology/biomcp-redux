@@ -81,10 +81,7 @@ impl Calls {
                 return protocol::capacity(id, service.max_calls, waited, retry);
             }
         };
-        if scope
-            .as_ref()
-            .is_some_and(|scope| scope.remaining().is_zero())
-        {
+        if scope.as_ref().map(Cancellation::remaining) == Some(Duration::ZERO) {
             return protocol::timeout(id);
         }
         let globals = service.globals.clone();
