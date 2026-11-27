@@ -1,6 +1,7 @@
 # 1206 — drug-lookup-fails-for-antibodies
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5061577c61109d49cf2331c858e0b769556df9f0
 
 Milestone: 10
 

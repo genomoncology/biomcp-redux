@@ -14,6 +14,8 @@ pub struct DrugGet {
     fields: GetFields,
     #[serde(skip)]
     native_id: NativeDrugId,
+    #[serde(skip)]
+    implicit_source: bool,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 enum NativeDrugId {
@@ -101,6 +103,7 @@ crate::query::validation::checked_query!(DrugGet, GetFields);
 impl TryFrom<GetFields> for DrugGet {
     type Error = QueryInvalid;
     fn try_from(mut fields: GetFields) -> Result<Self, Self::Error> {
+        let implicit_source = fields.source.is_none();
         let source = fields
             .source
             .unwrap_or_else(|| inferred_source(&fields.section));
@@ -152,7 +155,11 @@ impl TryFrom<GetFields> for DrugGet {
             return Err(QueryInvalid::new(&["input"]));
         }
         validate_civic(&fields)?;
-        Ok(Self { fields, native_id })
+        Ok(Self {
+            fields,
+            native_id,
+            implicit_source,
+        })
     }
 }
 impl DrugGet {
@@ -162,11 +169,16 @@ impl DrugGet {
         Ok(Self {
             fields,
             native_id: self.native_id.clone(),
+            implicit_source: self.implicit_source,
         })
     }
     /// Whether this input requires exact source name resolution.
     pub fn is_name(&self) -> bool {
         self.native_id == NativeDrugId::Name
+    }
+    /// Whether the caller requested a drug identity by name without selecting a source.
+    pub fn uses_default_identity_source(&self) -> bool {
+        self.implicit_source && self.sections().is_empty() && self.is_name()
     }
     /// Whether an openFDA label get names an FDA application number, as Drugs@FDA and label
     /// replies print it, rather than a drug name.

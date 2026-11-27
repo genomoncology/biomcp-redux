@@ -1,0 +1,643 @@
+{
+  "method": "GET",
+  "source": "chembl",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/molecule.json?pref_name__iexact=adalimumab&limit=50&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1795811181,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "molecules": [
+            {
+              "atc_classifications": [
+                "L04AB04"
+              ],
+              "availability_type": 1,
+              "biotherapeutic": {
+                "biocomponents": [],
+                "description": "Immunoglobulin G 1 (human monoclonal D2E7 heavy chain anti-human tumor necrosis factor), disulfide with human monoclonal D2E7k-chain, dimer",
+                "helm_notation": null,
+                "molecule_chembl_id": "CHEMBL1201580"
+              },
+              "black_box_warning": 1,
+              "chemical_probe": 0,
+              "chirality": 1,
+              "cross_references": [
+                {
+                  "xref_id": "human/EPAR/amsparity",
+                  "xref_name": "amsparity",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/humira",
+                  "xref_name": "humira",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/cyltezo",
+                  "xref_name": "cyltezo",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/imraldi",
+                  "xref_name": "imraldi",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/halimatoz",
+                  "xref_name": "halimatoz",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/libmyris",
+                  "xref_name": "libmyris",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/kromeya",
+                  "xref_name": "kromeya",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/hulio",
+                  "xref_name": "hulio",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "adalimumab",
+                  "xref_name": "adalimumab",
+                  "xref_src": "DailyMed"
+                },
+                {
+                  "xref_id": "human/EPAR/hefiya",
+                  "xref_name": "hefiya",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/idacio",
+                  "xref_name": "idacio",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/solymbic",
+                  "xref_name": "solymbic",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/trudexa",
+                  "xref_name": "trudexa",
+                  "xref_src": "EMA"
+                },
+                {
+                  "xref_id": "human/EPAR/amgevita",
+                  "xref_name": "amgevita",
+                  "xref_src": "EMA"
+                }
+              ],
+              "dosed_ingredient": true,
+              "first_approval": 2002,
+              "first_in_class": 0,
+              "helm_notation": null,
+              "inorganic_flag": 0,
+              "max_phase": "4.0",
+              "molecule_chembl_id": "CHEMBL1201580",
+              "molecule_hierarchy": {
+                "active_chembl_id": "CHEMBL1201580",
+                "molecule_chembl_id": "CHEMBL1201580",
+                "parent_chembl_id": "CHEMBL1201580"
+              },
+              "molecule_properties": null,
+              "molecule_structures": null,
+              "molecule_synonyms": [
+                {
+                  "molecule_synonym": "Abp-501",
+                  "syn_type": "OTHER",
+                  "synonyms": "ABP-501"
+                },
+                {
+                  "molecule_synonym": "Abrilada",
+                  "syn_type": "OTHER",
+                  "synonyms": "ABRILADA"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "ATC",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "BAN",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "BNF",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "EMA",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "FDA",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "INN",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "MERCK_INDEX",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab",
+                  "syn_type": "USAN",
+                  "synonyms": "ADALIMUMAB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab aacf",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB AACF"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-aacf",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-AACF"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-aaty",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-AATY"
+                },
+                {
+                  "molecule_synonym": "Adalimumab (abbvie)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB (ABBVIE)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab adaz",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB ADAZ"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-adaz",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-ADAZ"
+                },
+                {
+                  "molecule_synonym": "Adalimumab adbm",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB ADBM"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-adbm",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-ADBM"
+                },
+                {
+                  "molecule_synonym": "Adalimumab afzb",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB AFZB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-afzb",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-AFZB"
+                },
+                {
+                  "molecule_synonym": "Adalimumab aqvh",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB AQVH"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-aqvh",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-AQVH"
+                },
+                {
+                  "molecule_synonym": "Adalimumab atto",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB ATTO"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-atto",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-ATTO"
+                },
+                {
+                  "molecule_synonym": "Adalimumab beta",
+                  "syn_type": "INN",
+                  "synonyms": "ADALIMUMAB BETA"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (alvotech)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (ALVOTECH)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (amgen)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (AMGEN)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (avt02)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (AVT02)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (celltrion)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (CELLTRION)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (ct-p17)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (CT-P17)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (fkb-327)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (FKB-327)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (msb11022)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (MSB11022)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (mylan)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (MYLAN)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (pfizer)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (PFIZER)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (sandoz)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (SANDOZ)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (yusimry)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (YUSIMRY)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab biosimilar (zrc-3197)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BIOSIMILAR (ZRC-3197)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab bwwd",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB BWWD"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-bwwd",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-BWWD"
+                },
+                {
+                  "molecule_synonym": "Adalimumab fkjp",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB FKJP"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-fkjp",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-FKJP"
+                },
+                {
+                  "molecule_synonym": "Adalimumab (genetical recombination)",
+                  "syn_type": "JAN",
+                  "synonyms": "ADALIMUMAB (GENETICAL RECOMBINATION)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab (humira)",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB (HUMIRA)"
+                },
+                {
+                  "molecule_synonym": "Adalimumab-ryvk",
+                  "syn_type": "OTHER",
+                  "synonyms": "ADALIMUMAB-RYVK"
+                },
+                {
+                  "molecule_synonym": "Amgevita",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "AMGEVITA"
+                },
+                {
+                  "molecule_synonym": "Amjevita",
+                  "syn_type": "OTHER",
+                  "synonyms": "AMJEVITA"
+                },
+                {
+                  "molecule_synonym": "Amsparity",
+                  "syn_type": "OTHER",
+                  "synonyms": "AMSPARITY"
+                },
+                {
+                  "molecule_synonym": "Amsparity",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "AMSPARITY"
+                },
+                {
+                  "molecule_synonym": "AVT-02",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "AVT-02"
+                },
+                {
+                  "molecule_synonym": "Avt02",
+                  "syn_type": "OTHER",
+                  "synonyms": "AVT02"
+                },
+                {
+                  "molecule_synonym": "Bcd-057",
+                  "syn_type": "OTHER",
+                  "synonyms": "BCD-057"
+                },
+                {
+                  "molecule_synonym": "Bi 695501",
+                  "syn_type": "OTHER",
+                  "synonyms": "BI 695501"
+                },
+                {
+                  "molecule_synonym": "Bi-695501",
+                  "syn_type": "OTHER",
+                  "synonyms": "BI-695501"
+                },
+                {
+                  "molecule_synonym": "BI695501",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "BI695501"
+                },
+                {
+                  "molecule_synonym": "Chs-1420",
+                  "syn_type": "OTHER",
+                  "synonyms": "CHS-1420"
+                },
+                {
+                  "molecule_synonym": "CT-P17",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "CT-P17"
+                },
+                {
+                  "molecule_synonym": "CTP17",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "CTP17"
+                },
+                {
+                  "molecule_synonym": "Cyltezo",
+                  "syn_type": "OTHER",
+                  "synonyms": "CYLTEZO"
+                },
+                {
+                  "molecule_synonym": "Cyltezo",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "CYLTEZO"
+                },
+                {
+                  "molecule_synonym": "D2E7",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "D2E7"
+                },
+                {
+                  "molecule_synonym": "D3E7",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "D3E7"
+                },
+                {
+                  "molecule_synonym": "Exemptia",
+                  "syn_type": "OTHER",
+                  "synonyms": "EXEMPTIA"
+                },
+                {
+                  "molecule_synonym": "FKB-327",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "FKB-327"
+                },
+                {
+                  "molecule_synonym": "FKB327",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "FKB327"
+                },
+                {
+                  "molecule_synonym": "Gp-2017",
+                  "syn_type": "OTHER",
+                  "synonyms": "GP-2017"
+                },
+                {
+                  "molecule_synonym": "GP2017",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "GP2017"
+                },
+                {
+                  "molecule_synonym": "Hadlima",
+                  "syn_type": "OTHER",
+                  "synonyms": "HADLIMA"
+                },
+                {
+                  "molecule_synonym": "Halimatoz",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "HALIMATOZ"
+                },
+                {
+                  "molecule_synonym": "Hefiya",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "HEFIYA"
+                },
+                {
+                  "molecule_synonym": "HLX-03",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "HLX-03"
+                },
+                {
+                  "molecule_synonym": "HLX03",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "HLX03"
+                },
+                {
+                  "molecule_synonym": "Hulio",
+                  "syn_type": "OTHER",
+                  "synonyms": "HULIO"
+                },
+                {
+                  "molecule_synonym": "Hulio",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "HULIO"
+                },
+                {
+                  "molecule_synonym": "Humira",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "HUMIRA"
+                },
+                {
+                  "molecule_synonym": "Hyrimoz",
+                  "syn_type": "OTHER",
+                  "synonyms": "HYRIMOZ"
+                },
+                {
+                  "molecule_synonym": "Idacio",
+                  "syn_type": "OTHER",
+                  "synonyms": "IDACIO"
+                },
+                {
+                  "molecule_synonym": "Idacio",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "IDACIO"
+                },
+                {
+                  "molecule_synonym": "Imraldi",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "IMRALDI"
+                },
+                {
+                  "molecule_synonym": "Kromeya",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "KROMEYA"
+                },
+                {
+                  "molecule_synonym": "Libmyris",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "LIBMYRIS"
+                },
+                {
+                  "molecule_synonym": "LU-200134",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "LU-200134"
+                },
+                {
+                  "molecule_synonym": "LU200134",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "LU200134"
+                },
+                {
+                  "molecule_synonym": "M-923",
+                  "syn_type": "OTHER",
+                  "synonyms": "M-923"
+                },
+                {
+                  "molecule_synonym": "M923",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "M923"
+                },
+                {
+                  "molecule_synonym": "MSB-11022",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "MSB-11022"
+                },
+                {
+                  "molecule_synonym": "MSB11022",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "MSB11022"
+                },
+                {
+                  "molecule_synonym": "Ons-3010",
+                  "syn_type": "OTHER",
+                  "synonyms": "ONS-3010"
+                },
+                {
+                  "molecule_synonym": "Pf-06410293",
+                  "syn_type": "OTHER",
+                  "synonyms": "PF-06410293"
+                },
+                {
+                  "molecule_synonym": "SB-5",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "SB-5"
+                },
+                {
+                  "molecule_synonym": "SB5",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "SB5"
+                },
+                {
+                  "molecule_synonym": "Simlandi",
+                  "syn_type": "OTHER",
+                  "synonyms": "SIMLANDI"
+                },
+                {
+                  "molecule_synonym": "Solymbic",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "SOLYMBIC"
+                },
+                {
+                  "molecule_synonym": "Trudexa",
+                  "syn_type": "OTHER",
+                  "synonyms": "TRUDEXA"
+                },
+                {
+                  "molecule_synonym": "Trudexa",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "TRUDEXA"
+                },
+                {
+                  "molecule_synonym": "Yuflyma",
+                  "syn_type": "OTHER",
+                  "synonyms": "YUFLYMA"
+                },
+                {
+                  "molecule_synonym": "Yusimry",
+                  "syn_type": "OTHER",
+                  "synonyms": "YUSIMRY"
+                },
+                {
+                  "molecule_synonym": "ZRC-3197",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "ZRC-3197"
+                },
+                {
+                  "molecule_synonym": "ZRC3197",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "ZRC3197"
+                }
+              ],
+              "molecule_type": "Antibody",
+              "natural_product": 0,
+              "oral": false,
+              "orphan": 0,
+              "parenteral": true,
+              "polymer_flag": 0,
+              "pref_name": "ADALIMUMAB",
+              "prodrug": 0,
+              "structure_type": "SEQ",
+              "therapeutic_flag": true,
+              "topical": false,
+              "usan_stem": "-mab",
+              "usan_stem_definition": "monoclonal antibodies: fully human",
+              "usan_substem": "-mab (-umab)",
+              "usan_year": 2002,
+              "veterinary": 0,
+              "withdrawn_flag": false
+            }
+          ],
+          "page_meta": {
+            "limit": 50,
+            "next": null,
+            "offset": 0,
+            "previous": null,
+            "total_count": 1
+          }
+        }
+      }
+    }
+  ]
+}
