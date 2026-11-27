@@ -1,6 +1,7 @@
 # 1211 — opentargets-drug-without-mechanism-fails
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8d580b95fb05d71ad89a86804ae3d166d9dd3493
 
 Milestone: 10
 

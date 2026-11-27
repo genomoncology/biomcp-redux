@@ -78,9 +78,12 @@ pub(super) struct Drug {
     pub(super) name: Option<Field<String>>,
     /// Complete native indication collection without invented server paging.
     pub indications: Rows<Indication>,
-    /// Complete native mechanism collection without invented server paging.
-    #[serde(rename = "mechanismsOfAction")]
-    pub mechanisms_of_action: Rows<Mechanism>,
+    /// Native mechanism collection, null when the source has no mechanisms.
+    #[serde(
+        rename = "mechanismsOfAction",
+        deserialize_with = "Option::deserialize"
+    )]
+    pub mechanisms_of_action: Option<Rows<Mechanism>>,
 }
 /// A native returned collection.
 #[derive(Debug, Deserialize)]
