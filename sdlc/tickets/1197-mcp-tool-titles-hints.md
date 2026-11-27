@@ -1,5 +1,7 @@
 # 1197 — mcp-tool-titles-hints
 
+Status: OPEN.
+
 Milestone: 7
 
 ## Outcome

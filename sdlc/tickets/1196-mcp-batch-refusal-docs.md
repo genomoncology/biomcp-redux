@@ -1,5 +1,7 @@
 # 1196 — mcp-batch-refusal-docs
 
+Status: OPEN.
+
 Milestone: 7
 
 ## Outcome

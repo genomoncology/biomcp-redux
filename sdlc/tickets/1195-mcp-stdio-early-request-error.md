@@ -1,5 +1,7 @@
 # 1195 — mcp-stdio-early-request-error
 
+Status: OPEN.
+
 Milestone: 7
 
 ## Outcome

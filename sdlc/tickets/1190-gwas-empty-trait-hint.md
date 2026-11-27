@@ -1,5 +1,7 @@
 # 1190 — gwas-empty-trait-hint
 
+Status: OPEN.
+
 Milestone: 7
 
 ## Outcome

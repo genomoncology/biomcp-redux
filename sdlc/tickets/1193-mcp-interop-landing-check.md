@@ -1,5 +1,7 @@
 # 1193 — mcp-interop-landing-check
 
+Status: OPEN.
+
 Milestone: 7
 
 ## Outcome

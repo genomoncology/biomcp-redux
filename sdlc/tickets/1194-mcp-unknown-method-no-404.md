@@ -1,5 +1,7 @@
 # 1194 — mcp-unknown-method-no-404
 
+Status: OPEN.
+
 Milestone: 7
 
 ## Outcome
