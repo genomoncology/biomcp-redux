@@ -60,9 +60,14 @@ def check_parent(executable, environment, parent, forms):
     document = json.loads(reply.stdout)
     section = (document.get('result') or {}).get('targets') or {}
     records = (section.get('data') or {}).get('records', [])
-    if (reply.returncode != 0 or section.get('state') != 'data'
-            or not records or records[0]['drug']['id'] not in forms):
-        raise ValueError(f'{parent} did not return a child mechanism '
+    total = (document.get('page') or {}).get('total', 0)
+    # A targetless native mechanism is counted and disclosed as a refusal.
+    target_refused = any(problem['field'] == 'target_chembl_id'
+                         for problem in document.get('problems', []))
+    if (reply.returncode != 0 or section.get('state') != 'data' or total == 0
+            or not (records or target_refused)
+            or any(record['drug']['id'] not in forms for record in records)):
+        raise ValueError(f'{parent} could not reach its child mechanisms '
                          f'(status {document.get("status")}, targets {section.get("state")})')
 
 
@@ -75,7 +80,7 @@ def main():
         for parent, forms in sorted(parents.items()):
             check_parent(executable, environment, parent, forms)
             time.sleep(1)
-    print(f'BioMCP returned child mechanisms for all {len(parents)} ChEMBL parents.')
+    print(f'BioMCP reached child mechanisms for all {len(parents)} ChEMBL parents.')
 
 
 if __name__ == '__main__':
