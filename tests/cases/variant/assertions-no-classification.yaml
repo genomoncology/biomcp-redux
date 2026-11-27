@@ -1,0 +1,33 @@
+{
+  "feature": "variant-assertions",
+  "live_check": "public",
+  "story": "ClinVar returns the reference and submitted records even when no classification was provided",
+  "replay": "variant/clinvar-records",
+  "verified": "Projected from the public ClinVar efetch XML for VCV004517766.1, retaining the classification and condition fields.",
+  "steps": [
+    {
+      "run": ["variant", "assertions", "clinvar:4517766", "--source", "clinvar"],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 2,
+        "/result/assertions/0/kind": "rcv",
+        "/result/assertions/0/record": "RCV006240339",
+        "/result/assertions/0/domain": "unclassified",
+        "/result/assertions/0/unmapped/classification": "no classification provided",
+        "/result/assertions/0/unmapped/conditions/0/label": "Lung cancer",
+        "/result/assertions/1/kind": "scv",
+        "/result/assertions/1/record": "SCV007072027",
+        "/result/assertions/1/domain": "unclassified",
+        "/result/assertions/1/unmapped/classification": "no classification provided"
+      }
+    },
+    {
+      "run": ["get", "variant", "clinvar:4517766", "clinvar"],
+      "expect": {
+        "/status": "complete",
+        "/result/candidates/0/sections/clinvar/state": "data",
+        "/result/candidates/0/sections/clinvar/data/total": 2
+      }
+    }
+  ]
+}
