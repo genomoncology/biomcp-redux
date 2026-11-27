@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
 /// The typed `fields` list, for search, subcommand and section rows alike (1071).
-const FIELDS: &str = "Row columns or a.b. See help.";
+const FIELDS: &str = "Row columns or a.b.";
 
 pub(in crate::mcp) struct Catalog {
     pub(super) tools: Vec<Value>,
@@ -151,7 +151,7 @@ fn entity(
     properties.insert(
         "action".into(),
         json!({"type":"string","description":format!(
-            "One of: {}. Fill its object. Null or \"\" omits.",
+            "One of: {}. Fill its object.",
             names.join(", ")
         )}),
     );
