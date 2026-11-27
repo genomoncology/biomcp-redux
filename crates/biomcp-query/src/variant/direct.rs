@@ -57,7 +57,6 @@ pub(super) fn get(
     source: Source,
     mut deadline: Deadline<'_>,
 ) -> Outcome {
-    let requested = query.input().identity().cloned();
     let mut candidates = vec![candidate(query, source)];
     let (sources, mut problems, local, incomplete) =
         super::sections::apply(cx, query, &mut candidates, &mut deadline, None);
@@ -105,7 +104,7 @@ pub(super) fn candidate(query: &VariantGet, source: Source) -> VariantHeader {
             representations: Box::default(),
             genes: Box::default(),
         },
-        requested,
+        requested: query.input().identity().cloned(),
         source,
         record: biomcp_types::SourceRecord {
             namespace: biodata::IdentifierNamespace::Unknown,
