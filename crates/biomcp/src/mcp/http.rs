@@ -49,6 +49,7 @@ struct Service {
     settings: Arc<crate::config::Settings>,
     fetch: Result<Arc<biomcp_fetch::Fetch>, crate::config::StartupError>,
     recovery: Option<Arc<super::Recovery>>,
+    local_key: Option<Arc<biomcp_fetch::TrialCursorKey>>,
 }
 pub(crate) fn serve(
     address: &str,
@@ -107,6 +108,7 @@ pub(crate) fn serve(
     let service = Arc::new(Service {
         calls: Calls::default(),
         connections: admission::Slots::new(max_connections),
+        local_key: super::elicitation::local_key(),
         hosted_max_use,
         max_calls,
         queue_wait: crate::config::queue_wait(&settings),

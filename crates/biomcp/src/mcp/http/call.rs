@@ -97,6 +97,7 @@ impl Calls {
             .clone()
             .unwrap_or_else(|| Cancellation::with_budget(budget));
         let worker_id = id.clone();
+        let local_key = service.local_key.clone();
         let (sender, receiver) = mpsc::sync_channel(1);
         let worker = std::thread::Builder::new()
             .name("mcp-http-tool".into())
@@ -117,6 +118,7 @@ impl Calls {
                     id: worker_id,
                     version,
                     context,
+                    local_key: local_key.as_deref(),
                 };
                 let outcome = worker::execute(|| match confirmation {
                     Some(confirmation) => {
@@ -304,6 +306,7 @@ mod tests {
             globals: Globals::default(),
             fetch: Err(StartupError::Local),
             recovery: None,
+            local_key: None,
         }
     }
     #[test]

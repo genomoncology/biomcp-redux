@@ -6,6 +6,7 @@ use biomcp_query::store::saved::DeletePreview;
 use serde_json::{Value, json};
 use std::{
     io,
+    sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -35,6 +36,7 @@ pub(super) struct Call<'a> {
     pub(super) id: Value,
     pub(super) version: protocol::ReplyVersion,
     pub(super) context: Context<'a>,
+    pub(super) local_key: Option<&'a TrialCursorKey>,
 }
 
 impl Call<'_> {
@@ -136,20 +138,18 @@ pub(super) fn form(preview: &DeletePreview, explicit_mode: bool) -> Value {
     form
 }
 
-// Reuse the hosted continuation key across workers, with a distinct binding.
-#[expect(
-    clippy::disallowed_types,
-    reason = "Generate the local continuation key once"
-)]
-static LOCAL_KEY: std::sync::OnceLock<Option<TrialCursorKey>> = std::sync::OnceLock::new();
+pub(super) fn local_key() -> Option<Arc<TrialCursorKey>> {
+    TrialCursorKey::generate().map(Arc::new)
+}
 
-fn key<'a>(context: Context<'a>) -> Option<&'a TrialCursorKey> {
-    context
+// Reuse the hosted continuation key across workers, with a distinct binding.
+fn key<'a>(call: &Call<'a>) -> Option<&'a TrialCursorKey> {
+    call.context
         .fetch
         .as_ref()
         .ok()
         .and_then(|fetch| fetch.continuation_key())
-        .or_else(|| LOCAL_KEY.get_or_init(TrialCursorKey::generate).as_ref())
+        .or(call.local_key)
 }
 
 fn now() -> u64 {
@@ -171,14 +171,11 @@ fn binding(call: &Call<'_>, preview: &DeletePreview) -> Vec<u8> {
 pub(super) fn state(call: &Call<'_>, preview: &DeletePreview) -> Option<String> {
     // A form has its own lifetime across requests and holds no tool slot.
     let expiration = now().checked_add(300)?.to_be_bytes().to_vec();
-    key(call.context)?
-        .seal(expiration, &binding(call, preview))
-        .ok()
+    key(call)?.seal(expiration, &binding(call, preview)).ok()
 }
 
 pub(super) fn matches_state(state: &str, call: &Call<'_>, preview: &DeletePreview) -> bool {
-    let Some(bytes) = key(call.context).and_then(|key| key.open(state, &binding(call, preview)))
-    else {
+    let Some(bytes) = key(call).and_then(|key| key.open(state, &binding(call, preview))) else {
         return false;
     };
     <[u8; 8]>::try_from(bytes).is_ok_and(|expires| u64::from_be_bytes(expires) > now())

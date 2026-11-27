@@ -58,6 +58,7 @@ struct Server {
     version: ReplyVersion,
     legacy_form: Option<bool>,
     form_sequence: u64,
+    local_key: Option<std::sync::Arc<biomcp_fetch::TrialCursorKey>>,
     globals: crate::grammar::Globals,
     root: std::sync::Arc<crate::grammar::Root>,
     settings: std::sync::Arc<crate::config::Settings>,
@@ -82,6 +83,7 @@ pub(crate) fn serve(
         version: ReplyVersion::Current,
         legacy_form: None,
         form_sequence: 0,
+        local_key: elicitation::local_key(),
         globals,
         root,
         settings,
@@ -276,6 +278,7 @@ impl Server {
         let worker_key = key.clone();
         let budget = self.queue.budget;
         let worker_id = id.clone();
+        let local_key = self.local_key.clone();
         let work: queue::Work = Box::new(move || {
             let mut context = crate::command::Context::new(&globals, &fetch, &root, &settings);
             context.recovery = recovery.as_deref();
@@ -284,6 +287,7 @@ impl Server {
                 id: worker_id,
                 version,
                 context,
+                local_key: local_key.as_deref(),
             };
             if let Some(confirmation) = modern {
                 request.context.scope = form_scope.as_ref();

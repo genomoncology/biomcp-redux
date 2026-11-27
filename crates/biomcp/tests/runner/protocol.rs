@@ -19,6 +19,8 @@ pub(super) mod recent_parity;
 mod reply_form;
 #[path = "mcp_reply_size.rs"]
 mod reply_size;
+#[path = "saved_elicitation.rs"]
+mod saved_elicitation;
 #[path = "protocol_schemas.rs"]
 mod schemas;
 #[path = "mcp_skills.rs"]
@@ -63,7 +65,7 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = typed_followups::trials();
-    trials.extend(super::saved_elicitation::trials());
+    trials.extend(saved_elicitation::trials());
     trials.push(transcript_trial("mcp-parity/tool-metadata", || {
         tool_metadata::check().map_err(Into::into)
     }));

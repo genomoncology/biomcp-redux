@@ -1,5 +1,5 @@
 //! Exercise saved-work confirmation against the installed stdio and hosted HTTP server.
-use super::{
+use crate::runner::{
     http::Server,
     launch::{Environment, fixtures},
     mcp::{http_wire, one_value, request},

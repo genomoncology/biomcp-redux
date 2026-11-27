@@ -12,6 +12,7 @@ fn panicking_worker_completes_with_internal_error() {
         version: ReplyVersion::Current,
         legacy_form: None,
         form_sequence: 0,
+        local_key: None,
         globals: crate::grammar::Globals::default(),
         root: std::sync::Arc::new(crate::grammar::Root::new(clap::Command::new(
             "worker-fixture",
