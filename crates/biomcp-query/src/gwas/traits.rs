@@ -46,7 +46,7 @@ pub(super) fn resolve(cx: &Ctx<'_>, q: &GwasSearch, deadline: Deadline<'_>, out:
                 message: if names.is_empty() {
                     "GWAS Catalog found no matching trait names.".into()
                 } else {
-                    format!("Similar GWAS Catalog traits: {names}.").into()
+                    format!("Similar GWAS Catalog traits include {names}.").into()
                 },
                 retry_after_seconds: None,
             });

@@ -11,7 +11,7 @@
         "/page/total": 0,
         "/page/returned": 0,
         "/result/items": [],
-        "/sources/0/notices/0/message": "Similar GWAS Catalog traits: type 2 diabetes mellitus (MONDO_0005148), type 2 diabetes nephropathy (EFO_0004997), age of onset of type 2 diabetes mellitus (OBA_2001013).",
+        "/sources/0/notices/0/message": "Similar GWAS Catalog traits include type 2 diabetes mellitus (MONDO_0005148), type 2 diabetes nephropathy (EFO_0004997), age of onset of type 2 diabetes mellitus (OBA_2001013).",
         "/next/0/kind": "disambiguate",
         "/next/0/args": ["search", "gwas", "--trait-id", "MONDO_0005148"]
       }
