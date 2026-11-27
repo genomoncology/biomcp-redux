@@ -4,7 +4,7 @@
   "url": "https://civicdb.org/api/graphql",
   "post": {
     "request_content_type": "application/json",
-    "request_body_sha256": "4aec121f811fd9f9ecce2174a7c699a0107318b97357dfa056dafd6941e5b30a"
+    "request_body_sha256": "7368bb941bb12a09f8f33f90bcdfa81d7284cff28b3ac06e82b20bbf5150204a"
   },
   "exchanges": [
     {
@@ -22,19 +22,19 @@
               "link": "/therapies/138"
             },
             "evidenceItems": {
-              "totalCount": 3,
+              "totalCount": 5,
               "pageInfo": {
                 "hasNextPage": true,
                 "endCursor": "Mg"
               },
               "nodes": [
                 {
-                  "id": 12082,
-                  "status": "SUBMITTED",
+                  "id": 12083,
+                  "status": "ACCEPTED",
                   "significance": "SENSITIVITYRESPONSE",
                   "disease": {
-                    "name": "Solid Tumor",
-                    "doid": null
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
                   },
                   "therapies": [
                     {
@@ -44,10 +44,10 @@
                   ],
                   "therapyInteractionType": null,
                   "evidenceType": "PREDICTIVE",
-                  "evidenceLevel": "A",
+                  "evidenceLevel": "B",
                   "evidenceDirection": "SUPPORTS",
                   "source": {
-                    "citationId": "32919526",
+                    "citationId": "25765070",
                     "sourceType": "PUBMED"
                   },
                   "molecularProfile": {
@@ -74,8 +74,8 @@
                   }
                 },
                 {
-                  "id": 12086,
-                  "status": "SUBMITTED",
+                  "id": 12594,
+                  "status": "ACCEPTED",
                   "significance": "SENSITIVITYRESPONSE",
                   "disease": {
                     "name": "Solid Tumor",
@@ -92,7 +92,7 @@
                   "evidenceLevel": "B",
                   "evidenceDirection": "SUPPORTS",
                   "source": {
-                    "citationId": "38451314",
+                    "citationId": "30309915",
                     "sourceType": "PUBMED"
                   },
                   "molecularProfile": {

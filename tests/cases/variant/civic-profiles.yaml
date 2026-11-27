@@ -1,7 +1,7 @@
 {
   "feature": "variant-civic",
   "live_check": "public",
-  "story": "Read native evidence and assertions by CIViC profile ID or exact name without an allele or required therapy. Disease, drug and evidence selectors apply before paging. Drug and profile reads agree on the submitted TMB High evidence.",
+  "story": "Read native evidence and assertions by CIViC profile ID or exact name without an allele or required therapy. Disease, drug and evidence selectors apply before paging. The TMB High profile exposes submitted evidence, and both routes return the same accepted evidence status for the evidence they share.",
   "verified": "CIViC CC0 https://civicdb.org/releases/licensing. Public keyless GraphQL responses recorded on 2026-11-27. MSI High is profile 5118; EID1940 belongs to the separate BRAF V600E AND MSI High profile.",
   "replay": "variant/civic-profiles",
   "steps": [
@@ -200,6 +200,34 @@
     {
       "run": [
         "get",
+        "variant",
+        "TMB High",
+        "civic",
+        "--disease",
+        "Solid Tumor",
+        "--drug",
+        "Pembrolizumab",
+        "--evidence-status",
+        "accepted",
+        "--evidence-significance",
+        "sensitivityresponse",
+        "--section-limit",
+        "2"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/data/profiles/0/membership": "profile",
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/feature_type": "factor",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID12594",
+        "/sources/*/source": [
+          "civic"
+        ],
+        "/result/candidates/0/sections/civic/data/profiles/0/members/0/ncit_id": "C150128",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/status": "ACCEPTED"
+      }
+    },
+    {
+      "run": [
+        "get",
         "drug",
         "138",
         "civic",
@@ -212,17 +240,21 @@
         "--section-limit",
         "2",
         "--evidence-status",
-        "submitted"
+        "accepted",
+        "--evidence-significance",
+        "sensitivityresponse"
       ],
       "expect": {
         "/result/civic/data/evidence/records/*/claim/record/id": [
-          "EID12082",
-          "EID12086"
+          "EID12083",
+          "EID12594"
         ],
         "/result/civic/data/evidence/records/*/claim/status": [
-          "SUBMITTED",
-          "SUBMITTED"
-        ]
+          "ACCEPTED",
+          "ACCEPTED"
+        ],
+        "/result/civic/data/evidence/records/1/profile/members/0/feature_type": "factor",
+        "/result/civic/data/evidence/records/1/profile/members/0/ncit_id": "C150128"
       }
     }
   ]
