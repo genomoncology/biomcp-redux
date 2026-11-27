@@ -16,7 +16,7 @@ use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,
     SourceSpec,
 };
-use biomcp_types::{Source, VariantAssertion};
+use biomcp_types::{ClinvarIncluded, Source, VariantAssertion};
 pub use search::{SearchPage, search};
 use std::time::Duration;
 /// ClinVar shares the existing NCBI quota and optional user key.
@@ -55,12 +55,20 @@ pub static GENE_COUNTS: SourceSpec = SourceSpec {
     command_budget: Some(Duration::from_secs(30)),
 };
 const FETCH: Endpoint = SPEC.get("/efetch.fcgi").fresh(Freshness::Days(1));
+/// Assertions and included-only relationships from a single ClinVar archive.
+#[derive(Debug)]
+pub struct Assertions {
+    /// Direct assertion rows.
+    pub rows: Vec<VariantAssertion>,
+    /// The archive's including records when it owns no submissions.
+    pub included_only: Option<ClinvarIncluded>,
+}
 /// Fetch exactly one Variation ID and validate the XML identity before cache admission.
 pub fn assertions(
     leg: &Leg<'_>,
     id: &str,
     selection: Option<(&biomcp_types::AssertionId, Option<&str>)>,
-) -> Result<crate::Mapped<Vec<VariantAssertion>>, RequestError> {
+) -> Result<crate::Mapped<Assertions>, RequestError> {
     let selected_vcv = selection
         .filter(|(id, _)| matches!(id, biomcp_types::AssertionId::Vcv(_)))
         .map(|(id, version)| (id.to_string(), version));
@@ -90,6 +98,7 @@ pub fn assertions(
     if let Some(field) = reply.identity_problem(id, vcv) {
         reply.refusals = crate::Refusal::Refused;
         reply.rows.clear();
+        reply.included_only = None;
         if !reply
             .problems
             .iter()
@@ -104,7 +113,10 @@ pub fn assertions(
     }
     Ok(crate::Mapped {
         refusals: reply.refusals,
-        value: reply.rows,
+        value: Assertions {
+            rows: reply.rows,
+            included_only: reply.included_only,
+        },
         problems: reply.problems,
     })
 }
