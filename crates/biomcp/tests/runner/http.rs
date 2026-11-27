@@ -159,11 +159,13 @@ impl Server {
         let name_header = value
             .as_ref()
             .and_then(|v| {
-                v.pointer(if v["method"] == "resources/read" {
-                    "/params/uri"
-                } else {
-                    "/params/name"
-                })
+                v.pointer(
+                    if v.get("method").and_then(Value::as_str) == Some("resources/read") {
+                        "/params/uri"
+                    } else {
+                        "/params/name"
+                    },
+                )
             })
             .and_then(Value::as_str)
             .map(|name| format!("Mcp-Name: {name}\r\n"))

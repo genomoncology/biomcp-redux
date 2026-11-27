@@ -369,9 +369,10 @@ fn embed_research_frontmatter(out: &std::path::Path) -> Result<(), Box<dyn Error
         .and_then(|text| text.split_once("\n---\n"))
         .ok_or("research skill must start with YAML frontmatter")?;
     let fields: serde_json::Value = serde_saphyr::from_str(frontmatter)?;
-    if fields["name"] != "biomcp-research"
-        || fields["description"]
-            .as_str()
+    if fields.get("name").and_then(serde_json::Value::as_str) != Some("biomcp-research")
+        || fields
+            .get("description")
+            .and_then(serde_json::Value::as_str)
             .is_none_or(|text| text.trim().is_empty() || text.chars().count() > 1024)
     {
         return Err(

@@ -2,7 +2,7 @@
 use super::{current, protocol, typed::catalog};
 use crate::{command::Context, skill::research};
 use biomcp_types::Source;
-use serde_json::{Value, json};
+use serde_json::{Map, Value, json};
 use std::{collections::BTreeSet, ffi::OsString, io};
 
 const EXTENSION: &str = "io.modelcontextprotocol/skills";
@@ -12,14 +12,17 @@ pub(super) const GUIDE_URI: &str = "skill://biomcp-research/SKILL.md";
 const MARKDOWN: &str = "text/markdown";
 
 pub(super) fn capabilities(context: Context<'_>, extensions: bool) -> Value {
-    let mut capabilities = json!({"tools":{}});
+    let mut capabilities = Map::from_iter([("tools".into(), json!({}))]);
     if crate::config::mcp_skills(context.settings) {
-        capabilities["resources"] = json!({});
+        capabilities.insert("resources".into(), json!({}));
         if extensions {
-            capabilities["extensions"] = json!({EXTENSION: {"directoryRead":false}});
+            capabilities.insert(
+                "extensions".into(),
+                json!({EXTENSION: {"directoryRead":false}}),
+            );
         }
     }
-    capabilities
+    Value::Object(capabilities)
 }
 
 pub(super) fn handles(method: &str, context: Context<'_>, modern: bool) -> bool {
@@ -77,7 +80,7 @@ fn serve(method: &str, params: &Value, context: Context<'_>) -> io::Result<Optio
         }
         "skills/list" => json!({"skills":[entry(context)?]}),
         "skills/get" => json!({"skill":entry(context)?}),
-        _ => unreachable!("only skill and resource methods are routed here"),
+        _ => return Ok(None),
     };
     Ok(Some(result))
 }
@@ -90,7 +93,8 @@ fn entry(context: Context<'_>) -> io::Result<Value> {
                 "size":file.text.len()})
         })
         .collect();
-    Ok(json!({"uri":GUIDE_URI,"frontmatter":&*research::FRONTMATTER,"resources":resources}))
+    let frontmatter: Value = serde_json::from_str(research::FRONTMATTER)?;
+    Ok(json!({"uri":GUIDE_URI,"frontmatter":frontmatter,"resources":resources}))
 }
 
 struct File {

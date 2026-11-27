@@ -99,7 +99,7 @@ fn hosted() -> Check {
         &["--offline".into(), "--hosted".into()],
     )?;
     let listed = post(&server, &list())?;
-    let result = &listed["result"];
+    let result = listed.get("result").ok_or("missing hosted result")?;
     check_cache(result, "private")?;
     let files = result
         .pointer("/skills/0/resources")
@@ -144,12 +144,18 @@ fn legacy_and_opt_out() -> Check {
         let init = reply(&replies, "init")?;
         let resources = reply(&replies, "resources")?;
         let read = reply(&replies, "read")?;
-        if init["result"]["protocolVersion"] != revision
+        if init
+            .pointer("/result/protocolVersion")
+            .and_then(Value::as_str)
+            != Some(revision)
             || init.pointer(EXTENSION).is_some()
-            || !init["result"]["capabilities"]["resources"].is_object()
-            || !resources["result"]["resources"]
-                .as_array()
-                .is_some_and(|files| files.iter().any(|file| file["uri"] == GUIDE))
+            || init
+                .pointer("/result/capabilities/resources")
+                .is_none_or(|value| !value.is_object())
+            || !resources
+                .pointer("/result/resources")
+                .and_then(Value::as_array)
+                .is_some_and(|files| files.iter().any(|file| field(file, "uri") == Some(GUIDE)))
             || read.pointer("/result/contents/0/uri") != Some(&json!(GUIDE))
         {
             return Err(format!(
@@ -163,7 +169,7 @@ fn legacy_and_opt_out() -> Check {
         .map_err(|error| error.to_string())?;
     let replies = exchange_with_globals(&environment, &[discover(), list()], &globals)?;
     let disabled = reply(&replies, "discover")?;
-    if disabled["result"]["capabilities"] != json!({"tools":{}})
+    if disabled.pointer("/result/capabilities") != Some(&json!({"tools":{}}))
         || instructions(disabled)?.contains(GUIDE)
         || reply(&replies, "list")?.pointer("/error/code") != Some(&json!(-32601))
     {
@@ -177,20 +183,29 @@ fn legacy_and_opt_out() -> Check {
 fn manifest(replies: &[Value]) -> Result<&[Value], String> {
     let discover = reply(replies, "discover")?;
     if discover.pointer(EXTENSION) != Some(&json!({"directoryRead":false}))
-        || !discover["result"]["capabilities"]["resources"].is_object()
+        || discover
+            .pointer("/result/capabilities/resources")
+            .is_none_or(|value| !value.is_object())
         || !instructions(discover)?.contains(GUIDE)
     {
         return Err("discovery must declare the extension, resources and a skill pointer".into());
     }
-    let result = &reply(replies, "list")?["result"];
-    let get = &reply(replies, "get")?["result"];
+    let result = reply(replies, "list")?
+        .get("result")
+        .ok_or("missing list result")?;
+    let get = reply(replies, "get")?
+        .get("result")
+        .ok_or("missing get result")?;
     check_cache(result, "public")?;
     check_cache(get, "public")?;
-    let skills = result["skills"].as_array().ok_or("missing skills list")?;
+    let skills = result
+        .get("skills")
+        .and_then(Value::as_array)
+        .ok_or("missing skills list")?;
     let [skill] = skills.as_slice() else {
         return Err("expected one research skill".into());
     };
-    if skill["uri"] != GUIDE || get["skill"] != *skill {
+    if field(skill, "uri") != Some(GUIDE) || get.get("skill") != Some(skill) {
         return Err("skills/get and skills/list disagree on the research skill".into());
     }
     for id in ["missing-skill", "missing-resource"] {
@@ -198,8 +213,9 @@ fn manifest(replies: &[Value]) -> Result<&[Value], String> {
             return Err(format!("{id} must return -32602"));
         }
     }
-    let files = skill["resources"]
-        .as_array()
+    let files = skill
+        .get("resources")
+        .and_then(Value::as_array)
         .ok_or("missing file manifest")?;
     let listed = uris(files)?;
     let expected = expected_uris()?;
@@ -227,7 +243,7 @@ fn check_file(file: &Value, read: &Value, replies: &[Value]) -> Check {
     let content = read
         .pointer("/result/contents/0")
         .ok_or_else(|| format!("missing contents for {name}"))?;
-    let text = content["text"].as_str().ok_or("missing resource text")?;
+    let text = field(content, "text").ok_or("missing resource text")?;
     let expected = if name == GUIDE {
         let frontmatter = text
             .strip_prefix("---\n")
@@ -250,11 +266,11 @@ fn check_file(file: &Value, read: &Value, replies: &[Value]) -> Check {
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect();
-    if content["uri"] != name
-        || content["mimeType"] != "text/markdown"
+    if field(content, "uri") != Some(name)
+        || field(content, "mimeType") != Some("text/markdown")
         || text != expected
-        || file["size"] != text.len()
-        || file["digest"] != format!("sha256:{hash}")
+        || file.get("size") != Some(&json!(text.len()))
+        || file.get("digest") != Some(&json!(format!("sha256:{hash}")))
     {
         return Err(format!(
             "resource bytes, size or digest disagree for {name}"
@@ -287,13 +303,17 @@ fn uris(files: &[Value]) -> Result<BTreeSet<&str>, String> {
 }
 
 fn uri(file: &Value) -> Result<&str, String> {
-    file["uri"].as_str().ok_or_else(|| "missing URI".into())
+    field(file, "uri").ok_or_else(|| "missing URI".into())
+}
+
+fn field<'a>(value: &'a Value, key: &str) -> Option<&'a str> {
+    value.get(key).and_then(Value::as_str)
 }
 
 fn reply<'a>(replies: &'a [Value], id: &str) -> Result<&'a Value, String> {
     replies
         .iter()
-        .find(|reply| reply["id"] == id)
+        .find(|reply| field(reply, "id") == Some(id))
         .ok_or_else(|| format!("missing reply {id}"))
 }
 
@@ -305,9 +325,12 @@ fn instructions(reply: &Value) -> Result<&str, String> {
 }
 
 fn check_cache(result: &Value, scope: &str) -> Check {
-    if result["resultType"] != "complete"
-        || result["cacheScope"] != scope
-        || result["ttlMs"].as_u64().is_none_or(|ttl| ttl == 0)
+    if field(result, "resultType") != Some("complete")
+        || field(result, "cacheScope") != Some(scope)
+        || result
+            .get("ttlMs")
+            .and_then(Value::as_u64)
+            .is_none_or(|ttl| ttl == 0)
     {
         return Err(format!(
             "expected a complete result with a positive TTL and {scope} cache scope"
@@ -321,7 +344,7 @@ fn post(server: &Server, frame: &Value) -> Result<Value, String> {
     if status != 200 {
         return Err(format!(
             "{} returned HTTP {status}: {reply}",
-            frame["method"]
+            field(frame, "method").unwrap_or_default()
         ));
     }
     Ok(reply)
