@@ -132,7 +132,7 @@ pub(super) enum Decision {
 pub(super) fn form(preview: &DeletePreview, explicit_mode: bool) -> Value {
     let [searches, lists, notes] = preview.counts;
     let mut form = json!({
-        "message":format!("Permanently delete {searches} searches, {lists} lists and {notes} notes?"),
+        "message":format!("Permanently delete all saved work? Searches ({searches}), lists ({lists}), notes ({notes})."),
         "requestedSchema":{"type":"object","properties":{"confirm":{"type":"boolean"}},"required":["confirm"]}
     });
     if explicit_mode {

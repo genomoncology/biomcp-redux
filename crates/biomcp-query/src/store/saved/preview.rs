@@ -55,7 +55,7 @@ impl DeletePreview {
                 let mut rows = statement.query([])?;
                 while let Some(row) = rows.next()? {
                     let id = row.get_ref(0)?.as_str().map_err(|_| SavedError::Database)?;
-                    digest.update(id.len().to_be_bytes());
+                    digest.update((id.len() as u64).to_be_bytes());
                     digest.update(id.as_bytes());
                     *count += 1;
                 }

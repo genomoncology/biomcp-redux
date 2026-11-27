@@ -7,8 +7,10 @@ use super::{
     saved_files::{run, saved_file},
     transcript::trial,
 };
+use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+use sha2::{Digest, Sha256};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
@@ -109,7 +111,7 @@ fn stdio() -> Result<(), String> {
         let elicitation = peer.next()?;
         prompt(
             &elicitation,
-            "Permanently delete 1 searches, 1 lists and 1 notes?",
+            "Permanently delete all saved work? Searches (1), lists (1), notes (1).",
         );
         assert_eq!(
             std::fs::read(&file).map_err(|e| e.to_string())?,
@@ -185,102 +187,110 @@ fn named_deletions(env: &Environment, peer: &mut Peer) -> Result<(), String> {
     Ok(())
 }
 
+const ACCOUNT: &str = "x-biomcp-account: test-account\r\n";
+
+fn hosted_call(id: u32, args: Value) -> Value {
+    request(
+        json!(id),
+        "tools/call",
+        json!({"name":"saved","arguments":args}),
+    )
+}
+
+fn hosted_delete(id: u32) -> Value {
+    let mut frame = hosted_call(id, arguments(json!({"all":true})));
+    frame["params"]["_meta"]["io.modelcontextprotocol/clientCapabilities"]["elicitation"] =
+        json!({"form":{}});
+    frame
+}
+
+fn ask(server: &Server, id: u32) -> Result<(String, Value), String> {
+    let reply = http_wire(server, &hosted_delete(id), ACCOUNT)?;
+    let result = &reply["result"];
+    assert_eq!(
+        result["resultType"], "input_required",
+        "HTTP returns an input-required result"
+    );
+    let inputs = result["inputRequests"]
+        .as_object()
+        .ok_or("missing input requests")?;
+    assert_eq!(inputs.len(), 1, "delete-all requests one form");
+    let (key, form) = inputs.iter().next().ok_or("missing form")?;
+    prompt(
+        form,
+        "Permanently delete all saved work? Searches (0), lists (1), notes (0).",
+    );
+    assert!(
+        result["requestState"].is_string(),
+        "the response includes opaque request state"
+    );
+    Ok((key.clone(), result["requestState"].clone()))
+}
+
+fn accept(server: &Server, id: u32, (key, state): (String, Value)) -> Result<Value, String> {
+    let mut frame = hosted_delete(id);
+    frame["params"]["requestState"] = state;
+    frame["params"]["inputResponses"] =
+        json!({(key):{"action":"accept","content":{"confirm":true}}});
+    http_wire(server, &frame, ACCOUNT)
+}
+
 fn hosted() -> Result<(), String> {
     let folder = tempfile::tempdir().map_err(|e| e.to_string())?;
-    let mut server = Server::configured_globals(
-        "127.0.0.1:0",
-        Some(json!({"mcp_tool_mode":"typed"})),
-        None,
-        None,
-        None,
-        &[
-            "--hosted".into(),
-            "--saved-folder".into(),
-            folder.path().to_string_lossy().into_owned(),
-        ],
-    )?;
-    let account = "x-biomcp-account: test-account\r\n";
-    let call = |id, args| {
-        request(
-            json!(id),
-            "tools/call",
-            json!({"name":"saved","arguments":args}),
+    let key = URL_SAFE_NO_PAD.encode(Sha256::digest(folder.path().as_os_str().as_encoded_bytes()));
+    let start = || {
+        Server::configured_globals(
+            "127.0.0.1:0",
+            Some(json!({"mcp_tool_mode":"typed"})),
+            None,
+            Some(("BIOMCP_TRIAL_CONTINUATION_KEY", &key)),
+            None,
+            &[
+                "--hosted".into(),
+                "--saved-folder".into(),
+                folder.path().to_string_lossy().into_owned(),
+            ],
         )
     };
+    let mut first = start()?;
+    let mut second = start()?;
     let add = |id, name| {
-        http_wire(
-            &server,
-            &call(
-                id,
-                json!({
-                    "action":"list_add","list_add":{"name":name,"entity":"gene","ids":["BRAF"]}
-                }),
-            ),
-            account,
-        )
-    };
-    let start = |id| {
-        let mut frame = call(id, arguments(json!({"all":true})));
-        frame["params"]["_meta"]["io.modelcontextprotocol/clientCapabilities"]["elicitation"] =
-            json!({"form":{}});
-        frame
-    };
-    let ask = |id| -> Result<(String, Value), String> {
-        let reply = http_wire(&server, &start(id), account)?;
-        assert_eq!(
-            reply["result"]["resultType"], "input_required",
-            "HTTP returns an input-required result"
-        );
-        let result = &reply["result"];
-        let inputs = result["inputRequests"]
-            .as_object()
-            .ok_or("missing input requests")?;
-        assert_eq!(inputs.len(), 1, "delete-all requests one form");
-        let (key, form) = inputs.iter().next().ok_or("missing form")?;
-        prompt(form, "Permanently delete 0 searches, 1 lists and 0 notes?");
-        assert!(
-            result["requestState"].is_string(),
-            "the response includes opaque request state"
-        );
-        Ok((key.clone(), result["requestState"].clone()))
-    };
-    let retry = |id, (key, state): (String, Value)| {
-        let mut frame = start(id);
-        frame["params"]["requestState"] = state;
-        frame["params"]["inputResponses"] =
-            json!({(key):{"action":"accept","content":{"confirm":true}}});
-        http_wire(&server, &frame, account)
+        let args = json!({
+            "action":"list_add","list_add":{"name":name,"entity":"gene","ids":["BRAF"]}
+        });
+        http_wire(&first, &hosted_call(id, args), ACCOUNT)
     };
 
     add(1, "first")?;
-    let waiting = ask(2)?;
+    let waiting = ask(&first, 2)?;
     http_wire(
-        &server,
-        &call(3, arguments(json!({"name":"first"}))),
-        account,
+        &first,
+        &hosted_call(3, arguments(json!({"name":"first"}))),
+        ACCOUNT,
     )?;
     add(4, "replacement")?;
-    let stale = retry(5, waiting)?;
+    let stale = accept(&second, 5, waiting)?;
     assert_eq!(
         stale["result"]["content"][0]["text"],
         "Saved work changed or confirmation expired. Nothing was deleted.",
         "a different list with the same count needs its own confirmation"
     );
-    let accepted = retry(7, ask(6)?)?;
+    let accepted = accept(&second, 7, ask(&first, 6)?)?;
     assert_eq!(
         accepted["result"]["resultType"], "complete",
-        "the retry completes the original call"
+        "another worker can complete the retry"
     );
     let deleted = one_value(&accepted["result"])?;
     assert_eq!(
         deleted["result"]["lists"][0]["name"], "replacement",
         "the approved list was deleted"
     );
-    let shown = http_wire(&server, &call(8, json!({"action":"show"})), account)?;
+    let shown = http_wire(&second, &hosted_call(8, json!({"action":"show"})), ACCOUNT)?;
     assert_eq!(
         one_value(&shown["result"])?["result"],
         json!({"searches":[],"lists":[]}),
         "the account's saved file is empty"
     );
-    server.stop()
+    first.stop()?;
+    second.stop()
 }
