@@ -202,9 +202,13 @@ biodata::wire_enum! {
 biodata::wire_enum! {
     /// Native CIViC feature type.
     CivicFeatureType {
+        /// Gene feature.
         Gene => "gene",
+        /// Fusion feature.
         Fusion => "fusion",
+        /// Genome-wide or molecular factor.
         Factor => "factor",
+        /// Cytogenetic region.
         Region => "region",
     }
 }
