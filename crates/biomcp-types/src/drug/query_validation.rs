@@ -127,10 +127,12 @@ fn validate_window(fields: &GetFields, approvals: bool) -> Result<(), QueryInval
     Ok(())
 }
 pub(super) fn validate_civic(fields: &GetFields) -> Result<(), QueryInvalid> {
-    if !fields.evidence_filter.is_empty() && fields.civic_kind != Some(CivicClaimKind::Evidence) {
+    let filter = &fields.evidence_filter;
+    if (!filter.evidence_level.is_empty() || filter.evidence_significance.is_some())
+        && fields.civic_kind != Some(CivicClaimKind::Evidence)
+    {
         return Err(QueryInvalid::new(&[
             "evidence_level",
-            "evidence_status",
             "evidence_significance",
             "civic_kind",
         ]));
@@ -147,11 +149,13 @@ pub(super) fn validate_civic(fields: &GetFields) -> Result<(), QueryInvalid> {
     if fields.civic_cursor.is_some() && fields.civic_kind.is_none() {
         return Err(QueryInvalid::new(&["civic_cursor", "civic_kind"]));
     }
-    if fields.civic_kind.is_some()
-        && (fields.source != Some(DrugSource::Civic)
-            || !fields.section.contains(&DrugSection::Civic))
-    {
-        return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
+    if fields.source != Some(DrugSource::Civic) || !fields.section.contains(&DrugSection::Civic) {
+        if fields.civic_kind.is_some() {
+            return Err(QueryInvalid::new(&["civic_kind", "source", "section"]));
+        }
+        if filter.evidence_status.is_some() {
+            return Err(QueryInvalid::new(&["evidence_status", "source", "section"]));
+        }
     }
     Ok(())
 }

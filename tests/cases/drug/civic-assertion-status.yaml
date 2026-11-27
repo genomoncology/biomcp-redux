@@ -1,0 +1,34 @@
+{
+  "feature": "drug-civic",
+  "live_check": "public",
+  "story": "A selected CIViC assertion stream honors the requested review status.",
+  "verified": "Public keyless CIViC GraphQL response for pembrolizumab. Replay matches the exact request hash. CIViC CC0 https://civicdb.org/releases/licensing.",
+  "replay": "drug/civic-assertion-status",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "138",
+        "civic",
+        "--source",
+        "civic",
+        "--section-limit",
+        "1",
+        "--evidence-status",
+        "submitted",
+        "--civic-kind",
+        "assertions",
+        "--civic-profile",
+        "5117"
+      ],
+      "expect": {
+        "/result/civic/data/assertions/page/total": 1,
+        "/result/civic/data/assertions/page/returned": 1,
+        "/result/civic/data/assertions/records/0/claim/status": "SUBMITTED",
+        "/result/civic/data/assertions/records/0/claim/record/id": "AID134",
+        "/result/civic/data/assertions/records/0/profile/record/id": "5117"
+      }
+    }
+  ]
+}

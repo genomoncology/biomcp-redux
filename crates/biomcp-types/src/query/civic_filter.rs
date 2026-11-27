@@ -9,7 +9,7 @@ pub struct CivicEvidenceFilter {
     /// Only with --source civic on get drug, and the civic section on get variant.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub evidence_level: Box<[CivicEvidenceLevel]>,
-    #[doc = "Status\nDefaults to accepted and submitted. Select rejected explicitly."]
+    #[doc = "Status\nDefaults to accepted and submitted. Also filters drug assertions."]
     /// Only with --source civic on get drug, and the civic section on get variant.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub evidence_status: Option<CivicEvidenceStatus>,

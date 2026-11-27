@@ -3,7 +3,7 @@ use super::variant::failure;
 use super::variant_raw::{Connection, Page};
 use biodata::Text;
 use biomcp_fetch::RequestError;
-use biomcp_types::{CivicEvidenceFilter, CivicEvidenceLevel, Reason};
+use biomcp_types::{CivicEvidenceFilter, CivicEvidenceLevel, CivicEvidenceStatus, Reason};
 
 pub(super) const NON_REJECTED: &str = "status:NON_REJECTED";
 
@@ -13,11 +13,15 @@ struct Cursor {
     after: Option<Text>,
 }
 
-pub(super) fn arguments(filter: &CivicEvidenceFilter, level: Option<CivicEvidenceLevel>) -> String {
-    let status = filter.evidence_status.map_or_else(
+pub(super) fn status_argument(status: Option<CivicEvidenceStatus>) -> String {
+    status.map_or_else(
         || NON_REJECTED.to_owned(),
         |status| format!("status:{}", status.as_str().to_ascii_uppercase()),
-    );
+    )
+}
+
+pub(super) fn arguments(filter: &CivicEvidenceFilter, level: Option<CivicEvidenceLevel>) -> String {
+    let status = status_argument(filter.evidence_status);
     let status = match filter.evidence_significance {
         Some(significance) => format!(
             "{status},significance:{}",

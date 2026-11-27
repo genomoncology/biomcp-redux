@@ -46,7 +46,7 @@ fn fetch_native(
         let filter = if kind == CivicClaimKind::Evidence {
             evidence_filter::arguments(query.evidence_filter(), level)
         } else {
-            evidence_filter::NON_REJECTED.into()
+            evidence_filter::status_argument(query.evidence_filter().evidence_status)
         };
         format!(
             "{name}(therapyId:$id{profile},{filter},first:{count},after:$after){{totalCount \
@@ -95,32 +95,26 @@ pub(super) fn fetch(
     after: Option<&Text>,
     count: u32,
 ) -> Result<raw::Data, RequestError> {
-    if query.evidence_filter().is_empty() {
+    if query.evidence_filter().is_empty() || kind == Some(CivicClaimKind::Assertions) {
         return fetch_native(leg, id, query, kind, after, count, None);
     }
     let mut therapy = None;
+    let mut assertions = None;
     let evidence_items = evidence_filter::page(
         query.evidence_filter(),
         after,
         count,
         |level, cursor, count| {
-            let data = fetch_native(
-                leg,
-                id,
-                query,
-                Some(CivicClaimKind::Evidence),
-                cursor,
-                count,
-                level,
-            )?;
+            let data = fetch_native(leg, id, query, kind, cursor, count, level)?;
             therapy = data.therapy;
+            assertions = data.assertions;
             data.evidence_items.ok_or_else(|| failure(Reason::BadReply))
         },
     )?;
     Ok(raw::Data {
         therapy,
         evidence_items: Some(evidence_items),
-        assertions: None,
+        assertions,
     })
 }
 fn matches(

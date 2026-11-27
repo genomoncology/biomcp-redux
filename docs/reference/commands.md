@@ -3452,7 +3452,7 @@ Options:
       --evidence-status <evidence_status>
           Status; help get drug
           Status
-          Defaults to accepted and submitted. Select rejected explicitly.
+          Defaults to accepted and submitted. Also filters drug assertions.
           Only with --source civic on get drug, and the civic section on get variant.
 
       --offline[=<offline>]
@@ -3520,7 +3520,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence significance, such as resistance or sensitivityresponse.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
-Defaults to accepted and submitted. Select rejected explicitly.
+Defaults to accepted and submitted. Also filters drug assertions.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
 - `--find`: Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.
 Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.
@@ -3882,7 +3882,7 @@ Options:
       --evidence-status <evidence_status>
           Status; help get variant
           Status
-          Defaults to accepted and submitted. Select rejected explicitly.
+          Defaults to accepted and submitted. Also filters drug assertions.
           Only with --source civic on get drug, and the civic section on get variant.
 
       --offline[=<offline>]
@@ -3951,7 +3951,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence significance, such as resistance or sensitivityresponse.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
-Defaults to accepted and submitted. Select rejected explicitly.
+Defaults to accepted and submitted. Also filters drug assertions.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E.
