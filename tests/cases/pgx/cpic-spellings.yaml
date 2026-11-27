@@ -1,0 +1,44 @@
+feature: cpic-pgx
+story: CPIC uses its published spelling when matching either allele order and ignores case in CPIC selectors.
+live_check: Authored CPIC reply fixtures.
+replay: pgx/cpic-spellings
+steps:
+  - run: [get, pgx, --gene, CYP2C19, --source, cpic, diplotype, --diplotype, '*1/*2']
+    expect:
+      /status: complete
+      /result/diplotypes/0/diplotype: '*1/*2'
+      /result/diplotypes/0/generesult: Synthetic result
+  - run: [get, pgx, --gene, cyp2c19, --source, cpic, diplotype, --diplotype, '*2/*1']
+    expect:
+      /status: complete
+      /result/diplotypes/0/diplotype: '*1/*2'
+      /result/diplotypes/0/generesult: Synthetic result
+  - run: [get, pgx, --gene, dpyd, --source, cpic, diplotype, --diplotype, 'reference/C.1905+1g>a (*2a)']
+    expect:
+      /status: complete
+      /result/diplotypes/0/diplotype: c.1905+1G>A (*2A)/Reference
+  - run: [get, pgx, --gene, CYP2C19, --source, cpic, diplotype, --diplotype, '*1/*999']
+    expect:
+      /status: complete
+      /result/diplotypes: {count: 0}
+      /sources/0/notices/*/message:
+        includes: 'CPIC diplotype spelling not found for CYP2C19. Examples: *1/*1, *1/*2, *2/*2.'
+    max_bytes: 907
+  - run: [get, pgx, --gene, G6PD, --source, cpic]
+    expect:
+      /status: complete
+      /result/identity/symbol: G6PD
+  - run: [get, pgx, --gene, g6pd, --source, cpic]
+    expect:
+      /status: complete
+      /result/identity/symbol: G6PD
+  - run: [search, pgx, --gene, G6PD, --source, cpic, --cpic-level, c]
+    expect:
+      /status: complete
+      /result/page/total: 1
+      /result/items/0/cpiclevel: C
+  - run: [get, pgx, --gene, BRAF, --source, cpic]
+    expect:
+      /status: complete
+      /sources/0/notices/*/message:
+        includes: CPIC has no gene record for BRAF.

@@ -1,0 +1,42 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/diplotype?select=%2A&genesymbol=eq.DPYD&diplotype=eq.c.1905%2B1G%3EA%20%28%2A2A%29%2FReference&limit=5&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1792918640,
+      "status": 200,
+      "content_type": "application/json",
+      "content_range": "0-0/1",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "activityvalue1": "n/a",
+            "activityvalue2": "n/a",
+            "consultationtext": "Synthetic source consultation",
+            "description": "Synthetic unresolved mapping",
+            "diplotype": "c.1905+1G>A (*2A)/Reference",
+            "diplotypekey": {
+              "DPYD": {
+                "Reference": 1,
+                "c.1905+1G>A (*2A)": 1
+              }
+            },
+            "ehrpriority": "Synthetic priority",
+            "function1": "Synthetic uncertainty",
+            "function2": "n/a",
+            "generesult": "Synthetic result",
+            "genesymbol": "DPYD",
+            "lookupkey": {
+              "DPYD": "n/a"
+            },
+            "totalactivityscore": "n/a"
+          }
+        ]
+      }
+    }
+  ]
+}
