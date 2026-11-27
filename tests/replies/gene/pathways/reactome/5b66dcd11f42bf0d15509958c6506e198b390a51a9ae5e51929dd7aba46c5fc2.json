@@ -1,0 +1,52 @@
+{
+  "method": "GET",
+  "source": "reactome",
+  "url": "https://reactome.org/ContentService/data/mapping/Ensembl/MIR21/pathways?species=9606",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "dbId": 8943723,
+            "displayName": "Regulation of PTEN mRNA translation",
+            "stId": "R-HSA-8943723",
+            "stIdVersion": "R-HSA-8943723.2",
+            "isInDisease": false,
+            "isInferred": false,
+            "maxDepth": 3,
+            "name": [
+              "Regulation of PTEN mRNA translation"
+            ],
+            "releaseDate": "2017-06-12",
+            "speciesName": "Homo sapiens",
+            "hasDiagram": false,
+            "hasEHLD": false,
+            "schemaClass": "Pathway",
+            "className": "Pathway"
+          },
+          {
+            "dbId": 9725371,
+            "displayName": "Nuclear events stimulated by ALK signaling in cancer",
+            "stId": "R-HSA-9725371",
+            "stIdVersion": "R-HSA-9725371.3",
+            "isInDisease": true,
+            "isInferred": false,
+            "maxDepth": 2,
+            "name": [
+              "Nuclear events stimulated by ALK signaling in cancer"
+            ],
+            "releaseDate": "2021-06-09",
+            "speciesName": "Homo sapiens",
+            "hasDiagram": false,
+            "hasEHLD": false,
+            "schemaClass": "Pathway",
+            "className": "Pathway"
+          }
+        ]
+      }
+    }
+  ]
+}

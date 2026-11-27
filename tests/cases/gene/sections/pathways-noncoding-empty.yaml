@@ -1,0 +1,12 @@
+feature: gene-pathways
+story: MALAT1 has no UniProt accession and Reactome finds no pathways by its Ensembl ID or symbol.
+replay: gene/pathways
+steps:
+- run: [get, gene, MALAT1, pathways, --section-only]
+  expect:
+    /status: complete
+    /result/items/0/sections/pathways/state: empty
+    /result/items/0/sections/pathways/record/namespace: Ensembl
+    /result/items/0/sections/pathways/record/id: ENSG00000251562
+    /sources/1/source: reactome
+    /sources/1/state: ok

@@ -1,0 +1,12 @@
+live_check: public
+feature: pathway-reactome
+story: A UniProt accession searches Reactome directly for the protein's pathways.
+replay: pathway/native
+steps:
+- run: [search, pathway, --gene, P15056]
+  expect:
+    /status: complete
+    /result/page/total: 16
+    /result/items/0/id/id: R-HSA-1295596
+    /sources/*/source: [reactome]
+    /problems: {absent: true}
