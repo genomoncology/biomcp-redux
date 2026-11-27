@@ -104,8 +104,12 @@ fn read(
         read.population = Section::unavailable(Source::Gnomad, Reason::Disabled);
         return read;
     }
-    let Ok(identity) = query.identity() else {
-        return read;
+    let identity = match query.identity() {
+        Ok(identity) => identity,
+        Err(_) => {
+            read.population = Section::unavailable(Source::Gnomad, Reason::Rejected);
+            return read;
+        }
     };
     if !super::population_identity::use_native_coordinate(cx.fetch, &identity) {
         let found = super::population_identity::resolve(cx, &identity, deadline);

@@ -194,13 +194,17 @@ fn registry_lookup(
     query: &VariantGet,
 ) -> Result<Vec<allele_registry::Resolution>, RequestError> {
     let native = query.input().source_id();
-    let number = |prefix| native.strip_prefix(prefix).and_then(|id| id.parse().ok());
+    let number = |prefix| {
+        let bad_id = || biomcp_fetch::bad_reply(Source::AlleleRegistry, None);
+        native
+            .strip_prefix(prefix)
+            .ok_or_else(bad_id)?
+            .parse::<u64>()
+            .map_err(|_| bad_id())
+    };
     match query.input().namespace() {
-        VariantNamespace::ClinVar => number("clinvar:")
-            .map_or_else(|| Ok(Vec::new()), |id| allele_registry::by_clinvar(leg, id)),
-        VariantNamespace::Rs => {
-            number("rs").map_or_else(|| Ok(Vec::new()), |id| allele_registry::by_rsid(leg, id))
-        }
+        VariantNamespace::ClinVar => allele_registry::by_clinvar(leg, number("clinvar:")?),
+        VariantNamespace::Rs => allele_registry::by_rsid(leg, number("rs")?),
         VariantNamespace::Chromosome => {
             allele_registry::chromosome_hgvs(leg, &native, query.myvariant_build())
                 .map(|row| vec![row])
