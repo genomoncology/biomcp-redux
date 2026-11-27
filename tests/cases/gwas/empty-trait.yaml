@@ -1,0 +1,18 @@
+{
+  "feature": "gwas-search",
+  "story": "An exact trait label with no associations explains the match rule and offers a disease search for the same text.",
+  "replay": "gwas/empty-trait",
+  "steps": [
+    {
+      "run": ["search", "gwas", "--trait", "type 2 diabetes"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/page/returned": 0,
+        "/sources/0/notices/0/message": "--trait matches only the exact GWAS Catalog trait label. Search diseases for an ontology ID to pass as --trait-id.",
+        "/next/0/kind": "disambiguate",
+        "/next/0/args": ["search", "disease", "type 2 diabetes"]
+      }
+    }
+  ]
+}
