@@ -24,7 +24,7 @@ The newest official TypeScript MCP client needs a newer Node than some gate mach
 
 ## Proof
 
-- Proof: `make landing-gate` passes through pm job on the Beelink (system Node 18) and on the M5, with the stage's time.
+- Proof: `make landing-gate` passes through pm job on a gate machine whose system Node is 18 and on one with a current Node, with the stage's time.
 
 ## Changes
 
