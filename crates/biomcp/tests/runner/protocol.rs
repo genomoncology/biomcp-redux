@@ -9,6 +9,8 @@ mod source_age;
 mod label_priority;
 #[path = "mcp_local_reply.rs"]
 mod local_reply;
+#[path = "mcp_tool_metadata.rs"]
+mod tool_metadata;
 #[path = "pool_parity.rs"]
 mod pool_parity;
 #[path = "recent_parity.rs"]
@@ -57,6 +59,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = typed_followups::trials();
+    trials.push(transcript_trial("mcp-parity/tool-metadata", || {
+        tool_metadata::check().map_err(Into::into)
+    }));
     trials.push(purple_book::trial());
     trials.extend(recent_parity::trials());
     trials.extend(hosted_surface::trials());
