@@ -49,6 +49,20 @@ def source_route(binary, env, command, *, optional=False):
         raise ValueError(f"{command}: expected a direct CIViC source route, got {body.get('status')}")
     return True
 
+def replay_evidence(binary, env, case, collection):
+    case = json.loads((Path("tests/cases") / f"{case}.yaml").read_text())
+    replay = str(Path("tests/replies") / case["replay"])
+    result = subprocess.run(
+        [binary, "--format", "json", "--replay", replay, *case["steps"][0]["run"]],
+        env=env, capture_output=True, check=True, timeout=30,
+    )
+    node = json.loads(result.stdout)["result"]
+    for part in collection.split("/"):
+        node = node[int(part)] if isinstance(node, list) else node[part]
+    if not node.startswith("EID"):
+        raise ValueError(f"{case['replay']}: route returned no native evidence ID")
+
+
 
 def route_support(binary):
     with tempfile.TemporaryDirectory() as root:
@@ -56,13 +70,17 @@ def route_support(binary):
             f"XDG_{kind}_HOME": str(Path(root) / kind.lower())
             for kind in ("CONFIG", "CACHE", "DATA", "STATE")
         }}
-        caid = source_route(binary, env, ["variant", "CA123643", "civic"])
-        drug = source_route(binary, env, ["drug", "138", "civic", "--source", "civic"])
+        replay_evidence(binary, env, "variant/native-civic",
+                        "candidates/0/sections/civic/data/profiles/0/statements/0/record/id")
+        replay_evidence(binary, env, "drug/civic-evidence-public",
+                        "civic/data/evidence/records/0/claim/record/id")
         # The exact name distinguishes this surface from an old bare ClinVar number.
         profile = source_route(binary, env, ["variant", "MSI High", "civic"], optional=True)
         if profile:
             source_route(binary, env, ["variant", "5118", "civic"])
-    return caid, drug, profile
+            replay_evidence(binary, env, "variant/civic-profiles",
+                            "candidates/0/sections/civic/data/profiles/0/statements/0/record/id")
+    return True, True, profile
 
 
 def profile_class(members):
@@ -89,6 +107,7 @@ def census(support):
     profiles = index(releases[1][1], "molecular_profile_id")
     variants = index(releases[2][1], "variant_id")
     counts = {bucket: Counter(total=0, **dict.fromkeys(ROUTES, 0)) for bucket in BUCKETS}
+    variant_route, drug_route, profile_route = support
     for row in evidence.values():
         if row["evidence_status"] != "accepted":
             continue
@@ -97,7 +116,7 @@ def census(support):
         kinds, allele = profile_class(members)
         therapy = bool(row["therapies"].strip())
         grouping = "with_therapy" if therapy else "without_therapy"
-        reached = (support[0] and allele, support[1] and therapy, support[2])
+        reached = (variant_route and allele, drug_route and therapy, profile_route)
         for bucket in {"all", grouping, *kinds, *(f"{kind}/{grouping}" for kind in kinds)}:
             counts[bucket]["total"] += 1
             counts[bucket].update(route for route, ok in zip(ROUTES, (*reached, any(reached))) if ok)
