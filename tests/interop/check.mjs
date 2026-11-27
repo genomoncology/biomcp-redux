@@ -8,7 +8,10 @@ const { Client } = await import(modernSdk ? clientPackage : `${clientPackage}/cl
 const { StdioClientTransport } = await import(
   modernSdk ? `${clientPackage}/stdio` : `${clientPackage}/client/stdio.js`
 );
-const client = new Client({ name: "biomcp-interop", version: "1.0.0" }, { versionNegotiation: { mode } });
+const client = new Client(
+  { name: "biomcp-interop", version: "1.0.0" },
+  { capabilities: {}, versionNegotiation: { mode } },
+);
 const transport = new StdioClientTransport(server);
 let legacyRevision;
 if (!modernSdk) {
