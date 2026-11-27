@@ -25,7 +25,7 @@ pub(crate) type EntityTool = (
     &'static str,
 );
 
-const GWAS: &str = "GWAS Catalog associations by gene, trait or variant";
+const GWAS: &str = "associations";
 const GWAS_GET: &str = "one GWAS association or study";
 const PGX_GET: &str = "pharmacogenomic guidance and annotations";
 pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
