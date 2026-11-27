@@ -21,17 +21,12 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let mut out = if q.p_value().is_some() {
-        threshold::search(cx, q, deadline)
-    } else {
-        native(cx, q, deadline)
-    };
-    traits::resolve(cx, q, deadline, &mut out);
-    command.finish(deadline.remaining());
-    out
-}
-
-fn native(cx: &Ctx<'_>, q: &GwasSearch, deadline: biomcp_fetch::Deadline<'_>) -> Outcome {
+    if q.p_value().is_some() {
+        let mut out = threshold::search(cx, q, deadline);
+        traits::resolve(cx, q, deadline, &mut out);
+        command.finish(deadline.remaining());
+        return out;
+    }
     let mut out = empty(q);
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     let result = gwas::search(&leg, q);
@@ -97,6 +92,8 @@ fn native(cx: &Ctx<'_>, q: &GwasSearch, deadline: biomcp_fetch::Deadline<'_>) ->
     out.sources.push(source);
     status::search(&mut out);
     out.local = error.and_then(status::local);
+    traits::resolve(cx, q, deadline, &mut out);
+    command.finish(deadline.remaining());
     out
 }
 
