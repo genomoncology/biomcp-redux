@@ -185,12 +185,10 @@ release-tests:
 		$(PYTHON) -m unittest $(RELEASE_TEST_SUITES)
 
 .PHONY: mcp-interop
-# The landing-gate worker has Node and uv. Dependency setup can fetch packages.
+# Dependency setup fetches a pinned Node and uses the worker's uv.
 # Client sessions use the debug binary and a local replay.
 mcp-interop:
-	npm --prefix tests/interop ci --ignore-scripts --no-audit --no-fund --prefer-offline
-	uv sync --project tests/interop --locked --python "$(PYTHON)"
-	uv run --project tests/interop --locked --offline --no-sync python tests/interop/check.py "$(abspath $(BIOMCP_DEBUG))"
+	$(PYTHON) scripts/mcp_interop.py "$(abspath $(BIOMCP_DEBUG))"
 
 .PHONY: release-linux
 release-linux:
