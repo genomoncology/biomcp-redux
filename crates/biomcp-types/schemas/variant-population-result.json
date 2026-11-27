@@ -7626,7 +7626,7 @@
               "type": "null"
             }
           ],
-          "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
+          "description": "Status\nDefaults to accepted and submitted. Also filters drug assertions.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "input": {
           "$ref": "#/$defs/Reply_VariantGetLookupInput",

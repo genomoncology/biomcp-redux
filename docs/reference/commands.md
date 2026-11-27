@@ -3452,7 +3452,7 @@ Options:
       --evidence-status <evidence_status>
           Status; help get drug
           Status
-          Source CIViC evidence status; omitted preserves the source's existing default.
+          Defaults to accepted and submitted. Also filters drug assertions.
           Only with --source civic on get drug, and the civic section on get variant.
 
       --offline[=<offline>]
@@ -3506,8 +3506,8 @@ Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
 - `--civic-cursor`: CIViC cursor. Continue this drug, profile and collection. Only with --source civic. Value form: string; example: --civic-cursor 0:A2.
-- `--civic-kind`: CIViC collection. Evidence or assertions in this profile. Only with --source civic. Value form: string; example: --civic-kind evidence.
-- `--civic-profile`: CIViC profile. Selects a molecular profile for this drug. Only with --source civic. Value form: integer; example: --civic-profile 1.
+- `--civic-kind`: CIViC collection. Evidence or assertions in this profile. Only with --source civic. Value form: string; example: --civic-kind assertions.
+- `--civic-profile`: CIViC profile. Selects a molecular profile for this drug. Only with --source civic. Value form: integer; example: --civic-profile 5117.
 - `--decision-from`: Earliest status date, inclusive (YYYY-MM-DD). Only with section approvals. Value form: string; example: --decision-from 2020-08-01; only with --source drugsfda.
 - `--decision-to`: Latest status date, inclusive (YYYY-MM-DD). Only with section approvals. Value form: string; example: --decision-to 2020-08-31; only with --source drugsfda.
 - `--document-id`: Exact approval letter ID. Limits: 25 MiB, 100 pages and 6144 escaped bytes per fragment. Reports scans without text.
@@ -3520,8 +3520,8 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence significance, such as resistance or sensitivityresponse.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
-Source CIViC evidence status; omitted preserves the source's existing default.
-Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
+Defaults to accepted and submitted. Also filters drug assertions.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
 - `--find`: Exact label text. Repeat for OR. Ignore case and whitespace breaks. History also ignores hyphenation.
 Current labels: two excerpts per section, up to five sections and five comma-separated SPL set IDs.
 Only with section label or label-history. Value form: repeatable values (repeat the flag); example: --find vasculitis.
@@ -3882,7 +3882,7 @@ Options:
       --evidence-status <evidence_status>
           Status; help get variant
           Status
-          Source CIViC evidence status; omitted preserves the source's existing default.
+          Defaults to accepted and submitted. Also filters drug assertions.
           Only with --source civic on get drug, and the civic section on get variant.
 
       --offline[=<offline>]
@@ -3951,7 +3951,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 Source CIViC evidence significance, such as resistance or sensitivityresponse.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
-Source CIViC evidence status; omitted preserves the source's existing default.
+Defaults to accepted and submitted. Also filters drug assertions.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E.

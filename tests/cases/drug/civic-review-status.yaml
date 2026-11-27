@@ -1,0 +1,69 @@
+{
+  "feature": "drug-civic",
+  "live_check": "public",
+  "story": "CIViC returns submitted resistance evidence on request. By default a therapy returns accepted and submitted claims.",
+  "verified": "Public keyless CIViC GraphQL responses for osimertinib and pembrolizumab. CIViC CC0 https://civicdb.org/releases/licensing.",
+  "replay": "drug/civic-review-status",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "187",
+        "civic",
+        "--source",
+        "civic",
+        "--civic-kind",
+        "evidence",
+        "--evidence-status",
+        "submitted",
+        "--evidence-significance",
+        "resistance",
+        "--section-limit",
+        "3"
+      ],
+      "expect": {
+        "/result/civic/data/evidence/page/total": 9,
+        "/result/civic/data/evidence/page/returned": 3,
+        "/result/civic/data/evidence/records/*/claim/record/id": [
+          "EID8052",
+          "EID7388",
+          "EID11098"
+        ],
+        "/result/civic/data/evidence/records/*/claim/status": [
+          "SUBMITTED",
+          "SUBMITTED",
+          "SUBMITTED"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "138",
+        "civic",
+        "--source",
+        "civic",
+        "--section-limit",
+        "3"
+      ],
+      "expect": {
+        "/result/civic/data/evidence/page/total": 58,
+        "/result/civic/data/evidence/page/returned": 3,
+        "/result/civic/data/evidence/records/*/claim/record/id": [
+          "EID13398",
+          "EID11251",
+          "EID11252"
+        ],
+        "/result/civic/data/evidence/records/*/claim/status": [
+          "ACCEPTED",
+          "SUBMITTED",
+          "SUBMITTED"
+        ],
+        "/result/civic/data/assertions/page/total": 1,
+        "/result/civic/data/assertions/records/0/claim/status": "SUBMITTED"
+      }
+    }
+  ]
+}

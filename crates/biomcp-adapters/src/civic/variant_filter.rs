@@ -131,11 +131,7 @@ pub(super) fn apply(
             },
             count,
             |level, after, count| {
-                let filters = evidence_filter::arguments(
-                    query.evidence_filter(),
-                    level,
-                    "status:NON_REJECTED",
-                );
+                let filters = evidence_filter::arguments(query.evidence_filter(), level);
                 rows(leg, query, id, EVIDENCE, &filters, after, count)
             },
         )?;
@@ -150,7 +146,7 @@ pub(super) fn apply(
                 query,
                 id,
                 ASSERTIONS,
-                "status:NON_REJECTED",
+                evidence_filter::NON_REJECTED,
                 after,
                 claim_counts(query).1,
             )?;
