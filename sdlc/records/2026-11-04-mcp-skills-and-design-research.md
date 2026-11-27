@@ -1,6 +1,28 @@
 # MCP, skills, and how to know BioMCP's MCP design is as good as it can be
 
-Research for Ian, 2026-11-04. Every source below was accessed on 2026-11-04 unless marked otherwise. Each claim is tagged **[Verified]** (read in a primary source: the spec, a SEP, the official repo, or the client's own docs), **[Secondary]** (blogs, papers' abstracts read through a summary, search summaries, forum posts), or **[Not found]** (looked and could not confirm).
+Research of 2026-11-04, corrected on 2026-11-27 (see the update below). Every source below was accessed on 2026-11-04 unless marked otherwise. Each claim is tagged **[Verified]** (read in a primary source: the spec, a SEP, the official repo, or the client's own docs), **[Secondary]** (blogs, papers' abstracts read through a summary, search summaries, forum posts), or **[Not found]** (looked and could not confirm).
+
+## Update, 2026-11-27
+
+Source: Anthropic, [MCP servers can now ship skills, run tasks, and more with Claude](https://claude.com/resources/articles/skills-over-mcp-tasks-and-more), 2026-11-24; [Claude Code MCP docs](https://code.claude.com/docs/en/mcp#use-skills-from-mcp-servers); [Skills extension](https://modelcontextprotocol.io/extensions/skills/overview); [Tasks extension](https://modelcontextprotocol.io/extensions/tasks/overview); [ext-skills implementations](https://github.com/modelcontextprotocol/ext-skills/blob/main/docs/implementations.md). All read 2026-11-27. **[Verified]**
+
+What changed:
+
+- **Claude loads skills from MCP servers now.** Skills over MCP is in public beta in claude.ai and Claude Code. It is on by default for Pro, Max and Ultra, needs an admin to turn it on for Team, and is coming to Enterprise. So the old line "skills over MCP reach almost no one" is wrong: they now reach the largest chat client and the largest coding agent.
+- **Where it does not work yet in Claude Code:** `claude -p`, cloud sessions, GitHub Actions, the Agent SDK, API-key or Console logins (rolling out), Desktop connectors, and HIPAA or zero-retention organizations. It needs v2.1.331 or later and a recent model. Our scripted runs use `claude -p`, so they cannot see an MCP skill today.
+- **How Claude Code names and guards them:** a skill shows as `<server>:<skill>` (`claude_ai_<Connector>:<skill>` for a connector). In the default auto mode a classifier decides whether it loads, with no prompt. Anthropic scans skills from Directory connectors and, where an Enterprise admin keeps scanning on, custom connectors; scanned skills are capped at 100 KB per text file and 400 KB per skill, and a skill with an archive or other binary does not load. Each server shows up to 100 skills.
+- **The wire format is unchanged from what this record describes:** declare `resources` and `io.modelcontextprotocol/skills`, answer `skills/list` and `skills/get`, serve files through `resources/read` at `skill://<name>/...`, with a SHA-256 digest and size per file.
+- **SDKs:** TypeScript 2.4.0, C# 2.4.0, Rust rmcp 3.9.0, Ruby 1.9.0 and FastMCP 4.2.0 ship it. MCP Inspector's CLI checks a server's skills with `--method skills/list --verify` and exits non-zero on a digest, frontmatter or conformance failure.
+- **Tasks and Elicitation are generally available** in claude.ai and Claude Code for Pro, Max and Ultra, rolling out to Team and Enterprise. A claude.ai connector must still answer each request within its per-request timer, so a task only helps when the server accepts the job fast and does the work afterward. **File Uploads** is coming soon.
+
+What this corrects below:
+
+- The 1.0 server does not do "an informal version" of skills. That described 0.9. Today BioMCP declares only `tools`: no resources, prompts, skills or tasks. Calls are bounded at 20 to 60 seconds and HTTP returns one JSON reply.
+- "Almost no mainstream client loads MCP-served skills" and the rmcp line are out of date, as marked.
+- The evidence that models often skip skills still stands. Our own runs agree: no persona run since 2026-11-12 opened a use-case file, and re-reading the prepended skill cost about 15% of typed-mode tokens (`records/2026-11-11-token-gap-root-cause.md`). An MCP skill costs only its name and description until it loads, so it is cheap to offer, but it cannot replace the server instructions.
+- Arm E of the test plan is now worth running in Claude Code, but only interactively, because `claude -p` does not load MCP skills.
+
+The decision on how BioMCP ships and uses its skill now is in [planning/skills-over-mcp.md](../planning/skills-over-mcp.md).
 
 ## The short answer on skills
 
@@ -8,9 +30,9 @@ Research for Ian, 2026-11-04. Every source below was accessed on 2026-11-04 unle
 - **Its maturity is "Beta".** Since SEP-3392 (Extension Lifecycle, 2026-10-29), extensions move Experimental → Beta → Stable → Core. Beta means: "Real usage is welcome. Breaking changes are documented." The skills spec now lives at `specification/beta/skills.mdx`. **[Verified]** [SEP-3392](https://modelcontextprotocol.io/seps/3392-extension-lifecycle), [ext-skills commit 2026-10-29](https://github.com/modelcontextprotocol/ext-skills/commits/main).
 - **A skill over MCP is exactly an Agent Skills folder (a `SKILL.md` plus optional files), served as MCP resources.** The extension does not invent a new format. In its words: "The skill format itself ... is delegated entirely to the Agent Skills specification; this SEP defines only the transport binding." **[Verified]** [SEP-2640 abstract](https://modelcontextprotocol.io/seps/2640-skills-extension).
 - **A competing design, skills as a brand-new primitive like tools or prompts (SEP-2076), was closed.** The working group chose resources because "Skills are files; Resources exist to expose files", and a new primitive would have flattened skills "to name-addressed blobs", losing the folder of supporting files. **[Verified]** [rationale.md](https://github.com/modelcontextprotocol/ext-skills/blob/main/docs/rationale.md), [SEP-2076 PR](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2076).
-- **Almost no mainstream client loads MCP-served skills yet.** On the official support matrix (last edited 2026-11-03), Claude (web), Claude Desktop, Claude Code, Cursor and VS Code have no Skills mark. ChatGPT is "Partial". Full marks go to small clients: MCPJam, mcpc, Glean; fast-agent and MCP Inspector are "Partial". VS Code is "planned" and Goose and opencode are "in progress". **[Verified]** [client matrix source](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/extensions/client-matrix.mdx), [implementations list](https://github.com/modelcontextprotocol/ext-skills/blob/main/docs/implementations.md).
-- **The Rust SDK BioMCP uses (rmcp) does not ship it yet:** "Rust SDK (official): in progress (#1392)". TypeScript ships it; Python and C# have merged it unreleased. **[Verified]** [implementations list](https://github.com/modelcontextprotocol/ext-skills/blob/main/docs/implementations.md).
-- **BioMCP already does an informal version of this.** `biomcp serve` lists `biomcp://help` and one `biomcp://skill/<slug>` resource per use-case playbook, and its server instructions point to `biomcp skill list`. It does not declare the extension or answer `skills/list`, and its URIs don't follow the `skill://<name>/SKILL.md` shape. **[Verified]** `repos/biomcp/src/mcp/shell.rs` (`build_resource_list`), `src/mcp/catalog.rs` (`instructions`).
+- **Out of date (2026-11-27): Claude now loads MCP-served skills; see the update.** *Original text:* Almost no mainstream client loads MCP-served skills yet. On the official support matrix (last edited 2026-11-03), Claude (web), Claude Desktop, Claude Code, Cursor and VS Code have no Skills mark. ChatGPT is "Partial". Full marks go to small clients: MCPJam, mcpc, Glean; fast-agent and MCP Inspector are "Partial". VS Code is "planned" and Goose and opencode are "in progress". **[Verified]** [client matrix source](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/extensions/client-matrix.mdx), [implementations list](https://github.com/modelcontextprotocol/ext-skills/blob/main/docs/implementations.md).
+- **Out of date (2026-11-27): rmcp 3.9.0 ships the extension, and BioMCP's 1.0 server does not use rmcp anyway.** *Original text:* The Rust SDK BioMCP uses (rmcp) does not ship it yet: "Rust SDK (official): in progress (#1392)". TypeScript ships it; Python and C# have merged it unreleased. **[Verified]** [implementations list](https://github.com/modelcontextprotocol/ext-skills/blob/main/docs/implementations.md).
+- **Wrong for 1.0 (2026-11-27): this described the 0.9 server. The 1.0 server declares only the `tools` capability and serves no resources, prompts or skills.** *Original text:* BioMCP already does an informal version of this. `biomcp serve` lists `biomcp://help` and one `biomcp://skill/<slug>` resource per use-case playbook, and its server instructions point to `biomcp skill list`. It does not declare the extension or answer `skills/list`, and its URIs don't follow the `skill://<name>/SKILL.md` shape. **[Verified]** 0.9 `src/mcp/shell.rs` (`build_resource_list`), `src/mcp/catalog.rs` (`instructions`).
 
 ## How the skills extension works
 
@@ -38,7 +60,7 @@ Then the client reads files with the ordinary `resources/read`. An optional `res
 
 **Security rules that shape how hosts treat a server's skills.** Hosts must treat skill text as "untrusted input", label it with the server it came from, and never let a skill run code on the user's machine without "explicit per-skill user approval". They must ignore the Agent Skills `allowed-tools` field from a server unless the user approves it. A skill from server A must not cause reads from server B. Any approval is tied to the file digests, so a changed skill must be approved again. Limits are 512 files and 16 MiB per skill. For BioMCP, this means a skill should be plain guidance about BioMCP's own tools, with no bundled scripts, because scripts would trigger approval prompts in every careful host.
 
-**What may be on Ian's mind.** The extension is new as of September, and three related things are easy to blur together. Anthropic's Agent Skills format is agentskills.io. Claude Code ships skills inside plugins next to an MCP server; BioMCP already has a `.claude-plugin`. OpenAI's ChatGPT and Codex plugins also bundle skills with an MCP server ([OpenAI, Build skills](https://developers.openai.com/plugins/build/skills)) **[Verified]**. The matrix marks ChatGPT's support as "partial, static snapshot": it imports skills from the server once, when the plugin is submitted, and does not fetch them live. The current English docs page no longer shows that section, so this rests on the matrix plus a search summary of translated pages and a forum post ([forum](https://community.openai.com/t/support-skills-over-mcp-on-custom-plugin/1394917)) **[Secondary]**.
+**Three things that are easy to blur.** The extension is new as of September, and three related things are easy to blur together. Anthropic's Agent Skills format is agentskills.io. Claude Code ships skills inside plugins next to an MCP server; BioMCP already has a `.claude-plugin`. OpenAI's ChatGPT and Codex plugins also bundle skills with an MCP server ([OpenAI, Build skills](https://developers.openai.com/plugins/build/skills)) **[Verified]**. The matrix marks ChatGPT's support as "partial, static snapshot": it imports skills from the server once, when the plugin is submitted, and does not fetch them live. The current English docs page no longer shows that section, so this rests on the matrix plus a search summary of translated pages and a forum post ([forum](https://community.openai.com/t/support-skills-over-mcp-on-custom-plugin/1394917)) **[Secondary]**.
 
 ## Evidence that skills actually get used
 
@@ -58,7 +80,7 @@ The current spec is **2026-07-28**, released 2026-07-28. It replaced 2025-11-25.
 |---|---|---|
 | Stateless protocol, `server/discover` | No handshake. Every request carries version and capabilities, and servers "MUST implement" `server/discover`. **[Verified]** | Required plumbing. BioMCP already speaks 2026-07-28 next to 2025-06-18 and 2025-11-25 (`src/mcp/shell/modern.rs`). |
 | Server instructions | Server-wide text for the model. Official advice: say how tools relate, the order to call them, and limits; don't repeat tool descriptions; keep it short. **[Verified]** [MCP blog, 2025-11-03](https://blog.modelcontextprotocol.io/posts/2025-11-03-using-server-instructions/) | Yes, the most widely read channel. But clients cut it differently (see below). |
-| `outputSchema` / `structuredContent` | A tool can declare a JSON shape for its output and return matching JSON. It "SHOULD also return the serialized JSON in a TextContent block". 2026 allows any JSON Schema 2020-12 keyword and any JSON value. **[Verified]** [tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) | Likely yes in code mode. pi hands `structuredContent` to scripts, so a script can filter fields without the model reading them. Little gain for plain tool calling. Worth testing. |
+| `outputSchema` / `structuredContent` | A tool can declare a JSON shape for its output and return matching JSON. It "SHOULD also return the serialized JSON in a TextContent block". 2026 allows any JSON Schema 2020-12 keyword and any JSON value. **[Verified]** [tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) | Likely yes for code-execution clients. pi hands `structuredContent` to scripts, so a script can filter fields without the model reading them. Little gain for plain tool calling. Worth testing. |
 | Tool annotations | `readOnlyHint`, `idempotentHint`, `openWorldHint`, `destructiveHint`, which clients treat as untrusted hints. **[Verified]** | Yes, at almost no cost. Claude Code runs read-only calls in parallel and retries them after a dropped connection ([Claude Code MCP docs](https://code.claude.com/docs/en/mcp)), and ChatGPT and Codex use them for confirmations ([OpenAI](https://developers.openai.com/plugins/build/mcp-server)). **[Verified]** |
 | Resource links, embedded resources | A tool result can link to a resource or include its full text. **[Verified]** | Maybe. One route to return a big record as a link, read on demand. Untested. |
 | Deterministic tool order, `ttlMs` / `cacheScope` | Servers "SHOULD return tools ... in a deterministic order", which helps prompt caching. List results carry cache hints. **[Verified]** | Yes, cheap. |
@@ -67,29 +89,29 @@ The current spec is **2026-07-28**, released 2026-07-28. It replaced 2025-11-25.
 | Sampling, Roots, Logging | Deprecated in 2026-07-28. **[Verified]** | Don't build on them. |
 | Tasks (long-running jobs) | Moved out of the core spec into a Beta extension, `io.modelcontextprotocol/tasks`, with polling. Claude Code and claude.ai support it. **[Verified]** [changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog), [matrix](https://modelcontextprotocol.io/extensions/client-matrix) | Only for slow batch jobs. Not now. |
 | MCP Apps (UI shown inside the chat) | A Stable extension, supported by most big clients. **[Verified]** | Not for an agent-facing data server. |
-| Tool search / grouping | **Not in the spec.** A tool search SEP (SEP-1821) and a grouping SEP (SEP-2084) were closed. A Progressive Disclosure Working Group (renamed 2026-09-21) is exploring "grouping, tool-search, code-mode" and has no recommendation yet. **[Verified]** [charter](https://modelcontextprotocol.io/community/working-groups/progressive-disclosure) | Tool search lives in clients, so test it client by client. |
+| Tool search / grouping | **Not in the spec.** A tool search SEP (SEP-1821) and a grouping SEP (SEP-2084) were closed. A Progressive Disclosure Working Group (renamed 2026-09-21) is exploring grouping, tool search and code execution and has no recommendation yet. **[Verified]** [charter](https://modelcontextprotocol.io/community/working-groups/progressive-disclosure) | Tool search lives in clients, so test it client by client. |
 
 **Code execution patterns** (the model writes code that calls the tools, instead of calling tools one at a time):
-- Cloudflare's "Code Mode" (2025-09-26) turns MCP tools into a TypeScript API that runs in a sandbox. **[Verified]** [Cloudflare](https://blog.cloudflare.com/code-mode/)
-- Cloudflare's later API server exposes more than 2,500 endpoints through two tools, `search()` and `execute()`, in about 1,000 tokens. **[Secondary]** [InfoQ](https://infoq.com/news/2026/04/cloudflare-code-mode-mcp-server)
+- Cloudflare's code execution for MCP (2025-09-26) turns MCP tools into a TypeScript API that runs in a sandbox. **[Verified]** [Cloudflare](https://blog.cloudflare.com/code-mode/)
+- Its later API server exposes more than 2,500 endpoints through two tools, `search()` and `execute()`, in about 1,000 tokens. **[Secondary]** [InfoQ](https://infoq.com/news/2026/04/cloudflare-code-mode-mcp-server)
 - Anthropic's "Code execution with MCP" (2025-11-04) cut one example from 150,000 to 2,000 tokens. **[Verified]** [Anthropic](https://www.anthropic.com/engineering/code-execution-with-mcp)
 - Anthropic's "Advanced tool use" (2025-11-24): tool search raised Opus 4 from 49% to 74% on MCP evals. Calling tools from code cut tokens 37% on research tasks. Examples in tool definitions raised accuracy on complex parameters from 72% to 90%. Tool search is worth it at "10+ tools" or more than 10K tokens of definitions. **[Verified]** [Anthropic](https://www.anthropic.com/engineering/advanced-tool-use)
-- pi's code mode is the case we measured.
+- pi's code-execution exposure is the case we measured.
 
 ## What each client does
 
 | Client | Skills over MCP | Server instructions | Resources | Prompts | Structured content | Tool search / deferral |
 |---|---|---|---|---|---|---|
-| Claude Code | No (matrix). Skills come in through plugins instead. | Yes. Cut at 4,096 characters; tool search reads them to decide when to search. | Yes (`@server:uri`, plus list and read tools) | Yes (as slash commands) | Not mentioned in docs | On by default. Only tool names and instructions load at start. `_meta["anthropic/alwaysLoad"]` makes a tool load up front. |
-| claude.ai / Desktop | No (matrix). Native skills exist, but not over MCP. | [Not found] | Tools, prompts and resources, per a support article that now returns 404 **[Secondary]** | Same | [Not found] | [Not found] |
+| Claude Code | Yes since 2026-11-24, public beta, v2.1.331 or later; not in `claude -p`, cloud sessions or the Agent SDK. Plugins also ship skills. | Yes. Cut at 4,096 characters; tool search reads them to decide when to search. | Yes (`@server:uri`, plus list and read tools) | Yes (as slash commands) | Not mentioned in docs | On by default. Only tool names and instructions load at start. `_meta["anthropic/alwaysLoad"]` makes a tool load up front. |
+| claude.ai / Desktop | claude.ai: yes since 2026-11-24, public beta, for connectors. Desktop's Code tab: not for connectors yet. | [Not found] | Tools, prompts and resources, per a support article that now returns 404 **[Secondary]** | Same | [Not found] | [Not found] |
 | Codex | Partial, through ChatGPT plugin import | Yes ("Codex reads the MCP `instructions` field") | [Not found] | [Not found] | [Not found] | [Not found]. It has `enabled_tools` and `tool_timeout_sec`. |
 | Cursor | No (matrix) | [Not found] | Yes | Yes | [Not found] | [Not found] |
 | VS Code | Planned | Yes | Yes | Yes | [Not found] | [Not found] |
-| pi 1.4.0 docs (we ran 1.5.0) | No. pi has native Agent Skills only. | Only one line in the system prompt; the full text only via `describeNamespace()` | Yes (`list_mcp_resources`, `read_mcp_resource`) | Not in docs | Yes, scripts receive `structuredContent` | Default "codemode" exposure. Also "deferred" (`tool_search`) and "direct" (declared to the model). |
+| pi 1.4.0 docs (we ran 1.5.0) | No. pi has native Agent Skills only. | Only one line in the system prompt; the full text only via `describeNamespace()` | Yes (`list_mcp_resources`, `read_mcp_resource`) | Not in docs | Yes, scripts receive `structuredContent` | Default code-execution exposure. Also "deferred" (`tool_search`) and "direct" (declared to the model). |
 
-Sources, all **[Verified]**: [Claude Code MCP](https://code.claude.com/docs/en/mcp), [Codex MCP](https://learn.chatgpt.com/docs/extend/mcp?surface=cli), [Cursor MCP](https://cursor.com/docs/context/mcp), [VS Code MCP](https://code.visualstudio.com/api/extension-guides/ai/mcp), and pi's `docs/mcp.md` and `docs/codemode.md` from the local install. The one exception is the claude.ai row, which comes from a [search summary](https://support.claude.com/en/articles/11503834-building-custom-connectors-via-remote-mcp-servers) **[Secondary]**.
+Sources, all **[Verified]**: [Claude Code MCP](https://code.claude.com/docs/en/mcp), [Codex MCP](https://learn.chatgpt.com/docs/extend/mcp?surface=cli), [Cursor MCP](https://cursor.com/docs/context/mcp), [VS Code MCP](https://code.visualstudio.com/api/extension-guides/ai/mcp), and pi's MCP docs from the local install. The one exception is the claude.ai row, which comes from a [search summary](https://support.claude.com/en/articles/11503834-building-custom-connectors-via-remote-mcp-servers) **[Secondary]**.
 
-**The key design fact:** the same server instructions reach the model three different ways. Claude Code shows the first 4,096 characters every session. pi shows one line, and the rest only if the model calls `describeNamespace`. Skills over MCP reach almost no one yet. So a design that works in one client may not carry to another, and the test plan has to cover more than pi. 513's map is about 4.0 KB (`api-map.md`, 3,991 bytes) and the terse map about 2.9 KB, so either fits Claude Code's instruction limit.
+**The key design fact:** the same server instructions reach the model three different ways. Claude Code shows the first 4,096 characters every session. pi shows one line, and the rest only if the model calls `describeNamespace`. Skills over MCP reached almost no one then (corrected 2026-11-27: Claude Code and claude.ai now load them). So a design that works in one client may not carry to another, and the test plan has to cover more than pi. 513's map is about 4.0 KB (`api-map.md`, 3,991 bytes) and the terse map about 2.9 KB, so either fits Claude Code's instruction limit.
 
 ## What is known about good tool design
 
@@ -118,14 +140,14 @@ Sources, all **[Verified]**: [Claude Code MCP](https://code.claude.com/docs/en/m
 - **B. Typed tools.** Both the 7 typed tools now on main and 513's 14-tool variant, to see whether count or shape matters.
 - **C. A + map in the instructions.** Map first, under 4,096 characters, with the first sentence written to survive pi's one-line summary.
 - **D. A + map as a resource.** The map at `biomcp://map`, with a one-line pointer in the instructions.
-- **E. A + skills, done properly.** Declare the extension, answer `skills/list` and `skills/get`, and serve `skill://biomcp/SKILL.md` with the use-case playbooks as `references/` files. Point to it from the instructions. Needs a hand-written handler until rmcp ships support.
-- **F. A + `outputSchema` / `structuredContent`.** Code-mode clients only.
+- **E. A + skills, done properly.** Declare the extension, answer `skills/list` and `skills/get`, and serve `skill://biomcp/SKILL.md` with the use-case playbooks as `references/` files. Point to it from the instructions. BioMCP's server is hand-written, so it adds the handlers itself.
+- **F. A + `outputSchema` / `structuredContent`.** Code-execution clients only.
 - **G. A + `readOnlyHint` and deterministic ordering.** Expected to be neutral on tokens; this checks for no harm.
 
 Arms E and D are only worth keeping if the agent actually opens the skill or map. So log the **activation rate** (did it read the map or skill?) next to tokens.
 
 **Clients:**
-- **pi 1.5.0 with Terra.** Run in both code-mode exposure and direct exposure, since that is where cost differed.
+- **pi 1.5.0.** Run in both code-execution exposure and direct exposure, since that is where cost differed.
 - **Claude Code.** Tool search on by default; the most common real client; it reads instructions in full.
 - **Codex CLI.** It reads instructions; OpenAI is the other big host.
 - **For arm E only, one client that implements skills over MCP:** fast-agent (Partial) or mcpc (full), to measure real `skills/list` loading. In pi and Claude Code, E falls back to the instruction pointer plus resource read, which is the route the spec guarantees everywhere.
@@ -138,7 +160,7 @@ Arms E and D are only worth keeping if the agent actually opens the skill or map
 - A change counts only if it beats the baseline by more than about 30%, or by twice the measured spread between repeats, whichever is larger.
 - Score tokens (input plus output, with cache reads reported apart) and fields lost against the curated answers, kept away from the agent under test.
 - Keep infrastructure errors apart from model mistakes.
-- Rival: the cold native harness (`terra-scripts`).
+- Rival: the cold native harness with no BioMCP.
 
 **Order:**
 1. C against D against A in pi and Claude Code. Cheap, and it settles where the map goes.
@@ -157,4 +179,4 @@ Arms E and D are only worth keeping if the agent actually opens the skill or map
 - I read pi's 1.4.0 docs locally. Behaviour in 1.5.0 may differ.
 - I could not confirm whether claude.ai and Desktop pass server instructions or structured content to the model.
 - Codex docs are silent on resources and structured content.
-- Neither Anthropic nor OpenAI documents a date for loading MCP-served skills live.
+- Neither Anthropic nor OpenAI documented a date for loading MCP-served skills live. Answered 2026-11-27: Claude loads them now, in public beta.
