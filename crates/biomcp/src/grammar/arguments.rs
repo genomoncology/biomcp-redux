@@ -10,7 +10,7 @@ pub(super) fn command_for(
     schema: &Value,
 ) -> Result<Command, super::ParseInvalid> {
     let description = if (verb, name) == ("variant", "population") {
-        biomcp_adapters::gnomad::variant::scope_help()
+        biomcp_query::sources::gnomad_variant_scope_help()
     } else {
         crate::help::plain(
             schema

@@ -317,7 +317,7 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
         if (verb, entity) == ("get", "variant")
             && let Some(population) = sections.iter_mut().find(|word| word.word == "population")
         {
-            population.description = biomcp_adapters::gnomad::variant::scope_help();
+            population.description = biomcp_query::sources::gnomad_variant_scope_help();
         }
         commands.push(HelpCommand {
             reply_schemas: crate::schema::replies(id, verb, entity),
@@ -366,7 +366,7 @@ fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     if (verb, entity) == ("variant", "population") {
         return format!(
             "{} Sources: {sources}.",
-            biomcp_adapters::gnomad::variant::scope_help()
+            biomcp_query::sources::gnomad_variant_scope_help()
         );
     }
     let summary = biomcp_types::COMMANDS
