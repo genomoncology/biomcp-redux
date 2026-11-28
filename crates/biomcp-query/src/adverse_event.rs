@@ -125,17 +125,14 @@ fn search<'a>(
         &maude::SPEC
     };
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
-    let selector = if source == Source::Faers {
-        faers::expression(query)
+    let (selector, reply) = if source == Source::Faers {
+        (faers::expression(query), faers::search(&leg, query))
     } else {
-        maude::expression(query)
-    };
-    let reply = if source == Source::Faers {
-        faers::search(&leg, query)
-    } else {
-        maude::search(&leg, query)
+        (maude::expression(query), maude::search(&leg, query))
     };
     let error = reply.as_ref().err().copied();
+    let mut report = status::source(source, leg.finish(), error);
+    suspect_limit_notice(&mut report, query, error);
     let mut out = crate::status::finish(
         [crate::status::item_status(false, true, false)],
         crate::status::Parts {
@@ -155,7 +152,7 @@ fn search<'a>(
             })
             .with_query(navigation_query.with_reported_drug_role()),
             page: None,
-            sources: vec![search_source(query, leg.finish(), error)],
+            sources: vec![report],
             problems: Vec::new(),
             next: Vec::new(),
             local: error.and_then(status::local),
@@ -190,24 +187,22 @@ fn search<'a>(
     out
 }
 
-fn search_source(
+fn suspect_limit_notice(
+    report: &mut biomcp_types::SourceOutcome,
     query: &AdverseEventSearch,
-    leg: biomcp_fetch::LegReport,
     error: Option<biomcp_fetch::RequestError>,
-) -> biomcp_types::SourceOutcome {
-    let mut report = status::source(query.source().source(), leg, error);
+) {
     if query.drug_role() == biomcp_types::AdverseEventDrugRole::Suspect
         && error.and_then(status::reason) == Some(biomcp_types::Reason::TooLarge)
     {
         guidance(
-            &mut report,
+            report,
             format!(
                 "Suspect counts require checking all candidate reports (maximum {}). Narrow --received-from and --received-to.",
                 biomcp_types::SEARCH_PAGE_MAX
             ),
         );
     }
-    report
 }
 
 /// An unimplemented report get has no source effects until its owning slice lands.
