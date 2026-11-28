@@ -13,7 +13,9 @@ use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use civic::CivicGene;
 pub use clingen::{
-    ClinGenGene, ClinGenGeneDosage, ClinGenRegion, ClinGenRegionDosage, ClinGenValidity,
+    ClinGenActionability, ClinGenActionabilityContext, ClinGenActionabilityPair,
+    ClinGenActionabilityRow, ClinGenGene, ClinGenGeneDosage, ClinGenRegion, ClinGenRegionDosage,
+    ClinGenValidity,
 };
 pub use clinvar::{ClinVarGeneCounts, ClinVarGermlineCounts, ClinVarReviewCounts};
 pub use constraint::Constraint;

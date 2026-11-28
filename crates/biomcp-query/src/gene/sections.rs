@@ -200,7 +200,7 @@ pub(super) fn jobs<'a>(
             .any(|(_, gene)| applicable(GeneSection::ClinGen, gene))
     {
         jobs.push(Box::new(move || {
-            super::get::Job::Section(clingen::run(cx, deadline, genes))
+            super::get::Job::Section(clingen::run(cx, deadline, genes, query.input().len() == 1))
         }));
     }
     if requested.contains(&GeneSection::Gencc) && !genes.is_empty() {

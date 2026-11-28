@@ -1,6 +1,6 @@
 use crate::Text;
 use serde::{Deserialize, Serialize};
-/// ClinGen gene validity and dosage assessments in published source order.
+/// ClinGen gene validity, dosage and actionability in published source order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenGene {
@@ -29,6 +29,71 @@ pub struct ClinGenGene {
     /// Published copy-gain score and the papers supporting it.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub triplosensitivity_evidence: Option<ClinGenGeneDosage>,
+    /// Clinical actionability summaries for single-gene requests.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub actionability: Option<ClinGenActionability>,
+}
+
+/// ClinGen's independent adult and pediatric summaries.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ClinGenActionability {
+    /// Publisher's index of clinical actionability reports.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
+    pub report_index: Text,
+    /// Adult working group summary.
+    pub adult: ClinGenActionabilityContext,
+    /// Pediatric working group summary.
+    pub pediatric: ClinGenActionabilityContext,
+}
+
+/// Result of looking up one gene in one actionability summary.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ClinGenActionabilityContext {
+    /// Outcome of reading this summary.
+    pub status: crate::SourceOutcome,
+    /// Published rows. An empty list means the summary contained no matching curation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub curations: Option<Box<[ClinGenActionabilityRow]>>,
+}
+
+/// One gene-condition row from the ClinGen actionability score summary.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ClinGenActionabilityRow {
+    /// Native condition label.
+    pub disease: Text,
+    /// Curation status as published, including retractions.
+    pub status: Text,
+    /// Published status of the early rule-out stage.
+    pub early_rule_out: Text,
+    /// Link to the evidence summary report.
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
+    pub report_url: Text,
+    /// The outcome and intervention when supplied by the working group.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pair: Option<ClinGenActionabilityPair>,
+}
+
+/// A published outcome–intervention pair and its working group scores.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct ClinGenActionabilityPair {
+    /// Outcome described by ClinGen.
+    pub outcome: Text,
+    /// Intervention described by ClinGen.
+    pub intervention: Text,
+    /// Severity score as published.
+    pub severity: Text,
+    /// Likelihood score and evidence grade as published.
+    pub likelihood: Text,
+    /// Nature of intervention score as published.
+    pub nature_of_intervention: Text,
+    /// Effectiveness score and evidence grade as published.
+    pub effectiveness: Text,
+    /// Overall score and evidence grades as published.
+    pub overall: Text,
 }
 /// Evidence from the detailed ClinGen gene dosage file for one direction.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

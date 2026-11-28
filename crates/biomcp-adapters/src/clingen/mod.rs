@@ -1,4 +1,5 @@
-//! Published ClinGen validity and dosage bundles, indexed by native gene or disease identity, and the region dosage list.
+//! Published ClinGen validity, dosage and actionability bundles.
+pub mod actionability;
 mod band;
 mod by_disease;
 pub use by_disease::by_disease;
