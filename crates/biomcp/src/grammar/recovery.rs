@@ -72,7 +72,20 @@ pub(super) fn corrected(
         }
         let missing = value.get(*name).is_none() || allow_omission;
         let defaulted = missing && property.get("default").is_some();
-        let mut passing = candidates(schema, property, missing)
+        // A PGx selector may leave just one provider when the supplied source name is unknown.
+        let unknown_pgx_source = path == ("search", "pgx")
+            && *name == "source"
+            && value
+                .get(*name)
+                .and_then(Value::as_str)
+                .is_some_and(|given| {
+                    super::validation::accepted(schema, property).is_some_and(|sources| {
+                        !sources
+                            .iter()
+                            .any(|source| source.as_str().eq_ignore_ascii_case(given))
+                    })
+                });
+        let mut passing = candidates(schema, property, missing || unknown_pgx_source)
             .into_iter()
             .enumerate()
             .filter_map(|(index, replacement)| {
