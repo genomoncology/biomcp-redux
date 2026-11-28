@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=RCV000014992%5Bclv_acc%5D&retmode=json&retmax=1&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1795837385,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"header\":{\"type\":\"esearch\",\"version\":\"0.3\"},\"esearchresult\":{\"count\":\"1\",\"retmax\":\"1\",\"retstart\":\"0\",\"idlist\":[\"13961\"],\"translationset\":[],\"translationstack\":[{\"term\":\"RCV000014992[clv_acc]\",\"field\":\"clv_acc\",\"count\":\"1\",\"explode\":\"N\"},\"GROUP\"],\"querytranslation\":\"RCV000014992[clv_acc]\"}}"
+      }
+    }
+  ]
+}

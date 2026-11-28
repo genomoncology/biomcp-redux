@@ -1,0 +1,59 @@
+{
+  "feature": "clinvar-archive-accession",
+  "live_check": "public",
+  "story": "ClinVar accession lookups check the archive identity and mark the requested condition or submission rows.",
+  "replay": "variant/clinvar-accessions",
+  "config": { "mcp_tool_mode": "typed" },
+  "verified": "Recorded ClinVar ESearch replies and compact XML projections for VCV000013961.143 and VCV000013961.100. The .99 fixture simulates a provider substituting the current archive.",
+  "steps": [
+    {
+      "run": ["get", "variant", "RCV000014992"],
+      "expect": {
+        "/status": "complete",
+        "/result/resolution": "resolved",
+        "/result/candidates/0/record/id": "clinvar:13961",
+        "/result/candidates/0/sections/clinvar/data/assertions": { "count": 1 },
+        "/result/candidates/0/sections/clinvar/data/assertions/0/record": "RCV000014992",
+        "/result/candidates/0/sections/clinvar/data/assertions/0/matched": true
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": { "action": "get", "get": { "id": "SCV000061601.3" } }
+      },
+      "expect": {
+        "/status": "complete",
+        "/result/candidates/0/record/id": "clinvar:13961",
+        "/result/candidates/0/sections/clinvar/data/assertions": { "count": 1 },
+        "/result/candidates/0/sections/clinvar/data/assertions/0/record": "SCV000061601",
+        "/result/candidates/0/sections/clinvar/data/assertions/0/matched": true
+      }
+    },
+    {
+      "run": ["get", "variant", "SCV000061601.1"],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/result/resolution": "absent"
+      }
+    },
+    {
+      "run": ["get", "variant", "VCV000013961.100", "clinvar"],
+      "expect": {
+        "/status": "complete",
+        "/result/candidates/0/identity/ids": ["clinvar:13961", "VCV000013961.100"],
+        "/result/candidates/0/sections/clinvar/data/assertions/0/unmapped/attribution/version": "100"
+      }
+    },
+    {
+      "run": ["get", "variant", "VCV000013961.99", "clinvar"],
+      "exit": 1,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/notices/0/message": "ClinVar did not serve VCV000013961.99. Use VCV000013961 to request the current archive.",
+        "/result/candidates": { "missing": true }
+      }
+    }
+  ]
+}

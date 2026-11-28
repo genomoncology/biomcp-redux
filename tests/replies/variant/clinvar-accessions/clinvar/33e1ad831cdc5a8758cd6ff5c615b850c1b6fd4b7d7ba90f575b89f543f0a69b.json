@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=clinvar&id=VCV000013961.100&rettype=vcv&retmode=xml&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1795837389,
+      "status": 200,
+      "content_type": "text/xml",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<ClinVarResult-Set><VariationArchive VariationID=\"13961\" Accession=\"VCV000013961\" Version=\"100\"><ClassifiedRecord><Classifications><GermlineClassification><Description>Pathogenic; drug response; other</Description></GermlineClassification></Classifications></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"
+      }
+    }
+  ]
+}

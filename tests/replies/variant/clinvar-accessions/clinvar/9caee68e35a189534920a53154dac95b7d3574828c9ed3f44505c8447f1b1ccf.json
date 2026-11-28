@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=clinvar&id=VCV000013961.99&rettype=vcv&retmode=xml&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1795837389,
+      "status": 200,
+      "content_type": "text/xml",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<ClinVarResult-Set><VariationArchive VariationID=\"13961\" Accession=\"VCV000013961\" Version=\"143\"><ClassifiedRecord><Classifications><GermlineClassification><Description>Conflicting classifications of pathogenicity</Description></GermlineClassification><SomaticClinicalImpact><Description>Tier I - Strong</Description></SomaticClinicalImpact><OncogenicityClassification><Description>Oncogenic</Description></OncogenicityClassification></Classifications><RCVList><RCVAccession Accession=\"RCV000014992\" Version=\"24\"><RCVClassifications><GermlineClassification><Description>Pathogenic</Description></GermlineClassification></RCVClassifications></RCVAccession></RCVList><ClinicalAssertionList><ClinicalAssertion><ClinVarAccession Accession=\"SCV000061601\" Version=\"3\" /><Classification><ReviewStatus>no assertion criteria provided</ReviewStatus><GermlineClassification>Pathogenic</GermlineClassification></Classification></ClinicalAssertion></ClinicalAssertionList></ClassifiedRecord></VariationArchive></ClinVarResult-Set>"
+      }
+    }
+  ]
+}

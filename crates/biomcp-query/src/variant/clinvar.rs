@@ -101,7 +101,11 @@ fn candidate(query: &VariantGet, archive: clinvar::Assertions) -> Option<Variant
     candidate.record.id = Text::new(&id.to_string()).ok()?;
     candidate.identity.ids = Box::new([id.clone(), VariantId::Vcv(vcv)]);
     let page = VariantAssertionsGet::from_identity(
-        query.input().identity().cloned().unwrap_or(id),
+        query
+            .input()
+            .identity()
+            .cloned()
+            .unwrap_or_else(|| id.clone()),
         query.assertion_limit(AssertionSource::Clinvar),
         query.section_offset(),
         query.clinvar_kind(),
@@ -114,7 +118,9 @@ fn candidate(query: &VariantGet, archive: clinvar::Assertions) -> Option<Variant
             let (record, version) = text
                 .split_once('.')
                 .map_or((text.as_str(), None), |(id, v)| (id, Text::new(v).ok()));
-            next.select(Text::new(record).ok()?, version)
+            VariantAssertionsGet::from_identity(id, next.limit(), next.offset(), None)
+                .ok()?
+                .select(Text::new(record).ok()?, version)
                 .ok()
                 .map(|selected| biomcp_types::Paged::at_offset(&selected, next.offset()))
         });
