@@ -38,10 +38,13 @@ fn query(pool: Option<&str>, offset: u32) -> ArticleSearch {
         .without_access_lookup()
 }
 fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
+    run_within(fetch, query, fresh, Duration::from_secs(20))
+}
+fn run_within(fetch: &Fetch, query: ArticleSearch, fresh: bool, budget: Duration) -> Outcome {
     biomcp_query::run(
         &Ctx {
             fetch,
-            budget: Duration::from_secs(20),
+            budget,
             fresh,
             ncbi_email: None,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
@@ -173,18 +176,10 @@ fn search_and_hydration_share_one_budget_while_pool_age_uses_wall_time() {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    let first = biomcp_query::run(
-        &Ctx {
-            fetch: &fetch,
-            budget: Duration::from_millis(300),
-            fresh: false,
-            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
-            label_bytes: biomcp_query::LABEL_BYTES,
-            fit_deadline: biomcp_query::FIT_DEADLINE,
-            ncbi_email: None,
-        },
-        &Request::SearchArticle(query(None, 0)),
-    );
+    // Replay search and hydration each take 20 s of replay time, so 35 s fits only the search.
+    // Local SQLite work is bounded in wall time by what remains (1250), so after the search
+    // 15 s remain for storing the pool, and the retry keeps 20 s after its hydration.
+    let first = run_within(&fetch, query(None, 0), false, Duration::from_secs(35));
     assert_eq!(first.status(), Status::Failed);
     assert_eq!(first.local, None);
     assert_eq!(
@@ -202,7 +197,7 @@ fn search_and_hydration_share_one_budget_while_pool_age_uses_wall_time() {
         panic!("retry retains pool")
     };
     assert!(retry.pool().is_some());
-    let (p, _) = page(run(&fetch, retry, false));
+    let (p, _) = page(run_within(&fetch, retry, false, Duration::from_secs(40)));
     let pool = p.pool.unwrap();
     let after = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
