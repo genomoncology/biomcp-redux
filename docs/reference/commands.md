@@ -2400,7 +2400,7 @@ Commands:
   gene           Get one to twenty human gene inputs in their original order.
   article        Get one to twenty article inputs in caller order.
   trial          Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations.
-  variant        Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. With civic alone, use a CIViC profile ID or exact name. Every candidate remains available; source assertions do not classify the variant for the caller.
+  variant        Read an rsID, CAid, clinvar:N, ClinVar accession, reference-qualified HGVS or VCF-style coordinates such as 7-140753336-A-T. RCV and SCV select matching rows in the current ClinVar archive. A versioned VCV requires that exact archive. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. With civic alone, use a CIViC profile ID or exact name. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Options:
       --format <format>
@@ -3826,13 +3826,13 @@ Optional intact source sections. Default cards only; diseases and summary requir
 ## biomcp get variant
 
 ```text
-Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. With civic alone, use a CIViC profile ID or exact name. Every candidate remains available; source assertions do not classify the variant for the caller.
+Read an rsID, CAid, clinvar:N, ClinVar accession, reference-qualified HGVS or VCF-style coordinates such as 7-140753336-A-T. RCV and SCV select matching rows in the current ClinVar archive. A versioned VCV requires that exact archive. MyVariant identity lookups default to GRCh38; --build overrides it. Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein phrase such as BRAF V600E searches for checked allele candidates. With civic alone, use a CIViC profile ID or exact name. Every candidate remains available; source assertions do not classify the variant for the caller.
 
 Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          Variant ID or gene and protein. With civic alone, use a CIViC profile ID or exact name.
+          Variant ID, RCV/SCV, or gene and protein. With civic alone, use a CIViC profile ID or exact name.
 
   [section]...
           Sections; help get variant
@@ -3969,7 +3969,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 - `--evidence-status`: Status
 Defaults to accepted and submitted. Also filters drug assertions.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
-- `input`: Variant ID or gene and protein. With civic alone, use a CIViC profile ID or exact name.
+- `input`: Variant ID, RCV/SCV, or gene and protein. With civic alone, use a CIViC profile ID or exact name.
 Form: get variant INPUT SECTION...; not --input.
 - `--limit`: Candidate rows per page. Value form: integer; example: --limit 1.
 - `--offset`: Candidate rows to skip in source order. Value form: integer; example: --offset 1.
