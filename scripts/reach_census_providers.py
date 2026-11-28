@@ -4,7 +4,7 @@ import json
 from xml.etree import ElementTree
 
 from gene_validity_reach import probes as validity_probes
-from reach_census_common import CensusError, read, sample_rows, source_page
+from reach_census_common import MAX_SOURCE_BYTES, CensusError, read, sample_rows, source_page
 
 CTGOV = "https://clinicaltrials.gov/api/v2"
 CPIC = "https://api.cpicpgx.org/v1"
@@ -295,7 +295,18 @@ def orphadata(census):
     for path in (census.home / "orphadata" / "orphadata").glob("*.json"):
         capture = json.loads(path.read_text())
         for exchange in capture["exchanges"]:
-            root = ElementTree.fromstring(exchange["body"]["value"])
+            if exchange["status"] != 200:
+                continue
+            body = exchange["body"]
+            content = body["value"]
+            if body["kind"] == "sidecar":
+                if content != type(path)(content).name:
+                    raise CensusError("invalid Orphadata recording sidecar")
+                with path.with_name(content).open("rb") as stream:
+                    content = stream.read(MAX_SOURCE_BYTES + 1)
+                if len(content) > MAX_SOURCE_BYTES:
+                    raise CensusError("Orphadata recording exceeds the source capture bound")
+            root = ElementTree.fromstring(content)
             for disorder in root.findall("./DisorderList/Disorder"):
                 code = disorder.findtext("OrphaCode")
                 kind = disorder.findtext("DisorderType/Name") or "unspecified"
