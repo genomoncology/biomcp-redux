@@ -27,6 +27,11 @@ steps:
       /result/items/0/id: "Orphanet:699029"
       /result/items/0/prevalence/0/class: "<1 / 1 000 000"
       /sources/*/source: [orphadata]
+  - run: [get, disease, "ORPHA:699029", prevalence]
+    expect:
+      /status: complete
+      /query/source: orphadata
+      /page/total: 1
   - run: [get, disease, "Orphanet:900002"]
     expect:
       /status: complete

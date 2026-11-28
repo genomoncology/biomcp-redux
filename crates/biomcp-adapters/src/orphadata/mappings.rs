@@ -6,6 +6,7 @@ use biomcp_fetch::{
     BadReply, Bundle, DocumentMedia, Fetch, Find, Freshness, KeyKind, Keys, Leg, RequestError, Row,
     RowFormat, encode_bundle_row,
 };
+use biomcp_types::{DiseaseCard, DiseaseConcept, DiseaseSection};
 use serde::{Deserialize, Serialize};
 
 pub(super) const NAME: &str = "orphadata-xrefs";
@@ -54,6 +55,8 @@ struct Disorder {
     code: Option<Label>,
     #[serde(rename = "Name")]
     name: Option<Label>,
+    #[serde(rename = "DisorderType")]
+    disorder_type: Option<Term>,
     #[serde(rename = "ExternalReferenceList")]
     references: Option<References>,
 }
@@ -78,6 +81,8 @@ struct Reference {
 struct Native {
     code: Option<String>,
     name: Option<String>,
+    #[serde(default)]
+    disorder_type: Option<String>,
     date: String,
     version: Option<String>,
     omim: Vec<Omim>,
@@ -121,6 +126,7 @@ impl Row for Native {
                 encode_bundle_row(&Self {
                     code: label(disorder.code),
                     name: label(disorder.name),
+                    disorder_type: term(disorder.disorder_type),
                     date: document.date.clone(),
                     version: document.version.clone(),
                     omim,
@@ -152,13 +158,69 @@ fn digits(value: &str) -> bool {
     !value.is_empty() && value.bytes().all(|byte| byte.is_ascii_digit())
 }
 
-/// Read OMIM mappings for the requested ORPHA code, keeping the publisher's direction.
-pub fn omim_xrefs(leg: &Leg<'_>, id: &Curie) -> Result<Mapped<Vec<DiseaseRelation>>, RequestError> {
+fn disorder_rows(
+    leg: &Leg<'_>,
+    id: &Curie,
+) -> Result<(Curie, Vec<Native>, biomcp_fetch::BundleInfo), RequestError> {
     let code = super::orpha_code(id.as_str()).ok_or(biomcp_fetch::InputError::Path)?;
-    let subject_id: Curie = format!("ORPHA:{code}")
+    let canonical = format!("ORPHA:{code}")
         .parse()
         .map_err(|_| biomcp_fetch::InputError::Serialization)?;
     let (rows, info) = leg.stored_rows(&FILE, Find::Exact(KeyKind::Id, code))?;
+    Ok((canonical, rows, info))
+}
+
+impl Native {
+    fn attribution(&self, cx: &mut Problems) -> Attribution {
+        Attribution {
+            source: FILE.spec.source.text(),
+            record: cx.record.clone(),
+            release: cx.text("JDBOR.date", Some(&self.date)),
+            version: cx.text("JDBOR.version", self.version.as_deref()),
+            url: cx.text("url", Some(&format!("{}{}", FILE.spec.base, FILE.path))),
+            approved: None,
+            published: None,
+            evaluated: None,
+            submitter: None,
+        }
+    }
+}
+
+/// Read the disorder identity and classification from the product 1 catalog.
+pub fn card(leg: &Leg<'_>, id: &Curie) -> Result<Mapped<Option<DiseaseCard>>, RequestError> {
+    let (returned_id, rows, info) = disorder_rows(leg, id)?;
+    let mut cx = Problems {
+        source: FILE.spec.source,
+        record: crate::mapped::record(&returned_id),
+        list: crate::mapped::bundle_problems(FILE.spec.source, &info),
+    };
+    let value = rows.first().map(|row| DiseaseCard {
+        requested_id: id.clone(),
+        returned_id: returned_id.clone(),
+        alias: None,
+        concept: DiseaseConcept {
+            id: Some(returned_id),
+            label: cx.text("Name", row.name.as_deref()),
+        },
+        definition: None,
+        disorder_type: cx.text("DisorderType", row.disorder_type.as_deref()),
+        obsolete: None,
+        consider: None,
+        replaced_by: None,
+        attribution: row.attribution(&mut cx),
+        sections: Box::new([DiseaseSection::Prevalence]),
+        components: Box::default(),
+    });
+    Ok(Mapped {
+        value,
+        problems: cx.list,
+        refusals: crate::bundle_mapping::bundle_refusals(&info),
+    })
+}
+
+/// Read OMIM mappings for the requested ORPHA code, keeping the publisher's direction.
+pub fn omim_xrefs(leg: &Leg<'_>, id: &Curie) -> Result<Mapped<Vec<DiseaseRelation>>, RequestError> {
+    let (subject_id, rows, info) = disorder_rows(leg, id)?;
     let mut mapped = Mapped {
         value: Vec::new(),
         problems: crate::mapped::bundle_problems(FILE.spec.source, &info),
@@ -174,17 +236,7 @@ pub fn omim_xrefs(leg: &Leg<'_>, id: &Curie) -> Result<Mapped<Vec<DiseaseRelatio
             id: subject_id.clone(),
             label: cx.text("Name", row.name.as_deref()),
         };
-        let attribution = Attribution {
-            source: FILE.spec.source.text(),
-            record: cx.record.clone(),
-            release: cx.text("JDBOR.date", Some(&row.date)),
-            version: cx.text("JDBOR.version", row.version.as_deref()),
-            url: cx.text("url", Some(&format!("{}{}", FILE.spec.base, FILE.path))),
-            approved: None,
-            published: None,
-            evaluated: None,
-            submitter: None,
-        };
+        let attribution = row.attribution(&mut cx);
         for mapping in row.omim {
             if let Some(relation) = relation(mapping, &subject, &attribution, &mut cx) {
                 mapped.value.push(relation);

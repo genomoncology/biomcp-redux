@@ -47,6 +47,10 @@ pub struct DiseaseCard {
     /// Complete source definition when supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub definition: Option<Text>,
+    /// Orphadata disorder type when supplied.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    pub disorder_type: Option<Text>,
     /// Publisher obsolete flag.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub obsolete: Option<bool>,

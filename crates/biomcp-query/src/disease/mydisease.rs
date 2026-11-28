@@ -3,8 +3,8 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mydisease;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGet, DiseaseHierarchy, DiseaseSection, DiseaseSynonyms, DiseaseXrefs, Request, Source,
-    StepKind,
+    DiseaseGet, DiseaseHierarchy, DiseaseSection, DiseaseSynonyms, DiseaseXrefs, Reason, Request,
+    Source, SourceStatus, StepKind,
 };
 
 /// Read only the selected exact annotation, then page its native component facts.
@@ -38,6 +38,12 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         leg.finish(),
         error.or(label_error),
     ));
+    if query.orpha_card_fallback() && error.and_then(status::reason) == Some(Reason::NotFound) {
+        out.sources[0].set_status(SourceStatus::Skipped(Some(Reason::NotFound)));
+        super::orphadata::card(cx, query, id, deadline, &mut out);
+        command.finish(deadline.remaining());
+        return out;
+    }
     out.local = error.and_then(status::local);
     if let Ok(mapped) = reply {
         out.include_refusals(mapped.refusals);

@@ -9,6 +9,36 @@ use biomcp_types::{
     Request, Source, SourceNotice, SourceState, SourceStatus, StepKind,
 };
 
+pub(super) fn card(
+    cx: &Ctx<'_>,
+    query: &DiseaseGet,
+    id: &Curie,
+    deadline: biomcp_fetch::Deadline<'_>,
+    out: &mut Outcome,
+) {
+    let leg = cx.fetch.leg(&orphadata::SPEC, deadline);
+    let reply = orphadata::card(&leg, id);
+    let error = reply.as_ref().err().copied();
+    let mut source = status::source(Source::Orphadata, leg.finish(), error);
+    if matches!(source.state, SourceState::Syncing | SourceState::Stale) {
+        sync_step(out, Bundle::ORPHADATA_XREFS);
+    }
+    out.local = error.and_then(status::local);
+    let mut found = false;
+    if let Ok(mapped) = reply {
+        out.include_refusals(mapped.refusals);
+        out.problems.extend(mapped.problems);
+        if let Some(card) = mapped.value {
+            found = true;
+            source.notices.push(acknowledgment());
+            out.next.extend(prevalence_step(id, &mut out.problems));
+            out.body = card.with_query(query.clone());
+        }
+    }
+    out.sources.push(source);
+    status::item(out, found, error.is_some(), false);
+}
+
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -87,11 +117,7 @@ fn xrefs(
     }
     out.local = error.and_then(status::local);
     if reply.is_ok() {
-        source.notices.push(SourceNotice::RequestGuidance {
-            data_date: None,
-            message: orphadata::NOTICE.into(),
-            retry_after_seconds: None,
-        });
+        source.notices.push(acknowledgment());
     }
     out.sources.push(source);
     match reply {
@@ -107,6 +133,14 @@ fn xrefs(
         Err(_) => status::item(&mut out, false, true, false),
     }
     out
+}
+
+fn acknowledgment() -> SourceNotice {
+    SourceNotice::RequestGuidance {
+        data_date: None,
+        message: orphadata::NOTICE.into(),
+        retry_after_seconds: None,
+    }
 }
 
 fn page(out: &mut Outcome, query: &DiseaseGet, returned: u32, total: u64) {
@@ -190,6 +224,13 @@ pub(crate) fn step(
     {
         return None;
     }
+    prevalence_step(id, problems)
+}
+
+fn prevalence_step(
+    id: &Curie,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<crate::next::Step> {
     let query = crate::next::checked(
         DiseaseGet::orphadata_prevalence(id.clone()),
         Source::Orphadata,

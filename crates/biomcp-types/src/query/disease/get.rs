@@ -117,11 +117,12 @@ impl DiseaseGet {
     /// Read an exact native disease CURIE through the default disease command.
     pub fn from_id(id: biodata::Curie) -> Result<Self, QueryInvalid> {
         let record = Text::new(id.as_str()).map_err(|_| QueryInvalid::new(&["id"]))?;
+        let source = (!super::get_validation::orpha_id(id.as_str())).then(get_source);
         Ok(Self {
             record,
             fields: GetFields {
                 id: DiseaseId::Concept(id),
-                source: Some(get_source()),
+                source,
                 ontology: None,
                 section: None,
                 section_limit: Some(default_limit()),
@@ -171,6 +172,12 @@ impl DiseaseGet {
     /// Explicit service.
     pub fn source(&self) -> DiseaseSource {
         self.fields.source.unwrap_or_else(get_source)
+    }
+    /// Whether the caller left the source open for an Orphanet identity lookup.
+    pub fn orpha_card_fallback(&self) -> bool {
+        self.fields.source.is_none()
+            && self.section().is_none()
+            && super::get_validation::orpha_id(self.id().as_str())
     }
     /// Default single publisher, if the section does not read both curation exports.
     pub fn default_source(&self) -> Option<DiseaseSource> {

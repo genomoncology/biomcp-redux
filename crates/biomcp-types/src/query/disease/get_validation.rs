@@ -27,7 +27,10 @@ impl TryFrom<GetFields> for DiseaseGet {
                 "submitter",
             ]));
         }
-        if !validity {
+        let orpha = orpha_id(v.id.as_str());
+        if orpha && v.section == Some(DiseaseSection::Prevalence) {
+            v.source.get_or_insert(DiseaseSource::Orphadata);
+        } else if !validity && !(orpha && v.section.is_none()) {
             v.source.get_or_insert_with(get_source);
         }
         let source = v.source.unwrap_or_else(get_source);
@@ -116,10 +119,16 @@ fn validate_selectors(v: &GetFields, source: DiseaseSource) -> Result<(), QueryI
 
 /// Orphadata reads an Orphanet code directly, or a MONDO or DOID concept through its Orphanet links.
 fn orphadata_id(id: &str) -> bool {
+    orpha_id(id) || numeric_id(id, &["MONDO", "DOID"])
+}
+
+pub(super) fn orpha_id(id: &str) -> bool {
+    numeric_id(id, &["Orphanet", "ORPHA"])
+}
+
+fn numeric_id(id: &str, namespaces: &[&str]) -> bool {
     id.split_once(':').is_some_and(|(prefix, local)| {
-        ["MONDO", "DOID", "Orphanet", "ORPHA"]
-            .iter()
-            .any(|p| p.eq_ignore_ascii_case(prefix))
+        namespaces.iter().any(|p| p.eq_ignore_ascii_case(prefix))
             && !local.is_empty()
             && local.bytes().all(|b| b.is_ascii_digit())
     })

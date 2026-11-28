@@ -220,6 +220,10 @@
           ],
           "description": "Complete source definition when supplied."
         },
+        "disorder_type": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Orphadata disorder type when supplied."
+        },
         "obsolete": {
           "description": "Publisher obsolete flag.",
           "type": [

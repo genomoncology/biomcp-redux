@@ -6,7 +6,7 @@
     {
       "status": 200,
       "content_type": "application/json",
-      "delay_ms": 2374,
+      "delay_ms": 0,
       "retry_after_ms": null,
       "body": {
         "kind": "json",

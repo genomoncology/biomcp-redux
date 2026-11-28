@@ -90,10 +90,11 @@ impl Row {
             && self.predicate.is_some()
     }
 }
-/// Only the identity of a Monarch entity, read to tell a held ID from an unknown one.
+/// Identity of a Monarch entity and its publisher deprecation flag.
 #[derive(Debug, Deserialize)]
 pub(super) struct Entity {
     pub id: Option<Curie>,
+    pub deprecated: Option<bool>,
 }
 impl Reply for Entity {
     fn check(&self) -> Result<(), BadReply> {
