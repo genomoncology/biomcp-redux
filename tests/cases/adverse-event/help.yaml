@@ -28,6 +28,7 @@
             "--product-code",
             "--problem",
             "--drug",
+            "--drug-role",
             "--expand-drug-names",
             "--name-snapshot"
           ]

@@ -147,6 +147,12 @@ CDC WONDER returns a VAERS table in its own order, which for symptoms is alphabe
 
 CDC WONDER refuses a table request that comes less than 15 seconds after the last one it accepted from the same address, and its refusal names no wait. BioMCP then waits 15 seconds and asks once more, within the VAERS command's 60-second limit. If WONDER refuses again, the source fails as `rate-limited` and its notice gives `retry_after_seconds: 15`.
 
+## FAERS drug roles
+
+FAERS drug searches default to `--drug-role any`. The count includes reports listing the drug in any role, including concomitant, and the reply states the role in `query.drug_role`.
+
+`--drug-role suspect` counts a report when a searched name matches the whole generic, brand or medicinal-product name on a drug entry marked suspect, ignoring letter case. BioMCP checks these entries because openFDA indexes names and roles across the whole report. If more than one search page of candidate reports needs checking, BioMCP asks you to narrow the receipt dates before giving a total. The suspect filter applies to report searches. Aggregations use the any-role count.
+
 ## FAERS report sections
 
 FAERS `search adverse-event --aggregate reactions` requests openFDA's exact reaction-term counts across matching reports. The reply separates these buckets from report headers and retains native terms, counts and order. A report may list several drugs and several reactions: buckets can overlap and do not identify a causal drug–reaction pair. BioMCP never sums them into a report total or derives rates, incidence, risk or comparative safety. The source provides no exposure denominator.
