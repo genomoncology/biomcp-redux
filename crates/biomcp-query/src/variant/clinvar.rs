@@ -1,10 +1,11 @@
 //! Archive lookups establish ClinVar record identity independently of allele resolution.
 use crate::{Ctx, Outcome, status};
+use biodata::{Text, VariantId};
 use biomcp_adapters::clinvar;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    AssertionSource, Reason, Section, Source, SourceNotice, Text, VariantAssertionsGet,
-    VariantCard, VariantGet, VariantHeader, VariantId, VariantResolution, VariantSections, VcvId,
+    AssertionSource, Reason, Section, Source, SourceNotice, VariantAssertionsGet, VariantCard,
+    VariantGet, VariantHeader, VariantResolution, VariantSections,
 };
 
 pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<'a>) -> Outcome {
@@ -95,7 +96,7 @@ pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<
 }
 
 fn candidate(query: &VariantGet, archive: clinvar::Assertions) -> Option<VariantHeader> {
-    let vcv: VcvId = archive.archive?;
+    let vcv = archive.archive?;
     let id: VariantId = format!("clinvar:{}", vcv.get()).parse().ok()?;
     let mut candidate = super::direct::candidate(query, Source::ClinVar);
     candidate.record.id = Text::new(&id.to_string()).ok()?;

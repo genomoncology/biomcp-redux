@@ -1,4 +1,5 @@
 //! ClinVar archives by checked Variation ID or accession.
+use biodata::VcvId;
 use biomcp_fetch::{Input, Read};
 mod detail;
 mod gene;
@@ -16,7 +17,7 @@ use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,
     SourceSpec,
 };
-use biomcp_types::{ClinvarIncluded, Source, VariantAssertion, VcvId};
+use biomcp_types::{ClinvarIncluded, Source, VariantAssertion};
 pub use search::{SearchPage, search};
 use std::time::Duration;
 /// ClinVar shares the existing NCBI quota and optional user key.

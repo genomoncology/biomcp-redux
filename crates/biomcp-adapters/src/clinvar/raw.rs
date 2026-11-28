@@ -1,4 +1,5 @@
 use crate::xml_element::Element;
+use biodata::VcvId;
 use biomcp_fetch::{BadReply, Reply, xml::XmlReply};
 use biomcp_types::{AssertionKind, ClinvarIncluded, VariantAssertion};
 use serde::Deserialize;
@@ -91,13 +92,13 @@ impl XmlReply for Records {
 }
 
 impl Records {
-    pub(super) fn archive(&self) -> Option<biomcp_types::VcvId> {
-        let accession: biomcp_types::VcvId = self.accession.as_deref()?.parse().ok()?;
+    pub(super) fn archive(&self) -> Option<VcvId> {
+        let accession: VcvId = self.accession.as_deref()?.parse().ok()?;
         let version = self.version.as_deref()?.parse().ok()?;
         if self.id.as_deref()?.parse::<u64>().ok()? != u64::from(accession.get()) {
             return None;
         }
-        biomcp_types::VcvId::new(accession.get(), Some(version)).ok()
+        VcvId::new(accession.get(), Some(version)).ok()
     }
 
     pub(super) fn identity_problem(
