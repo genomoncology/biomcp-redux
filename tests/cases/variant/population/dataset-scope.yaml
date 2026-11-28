@@ -11,9 +11,11 @@
         "/status": "partial",
         "/query/dataset": "gnomad_r4/4.1.0",
         "/result/candidates/0/sections/population": {
-          "state": "unavailable",
-          "source": "gnomad",
-          "reason": "out-of-scope"
+          "equals": {
+            "state": "unavailable",
+            "source": "gnomad",
+            "reason": "out-of-scope"
+          }
         },
         "/sources/1/state": "skipped"
       }
