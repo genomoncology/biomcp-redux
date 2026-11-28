@@ -491,7 +491,7 @@ The generated accounting counts leaf commands and long command options. It exclu
 <!-- parity-accounting -->
 | 0.9 leaf command | Command outcome | Ported or renamed options | Dropped options | Deferred options | Undecided options | Ruling |
 | --- | --- | --- | --- | --- | --- | --- |
-| `search pgx` | Ported or renamed | `--gene`, `--cpic-level`, `--limit`, `--offset` | `--drug`, `--evidence` | `--pgx-testing` | — | Explicit gene and CPIC source; native pair pages replace heuristic filtering and overfetch. Testing remains deferred pending positive native proof under Deferred selectors and the 2026-10-26 PM ruling in ticket 0275. |
+| `search pgx` | Ported or renamed | `--gene`, `--cpic-level`, `--limit`, `--offset`, `--drug` | `--evidence` | `--pgx-testing` | — | Search CPIC pairs by gene or drug and ClinPGx clinical annotations by rsID or drug. Specify the source. Testing remains deferred pending positive native proof under ticket 0275. |
 | `get pgx` | Ported or renamed | `--limit`, `--offset` | `--full` | — | — | Explicit gene card and one section; section-limit and section-offset replace the old page options. Frequency and exact pair pages remain deferred; automatic all and bulk expansion retire. |
 <!-- /parity-accounting -->
 
