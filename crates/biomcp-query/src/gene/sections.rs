@@ -199,10 +199,20 @@ pub(super) fn jobs<'a>(
             .iter()
             .any(|(_, gene)| applicable(GeneSection::ClinGen, gene))
     {
-        let single_gene = query.input().len() == 1;
         jobs.push(Box::new(move || {
-            super::get::Job::Section(clingen::run(cx, deadline, genes, single_gene))
+            super::get::Job::Section(clingen::run(cx, deadline, genes))
         }));
+        if query.input().len() == 1
+            && let [(_, gene)] = genes
+        {
+            jobs.push(Box::new(move || {
+                super::get::Job::ClinGenActionability(clingen::read_actionability(
+                    cx,
+                    deadline,
+                    &gene.symbol,
+                ))
+            }));
+        }
     }
     if requested.contains(&GeneSection::Gencc) && !genes.is_empty() {
         jobs.push(Box::new(move || {
