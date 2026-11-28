@@ -9,7 +9,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     source: Source::Faers,
     base: "https://api.fda.gov/drug/event.json",
     terms: Terms {
-        name: crate::adverse_event_sources::FDA_TERMS.name,
+        name: "openFDA (third-party limits)",
         url: crate::adverse_event_sources::FDA_TERMS.url,
         usage: biomcp_types::Use::Attribution,
     },
