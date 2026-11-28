@@ -128,6 +128,19 @@ fn search_page(
                 })
         })
         .transpose()?;
+    let mapped = headers(raw);
+    Ok(Mapped {
+        refusals: mapped.refusals,
+        value: SearchPage {
+            items: mapped.value,
+            total: page.total,
+            cursor,
+        },
+        problems: mapped.problems,
+    })
+}
+
+fn headers(raw: Rows) -> Mapped<Vec<ProteinHeader>> {
     let mut items = Vec::new();
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -158,13 +171,9 @@ fn search_page(
             }
         }
     }
-    Ok(Mapped {
+    Mapped {
         refusals,
-        value: SearchPage {
-            items,
-            total: page.total,
-            cursor,
-        },
+        value: items,
         problems,
-    })
+    }
 }

@@ -91,6 +91,12 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     let steps = next::unread(cx, q, &unread, &mut out.problems);
     out.next.extend(steps);
     recovery(q, &mut out);
+    out.body = card(q, items);
+    command.finish(deadline.remaining());
+    out
+}
+
+fn card(q: &ProteinGet, items: Vec<ProteinCardItem>) -> ReplyData {
     let spans = items
         .iter()
         .filter_map(|item| item.sections.as_ref())
@@ -98,14 +104,13 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
             matches!(&sections.features, Some(Section::Data { data, .. }) if !data.items.is_empty())
                 || matches!(&sections.domains, Some(Section::Data { data, .. }) if super::source_relations::spans(&data.items))
         });
-    out.body = (ProteinCard {
+    (ProteinCard {
         items: items.into(),
         coordinate_note: biomcp_types::coordinate_note(spans),
     })
-    .with_query(q.clone());
-    command.finish(deadline.remaining());
-    out
+    .with_query(q.clone())
 }
+
 fn empty_item(input: ProteinInput) -> ProteinCardItem {
     ProteinCardItem {
         input,
