@@ -1,7 +1,7 @@
 //! Admit native candidate and publication identities without discarding optional labels.
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::Text;
-use biomcp_fetch::{BadReply, PathSegment, Reply};
+use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::{LitVarCandidate, Source};
 use serde::Deserialize;
 
@@ -16,20 +16,12 @@ struct Candidate {
     name: Option<Field<crate::native_text::NativeText>>,
     pmids_count: Option<Field<u64>>,
 }
-impl Candidate {
-    fn admitted(&self) -> Option<Text> {
-        if super::is_native_id(&self.id) && PathSegment::new(&self.id).is_ok() {
-            Text::new(&self.id).ok()
-        } else {
-            None
-        }
-    }
-}
 impl Candidates {
     pub(super) fn eligible(&self) -> bool {
-        self.0
-            .iter()
-            .all(|row| row.as_ref().and_then(Candidate::admitted).is_some())
+        self.0.iter().all(|row| {
+            row.as_ref()
+                .is_some_and(|row| super::checked_id(&row.id).is_ok())
+        })
     }
     pub(super) fn mapped(self) -> Mapped<Vec<super::Candidate>> {
         let mut problems = Problems {
@@ -46,9 +38,8 @@ impl Candidates {
                 continue;
             };
             problems.record = crate::mapped::record(&row.id);
-            let Some(id) = row.admitted() else {
+            let Some(id) = problems.optional("identity", Some(super::checked_id(&row.id))) else {
                 refusals = crate::Refusal::Refused;
-                problems.required::<()>("identity", None);
                 continue;
             };
             value.push(super::Candidate {

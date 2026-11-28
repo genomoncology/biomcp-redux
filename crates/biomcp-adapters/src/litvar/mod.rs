@@ -3,7 +3,9 @@ use crate::quotas;
 use biodata::{Pmid, Text};
 use biomcp_fetch::{Input, Read};
 
-use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
+use biomcp_fetch::{
+    Arg, Endpoint, Freshness, InputError, KeyUse, Leg, PathSegment, RequestError, SourceSpec,
+};
 use biomcp_types::{LitVarCandidate, Source};
 mod raw;
 use raw::{Candidates, Publications};
@@ -67,9 +69,8 @@ pub fn select(
     gene: Option<&str>,
     variant: &str,
 ) -> Result<crate::Mapped<Selection>, RequestError> {
-    if is_native_id(variant)
-        && let Ok(id) = Text::new(variant)
-    {
+    if is_native_id(variant) {
+        let id = checked_id(variant)?;
         return Ok(crate::Mapped {
             refusals: crate::Refusal::None,
             value: Selection::Exact(Variant {
@@ -204,6 +205,15 @@ pub fn is_native_id(value: &str) -> bool {
         .strip_prefix("litvar@")
         .is_some_and(|suffix| !suffix.is_empty() && suffix.trim_end() == suffix)
 }
+
+fn checked_id(value: &str) -> Result<Text, InputError> {
+    if !is_native_id(value) {
+        return Err(InputError::Path);
+    }
+    PathSegment::new(value)?;
+    Text::new(value).map_err(|_| InputError::Path)
+}
+
 /// Recognize the exact rsID spelling accepted by variant lookup.
 pub fn is_rsid(value: &str) -> bool {
     value
