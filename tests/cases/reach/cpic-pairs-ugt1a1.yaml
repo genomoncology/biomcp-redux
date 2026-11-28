@@ -1,0 +1,45 @@
+{
+  "feature": "cpic-pgx",
+  "story": "CPIC returns every pair in its UGT1A1 slice, including levels A, B, B/C.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/cpic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "UGT1A1",
+        "--source",
+        "cpic",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 7,
+        "/result/items": {
+          "count": 7
+        },
+        "/result/items/*/pairid/id": [
+          110082,
+          110106,
+          110172,
+          110255,
+          110283,
+          110285,
+          110291
+        ],
+        "/result/items/*/cpiclevel": [
+          "A",
+          "A",
+          "B",
+          "B/C",
+          "B/C",
+          "B/C",
+          "B/C"
+        ]
+      }
+    }
+  ]
+}

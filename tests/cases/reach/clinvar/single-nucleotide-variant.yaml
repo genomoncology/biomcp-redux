@@ -1,0 +1,31 @@
+{
+  "feature": "variant-assertions",
+  "story": "ClinVar returns all published submissions for the sampled single-nucleotide-variant class.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clinvar/single-nucleotide-variant",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:1234500",
+        "--source",
+        "clinvar",
+        "--kind",
+        "scv"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 2,
+        "/result/page/returned": 2,
+        "/result/assertions/*/record": {
+          "count": 2,
+          "includes_all_of": [
+            "SCV001847126",
+            "SCV005277504"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "feature": "gene-sections",
+  "story": "GenCC retains the whole sampled MLH1 export across MONDO, OMIM and Orphanet submissions.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/gencc",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 20
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "MLH1",
+        "MSH2",
+        "MSH6",
+        "PMS2",
+        "EPCAM",
+        "gencc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/gencc/data/submissions": {
+          "count": 20
+        },
+        "/result/items/0/sections/gencc/data/submissions/*/id": {
+          "includes_all_of": [
+            "SGC-100354",
+            "SGC-100355",
+            "SGC-100356",
+            "SGC-102859",
+            "SGC-102860",
+            "SGC-104317",
+            "SGC-105554",
+            "SGC-105776",
+            "SGC-107738",
+            "SGC-107748",
+            "SGC-107755",
+            "SGC-107766",
+            "SGC-107997",
+            "SGC-113416",
+            "SGC-113417",
+            "SGC-117467",
+            "SGC-117468",
+            "SGC-122963",
+            "SGC-122964",
+            "SGC-124108"
+          ]
+        }
+      }
+    }
+  ]
+}

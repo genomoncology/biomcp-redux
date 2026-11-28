@@ -1,0 +1,292 @@
+{
+  "feature": "gene-clingen",
+  "story": "ClinGen imports the release and returns separately sampled validity, dosage labels, dosage evidence and region rows.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clingen",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "clingen"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 7518
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "MLH1",
+        "MSH2",
+        "MSH6",
+        "PMS2",
+        "EPCAM",
+        "clingen"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/clingen/data/validity/*/mondo_id": {
+          "includes": "MONDO:0005835"
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "SCN2A",
+        "clingen"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/clingen/data/haploinsufficiency": "Sufficient Evidence for Haploinsufficiency",
+        "/result/items/0/sections/clingen/data/haploinsufficiency_evidence/score": 3
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-46760"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/clingen_regions_matched": 1,
+        "/result/regions/*/id": [
+          "ISCA-46760"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0000159",
+        "gene-validity",
+        "--source",
+        "clingen",
+        "--classification",
+        "Definitive"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/*/gene_id": [
+          "HGNC:26922"
+        ],
+        "/result/items/*/assertion/classification": [
+          "Definitive"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0000009",
+        "gene-validity",
+        "--source",
+        "clingen",
+        "--classification",
+        "Disputed"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/*/gene_id": [
+          "HGNC:8533"
+        ],
+        "/result/items/*/assertion/classification": [
+          "Disputed"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0000030",
+        "gene-validity",
+        "--source",
+        "clingen",
+        "--classification",
+        "Limited"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/*/gene_id": [
+          "HGNC:1956"
+        ],
+        "/result/items/*/assertion/classification": [
+          "Limited"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0000107",
+        "gene-validity",
+        "--source",
+        "clingen",
+        "--classification",
+        "Moderate"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/*/gene_id": [
+          "HGNC:4387"
+        ],
+        "/result/items/*/assertion/classification": [
+          "Moderate"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0002561",
+        "gene-validity",
+        "--source",
+        "clingen",
+        "--classification",
+        "No Known Disease Relationship"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/*/gene_id": [
+          "HGNC:26907"
+        ],
+        "/result/items/*/assertion/classification": [
+          "No Known Disease Relationship"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0004976",
+        "gene-validity",
+        "--source",
+        "clingen",
+        "--classification",
+        "Refuted"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/*/gene_id": [
+          "HGNC:2671"
+        ],
+        "/result/items/*/assertion/classification": [
+          "Refuted"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0000453",
+        "gene-validity",
+        "--source",
+        "clingen",
+        "--classification",
+        "Strong"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/*/gene_id": [
+          "HGNC:6294"
+        ],
+        "/result/items/*/assertion/classification": [
+          "Strong"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-46753"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/clingen_regions_matched": 1,
+        "/result/regions/*/id": [
+          "ISCA-46753"
+        ],
+        "/result/regions/0/haploinsufficiency/score": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-46295"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/clingen_regions_matched": 1,
+        "/result/regions/*/id": [
+          "ISCA-46295"
+        ],
+        "/result/regions/0/haploinsufficiency/score": 2
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-46759"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/clingen_regions_matched": 1,
+        "/result/regions/*/id": [
+          "ISCA-46759"
+        ],
+        "/result/regions/0/haploinsufficiency/score": 3
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-46297"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/clingen_regions_matched": 1,
+        "/result/regions/*/id": [
+          "ISCA-46297"
+        ],
+        "/result/regions/0/haploinsufficiency/score": 30
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-46739"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/clingen_regions_matched": 1,
+        "/result/regions/*/id": [
+          "ISCA-46739"
+        ],
+        "/result/regions/0/haploinsufficiency/score": 40
+      }
+    }
+  ]
+}

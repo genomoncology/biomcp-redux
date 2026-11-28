@@ -1,0 +1,27 @@
+{
+  "feature": "variant-assertions",
+  "story": "The sampled ClinVar aggregate preserves its published review status \u201creviewed by expert panel\u201d.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clinvar/expert-panel",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:953047",
+        "--source",
+        "clinvar",
+        "--kind",
+        "vcv"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 1,
+        "/result/assertions/*/record": [
+          "VCV000953047"
+        ],
+        "/result/assertions/0/statement/strength/label": "reviewed by expert panel"
+      }
+    }
+  ]
+}

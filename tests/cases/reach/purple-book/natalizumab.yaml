@@ -1,0 +1,27 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every NATALIZUMAB biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "NATALIZUMAB",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/*/bla": [
+          "BLA761322"
+        ],
+        "/result/items/*/presentation_count": [
+          1
+        ]
+      }
+    }
+  ]
+}

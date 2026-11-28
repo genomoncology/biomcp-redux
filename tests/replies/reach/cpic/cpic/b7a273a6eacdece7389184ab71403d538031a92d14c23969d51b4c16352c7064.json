@@ -1,0 +1,196 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.MT-RNR1&order=pairid.asc&limit=20&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1795814400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "pairid": 110151,
+            "drugid": "RxNorm:641",
+            "drugname": "amikacin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Actionable PGx",
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110157,
+            "drugid": "ATC:D06AX07",
+            "drugname": "gentamicin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Actionable PGx",
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110159,
+            "drugid": "RxNorm:6099",
+            "drugname": "kanamycin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110162,
+            "drugid": "RxNorm:10109",
+            "drugname": "streptomycin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Actionable PGx",
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110164,
+            "drugid": "RxNorm:10627",
+            "drugname": "tobramycin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Actionable PGx",
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 826284,
+            "drugid": "RxNorm:7934",
+            "drugname": "paromomycin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": null,
+            "pgxtesting": null,
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 826285,
+            "drugid": "RxNorm:2049549",
+            "drugname": "plazomicin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": null,
+            "pgxtesting": "Actionable PGx",
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 3004618,
+            "drugid": "RxNorm:3328",
+            "drugname": "dibekacin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": null,
+            "pgxtesting": null,
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 3004619,
+            "drugid": "RxNorm:7299",
+            "drugname": "neomycin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Actionable PGx",
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 3004620,
+            "drugid": "RxNorm:7337",
+            "drugname": "netilmicin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": null,
+            "pgxtesting": null,
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 3004621,
+            "drugid": "RxNorm:NA",
+            "drugname": "ribostamycin",
+            "genesymbol": "MT-RNR1",
+            "guidelinename": "MT-RNR1 and Aminoglycosides",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251466",
+            "cpiclevel": "A",
+            "clinpgxlevel": null,
+            "pgxtesting": null,
+            "pmids": [
+              "34032273"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          }
+        ]
+      },
+      "content_range": "0-10/11"
+    }
+  ]
+}

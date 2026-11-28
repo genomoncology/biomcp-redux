@@ -1,0 +1,71 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.DPYD&order=pairid.asc&limit=20&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1795814400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "pairid": 110086,
+            "drugid": "RxNorm:194000",
+            "drugname": "capecitabine",
+            "genesymbol": "DPYD",
+            "guidelinename": "DPYD and Fluoropyrimidines",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251462",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Testing Required",
+            "pmids": [
+              "23988873",
+              "29152729"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110099,
+            "drugid": "RxNorm:4492",
+            "drugname": "fluorouracil",
+            "genesymbol": "DPYD",
+            "guidelinename": "DPYD and Fluoropyrimidines",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251462",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Testing Required",
+            "pmids": [
+              "23988873",
+              "29152729"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110398,
+            "drugid": "RxNorm:4582",
+            "drugname": "tegafur",
+            "genesymbol": "DPYD",
+            "guidelinename": "DPYD and Fluoropyrimidines",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251462",
+            "cpiclevel": "C",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "23988873",
+              "29152729"
+            ],
+            "usedforrecommendation": "No",
+            "provisional": false
+          }
+        ]
+      },
+      "content_range": "0-2/3"
+    }
+  ]
+}

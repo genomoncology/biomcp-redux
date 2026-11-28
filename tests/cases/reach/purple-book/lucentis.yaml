@@ -1,0 +1,35 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every LUCENTIS biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "LUCENTIS",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 5,
+        "/result/items/*/bla": [
+          "BLA761165",
+          "BLA761187",
+          "BLA761202",
+          "BLA761473",
+          "BLA761480"
+        ],
+        "/result/items/*/presentation_count": [
+          2,
+          1,
+          2,
+          2,
+          4
+        ]
+      }
+    }
+  ]
+}

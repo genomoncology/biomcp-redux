@@ -1,0 +1,31 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every INSULIN GLARGINE biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "INSULIN GLARGINE",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/*/bla": [
+          "BLA761201",
+          "BLA761215",
+          "BLA761412"
+        ],
+        "/result/items/*/presentation_count": [
+          2,
+          1,
+          1
+        ]
+      }
+    }
+  ]
+}

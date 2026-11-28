@@ -1,0 +1,57 @@
+{
+  "feature": "cpic-pgx",
+  "story": "CPIC returns every pair in its HLA-B slice, including levels A, B/C, C.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/cpic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "HLA-B",
+        "--source",
+        "cpic",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 13,
+        "/result/items": {
+          "count": 13
+        },
+        "/result/items/*/pairid/id": [
+          110078,
+          110079,
+          110088,
+          110102,
+          110120,
+          110128,
+          110284,
+          110312,
+          110323,
+          110356,
+          110358,
+          110370,
+          110382
+        ],
+        "/result/items/*/cpiclevel": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "B/C",
+          "C",
+          "C",
+          "C",
+          "C",
+          "C",
+          "C"
+        ]
+      }
+    }
+  ]
+}

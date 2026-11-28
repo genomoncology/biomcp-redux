@@ -1,0 +1,33 @@
+{
+  "feature": "variant-assertions",
+  "story": "ClinVar returns all published submissions for the sampled diplotype class.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clinvar/diplotype",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:633883",
+        "--source",
+        "clinvar",
+        "--kind",
+        "scv"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 4,
+        "/result/page/returned": 4,
+        "/result/assertions/*/record": {
+          "count": 4,
+          "includes_all_of": [
+            "SCV000920994",
+            "SCV000920995",
+            "SCV000921583",
+            "SCV000922130"
+          ]
+        }
+      }
+    }
+  ]
+}

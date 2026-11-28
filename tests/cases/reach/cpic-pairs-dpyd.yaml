@@ -1,0 +1,37 @@
+{
+  "feature": "cpic-pgx",
+  "story": "CPIC returns every pair in its DPYD slice, including levels A, C.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/cpic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "DPYD",
+        "--source",
+        "cpic",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 3,
+        "/result/items": {
+          "count": 3
+        },
+        "/result/items/*/pairid/id": [
+          110086,
+          110099,
+          110398
+        ],
+        "/result/items/*/cpiclevel": [
+          "A",
+          "A",
+          "C"
+        ]
+      }
+    }
+  ]
+}

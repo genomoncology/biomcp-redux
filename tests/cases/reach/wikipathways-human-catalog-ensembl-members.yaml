@@ -1,0 +1,116 @@
+{
+  "feature": "pathway-wikipathways-genes",
+  "story": "The human WikiPathways catalog is searchable and the Ensembl nodes of WP5352 retain their HGNC identities.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/wikipathways",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "wikipathways"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/search/human_rows": 1131,
+        "/result/get/human_rows": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "pathway",
+        "a",
+        "--source",
+        "wikipathways",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 1084
+      }
+    },
+    {
+      "run": [
+        "pathway",
+        "genes",
+        "WP5352",
+        "--limit",
+        "65"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 61,
+        "/result/page/returned": 61,
+        "/result/reference_occurrences": 63,
+        "/result/items/*/gene": {
+          "count": 61,
+          "includes_all_of": [
+            "HGNC:1069",
+            "HGNC:1076",
+            "HGNC:10768",
+            "HGNC:1077",
+            "HGNC:10936",
+            "HGNC:11101",
+            "HGNC:11103",
+            "HGNC:11105",
+            "HGNC:11620",
+            "HGNC:13890",
+            "HGNC:14929",
+            "HGNC:14934",
+            "HGNC:16400",
+            "HGNC:16687",
+            "HGNC:1748",
+            "HGNC:1912",
+            "HGNC:19736",
+            "HGNC:2082",
+            "HGNC:21536",
+            "HGNC:23199",
+            "HGNC:23207",
+            "HGNC:25498",
+            "HGNC:2556",
+            "HGNC:25590",
+            "HGNC:26470",
+            "HGNC:26896",
+            "HGNC:26973",
+            "HGNC:27274",
+            "HGNC:27421",
+            "HGNC:2744",
+            "HGNC:2768",
+            "HGNC:28572",
+            "HGNC:2898",
+            "HGNC:2911",
+            "HGNC:29304",
+            "HGNC:29323",
+            "HGNC:30320",
+            "HGNC:3321",
+            "HGNC:3437",
+            "HGNC:3438",
+            "HGNC:3439",
+            "HGNC:38180",
+            "HGNC:4220",
+            "HGNC:5224",
+            "HGNC:5227",
+            "HGNC:6206",
+            "HGNC:6767",
+            "HGNC:6771",
+            "HGNC:6774",
+            "HGNC:6881",
+            "HGNC:701",
+            "HGNC:7010",
+            "HGNC:7546",
+            "HGNC:7597",
+            "HGNC:7754",
+            "HGNC:784",
+            "HGNC:7866",
+            "HGNC:8605",
+            "HGNC:8729",
+            "HGNC:961",
+            "HGNC:990"
+          ]
+        }
+      }
+    }
+  ],
+  "verified": "Human identity rows from the 2026-11-27 published listPathways catalog are projected into the search reply shape. The GPML is WP5352 revision 142547 from the WikiPathways release. The HGNC complete set retains its original rows for all referenced Ensembl identifiers."
+}

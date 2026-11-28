@@ -1,6 +1,7 @@
 # 1240 — standing-offline-reach-check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b1eaee12e99846da03b55a34635d93ea7085b248
 
 Milestone: 10
 

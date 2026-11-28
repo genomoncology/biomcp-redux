@@ -1,0 +1,201 @@
+{
+  "feature": "trial-get",
+  "story": "Every published ClinicalTrials.gov status, phase, study type and intervention type survives its mapper.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/ctgov",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999000",
+        "arms",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "ACTIVE_NOT_RECRUITING",
+        "/result/items/0/card/study_type": "EXPANDED_ACCESS",
+        "/result/items/0/card/phases": [
+          "NA",
+          "EARLY_PHASE1",
+          "PHASE1",
+          "PHASE2",
+          "PHASE3",
+          "PHASE4"
+        ],
+        "/result/items/0/sections/arms/data/items/*/data/kind": [
+          "BEHAVIORAL",
+          "BIOLOGICAL",
+          "COMBINATION_PRODUCT",
+          "DEVICE",
+          "DIAGNOSTIC_TEST",
+          "DIETARY_SUPPLEMENT",
+          "DRUG",
+          "GENETIC",
+          "PROCEDURE",
+          "RADIATION",
+          "OTHER"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999001"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "COMPLETED",
+        "/result/items/0/card/study_type": "INTERVENTIONAL"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999002"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "ENROLLING_BY_INVITATION",
+        "/result/items/0/card/study_type": "OBSERVATIONAL"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999003"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "NOT_YET_RECRUITING",
+        "/result/items/0/card/study_type": "EXPANDED_ACCESS"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999004"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "RECRUITING",
+        "/result/items/0/card/study_type": "INTERVENTIONAL"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999005"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "SUSPENDED",
+        "/result/items/0/card/study_type": "OBSERVATIONAL"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999006"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "TERMINATED",
+        "/result/items/0/card/study_type": "EXPANDED_ACCESS"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999007"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "WITHDRAWN",
+        "/result/items/0/card/study_type": "INTERVENTIONAL"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999008"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "AVAILABLE",
+        "/result/items/0/card/study_type": "OBSERVATIONAL"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999009"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "NO_LONGER_AVAILABLE",
+        "/result/items/0/card/study_type": "EXPANDED_ACCESS"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999010"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "TEMPORARILY_NOT_AVAILABLE",
+        "/result/items/0/card/study_type": "INTERVENTIONAL"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999011"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "APPROVED_FOR_MARKETING",
+        "/result/items/0/card/study_type": "OBSERVATIONAL"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999012"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "WITHHELD",
+        "/result/items/0/card/study_type": "EXPANDED_ACCESS"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT09999013"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "UNKNOWN",
+        "/result/items/0/card/study_type": "INTERVENTIONAL"
+      }
+    }
+  ],
+  "verified": "The four value lists are from https://clinicaltrials.gov/api/v2/studies/enums, accessed 2026-11-27. Study envelopes are authored to exercise every published value."
+}

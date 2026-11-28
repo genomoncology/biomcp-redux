@@ -1,0 +1,33 @@
+{
+  "feature": "cpic-pgx",
+  "story": "CPIC returns every pair in its ABCC4 slice, including levels D.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/cpic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "ABCC4",
+        "--source",
+        "cpic",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 1,
+        "/result/items": {
+          "count": 1
+        },
+        "/result/items/*/pairid/id": [
+          110548
+        ],
+        "/result/items/*/cpiclevel": [
+          "D"
+        ]
+      }
+    }
+  ]
+}

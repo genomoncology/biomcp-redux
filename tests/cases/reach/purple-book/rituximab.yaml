@@ -1,0 +1,33 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every RITUXIMAB biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "RITUXIMAB",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 4,
+        "/result/items/*/bla": [
+          "BLA761088",
+          "BLA761103",
+          "BLA761140",
+          "BLA761376"
+        ],
+        "/result/items/*/presentation_count": [
+          2,
+          2,
+          2,
+          2
+        ]
+      }
+    }
+  ]
+}

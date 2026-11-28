@@ -1,0 +1,30 @@
+{
+  "feature": "cpic-pgx",
+  "story": "A native CPIC diplotype reaches its source mapping by the released spelling.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/cpic",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pgx",
+        "diplotype",
+        "--gene",
+        "CYP2C19",
+        "--source",
+        "cpic",
+        "--diplotype",
+        "*1/*2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/diplotypes": {
+          "count": 1
+        },
+        "/result/diplotypes/0/diplotype": "*1/*2",
+        "/result/diplotypes/0/generesult": "Intermediate Metabolizer"
+      }
+    }
+  ],
+  "verified": "Projection of the public CPIC v1.61.0 export, gene_result_diplotype row 8497622 joined through gene_result_lookup row 8497600 and gene_result row 8497599."
+}

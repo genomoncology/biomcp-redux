@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://rest.genenames.org/fetch/symbol/PMS2",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json;charset=utf-8",
+      "delay_ms": 144,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"responseHeader":{"status":0,"QTime":1},"response":{"numFound":1,"start":0,"numFoundExact":true,"docs":[{"locus_type":"gene with protein product","date_modified":"2023-01-20T00:00:00Z","agr":"HGNC:9122","mane_select":["ENST00000265849.12","NM_000535.7"],"refseq_accession":["NM_000535"],"pubmed_id":[8072530],"status":"Approved","name":"PMS1 homolog 2, mismatch repair system component","uuid":"1dc1d805-bacc-4402-9b6d-fe80a32b90b0","lsdb":["Hereditary Non-Polyposis Colorectal Cancer, HNPCC|http://www.insight-group.org/","Global Variome shared LOVD|https://databases.lovd.nl/shared/genes/PMS2","PMS2 database at LOVD-China|http://genomed.org/LOVD/HNPCC/home.php?select_db=PMS2","LRG_161|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_161.xml"],"omim_id":["600259"],"uniprot_ids":["P54278"],"prev_name":["postmeiotic segregation increased (S. cerevisiae) 2","PMS2 postmeiotic segregation increased 2 (S. cerevisiae)","PMS1 homolog 2, mismatch repair protein"],"cosmic":"PMS2","location":"7p22.1","rgd_id":["RGD:1305483"],"ucsc_id":"uc003spl.4","alias_symbol":["H_DJ0042M02.9","HNPCC4","MLH4","PMS-2"],"gencc":"HGNC:9122","hgnc_id":"HGNC:9122","symbol":"PMS2","gene_group_id":[1027],"orphanet":117916,"locus_group":"protein-coding gene","vega_id":"OTTHUMG00000023135","ccds_id":["CCDS5343","CCDS83155","CCDS87474","CCDS94048","CCDS94049","CCDS94050","CCDS94051","CCDS94052"],"ensembl_gene_id":"ENSG00000122512","mgd_id":["MGI:104288"],"gene_group":["MutL homologs"],"prev_symbol":["PMSL2"],"entrez_id":"5395","date_name_changed":"2015-07-10T00:00:00Z","date_approved_reserved":"1994-12-13T00:00:00Z"}]}}
+      }
+    }
+  ]
+}

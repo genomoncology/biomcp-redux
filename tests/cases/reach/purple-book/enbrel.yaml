@@ -1,0 +1,29 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every ENBREL biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "ENBREL",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 2,
+        "/result/items/*/bla": [
+          "BLA761042",
+          "BLA761066"
+        ],
+        "/result/items/*/presentation_count": [
+          4,
+          3
+        ]
+      }
+    }
+  ]
+}

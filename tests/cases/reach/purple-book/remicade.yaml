@@ -1,0 +1,33 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every REMICADE biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "REMICADE",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 4,
+        "/result/items/*/bla": [
+          "BLA125544",
+          "BLA761054",
+          "BLA761072",
+          "BLA761086"
+        ],
+        "/result/items/*/presentation_count": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  ]
+}

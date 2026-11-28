@@ -1,0 +1,219 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.HLA-B&order=pairid.asc&limit=20&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1795814400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "pairid": 110078,
+            "drugid": "RxNorm:190521",
+            "drugname": "abacavir",
+            "genesymbol": "HLA-B",
+            "guidelinename": "HLA-B and Abacavir",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251444",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Testing Required",
+            "pmids": [
+              "24561393",
+              "22378157"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110079,
+            "drugid": "RxNorm:519",
+            "drugname": "allopurinol",
+            "genesymbol": "HLA-B",
+            "guidelinename": "HLA-B and Allopurinol",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251446",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Testing Recommended",
+            "pmids": [
+              "23232549",
+              "26094938"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110088,
+            "drugid": "RxNorm:2002",
+            "drugname": "carbamazepine",
+            "genesymbol": "HLA-B",
+            "guidelinename": "HLA-A, HLA-B and Carbamazepine and Oxcarbazepine",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251448",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Testing Required",
+            "pmids": [
+              "23695185",
+              "29392710"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110102,
+            "drugid": "RxNorm:72236",
+            "drugname": "fosphenytoin",
+            "genesymbol": "HLA-B",
+            "guidelinename": "CYP2C9, HLA-B and Phenytoin",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251461",
+            "cpiclevel": "A",
+            "clinpgxlevel": null,
+            "pgxtesting": "Actionable PGx",
+            "pmids": [
+              "25099164",
+              "32779747"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110120,
+            "drugid": "RxNorm:32624",
+            "drugname": "oxcarbazepine",
+            "genesymbol": "HLA-B",
+            "guidelinename": "HLA-A, HLA-B and Carbamazepine and Oxcarbazepine",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251448",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Testing Recommended",
+            "pmids": [
+              "29392710"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110128,
+            "drugid": "RxNorm:8183",
+            "drugname": "phenytoin",
+            "genesymbol": "HLA-B",
+            "guidelinename": "CYP2C9, HLA-B and Phenytoin",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251461",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Actionable PGx",
+            "pmids": [
+              "25099164",
+              "32779747"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110284,
+            "drugid": "RxNorm:714438",
+            "drugname": "pazopanib",
+            "genesymbol": "HLA-B",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "B/C",
+            "clinpgxlevel": null,
+            "pgxtesting": "Informative PGx",
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110312,
+            "drugid": "RxNorm:2020",
+            "drugname": "carbimazole",
+            "genesymbol": "HLA-B",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "C",
+            "clinpgxlevel": "3",
+            "pgxtesting": null,
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110323,
+            "drugid": "RxNorm:3108",
+            "drugname": "dapsone",
+            "genesymbol": "HLA-B",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "C",
+            "clinpgxlevel": "2A",
+            "pgxtesting": null,
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110356,
+            "drugid": "RxNorm:6826",
+            "drugname": "methazolamide",
+            "genesymbol": "HLA-B",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "C",
+            "clinpgxlevel": "2A",
+            "pgxtesting": null,
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110358,
+            "drugid": "RxNorm:6835",
+            "drugname": "methimazole",
+            "genesymbol": "HLA-B",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "C",
+            "clinpgxlevel": "3",
+            "pgxtesting": null,
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110370,
+            "drugid": "RxNorm:53654",
+            "drugname": "nevirapine",
+            "genesymbol": "HLA-B",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "C",
+            "clinpgxlevel": "3",
+            "pgxtesting": null,
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110382,
+            "drugid": "RxNorm:8794",
+            "drugname": "propylthiouracil",
+            "genesymbol": "HLA-B",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "C",
+            "clinpgxlevel": "3",
+            "pgxtesting": null,
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          }
+        ]
+      },
+      "content_range": "0-12/13"
+    }
+  ]
+}

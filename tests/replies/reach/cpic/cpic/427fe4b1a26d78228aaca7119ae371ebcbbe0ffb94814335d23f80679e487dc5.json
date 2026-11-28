@@ -1,0 +1,120 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.UGT1A1&order=pairid.asc&limit=20&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1795814400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "pairid": 110082,
+            "drugid": "RxNorm:343047",
+            "drugname": "atazanavir",
+            "genesymbol": "UGT1A1",
+            "guidelinename": "UGT1A1 and Atazanavir",
+            "guidelineurl": "https://www.clinpgx.org/guideline/PA166251453",
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": null,
+            "pmids": [
+              "26417955"
+            ],
+            "usedforrecommendation": "Yes",
+            "provisional": false
+          },
+          {
+            "pairid": 110106,
+            "drugid": "RxNorm:51499",
+            "drugname": "irinotecan",
+            "genesymbol": "UGT1A1",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "A",
+            "clinpgxlevel": "1A",
+            "pgxtesting": "Testing Recommended",
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110172,
+            "drugid": "RxNorm:1543543",
+            "drugname": "belinostat",
+            "genesymbol": "UGT1A1",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "B",
+            "clinpgxlevel": null,
+            "pgxtesting": "Actionable PGx",
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110255,
+            "drugid": "RxNorm:1433868",
+            "drugname": "dolutegravir",
+            "genesymbol": "UGT1A1",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "B/C",
+            "clinpgxlevel": null,
+            "pgxtesting": "Informative PGx",
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110283,
+            "drugid": "RxNorm:662281",
+            "drugname": "nilotinib",
+            "genesymbol": "UGT1A1",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "B/C",
+            "clinpgxlevel": "3",
+            "pgxtesting": "Informative PGx",
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110285,
+            "drugid": "RxNorm:714438",
+            "drugname": "pazopanib",
+            "genesymbol": "UGT1A1",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "B/C",
+            "clinpgxlevel": "3",
+            "pgxtesting": "Informative PGx",
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          },
+          {
+            "pairid": 110291,
+            "drugid": "RxNorm:719872",
+            "drugname": "raltegravir",
+            "genesymbol": "UGT1A1",
+            "guidelinename": null,
+            "guidelineurl": null,
+            "cpiclevel": "B/C",
+            "clinpgxlevel": null,
+            "pgxtesting": "No Clinical PGx",
+            "pmids": null,
+            "usedforrecommendation": "n/a",
+            "provisional": true
+          }
+        ]
+      },
+      "content_range": "0-6/7"
+    }
+  ]
+}

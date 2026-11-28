@@ -1,0 +1,37 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every TRASTUZUMAB biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "TRASTUZUMAB",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 6,
+        "/result/items/*/bla": [
+          "BLA761073",
+          "BLA761074",
+          "BLA761081",
+          "BLA761091",
+          "BLA761100",
+          "BLA761346"
+        ],
+        "/result/items/*/presentation_count": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      }
+    }
+  ]
+}

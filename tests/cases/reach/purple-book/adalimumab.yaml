@@ -1,0 +1,45 @@
+{
+  "feature": "drug-purple-book",
+  "live_check": "Offline shipped roster.",
+  "story": "The shipped Purple Book roster returns every ADALIMUMAB biosimilar application and its presentation count.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "ADALIMUMAB",
+        "--source",
+        "purple-book",
+        "--offline"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 10,
+        "/result/items/*/bla": [
+          "BLA761024",
+          "BLA761058",
+          "BLA761059",
+          "BLA761071",
+          "BLA761118",
+          "BLA761154",
+          "BLA761216",
+          "BLA761219",
+          "BLA761255",
+          "BLA761299"
+        ],
+        "/result/items/*/presentation_count": [
+          9,
+          6,
+          6,
+          10,
+          5,
+          3,
+          4,
+          6,
+          3,
+          5
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "feature": "cpic-pgx",
+  "story": "CPIC returns every pair in its MT-RNR1 slice, including levels A.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/cpic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "MT-RNR1",
+        "--source",
+        "cpic",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 11,
+        "/result/items": {
+          "count": 11
+        },
+        "/result/items/*/pairid/id": [
+          110151,
+          110157,
+          110159,
+          110162,
+          110164,
+          826284,
+          826285,
+          3004618,
+          3004619,
+          3004620,
+          3004621
+        ],
+        "/result/items/*/cpiclevel": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A"
+        ]
+      }
+    }
+  ]
+}

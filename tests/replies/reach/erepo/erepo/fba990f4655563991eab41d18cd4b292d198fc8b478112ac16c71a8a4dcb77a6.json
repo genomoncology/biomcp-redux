@@ -1,0 +1,61 @@
+{
+  "method": "GET",
+  "source": "erepo",
+  "url": "https://erepo.clinicalgenome.org/evrepo/api/summary/classifications?columns=caId&values=CA1620124&matchTypes=exact&pgSize=3&pg=1",
+  "exchanges": [
+    {
+      "fetched": 1795814400,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "status": {
+            "code": 200,
+            "name": "OK"
+          },
+          "data": [
+            {
+              "PCERDocID": "PCER000013990",
+              "approvedDate": "2026-11-26",
+              "caId": "CA1620124",
+              "classification": "Uncertain Significance",
+              "condition": "CYP1B1-related glaucoma with or without anterior segment dysgenesis",
+              "docVersion": "1.0.0",
+              "ep": "Glaucoma VCEP",
+              "gene": "CYP1B1",
+              "metCodes": [
+                "PM2_Supporting"
+              ],
+              "mondoId": "MONDO:0800472",
+              "publishedDate": "2026-11-26",
+              "unMetCodes": [
+                "PVS1",
+                "PS1",
+                "PS2",
+                "PS3",
+                "PM1",
+                "PP1",
+                "PP3",
+                "PM3",
+                "BS1",
+                "BS4",
+                "BP7",
+                "PM5",
+                "BP4",
+                "BA1",
+                "PM4"
+              ],
+              "uuid": "27263672-8a3e-47f7-8d02-9c98c2f4b0e9",
+              "versionsList": [
+                "1.0.0"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

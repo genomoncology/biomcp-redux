@@ -1,0 +1,27 @@
+{
+  "feature": "variant-assertions",
+  "story": "The sampled ClinVar aggregate preserves its published review status \u201cpractice guideline\u201d.",
+  "live_check": "Offline pinned source reach check.",
+  "replay": "reach/clinvar/practice-guideline",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "assertions",
+        "clinvar:633943",
+        "--source",
+        "clinvar",
+        "--kind",
+        "vcv"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 1,
+        "/result/assertions/*/record": [
+          "VCV000633943"
+        ],
+        "/result/assertions/0/unmapped/review_status": "practice guideline"
+      }
+    }
+  ]
+}
