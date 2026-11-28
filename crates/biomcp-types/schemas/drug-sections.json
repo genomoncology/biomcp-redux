@@ -7880,7 +7880,7 @@
         },
         "input": {
           "$ref": "#/$defs/Reply_VariantGetLookupInput",
-          "description": "Variant or CIViC profile\nrsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E. With civic alone, a bare integer is a CIViC profile ID, and a profile name must match exactly.",
+          "description": "Variant ID or gene and protein. With civic alone, use a CIViC profile ID or exact name.",
           "x-positional": 0
         },
         "limit": {

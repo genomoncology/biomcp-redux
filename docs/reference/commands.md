@@ -3815,8 +3815,7 @@ Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          Variant or CIViC profile
-          rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E. With civic alone, a bare integer is a CIViC profile ID, and a profile name must match exactly.
+          Variant ID or gene and protein. With civic alone, use a CIViC profile ID or exact name.
 
   [section]...
           Sections; help get variant
@@ -3953,8 +3952,7 @@ Only with --source civic on get drug, and the civic section on get variant. Valu
 - `--evidence-status`: Status
 Defaults to accepted and submitted. Also filters drug assertions.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
-- `input`: Variant or CIViC profile
-rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E. With civic alone, a bare integer is a CIViC profile ID, and a profile name must match exactly.
+- `input`: Variant ID or gene and protein. With civic alone, use a CIViC profile ID or exact name.
 Form: get variant INPUT SECTION...; not --input.
 - `--limit`: Candidate rows per page. Value form: integer; example: --limit 1.
 - `--offset`: Candidate rows to skip in source order. Value form: integer; example: --offset 1.
