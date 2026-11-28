@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=DMD%5BGENE%5D&retmode=json&retmax=10&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1795861509,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 181,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"12246","retmax":"10","retstart":"0","idlist":["5043371","5043104","5043103","5041638","5041561","5041560","5041312","5040764","5040317","5040089"],"translationset":[],"translationstack":[{"term":"DMD[GENE]","field":"GENE","count":"12246","explode":"N"},"GROUP"],"querytranslation":"DMD[GENE]"}}
+      }
+    }
+  ]
+}

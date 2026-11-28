@@ -1,0 +1,22 @@
+feature: variant-search
+story: ClinVar gene pages preserve the native total and list a copy-number loss with a VCV get step
+replay: variant/search/clinvar-gene
+verified: Recorded ClinVar ESearch and ESummary replies on 2026-11-28.
+steps:
+  - run: [search, variant, --gene, DMD, --source, clinvar, --limit, "10"]
+    expect:
+      /status: complete
+      /sources/0/source: clinvar
+      /page/total: 12246
+      /page/returned: 10
+      /page/truncated: true
+      /result/items/7/label: "GRCh37/hg19 Xp21.1(chrX:31893305-31893490)x0"
+      /result/items/7/identity/ids/1: VCV005040764
+      /result/items/7/record/id: VCV005040764
+      /next/7/args: [get, variant, VCV005040764]
+  - follow: page
+    expect:
+      /status: complete
+      /page/offset: 10
+      /page/total: 12246
+      /result/items/0/record/id: VCV005040013

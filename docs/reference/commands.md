@@ -2226,23 +2226,26 @@ Options:
           [default: json]
           [possible values: json, md]
 
-      --coding <coding>
-          Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
+      --classification <classification>
+          ClinVar germline classification property, such as pathogenic or uncertain significance. Requires --source clinvar.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --coding <coding>
+          Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
+
       --condition <condition>
           Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
-
-      --gene <gene>
-          Checked gene symbol for a SnpEff substitution or ClinVar coding/synonymous selector.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --gene <gene>
+          Gene symbol for a change selector or a ClinVar gene listing.
 
       --has <has>
           Require the selected component's identifier field. Only; help search variant
@@ -2257,17 +2260,14 @@ Options:
       --protein <protein>
           Explicit substitution or synonymous change using checked amino-acid codes.
 
-      --query <query>
-          Gene and protein shorthand such as BRAF V600E. With --source myvariant this is raw MyVariant text, passed and echoed unchanged when component policy allows.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --region <region>
-          Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
+      --query <query>
+          Gene and protein shorthand such as BRAF V600E. With --source myvariant this is raw MyVariant text, passed and echoed unchanged when component policy allows.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -2275,32 +2275,36 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --region <region>
+          Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
+
       --review-status <review_status>
-          Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
+          Published review status phrase. ClinVar uses its source index; MyVariant requires a protein or region selector.
 
       --source <source>
-          Explicit source language; required for a raw query; help search variant
-          Explicit source language; required for a raw query.
+          Use clinvar with --gene to list VCVs. Use myvariant for; help search variant
+          Use clinvar with --gene to list VCVs. Use myvariant for raw queries.
 
 ```
 
-Search genetic variants by gene, change or region. Sources: myvariant.
+Search genetic variants by gene, change or region. Sources: clinvar, myvariant.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly. Value form: string; example: --build GRCh37.
+- `--classification`: ClinVar germline classification property, such as pathogenic or uncertain significance. Requires --source clinvar. Value form: string; example: --classification <classification> (syntax; replace the placeholder with your retained value).
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Value form: string; example: --coding 'c.333G>T'.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Value form: string; example: --condition 'Carcinoma of colon (CRC)'.
-- `--gene`: Checked gene symbol for a SnpEff substitution or ClinVar coding/synonymous selector. Value form: string; example: --gene EGFR.
+- `--gene`: Gene symbol for a change selector or a ClinVar gene listing. Value form: string; example: --gene EGFR.
 - `--has`: Require the selected component's identifier field. Only source-proven mappings are offered. Value form: string; example: --has clinvar.
 - `--limit`: Source candidates per page, default 10, maximum 100; all candidates remain candidates. Value form: integer; example: --limit 1.
 - `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer; example: --offset 1.
 - `--protein`: Explicit substitution or synonymous change using checked amino-acid codes. Value form: string; example: --protein L858R.
 - `--query`: Gene and protein shorthand such as BRAF V600E. With --source myvariant this is raw MyVariant text, passed and echoed unchanged when component policy allows. Value form: string; example: --query CA123643.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string; example: --region chr7:140453136-140453136.
-- `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Value form: string; example: --review-status 'no assertion criteria provided'.
-- `--source`: Explicit source language; required for a raw query. Value form: string; example: --source myvariant.
+- `--review-status`: Published review status phrase. ClinVar uses its source index; MyVariant requires a protein or region selector. Value form: string; example: --review-status 'no assertion criteria provided'.
+- `--source`: Use clinvar with --gene to list VCVs. Use myvariant for raw queries. Value form: string; example: --source myvariant.
 
 ## biomcp search grant
 

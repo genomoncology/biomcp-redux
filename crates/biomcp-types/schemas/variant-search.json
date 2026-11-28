@@ -54,7 +54,8 @@
     "VariantSearchSource": {
       "description": "The source-native query language exposed by variant search.",
       "enum": [
-        "myvariant"
+        "myvariant",
+        "clinvar"
       ],
       "type": "string"
     }
@@ -63,6 +64,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "anyOf": [
+    {
+      "required": [
+        "gene",
+        "source"
+      ]
+    },
     {
       "required": [
         "gene",
@@ -93,6 +100,10 @@
       "$ref": "#/$defs/Build",
       "description": "Optional caller assembly sent to MyVariant; regions; help search variant\nOptional caller assembly sent to MyVariant; regions require it explicitly."
     },
+    "classification": {
+      "$ref": "#/$defs/Text",
+      "description": "ClinVar germline classification property, such as pathogenic or uncertain significance. Requires --source clinvar."
+    },
     "coding": {
       "$ref": "#/$defs/CodingChange",
       "description": "Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript."
@@ -103,7 +114,7 @@
     },
     "gene": {
       "$ref": "#/$defs/GeneSymbol",
-      "description": "Checked gene symbol for a SnpEff substitution or ClinVar coding/synonymous selector."
+      "description": "Gene symbol for a change selector or a ClinVar gene listing."
     },
     "has": {
       "$ref": "#/$defs/VariantSearchField",
@@ -139,11 +150,11 @@
     },
     "review_status": {
       "$ref": "#/$defs/Text",
-      "description": "Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector."
+      "description": "Published review status phrase. ClinVar uses its native index; MyVariant requires a protein or region selector."
     },
     "source": {
       "$ref": "#/$defs/VariantSearchSource",
-      "description": "Explicit source language; required for a raw query; help search variant\nExplicit source language; required for a raw query."
+      "description": "Use clinvar with --gene to list VCVs. Use myvariant for; help search variant\nUse clinvar with --gene to list VCVs. Use myvariant for raw queries."
     }
   },
   "title": "VariantSearch",

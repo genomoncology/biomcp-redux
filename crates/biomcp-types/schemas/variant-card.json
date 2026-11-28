@@ -8033,6 +8033,17 @@
           "$ref": "#/$defs/Reply_Variant",
           "description": "Source-qualified variant entity."
         },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native ClinVar variation title, including range records without a small-variant HGVS."
+        },
         "myvariant": {
           "anyOf": [
             {
