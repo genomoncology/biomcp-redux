@@ -58,16 +58,6 @@ fn selected(
         }
         .into());
     }
-    if records.incomplete {
-        crate::status::item(out, true, false, true);
-        out.problems.push(Problem {
-            source: Source::FdaPma,
-            record: Some(q.record().clone()),
-            field: "meta.results.total".into(),
-            code: ProblemCode::CollectionIncomplete,
-        });
-        return Ok(());
-    }
     let selected = records.rows.iter().find(|row| {
         row.supplement_number
             .as_ref()
@@ -82,7 +72,7 @@ fn selected(
     };
     match q.section() {
         None => card(out, q, row, fresh)?,
-        Some(DiagnosticSection::Supplements) => supplements(out, q, &records.rows, fresh)?,
+        Some(DiagnosticSection::Supplements) => supplements(out, q, &records.rows, records.supplement_total, fresh)?,
         Some(DiagnosticSection::Regulatory) => regulatory(out, q, row, fresh)?,
         _ => {}
     }
@@ -153,20 +143,21 @@ fn association(out: &mut Outcome, q: &DiagnosticGet, fresh: bool) {
         );
     }
 }
-fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: usize, fresh: bool) {
+fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: u64, fresh: bool) {
     out.page = Some(PageInfo {
         offset: q.section_offset(),
         returned: returned as u32,
-        total: total as u64,
+        total,
         pool: None,
         truncated: None,
     });
-    if (q.section_offset() as usize) + returned < total {
+    let next_offset = u64::from(q.section_offset()) + returned as u64;
+    if next_offset < total && let Ok(offset) = u32::try_from(next_offset) {
         next::push(
             out,
             StepKind::Page,
             &[q.source().source()],
-            Request::GetDiagnostic(q.at_section_offset(q.section_offset() + returned as u32)),
+            Request::GetDiagnostic(q.at_section_offset(offset)),
             fresh,
         );
     }
@@ -175,6 +166,7 @@ fn supplements(
     out: &mut Outcome,
     q: &DiagnosticGet,
     rows: &[DeviceSubmission],
+    native_total: Option<u64>,
     fresh: bool,
 ) -> Result<(), biomcp_fetch::RequestError> {
     let rows: Vec<_> = rows
@@ -185,9 +177,10 @@ fn supplements(
                 .is_some_and(|s| !s.as_str().is_empty())
         })
         .collect();
+    let offset = native_total.map_or(q.section_offset(), |_| 0);
     let items = rows
         .iter()
-        .skip(q.section_offset() as usize)
+        .skip(offset as usize)
         .take(q.section_limit() as usize)
         .map(|row| fda_pma::header(row))
         .collect::<Result<Vec<_>, _>>()?;
@@ -211,7 +204,7 @@ fn supplements(
             );
         }
     }
-    page(out, q, items.len(), rows.len(), fresh);
+    page(out, q, items.len(), native_total.unwrap_or(rows.len() as u64), fresh);
     out.body = (DiagnosticSupplements {
         items: items.into(),
         count_unit: None,
@@ -250,7 +243,7 @@ fn regulatory(
             text: text.map(Into::into),
         });
     }
-    page(out, q, items.len(), total, fresh);
+    page(out, q, items.len(), total as u64, fresh);
     out.body = (DiagnosticRegulatory {
         items: items.into(),
         count_unit: None,
