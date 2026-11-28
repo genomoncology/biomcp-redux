@@ -6,5 +6,6 @@ The `ddinter/` files copy the synthetic DDInter partitions from `drug/ddinter-sy
 
 The openFDA label name lookups for "Orphan code" and "Ambiguous therapy" return the HTTP 404 no-match envelope.
 A label lookup that cannot read MyChem's names has every other source current (1087).
+The synthetic Coumadin lookup returns no match from MyChem and the case disables the other alias sources to exercise the unresolved DDInter partner notice.
 
 Synthetic: ddinter

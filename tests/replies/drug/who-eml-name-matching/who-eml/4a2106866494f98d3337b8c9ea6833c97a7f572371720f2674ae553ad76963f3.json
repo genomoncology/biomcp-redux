@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=aspirin",
+  "exchanges": [
+    {
+      "fetched": 1795840756,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 332,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "4a2106866494f98d3337b8c9ea6833c97a7f572371720f2674ae553ad76963f3-0.bin"
+      }
+    }
+  ]
+}

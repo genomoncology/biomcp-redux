@@ -288,6 +288,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Show a name lookup page dropping label sections the choice never reads, through the private record, with a made-up label.",
     ),
     (
+        "crates/biomcp-adapters/src/who_eml/matching_tests.rs",
+        "Check all WHO eEML names against the private matcher with one pinned source snapshot.",
+    ),
+    (
         "crates/biomcp-adapters/src/who_pq/raw_tests.rs",
         "Map blank, WHO-format and unreadable Date of Prequalification cells through the private row type without inventing a source export.",
     ),

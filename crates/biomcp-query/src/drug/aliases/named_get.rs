@@ -223,23 +223,86 @@ pub(in crate::drug) fn partner<T>(
         })
     });
     let (found, message) = match found {
-        Some((found, message)) => (Some(found), Some(message)),
-        None => (None, None),
+        Some((found, message)) => (Some(found), message),
+        None => (
+            None,
+            format!(
+                "Could not resolve {:?} to a DDInter partner.",
+                input.as_str()
+            ),
+        ),
     };
-    (found, Aliased { message, evidence })
+    (
+        found,
+        Aliased {
+            message: Some(message),
+            evidence,
+            selected: DrugSource::Ddinter,
+        },
+    )
 }
 
-/// The other-source lookups a partner retry made, and the name it used, if any.
+/// Retry a WHO listing under the preferred name for a uniquely resolved drug.
+pub(in crate::drug) fn listing_name<T>(
+    cx: &Ctx<'_>,
+    input: &Text,
+    mut attempt: impl FnMut(&Text) -> Option<T>,
+) -> (Option<T>, Aliased) {
+    let selected = DrugSource::WhoEml;
+    let (found, _, mut evidence) = with_aliases(cx, input, selected, |stated, name, _| {
+        if stated.preferred() != Some(name) {
+            return None;
+        }
+        // Once a source identifies the drug and supplies its preferred name, use that name
+        // for one eEML search. Alternate names can include a long list of research codes.
+        let found = attempt(name).map(|found| {
+            let message = format!(
+                "{} record {} supplies the name {:?} for {:?}; the eEML lists that name.",
+                stated.source,
+                stated.id,
+                name.as_str(),
+                input.as_str()
+            );
+            (found, message)
+        });
+        Some(found)
+    });
+    // These are the sources of the name lookups. Carried MyChem cross-references did not
+    // have separate requests and add no detail about the WHO lookup.
+    evidence.sources.retain(|row| {
+        matches!(
+            row.source,
+            biomcp_types::Source::Mychem
+                | biomcp_types::Source::Chembl
+                | biomcp_types::Source::OpenfdaLabel
+        )
+    });
+    let (found, message) = found
+        .flatten()
+        .map(|(found, message)| (Some(found), Some(message)))
+        .unwrap_or_default();
+    (
+        found,
+        Aliased {
+            message,
+            evidence,
+            selected,
+        },
+    )
+}
+
+/// The other-source lookups and the resolution notice, if one is needed.
 pub(in crate::drug) struct Aliased {
+    selected: DrugSource,
     message: Option<String>,
     evidence: Evidence,
 }
 impl Aliased {
-    /// Add the lookups' source outcomes and say which name stood in for the partner.
+    /// Add the lookups' source outcomes and any resolution notice.
     pub(in crate::drug) fn append(self, out: &mut Outcome) {
-        self.evidence.append(out, DrugSource::Ddinter);
+        self.evidence.append(out, self.selected);
         if let Some(message) = self.message {
-            notice(out, DrugSource::Ddinter, message);
+            notice(out, self.selected, message);
         }
     }
 }

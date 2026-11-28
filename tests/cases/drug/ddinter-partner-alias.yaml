@@ -69,6 +69,18 @@
         ]
       },
       "max_bytes": 8000
+    },
+    {
+      "run": [
+        "get", "drug", "DDInter9001", "interactions", "--source", "ddinter",
+        "--partner", "Coumadin", "--disable-sources", "openfda-label,chembl"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/interactions/data/total": 0,
+        "/sources/0/notices/0/message": "Could not resolve \"Coumadin\" to a DDInter partner."
+      },
+      "max_bytes": 8000
     }
   ]
 }

@@ -1,0 +1,28 @@
+feature: drug-who-eml
+story: Paracetamol and acetaminophen both find the same WHO eEML medicine. Aspirin reaches acetylsalicylic acid through a source-stated name.
+live_check: public
+replay: drug/who-eml-name-matching
+steps:
+  - run: [get, drug, paracetamol, essential-medicines, --source, who-eml, --section-limit, "1"]
+    expect:
+      /status: complete
+      /result/identity/id: "15"
+      /result/identity/name: paracetamol (acetaminophen)
+      /result/listings/data/records/0/id: "16"
+    max_bytes: 6000
+  - run: [get, drug, aspirin, essential-medicines, --source, who-eml, --section-limit, "1"]
+    expect:
+      /status: complete
+      /query/input: aspirin
+      /result/identity/id: "13"
+      /result/identity/name: acetylsalicylic acid
+      /page/total: 7
+      /sources/0/notices/0/message: 'mychem record BSYNRYMUTXBXSQ-UHFFFAOYSA-N supplies the name "Acetylsalicylic acid" for "aspirin"; the eEML lists that name.'
+    max_bytes: 6000
+  - run: [get, drug, acetaminophen, essential-medicines, --source, who-eml, --section-limit, "1"]
+    expect:
+      /status: complete
+      /result/identity/id: "15"
+      /result/identity/name: paracetamol (acetaminophen)
+      /result/listings/data/records/0/id: "16"
+    max_bytes: 6000

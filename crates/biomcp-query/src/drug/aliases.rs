@@ -6,6 +6,6 @@ mod label_fallback;
 #[path = "name_evidence.rs"]
 pub(super) mod name_evidence;
 mod named_get;
-pub(super) use named_get::{Aliased, get, get_parts, partner};
+pub(super) use named_get::{Aliased, get, get_parts, listing_name, partner};
 mod search;
 pub(crate) use search::search;

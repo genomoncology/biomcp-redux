@@ -1,4 +1,5 @@
 //! Find the eEML medicine by name, then read its JSON-LD medicine and recommendation pages.
+use super::matching::matching_medicine;
 use super::raw::{Medicine, Recommendation};
 use crate::{Mapped, Refusal, mapped::Problems, quotas};
 use biomcp_fetch::{
@@ -42,8 +43,7 @@ const HINT: &str = "WHO electronic Essential Medicines List (eEML), World Health
                     IGO. WHO says the PDF Model Lists (EML and EMLc) are the binding versions and \
                     the eEML may differ from them. Listings only: rejected applications are left out.";
 
-/// One page of the eEML listings for a medicine named exactly as the eEML names it (letter case
-/// ignored), or for its eEML number; `None` when the eEML has no such medicine.
+/// One page of eEML listings by name or eEML number.
 pub fn essential_medicines(
     leg: &Leg<'_>,
     input: &str,
@@ -147,17 +147,10 @@ fn listings(
     Ok(listings)
 }
 
-/// The eEML number of the medicine the site's search lists under exactly this name.
+/// The eEML number for a complete name or a unique alternate spelling among the search hits.
 fn search(leg: &Leg<'_>, name: &str) -> Result<Option<String>, RequestError> {
-    Ok(medicines(leg, name)?
-        .into_iter()
-        .find(|header| {
-            header
-                .name
-                .as_ref()
-                .is_some_and(|title| title.as_str().eq_ignore_ascii_case(name.trim()))
-        })
-        .map(|header| header.id.to_string()))
+    let hits = medicines(leg, name)?;
+    Ok(matching_medicine(&hits, name).map(|header| header.id.to_string()))
 }
 
 /// Every medicine the site's own search lists for this text, in its order: each name and eEML
@@ -260,3 +253,7 @@ fn unescape(value: &str) -> String {
         .replace("&gt;", ">")
         .replace("&amp;", "&")
 }
+
+#[cfg(test)]
+#[path = "matching_tests.rs"]
+mod matching_tests;
