@@ -14,6 +14,18 @@
         " FDA receipt-date report counts summed to calendar months."
       ]
     },
+    "Reply_AdverseEventDrugRole": {
+      "description": "Role of the named drug on a FAERS report.",
+      "enum": [
+        "any",
+        "suspect"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Count reports listing the drug in any role.",
+        " Count reports listing the drug as suspect."
+      ]
+    },
     "Reply_AdverseEventSearch": {
       "description": "Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
       "properties": {
@@ -29,11 +41,22 @@
           "description": "Report counts.\nreactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero."
         },
         "drug": {
-          "description": "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).",
+          "description": "FAERS drug names; OR.\nFAERS: repeat --drug to OR names. Each value takes one name. Other filters AND with the name group. FAERS_QUERY_MAX_BYTES caps the escaped query at 4096 bytes.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
+        },
+        "drug_role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_AdverseEventDrugRole"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FAERS drug role.\nDefault any counts reports listing the drug in any role, including concomitant. Suspect checks the same drug entry for a whole name match, ignoring case. Use receipt dates to narrow broad searches. Suspect applies to report searches only."
         },
         "event_type": {
           "anyOf": [
@@ -48,7 +71,7 @@
           "x-required-component": "gmdn"
         },
         "exact_term": {
-          "description": "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed.",
+          "description": "Search typed drug names only.\nFAERS searches other names by default. This keeps the typed names, as MAUDE and VAERS always do.",
           "type": "boolean"
         },
         "expand_drug_names": {
@@ -84,7 +107,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS name snapshot.\nRetained FAERS name resolution; follow the returned command without changing filters."
+          "description": "FAERS name snapshot.\nKeep the returned FAERS name resolution and filters."
         },
         "offset": {
           "default": 0,
@@ -193,13 +216,13 @@
               "type": "null"
             }
           ],
-          "description": "VAERS order.\nreports: BioMCP orders the whole CDC WONDER table, not just the page, by its Events Reported count, largest first; equal counts keep the source's order. Counts, percents and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms.",
+          "description": "VAERS order.\nreports sorts the whole table by decreasing event count, preserving source order for ties. Default: source order (alphabetical for symptoms).",
           "x-required-component": "vaers"
         },
         "source": {
           "$ref": "#/$defs/Reply_AdverseEventSource",
           "default": "faers",
-          "description": "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names.",
+          "description": "Source; default FAERS.\nVAERS requires an exact supported vaccine name.",
           "x-required-components": {
             "maude": "gmdn"
           }

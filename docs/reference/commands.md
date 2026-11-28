@@ -1209,25 +1209,30 @@ Options:
 
       --drug <drug>...
           FAERS drug names; OR.
-          FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
+          FAERS: repeat --drug to OR names. Each value takes one name. Other filters AND with the name group. FAERS_QUERY_MAX_BYTES caps the escaped query at 4096 bytes.
+
+      --drug-role <drug_role>
+          FAERS drug role; help search adverse-event
+          FAERS drug role.
+          Default any counts reports listing the drug in any role, including concomitant. Suspect checks the same drug entry for a whole name match, ignoring case. Use receipt dates to narrow broad searches. Suspect applies to report searches only.
 
       --event-type <event_type>
           MAUDE event type; help search adverse-event
           MAUDE event type.
           MAUDE report event type on source event_type: malfunction, injury, death or other. Reports with an empty or "No answer provided" event type match no value and fall outside every event-type count.
 
-      --exact-term[=<exact_term>]
-          Search typed drug names only.
-          FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed.
-
-          [default: false]
-          [possible values: true, false]
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --exact-term[=<exact_term>]
+          Search typed drug names only.
+          FAERS searches other names by default. This keeps the typed names, as MAUDE and VAERS always do.
+
+          [default: false]
+          [possible values: true, false]
 
       --expand-drug-names[=<expand_drug_names>]
           FAERS no-op.
@@ -1245,10 +1250,7 @@ Options:
 
       --name-snapshot <name_snapshot>
           FAERS name snapshot.
-          Retained FAERS name resolution; follow the returned command without changing filters.
-
-      --offset <offset>
-          Report row offset; counts need zero. VAERS needs its snapshot.
+          Keep the returned FAERS name resolution and filters.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1256,15 +1258,18 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --problem <problem>
-          MAUDE product problem.
-          MAUDE phrase on source product_problems.
+      --offset <offset>
+          Report row offset; counts need zero. VAERS needs its snapshot.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --problem <problem>
+          MAUDE product problem.
+          MAUDE phrase on source product_problems.
 
       --product-code <product_code>...
           MAUDE product codes; OR.
@@ -1294,12 +1299,12 @@ Options:
       --sort <sort>
           VAERS order; help search adverse-event
           VAERS order.
-          reports: BioMCP orders the whole CDC WONDER table, not just the page, by its Events Reported count, largest first; equal counts keep the source's order. Counts, percents and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms.
+          reports sorts the whole table by decreasing event count, preserving source order for ties. Default: source order (alphabetical for symptoms).
 
       --source <source>
           Source; default FAERS; help search adverse-event
           Source; default FAERS.
-          FAERS by default; VAERS accepts only exact supported vaccine names.
+          VAERS requires an exact supported vaccine name.
 
 ```
 
@@ -1311,18 +1316,20 @@ Paging: --limit and --offset; --section-limit and --section-offset are the same 
 - `--aggregate`: Report counts.
 reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero. Value form: string; example: --aggregate reactions.
 - `--drug`: FAERS drug names; OR.
-FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag); example: --drug "synthetic\\B".
+FAERS: repeat --drug to OR names. Each value takes one name. Other filters AND with the name group. FAERS_QUERY_MAX_BYTES caps the escaped query at 4096 bytes. Value form: repeatable values (repeat the flag); example: --drug "synthetic\\B".
+- `--drug-role`: FAERS drug role.
+Default any counts reports listing the drug in any role, including concomitant. Suspect checks the same drug entry for a whole name match, ignoring case. Use receipt dates to narrow broad searches. Suspect applies to report searches only. Value form: string; example: --drug-role any.
 - `--event-type`: MAUDE event type.
 MAUDE report event type on source event_type: malfunction, injury, death or other. Reports with an empty or "No answer provided" event type match no value and fall outside every event-type count. Value form: string; example: --event-type malfunction.
 - `--exact-term`: Search typed drug names only.
-FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean; example: --exact-term.
+FAERS searches other names by default. This keeps the typed names, as MAUDE and VAERS always do. Value form: boolean; example: --exact-term.
 - `--expand-drug-names`: FAERS no-op.
 FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean; example: --expand-drug-names.
 - `--limit`: Report headers, reaction terms or VAERS rows; default five. Value form: integer; example: --limit 1.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string; example: --manufacturer 'Synthetic maker'.
 - `--name-snapshot`: FAERS name snapshot.
-Retained FAERS name resolution; follow the returned command without changing filters. Value form: string; example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value).
+Keep the returned FAERS name resolution and filters. Value form: string; example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value).
 - `--offset`: Report row offset; counts need zero. VAERS needs its snapshot. Value form: integer; example: --offset 0.
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems. Value form: string; example: --problem 'Synthetic problem'.
@@ -1341,9 +1348,9 @@ FAERS report flag: any uses the source seriousness flag; the specific flags can 
 - `--snapshot`: VAERS snapshot.
 Retained VAERS table for source-free continuation. Value form: string; example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value).
 - `--sort`: VAERS order.
-reports: BioMCP orders the whole CDC WONDER table, not just the page, by its Events Reported count, largest first; equal counts keep the source's order. Counts, percents and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms. Value form: string; example: --sort reports; only with --source vaers.
+reports sorts the whole table by decreasing event count, preserving source order for ties. Default: source order (alphabetical for symptoms). Value form: string; example: --sort reports; only with --source vaers.
 - `--source`: Source; default FAERS.
-FAERS by default; VAERS accepts only exact supported vaccine names. Value form: string; example: --source maude.
+VAERS requires an exact supported vaccine name. Value form: string; example: --source maude.
 - `text`: Drug, device or vaccine.
 FAERS drug name, searched with the drug's other names unless --exact-term; MAUDE device phrase or exact supported VAERS vaccine, both searched as typed.
 Form: search adverse-event TEXT SECTION; not --text.
