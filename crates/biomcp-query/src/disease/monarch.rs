@@ -71,13 +71,16 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         command.finish(deadline.remaining());
         return out;
     }
-    if let Ok(page) = reply {
-        apply_page(&mut out, query, page);
-        match held {
-            // Monarch holds the disease: no associations is a complete answer.
-            None | Some(Ok(_)) => crate::status::item(&mut out, true, false, false),
-            Some(Err(e)) => crate::status::item(&mut out, false, !unknown(&e), false),
+    match reply {
+        Ok(page) => {
+            apply_page(&mut out, query, page);
+            match held {
+                // Monarch holds the disease: no associations is a complete answer.
+                None | Some(Ok(_)) => status::item(&mut out, true, false, false),
+                Some(Err(e)) => status::item(&mut out, false, !unknown(&e), false),
+            }
         }
+        Err(_) => status::item(&mut out, false, true, false),
     }
     super::page::record_problem(&mut out, query, Source::Monarch);
     command.finish(deadline.remaining());
@@ -109,7 +112,7 @@ fn apply_page(out: &mut Outcome, query: &DiseaseGet, page: monarch::Page) {
         page.components,
         page.metadata
             .fetched
-            .and_then(|value| u64::try_from(value).ok()),
+            .and_then(|value| (value >= 0).then_some(value.cast_unsigned())),
     );
 }
 

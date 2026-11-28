@@ -24,24 +24,30 @@ pub(super) fn card(
         sync_step(out, Bundle::ORPHADATA_XREFS);
     }
     out.local = error.and_then(status::local);
-    let mut found = false;
-    if let Ok(mapped) = reply {
-        out.include_refusals(mapped.refusals);
-        out.problems.extend(mapped.problems);
-        if let Some(card) = mapped.value {
-            found = true;
-            source.notices.push(acknowledgment());
-            out.next.extend(prevalence_step(id, &mut out.problems));
-            out.body = card.with_query(query.clone());
+    let card = match reply {
+        Ok(mapped) => {
+            out.include_refusals(mapped.refusals);
+            out.problems.extend(mapped.problems);
+            mapped.value
         }
+        Err(_) => {
+            out.sources.push(source);
+            status::item(out, false, true, false);
+            return;
+        }
+    };
+    let found = card.is_some();
+    if let Some(card) = card {
+        source.notices.push(acknowledgment());
+        out.next.extend(prevalence_step(id, &mut out.problems));
+        out.body = card.with_query(query.clone());
     }
     out.sources.push(source);
-    let failed = error.is_some()
-        || (!found
-            && out
-                .sources
-                .iter()
-                .any(|source| source.state == SourceState::Failed));
+    let failed = !found
+        && out
+            .sources
+            .iter()
+            .any(|source| source.state == SourceState::Failed);
     status::item(out, found, failed, false);
 }
 

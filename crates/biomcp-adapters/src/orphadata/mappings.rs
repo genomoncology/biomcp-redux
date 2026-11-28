@@ -81,7 +81,6 @@ struct Reference {
 struct Native {
     code: Option<String>,
     name: Option<String>,
-    #[serde(default)]
     disorder_type: Option<String>,
     date: String,
     version: Option<String>,
