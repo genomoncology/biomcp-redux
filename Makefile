@@ -157,6 +157,10 @@ first-read-check:
 	$(PYTHON) scripts/check_docs.py --executable "$(BIOMCP_DEBUG)"
 	$(PYTHON) scripts/check_front_map.py "$(BIOMCP_DEBUG)"
 
+.PHONY: catalog-size
+catalog-size: plain-cli-build
+	@$(PYTHON) scripts/check_front_map.py "$(BIOMCP_DEBUG)" --catalog-size
+
 .PHONY: docs-check
 docs-check:
 	cargo test --locked -p biomcp --test cases readme/ $(TEST_THREADS)

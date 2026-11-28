@@ -10,6 +10,7 @@ from pathlib import Path
 
 import check_docs
 from check_docs import ENTITY_TOOLS, SHARED_TOOLS, mapping
+from check_front_map import check_configuration_catalog, compact_bytes
 from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, table, upgrade
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -110,6 +111,26 @@ def commercial_check(root, readme, original_readme):
         result = check(root)
         assert result.returncode != 0 and "local source exclusions" in result.stderr, result
     config.write_text(original)
+
+
+def typed_catalog_ceiling(root):
+    docs = root / "docs"
+    docs.mkdir(parents=True)
+    (docs / "configuration.md").write_text("## MCP tools\n\n| `trial` | Trial | `search` |\n")
+    tool = {"name": "trial", "description": "", "inputSchema": {"properties": {"action": {}, "search": {}}}}
+    tools = [tool]
+    available = 196_608 - compact_bytes(tools)
+    tool["description"] = "x" * (available - 1)
+    check_configuration_catalog(root, tools, compact_bytes(tools))
+    tool["description"] += "x"
+    check_configuration_catalog(root, tools, compact_bytes(tools))
+    tool["description"] += "x"
+    try:
+        check_configuration_catalog(root, tools, compact_bytes(tools))
+    except SystemExit as error:
+        assert "196,609 bytes, over the 196,608-byte ceiling" in str(error), error
+    else:
+        raise AssertionError("an oversized typed catalog passed the docs check")
 
 
 def main():
@@ -310,6 +331,7 @@ def main():
         schema.unlink()
         commercial_check(root, readme, original_readme)
         tools_check(root, readme, original_readme)
+        typed_catalog_ceiling(root / "catalog-check")
         manifest = root / "manifest.json"
         original_manifest = manifest.read_text()
         assert '"name": "fetch"' in original_manifest
