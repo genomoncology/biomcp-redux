@@ -2474,7 +2474,7 @@
         },
         "gene": {
           "$ref": "#/$defs/GeneInput",
-          "description": "Human gene input for exact resolution and UniProt mapping; Reactome only."
+          "description": "A human gene symbol, gene identifier or UniProt accession. Reactome only."
         },
         "limit": {
           "default": 5,

@@ -21,7 +21,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
-    /// Human gene input for exact resolution and UniProt mapping; Reactome only.
+    /// A human gene symbol, gene identifier or UniProt accession. Reactome only.
     #[serde(
         default,
         deserialize_with = "super::super::gene::present",
