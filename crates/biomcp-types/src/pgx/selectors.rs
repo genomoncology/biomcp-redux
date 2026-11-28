@@ -34,12 +34,12 @@ biodata::wire_enum! { described
 biodata::wire_enum! {
     /// ClinPGx clinical annotation evidence level.
     PgxEvidenceLevel {
-        Level1A => "1A",
-        Level1B => "1B",
-        Level2A => "2A",
-        Level2B => "2B",
-        Level3 => "3",
-        Level4 => "4",
+        #[doc = "ClinPGx level 1A."] Level1A => "1A",
+        #[doc = "ClinPGx level 1B."] Level1B => "1B",
+        #[doc = "ClinPGx level 2A."] Level2A => "2A",
+        #[doc = "ClinPGx level 2B."] Level2B => "2B",
+        #[doc = "ClinPGx level 3."] Level3 => "3",
+        #[doc = "ClinPGx level 4."] Level4 => "4",
     }
 }
 biodata::wire_enum! { described
