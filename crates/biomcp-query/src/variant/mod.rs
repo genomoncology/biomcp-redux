@@ -398,6 +398,7 @@ mod population;
 pub(crate) mod population_detail;
 mod population_identity;
 mod population_release;
+mod population_scope;
 
 fn myvariant_identity(
     query: &VariantGet,
@@ -445,6 +446,7 @@ fn reply(
         query.clone(),
         body.source,
         sources.iter().find(|v| v.source == body.source),
+        population_scope::dataset(sources),
     );
     body.with_query(echo)
 }

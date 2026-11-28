@@ -320,6 +320,7 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source.",
+        " The selected dataset does not cover this class of record.",
         " The source document was read but does not state the value."
       ],
       "x-extensible-enum": [
@@ -342,6 +343,7 @@
         "replay-miss",
         "syncing",
         "no-join-id",
+        "out-of-scope",
         "not-stated"
       ]
     },

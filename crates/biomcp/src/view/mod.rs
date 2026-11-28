@@ -280,6 +280,13 @@ fn state_note(value: &Value, out: &mut String) {
         Some("empty") => no_data(source, value.get("record"), out),
         Some("unavailable" | "failed") => {
             if let Some(reason) = value.get("reason") {
+                if reason.as_str() == Some("out-of-scope") {
+                    out.push_str(&format!(
+                        "This variant class is out of scope for the {} lookup.\n\n",
+                        scalar(source)
+                    ));
+                    return;
+                }
                 out.push_str(&format!(
                     "{} failed (reason: {}); resolve this reason and retry the request.\n\n",
                     scalar(source),

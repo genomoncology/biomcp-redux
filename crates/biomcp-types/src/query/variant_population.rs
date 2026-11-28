@@ -62,23 +62,32 @@ impl TryFrom<Fields> for VariantPopulationQuery {
 /// Reply selectors with the resolver that actually answered, omitted when no named resolver answered.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "VariantPopulationQuery"))]
-pub struct VariantPopulationQueryEcho(Fields<Option<VariantResolver>>);
+pub struct VariantPopulationQueryEcho {
+    #[serde(flatten)]
+    query: Fields<Option<VariantResolver>>,
+    /// Population lookup scope as dataset selector/release.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    dataset: Option<String>,
+}
 
 impl VariantPopulationQuery {
     /// Echo actual identity provenance without changing the request or its continuations.
     pub fn answered_query(
         &self,
         outcome: Option<&crate::SourceOutcome>,
+        dataset: Option<String>,
     ) -> VariantPopulationQueryEcho {
-        VariantPopulationQueryEcho(Fields {
-            input: self.0.input.clone(),
-            resolver: VariantResolver::answered(outcome),
-            build: self.0.build,
-            detail: self.0.detail,
-            limit: self.0.limit,
-            offset: self.0.offset,
-        })
+        VariantPopulationQueryEcho {
+            query: Fields {
+                input: self.0.input.clone(),
+                resolver: VariantResolver::answered(outcome),
+                build: self.0.build,
+                detail: self.0.detail,
+                limit: self.0.limit,
+                offset: self.0.offset,
+            },
+            dataset,
+        }
     }
 
     /// Read checked identity selectors without changing their meaning.

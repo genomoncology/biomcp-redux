@@ -9,13 +9,18 @@ pub(super) fn command_for(
     name: &'static str,
     schema: &Value,
 ) -> Result<Command, super::ParseInvalid> {
-    let mut command = Command::new(name)
-        .about(crate::help::plain(
+    let description = if (verb, name) == ("variant", "population") {
+        biomcp_query::sources::gnomad_variant_scope_help()
+    } else {
+        crate::help::plain(
             schema
                 .get("description")
                 .and_then(Value::as_str)
                 .unwrap_or_default(),
-        ))
+        )
+    };
+    let mut command = Command::new(name)
+        .about(description)
         .disable_help_flag(true)
         .disable_help_subcommand(true);
     for (name, property) in properties(schema)? {

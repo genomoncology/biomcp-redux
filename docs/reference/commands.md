@@ -3973,7 +3973,7 @@ Named source sections; omitted by default. Each calls its own source. all keeps 
 
 - `clinvar`: ClinVar source assertions.
 - `erepo`: ClinGen source assertions.
-- `population`: gnomAD population observations.
+- `population`: Queries gnomad_r4 release 4.1.0 (GRCh38) for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope.
 - `gwas`: GWAS Catalog associations.
 - `civic`: CIViC molecular-profile evidence.
 - `alphagenome`: Keyed AlphaGenome source numeric scorer values.
@@ -5511,7 +5511,7 @@ Usage: biomcp variant [OPTIONS] <COMMAND>
 
 Commands:
   assertions  Page assertions from one explicitly selected evidence source.
-  population  Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
+  population  Queries gnomad_r4 release 4.1.0 (GRCh38) for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope.
   recurrence  Observe exact-allele samples within one caller-selected source page.
   normalize   Send unchanged reference-qualified notation to explicitly named services.
 
@@ -5631,7 +5631,7 @@ Form: variant assertions INPUT; not --input.
 ## biomcp variant population
 
 ```text
-Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
+Queries gnomad_r4 release 4.1.0 (GRCh38) for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope.
 
 Usage: biomcp variant population [OPTIONS] <input>
 
@@ -5689,7 +5689,7 @@ Options:
 
 ```
 
-Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
+gnomad_r4 release 4.1.0 (GRCh38). Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.

@@ -4049,6 +4049,7 @@
         " No recording matched the request.",
         " The source data was being synchronized.",
         " Identity lacks the identifier required to join this source.",
+        " The selected dataset does not cover this class of record.",
         " The source document was read but does not state the value."
       ],
       "x-extensible-enum": [
@@ -4071,6 +4072,7 @@
         "replay-miss",
         "syncing",
         "no-join-id",
+        "out-of-scope",
         "not-stated"
       ]
     },
@@ -8082,6 +8084,13 @@
           ],
           "description": "Explicit source assembly when required by identity input."
         },
+        "dataset": {
+          "description": "Population lookup scope as dataset selector/release.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "detail": {
           "description": "Read source ancestry groups, preserving overlapping groups individually.",
           "type": "boolean"
@@ -8108,17 +8117,13 @@
         },
         "resolver": {
           "$ref": "#/$defs/Reply_VariantResolver",
-          "default": "car",
           "description": "Resolver for reference-qualified input."
         }
       },
       "required": [
         "input"
       ],
-      "type": "object",
-      "x-reply-query-titles": [
-        "VariantPopulationQueryEcho"
-      ]
+      "type": "object"
     },
     "Reply_VariantPopulationResult": {
       "description": "Population summary and one explicitly requested ancestry-detail page.",

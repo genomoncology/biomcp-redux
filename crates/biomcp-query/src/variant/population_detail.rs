@@ -43,6 +43,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         Section::Data { .. } => status::item_status(true, false, read.dropped),
         _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
         Section::Empty { .. } => status::item_status(read.dropped, false, read.dropped),
+        Section::Unavailable {
+            reason: Reason::OutOfScope,
+            ..
+        } => status::item_status(true, false, true),
         _ if read.population_refused => status::item_status(true, false, true),
         _ => status::item_status(false, true, false),
     };
@@ -61,6 +65,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
                         .iter()
                         .find(|s| Some(s.source) == read.resolver)
                         .or_else(|| read.sources.first()),
+                    super::population_scope::dataset(&read.sources),
                 ),
             ),
             page,
@@ -101,16 +106,15 @@ fn read(
         local: None,
     };
     if cx.fetch.disabled(Source::Gnomad) {
-        read.population = Section::unavailable(Source::Gnomad, Reason::Disabled);
-        return read;
+        return read.unavailable(Reason::Disabled);
     }
     let identity = match query.identity() {
         Ok(identity) => identity,
-        Err(_) => {
-            read.population = Section::unavailable(Source::Gnomad, Reason::Rejected);
-            return read;
-        }
+        Err(_) => return read.unavailable(Reason::Rejected),
     };
+    if super::population_scope::input_outside(identity.input()) {
+        return read.outside_scope();
+    }
     if !super::population_identity::use_native_coordinate(cx.fetch, &identity) {
         let found = super::population_identity::resolve(cx, &identity, deadline);
         deadline = deadline.after_stage(found.elapsed);
@@ -121,9 +125,11 @@ fn read(
         read.local = found.local;
         read.candidates = found.rows;
         if let Some(reason) = found.reason {
-            read.population = Section::unavailable(Source::Gnomad, reason);
-            return read;
+            return read.unavailable(reason);
         }
+    }
+    if super::population_scope::candidate_outside(&read.candidates) {
+        return read.outside_scope();
     }
     let joined = super::population_identity::read(cx, &identity, &read.candidates, deadline);
     deadline = deadline.after_stage(joined.elapsed);
@@ -131,8 +137,7 @@ fn read(
     read.problems.extend(joined.problems);
     read.local = read.local.or(joined.local);
     if let Some(reason) = joined.reason {
-        read.population = Section::unavailable(Source::Gnomad, reason);
-        return read;
+        return read.unavailable(reason);
     }
     let Some(id) = joined.id else {
         if read.candidates.len() < 2 {
@@ -164,6 +169,19 @@ fn read(
     read.local = read.local.or(error);
     read.candidates.clear();
     read
+}
+
+impl PopulationRead {
+    fn unavailable(mut self, reason: Reason) -> Self {
+        self.population = Section::unavailable(Source::Gnomad, reason);
+        self
+    }
+
+    fn outside_scope(mut self) -> Self {
+        self.sources.push(super::population_scope::skipped());
+        self.candidates.clear();
+        self.unavailable(Reason::OutOfScope)
+    }
 }
 fn choices(
     query: &VariantPopulationQuery,

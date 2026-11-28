@@ -1,0 +1,66 @@
+{
+  "feature": "variant-population",
+  "live_check": "public",
+  "story": "Population lookups expose the short-variant dataset and distinguish other variant classes from a missing record.",
+  "replay": "variant-population/dataset-scope",
+  "steps": [
+    {
+      "run": ["get", "variant", "NC_012920.1:m.3243A>G", "population"],
+      "mcp": ["get", "variant", "NC_012920.1:m.3243A>G", "population"],
+      "expect": {
+        "/status": "partial",
+        "/query/dataset": "gnomad_r4/4.1.0",
+        "/result/candidates/0/sections/population": {
+          "equals": {
+            "state": "unavailable",
+            "source": "gnomad",
+            "reason": "out-of-scope"
+          }
+        },
+        "/sources/1/state": "skipped"
+      }
+    },
+    {
+      "run": ["variant", "population", "CA120560"],
+      "expect": {
+        "/result/population/reason": "out-of-scope",
+        "/sources/0/source": "car",
+        "/sources/1/state": "skipped"
+      }
+    },
+    {
+      "run": ["variant", "population", "M-3243-A-G"],
+      "expect": {
+        "/query/dataset": "gnomad_r4/4.1.0",
+        "/result/population/state": "unavailable",
+        "/result/population/reason": "out-of-scope"
+      }
+    },
+    {
+      "run": ["variant", "population", "NC_000001.11:g.100001_101000inv"],
+      "expect": {"/result/population/reason": "out-of-scope"}
+    },
+    {
+      "run": ["variant", "population", "NC_000001.11:g.100001_101000dup"],
+      "expect": {"/result/population/reason": "out-of-scope"}
+    },
+    {
+      "run": ["variant", "population", "NC_000004.12:g.3074876CAG[40]"],
+      "expect": {"/result/population/reason": "out-of-scope"}
+    },
+    {
+      "run": ["variant", "population", "M-3243-A-G", "--format", "md"],
+      "expect": {"": {"includes": "This variant class is out of scope for the gnomad lookup."}}
+    },
+    {
+      "run": ["help", "get", "variant", "population"],
+      "expect": {
+        "/result/commands/0/sections/0/description": "Queries gnomad_r4 release 4.1.0 (GRCh38) for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope."
+      }
+    },
+    {
+      "run": ["help", "variant", "population", "--format", "md"],
+      "expect": {"": {"includes": "gnomad\\_r4 release 4.1.0 (GRCh38)"}}
+    }
+  ]
+}

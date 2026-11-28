@@ -209,6 +209,8 @@ canonical_enum! {
         Syncing => "syncing",
         /// Identity lacks the identifier required to join this source.
         NoJoinId => "no-join-id",
+        /// The selected dataset does not cover this class of record.
+        OutOfScope => "out-of-scope",
         /// The source document was read but does not state the value.
         NotStated => "not-stated",
     }

@@ -1,6 +1,7 @@
 # 1221 — gnomad-dataset-scope-stated
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 05a6866e2d4988766a7288e497fae8a233c3707b
 
 Milestone: 10
 
