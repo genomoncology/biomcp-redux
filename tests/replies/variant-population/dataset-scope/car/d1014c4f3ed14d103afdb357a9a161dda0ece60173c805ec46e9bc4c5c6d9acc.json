@@ -1,0 +1,78 @@
+{
+  "method": "GET",
+  "source": "car",
+  "url": "https://reg.genome.network/allele?hgvs=NC_012920.1%3Am.3243A%3EG&fields=none%2B%40id%2BcommunityStandardTitle%2BgenomicAlleles%2BtranscriptAlleles.MANE%2BexternalRecords.dbSNP%2BexternalRecords.ClinVarVariations",
+  "exchanges": [
+    {
+      "fetched": 1795825834,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "@id": "http://reg.genome.network/allele/CA120560",
+          "communityStandardTitle": [
+            "NC_012920.1:m.3243A>G"
+          ],
+          "externalRecords": {
+            "ClinVarVariations": [
+              {
+                "@id": "http://www.ncbi.nlm.nih.gov/clinvar/variation/9589",
+                "RCV": [
+                  "RCV000010206",
+                  "RCV000010209",
+                  "RCV000010211",
+                  "RCV000010208",
+                  "RCV000010210",
+                  "RCV000022902",
+                  "RCV000032997",
+                  "RCV000022901",
+                  "RCV000143997",
+                  "RCV000224855",
+                  "RCV000626561",
+                  "RCV000495738",
+                  "RCV000763623",
+                  "RCV001794441",
+                  "RCV002285005",
+                  "RCV002287327",
+                  "RCV002250458",
+                  "RCV003325938",
+                  "RCV003984803",
+                  "RCV004554593"
+                ],
+                "variationId": 9589
+              }
+            ],
+            "dbSNP": [
+              {
+                "@id": "http://www.ncbi.nlm.nih.gov/snp/199474657",
+                "rs": 199474657
+              }
+            ]
+          },
+          "genomicAlleles": [
+            {
+              "chromosome": "MT",
+              "coordinates": [
+                {
+                  "allele": "G",
+                  "end": 3243,
+                  "referenceAllele": "A",
+                  "start": 3242
+                }
+              ],
+              "hgvs": [
+                "NC_012920.1:m.3243A>G",
+                "J01415.2:m.3243A>G"
+              ],
+              "referenceGenome": "GRCh38",
+              "referenceSequence": "http://reg.genome.network/refseq/RS000433"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

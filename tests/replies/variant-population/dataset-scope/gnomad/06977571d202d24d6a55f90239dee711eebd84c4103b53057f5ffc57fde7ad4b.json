@@ -1,0 +1,31 @@
+{
+  "method": "POST",
+  "source": "gnomad",
+  "url": "https://gnomad.broadinstitute.org/api",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "765f39aa418d2d3be7882585e25170911e21802b36240341235b89202c052f9a"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795825834,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "errors": [
+            {
+              "message": "Variant not found"
+            }
+          ],
+          "data": {
+            "variant": null
+          }
+        }
+      }
+    }
+  ]
+}
