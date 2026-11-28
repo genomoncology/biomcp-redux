@@ -76,10 +76,10 @@ fn fetch(
         match row {
             Ok((detail, metadata)) => {
                 let canonical = detail.card.nct_id;
-                if *id != canonical {
-                    out.sources[0]
-                        .notices
-                        .push(ctgov::alias_notice(*id, canonical));
+                if *id != canonical
+                    && let Some(source) = out.sources.last_mut()
+                {
+                    source.notices.push(ctgov::alias_notice(*id, canonical));
                 }
                 let mut own_source = source.clone();
                 if own_source.state == SourceState::Failed && source_updated.is_some() {
@@ -97,20 +97,7 @@ fn fetch(
                     out.body = ReplyData::Usage(biomcp_types::UsageError::offset_past_text(length));
                     return Ok(());
                 }
-                let pool = if query.sections().is_empty() {
-                    None
-                } else {
-                    crate::publish::keep(
-                        source_snapshot::write(
-                            cx,
-                            &source_snapshot::key(SNAPSHOT_NAMESPACE, &canonical)?,
-                            &snapshot,
-                            &snapshot.sources,
-                            deadline,
-                        ),
-                        out,
-                    )?
-                };
+                let pool = keep_section_snapshot(cx, query, &snapshot, out, deadline)?;
                 items.push(page::render(
                     query,
                     *id,
@@ -136,6 +123,27 @@ fn fetch(
     say_unread(query, &unread, out);
     finish(query, items, source_updated, out);
     Ok(())
+}
+fn keep_section_snapshot(
+    cx: &Ctx<'_>,
+    query: &TrialGet,
+    snapshot: &Snapshot,
+    out: &mut Outcome,
+    deadline: biomcp_fetch::Deadline<'_>,
+) -> Result<Option<biodata::Text>, RequestError> {
+    if query.sections().is_empty() {
+        return Ok(None);
+    }
+    crate::publish::keep(
+        source_snapshot::write(
+            cx,
+            &source_snapshot::key(SNAPSHOT_NAMESPACE, &snapshot.detail.card.nct_id)?,
+            snapshot,
+            &snapshot.sources,
+            deadline,
+        ),
+        out,
+    )
 }
 /// Say on the item itself why it was not read, and whether the cause is BioMCP's own limit.
 fn failure(reason: Option<biomcp_types::Reason>) -> biomcp_types::TrialItemFailure {
