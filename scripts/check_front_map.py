@@ -46,7 +46,7 @@ def discover(binary, env):
 FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
                     "hosted": ["--hosted", "--tool-mode", "typed"], "hosted-single": ["--hosted"],
                     "typed-compact": ["--tool-mode", "typed", "--catalog", "compact"]}
-DEFAULT_TYPED_CATALOG_CEILING = 196_608
+CATALOG_BUDGET_META = "biomcp/catalogBudget"
 # What every connection reads first, in characters, as measured on main 4f4414616 for ticket 0836. The skill
 # is re-read every turn (sdlc/records/2026-11-11-token-gap-root-cause.md), so first-read text costs tokens.
 # Ticket 0905 gives each ceiling 5% room over that measured base, rounded up, because a new source or
@@ -89,7 +89,7 @@ def hosted_replies(binary, flags, env, frames):
         process.wait(timeout=30)
 
 
-def check_configuration_catalog(root, tools, size):
+def check_configuration_catalog(root, tools, size, ceiling):
     guide = (root / "docs/configuration.md").read_text()
     section = re.search(r"^## MCP tools\n(.*?)(?=^## |\Z)", guide, re.M | re.S)
     require(section, "configuration guide lacks the MCP tools section")
@@ -108,18 +108,24 @@ def check_configuration_catalog(root, tools, size):
                             f"extra {sorted(listed - served)}")
     if documented:
         problems.append(f"unknown entity tools in the configuration guide: {sorted(documented)}")
-    if size > DEFAULT_TYPED_CATALOG_CEILING:
-        problems.append(f"default typed catalog is {size:,} bytes, over the "
-                        f"{DEFAULT_TYPED_CATALOG_CEILING:,}-byte ceiling")
+    if size > ceiling:
+        problems.append(f"default typed catalog is {size:,} bytes, over the {ceiling:,}-byte ceiling")
     require(not problems, "\n".join(problems))
 
 
-def first_read_frames():
+def first_read_frames(*, catalog_budget=False):
+    params = {"_meta": {CATALOG_BUDGET_META: True}} if catalog_budget else {}
     return [{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
         "protocolVersion": "2025-11-25", "capabilities": {},
         "clientInfo": {"name": "first-read-size", "version": "1"}}},
         {"jsonrpc": "2.0", "method": "notifications/initialized"},
-        {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}]
+        {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": params}]
+
+
+def catalog_ceiling(result):
+    ceiling = result.get("_meta", {}).get(CATALOG_BUDGET_META, {}).get("definitionBytes")
+    require(type(ceiling) is int and ceiling > 0, "typed tools/list did not report a positive byte ceiling")
+    return ceiling
 
 
 def stdio_replies(binary, flags, env, frames):
@@ -136,7 +142,7 @@ def first_read_sizes(binary, env, repo):
     """Measure what every connection loads: initialize instructions and the tools list."""
     sizes = {}
     for mode, flags in FIRST_READ_MODES.items():
-        frames = first_read_frames()
+        frames = first_read_frames(catalog_budget=mode == "typed")
         if mode == "typed-compact":
             frames.extend(
                 {"jsonrpc": "2.0", "id": index, "method": "tools/call",
@@ -148,11 +154,12 @@ def first_read_sizes(binary, env, repo):
         else:
             replies = stdio_replies(binary, flags, env, frames)
         instructions = replies[1]["result"]["instructions"]
-        tools = replies[2]["result"]["tools"]
+        catalog = replies[2]["result"]
+        tools = catalog["tools"]
         row = {"instructions_characters": len(instructions), "instructions_bytes": len(instructions.encode()),
                "tools_bytes": compact_bytes(tools), "tools": len(tools)}
         if mode == "typed":
-            check_configuration_catalog(repo, tools, row["tools_bytes"])
+            check_configuration_catalog(repo, tools, row["tools_bytes"], catalog_ceiling(catalog))
         row["first_call_bytes"] = row["instructions_bytes"] + row["tools_bytes"]
         if mode == "typed-compact":
             for index, field in ((3, "discovery_summary_bytes"), (4, "discovery_definition_bytes")):
@@ -243,8 +250,10 @@ def main():
         env.update(HOME=str(root), XDG_CONFIG_HOME=str(root / "config"),
                    XDG_CACHE_HOME=str(root / "cache"), APPDATA=str(root / "config"))
         if args.catalog_size:
-            replies = stdio_replies(args.binary.resolve(), FIRST_READ_MODES["typed"], env, first_read_frames())
-            print(compact_bytes(replies[2]["result"]["tools"]))
+            replies = stdio_replies(args.binary.resolve(), FIRST_READ_MODES["typed"], env,
+                                    first_read_frames(catalog_budget=True))
+            catalog = replies[2]["result"]
+            print(f"{compact_bytes(catalog['tools'])} bytes ({catalog_ceiling(catalog)}-byte ceiling)")
             return
         args.output = args.output or root / "proof"
         args.output.mkdir(parents=True, exist_ok=True)

@@ -353,15 +353,10 @@ pub(super) fn budgets(
         ),
     ] {
         env.config(&config).map_err(|error| error.to_string())?;
-        let replies = crate::runner::mcp::exchange_with_globals(
-            env,
-            &[crate::runner::mcp::request(
-                json!(1),
-                "tools/list",
-                json!({}),
-            )],
-            &["--offline".into()],
-        )?;
+        let mut request = crate::runner::mcp::request(json!(1), "tools/list", json!({}));
+        request["params"]["_meta"]["biomcp/catalogBudget"] = json!(true);
+        let replies =
+            crate::runner::mcp::exchange_with_globals(env, &[request], &["--offline".into()])?;
         let reply = replies.first().ok_or("budget reply")?;
         if let Some(field) = expected {
             if !reply
@@ -373,6 +368,10 @@ pub(super) fn budgets(
             }
         } else if reply.pointer("/result/tools") != Some(&json!(tools)) {
             return Err("exact byte/count budgets changed the catalog".into());
+        } else if reply.pointer("/result/_meta/biomcp~1catalogBudget/definitionBytes")
+            != config.get("mcp_typed_definition_bytes")
+        {
+            return Err("typed catalog did not report the configured byte ceiling".into());
         }
     }
     Ok(())

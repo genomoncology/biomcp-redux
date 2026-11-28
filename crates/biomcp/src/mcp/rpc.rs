@@ -2,6 +2,9 @@
 use super::protocol::ReplyVersion;
 use super::{current, discovery, legacy, protocol};
 use serde_json::{Value, json};
+
+const CATALOG_BUDGET_KEY: &str = "biomcp/catalogBudget";
+
 pub(super) enum Message {
     Reply(Value),
     Initialized {
@@ -82,11 +85,8 @@ pub(super) fn message(
     let mut result = match method {
         "ping" => json!({}),
         "server/discover" if modern => current::discover(mode, context, revisions),
-        "tools/list" => match tools(id, &params, typed, read_only, context) {
-            Ok(mut tools) => {
-                legacy::project_tools(&mut tools, version);
-                json!({"tools":tools})
-            }
+        "tools/list" => match tools(id, &params, typed, read_only, context, version) {
+            Ok(result) => result,
             Err(reply) => return Message::Reply(reply),
         },
         "tools/call" => return call(id.clone(), params, typed, read_only, version, context),
@@ -151,22 +151,31 @@ fn tools(
     typed: bool,
     read_only: bool,
     context: crate::command::Context<'_>,
-) -> Result<Vec<Value>, Value> {
+    version: ReplyVersion,
+) -> Result<Value, Value> {
+    let compact = typed && (discovery::configured(context) || discovery::requested(params));
     let definitions = if !typed {
         protocol::tools(context.root, read_only)
-    } else if discovery::configured(context) || discovery::requested(params) {
-        return Ok(discovery::tools(read_only));
+    } else if compact {
+        Ok(discovery::tools(read_only))
     } else {
         super::typed::tools(context, read_only)
     };
-    definitions.map_err(|error| {
+    let mut tools = definitions.map_err(|error| {
         let message = if error.kind() == std::io::ErrorKind::InvalidInput {
             error.to_string()
         } else {
             "Output schema unavailable".into()
         };
         protocol::error(id.clone(), -32603, &message)
-    })
+    })?;
+    legacy::project_tools(&mut tools, version);
+    let mut result = json!({"tools":tools});
+    if typed && !compact && params["_meta"][CATALOG_BUDGET_KEY] == true {
+        let (_, byte_limit) = crate::config::mcp_typed_budget(context.settings);
+        result["_meta"][CATALOG_BUDGET_KEY] = json!({"definitionBytes": byte_limit});
+    }
+    Ok(result)
 }
 
 fn call(

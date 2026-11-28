@@ -10,7 +10,7 @@ from pathlib import Path
 
 import check_docs
 from check_docs import ENTITY_TOOLS, SHARED_TOOLS, mapping
-from check_front_map import check_configuration_catalog, compact_bytes
+from check_front_map import catalog_ceiling, check_configuration_catalog, compact_bytes
 from parity import LEDGER_END, LEDGER_START, UPGRADE_END, UPGRADE_START, table, upgrade
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -119,16 +119,18 @@ def typed_catalog_ceiling(root):
     (docs / "configuration.md").write_text("## MCP tools\n\n| `trial` | Trial | `search` |\n")
     tool = {"name": "trial", "description": "", "inputSchema": {"properties": {"action": {}, "search": {}}}}
     tools = [tool]
-    available = 196_608 - compact_bytes(tools)
+    catalog = {"tools": tools, "_meta": {"biomcp/catalogBudget": {"definitionBytes": 1024}}}
+    ceiling = catalog_ceiling(catalog)
+    available = 1024 - compact_bytes(tools)
     tool["description"] = "x" * (available - 1)
-    check_configuration_catalog(root, tools, compact_bytes(tools))
+    check_configuration_catalog(root, tools, compact_bytes(tools), ceiling)
     tool["description"] += "x"
-    check_configuration_catalog(root, tools, compact_bytes(tools))
+    check_configuration_catalog(root, tools, compact_bytes(tools), ceiling)
     tool["description"] += "x"
     try:
-        check_configuration_catalog(root, tools, compact_bytes(tools))
+        check_configuration_catalog(root, tools, compact_bytes(tools), ceiling)
     except SystemExit as error:
-        assert "196,609 bytes, over the 196,608-byte ceiling" in str(error), error
+        assert "1,025 bytes, over the 1,024-byte ceiling" in str(error), error
     else:
         raise AssertionError("an oversized typed catalog passed the docs check")
 
