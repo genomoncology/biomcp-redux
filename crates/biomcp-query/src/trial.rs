@@ -104,15 +104,15 @@ fn search<'a>(
     let rejected = request_rejected(result.as_ref().err());
     let generic_rejected = search_notices.is_empty() && rejected;
     let version = match &result {
-        Ok(_) => ctgov::version(&leg),
+        Ok(page) => ctgov::version(&leg).inspect(|_| {
+            if search_notices.is_empty() {
+                let notice =
+                    ctgov::sponsor_notice(&leg, searched, gene.as_deref(), conditions, page);
+                search_notices.extend(notice);
+            }
+        }),
         Err(error) => Err(*error),
     };
-    if search_notices.is_empty()
-        && version.is_ok()
-        && let Ok(page) = &result
-    {
-        search_notices.extend(ctgov::sponsor_notice(&leg, searched, gene.as_deref(), condition.as_ref(), page));
-    }
     let error = result
         .as_ref()
         .err()
@@ -126,9 +126,11 @@ fn search<'a>(
     if typed_only {
         retract(&expanded.inputs, &mut source, &mut outcome);
     }
-    let missing = version.is_err() || error.is_some() || source.state == SourceState::Stale;
-    let (found, identity_failed, unavailable) = item_state(earlier, result.is_ok(), missing);
-    crate::status::item(&mut outcome, found, identity_failed, unavailable);
+    {
+        let missing = version.is_err() || error.is_some() || source.state == SourceState::Stale;
+        let (found, identity_failed, unavailable) = item_state(earlier, result.is_ok(), missing);
+        crate::status::item(&mut outcome, found, identity_failed, unavailable);
+    };
     if let Ok(page) = result {
         if page.condition_word_mismatch {
             condition::word_notice(query, cx.fresh, &mut source, &mut outcome);

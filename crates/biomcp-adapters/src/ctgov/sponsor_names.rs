@@ -13,7 +13,7 @@ pub fn sponsor_notice(
     leg: &Leg<'_>,
     query: &TrialSearch,
     gene: Option<&str>,
-    condition: Option<&biodata::Text>,
+    conditions: &[biodata::Text],
     page: &SearchPage,
 ) -> Option<SourceNotice> {
     let total = page
@@ -29,10 +29,7 @@ pub fn sponsor_notice(
     let name = query.sponsor()?.as_str();
     let dotted = dotted_initials(name)?;
     leg.dependency(&super::SPEC, SUGGESTION_BUDGET, |probe| {
-        let mut params = super::parameters(query, gene);
-        if let Some(condition) = condition {
-            params.insert("query.cond".into(), format!("({condition})"));
-        }
+        let mut params = search_query::resolved_parameters(query, gene, conditions, None);
         params.insert("pageSize".into(), "1".into());
         params.insert("fields".into(), "NCTId,LeadSponsorName".into());
         let mut read = |sponsor| {
