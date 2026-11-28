@@ -62,7 +62,7 @@ def ctgov(census):
 
 
 def cpic(census):
-    for table, order in (("pair_view", "pairid"), ("diplotype", "genesymbol,diplotype")):
+    for table, order in (("pair", "pairid"), ("diplotype", "genesymbol,diplotype")):
         def fetch(offset):
             body, headers = census.native(
                 f"{CPIC}/{table}", {"limit": 1, "offset": offset, "order": order},
@@ -78,10 +78,18 @@ def cpic(census):
                                            "--diplotype", spelling, "--source", "cpic")),
                              "result", "diplotypes") or []
                 return any(item["diplotype"] == spelling for item in items)
-            reply = census.reply(("search", "pgx", "--gene", gene, "--source", "cpic",
-                                  "--drug-id", row["drugid"], "--limit", "50"))
-            return any(item["pairid"] == row["pairid"]
-                       for item in (read(reply, "result", "items") or []))
+            offset = 0
+            while offset < 1000:
+                reply = census.reply(("search", "pgx", "--gene", gene, "--source", "cpic",
+                                      "--offset", str(offset), "--limit", "50"))
+                items = read(reply, "result", "items") or []
+                if any(read(item, "pairid", "id") == row["pairid"] for item in items):
+                    return True
+                following = read(reply, "result", "page", "next_offset")
+                if following is None:
+                    return False
+                offset = following
+            raise CensusError("CPIC pair lookup exceeds its paging window")
 
         yield table, source_page(census, table, fetch, probe)
 

@@ -1,4 +1,15 @@
 {
+  "clinpgx": {
+    "clinical/1A/with-gene": [8, 8],
+    "clinical/1A/without-gene": [1, 1],
+    "clinical/1B/with-gene": [8, 8],
+    "clinical/2A/with-gene": [8, 8],
+    "clinical/2B/with-gene": [8, 8],
+    "clinical/3/with-gene": [8, 8],
+    "clinical/3/without-gene": [8, 8],
+    "clinical/4/with-gene": [8, 8],
+    "clinical/4/without-gene": [8, 8]
+  },
   "clinvar": {
     "review status/criteria provided, conflicting classifications": [8, 8],
     "review status/criteria provided, multiple submitters, no conflicts": [8, 8],
@@ -82,6 +93,27 @@
     "gencc/OMIM": [8, 8],
     "gencc/ORPHANET": [8, 8]
   },
+  "gnomad": {
+    "autosome/other-small-variant/exome-only": [8, 8],
+    "autosome/other-small-variant/genome-only": [8, 8],
+    "autosome/other-small-variant/joint": [8, 8],
+    "autosome/snv/exome-only": [8, 8],
+    "autosome/snv/genome-only": [8, 8],
+    "autosome/snv/joint": [8, 8],
+    "sex-chromosome/other-small-variant/exome-only": [8, 8],
+    "sex-chromosome/other-small-variant/genome-only": [2, 8],
+    "sex-chromosome/other-small-variant/joint": [2, 8],
+    "sex-chromosome/snv/exome-only": [8, 8],
+    "sex-chromosome/snv/genome-only": [8, 8],
+    "sex-chromosome/snv/joint": [8, 8]
+  },
+  "gwas": {
+    "association/non-rsid": [20, 20],
+    "association/rsid": [20, 20],
+    "associations": [40, 40],
+    "studies": [8, 8],
+    "unpublished-studies": [4, 8]
+  },
   "interpro": {
     "interpro": [8, 8],
     "unintegrated": [2, 8]
@@ -132,5 +164,51 @@
     "reviewed-human": [8, 8],
     "reviewed-human-no-gene": [8, 8],
     "unreviewed-human": [0, 8]
+  },
+  "wikipathways": {
+    "Acetobacterium woodii": [0, 1],
+    "Anopheles gambiae": [0, 8],
+    "Apis cerana": [0, 6],
+    "Arabidopsis thaliana": [0, 8],
+    "Bacillus subtilis": [0, 2],
+    "Beta vulgaris": [0, 1],
+    "Bombyx mori": [0, 6],
+    "Bos taurus": [0, 8],
+    "Brassica napus": [0, 1],
+    "Caenorhabditis elegans": [0, 8],
+    "Canis familiaris": [0, 8],
+    "Caulobacter vibrioides": [0, 1],
+    "Citrus sinensis": [0, 1],
+    "Coffea arabica": [0, 1],
+    "Danio rerio": [0, 8],
+    "Daphnia magna": [0, 2],
+    "Drosophila melanogaster": [0, 8],
+    "Equus caballus": [0, 5],
+    "Escherichia coli": [0, 8],
+    "Fusarium graminearum": [0, 1],
+    "Gadus morhua": [0, 4],
+    "Gallus gallus": [0, 8],
+    "Glycine max": [0, 1],
+    "Homo sapiens": [8, 8],
+    "Hordeum vulgare": [0, 1],
+    "Ilex paraguariensis": [0, 1],
+    "Mus musculus": [0, 8],
+    "Mycobacterium tuberculosis": [0, 8],
+    "Nicotiana tabacum": [0, 1],
+    "Oryza sativa": [0, 8],
+    "Ovis aries": [0, 1],
+    "Pan troglodytes": [0, 8],
+    "Paullinia cupana": [0, 1],
+    "Perilla frutescens": [0, 1],
+    "Plasmodium falciparum": [0, 1],
+    "Populus trichocarpa": [0, 5],
+    "Rattus norvegicus": [0, 8],
+    "Saccharomyces cerevisiae": [0, 8],
+    "Solanum lycopersicum": [0, 5],
+    "Sus scrofa": [0, 2],
+    "Theobroma cacao": [0, 1],
+    "Triticum aestivum": [0, 1],
+    "Vitis vinifera": [0, 1],
+    "Zea mays": [0, 5]
   }
 }
