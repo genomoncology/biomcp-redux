@@ -32,7 +32,10 @@ fn every_shipped_product_resolves_by_its_own_names_and_bla() {
             let keys = row.keys();
             for name in [bla.as_str(), &record[2], &record[3]] {
                 if !name.is_empty() {
-                    assert!(row.matches(name), "{bla} product {product} missing {name}");
+                    assert!(
+                        row.matches_product(name),
+                        "{bla} product {product} missing {name}"
+                    );
                     assert!(
                         keys.exact
                             .iter()

@@ -23,9 +23,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/page/total": 13,
-        "/result/items/0/license_type": "351(a)",
-        "/result/items/6/license_type": "351(k) Biosimilar"
+        "/page/total": 7,
+        "/result/items/4/license_type": "351(k) Interchangeable"
       }
     }
   ]
