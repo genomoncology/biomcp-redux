@@ -48,7 +48,12 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                 .and_then(|s| s.get("properties"))
                 .and_then(|p| p.get(advertised(verb, &schema, key)))
                 .ok_or("property")?;
-            let expected = description(node);
+            // Continuations supply these tokens. Their descriptions live in command help.
+            let expected = if matches!(key.as_str(), "pool" | "snapshot") {
+                None
+            } else {
+                description(node)
+            };
             let own = property.get("description").and_then(Value::as_str);
             if own.map(|text| text.strip_prefix("Required. ").unwrap_or(text))
                 != expected.as_deref()

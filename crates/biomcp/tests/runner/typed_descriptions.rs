@@ -58,6 +58,9 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             .and_then(Value::as_object)
             .ok_or("tool properties")?
         {
+            if matches!(key.as_str(), "pool" | "snapshot") {
+                continue; // Command help describes continuation tokens.
+            }
             let description = property["description"]
                 .as_str()
                 .ok_or("parameter description")?;
@@ -227,8 +230,8 @@ fn standalone(tools: &[Value]) -> Result<(), String> {
                 .and_then(Value::as_object)
                 .into_iter()
                 .flatten()
-                // The chosen-fields list is bare by design; search help names the fields.
-                .filter(|(key, _)| *key != "fields")
+                // Search help names the fields. Command help describes continuation tokens.
+                .filter(|(key, _)| !matches!(key.as_str(), "fields" | "pool" | "snapshot"))
                 .map(|(key, property)| (format!("{name}.{key}"), &property["description"])),
         );
         for (path, value) in descriptions {
