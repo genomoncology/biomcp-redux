@@ -3941,15 +3941,15 @@ Source CIViC claim collection within the selected profile. Only with section civ
 - `--clinvar-kind`: Kind
 ClinVar record kind: vcv, rcv or scv (one row per submission per classification area); the section total counts only that kind. Only with section clinvar or all. Value form: string; example: --clinvar-kind scv.
 - `--disease`: Disease
-CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease Colorectal.
+CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
-CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all. Value form: string; example: --drug Palbociclib.
+CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all. Value form: string; example: --drug erlotinib.
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
 - `--evidence-significance`: Significance
 Source CIViC evidence significance, such as resistance or sensitivityresponse.
-Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance sensitivityresponse.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-significance resistance.
 - `--evidence-status`: Status
 Defaults to accepted and submitted. Also filters drug assertions.
 Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
