@@ -1,0 +1,55 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "3f34e08b05c1183ae9626a398e9df87aa063f5a27f9544539add51efefbc4196"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "evidenceItems": {
+              "totalCount": 1,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 11654,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "DOES_NOT_SUPPORT",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Biliary Tract Cancer",
+                    "doid": "4607"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Palbociclib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "35100714",
+                    "sourceType": "PUBMED"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

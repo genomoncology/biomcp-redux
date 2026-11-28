@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
     MyVariant identity lookups default to GRCh38; --build overrides it. \
     Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E \
     or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein \
-    phrase such as BRAF V600E searches for checked allele candidates. \
+    phrase such as BRAF V600E searches for checked allele candidates. With civic alone, use a CIViC profile ID or exact name. \
     Every candidate remains available; source assertions do not classify the variant for the caller."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
@@ -30,8 +30,7 @@ fn lookup_input<'de, D: serde::Deserializer<'de>>(
 )]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields<R: ResolverChoice = VariantResolver> {
-    #[doc = "rs/CA/clinvar:N/VCV/HGVS/VCF\n\
-        rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, or a gene and protein change such as BRAF V600E."]
+    #[doc = "Variant ID or gene and protein. With civic alone, use a CIViC profile ID or exact name."]
     #[serde(deserialize_with = "lookup_input")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[cfg_attr(
@@ -168,15 +167,18 @@ impl VariantGet {
 crate::query::validation::checked_query!(VariantGet, Fields);
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
-    fn try_from(fields: Fields) -> Result<Self, Self::Error> {
+    fn try_from(mut fields: Fields) -> Result<Self, Self::Error> {
+        fields.input = fields
+            .input
+            .for_get(fields.section.as_ref() == [VariantSection::Civic])
+            .map_err(|_| super::gene::QueryInvalid::new(&["input"]))?;
+        let civic_section = fields
+            .section
+            .iter()
+            .any(|s| matches!(s, VariantSection::Civic | VariantSection::All));
         let civic_filtered =
             !fields.evidence_filter.is_empty() || fields.disease.is_some() || fields.drug.is_some();
-        if civic_filtered
-            && !fields
-                .section
-                .iter()
-                .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
-        {
+        if civic_filtered && !civic_section {
             return Err(super::gene::QueryInvalid::new(&[
                 "evidence_level",
                 "evidence_status",
@@ -222,12 +224,7 @@ impl TryFrom<Fields> for VariantGet {
                 "civic_profile",
             ]));
         }
-        if fields.civic_profile.is_some()
-            && !fields
-                .section
-                .iter()
-                .any(|s| matches!(s, VariantSection::Civic | VariantSection::All))
-        {
+        if fields.civic_profile.is_some() && !civic_section {
             return Err(super::gene::QueryInvalid::new(&[
                 "civic_profile",
                 "section",
@@ -385,6 +382,10 @@ impl VariantGet {
         cursor: Option<crate::Text>,
     ) -> Result<Self, super::gene::QueryInvalid> {
         let mut fields = self.0.clone();
+        if fields.input.namespace() == VariantNamespace::CivicProfile {
+            fields.input = VariantInput::lookup(&profile.to_string())
+                .map_err(|_| super::gene::QueryInvalid::new(&["input"]))?;
+        }
         fields.civic_profile = Some(profile);
         fields.civic_kind = Some(kind);
         fields.civic_cursor = cursor;

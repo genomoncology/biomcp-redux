@@ -1,0 +1,128 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "7368bb941bb12a09f8f33f90bcdfa81d7284cff28b3ac06e82b20bbf5150204a"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "therapy": {
+              "id": 138,
+              "name": "Pembrolizumab",
+              "link": "/therapies/138"
+            },
+            "evidenceItems": {
+              "totalCount": 5,
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "Mg"
+              },
+              "nodes": [
+                {
+                  "id": 12083,
+                  "status": "ACCEPTED",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "id": 138,
+                      "name": "Pembrolizumab"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "source": {
+                    "citationId": "25765070",
+                    "sourceType": "PUBMED"
+                  },
+                  "molecularProfile": {
+                    "id": 5117,
+                    "name": "TMB High",
+                    "rawName": "#VID4943",
+                    "link": "/molecular-profiles/5117",
+                    "isComplex": false,
+                    "variants": [
+                      {
+                        "id": 4943,
+                        "name": "High",
+                        "link": "/variants/4943",
+                        "feature": {
+                          "id": 61745,
+                          "name": "TMB",
+                          "featureType": "FACTOR",
+                          "featureInstance": {
+                            "ncitId": "C150128"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": 12594,
+                  "status": "ACCEPTED",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Solid Tumor",
+                    "doid": null
+                  },
+                  "therapies": [
+                    {
+                      "id": 138,
+                      "name": "Pembrolizumab"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "source": {
+                    "citationId": "30309915",
+                    "sourceType": "PUBMED"
+                  },
+                  "molecularProfile": {
+                    "id": 5117,
+                    "name": "TMB High",
+                    "rawName": "#VID4943",
+                    "link": "/molecular-profiles/5117",
+                    "isComplex": false,
+                    "variants": [
+                      {
+                        "id": 4943,
+                        "name": "High",
+                        "link": "/variants/4943",
+                        "feature": {
+                          "id": 61745,
+                          "name": "TMB",
+                          "featureType": "FACTOR",
+                          "featureInstance": {
+                            "ncitId": "C150128"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

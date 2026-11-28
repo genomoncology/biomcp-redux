@@ -1,0 +1,147 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "f3dd6efa966ccdda9e8388622877370529f9b26aa9e431ad83ada3c30ec3b357"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "therapy": {
+              "id": 138,
+              "name": "Pembrolizumab",
+              "link": "/therapies/138"
+            },
+            "evidenceItems": {
+              "totalCount": 33,
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 11251,
+                  "status": "SUBMITTED",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Stomach Cancer",
+                    "doid": "10534"
+                  },
+                  "therapies": [
+                    {
+                      "id": 138,
+                      "name": "Pembrolizumab"
+                    },
+                    {
+                      "id": 84,
+                      "name": "Trastuzumab"
+                    },
+                    {
+                      "id": 199,
+                      "name": "Chemotherapy"
+                    }
+                  ],
+                  "therapyInteractionType": "COMBINATION",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "A",
+                  "evidenceDirection": "SUPPORTS",
+                  "source": {
+                    "citationId": "34912120",
+                    "sourceType": "PUBMED"
+                  },
+                  "molecularProfile": {
+                    "id": 302,
+                    "name": "ERBB2 Amplification",
+                    "rawName": "#VID306",
+                    "link": "/molecular-profiles/302",
+                    "isComplex": false,
+                    "variants": [
+                      {
+                        "id": 306,
+                        "name": "Amplification",
+                        "link": "/variants/306",
+                        "feature": {
+                          "id": 20,
+                          "name": "ERBB2",
+                          "featureType": "GENE",
+                          "featureInstance": {}
+                        },
+                        "alleleRegistryId": null,
+                        "hgvsDescriptions": [
+                          "N/A"
+                        ],
+                        "coordinates": {
+                          "referenceBuild": "GRCH37"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "assertions": {
+              "totalCount": 1,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 134,
+                  "status": "SUBMITTED",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Solid Tumor",
+                    "doid": null
+                  },
+                  "therapies": [
+                    {
+                      "id": 138,
+                      "name": "Pembrolizumab"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "assertionType": "PREDICTIVE",
+                  "assertionDirection": "SUPPORTS",
+                  "ampLevel": "TIER_I_LEVEL_A",
+                  "variantOrigin": "SOMATIC",
+                  "molecularProfile": {
+                    "id": 5117,
+                    "name": "TMB High",
+                    "rawName": "#VID4943",
+                    "link": "/molecular-profiles/5117",
+                    "isComplex": false,
+                    "variants": [
+                      {
+                        "id": 4943,
+                        "name": "High",
+                        "link": "/variants/4943",
+                        "feature": {
+                          "id": 61745,
+                          "name": "TMB",
+                          "featureType": "FACTOR",
+                          "featureInstance": {
+                            "ncitId": "C150128"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

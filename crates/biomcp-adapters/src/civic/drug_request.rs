@@ -1,12 +1,10 @@
 //! Native drug claim requests retain query filters and source stream cursors.
-use super::{GENES, drug_raw as raw, evidence_filter, variant::failure};
+use super::{GENES, MEMBER_FEATURE, drug_raw as raw, evidence_filter, variant::failure};
 use biodata::Text;
 use biomcp_fetch::{Input, Leg, Read, RequestError};
 use biomcp_types::{CivicClaimKind, DrugGet, Reason};
 use serde::Serialize;
 
-const MEMBERS: &str = "molecularProfile{id name rawName link isComplex variants{id name link feature{id name} ... on \
-    GeneVariant{alleleRegistryId hgvsDescriptions coordinates{referenceBuild}}}}";
 const COMMON: &str =
     "id status significance disease{name doid} therapies{id name} therapyInteractionType";
 #[derive(Serialize)]
@@ -29,6 +27,10 @@ fn fetch_native(
     count: u32,
     level: Option<biomcp_types::CivicEvidenceLevel>,
 ) -> Result<raw::Data, RequestError> {
+    let members = format!(
+        "molecularProfile{{id name rawName link isComplex variants{{id name link {MEMBER_FEATURE} ... on \
+        GeneVariant{{alleleRegistryId hgvsDescriptions coordinates{{referenceBuild}}}}}}}}"
+    );
     let profile = query
         .civic_profile()
         .map_or(String::new(), |id| format!(",molecularProfileId:{id}"));
@@ -50,7 +52,7 @@ fn fetch_native(
         };
         format!(
             "{name}(therapyId:$id{profile},{filter},first:{count},after:$after){{totalCount \
-                pageInfo{{hasNextPage endCursor}} nodes{{{COMMON} {fields} {MEMBERS}}}}}"
+                pageInfo{{hasNextPage endCursor}} nodes{{{COMMON} {fields} {members}}}}}"
         )
     };
     let fields = kind.map_or_else(

@@ -1,0 +1,80 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "f59de5175f2f3d46cb834125dd03a97e090284406c12e359624565e8f851ea99"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "therapy": {
+              "id": 138,
+              "name": "Pembrolizumab",
+              "link": "/therapies/138"
+            },
+            "assertions": {
+              "totalCount": 1,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 134,
+                  "status": "SUBMITTED",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Solid Tumor",
+                    "doid": null
+                  },
+                  "therapies": [
+                    {
+                      "id": 138,
+                      "name": "Pembrolizumab"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "assertionType": "PREDICTIVE",
+                  "assertionDirection": "SUPPORTS",
+                  "ampLevel": "TIER_I_LEVEL_A",
+                  "variantOrigin": "SOMATIC",
+                  "molecularProfile": {
+                    "id": 5117,
+                    "name": "TMB High",
+                    "rawName": "#VID4943",
+                    "link": "/molecular-profiles/5117",
+                    "isComplex": false,
+                    "variants": [
+                      {
+                        "id": 4943,
+                        "name": "High",
+                        "link": "/variants/4943",
+                        "feature": {
+                          "id": 61745,
+                          "name": "TMB",
+                          "featureType": "FACTOR",
+                          "featureInstance": {
+                            "ncitId": "C150128"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

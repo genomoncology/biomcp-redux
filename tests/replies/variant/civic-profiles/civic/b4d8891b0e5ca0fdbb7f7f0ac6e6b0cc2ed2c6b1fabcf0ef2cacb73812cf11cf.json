@@ -1,0 +1,77 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "9abeabc45652b5a6b8a6ac83a554b2a19982a5e9d0d03d586467f7fb612472a6"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "evidenceItems": {
+              "totalCount": 2,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "Mg"
+              },
+              "nodes": [
+                {
+                  "id": 12082,
+                  "status": "SUBMITTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "A",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Solid Tumor",
+                    "doid": null
+                  },
+                  "therapies": [
+                    {
+                      "name": "Pembrolizumab"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "32919526",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 12086,
+                  "status": "SUBMITTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Solid Tumor",
+                    "doid": null
+                  },
+                  "therapies": [
+                    {
+                      "name": "Pembrolizumab"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "38451314",
+                    "sourceType": "PUBMED"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

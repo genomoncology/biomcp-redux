@@ -292,3 +292,7 @@ hosted-label-memory:
 .PHONY: hosted-surface-check
 hosted-surface-check:
 	$(PYTHON) scripts/trials.py --installed mcp-hosted/served-surface-and-source-policy mcp-parity/typed-hosted-catalog
+
+.PHONY: civic-reach-census
+civic-reach-census: plain-cli-build
+	$(PYTHON) scripts/civic_reach.py --biomcp "$(BIOMCP_DEBUG)" $(CIVIC_REACH_ARGS)

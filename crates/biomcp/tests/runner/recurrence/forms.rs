@@ -163,15 +163,21 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
                 return Err(format!("lookup schema lost exact identifier {input}"));
             }
         }
-        for input in UNSUPPORTED {
-            if validator.is_valid(&json!(input)) {
-                return Err(format!(
-                    "lookup schema advertises unrouted identifier {input}"
-                ));
+        if !accepts_phrase {
+            for input in UNSUPPORTED {
+                if validator.is_valid(&json!(input)) {
+                    return Err(format!(
+                        "lookup schema advertises unrouted identifier {input}"
+                    ));
+                }
             }
         }
-        if validator.is_valid(&json!("BRAF V600E")) != accepts_phrase {
-            return Err("only variant get should advertise the protein phrase".into());
+        for phrase in ["BRAF V600E", "MSI High"] {
+            if validator.is_valid(&json!(phrase)) != accepts_phrase {
+                return Err(format!(
+                    "only variant get should advertise the phrase {phrase}"
+                ));
+            }
         }
     }
     Ok(())

@@ -33,6 +33,7 @@ pub(super) fn source(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Option<
         (VariantNamespace::Ca, S::Civic | S::Erepo) | (VariantNamespace::ClinVar, S::Clinvar) => {
             Some(source)
         }
+        (VariantNamespace::CivicProfile, S::Civic) => Some(source),
         (VariantNamespace::Rs, S::Gwas) => Some(source),
         _ => None,
     }
@@ -119,10 +120,14 @@ pub(super) fn candidate(query: &VariantGet, source: Source) -> VariantHeader {
 }
 
 fn status(sources: &[biomcp_types::SourceOutcome], incomplete: bool) -> biomcp_types::Status {
-    if sources.is_empty()
-        || sources
-            .iter()
-            .all(|s| s.state == biomcp_types::SourceState::Failed)
+    let civic_join_missing = sources.iter().any(|source| {
+        source.source == Source::Civic && source.reason == Some(biomcp_types::Reason::NoJoinId)
+    });
+    if !civic_join_missing
+        && (sources.is_empty()
+            || sources
+                .iter()
+                .all(|s| s.state == biomcp_types::SourceState::Failed))
     {
         crate::status::item_status(false, true, false)
     } else if sources.iter().any(|s| {

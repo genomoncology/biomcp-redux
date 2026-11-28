@@ -1,0 +1,45 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "bfc0f9fe980df2543f58f2d8ae422a8a2b7dc28c1c807471231677d8496d9cd1"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 3,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "Mw"
+              },
+              "nodes": [
+                {
+                  "id": 5117,
+                  "name": "TMB High"
+                },
+                {
+                  "id": 5796,
+                  "name": "TMB High-bTMB"
+                },
+                {
+                  "id": 6198,
+                  "name": "TMB High AND MSI Low"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

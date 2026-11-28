@@ -1,0 +1,87 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "122366120c1a8a2f8a953198e2c30247779618790ceecc44e0403be16f16bdd9"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 1,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 3983,
+                  "name": "TP53 R158G",
+                  "rawName": "#VID4115",
+                  "link": "/molecular-profiles/3983",
+                  "isComplex": false,
+                  "variants": [
+                    {
+                      "id": 4115,
+                      "name": "R158G",
+                      "link": "/variants/4115",
+                      "feature": {
+                        "id": 45,
+                        "name": "TP53",
+                        "featureType": "GENE",
+                        "featureInstance": {}
+                      },
+                      "alleleRegistryId": null,
+                      "hgvsDescriptions": []
+                    }
+                  ],
+                  "evidenceItems": {
+                    "totalCount": 1,
+                    "pageInfo": {
+                      "hasNextPage": false,
+                      "endCursor": "MQ"
+                    },
+                    "nodes": [
+                      {
+                        "id": 10560,
+                        "status": "ACCEPTED",
+                        "evidenceType": "FUNCTIONAL",
+                        "evidenceLevel": "D",
+                        "evidenceDirection": "DOES_NOT_SUPPORT",
+                        "significance": "DOMINANT_NEGATIVE",
+                        "disease": null,
+                        "therapies": [],
+                        "therapyInteractionType": null,
+                        "source": {
+                          "citationId": "10519380",
+                          "sourceType": "PUBMED"
+                        }
+                      }
+                    ]
+                  },
+                  "assertions": {
+                    "totalCount": 0,
+                    "pageInfo": {
+                      "hasNextPage": false,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 //! Molecular-profile lookups use source allele identities, never name-derived equivalence.
-use super::{GENES, variant_map as map, variant_raw as raw};
+use super::{GENES, MEMBER_FEATURE, variant_map as map, variant_raw as raw};
 use crate::Mapped;
 use biodata::{Text, VariantId};
 use biomcp_fetch::Input;
@@ -7,7 +7,7 @@ use biomcp_fetch::Input;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
     CivicClaimKind, CivicMembership, PageInfo, Reason, Source, VariantCivic, VariantGet,
-    VariantHeader,
+    VariantHeader, VariantNamespace,
 };
 use serde::Serialize;
 
@@ -18,7 +18,8 @@ struct Query<'a> {
 }
 #[derive(Serialize)]
 struct Variables<'a> {
-    allele: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allele: Option<&'a str>,
     after: Option<&'a Text>,
     #[serde(skip_serializing_if = "Option::is_none")]
     ids: Option<[u64; 1]>,
@@ -37,6 +38,18 @@ pub fn variant(
     query: &VariantGet,
     candidate: &VariantHeader,
 ) -> Result<Mapped<VariantCivic>, RequestError> {
+    if query.input().namespace() == VariantNamespace::CivicProfile {
+        let id = match query.input().as_str().parse() {
+            Ok(id) => Some(id),
+            Err(_) => super::variant_profile::exact_id(leg, query.input().text())?,
+        };
+        return match id {
+            Some(id) if query.civic_profile().is_none_or(|profile| profile == id) => {
+                profiles(leg, query, None, Some(id))
+            }
+            _ => Ok(map::empty()),
+        };
+    }
     let allele = candidate
         .identity
         .ids
@@ -48,7 +61,12 @@ pub fn variant(
     let exact_query = query
         .for_candidate(allele.parse().map_err(|_| failure(Reason::BadReply))?)
         .map_err(|_| failure(Reason::BadReply))?;
-    let exact = profiles(leg, &exact_query, &allele)?;
+    let exact = profiles(
+        leg,
+        &exact_query,
+        Some(&allele),
+        exact_query.civic_profile(),
+    )?;
     if exact.value.page.total > 0 {
         return Ok(exact);
     }
@@ -58,7 +76,7 @@ pub fn variant(
         let other_query = query
             .for_candidate(other.parse().map_err(|_| failure(Reason::BadReply))?)
             .map_err(|_| failure(Reason::BadReply))?;
-        let mut found = profiles(leg, &other_query, &other)?;
+        let mut found = profiles(leg, &other_query, Some(&other), other_query.civic_profile())?;
         if found.value.page.total > 0 {
             for profile in found.value.profiles.iter_mut() {
                 if matches!(profile.membership, CivicMembership::Exact) {
@@ -86,20 +104,21 @@ pub fn variant(
 fn profiles(
     leg: &Leg<'_>,
     query: &VariantGet,
-    allele: &str,
+    allele: Option<&str>,
+    profile: Option<u64>,
 ) -> Result<Mapped<VariantCivic>, RequestError> {
     let mut after = None;
     let mut offset = 0;
     let mut partial = false;
     loop {
-        let body = request(query, allele, after.as_ref());
+        let body = request(query, allele, profile, after.as_ref());
         let reply: raw::Profiles = leg
             .call(
                 &GENES,
                 Input::json(&[], &body),
                 biomcp_fetch::Read::json().cache_if(&|page: &raw::Profiles| {
                     !page.has_errors()
-                        && page.matches(allele, query.civic_profile())
+                        && page.matches(allele, profile)
                         && page.progresses(query, after.as_ref())
                 }),
             )?
@@ -107,9 +126,15 @@ fn profiles(
         if !reply.progresses(query, after.as_ref()) {
             return Err(failure(Reason::BadReply));
         }
+        if allele.is_none() && !reply.matches(allele, profile) {
+            return Err(failure(Reason::BadReply));
+        }
+        if reply.has_errors() && reply.data.molecular_profiles.nodes.is_empty() {
+            return Err(failure(Reason::BadReply));
+        }
         partial |= reply.has_errors();
         let connection = reply.data.molecular_profiles;
-        if query.civic_profile().is_some()
+        if profile.is_some()
             || offset >= query.section_offset()
             || !connection.page_info.has_next_page
         {
@@ -117,7 +142,7 @@ fn profiles(
             if evidence_filtered(query) {
                 super::variant_filter::apply(leg, query, &mut connection)?;
             }
-            let mut mapped = map::page(connection, query, allele)?;
+            let mut mapped = map::page(connection, query, allele, profile)?;
             if partial {
                 mapped.problems.push(biomcp_types::Problem {
                     source: Source::Civic,
@@ -135,7 +160,12 @@ fn profiles(
         after = connection.page_info.end_cursor;
     }
 }
-fn request<'a>(query: &'a VariantGet, allele: &'a str, after: Option<&'a Text>) -> Query<'a> {
+fn request<'a>(
+    query: &'a VariantGet,
+    allele: Option<&'a str>,
+    profile: Option<u64>,
+    after: Option<&'a Text>,
+) -> Query<'a> {
     let (evidence, assertions) = claim_counts(query);
     let evidence = if evidence_filtered(query) {
         0
@@ -143,17 +173,22 @@ fn request<'a>(query: &'a VariantGet, allele: &'a str, after: Option<&'a Text>) 
         evidence
     };
     let assertions = if names_filtered(query) { 0 } else { assertions };
-    let (ids_variable, ids_argument) = if query.civic_profile().is_some() {
-        (",$ids:[Int!]", ",ids:$ids")
+    let (ids_variable, ids_argument) = if profile.is_some() {
+        (",$ids:[Int!]", "ids:$ids,")
+    } else {
+        ("", "")
+    };
+    let (allele_variable, allele_argument) = if allele.is_some() {
+        ("$allele:String!,", "alleleRegistryId:$allele,")
     } else {
         ("", "")
     };
     Query {
         query: format!(
-            "query($allele:String!,$after:String{ids_variable},$evidence_after:String,\
-                    $assertion_after:String){{molecularProfiles(alleleRegistryId:$allele{ids_argument},first:1,after:$after){{totalCount \
+            "query({allele_variable}$after:String{ids_variable},$evidence_after:String,\
+                    $assertion_after:String){{molecularProfiles({allele_argument}{ids_argument}first:1,after:$after){{totalCount \
                 pageInfo{{hasNextPage endCursor}} nodes{{id name rawName link isComplex variants{{id name link \
-                feature{{id name}} ... on GeneVariant{{alleleRegistryId hgvsDescriptions}}}} \
+                {MEMBER_FEATURE} ... on GeneVariant{{alleleRegistryId hgvsDescriptions}}}} \
                 evidenceItems(first:{evidence},after:$evidence_after,includeRejected:false){{totalCount \
                 pageInfo{{hasNextPage endCursor}} nodes{{id status evidenceType evidenceLevel evidenceDirection \
                 significance disease{{name doid}} therapies{{name}} therapyInteractionType source{{citationId sourceType}}}}}} \
@@ -164,7 +199,7 @@ fn request<'a>(query: &'a VariantGet, allele: &'a str, after: Option<&'a Text>) 
         variables: Variables {
             allele,
             after,
-            ids: query.civic_profile().map(|id| [id]),
+            ids: profile.map(|id| [id]),
             evidence_after: if !evidence_filtered(query)
                 && query.civic_kind() == Some(CivicClaimKind::Evidence)
             {

@@ -1,6 +1,7 @@
 # 1202 — civic-non-allele-profiles
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2ce2bf5f819a402431d21f519591688e9bf9b26d
 
 Milestone: 7
 

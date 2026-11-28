@@ -1,0 +1,23 @@
+{
+  "release_date": "2026-11-27",
+  "buckets": {
+    "all": {"total": 5024, "variant": 2289, "drug": 2932, "profile": 5024, "any": 5024},
+    "with_therapy": {"total": 2932, "variant": 1357, "drug": 2932, "profile": 2932, "any": 2932},
+    "without_therapy": {"total": 2092, "variant": 932, "drug": 0, "profile": 2092, "any": 2092},
+    "gene_with_caid": {"total": 2289, "variant": 2289, "drug": 1357, "profile": 2289, "any": 2289},
+    "gene_with_caid/with_therapy": {"total": 1357, "variant": 1357, "drug": 1357, "profile": 1357, "any": 1357},
+    "gene_with_caid/without_therapy": {"total": 932, "variant": 932, "drug": 0, "profile": 932, "any": 932},
+    "gene_without_caid": {"total": 1993, "variant": 51, "drug": 1276, "profile": 1993, "any": 1993},
+    "gene_without_caid/with_therapy": {"total": 1276, "variant": 50, "drug": 1276, "profile": 1276, "any": 1276},
+    "gene_without_caid/without_therapy": {"total": 717, "variant": 1, "drug": 0, "profile": 717, "any": 717},
+    "factor": {"total": 54, "variant": 2, "drug": 35, "profile": 54, "any": 54},
+    "factor/with_therapy": {"total": 35, "variant": 0, "drug": 35, "profile": 35, "any": 35},
+    "factor/without_therapy": {"total": 19, "variant": 2, "drug": 0, "profile": 19, "any": 19},
+    "fusion": {"total": 1159, "variant": 375, "drug": 731, "profile": 1159, "any": 1159},
+    "fusion/with_therapy": {"total": 731, "variant": 375, "drug": 731, "profile": 731, "any": 731},
+    "fusion/without_therapy": {"total": 428, "variant": 0, "drug": 0, "profile": 428, "any": 428},
+    "region": {"total": 0, "variant": 0, "drug": 0, "profile": 0, "any": 0},
+    "region/with_therapy": {"total": 0, "variant": 0, "drug": 0, "profile": 0, "any": 0},
+    "region/without_therapy": {"total": 0, "variant": 0, "drug": 0, "profile": 0, "any": 0}
+  }
+}

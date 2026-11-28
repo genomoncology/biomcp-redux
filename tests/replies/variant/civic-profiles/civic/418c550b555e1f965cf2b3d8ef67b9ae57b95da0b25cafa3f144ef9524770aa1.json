@@ -1,0 +1,45 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "b5e28ce0c7b72cf0eada697d61878adf5181cbba68a2a873e12b46b39858503a"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 3,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "Mw"
+              },
+              "nodes": [
+                {
+                  "id": 779,
+                  "name": "ETV6::NTRK3 Fusion"
+                },
+                {
+                  "id": 5161,
+                  "name": "ETV6::NTRK3 Fusion AND NTRK3 G623R"
+                },
+                {
+                  "id": 4592,
+                  "name": "ETV6::NTRK3 Fusion AND NTRK3 G623E"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

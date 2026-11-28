@@ -1,0 +1,33 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "8414d4d3c2d0c9185e5dfa481862fbf2ad54b1eeb51e6415f4923a6976dcd561"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794520327,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 245,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 0,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": null
+              },
+              "nodes": []
+            }
+          }
+        }
+      }
+    }
+  ]
+}

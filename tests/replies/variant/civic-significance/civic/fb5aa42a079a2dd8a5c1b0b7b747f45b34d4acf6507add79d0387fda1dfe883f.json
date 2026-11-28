@@ -1,0 +1,112 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "286960a5522de94359cdd65f122c755b84e18fce0633ecb69483183ab48a3cf3"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794871762,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 225,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 12,
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 34,
+                  "name": "EGFR T790M",
+                  "rawName": "#VID34",
+                  "link": "/molecular-profiles/34",
+                  "isComplex": false,
+                  "variants": [
+                    {
+                      "id": 34,
+                      "name": "T790M",
+                      "link": "/variants/34",
+                      "feature": {
+                        "id": 19,
+                        "name": "EGFR",
+                        "featureType": "GENE",
+                        "featureInstance": {}
+                      },
+                      "alleleRegistryId": "CA090928",
+                      "hgvsDescriptions": [
+                        "ENST00000275493.2:c.2369C>T",
+                        "NC_000007.13:g.55249071C>T",
+                        "NM_005228.4:c.2369C>T",
+                        "NP_005219.2:p.Thr790Met"
+                      ]
+                    }
+                  ],
+                  "evidenceItems": {
+                    "totalCount": 46,
+                    "pageInfo": {
+                      "hasNextPage": true,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  },
+                  "assertions": {
+                    "totalCount": 2,
+                    "pageInfo": {
+                      "hasNextPage": false,
+                      "endCursor": "Mg"
+                    },
+                    "nodes": [
+                      {
+                        "id": 130,
+                        "status": "ACCEPTED",
+                        "assertionType": "PREDICTIVE",
+                        "assertionDirection": "SUPPORTS",
+                        "significance": "SENSITIVITYRESPONSE",
+                        "ampLevel": "TIER_I_LEVEL_A",
+                        "disease": {
+                          "name": "Lung Non-small Cell Carcinoma",
+                          "doid": "3908"
+                        },
+                        "therapies": [
+                          {
+                            "name": "Osimertinib"
+                          }
+                        ],
+                        "therapyInteractionType": null,
+                        "variantOrigin": "SOMATIC"
+                      },
+                      {
+                        "id": 239,
+                        "status": "SUBMITTED",
+                        "assertionType": "ONCOGENIC",
+                        "assertionDirection": "SUPPORTS",
+                        "significance": "LIKELY_ONCOGENIC",
+                        "ampLevel": null,
+                        "disease": {
+                          "name": "Lung Non-small Cell Carcinoma",
+                          "doid": "3908"
+                        },
+                        "therapies": [],
+                        "therapyInteractionType": null,
+                        "variantOrigin": "SOMATIC"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

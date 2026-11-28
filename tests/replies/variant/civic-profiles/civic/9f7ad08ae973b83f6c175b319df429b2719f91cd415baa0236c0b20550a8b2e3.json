@@ -1,0 +1,53 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "ed8be1bd0a73053b5b319f2af99a8ead05da51ac6eb6d5a11417ac5484546417"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 5,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "NQ"
+              },
+              "nodes": [
+                {
+                  "id": 5118,
+                  "name": "MSI High"
+                },
+                {
+                  "id": 5262,
+                  "name": "B2M Mutation AND MSI High AND ( JAK1 Mutation OR JAK2 Mutation )"
+                },
+                {
+                  "id": 5263,
+                  "name": "MSI High AND ( B2M Mutation OR JAK1 Mutation OR JAK2 Mutation )"
+                },
+                {
+                  "id": 5264,
+                  "name": "B2M Mutation AND MSI High"
+                },
+                {
+                  "id": 5739,
+                  "name": "BRAF V600E AND MSI High"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

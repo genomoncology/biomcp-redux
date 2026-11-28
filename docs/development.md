@@ -42,6 +42,12 @@ Each command runs without credentials, in a throwaway home and cache, with a pau
 
 To add a command, add a row to `CHECKS` in `scripts/nightly_live_check.py`. Keep to public sources that need no key. KEGG and the LitSense licensed subset stay out; a test refuses them. Recorded cases remain the check of exact reply content.
 
+## Measure CIViC evidence reach
+
+Run `make civic-reach-census` to compare the current CIViC nightly release with the recorded floor. The census checks the CLI route entry points, then counts accepted evidence by the identifiers those routes can use. The offline reach check owns the recorded profiles without an allele ID and the submitted drug evidence case. The variant route uses a ClinGen allele ID on a profile member, the drug route uses a stated therapy, and the profile route uses the CIViC profile ID. The census measures addressability from the release tables. It does not send a request for each evidence item.
+
+A compound profile can contribute to more than one feature type. Therapy and overall counts count each evidence item once within each row. The census fails if any route falls below the recorded count or share for a bucket. The live download runs separately from the landing gate.
+
 ## Check a change
 
 `make landing-gate` is the check every landing runs. It stops at the first failed stage and prints each stage's time. It runs `make rights`, `audit` and `secrets`, which take seconds and need no build, then `pre-job` (`check_docs.py`, shell, format, lint and structure ratchets), workflow lint, then `make cases`, the whole outside-in CLI and MCP suite on a plain build without coverage instrumentation. Then `make changed-tool-proofs` runs the `tools --proofs` proofs the branch changed against its merge base with main, so a broken proof fails the gate. A change to product code (`crates/biomcp/src/`, `crates/biomcp-types/`, `crates/biomcp-query/`, `crates/biomcp-fetch/`, `crates/biomcp-adapters/`), the case runner or proof code (`crates/biomcp/tests/`, `crates/biomcp-test-support/`, the biomcp manifest or build script), the Makefile, the selector, or the workspace build selects every proof. Recorded replies and fixtures a proof reads, and the files the binary embeds, select the proofs that read them. Anything else selects none. `make proof` and `make full-suite` run the whole catalog.
