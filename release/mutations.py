@@ -37,10 +37,14 @@ def git(*args):
     return subprocess.check_output(['git', *args], text=True).strip()
 
 
+def process_rows(columns):
+    output = subprocess.check_output(['ps', '-axo', columns], text=True, timeout=2)
+    return [line.split() for line in output.splitlines()]
+
+
 def stop(child):
     """Native Cargo children have their own groups; retain them before parents exit."""
-    rows = [tuple(map(int, line.split())) for line in subprocess.check_output(
-        ['ps', '-axo', 'pid=,ppid=,pgid='], text=True, timeout=2).splitlines()]
+    rows = [tuple(map(int, row)) for row in process_rows('pid=,ppid=,pgid=')]
     owned = {child.pid}
     while True:
         descendants = owned | {pid for pid, parent, _ in rows if parent in owned}
@@ -55,6 +59,13 @@ def stop(child):
                 os.killpg(group, sig)
             except ProcessLookupError:
                 pass
+            except PermissionError:
+                # macOS can return EPERM while the last members of a group exit.
+                if sys.platform != 'darwin' or any(
+                    int(pgid) == group and not state.startswith('Z') and 'E' not in state
+                    for pgid, state in process_rows('pgid=,state=')
+                ):
+                    raise
         if sig == signal.SIGTERM:
             try:
                 child.wait(timeout=2)
