@@ -143,6 +143,8 @@ fn navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         | ReplyData::GwasPage { .. }
         | ReplyData::PathwayEvents { .. }
         | ReplyData::ProteinComplexes { .. } => Navigation::NativeOrder,
+        // A CIViC claim page's next page comes before its per-record variant lookups (1253).
+        ReplyData::DrugCivic { .. } => Navigation::NativeOrder,
         ReplyData::PathwayCard { body: card, .. } => pathway_navigation(card.as_ref()),
         ReplyData::ProteinPage { .. } => Navigation::Selectable,
         ReplyData::ProteinFeatures { .. }
@@ -307,7 +309,6 @@ fn bounded_navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         | ReplyData::DrugSafetySignalPage { .. }
         | ReplyData::DrugSafetyCommunicationPage { .. }
         | ReplyData::DrugFdaPage { .. }
-        | ReplyData::DrugCivic { .. }
         | ReplyData::VariantPage { .. } => Navigation::Selectable,
         _ => Navigation::Bounded,
     }
