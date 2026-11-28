@@ -17,7 +17,9 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 
 /// Publisher's index of clinical actionability reports.
-pub const REPORT_INDEX: &str = "https://search.clinicalgenome.org/kb/actionability/report-index";
+pub fn report_index() -> Text {
+    biodata::text!("https://search.clinicalgenome.org/kb/actionability/report-index")
+}
 
 const ADULT: Bundle<SummaryRow> = summary(
     "clingen-actionability-adult",

@@ -31,7 +31,7 @@ pub struct ClinGenGene {
     pub triplosensitivity_evidence: Option<ClinGenGeneDosage>,
     /// Clinical actionability summaries for single-gene requests.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub actionability: Option<ClinGenActionability>,
+    pub actionability: Option<Box<ClinGenActionability>>,
 }
 
 /// ClinGen's independent adult and pediatric summaries.
