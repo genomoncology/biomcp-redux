@@ -183,21 +183,25 @@ fn alternate_name(title: &str, name: &str) -> bool {
                 .and_then(|title| title.split_once(" ["))
         });
     bracketed.is_some_and(|(base, alternate)| {
-        // Some eEML headings use brackets for formulations, sources or other qualifiers.
         DrugNameMatch::generic_name(base, name)
-            || (!alternate.contains(',')
-                && !alternate.starts_with("as ")
-                && !matches!(
-                    alternate,
-                    "injection"
-                        | "native"
-                        | "pathogen-reduced"
-                        | "seasonal"
-                        | "high-viscosity"
-                        | "low-viscosity"
-                )
-                && DrugNameMatch::generic_name(alternate, name))
+            || (DrugNameMatch::generic_name(alternate, name) && !qualifier(alternate))
     })
+}
+
+fn qualifier(value: &str) -> bool {
+    // eEML also brackets formulations, sources and other qualifiers.
+    let value = value.to_ascii_lowercase();
+    value.contains(',')
+        || value.starts_with("as ")
+        || matches!(
+            value.as_str(),
+            "injection"
+                | "native"
+                | "pathogen-reduced"
+                | "seasonal"
+                | "high-viscosity"
+                | "low-viscosity"
+        )
 }
 
 /// Every medicine the site's own search lists for this text, in its order: each name and eEML
@@ -322,5 +326,7 @@ mod tests {
             let matched = matching_medicine(&headers, name).expect(name);
             assert_eq!(matched.id.to_string(), number, "{name}");
         }
+        assert!(matching_medicine(&headers, "insulin").is_none());
+        assert!(matching_medicine(&headers, "seasonal").is_none());
     }
 }
