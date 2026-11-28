@@ -193,6 +193,7 @@ fn selected_form(verb: &str, entity: &str, source: &str) -> &'static [&'static s
         ("search", "article", _) => &["BRAF V600E"],
         ("search", "trial", "nci") => &["--condition", "C3224"],
         ("search", "trial", _) => &["--condition", "melanoma"],
+        ("search", "variant", "clinvar") => &["--gene", "DMD"],
         ("search", "variant", _) => &["BRAF V600E"],
         ("get", "biomarker", _) => &["C96022"],
         ("get", "phenotype", "ols") => &["HP:0001250", "ancestors"],
