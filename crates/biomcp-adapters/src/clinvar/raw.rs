@@ -92,13 +92,28 @@ impl XmlReply for Records {
 }
 
 impl Records {
-    pub(super) fn archive(&self) -> Option<VcvId> {
-        let accession: VcvId = self.accession.as_deref()?.parse().ok()?;
-        let version = self.version.as_deref()?.parse().ok()?;
-        if self.id.as_deref()?.parse::<u64>().ok()? != u64::from(accession.get()) {
-            return None;
+    pub(super) fn archive(&self) -> Result<Option<VcvId>, BadReply> {
+        let Some(id) = self.id.as_deref() else {
+            return Ok(None);
+        };
+        let accession: VcvId = self
+            .accession
+            .as_deref()
+            .ok_or(BadReply)?
+            .parse()
+            .map_err(|_| BadReply)?;
+        let version = self
+            .version
+            .as_deref()
+            .ok_or(BadReply)?
+            .parse()
+            .map_err(|_| BadReply)?;
+        if id.parse::<u32>().map_err(|_| BadReply)? != accession.get() {
+            return Err(BadReply);
         }
-        VcvId::new(accession.get(), Some(version)).ok()
+        VcvId::new(accession.get(), Some(version))
+            .map(Some)
+            .map_err(|_| BadReply)
     }
 
     pub(super) fn identity_problem(

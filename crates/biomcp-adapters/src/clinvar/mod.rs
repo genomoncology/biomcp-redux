@@ -60,7 +60,7 @@ const FETCH: Endpoint = SPEC.get("/efetch.fcgi").fresh(Freshness::Days(1));
 #[derive(Debug)]
 pub struct Assertions {
     /// Checked accession and version of the archive served.
-    pub archive: Option<VcvId>,
+    pub archive: Result<Option<VcvId>, biomcp_fetch::BadReply>,
     /// Direct assertion rows.
     pub rows: Vec<VariantAssertion>,
     /// The archive's including records when it owns no submissions.
@@ -108,9 +108,14 @@ pub fn assertions(
                 .cache_if(&|reply| reply.identity_problem(id, vcv).is_none()),
         )
         .map(|received| (received.value, received.meta))?;
-    if let Some(field) = reply.identity_problem(id, vcv) {
+    let identity_problem = reply.identity_problem(id, vcv);
+    let archive = if identity_problem.is_none() {
+        reply.archive()
+    } else {
+        Ok(None)
+    };
+    if let Some(field) = identity_problem {
         reply.refusals = crate::Refusal::Refused;
-        reply.accession = None;
         reply.rows.clear();
         reply.included_only = None;
         if !reply
@@ -128,7 +133,7 @@ pub fn assertions(
     Ok(crate::Mapped {
         refusals: reply.refusals,
         value: Assertions {
-            archive: reply.archive(),
+            archive,
             rows: reply.rows,
             included_only: reply.included_only,
         },
@@ -159,7 +164,7 @@ pub fn by_assertion(
         row.matched
     });
     if mapped.value.rows.is_empty() {
-        mapped.value.archive = None;
+        mapped.value.archive = mapped.value.archive.map(|_| None);
         mapped.value.included_only = None;
     }
     Ok(Some(mapped))

@@ -1,11 +1,12 @@
 //! Archive lookups establish ClinVar record identity independently of allele resolution.
 use crate::{Ctx, Outcome, status};
-use biodata::{Text, VariantId};
+use biodata::{ClinVarVariationId, Text, VariantId, VcvId};
 use biomcp_adapters::clinvar;
-use biomcp_fetch::Deadline;
+use biomcp_fetch::{Deadline, RequestError, SourceError};
 use biomcp_types::{
-    AssertionSource, Reason, Section, Source, SourceNotice, VariantAssertionsGet, VariantCard,
-    VariantGet, VariantHeader, VariantResolution, VariantSections,
+    AssertionId, AssertionSource, Paged, Problem, QueryInvalid, Reason, Section, Source,
+    SourceNotice, SourceRecord, VariantAssertionsGet, VariantCard, VariantGet, VariantHeader,
+    VariantResolution, VariantSections,
 };
 
 pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<'a>) -> Outcome {
@@ -17,41 +18,36 @@ pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<
     } else {
         clinvar::by_assertion(&leg, query.input())
     };
-    let error = result.as_ref().err().copied();
-    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
-    let mut source = status::source(Source::ClinVar, leg.finish(), error);
-    let mut resolution = VariantResolution::Absent;
     let mut problems = Vec::new();
-    let mut candidates = Vec::new();
     let mut dropped = false;
-    if let Ok(Some(mapped)) = result {
+    let found_record = result.as_ref().is_ok_and(Option::is_some);
+    let found = result.and_then(|mapped| {
+        let Some(mapped) = mapped else {
+            return Ok(None);
+        };
         dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
         problems = mapped.problems;
-        if let Some(candidate) = candidate(query, mapped.value) {
-            candidates.push(candidate);
-            resolution = VariantResolution::Resolved;
-        } else if versioned.is_none() {
-            source.notices.push(guidance(
-                "ClinVar's current archive did not return a row matching the requested accession.",
-            ));
-        }
+        candidate(query, mapped.value, &mut problems)
+    });
+    let error = found.as_ref().err().copied();
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
+    let mut source = status::source(Source::ClinVar, leg.finish(), error);
+    let (mut resolution, mut candidates) = match found {
+        Ok(Some(candidate)) => (VariantResolution::Resolved, vec![candidate]),
+        Ok(None) => (VariantResolution::Absent, Vec::new()),
+        Err(_) => (VariantResolution::Unavailable, Vec::new()),
+    };
+    if resolution == VariantResolution::Absent && found_record && versioned.is_none() {
+        source.notices.push(guidance(
+            "ClinVar's current archive did not return a row matching the requested accession.",
+        ));
     }
-    let mut rejection = None;
-    if let Some(vcv) = versioned.filter(|_| candidates.is_empty())
-        && (error.is_none()
-            || matches!(
-                error.and_then(status::reason),
-                Some(Reason::BadReply | Reason::NotFound)
-            ))
-    {
+    if let Some(vcv) = versioned.filter(|_| candidates.is_empty() && version_refused(error)) {
         resolution = VariantResolution::Rejected;
-        rejection = Text::new("clinvar_version_unavailable").ok();
         source.notices.push(guidance(format!(
             "ClinVar did not serve {vcv}. Use get variant VCV{:09} clinvar to read the current archive.",
             vcv.get()
         )));
-    } else if error.is_some() {
-        resolution = VariantResolution::Unavailable;
     }
     let mut sources = vec![source];
     let (section_sources, section_problems, section_error, incomplete) =
@@ -75,7 +71,7 @@ pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<
                     resolution,
                     source: Source::ClinVar,
                     candidates: candidates.into(),
-                    rejection,
+                    rejection: None,
                 },
                 &sources,
             ),
@@ -89,11 +85,27 @@ pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<
     )
 }
 
-fn candidate(query: &VariantGet, archive: clinvar::Assertions) -> Option<VariantHeader> {
-    let vcv = archive.archive?;
-    let id: VariantId = format!("clinvar:{}", vcv.get()).parse().ok()?;
+fn version_refused(error: Option<RequestError>) -> bool {
+    error.is_none_or(|error| {
+        matches!(
+            status::reason(error),
+            Some(Reason::BadReply | Reason::NotFound)
+        )
+    })
+}
+
+fn candidate(
+    query: &VariantGet,
+    archive: clinvar::Assertions,
+    problems: &mut Vec<Problem>,
+) -> Result<Option<VariantHeader>, RequestError> {
+    let Some(vcv) = archive.archive.map_err(|_| bad_reply())? else {
+        return Ok(None);
+    };
+    let id =
+        VariantId::ClinVarVariation(ClinVarVariationId::new(vcv.get()).map_err(|_| bad_reply())?);
     let mut candidate = super::direct::candidate(query, Source::ClinVar);
-    candidate.record.id = Text::new(&id.to_string()).ok()?;
+    candidate.record = SourceRecord::asked(None, &id).ok_or_else(bad_reply)?;
     candidate.identity.ids = Box::new([id, VariantId::Vcv(vcv)]);
     let page = VariantAssertionsGet::from_identity(
         VariantId::Vcv(vcv),
@@ -101,24 +113,15 @@ fn candidate(query: &VariantGet, archive: clinvar::Assertions) -> Option<Variant
         query.section_offset(),
         query.clinvar_kind(),
     )
-    .ok()?;
+    .map_err(|_| bad_reply())?;
     let mut data = super::assertions::page(&page, archive.rows, archive.included_only);
     if let Some(assertion) = query.input().clinvar_assertion() {
         data.next = data.next.and_then(|next| {
-            let text = assertion.to_string();
-            let (record, version) = text
-                .split_once('.')
-                .map_or((text.as_str(), None), |(id, v)| (id, Text::new(v).ok()));
-            VariantAssertionsGet::from_identity(
-                VariantId::Vcv(vcv),
-                next.limit(),
-                next.offset(),
-                None,
+            crate::next::checked(
+                assertion_page(vcv, assertion, &next),
+                Source::ClinVar,
+                problems,
             )
-            .ok()?
-            .select(Text::new(record).ok()?, version)
-            .ok()
-            .map(|selected| biomcp_types::Paged::at_offset(&selected, next.offset()))
         });
     }
     let section = if data.page.total == 0 && data.included_only.is_none() {
@@ -136,7 +139,37 @@ fn candidate(query: &VariantGet, archive: clinvar::Assertions) -> Option<Variant
         clinvar: Some(section),
         ..VariantSections::default()
     }));
-    Some(candidate)
+    Ok(Some(candidate))
+}
+
+fn assertion_page(
+    vcv: VcvId,
+    assertion: &AssertionId,
+    next: &VariantAssertionsGet,
+) -> Result<VariantAssertionsGet, QueryInvalid> {
+    let text = assertion.to_string();
+    let (record, version) = text
+        .split_once('.')
+        .map_or((text.as_str(), None), |(id, v)| (id, Some(v)));
+    let record = Text::new(record).map_err(|_| QueryInvalid::new(&["assertion"]))?;
+    let version = version
+        .map(Text::new)
+        .transpose()
+        .map_err(|_| QueryInvalid::new(&["version"]))?;
+    VariantAssertionsGet::from_identity(VariantId::Vcv(vcv), next.limit(), next.offset(), None)?
+        .select(record, version)
+        .map(|selected| selected.at_offset(next.offset()))
+}
+
+fn bad_reply() -> RequestError {
+    SourceError {
+        source: Source::ClinVar,
+        reason: Reason::BadReply,
+        status: None,
+        tls_cause: None,
+        retry_after: None,
+    }
+    .into()
 }
 
 fn guidance(message: impl Into<Box<str>>) -> SourceNotice {
