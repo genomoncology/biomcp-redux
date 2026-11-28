@@ -8,9 +8,9 @@
   },
   "exchanges": [
     {
-      "fetched": 1795825834,
+      "fetched": 1795826093,
       "status": 200,
-      "content_type": "application/json",
+      "content_type": "application/json; charset=utf-8",
       "delay_ms": 0,
       "retry_after_ms": null,
       "body": {

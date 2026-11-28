@@ -1,6 +1,6 @@
 {
   "feature": "variant-population",
-  "live_check": "recorded public Allele Registry identity and synthetic gnomAD miss matching the published error shape",
+  "live_check": "public",
   "story": "Population lookups expose the short-variant dataset and distinguish other variant classes from a missing record.",
   "replay": "variant-population/dataset-scope",
   "steps": [
@@ -15,6 +15,14 @@
           "source": "gnomad",
           "reason": "out-of-scope"
         },
+        "/sources/1/state": "skipped"
+      }
+    },
+    {
+      "run": ["variant", "population", "CA120560"],
+      "expect": {
+        "/result/population/reason": "out-of-scope",
+        "/sources/0/source": "car",
         "/sources/1/state": "skipped"
       }
     },
