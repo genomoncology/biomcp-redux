@@ -32,8 +32,33 @@ enum Admission {
 struct FirstFailure {
     message: String,
     until: i64,
+    /// The local size or time limit that stopped the fetch. Nothing is syncing then (1247).
+    limit: Option<Limit>,
     publisher_status: Option<u16>,
     publisher_until: Option<i64>,
+}
+
+/// A first-read limit, stored as its code in `bundle_first_read.first_limit`.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Limit {
+    Size = 1,
+    Time = 2,
+}
+
+impl Limit {
+    fn from_code(code: Option<i64>) -> Option<Self> {
+        match code {
+            Some(1) => Some(Self::Size),
+            Some(2) => Some(Self::Time),
+            _ => None,
+        }
+    }
+    fn reason(self) -> Reason {
+        match self {
+            Self::Size => Reason::TooLarge,
+            Self::Time => Reason::DeadlineExceeded,
+        }
+    }
 }
 
 impl FirstFailure {
@@ -42,17 +67,20 @@ impl FirstFailure {
             .publisher_until
             .map_or(self.until, |publisher| publisher.max(self.until));
         let remaining = until.saturating_sub(now()).max(0) as u64;
-        let reason = self
-            .publisher_status
-            .map_or(fallback, crate::retry::status_reason);
+        let reason = match (self.publisher_status, self.limit) {
+            (Some(status), _) => crate::retry::status_reason(status),
+            (None, Some(limit)) => limit.reason(),
+            (None, None) => fallback,
+        };
         let mut error = leg.failure(reason, self.publisher_status);
         // The rate-limit guidance already carries the timing. Keep the first-fetch context alongside it.
         if self.publisher_status.is_some() {
             error.retry_after = Some(Duration::from_secs(remaining));
         }
+        // A retry of an oversized first read fails the same way, so it names no delay.
         leg.first_notice(
             self.message,
-            (reason != Reason::RateLimited).then_some(remaining),
+            (!matches!(reason, Reason::RateLimited | Reason::TooLarge)).then_some(remaining),
         );
         error
     }
@@ -85,7 +113,7 @@ impl Cache {
             let current = now();
             let previous = tx
                 .query_row(
-                    "SELECT until,failure,publisher_status,publisher_until FROM bundle_first_read
+                    "SELECT until,failure,publisher_status,publisher_until,first_limit FROM bundle_first_read
                  WHERE name=?1 AND (until>?2 OR publisher_until>?2)",
                     (name, current),
                     |r| {
@@ -96,6 +124,7 @@ impl Cache {
                                 until: r.get(0)?,
                                 publisher_status: r.get(2)?,
                                 publisher_until: r.get(3)?,
+                                limit: Limit::from_code(r.get(4)?),
                             }),
                             None => Admission::Waiting,
                         })
@@ -112,7 +141,7 @@ impl Cache {
                 .saturating_add(3);
             tx.execute(
                 "INSERT INTO bundle_first_read(name,until) VALUES(?1,?2) ON CONFLICT(name)
-                 DO UPDATE SET until=?2,failure=NULL,publisher_status=NULL,publisher_until=NULL",
+                 DO UPDATE SET until=?2,failure=NULL,publisher_status=NULL,publisher_until=NULL,first_limit=NULL",
                 (name, until),
             )
             .map_err(db_error)?;
@@ -153,9 +182,9 @@ impl Leg<'_> {
         // Persist the failure even when the download used all of its time.
         cache.write_sql(Deadline::start(Duration::from_secs(1), None), |c| {
             c.execute(
-                "UPDATE bundle_first_read SET until=?3,failure=?4,publisher_status=?5,publisher_until=?6
+                "UPDATE bundle_first_read SET until=?3,failure=?4,publisher_status=?5,publisher_until=?6,first_limit=?7
                  WHERE name=?1 AND until=?2 AND failure IS NULL",
-                params![bundle.name, claim, failure.until, failure.message, failure.publisher_status, failure.publisher_until],
+                params![bundle.name, claim, failure.until, failure.message, failure.publisher_status, failure.publisher_until, failure.limit.map(|limit| limit as i64)],
             ).map(drop).map_err(db_error)
         })?;
         let reported = failure.report(self, failure_reason);
@@ -172,6 +201,7 @@ impl Leg<'_> {
             .0
             .get()
             .map_or_else(|| "unknown".to_owned(), |n| format!("{n} bytes"));
+        let mut limit = None;
         let message = if let Some((status, _)) = publisher {
             let mut message =
                 format!("Publisher refused first fetch (HTTP {status}). Size: {bytes}.");
@@ -180,21 +210,27 @@ impl Leg<'_> {
             }
             message
         } else {
-            let reason = match error {
+            limit = match error {
                 RequestError::Source(source) if source.reason == Reason::TooLarge => {
-                    "exceeded the size limit".to_owned()
+                    Some(Limit::Size)
                 }
                 RequestError::Source(source) if source.reason == Reason::DeadlineExceeded => {
-                    "ran out of time".to_owned()
+                    Some(Limit::Time)
                 }
-                _ if self.budget().expired() => "ran out of time".to_owned(),
-                _ => format!("failed ({error})"),
+                _ if self.budget().expired() => Some(Limit::Time),
+                _ => None,
+            };
+            let reason = match limit {
+                Some(Limit::Size) => "exceeded the size limit".to_owned(),
+                Some(Limit::Time) => "ran out of time".to_owned(),
+                None => format!("failed ({error})"),
             };
             format!("The first-read fetch {reason}. Source size: {bytes}.")
         };
         FirstFailure {
             until: current.saturating_add(self.fetch.config.auto_sync_retry_seconds.into()),
             message,
+            limit,
             publisher_status: publisher.map(|(status, _)| status),
             publisher_until: publisher.and_then(|(_, delay)| delay).map(|delay| {
                 let seconds = delay

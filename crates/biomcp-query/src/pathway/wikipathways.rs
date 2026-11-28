@@ -6,13 +6,12 @@ use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     PathwayGet, PathwayPage, PathwayPageInfo, PathwaySearch, PathwaySection, PathwayTotalKind,
-    ReplyData, Request, Source, SourceState, StepKind,
+    ReplyData, Request, Source, StepKind,
 };
 
 pub(super) fn sync_step(out: &mut Outcome) {
     if out.sources.iter().any(|s| {
-        s.source == Source::WikiPathways
-            && matches!(s.state, SourceState::Stale | SourceState::Syncing)
+        s.source == Source::WikiPathways && crate::next::wants_sync(s)
     }) {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,

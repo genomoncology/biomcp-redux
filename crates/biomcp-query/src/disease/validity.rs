@@ -80,7 +80,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DiseaseGet, selected: &[Source]) -> Outc
             }
             Err(error) => {
                 out.local = out.local.or(status::local(error));
-                if source.state == SourceState::Syncing {
+                if crate::next::wants_sync(&source) {
                     refresh(&mut out, bundle);
                 }
             }

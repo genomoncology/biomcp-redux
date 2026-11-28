@@ -39,12 +39,32 @@ pub(crate) fn get(
     sources: &[SourceOutcome],
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Vec<crate::next::Step> {
-    let mut steps = Vec::new();
+    let mut bundles = vec![
+        (biomcp_types::Source::ClinGen, Bundle::CLIN_GEN),
+        (biomcp_types::Source::Gencc, Bundle::GENCC),
+    ];
+    if let Some(release) = query.constraint_release() {
+        bundles.push((
+            biomcp_types::Source::Gnomad,
+            Bundle::gnomad_constraint(release),
+        ));
+    }
+    let outcome = |source| sources.iter().find(|outcome| outcome.source == source);
+    // A bundle whose first read hit the local size or time limit fills only by an explicit
+    // sync, so that sync comes first and the same read is not offered again (1247).
+    let (limited, unsynced): (Vec<_>, Vec<_>) = bundles
+        .into_iter()
+        .filter(|(source, _)| outcome(*source).is_some_and(|o| o.state != SourceState::Ok))
+        .partition(|(source, _)| outcome(*source).is_some_and(crate::next::over_limit));
+    let sync_step = |(source, bundle): (biomcp_types::Source, Bundle)| {
+        crate::next::Step::new(StepKind::Sync, &[source], Action::Sync { bundle })
+    };
+    let mut steps: Vec<_> = limited.iter().copied().map(sync_step).collect();
     if sources.iter().any(|source| {
         matches!(
             source.state,
             SourceState::Stale | SourceState::Failed | SourceState::Syncing
-        )
+        ) && !limited.iter().any(|(limit, _)| *limit == source.source)
     }) {
         steps.push(retry(&get_sources(query), Request::GetGene(query.clone())));
     }
@@ -57,21 +77,7 @@ pub(crate) fn get(
     }) {
         steps.push(sync());
     }
-    for (source, bundle) in [
-        (biomcp_types::Source::ClinGen, Bundle::CLIN_GEN),
-        (biomcp_types::Source::Gencc, Bundle::GENCC),
-    ] {
-        if sources
-            .iter()
-            .any(|outcome| outcome.source == source && outcome.state != SourceState::Ok)
-        {
-            steps.push(crate::next::Step::new(
-                StepKind::Sync,
-                &[source],
-                Action::Sync { bundle },
-            ));
-        }
-    }
+    steps.extend(unsynced.into_iter().map(sync_step));
     if sources.iter().any(|source| {
         source.source == biomcp_types::Source::Oncokb
             && source.state == SourceState::Skipped

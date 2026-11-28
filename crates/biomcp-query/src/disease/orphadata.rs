@@ -6,7 +6,7 @@ use biomcp_adapters::{mydisease, orphadata};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGet, DiseasePrevalence, DiseaseSection, DiseaseXrefs, OrphanetEpidemiology, Reason,
-    Request, Source, SourceNotice, SourceState, SourceStatus, StepKind,
+    Request, Source, SourceNotice, SourceStatus, StepKind,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
@@ -42,7 +42,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
     let reply = orphadata::epidemiology(&leg, &codes);
     let error = reply.as_ref().err().copied();
     let source = status::source(Source::Orphadata, leg.finish(), error);
-    let sync = matches!(source.state, SourceState::Syncing | SourceState::Stale);
+    let sync = crate::next::wants_sync(&source);
     out.sources.push(source);
     out.local = out.local.or(error.and_then(status::local));
     match reply {
@@ -82,7 +82,7 @@ fn xrefs(
     let reply = orphadata::omim_xrefs(&leg, id);
     let error = reply.as_ref().err().copied();
     let mut source = status::source(Source::Orphadata, leg.finish(), error);
-    if matches!(source.state, SourceState::Syncing | SourceState::Stale) {
+    if crate::next::wants_sync(&source) {
         sync_step(&mut out, Bundle::ORPHADATA_XREFS);
     }
     out.local = error.and_then(status::local);

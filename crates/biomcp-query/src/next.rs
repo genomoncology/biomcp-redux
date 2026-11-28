@@ -58,6 +58,23 @@ impl Step {
     }
 }
 
+/// A local copy needs an explicit sync: it is stale, being synced, or its first read hit the
+/// local size or time limit, which a retry of the same read cannot pass (1247).
+pub(crate) fn wants_sync(source: &biomcp_types::SourceOutcome) -> bool {
+    use biomcp_types::SourceState;
+    matches!(source.state, SourceState::Stale | SourceState::Syncing) || over_limit(source)
+}
+
+/// A bundle's first read stopped at the local size or time limit; nothing is syncing.
+pub(crate) fn over_limit(source: &biomcp_types::SourceOutcome) -> bool {
+    use biomcp_types::{Reason, SourceState};
+    source.state == SourceState::Failed
+        && matches!(
+            source.reason,
+            Some(Reason::TooLarge | Reason::DeadlineExceeded)
+        )
+}
+
 /// Wrap an already checked query without changing its cache policy.
 pub(crate) fn run(request: biomcp_types::Request) -> Action {
     Action::Run {

@@ -31,7 +31,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     if out
         .sources
         .iter()
-        .any(|s| matches!(s.state, SourceState::Stale | SourceState::Syncing))
+        .any(crate::next::wants_sync)
     {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,

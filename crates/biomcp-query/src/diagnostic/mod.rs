@@ -56,7 +56,7 @@ fn finish_bundle(
         crate::status::item(out, true, false, true);
     }
     if out.sources.iter().any(|s| {
-        matches!(s.state, SourceState::Syncing | SourceState::Stale)
+        crate::next::wants_sync(s)
             || (s.source, s.reason) == (Source::Gtr, Some(Reason::Unavailable))
     }) && !out
         .next

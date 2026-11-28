@@ -69,7 +69,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     if matches!(source.state, SourceState::Stale) && out.status() == Status::Complete {
         crate::status::item(&mut out, true, false, true);
     }
-    if matches!(source.state, SourceState::Syncing | SourceState::Stale) {
+    if crate::next::wants_sync(&source) {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,
             &[biomcp_types::Source::FdaCdx],

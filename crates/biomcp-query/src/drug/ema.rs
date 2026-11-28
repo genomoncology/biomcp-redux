@@ -4,7 +4,7 @@ use biomcp_adapters::ema;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, Request, Section, Source, SourceNotice,
-    SourceState, StepKind,
+    StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -212,7 +212,7 @@ fn sync_step(out: &mut Outcome) {
     if out
         .sources
         .iter()
-        .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
+        .any(crate::next::wants_sync)
     {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,

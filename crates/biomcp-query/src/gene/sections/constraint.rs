@@ -136,7 +136,11 @@ fn from_release(
             let reason = status::reason(error).unwrap_or(Reason::Unavailable);
             if matches!(
                 reason,
-                Reason::TooLarge | Reason::Syncing | Reason::NotFound | Reason::Offline
+                Reason::TooLarge
+                    | Reason::DeadlineExceeded
+                    | Reason::Syncing
+                    | Reason::NotFound
+                    | Reason::Offline
             ) {
                 let bundle = crate::Bundle::gnomad_constraint(release);
                 source.notices.push(SourceNotice::RequestGuidance {

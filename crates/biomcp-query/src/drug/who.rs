@@ -94,7 +94,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugWhoGet) -> Outcome {
 /// The WHO PQ sync call when the WHO bundle is missing or stale; once, beside other markets' reads.
 fn sync_step(out: &mut Outcome) {
     let stale = out.sources.iter().any(|s| {
-        s.source == Source::WhoPq && matches!(s.state, SourceState::Syncing | SourceState::Stale)
+        s.source == Source::WhoPq && crate::next::wants_sync(s)
     });
     let listed = out
         .next

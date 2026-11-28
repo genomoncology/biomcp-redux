@@ -2,6 +2,7 @@
 //! an offline one never fetches.
 mod ema;
 mod gtr;
+mod limits;
 mod parity;
 mod publisher;
 
@@ -36,6 +37,7 @@ pub(super) fn trials() -> Vec<Trial> {
     ];
     trials.extend(ema::trials());
     trials.extend(gtr::trials());
+    trials.extend(limits::trials());
     trials.extend(parity::trials());
     trials.extend(publisher::trials());
     trials
@@ -157,8 +159,10 @@ fn backoff() -> Check {
     }
     for reply in replies {
         check_failure(&reply, "size limit", &format!("{size} bytes"))?;
-        if reply.pointer("/sources/0/state") != Some(&json!("syncing")) {
-            return Err(format!("over-limit first fetch is not syncing: {reply}"));
+        if reply.pointer("/sources/0/state") != Some(&json!("failed"))
+            || reply.pointer("/sources/0/reason") != Some(&json!("too-large"))
+        {
+            return Err(format!("over-limit first fetch is not a size refusal: {reply}"));
         }
     }
     Ok(())
@@ -175,7 +179,9 @@ fn check_failure(reply: &Value, cause: &str, size: &str) -> Check {
     if !message.contains("fetch")
         || !message.contains(cause)
         || !message.contains(size)
-        || delay.unwrap_or(0) == 0
+        // A retry cannot pass the size limit, so only a timeout names a delay (1247).
+        || (cause == "size limit") != delay.is_none()
+        || delay == Some(0)
         || reply.pointer("/next/0/args") != Some(&json!(["sync", "fda-cdx"]))
     {
         return Err(format!("missing first-fetch guidance: {reply}"));

@@ -99,7 +99,7 @@ fn version_error(error: rusqlite::Error) -> CacheError {
 const TRANSPORT_OWNER: SchemaOwner = SchemaOwner {
     name: OWNER,
     version: VERSION,
-    migratable_versions: &[1, 2, 3, 4, 5, 6, 7],
+    migratable_versions: &[1, 2, 3, 4, 5, 6, 7, 8],
     tables: &[
         "reply",
         "reply_fresh",
@@ -206,6 +206,15 @@ fn add_first_read_backoff(tx: &Transaction<'_>) -> Result<(), CacheError> {
                           ALTER TABLE bundle_first_read ADD COLUMN publisher_until INTEGER;",
         )
         .map_err(db_error)?;
+    }
+    let limited: bool = tx.query_row(
+        "SELECT EXISTS(SELECT 1 FROM pragma_table_info('bundle_first_read') WHERE name='first_limit')",
+        [],
+        |row| row.get(0),
+    ).map_err(db_error)?;
+    if !limited {
+        tx.execute("ALTER TABLE bundle_first_read ADD COLUMN first_limit INTEGER", [])
+            .map_err(db_error)?;
     }
     Ok(())
 }
