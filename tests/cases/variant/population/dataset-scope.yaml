@@ -6,6 +6,7 @@
   "steps": [
     {
       "run": ["get", "variant", "NC_012920.1:m.3243A>G", "population"],
+      "mcp": ["get", "variant", "NC_012920.1:m.3243A>G", "population"],
       "expect": {
         "/status": "partial",
         "/query/dataset": "gnomad_r4/4.1.0",

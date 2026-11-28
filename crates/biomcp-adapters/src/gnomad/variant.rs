@@ -33,7 +33,7 @@ pub const RELEASE: &str = "4.1.0";
 /// Scope of the short-variant lookup.
 pub fn scope_help() -> String {
     format!(
-        "Queries {DATASET} release {RELEASE} (GRCh38) for nuclear short variants. +Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope."
+        "Queries {DATASET} release {RELEASE} (GRCh38) for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope."
     )
 }
 mod map;
