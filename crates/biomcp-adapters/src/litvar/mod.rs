@@ -202,7 +202,7 @@ pub struct Candidate {
 pub fn is_native_id(value: &str) -> bool {
     value
         .strip_prefix("litvar@")
-        .is_some_and(|suffix| !suffix.is_empty())
+        .is_some_and(|suffix| !suffix.is_empty() && suffix.trim_end() == suffix)
 }
 /// Recognize the exact rsID spelling accepted by variant lookup.
 pub fn is_rsid(value: &str) -> bool {
