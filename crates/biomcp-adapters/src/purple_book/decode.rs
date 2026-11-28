@@ -140,8 +140,10 @@ impl Stored {
     }
 
     pub(super) fn matches_reference(&self, query: &str) -> bool {
-        self.reference_keys()
-            .any(|key| key.eq_ignore_ascii_case(query))
+        self.row.license_type != PurpleBookLicense::Standalone
+            && self
+                .reference_keys()
+                .any(|key| key.eq_ignore_ascii_case(query))
     }
 }
 impl Row for Stored {
