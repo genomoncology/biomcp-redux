@@ -12,7 +12,7 @@
       }
     },
     {
-      "run": ["search", "drug", "Keytruda", "--source", "purple-book", "--presentations", "--format", "md"],
+      "run": ["search", "drug", "no-such-purple-book-product", "--source", "purple-book", "--presentations", "--format", "md"],
       "expect": {
         "": {"includes_all_of": [
           "Products approved or designated after October 2026 are not included.",
