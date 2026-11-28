@@ -3315,6 +3315,10 @@
           "$ref": "#/$defs/Reply_AssertionKind",
           "description": "Aggregate/submission/document context."
         },
+        "matched": {
+          "description": "This row matches the RCV or SCV accession requested by variant get.",
+          "type": "boolean"
+        },
         "record": {
           "anyOf": [
             {
