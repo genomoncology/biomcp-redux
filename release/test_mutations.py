@@ -41,6 +41,10 @@ baseline = dict(scenario='Baseline', summary='Success', phase_results=[phase(40)
 mode = os.environ.get('FAKE_MODE', 'mixed')
 if mode == 'nested-group':
     import subprocess, signal
+    if os.environ.get('BIOMCP_TEST_EXITED_GROUP') == '1':
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        exited = subprocess.Popen([sys.executable, '-c', 'pass'], start_new_session=True)
+        os.waitid(os.P_PID, exited.pid, os.WEXITED | os.WNOWAIT)
     child = subprocess.Popen([sys.executable, '-c',
         'import signal,time; signal.signal(signal.SIGTERM, signal.SIG_IGN); '
         'open("nested-ready", "w").write("ready"); time.sleep(60)'], start_new_session=True)
