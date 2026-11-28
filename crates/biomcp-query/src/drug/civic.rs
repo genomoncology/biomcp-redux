@@ -109,7 +109,7 @@ pub(super) fn matched_therapies(
         )
         .into(),
     );
-    let sections = query.sections().iter().map(|s| (*s).as_str().into());
+    let sections = query.sections().iter().map(|s| <&str>::from(*s).into());
     for step in resolution.alternatives.iter_mut() {
         let mut args = step.args.to_vec();
         args.splice(3..3, sections.clone());
