@@ -53,9 +53,9 @@ pub(crate) const ROUTES: &[Route] = &[
     Route {
         entity: "disease",
         source: "clingen",
-        cli: r#"get disease "Fanconi anemia" gene-validity --source clingen --source-title-prefix --limit 2"#,
+        cli: r#"get disease "VPS13A-related neurodegenerative disease" gene-validity --source clingen --source-title-prefix --limit 2"#,
         typed: concat!(
-            r#"{"action":"get","get":{"id":"Fanconi anemia","section":"gene-validity","#,
+            r#"{"action":"get","get":{"id":"VPS13A-related neurodegenerative disease","section":"gene-validity","#,
             r#""source":"clingen","source_title_prefix":true,"section_limit":2}}. Title match only."#,
         ),
         note: "A publisher title prefix matches wording. It does not establish disease equivalence.",

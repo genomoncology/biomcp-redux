@@ -27,7 +27,7 @@ Only gene/protein/article/trial get batch IDs (CLI space/comma, typed `get.id` l
 - `get trial NCT00535626 locations --lat 42.36 --lon -71.06 --limit 2 --fields facility,distance_mi`. Follow `next`.
 - `get trial NCT04937062 eligibility`: page criteria by registry arm. Ages can be study-wide.
 - `get gene TP53 BCR constraint --constraint-release v4.0 --section-only --fields loeuf,transcript`.
-- `get disease "Fanconi anemia" gene-validity --source clingen --source-title-prefix`: matches publisher titles.
+- `get disease "VPS13A-related neurodegenerative disease" gene-validity --source clingen --source-title-prefix`: matches publisher titles.
 - `search disease --source hpo --phenotype HP:0001083`: current release. IEA uses OMIM features.
 - `search disease SLC6A1 --source ols --limit 2`. Check term IDs.
 - `get variant clinvar:546089 clinvar`. Read all conditions per record.

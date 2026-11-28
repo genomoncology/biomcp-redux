@@ -1,18 +1,19 @@
 feature: disease-gene-validity
 story: A disease-first ClinGen title-prefix read yields the source's matching assertions.
-live_check: Synthetic replay of the ClinGen export.
-replay: disease/curation-title-prefix
+live_check: Recorded ClinGen export replay.
+replay: reach/clingen
 config: {mcp_tool_mode: typed, mcp_typed_output_schema: true}
 steps:
-  - run: [get, disease, Fanconi anemia, gene-validity, --source, clingen, --source-title-prefix, --limit, '2']
+  - run: [get, disease, VPS13A-related neurodegenerative disease, gene-validity, --source, clingen, --source-title-prefix, --limit, '2']
     expect: &assertions
       /status: complete
-      /page/returned: 2
+      /page/returned: 1
       /result/coverage/0/source: clingen
-      /result/items/*/assertion/disease: [Fanconi anemia, 'Fanconi anemia, type A']
+      /result/items/*/assertion/disease: [VPS13A-related neurodegenerative disease]
+      /result/items/*/assertion/mondo_id: ['MONDO:0008695']
   - mcp_call:
       name: disease
       arguments:
         action: get
-        get: {id: Fanconi anemia, section: gene-validity, source: clingen, source_title_prefix: true, section_limit: 2}
+        get: {id: VPS13A-related neurodegenerative disease, section: gene-validity, source: clingen, source_title_prefix: true, section_limit: 2}
     expect: *assertions
