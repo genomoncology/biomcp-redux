@@ -153,8 +153,15 @@ impl Allele {
             .as_ref()
             .and_then(Field::as_ref)
             .ok_or(BadReply)?;
-        let (key, id) = allele_id(url)?;
-        if !matches!(id, VariantId::Pa(_)) || allele_type.as_str() != "amino-acid" {
+        let key = allele_key(url)?;
+        let digits = key.strip_prefix("PA").ok_or(BadReply)?;
+        // The registry pads PA IDs, while the shared PA type displays them unpadded.
+        let id: biodata::PaId = format!("PA{}", digits.trim_start_matches('0'))
+            .parse()
+            .map_err(|_| BadReply)?;
+        if (key != id.to_string() && key != format!("PA{:06}", id.get()))
+            || allele_type.as_str() != "amino-acid"
+        {
             return Err(BadReply);
         }
         Ok((Text::new(key).map_err(|_| BadReply)?, allele_type.clone()))
@@ -162,11 +169,14 @@ impl Allele {
 }
 
 pub(super) fn allele_id(url: &Text) -> Result<(&str, VariantId), BadReply> {
-    let key = url
-        .as_str()
-        .strip_prefix("http://reg.genome.network/allele/")
-        .ok_or(BadReply)?;
+    let key = allele_key(url)?;
     Ok((key, key.parse().map_err(|_| BadReply)?))
+}
+
+fn allele_key(url: &Text) -> Result<&str, BadReply> {
+    url.as_str()
+        .strip_prefix("http://reg.genome.network/allele/")
+        .ok_or(BadReply)
 }
 
 /// Registry alleles found by one external-record query; an empty list is a real absence.
