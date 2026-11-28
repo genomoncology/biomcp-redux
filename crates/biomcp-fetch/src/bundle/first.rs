@@ -184,7 +184,15 @@ impl Leg<'_> {
             c.execute(
                 "UPDATE bundle_first_read SET until=?3,failure=?4,publisher_status=?5,publisher_until=?6,first_limit=?7
                  WHERE name=?1 AND until=?2 AND failure IS NULL",
-                params![bundle.name, claim, failure.until, failure.message, failure.publisher_status, failure.publisher_until, failure.limit.map(|limit| limit as i64)],
+                params![
+                    bundle.name,
+                    claim,
+                    failure.until,
+                    failure.message,
+                    failure.publisher_status,
+                    failure.publisher_until,
+                    failure.limit.map(|limit| limit as i64),
+                ],
             ).map(drop).map_err(db_error)
         })?;
         let reported = failure.report(self, failure_reason);
