@@ -150,7 +150,7 @@ fn build_catalog(
                         .is_ok_and(|source| !excluded.contains(&source))
                 })
                 .collect();
-            let description = description::render(verb, entity, &schema, &excluded);
+            let description = description::render(verb, entity, &schema, &sources, &excluded);
             let mut input = arguments::input_with_limit(&schema, enum_limit);
             forms::advertise(&mut input, &forms::forms(verb, &schema));
             forms::unadvertise(&mut input, &schema);

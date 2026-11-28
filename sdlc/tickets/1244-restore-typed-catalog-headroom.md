@@ -1,6 +1,7 @@
 # 1244 — restore-typed-catalog-headroom
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: cceaee0eaba3b47d92feb564637a3d0e0b94f3e5
 
 Milestone: 10
 

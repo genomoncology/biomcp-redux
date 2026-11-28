@@ -130,11 +130,11 @@ fn entity(
     let &(name, _, placed, _, _) = tool;
     let actions = placed
         .iter()
-        .filter_map(|&(action, command, note)| {
+        .filter_map(|&(action, command, _)| {
             commands
                 .iter()
                 .find(|found| super::name(found.path.0, found.path.1) == command)
-                .map(|found| (action, note, found))
+                .map(|found| (action, found))
         })
         .collect::<Vec<_>>();
     if actions.is_empty() {
@@ -146,7 +146,7 @@ fn entity(
     // which answers with the call that works.
     let names = actions
         .iter()
-        .map(|(action, _, _)| *action)
+        .map(|(action, _)| *action)
         .collect::<Vec<_>>();
     properties.insert(
         "action".into(),
@@ -155,39 +155,45 @@ fn entity(
             names.join(", ")
         )}),
     );
-    for (action, _, command) in &actions {
+    for (action, command) in &actions {
         let mut input = command.input.clone();
         super::arguments::advertise_action(&mut input, command.path, enum_limit);
+        let (verb, entity, _) = command.path;
+        let primary = super::catalog::front_map::placement(&super::name(verb, entity));
+        let secondary = primary != Some((name, *action));
+        super::description::compact_arguments(&mut input, secondary);
         if let Some(fields) = input.as_object_mut() {
             fields.shift_remove("$schema");
-            fields.insert(
-                "description".into(),
-                json!(super::description::action(action, &command.description)),
-            );
+            let description = if secondary {
+                format!("{} Help: {verb} {entity}.", command.description)
+            } else {
+                super::description::action(action, &command.description)
+            };
+            fields.insert("description".into(), json!(description));
         }
         properties.insert((*action).into(), input);
     }
     // Any list action keeps only the named row fields; help lists a search's names.
     if actions
         .iter()
-        .any(|(_, _, command)| command.path.0 == "search")
+        .any(|(_, command)| command.path.0 == "search")
     {
         properties.insert(
             "fields".into(),
             json!({"type":["array","null"],"items":{"type":"string"},"description":FIELDS}),
         );
     }
-    let description = entity_description(tool, &actions, excluded);
+    let description = entity_description(tool, &actions, &names, excluded);
     let mut tool = json!({"name":name,
         "description":description,
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",
             "properties":properties,"required":["action"]},
-        "annotations":{"readOnlyHint":actions.iter().all(|(_, _, command)| command.read_only),
+        "annotations":{"readOnlyHint":actions.iter().all(|(_, command)| command.read_only),
             "destructiveHint":false,"openWorldHint":true}});
     if output_schema && let Some(fields) = tool.as_object_mut() {
         let paths = actions
             .iter()
-            .map(|(_, _, command)| command.path)
+            .map(|(_, command)| command.path)
             .collect::<Vec<_>>();
         fields.insert(
             "outputSchema".into(),
@@ -200,29 +206,26 @@ fn entity(
 
 fn entity_description(
     tool: &super::catalog::front_map::EntityTool,
-    actions: &[(&str, &str, &Command)],
+    actions: &[(&str, &Command)],
+    names: &[&str],
     excluded: &BTreeSet<biomcp_types::Source>,
 ) -> String {
     let sources = actions
         .iter()
-        .flat_map(|(_, _, command)| command.sources.iter().cloned())
+        .flat_map(|(_, command)| command.sources.iter().cloned())
         .collect::<BTreeSet<_>>();
-    let notes = actions
-        .iter()
-        .map(|(action, note, _)| (*action, *note))
-        .collect::<Vec<_>>();
     let action_sources = |word| {
         actions
             .iter()
-            .find(|(action, _, _)| *action == word)
-            .map(|(_, _, command)| &command.sources)
+            .find(|(action, _)| *action == word)
+            .map(|(_, command)| &command.sources)
     };
     let source_scope = if matches!(tool.0, "drug" | "disease" | "phenotype") {
         action_sources("search").zip(action_sources("get"))
     } else {
         None
     };
-    super::description::tool(tool, &sources, source_scope, &notes, excluded)
+    super::description::tool(tool, &sources, source_scope, names, excluded)
 }
 
 /// Write a canonical `{name: command, arguments}` call in its advertised entity form.

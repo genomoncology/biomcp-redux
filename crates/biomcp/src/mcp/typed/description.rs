@@ -1,5 +1,4 @@
 //! Source and section provenance comes from the same declarations as the front map.
-use crate::help::coverage;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -7,27 +6,20 @@ pub(super) fn render(
     verb: &str,
     entity: &str,
     schema: &Value,
+    sources: &BTreeSet<String>,
     excluded: &BTreeSet<biomcp_types::Source>,
 ) -> String {
-    let sources = coverage::command_sources(verb, entity, schema)
-        .into_iter()
-        .filter(|word| {
-            word.parse::<biomcp_types::Source>()
-                .is_ok_and(|source| !excluded.contains(&source))
-        })
-        .collect::<BTreeSet<_>>();
-    let provenance = provenance(verb, entity, schema, &sources, excluded);
+    let provenance = provenance(verb, entity, schema, sources, excluded);
     let summary = biomcp_types::COMMANDS
         .iter()
         .find(|row| row.verb == verb && row.entity == entity)
         .map_or("", |row| row.summary.trim());
     let summary = super::catalog::summary(summary, excluded);
-    [summary.as_str(), provenance.as_str()]
-        .into_iter()
-        .filter(|part| !part.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ")
-        + "."
+    if provenance.is_empty() {
+        summary
+    } else {
+        format!("{summary} {provenance}.")
+    }
 }
 
 fn provenance(
@@ -85,7 +77,9 @@ fn provenance(
         }
     }
     if groups.is_empty() {
-        sources.iter().cloned().collect::<Vec<_>>().join(",")
+        // Command help lists publishers. Keep section mappings here because section
+        // names are open strings in typed discovery.
+        String::new()
     } else {
         let mut same = Vec::new();
         let mut other = Vec::new();
@@ -101,39 +95,39 @@ fn provenance(
     }
 }
 
-/// What a person would ask the tool for, its sources by full name, one search and one get
-/// example, the other actions in a few words, and what the tool is not for.
+/// What a person would ask the tool for, differences in search and get source coverage,
+/// examples and routing guidance. Action objects and help describe the individual actions.
 pub(super) fn tool(
     (name, asks, _, [search, get], not_for): &super::catalog::front_map::EntityTool,
     sources: &BTreeSet<String>,
     source_scope: Option<(&BTreeSet<String>, &BTreeSet<String>)>,
-    actions: &[(&str, &str)],
+    actions: &[&str],
     excluded: &BTreeSet<biomcp_types::Source>,
 ) -> String {
     let plain = |text: &str| super::catalog::summary(text, excluded);
     let mut parts = vec![plain(&format!("{asks}."))];
-    let names = sources
-        .iter()
-        .filter_map(|word| {
-            let source = word.parse().ok()?;
-            let name = biomcp_query::sources::display_name(source);
-            let scope =
-                source_scope.map(|(search, get)| (search.contains(word), get.contains(word)));
-            Some(match scope {
-                Some((true, false)) => format!("{name} (search)"),
-                Some((false, true)) => format!("{name} (get)"),
-                _ => name.to_owned(),
+    if let Some((search, get)) = source_scope {
+        let names = sources
+            .iter()
+            .filter_map(|word| {
+                let source = word.parse().ok()?;
+                let name = biomcp_query::sources::display_name(source);
+                Some(match (search.contains(word), get.contains(word)) {
+                    (true, false) => format!("{name} (search)"),
+                    (false, true) => format!("{name} (get)"),
+                    _ => name.to_owned(),
+                })
             })
-        })
-        .collect::<BTreeSet<_>>();
-    if !names.is_empty() {
-        let names = names.into_iter().collect::<Vec<_>>();
-        parts.push(format!("Sources: {}.", names.join(", ")));
+            .collect::<BTreeSet<_>>();
+        if !names.is_empty() {
+            let names = names.into_iter().collect::<Vec<_>>();
+            parts.push(format!("Sources: {}.", names.join(", ")));
+        }
     }
-    for (label, action, example) in [("Search", "search", search), ("Get", "get", get)] {
-        if actions.iter().any(|(name, _)| *name == action) {
+    for (action, example) in [("search", search), ("get", get)] {
+        if actions.contains(&action) {
             parts.push(format!(
-                "{label}: {{\"action\":\"{action}\",\"{action}\":{example}}}."
+                "{{\"action\":\"{action}\",\"{action}\":{example}}}."
             ));
         }
     }
@@ -142,14 +136,6 @@ pub(super) fn tool(
         .filter(|route| route.entity == *name && sources.contains(route.source))
     {
         parts.push(route.typed.into());
-    }
-    let others = actions
-        .iter()
-        .filter(|(_, note)| !note.is_empty())
-        .map(|(action, note)| format!("{action} ({note})"))
-        .collect::<Vec<_>>();
-    if !others.is_empty() {
-        parts.push(plain(&format!("Other actions: {}.", others.join(", "))));
     }
     parts.push(plain(&format!("{not_for}.")));
     if *name == "drug" && sources.contains("fda-dsc") {
@@ -172,5 +158,19 @@ pub(super) fn action(action: &str, description: &str) -> String {
         format!("{description} Lists citing papers, not counts.")
     } else {
         description.to_owned()
+    }
+}
+
+/// Repeated placements use the same arguments as the primary action. Continuation
+/// tokens come from next calls. Command help retains the full argument descriptions.
+pub(super) fn compact_arguments(input: &mut Value, secondary: bool) {
+    if let Some(properties) = input.get_mut("properties").and_then(Value::as_object_mut) {
+        for (name, property) in properties {
+            if (secondary || matches!(name.as_str(), "pool" | "snapshot"))
+                && let Some(fields) = property.as_object_mut()
+            {
+                fields.shift_remove("description");
+            }
+        }
     }
 }
