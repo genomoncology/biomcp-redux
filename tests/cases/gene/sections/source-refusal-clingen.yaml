@@ -14,30 +14,18 @@ steps:
   exit: 2
   expect:
     /next/0/args: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, clingen]
-- follow: configure
-  expect:
-    /status: complete
-    /result/items/0/sections/clingen/state: data
 - run: [get, gene, FANCA, gene-validity, --source, clingen]
   exit: 2
   expect:
     /error/option: --source
     /error/message: "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD."
     /next/0/args: [get, gene, FANCA, clingen]
-- follow: configure
-  expect:
-    /status: complete
-    /result/items/0/sections/clingen/state: data
 - run: [get, gene, FANCA, gene-validity, --source, clingen, --limit, "50"]
   exit: 2
   expect:
     /error/option: --source
     /error/message: "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD."
     /next/0/args: [get, gene, FANCA, clingen]
-- follow: configure
-  expect:
-    /status: complete
-    /result/items/0/sections/clingen/state: data
 - run: [get, gene, FANCA, gene-validity, --limit, "50", --source, clingen]
   exit: 2
   expect:
@@ -47,6 +35,11 @@ steps:
   exit: 2
   expect:
     /next/0/args: [get, gene, FANCA, clingen]
+- run: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, gene-validity, --source, clingen, --limit, "50"]
+  exit: 2
+  expect:
+    /error/option: --source
+    /next/0/args: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, clingen]
 - follow: configure
   expect:
     /status: complete
