@@ -1,0 +1,40 @@
+feature: gene-clingen
+story: A single-gene ClinGen read distinguishes an unscored report, a scored pair, and a gene absent from both summaries.
+live_check: public
+replay: gene/clingen-actionability
+steps:
+- run: [get, gene, FGF23, clingen]
+  max_bytes: 12000
+  expect:
+    /status: complete
+    /result/items/0/sections/clingen/data/actionability/adult/status/state: ok
+    /result/items/0/sections/clingen/data/actionability/adult/curations:
+      count: 1
+    /result/items/0/sections/clingen/data/actionability/adult/curations/0/early_rule_out: Failed
+    /result/items/0/sections/clingen/data/actionability/adult/curations/0/report_url: https://actionability.clinicalgenome.org/ac/ui/Adult/ui/stg2SummaryRpt/AC010
+    /result/items/0/sections/clingen/data/actionability/adult/curations/0:
+      omits: [pair]
+    /result/items/0/sections/clingen/data/actionability/pediatric/status/state: ok
+    /result/items/0/sections/clingen/data/actionability/pediatric/curations:
+      count: 1
+    /result/items/0/sections/clingen/data/actionability/pediatric/curations/0/report_url: https://actionability.clinicalgenome.org/ac/ui/Pediatric/ui/stg2SummaryRpt/AC010
+    /result/items/0/sections/clingen/data/actionability/pediatric/curations/0/pair:
+      equals:
+        outcome: Morbidity of ADHR (rickets, growth, bone/joint pain)
+        intervention: Oral phosphate plus vitamin D analog supplements
+        severity: "1"
+        likelihood: 0C
+        nature_of_intervention: "2"
+        effectiveness: 0C
+        overall: 3CC
+- run: [get, gene, SCN2A, clingen]
+  max_bytes: 10000
+  expect:
+    /status: complete
+    /result/items/0/sections/clingen/data/actionability/report_index: https://search.clinicalgenome.org/kb/actionability/report-index
+    /result/items/0/sections/clingen/data/actionability/adult/status/state: ok
+    /result/items/0/sections/clingen/data/actionability/adult/status/count: 0
+    /result/items/0/sections/clingen/data/actionability/adult: {omits: [curations]}
+    /result/items/0/sections/clingen/data/actionability/pediatric/status/state: ok
+    /result/items/0/sections/clingen/data/actionability/pediatric/status/count: 0
+    /result/items/0/sections/clingen/data/actionability/pediatric: {omits: [curations]}

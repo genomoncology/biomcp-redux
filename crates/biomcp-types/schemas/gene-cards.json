@@ -128,9 +128,147 @@
       ],
       "type": "object"
     },
-    "Reply_ClinGenGene": {
-      "description": "ClinGen gene validity and dosage assessments in published source order.",
+    "Reply_ClinGenActionability": {
+      "description": "ClinGen's independent adult and pediatric summaries.",
       "properties": {
+        "adult": {
+          "$ref": "#/$defs/Reply_ClinGenActionabilityContext",
+          "description": "Adult working group summary."
+        },
+        "pediatric": {
+          "$ref": "#/$defs/Reply_ClinGenActionabilityContext",
+          "description": "Pediatric working group summary."
+        },
+        "report_index": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Publisher's index of clinical actionability reports.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "report_index",
+        "adult",
+        "pediatric"
+      ],
+      "type": "object"
+    },
+    "Reply_ClinGenActionabilityContext": {
+      "description": "Result of looking up one gene in one actionability summary.",
+      "properties": {
+        "curations": {
+          "description": "Matching rows in publisher order.",
+          "items": {
+            "$ref": "#/$defs/Reply_ClinGenActionabilityRow"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_SourceOutcome",
+          "description": "Read outcome and matching row count when available."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_ClinGenActionabilityPair": {
+      "description": "A published outcome–intervention pair and its working group scores.",
+      "properties": {
+        "effectiveness": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Effectiveness score and evidence grade as published."
+        },
+        "intervention": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Intervention described by ClinGen."
+        },
+        "likelihood": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Likelihood score and evidence grade as published."
+        },
+        "nature_of_intervention": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Nature of intervention score as published."
+        },
+        "outcome": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Outcome described by ClinGen."
+        },
+        "overall": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Overall score and evidence grades as published."
+        },
+        "severity": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Severity score as published."
+        }
+      },
+      "required": [
+        "outcome",
+        "intervention",
+        "severity",
+        "likelihood",
+        "nature_of_intervention",
+        "effectiveness",
+        "overall"
+      ],
+      "type": "object"
+    },
+    "Reply_ClinGenActionabilityRow": {
+      "description": "One gene-condition row from the ClinGen actionability score summary.",
+      "properties": {
+        "disease": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native condition label."
+        },
+        "early_rule_out": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Published status of the early rule-out stage."
+        },
+        "pair": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ClinGenActionabilityPair"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The outcome and intervention when supplied by the working group."
+        },
+        "report_url": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Link to the evidence summary report.",
+          "format": "uri"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Curation status as published, including retractions."
+        }
+      },
+      "required": [
+        "disease",
+        "status",
+        "early_rule_out",
+        "report_url"
+      ],
+      "type": "object"
+    },
+    "Reply_ClinGenGene": {
+      "description": "ClinGen gene validity, dosage and actionability in published source order.",
+      "properties": {
+        "actionability": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_ClinGenActionability"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Clinical actionability summaries for single-gene requests."
+        },
         "dosage_date": {
           "anyOf": [
             {

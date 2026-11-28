@@ -1,11 +1,19 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
 use biodata::{Gene, HgncId};
-use biomcp_adapters::clingen;
+use biomcp_adapters::clingen::{self, actionability};
 use biomcp_fetch::{Deadline, Leg, LegReport, RequestError};
-use biomcp_types::{ClinGenGene, GeneSection, Section, SourceOutcome};
+use biomcp_types::{
+    ClinGenActionability, ClinGenActionabilityContext, ClinGenGene, GeneSection, Section,
+    SourceOutcome,
+};
 
-pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]) -> SectionResult {
+pub(super) fn run(
+    cx: &Ctx<'_>,
+    deadline: Deadline<'_>,
+    genes: &[(HgncId, Gene)],
+    single_gene: bool,
+) -> SectionResult {
     let leg = cx.fetch.leg(&clingen::SPEC, deadline).fresh(cx.fresh);
     let evidence_leg = leg.sibling(&clingen::REGION_SPEC);
     let mut local = None;
@@ -56,6 +64,8 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
                 dosage_evidence_status,
                 haploinsufficiency_evidence: evidence.haploinsufficiency,
                 triplosensitivity_evidence: evidence.triplosensitivity,
+                actionability: single_gene
+                    .then(|| Box::new(read_actionability(cx, deadline, gene))),
             };
             (
                 *id,
@@ -72,6 +82,24 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         source: status::source(GeneSection::ClinGen.source(), report, error),
         problems,
         local,
+    }
+}
+
+fn read_actionability(cx: &Ctx<'_>, deadline: Deadline<'_>, gene: &Gene) -> ClinGenActionability {
+    let read = |context| {
+        let leg = cx.fetch.leg(&actionability::SPEC, deadline).fresh(cx.fresh);
+        let (curations, error) = match actionability::curations(&leg, &gene.symbol, context) {
+            Ok(rows) => (rows, None),
+            Err(error) => (Box::default(), Some(error)),
+        };
+        let mut status = status::source(GeneSection::ClinGen.source(), leg.finish(), error);
+        status.count = error.is_none().then_some(curations.len() as u64);
+        ClinGenActionabilityContext { status, curations }
+    };
+    ClinGenActionability {
+        report_index: actionability::report_index(),
+        adult: read(actionability::Context::Adult),
+        pediatric: read(actionability::Context::Pediatric),
     }
 }
 

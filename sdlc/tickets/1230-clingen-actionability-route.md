@@ -1,6 +1,7 @@
 # 1230 — clingen-actionability-route
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: aaee72ec521ac86723b53174a0a9580269ee4ecd
 
 Milestone: 10
 

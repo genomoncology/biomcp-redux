@@ -1,0 +1,43 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "56076735352855d4899016e578098504a3d37227676e1f79b30bf3bebec645fe"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "query": "8074",
+            "HGNC": "3680",
+            "_id": "8074",
+            "_version": 1,
+            "entrezgene": "8074",
+            "genomic_pos": {
+              "chr": "12",
+              "end": 4379713,
+              "ensemblgene": "ENSG00000118972",
+              "start": 4368227,
+              "strand": -1
+            },
+            "genomic_pos_hg19": {
+              "chr": "12",
+              "end": 4488894,
+              "start": 4477393,
+              "strand": -1
+            },
+            "summary": "This gene encodes a member of the fibroblast growth factor family of proteins, which possess broad mitogenic and cell survival activities and are involved in a variety of biological processes. The product of this gene regulates phosphate homeostasis and transport in the kidney. The full-length, functional protein may be deactivated via cleavage into N-terminal and C-terminal chains. Mutation of this cleavage site causes autosomal dominant hypophosphatemic rickets (ADHR). Mutations in this gene are also associated with hyperphosphatemic familial tumoral calcinosis (HFTC). [provided by RefSeq, Feb 2013]."
+          }
+        ]
+      }
+    }
+  ]
+}

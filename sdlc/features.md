@@ -7,7 +7,7 @@ gene-protein: A caller reads reviewed human proteins linked by HGNC, with an exa
 gene-pathways: A caller sees Reactome pathways linked to the gene.
 gene-expression: A caller sees source-stated tissue expression and subcellular locations for the gene.
 gene-civic: A caller sees CIViC gene descriptions and counts with checked gene identity.
-gene-clingen: A caller sees ClinGen validity and dosage records from a synchronized local bundle.
+gene-clingen: A caller sees ClinGen validity and dosage records from synchronized local bundles and, for one gene, adult and pediatric actionability reports with the published outcome–intervention scores.
 gene-clinvar: A caller sees how many ClinVar records list the gene by germline classification, and its pathogenic or likely pathogenic records by review status, each record once, with the ClinVar release.
 gene-constraint: A caller sees population constraint metrics with the source version.
 gene-oncokb: A caller sees OncoKB gene roles with their own key or a skipped-source explanation without one.

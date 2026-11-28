@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "clingen",
+  "url": "https://actionability.clinicalgenome.org/ac/Pediatric/api/summ?format=tsv",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "# docId\ttopicIri\tcurationType\tlatestSearchDate\tlastUpdated\tlastAuthor\tcontext\tcontextIri\trelease\treleaseDate\tgeneOrVariant\tgeneOmim\tdisease\tomim\tstatus-overall\tstatus-stg1\tstatus-stg2\tstatus-scoring\toutcome\toutcomeScoringGroup\tintervention\tinterventionScoringGroup\tseverity\tlikelihood\tnatureOfIntervention\teffectiveness\toverall\nAC010\t/AC010\tGene-Condition\tWed Jul 11 00:00:00 UTC 2018\tWed, 09 Feb 2022 12:24:21 -0000\tAdministrator Account Genboree\tPediatric\thttps://actionability.clinicalgenome.org/ac/Pediatric/api/sepio/doc/AC010\t1.2.3\tWed, 09 Feb 2022 00:00:00 -0000\tFGF23\t605380\tHypophosphatemic rickets, autosomal dominant\t193100\tReleased\tComplete\tComplete\tComplete\tMorbidity of ADHR (rickets, growth, bone/joint pain)\tGroupA\tOral phosphate plus vitamin D analog supplements\tGroupA\t1\t0C\t2\t0C\t3CC\n"
+      }
+    }
+  ]
+}

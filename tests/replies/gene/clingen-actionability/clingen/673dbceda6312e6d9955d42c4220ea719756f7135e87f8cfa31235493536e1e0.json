@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "clingen",
+  "url": "https://actionability.clinicalgenome.org/ac/Adult/api/summ?format=tsv",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "# docId\ttopicIri\tcurationType\tlatestSearchDate\tlastUpdated\tlastAuthor\tcontext\tcontextIri\trelease\treleaseDate\tgeneOrVariant\tgeneOmim\tdisease\tomim\tstatus-overall\tstatus-stg1\tstatus-stg2\tstatus-scoring\toutcome\toutcomeScoringGroup\tintervention\tinterventionScoringGroup\tseverity\tlikelihood\tnatureOfIntervention\teffectiveness\toverall\nAC010\t/AC010\tGene-Condition\tThu Nov 18 04:25:19 UTC 2021\tWed, 09 Feb 2022 12:23:49 -0000\tAdministrator Account Genboree\tAdult\thttps://actionability.clinicalgenome.org/ac/Adult/api/sepio/doc/AC010\t1.0.1\tWed, 09 Feb 2022 00:00:00 -0000\tFGF23\t605380\tHypophosphatemic rickets, autosomal dominant\t(No paired disease(s) for gene)\tReleased\tFailed\tIncomplete\tIncomplete\t\tN/A\t\tN/A\t\t\t\t\t\n"
+      }
+    }
+  ]
+}
