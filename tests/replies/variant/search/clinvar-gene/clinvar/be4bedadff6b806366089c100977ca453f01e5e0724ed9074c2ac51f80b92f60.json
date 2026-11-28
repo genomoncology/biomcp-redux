@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=DMD%5BGENE%5D%20AND%20%22clinsig%20pathogenic%22%5Bprop%5D%20AND%20%22criteria%20provided%2C%20single%20submitter%22%5Brvst%5D&retmode=json&retmax=3&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1795861875,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 164,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"2220","retmax":"3","retstart":"0","idlist":["5043104","5043103","5040764"],"translationset":[],"translationstack":[{"term":"DMD[GENE]","field":"GENE","count":"12246","explode":"N"},{"term":"\"clinsig pathogenic\"[prop]","field":"prop","count":"266883","explode":"N"},"AND",{"term":"\"criteria provided, single submitter\"[rvst]","field":"rvst","count":"3352318","explode":"N"},"AND"],"querytranslation":"DMD[GENE] AND \"clinsig pathogenic\"[prop] AND \"criteria provided, single submitter\"[rvst]"}}
+      }
+    }
+  ]
+}

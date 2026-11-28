@@ -1,7 +1,8 @@
 feature: variant-search
 story: ClinVar gene pages preserve the native total and list a copy-number loss with a VCV get step
 replay: variant/search/clinvar-gene
-verified: Recorded ClinVar ESearch and ESummary replies on 2026-11-28.
+config: {mcp_tool_mode: typed}
+verified: Recorded ClinVar ESearch, ESummary and EFetch replies on 2026-11-28.
 steps:
   - run: [search, variant, --gene, DMD, --source, clinvar, --limit, "10"]
     expect:
@@ -27,3 +28,22 @@ steps:
       /page/total: 3068
       /page/returned: 3
       /result/items/0/record/id: VCV005043371
+  - mcp_call:
+      name: variant
+      arguments:
+        action: search
+        search:
+          gene: DMD
+          source: clinvar
+          classification: pathogenic
+          review_status: "criteria provided, single submitter"
+          limit: 3
+    expect:
+      /status: complete
+      /page/total: 2220
+      /result/items/0/record/id: VCV005043104
+  - run: [get, variant, VCV005040764, clinvar]
+    expect:
+      /status: complete
+      /sources/0/source: clinvar
+      /result/candidates/0/sections/clinvar/data/assertions/0/record: VCV005040764

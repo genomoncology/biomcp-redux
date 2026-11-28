@@ -2293,7 +2293,7 @@ Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly. Value form: string; example: --build GRCh37.
-- `--classification`: ClinVar germline classification property, such as pathogenic or uncertain significance. Requires --source clinvar. Value form: string; example: --classification <classification> (syntax; replace the placeholder with your retained value).
+- `--classification`: ClinVar germline classification property, such as pathogenic or uncertain significance. Requires --source clinvar. Value form: string; example: --classification pathogenic.
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Value form: string; example: --coding 'c.333G>T'.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Value form: string; example: --condition 'Carcinoma of colon (CRC)'.
 - `--gene`: Gene symbol for a change selector or a ClinVar gene listing. Value form: string; example: --gene EGFR.
