@@ -2,6 +2,7 @@
   "feature": "trial-search",
   "live_check": "public",
   "story": "The registry spelling shown in sponsor help finds its own trials. A sparse lead-sponsor search keeps its rows and discloses the much larger count for the dotted spelling.",
+  "verified": "The BioMCP recorder captured both commands and the two spelling checks from ClinicalTrials.gov in job j48599.",
   "replay": "trial/lead-sponsor-name",
   "steps": [
     {

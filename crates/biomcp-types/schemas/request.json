@@ -5506,7 +5506,7 @@
         },
         "sponsor": {
           "$ref": "#/$defs/Text",
-          "description": "Sponsor.\nClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding."
+          "description": "Sponsor.\nClinicalTrials.gov only. Lead name by default. Zero hits broaden. Rare lead matches may suggest a spelling."
         },
         "sponsor_role": {
           "$ref": "#/$defs/SponsorRole",
