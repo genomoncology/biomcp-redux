@@ -1,6 +1,7 @@
 # 1237 — gwas-variant-section-sort
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 61672a365b965338aa52d5d44e080d1dc25d2a7c
 
 Milestone: 10
 

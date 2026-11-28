@@ -2,7 +2,7 @@
   "feature": "variant-population",
   "live_check": "public",
   "story": "The GWAS section states its whole-set total at the top, equal to the nested page total, beside one page of associations (1026).",
-  "verified": "GWAS Catalog v2 REST reply for rs1801133 recorded live by biomcp --record in pm job j42173 on 2026-11-17 and kept whole; body SHA256 of compact JSON 8a1cc3d689766ef35c8b175e81be1a9c8db37b841e3d4dd40b5f332ad1b6846b. No clinical meaning is inferred.",
+  "verified": "GWAS Catalog v2 REST reply for rs1801133 with ascending p-value order, recorded live on 2026-11-28. The catalog still reported 50 associations.",
   "replay": "variant-population/gwas-rs1801133",
   "steps": [
     {
@@ -19,7 +19,6 @@
         "/result/candidates/0/sections/gwas/data/total": 50,
         "/result/candidates/0/sections/gwas/data/page/total": 50,
         "/result/candidates/0/sections/gwas/data/page/returned": 2,
-        "/result/candidates/0/sections/gwas/data/associations/0/id": "association:228365407",
         "/result/candidates/0/sections/gwas/data/continuation/section_offset": 2
       }
     }

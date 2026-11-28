@@ -1,0 +1,147 @@
+{
+  "method": "GET",
+  "source": "gwas",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&page=0&rs_id=rs1801133&size=2&sort=p_value",
+  "exchanges": [
+    {
+      "fetched": 1795842304,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_embedded": {
+            "associations": [
+              {
+                "association_id": 93405495,
+                "risk_frequency": "0.58",
+                "pvalue_description": "",
+                "pvalue_mantissa": 1,
+                "pvalue_exponent": -120,
+                "multi_snp_haplotype": false,
+                "snp_interaction": false,
+                "range": "-",
+                "beta": "0.45 μmol/l increase",
+                "p_value": 1e-120,
+                "efo_traits": [
+                  {
+                    "efo_id": "EFO_0004578",
+                    "efo_trait": "homocysteine measurement"
+                  }
+                ],
+                "reported_trait": [
+                  "Homocysteine levels"
+                ],
+                "accession_id": "GCST90090974",
+                "locations": [
+                  "1:11796321"
+                ],
+                "mapped_genes": [
+                  "MTHFR"
+                ],
+                "bg_efo_traits": [],
+                "pubmed_id": "34707639",
+                "first_author": "Liu T",
+                "snp_effect_allele": [
+                  "rs1801133-T"
+                ],
+                "snp_allele": [
+                  {
+                    "rs_id": "rs1801133",
+                    "effect_allele": "T"
+                  }
+                ],
+                "_links": {
+                  "self": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/93405495"
+                  },
+                  "loci": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/93405495/loci"
+                  },
+                  "snp": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs1801133"
+                  }
+                }
+              },
+              {
+                "association_id": 34417,
+                "risk_frequency": "0.34",
+                "pvalue_description": "",
+                "pvalue_mantissa": 4,
+                "pvalue_exponent": -104,
+                "multi_snp_haplotype": false,
+                "snp_interaction": false,
+                "range": "[0.14-0.17]",
+                "beta": "0.1583 unit increase",
+                "p_value": 4e-104,
+                "efo_traits": [
+                  {
+                    "efo_id": "EFO_0004578",
+                    "efo_trait": "homocysteine measurement"
+                  }
+                ],
+                "reported_trait": [
+                  "Homocysteine levels"
+                ],
+                "accession_id": "GCST002087",
+                "locations": [
+                  "1:11796321"
+                ],
+                "mapped_genes": [
+                  "MTHFR"
+                ],
+                "bg_efo_traits": [],
+                "pubmed_id": "23824729",
+                "first_author": "van Meurs JB",
+                "ci_lower": 0.14,
+                "ci_upper": 0.17,
+                "snp_effect_allele": [
+                  "rs1801133-A"
+                ],
+                "snp_allele": [
+                  {
+                    "rs_id": "rs1801133",
+                    "effect_allele": "A"
+                  }
+                ],
+                "_links": {
+                  "self": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/34417"
+                  },
+                  "loci": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/34417/loci"
+                  },
+                  "snp": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs1801133"
+                  }
+                }
+              }
+            ]
+          },
+          "_links": {
+            "first": {
+              "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&rs_id=rs1801133&page=0&size=2&sort=p_value"
+            },
+            "self": {
+              "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&rs_id=rs1801133&page=0&size=2&sort=p_value"
+            },
+            "next": {
+              "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&rs_id=rs1801133&page=1&size=2&sort=p_value"
+            },
+            "last": {
+              "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&rs_id=rs1801133&page=24&size=2&sort=p_value"
+            }
+          },
+          "page": {
+            "size": 2,
+            "totalElements": 50,
+            "totalPages": 25,
+            "number": 0
+          }
+        }
+      }
+    }
+  ]
+}

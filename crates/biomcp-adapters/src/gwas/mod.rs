@@ -15,6 +15,7 @@ mod map;
 pub use map::Association;
 pub use search::search;
 pub use search::traits::{TraitCandidate, TraitMatch, trait_exists, trait_matches};
+use std::collections::BTreeMap;
 use std::time::Duration;
 /// Current catalog API; retired v1 is never used.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -47,7 +48,7 @@ pub struct Page {
     /// Source-reported total associations.
     pub total: u64,
 }
-/// Read one bounded page by exact rsID, preserving current v2 request identity.
+/// Read one bounded page by exact rsID in ascending p-value order.
 pub fn associations(
     leg: &Leg<'_>,
     rs: &VariantId,
@@ -56,30 +57,82 @@ pub fn associations(
     skip: u32,
 ) -> Result<Page, RequestError> {
     let id = rs.to_string();
-    let expected = format!(
-        "{}/associations?rs_id={id}&page={page}&size={size}",
-        SPEC.base
-    );
+    let mut values = association_params(page, size);
+    values.insert("rs_id".into(), id.clone());
+    search::window(
+        leg,
+        values,
+        size,
+        page == 0 && skip == 0,
+        skip as usize,
+        |row| row.alleles().any(|allele| allele.rs_id.as_str() == id),
+    )
+}
+
+fn association_params(page: u32, size: u32) -> BTreeMap<String, String> {
+    BTreeMap::from([
+        ("direction".into(), "asc".into()),
+        ("page".into(), page.to_string()),
+        ("size".into(), size.to_string()),
+        ("sort".into(), "p_value".into()),
+    ])
+}
+
+fn native(
+    leg: &Leg<'_>,
+    values: &BTreeMap<String, String>,
+    skip: usize,
+    matches_row: &impl Fn(&scope::Selectors) -> bool,
+) -> Result<Page, RequestError> {
+    let params: Vec<_> = values
+        .iter()
+        .map(|(k, v)| (k.as_str(), Arg::Text(v)))
+        .collect();
     let response = leg
         .call(
             &ASSOCIATIONS,
-            Input::Params(&[
-                ("rs_id", Arg::Text(&id)),
-                ("page", Arg::Num(page.into())),
-                ("size", Arg::Num(size.into())),
-            ]),
+            Input::Params(&params),
             biomcp_fetch::Read::<raw::Response>::json()
-                .check(&|r| {
-                    if r.matches(&id, page, size, &expected) {
-                        Ok(())
-                    } else {
-                        Err(BadReply)
-                    }
-                })
+                .check(&|reply| admission(reply, values, matches_row))
                 .cache_if(&raw::Response::identities_admitted),
         )?
         .value;
-    Ok(self::page(response, skip as usize))
+    Ok(self::page(response, skip))
+}
+
+fn admission(
+    r: &raw::Response,
+    values: &BTreeMap<String, String>,
+    matches_row: &impl Fn(&scope::Selectors) -> bool,
+) -> Result<(), BadReply> {
+    if Some(r.page.number.to_string()) != values.get("page").cloned()
+        || Some(r.page.size.to_string()) != values.get("size").cloned()
+        || !search::identity::resource_link(r.links.current.href.as_str(), "associations", values)
+    {
+        return Err(BadReply);
+    }
+    let rows = r
+        .embedded
+        .as_ref()
+        .map(|e| e.associations.as_slice())
+        .unwrap_or_default();
+    if !rows.iter().all(|row| matches_row(&row.selectors)) {
+        return Err(BadReply);
+    }
+    // Exact parts govern order even when native doubles underflow.
+    if !values.contains_key("sort") {
+        return Ok(());
+    }
+    let mut previous = None;
+    for row in rows.iter().filter_map(|row| row.value.as_ref()) {
+        if let Some(exact) = row.exact_p_value() {
+            if previous.as_ref().is_some_and(|last| last > &exact) {
+                return Err(BadReply);
+            }
+            previous = Some(exact);
+        }
+    }
+    Ok(())
 }
 fn page(response: raw::Response, skip: usize) -> Page {
     let received_rows = response

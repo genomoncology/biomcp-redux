@@ -195,16 +195,6 @@ impl Response {
                 .all(|row| row.value.as_ref().is_some())
         })
     }
-    pub(super) fn matches(&self, id: &str, page: u32, size: u32, url: &str) -> bool {
-        self.page.number == page
-            && self.page.size == size
-            && self.links.current.href.as_str() == url
-            && self.embedded.as_ref().is_none_or(|e| {
-                e.associations
-                    .iter()
-                    .all(|a| a.selectors.alleles().any(|s| s.rs_id.as_str() == id))
-            })
-    }
 }
 
 impl Association {
