@@ -46,7 +46,7 @@ pub(super) fn search<'a>(
     let mut out = status::finish(
         [status::item_status(false, true, false)],
         status::Parts {
-            body: body.with_query(navigation_query.clone()),
+            body: body.with_query(navigation_query.with_reported_drug_role()),
             page: None,
             sources: vec![status::source(Source::Faers, leg.finish(), error)],
             problems: Vec::new(),
@@ -101,7 +101,7 @@ pub(super) fn received<'a>(
     let mut out = status::finish(
         [status::item_status(false, true, false)],
         status::Parts {
-            body: body.with_query(navigation_query.clone()),
+            body: body.with_query(navigation_query.with_reported_drug_role()),
             page: None,
             sources: vec![status::source(source, leg.finish(), error)],
             problems: Vec::new(),

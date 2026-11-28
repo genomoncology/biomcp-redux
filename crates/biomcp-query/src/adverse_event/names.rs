@@ -32,7 +32,7 @@ pub(super) fn search<'a>(
     deadline: &mut Deadline<'a>,
 ) -> Outcome {
     let mut out = status::empty(biomcp_types::AdverseEventPage::into_reply(
-        query.clone(),
+        query.with_reported_drug_role(),
         None,
     ));
     let result = prepare(cx, query, deadline, &mut out);

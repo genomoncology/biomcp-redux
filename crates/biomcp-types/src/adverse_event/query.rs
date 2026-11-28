@@ -1,6 +1,6 @@
 use super::{
-    AdverseEventAggregate, AdverseEventSection, AdverseEventSerious, AdverseEventSource,
-    MaudeEventType,
+    AdverseEventAggregate, AdverseEventDrugRole, AdverseEventSection, AdverseEventSerious,
+    AdverseEventSource, MaudeEventType,
 };
 use crate::QueryInvalid;
 use biodata::{PartialDate, ReportId, Text};
@@ -45,6 +45,11 @@ struct SearchFields {
         at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     drug: Vec<Text>,
+    #[doc = "FAERS drug role.\nDefault any: counts reports listing the drug in any role, including concomitant. \
+        Suspect checks the same drug entry for a whole name match, ignoring case. \
+        Use receipt dates to narrow broad searches. Suspect applies to report searches only."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    drug_role: Option<AdverseEventDrugRole>,
     #[doc = "FAERS no-op.\nFAERS: accepted for one release and changes nothing; FAERS widens drug names by default."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
@@ -138,6 +143,9 @@ impl SearchFields {
         Ok(())
     }
     fn validate_aggregate(&self) -> Result<(), QueryInvalid> {
+        if self.aggregate.is_some() && self.drug_role == Some(AdverseEventDrugRole::Suspect) {
+            return Err(QueryInvalid::new(&["aggregate", "drug_role"]));
+        }
         let received = self
             .aggregate
             .is_some_and(AdverseEventAggregate::is_received);
@@ -190,6 +198,9 @@ impl SearchFields {
                 "problem",
                 "event_type",
             ]));
+        }
+        if self.source != AdverseEventSource::Faers && self.drug_role.is_some() {
+            return Err(QueryInvalid::new(&["source", "drug_role"]));
         }
         if self.source != AdverseEventSource::Faers && !self.drug.is_empty() {
             return Err(QueryInvalid::new(&["source", "drug"]));
@@ -276,6 +287,7 @@ impl AdverseEventSearch {
         Self::try_from(SearchFields {
             text: None,
             drug: Vec::new(),
+            drug_role: None,
             expand_drug_names: false,
             exact_term: false,
             name_snapshot: None,
@@ -350,6 +362,18 @@ impl AdverseEventSearch {
     /// Explicit FAERS literal drug names, ORed with any positional text.
     pub fn drug(&self) -> &[Text] {
         &self.0.drug
+    }
+    /// Effective FAERS role. An omitted role searches any role.
+    pub fn drug_role(&self) -> AdverseEventDrugRole {
+        self.0.drug_role.unwrap_or(AdverseEventDrugRole::Any)
+    }
+    /// Make the effective role explicit in a FAERS reply query.
+    pub fn with_reported_drug_role(&self) -> Self {
+        let mut query = self.clone();
+        if self.source() == AdverseEventSource::Faers {
+            query.0.drug_role = Some(self.drug_role());
+        }
+        query
     }
     /// Native MAUDE manufacturer phrase.
     pub fn manufacturer(&self) -> Option<&Text> {

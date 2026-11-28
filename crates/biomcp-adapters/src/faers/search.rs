@@ -1,7 +1,9 @@
 use super::{SPEC, raw};
 use biodata::PartialDate;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, ReplyMetadata, RequestError};
-use biomcp_types::{AdverseEventHeader, AdverseEventSearch, AdverseEventSource};
+use biomcp_types::{
+    AdverseEventDrugRole, AdverseEventHeader, AdverseEventSearch, AdverseEventSource,
+};
 /// One native ordered report page; no drug/reaction-array join.
 #[derive(Debug)]
 pub struct Page {
@@ -41,6 +43,12 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
     } else {
         Box::default()
     };
+    let suspect = query.drug_role() == AdverseEventDrugRole::Suspect;
+    let (offset, limit) = if suspect {
+        (0, biomcp_types::SEARCH_PAGE_MAX)
+    } else {
+        (query.offset(), query.limit())
+    };
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
     let (response, metadata) = crate::openfda::page(
         biomcp_types::Source::Faers,
@@ -48,15 +56,15 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
         &endpoint,
         &[
             ("search", Arg::Text(&selector)),
-            ("limit", Arg::Num(query.limit().into())),
-            ("skip", Arg::Num(query.offset().into())),
+            ("limit", Arg::Num(limit.into())),
+            ("skip", Arg::Num(offset.into())),
             ("sort", Arg::Text("receivedate:desc")),
         ],
-        query.offset(),
-        query.limit(),
+        offset,
+        limit,
         &|reply| {
             if let raw::Response::Page { meta, .. } = reply
-                && (meta.results.skip != query.offset() || meta.results.limit != query.limit())
+                && (meta.results.skip != offset || meta.results.limit != limit)
             {
                 return Err(BadReply);
             }
@@ -70,18 +78,26 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
         list: Vec::new(),
     };
     match response {
-        raw::Response::Page { meta, results } => Ok(Page {
-            refusals: crate::Refusal::None,
-            components,
-            items: results
+        raw::Response::Page { meta, results } => {
+            let (results, total) = if suspect {
+                super::suspect::filter(query, results, meta.results.total)?
+            } else {
+                (results, meta.results.total)
+            };
+            let items = results
                 .into_iter()
                 .map(|v| header(v, &mut problems))
-                .collect(),
-            total: meta.results.total,
-            updated: meta.last_updated,
-            problems: problems.list,
-            metadata,
-        }),
+                .collect();
+            Ok(Page {
+                refusals: crate::Refusal::None,
+                components,
+                items,
+                total,
+                updated: meta.last_updated,
+                problems: problems.list,
+                metadata,
+            })
+        }
         raw::Response::Absent { .. } => Ok(Page {
             refusals: crate::Refusal::None,
             components,

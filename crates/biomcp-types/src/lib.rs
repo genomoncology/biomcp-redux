@@ -227,16 +227,16 @@ pub use saved::{
 mod adverse_event;
 pub use adverse_event::{
     AdverseEventAggregate, AdverseEventDevice, AdverseEventDevices, AdverseEventDrug,
-    AdverseEventDrugs, AdverseEventFaersCard, AdverseEventGet, AdverseEventHeader,
-    AdverseEventIdentifierRecords, AdverseEventIdentifierSection, AdverseEventIdentifiers,
-    AdverseEventIdentityCounts, AdverseEventMaudeCard, AdverseEventNarrative,
-    AdverseEventNarrativeItem, AdverseEventPage, AdverseEventPatient, AdverseEventReaction,
-    AdverseEventReactionCount, AdverseEventReactionCounts, AdverseEventReactionMatch,
-    AdverseEventReactions, AdverseEventReceivedCount, AdverseEventRecords, AdverseEventReporter,
-    AdverseEventSearch, AdverseEventSection, AdverseEventSerious, AdverseEventSeriousness,
-    AdverseEventSource, AdverseEventUnmappedCode, MaudeEventType, ReportUnit, VAERS_INFLUENZA,
-    VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSort, VaersSummary,
-    vaers_vaccine_code,
+    AdverseEventDrugRole, AdverseEventDrugs, AdverseEventFaersCard, AdverseEventGet,
+    AdverseEventHeader, AdverseEventIdentifierRecords, AdverseEventIdentifierSection,
+    AdverseEventIdentifiers, AdverseEventIdentityCounts, AdverseEventMaudeCard,
+    AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage, AdverseEventPatient,
+    AdverseEventReaction, AdverseEventReactionCount, AdverseEventReactionCounts,
+    AdverseEventReactionMatch, AdverseEventReactions, AdverseEventReceivedCount,
+    AdverseEventRecords, AdverseEventReporter, AdverseEventSearch, AdverseEventSection,
+    AdverseEventSerious, AdverseEventSeriousness, AdverseEventSource, AdverseEventUnmappedCode,
+    FAERS_SUSPECT_CODE, MaudeEventType, ReportUnit, VAERS_INFLUENZA, VaersCell, VaersNotice,
+    VaersRow, VaersScope, VaersSection, VaersSort, VaersSummary, vaers_vaccine_code,
 };
 
 mod pgx;

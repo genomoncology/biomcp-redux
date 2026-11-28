@@ -4,6 +4,7 @@ mod query;
 mod receipt;
 mod response;
 mod selectors;
+pub use faers::FAERS_SUSPECT_CODE;
 pub use query::{AdverseEventGet, AdverseEventSearch};
 pub use response::{
     AdverseEventDevice, AdverseEventDevices, AdverseEventDrug, AdverseEventDrugs,
@@ -15,8 +16,8 @@ pub use response::{
     AdverseEventRecords, AdverseEventReporter, AdverseEventSeriousness, AdverseEventUnmappedCode,
 };
 pub use selectors::{
-    AdverseEventAggregate, AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious,
-    AdverseEventSource, MaudeEventType, ReportUnit,
+    AdverseEventAggregate, AdverseEventDrugRole, AdverseEventIdentifierSection,
+    AdverseEventSection, AdverseEventSerious, AdverseEventSource, MaudeEventType, ReportUnit,
 };
 
 mod vaers;

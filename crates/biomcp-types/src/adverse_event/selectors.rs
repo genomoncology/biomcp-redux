@@ -29,6 +29,15 @@ biodata::wire_enum! { described
     }
 }
 biodata::wire_enum! { described
+    /// Role of the named drug on a FAERS report.
+    AdverseEventDrugRole {
+        /// Count reports listing the drug in any role.
+        Any => "any",
+        /// Count reports listing the drug as suspect.
+        Suspect => "suspect",
+    }
+}
+biodata::wire_enum! { described
     /// MAUDE report event type, matched on native event_type.
     MaudeEventType {
         /// Native Malfunction reports.

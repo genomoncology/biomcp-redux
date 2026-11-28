@@ -22,7 +22,7 @@ pub const PATIENT_SEX: Words = &[("0", "Unknown"), ("1", "Male"), ("2", "Female"
 /// `patient.drug.drugcharacterization`.
 pub const DRUG_ROLE: Words = &[
     (
-        "1",
+        biomcp_types::FAERS_SUSPECT_CODE,
         "Suspect (the drug was considered by the reporter to be the cause)",
     ),
     (

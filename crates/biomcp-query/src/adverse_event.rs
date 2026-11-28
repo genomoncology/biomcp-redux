@@ -88,13 +88,28 @@ fn counts_notes(out: &mut Outcome, query: &AdverseEventSearch, typed: usize) {
             "Counts reports flagged death that list this reaction, not deaths caused by it.".into(),
         );
     }
-    report.notices.extend(notes.into_iter().map(|message| {
-        biomcp_types::SourceNotice::RequestGuidance {
+    for message in notes {
+        guidance(report, message);
+    }
+    let role = match query.drug_role() {
+        biomcp_types::AdverseEventDrugRole::Any => {
+            "Counts reports listing the drug in any role, including concomitant."
+        }
+        biomcp_types::AdverseEventDrugRole::Suspect => {
+            "Counts reports listing the named drug as suspect on the same drug entry."
+        }
+    };
+    guidance(report, role.into());
+}
+
+fn guidance(report: &mut biomcp_types::SourceOutcome, message: String) {
+    report
+        .notices
+        .push(biomcp_types::SourceNotice::RequestGuidance {
             data_date: None,
             message: message.into(),
             retry_after_seconds: None,
-        }
-    }));
+        });
 }
 
 fn search<'a>(
@@ -147,7 +162,7 @@ fn search<'a>(
                 unit: ReportUnit::Reports,
                 components: Box::default(),
             })
-            .with_query(navigation_query.clone()),
+            .with_query(navigation_query.with_reported_drug_role()),
             page: None,
             sources: vec![status::source(source, leg.finish(), error)],
             problems: Vec::new(),
@@ -155,6 +170,17 @@ fn search<'a>(
             local: error.and_then(status::local),
         },
     );
+    if query.drug_role() == biomcp_types::AdverseEventDrugRole::Suspect
+        && error.and_then(status::reason) == Some(biomcp_types::Reason::TooLarge)
+    {
+        guidance(
+            &mut out.sources[0],
+            format!(
+                "Suspect counts require checking all candidate reports (maximum {}). Narrow --received-from and --received-to.",
+                biomcp_types::SEARCH_PAGE_MAX
+            ),
+        );
+    }
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         navigation(navigation_query, &page, &mut out);

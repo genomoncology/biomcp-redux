@@ -1,5 +1,7 @@
 //! One owner for escaped FAERS query generation and its local request bound.
-use super::AdverseEventSerious;
+use super::{AdverseEventDrugRole, AdverseEventSerious};
+/// Native code for a drug listed as suspect.
+pub const FAERS_SUSPECT_CODE: &str = "1";
 /// BioMCP request budget for escaped FAERS expressions, including filters.
 /// Bounds repeated names before transport. The publisher query-parameters reference
 /// (https://open.fda.gov/apis/query-parameters/) does not specify a search-length cap.
@@ -20,6 +22,12 @@ impl super::AdverseEventSearch {
             [single] => single.clone(),
             _ => format!("({})", names.join(" OR ")),
         };
+        if query.drug_role() == AdverseEventDrugRole::Suspect {
+            // This only selects candidates. openFDA indexes drug fields across the report.
+            selector.push_str(&format!(
+                " AND patient.drug.drugcharacterization:{FAERS_SUSPECT_CODE}"
+            ));
+        }
         if let Some(reaction) = query.reaction() {
             selector.push_str(&format!(
                 " AND patient.reaction.reactionmeddrapt:{}",
