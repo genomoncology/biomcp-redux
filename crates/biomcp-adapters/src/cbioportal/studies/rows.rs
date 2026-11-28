@@ -123,7 +123,15 @@ pub fn samples(leg: &Leg<'_>, q: &StudyGet) -> Result<Records<StudySample>, Requ
 pub fn mutations(
     leg: &Leg<'_>,
     q: &StudyGet,
-) -> Result<(Records<StudyMutation>, StudyProfileId, NcbiGeneId, StudySampleListId), RequestError> {
+) -> Result<
+    (
+        Records<StudyMutation>,
+        StudyProfileId,
+        NcbiGeneId,
+        StudySampleListId,
+    ),
+    RequestError,
+> {
     let gene = gene(leg, q)?;
     let profile = profile(leg, q)?;
     let (sample_list_id, list_problems) = sample_list(leg, q.id())?;

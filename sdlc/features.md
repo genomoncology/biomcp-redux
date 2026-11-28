@@ -110,7 +110,8 @@ store-clean: Publishing removes bounded expired pools and snapshots; ordinary re
 saved-work: A caller saves searches by name and keeps lists of record IDs on the command line, shows, exports and deletes them, checks a saved search for the IDs it gained, lost or changed at most once an hour, attaches notes that come back as user data to the project, a search, a list or an item, and keeps them in saved.sqlite across cache cleans and upgrades. A typed MCP caller with form support sees the counts of searches, lists and notes and can confirm or decline a delete-all call.
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order.
 study-get: Exact stored study cards expose bounded independent profile and sample-list metadata.
-study-rows: Read gene-filtered native mutation observations and sample ID/type rows with bounded pages, totals and the selected mutation profile.
+study-rows: Read gene-filtered native mutation observations and sample ID/type rows with bounded pages, totals, the mutation profile and its all-cases sample list.
+study-structural-variants: Page a study’s cBioPortal fusion and rearrangement observations for one gene and structural variant profile.
 study-copy-number: Read cBioPortal's own amplification and deep-deletion sample counts for one gene in a study's discrete copy-number profile.
 gwas-search: Search publication studies with source traits, sample descriptions and association counts, or source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end. An exact unpublished accession returns the study's metadata.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities.

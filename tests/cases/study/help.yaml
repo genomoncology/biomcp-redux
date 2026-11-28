@@ -53,10 +53,16 @@
         "/result/commands/0/examples": {
           "count": 1
         },
+        "/result/commands/0/sections/*/description": {
+          "includes_all_of": [
+            "Mutation rows for one gene, using the all-cases sample list."
+          ]
+        },
         "/result/commands/0/sections/*/word": [
           "profiles",
           "sample-lists",
           "mutations",
+          "structural-variants",
           "samples",
           "cna",
           "files",

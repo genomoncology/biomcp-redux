@@ -141,10 +141,10 @@ struct GetFields {
     /// Offset in one section.
     #[serde(default)]
     section_offset: u32,
-    /// HUGO symbol or Entrez ID for mutations, structural-variants and cna.
+    /// HUGO symbol or Entrez ID. Required for mutations, structural-variants and cna.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     gene: Option<Text>,
-    /// Exact profile ID. Defaults to the first of that section’s kind.
+    /// Exact profile ID. Defaults to the first of that section's kind.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     molecular_profile: Option<biodata::StudyProfileId>,
 }
@@ -158,8 +158,10 @@ impl TryFrom<GetFields> for StudyGet {
         if matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0 {
             return Err(QueryInvalid::new(&["section", "section_offset"]));
         }
-        if (matches!(v.section, Some(StudySection::Mutations | StudySection::StructuralVariants | StudySection::Cna))
-            || v.molecular_profile.is_some())
+        if (matches!(
+            v.section,
+            Some(StudySection::Mutations | StudySection::StructuralVariants | StudySection::Cna)
+        ) || v.molecular_profile.is_some())
             && v.gene.is_none()
         {
             return Err(QueryInvalid::new(&["gene"]));
@@ -167,7 +169,12 @@ impl TryFrom<GetFields> for StudyGet {
         if (v.gene.is_some() || v.molecular_profile.is_some())
             && !matches!(
                 v.section,
-                Some(StudySection::Mutations | StudySection::StructuralVariants | StudySection::Cna | StudySection::All)
+                Some(
+                    StudySection::Mutations
+                        | StudySection::StructuralVariants
+                        | StudySection::Cna
+                        | StudySection::All
+                )
             )
         {
             return Err(QueryInvalid::new(&["section", "gene", "molecular_profile"]));
@@ -224,7 +231,10 @@ impl StudyGet {
         q.0.section = Some(section);
         if !matches!(
             section,
-            StudySection::Mutations | StudySection::StructuralVariants | StudySection::Cna | StudySection::All
+            StudySection::Mutations
+                | StudySection::StructuralVariants
+                | StudySection::Cna
+                | StudySection::All
         ) {
             q.0.gene = None;
             q.0.molecular_profile = None;
