@@ -60,7 +60,7 @@ pub(super) fn gene_source_refusal(
     if matches!(source, Source::ClinGen | Source::Gencc) {
         // The trailing validity shorthand, or the disease section word gene-validity, is a
         // section request after at least one gene ID.
-        let validity = <&str>::from(biomcp_types::DiseaseSection::GeneValidity);
+        let validity = biomcp_types::DiseaseSection::GeneValidity.as_str();
         let key = if fields.contains_key("section") {
             "section"
         } else {
