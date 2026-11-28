@@ -101,13 +101,7 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
                 *unsettled,
             );
             if query.source() == DrugSource::Civic {
-                let others: Vec<_> = candidates
-                    .iter()
-                    .skip(1)
-                    .take(5)
-                    .map(|c| c.1.id.clone())
-                    .collect();
-                crate::drug::civic::matched_therapies(query, &others, cx.fresh, &mut out);
+                crate::drug::civic::matched_therapies(query, &candidates, cx.fresh, &mut out);
             }
             if query.source() == DrugSource::OpenfdaLabel
                 && let Some(product) = product

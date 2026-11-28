@@ -84,7 +84,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 /// opens the first; say so, and give every other one the same read as a next step.
 pub(super) fn matched_therapies(
     query: &DrugGet,
-    others: &[biodata::DrugId],
+    candidates: &[(super::resolve::Rank, biomcp_types::DrugHeader)],
     fresh: bool,
     out: &mut Outcome,
 ) {
@@ -97,7 +97,7 @@ pub(super) fn matched_therapies(
     let Some(resolution) = body.identity.name_resolution.as_mut() else {
         return;
     };
-    if others.is_empty() {
+    if candidates.len() < 2 {
         return;
     }
     resolution.reason = Some(
@@ -116,9 +116,9 @@ pub(super) fn matched_therapies(
     }
     // The other therapies come before per-record follow-ups, in source order.
     let mut reads = Vec::new();
-    for id in others {
+    for (_, other) in candidates.iter().skip(1).take(5) {
         if let Some(get) = crate::next::checked(
-            query.with_native_id(id.clone()),
+            query.with_native_id(other.id.clone()),
             Source::Civic,
             &mut out.problems,
         ) {
