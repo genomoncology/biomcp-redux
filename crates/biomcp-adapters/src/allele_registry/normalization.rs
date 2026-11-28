@@ -1,7 +1,12 @@
 //! Preserve independent native registry mappings and validation messages.
 use super::raw;
-use biomcp_types::Source;
-pub(super) fn map(raw: raw::Allele) -> crate::Mapped<biomcp_types::NormalizationResult> {
+use biomcp_types::{NormalizationField, Source, VariantResolution};
+use std::collections::HashSet;
+
+pub(super) fn map(
+    raw: raw::Allele,
+    protein: bool,
+) -> crate::Mapped<biomcp_types::NormalizationResult> {
     let mut refusals = crate::Refusal::None;
     let mut result = biomcp_types::NormalizationResult::unavailable(Source::AlleleRegistry);
     let mut problems = crate::mapped::Problems {
@@ -32,6 +37,26 @@ pub(super) fn map(raw: raw::Allele) -> crate::Mapped<biomcp_types::Normalization
             });
         }
         result.messages = messages.into();
+    } else if protein {
+        if let Some((record, allele_type)) = problems.optional("@id", Some(raw.protein_identity())) {
+            problems.record = Some(record);
+            let candidates = protein_candidates(raw.proteins, &mut problems);
+            result.outcome = if candidates.is_empty() {
+                VariantResolution::Resolved
+            } else {
+                VariantResolution::Candidates
+            };
+            let mut mappings = identity_mapping(raw.id);
+            mappings.push(NormalizationField {
+                field: "type".into(),
+                value: allele_type.to_string().into(),
+            });
+            mappings.extend(candidates);
+            result.total_mappings = mappings.len() as u32;
+            result.mappings = mappings.into();
+        } else {
+            refusals = crate::Refusal::Refused;
+        }
     } else if let Some((_, record, _)) = problems.optional("@id", Some(raw.identity(None))) {
         problems.record = Some(record);
         result.outcome = biomcp_types::VariantResolution::Resolved;
@@ -48,17 +73,46 @@ pub(super) fn map(raw: raw::Allele) -> crate::Mapped<biomcp_types::Normalization
     }
 }
 
-fn mappings(
-    raw: raw::Allele,
+fn protein_candidates(
+    proteins: Option<crate::raw::Field<Vec<crate::raw::Field<raw::Protein>>>>,
     problems: &mut crate::mapped::Problems,
-) -> Vec<biomcp_types::NormalizationField> {
-    let mut mappings = Vec::new();
-    if let Some(value) = raw.id.and_then(crate::raw::Field::value) {
-        mappings.push(biomcp_types::NormalizationField {
+) -> Vec<NormalizationField> {
+    const MATCHES: &str = "aminoAcidAlleles.matchingRegisteredTranscripts";
+    const ID: &str = "aminoAcidAlleles.matchingRegisteredTranscripts.@id";
+    let mut candidates = Vec::new();
+    let mut seen = HashSet::new();
+    for protein in problems.fields("aminoAcidAlleles", proteins) {
+        for link in problems.fields(MATCHES, protein.matches) {
+            let Some(url) = problems.required_field(ID, link.id) else {
+                continue;
+            };
+            let id = raw::allele_id(&url).ok().and_then(|(_, id)| match id {
+                biodata::VariantId::Ca(id) => Some(id),
+                _ => None,
+            });
+            if problems.required(ID, id).is_some_and(|id| seen.insert(id)) {
+                candidates.push(NormalizationField {
+                    field: ID.into(),
+                    value: url.to_string().into(),
+                });
+            }
+        }
+    }
+    candidates
+}
+
+fn identity_mapping(id: Option<crate::raw::Field<biodata::Text>>) -> Vec<NormalizationField> {
+    id.and_then(crate::raw::Field::value)
+        .map(|value| NormalizationField {
             field: "@id".into(),
             value: value.to_string().into(),
-        });
-    }
+        })
+        .into_iter()
+        .collect()
+}
+
+fn mappings(raw: raw::Allele, problems: &mut crate::mapped::Problems) -> Vec<NormalizationField> {
+    let mut mappings = identity_mapping(raw.id);
     for row in problems.fields("genomicAlleles", raw.genomic) {
         let assembly = problems.field("genomicAlleles.referenceGenome", row.assembly);
         for value in problems.fields("genomicAlleles.hgvs", row.hgvs) {

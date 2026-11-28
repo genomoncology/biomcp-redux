@@ -33,6 +33,7 @@ const ALLELE: Endpoint = SPEC
     .fresh(biomcp_fetch::Freshness::Days(1));
 const ALLELES: Endpoint = SPEC.get("/alleles").fresh(biomcp_fetch::Freshness::Days(1));
 const FIELDS: &str = "none+@id+communityStandardTitle+genomicAlleles+transcriptAlleles.MANE+externalRecords.dbSNP+externalRecords.ClinVarVariations";
+const PROTEIN_FIELDS: &str = "none+@id+type+aminoAcidAlleles.matchingRegisteredTranscripts.@id";
 /// Checked service result including a source validation code.
 #[derive(Debug)]
 pub enum Resolution {
@@ -116,12 +117,18 @@ fn read_fields(
     if !by_id {
         params.insert(0, ("hgvs", Arg::Text(input)));
     }
+    let protein = fields == PROTEIN_FIELDS;
     let reply = leg
         .call(
             &endpoint,
             Input::Params(&params),
             biomcp_fetch::Read::<raw::Allele>::json().cache_if(&|r| {
-                r.error_type.is_none() && r.identity(by_id.then_some(input)).is_ok()
+                r.error_type.is_none()
+                    && if protein {
+                        r.protein_identity().is_ok()
+                    } else {
+                        r.identity(by_id.then_some(input)).is_ok()
+                    }
             }),
         )?
         .value;
@@ -135,8 +142,12 @@ pub fn normalize(
     build: Option<biodata::Build>,
 ) -> Result<crate::Mapped<biomcp_types::NormalizationResult>, RequestError> {
     let qualified = qualify(input, build)?;
-    let raw = read(leg, &qualified, false)?;
-    Ok(normalization::map(raw))
+    let protein = qualified
+        .split_once(':')
+        .is_some_and(|(_, description)| description.starts_with("p."));
+    let fields = if protein { PROTEIN_FIELDS } else { FIELDS };
+    let raw = read_fields(leg, &qualified, false, fields)?;
+    Ok(normalization::map(raw, protein))
 }
 
 // CAR GET accepts reference-qualified HGVS. Bind only the explicit chromosome alias
