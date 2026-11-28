@@ -106,8 +106,9 @@ pub(super) fn pairs(
     offset: u32,
     limit: u32,
 ) -> Result<Page<PgxPair>, RequestError> {
-    let page = pair_page(leg, query, offset, limit, false);
-    if page.as_ref().is_ok_and(|p| p.total == 0) {
+    let ignore_case = query.drug().is_some();
+    let page = pair_page(leg, query, offset, limit, ignore_case);
+    if !ignore_case && page.as_ref().is_ok_and(|p| p.total == 0) {
         return pair_page(leg, query, offset, limit, true);
     }
     page
@@ -126,11 +127,17 @@ pub(super) fn pair_page(
             format!("eq.{value}")
         }
     };
-    let gene = filter(query.gene().as_str());
+    let selector = if let Some(gene) = query.gene() {
+        ("genesymbol", filter(gene.as_str()))
+    } else if let Some(drug) = query.drug() {
+        ("drugname", filter(drug.as_str()))
+    } else {
+        return Err(biomcp_fetch::InputError::Serialization.into());
+    };
     let level = query.cpic_level().map(|v| filter(v.as_str()));
     let mut args = vec![
         ("select", Arg::Text("*")),
-        ("genesymbol", Arg::Text(&gene)),
+        (selector.0, Arg::Text(&selector.1)),
         ("order", Arg::Text("pairid.asc")),
         ("limit", Arg::Num(limit.into())),
         ("offset", Arg::Num(offset.into())),
@@ -147,7 +154,10 @@ pub(super) fn pair_page(
         false,
         |rows: &[PgxPair], _range| {
             rows.iter().all(|r| {
-                &r.genesymbol == query.gene()
+                query.gene().is_none_or(|gene| r.genesymbol == *gene)
+                    && query.drug().is_none_or(|drug| {
+                        r.drugname.as_deref().is_some_and(|name| name.eq_ignore_ascii_case(drug.as_str()))
+                    })
                     && query.cpic_level().is_none_or(|v| {
                         r.cpiclevel
                             .as_deref()

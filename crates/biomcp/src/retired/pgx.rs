@@ -52,7 +52,7 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
 }
 fn flag_message(flag: &str, verb: Option<&str>) -> Option<ErrorMessage> {
     Some(match flag {
-        "-d" | "--drug" | "--evidence" => ErrorMessage::PgxText,
+        "-d" | "--evidence" => ErrorMessage::PgxText,
         "--pgx-testing" | "--population" | "--lookup-key" => ErrorMessage::PgxSelector,
         "--full" => ErrorMessage::PgxSection,
         "-l" | "--limit" if verb == Some("get") => ErrorMessage::PgxSectionLimit,

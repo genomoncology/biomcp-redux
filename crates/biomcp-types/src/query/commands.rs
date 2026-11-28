@@ -157,7 +157,7 @@ macro_rules! command_types {
                 "get", "study", StudyGet, "study-get", "biomcp.study-get/1", StudyGet, "study-get", "biomcp.study-get/1", "biomcp.study-get/1", 27,
                 Direct
             );
-            /// Search pharmacogenomic gene and drug pairs.
+            /// Search CPIC pairs or ClinPGx clinical annotations.
             SearchPgx(PgxSearch) => (
                 "search", "pgx", PgxSearch, "pgx-search", "biomcp.pgx-search/3", PgxSearch, "pgx-search", "biomcp.pgx-search/3",
                 "biomcp.pgx-search/3", 28, Direct

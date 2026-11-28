@@ -1,4 +1,4 @@
-use super::{PgxAnnotationGet, PgxGet, PgxSearch, PgxSource, PgxTotalKind};
+use super::{PgxAnnotationGet, PgxGeneSearch, PgxGet, PgxSearch, PgxSource, PgxTotalKind};
 use crate::ResponseBody;
 use biodata::{
     ClinPgxAccession, GeneSymbol, PgxAnnotationDetail, PgxAnnotationHeader, PgxAnnotationReference,
@@ -14,6 +14,26 @@ pub struct PgxHeader {
     pub source: PgxSource,
     /// Declared source symbol.
     pub gene: GeneSymbol,
+}
+/// Source and selector for a PGx search page.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum PgxSearchHeader {
+    /// Drug-keyed pairs or clinical annotations.
+    Drug {
+        /// Explicit source.
+        source: PgxSource,
+        /// Selected drug name.
+        drug: biodata::Text,
+    },
+    /// Variant-keyed clinical annotations.
+    Variant {
+        /// Explicit source.
+        source: PgxSource,
+        /// Selected dbSNP rsID.
+        variant: biodata::RsId,
+    },
 }
 /// Independent collection scope; observed counts never imply native source totals.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -38,13 +58,13 @@ pub struct PgxPhenotypeRows {
     pub rows: u32,
 }
 macro_rules! collection {
-    ($name:ident,$row:ty,$query:ty,$schema:literal) => {
+    ($name:ident,$row:ty,$header:ty,$query:ty,$schema:literal) => {
         /// Independent source-ordered page of complete native records.
         #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         pub struct $name {
-            /// Source and selected gene.
-            pub header: PgxHeader,
+            /// Source and selected context.
+            pub header: $header,
             /// Meaning and bounds of this collection.
             pub page: PgxPageInfo,
             /// Complete native rows without duplicate summaries.
@@ -57,10 +77,39 @@ macro_rules! collection {
         }
     };
 }
-collection!(PgxPage, PgxPair, PgxSearch, "biomcp.pgx-page/7");
+collection!(PgxPage, PgxPair, PgxHeader, PgxGeneSearch, "biomcp.pgx-page/7");
+/// Drug or variant evidence from the selected source.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "representation", rename_all = "kebab-case")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum PgxDiscovery {
+    /// CPIC pair rows, with native totals.
+    Pairs {
+        /// Source and selected drug.
+        header: PgxSearchHeader,
+        /// Collection size and paging.
+        page: PgxPageInfo,
+        /// Native pair records.
+        items: Box<[PgxPair]>,
+    },
+    /// ClinPGx clinical annotation rows, with observed totals.
+    Clinical {
+        /// Source and selected drug or variant.
+        header: PgxSearchHeader,
+        /// Collection size and paging.
+        page: PgxPageInfo,
+        /// Native clinical annotation headers.
+        items: Box<[PgxAnnotationHeader]>,
+    },
+}
+impl ResponseBody for PgxDiscovery {
+    const SCHEMA: &'static str = "biomcp.pgx-discovery/1";
+    type Query = PgxSearch;
+}
 collection!(
     PgxGuidelines,
     PgxGuidelineReference,
+    PgxHeader,
     PgxGet,
     "biomcp.pgx-guidelines/5"
 );

@@ -4,7 +4,7 @@ use crate::{Mapped, mapped::Problems, pgx_sources::Native as NativeRow, raw::Fie
 use biodata::{PgxAnnotationDetail, PgxAnnotationHeader, PgxAnnotationReference};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_fetch::{Input, Read};
-use biomcp_types::{PgxAnnotationGet, PgxAnnotationKind, PgxGet};
+use biomcp_types::{PgxAnnotationGet, PgxAnnotationKind, PgxGet, PgxSearch};
 use serde::Deserialize;
 /// Bounded whole native collection with no claimed server-wide total.
 #[derive(Debug, Deserialize)]
@@ -25,20 +25,18 @@ impl<T: serde::de::DeserializeOwned> Reply for Native<T> {
 }
 fn collection<T: serde::de::DeserializeOwned + NativeRow>(
     leg: &Leg<'_>,
-    q: &PgxGet,
     path: &'static str,
-    key: &'static str,
+    selector: (&str, &str),
     check: impl Fn(&T::Value) -> Result<(), &'static str>,
 ) -> Result<Mapped<Vec<T::Value>>, RequestError> {
     let endpoint = SPEC
         .get(path)
         .fresh(Freshness::Days(1))
         .bytes(4 * 1024 * 1024);
-    let gene = q.gene().to_string();
     let body: Native<Vec<Field<T>>> = leg
         .call(
             &endpoint,
-            Input::Params(&[(key, Arg::Text(&gene)), ("view", Arg::Text("min"))]),
+            Input::Params(&[(selector.0, Arg::Text(selector.1)), ("view", Arg::Text("min"))]),
             Read::json().check(&|_| Ok(())).cache_if(&|_| true),
         )?
         .value;
@@ -82,11 +80,10 @@ pub fn clinical(
     q: &PgxGet,
 ) -> Result<Mapped<Vec<PgxAnnotationHeader>>, RequestError> {
     let symbol = q.gene().to_string();
-    collection::<super::annotation_raw::PgxAnnotationHeader>(
+    let mut rows = collection::<super::annotation_raw::PgxAnnotationHeader>(
         leg,
-        q,
         super::CLINICAL_PATH,
-        "location.genes.symbol",
+        ("location.genes.symbol", &symbol),
         |row: &PgxAnnotationHeader| {
             let matched = row.location.as_ref().is_some_and(|location| {
                 location
@@ -100,7 +97,56 @@ pub fn clinical(
                 Err("location.genes")
             }
         },
+    )?;
+    rows.value.retain(|row| {
+        q.level().is_none_or(|level| {
+            row.level_of_evidence.as_ref().and_then(|e| e.term.as_deref()) == Some(level.as_str())
+        }) && q.drug().is_none_or(|drug| matches_drug(row, drug.as_str()))
+    });
+    Ok(rows)
+}
+
+/// Clinical annotations selected by an exact rsID or drug name.
+pub fn search(
+    leg: &Leg<'_>,
+    q: &PgxSearch,
+) -> Result<Mapped<Vec<PgxAnnotationHeader>>, RequestError> {
+    if let Some(variant) = q.variant() {
+        let rsid = variant.to_string();
+        return collection::<super::annotation_raw::PgxAnnotationHeader>(
+            leg,
+            super::CLINICAL_PATH,
+            ("location.fingerprint", &rsid),
+            |row| matches_variant(row, &rsid).then_some(()).ok_or("location.variant"),
+        );
+    }
+    let drug = q.drug().ok_or(biomcp_fetch::InputError::Serialization)?.as_str();
+    collection::<super::annotation_raw::PgxAnnotationHeader>(
+        leg,
+        super::CLINICAL_PATH,
+        ("relatedChemicals.name", drug),
+        |row| matches_drug(row, drug).then_some(()).ok_or("relatedChemicals"),
     )
+}
+
+fn matches_variant(row: &PgxAnnotationHeader, rsid: &str) -> bool {
+    row.location.as_ref().is_some_and(|location| {
+        [
+            location.rsid.as_deref(),
+            location.display_name.as_deref(),
+            location.variant.as_ref().and_then(|variant| variant.symbol.as_deref()),
+            location.variant.as_ref().and_then(|variant| variant.name.as_deref()),
+        ]
+        .into_iter()
+        .flatten()
+        .any(|value| value.eq_ignore_ascii_case(rsid))
+    })
+}
+
+fn matches_drug(row: &PgxAnnotationHeader, drug: &str) -> bool {
+    row.related_chemicals.iter().any(|chemical| {
+        chemical.name.as_deref().is_some_and(|name| name.eq_ignore_ascii_case(drug))
+    })
 }
 /// Reference collections remain independent; neither supplies full guidance.
 pub fn references(
@@ -114,9 +160,8 @@ pub fn references(
     };
     collection::<super::annotation_raw::PgxAnnotationReference>(
         leg,
-        q,
         path,
-        "relatedGenes.symbol",
+        ("relatedGenes.symbol", q.gene().as_str()),
         |row| {
             if row.obj_cls.as_ref() == class {
                 Ok(())

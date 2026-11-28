@@ -22,7 +22,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 mod annotation_raw;
 mod detail_raw;
 mod read;
-pub use read::{annotation, clinical, references};
+pub use read::{annotation, clinical, references, search};
 
 /// Native clinical annotation collection shared by reads and the bounded health probe.
 pub(crate) const CLINICAL_PATH: &str = "/data/clinicalAnnotation";

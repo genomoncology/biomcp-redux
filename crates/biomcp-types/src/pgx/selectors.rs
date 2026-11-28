@@ -31,6 +31,17 @@ biodata::wire_enum! { described
         Label => "label",
     }
 }
+biodata::wire_enum! {
+    /// ClinPGx clinical annotation evidence level.
+    PgxEvidenceLevel {
+        Level1A => "1A",
+        Level1B => "1B",
+        Level2A => "2A",
+        Level2B => "2B",
+        Level3 => "3",
+        Level4 => "4",
+    }
+}
 biodata::wire_enum! { described
     /// Meaning of the stated collection total.
     PgxTotalKind {

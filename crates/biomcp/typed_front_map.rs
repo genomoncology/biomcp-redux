@@ -36,7 +36,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
         &[
             ("search", "search_gene", ""),
             ("get", "get_gene", ""),
-            ("pgx", "search_pgx", "gene and drug pharmacogenomic pairs"),
+            ("pgx", "search_pgx", "CPIC pairs and ClinPGx annotations"),
             ("pgx_get", "get_pgx", PGX_GET),
             ("gwas", "search_gwas", GWAS),
         ],
