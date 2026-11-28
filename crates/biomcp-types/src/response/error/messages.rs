@@ -149,7 +149,6 @@ singleton! {
         PgxGene => "use: search pgx --gene <SYMBOL> --source cpic",
         PgxGet => "use: get pgx --gene <SYMBOL> [recommendations|guidelines|diplotype|annotations] --source <SOURCE>",
         PgxText => "drug-text and guideline-text search are dropped; use search pgx --gene <SYMBOL> --source cpic",
-        PgxDrugSearch => "use --drug <NAME> for a drug, --cpic-level for CPIC pair levels, or --level on ClinPGx clinical annotations",
         PgxSelector => "this PGx selector is not yet supported; --drug-id is supported only on recommendations",
         PgxInteractions => "use: search pgx --gene <SYMBOL> --source cpic; get pgx --gene <SYMBOL> --source cpic",
         PgxFrequencies => "frequency pages are deferred because no harvested question needs them", PgxSection => "name one PGx section per request",
