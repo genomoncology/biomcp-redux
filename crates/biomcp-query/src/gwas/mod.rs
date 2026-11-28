@@ -34,12 +34,15 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         Ok(page) if page.total == 0 => studies::find_unpublished(&leg, q),
         _ => Ok(None),
     };
-    if let Ok(Some(study)) = fallback {
-        let out = studies::unpublished(cx, q, study, leg.finish());
-        command.finish(deadline.remaining());
-        return out;
-    }
-    let fallback_error = fallback.err();
+    let fallback_error = match fallback {
+        Ok(Some(study)) => {
+            let out = studies::unpublished(cx, q, study, leg.finish());
+            command.finish(deadline.remaining());
+            return out;
+        }
+        Ok(None) => None,
+        Err(error) => Some(error),
+    };
     let error = result.as_ref().err().copied();
     let counts = result
         .as_ref()
