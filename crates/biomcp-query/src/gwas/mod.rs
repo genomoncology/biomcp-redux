@@ -43,15 +43,15 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         Ok(None) => None,
         Err(error) => Some(error),
     };
-    let error = result.as_ref().err().copied();
-    let counts = result
-        .as_ref()
-        .ok()
-        .map(|page| (page.rows.len() as u32, page.total));
-    if let Ok(page) = result {
-        association_page(q, &mut out, page);
-    }
-    let mut source = status::source(Source::Gwas, leg.finish(), error.or(fallback_error));
+    let (counts, error) = match result {
+        Ok(page) => {
+            let counts = (page.rows.len() as u32, page.total);
+            association_page(q, &mut out, page);
+            (Some(counts), fallback_error)
+        }
+        Err(error) => (None, Some(error)),
+    };
+    let mut source = status::source(Source::Gwas, leg.finish(), error);
     if let Some((accepted, total)) = counts {
         source.retrieved_count = Some(accepted);
         source.count = Some(total);
@@ -80,7 +80,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     if fallback_error.is_some() {
         status::item(&mut out, true, false, true);
     }
-    out.local = error.or(fallback_error).and_then(status::local);
+    out.local = error.and_then(status::local);
     traits::resolve(cx, q, deadline, &mut out);
     command.finish(deadline.remaining());
     out
