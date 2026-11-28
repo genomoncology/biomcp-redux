@@ -10,6 +10,8 @@ use std::marker::PhantomData;
 
 /// ClinGen Actionability Knowledge Repository.
 pub static SPEC: SourceSpec = SourceSpec {
+    source: Source::ClinGen,
+    terms: super::SPEC.terms,
     base: "https://actionability.clinicalgenome.org",
     ..super::SPEC
 };
