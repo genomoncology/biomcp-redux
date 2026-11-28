@@ -536,7 +536,7 @@
               "type": "null"
             }
           ],
-          "description": "Which record was chosen and why, with counts of the others by kind; label names only."
+          "description": "Which record was chosen and why: label names, and CIViC names listed under several therapies."
         },
         "total": {
           "description": "Distinct exact-name source records found among the rows read, including the selected record; MyChem reads at most 250 rows.",

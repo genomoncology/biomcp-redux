@@ -1,0 +1,36 @@
+{
+  "feature": "drug-civic",
+  "live_check": "public",
+  "story": "A page of 50 of a therapy's 161 CIViC evidence items leads its next steps with the next page, and that call returns the next 50.",
+  "verified": "Public keyless CIViC GraphQL replies for sunitinib (therapy 157), recorded by the BioMCP recorder 2026-11-28. CIViC CC0 https://civicdb.org/releases/licensing.",
+  "replay": "drug/civic-claim-page-next",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "157",
+        "civic",
+        "--source",
+        "civic",
+        "--section-limit",
+        "50"
+      ],
+      "expect": {
+        "/result/civic/data/evidence/page/total": 161,
+        "/result/civic/data/evidence/page/returned": 50,
+        "/next/0/kind": "page"
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/result/civic/data/evidence/page/total": 161,
+        "/result/civic/data/evidence/page/returned": 50,
+        "/result/civic/data/evidence/records/0/claim/record/id": "EID4502",
+        "/result/civic/data/evidence/page/next/civic_cursor": "MTAw",
+        "/next/0/kind": "page"
+      }
+    }
+  ]
+}

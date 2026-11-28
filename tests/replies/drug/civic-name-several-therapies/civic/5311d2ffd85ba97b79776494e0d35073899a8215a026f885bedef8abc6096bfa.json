@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "5e5c8bb3347909f722441e83a91d72d1c414d5b63132e9dc748adb796f730950"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795883960,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 76,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"therapy":{"id":4287,"name":"Trastuzumab Deruxtecan","link":"/therapies/4287"},"evidenceItems":{"totalCount":3,"pageInfo":{"hasNextPage":true,"endCursor":"MQ"},"nodes":[{"id":12013,"status":"ACCEPTED","significance":"SENSITIVITYRESPONSE","disease":{"name":"Solid Tumor","doid":null},"therapies":[{"id":4287,"name":"Trastuzumab Deruxtecan"}],"therapyInteractionType":null,"evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"SUPPORTS","source":{"citationId":"37870536","sourceType":"PUBMED"},"molecularProfile":{"id":849,"name":"ERBB2 Overexpression","rawName":"#VID875","link":"/molecular-profiles/849","isComplex":false,"variants":[{"id":875,"name":"Overexpression","link":"/variants/875","feature":{"id":20,"name":"ERBB2","featureType":"GENE","featureInstance":{}},"alleleRegistryId":null,"hgvsDescriptions":[],"coordinates":{"referenceBuild":null}}]}}]},"assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}}
+      }
+    }
+  ]
+}

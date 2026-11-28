@@ -1,0 +1,38 @@
+{
+  "feature": "drug-civic",
+  "live_check": "public",
+  "story": "A drug name CIViC lists under two therapies reads the first, says so, and gives the other one the same read as its first next step.",
+  "verified": "Public keyless CIViC GraphQL replies for trastuzumab deruxtecan (therapies 4287 and 2460), recorded by the BioMCP recorder 2026-11-28. CIViC CC0 https://civicdb.org/releases/licensing.",
+  "replay": "drug/civic-name-several-therapies",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "trastuzumab deruxtecan",
+        "civic",
+        "--source",
+        "civic",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/result/identity/id": "4287",
+        "/result/identity/name_resolution/total": 2,
+        "/result/identity/name_resolution/reason": "CIViC lists 2 therapies under this name, each with its own evidence and assertions; this reply reads therapy 4287 only; get each alternative to read the others",
+        "/result/identity/name_resolution/alternatives/0/args": ["get", "drug", "2460", "civic", "--source", "civic"],
+        "/result/civic/data/evidence/page/total": 3,
+        "/next/0/kind": "disambiguate"
+      }
+    },
+    {
+      "follow": "disambiguate",
+      "expect": {
+        "/result/identity/id": "2460",
+        "/result/civic/data/evidence/page/total": 24,
+        "/result/civic/data/evidence/page/returned": 1,
+        "/result/civic/data/evidence/records/0/claim/record/id": "EID11731"
+      }
+    }
+  ]
+}

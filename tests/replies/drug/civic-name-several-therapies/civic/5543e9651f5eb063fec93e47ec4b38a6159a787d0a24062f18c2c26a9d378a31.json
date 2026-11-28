@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "a0ab451619bac00c854d14b3f29856883a4d48b89636ee592e9e5dfdbb105ce9"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795883960,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 309,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"therapies":{"totalCount":6,"pageInfo":{"hasNextPage":false,"endCursor":"Ng"},"nodes":[{"id":32010,"name":"Pertuzumab/Trastuzumab Deruxtecan Regimen","link":"/therapies/32010","ncitId":"C223896","therapyAliases":["Enhertu/Perjeta","Fam-trastuzumab Deruxtecan-nxki Plus Pertuzumab","Pertuzumab Plus Trastuzumab Deruxtecan","Pertuzumab-Trastuzumab Deruxtecan","Pertuzumab/Fam-trastuzumab Deruxtecan-nxki","Pertuzumab/Trastuzumab Deruxtecan","Trastuzumab Deruxtecan And Pertuzumab","Trastuzumab Deruxtecan/Pertuzumab"],"deprecated":false},{"id":4287,"name":"Trastuzumab Deruxtecan","link":"/therapies/4287","ncitId":"C152716","therapyAliases":[],"deprecated":false},{"id":2460,"name":"Trastuzumab Deruxtecan","link":"/therapies/2460","ncitId":"C128799","therapyAliases":["ADC DS-8201a","Anti-HER2 Antibody-Drug Conjugate DS-8201a","Anti-HER2-DX-8951 Derivative ADC DS-8201a","DS-8201","DS-8201a","Enhertu","Fam-trastuzumab Deruxtecan-nxki","T-DXd","WHO 10516"],"deprecated":false},{"id":33897,"name":"Trastuzumab Deruxtecan Followed By Paclitaxel/Pertuzumab/Trastuzumab And Hyaluronidase-oysk Regimen","link":"/therapies/33897","ncitId":"C227675","therapyAliases":["Enhertu Followed By Taxol/Herceptin Hylecta/Perjeta","Fam-trastuzumab Deruxtecan-nxki Followed By Paclitaxel/Pertuzumab/Trastuzumab And Hyaluronidase-oysk","Trastuzumab Deruxtecan Followed By Paclitaxel/Pertuzumab/Hyaluronidase-oysk And Trastuzumab","Trastuzumab Deruxtecan Followed By Paclitaxel/Pertuzumab/Hyaluronidase-oysk-Trastuzumab","Trastuzumab Deruxtecan Followed By Paclitaxel/Pertuzumab/Recombinant Human Hyaluronidase/Trastuzumab","Trastuzumab Deruxtecan Followed By Pertuzumab/Trastuzumab And Hyaluronidase-oysk Followed By Paclitaxel","Trastuzumab Deruxtecan-nxki Followed By Paclitaxel/Pertuzumab/Trastuzumab And Hyaluronidase-oysk"],"deprecated":false},{"id":33894,"name":"Trastuzumab Deruxtecan Followed By Paclitaxel/Pertuzumab/Trastuzumab Regimen","link":"/therapies/33894","ncitId":"C227671","therapyAliases":["Enhertu Followed By Taxol/Herceptin/Perjeta","Enhertu/Perjeta","Fam-trastuzumab Deruxtecan-nxki Followed By Paclitaxel/Pertuzumab/Trastuzumab","T-DXd-THP (Paclitaxel)","Trastuzumab Deruxtecan Followed By Pertuzumab/Trastuzumab Followed By Paclitaxel","Trastuzumab Deruxtecan Followed By THP","Trastuzumab Deruxtecan-nxki Followed By Paclitaxel/Pertuzumab/Trastuzumab"],"deprecated":false},{"id":20991,"name":"Trastuzumab Deruxtecan Regimen","link":"/therapies/20991","ncitId":"C173972","therapyAliases":["Enhertu Regimen","Fam-trastuzumab Deruxtecan-nxki Regimen","Trastuzumab Deruxtecan Monotherapy","Trastuzumab Deruxtecan-nxki Regimen"],"deprecated":false}]}}}
+      }
+    }
+  ]
+}

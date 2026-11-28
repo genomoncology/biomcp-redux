@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "17b5a29322e28688c83de8481be2ea1f694249ac32608db15e9a7d42eaf15ccc"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795883960,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 231,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"therapy":{"id":2460,"name":"Trastuzumab Deruxtecan","link":"/therapies/2460"},"evidenceItems":{"totalCount":24,"pageInfo":{"hasNextPage":true,"endCursor":"MQ"},"nodes":[{"id":11731,"status":"ACCEPTED","significance":"SENSITIVITYRESPONSE","disease":{"name":"Lung Non-small Cell Carcinoma","doid":"3908"},"therapies":[{"id":2460,"name":"Trastuzumab Deruxtecan"}],"therapyInteractionType":null,"evidenceType":"PREDICTIVE","evidenceLevel":"A","evidenceDirection":"SUPPORTS","source":{"citationId":"37694347","sourceType":"PUBMED"},"molecularProfile":{"id":662,"name":"ERBB2 Mutation","rawName":"#VID666","link":"/molecular-profiles/662","isComplex":false,"variants":[{"id":666,"name":"Mutation","link":"/variants/666","feature":{"id":20,"name":"ERBB2","featureType":"GENE","featureInstance":{}},"alleleRegistryId":null,"hgvsDescriptions":[],"coordinates":{"referenceBuild":"GRCH37"}}]}}]},"assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}}
+      }
+    }
+  ]
+}
