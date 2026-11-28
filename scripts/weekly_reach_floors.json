@@ -1,4 +1,19 @@
 {
+  "chembl": {
+    "approved-antibody": [8, 8],
+    "approved-protein": [8, 8],
+    "approved-small-molecule": [8, 8],
+    "child-only mechanisms": [7, 8],
+    "drug_indication": [8, 8],
+    "mechanism": [8, 8],
+    "natural-product": [8, 8],
+    "phase-0.5": [8, 8],
+    "phase-1": [8, 8],
+    "phase-2": [8, 8],
+    "phase-3": [8, 8],
+    "unnamed": [8, 8],
+    "withdrawn": [8, 8]
+  },
   "clinpgx": {
     "clinical/1A/with-gene": [8, 8],
     "clinical/1A/without-gene": [1, 1],
@@ -36,6 +51,10 @@
     "variation type/single nucleotide variant": [8, 8],
     "variation type/tandem duplication": [1, 1],
     "variation type/translocation": [8, 8]
+  },
+  "cpic": {
+    "diplotype": [8, 8],
+    "pair": [8, 8]
   },
   "ctgov": {
     "InterventionType/BEHAVIORAL": [8, 8],
@@ -158,6 +177,24 @@
     "prevalence/Malformation syndrome": [8, 8],
     "prevalence/Morphological anomaly": [8, 8],
     "prevalence/Particular clinical situation in a disease or syndrome": [8, 8]
+  },
+  "reactome": {
+    "Bos taurus": [0, 8],
+    "Caenorhabditis elegans": [0, 8],
+    "Canis familiaris": [0, 8],
+    "Danio rerio": [0, 8],
+    "Dictyostelium discoideum": [0, 8],
+    "Drosophila melanogaster": [0, 8],
+    "Gallus gallus": [0, 8],
+    "Homo sapiens": [8, 8],
+    "Mus musculus": [0, 8],
+    "Mycobacterium tuberculosis": [0, 8],
+    "Plasmodium falciparum": [0, 8],
+    "Rattus norvegicus": [0, 8],
+    "Saccharomyces cerevisiae": [0, 8],
+    "Schizosaccharomyces pombe": [0, 8],
+    "Sus scrofa": [0, 8],
+    "Xenopus tropicalis": [0, 8]
   },
   "uniprot": {
     "mouse": [0, 8],
