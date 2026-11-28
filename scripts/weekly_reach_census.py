@@ -30,22 +30,28 @@ CLINVAR_TYPES = (
     "Variation", "tandem duplication",
 )
 CLINVAR_REVIEWS = (
-    "no assertion criteria provided", "single submitter",
-    "multiple submitters no conflicts", "conflicting classifications",
-    "expert panel", "practice guideline", "no classification provided",
+    "no assertion criteria provided", "criteria provided, single submitter",
+    "criteria provided, multiple submitters, no conflicts",
+    "criteria provided, conflicting classifications", "reviewed by expert panel",
+    "practice guideline", "no classification provided",
+    "no classification for the individual variant",
 )
 
 
 def clinvar(census):
-    for field, classes in (("Variation Type", CLINVAR_TYPES),
-                           ("Review Status", CLINVAR_REVIEWS)):
+    # Use the documented E-Search fields so a term cannot match free text.
+    # https://www.ncbi.nlm.nih.gov/clinvar/docs/help/
+    for label_prefix, field, classes in (("variation type", "vartype", CLINVAR_TYPES),
+                                         ("review status", "revstat", CLINVAR_REVIEWS)):
         for member in classes:
-            label = f"{field.lower()}/{member}"
+            label = f"{label_prefix}/{member}"
 
             def fetch(offset):
                 params = {"db": "clinvar", "retmode": "json", "retmax": 1,
                           "retstart": offset, "term": f'"{member}"[{field}]'}
                 result = census.native(NCBI, params)[0]["esearchresult"]
+                if (result.get("errorlist") or {}).get("fieldsnotfound"):
+                    raise CensusError("ClinVar did not recognize the census field")
                 return int(result["count"]), next(iter(result["idlist"]), None)
 
             def probe(variant):
