@@ -117,14 +117,15 @@ impl Stored {
         .into_iter()
         .chain(
             row.reference_bla
-            .iter()
+                .iter()
                 .chain(row.reference_bla_candidates.iter())
                 .map(DrugId::as_str),
         )
         .filter(|key| !key.is_empty())
     }
     pub(super) fn matches(&self, query: &str) -> bool {
-        self.search_keys().any(|key| key.eq_ignore_ascii_case(query))
+        self.search_keys()
+            .any(|key| key.eq_ignore_ascii_case(query))
     }
 }
 impl Row for Stored {
@@ -203,7 +204,10 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
     rows.sort_unstable_by(|(_, a), (_, b)| {
         (&a.bla, &a.product_number).cmp(&(&b.bla, &b.product_number))
     });
-    if rows.iter().all(|(_, row)| row.license_type.as_ref() == "351(a)") {
+    if rows
+        .iter()
+        .all(|(_, row)| row.license_type.as_ref() == "351(a)")
+    {
         return Err(BadReply);
     }
     let stored_date = format!("{date}{FULL_ROSTER_SUFFIX}");
@@ -244,7 +248,9 @@ fn presentation(
 ) -> Result<PurpleBookPresentation, BadReply> {
     let license_type = row.license_type.parse().map_err(|_| BadReply)?;
     if license_type != PurpleBookLicense::Standalone
-        && (row.name.is_empty() || row.reference_name.is_empty() || row.reference_proper_name.is_empty())
+        && (row.name.is_empty()
+            || row.reference_name.is_empty()
+            || row.reference_proper_name.is_empty())
     {
         return Err(BadReply);
     }

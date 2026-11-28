@@ -54,8 +54,8 @@ fn snapshot(leg: &Leg<'_>, key: &str) -> Result<Selected, RequestError> {
     if let Some((rows, info)) = stored {
         let date = info.data_date.as_deref().ok_or(CacheError::Encoding)?;
         let full_date = date.strip_suffix(FULL_ROSTER_SUFFIX);
-        let month = ReleaseMonth::from_key(full_date.unwrap_or(date))
-            .map_err(|_| CacheError::Encoding)?;
+        let month =
+            ReleaseMonth::from_key(full_date.unwrap_or(date)).map_err(|_| CacheError::Encoding)?;
         if month > seed.month {
             return Ok(Selected {
                 rows,
@@ -119,7 +119,9 @@ pub fn search(leg: &Leg<'_>, query: &DrugSearch) -> Result<SnapshotSearch, Reque
     let rows: Vec<_> = matches.map(|stored| stored.row).collect();
     let release_month = snapshot.month.label();
     let guidance = if !snapshot.full_roster {
-        format!("This import contains only biosimilars. Reimport the complete {release_month} CSV to search all products. {HELP}")
+        format!(
+            "This import contains only biosimilars. Reimport the complete {release_month} CSV to search all products. {HELP}"
+        )
     } else if rows.is_empty() {
         format!("Products approved or designated after {release_month} are not included. {HELP}")
     } else {
