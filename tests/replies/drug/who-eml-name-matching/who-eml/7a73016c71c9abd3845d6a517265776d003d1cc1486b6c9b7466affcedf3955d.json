@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=acetaminophen",
+  "exchanges": [
+    {
+      "fetched": 1795840684,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 329,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "7a73016c71c9abd3845d6a517265776d003d1cc1486b6c9b7466affcedf3955d-0.bin"
+      }
+    }
+  ]
+}

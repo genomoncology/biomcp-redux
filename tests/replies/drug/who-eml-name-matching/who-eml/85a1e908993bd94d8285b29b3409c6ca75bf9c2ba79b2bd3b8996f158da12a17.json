@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/medicines/15",
+  "exchanges": [
+    {
+      "fetched": 1795840684,
+      "status": 200,
+      "content_type": "application/ld+json",
+      "delay_ms": 368,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"@context":["http://schema.org/docs/jsonldcontext.json","https://list.essentialmeds.org/contexts/v1.jsonld"],"@id":"/medicines/15","@type":["Drug","Medicine"],"name":"paracetamol (acetaminophen)","nonProprietaryName":"paracetamol","description":"<div data-contents=\"true\"><div class=\"\" data-block=\"true\" data-editor=\"cjtqp\" data-offset-key=\"1uvmp-0-0\"><div data-offset-key=\"1uvmp-0-0\" class=\"public-DraftStyleDefault-block public-DraftStyleDefault-ltr\"><span data-offset-key=\"1uvmp-0-0\"><span data-text=\"true\">Paracetamol is a non-opioid analgesic for treatment of mild to moderate pain including dysmenorrhoea and headache; pain relief in osteoarthritis and soft tissue lesions; acute migraine.  It also has antipyretic activity.</span></span></div></div></div>","sameAs":"http://en.wikipedia.org/wiki/Paracetamol","activeIngredient":["paracetamol"],"ingredient":[{"@type":"Substance","name":"paracetamol","sameAs":"http://www.drugbank.ca/drugs/DB00316"}],"drugUnit":["Oral > Liquid: 120 mg per 5 mL; 250 mg per 5 mL; 125 mg per 5 mL","Local > Rectal > Suppository: 100 mg; 250 mg","Oral > Solid > dispersible tablet: 250 mg; 100 mg","Oral > Solid > tablet: 500 mg; 325 mg; 250 mg","Oral > Liquid: 250 mg per 5 mL; 125 mg per 5 mL; 120 mg per 5 mL","Local > Rectal > Suppository: 250 mg","Oral > Solid > tablet: 250 mg; 325 mg; 500 mg"],"guideline":[{"@id":"/recommendations/16"},{"@id":"/recommendations/79"}],"equivalentFor":[],"status":"AddedToEml","antibioticStewardshipGroup":[]}
+      }
+    }
+  ]
+}

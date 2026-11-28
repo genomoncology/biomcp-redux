@@ -1,0 +1,19 @@
+feature: drug-who-eml
+story: Paracetamol and acetaminophen both find the same WHO eEML medicine and listings.
+live_check: public
+replay: drug/who-eml-name-matching
+steps:
+  - run: [get, drug, paracetamol, essential-medicines, --source, who-eml, --section-limit, "1"]
+    expect:
+      /status: complete
+      /result/identity/id: "15"
+      /result/identity/name: paracetamol (acetaminophen)
+      /result/listings/data/records/0/id: "16"
+    max_bytes: 6000
+  - run: [get, drug, acetaminophen, essential-medicines, --source, who-eml, --section-limit, "1"]
+    expect:
+      /status: complete
+      /result/identity/id: "15"
+      /result/identity/name: paracetamol (acetaminophen)
+      /result/listings/data/records/0/id: "16"
+    max_bytes: 6000

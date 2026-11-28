@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-eml",
+  "url": "https://list.essentialmeds.org/?query=paracetamol",
+  "exchanges": [
+    {
+      "fetched": 1795840683,
+      "status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 372,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "70720786707528df34a43a91579031d4fb68a085837d215ca0ac84e865f668a4-0.bin"
+      }
+    }
+  ]
+}
