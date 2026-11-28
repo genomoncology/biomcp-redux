@@ -327,9 +327,10 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
 #[test]
 fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
     let cache = ReplayCache::temporary().unwrap();
-    // Each budget is five NCBI intervals, as 2 s was at the keyless 0.4 s spacing.
-    let fetch = fetch_paced("synthetic-small", cache, ncbi_paced(7));
-    let budget = Duration::from_secs(35);
+    // Each budget is five NCBI intervals, as 2 s was at the keyless 0.4 s spacing. Waits for a
+    // slot behind the other command stay under PubMed's 15 s request limit.
+    let fetch = fetch_paced("synthetic-small", cache, ncbi_paced(3));
+    let budget = Duration::from_secs(15);
     for _ in 0..3 {
         let outcomes = std::thread::scope(|scope| {
             let one = scope.spawn(|| run_within(&fetch, query(None, 0), true, budget));
