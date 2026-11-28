@@ -12,10 +12,12 @@ import re
 import subprocess
 import tempfile
 from urllib.error import HTTPError, URLError
+from xml.etree.ElementTree import ParseError
 
 from nightly_live_check import build
 from reach_census_common import Census, CensusError, Measurement, offsets, read, source_page
 import reach_census_providers as providers
+from chembl_reach_census import child_only_parents
 
 NCBI = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 GWAS = "https://www.ebi.ac.uk/gwas/rest/api/v2"
@@ -156,6 +158,18 @@ def chembl(census):
 
         yield endpoint, source_page(census, endpoint, fetch, probe)
 
+    families = child_only_parents()
+    reached = 0
+    sample = offsets("child-only mechanisms", len(families))
+    parents = sorted(families)
+    for index in sample:
+        parent = parents[index]
+        reply = census.reply(("get", "drug", parent, "targets", "--source",
+                              "chembl", "--section-limit", "1"))
+        records = read(reply, "result", "targets", "data", "records") or []
+        reached += any(read(row, "drug", "id") in families[parent] for row in records)
+    yield "child-only mechanisms", Measurement(len(parents), reached, len(sample))
+
 
 def mychem(census):
     yield from chembl_molecules(census, True)
@@ -222,7 +236,8 @@ def run(census, sources, floors):
                     failure = compare(label, measured, floors.get(source, {}).get(group))
                     if failure:
                         failures.append(failure)
-        except (OSError, ValueError, KeyError, TypeError, IndexError, subprocess.SubprocessError) as error:
+        except (OSError, ValueError, KeyError, TypeError, IndexError, ParseError,
+                subprocess.SubprocessError) as error:
             # Provider text and exception arguments can contain URLs or credentials.
             detail = type(error).__name__
             if isinstance(error, HTTPError):

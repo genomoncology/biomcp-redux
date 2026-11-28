@@ -4,7 +4,7 @@ import json
 from xml.etree import ElementTree
 
 from gene_validity_reach import probes as validity_probes
-from reach_census_common import read, sample_rows, source_page
+from reach_census_common import CensusError, read, sample_rows, source_page
 
 CTGOV = "https://clinicaltrials.gov/api/v2"
 CPIC = "https://api.cpicpgx.org/v1"
@@ -110,7 +110,7 @@ def gene_validity(census):
                 offset += len(items)
                 if not items or offset >= read(reply, "page", "total"):
                     return False
-            raise ValueError("validity sample exceeds paging window")
+            raise CensusError("validity sample exceeds paging window")
 
         label = f"{source}/{namespace}"
         yield label, sample_rows(label, rows, probe)
@@ -128,7 +128,7 @@ def erepo(census):
         if len(rows) < 1000:
             break
     else:
-        raise ValueError("evidence repository exceeds sampling window")
+        raise CensusError("evidence repository exceeds sampling window")
 
     def probe(row):
         if not row.get("caId"):
@@ -145,12 +145,12 @@ def erepo(census):
 def wikipathways(census):
     catalog, _ = census.native(WP, {})
     rows = defaultdict(list)
-    for row in catalog["result"]:
+    for row in catalog["pathwayInfo"]:
         rows[row["species"]].append(row["id"])
     census.reply(("sync", "wikipathways"))
 
     def probe(identifier):
-        reply = census.reply(("get", "pathway", identifier))
+        reply = census.reply(("get", "pathway", identifier), allow_usage=True)
         return read(reply, "result", "pathway", "id", "id") == identifier
 
     for label, identifiers in sorted(rows.items()):
@@ -242,7 +242,7 @@ def clinpgx(census):
     for level in ("1A", "1B", "2A", "2B", "3", "4"):
         body, _ = census.native(base, {"levelOfEvidence.term": level, "view": "min"})
         if body["status"] != "success":
-            raise ValueError("ClinPGx did not return the level collection")
+            raise CensusError("ClinPGx did not return the level collection")
         rows = body["data"]
         groups = defaultdict(list)
         for row in rows:
@@ -264,7 +264,7 @@ def gnomad(census):
     groups = defaultdict(set)
     # Source totals here are for the selected native gene frame.
     for gene in ("ENSG00000141510", "ENSG00000157764", "ENSG00000146648",
-                 "ENSG00000133703", "ENSG00000139618", "ENSG00000155657"):
+                 "ENSG00000133703", "ENSG00000139618", "ENSG00000101986"):
         payload = json.dumps({"query": """query Variants($id: String!) {
           gene(gene_id: $id, reference_genome: GRCh38) {
             variants(dataset: gnomad_r4) { variant_id exome { ac } genome { ac } }
@@ -304,7 +304,7 @@ def orphadata(census):
                 if disorder.find("./AverageAgeOfOnsetList/AverageAgeOfOnset") is not None:
                     groups["onset/" + kind].add(code)
     if not groups:
-        raise ValueError("Orphadata recording contains no disorder classes")
+        raise CensusError("Orphadata recording contains no disorder classes")
     for label, codes in sorted(groups.items()):
         field = label.partition("/")[0]
 
