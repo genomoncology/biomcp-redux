@@ -47,12 +47,6 @@ fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadli
     let found = identity::for_get(cx, query, *deadline);
     let resolver = found.resolver.unwrap_or_else(|| source(query).source);
     *deadline = deadline.after_stage(found.elapsed);
-    if found.rows.is_empty()
-        && query.sections() == [biomcp_types::VariantSection::Population]
-        && population_scope::input_outside(query.input())
-    {
-        return direct::get(cx, query, Source::Gnomad, *deadline);
-    }
     let mut resolution = identity_resolution(&found);
     let mut dropped = found.dropped;
     let mut problems = found.problems;

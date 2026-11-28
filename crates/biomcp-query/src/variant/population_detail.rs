@@ -109,16 +109,12 @@ fn read(
         read.population = Section::unavailable(Source::Gnomad, Reason::Disabled);
         return read;
     }
-    let identity = match query.identity() {
-        Ok(identity) => identity,
-        Err(_) => {
-            read.population = Section::unavailable(Source::Gnomad, Reason::Rejected);
-            return read;
-        }
+    let Ok(identity) = query.identity() else {
+        read.population = Section::unavailable(Source::Gnomad, Reason::Rejected);
+        return read;
     };
     if super::population_scope::input_outside(identity.input()) {
-        read.outside_scope();
-        return read;
+        return read.outside_scope();
     }
     if !super::population_identity::use_native_coordinate(cx.fetch, &identity) {
         let found = super::population_identity::resolve(cx, &identity, deadline);
@@ -135,8 +131,7 @@ fn read(
         }
     }
     if super::population_scope::candidate_outside(&read.candidates) {
-        read.outside_scope();
-        return read;
+        return read.outside_scope();
     }
     let joined = super::population_identity::read(cx, &identity, &read.candidates, deadline);
     deadline = deadline.after_stage(joined.elapsed);
@@ -180,10 +175,11 @@ fn read(
 }
 
 impl PopulationRead {
-    fn outside_scope(&mut self) {
+    fn outside_scope(mut self) -> Self {
         self.population = Section::unavailable(Source::Gnomad, Reason::OutOfScope);
         self.sources.push(super::population_scope::skipped());
         self.candidates.clear();
+        self
     }
 }
 fn choices(
