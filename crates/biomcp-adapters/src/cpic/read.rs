@@ -2,11 +2,11 @@
 use super::SPEC;
 use crate::{mapped::Problems, pgx_sources::Native, raw::Field};
 use biodata::{
-    PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxPair, PgxRecommendation,
+    PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxRecommendation,
 };
 use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
-use biomcp_types::{PgxGet, PgxSearch};
+use biomcp_types::PgxGet;
 use serde::Deserialize;
 /// One native array and its exact collection size.
 #[derive(Debug)]
@@ -98,76 +98,6 @@ pub(super) fn read<T: serde::de::DeserializeOwned + Native>(
         consumed,
         problems: problems.list,
     })
-}
-/// Search gene pairs at `offset`, preserving native level namespaces and row order.
-pub(super) fn pairs(
-    leg: &Leg<'_>,
-    query: &PgxSearch,
-    offset: u32,
-    limit: u32,
-) -> Result<Page<PgxPair>, RequestError> {
-    let ignore_case = query.drug().is_some();
-    let page = pair_page(leg, query, offset, limit, ignore_case);
-    if !ignore_case && page.as_ref().is_ok_and(|p| p.total == 0) {
-        return pair_page(leg, query, offset, limit, true);
-    }
-    page
-}
-pub(super) fn pair_page(
-    leg: &Leg<'_>,
-    query: &PgxSearch,
-    offset: u32,
-    limit: u32,
-    ignore_case: bool,
-) -> Result<Page<PgxPair>, RequestError> {
-    let filter = |value: &str| {
-        if ignore_case {
-            super::case_insensitive(value)
-        } else {
-            format!("eq.{value}")
-        }
-    };
-    let selector = if let Some(gene) = query.gene() {
-        ("genesymbol", filter(gene.as_str()))
-    } else if let Some(drug) = query.drug() {
-        ("drugname", filter(drug.as_str()))
-    } else {
-        return Err(biomcp_fetch::InputError::Serialization.into());
-    };
-    let level = query.cpic_level().map(|v| filter(v.as_str()));
-    let mut args = vec![
-        ("select", Arg::Text("*")),
-        (selector.0, Arg::Text(&selector.1)),
-        ("order", Arg::Text("pairid.asc")),
-        ("limit", Arg::Num(limit.into())),
-        ("offset", Arg::Num(offset.into())),
-    ];
-    if let Some(level) = &level {
-        args.push(("cpiclevel", Arg::Text(level)));
-    }
-    read::<super::raw::PgxPair>(
-        leg,
-        "/pair_view",
-        &args,
-        offset,
-        limit,
-        false,
-        |rows: &[PgxPair], _range| {
-            rows.iter().all(|r| {
-                query.gene().is_none_or(|gene| r.genesymbol == *gene)
-                    && query.drug().is_none_or(|drug| {
-                        r.drugname
-                            .as_deref()
-                            .is_some_and(|name| name.eq_ignore_ascii_case(drug.as_str()))
-                    })
-                    && query.cpic_level().is_none_or(|v| {
-                        r.cpiclevel
-                            .as_deref()
-                            .is_some_and(|level| level.eq_ignore_ascii_case(v.as_str()))
-                    })
-            }) && ordered(rows.iter().map(|r| r.pairid.id))
-        },
-    )
 }
 /// Select only the seven reviewed native identity fields.
 pub fn card(leg: &Leg<'_>, query: &PgxGet) -> Result<Page<PgxGeneIdentity>, RequestError> {
@@ -300,7 +230,7 @@ pub fn guidelines(
         },
     )
 }
-fn ordered(values: impl Iterator<Item = i64>) -> bool {
+pub(super) fn ordered(values: impl Iterator<Item = i64>) -> bool {
     let mut previous = None;
     for value in values {
         if previous.is_some_and(|p| value <= p) {

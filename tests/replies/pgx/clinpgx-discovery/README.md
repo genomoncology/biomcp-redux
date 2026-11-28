@@ -1,1 +1,3 @@
+Synthetic: clinpgx
+
 Authored replay rows exercise ClinPGx request selectors and paging. The gene-less example uses the public accession, rsID, drug and level identified in the source reach census. Other fields and rows are synthetic.
