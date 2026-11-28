@@ -1,0 +1,21 @@
+{
+  "method": "GET",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease/ORPHANET%3A699029?fields=mondo%2Cdisease_ontology",
+  "exchanges": [
+    {
+      "status": 404,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "code": 404,
+          "success": false,
+          "error": "Not Found."
+        }
+      }
+    }
+  ]
+}

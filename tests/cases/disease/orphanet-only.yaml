@@ -1,0 +1,35 @@
+feature: disease-orphadata
+live_check: synthetic Orphadata XML and authored MyDisease misses
+story: A caller reads a disorder by its Orphanet code when MyDisease has no MONDO mapping.
+replay: disease/orphanet-only
+steps:
+  - run: [sync, orphadata, --xrefs]
+    expect:
+      /status: complete
+  - run: [sync, orphadata]
+    expect:
+      /status: complete
+  - run: [get, disease, "ORPHA:699029"]
+    expect:
+      /status: complete
+      /result/requested_id: "ORPHA:699029"
+      /result/returned_id: "ORPHA:699029"
+      /result/concept/label: Synthetic unmapped disorder
+      /result/disorder_type: Disease
+      /result/attribution/source: orphadata
+      /result/attribution/version: synthetic-1
+      /result: {omits: [alias]}
+      /sources/0/reason: not-found
+      /sources/1/source: orphadata
+  - follow: section
+    expect:
+      /status: complete
+      /result/items/0/id: "Orphanet:699029"
+      /result/items/0/prevalence/0/class: "<1 / 1 000 000"
+      /sources/*/source: [orphadata]
+  - run: [get, disease, "Orphanet:900002"]
+    expect:
+      /status: complete
+      /result/returned_id: "ORPHA:900002"
+      /result/concept/label: Synthetic disorder without epidemiology
+      /result/disorder_type: Clinical subtype
