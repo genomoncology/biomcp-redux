@@ -266,7 +266,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "study",
-        "Search cancer cohorts and GWAS. Read profiles, sample lists, mutations and structural variants",
+        "Cancer genomics cohort studies and GWAS studies: find a cohort; read its \
+         molecular profiles, sample lists, mutations and structural variants",
         &[
             ("search", "search_study", ""),
             ("get", "get_study", ""),
