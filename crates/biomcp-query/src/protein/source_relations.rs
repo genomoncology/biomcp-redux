@@ -184,8 +184,14 @@ fn load(
         }
         let result = Saved::fetch(q, &leg);
         let error = result.as_ref().err().copied();
-        out.sources
-            .push(status::source(q.source(), leg.finish(), error));
+        let omitted = if matches!(q, Selection::Domains(_)) && result.is_ok() {
+            unintegrated_notice(cx, deadline, q.accession())
+        } else {
+            None
+        };
+        let mut source = status::source(q.source(), leg.finish(), error);
+        source.notices.extend(omitted);
+        out.sources.push(source);
         let saved = match result {
             Ok(saved) => saved,
             Err(error) => {
@@ -201,4 +207,27 @@ fn load(
         (saved, pool.map(|p| p.info))
     };
     Ok(Some(loaded))
+}
+
+fn unintegrated_notice(
+    cx: &Ctx<'_>,
+    deadline: Deadline<'_>,
+    id: &UniProtIsoform,
+) -> Option<biomcp_types::SourceNotice> {
+    let leg = cx
+        .fetch
+        .leg(&interpro::SPEC, deadline.child(std::time::Duration::from_secs(3)))
+        .fresh(cx.fresh);
+    let count = interpro::unintegrated_count(&leg, id).ok();
+    let count = count.filter(|_| !leg.finish().stale);
+    let message = match count {
+        Some(0) => return None,
+        Some(count) => format!("Omitted {count} unintegrated member-database signatures."),
+        None => "The count of unintegrated member-database signatures is unavailable.".into(),
+    };
+    Some(biomcp_types::SourceNotice::RequestGuidance {
+        data_date: None,
+        message: message.into(),
+        retry_after_seconds: None,
+    })
 }

@@ -39,8 +39,8 @@ pub(super) fn features() -> Result<(), String> {
     section_context(&env)?;
     retained_relations(&env)?;
     usage(&env)?;
-    // UniProt, InterPro, Complex Portal, STRING and ChEMBL, once each.
-    if stub.finish()?.len() != 5 {
+    // One request per source, plus InterPro's count of unintegrated signatures.
+    if stub.finish()?.len() != 6 {
         return Err("retained entry sections repeated provider requests".into());
     }
     Ok(())

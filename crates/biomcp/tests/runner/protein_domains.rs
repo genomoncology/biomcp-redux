@@ -29,7 +29,10 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 fn domains() -> Result<(), String> {
-    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {
+    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |request| {
+        if request.contains("/entry/unintegrated/") {
+            return Ok(r#"{"count":0}"#.into());
+        }
         Ok(json!(
             { "count":2,"next":null,"previous":null,"results":[ {"metadata":{"accession":"IPR002117","name":"Native family",
             "source_database":"interpro","type":"family","member_databases":{}},"proteins":[{"accession":"p04637","protein_length":393,
@@ -92,7 +95,7 @@ fn domains() -> Result<(), String> {
         return Err("empty type selection became a missing source".into());
     }
     admission(&env)?;
-    if stub.finish()?.len() != 3 {
+    if stub.finish()?.len() != 4 {
         return Err("a rejected native protein identity was cached".into());
     }
     Ok(())

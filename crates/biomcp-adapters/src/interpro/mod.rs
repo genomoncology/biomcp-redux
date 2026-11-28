@@ -86,27 +86,21 @@ pub fn page(
         args.push(("cursor", Arg::Text(cursor.as_str())));
         args.push(("page", Arg::Num(1)));
     }
-    let raw = leg
-        .call(
-            &endpoint,
-            Input::Params(&args),
-            Read::<raw::Page>::json().cache_if(&|p| p.admitted(id)),
-        )?
-        .value;
+    let raw = match leg.call(
+        &endpoint,
+        Input::Params(&args),
+        Read::<raw::Page>::json().cache_if(&|p| p.admitted(id)),
+    ) {
+        Ok(reply) => reply.value,
+        Err(error) if cursor.is_none() && no_content(error) => raw::Page::default(),
+        Err(error) => return Err(error),
+    };
     if !raw.admitted(id) {
         return Err(biomcp_fetch::bad_reply(Source::InterPro, Some(200)));
     }
-    let expected = [("page", Arg::Num(1)), ("page_size", Arg::Num(size.into()))];
     let cursor = raw
         .next
-        .as_deref()
-        .map(|next| {
-            SPEC.next_cursor(next, &path, &expected, "cursor")
-                .map_err(|_| biomcp_fetch::bad_reply(Source::InterPro, Some(200)))
-                .and_then(|s| {
-                    Text::new(&s).map_err(|_| biomcp_fetch::bad_reply(Source::InterPro, Some(200)))
-                })
-        })
+        .map(|next| next_cursor(&next, &path, size))
         .transpose()?;
     if raw.results.is_empty() && cursor.is_some() {
         return Err(biomcp_fetch::bad_reply(Source::InterPro, Some(200)));
@@ -119,6 +113,53 @@ pub fn page(
         total: raw.count,
         cursor,
     })
+}
+
+fn next_cursor(next: &str, path: &str, size: u32) -> Result<Text, RequestError> {
+    let size = ("page_size", Arg::Num(size.into()));
+    let bad = || biomcp_fetch::bad_reply(Source::InterPro, Some(200));
+    let cursor = SPEC
+        .next_cursor(next, path, std::slice::from_ref(&size), "cursor")
+        .or_else(|_| SPEC.next_cursor(next, path, &[("page", Arg::Num(1)), size], "cursor"))
+        .map_err(|_| bad())?;
+    Text::new(&cursor).map_err(|_| bad())
+}
+
+fn no_content(error: RequestError) -> bool {
+    matches!(
+        error,
+        RequestError::Source(biomcp_fetch::SourceError {
+            reason: biomcp_types::Reason::BadReply,
+            status: Some(204),
+            ..
+        })
+    )
+}
+
+/// Read only the count of unintegrated member signatures for the accession.
+pub fn unintegrated_count(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<u64, RequestError> {
+    let endpoint = SPEC
+        .get("")
+        .with_path(format!("/entry/unintegrated/protein/uniprot/{id}/"))?
+        .identity_encoding()
+        .fresh(Freshness::Days(1));
+    let count_only = |body: &[u8]| {
+        if body.is_empty() {
+            return Ok(Vec::new());
+        }
+        // Discard member-database rows before they reach recordings or cache.
+        let count: raw::Count = serde_json::from_slice(body).map_err(|_| biomcp_fetch::BadReply)?;
+        serde_json::to_vec(&count).map_err(|_| biomcp_fetch::BadReply)
+    };
+    match leg.call(
+        &endpoint,
+        Input::Params(&[("page_size", Arg::Num(1))]),
+        Read::<raw::Count>::json().filter_body(&count_only),
+    ) {
+        Ok(reply) => Ok(reply.value.count),
+        Err(error) if no_content(error) => Ok(0),
+        Err(error) => Err(error),
+    }
 }
 
 /// Complete source policy and command declaration.
