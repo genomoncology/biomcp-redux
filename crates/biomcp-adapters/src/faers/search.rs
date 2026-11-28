@@ -1,6 +1,6 @@
 use super::{SPEC, raw};
 use biodata::PartialDate;
-use biomcp_fetch::{Arg, BadReply, Freshness, Leg, ReplyMetadata, RequestError};
+use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Received, ReplyMetadata, RequestError};
 use biomcp_types::{
     AdverseEventDrugRole, AdverseEventHeader, AdverseEventSearch, AdverseEventSource,
 };
@@ -15,7 +15,7 @@ pub struct Page {
     pub components: Box<[biomcp_types::ComponentLabel]>,
     /// Whole report headers in source order.
     pub items: Vec<AdverseEventHeader>,
-    /// Native report count, never a population denominator.
+    /// Matching reports, never a population denominator.
     pub total: u64,
     /// Publisher dataset date, independent of retrieval.
     pub updated: Option<PartialDate>,
@@ -43,47 +43,21 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
     } else {
         Box::default()
     };
-    let suspect = query.drug_role() == AdverseEventDrugRole::Suspect;
-    let (offset, limit) = if suspect {
-        (0, biomcp_types::SEARCH_PAGE_MAX)
+    let Received {
+        value,
+        meta: metadata,
+    } = if query.drug_role() == AdverseEventDrugRole::Suspect {
+        super::suspect::search(leg, query, &selector)?
     } else {
-        (query.offset(), query.limit())
+        fetch(leg, &selector, query.offset(), query.limit())?
     };
-    let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
-    let (response, metadata) = crate::openfda::page(
-        biomcp_types::Source::Faers,
-        leg,
-        &endpoint,
-        &[
-            ("search", Arg::Text(&selector)),
-            ("limit", Arg::Num(limit.into())),
-            ("skip", Arg::Num(offset.into())),
-            ("sort", Arg::Text("receivedate:desc")),
-        ],
-        offset,
-        limit,
-        &|reply| {
-            if let raw::Response::Page { meta, .. } = reply
-                && (meta.results.skip != offset || meta.results.limit != limit)
-            {
-                return Err(BadReply);
-            }
-            Ok(())
-        },
-    )
-    .map(|received| (received.value, received.meta))?;
     let mut problems = crate::mapped::Problems {
         source: biomcp_types::Source::Faers,
         record: None,
         list: Vec::new(),
     };
-    match response {
+    match value {
         raw::Response::Page { meta, results } => {
-            let (results, total) = if suspect {
-                super::suspect::filter(query, results, meta.results.total)?
-            } else {
-                (results, meta.results.total)
-            };
             let items = results
                 .into_iter()
                 .map(|v| header(v, &mut problems))
@@ -92,7 +66,7 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
                 refusals: crate::Refusal::None,
                 components,
                 items,
-                total,
+                total: meta.results.total,
                 updated: meta.last_updated,
                 problems: problems.list,
                 metadata,
@@ -109,6 +83,36 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
         }),
     }
 }
+pub(super) fn fetch<T: crate::openfda::Item>(
+    leg: &Leg<'_>,
+    selector: &str,
+    offset: u32,
+    limit: u32,
+) -> Result<Received<raw::Response<T>>, RequestError> {
+    let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
+    crate::openfda::page(
+        biomcp_types::Source::Faers,
+        leg,
+        &endpoint,
+        &[
+            ("search", Arg::Text(selector)),
+            ("limit", Arg::Num(limit.into())),
+            ("skip", Arg::Num(offset.into())),
+            ("sort", Arg::Text("receivedate:desc")),
+        ],
+        offset,
+        limit,
+        &|reply| {
+            if let raw::Response::Page { meta, .. } = reply
+                && (meta.results.skip != offset || meta.results.limit != limit)
+            {
+                return Err(BadReply);
+            }
+            Ok(())
+        },
+    )
+}
+
 /// One report row, with openFDA's words beside its `serious` code.
 fn header(v: raw::Header, problems: &mut crate::mapped::Problems) -> AdverseEventHeader {
     problems.record = crate::mapped::record(&v.safetyreportid);

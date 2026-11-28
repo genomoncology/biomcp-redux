@@ -39,13 +39,11 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     text: Option<Text>,
-    #[doc = "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. \
-        A standalone OR joining names inside one --drug value is refused. \
-        Other filters AND with the names. BioMCP caps the escaped native query, including filters, \
-        at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
+    #[doc = "FAERS drug names; OR.\nFAERS: repeat --drug to OR names. Each value takes one name. \
+        Other filters AND with the name group. FAERS_QUERY_MAX_BYTES caps the escaped query at 4096 bytes."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     drug: Vec<Text>,
-    #[doc = "FAERS drug role.\nDefault any: counts reports listing the drug in any role, including concomitant. \
+    #[doc = "FAERS drug role.\nDefault any counts reports listing the drug in any role, including concomitant. \
         Suspect checks the same drug entry for a whole name match, ignoring case. \
         Use receipt dates to narrow broad searches. Suspect applies to report searches only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -53,11 +51,10 @@ struct SearchFields {
     #[doc = "FAERS no-op.\nFAERS: accepted for one release and changes nothing; FAERS widens drug names by default."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
-    #[doc = "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; \
-        this searches only the names as typed. MAUDE and VAERS always search the text as typed."]
+    #[doc = "Search typed drug names only.\nFAERS searches other names by default. This keeps the typed names, as MAUDE and VAERS always do."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    #[doc = "FAERS name snapshot.\nRetained FAERS name resolution; follow the returned command without changing filters."]
+    #[doc = "FAERS name snapshot.\nKeep the returned FAERS name resolution and filters."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
     #[doc = "MAUDE manufacturer.\n\
@@ -78,7 +75,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     event_type: Option<MaudeEventType>,
-    #[doc = "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."]
+    #[doc = "Source; default FAERS.\nVAERS requires an exact supported vaccine name."]
     #[serde(default = "default_source")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventSource::search_components())))]
     source: AdverseEventSource,
@@ -92,9 +89,8 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(title = "VAERS table.", extend("x-positional" = 1)))]
     section: Option<super::VaersSection>,
-    #[doc = "VAERS order.\nreports: BioMCP orders the whole CDC WONDER table, not just the page, by its \
-        Events Reported count, largest first; equal counts keep the source's order. Counts, percents \
-        and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms."]
+    #[doc = "VAERS order.\nreports sorts the whole table by decreasing event count, preserving source order for ties. \
+        Default: source order (alphabetical for symptoms)."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Vaers)))]
     sort: Option<super::VaersSort>,

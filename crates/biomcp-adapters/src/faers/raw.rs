@@ -1,6 +1,6 @@
 use crate::openfda::{Envelope, Item};
 use crate::raw::Field;
-pub(super) type Response = Envelope<Header>;
+pub(super) type Response<T = Header> = Envelope<T>;
 use biodata::ReportId;
 use serde::Deserialize;
 
@@ -10,10 +10,18 @@ pub(super) struct Header {
     pub safetyreportversion: Option<crate::raw::Field<Box<str>>>,
     pub serious: Option<crate::raw::Field<Box<str>>>,
     pub receivedate: Option<Field<Box<str>>>,
-    pub patient: Option<Field<Patient>>,
 }
 
 impl Item for Header {}
+
+#[derive(Debug, Deserialize)]
+pub(super) struct Candidate {
+    #[serde(flatten)]
+    pub header: Header,
+    pub patient: Patient,
+}
+
+impl Item for Candidate {}
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Patient {

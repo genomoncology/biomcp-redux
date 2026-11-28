@@ -91,15 +91,6 @@ fn counts_notes(out: &mut Outcome, query: &AdverseEventSearch, typed: usize) {
     for message in notes {
         guidance(report, message);
     }
-    let role = match query.drug_role() {
-        biomcp_types::AdverseEventDrugRole::Any => {
-            "Counts reports listing the drug in any role, including concomitant."
-        }
-        biomcp_types::AdverseEventDrugRole::Suspect => {
-            "Counts reports listing the named drug as suspect on the same drug entry."
-        }
-    };
-    guidance(report, role.into());
 }
 
 fn guidance(report: &mut biomcp_types::SourceOutcome, message: String) {
