@@ -348,7 +348,7 @@ pub struct DrugNameResolution {
     pub ranking: Box<str>,
     /// Distinct exact-name source records found among the rows read, including the selected record; MyChem reads at most 250 rows.
     pub total: u64,
-    /// Which record was chosen and why, with counts of the others by kind; label names only.
+    /// Which record was chosen and why: label names, and CIViC names listed under several therapies.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "Option<Text>"))]
     pub reason: Option<Box<str>>,

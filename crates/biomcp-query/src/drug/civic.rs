@@ -80,6 +80,60 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 
+/// CIViC can list one name under several therapies, each with its own claims. A name read
+/// opens the first; say so, and give every other one the same read as a next step.
+pub(super) fn matched_therapies(
+    query: &DrugGet,
+    others: &[biodata::DrugId],
+    fresh: bool,
+    out: &mut Outcome,
+) {
+    let biomcp_types::ReplyData::DrugCivic {
+        body: Some(body), ..
+    } = &mut out.body
+    else {
+        return;
+    };
+    let Some(resolution) = body.identity.name_resolution.as_mut() else {
+        return;
+    };
+    if others.is_empty() {
+        return;
+    }
+    resolution.reason = Some(
+        format!(
+            "CIViC lists {} therapies under this name, each with its own evidence and \
+             assertions; this reply reads therapy {} only; get each alternative to read the others",
+            others.len() + 1,
+            body.identity.id
+        )
+        .into(),
+    );
+    let sections = query.sections().iter().map(|s| s.as_str().into());
+    for step in resolution.alternatives.iter_mut() {
+        let mut args = step.args.to_vec();
+        args.splice(3..3, sections.clone());
+        step.args = args.into();
+    }
+    // The other therapies come before per-record follow-ups, in source order.
+    let mut reads = Vec::new();
+    for id in others {
+        if let Some(get) = crate::next::checked(
+            query.with_native_id(id.clone()),
+            Source::Civic,
+            &mut out.problems,
+        ) {
+            reads.push(crate::next::Step::run(
+                StepKind::Disambiguate,
+                &[Source::Civic],
+                Request::GetDrug(get),
+                fresh,
+            ));
+        }
+    }
+    out.next.splice(0..0, reads);
+}
+
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = super::empty(biomcp_types::DrugCivic::into_reply(query.clone(), None));
     if query.sections().is_empty() || !query.supports_sections() {
