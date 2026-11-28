@@ -244,20 +244,23 @@ fn mapped_page(page: Page, summaries: Option<Summaries>) -> SearchPage {
             let mut record_id = id.text;
             let mut label = None;
             if let Some(summaries) = &summaries {
-                let Some(summary) = summaries.get(&id.identity.get().to_string()) else {
+                let Some(summary) =
+                    problems.required("uid", summaries.get(&id.identity.get().to_string()))
+                else {
                     refusals = crate::Refusal::Refused;
                     return None;
                 };
                 ids.push(VariantId::Vcv(summary.accession));
-                let Some(accession) = problems.required(
+                let Some(accession) = problems.optional(
                     "accession",
-                    biodata::Text::new(&summary.accession.to_string()).ok(),
+                    Some(biodata::Text::new(&summary.accession.to_string())),
                 ) else {
                     refusals = crate::Refusal::Refused;
                     return None;
                 };
                 record_id = accession;
-                label = crate::mapped::source_text(&summary.title).ok();
+                label =
+                    problems.optional("title", Some(crate::mapped::source_text(&summary.title)));
             }
             let record = SourceRecord {
                 namespace: biodata::IdentifierNamespace::Unknown,
