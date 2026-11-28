@@ -48,11 +48,11 @@
     },
     {
       "run": ["get", "variant", "VCV000013961.99", "clinvar"],
-      "exit": 1,
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/sources/0/notices/0/message": "ClinVar did not serve VCV000013961.99. Use VCV000013961 to request the current archive.",
-        "/result/candidates": { "missing": true }
+        "": { "omits": ["result"] }
       }
     }
   ]
