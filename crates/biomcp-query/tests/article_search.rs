@@ -176,10 +176,10 @@ fn search_and_hydration_share_one_budget_while_pool_age_uses_wall_time() {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    // Replay search and hydration each take 20 s of replay time, so 35 s fits only the search.
-    // Local SQLite work is bounded in wall time by what remains (1250), so after the search
-    // 15 s remain for storing the pool, and the retry keeps 20 s after its hydration.
-    let first = run_within(&fetch, query(None, 0), false, Duration::from_secs(35));
+    // The replay search takes 1 s and the title read 14 s, under PubMed's 15 s request limit, so
+    // 14.5 s fits only the search. Local SQLite work is bounded in wall time by what remains
+    // (1250), so 13.5 s remain for storing the pool, and the retry keeps 16 s after its read.
+    let first = run_within(&fetch, query(None, 0), false, Duration::from_millis(14_500));
     assert_eq!(first.status(), Status::Failed);
     assert_eq!(first.local, None);
     assert_eq!(
@@ -197,7 +197,7 @@ fn search_and_hydration_share_one_budget_while_pool_age_uses_wall_time() {
         panic!("retry retains pool")
     };
     assert!(retry.pool().is_some());
-    let (p, _) = page(run_within(&fetch, retry, false, Duration::from_secs(40)));
+    let (p, _) = page(run_within(&fetch, retry, false, Duration::from_secs(30)));
     let pool = p.pool.unwrap();
     let after = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -264,7 +264,7 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
         let entry = entry.unwrap();
         let mut value: serde_json::Value =
             serde_json::from_slice(&std::fs::read(entry.path()).unwrap()).unwrap();
-        let delay = if value["method"] == "GET" { 30_000 } else { 0 };
+        let delay = if value["method"] == "GET" { 14_000 } else { 0 };
         for exchange in value["exchanges"].as_array_mut().unwrap() {
             exchange["delay_ms"] = delay.into();
         }
@@ -274,7 +274,8 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
         )
         .unwrap();
     }
-    // NCBI paced at one request per 40 s, so the 30 s search overlaps the spacing.
+    // NCBI paced at one request per 28 s, so the 14 s search overlaps the spacing; the search and
+    // the title read's 14 s wait each stay under PubMed's 15 s request limit.
     let mut source_pacing = biomcp_fetch::SourcePacing::default();
     source_pacing
         .insert(
@@ -282,7 +283,7 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
             biomcp_fetch::PacingOverride {
                 rate: Some(biomcp_fetch::PacingRate {
                     requests: 1,
-                    seconds: 40,
+                    seconds: 28,
                 }),
                 ..Default::default()
             },
@@ -300,9 +301,9 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
     let out = biomcp_query::run(
         &Ctx {
             fetch: &fetch,
-            // Counted once, the search and title read take 40 s; counted twice, 70 s. Local
-            // SQLite work is bounded in wall time by what remains, here 20 s (1250).
-            budget: Duration::from_secs(60),
+            // Counted once, the search and title read take 28 s; counted twice, 42 s. Local
+            // SQLite work is bounded in wall time by what remains, here 13 s (1250).
+            budget: Duration::from_secs(41),
             fresh: true,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             label_bytes: biomcp_query::LABEL_BYTES,
