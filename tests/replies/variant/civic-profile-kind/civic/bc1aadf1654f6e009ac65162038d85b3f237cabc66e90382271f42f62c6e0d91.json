@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "70b5bcc94e96fb967ad6bc3afbfa12b0b83ea122a95705b1953e438147b0870a"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795882750,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 254,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"molecularProfiles":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":"MQ"},"nodes":[{"id":591,"name":"SRSF2 MUTATION"}]}}}
+      }
+    }
+  ]
+}

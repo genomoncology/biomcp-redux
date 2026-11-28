@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "001d8e2f8146a7a36f7c50c814e14d2d0272d5bc902380d11bf3c468d399b632"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795882750,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 83,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"molecularProfiles":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":"MQ"},"nodes":[{"id":591,"name":"SRSF2 MUTATION","rawName":"#VID595","link":"/molecular-profiles/591","isComplex":false,"variants":[{"id":595,"name":"MUTATION","link":"/variants/595","feature":{"id":5210,"name":"SRSF2","featureType":"GENE","featureInstance":{}},"alleleRegistryId":null,"hgvsDescriptions":[]}],"evidenceItems":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":"MQ"},"nodes":[{"id":1514,"status":"ACCEPTED","evidenceType":"PROGNOSTIC","evidenceLevel":"B","evidenceDirection":"SUPPORTS","significance":"POOR_OUTCOME","disease":{"name":"Acute Myeloid Leukemia","doid":"9119"},"therapies":[],"therapyInteractionType":null,"source":{"citationId":"27276561","sourceType":"PUBMED"}}]},"assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}]}}}
+      }
+    }
+  ]
+}

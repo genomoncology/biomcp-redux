@@ -1,0 +1,108 @@
+{
+  "feature": "variant-civic",
+  "live_check": "public",
+  "story": "A CIViC profile named by exact name or ID pages one claim kind without a profile number. A profile number that is not the input's is refused with the input's own profile ID, never answered as a complete empty page, and no refusal offers an example profile number.",
+  "verified": "CIViC CC0 https://civicdb.org/releases/licensing. Public keyless replies recorded 2026-11-28 by biomcp --record in pm job j49150: the SRSF2 MUTATION profile is 591 with one evidence item, EID1514 (Acute Myeloid Leukemia). Profile 1 is BCR::ABL1, not SRSF2 MUTATION.",
+  "replay": "variant/civic-profile-kind",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "SRSF2 MUTATION",
+        "civic",
+        "--civic-kind",
+        "evidence",
+        "--section-limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/candidates/0/sections/civic/data/profiles/0/record/id": "591",
+        "/result/candidates/0/sections/civic/data/profiles/0/label": "SRSF2 MUTATION",
+        "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total": 1,
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/record/id": "EID1514",
+        "/result/candidates/0/sections/civic/data/profiles/0/statements/0/native/condition/label": "Acute Myeloid Leukemia"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "SRSF2 MUTATION",
+        "civic",
+        "--civic-kind",
+        "evidence",
+        "--civic-profile",
+        "1"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--civic-profile",
+        "/error/valid_values": [
+          "591"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "591",
+        "civic",
+        "--civic-kind",
+        "evidence",
+        "--civic-profile",
+        "1"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "input",
+        "/error/valid_values": [
+          "input",
+          "--civic-profile"
+        ],
+        "/next/0/args": [
+          "get",
+          "variant",
+          "591",
+          "civic",
+          "--civic-kind",
+          "evidence"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA123643",
+        "civic",
+        "--civic-kind",
+        "evidence"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--civic-profile",
+        "/next": {
+          "count": 1
+        },
+        "/next/0/args": [
+          "get",
+          "variant",
+          "CA123643",
+          "civic"
+        ]
+      }
+    }
+  ]
+}
