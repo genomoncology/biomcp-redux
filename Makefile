@@ -214,6 +214,10 @@ release-artifacts:
 nightly-live-check:
 	$(PYTHON) scripts/nightly_live_check.py
 
+.PHONY: weekly-reach-census
+weekly-reach-census:
+	$(PYTHON) scripts/weekly_reach_census.py
+
 .PHONY: source-capture
 source-capture:
 	$(PYTHON) scripts/source_capture.py --plan "$(PLAN)" --out "$(OUT)"

@@ -1,6 +1,7 @@
 # 1241 — weekly-live-reach-census
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 922b612007f749c9dfca9ea72b482050453e41f8
 
 Milestone: 10
 

@@ -16,16 +16,21 @@ PAGE_SIZE = 100
 MOLECULE = re.compile(r'CHEMBL[0-9]+\Z')
 
 
-def child_only_parents():
+def mechanism_page(params):
+    with urlopen(f'{MECHANISMS}?{urlencode(params)}', timeout=30) as response:
+        page = json.load(response)
+    time.sleep(1)
+    return page
+
+
+def child_only_parents(read_page=mechanism_page):
     """Read native mechanism identities to identify parents without direct rows."""
     families = defaultdict(set)
     seen = set()
     total = None
     offset = 0
     while total is None or offset < total:
-        query = urlencode({'limit': PAGE_SIZE, 'offset': offset, 'order_by': 'mec_id'})
-        with urlopen(f'{MECHANISMS}?{query}', timeout=30) as response:
-            page = json.load(response)
+        page = read_page({'limit': PAGE_SIZE, 'offset': offset, 'order_by': 'mec_id'})
         meta = page['page_meta']
         if total is None:
             total = meta['total_count']
@@ -42,7 +47,6 @@ def child_only_parents():
             seen.add(row['mec_id'])
             families[parent].add(molecule)
         offset += len(rows)
-        time.sleep(1)
     parents = {parent: forms for parent, forms in families.items() if parent not in forms}
     if not parents:
         raise ValueError('ChEMBL mechanism census found no child-only parents')
