@@ -81,9 +81,10 @@ fn constraint_oversized() -> Check {
         |_| String::new(),
     )?;
     let (env, stub) = configured(stub, json!({"auto_sync_max_bytes":1_000_000}))?;
-    let first = invoke(&env, words(CONSTRAINT), 4)?;
-    let again = invoke(&env, words(CONSTRAINT), 4)?;
-    let fresh = invoke(&env, words(&[CONSTRAINT, &["--fresh"]].concat()), 4)?;
+    // A partial gene card exits 0.
+    let first = invoke(&env, words(CONSTRAINT), 0)?;
+    let again = invoke(&env, words(CONSTRAINT), 0)?;
+    let fresh = invoke(&env, words(&[CONSTRAINT, &["--fresh"]].concat()), 0)?;
     let requests = stub.finish()?;
     let tables = requests
         .iter()
@@ -119,8 +120,9 @@ fn constraint_timed_out() -> Check {
         },
     )?;
     let (env, stub) = configured(stub, json!({"command_timeout_seconds":3}))?;
-    let first = invoke(&env, words(CONSTRAINT), 4)?;
-    let again = invoke(&env, words(CONSTRAINT), 4)?;
+    // The read that spent its budget also reports the store busy; the next one fails at once.
+    let first = invoke(&env, words(CONSTRAINT), 5)?;
+    let again = invoke(&env, words(CONSTRAINT), 0)?;
     stub.finish()?;
     for reply in [&first, &again] {
         limited(
@@ -162,7 +164,7 @@ fn validity_oversized() -> Check {
 fn validity_timed_out() -> Check {
     let stub = Stub::for_source_with_held_response("thegencc.org", "text/html", |_| Ok(None))?;
     let (env, stub) = configured(stub, json!({"command_timeout_seconds":2}))?;
-    let first = invoke(&env, words(VALIDITY), 4)?;
+    let first = invoke(&env, words(VALIDITY), 5)?;
     let again = invoke(&env, words(VALIDITY), 4)?;
     stub.finish()?;
     for reply in [&first, &again] {
