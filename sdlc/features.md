@@ -3,7 +3,7 @@ gene-search: A caller searches genes by words, chromosome band and locus group w
 gene-bundle: A caller synchronizes the HGNC bundle and reads gene identity offline; live servers return stale rows while refreshing in the background, and missing or explicitly fresh reads wait.
 gene-help: A caller discovers gene arguments, section names and executable examples through help.
 gene-sections: A caller requests named gene sections separately or together, sees each source and availability, and waits within a configurable deadline for an active first bundle publication.
-gene-protein: A caller sees every reviewed human protein linked by the gene's identifiers.
+gene-protein: A caller reads reviewed human proteins linked by HGNC, with an exact UniProt symbol search when a protein-coding gene has no link.
 gene-pathways: A caller sees Reactome pathways linked to the gene.
 gene-expression: A caller sees source-stated tissue expression and subcellular locations for the gene.
 gene-civic: A caller sees CIViC gene descriptions and counts with checked gene identity.
@@ -114,6 +114,7 @@ study-rows: Read gene-filtered native mutation observations and sample ID/type r
 study-copy-number: Read cBioPortal's own amplification and deep-deletion sample counts for one gene in a study's discrete copy-number profile.
 gwas-search: Search publication studies with source traits, sample descriptions and association counts, or source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities.
+protein-identity: A caller reads a reviewed human protein card, follows a verified UniProt merge to its primary accession, or learns why an accession falls outside scope.
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging.
 pathway-reactome: Discover native human pathway headers and exact Reactome cards without inferred membership or replacement identities.
 pathway-wikipathways: Explicitly synchronize both metadata catalogs atomically and read source-owned human pathway identities and literal-title matches; a live first read fetches missing catalogs, and reads never refresh stored ones.

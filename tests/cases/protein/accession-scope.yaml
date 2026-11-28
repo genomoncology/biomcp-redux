@@ -1,0 +1,28 @@
+feature: protein-identity
+live_check: public
+story: A caller gets the reason an accession is outside the reviewed human collection or sees the primary entry UniProt named.
+replay: protein/accession-scope
+steps:
+- run: [get, protein, P02340]
+  exit: 2
+  is_error: true
+  expect:
+    /status: usage
+    /error/message: This UniProt accession is non-human. BioMCP covers reviewed human proteins only.
+- run: [get, protein, A0A0A0MS99]
+  exit: 2
+  is_error: true
+  expect:
+    /status: usage
+    /error/message: This UniProt accession is unreviewed. BioMCP covers reviewed human proteins only.
+- run: [get, protein, A0A008APQ8]
+  exit: 2
+  is_error: true
+  expect:
+    /status: usage
+    /error/message: UniProt deleted this accession. BioMCP covers active reviewed human proteins only.
+- run: [get, protein, Q13290]
+  expect:
+    /status: complete
+    /result/items/0/header/protein/accession: P42126
+    /sources/0/notices/0/message: UniProt redirected secondary accession Q13290 to P42126.
