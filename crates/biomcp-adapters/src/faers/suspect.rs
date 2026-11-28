@@ -71,6 +71,7 @@ fn has_name(drug: &raw::Drug, name: &str) -> bool {
                 .generic_name
                 .iter()
                 .chain(&names.brand_name)
+                .flatten()
                 .map(AsRef::as_ref)
         }))
         .any(|value| value.trim().eq_ignore_ascii_case(name))

@@ -161,17 +161,6 @@ fn search<'a>(
             local: error.and_then(status::local),
         },
     );
-    if query.drug_role() == biomcp_types::AdverseEventDrugRole::Suspect
-        && error.and_then(status::reason) == Some(biomcp_types::Reason::TooLarge)
-    {
-        guidance(
-            &mut out.sources[0],
-            format!(
-                "Suspect counts require checking all candidate reports (maximum {}). Narrow --received-from and --received-to.",
-                biomcp_types::SEARCH_PAGE_MAX
-            ),
-        );
-    }
     if let Ok(page) = reply {
         let returned = page.items.len() as u32;
         navigation(navigation_query, &page, &mut out);
@@ -197,6 +186,17 @@ fn search<'a>(
                 .fetched
                 .and_then(|value| u64::try_from(value).ok());
         }
+    }
+    if query.drug_role() == biomcp_types::AdverseEventDrugRole::Suspect
+        && error.and_then(status::reason) == Some(biomcp_types::Reason::TooLarge)
+    {
+        guidance(
+            &mut out.sources[0],
+            format!(
+                "Suspect counts require checking all candidate reports (maximum {}). Narrow --received-from and --received-to.",
+                biomcp_types::SEARCH_PAGE_MAX
+            ),
+        );
     }
     out
 }

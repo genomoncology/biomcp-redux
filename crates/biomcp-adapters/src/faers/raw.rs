@@ -37,8 +37,6 @@ pub(super) struct Drug {
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Names {
-    #[serde(default)]
-    pub generic_name: Vec<Box<str>>,
-    #[serde(default)]
-    pub brand_name: Vec<Box<str>>,
+    pub generic_name: Option<Vec<Box<str>>>,
+    pub brand_name: Option<Vec<Box<str>>>,
 }
