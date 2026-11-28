@@ -32,7 +32,7 @@ singleton! {
  ArgumentHgvsSearch => "Unknown variant search option --hgvs. Use variant normalize --hgvs for an HGVS expression.",
  FetchUrl => "Fetch takes an ID returned by search. BioMCP cannot fetch arbitrary URLs.",
  ProteinNonHuman => "This UniProt accession is non-human. BioMCP covers reviewed human proteins only.",
- ProteinUnreviewed => "This UniProt accession is unreviewed. BioMCP covers reviewed human proteins only.",
+ ProteinAccessionUnreviewed => "This UniProt accession is unreviewed. BioMCP covers reviewed human proteins only.",
  ProteinDeleted => "UniProt deleted this accession. BioMCP covers active reviewed human proteins only.",
  GeneSourceSection => "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD.",
  GeneSearchSource => "search gene does not take --source. It looks up HGNC names and aliases. Use get disease NAME gene-validity for disease curation.",

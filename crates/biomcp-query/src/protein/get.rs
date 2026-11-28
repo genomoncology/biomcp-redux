@@ -194,7 +194,7 @@ fn hydrate(
                 let (message, reason) = match reason {
                     uniprot::Scope::NonHuman => (ErrorMessage::ProteinNonHuman, "is non-human"),
                     uniprot::Scope::Unreviewed => {
-                        (ErrorMessage::ProteinUnreviewed, "is unreviewed")
+                        (ErrorMessage::ProteinAccessionUnreviewed, "is unreviewed")
                     }
                     uniprot::Scope::Deleted => (ErrorMessage::ProteinDeleted, "was deleted"),
                 };
