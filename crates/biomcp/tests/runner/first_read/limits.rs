@@ -88,7 +88,7 @@ fn constraint_oversized() -> Check {
     let requests = stub.finish()?;
     let tables = requests
         .iter()
-        .filter(|(request, _)| request.contains("constraint_metrics"))
+        .filter(|(_, request)| request.contains("constraint_metrics"))
         .count();
     if tables != 1 {
         return Err(format!("expected one first table fetch: {requests:?}"));
