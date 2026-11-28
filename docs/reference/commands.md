@@ -1574,7 +1574,7 @@ Paging: --limit and --offset.
 - `--approved-from`: Earliest original_approval (inclusive, YYYY, YYYY-MM or YYYY-MM-DD). Counts matches in range. Value form: string; example: 2024-01-01; only with --source drugsfda.
 - `--approved-to`: Latest original_approval. Inclusive (YYYY, YYYY-MM or YYYY-MM-DD). Value form: string; example: 2023; only with --source drugsfda.
 - `--classification`: FDA recall classification. Value form: string; example: 'Class II'; only with --source fda-drug-recall.
-- `--device`: FDA presentation device. Ignores case. Value form: string; example: Autoinjector; only with --source purple-book.
+- `--device`: FDA presentation device. Ignores case. Value form: string; example: 'Single-Dose Vial'; only with --source purple-book.
 - `--exact-term`: Use only typed text. Name widening applies to labels, Drugs@FDA, FDA recalls and safety communications, and EMA. Value form: boolean; example: --exact-term.
 - `--expand-drug-names`: Accepted for one release. Name widening is already automatic where supported. Value form: boolean; example: --expand-drug-names.
 - `--firm`: Exact phrase in the published recall firm name. Value form: string; example: Apotex; only with --source fda-drug-recall.
@@ -1602,7 +1602,7 @@ Form: search drug QUERY; not --query.
 original-approval uses original_approval. Recent first, then application number, with undated last. Default: FDA order. Value form: string; example: newest; only with --source drugsfda.
 - `--source`: Drug source. An empty name search may retry names from other sources. Value form: string; example: ema.
 - `--status`: Exact recall status. Value form: string; example: Ongoing; only with --source fda-drug-recall.
-- `--strength`: FDA presentation strength. Ignores case and spaces. Value form: string; example: 50MG/ML; only with --source purple-book.
+- `--strength`: FDA presentation strength. Ignores case and spaces. Value form: string; example: 25MG; only with --source purple-book.
 - `--therapeutic-area`: WHO therapeutic area. Match whole words, ignoring case (e.g. Oncology). Value form: string; example: oncology; only with --source who-pq.
 
 ## biomcp search gene
