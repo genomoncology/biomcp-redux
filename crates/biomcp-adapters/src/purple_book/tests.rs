@@ -43,6 +43,6 @@ fn every_shipped_product_resolves_by_its_own_names_and_bla() {
             checked += 1;
         }
     }
-    assert!(checked > 0);
-    assert_eq!(checked, release.rows.len());
+    assert!(checked > 0, "the shipped full roster is empty");
+    assert_eq!(checked, release.rows.len(), "decoded presentation count");
 }
