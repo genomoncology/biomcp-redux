@@ -1,6 +1,7 @@
 # 1246 — flaky-native-child-cancel-test
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4019f100c33f94b5d9c165e5cb95eba33e88adac
 
 Milestone: 10
 
