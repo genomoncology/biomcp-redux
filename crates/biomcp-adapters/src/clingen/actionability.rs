@@ -41,7 +41,7 @@ const fn summary(name: &'static str, path: &'static str) -> Bundle<SummaryRow> {
 }
 
 /// Age context of a published summary.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum Context {
     /// Adult Actionability Working Group.
     Adult,
