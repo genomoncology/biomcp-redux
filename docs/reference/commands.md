@@ -2053,7 +2053,7 @@ Options:
       --phase <phase>
           Source phase; help search trial
           Source phase.
-          Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV.
+          ClinicalTrials.gov: 1–4, early-1, not-applicable, 1/2, 2/3 or PHASE3-style labels. 1–3 include combined phases. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
           Sex; help search trial
@@ -2170,7 +2170,7 @@ ClinicalTrials.gov only: search the registry official title field. Value form: s
 - `--offset`: Rows to skip.
 Zero-based first row. ClinicalTrials.gov reaches at most 5000 by offset, reading the live registry each time; --next-page goes deeper and keeps pages consistent. Value form: integer; example: --offset 0.
 - `--phase`: Source phase.
-Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3, or as rows print it (PHASE3). NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
+ClinicalTrials.gov: 1–4, early-1, not-applicable, 1/2, 2/3 or PHASE3-style labels. 1–3 include combined phases. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
 - `query`: Trial text.
 ClinicalTrials.gov general text. Total counts its matches. Use --acronym or --official-title to search those fields.
 Form: search trial QUERY; not --query.
