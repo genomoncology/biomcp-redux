@@ -6,6 +6,8 @@ Re-use the sampling seed across runs to reduce variation from the draw itself.
 """
 import argparse
 from collections import defaultdict
+import csv
+import io
 import json
 from pathlib import Path
 import re
@@ -15,7 +17,7 @@ from urllib.error import HTTPError, URLError
 from xml.etree.ElementTree import ParseError
 
 from nightly_live_check import build
-from reach_census_common import Census, CensusError, Measurement, offsets, read, source_page
+from reach_census_common import Census, CensusError, Measurement, offsets, read, sample_rows, source_page
 import reach_census_providers as providers
 from chembl_reach_census import child_only_parents
 
@@ -63,18 +65,25 @@ def clinvar(census):
 
 
 def gwas(census):
-    for endpoint in ("studies", "unpublished-studies"):
-        def fetch(offset):
-            body, _ = census.native(f"{GWAS}/{endpoint}", {"page": offset, "size": 1})
-            rows = body.get("_embedded", {})
-            return body["page"]["totalElements"], next(iter(next(iter(rows.values()), [])), None)
+    def fetch(offset):
+        body, _ = census.native(f"{GWAS}/studies", {"page": offset, "size": 1})
+        rows = body.get("_embedded", {}).get("studies", [])
+        study = rows[0]["accession_id"] if rows else None
+        return body["page"]["totalElements"], study
 
-        def probe(row):
-            identifier = row["accession_id"]
-            reply = census.reply(("get", "gwas", identifier))
-            return read(reply, "result", "id") == identifier
+    def probe(identifier):
+        reply = census.reply(("get", "gwas", identifier))
+        return read(reply, "result", "id") == identifier
 
-        yield endpoint, source_page(census, endpoint, fetch, probe)
+    yield "studies", source_page(census, "studies", fetch, probe)
+
+    # The publisher's unpublished-study release includes all accessions.
+    release = ("https://ftp.ebi.ac.uk/pub/databases/gwas/releases/latest/"
+               "gwas-catalog-unpublished-studies-v1.0.3.1.tsv")
+    data, _ = census.native(release, {}, raw=True)
+    rows = csv.DictReader(io.StringIO(data.decode("utf-8-sig")), delimiter="\t")
+    studies = [row["STUDY ACCESSION"] for row in rows]
+    yield "unpublished-studies", sample_rows("unpublished-studies", studies, probe)
 
     first, _ = census.native(f"{GWAS}/associations", {"page": 0, "size": 50})
     total = first["page"]["totalElements"]
