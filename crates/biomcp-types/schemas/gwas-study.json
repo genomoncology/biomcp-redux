@@ -273,6 +273,13 @@
           },
           "type": "array"
         },
+        "samples": {
+          "description": "Source sample counts by ancestry for unpublished studies.",
+          "items": {
+            "$ref": "#/$defs/Reply_GwasStudySample"
+          },
+          "type": "array"
+        },
         "snp_count": {
           "description": "Source SNP count; missing differs from zero.",
           "format": "uint64",
@@ -301,6 +308,10 @@
           "description": "Native summary statistics link; not a local download.",
           "format": "uri"
         },
+        "unpublished": {
+          "description": "The Catalog lists this record as unpublished.",
+          "type": "boolean"
+        },
         "user_requested": {
           "description": "Native user-requested study flag.",
           "type": [
@@ -318,6 +329,26 @@
       "description": "Exact Catalog study accession; case and leading zeros survive.",
       "pattern": "^GCST(?=[0-9]{6,}$)[0-9]*[1-9][0-9]*$",
       "type": "string"
+    },
+    "Reply_GwasStudySample": {
+      "description": "An ancestry category and its reported sample count.",
+      "properties": {
+        "ancestry": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Catalog ancestry label."
+        },
+        "count": {
+          "description": "Catalog sample size for this label.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ancestry",
+        "count"
+      ],
+      "type": "object"
     },
     "Reply_GwasStudySection": {
       "description": "Study-only sections.",
