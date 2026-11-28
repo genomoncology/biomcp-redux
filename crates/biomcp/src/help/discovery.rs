@@ -1,5 +1,6 @@
 //! Build navigation from the same commands and sections used for execution.
 use biomcp_types::HelpCommand;
+use serde_json::Value;
 
 pub(crate) fn relations(commands: &[HelpCommand]) -> String {
     let entities: std::collections::BTreeSet<_> = commands
@@ -52,6 +53,29 @@ pub(crate) fn relations(commands: &[HelpCommand]) -> String {
         "Follow source relationships through a named get section or a search filter. \
         These links retrieve source records without deciding their clinical meaning.\n{relations}"
     )
+}
+
+pub(super) fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
+    let sources = super::coverage::command_sources(verb, entity, schema)
+        .into_iter()
+        .collect::<Vec<_>>()
+        .join(", ");
+    if (verb, entity) == ("variant", "population") {
+        return format!(
+            "{}. Sources: {sources}.",
+            biomcp_query::sources::gnomad_variant_scope_label()
+        );
+    }
+    let summary = biomcp_types::COMMANDS
+        .iter()
+        .find(|row| row.verb == verb && row.entity == entity)
+        .map_or("", |row| row.summary.trim());
+    let note = if (verb, entity) == ("search", "diagnostic") {
+        super::CDX_SHARED_FIELDS
+    } else {
+        ""
+    };
+    format!("{summary}{note} Sources: {sources}.")
 }
 
 pub(super) fn complete(commands: &mut Vec<HelpCommand>) {

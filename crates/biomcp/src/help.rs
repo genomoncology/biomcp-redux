@@ -322,7 +322,7 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
         commands.push(HelpCommand {
             reply_schemas: crate::schema::replies(id, verb, entity),
             command: vec![verb.into(), entity.into()],
-            description: command_description(verb, entity, &schema),
+            description: discovery::command_description(verb, entity, &schema),
             arguments,
             section_rule: (!sections.is_empty()).then(|| {
                 let section = field(field(&schema, "properties"), "section");
@@ -357,28 +357,6 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
         }
     }
     Ok(commands)
-}
-fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
-    let sources = coverage::command_sources(verb, entity, schema)
-        .into_iter()
-        .collect::<Vec<_>>()
-        .join(", ");
-    if (verb, entity) == ("variant", "population") {
-        return format!(
-            "{}. Sources: {sources}.",
-            biomcp_query::sources::gnomad_variant_scope_label()
-        );
-    }
-    let summary = biomcp_types::COMMANDS
-        .iter()
-        .find(|row| row.verb == verb && row.entity == entity)
-        .map_or("", |row| row.summary.trim());
-    let note = if (verb, entity) == ("search", "diagnostic") {
-        CDX_SHARED_FIELDS
-    } else {
-        ""
-    };
-    format!("{summary}{note} Sources: {sources}.")
 }
 /// FDA spells the two companion tables' headers differently, so readers need the shared names (0959).
 /// The typed `diagnostic` tool ends its own description with the same sentence (0962, mcp/typed/description.rs).
