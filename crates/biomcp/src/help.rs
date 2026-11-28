@@ -363,6 +363,12 @@ fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
         .into_iter()
         .collect::<Vec<_>>()
         .join(", ");
+    if (verb, entity) == ("variant", "population") {
+        return format!(
+            "{} Sources: {sources}.",
+            biomcp_adapters::gnomad::variant::scope_help()
+        );
+    }
     let summary = biomcp_types::COMMANDS
         .iter()
         .find(|row| row.verb == verb && row.entity == entity)
