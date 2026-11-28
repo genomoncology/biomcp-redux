@@ -11,7 +11,6 @@ from reach_census_common import MAX_SOURCE_BYTES, CensusError, read, sample_rows
 CTGOV = "https://clinicaltrials.gov/api/v2"
 CPIC = "https://api.cpicpgx.org/v1"
 EREPO = "https://erepo.clinicalgenome.org/evrepo/api/summary/classifications"
-WP = "https://www.wikipathways.org/json/findPathwaysByText.json"
 UNIPROT = "https://rest.uniprot.org/uniprotkb/search"
 INTERPRO = "https://www.ebi.ac.uk/interpro/api"
 OPEN_TARGETS = "https://api.platform.opentargets.org/api/v4/graphql"
@@ -150,12 +149,35 @@ def erepo(census):
         yield label, sample_rows(label, rows, probe)
 
 
+def recorded_bodies(census, source):
+    for path in (census.home / source / source).glob("*.json"):
+        capture = json.loads(path.read_text())
+        for exchange in capture["exchanges"]:
+            if exchange["status"] != 200:
+                continue
+            body = exchange["body"]
+            content = body["value"]
+            if body["kind"] == "sidecar":
+                if content != Path(content).name:
+                    raise CensusError("invalid bundle recording sidecar")
+                with path.with_name(content).open("rb") as stream:
+                    content = stream.read(MAX_SOURCE_BYTES + 1)
+                if len(content) > MAX_SOURCE_BYTES:
+                    raise CensusError("bundle recording exceeds the source capture bound")
+            yield capture["url"], content
+
+
 def wikipathways(census):
-    catalog, _ = census.native(WP, {})
+    census.reply(("sync", "wikipathways"), record="wikipathways")
     rows = defaultdict(list)
-    for row in catalog["pathwayInfo"]:
-        rows[row["species"]].append(row["id"])
-    census.reply(("sync", "wikipathways"))
+    for url, content in recorded_bodies(census, "wikipathways"):
+        if not url.endswith("/findPathwaysByText.json"):
+            continue
+        catalog = content if isinstance(content, dict) else json.loads(content)
+        for row in catalog["pathwayInfo"]:
+            rows[row["species"]].append(row["id"])
+    if not rows:
+        raise CensusError("WikiPathways recording contains no catalog")
 
     def probe(identifier):
         reply = census.reply(("get", "pathway", identifier), allow_usage=True)
@@ -300,28 +322,15 @@ def gnomad(census):
 def orphadata(census):
     census.reply(("sync", "orphadata"), record="orphadata")
     groups = defaultdict(set)
-    for path in (census.home / "orphadata" / "orphadata").glob("*.json"):
-        capture = json.loads(path.read_text())
-        for exchange in capture["exchanges"]:
-            if exchange["status"] != 200:
-                continue
-            body = exchange["body"]
-            content = body["value"]
-            if body["kind"] == "sidecar":
-                if content != Path(content).name:
-                    raise CensusError("invalid Orphadata recording sidecar")
-                with path.with_name(content).open("rb") as stream:
-                    content = stream.read(MAX_SOURCE_BYTES + 1)
-                if len(content) > MAX_SOURCE_BYTES:
-                    raise CensusError("Orphadata recording exceeds the source capture bound")
-            root = ElementTree.fromstring(content)
-            for disorder in root.findall("./DisorderList/Disorder"):
-                code = disorder.findtext("OrphaCode")
-                kind = disorder.findtext("DisorderType/Name") or "unspecified"
-                if disorder.find("./PrevalenceList/Prevalence") is not None:
-                    groups["prevalence/" + kind].add(code)
-                if disorder.find("./AverageAgeOfOnsetList/AverageAgeOfOnset") is not None:
-                    groups["onset/" + kind].add(code)
+    for _, content in recorded_bodies(census, "orphadata"):
+        root = ElementTree.fromstring(content)
+        for disorder in root.findall("./DisorderList/Disorder"):
+            code = disorder.findtext("OrphaCode")
+            kind = disorder.findtext("DisorderType/Name") or "unspecified"
+            if disorder.find("./PrevalenceList/Prevalence") is not None:
+                groups["prevalence/" + kind].add(code)
+            if disorder.find("./AverageAgeOfOnsetList/AverageAgeOfOnset") is not None:
+                groups["onset/" + kind].add(code)
     if not groups:
         raise CensusError("Orphadata recording contains no disorder classes")
     for label, codes in sorted(groups.items()):

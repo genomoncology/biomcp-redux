@@ -50,7 +50,9 @@ class Census:
         self.last_call = time.monotonic()
 
     def native(self, url, params, headers=None, payload=None, *, raw=False):
-        request_headers = {} if raw else {"Accept": "application/json"}
+        request_headers = {"User-Agent": "BioMCP weekly reach census"}
+        if not raw:
+            request_headers["Accept"] = "application/json"
         request_headers.update(headers or {})
         request = Request(url + ("?" + urlencode(params) if params else ""),
                           data=payload, headers=request_headers)
