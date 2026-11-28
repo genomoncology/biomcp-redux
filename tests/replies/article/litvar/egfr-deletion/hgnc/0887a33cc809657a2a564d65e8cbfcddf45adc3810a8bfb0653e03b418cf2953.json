@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "fetched": 1795552011,
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_group\tgene_group_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene.org\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit-trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_id\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc\nHGNC:3236\tEGFR\tepidermal growth factor receptor\tprotein-coding gene\tgene with protein product\tApproved\t7p11.2\t\"ERBB1|ERRP\"\t\"erythroblastic leukemia viral (v-erb-b) oncogene homolog (avian)|erb-b2 receptor tyrosine kinase 1\"\tERBB\tepidermal growth factor receptor (avian erythroblastic leukemia viral (v-erb-b) oncogene homolog)\tErb-b2 receptor tyrosine kinases\t1096\t1986-01-01\t\t2010-06-25\t2023-03-15\t1956\tENSG00000146648\tOTTHUMG00000023661\tuc003tqk.4\t\tNM_005228\t\"CCDS47587|CCDS5514|CCDS5515|CCDS5516|CCDS87507|CCDS94105\"\tP00533\t1505215\tMGI:95294\tRGD:2543\tLRG_304|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_304.xml\tEGFR\t131550\t\t\t\t\t121311\t\t\t\t\tHGNC:3236\t\t\t\t\t\t\t\t\t\tHGNC:3236\t\"ENST00000275493.7|NM_005228.5\"\tHGNC:3236\n"
+      }
+    }
+  ]
+}

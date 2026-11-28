@@ -1,0 +1,175 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "0bef841869233a5c855eaf9dcd24ebff87a10f959d765d8d19153a4206ebe4c1"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795825304,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "41327362"
+            ],
+            "41327362": {
+              "uid": "41327362",
+              "pubdate": "2025 Dec 1",
+              "epubdate": "2025 Dec 1",
+              "source": "Infect Agent Cancer",
+              "authors": [
+                {
+                  "name": "Saeed Mohamed S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hassan ZK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fahmy AM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Youssef ASE",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fattah NFA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Khater AI",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Soliman HK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hafez MM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Hafez MM",
+              "title": "Clinical significance of HPV DNA and EGFR mutations in Egyptian NSCLC.",
+              "sorttitle": "clinical significance of hpv dna and egfr mutations in egyptian nsclc",
+              "volume": "20",
+              "issue": "1",
+              "pages": "86",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "101276559",
+              "issn": "1750-9378",
+              "essn": "1750-9378",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed",
+              "pubstatus": "3",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "41327362"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC12690842"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC12690842;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1186/s13027-025-00712-9"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "10.1186/s13027-025-00712-9"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2025/07/14 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2025/10/29 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2025/12/02 07:37"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2025/12/02 07:36"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2025/12/02 00:06"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2025/12/01 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 43,
+              "fulljournalname": "Infectious agents and cancer",
+              "elocationid": "doi: 10.1186/s13027-025-00712-9",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2025/12/01 00:00",
+              "sortfirstauthor": "Saeed Mohamed S",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ]
+}
