@@ -1,0 +1,18 @@
+{
+  "source": "gwas",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST91007236",
+  "exchanges": [
+    {
+      "status": 404,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"errorCode\":404,\"error\":\"Not Found\",\"errorMessage\":\"Studies with Accession Id: GCST91007236 not found\",\"servicePath\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST91007236\",\"timestamp\":\"2026-11-28T03:30:33\"}"
+      },
+      "fetched": 1795836633
+    }
+  ]
+}

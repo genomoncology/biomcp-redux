@@ -1,0 +1,18 @@
+{
+  "source": "gwas",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"genotyping_technology\":\"Genome-wide genotyping array|Whole genome sequencing\",\"study_accession\":\"GCST91007236\",\"imputation\":true,\"variant_count\":11668952,\"summary_statistics_assembly\":\"GRCh38\",\"agreed_to_cc0\":true,\"full_summary_stats\":\"http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST91007001-GCST91008000/GCST91007236\",\"statistical_model\":\"2df Joint test of the main and interaction effect between genetic variant and alcohol covariate (Manning et al, GenEpi 2011)\",\"disease_trait\":\"pulse pressure\",\"title\":\"Discovery of gene-alcohol interaction loci influencing blood pressure in 1.1 million individuals from multiple populations\",\"first_Author\":\"Mary Feitosa\",\"date_submitted\":\"2026-11-02\",\"_links\":{\"self\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236\"},\"ancestries\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236/unpublished-ancestries?sort=sample_size&direction=desc\"},\"body_of_work\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/body-of-works/229822799\"}}}"
+      },
+      "fetched": 1795836633
+    }
+  ]
+}

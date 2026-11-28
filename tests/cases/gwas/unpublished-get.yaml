@@ -1,0 +1,27 @@
+{
+  "feature": "gwas-get",
+  "story": "An exact accession reads the Catalog's unpublished study and its sample metadata.",
+  "live_check": "GWAS Catalog unpublished study GCST91007236",
+  "replay": "gwas/unpublished",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gwas",
+        "GCST91007236"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/id": "GCST91007236",
+        "/result/unpublished": true,
+        "/result/reported_traits/0": "pulse pressure",
+        "/result/samples/0": {
+          "ancestry": "European",
+          "count": 242450
+        },
+        "/result/summary_statistics_url": "http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST91007001-GCST91008000/GCST91007236"
+      },
+      "max_bytes": 2100
+    }
+  ]
+}
