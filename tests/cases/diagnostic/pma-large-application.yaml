@@ -1,0 +1,32 @@
+feature: diagnostic-pma
+live_check: public
+story: A PMA with over 100 submissions still has an original approval card and paged supplements with an exact total.
+verified: Native openFDA replies recorded without a key by BioMCP in pm job j48692 on 2026-11-28 UTC. The source counted 460 submissions, including the original approval.
+replay: diagnostic/pma-large-application
+steps:
+  - run: [get, diagnostic, P890003, --source, fda-pma]
+    max_bytes: 1547
+    expect:
+      /status: complete
+      /result/kind: pma-submission
+      /result/header/pma_number: P890003
+      /result/header/supplement_number: ""
+      /result/header/decision_date: "1989-08-24"
+      /result/header/decision_code: APPR
+      /next/1/args: [get, diagnostic, P890003, supplements, --source, fda-pma]
+  - run: [get, diagnostic, P890003, supplements, --source, fda-pma]
+    max_bytes: 3009
+    expect:
+      /status: complete
+      /page/offset: 0
+      /page/returned: 5
+      /page/total: 459
+      /result/items/*/supplement_number: [S001, S002, S003, S004, S005]
+  - follow: page
+    max_bytes: 2944
+    expect:
+      /status: complete
+      /page/offset: 5
+      /page/returned: 5
+      /page/total: 459
+      /result/items/*/supplement_number: [S006, S007, S008, S009, S010]
