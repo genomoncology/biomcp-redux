@@ -215,18 +215,13 @@ fn unintegrated_notice(
 ) -> Option<biomcp_types::SourceNotice> {
     let count_leg = leg.sibling(&interpro::SPEC);
     let count = interpro::unintegrated_count(&count_leg, id);
-    // Existing recordings predate this optional lookup.
-    if matches!(
-        count,
-        Err(RequestError::Recording(biomcp_fetch::RecordError::Missing))
-    ) {
-        return None;
-    }
-    let count = count.ok().filter(|_| !count_leg.finish().stale);
-    let message = match count {
-        Some(0) => return None,
-        Some(count) => format!("Omitted {count} unintegrated member-database signatures."),
-        None => "The count of unintegrated member-database signatures is unavailable.".into(),
+    let message = match (count, count_leg.finish().stale) {
+        // Existing recordings predate this optional lookup.
+        (Err(RequestError::Recording(biomcp_fetch::RecordError::Missing)), _) | (Ok(0), false) => {
+            return None;
+        }
+        (Ok(count), false) => format!("Omitted {count} unintegrated member-database signatures."),
+        _ => "The count of unintegrated member-database signatures is unavailable.".into(),
     };
     Some(biomcp_types::SourceNotice::RequestGuidance {
         data_date: None,
