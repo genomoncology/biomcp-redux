@@ -1,0 +1,650 @@
+2	Isoflurane
+3	Nitrous oxide
+4	Oxygen
+5	Ketamine
+6	Propofol
+7	Bupivacaine
+8	Lidocaine
+9	Ephedrine
+10	Atropine
+11	Midazolam
+12	Morphine
+13	Acetylsalicylic acid
+14	Ibuprofen
+15	Paracetamol (acetaminophen)
+16	Codeine
+17	Fentanyl
+18	Methadone
+19	Amitriptyline
+20	Cyclizine
+21	Dexamethasone
+22	Diazepam
+23	Docusate sodium
+24	Fluoxetine
+25	Haloperidol
+26	Hyoscine butylbromide
+27	Lactulose
+28	Loperamide
+29	Metoclopramide
+30	Ondansetron
+31	Senna
+32	Epinephrine
+33	Hydrocortisone
+34	Loratadine
+35	Prednisolone
+36	Acetylcysteine
+37	Calcium gluconate
+38	Methylthioninium chloride
+39	Naloxone
+40	Deferoxamine
+41	Dimercaprol
+42	Penicillamine
+43	Potassium ferric hexacyanoferrate (Prussian blue)
+44	Sodium nitrite
+45	Sodium thiosulfate
+46	Fomepizole
+47	Sodium calcium edetate
+48	Succimer
+49	Carbamazepine
+50	Lamotrigine
+51	Lorazepam
+52	Magnesium sulfate
+53	Phenobarbital
+54	Phenytoin
+55	Valproic acid (sodium valproate)
+56	Ethosuximide
+57	Albendazole
+58	Ivermectin
+59	Levamisole
+60	Mebendazole
+61	Niclosamide
+62	Praziquantel
+63	Pyrantel
+64	Diethylcarbamazine
+65	Triclabendazole
+66	Oxamniquine
+68	Azathioprine
+69	Ciclosporin
+70	All-trans retinoic acid
+71	Allopurinol
+72	Asparaginase
+73	Bendamustine
+74	Bleomycin
+75	Calcium folinate (leucovorin calcium)
+76	Capecitabine
+77	Carboplatin
+78	Chlorambucil
+79	Cisplatin
+80	Cyclophosphamide
+81	Cytarabine
+82	Dacarbazine
+83	Dactinomycin
+84	Dasatinib
+85	Daunorubicin
+86	Docetaxel
+87	Doxorubicin
+88	Etoposide
+89	Filgrastim
+90	Fludarabine
+91	Fluorouracil
+92	Gemcitabine
+93	Hydroxyurea (hydroxycarbamide)
+94	Ifosfamide
+95	Imatinib
+96	Irinotecan
+97	Mercaptopurine
+98	Mesna
+99	Methotrexate
+100	Nilotinib
+101	Oxaliplatin
+102	Paclitaxel
+103	Procarbazine
+104	Rituximab
+105	Tioguanine
+106	Trastuzumab
+107	Vinblastine
+108	Vincristine
+109	Vinorelbine
+110	Zoledronic acid
+111	Anastrozole
+112	Bicalutamide
+113	Leuprorelin
+114	Methylprednisolone
+115	Tamoxifen
+116	Biperiden
+118	Ferrous salt
+120	Folic acid
+121	Hydroxocobalamin
+122	Erythropoiesis-stimulating agents
+123	Enoxaparin
+124	Heparin sodium
+125	Phytomenadione
+126	Protamine sulfate
+127	Tranexamic acid
+128	Warfarin
+129	Desmopressin
+130	Bisoprolol
+131	Glyceryl trinitrate
+132	Isosorbide dinitrate
+133	Verapamil
+134	Digoxin
+135	Amiodarone
+136	Amlodipine
+137	Enalapril
+138	Hydralazine
+139	Hydrochlorothiazide
+140	Methyldopa
+141	Losartan
+142	Sodium nitroprusside
+143	Furosemide
+144	Spironolactone
+145	Dopamine
+146	Clopidogrel
+147	Streptokinase
+148	Simvastatin
+149	Miconazole
+150	Selenium sulfide
+151	Terbinafine
+152	Mupirocin
+153	Potassium permanganate
+154	Silver sulfadiazine
+155	Betamethasone
+156	Calamine
+157	Benzoyl peroxide
+158	Coal tar
+159	Podophyllum resin
+160	Salicylic acid
+161	Urea
+162	Benzyl benzoate
+163	Permethrin
+164	Fluorescein
+165	Tropicamide
+166	Amidotrizoate
+167	Barium sulfate
+168	Iohexol
+169	Meglumine iotroxate
+170	Chlorhexidine
+171	Ethanol
+172	Povidone iodine
+173	Alcohol based hand rub
+174	Chlorine base compound
+175	Chloroxylenol
+176	Amiloride
+177	Mannitol
+178	Omeprazole
+179	Ranitidine
+180	Sulfasalazine
+181	Zinc sulfate
+182	Fludrocortisone
+183	Testosterone
+184	Ethinylestradiol + levonorgestrel
+185	Ethinylestradiol + norethisterone
+186	Levonorgestrel
+187	Ulipristal
+188	Estradiol cypionate + medroxyprogesterone acetate
+189	Medroxyprogesterone acetate
+190	Norethisterone enantate
+191	Metformin
+192	Etonogestrel-releasing implant
+193	Progesterone vaginal ring
+194	Gliclazide
+195	Glucagon
+196	Insulin (human, short-acting)
+197	Insulin (human, intermediate-acting)
+198	Clomifene
+199	Levothyroxine
+200	Potassium iodide
+201	Propylthiouracil
+202	Iodine + potassium iodide (Lugol's solution)
+203	Tuberculin, purified protein derivative
+204	Pyridostigmine
+205	BCG vaccine
+206	Haemophilus influenzae type b vaccine
+207	Hepatitis B vaccine
+208	Human papilloma virus (HPV) vaccine
+209	Measles vaccine
+210	Pertussis vaccine
+211	Pneumococcal vaccine
+212	Poliomyelitis vaccine
+213	Rotavirus vaccine
+214	Rubella vaccine
+215	Tetanus vaccine
+216	Yellow fever vaccine
+217	Hepatitis A vaccine
+218	Rabies vaccine
+219	Typhoid vaccine
+220	Mumps vaccine
+221	Varicella vaccine
+222	Atracurium
+223	Neostigmine
+224	Suxamethonium
+225	Vecuronium
+226	Aciclovir
+227	Azithromycin
+228	Erythromycin
+229	Gentamicin
+230	Natamycin
+231	Ofloxacin
+232	Tetracycline
+233	Tetracaine
+234	Acetazolamide
+235	Latanoprost
+236	Pilocarpine
+237	Timolol
+238	Bevacizumab
+239	Ergometrine
+240	Misoprostol
+241	Oxytocin
+242	Mifepristone - misoprostol
+243	Nifedipine
+244	Chlorpromazine
+245	Fluphenazine
+246	Risperidone
+247	Clozapine
+248	Lithium carbonate
+249	Clomipramine
+250	Beclometasone
+251	Budesonide
+252	Budesonide + formoterol
+253	Ipratropium bromide
+254	Salbutamol
+255	Potassium chloride
+256	Glucose
+258	Sodium chloride
+259	Ascorbic acid
+260	Calcium
+261	Colecalciferol
+262	Ergocalciferol
+263	Iodine
+264	Nicotinamide
+265	Pyridoxine
+266	Retinol
+267	Riboflavin
+268	Fluoride
+269	Thiamine
+270	Acetic acid
+271	Ciprofloxacin
+272	Xylometazoline
+273	Alprostadil (prostaglandin E1)
+274	Beractant
+275	Chloroquine
+276	Hydroxychloroquine
+277	Lidocaine + epinephrine
+278	Dolutegravir
+279	Bedaquiline
+280	Delamanid
+281	Hyoscine hydrobromide
+283	Atazanavir + ritonavir
+285	Efavirenz + lamivudine + tenofovir
+286	Isoniazid + pyridoxine + sulfamethoxazole + trimethoprim
+287	Itraconazole
+288	Voriconazole
+289	Raltegravir
+290	Sofosbuvir + velpatasvir
+291	Oseltamivir
+292	Clofazimine
+293	Dapsone
+294	Rifampicin
+295	Daclatasvir
+296	Sofosbuvir
+297	Activated charcoal
+299	Amoxicillin
+300	Spectinomycin
+301	Nitrofurantoin
+302	Ampicillin
+303	Benzylpenicillin
+304	Cefalexin
+305	Cefazolin
+306	Cloxacillin
+307	Cefixime
+308	Phenoxymethylpenicillin
+309	Clindamycin
+310	Amoxicillin + clavulanic acid
+311	Benzathine benzylpenicillin
+312	Cefotaxime
+313	Metronidazole
+314	Ceftriaxone
+315	Abacavir
+316	Abacavir + lamivudine
+317	Clarithromycin
+318	Doxycycline
+319	Procaine benzylpenicillin
+320	Piperacillin + tazobactam
+321	Ethambutol
+323	Ethambutol + isoniazid + pyrazinamide + rifampicin
+324	Ethambutol + isoniazid + rifampicin
+325	Isoniazid
+326	Isoniazid + pyrazinamide + rifampicin
+327	Amikacin
+328	Ceftazidime
+329	Meropenem
+330	Isoniazid + rifampicin
+331	Pyrazinamide
+332	Chloramphenicol
+333	Vancomycin
+334	Sulfamethoxazole + trimethoprim
+335	Rifabutin
+336	Rifapentine
+343	Fosfomycin (injection)
+345	Linezolid
+348	Colistin (injection)
+350	Cycloserine
+351	Ethionamide
+353	Levofloxacin
+354	Moxifloxacin
+356	Streptomycin (injection)
+357	Amphotericin B
+358	Clotrimazole
+359	Fluconazole
+360	Flucytosine
+361	Griseofulvin
+362	Nystatin
+363	Diloxanide
+364	Lamivudine
+365	Tenofovir disoproxil fumarate
+366	Zidovudine
+367	Miltefosine
+368	Paromomycin
+369	Sodium stibogluconate
+370	Meglumine antimoniate
+372	Artemether
+373	Artemether + lumefantrine
+374	Artesunate
+375	Artesunate + amodiaquine
+376	Artesunate + mefloquine
+377	Artesunate + pyronaridine
+378	Dihydroartemisinin + piperaquine
+379	Mefloquine
+380	Primaquine
+381	Quinine
+382	Sulfadoxine + pyrimethamine
+384	Pyrimethamine
+385	Sulfadiazine
+386	Pentamidine
+387	Suramin sodium
+388	Eflornithine
+389	Melarsoprol
+390	Nifurtimox
+391	Benznidazole
+392	Propranolol
+393	Levodopa + carbidopa
+394	Ferrous salt + folic acid
+395	Ceftazidime + avibactam
+396	Meropenem + vaborbactam
+397	Plazomicin
+398	Ceftolozane + tazobactam
+401	Cefuroxime
+403	Gefitinib
+404	Afatinib
+405	Erlotinib
+406	Abiraterone
+407	Bortezomib
+408	Lenalidomide
+409	Thalidomide
+410	Trihexyphenidyl
+413	Nadroparin
+414	Dalteparin
+415	Epoetin alfa
+416	Epoetin beta
+417	Epoetin theta
+418	Darbepoetin alfa
+419	Methoxy polyethylene glycol-epoetin beta
+420	Norethisterone
+421	Copper-containing intrauterine device
+422	Condoms
+423	Diaphragms
+424	Levonorgestrel-releasing implant
+425	Carbetocin
+426	Caffeine citrate
+427	Indometacin
+428	Dinoprostone (prostaglandin E2)
+429	Intraperitoneal dialysis solution
+430	Diphtheria vaccine
+434	Dengue vaccine
+435	Cholera vaccine
+436	Japanese encephalitis vaccine
+437	Tick-borne encephalitis vaccine
+438	Meningococcal meningitis vaccine
+439	Influenza vaccine (seasonal)
+450	Efavirenz
+451	Nevirapine
+453	Lopinavir + ritonavir
+454	Fresh-frozen plasma
+455	Enzalutamide
+456	Platelets
+457	Red blood cells
+458	Darunavir
+459	Whole blood
+460	Anti-D immunoglobulin
+461	Ritonavir
+462	Anti-rabies immunoglobulin
+463	Efavirenz + emtricitabine + tenofovir
+464	Anti-tetanus immunoglobulin
+465	Normal immunoglobulin
+466	Coagulation factor VIII, plasma-derived
+467	Emtricitabine + tenofovir
+468	Coagulation factor IX, plasma-derived
+470	Lamivudine + zidovudine
+471	Polygeline
+472	Dextran 70
+473	Ribavirin
+474	Valganciclovir
+478	Apixaban
+479	Dabigatran
+480	Edoxaban
+481	Rivaroxaban
+482	Alteplase
+483	Dolutegravir + lamivudine + tenofovir
+490	Entecavir
+491	Glecaprevir + pibrentasvir
+495	Ledipasvir + sofosbuvir
+496	Atenolol
+497	Metoprolol
+498	Carvedilol
+505	Diazoxide
+506	Methimazole
+507	Carbimazole
+508	Antivenom immunoglobulin
+511	Diphtheria antitoxin
+512	Homatropine
+514	Pancreatic enzymes
+520	Podophyllotoxin
+524	Propanol
+525	Glutaral
+526	Pravastatin
+527	Lovastatin
+528	Fluvastatin
+529	Atorvastatin
+530	Nicotine replacement therapy
+531	Lisinopril + amlodipine
+532	Lisinopril + hydrochlorothiazide
+533	Telmisartan + amlodipine
+534	Telmisartan + hydrochlorothiazide
+536	Aprepitant
+539	Tiotropium bromide
+540	Oral rehydration salts
+541	Oral rehydration salts - zinc sulfate
+542	Glucose + sodium chloride
+543	Sodium hydrogen carbonate
+544	Compound sodium lactate solution
+546	Multiple micronutrient powder
+547	Mesalazine
+548	Etanercept
+549	Infliximab
+550	Certolizumab pegol
+551	Golimumab
+552	Adalimumab
+553	Tacrolimus
+554	Arsenic trioxide
+555	Realgar-indigo naturalis formulation
+556	Melphalan
+557	Fexinidazole
+558	Pegaspargase
+559	Oxycodone
+560	Hydromorphone
+561	Polymyxin B (injection)
+563	Valaciclovir
+564	Amodiaquine - sulfadoxine + pyrimethamine
+565	Pembrolizumab
+566	Nivolumab
+568	Glatiramer acetate
+570	Atezolizumab
+571	Sumatriptan
+573	Insulin glargine
+574	Insulin detemir
+575	Insulin degludec
+586	Ready to use therapeutic food
+587	Water for injection
+592	Bromocriptine
+593	Cabergoline
+599	Trimethoprim
+600	Imipenem + cilastatin
+604	Anti-rabies virus monoclonal antibodies
+605	Equine rabies immunoglobulin
+606	Bupropion
+607	Varenicline
+608	Calcitriol
+609	Calcipotriol
+610	Tacalcitol
+611	Cefiderocol
+612	Canagliflozin
+613	Dapagliflozin
+614	Empagliflozin
+615	Everolimus
+616	Glass ionomer cement
+617	Silver diamine fluoride
+618	Ibrutinib
+619	Caspofungin
+620	Anidulafungin
+621	Micafungin
+622	Insulin (analogue, long-acting)
+623	Paliperidone
+624	Multiple micronutrient supplement
+625	Rasburicase
+626	Daclatasvir + sofosbuvir
+627	Isoniazid + rifapentine
+628	Thiopental
+629	Dolasetron
+630	Granisetron
+631	Palonosetron
+632	Tropisetron
+633	Cetirizine
+634	Fexofenadine
+635	Prednisone
+636	Terizidone
+637	Protionamide
+638	Lamivudine + tenofovir
+639	Tinidazole
+640	Flutamide
+641	Nilutamide
+642	Levodopa + benserazide
+643	Deferasirox
+644	Buprenorphine
+645	Chlorothiazide
+646	Chlortalidone
+647	Indapamide
+648	Bumetanide
+649	Torasemide
+650	Precipitated sulfur
+651	Cyclopentolate
+652	Bisacodyl
+653	Netilmicin
+654	Tobramycin
+655	Chlortetracycline
+656	Oxytetracycline
+657	Carbachol
+658	Methylergometrine
+659	Citalopram
+660	Escitalopram
+661	Fluvoxamine
+662	Paroxetine
+663	Sertraline
+664	Ciclesonide
+666	Fluticasone
+667	Mometasone
+668	Budesonide + salmeterol
+669	Beclometasone + formoterol
+670	Mometasone + formoterol
+671	Fluticasone + formoterol
+672	Fluticasone furoate + vilanterol
+673	Terbutaline
+674	Aclidinium
+675	Glycopyrronium
+676	Umeclidinium
+677	Ethinylestradiol + etonogestrel
+724	Dicloxacillin
+732	Flucloxacillin
+751	Nafcillin
+756	Oxacillin
+784	Tedizolid
+818	Meticillin
+873	Goserelin
+874	Triptorelin
+875	Hypochlorous acid
+876	Kanamycin
+893	Triamcinolone hexacetonide
+895	Zanubrutinib
+897	Sevoflurane
+899	Ravidasvir
+900	Ansuvimab
+901	Atoltivimab + maftivimab + odesivimab
+902	Levetiracetam
+903	Cladribine
+904	P-aminosalicylate sodium
+905	Medicines for COVID-19
+906	Doxorubicin (as pegylated liposomal)
+907	Pegfilgrastim
+908	Acamprosate calcium
+909	Naltrexone
+910	Acetylsalicylic acid + atorvastatin + ramipril
+911	Acetylsalicylic acid + simvastatin + ramipril + atenolol + hydrochlorothiazide
+912	Atorvastatin + perindopril + amlodipine
+913	Octreotide
+914	Cryoprecipitate (native)
+915	Cryoprecipitate (pathogen-reduced)
+916	Deferiprone
+917	Letrozole
+918	Olanzapine
+919	Pretomanid
+920	Quetiapine
+921	Aripiprazole
+922	Resin-based composite (low-viscosity)
+923	Resin-based composite (high-viscosity)
+924	Haloperidol decanoate
+925	Zuclopenthixol decanoate
+932	Liraglutide
+937	Cemiplimab
+940	Coagulation factor IX complex
+943	Sunscreen, broad-spectrum
+946	Ustekinumab
+947	Abacavir + dolutegravir + lamivudine
+948	Arpraziquantel
+949	Blinatumomab
+950	Coagulation factor VIII, recombinant
+951	Coagulation factor IX, recombinant
+952	Cytisine (cytisinicline)
+953	Ebola vaccine
+954	Elexacaftor + tezacaftor + ivacaftor
+955	Emicizumab
+956	Glycerol
+957	Hepatitis E vaccine
+958	Insulin (analogue, rapid-acting)
+959	Ivacaftor
+960	Mpox vaccine
+961	Perindopril + amlodipine + indapamide
+962	Valsartan + amlodipine + hydrochlorothiazide
+963	Moxidectin
+964	Insulin lispro
+965	Insulin aspart
+966	Insulin glulisine
+969	Malaria vaccine
+970	Respiratory syncytial virus vaccine
+971	Baclofen
+972	Dulaglutide
+973	Semaglutide
+976	Tirzepatide
+977	Naproxen
+978	Artesunate - sulfadoxine + pyrimethamine
+979	Acenocoumarol
+989	Porcatant alfa
+990	Eletriptan

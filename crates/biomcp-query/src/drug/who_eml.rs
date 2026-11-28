@@ -15,17 +15,15 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let command = cx.fetch.source_command_deadline(&who_eml::SPEC, cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&who_eml::SPEC, deadline).fresh(cx.fresh);
-    let result = who_eml::essential_medicines(
-        &leg,
-        query.input().as_str(),
-        query.section_limit().unwrap_or(DEFAULT_LIMIT),
-        query.section_offset().unwrap_or(0),
-    );
+    let (result, aliased) = read_listings(cx, query, &leg, deadline.remaining());
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
     let read = status::source(Source::WhoEml, leg.finish(), error);
     let stale = read.state == SourceState::Stale;
     out.sources.push(read);
+    if let Some(aliased) = aliased {
+        aliased.append(&mut out);
+    }
     // A failed read is already in `sources`; the reply keeps no body.
     let mapped = match result {
         Ok(mapped) => mapped,
@@ -53,6 +51,49 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     status::item(&mut out, found, stale_miss, false);
     command.finish(deadline.remaining());
     out
+}
+
+type Listings = biomcp_adapters::Mapped<Option<DrugEssentialMedicines>>;
+
+fn read_listings(
+    cx: &Ctx<'_>,
+    query: &DrugGet,
+    leg: &biomcp_fetch::Leg<'_>,
+    remaining: std::time::Duration,
+) -> (
+    Result<Listings, biomcp_fetch::RequestError>,
+    Option<super::aliases::Aliased>,
+) {
+    let read = |name: &str| {
+        who_eml::essential_medicines(
+            leg,
+            name,
+            query.section_limit().unwrap_or(DEFAULT_LIMIT),
+            query.section_offset().unwrap_or(0),
+        )
+    };
+    let input = query.input();
+    let result = read(input.as_str());
+    if !query.is_name() || !result.as_ref().is_ok_and(|mapped| mapped.value.is_none()) {
+        return (result, None);
+    }
+    let mut failed = None;
+    let (found, aliased) =
+        super::aliases::listing_name(&super::resolve::within(cx, remaining), input, |name| {
+            match read(name.as_str()) {
+                Ok(mapped) => mapped.value.is_some().then_some(mapped),
+                Err(error) => {
+                    failed.get_or_insert(error);
+                    None
+                }
+            }
+        });
+    let result = match (found, failed) {
+        (Some(mapped), _) => Ok(mapped),
+        (None, Some(error)) => Err(error),
+        (None, None) => result,
+    };
+    (result, Some(aliased))
 }
 
 /// Page metadata and the next page's call.

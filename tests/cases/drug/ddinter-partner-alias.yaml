@@ -60,6 +60,7 @@
           ]
         },
         "/result/hint": "DDInter's files name no drug \"Orphan code\", so this reply cannot say whether they list the pair; search drug with --source ddinter shows the names they use. DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
+        "/sources/0/notices/0/message": "Could not resolve \"Orphan code\" to a DDInter partner.",
         "/next/0/args": [
           "search",
           "drug",

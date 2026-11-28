@@ -6,8 +6,8 @@ use biomcp_fetch::{
     SourceSpec,
 };
 use biomcp_types::{
-    DrugEssentialMedicineListing, DrugEssentialMedicines, DrugHeader, DrugRecords, DrugSource,
-    Section, Source, Use,
+    DrugEssentialMedicineListing, DrugEssentialMedicines, DrugHeader, DrugNameMatch, DrugRecords,
+    DrugSource, Section, Source, Use,
 };
 use std::time::Duration;
 
@@ -42,8 +42,7 @@ const HINT: &str = "WHO electronic Essential Medicines List (eEML), World Health
                     IGO. WHO says the PDF Model Lists (EML and EMLc) are the binding versions and \
                     the eEML may differ from them. Listings only: rejected applications are left out.";
 
-/// One page of the eEML listings for a medicine named exactly as the eEML names it (letter case
-/// ignored), or for its eEML number; `None` when the eEML has no such medicine.
+/// One page of eEML listings by name or eEML number.
 pub fn essential_medicines(
     leg: &Leg<'_>,
     input: &str,
@@ -147,17 +146,58 @@ fn listings(
     Ok(listings)
 }
 
-/// The eEML number of the medicine the site's search lists under exactly this name.
+/// The eEML number for a complete name or a unique alternate spelling among the search hits.
 fn search(leg: &Leg<'_>, name: &str) -> Result<Option<String>, RequestError> {
-    Ok(medicines(leg, name)?
-        .into_iter()
-        .find(|header| {
-            header
-                .name
-                .as_ref()
-                .is_some_and(|title| title.as_str().eq_ignore_ascii_case(name.trim()))
-        })
-        .map(|header| header.id.to_string()))
+    let hits = medicines(leg, name)?;
+    Ok(matching_medicine(&hits, name).map(|header| header.id.to_string()))
+}
+
+fn matching_medicine<'a>(hits: &'a [DrugHeader], name: &str) -> Option<&'a DrugHeader> {
+    let name = name.trim();
+    let named = hits
+        .iter()
+        .filter_map(|header| Some((header.name.as_ref()?.as_str(), header)));
+    if let Some((_, exact)) = named
+        .clone()
+        .find(|(title, _)| DrugNameMatch::same_name(title, name))
+    {
+        return Some(exact);
+    }
+    let mut aliases = named.filter(|(title, _)| alternate_name(title, name));
+    let (_, first) = aliases.next()?;
+    aliases
+        .all(|(_, header)| header.id == first.id)
+        .then_some(first)
+}
+
+fn alternate_name(title: &str, name: &str) -> bool {
+    if DrugNameMatch::generic_name(title, name) {
+        return true;
+    }
+    let bracketed = title
+        .strip_suffix(')')
+        .and_then(|title| title.split_once(" ("))
+        .or_else(|| {
+            title
+                .strip_suffix(']')
+                .and_then(|title| title.split_once(" ["))
+        });
+    bracketed.is_some_and(|(base, alternate)| {
+        // Some eEML headings use brackets for formulations, sources or other qualifiers.
+        DrugNameMatch::generic_name(base, name)
+            || (!alternate.contains(',')
+                && !alternate.starts_with("as ")
+                && !matches!(
+                    alternate,
+                    "injection"
+                        | "native"
+                        | "pathogen-reduced"
+                        | "seasonal"
+                        | "high-viscosity"
+                        | "low-viscosity"
+                )
+                && DrugNameMatch::generic_name(alternate, name))
+    })
 }
 
 /// Every medicine the site's own search lists for this text, in its order: each name and eEML
@@ -259,4 +299,28 @@ fn unescape(value: &str) -> String {
         .replace("&lt;", "<")
         .replace("&gt;", ">")
         .replace("&amp;", "&")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn every_who_medicine_name_resolves_to_its_own_entry() {
+        let medicines: Vec<_> = include_str!("medicine-names.tsv")
+            .lines()
+            .map(|line| line.split_once('\t').expect("eEML number and name"))
+            .collect();
+        let headers: Vec<_> = medicines
+            .iter()
+            .map(|(number, name)| {
+                header(number, crate::mapped::record(*name)).expect("valid eEML number")
+            })
+            .collect();
+        assert_eq!(medicines.len(), 650);
+        for (number, name) in medicines {
+            let matched = matching_medicine(&headers, name).expect(name);
+            assert_eq!(matched.id.to_string(), number, "{name}");
+        }
+    }
 }

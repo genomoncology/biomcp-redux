@@ -223,23 +223,69 @@ pub(in crate::drug) fn partner<T>(
         })
     });
     let (found, message) = match found {
-        Some((found, message)) => (Some(found), Some(message)),
-        None => (None, None),
+        Some((found, message)) => (Some(found), message),
+        None => (
+            None,
+            format!(
+                "Could not resolve {:?} to a DDInter partner.",
+                input.as_str()
+            ),
+        ),
     };
-    (found, Aliased { message, evidence })
+    (
+        found,
+        Aliased {
+            message: Some(message),
+            evidence,
+            selected: DrugSource::Ddinter,
+        },
+    )
 }
 
-/// The other-source lookups a partner retry made, and the name it used, if any.
+/// Retry a WHO listing under another source's stated name after the eEML misses.
+pub(in crate::drug) fn listing_name<T>(
+    cx: &Ctx<'_>,
+    input: &Text,
+    mut attempt: impl FnMut(&Text) -> Option<T>,
+) -> (Option<T>, Aliased) {
+    let selected = DrugSource::WhoEml;
+    let (found, _, evidence) = with_aliases(cx, input, selected, |stated, name, _| {
+        attempt(name).map(|found| {
+            let message = format!(
+                "{} record {} supplies the name {:?} for {:?}; the eEML lists that name.",
+                stated.source,
+                stated.id,
+                name.as_str(),
+                input.as_str()
+            );
+            (found, message)
+        })
+    });
+    let (found, message) = found
+        .map(|(found, message)| (Some(found), Some(message)))
+        .unwrap_or_default();
+    (
+        found,
+        Aliased {
+            message,
+            evidence,
+            selected,
+        },
+    )
+}
+
+/// The other-source lookups and the resolution notice, if one is needed.
 pub(in crate::drug) struct Aliased {
+    selected: DrugSource,
     message: Option<String>,
     evidence: Evidence,
 }
 impl Aliased {
-    /// Add the lookups' source outcomes and say which name stood in for the partner.
+    /// Add the lookups' source outcomes and any resolution notice.
     pub(in crate::drug) fn append(self, out: &mut Outcome) {
-        self.evidence.append(out, DrugSource::Ddinter);
+        self.evidence.append(out, self.selected);
         if let Some(message) = self.message {
-            notice(out, DrugSource::Ddinter, message);
+            notice(out, self.selected, message);
         }
     }
 }
