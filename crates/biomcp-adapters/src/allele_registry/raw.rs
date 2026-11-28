@@ -134,7 +134,10 @@ pub(super) struct Hgvs {
 }
 
 impl Allele {
-    pub(super) fn identity(&self, expected: Option<&str>) -> Result<(Text, Text, VariantId), BadReply> {
+    pub(super) fn identity(
+        &self,
+        expected: Option<&str>,
+    ) -> Result<(Text, Text, VariantId), BadReply> {
         let url = self.id.as_ref().and_then(Field::as_ref).ok_or(BadReply)?;
         let (key, id) = allele_id(url)?;
         if !matches!(id, VariantId::Ca(_)) || expected.is_some_and(|expected| expected != key) {

@@ -38,7 +38,8 @@ pub(super) fn map(
         }
         result.messages = messages.into();
     } else if protein {
-        if let Some((record, allele_type)) = problems.optional("@id", Some(raw.protein_identity())) {
+        if let Some((record, allele_type)) = problems.optional("@id", Some(raw.protein_identity()))
+        {
             problems.record = Some(record);
             let candidates = protein_candidates(raw.proteins, &mut problems);
             result.outcome = if candidates.is_empty() {
