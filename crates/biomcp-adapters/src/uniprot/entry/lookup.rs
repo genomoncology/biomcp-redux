@@ -7,7 +7,7 @@ use biomcp_types::Source;
 use serde::Deserialize;
 
 /// A provider-confirmed reason that an accession cannot have a protein card.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum Scope {
     /// The entry describes an organism other than human.
     NonHuman,
@@ -18,6 +18,7 @@ pub enum Scope {
 }
 
 /// The result of looking up a protein card by accession.
+#[derive(Debug)]
 pub enum Lookup {
     /// A checked card, or a legitimate absence.
     Card(Box<Mapped<Option<Entry>>>),
