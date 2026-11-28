@@ -175,6 +175,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
         },
         transcripts: Box::default(),
         myvariant: None,
+        label: None,
         requested: None,
         sections: None,
         component_terms: Box::default(),

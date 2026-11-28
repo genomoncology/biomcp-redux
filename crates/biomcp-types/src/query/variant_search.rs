@@ -10,6 +10,8 @@ biodata::wire_enum! {
     VariantSearchSource {
         /// MyVariant.info candidate discovery.
         Myvariant => "myvariant",
+        /// ClinVar variation records by gene.
+        Clinvar => "clinvar",
     }
 }
 biodata::wire_enum! {
@@ -112,6 +114,7 @@ text_value!(
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "Fields", extend("anyOf" = [
+    {"required":["gene","source"],"properties":{"source":{"const":"clinvar"}}},
     {"required":["gene","protein"]},
     {"required":["gene","coding"]},
     {"required":["region","build"]},
@@ -122,7 +125,7 @@ pub struct VariantSearch(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Checked gene symbol for a SnpEff substitution or ClinVar coding/synonymous selector.
+    /// Gene symbol for a change selector or a ClinVar gene listing.
     #[serde(
         default,
         deserialize_with = "present",
@@ -171,7 +174,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Build"))]
     build: Option<Build>,
-    /// Explicit source language; required for a raw query.
+    /// Use clinvar with --gene to list VCVs. Use myvariant for raw queries.
     #[serde(
         default,
         deserialize_with = "present",
@@ -179,7 +182,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "VariantSearchSource"))]
     source: Option<VariantSearchSource>,
-    /// Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
+    /// Published review status phrase. ClinVar uses its native index; MyVariant requires a protein or region selector.
     #[serde(
         default,
         deserialize_with = "present",
@@ -187,6 +190,14 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", length(max = MAX_FILTER_CHARS)))]
     review_status: Option<Text>,
+    /// ClinVar classification property, such as pathogenic, likely pathogenic or uncertain significance. Requires --source clinvar.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text", length(max = MAX_FILTER_CHARS)))]
+    classification: Option<Text>,
     /// Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
     #[serde(
         default,
@@ -220,6 +231,12 @@ impl TryFrom<Fields> for VariantSearch {
     type Error = QueryInvalid;
     fn try_from(mut f: Fields) -> Result<Self, Self::Error> {
         f.resolve_shorthand();
+        let clinvar = f.source == Some(VariantSearchSource::Clinvar);
+        if clinvar {
+            f.validate_clinvar()?;
+        } else if f.classification.is_some() {
+            return Err(QueryInvalid::new(&["classification", "source"]));
+        }
         let protein = f.gene.is_some()
             && f.protein.is_some()
             && f.coding.is_none()
@@ -254,7 +271,7 @@ impl TryFrom<Fields> for VariantSearch {
             ])
             .with_message(crate::ErrorMessage::VariantRawQuery));
         }
-        if !(protein || coding || region || raw) {
+        if !(clinvar || protein || coding || region || raw) {
             return Err(QueryInvalid::new(&[
                 "gene", "protein", "coding", "region", "build", "query", "source",
             ]));
@@ -328,6 +345,7 @@ impl VariantSearch {
             build,
             source: None,
             review_status: None,
+            classification: None,
             condition: None,
             has: None,
             limit,
@@ -347,6 +365,7 @@ impl VariantSearch {
             query: Some(format!("_id:\"{}\"", literal(id.as_str())).parse()?),
             source: Some(VariantSearchSource::Myvariant),
             review_status: None,
+            classification: None,
             condition: None,
             has: None,
             limit: default_limit(),
@@ -357,7 +376,7 @@ impl VariantSearch {
     pub const MAX_RESULTS: u32 = 10_000;
     /// Whether this search requires the independently controlled ClinVar component.
     pub fn uses_clinvar_filters(&self) -> bool {
-        self.0.filtered()
+        !self.clinvar_gene_listing() && self.0.filtered()
     }
     /// Whether the caller selected opaque source syntax rather than declared selectors.
     pub fn raw_query(&self) -> bool {
@@ -367,14 +386,19 @@ impl VariantSearch {
     pub fn uses_protein_selector(&self) -> bool {
         self.0.protein.as_ref().is_some_and(|p| !p.is_synonymous())
     }
-    /// Whether the caller selected native ClinVar coding or synonymous notation.
+    /// Whether the caller selected a native ClinVar search.
     pub fn uses_clinvar_selector(&self) -> bool {
-        self.0.coding.is_some()
+        self.clinvar_gene_listing()
+            || self.0.coding.is_some()
             || self
                 .0
                 .protein
                 .as_ref()
                 .is_some_and(ProteinQuery::is_synonymous)
+    }
+    /// Whether to list and summarize native ClinVar variation records by gene.
+    pub fn clinvar_gene_listing(&self) -> bool {
+        self.0.source == Some(VariantSearchSource::Clinvar)
     }
     /// Compare a source protein spelling with the caller's checked substitution spellings.
     pub fn matches_protein(&self, gene: Option<&str>, notation: &str) -> bool {
@@ -390,6 +414,11 @@ impl VariantSearch {
     }
     /// Exact source query, using checked protein spellings for SnpEff substitutions.
     pub fn source_query(&self) -> String {
+        if self.clinvar_gene_listing()
+            && let Some(gene) = &self.0.gene
+        {
+            return self.0.clinvar_query(gene);
+        }
         if let Some(q) = &self.0.query {
             return q.to_string();
         }
@@ -439,6 +468,61 @@ impl crate::Paged for VariantSearch {
 }
 
 impl Fields {
+    fn validate_clinvar(&self) -> Result<(), QueryInvalid> {
+        if self.gene.is_none()
+            || self.protein.is_some()
+            || self.coding.is_some()
+            || self.region.is_some()
+            || self.query.is_some()
+            || self.build.is_some()
+            || self.condition.is_some()
+            || self.has.is_some()
+        {
+            return Err(QueryInvalid::new(&[
+                "source",
+                "gene",
+                "protein",
+                "coding",
+                "region",
+                "query",
+                "build",
+                "condition",
+                "has",
+            ]));
+        }
+        for (field, value) in [
+            ("classification", &self.classification),
+            ("review_status", &self.review_status),
+        ] {
+            if value.as_ref().is_some_and(|v| {
+                let text = v.as_str();
+                text.chars().count() > MAX_FILTER_CHARS
+                    || text.chars().any(char::is_control)
+                    || text.contains(['"', '\\', '[', ']'])
+            }) {
+                return Err(QueryInvalid::new(&[field]));
+            }
+        }
+        Ok(())
+    }
+
+    fn clinvar_query(&self, gene: &GeneSymbol) -> String {
+        let mut term = format!("{gene}[GENE]");
+        if let Some(classification) = &self.classification {
+            let property = classification.as_str().to_ascii_lowercase();
+            let property = match property.as_str() {
+                "uncertain significance" => "vus",
+                "conflicting classifications of pathogenicity" => "has conflicts",
+                other => other,
+            };
+            term.push_str(&format!(" AND \"clinsig {property}\"[prop]"));
+        }
+        if let Some(status) = &self.review_status {
+            term.push_str(&format!(" AND \"{status}\"[rvst]"));
+        }
+        term
+    }
+
     fn resolve_shorthand(&mut self) {
         if self.source.is_none()
             && self.gene.is_none()

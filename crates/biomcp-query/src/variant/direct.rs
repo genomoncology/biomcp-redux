@@ -114,6 +114,7 @@ pub(super) fn candidate(query: &VariantGet, source: Source) -> VariantHeader {
             representations: Box::default(),
             genes: Box::default(),
         },
+        label: None,
         requested: query.input().identity().cloned(),
         source,
         record: biomcp_types::SourceRecord {

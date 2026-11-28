@@ -30,6 +30,7 @@ pub(super) fn allele(raw: RawAllele, expected: Option<&str>) -> Resolution {
     representations.extend(super::annotations::forms(raw.transcripts, &mut fields));
     problems.extend(fields.list);
     let value = VariantHeader {
+        label: None,
         requested: None,
         identity: Variant {
             ids: ids.into(),

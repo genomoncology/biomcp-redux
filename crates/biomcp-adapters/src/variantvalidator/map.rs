@@ -72,6 +72,7 @@ pub(super) fn resolve(raw: Response, input: &str) -> Resolution {
                 },
                 transcripts: Box::default(),
                 myvariant: None,
+                label: None,
                 requested: None,
                 sections: None,
                 component_terms: Box::default(),

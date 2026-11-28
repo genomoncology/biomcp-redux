@@ -1,13 +1,15 @@
 //! Native identity discovery follows NCBI's ClinVar E-utilities search contract.
 //! <https://www.ncbi.nlm.nih.gov/clinvar/docs/programmatic_access/>
 use super::SPEC;
+use super::gene_reply::Summary;
 use crate::{Mapped, mapped::Problems, raw::Field};
-use biodata::{ClinVarVariationId, Variant, VariantId};
+use biodata::{ClinVarVariationId, Variant, VariantId, VcvId};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use biomcp_fetch::{Input, Read};
 use biomcp_types::{Source, SourceRecord, VariantHeader, VariantSearch};
 use serde::Deserialize;
 const SEARCH: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
+const SUMMARY: Endpoint = SPEC.get("/esummary.fcgi").fresh(Freshness::Days(1));
 /// One native ClinVar candidate page, without inferred transcripts or alleles.
 #[derive(Debug)]
 pub struct SearchPage {
@@ -167,10 +169,62 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
                 }),
         )?
         .value;
-    Ok(mapped_page(reply.esearchresult))
+    let page = reply.esearchresult;
+    let summaries = if query.clinvar_gene_listing() {
+        Some(summaries(leg, &page)?)
+    } else {
+        None
+    };
+    Ok(mapped_page(page, summaries))
 }
 
-fn mapped_page(page: Page) -> SearchPage {
+#[derive(Deserialize)]
+struct VariationSummary {
+    uid: String,
+    accession: VcvId,
+    title: String,
+}
+
+type Summaries = std::collections::BTreeMap<String, VariationSummary>;
+
+fn summaries(leg: &Leg<'_>, page: &Page) -> Result<Summaries, RequestError> {
+    let ids: Vec<Box<str>> = page
+        .idlist
+        .iter()
+        .filter_map(|id| id.as_ref())
+        .map(|id| id.identity.get().to_string().into())
+        .collect();
+    if ids.is_empty() {
+        return Ok(Summaries::new());
+    }
+    let reply = leg.call(
+        &SUMMARY,
+        Input::Params(&[
+            ("db", Arg::Text("clinvar")),
+            ("id", Arg::Ids(&ids)),
+            ("retmode", Arg::Text("json")),
+            ("tool", Arg::Text("biomcp")),
+        ]),
+        Read::<Summary<VariationSummary>>::json().check(&|reply| {
+            let records = &reply.result.records;
+            if records.len() != ids.len()
+                || ids.iter().any(|id| {
+                    records.get(id.as_ref()).is_none_or(|row| {
+                        row.uid != id.as_ref()
+                            || row.accession.version().is_some()
+                            || row.accession.get().to_string() != id.as_ref()
+                    })
+                })
+            {
+                return Err(BadReply);
+            }
+            Ok(())
+        }),
+    )?;
+    Ok(reply.value.result.records)
+}
+
+fn mapped_page(page: Page, summaries: Option<Summaries>) -> SearchPage {
     let consumed = page.idlist.len() as u32;
     let mut problems = Problems {
         source: Source::ClinVar,
@@ -186,19 +240,38 @@ fn mapped_page(page: Page) -> SearchPage {
                 refusals = crate::Refusal::Refused;
                 return None;
             };
-            let identity = VariantId::ClinVarVariation(id.identity);
+            let mut ids = vec![VariantId::ClinVarVariation(id.identity)];
+            let mut record_id = id.text;
+            let mut label = None;
+            if let Some(summaries) = &summaries {
+                let Some(summary) = summaries.get(&id.identity.get().to_string()) else {
+                    refusals = crate::Refusal::Refused;
+                    return None;
+                };
+                ids.push(VariantId::Vcv(summary.accession));
+                let Some(accession) = problems.required(
+                    "accession",
+                    biodata::Text::new(&summary.accession.to_string()).ok(),
+                ) else {
+                    refusals = crate::Refusal::Refused;
+                    return None;
+                };
+                record_id = accession;
+                label = crate::mapped::source_text(&summary.title).ok();
+            }
             let record = SourceRecord {
                 namespace: biodata::IdentifierNamespace::Unknown,
-                id: id.text,
+                id: record_id,
                 url: None,
             };
             Some(VariantHeader {
                 identity: Variant {
-                    ids: Box::new([identity]),
+                    ids: ids.into(),
                     representations: Box::default(),
                     genes: Box::default(),
                 },
                 requested: None,
+                label,
                 transcripts: Box::default(),
                 source: Source::ClinVar,
                 record,

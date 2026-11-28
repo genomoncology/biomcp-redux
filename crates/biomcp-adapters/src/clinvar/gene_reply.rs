@@ -77,14 +77,14 @@ impl Reply for Search {
 }
 
 #[derive(Deserialize)]
-pub(super) struct Summary {
-    pub(super) result: SummaryResult,
+pub(super) struct Summary<T = SummaryRecord> {
+    pub(super) result: SummaryResult<T>,
 }
 #[derive(Deserialize)]
-pub(super) struct SummaryResult {
+pub(super) struct SummaryResult<T> {
     pub(super) uids: Vec<String>,
     #[serde(flatten)]
-    pub(super) records: BTreeMap<String, SummaryRecord>,
+    pub(super) records: BTreeMap<String, T>,
 }
 #[derive(Deserialize)]
 pub(super) struct SummaryRecord {
@@ -94,7 +94,7 @@ pub(super) struct SummaryRecord {
 pub(super) struct Germline {
     pub(super) review_status: String,
 }
-impl Reply for Summary {
+impl<T: serde::de::DeserializeOwned> Reply for Summary<T> {
     fn check(&self) -> Result<(), BadReply> {
         let result = &self.result;
         if result.uids.len() != result.records.len()

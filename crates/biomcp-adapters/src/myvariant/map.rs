@@ -125,6 +125,7 @@ fn candidate(
         },
         transcripts,
         myvariant: None,
+        label: None,
         requested: None,
         sections: None,
         component_terms: component_terms.into(),
