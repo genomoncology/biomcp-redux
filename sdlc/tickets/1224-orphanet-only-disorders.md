@@ -1,6 +1,7 @@
 # 1224 — orphanet-only-disorders
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1f3e7845a5a06e2b28e5d2e307a4367b68b0293b
 
 Milestone: 10
 

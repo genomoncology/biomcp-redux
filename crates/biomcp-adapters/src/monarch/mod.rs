@@ -132,8 +132,8 @@ fn check_page(
     }
     Ok(())
 }
-/// Confirm Monarch holds an entity; an empty association page reads the same for an unknown ID.
-pub fn held(leg: &Leg<'_>, id: &Curie) -> Result<(), RequestError> {
+/// Confirm Monarch holds an entity and tell whether its ID is deprecated.
+pub fn deprecated(leg: &Leg<'_>, id: &Curie) -> Result<bool, RequestError> {
     let endpoint = SPEC
         .get("/v3/api/entity")
         .with_segments(&[biomcp_fetch::PathSegment::new(id.as_str())?])
@@ -149,7 +149,7 @@ pub fn held(leg: &Leg<'_>, id: &Curie) -> Result<(), RequestError> {
             }
         }),
     )
-    .map(|_| ())
+    .map(|reply| reply.value.deprecated == Some(true))
 }
 /// Reviewed terms for the carried components remain explicit on pages and rows.
 pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {

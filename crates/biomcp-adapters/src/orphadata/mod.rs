@@ -7,5 +7,5 @@ mod raw;
 mod read;
 pub(crate) use bundle::{HEALTH_PATH, bundle_state};
 pub use bundle::{NOTICE, SPEC, sync};
-pub use mappings::omim_xrefs;
+pub use mappings::{card, omim_xrefs};
 pub use read::{epidemiology, orpha_code};

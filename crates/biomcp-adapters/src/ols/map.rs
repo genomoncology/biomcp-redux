@@ -102,6 +102,7 @@ pub(super) fn record(
     let definition = definition(term.description.as_ref(), &mut problems);
     Ok(Record {
         card: DiseaseCard {
+            disorder_type: None,
             requested_id: term.obo_id.clone(),
             returned_id: term.obo_id.clone(),
             alias: None,

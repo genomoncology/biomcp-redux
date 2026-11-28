@@ -3,8 +3,8 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mydisease;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGet, DiseaseHierarchy, DiseaseSection, DiseaseSynonyms, DiseaseXrefs, Request, Source,
-    StepKind,
+    DiseaseGet, DiseaseHierarchy, DiseaseSection, DiseaseSynonyms, DiseaseXrefs, Reason, Request,
+    Source, SourceStatus, StepKind,
 };
 
 /// Read only the selected exact annotation, then page its native component facts.
@@ -33,11 +33,20 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     }
     let error = reply.as_ref().err().copied();
     // A failed parent-name read leaves the rows unnamed, so the source and reply are not complete.
-    out.sources.push(status::source(
-        Source::MyDisease,
-        leg.finish(),
-        error.or(label_error),
-    ));
+    let mut source = status::source(Source::MyDisease, leg.finish(), error.or(label_error));
+    let reason = error.and_then(status::reason);
+    let fallback =
+        query.orpha_card_fallback() && matches!(reason, Some(Reason::NotFound | Reason::BadReply));
+    if fallback && reason == Some(Reason::NotFound) {
+        source.set_status(SourceStatus::Skipped(reason));
+    }
+    out.sources.push(source);
+    if fallback {
+        super::page::record_problem(&mut out, query, Source::MyDisease);
+        super::orphadata::card(cx, query, id, deadline, &mut out);
+        command.finish(deadline.remaining());
+        return out;
+    }
     out.local = error.and_then(status::local);
     if let Ok(mapped) = reply {
         out.include_refusals(mapped.refusals);

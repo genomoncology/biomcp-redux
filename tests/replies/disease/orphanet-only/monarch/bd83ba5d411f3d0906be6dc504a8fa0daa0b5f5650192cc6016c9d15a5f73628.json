@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "monarch",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/entity/MONDO%3A0020668",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "id": "MONDO:0020668",
+          "deprecated": true
+        }
+      }
+    }
+  ]
+}

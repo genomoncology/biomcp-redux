@@ -5,7 +5,7 @@ use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGenes, DiseaseGet, DiseasePhenotypes, DiseaseSection, GeneGet, GeneInput, Reason,
-    ReplyData, Request, Source, StepKind,
+    ReplyData, Request, Source, SourceNotice, StepKind,
 };
 /// Read one native association page for a MONDO ID, or for the MONDO record that MyDisease finds
 /// cross-referencing another ID, without other cross-source joins.
@@ -33,7 +33,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     let reply = monarch::associations(&leg, query, id);
     // An empty page reads the same for an unknown disease; only the entity read tells them apart.
     let held = match &reply {
-        Ok(page) if page.total == 0 => Some(monarch::held(&leg, id).err()),
+        Ok(page) if page.total == 0 => Some(monarch::deprecated(&leg, id)),
         _ => None,
     };
     let unknown =
@@ -42,54 +42,80 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         .as_ref()
         .err()
         .copied()
-        .or(held.flatten().filter(|e| !unknown(e)));
+        .or(held.and_then(Result::err).filter(|e| !unknown(e)));
     let mut out = empty(body(query, Vec::new(), Box::default(), None));
     // The MyDisease read that named the MONDO record stays first, with its mapping notice.
     if let Some(resolved) = mapped {
         out.sources = resolved.sources;
         out.problems = resolved.problems;
     }
-    out.sources
-        .push(status::source(Source::Monarch, leg.finish(), error));
+    let mut source = status::source(Source::Monarch, leg.finish(), error);
+    let obsolete = matches!(held, Some(Ok(true)));
+    if obsolete {
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: format!("Monarch marks {id} obsolete.").into(),
+            retry_after_seconds: None,
+        });
+    }
+    out.sources.push(source);
     out.local = error.and_then(status::local);
-    if let Ok(page) = reply {
-        out.include_refusals(page.refusals);
-        out.problems.extend(page.problems);
-        let returned = page.items.len() as u32;
-        out.page = Some(page_info(query.section_offset(), returned, page.total));
-        if query.section() == Some(DiseaseSection::Genes) {
-            gene_steps(&mut out, &page.items);
-        }
-        if page.received > 0
-            && u64::from(query.section_offset()) + u64::from(page.received) < page.total
-        {
-            out.next.push(crate::next::Step::new(
-                StepKind::Page,
-                &[biomcp_types::Source::Monarch],
-                run(Request::GetDisease(query.at_section_offset(
-                    query.section_offset().saturating_add(page.received),
-                ))),
-            ));
-        }
-        let components = page.components;
-        out.body = body(
-            query,
-            page.items,
-            components,
-            page.metadata
-                .fetched
-                .and_then(|value| u64::try_from(value).ok()),
+    if obsolete {
+        status::item(&mut out, true, false, true);
+        status::missing(
+            &mut out,
+            biodata::text!("/result/items"),
+            Source::Monarch,
+            None,
         );
-        match held {
-            // Monarch holds the disease: no associations is a complete answer.
-            None | Some(None) => crate::status::item(&mut out, true, false, false),
-            Some(Some(e)) => crate::status::item(&mut out, false, !unknown(&e), false),
+        command.finish(deadline.remaining());
+        return out;
+    }
+    match reply {
+        Ok(page) => {
+            apply_page(&mut out, query, page);
+            match held {
+                // Monarch holds the disease: no associations is a complete answer.
+                None | Some(Ok(_)) => status::item(&mut out, true, false, false),
+                Some(Err(e)) => status::item(&mut out, false, !unknown(&e), false),
+            }
         }
+        Err(_) => status::item(&mut out, false, true, false),
     }
     super::page::record_problem(&mut out, query, Source::Monarch);
     command.finish(deadline.remaining());
     out
 }
+
+fn apply_page(out: &mut Outcome, query: &DiseaseGet, page: monarch::Page) {
+    out.include_refusals(page.refusals);
+    out.problems.extend(page.problems);
+    let returned = page.items.len() as u32;
+    out.page = Some(page_info(query.section_offset(), returned, page.total));
+    if query.section() == Some(DiseaseSection::Genes) {
+        gene_steps(out, &page.items);
+    }
+    if page.received > 0
+        && u64::from(query.section_offset()) + u64::from(page.received) < page.total
+    {
+        out.next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[Source::Monarch],
+            run(Request::GetDisease(query.at_section_offset(
+                query.section_offset().saturating_add(page.received),
+            ))),
+        ));
+    }
+    out.body = body(
+        query,
+        page.items,
+        page.components,
+        page.metadata
+            .fetched
+            .and_then(|value| (value >= 0).then_some(value.cast_unsigned())),
+    );
+}
+
 fn body(
     query: &DiseaseGet,
     items: Vec<biomcp_types::DiseaseAssociationItem>,

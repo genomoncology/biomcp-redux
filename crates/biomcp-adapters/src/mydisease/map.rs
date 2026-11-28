@@ -95,6 +95,7 @@ pub(super) fn annotation(record: native::Record) -> Result<Mapped<Annotation>, R
         refusals: crate::Refusal::None,
         value: Annotation {
             card: DiseaseCard {
+                disorder_type: None,
                 requested_id: record.requested_id.clone(),
                 returned_id: record.returned_id.clone(),
                 alias: None,

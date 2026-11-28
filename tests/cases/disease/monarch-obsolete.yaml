@@ -1,0 +1,10 @@
+feature: disease-monarch
+live_check: authored Monarch association and entity replies for a deprecated MONDO ID
+story: An empty phenotype section says when the requested disease ID is obsolete.
+replay: disease/orphanet-only
+steps:
+  - run: [get, disease, "MONDO:0020668", phenotypes, --source, monarch]
+    expect:
+      /status: partial
+      /sources/0/notices/0/message: Monarch marks MONDO:0020668 obsolete.
+      "": {omits: [page]}
