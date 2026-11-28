@@ -1,6 +1,7 @@
 # 1235 — pma-large-application-card
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8ecc6eee7bf8c45b66d0b7ff4e1af2e2865c4757
 
 Milestone: 10
 
