@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22aad3ba54-dfd3-4cb3-9e2b-c5ef89559189%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1795829554,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 146,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No matches found!"
+  }
+}
+      }
+    }
+  ]
+}

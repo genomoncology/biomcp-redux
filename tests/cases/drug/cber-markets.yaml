@@ -1,0 +1,47 @@
+{
+  "feature": "drug-markets",
+  "story": "The US row reports a Drugs@FDA coverage limit for a CBER product and links its Purple Book licence.",
+  "replay": "drug/cber-coverage",
+  "config": {
+    "disable_sources": [
+      "mychem",
+      "chembl",
+      "openfda-label"
+    ]
+  },
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Yescarta",
+        "markets",
+        "--source",
+        "drugsfda"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/markets/0/source": "drugsfda",
+        "/result/markets/0/state": "not-covered",
+        "/result/markets/0/url": "https://purplebooksearch.fda.gov/index.cfm?blaNo=125643&event=productdetails",
+        "/result/markets/0": {
+          "omits": [
+            "record",
+            "matches",
+            "first_approval"
+          ]
+        },
+        "/next/0/args": [
+          "search",
+          "drug",
+          "BLA125643",
+          "--limit",
+          "1",
+          "--source",
+          "purple-book"
+        ]
+      },
+      "max_bytes": 1800
+    }
+  ]
+}

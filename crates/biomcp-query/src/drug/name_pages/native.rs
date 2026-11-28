@@ -2,6 +2,7 @@
 use crate::drug::resolve::{Rank, carry, lookup_deadline, within};
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
+use biomcp_adapters::purple_book::CberProduct;
 use biomcp_types::{DrugGet, DrugHeader, DrugNameMatch, DrugSearch, ReplyBody, SourceState};
 use std::cmp::Reverse;
 
@@ -122,6 +123,7 @@ pub(in crate::drug::resolve) fn label(
     cx: &Ctx<'_>,
     get: &DrugGet,
     query: &DrugSearch,
+    product: Option<CberProduct>,
 ) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let (out, mut candidates) = native_names(
         cx,
@@ -143,6 +145,28 @@ pub(in crate::drug::resolve) fn label(
                         let rank = crate::drug::label_choice::rank(matched, row);
                         out.candidates.push((rank, row.header()?));
                     }
+                }
+            }
+            if out.candidates.is_empty()
+                && out.refusals == biomcp_adapters::Refusal::None
+                && let Some(product) =
+                    product.filter(|p| !p.brand.is_empty() && !p.proper.is_empty())
+            {
+                let page = biomcp_adapters::openfda_label::search_product(
+                    leg,
+                    product.brand,
+                    product.proper,
+                )?;
+                out.refusals.include(page.window.refusals());
+                out.problems.extend(page.problems);
+                let matched = if DrugNameMatch::same_name(product.brand, get.input().as_str()) {
+                    DrugNameMatch::Brand
+                } else {
+                    DrugNameMatch::Generic
+                };
+                for row in &page.window.rows {
+                    let rank = crate::drug::label_choice::rank(matched, row);
+                    out.candidates.push((rank, row.header()?));
                 }
             }
             Ok(out)

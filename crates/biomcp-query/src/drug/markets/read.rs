@@ -1,7 +1,10 @@
 //! One drug name looked up in each market's own source, one row per market. Each row keeps its
 //! source's record, status and date role; no record or date is joined across markets.
 use super::market_values::{dated, distinct, kept, row, text};
-use crate::drug::resolve::{lookup_deadline, within};
+use crate::drug::{
+    cber,
+    resolve::{lookup_deadline, within},
+};
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_adapters::drugsfda;
@@ -48,6 +51,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
         markets.iter().map(|market| match market.state {
             DrugMarketState::Found => Status::Complete,
             DrugMarketState::NoRecord => Status::Absent,
+            DrugMarketState::NotCovered => Status::Partial,
             DrugMarketState::Failed if market.reason == Some(Reason::Disabled) => Status::Partial,
             DrugMarketState::Failed => Status::Failed,
         }),
@@ -76,19 +80,43 @@ fn fda(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     ) else {
         return row;
     };
-    let sub = crate::drug::get(cx, &get);
+    let product = cber::product(cx, name);
+    let sub = if product.is_some() {
+        crate::drug::resolve::get(cx, &get)
+    } else {
+        crate::drug::get(cx, &get)
+    };
     absorb(out, &sub);
     let ReplyData::DrugCard {
         body: Some(card), ..
     } = &sub.body
     else {
+        if let Some(product) = product
+            && sub.local.is_none()
+            && matches!(sub.body, ReplyData::Usage(_))
+        {
+            row.state = DrugMarketState::NotCovered;
+            row.url = text(&product.url(), Source::PurpleBook, "url", out);
+            cber::disclose(cx, product, false, out);
+            return row;
+        }
         return unanswered(row, &sub, Source::Drugsfda);
     };
-    resolution(&mut row, &card.header);
+    fda_application(cx, name, &card.header, row, out)
+}
+
+fn fda_application(
+    cx: &Ctx<'_>,
+    name: &Text,
+    header: &DrugHeader,
+    mut row: DrugMarket,
+    out: &mut Outcome,
+) -> DrugMarket {
+    resolution(&mut row, header);
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&drugsfda::SPEC, deadline).fresh(cx.fresh);
-    let result = drugsfda::get(&leg, &card.header.id);
+    let result = drugsfda::get(&leg, &header.id);
     let error = result.as_ref().err().copied();
     let read = status::source(Source::Drugsfda, leg.finish(), error);
     command.finish(deadline.remaining());

@@ -1,0 +1,39 @@
+{
+  "feature": "drug-approvals",
+  "story": "A Drugs@FDA miss for a CBER product explains the coverage boundary and points to its exact Purple Book licence.",
+  "replay": "drug/cber-coverage",
+  "config": {
+    "disable_sources": [
+      "mychem",
+      "chembl",
+      "openfda-label"
+    ]
+  },
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Kymriah",
+        "approvals"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/sources/0/source": "drugsfda",
+        "/sources/0/state": "ok",
+        "/sources/1/source": "purple-book",
+        "/sources/1/notices/0/message": "Drugs@FDA excludes products regulated by FDA\u2019s Center for Biologics Evaluation and Research (CBER). Purple Book record: https://purplebooksearch.fda.gov/index.cfm?blaNo=125646&event=productdetails",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "BLA125646",
+          "--limit",
+          "1",
+          "--source",
+          "purple-book"
+        ]
+      },
+      "max_bytes": 1600
+    }
+  ]
+}

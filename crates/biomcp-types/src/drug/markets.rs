@@ -122,6 +122,8 @@ biodata::wire_enum! {
         Found => "found",
         /// The source answered and has no record for the name.
         NoRecord => "no-record",
+        /// The product belongs to a class outside the market source's coverage.
+        NotCovered => "not-covered",
         /// The source could not be read, so the row says nothing about the market.
         Failed => "failed"
     }
