@@ -43,6 +43,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
         Section::Data { .. } => status::item_status(true, false, read.dropped),
         _ if read.candidates.len() > 1 => status::item_status(true, false, read.dropped),
         Section::Empty { .. } => status::item_status(read.dropped, false, read.dropped),
+        Section::Unavailable {
+            reason: Reason::OutOfScope,
+            ..
+        } => status::item_status(true, false, true),
         _ if read.population_refused => status::item_status(true, false, true),
         _ => status::item_status(false, true, false),
     };
@@ -61,6 +65,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantPopulationQuery) -> Outcome {
                         .iter()
                         .find(|s| Some(s.source) == read.resolver)
                         .or_else(|| read.sources.first()),
+                    super::population_scope::dataset(&read.sources),
                 ),
             ),
             page,
@@ -111,6 +116,10 @@ fn read(
             return read;
         }
     };
+    if super::population_scope::input_outside(identity.input()) {
+        read.outside_scope();
+        return read;
+    }
     if !super::population_identity::use_native_coordinate(cx.fetch, &identity) {
         let found = super::population_identity::resolve(cx, &identity, deadline);
         deadline = deadline.after_stage(found.elapsed);
@@ -124,6 +133,10 @@ fn read(
             read.population = Section::unavailable(Source::Gnomad, reason);
             return read;
         }
+    }
+    if super::population_scope::candidate_outside(&read.candidates) {
+        read.outside_scope();
+        return read;
     }
     let joined = super::population_identity::read(cx, &identity, &read.candidates, deadline);
     deadline = deadline.after_stage(joined.elapsed);
@@ -164,6 +177,14 @@ fn read(
     read.local = read.local.or(error);
     read.candidates.clear();
     read
+}
+
+impl PopulationRead {
+    fn outside_scope(&mut self) {
+        self.population = Section::unavailable(Source::Gnomad, Reason::OutOfScope);
+        self.sources.push(super::population_scope::skipped());
+        self.candidates.clear();
+    }
 }
 fn choices(
     query: &VariantPopulationQuery,

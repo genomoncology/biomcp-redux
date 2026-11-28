@@ -13,6 +13,7 @@
       "exit": 1,
       "expect": {
         "/status": "absent",
+        "/query/dataset": "gnomad_r4/4.1.0",
         "/result/population/state": "empty",
         "/result/population/source": "gnomad",
         "/result/population/record/namespace": "gnomad_r4",

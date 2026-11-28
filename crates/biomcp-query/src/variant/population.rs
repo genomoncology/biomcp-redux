@@ -17,6 +17,17 @@ pub(super) fn section(
     deadline: Deadline<'_>,
     blocked: Option<Reason>,
 ) -> super::sections::Result<VariantPopulation> {
+    if super::population_scope::input_outside(query.input())
+        || (blocked.is_none() && super::population_scope::candidate_outside(candidates))
+    {
+        return (
+            Section::unavailable(Source::Gnomad, Reason::OutOfScope),
+            vec![super::population_scope::skipped()],
+            Vec::new(),
+            None,
+            false,
+        );
+    }
     if let Some(reason) = blocked {
         return (
             Section::unavailable(Source::Gnomad, reason),

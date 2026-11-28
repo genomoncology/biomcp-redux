@@ -11,15 +11,31 @@ const VARIANT: Endpoint = SPEC
     .post_json("/api")
     .idempotent()
     .fresh(Freshness::Days(7));
+// Name the selector consistently in the GraphQL document and caller-facing scope.
+macro_rules! dataset {
+    () => {
+        "gnomad_r4"
+    };
+}
 const QUERY: &str = concat!(
-    "query($id:String!){variant(variantId:$id,dataset:gnomad_r4){variant_id exome{ac an ho",
+    "query($id:String!){variant(variantId:$id,dataset:",
+    dataset!(),
+    "){variant_id exome{ac an ho",
     "mozygote_count filters populations{id ac an}} genome{ac an homozygote_count filters p",
     "opulations{id ac an}} joint{ac an homozygote_count} va{exome{derivedFrom{version} foc",
     "usAlleleCount locusAlleleCount cohort{id}} genome{derivedFrom{version} focusAlleleCou",
     "nt locusAlleleCount cohort{id}}}}}",
 );
 /// Dataset selector sent unchanged to the source.
-pub const DATASET: &str = "gnomad_r4";
+pub const DATASET: &str = dataset!();
+/// Release of the short-variant counts, independent of the browser's constraint updates.
+pub const RELEASE: &str = "4.1.0";
+/// Scope of the short-variant lookup.
+pub fn scope_help() -> String {
+    format!(
+        "Queries {DATASET} release {RELEASE} (GRCh38) for nuclear short variants. +Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope."
+    )
+}
 mod map;
 mod raw;
 /// One exact source allele; each dataset is independently nullable.

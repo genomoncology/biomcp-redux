@@ -47,6 +47,12 @@ fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadli
     let found = identity::for_get(cx, query, *deadline);
     let resolver = found.resolver.unwrap_or_else(|| source(query).source);
     *deadline = deadline.after_stage(found.elapsed);
+    if found.rows.is_empty()
+        && query.sections() == [biomcp_types::VariantSection::Population]
+        && population_scope::input_outside(query.input())
+    {
+        return direct::get(cx, query, Source::Gnomad, *deadline);
+    }
     let mut resolution = identity_resolution(&found);
     let mut dropped = found.dropped;
     let mut problems = found.problems;
@@ -398,6 +404,7 @@ mod population;
 pub(crate) mod population_detail;
 mod population_identity;
 mod population_release;
+mod population_scope;
 
 fn myvariant_identity(
     query: &VariantGet,
@@ -445,6 +452,7 @@ fn reply(
         query.clone(),
         body.source,
         sources.iter().find(|v| v.source == body.source),
+        population_scope::dataset(sources),
     );
     body.with_query(echo)
 }

@@ -313,7 +313,12 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
         if (verb, entity) == ("get", "gene") {
             arguments.sort_by_key(|argument| argument.position.is_none());
         }
-        let sections = section_words(&schema);
+        let mut sections = section_words(&schema);
+        if (verb, entity) == ("get", "variant")
+            && let Some(population) = sections.iter_mut().find(|word| word.word == "population")
+        {
+            population.description = biomcp_adapters::gnomad::variant::scope_help();
+        }
         commands.push(HelpCommand {
             reply_schemas: crate::schema::replies(id, verb, entity),
             command: vec![verb.into(), entity.into()],
