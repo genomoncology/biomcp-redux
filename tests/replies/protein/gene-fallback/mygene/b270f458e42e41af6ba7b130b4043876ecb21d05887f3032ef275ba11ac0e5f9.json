@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "06bc4744c5f8eb74b15ef3fd62b79332c520e36ccef0a6a8a641756791c8b7db"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795835540,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 300,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"7923","HGNC":"3554","_id":"7923","_version":1,"entrezgene":"7923","genomic_pos":[{"chr":"6","end":33206831,"ensemblgene":"ENSG00000204228","start":33204631,"strand":1},{"chr":"HSCHR6_MHC_QBL_CTG1","end":4401239,"ensemblgene":"ENSG00000112474","start":4399046,"strand":1},{"chr":"HSCHR6_MHC_MCF_CTG1","end":4642784,"ensemblgene":"ENSG00000232357","start":4640595,"strand":1},{"chr":"HSCHR6_MHC_MANN_CTG1","end":4626308,"ensemblgene":"ENSG00000228357","start":4624115,"strand":1},{"chr":"HSCHR6_MHC_COX_CTG1","end":4618332,"ensemblgene":"ENSG00000228712","start":4616147,"strand":1},{"chr":"HSCHR6_MHC_DBB_CTG1","end":4450330,"ensemblgene":"ENSG00000225312","start":4448141,"strand":1}],"genomic_pos_hg19":[{"chr":"6","end":33174608,"start":33172419,"strand":1},{"chr":"HSCHR6_MHC_COX","end":33096234,"start":33094049,"strand":1},{"chr":"HSCHR6_MHC_DBB","end":33152518,"start":33150329,"strand":1},{"chr":"HSCHR6_MHC_MANN","end":33328531,"start":33326338,"strand":1},{"chr":"HSCHR6_MHC_MCF","end":33344972,"start":33342783,"strand":1},{"chr":"HSCHR6_MHC_QBL","end":33103438,"start":33101245,"strand":1}],"summary":"In mice, the Ke6 protein is a 17-beta-hydroxysteroid dehydrogenase that can regulate the concentration of biologically active estrogens and androgens. It is preferentially an oxidative enzyme and inactivates estradiol, testosterone, and dihydrotestosterone. However, the enzyme has some reductive activity and can synthesize estradiol from estrone. The protein encoded by this gene is similar to Ke6 and is a member of the short-chain dehydrogenase superfamily. An alternatively spliced transcript of this gene has been detected, but the full-length nature of this variant has not been determined. [provided by RefSeq, Jul 2008]."}]
+      }
+    }
+  ]
+}
