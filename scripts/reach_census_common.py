@@ -50,13 +50,17 @@ class Census:
 
     def native(self, url, params, headers=None, payload=None, *, raw=False):
         self.pace()
+        request_headers = {} if raw else {"Accept": "application/json"}
+        request_headers.update(headers or {})
         request = Request(url + ("?" + urlencode(params) if params else ""),
-                          data=payload, headers=headers or {})
+                          data=payload, headers=request_headers)
         with urlopen(request, timeout=30) as response:
             content = response.read(MAX_SOURCE_BYTES + 1)
             if len(content) > MAX_SOURCE_BYTES:
                 raise CensusError("native reply exceeds the source capture bound")
-            return (content if raw else json.loads(content) if content else None), response.headers
+            if raw:
+                return content, response.headers
+            return (json.loads(content) if content.strip() else None), response.headers
 
     def reply(self, args, record=False, allow_usage=False):
         self.pace()

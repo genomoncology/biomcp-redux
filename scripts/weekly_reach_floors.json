@@ -1,1 +1,194 @@
-{}
+{
+  "ctgov": {
+    "InterventionType/BEHAVIORAL": [
+      8,
+      8
+    ],
+    "InterventionType/BIOLOGICAL": [
+      8,
+      8
+    ],
+    "InterventionType/COMBINATION_PRODUCT": [
+      8,
+      8
+    ],
+    "InterventionType/DEVICE": [
+      8,
+      8
+    ],
+    "InterventionType/DIAGNOSTIC_TEST": [
+      8,
+      8
+    ],
+    "InterventionType/DIETARY_SUPPLEMENT": [
+      8,
+      8
+    ],
+    "InterventionType/DRUG": [
+      8,
+      8
+    ],
+    "InterventionType/GENETIC": [
+      8,
+      8
+    ],
+    "InterventionType/OTHER": [
+      8,
+      8
+    ],
+    "InterventionType/PROCEDURE": [
+      8,
+      8
+    ],
+    "InterventionType/RADIATION": [
+      8,
+      8
+    ],
+    "OverallStatus/ACTIVE_NOT_RECRUITING": [
+      8,
+      8
+    ],
+    "OverallStatus/APPROVED_FOR_MARKETING": [
+      8,
+      8
+    ],
+    "OverallStatus/AVAILABLE": [
+      8,
+      8
+    ],
+    "OverallStatus/COMPLETED": [
+      8,
+      8
+    ],
+    "OverallStatus/ENROLLING_BY_INVITATION": [
+      8,
+      8
+    ],
+    "OverallStatus/NOT_YET_RECRUITING": [
+      8,
+      8
+    ],
+    "OverallStatus/NO_LONGER_AVAILABLE": [
+      8,
+      8
+    ],
+    "OverallStatus/RECRUITING": [
+      8,
+      8
+    ],
+    "OverallStatus/SUSPENDED": [
+      8,
+      8
+    ],
+    "OverallStatus/TEMPORARILY_NOT_AVAILABLE": [
+      8,
+      8
+    ],
+    "OverallStatus/TERMINATED": [
+      8,
+      8
+    ],
+    "OverallStatus/UNKNOWN": [
+      8,
+      8
+    ],
+    "OverallStatus/WITHDRAWN": [
+      8,
+      8
+    ],
+    "OverallStatus/WITHHELD": [
+      8,
+      8
+    ],
+    "Phase/EARLY_PHASE1": [
+      8,
+      8
+    ],
+    "Phase/NA": [
+      8,
+      8
+    ],
+    "Phase/PHASE1": [
+      8,
+      8
+    ],
+    "Phase/PHASE2": [
+      8,
+      8
+    ],
+    "Phase/PHASE3": [
+      8,
+      8
+    ],
+    "Phase/PHASE4": [
+      8,
+      8
+    ],
+    "StudyType/EXPANDED_ACCESS": [
+      8,
+      8
+    ],
+    "StudyType/INTERVENTIONAL": [
+      8,
+      8
+    ],
+    "StudyType/OBSERVATIONAL": [
+      8,
+      8
+    ]
+  },
+  "gene-validity": {
+    "clingen/MONDO": [
+      8,
+      8
+    ],
+    "gencc/MONDO": [
+      8,
+      8
+    ],
+    "gencc/OMIM": [
+      8,
+      8
+    ],
+    "gencc/ORPHANET": [
+      8,
+      8
+    ]
+  },
+  "opentargets": {
+    "acetate": [
+      8,
+      8
+    ],
+    "antibody": [
+      8,
+      8
+    ],
+    "inhibitor": [
+      8,
+      8
+    ],
+    "insulin": [
+      8,
+      8
+    ]
+  },
+  "uniprot": {
+    "mouse": [
+      0,
+      8
+    ],
+    "reviewed-human": [
+      8,
+      8
+    ],
+    "reviewed-human-no-gene": [
+      8,
+      8
+    ],
+    "unreviewed-human": [
+      0,
+      8
+    ]
+  }
+}
