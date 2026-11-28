@@ -155,7 +155,7 @@ fn search<'a>(
             })
             .with_query(navigation_query.with_reported_drug_role()),
             page: None,
-            sources: vec![status::source(source, leg.finish(), error)],
+            sources: vec![search_source(query, leg.finish(), error)],
             problems: Vec::new(),
             next: Vec::new(),
             local: error.and_then(status::local),
@@ -187,18 +187,27 @@ fn search<'a>(
                 .and_then(|value| u64::try_from(value).ok());
         }
     }
+    out
+}
+
+fn search_source(
+    query: &AdverseEventSearch,
+    leg: biomcp_fetch::LegReport,
+    error: Option<biomcp_fetch::RequestError>,
+) -> biomcp_types::SourceOutcome {
+    let mut report = status::source(query.source().source(), leg, error);
     if query.drug_role() == biomcp_types::AdverseEventDrugRole::Suspect
         && error.and_then(status::reason) == Some(biomcp_types::Reason::TooLarge)
     {
         guidance(
-            &mut out.sources[0],
+            &mut report,
             format!(
                 "Suspect counts require checking all candidate reports (maximum {}). Narrow --received-from and --received-to.",
                 biomcp_types::SEARCH_PAGE_MAX
             ),
         );
     }
-    out
+    report
 }
 
 /// An unimplemented report get has no source effects until its owning slice lands.
