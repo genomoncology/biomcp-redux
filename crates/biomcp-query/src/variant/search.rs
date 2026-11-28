@@ -191,9 +191,18 @@ fn next(
                 problems,
             )
         {
+            let (q, source) = if query.clinvar_gene_listing() {
+                (
+                    q.with_sections(Box::new([biomcp_types::VariantSection::Clinvar])),
+                    Source::ClinVar,
+                )
+            } else {
+                let source = super::source(&q).source;
+                (q, source)
+            };
             next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                &[super::source(&q).source],
+                &[source],
                 Request::GetVariant(q),
                 false,
             ));

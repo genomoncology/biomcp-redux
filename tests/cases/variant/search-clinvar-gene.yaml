@@ -11,12 +11,19 @@ steps:
       /page/returned: 10
       /page/truncated: true
       /result/items/7/label: "GRCh37/hg19 Xp21.1(chrX:31893305-31893490)x0"
+      /result/items/7/identity: {omits: [representations]}
       /result/items/7/identity/ids/1: VCV005040764
       /result/items/7/record/id: VCV005040764
-      /next/7/args: [get, variant, VCV005040764]
+      /next/7/args: [get, variant, VCV005040764, clinvar]
   - follow: page
     expect:
       /status: complete
       /page/offset: 10
       /page/total: 12246
       /result/items/0/record/id: VCV005040013
+  - run: [search, variant, --gene, DMD, --source, clinvar, --classification, pathogenic, --limit, "3"]
+    expect:
+      /status: complete
+      /page/total: 3068
+      /page/returned: 3
+      /result/items/0/record/id: VCV005043371
