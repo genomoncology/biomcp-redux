@@ -1,6 +1,7 @@
 # 1223 — purple-book-search-biosimilar-names
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9f38f8606017a2b76324117eb9fddfc3f7507966
 
 Milestone: 10
 

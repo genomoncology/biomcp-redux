@@ -1,5 +1,6 @@
 //! Select one offline snapshot and import only validated newer releases.
-use super::decode::{Release, ReleaseMonth, Stored, decode};
+use super::decode::{FULL_ROSTER_SUFFIX, Release, ReleaseMonth, decode};
+use super::stored::Stored;
 use crate::decl::BundleReply;
 use biomcp_fetch::{
     Bundle, CacheError, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,
@@ -45,21 +46,29 @@ fn seed() -> Result<Release, RequestError> {
 struct Selected {
     rows: Vec<Stored>,
     month: ReleaseMonth,
+    full_roster: bool,
 }
 
 fn snapshot(leg: &Leg<'_>, key: &str) -> Result<Selected, RequestError> {
-    let stored = leg.manual_rows(&BUNDLE, Find::Exact(KeyKind::Xref, key))?;
+    let stored = leg.manual_rows(&BUNDLE, Find::ExactOrUnindexed(KeyKind::Alias, key))?;
     let seed = seed()?;
     if let Some((rows, info)) = stored {
         let date = info.data_date.as_deref().ok_or(CacheError::Encoding)?;
-        let month = ReleaseMonth::from_key(date).map_err(|_| CacheError::Encoding)?;
+        let full_date = date.strip_suffix(FULL_ROSTER_SUFFIX);
+        let month =
+            ReleaseMonth::from_key(full_date.unwrap_or(date)).map_err(|_| CacheError::Encoding)?;
         if month > seed.month {
-            return Ok(Selected { rows, month });
+            return Ok(Selected {
+                rows,
+                month,
+                full_roster: full_date.is_some(),
+            });
         }
     }
     Ok(Selected {
         rows: seed.rows,
         month: seed.month,
+        full_roster: true,
     })
 }
 
@@ -72,13 +81,13 @@ pub(super) fn probe(leg: &Leg<'_>) -> Result<(), RequestError> {
 pub struct SnapshotSearch {
     /// FDA release month in the publisher's report.
     pub release_month: Box<str>,
-    /// Matching biosimilar presentations in the snapshot.
+    /// Matching licensed presentations in the snapshot.
     pub rows: Vec<PurpleBookPresentation>,
     /// Snapshot age and, for an empty result, its coverage and import instructions.
     pub notice: SourceNotice,
 }
 
-/// Search the full roster by the published reference names or their BLA candidates.
+/// Search the reference roster when one exists, otherwise match the product directly.
 pub fn search(leg: &Leg<'_>, query: &DrugSearch) -> Result<SnapshotSearch, RequestError> {
     let input = query.query().map_or("", biodata::Text::as_str);
     let upper = input.to_ascii_uppercase();
@@ -89,10 +98,16 @@ pub fn search(leg: &Leg<'_>, query: &DrugSearch) -> Result<SnapshotSearch, Reque
         upper
     };
     let snapshot = snapshot(leg, &key)?;
+    let has_roster = snapshot.rows.iter().any(|row| row.matches_reference(&key));
+    let matches_key = if has_roster {
+        Stored::matches_reference
+    } else {
+        Stored::matches_product
+    };
     let strength = query.strength().map(|value| strength_key(value.as_str()));
     let device = query.device();
     let matches = snapshot.rows.into_iter().filter(|stored| {
-        stored.matches(&key)
+        matches_key(stored, &key)
             && strength.as_ref().is_none_or(|strength| {
                 stored
                     .row
@@ -110,7 +125,11 @@ pub fn search(leg: &Leg<'_>, query: &DrugSearch) -> Result<SnapshotSearch, Reque
     });
     let rows: Vec<_> = matches.map(|stored| stored.row).collect();
     let release_month = snapshot.month.label();
-    let guidance = if rows.is_empty() {
+    let guidance = if !snapshot.full_roster {
+        format!(
+            "This import contains only biosimilars. Reimport the complete {release_month} CSV to search all products. {HELP}"
+        )
+    } else if rows.is_empty() {
         format!("Products approved or designated after {release_month} are not included. {HELP}")
     } else {
         String::new()
@@ -174,13 +193,15 @@ fn import(
         })?;
     let release = decode(&body).map_err(|_| (source_error(Reason::BadReply), INVALID))?;
     let seed = seed().map_err(|error| (error, ""))?;
-    let info = leg
-        .import_manual_rows(&BUNDLE, &release.rows, body.len() as u64, &seed.date)
+    let bundled_date = format!("{}{FULL_ROSTER_SUFFIX}", seed.date);
+    let mut info = leg
+        .import_manual_rows(&BUNDLE, &release.rows, body.len() as u64, &bundled_date)
         .map_err(|error| (error, "The requested release could not be stored."))?
         .ok_or((
             source_error(Reason::Rejected),
             "The supplied release is not newer than the active snapshot.",
         ))?;
+    info.data_date = Some(release.date.into());
     Ok((info, release.month))
 }
 

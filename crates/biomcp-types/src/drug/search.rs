@@ -47,7 +47,7 @@ impl LabelApplicationType {
     WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. \
     Drugs@FDA accepts a name or applicant. FDA signals take a drug or report text. \
     FDA withdrawals take a drug, indication or withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD). \
-    Purple Book takes a reference name or BLA and summarizes biosimilars by product."]
+    Purple Book takes a proprietary name, proper name or BLA and lists FDA licenses."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

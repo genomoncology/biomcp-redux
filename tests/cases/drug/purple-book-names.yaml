@@ -1,0 +1,35 @@
+{
+  "feature": "drug-purple-book",
+  "story": "Direct matches find biosimilar and standalone licenses. Presentation filters stay within an existing reference roster.",
+  "steps": [
+    {
+      "run": ["search", "drug", "Inflectra", "--source", "purple-book", "--offline"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/bla": "BLA125544",
+        "/result/items/0/name": "Inflectra",
+        "/result/references/0/name": "Remicade",
+        "/result/references/0/bla": "BLA103772"
+      }
+    },
+    {
+      "run": ["search", "drug", "Keytruda", "--source", "purple-book", "--offline"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/bla": "BLA125514",
+        "/result/items/0/designations": [{"license_type": "351(a)", "count": 2}],
+        "/result": {"omits": ["references"]}
+      }
+    },
+    {
+      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--strength", "25MG", "--device", "Single-Dose Vial", "--offline"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/items": []
+      }
+    }
+  ]
+}

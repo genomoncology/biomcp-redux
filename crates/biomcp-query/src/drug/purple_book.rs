@@ -1,4 +1,4 @@
-//! Return a complete biosimilar roster or a page of FDA presentation rows.
+//! Return matching FDA application summaries or a page of presentation rows.
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::purple_book;
 use biomcp_types::{

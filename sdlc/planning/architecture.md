@@ -163,6 +163,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp/src/mcp/http/load_benchmark.rs` | Measure explicitly invoked bounded HTTP load against one owned service and Fetch. |
 | `crates/biomcp/tests/ratchets/source_declaration_proof.rs` | Plant source declaration omissions, identity mismatches, unnamed provider facts and transport source literals at the structural boundary. |
 | `crates/biomcp-adapters/tests/source_declarations.rs` | Check unique declared bundle command names and their stable public discovery order through the adapter registry. |
+| `crates/biomcp-adapters/src/purple_book/tests.rs` | Check every shipped FDA presentation against the adapter's private match and index keys without starting a command for each name. |
 | `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
 | `crates/biomcp-fetch/tests/transport/tls_builds.rs` | Count TLS configuration builds across hosted calls at the private constructor boundary without exposing test controls. |
 | `crates/biomcp-fetch/tests/grpc_worker/shutdown.rs` | Prove cancellation joins active network work at the private worker boundary without exporting shutdown control. |

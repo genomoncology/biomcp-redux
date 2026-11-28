@@ -2,8 +2,10 @@
 use serde::{Deserialize, Serialize};
 
 biodata::canonical_enum! {
-    /// FDA's published 351(k) license type for this presentation.
+    /// FDA's published license type for this presentation.
     PurpleBookLicense, SourceUnknown {
+        /// FDA lists the presentation under a standalone license.
+        Standalone => "351(a)",
         /// FDA lists the presentation as biosimilar.
         Biosimilar => "351(k) Biosimilar",
         /// FDA lists the presentation as interchangeable.
@@ -15,7 +17,7 @@ biodata::canonical_enum! {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PurpleBookPresentation {
-    /// The biosimilar application's BLA number.
+    /// The application's BLA number.
     pub bla: biodata::DrugId,
     /// FDA product number, distinguishing presentations within a BLA.
     pub product_number: Box<str>,
@@ -26,9 +28,9 @@ pub struct PurpleBookPresentation {
     /// Applicant on this FDA presentation row.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub applicant: Option<Box<str>>,
-    /// The FDA reference product's proprietary name.
+    /// The FDA reference product's proprietary name, empty when none is listed.
     pub reference_name: Box<str>,
-    /// The FDA reference product's proper name.
+    /// The FDA reference product's proper name, empty when none is listed.
     pub reference_proper_name: Box<str>,
     /// BLA of the unique 351(a) row family with the reported reference name pair.
     #[serde(default, skip_serializing_if = "Option::is_none")]
