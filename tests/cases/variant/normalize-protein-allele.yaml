@@ -1,0 +1,20 @@
+feature: variant-identity
+live_check: Native ClinGen Allele Registry reply recorded for protein HGVS.
+replay: variant/normalization/protein-allele
+story: Protein HGVS identifies a PA record and lists the linked nucleotide alleles as candidates.
+steps:
+  - run: [variant, normalize, --source, car, --hgvs, "NP_004324.2:p.Val600Glu"]
+    max_bytes: 749
+    expect:
+      "/status": complete
+      "/result/results/0/outcome": candidates
+      "/result/results/0": {omits: [normalized, corrected]}
+      "/result/results/0/mappings":
+        - field: "@id"
+          value: "http://reg.genome.network/allele/PA094029"
+        - field: type
+          value: amino-acid
+        - field: aminoAcidAlleles.matchingRegisteredTranscripts.@id
+          value: "http://reg.genome.network/allele/CA123643"
+        - field: aminoAcidAlleles.matchingRegisteredTranscripts.@id
+          value: "http://reg.genome.network/allele/CA16602531"

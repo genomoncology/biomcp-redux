@@ -1,0 +1,33 @@
+{
+  "method": "GET",
+  "source": "car",
+  "url": "https://reg.genome.network/allele?hgvs=NP_004324.2%3Ap.Val600Glu&fields=none%2B%40id%2Btype%2BaminoAcidAlleles.matchingRegisteredTranscripts.%40id",
+  "exchanges": [
+    {
+      "fetched": 1795843060,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 221,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "@id": "http://reg.genome.network/allele/PA094029",
+  "aminoAcidAlleles": [
+    {
+      "matchingRegisteredTranscripts": [
+        {
+          "@id": "http://reg.genome.network/allele/CA123643"
+        },
+        {
+          "@id": "http://reg.genome.network/allele/CA16602531"
+        }
+      ]
+    }
+  ],
+  "type": "amino-acid"
+}
+      }
+    }
+  ]
+}

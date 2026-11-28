@@ -2,13 +2,17 @@
 //! Allele Registry v0.08.07 pp. 5–7: <https://calculator.clinicalgenome.org/redmine/attachments/download/264/AlleleRegistry_0.8.7_api.pdf>
 //! Every coordinate tuple belongs to one complete definition; never retain a subset as a simpler allele.
 use crate::raw::Field;
-use biodata::Text;
+use biodata::{Text, VariantId};
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 #[derive(Deserialize)]
 pub(super) struct Allele {
     #[serde(rename = "@id")]
     pub id: Option<Field<Text>>,
+    #[serde(rename = "type")]
+    pub allele_type: Option<Field<Text>>,
+    #[serde(rename = "aminoAcidAlleles")]
+    pub proteins: Option<Field<Vec<Field<Protein>>>>,
     #[serde(rename = "errorType")]
     pub error_type: Option<Text>,
     #[serde(rename = "actualAllele")]
@@ -22,6 +26,16 @@ pub(super) struct Allele {
     pub transcripts: Option<Field<Vec<Field<Transcript>>>>,
     #[serde(rename = "externalRecords")]
     pub external: Option<Field<External>>,
+}
+#[derive(Deserialize)]
+pub(super) struct Protein {
+    #[serde(rename = "matchingRegisteredTranscripts")]
+    pub matches: Option<Field<Vec<Field<RegisteredTranscript>>>>,
+}
+#[derive(Deserialize)]
+pub(super) struct RegisteredTranscript {
+    #[serde(rename = "@id")]
+    pub id: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 pub(super) struct External {
@@ -123,20 +137,46 @@ impl Allele {
     pub(super) fn identity(
         &self,
         expected: Option<&str>,
-    ) -> Result<(Text, Text, biodata::VariantId), BadReply> {
+    ) -> Result<(Text, Text, VariantId), BadReply> {
         let url = self.id.as_ref().and_then(Field::as_ref).ok_or(BadReply)?;
-        let key = url
-            .as_str()
-            .strip_prefix("http://reg.genome.network/allele/")
-            .ok_or(BadReply)?;
-        let id = key.parse::<biodata::VariantId>().map_err(|_| BadReply)?;
-        if !matches!(id, biodata::VariantId::Ca(_))
-            || expected.is_some_and(|expected| expected != key)
-        {
+        let (key, id) = allele_id(url)?;
+        if !matches!(id, VariantId::Ca(_)) || expected.is_some_and(|expected| expected != key) {
             return Err(BadReply);
         }
         Ok((url.clone(), Text::new(key).map_err(|_| BadReply)?, id))
     }
+
+    pub(super) fn protein_identity(&self) -> Result<(Text, Text), BadReply> {
+        let url = self.id.as_ref().and_then(Field::as_ref).ok_or(BadReply)?;
+        let allele_type = self
+            .allele_type
+            .as_ref()
+            .and_then(Field::as_ref)
+            .ok_or(BadReply)?;
+        let key = allele_key(url)?;
+        let digits = key.strip_prefix("PA").ok_or(BadReply)?;
+        // The registry pads PA IDs, while the shared PA type displays them unpadded.
+        let id: biodata::PaId = format!("PA{}", digits.trim_start_matches('0'))
+            .parse()
+            .map_err(|_| BadReply)?;
+        if (key != id.to_string() && key != format!("PA{:06}", id.get()))
+            || allele_type.as_str() != "amino-acid"
+        {
+            return Err(BadReply);
+        }
+        Ok((Text::new(key).map_err(|_| BadReply)?, allele_type.clone()))
+    }
+}
+
+pub(super) fn allele_id(url: &Text) -> Result<(&str, VariantId), BadReply> {
+    let key = allele_key(url)?;
+    Ok((key, key.parse().map_err(|_| BadReply)?))
+}
+
+fn allele_key(url: &Text) -> Result<&str, BadReply> {
+    url.as_str()
+        .strip_prefix("http://reg.genome.network/allele/")
+        .ok_or(BadReply)
 }
 
 /// Registry alleles found by one external-record query; an empty list is a real absence.

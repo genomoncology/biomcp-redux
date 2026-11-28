@@ -1,6 +1,7 @@
 # 1238 — car-protein-only-alleles
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3c9fa12b81557ffde05c5d43a0e7248fefd2f8c7
 
 Milestone: 10
 
