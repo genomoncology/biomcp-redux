@@ -1,0 +1,49 @@
+{
+  "feature": "study-structural-variants",
+  "live_check": "Native public cBioPortal replies recorded by BioMCP in pm job j48663. The replay omits unused opaque sample and patient keys. API schema https://www.cbioportal.org/api/v3/api-docs.",
+  "replay": "study/structural-variants",
+  "story": "The TCGA lung adenocarcinoma structural variant profile returns five EML4–ALK observations. Its continuation keeps the resolved profile and the native row count.",
+  "steps": [
+    {
+      "run": ["get", "study", "luad_tcga_pan_can_atlas_2018", "structural-variants"],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--gene"
+      }
+    },
+    {
+      "run": ["get", "study", "luad_tcga_pan_can_atlas_2018", "structural-variants", "--gene", "EML4", "--section-limit", "3"],
+      "expect": {
+        "/schema": "biomcp.study-structural-variants/1",
+        "/status": "complete",
+        "/result/study_id": "luad_tcga_pan_can_atlas_2018",
+        "/result/molecular_profile_id": "luad_tcga_pan_can_atlas_2018_structural_variants",
+        "/result/entrez_gene_id": "27436",
+        "/result/total": 5,
+        "/result/items/*/sample_id": ["TCGA-50-8460-01", "TCGA-67-6215-01", "TCGA-67-6216-01"],
+        "/result/items/0/site1_hugo_symbol": "EML4",
+        "/result/items/0/site2_hugo_symbol": "ALK",
+        "/result/items/0/event_info": "EML4-ALK fusion",
+        "/page/total": 5,
+        "/page/returned": 3
+      },
+      "max_bytes": 3000
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/query/molecular_profile": "luad_tcga_pan_can_atlas_2018_structural_variants",
+        "/query/gene": "EML4",
+        "/result/items/*/sample_id": ["TCGA-78-7163-01", "TCGA-86-A4P8-01"],
+        "/page/offset": 3,
+        "/page/total": 5,
+        "/page/returned": 2
+      },
+      "max_bytes": 3000
+    }
+  ]
+}

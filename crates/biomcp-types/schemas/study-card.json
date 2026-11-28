@@ -1715,11 +1715,11 @@
               "type": "null"
             }
           ],
-          "description": "Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna."
+          "description": "HUGO symbol or Entrez ID. Required for mutations, structural-variants and cna."
         },
         "id": {
           "$ref": "#/$defs/Reply_StudyId",
-          "description": "Exact source study ID; no default or repair.",
+          "description": "Exact study ID.",
           "x-positional": 0
         },
         "molecular_profile": {
@@ -1731,7 +1731,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind."
+          "description": "Exact profile ID. Defaults to the first of that section's kind."
         },
         "section": {
           "anyOf": [
@@ -1742,12 +1742,12 @@
               "type": "null"
             }
           ],
-          "description": "Omit for the card; all returns bounded first pages only.",
+          "description": "Omit for the study card.",
           "x-positional": 1
         },
         "section_limit": {
           "default": 5,
-          "description": "Maximum records in each selected section.",
+          "description": "Rows per section (default 5).",
           "format": "uint32",
           "maximum": 200,
           "minimum": 1,
@@ -1755,7 +1755,7 @@
         },
         "section_offset": {
           "default": 0,
-          "description": "Offset within one named section; all requires zero.",
+          "description": "Offset in one section.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1913,6 +1913,17 @@
         "page": {
           "$ref": "#/$defs/Reply_PageInfo",
           "description": "Bounds within the received collection."
+        },
+        "sample_list_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_StudySampleListId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "All-cases sample list sent to cBioPortal. Older replies may omit it."
         },
         "study_id": {
           "$ref": "#/$defs/Reply_StudyId",
@@ -2314,6 +2325,7 @@
         "profiles",
         "sample-lists",
         "mutations",
+        "structural-variants",
         "samples",
         "cna",
         "files",
@@ -2321,13 +2333,14 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Five exact native molecular profile references.",
-        " Five sample-list metadata records, without member sample IDs.",
-        " Source mutation rows for the required gene and selected mutation profile.",
-        " Source sample identities and types only.",
-        " cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.",
-        " Five repository file references; no automatic download.",
-        " Bounded first pages; mutations are included only when gene is supplied."
+        " Molecular profiles.",
+        " Sample-list metadata.",
+        " Mutation rows for one gene, using the all-cases sample list.",
+        " Fusions and rearrangements for one gene.",
+        " Sample IDs and types.",
+        " Discrete copy-number counts for one gene.",
+        " Repository file links.",
+        " First pages; mutations require a gene."
       ]
     },
     "Reply_StudySnapshot": {

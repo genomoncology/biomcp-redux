@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "cbioportal",
+  "url": "https://www.cbioportal.org/api/genes/EML4",
+  "exchanges": [
+    {
+      "fetched": 1795839101,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 180,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"entrezGeneId":27436,"hugoGeneSymbol":"EML4","type":"protein-coding"}
+      }
+    }
+  ]
+}

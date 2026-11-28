@@ -2919,10 +2919,10 @@ Usage: biomcp get study [OPTIONS] <id> [section]
 
 Arguments:
   <id>
-          Exact source study ID; no default or repair.
+          Exact study ID.
 
   [section]
-          Omit for the card; all returns bounded first pages only; help get study
+          Omit for the study card; help get study
 
 Options:
       --format <format>
@@ -2932,19 +2932,19 @@ Options:
           [possible values: json, md]
 
       --gene <gene>
-          Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna.
+          HUGO symbol or Entrez ID. Required for mutations, structural-variants and cna.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --molecular-profile <molecular_profile>
-          Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind.
+          Exact profile ID. Defaults to the first of that section's kind.
 
       --section-limit <section_limit>
-          Maximum records in each selected section.
+          Rows per section (default 5).
 
       --section-offset <section_offset>
-          Offset within one named section; all requires zero.
+          Offset in one section.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -2971,24 +2971,25 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
-- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna. Value form: string; example: --gene BRAF.
-- `id`: Exact source study ID; no default or repair.
+- `--gene`: HUGO symbol or Entrez ID. Required for mutations, structural-variants and cna. Value form: string; example: --gene BRAF.
+- `id`: Exact study ID.
 Form: get study ID SECTION; not --id.
-- `--molecular-profile`: Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
-- `section`: Omit for the card; all returns bounded first pages only… (full rule with the sections).
+- `--molecular-profile`: Exact profile ID. Defaults to the first of that section's kind. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
+- `section`: Omit for the study card… (full rule with the sections).
 Form: get study ID SECTION; not --section.
-- `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 2.
-- `--section-offset`: Offset within one named section; all requires zero. Value form: integer; example: --section-offset 45.
+- `--section-limit`: Rows per section (default 5). Value form: integer; example: --section-limit 2.
+- `--section-offset`: Offset in one section. Value form: integer; example: --section-offset 45.
 
-Omit for the card; all returns bounded first pages only.
+Omit for the study card.
 
-- `profiles`: Five exact source molecular profile references.
-- `sample-lists`: Five sample-list metadata records, without member sample IDs.
-- `mutations`: Source mutation rows for the required gene and selected mutation profile.
-- `samples`: Source sample identities and types only.
-- `cna`: cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.
-- `files`: Five repository file references; no automatic download.
-- `all`: Bounded first pages; mutations are included only when gene is supplied.
+- `profiles`: Molecular profiles.
+- `sample-lists`: Sample-list metadata.
+- `mutations`: Mutation rows for one gene, using the all-cases sample list.
+- `structural-variants`: Fusions and rearrangements for one gene.
+- `samples`: Sample IDs and types.
+- `cna`: Discrete copy-number counts for one gene.
+- `files`: Repository file links.
+- `all`: First pages; mutations require a gene.
 
 ## biomcp get pgx
 
