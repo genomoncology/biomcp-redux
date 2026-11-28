@@ -18,9 +18,9 @@ pub(super) fn gene_source_refusal(
     let [verb @ ("get" | "search"), "gene"] = path else {
         return None;
     };
-    if spelling?.split('=').next() != Some("--source") {
-        return None;
-    }
+    // The parser names the first option it does not know, which may be one given beside
+    // --source, such as --limit; the --source guidance still applies.
+    spelling?;
     let index = args
         .iter()
         .take_while(|word| *word != "--")
@@ -29,6 +29,7 @@ pub(super) fn gene_source_refusal(
         })?;
     let (name, remaining) = super::positional::source_value(args, index)?;
     let source = name.to_ascii_lowercase().parse::<Source>().ok()?;
+    let remaining = known(root, remaining)?;
     if *verb == "get" {
         return super::sections::gene_source_refusal(root, remaining, source);
     }
@@ -51,6 +52,50 @@ pub(super) fn gene_source_refusal(
         })),
         ..Default::default()
     })
+}
+
+/// The call without the options the command does not take. An unknown option's next word is
+/// dropped with it unless the call also reads with that word kept, when which one it is would
+/// be a guess.
+fn known(root: &Command, mut args: Vec<OsString>) -> Option<Vec<OsString>> {
+    for _ in 0..args.len() {
+        let error = match root
+            .clone()
+            .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.clone()))
+        {
+            Ok(_) => return Some(args),
+            Err(error) if error.kind() == ErrorKind::UnknownArgument => error,
+            Err(_) => return Some(args),
+        };
+        let Some(ContextValue::String(spelling)) = error.get(ContextKind::InvalidArg) else {
+            return None;
+        };
+        let spelling = spelling.split('=').next()?;
+        let at = args
+            .iter()
+            .take_while(|word| *word != "--")
+            .position(|word| {
+                word.to_str().is_some_and(|word| {
+                    word == spelling
+                        || word
+                            .strip_prefix(spelling)
+                            .is_some_and(|rest| rest.starts_with('='))
+                })
+            })?;
+        let flag = args.remove(at);
+        if !flag.to_str()?.contains('=')
+            && args
+                .get(at)
+                .and_then(|word| word.to_str())
+                .is_some_and(|word| !word.starts_with('-'))
+        {
+            if super::parse(root, &args).is_ok() {
+                return None;
+            }
+            args.remove(at);
+        }
+    }
+    Some(args)
 }
 
 fn disease_curation(root: &Command, args: Vec<OsString>, source: Source) -> Option<Step> {
