@@ -229,6 +229,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-adapters/src/pubmed/efetch_book_tests.rs` | Prove that missing, malformed and conflicting chapter accessions cannot generate a Bookshelf link. |
 | `crates/biomcp-adapters/src/native_text_tests.rs` | Show CR, CR-LF and blank-line runs joining to one space through the private source text helper, with other controls still escaped (0961). |
 | `crates/biomcp-adapters/src/openfda_label/search_tests.rs` | Show a name lookup page dropping label sections the choice never reads, through the private record, with a made-up label. |
+| `crates/biomcp-adapters/src/who_eml/matching_tests.rs` | Check all WHO eEML names against the private matcher with one pinned source snapshot. |
 | `crates/biomcp-adapters/src/who_pq/raw_tests.rs` | Map blank, WHO-format and unreadable Date of Prequalification cells through the private row type without inventing a source export. |
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
 | `crates/biomcp-adapters/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
