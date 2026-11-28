@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "fetched": 1795835538,
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 4413,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_group\tgene_group_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene.org\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit-trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_id\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc\nHGNC:3554\tHSD17B8\thydroxysteroid 17-beta dehydrogenase 8\tprotein-coding gene\tgene with protein product\tApproved\t6p21.32\t\"HKE6|D6S2245E|RING2|KE6|H2-KE6|SDR30C1\"\tshort chain dehydrogenase/reductase family 30C, member 1\tFABGL\t\"FabG (beta-ketoacyl-[acyl-carrier-protein] reductase, E coli) like (E. coli)|hydroxysteroid (17-beta) dehydrogenase 8\"\tShort chain dehydrogenase/reductase superfamily\t743\t2000-06-26\t2002-02-22\t2016-06-03\t2023-01-20\t7923\tENSG00000204228\tOTTHUMG00000031117\tuc011izs.3\tD82061\tNM_014234\tCCDS4769\t\t\"8812499|19027726\"\tMGI:95911\tRGD:1303158\t\t\t601417\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t1.1.1.62\t\t\t\t\tHGNC:3554\t\"ENST00000374662.4|NM_014234.5\"\t\n"
+      }
+    }
+  ]
+}

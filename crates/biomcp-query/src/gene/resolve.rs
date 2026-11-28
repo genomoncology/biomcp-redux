@@ -6,6 +6,11 @@ use biomcp_types::Problem;
 use biomcp_types::{GeneHeader, GeneInput, GeneResolution, Match};
 use std::collections::BTreeMap;
 
+/// HGNC-approved protein-coding genes can lack UniProt cross-references.
+pub(crate) fn needs_uniprot_lookup(gene: &Gene) -> bool {
+    gene.uniprot.is_empty() && gene.locus_group == Some(LocusGroup::ProteinCoding)
+}
+
 /// Resolve an input against approved HGNC identity before withdrawn identity.
 /// Rejected source fields remain visible even when no accepted record remains.
 pub(crate) fn resolve(

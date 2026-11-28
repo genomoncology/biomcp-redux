@@ -1,7 +1,7 @@
 //! Native reviewed-human pages, keeping only a validated opaque cursor.
 use super::{SPEC, entry};
 use crate::Mapped;
-use biodata::{ProteinHeader, Text};
+use biodata::{GeneSymbol, ProteinHeader, Text, UniProtAcc};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_fetch::{Input, Read};
 use biomcp_types::{Problem, ProblemCode, ProteinSearch, Source};
@@ -36,7 +36,59 @@ pub fn search(
     q: &ProteinSearch,
     cursor: Option<&Text>,
 ) -> Result<Mapped<SearchPage>, RequestError> {
-    let query = native_query(q);
+    let selector = q.gene().map(gene_selector);
+    let literal = selector
+        .as_deref()
+        .or_else(|| q.query().map(Text::as_str))
+        .unwrap_or_default();
+    search_page(leg, literal, cursor)
+}
+
+/// Find reviewed human candidates for an exact HGNC symbol missing UniProt links.
+pub fn gene_candidates(
+    leg: &Leg<'_>,
+    symbol: &GeneSymbol,
+) -> Result<Mapped<Vec<UniProtAcc>>, RequestError> {
+    let mapped = search_page(leg, &gene_selector(symbol), None)?;
+    if mapped.value.cursor.is_some() {
+        return Err(biomcp_fetch::SourceError {
+            source: Source::UniProt,
+            reason: biomcp_types::Reason::TooLarge,
+            status: Some(200),
+            tls_cause: None,
+            retry_after: None,
+        }
+        .into());
+    }
+    if mapped.refusals == crate::Refusal::Refused {
+        return Err(biomcp_fetch::bad_reply(Source::UniProt, Some(200)));
+    }
+    Ok(Mapped {
+        value: mapped
+            .value
+            .items
+            .into_iter()
+            .map(|row| row.protein.accession.as_str().parse())
+            .collect::<Result<_, _>>()
+            .map_err(|_| biomcp_fetch::bad_reply(Source::UniProt, Some(200)))?,
+        refusals: mapped.refusals,
+        problems: mapped.problems,
+    })
+}
+
+fn gene_selector(symbol: &GeneSymbol) -> String {
+    format!("gene_exact:{symbol}")
+}
+
+fn search_page(
+    leg: &Leg<'_>,
+    literal: &str,
+    cursor: Option<&Text>,
+) -> Result<Mapped<SearchPage>, RequestError> {
+    let query = format!(
+        "({literal}) AND (organism_id:{}) AND (reviewed:true)",
+        super::HUMAN
+    );
     let mut args = vec![
         ("query", Arg::Text(&query)),
         ("format", Arg::Text("json")),
@@ -76,6 +128,19 @@ pub fn search(
                 })
         })
         .transpose()?;
+    let mapped = headers(raw);
+    Ok(Mapped {
+        refusals: mapped.refusals,
+        value: SearchPage {
+            items: mapped.value,
+            total: page.total,
+            cursor,
+        },
+        problems: mapped.problems,
+    })
+}
+
+fn headers(raw: Rows) -> Mapped<Vec<ProteinHeader>> {
     let mut items = Vec::new();
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -106,20 +171,9 @@ pub fn search(
             }
         }
     }
-    Ok(Mapped {
+    Mapped {
         refusals,
-        value: SearchPage {
-            items,
-            total: page.total,
-            cursor,
-        },
+        value: items,
         problems,
-    })
-}
-fn native_query(q: &ProteinSearch) -> String {
-    let literal = q
-        .gene()
-        .map(|v| format!("gene_exact:{v}"))
-        .unwrap_or_else(|| q.query().map_or("", Text::as_str).into());
-    format!("({literal}) AND (organism_id:9606) AND (reviewed:true)")
+    }
 }

@@ -1423,7 +1423,7 @@
               "type": "null"
             }
           ],
-          "description": "Reviewed human proteins listed by HGNC."
+          "description": "Reviewed human UniProt proteins linked to this gene."
         }
       },
       "type": "object"

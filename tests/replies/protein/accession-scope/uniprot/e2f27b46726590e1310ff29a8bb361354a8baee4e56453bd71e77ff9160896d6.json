@@ -1,0 +1,24 @@
+{
+  "method": "GET",
+  "source": "uniprot",
+  "url": "https://rest.uniprot.org/uniprotkb/P02340.json",
+  "exchanges": [
+    {
+      "fetched": 1795834711,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 510,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "entryType": "UniProtKB reviewed (Swiss-Prot)",
+          "primaryAccession": "P02340",
+          "organism": {
+            "taxonId": 10090
+          }
+        }
+      }
+    }
+  ]
+}

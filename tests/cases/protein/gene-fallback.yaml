@@ -1,0 +1,14 @@
+feature: gene-protein
+live_check: public
+story: A protein-coding gene with no HGNC UniProt link reaches its reviewed human protein from either get command.
+replay: protein/gene-fallback
+steps:
+- run: [get, gene, HSD17B8, --section, protein, --disable-sources, oncokb]
+  expect:
+    /status: complete
+    /result/items/0/sections/protein/state: data
+    /result/items/0/sections/protein/data/0/accession: Q92506
+- run: [get, protein, HSD17B8]
+  expect:
+    /status: complete
+    /result/items/0/header/protein/accession: Q92506

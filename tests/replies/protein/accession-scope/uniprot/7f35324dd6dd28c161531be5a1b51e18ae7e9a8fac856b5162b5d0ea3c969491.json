@@ -1,0 +1,24 @@
+{
+  "method": "GET",
+  "source": "uniprot",
+  "url": "https://rest.uniprot.org/uniprotkb/A0A0A0MS99.json",
+  "exchanges": [
+    {
+      "fetched": 1795834711,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 409,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "entryType": "UniProtKB unreviewed (TrEMBL)",
+          "primaryAccession": "A0A0A0MS99",
+          "organism": {
+            "taxonId": 9606
+          }
+        }
+      }
+    }
+  ]
+}

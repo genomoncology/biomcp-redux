@@ -5,6 +5,8 @@ use biodata::{ProteinAudit, ProteinHeader, UniProtIsoform};
 use biomcp_fetch::{Freshness, Leg, RequestError};
 use biomcp_fetch::{Input, Read};
 use serde::{Deserialize, Serialize};
+mod lookup;
+pub use lookup::{Lookup, Scope, lookup};
 pub(super) mod map;
 pub(super) mod raw;
 mod sections_map;
@@ -29,12 +31,7 @@ pub struct Entry {
 }
 /// Fetch exactly the requested accession, preserving an explicit isoform suffix.
 pub fn entry(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<Mapped<Option<Entry>>, RequestError> {
-    let ep = SPEC
-        .get("")
-        .with_path(format!("/uniprotkb/{id}.json"))?
-        .double_gzip()
-        .stall_retry(super::STALL_LIMIT)
-        .fresh(Freshness::Days(7));
+    let ep = endpoint(id)?;
     match leg
         .call(
             &ep,
@@ -51,4 +48,13 @@ pub fn entry(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<Mapped<Option<Entry>>
         }),
         Err(e) => Err(e),
     }
+}
+
+fn endpoint(id: &UniProtIsoform) -> Result<biomcp_fetch::Endpoint, RequestError> {
+    Ok(SPEC
+        .get("")
+        .with_path(format!("/uniprotkb/{id}.json"))?
+        .double_gzip()
+        .stall_retry(super::STALL_LIMIT)
+        .fresh(Freshness::Days(7)))
 }

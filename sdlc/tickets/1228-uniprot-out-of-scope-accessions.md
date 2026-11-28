@@ -1,6 +1,7 @@
 # 1228 — uniprot-out-of-scope-accessions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9497bc1d962879378e0b9b59ac0919e3b3c37cf3
 
 Milestone: 10
 

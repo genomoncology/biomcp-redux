@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "uniprot",
+  "url": "https://rest.uniprot.org/uniprotkb/search?query=%28gene_exact%3AHSD17B8%29%20AND%20%28organism_id%3A9606%29%20AND%20%28reviewed%3Atrue%29&format=json&size=5&fields=accession%2Cid%2Cprotein_name%2Cgene_names%2Corganism_id%2Creviewed%2Clength",
+  "exchanges": [
+    {
+      "fetched": 1795835540,
+      "status": 200,
+      "content_type": "application/json",
+      "pagination": {
+        "total": 1,
+        "next": null
+      },
+      "delay_ms": 416,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"results":[{"entryType":"UniProtKB reviewed (Swiss-Prot)","primaryAccession":"Q92506","uniProtkbId":"DHB8_HUMAN","organism":{"taxonId":9606},"proteinDescription":{"recommendedName":{"fullName":{"value":"(3R)-3-hydroxyacyl-CoA dehydrogenase"},"ecNumbers":[{"evidences":[{"evidenceCode":"ECO:0000269","source":"PubMed","id":"19571038"},{"evidenceCode":"ECO:0000269","source":"PubMed","id":"25203508"}],"value":"1.1.1.n12"}]},"alternativeNames":[{"fullName":{"evidences":[{"evidenceCode":"ECO:0000303","source":"PubMed","id":"17978863"},{"evidenceCode":"ECO:0000303","source":"PubMed","id":"25203508"}],"value":"17-beta-hydroxysteroid dehydrogenase 8"},"shortNames":[{"value":"17-beta-HSD 8"},{"evidences":[{"evidenceCode":"ECO:0000303","source":"PubMed","id":"25203508"}],"value":"HSD17B8"}]},{"fullName":{"evidences":[{"evidenceCode":"ECO:0000303","source":"PubMed","id":"25203508"}],"value":"3-ketoacyl-[acyl-carrier-protein] reductase alpha subunit"},"shortNames":[{"evidences":[{"evidenceCode":"ECO:0000303","source":"PubMed","id":"25203508"}],"value":"KAR alpha subunit"}]},{"fullName":{"value":"3-oxoacyl-[acyl-carrier-protein] reductase"}},{"fullName":{"value":"Estradiol 17-beta-dehydrogenase 8"},"ecNumbers":[{"evidences":[{"evidenceCode":"ECO:0000269","source":"PubMed","id":"17978863"}],"value":"1.1.1.62"}]},{"fullName":{"value":"Protein Ke6"},"shortNames":[{"evidences":[{"evidenceCode":"ECO:0000303","source":"PubMed","id":"17978863"},{"evidenceCode":"ECO:0000303","source":"PubMed","id":"19571038"}],"value":"Ke6"}]},{"fullName":{"value":"Short chain dehydrogenase/reductase family 30C member 1"}},{"fullName":{"value":"Testosterone 17-beta-dehydrogenase 8"},"ecNumbers":[{"evidences":[{"evidenceCode":"ECO:0000269","source":"PubMed","id":"17978863"}],"value":"1.1.1.239"}]}]},"genes":[{"geneName":{"value":"HSD17B8"},"synonyms":[{"value":"FABGL"},{"value":"HKE6"},{"value":"RING2"},{"value":"SDR30C1"}]}],"sequence":{"length":261},"extraAttributes":{"uniParcId":"UPI0000000C8E"}}]}
+      }
+    }
+  ]
+}

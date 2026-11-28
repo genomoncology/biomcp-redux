@@ -1,4 +1,4 @@
-//! Reviewed human proteins fetched only by HGNC-listed accessions.
+//! Reviewed human UniProt entries and searches.
 use biomcp_fetch::{Input, Read};
 mod entry;
 mod map;
@@ -9,8 +9,8 @@ use crate::{Mapped, quotas};
 use biodata::UniProtAcc;
 use biomcp_fetch::{Arg, Endpoint, Freshness, KeyUse, Leg, RequestError, SourceSpec};
 use biomcp_types::{Protein, Source};
-pub use entry::{Entry, entry};
-pub use search::{SearchPage, search};
+pub use entry::{Entry, Lookup, Scope, entry, lookup};
+pub use search::{SearchPage, gene_candidates, search};
 pub use sequence::sequence;
 use std::time::Duration;
 /// Source policy for UniProt's accession endpoint.
@@ -39,6 +39,13 @@ const PROTEINS: Endpoint = SPEC
 const FIELDS: &str = "accession,protein_name,length,cc_function,cc_subcellular_location,reviewed,gene_primary,organism_id";
 /// Fetch distinct accessions once, correlating checked replies by identity.
 pub fn proteins(leg: &Leg<'_>, ids: &[UniProtAcc]) -> Result<Mapped<Vec<Protein>>, RequestError> {
+    if ids.is_empty() {
+        return Ok(Mapped {
+            value: Vec::new(),
+            problems: Vec::new(),
+            refusals: crate::Refusal::None,
+        });
+    }
     let mut ids = ids.to_vec();
     ids.sort_unstable();
     ids.dedup();
@@ -55,6 +62,14 @@ pub fn proteins(leg: &Leg<'_>, ids: &[UniProtAcc]) -> Result<Mapped<Vec<Protein>
         )?
         .value;
     Ok(map::proteins(raw, &ids))
+}
+
+const HUMAN: u32 = 9606;
+const REVIEWED: &str = "UniProtKB reviewed (Swiss-Prot)";
+const UNREVIEWED: &str = "UniProtKB unreviewed (TrEMBL)";
+
+fn human_reviewed(taxon: u32, entry_type: &str) -> bool {
+    taxon == HUMAN && entry_type == REVIEWED
 }
 
 /// Complete source policy and command declaration.

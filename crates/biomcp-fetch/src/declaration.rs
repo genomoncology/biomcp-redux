@@ -50,6 +50,7 @@ impl SourceSpec {
             byte_limit: None,
             json_rejections: false,
             json_absence: false,
+            json_see_other: false,
             exact_count: false,
         }
     }
@@ -112,6 +113,7 @@ pub struct Endpoint {
     pub(crate) byte_limit: Option<u64>,
     pub(crate) json_rejections: bool,
     pub(crate) json_absence: bool,
+    pub(crate) json_see_other: bool,
     pub(crate) exact_count: bool,
 }
 
@@ -235,6 +237,11 @@ impl Endpoint {
     /// The reply type must check both success and rejection schemas. Other statuses retain normal retry semantics.
     pub const fn json_rejections(mut self) -> Self {
         self.json_rejections = true;
+        self
+    }
+    /// Decode a typed JSON HTTP 303 body without following the Location header.
+    pub const fn json_see_other(mut self) -> Self {
+        self.json_see_other = true;
         self
     }
     /// Declare a bounded opaque binary reply independently of JSON/XML limits.

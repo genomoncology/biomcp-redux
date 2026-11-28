@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "uniprot",
+  "url": "https://rest.uniprot.org/uniprotkb/A0A008APQ8.json",
+  "exchanges": [
+    {
+      "fetched": 1795834712,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 395,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"entryType":"Inactive","primaryAccession":"A0A008APQ8","uniProtkbId":"A0A008APQ8_STAAU","annotationScore":0.0,"inactiveReason":{"inactiveReasonType":"DELETED","deletedReason":"Not part of a reference proteome"},"extraAttributes":{"uniParcId":"UPI0000054276"}}
+      }
+    }
+  ]
+}

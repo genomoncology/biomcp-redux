@@ -37,7 +37,7 @@ pub(super) fn proteins(raw: raw::Proteins, ids: &[UniProtAcc]) -> Mapped<Vec<Pro
             continue;
         }
         seen.push(id.clone());
-        if raw.organism.taxon_id != 9606 || raw.entry_type != "UniProtKB reviewed (Swiss-Prot)" {
+        if !super::human_reviewed(raw.organism.taxon_id, &raw.entry_type) {
             push_problem(
                 &mut problems,
                 Source::UniProt,

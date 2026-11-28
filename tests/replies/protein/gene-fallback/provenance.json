@@ -1,0 +1,43 @@
+{
+  "licenses": "UniProt CC BY 4.0 (https://www.uniprot.org/help/license). HGNC CC0 1.0 (https://www.genenames.org/about/license/). MyGene.info terms (https://docs.mygene.info/en/latest/terms.html).",
+  "capture": "BioMCP recorder, pm job j48617.",
+  "projection": "The HGNC bundle retains the original TSV header and HSD17B8 row. The other replies are intact.",
+  "sha256": "SHA-256 of the original HGNC TSV and each other original body serialized as compact JSON.",
+  "originals": [
+    {
+      "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+      "status": 200,
+      "sha256": "46b83736ec351f15e22331575dce2f08416c5233765b26a08c65e6b42e56b651",
+      "retrieved": "2026-11-28",
+      "kept_whole": false
+    },
+    {
+      "url": "https://mygene.info/v3/gene",
+      "status": 200,
+      "sha256": "b657800664fc6d7e8cf786db8f80c619d8f35981e17b9863fa6d491f11f6e86f",
+      "retrieved": "2026-11-28",
+      "kept_whole": true
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/search?query=%28gene_exact%3AHSD17B8%29%20AND%20%28organism_id%3A9606%29%20AND%20%28reviewed%3Atrue%29&format=json&size=5&fields=accession%2Cid%2Cprotein_name%2Cgene_names%2Corganism_id%2Creviewed%2Clength",
+      "status": 200,
+      "sha256": "d971864371e450d244852e89f4828ecce696d0cddba4460ba0a2e186c14a0873",
+      "retrieved": "2026-11-28",
+      "kept_whole": true
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/accessions?accessions=Q92506&fields=accession%2Cprotein_name%2Clength%2Ccc_function%2Ccc_subcellular_location%2Creviewed%2Cgene_primary%2Corganism_id&format=json",
+      "status": 200,
+      "sha256": "1c151ebafdeba65dfa3f15390fa9cad9b2947d3afa407dbdead62643f17206f8",
+      "retrieved": "2026-11-28",
+      "kept_whole": true
+    },
+    {
+      "url": "https://rest.uniprot.org/uniprotkb/Q92506.json",
+      "status": 200,
+      "sha256": "a7dcc5fa203e4acf84a6999a79185efae5e65da0ba92be3ca2adeaf453392890",
+      "retrieved": "2026-11-28",
+      "kept_whole": true
+    }
+  ]
+}
