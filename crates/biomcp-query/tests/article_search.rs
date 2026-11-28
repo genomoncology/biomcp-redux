@@ -268,7 +268,12 @@ fn sequential_replay_commands_receive_new_budgets_after_provider_quota_waits() {
     // Each budget is five NCBI intervals, as 2 s was at the keyless 0.4 s spacing.
     let fetch = fetch_paced("synthetic-small", cache, ncbi_paced(7));
     for _ in 0..6 {
-        page(run_within(&fetch, query(None, 0), true, Duration::from_secs(35)));
+        page(run_within(
+            &fetch,
+            query(None, 0),
+            true,
+            Duration::from_secs(35),
+        ));
     }
 }
 #[test]
