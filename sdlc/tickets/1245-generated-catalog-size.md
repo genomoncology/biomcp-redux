@@ -1,6 +1,7 @@
 # 1245 — generated-catalog-size
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 43fa4de4576c469937e32afa7ec3a59a1e6b4d02
 
 Milestone: 10
 

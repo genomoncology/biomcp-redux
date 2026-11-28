@@ -79,7 +79,7 @@ Typed mode includes compact output schemas for entity tools, `help` and `saved` 
 
 `mcp_typed_tool_limit` and `mcp_typed_definition_bytes` set positive ceilings on the typed catalog. The defaults are 20 tools and 192 KiB of compact UTF-8 definitions. Setting `"mcp_typed_output_schema": false` uses a 128 KiB byte ceiling. An explicit `mcp_typed_definition_bytes` value overrides either default. These ceilings apply to the full typed list. [Typed budget configuration](../crates/biomcp/src/config/mcp.rs)
 
-The 18-tool default typed `tools/list` catalog measured **184,967 bytes** over stdio. This measures the `tools` array, including titles, descriptions, annotations and output schemas. The JSON-RPC envelope and server instructions are outside that count. A catalog exceeding either ceiling returns an error naming the required size and configured limits.
+The 18-tool default typed `tools/list` catalog stays within its 196,608-byte ceiling. Run `make catalog-size` to print the current size and ceiling reported over stdio. This measures the `tools` array, including titles, descriptions, annotations and output schemas. The JSON-RPC envelope and server instructions are outside that count. A catalog exceeding either ceiling returns an error naming the required size and configured limits.
 
 ## Compact gene constraint batches
 

@@ -197,10 +197,16 @@ pub(super) fn input_required(id: Value, value: Value) -> Value {
 fn current_result(id: Value, mut value: Value, kind: &str) -> Value {
     if let Some(object) = value.as_object_mut() {
         object.insert("resultType".into(), json!(kind));
-        object.insert(
-            "_meta".into(),
-            json!({"io.modelcontextprotocol/serverInfo":info(ReplyVersion::Current)}),
-        );
+        if let Some(metadata) = object
+            .entry("_meta")
+            .or_insert_with(|| json!({}))
+            .as_object_mut()
+        {
+            metadata.insert(
+                "io.modelcontextprotocol/serverInfo".into(),
+                info(ReplyVersion::Current),
+            );
+        }
     }
     json!({"jsonrpc":"2.0","id":id,"result":value})
 }
