@@ -190,8 +190,9 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
         }
     }
     let mut references = BTreeMap::<_, BTreeMap<_, _>>::new();
+    let standalone = PurpleBookLicense::Standalone.as_str();
     for (bla, row) in &rows {
-        if row.license_type.as_ref() == "351(a)" {
+        if row.license_type.as_ref() == standalone {
             references
                 .entry(name_key(&row.name, &row.proper_name))
                 .or_default()
@@ -206,7 +207,7 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
     });
     if rows
         .iter()
-        .all(|(_, row)| row.license_type.as_ref() == "351(a)")
+        .all(|(_, row)| row.license_type.as_ref() == standalone)
     {
         return Err(BadReply);
     }

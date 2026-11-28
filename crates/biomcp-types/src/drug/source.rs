@@ -33,7 +33,7 @@ pub enum DrugSource {
     FdaSafetySignals,
     /// FDA withdrawn cancer accelerated approvals (search only).
     FdaWithdrawnApprovals,
-    /// FDA Purple Book biosimilar roster (search only).
+    /// FDA Purple Book licensed biologics (search only).
     PurpleBook,
 }
 impl DrugSource {
