@@ -87,14 +87,13 @@ pub(super) fn run(
 fn read_actionability(cx: &Ctx<'_>, deadline: Deadline<'_>, gene: &Gene) -> ClinGenActionability {
     let read = |context| {
         let leg = cx.fetch.leg(&actionability::SPEC, deadline).fresh(cx.fresh);
-        let result = actionability::curations(&leg, &gene.symbol, context);
+        let (curations, error) = match actionability::curations(&leg, &gene.symbol, context) {
+            Ok(rows) => (Some(rows), None),
+            Err(error) => (None, Some(error)),
+        };
         ClinGenActionabilityContext {
-            status: status::source(
-                GeneSection::ClinGen.source(),
-                leg.finish(),
-                result.as_ref().err().copied(),
-            ),
-            curations: result.ok(),
+            status: status::source(GeneSection::ClinGen.source(), leg.finish(), error),
+            curations,
         }
     };
     ClinGenActionability {
