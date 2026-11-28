@@ -72,33 +72,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         return out;
     }
     if let Ok(page) = reply {
-        out.include_refusals(page.refusals);
-        out.problems.extend(page.problems);
-        let returned = page.items.len() as u32;
-        out.page = Some(page_info(query.section_offset(), returned, page.total));
-        if query.section() == Some(DiseaseSection::Genes) {
-            gene_steps(&mut out, &page.items);
-        }
-        if page.received > 0
-            && u64::from(query.section_offset()) + u64::from(page.received) < page.total
-        {
-            out.next.push(crate::next::Step::new(
-                StepKind::Page,
-                &[biomcp_types::Source::Monarch],
-                run(Request::GetDisease(query.at_section_offset(
-                    query.section_offset().saturating_add(page.received),
-                ))),
-            ));
-        }
-        let components = page.components;
-        out.body = body(
-            query,
-            page.items,
-            components,
-            page.metadata
-                .fetched
-                .and_then(|value| u64::try_from(value).ok()),
-        );
+        apply_page(&mut out, query, page);
         match held {
             // Monarch holds the disease: no associations is a complete answer.
             None | Some(Ok(_)) => crate::status::item(&mut out, true, false, false),
@@ -109,6 +83,36 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     command.finish(deadline.remaining());
     out
 }
+
+fn apply_page(out: &mut Outcome, query: &DiseaseGet, page: monarch::Page) {
+    out.include_refusals(page.refusals);
+    out.problems.extend(page.problems);
+    let returned = page.items.len() as u32;
+    out.page = Some(page_info(query.section_offset(), returned, page.total));
+    if query.section() == Some(DiseaseSection::Genes) {
+        gene_steps(out, &page.items);
+    }
+    if page.received > 0
+        && u64::from(query.section_offset()) + u64::from(page.received) < page.total
+    {
+        out.next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[Source::Monarch],
+            run(Request::GetDisease(query.at_section_offset(
+                query.section_offset().saturating_add(page.received),
+            ))),
+        ));
+    }
+    out.body = body(
+        query,
+        page.items,
+        page.components,
+        page.metadata
+            .fetched
+            .and_then(|value| u64::try_from(value).ok()),
+    );
+}
+
 fn body(
     query: &DiseaseGet,
     items: Vec<biomcp_types::DiseaseAssociationItem>,

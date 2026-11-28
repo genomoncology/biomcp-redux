@@ -33,18 +33,16 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     }
     let error = reply.as_ref().err().copied();
     // A failed parent-name read leaves the rows unnamed, so the source and reply are not complete.
-    out.sources.push(status::source(
-        Source::MyDisease,
-        leg.finish(),
-        error.or(label_error),
-    ));
+    let mut source = status::source(Source::MyDisease, leg.finish(), error.or(label_error));
     let reason = error.and_then(status::reason);
-    if query.orpha_card_fallback() && matches!(reason, Some(Reason::NotFound | Reason::BadReply)) {
-        if reason == Some(Reason::NotFound) {
-            out.sources[0].set_status(SourceStatus::Skipped(reason));
-        } else {
-            super::page::record_problem(&mut out, query, Source::MyDisease);
-        }
+    let fallback =
+        query.orpha_card_fallback() && matches!(reason, Some(Reason::NotFound | Reason::BadReply));
+    if fallback && reason == Some(Reason::NotFound) {
+        source.set_status(SourceStatus::Skipped(reason));
+    }
+    out.sources.push(source);
+    if fallback {
+        super::page::record_problem(&mut out, query, Source::MyDisease);
         super::orphadata::card(cx, query, id, deadline, &mut out);
         command.finish(deadline.remaining());
         return out;
