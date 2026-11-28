@@ -100,7 +100,11 @@ pub(super) fn matched_therapies(
     if candidates.len() < 2 {
         return;
     }
-    let unread: Vec<_> = candidates.iter().skip(1).map(|c| c.1.id.to_string()).collect();
+    let unread: Vec<_> = candidates
+        .iter()
+        .skip(1)
+        .map(|c| c.1.id.to_string())
+        .collect();
     resolution.reason = Some(
         format!(
             "CIViC lists {} therapies under this name, each with its own evidence and \
