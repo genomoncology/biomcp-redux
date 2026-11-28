@@ -5,6 +5,7 @@ mod decode;
 mod products;
 pub use products::summarize;
 mod read;
+mod stored;
 pub use read::SPEC;
 pub use read::{SnapshotSearch, search, sync_file, unavailable_notice};
 
