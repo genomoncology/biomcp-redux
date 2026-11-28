@@ -16,8 +16,10 @@
         "/result/unpublished": true,
         "/result/reported_traits/0": "pulse pressure",
         "/result/samples/0": {
-          "ancestry": "European",
-          "count": 242450
+          "equals": {
+            "ancestry": "European",
+            "count": 242450
+          }
         },
         "/result/summary_statistics_url": "http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST91007001-GCST91008000/GCST91007236"
       },
