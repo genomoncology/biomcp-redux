@@ -17,23 +17,16 @@ pub struct PgxHeader {
 }
 /// Source and selector for a PGx search page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum PgxSearchHeader {
-    /// Drug-keyed pairs or clinical annotations.
-    Drug {
-        /// Explicit source.
-        source: PgxSource,
-        /// Selected drug name.
-        drug: biodata::Text,
-    },
-    /// Variant-keyed clinical annotations.
-    Variant {
-        /// Explicit source.
-        source: PgxSource,
-        /// Selected dbSNP rsID.
-        variant: biodata::RsId,
-    },
+pub struct PgxSearchHeader {
+    /// Explicit source.
+    pub source: PgxSource,
+    /// Selected drug name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub drug: Option<biodata::Text>,
+    /// Selected dbSNP rsID.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub variant: Option<biodata::RsId>,
 }
 /// Independent collection scope; observed counts never imply native source totals.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

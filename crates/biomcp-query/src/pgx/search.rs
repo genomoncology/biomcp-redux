@@ -26,12 +26,11 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
     out
 }
 
-fn header(query: &PgxSearch) -> Option<PgxSearchHeader> {
-    let source = query.source();
-    if let Some(drug) = query.drug() {
-        Some(PgxSearchHeader::Drug { drug: drug.clone(), source })
-    } else {
-        query.variant().map(|variant| PgxSearchHeader::Variant { variant: *variant, source })
+fn header(query: &PgxSearch) -> PgxSearchHeader {
+    PgxSearchHeader {
+        source: query.source(),
+        drug: query.drug().cloned(),
+        variant: query.variant().copied(),
     }
 }
 
@@ -48,9 +47,7 @@ fn pairs(leg: Leg<'_>, query: &PgxSearch) -> (Outcome, u32) {
                 items,
             }.with_query(context.clone())
         } else {
-            PgxDiscovery::into_reply(query.clone(), header.clone().map(|header| {
-                PgxDiscovery::Pairs { header, page, items }
-            }))
+            PgxDiscovery::Pairs { header: header.clone(), page, items }.with_query(query.clone())
         }
     };
     let mut consumed = 0;
@@ -73,9 +70,8 @@ fn clinical(leg: Leg<'_>, query: &PgxSearch) -> (Outcome, u32) {
     let body = |items: Vec<_>, total| {
         let mut page = page_info(query.offset(), items.len(), total);
         page.total_kind = PgxTotalKind::Observed;
-        PgxDiscovery::into_reply(query.clone(), header.clone().map(|header| {
-            PgxDiscovery::Clinical { header, page, items: items.into() }
-        }))
+        PgxDiscovery::Clinical { header: header.clone(), page, items: items.into() }
+            .with_query(query.clone())
     };
     let mut consumed = 0;
     let mut problems = Vec::new();
