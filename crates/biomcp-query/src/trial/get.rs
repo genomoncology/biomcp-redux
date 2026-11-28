@@ -55,7 +55,7 @@ fn fetch(
     let rows: Vec<_> = query
         .input()
         .iter()
-        .map(|id| ctgov::detail::get(&leg, *id))
+        .map(|id| ctgov::detail::get_with_alias(&leg, *id))
         .collect();
     let version = rows.iter().any(Result::is_ok).then(|| ctgov::version(&leg));
     let error = rows
