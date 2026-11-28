@@ -136,7 +136,7 @@ pub(super) fn short_source_routes() -> Result<(), String> {
             "disease",
             "source_title_prefix",
             "/page/returned",
-            json!(2),
+            json!(1),
         ),
         (
             "cdx",
