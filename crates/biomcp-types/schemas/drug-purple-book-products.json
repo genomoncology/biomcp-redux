@@ -96,7 +96,7 @@
       ]
     },
     "Reply_DrugSearch": {
-      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or applicant. FDA signals take a drug or report text. FDA withdrawals take a drug, indication or withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD). Purple Book takes a proprietary name, proper name or BLA.",
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or applicant. FDA signals take a drug or report text. FDA withdrawals take a drug, indication or withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD). Purple Book takes a proprietary name, proper name or BLA and lists FDA licenses.",
       "properties": {
         "applicant": {
           "anyOf": [
