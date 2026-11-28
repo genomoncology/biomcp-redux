@@ -47,6 +47,10 @@
       "expect": {"/result/population/reason": "out-of-scope"}
     },
     {
+      "run": ["variant", "population", "M-3243-A-G", "--format", "md"],
+      "expect": {"": {"includes": "This variant class is out of scope for the gnomad lookup."}}
+    },
+    {
       "run": ["help", "get", "variant", "population"],
       "expect": {"/result/commands/0/sections/0/description": {"includes": "gnomad_r4 release 4.1.0"}}
     },
