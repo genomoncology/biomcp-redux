@@ -43,9 +43,8 @@ struct SearchFields {
         Other filters AND with the name group. FAERS_QUERY_MAX_BYTES caps the escaped query at 4096 bytes."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     drug: Vec<Text>,
-    #[doc = "FAERS drug role.\nDefault any counts reports listing the drug in any role, including concomitant. \
-        Suspect checks the same drug entry for a whole name match, ignoring case. \
-        Use receipt dates to narrow broad searches. Suspect applies to report searches only."]
+    #[doc = "FAERS drug role.\nAny (default) counts all roles, including concomitant. \
+        Suspect checks whole names on suspect entries. Narrow by receipt date. Report searches only for suspect."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     drug_role: Option<AdverseEventDrugRole>,
     #[doc = "FAERS no-op.\nFAERS: accepted for one release and changes nothing; FAERS widens drug names by default."]

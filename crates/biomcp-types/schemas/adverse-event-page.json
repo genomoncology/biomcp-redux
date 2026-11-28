@@ -266,7 +266,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS drug role.\nDefault any counts reports listing the drug in any role, including concomitant. Suspect checks the same drug entry for a whole name match, ignoring case. Use receipt dates to narrow broad searches. Suspect applies to report searches only."
+          "description": "FAERS drug role.\nAny (default) counts all roles, including concomitant. Suspect checks whole names on suspect entries. Narrow by receipt date. Report searches only for suspect."
         },
         "event_type": {
           "anyOf": [

@@ -44,7 +44,7 @@
         "/result/commands/0/arguments/*/description": {
           "includes_all_of": [
             "MAUDE event type.\nMAUDE report event type on source event_type: malfunction, injury, death or other. Reports with an empty or \"No answer provided\" event type match no value and fall outside every event-type count. Value form: string; example: --event-type malfunction.",
-            "FAERS drug role.\nDefault any counts reports listing the drug in any role, including concomitant. Suspect checks the same drug entry for a whole name match, ignoring case. Use receipt dates to narrow broad searches. Suspect applies to report searches only. Value form: string; example: --drug-role any."
+            "FAERS drug role.\nAny (default) counts all roles, including concomitant. Suspect checks whole names on suspect entries. Narrow by receipt date. Report searches only for suspect. Value form: string; example: --drug-role any."
           ]
         }
       },
