@@ -252,7 +252,7 @@ def opentargets(census):
 
 
 def reactome(census):
-    data, _ = census.native("https://reactome.org/download/current/ReactomePathways.txt",
+    data, _ = census.native("https://download.reactome.org/current/ReactomePathways.txt",
                             {}, raw=True)
     groups = defaultdict(list)
     for line in data.decode().splitlines():

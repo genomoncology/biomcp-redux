@@ -20,6 +20,10 @@ class CensusError(ValueError):
     """A diagnostic containing only fixed text or an enumerated reason."""
 
 
+class TransientSourceError(CensusError):
+    """A source could not answer before its deadline or was unavailable."""
+
+
 @dataclass(frozen=True)
 class Measurement:
     total: int
@@ -77,6 +81,15 @@ class Census:
             return (json.loads(content) if content.strip() else None), response.headers
 
     def reply(self, args, record=False, allow_usage=False):
+        try:
+            return self.read_reply(args, record, allow_usage)
+        except (TransientSourceError, subprocess.TimeoutExpired):
+            if record:
+                raise
+            time.sleep(RETRY_WAIT)
+        return self.read_reply(args, record, allow_usage)
+
+    def read_reply(self, args, record, allow_usage):
         self.pace()
         command = [self.executable, "--format", "json"]
         if record:
@@ -92,10 +105,10 @@ class Census:
             raise CensusError("BioMCP rejected census arguments")
         for source in reply.get("sources", []):
             reason = source.get("reason")
-            if reason in {
-                "deadline-exceeded", "rate-limited", "unavailable", "transport",
-                "disabled", "offline", "no-key", "tls", "proxy", "local-quota",
-            }:
+            if reason in {"deadline-exceeded", "unavailable"}:
+                raise TransientSourceError(f"BioMCP could not observe the source: {reason}")
+            if reason in {"rate-limited", "disabled", "offline", "no-key", "tls", "proxy",
+                          "local-quota"}:
                 raise CensusError(f"BioMCP could not observe the source: {reason}")
         return reply
 
