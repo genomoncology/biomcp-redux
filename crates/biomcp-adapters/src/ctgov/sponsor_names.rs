@@ -49,6 +49,7 @@ fn check_spelling(
     dotted: &str,
     total: u64,
 ) -> Result<Option<SourceNotice>, RequestError> {
+    let bad_reply = biomcp_fetch::bad_reply(super::SPEC.source, Some(200));
     let mut params = search_query::resolved_parameters(query, gene, conditions, None);
     params.insert("pageSize".into(), "1".into());
     params.insert("fields".into(), "NCTId,LeadSponsorName".into());
@@ -58,7 +59,7 @@ fn check_spelling(
             filters::advanced(query, false, None, Some(sponsor)),
         );
         let page = search_page(probe, &params, &[], &[], None, &[], None)?;
-        let count = page.total.ok_or_else(bad_reply)?;
+        let count = page.total.ok_or(bad_reply)?;
         Ok::<_, RequestError>((page.items, count))
     };
     let (candidates, count) = read(dotted)?;
@@ -69,13 +70,13 @@ fn check_spelling(
     let registered = candidates
         .first()
         .and_then(|row| row.sponsor.as_ref())
-        .ok_or_else(bad_reply)?
+        .ok_or(bad_reply)?
         .as_str();
     if registered.eq_ignore_ascii_case(name) {
         return Ok(None);
     }
     if !search_query::name_fits(registered) {
-        return Err(bad_reply());
+        return Err(bad_reply);
     }
     let (_, count) = read(registered)?;
     Ok((count >= minimum).then(|| {
@@ -84,10 +85,6 @@ fn check_spelling(
              Searching the registry spelling {registered:?} with the same filters yielded a count of {count}."
         ))
     }))
-}
-
-fn bad_reply() -> RequestError {
-    biomcp_fetch::bad_reply(super::SPEC.source, Some(200))
 }
 
 fn dotted_initials(name: &str) -> Option<String> {
