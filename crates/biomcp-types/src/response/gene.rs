@@ -123,7 +123,7 @@ impl ResponseBody for SyncResult {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneSections {
-    /// Reviewed human proteins listed by HGNC.
+    /// Reviewed human UniProt proteins linked to this gene.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protein: Option<Section<Box<[Protein]>>>,
     /// CIViC gene-level curation.

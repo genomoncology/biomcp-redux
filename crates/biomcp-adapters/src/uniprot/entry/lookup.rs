@@ -109,14 +109,16 @@ pub fn lookup(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<Lookup, RequestError
     }
 
     match native {
-        Some(Native::Active(raw)) if raw.primary_accession == requested => {
-            if raw.organism.taxon_id != super::super::HUMAN {
-                Ok(Lookup::Outside(Scope::NonHuman))
-            } else if raw.entry_type.as_str() == super::super::UNREVIEWED {
-                Ok(Lookup::Outside(Scope::Unreviewed))
-            } else {
-                Ok(Lookup::Card(Box::new(map::entry(*raw, &requested))))
+        Some(Native::Active(raw)) => {
+            if raw.primary_accession == requested {
+                if raw.organism.taxon_id != super::super::HUMAN {
+                    return Ok(Lookup::Outside(Scope::NonHuman));
+                }
+                if raw.entry_type.as_str() == super::super::UNREVIEWED {
+                    return Ok(Lookup::Outside(Scope::Unreviewed));
+                }
             }
+            Ok(Lookup::Card(Box::new(map::entry(*raw, &requested))))
         }
         Some(Native::Inactive(Inactive {
             primary_accession,
