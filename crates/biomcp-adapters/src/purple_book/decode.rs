@@ -4,6 +4,7 @@ use biomcp_fetch::{BadReply, KeyKind, Keys, Row};
 use biomcp_types::{PurpleBookLicense, PurpleBookPresentation};
 use csv::{ReaderBuilder, StringRecord, Trim};
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 const TITLE: &str = "Purple Book Monthly Historical Data Changes Report - ";
@@ -105,23 +106,23 @@ pub(super) struct Stored {
     pub(super) row: PurpleBookPresentation,
 }
 impl Stored {
-    fn search_keys(&self) -> impl Iterator<Item = &str> {
+    fn search_keys(&self) -> impl Iterator<Item = Cow<'_, str>> {
         let row = &self.row;
         [
             row.name.as_ref(),
             row.proper_name.as_ref(),
-            row.bla.as_str(),
             row.reference_name.as_ref(),
             row.reference_proper_name.as_ref(),
         ]
         .into_iter()
-        .chain(
-            row.reference_bla
-                .iter()
-                .chain(row.reference_bla_candidates.iter())
-                .map(DrugId::as_str),
-        )
         .filter(|key| !key.is_empty())
+        .map(Cow::Borrowed)
+        .chain(
+            std::iter::once(&row.bla)
+                .chain(row.reference_bla.iter())
+                .chain(row.reference_bla_candidates.iter())
+                .map(|bla| Cow::Owned(bla.to_string())),
+        )
     }
     pub(super) fn matches(&self, query: &str) -> bool {
         self.search_keys()
@@ -133,7 +134,7 @@ impl Row for Stored {
         Keys {
             exact: self
                 .search_keys()
-                .map(str::to_ascii_lowercase)
+                .map(|key| key.to_ascii_lowercase())
                 .collect::<BTreeSet<_>>()
                 .into_iter()
                 .map(|key| (KeyKind::Alias, key.into()))
@@ -190,7 +191,7 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
         }
     }
     let mut references = BTreeMap::<_, BTreeMap<_, _>>::new();
-    let standalone = PurpleBookLicense::Standalone.as_str();
+    let standalone = <&str>::from(PurpleBookLicense::Standalone);
     for (bla, row) in &rows {
         if row.license_type.as_ref() == standalone {
             references
