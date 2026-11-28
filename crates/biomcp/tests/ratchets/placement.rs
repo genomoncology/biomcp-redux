@@ -1,6 +1,11 @@
 use super::{Check, label_section_placement, rust_files, source};
 use std::{fs, path::Path};
 
+// Reasons shared by many listed files.
+const TRANSPORT: &str =
+    "Exercise transport ownership, local server behavior and cache/record failures through its public API.";
+const CHECKED: &str =
+    "Exercise checked values and schema contracts through the public library API.";
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
@@ -103,10 +108,7 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-types/tests/variant_values.rs",
         "Exercise copied common variant values and constructor boundaries through the public library API.",
     ),
-    (
-        "crates/biomcp-types/tests/article_ids.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
+    ("crates/biomcp-types/tests/article_ids.rs", CHECKED),
     (
         "crates/biomcp-types/tests/disease_contracts.rs",
         "Exercise neutral disease records and standalone consumer contracts through the public library API before adapters exist.",
@@ -123,18 +125,9 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-types/tests/drug_contracts.rs",
         "Exercise published drug identifier, neutral record and consumer schema contracts through the public library API before adapters exist.",
     ),
-    (
-        "crates/biomcp-types/tests/core.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
-    (
-        "crates/biomcp-types/tests/gene_ids.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
-    (
-        "crates/biomcp-types/tests/gene_model.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
+    ("crates/biomcp-types/tests/core.rs", CHECKED),
+    ("crates/biomcp-types/tests/gene_ids.rs", CHECKED),
+    ("crates/biomcp-types/tests/gene_model.rs", CHECKED),
     (
         "crates/biomcp-types/tests/rust_api.rs",
         "Exercise the external Rust API consumer compile/runtime contract.",
@@ -143,26 +136,14 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-types/tests/biodata_switch.rs",
         "Exercise reviewed shared identifier identity, selector wire text and refusal codes through the consumer API.",
     ),
-    (
-        "crates/biomcp-types/tests/query.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
-    (
-        "crates/biomcp-types/tests/response.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
-    (
-        "crates/biomcp-types/tests/schemas.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
+    ("crates/biomcp-types/tests/query.rs", CHECKED),
+    ("crates/biomcp-types/tests/response.rs", CHECKED),
+    ("crates/biomcp-types/tests/schemas.rs", CHECKED),
     (
         "crates/biomcp-types/tests/schemas/disease.rs",
         "Exercise standalone disease option metadata and synthetic envelope schema contracts before command registration.",
     ),
-    (
-        "crates/biomcp-types/tests/schemas/compatibility_cases.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
+    ("crates/biomcp-types/tests/schemas/compatibility_cases.rs", CHECKED),
     (
         "crates/biomcp-types/tests/schemas/policy.rs",
         "Test reviewed schema pattern changes at exact paths and reject near misses.",
@@ -191,18 +172,12 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-types/tests/schemas/ownership.rs",
         "Check published schema namespaces against the crate that defines each Rust type.",
     ),
-    (
-        "crates/biomcp-types/tests/schemas/values.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
+    ("crates/biomcp-types/tests/schemas/values.rs", CHECKED),
     (
         "crates/biomcp-types/tests/value_conventions/sweep.rs",
         "Exercise public text value construction, parsing, JSON and hashing through the Rust consumer boundary.",
     ),
-    (
-        "crates/biomcp-types/tests/value_conventions.rs",
-        "Exercise checked values and schema contracts through the public library API.",
-    ),
+    ("crates/biomcp-types/tests/value_conventions.rs", CHECKED),
     (
         "crates/biomcp-adapters/src/monarch/native_contracts.rs",
         "Exercise retained gene-keyed Monarch rows through the private mapper without adding a gene-keyed command.",
@@ -319,18 +294,9 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-adapters/tests/score_variant.rs",
         "Exercise the ruled scoring request and complete scorer admission through the public protocol API.",
     ),
-    (
-        "crates/biomcp-fetch/tests/batch.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/bundle.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/bundle/download.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
+    ("crates/biomcp-fetch/tests/batch.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/bundle.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/bundle/download.rs", TRANSPORT),
     (
         "crates/biomcp-fetch/tests/bundle/native.rs",
         "Exercise complete native TSV replacement sets and decoded bounds through the public transport API.",
@@ -339,10 +305,7 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-fetch/tests/bundle/rejections.rs",
         "Exercise rejected source rows, persisted revalidation and old-store migration through the public transport API.",
     ),
-    (
-        "crates/biomcp-fetch/tests/bundle/rows.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
+    ("crates/biomcp-fetch/tests/bundle/rows.rs", TRANSPORT),
     (
         "crates/biomcp-fetch/tests/bundle/streamed.rs",
         "Exercise streamed gzip XML parts and their decoded bound through the public transport API.",
@@ -355,26 +318,11 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-fetch/tests/bundle/shutdown.rs",
         "Cancel and join server-owned bundle work while preserving caller cancellation independence and published rows through the public Fetch API.",
     ),
-    (
-        "crates/biomcp-fetch/tests/cache.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/cache/ceiling.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/cache/credentials.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/cache/freshness.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/cache/storage.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
+    ("crates/biomcp-fetch/tests/cache.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/cache/ceiling.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/cache/credentials.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/cache/freshness.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/cache/storage.rs", TRANSPORT),
     (
         "crates/biomcp-fetch/tests/grpc_persistence.rs",
         "Exercise checked RPC cache admission and bounded recording replay through the public transport API.",
@@ -395,74 +343,26 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-fetch/tests/double_gzip.rs",
         "Exercise double-compressed replies and body limits on each layer through the public transport API.",
     ),
-    (
-        "crates/biomcp-fetch/tests/offline.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/paths.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/post.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/quotas.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/record.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/record/command_budget.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/record/errors.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/record/metadata.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/retries.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/support/cache_process.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
+    ("crates/biomcp-fetch/tests/offline.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/paths.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/post.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/quotas.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/record.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/record/command_budget.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/record/errors.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/record/metadata.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/retries.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/support/cache_process.rs", TRANSPORT),
     (
         "crates/biomcp-adapters/tests/tensors.rs",
         "Exercise bounded tensor decoding with synthetic protobuf payloads through its public API.",
     ),
-    (
-        "crates/biomcp-fetch/tests/transport.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/transport/cancellation.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/transport/publisher.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/transport/network.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/transport/credentials.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
-    (
-        "crates/biomcp-fetch/tests/xml.rs",
-        "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
-    ),
+    ("crates/biomcp-fetch/tests/transport.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/transport/cancellation.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/transport/publisher.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/transport/network.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/transport/credentials.rs", TRANSPORT),
+    ("crates/biomcp-fetch/tests/xml.rs", TRANSPORT),
     (
         "crates/biomcp-query/tests/article_search.rs",
         "Exercise concurrent pool publication/hydration, injected SQL corruption, external writers and API-only deadline boundaries.",
