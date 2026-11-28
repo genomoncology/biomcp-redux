@@ -6,10 +6,11 @@ from pathlib import Path
 import random
 import subprocess
 import time
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from nightly_live_check import PASSED_ENVIRONMENT
+from nightly_live_check import PASSED_ENVIRONMENT, RETRY_WAIT
 
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 SAMPLE_SIZE = 8
@@ -49,11 +50,22 @@ class Census:
         self.last_call = time.monotonic()
 
     def native(self, url, params, headers=None, payload=None, *, raw=False):
-        self.pace()
         request_headers = {} if raw else {"Accept": "application/json"}
         request_headers.update(headers or {})
         request = Request(url + ("?" + urlencode(params) if params else ""),
                           data=payload, headers=request_headers)
+        try:
+            return self.read_native(request, raw)
+        except (TimeoutError, URLError) as error:
+            if isinstance(error, HTTPError) and (
+                error.code not in {500, 502, 503, 504} or error.headers.get("Retry-After")
+            ):
+                raise
+            time.sleep(RETRY_WAIT)
+        return self.read_native(request, raw)
+
+    def read_native(self, request, raw):
+        self.pace()
         with urlopen(request, timeout=30) as response:
             content = response.read(MAX_SOURCE_BYTES + 1)
             if len(content) > MAX_SOURCE_BYTES:
