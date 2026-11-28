@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies/NCT01141231",
+  "exchanges": [
+    {
+      "fetched": 1795831625,
+      "status": 301,
+      "content_type": "",
+      "delay_ms": 148,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": ""
+      }
+    }
+  ]
+}

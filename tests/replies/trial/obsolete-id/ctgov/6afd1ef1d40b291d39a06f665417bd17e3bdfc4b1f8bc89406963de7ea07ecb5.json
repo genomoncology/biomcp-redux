@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CNCTIdAlias&filter.advanced=AREA%5BNCTIdAlias%5DNCT01141231&pageSize=1",
+  "exchanges": [
+    {
+      "fetched": 1795831626,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 52,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":1,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT02589938","nctIdAliases":["NCT01141231"]}}}
+]}
+      }
+    }
+  ]
+}

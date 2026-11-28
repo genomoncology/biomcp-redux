@@ -1,0 +1,21 @@
+{
+  "feature": "trial-get",
+  "live_check": "public",
+  "story": "Reading a retired NCT number preserves the requested ID and names its registry replacement.",
+  "verified": "BioMCP recorded the public ClinicalTrials.gov redirect, alias lookup, replacement study and registry version. The alias reply omits the unused last-page cursor.",
+  "replay": "trial/obsolete-id",
+  "steps": [
+    {
+      "run": ["get", "trial", "NCT01141231"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/input": "NCT01141231",
+        "/result/items/0/card/nct_id": "NCT02589938",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "ClinicalTrials.gov lists NCT01141231 as an obsolete alias for NCT02589938."
+        }
+      }
+    }
+  ]
+}

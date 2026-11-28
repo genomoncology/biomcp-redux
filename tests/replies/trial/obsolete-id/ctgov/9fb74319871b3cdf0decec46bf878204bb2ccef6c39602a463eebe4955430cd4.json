@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle&filter.advanced=AREA%5BNCTId%5DNCT02589938&pageSize=10",
+  "exchanges": [
+    {
+      "fetched": 1795831630,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 49,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":1,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT02589938","briefTitle":"Trial of Acupuncture for Radiation-Induced Xerostomia in Head and Neck Cancer","officialTitle":"A Phase III Prospective Randomized Trial of Acupuncture for Treatment of Radiation-Induced Xerostomia in Patients With Head and Neck Cancer","acronym":"ACUPUNCTURE"},"statusModule":{"overallStatus":"COMPLETED","startDateStruct":{"date":"2012-11-11","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2022-07-29","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2026-02-27"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Wake Forest University Health Sciences"}},"conditionsModule":{"conditions":["Radiation-Induced Xerostomia","Head and Neck Cancer","Radiation Toxicity","Oral Complications of Chemotherapy and Head/Neck Radiation"]},"designModule":{"phases":["NA"]},"armsInterventionsModule":{"interventions":[{"name":"Standard Oral Hygiene"},{"name":"Standard Oral Hygiene + True Acupuncture"},{"name":"Standard Oral Hygiene + Sham Acupuncture"}]}},"hasResults":true}
+]}
+      }
+    }
+  ]
+}
