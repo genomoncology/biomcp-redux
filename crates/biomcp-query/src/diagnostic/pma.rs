@@ -146,16 +146,16 @@ fn association(out: &mut Outcome, q: &DiagnosticGet, fresh: bool) {
     }
 }
 fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: u64, fresh: bool) {
+    let returned = returned as u32;
     out.page = Some(PageInfo {
         offset: q.section_offset(),
-        returned: returned as u32,
+        returned,
         total,
         pool: None,
         truncated: None,
     });
-    let next_offset = u64::from(q.section_offset()) + returned as u64;
-    if next_offset < total
-        && let Ok(offset) = u32::try_from(next_offset)
+    if let Some(offset) = q.section_offset().checked_add(returned)
+        && u64::from(offset) < total
     {
         next::push(
             out,
