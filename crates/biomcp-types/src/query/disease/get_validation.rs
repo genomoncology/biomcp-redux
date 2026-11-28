@@ -30,7 +30,7 @@ impl TryFrom<GetFields> for DiseaseGet {
         let orpha = orpha_id(v.id.as_str());
         if orpha && v.section == Some(DiseaseSection::Prevalence) {
             v.source.get_or_insert(DiseaseSource::Orphadata);
-        } else if !validity && !(orpha && v.section.is_none()) {
+        } else if !(validity || orpha && v.section.is_none()) {
             v.source.get_or_insert_with(get_source);
         }
         let source = v.source.unwrap_or_else(get_source);
