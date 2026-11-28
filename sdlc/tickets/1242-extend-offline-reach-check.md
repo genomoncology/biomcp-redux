@@ -1,6 +1,7 @@
 # 1242 — extend-offline-reach-check
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3560c48ef00365c6c616139206feb42dffdd636e
 
 Milestone: 10
 
