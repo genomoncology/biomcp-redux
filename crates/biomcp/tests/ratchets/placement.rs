@@ -20,6 +20,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Check unique declared bundle command names and their stable public discovery order through the adapter registry.",
     ),
     (
+        "crates/biomcp-adapters/src/purple_book/tests.rs",
+        "Check every shipped FDA presentation against the adapter's private match and index keys without starting a command for each name.",
+    ),
+    (
         "crates/biomcp-fetch/src/hosts_tests.rs",
         "Check credential-free exact publisher origins at the private admission boundary without a product inventory helper.",
     ),
