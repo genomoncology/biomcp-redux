@@ -8,6 +8,7 @@ steps:
   is_error: true
   expect:
     /status: usage
+    /error/option: input
     /error/message: This UniProt accession is non-human. BioMCP covers reviewed human proteins only.
 - run: [get, protein, A0A0A0MS99]
   exit: 2

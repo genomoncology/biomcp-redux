@@ -6,7 +6,7 @@ use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     ErrorMessage, ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, ReplyData, Request,
-    Section, Source, SourceNotice, SourceState, Status, StepKind, UsageError,
+    Section, Source, SourceNotice, SourceState, Status, StepKind, UsageArguments, UsageError,
 };
 /// ChEMBL target counts declare a longer budget than the default; other legs keep their caps.
 fn budget(cx: &Ctx<'_>, q: &ProteinGet) -> std::time::Duration {
@@ -64,7 +64,11 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     if let Some(scope) = protein.scope
         && matches!(q.input(), [ProteinInput::Accession(_)])
     {
-        out.body = ReplyData::Usage(UsageError::message(scope));
+        out.body = ReplyData::Usage(UsageError::Arguments(UsageArguments {
+            argument: Some("input".into()),
+            message: Some(scope),
+            ..Default::default()
+        }));
         command.finish(deadline.remaining());
         return out;
     }
