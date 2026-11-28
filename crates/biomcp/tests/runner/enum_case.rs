@@ -46,14 +46,14 @@ fn declared_sources() -> Result<(), String> {
                 let mut values = seed(verb, entity, &schema)?;
                 values.insert("source".into(), source.clone());
                 values.extend(
-                    fact_context(entity, key)
+                    fact_context(verb, entity, key)
                         .as_object()
                         .ok_or("context")?
                         .clone(),
                 );
                 if matches!(
                     (verb, entity, key.as_str()),
-                    ("get", "pgx", "annotation_id") | ("search", "pgx", "variant")
+                    ("get", "pgx", "annotation_id") | ("search", "pgx", "drug" | "variant")
                 ) {
                     values.remove("gene");
                 }
@@ -82,7 +82,10 @@ fn declared_sources() -> Result<(), String> {
     }
 }
 
-fn fact_context(entity: &str, key: &str) -> Value {
+fn fact_context(verb: &str, entity: &str, key: &str) -> Value {
+    if (verb, entity) == ("search", "pgx") {
+        return json!({});
+    }
     match (entity, key) {
         ("pgx", "drug" | "kind" | "level" | "snapshot") => json!({"section":"annotations"}),
         ("pgx", "diplotype") => json!({"section":"diplotype"}),
@@ -540,6 +543,7 @@ fn context(
         ("get", "variant", "clinvar_kind") => json!({"section":["clinvar"]}),
         ("get", "gene", "constraint_release") => json!({"section":["constraint"]}),
         ("get", "pgx", "kind" | "level") => json!({"section":"annotations"}),
+        ("search", "pgx", "source") => json!({"drug":"warfarin"}),
         ("get", "disease", "ontology") => json!({"source":"ols"}),
         ("search", "adverse-event", "section" | "sort") => {
             json!({"source":"vaers", "text":"COVID19"})
@@ -553,6 +557,9 @@ fn context(
         _ => json!({}),
     };
     values.extend(extra.as_object().ok_or("context")?.clone());
+    if (verb, entity, key) == ("search", "pgx", "source") {
+        values.remove("gene");
+    }
     if (verb, entity) == ("search", "variant")
         || (verb, entity, key) == ("search", "trial", "biomarker_use")
     {
