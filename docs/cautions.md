@@ -157,7 +157,7 @@ A FAERS card, drug row or reaction row keeps every source code and puts the word
 
 ## ClinGen clinical actionability
 
-`get gene FGF23 clingen` reads the adult and pediatric actionability summaries alongside validity and dosage. Each context reports its read status and the source rows for the resolved gene. A successful read with `status.count` of zero means the published summary has no matching rows. An unscored curation still links to its report and gives the early rule-out status. Scores, evidence grades, and retraction labels come from ClinGen. Actionability is included for single-gene requests. [ClinGen clinical actionability reports](https://search.clinicalgenome.org/kb/actionability/report-index)
+`get gene FGF23 clingen` reads the adult and pediatric actionability summaries alongside validity and dosage. Each context reports its read status and the source rows for the resolved gene. A successful read with `status.count` of zero means the published summary has no matching rows. An unscored curation still links to its report and gives the early rule-out status. Scores, evidence grades, and retraction labels come from ClinGen. Actionability is included for single-gene requests. If a first read runs out of time, repeating the command reuses any bundles it already downloaded. [ClinGen clinical actionability reports](https://search.clinicalgenome.org/kb/actionability/report-index)
 
 ## Local bundles
 

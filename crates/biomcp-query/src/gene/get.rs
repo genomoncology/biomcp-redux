@@ -63,15 +63,6 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &GeneGet) -> Outcome {
                 status::append(&mut problems, result.problems);
                 local = local.or(result.local);
             }
-            Job::ClinGenActionability(actionability) => {
-                if let Some(biomcp_types::Section::Data { data, .. }) = items
-                    .first_mut()
-                    .and_then(|item| item.sections.as_mut())
-                    .and_then(|sections| sections.clingen.as_mut())
-                {
-                    data.actionability = Some(actionability);
-                }
-            }
         }
     }
     sections::offer_oncokb(query, &mut items, &sources);
@@ -210,7 +201,6 @@ pub(super) type SourceJob<'a> = Box<dyn FnOnce() -> Job + Send + 'a>;
 pub(super) enum Job {
     MyGene(Vec<mygene::GeneBatch>, biomcp_fetch::LegReport),
     Section(sections::SectionResult),
-    ClinGenActionability(biomcp_types::ClinGenActionability),
 }
 fn mygene_join(
     items: &mut [GeneItem],
