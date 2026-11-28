@@ -1,5 +1,6 @@
 //! Select one offline snapshot and import only validated newer releases.
-use super::decode::{FULL_ROSTER_SUFFIX, Release, ReleaseMonth, Stored, decode};
+use super::decode::{FULL_ROSTER_SUFFIX, Release, ReleaseMonth, decode};
+use super::stored::Stored;
 use crate::decl::BundleReply;
 use biomcp_fetch::{
     Bundle, CacheError, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat,

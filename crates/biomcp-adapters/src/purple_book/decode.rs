@@ -1,11 +1,11 @@
 //! Decode the FDA report's full roster and preserve each product number separately.
+use super::stored::Stored;
 use biodata::DrugId;
-use biomcp_fetch::{BadReply, KeyKind, Keys, Row};
+use biomcp_fetch::BadReply;
 use biomcp_types::{PurpleBookLicense, PurpleBookPresentation};
 use csv::{ReaderBuilder, StringRecord, Trim};
-use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use serde::Deserialize;
+use std::collections::{BTreeMap, HashSet};
 
 const TITLE: &str = "Purple Book Monthly Historical Data Changes Report - ";
 pub(super) const MONTHS: [&str; 12] = [
@@ -98,71 +98,6 @@ struct Native {
     interchangeability_date: Option<Box<str>>,
     #[serde(rename = "First Interchangeable Exclusivity Exp. Date")]
     first_interchangeable_exclusivity_expiration: Option<Box<str>>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub(super) struct Stored {
-    date: Box<str>,
-    pub(super) row: PurpleBookPresentation,
-}
-impl Stored {
-    fn product_keys(&self) -> impl Iterator<Item = Cow<'_, str>> {
-        let row = &self.row;
-        [row.name.as_ref(), row.proper_name.as_ref()]
-            .into_iter()
-            .filter(|key| !key.is_empty())
-            .map(Cow::Borrowed)
-            .chain(std::iter::once_with(move || {
-                Cow::Owned(row.bla.to_string())
-            }))
-    }
-
-    fn reference_keys(&self) -> impl Iterator<Item = Cow<'_, str>> {
-        let row = &self.row;
-        [
-            row.reference_name.as_ref(),
-            row.reference_proper_name.as_ref(),
-        ]
-        .into_iter()
-        .filter(|key| !key.is_empty())
-        .map(Cow::Borrowed)
-        .chain(
-            row.reference_bla
-                .iter()
-                .chain(row.reference_bla_candidates.iter())
-                .map(|bla| Cow::Owned(bla.to_string())),
-        )
-    }
-
-    pub(super) fn matches_product(&self, query: &str) -> bool {
-        self.product_keys()
-            .any(|key| key.eq_ignore_ascii_case(query))
-    }
-
-    pub(super) fn matches_reference(&self, query: &str) -> bool {
-        self.row.license_type != PurpleBookLicense::Standalone
-            && self
-                .reference_keys()
-                .any(|key| key.eq_ignore_ascii_case(query))
-    }
-}
-impl Row for Stored {
-    fn keys(&self) -> Keys {
-        Keys {
-            exact: self
-                .product_keys()
-                .chain(self.reference_keys())
-                .map(|key| key.to_ascii_lowercase())
-                .collect::<BTreeSet<_>>()
-                .into_iter()
-                .map(|key| (KeyKind::Alias, key.into()))
-                .collect(),
-            words: Vec::new(),
-        }
-    }
-    fn data_date(&self) -> Option<&str> {
-        Some(&self.date)
-    }
 }
 
 pub(super) struct Release {
