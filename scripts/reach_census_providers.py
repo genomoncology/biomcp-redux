@@ -1,6 +1,8 @@
 """Native sample frames for the remaining live reach providers."""
 from collections import defaultdict
 import json
+from pathlib import Path
+import re
 from xml.etree import ElementTree
 
 from gene_validity_reach import probes as validity_probes
@@ -122,7 +124,8 @@ def erepo(census):
         body, _ = census.native(EREPO, {"pgSize": 1000, "pg": page})
         rows = body["data"]
         for row in rows:
-            group = ("no-allele-id" if not row.get("caId") else
+            caid = row.get("caId") or ""
+            group = ("no-allele-id" if not re.fullmatch(r"CA\d+", caid) else
                      "with-document-id" if row.get("PCERDocID") else "no-document-id")
             groups[group].append(row)
         if len(rows) < 1000:
@@ -131,12 +134,17 @@ def erepo(census):
         raise CensusError("evidence repository exceeds sampling window")
 
     def probe(row):
-        if not row.get("caId"):
+        caid = row.get("caId") or ""
+        if not re.fullmatch(r"CA\d+", caid):
             return False
-        reply = census.reply(("variant", "assertions", row["caId"], "--source", "erepo"))
-        return any(item.get("record") == row.get("PCERDocID")
-                   and item.get("version") == row["docVersion"]
-                   for item in (read(reply, "result", "assertions") or []))
+        reply = census.reply(("variant", "assertions", caid, "--source", "erepo"))
+        for item in read(reply, "result", "assertions") or []:
+            detail = item.get("statement") or item.get("unmapped") or {}
+            attribution = detail.get("attribution") or {}
+            if (attribution.get("record") == row.get("PCERDocID")
+                    and attribution.get("version") == row["docVersion"]):
+                return True
+        return False
 
     for label, rows in sorted(groups.items()):
         yield label, sample_rows(label, rows, probe)
@@ -238,7 +246,7 @@ def reactome(census):
 
 
 def clinpgx(census):
-    base = "https://api.clinpgx.org/v1/data/clinicalAnnotation"
+    base = "https://api.clinpgx.org/v1/data/summaryAnnotation"
     for level in ("1A", "1B", "2A", "2B", "3", "4"):
         body, _ = census.native(base, {"levelOfEvidence.term": level, "view": "min"})
         if body["status"] != "success":
@@ -300,7 +308,7 @@ def orphadata(census):
             body = exchange["body"]
             content = body["value"]
             if body["kind"] == "sidecar":
-                if content != type(path)(content).name:
+                if content != Path(content).name:
                     raise CensusError("invalid Orphadata recording sidecar")
                 with path.with_name(content).open("rb") as stream:
                     content = stream.read(MAX_SOURCE_BYTES + 1)

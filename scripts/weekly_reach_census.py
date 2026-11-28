@@ -252,7 +252,7 @@ def run(census, sources, floors):
                 detail = f"network {type(error.reason).__name__}"
             elif isinstance(error, CensusError):
                 detail = str(error)
-            failures.append(f"{label}: census incomplete ({detail})")
+            failures.append(f"{source}: census incomplete ({detail})")
         if floors is not None:
             failures.extend(f"{source}/{group}: recorded class was not measured"
                             for group in sorted(floors.get(source, {}).keys() - seen))
