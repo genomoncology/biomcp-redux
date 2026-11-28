@@ -85,10 +85,10 @@ def cpic(census):
                 items = read(reply, "result", "items") or []
                 if any(read(item, "pairid", "id") == row["pairid"] for item in items):
                     return True
-                following = read(reply, "result", "page", "next_offset")
-                if following is None:
+                offset += 50
+                total = read(reply, "result", "page", "total")
+                if total is None or offset >= total:
                     return False
-                offset = following
             raise CensusError("CPIC pair lookup exceeds its paging window")
 
         yield table, source_page(census, table, fetch, probe)
