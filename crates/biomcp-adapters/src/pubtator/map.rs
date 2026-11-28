@@ -64,6 +64,8 @@ fn order(kind: AnnotationKind) -> u8 {
         AnnotationKind::Variant => 1,
         AnnotationKind::Disease => 2,
         AnnotationKind::Chemical => 3,
+        AnnotationKind::Species => 4,
+        AnnotationKind::CellLine => 5,
     }
 }
 
@@ -105,6 +107,8 @@ fn entity(
         "Variant" => AnnotationKind::Variant,
         "Disease" => AnnotationKind::Disease,
         "Chemical" => AnnotationKind::Chemical,
+        "Species" => AnnotationKind::Species,
+        "CellLine" => AnnotationKind::CellLine,
         _ => return None,
     };
     let identifier = optional(id, "identifier", raw.identifier.as_ref(), problems);
@@ -116,6 +120,7 @@ fn entity(
         count: 1,
         entrez_id: None,
         mesh: None,
+        identifier: None,
         hgvs: None,
         rsid: None,
     };
@@ -143,6 +148,9 @@ fn entity(
             }
         }
         AnnotationKind::Disease | AnnotationKind::Chemical => value.mesh = identifier.clone(),
+        AnnotationKind::Species | AnnotationKind::CellLine => {
+            value.identifier = identifier.clone();
+        }
     }
     let checked_identifier = match kind {
         AnnotationKind::Gene => value.entrez_id.map(|id| id.to_string()),
