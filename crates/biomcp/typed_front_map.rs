@@ -45,7 +45,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "variant",
-        "Genetic variants: clinical significance, allele frequencies, cancer evidence and predictions",
+        "Genetic variants with clinical significance, allele frequencies, cancer evidence and predictions",
         &[
             ("search", "search_variant", ""),
             ("get", "get_variant", ""),
@@ -77,7 +77,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "disease",
-        "Disease, condition and cancer IDs, synonyms, parents and children, linked genes and phenotypes, US cancer incidence and survival",
+        "Diseases, conditions and cancer types: identifiers, synonyms, parent and child \
+         terms, linked genes and phenotypes, and US cancer incidence and survival",
         &[
             ("search", "search_disease", ""),
             ("get", "get_disease", ""),
@@ -88,7 +89,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "drug",
-        "Brand, generic or code names, label indication or mechanism, targets, FDA approvals, EMA status, label text, interactions and recalls",
+        "Drugs by brand, generic or code name, label indication or mechanism of action. \
+         Targets, FDA approvals, EMA status, label text, interactions and recalls",
         &[
             ("search", "search_drug", ""),
             ("get", "get_drug", ""),
@@ -98,12 +100,14 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             r#"{"query":"imatinib"}"#,
             r#"{"id":"imatinib","section":"approvals"}"#,
         ],
-        "Use get sections approvals and label. For label, give label_section (e.g. boxed_warning). \
-         Use adverse_event for side-effect reports and trial for trials.",
+        "approvals and label are sections of get, not actions; a label read also takes \
+         label_section, such as boxed_warning. Not for side-effect reports (use \
+         adverse_event) or trials (use trial)",
     ),
     (
         "trial",
-        "Interventional trials by condition, treatment, gene, sponsor, place or status. Eligibility, arms, outcomes, results and sites",
+        "Clinical trials and interventional studies: find them by condition, treatment, \
+         gene, sponsor, place or status; read eligibility, arms, outcomes, results and sites",
         &[
             ("search", "search_trial", ""),
             ("get", "get_trial", ""),
@@ -136,7 +140,9 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "article",
-        "Papers and preprints by topic, gene, drug, disease or author. Abstracts, full text, citations, references and NIH grants",
+        "Research papers, journal articles and preprints: search the literature by topic, \
+         gene, drug, disease or author; read abstracts, full text, citations and references; \
+         find NIH grants",
         &[
             ("search", "search_article", ""),
             ("get", "get_article", ""),
@@ -169,7 +175,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "protein",
-        "Protein accessions or genes, function, sequence, domains, features, isoforms, structures, complexes, STRING partners and ChEMBL assay counts",
+        "Proteins by accession or gene symbol: function, sequence, domains, features, \
+         isoforms, structures, complexes, STRING interaction partners and ChEMBL assay counts",
         &[
             ("search", "search_protein", ""),
             ("get", "get_protein", ""),
@@ -194,7 +201,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "pathway",
-        "Biological and signaling pathways by name or gene, with summaries, members and steps",
+        "Biological and signaling pathways: find one by name or gene; read its summary, \
+         member genes and steps",
         &[
             ("search", "search_pathway", ""),
             ("get", "get_pathway", ""),
@@ -209,7 +217,9 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "phenotype",
-        "Human sign, symptom and phenotype terms, synonyms, parents, linked diseases and genes. Rank diseases or genes by HP IDs",
+        "Human phenotypes, signs and symptoms as ontology terms: find a term; read its \
+         synonyms, parents and the diseases and genes linked to it; rank genes or diseases \
+         against a set of HP IDs",
         &[
             ("search", "search_phenotype", ""),
             ("get", "get_phenotype", ""),
@@ -231,7 +241,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "diagnostic",
-        "Genetic tests, FDA-cleared or approved tests and companion diagnostics, WHO-prequalified tests and device recalls",
+        "Diagnostic tests and devices: genetic tests, FDA cleared or approved tests and \
+         companion diagnostics, WHO prequalified tests and device recalls",
         &[
             ("search", "search_diagnostic", ""),
             ("get", "get_diagnostic", ""),
@@ -256,7 +267,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "study",
-        "Cancer genomics cohorts and GWAS studies, with molecular profiles, sample lists and mutations",
+        "Cancer genomics cohort studies and GWAS studies: find a cohort; read its \
+         molecular profiles, sample lists and mutations",
         &[
             ("search", "search_study", ""),
             ("get", "get_study", ""),
