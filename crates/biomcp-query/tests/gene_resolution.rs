@@ -3,15 +3,38 @@
     clippy::unwrap_used,
     reason = "Fixture setup must fail on invalid checked inputs"
 )]
-use biomcp_fetch::{Fetch, FetchConfig, Mode};
+use biomcp_fetch::{Fetch, FetchConfig, Mode, PacingOverride, PacingRate, SourcePacing};
 use biomcp_test_support::recordings as recording_support;
 use std::{path::PathBuf, time::Duration};
 fn replay(dir: PathBuf) -> Fetch {
+    replay_paced(dir, SourcePacing::default())
+}
+fn replay_paced(dir: PathBuf, source_pacing: SourcePacing) -> Fetch {
     Fetch::open(FetchConfig {
         mode: Mode::Replay { dir },
+        source_pacing,
         ..Default::default()
     })
     .unwrap()
+}
+/// ClinGen paced at one request per `seconds`. Local SQLite work is bounded in wall time by what
+/// remains of a replay budget, so budget tests scale replay time up to leave seconds, not
+/// milliseconds, for it under gate load (1250).
+fn clingen_paced(seconds: u16) -> SourcePacing {
+    let mut pacing = SourcePacing::default();
+    pacing
+        .insert(
+            biomcp_adapters::clingen::SPEC.quota,
+            PacingOverride {
+                rate: Some(PacingRate {
+                    requests: 1,
+                    seconds,
+                }),
+                ..PacingOverride::default()
+            },
+        )
+        .unwrap();
+    pacing
 }
 /// The default context with a 20-second command budget.
 fn context(fetch: &Fetch) -> biomcp_query::Ctx<'_> {
@@ -94,7 +117,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     reason = "Mutate isolated public recordings"
 )]
 fn clingen_local_failure_survives_later_source_deadline() {
-    use biomcp_fetch::{PacingOverride, PacingRate, RequestError, SourcePacing};
+    use biomcp_fetch::RequestError;
     use biomcp_query::{Ctx, run};
     use biomcp_types::{GeneGet, GeneSectionWord, Request};
     let directory = tempfile::tempdir().unwrap();
@@ -139,27 +162,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
     // and MLH1 dosage at 6 s, past the 5.5 s budget and under ClinGen's 8 s request limit.
     // Local SQLite work is bounded in wall time by what remains of the budget, so 5.5 s remain
     // for storing the HGNC and validity bundles and 2.5 s after the TP53 dosage read (1250).
-    let mut source_pacing = SourcePacing::default();
-    source_pacing
-        .insert(
-            biomcp_adapters::clingen::SPEC.quota,
-            PacingOverride {
-                rate: Some(PacingRate {
-                    requests: 1,
-                    seconds: 3,
-                }),
-                ..PacingOverride::default()
-            },
-        )
-        .unwrap();
-    let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay {
-            dir: directory.path().to_owned(),
-        },
-        source_pacing,
-        ..Default::default()
-    })
-    .unwrap();
+    let fetch = replay_paced(directory.path().to_owned(), clingen_paced(3));
     let query = Request::GetGene(
         GeneGet::with_sections(
             vec!["TP53".parse().unwrap(), "MLH1".parse().unwrap()].into(),
