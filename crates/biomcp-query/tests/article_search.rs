@@ -264,7 +264,7 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
         let entry = entry.unwrap();
         let mut value: serde_json::Value =
             serde_json::from_slice(&std::fs::read(entry.path()).unwrap()).unwrap();
-        let delay = if value["method"] == "GET" { 200 } else { 0 };
+        let delay = if value["method"] == "GET" { 30_000 } else { 0 };
         for exchange in value["exchanges"].as_array_mut().unwrap() {
             exchange["delay_ms"] = delay.into();
         }
@@ -274,10 +274,25 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
         )
         .unwrap();
     }
+    // NCBI paced at one request per 40 s, so the 30 s search overlaps the spacing.
+    let mut source_pacing = biomcp_fetch::SourcePacing::default();
+    source_pacing
+        .insert(
+            biomcp_adapters::pubmed::SPEC.quota,
+            biomcp_fetch::PacingOverride {
+                rate: Some(biomcp_fetch::PacingRate {
+                    requests: 1,
+                    seconds: 40,
+                }),
+                ..Default::default()
+            },
+        )
+        .unwrap();
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Replay {
             dir: directory.path().to_owned(),
         },
+        source_pacing,
         cache_owners: vec![biomcp_query::store::OWNER],
         ..Default::default()
     })
@@ -285,8 +300,9 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
     let out = biomcp_query::run(
         &Ctx {
             fetch: &fetch,
-            // The 200 ms search overlaps the 400 ms keyless NCBI spacing; counted twice, 600 ms.
-            budget: Duration::from_millis(470),
+            // Counted once, the search and title read take 40 s; counted twice, 70 s. Local
+            // SQLite work is bounded in wall time by what remains, here 20 s (1250).
+            budget: Duration::from_secs(60),
             fresh: true,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             label_bytes: biomcp_query::LABEL_BYTES,
