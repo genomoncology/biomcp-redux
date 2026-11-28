@@ -1318,7 +1318,7 @@ reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-
 - `--drug`: FAERS drug names; OR.
 FAERS: repeat --drug to OR names. Each value takes one name. Other filters AND with the name group. FAERS_QUERY_MAX_BYTES caps the escaped query at 4096 bytes. Value form: repeatable values (repeat the flag); example: --drug "synthetic\\B".
 - `--drug-role`: FAERS drug role.
-Any (default) counts all roles, including concomitant. Suspect checks whole names on suspect entries. Narrow by receipt date. Report searches only for suspect. Value form: string; example: --drug-role any.
+Any (default) counts all roles, including concomitant. Suspect checks whole names on suspect entries. Narrow by receipt date. Report searches only for suspect. Value form: string; example: --drug-role suspect.
 - `--event-type`: MAUDE event type.
 MAUDE report event type on source event_type: malfunction, injury, death or other. Reports with an empty or "No answer provided" event type match no value and fall outside every event-type count. Value form: string; example: --event-type malfunction.
 - `--exact-term`: Search typed drug names only.
