@@ -170,12 +170,18 @@ fn tools(
         protocol::error(id.clone(), -32603, &message)
     })?;
     legacy::project_tools(&mut tools, version);
-    let mut result = json!({"tools":tools});
-    if typed && !compact && params["_meta"][CATALOG_BUDGET_KEY] == true {
+    let budget_requested = params
+        .get("_meta")
+        .and_then(|meta| meta.get(CATALOG_BUDGET_KEY))
+        .and_then(Value::as_bool)
+        == Some(true);
+    if typed && !compact && budget_requested {
         let (_, byte_limit) = crate::config::mcp_typed_budget(context.settings);
-        result["_meta"][CATALOG_BUDGET_KEY] = json!({"definitionBytes": byte_limit});
+        return Ok(
+            json!({"tools":tools, "_meta":{(CATALOG_BUDGET_KEY):{"definitionBytes":byte_limit}}}),
+        );
     }
-    Ok(result)
+    Ok(json!({"tools":tools}))
 }
 
 fn call(

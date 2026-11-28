@@ -354,7 +354,11 @@ pub(super) fn budgets(
     ] {
         env.config(&config).map_err(|error| error.to_string())?;
         let mut request = crate::runner::mcp::request(json!(1), "tools/list", json!({}));
-        request["params"]["_meta"]["biomcp/catalogBudget"] = json!(true);
+        let metadata = request
+            .pointer_mut("/params/_meta")
+            .and_then(Value::as_object_mut)
+            .ok_or("budget request metadata")?;
+        metadata.insert("biomcp/catalogBudget".into(), json!(true));
         let replies =
             crate::runner::mcp::exchange_with_globals(env, &[request], &["--offline".into()])?;
         let reply = replies.first().ok_or("budget reply")?;
