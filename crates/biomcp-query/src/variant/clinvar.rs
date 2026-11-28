@@ -46,7 +46,7 @@ pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<
         resolution = VariantResolution::Rejected;
         rejection = Text::new("clinvar_version_unavailable").ok();
         source.notices.push(guidance(format!(
-            "ClinVar did not serve {vcv}. Use VCV{:09} to request the current archive.",
+            "ClinVar did not serve {vcv}. Use get variant VCV{:09} clinvar to read the current archive.",
             vcv.get()
         )));
     } else if error.is_some() {
@@ -99,13 +99,9 @@ fn candidate(query: &VariantGet, archive: clinvar::Assertions) -> Option<Variant
     let id: VariantId = format!("clinvar:{}", vcv.get()).parse().ok()?;
     let mut candidate = super::direct::candidate(query, Source::ClinVar);
     candidate.record.id = Text::new(&id.to_string()).ok()?;
-    candidate.identity.ids = Box::new([id.clone(), VariantId::Vcv(vcv)]);
+    candidate.identity.ids = Box::new([id, VariantId::Vcv(vcv)]);
     let page = VariantAssertionsGet::from_identity(
-        query
-            .input()
-            .identity()
-            .cloned()
-            .unwrap_or_else(|| id.clone()),
+        VariantId::Vcv(vcv),
         query.assertion_limit(AssertionSource::Clinvar),
         query.section_offset(),
         query.clinvar_kind(),
@@ -118,11 +114,16 @@ fn candidate(query: &VariantGet, archive: clinvar::Assertions) -> Option<Variant
             let (record, version) = text
                 .split_once('.')
                 .map_or((text.as_str(), None), |(id, v)| (id, Text::new(v).ok()));
-            VariantAssertionsGet::from_identity(id, next.limit(), next.offset(), None)
-                .ok()?
-                .select(Text::new(record).ok()?, version)
-                .ok()
-                .map(|selected| biomcp_types::Paged::at_offset(&selected, next.offset()))
+            VariantAssertionsGet::from_identity(
+                VariantId::Vcv(vcv),
+                next.limit(),
+                next.offset(),
+                None,
+            )
+            .ok()?
+            .select(Text::new(record).ok()?, version)
+            .ok()
+            .map(|selected| biomcp_types::Paged::at_offset(&selected, next.offset()))
         });
     }
     let section = if data.page.total == 0 && data.included_only.is_none() {

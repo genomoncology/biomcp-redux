@@ -1,6 +1,6 @@
 {
   "feature": "clinvar-archive-accession",
-  "live_check": "public",
+  "live_check": "recorded",
   "story": "ClinVar accession lookups check the archive identity and mark the requested condition or submission rows.",
   "replay": "variant/clinvar-accessions",
   "config": { "mcp_tool_mode": "typed" },
@@ -20,7 +20,7 @@
     {
       "mcp_call": {
         "name": "variant",
-        "arguments": { "action": "get", "get": { "id": "SCV000061601.3" } }
+        "arguments": { "action": "get", "get": { "id": "SCV000061601" } }
       },
       "expect": {
         "/status": "complete",
@@ -51,7 +51,7 @@
       "exit": 4,
       "expect": {
         "/status": "failed",
-        "/sources/0/notices/0/message": "ClinVar did not serve VCV000013961.99. Use VCV000013961 to request the current archive.",
+        "/sources/0/notices/0/message": "ClinVar did not serve VCV000013961.99. Use get variant VCV000013961 clinvar to read the current archive.",
         "": { "omits": ["result"] }
       }
     }
