@@ -80,7 +80,7 @@
   "$id": "biomcp.drug-search/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or applicant. FDA signals take a drug or report text. FDA withdrawals take a drug, indication or withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD). Purple Book takes a reference name or BLA and summarizes biosimilars by product.",
+  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication or mechanism wording. Drugs@FDA accepts a name or applicant. FDA signals take a drug or report text. FDA withdrawals take a drug, indication or withdrawal date (YYYY, YYYY-MM or YYYY-MM-DD). Purple Book takes a proprietary name, proper name or BLA.",
   "properties": {
     "applicant": {
       "anyOf": [
