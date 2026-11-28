@@ -33,7 +33,9 @@ fn every_shipped_product_resolves_by_its_own_names_and_bla() {
                 if !name.is_empty() {
                     assert!(row.matches(name), "{bla} product {product} missing {name}");
                     assert!(
-                        keys.exact.iter().any(|(_, key)| key.eq_ignore_ascii_case(name)),
+                        keys.exact
+                            .iter()
+                            .any(|(_, key)| key.eq_ignore_ascii_case(name)),
                         "{bla} product {product} did not index {name}"
                     );
                 }
