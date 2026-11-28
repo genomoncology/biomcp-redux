@@ -77,8 +77,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "disease",
-        "Diseases, conditions and cancer types: identifiers, synonyms, parent and child \
-         terms, linked genes and phenotypes, and US cancer incidence and survival",
+        "Disease IDs, synonyms, ontology links, genes, phenotypes, Orphanet prevalence, and US cancer incidence and survival",
         &[
             ("search", "search_disease", ""),
             ("get", "get_disease", ""),
