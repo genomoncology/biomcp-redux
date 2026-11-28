@@ -104,7 +104,13 @@ fn search<'a>(
     let rejected = request_rejected(result.as_ref().err());
     let generic_rejected = search_notices.is_empty() && rejected;
     let version = match &result {
-        Ok(_) => ctgov::version(&leg),
+        Ok(page) => ctgov::version(&leg).inspect(|_| {
+            if search_notices.is_empty() {
+                let notice =
+                    ctgov::sponsor_notice(&leg, searched, gene.as_deref(), conditions, page);
+                search_notices.extend(notice);
+            }
+        }),
         Err(error) => Err(*error),
     };
     let error = result
@@ -129,12 +135,7 @@ fn search<'a>(
         if page.condition_word_mismatch {
             condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
         }
-        page_notices(query, gene.as_deref(), &page, &mut source);
-        let unconfirmed = page.codon_error.is_some();
-        variant_spellings::codon_notice(searched, &page.codon_only, unconfirmed, &mut source);
-        source
-            .notices
-            .extend(ctgov::text_search_notice(searched, gene.as_deref()));
+        page_notices(searched, gene.as_deref(), &page, &mut source);
         // The registry's token belongs to the request that was sent, so the next page repeats it.
         let sent = (changed && !typed_only).then(|| searched.exact());
         let sent = sent.as_ref().unwrap_or(query);
@@ -217,6 +218,10 @@ fn page_notices(
     intervention_notices(query, &page.items, source);
     source.count = page.total;
     source.retrieved_count = Some(page.items.len() as u32);
+    variant_spellings::codon_notice(query, &page.codon_only, page.codon_error.is_some(), source);
+    source
+        .notices
+        .extend(ctgov::text_search_notice(query, gene));
 }
 fn request_rejected(error: Option<&biomcp_fetch::RequestError>) -> bool {
     matches!(error, Some(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400))

@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CLeadSponsorName&filter.advanced=AREA%5BLeadSponsorName%5D%22M.D.%20Anderson%22&pageSize=1",
+  "exchanges": [
+    {
+      "fetched": 1795834345,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 63,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":3051,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT05035836"},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"M.D. Anderson Cancer Center"}}}}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyRc3zv7LumpOQJJxuZPil0A"}
+      }
+    }
+  ]
+}

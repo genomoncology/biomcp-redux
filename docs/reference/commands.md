@@ -2083,7 +2083,7 @@ Options:
 
       --sponsor <sponsor>
           Sponsor.
-          ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding.
+          ClinicalTrials.gov only. Lead name by default. Zero hits broaden. Rare lead matches may suggest a spelling.
 
       --sponsor-role <sponsor_role>
           Sponsor role; help search trial
@@ -2190,7 +2190,7 @@ ClinicalTrials.gov only: instead of rows, the --limit facilities in the most mat
 - `--source`: clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 - `--sponsor`: Sponsor.
-ClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding. Value form: string; example: --sponsor 'MD Anderson'.
+ClinicalTrials.gov only. Lead name by default. Zero hits broaden. Rare lead matches may suggest a spelling. Value form: string; example: --sponsor 'M.D. Anderson Cancer Center'.
 - `--sponsor-role`: Sponsor role.
 ClinicalTrials.gov only: lead (default) or any, which adds collaborators; needs --sponsor. Value form: string; example: --sponsor-role any.
 - `--sponsor-type`: Funding class.

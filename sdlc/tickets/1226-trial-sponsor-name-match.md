@@ -1,6 +1,7 @@
 # 1226 — trial-sponsor-name-match
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0416477d388801b119a8c1752fe7bd26730b10d8
 
 Milestone: 10
 

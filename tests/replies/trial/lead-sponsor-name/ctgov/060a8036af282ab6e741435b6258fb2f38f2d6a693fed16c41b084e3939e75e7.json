@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle&filter.advanced=AREA%5BLeadSponsorName%5D%22M.D.%20Anderson%20Cancer%20Center%22&pageSize=1",
+  "exchanges": [
+    {
+      "fetched": 1795834342,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 133,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":3051,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT05035836","briefTitle":"A Phase 2 Single-Arm Open-Label Pilot Trial Evaluating Zanidatamab (ZW25) in Patients With Early Stage HER2/Neu Positive (HER2+) Breast Cancer (BC)","officialTitle":"A Phase 2 Single-Arm Open-Label Pilot Trial Evaluating Zanidatamab (ZW25) in Patients With Early Stage HER2/Neu Positive (HER2+) Breast Cancer (BC)"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2021-11-16","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2028-12-29","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-08-24"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"M.D. Anderson Cancer Center"}},"conditionsModule":{"conditions":["Breast Cancer","HER2-positive"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Zanidatamab"},{"name":"Letrozole"},{"name":"Tamoxifen"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyRc3zv7LumpOQJJxuZPil0A"}
+      }
+    }
+  ]
+}

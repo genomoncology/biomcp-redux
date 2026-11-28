@@ -209,7 +209,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     distance: Option<Text>,
-    #[doc = "Sponsor.\nClinicalTrials.gov only: sponsor name, lead unless --sponsor-role any; broadens after zero exact matches. --sponsor-type sets funding."]
+    #[doc = "Sponsor.\nClinicalTrials.gov only. Lead name by default. Zero hits broaden. Rare lead matches may suggest a spelling."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",

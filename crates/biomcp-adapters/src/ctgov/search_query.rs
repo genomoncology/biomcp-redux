@@ -3,6 +3,7 @@ use super as ctgov;
 use biodata::NctId;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{SourceNotice, TrialSearch};
+use std::collections::BTreeMap;
 
 /// Most words the registry accepts in one quoted name, measured live: a longer name fails the
 /// whole request with 400 "Too complicated query", whichever other names are beside it.
@@ -14,6 +15,21 @@ pub fn name_fits(name: &str) -> bool {
         .filter(|word| !word.is_empty())
         .count()
         <= NAME_WORDS
+}
+
+pub(super) fn resolved_parameters(
+    query: &TrialSearch,
+    gene: Option<&str>,
+    conditions: &[biodata::Text],
+    id: Option<NctId>,
+) -> BTreeMap<String, String> {
+    let mut params = ctgov::name_parameters(query, gene, query.broader_names(), id);
+    if query.condition_id().is_some()
+        && let Some(condition) = conditions.first()
+    {
+        params.insert("query.cond".into(), format!("({condition})"));
+    }
+    params
 }
 
 /// Search typed selectors with the registry name and obsolete-ID fallbacks.
@@ -53,12 +69,7 @@ fn search_with_id(
     Result<ctgov::SearchPage, RequestError>,
     Option<SourceNotice>,
 ) {
-    let mut params = ctgov::name_parameters(query, gene, query.broader_names(), id);
-    if query.condition_id().is_some()
-        && let Some(condition) = conditions.first()
-    {
-        params.insert("query.cond".into(), format!("({condition})"));
-    }
+    let mut params = resolved_parameters(query, gene, conditions, id);
     // An offset without a page token starts where the registry's own pages reach it (1061).
     if query.offset() > 0 && query.next_page().is_none() && !query.count_only() {
         match super::skip::start(leg, &params, query.offset()) {
@@ -154,7 +165,7 @@ pub fn text_search_notice(query: &TrialSearch, gene: Option<&str>) -> Option<Sou
     })
 }
 
-fn guidance(message: String) -> SourceNotice {
+pub(super) fn guidance(message: String) -> SourceNotice {
     SourceNotice::RequestGuidance {
         data_date: None,
         message: message.into(),
@@ -177,7 +188,7 @@ pub(super) fn confirm_codon_only(
         .map(|id| format!("AREA[NCTId]{id}"))
         .collect::<Vec<_>>()
         .join(" OR ");
-    let params = std::collections::BTreeMap::from([
+    let params = BTreeMap::from([
         ("countTotal".to_owned(), "true".to_owned()),
         ("pageSize".to_owned(), candidates.len().to_string()),
         ("fields".to_owned(), "NCTId".to_owned()),
