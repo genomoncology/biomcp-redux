@@ -5689,7 +5689,7 @@ Options:
 
 ```
 
-Queries gnomad_r4 release 4.1.0 (GRCh38) for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
+gnomad_r4 release 4.1.0 (GRCh38). Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.

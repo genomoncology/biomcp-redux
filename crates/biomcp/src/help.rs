@@ -365,8 +365,8 @@ fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
         .join(", ");
     if (verb, entity) == ("variant", "population") {
         return format!(
-            "{} Sources: {sources}.",
-            biomcp_query::sources::gnomad_variant_scope_help()
+            "{}. Sources: {sources}.",
+            biomcp_query::sources::gnomad_variant_scope_label()
         );
     }
     let summary = biomcp_types::COMMANDS

@@ -54,11 +54,13 @@
     },
     {
       "run": ["help", "get", "variant", "population"],
-      "expect": {"/result/commands/0/sections/0/description": {"includes": "gnomad_r4 release 4.1.0"}}
+      "expect": {
+        "/result/commands/0/sections/0/description": "Queries gnomad_r4 release 4.1.0 (GRCh38) for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope."
+      }
     },
     {
-      "run": ["help", "variant", "population"],
-      "expect": {"/result/commands/0/description": {"includes": "gnomad_r4 release 4.1.0"}}
+      "run": ["help", "variant", "population", "--format", "md"],
+      "expect": {"": {"includes": "gnomad\\_r4 release 4.1.0 (GRCh38)"}}
     }
   ]
 }

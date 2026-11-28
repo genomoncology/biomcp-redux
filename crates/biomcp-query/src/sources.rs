@@ -2,6 +2,7 @@
 #![deny(clippy::wildcard_enum_match_arm)]
 pub use biomcp_adapters::gnomad::variant::{
     DATASET as GNOMAD_VARIANT_DATASET, scope_help as gnomad_variant_scope_help,
+    scope_label as gnomad_variant_scope_label,
 };
 pub use biomcp_adapters::guidance::{WONDER_QUOTA, deadline, notices};
 pub use biomcp_adapters::key_check;

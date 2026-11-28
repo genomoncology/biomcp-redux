@@ -30,10 +30,15 @@ const QUERY: &str = concat!(
 pub const DATASET: &str = dataset!();
 /// Release of the short-variant counts, independent of the browser's constraint updates.
 pub const RELEASE: &str = "4.1.0";
+/// Compact label for the short-variant lookup.
+pub fn scope_label() -> String {
+    format!("{DATASET} release {RELEASE} (GRCh38)")
+}
 /// Scope of the short-variant lookup.
 pub fn scope_help() -> String {
     format!(
-        "Queries {DATASET} release {RELEASE} (GRCh38) for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope."
+        "Queries {} for nuclear short variants. Mitochondrial, structural, copy-number and tandem-repeat variants are out of scope.",
+        scope_label()
     )
 }
 mod map;
