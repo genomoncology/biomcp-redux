@@ -61,11 +61,19 @@ fn rename(args: &[OsString]) -> Vec<OsString> {
 }
 
 fn drop(args: &[OsString]) -> Option<Vec<OsString>> {
-    let index = args
+    let (index, width) = args
         .iter()
-        .position(|word| word.to_str().is_some_and(|word| DROPPED.contains(&word)))?;
+        .take_while(|word| *word != "--")
+        .enumerate()
+        .find_map(|(index, word)| {
+            let word = word.to_str()?;
+            let (flag, width) = word
+                .split_once('=')
+                .map_or((word, 2), |(flag, _)| (flag, 1));
+            DROPPED.contains(&flag).then_some((index, width))
+        })?;
     let mut args = args.to_vec();
-    args.drain(index..(index + 2).min(args.len()));
+    args.drain(index..(index + width).min(args.len()));
     Some(args)
 }
 
