@@ -30,10 +30,7 @@ fn lookup_input<'de, D: serde::Deserializer<'de>>(
 )]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields<R: ResolverChoice = VariantResolver> {
-    #[doc = "Variant or CIViC profile\n\
-        rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, VCF-style genomic coordinates, \
-        or a gene and protein change such as BRAF V600E. With civic alone, a bare integer is a CIViC \
-        profile ID, and a profile name must match exactly."]
+    #[doc = "Variant ID or gene and protein. With civic alone, use a CIViC profile ID or exact name."]
     #[serde(deserialize_with = "lookup_input")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[cfg_attr(
