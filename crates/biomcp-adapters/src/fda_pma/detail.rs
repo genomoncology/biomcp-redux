@@ -7,6 +7,7 @@ use std::collections::BTreeSet;
 
 const NATIVE_PAGE: u32 = 100;
 
+/// Checked native rows for a PMA detail reply.
 #[derive(Debug)]
 pub struct Records {
     /// Application members, or the original row and just the requested large-application page.
@@ -43,8 +44,9 @@ fn large_application(
     total: u64,
 ) -> Result<Records, RequestError> {
     // The empty supplement cell sorts before every numbered supplement.
-    let mut rows = sorted_page(leg, query, selector, 0, 1, total)?;
+    let mut rows = sorted_page(leg, query, selector, 0, 2, total)?;
     let conflict = identity(&rows, query);
+    rows.truncate(1);
     if conflict.is_some() || query.section() != Some(DiagnosticSection::Supplements) {
         return Ok(mapped(rows, None, conflict));
     }
@@ -126,18 +128,20 @@ fn check_rows(
     total: u64,
 ) -> Result<(), BadReply> {
     let mut seen = BTreeSet::new();
-    for row in rows {
+    let mut previous = None;
+    for (index, row) in rows.iter().enumerate() {
         let cell = row.supplement_number.as_ref().ok_or(BadReply)?.as_str();
-        if !seen.insert(cell) || sorted_total.is_some() && cell.is_empty() != (skip == 0) {
+        if !seen.insert(cell) {
             return Err(BadReply);
         }
-    }
-    if let Some(expected) = sorted_total
-        && (expected != total || !seen.iter().copied().eq(rows.iter().map(|row| {
-            row.supplement_number.as_ref().map_or("", |cell| cell.as_str())
-        })))
-    {
-        return Err(BadReply);
+        if let Some(expected) = sorted_total
+            && (expected != total
+                || cell.is_empty() != (skip == 0 && index == 0)
+                || previous.is_some_and(|last| last > cell))
+        {
+            return Err(BadReply);
+        }
+        previous = Some(cell);
     }
     Ok(())
 }
@@ -165,7 +169,10 @@ fn mapped(
 }
 
 fn identity(rows: &[raw::Record], query: &DiagnosticGet) -> Option<&'static str> {
-    if rows.iter().any(|row| row.pma_number.as_str() != query.id().as_str()) {
+    if rows
+        .iter()
+        .any(|row| row.pma_number.as_str() != query.id().as_str())
+    {
         return Some("pma_number");
     }
     if query.supplement().is_some_and(|wanted| {

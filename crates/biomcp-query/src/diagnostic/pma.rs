@@ -72,7 +72,9 @@ fn selected(
     };
     match q.section() {
         None => card(out, q, row, fresh)?,
-        Some(DiagnosticSection::Supplements) => supplements(out, q, &records.rows, records.supplement_total, fresh)?,
+        Some(DiagnosticSection::Supplements) => {
+            supplements(out, q, &records.rows, records.supplement_total, fresh)?
+        }
         Some(DiagnosticSection::Regulatory) => regulatory(out, q, row, fresh)?,
         _ => {}
     }
@@ -152,7 +154,9 @@ fn page(out: &mut Outcome, q: &DiagnosticGet, returned: usize, total: u64, fresh
         truncated: None,
     });
     let next_offset = u64::from(q.section_offset()) + returned as u64;
-    if next_offset < total && let Ok(offset) = u32::try_from(next_offset) {
+    if next_offset < total
+        && let Ok(offset) = u32::try_from(next_offset)
+    {
         next::push(
             out,
             StepKind::Page,
@@ -204,7 +208,13 @@ fn supplements(
             );
         }
     }
-    page(out, q, items.len(), native_total.unwrap_or(rows.len() as u64), fresh);
+    page(
+        out,
+        q,
+        items.len(),
+        native_total.unwrap_or(rows.len() as u64),
+        fresh,
+    );
     out.body = (DiagnosticSupplements {
         items: items.into(),
         count_unit: None,

@@ -1,6 +1,5 @@
 //! Canonical diagnostic publisher declaration; runtime dispatch belongs to later slices.
 use biomcp_fetch::SourceSpec;
-use biomcp_fetch::{Input, Read};
 use biomcp_types::Source;
 use std::time::Duration;
 /// One publisher declaration for health, outcomes and admission before any I/O.
