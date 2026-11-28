@@ -28,11 +28,7 @@ fn finish(out: &mut Outcome, leg: Leg<'_>, error: Option<RequestError>) {
     {
         crate::status::item(out, true, false, true)
     }
-    if out
-        .sources
-        .iter()
-        .any(crate::next::wants_sync)
-    {
+    if out.sources.iter().any(crate::next::wants_sync) {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,
             &[biomcp_types::Source::Cbioportal],

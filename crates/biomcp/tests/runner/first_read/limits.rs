@@ -87,7 +87,7 @@ fn constraint_oversized() -> Check {
     let requests = stub.finish()?;
     let tables = requests
         .iter()
-        .filter(|request| request.contains("constraint_metrics"))
+        .filter(|(request, _)| request.contains("constraint_metrics"))
         .count();
     if tables != 1 {
         return Err(format!("expected one first table fetch: {requests:?}"));
@@ -95,9 +95,13 @@ fn constraint_oversized() -> Check {
     for reply in [&first, &again, &fresh] {
         limited(reply, "gnomad", "too-large", "size limit", CONSTRAINT_SYNC)?;
     }
-    served_after_sync(&env, CONSTRAINT_REPLAY, CONSTRAINT_SYNC, CONSTRAINT, |reply| {
-        reply.to_string().contains("ENST00000269305")
-    })
+    served_after_sync(
+        &env,
+        CONSTRAINT_REPLAY,
+        CONSTRAINT_SYNC,
+        CONSTRAINT,
+        |reply| reply.to_string().contains("ENST00000269305"),
+    )
 }
 
 /// The gnomAD publisher never answers, so the first read runs out of time.
@@ -206,7 +210,9 @@ fn limited(reply: &Value, source: &str, reason: &str, cause: &str, sync: &[&str]
         || !delay_fits
         || reply.pointer("/next/0/args") != Some(&json!(sync))
     {
-        return Err(format!("expected {reason} and the sync call first: {reply}"));
+        return Err(format!(
+            "expected {reason} and the sync call first: {reply}"
+        ));
     }
     Ok(())
 }

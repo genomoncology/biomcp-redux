@@ -213,8 +213,11 @@ fn add_first_read_backoff(tx: &Transaction<'_>) -> Result<(), CacheError> {
         |row| row.get(0),
     ).map_err(db_error)?;
     if !limited {
-        tx.execute("ALTER TABLE bundle_first_read ADD COLUMN first_limit INTEGER", [])
-            .map_err(db_error)?;
+        tx.execute(
+            "ALTER TABLE bundle_first_read ADD COLUMN first_limit INTEGER",
+            [],
+        )
+        .map_err(db_error)?;
     }
     Ok(())
 }

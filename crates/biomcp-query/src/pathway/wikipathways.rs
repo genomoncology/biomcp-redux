@@ -10,9 +10,11 @@ use biomcp_types::{
 };
 
 pub(super) fn sync_step(out: &mut Outcome) {
-    if out.sources.iter().any(|s| {
-        s.source == Source::WikiPathways && crate::next::wants_sync(s)
-    }) {
+    if out
+        .sources
+        .iter()
+        .any(|s| s.source == Source::WikiPathways && crate::next::wants_sync(s))
+    {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,
             &[biomcp_types::Source::WikiPathways],

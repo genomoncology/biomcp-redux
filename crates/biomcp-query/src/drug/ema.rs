@@ -209,11 +209,7 @@ fn add_notice(out: &mut Outcome, notice: Option<Box<str>>) {
     }
 }
 fn sync_step(out: &mut Outcome) {
-    if out
-        .sources
-        .iter()
-        .any(crate::next::wants_sync)
-    {
+    if out.sources.iter().any(crate::next::wants_sync) {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,
             &[biomcp_types::Source::Ema],

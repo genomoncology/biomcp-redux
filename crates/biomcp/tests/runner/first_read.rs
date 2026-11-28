@@ -162,7 +162,9 @@ fn backoff() -> Check {
         if reply.pointer("/sources/0/state") != Some(&json!("failed"))
             || reply.pointer("/sources/0/reason") != Some(&json!("too-large"))
         {
-            return Err(format!("over-limit first fetch is not a size refusal: {reply}"));
+            return Err(format!(
+                "over-limit first fetch is not a size refusal: {reply}"
+            ));
         }
     }
     Ok(())
