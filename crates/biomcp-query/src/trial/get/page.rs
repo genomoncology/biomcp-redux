@@ -29,6 +29,7 @@ pub(super) fn past_text(query: &TrialGet, snapshot: &Snapshot) -> Option<usize> 
 }
 pub(super) fn render(
     query: &TrialGet,
+    input: NctId,
     snapshot: Snapshot,
     pool: Option<Text>,
     out: &mut Outcome,
@@ -74,7 +75,7 @@ pub(super) fn render(
         }
     }
     Ok(TrialCardItem {
-        input: id,
+        input,
         status: if super::partial(&snapshot) {
             crate::status::item_status(true, false, true)
         } else {

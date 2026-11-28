@@ -37,7 +37,11 @@ pub(super) fn base_parameters(query: &TrialSearch) -> BTreeMap<String, String> {
     ])
 }
 
-pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
+pub(super) fn advanced(
+    query: &TrialSearch,
+    broader_names: bool,
+    id: Option<biodata::NctId>,
+) -> String {
     let mut advanced = Vec::new();
     if query.exact_condition() {
         advanced.push(format!(
@@ -53,7 +57,7 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
                 .join(" OR ")
         ));
     }
-    if let Some(id) = query.id() {
+    if let Some(id) = id {
         advanced.push(format!("AREA[NCTId]{id}"));
     }
     if !query.country().is_empty() {

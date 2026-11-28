@@ -61,6 +61,19 @@ pub struct Detail {
 }
 /// Read one native protocol and preserve that reply's timestamp.
 pub fn get(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestError> {
+    let error = match get_exact(leg, id) {
+        Ok(detail) => return Ok(detail),
+        Err(error) => error,
+    };
+    if matches!(error, RequestError::Source(e) if matches!(e.status, Some(301 | 302 | 303 | 307 | 308)))
+        && let Some(canonical) = super::alias::resolve(leg, id)?
+    {
+        return get_exact(leg, canonical);
+    }
+    Err(error)
+}
+
+fn get_exact(leg: &Leg<'_>, id: NctId) -> Result<(Detail, ReplyMetadata), RequestError> {
     let endpoint = super::SPEC
         .get("/studies")
         .fresh(Freshness::Days(1))

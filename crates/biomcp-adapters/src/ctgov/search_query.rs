@@ -1,5 +1,6 @@
 //! Registry-owned name broadening follows a checked empty exact first page.
 use super as ctgov;
+use biodata::NctId;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{SourceNotice, TrialSearch};
 
@@ -15,17 +16,44 @@ pub fn name_fits(name: &str) -> bool {
         <= NAME_WORDS
 }
 
-/// Search typed selectors with the registry name fallback.
+/// Search typed selectors with the registry name and obsolete-ID fallbacks.
 pub fn search_query(
     leg: &Leg<'_>,
     query: &TrialSearch,
     gene: Option<&str>,
     conditions: &[biodata::Text],
+) -> (Result<ctgov::SearchPage, RequestError>, Vec<SourceNotice>) {
+    let id = query.id().copied();
+    let (result, notice) = search_with_id(leg, query, gene, conditions, id);
+    if let Some(id) = id
+        && query.next_page().is_none()
+        && result.as_ref().is_ok_and(|page| page.total == Some(0))
+    {
+        match super::alias::resolve(leg, id) {
+            Ok(Some(canonical)) => {
+                let (result, notice) =
+                    search_with_id(leg, query, gene, conditions, Some(canonical));
+                let alias_notice = result.is_ok().then(|| super::alias_notice(id, canonical));
+                return (result, notice.into_iter().chain(alias_notice).collect());
+            }
+            Ok(None) => {}
+            Err(error) => return (Err(error), notice.into_iter().collect()),
+        }
+    }
+    (result, notice.into_iter().collect())
+}
+
+fn search_with_id(
+    leg: &Leg<'_>,
+    query: &TrialSearch,
+    gene: Option<&str>,
+    conditions: &[biodata::Text],
+    id: Option<NctId>,
 ) -> (
     Result<ctgov::SearchPage, RequestError>,
     Option<SourceNotice>,
 ) {
-    let mut params = ctgov::parameters(query, gene);
+    let mut params = ctgov::name_parameters(query, gene, query.broader_names(), id);
     if query.condition_id().is_some()
         && let Some(condition) = conditions.first()
     {
@@ -64,7 +92,7 @@ pub fn search_query(
     {
         // Replace only the exact name selectors. Keep resolved condition/gene
         // parameters and every other strict filter from the actual first request.
-        let mut fallback = ctgov::broader_parameters(query, None);
+        let mut fallback = ctgov::name_parameters(query, None, true, id);
         for (name, value) in &params {
             if name != "filter.advanced" {
                 fallback.insert(name.clone(), value.clone());

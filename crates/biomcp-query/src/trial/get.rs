@@ -75,6 +75,12 @@ fn fetch(
     for (id, row) in query.input().iter().zip(rows) {
         match row {
             Ok((detail, metadata)) => {
+                let canonical = detail.card.nct_id;
+                if *id != canonical {
+                    out.sources[0]
+                        .notices
+                        .push(ctgov::alias_notice(*id, canonical));
+                }
                 let mut own_source = source.clone();
                 if own_source.state == SourceState::Failed && source_updated.is_some() {
                     own_source.set_status(biomcp_types::SourceStatus::Ok);
@@ -97,7 +103,7 @@ fn fetch(
                     crate::publish::keep(
                         source_snapshot::write(
                             cx,
-                            &source_snapshot::key(SNAPSHOT_NAMESPACE, id)?,
+                            &source_snapshot::key(SNAPSHOT_NAMESPACE, &canonical)?,
                             &snapshot,
                             &snapshot.sources,
                             deadline,
@@ -105,7 +111,14 @@ fn fetch(
                         out,
                     )?
                 };
-                items.push(page::render(query, snapshot, pool, out, arm_projection)?);
+                items.push(page::render(
+                    query,
+                    *id,
+                    snapshot,
+                    pool,
+                    out,
+                    arm_projection,
+                )?);
             }
             Err(e) if not_found(e) => items.push(unresolved(
                 *id,
@@ -278,7 +291,14 @@ fn restore(
     {
         cx.fetch.retain_data_date(source, version.value.as_str());
     }
-    let item = page::render(query, snapshot, query.pool().cloned(), out, arm_projection)?;
+    let item = page::render(
+        query,
+        id,
+        snapshot,
+        query.pool().cloned(),
+        out,
+        arm_projection,
+    )?;
     finish(query, vec![item], version, out);
     Ok(())
 }
