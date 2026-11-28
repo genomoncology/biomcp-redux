@@ -59,7 +59,8 @@ pub struct Page {
 use biomcp_types::openfda_phrase as literal;
 mod search;
 pub use search::{
-    NameGroup, NameStep, Search, scope, search, search_expanded, search_names, search_scoped,
+    NameGroup, NameStep, Search, scope, search, search_expanded, search_names, search_product,
+    search_scoped,
 };
 fn normalize_name(value: &str) -> String {
     value

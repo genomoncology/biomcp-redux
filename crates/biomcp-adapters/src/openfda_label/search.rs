@@ -94,6 +94,37 @@ pub fn search_names(leg: &Leg<'_>, name: &Text) -> Result<Vec<Page>, RequestErro
     }
     Ok(pages)
 }
+/// Look for a known proprietary and proper name together in an unharmonized label's own
+/// product data field. Require both complete names at the start of that field.
+pub fn search_product(leg: &Leg<'_>, brand: &str, proper: &str) -> Result<Page, RequestError> {
+    let selector = format!(
+        "spl_product_data_elements:{} AND spl_product_data_elements:{}",
+        literal(brand),
+        literal(proper),
+    );
+    let mut found = page(leg, &selector, NAME_PAGE, 0, None)?;
+    let names = brand.split_whitespace().chain(proper.split_whitespace());
+    let unpaged = found.window.next_offset().is_none();
+    found.window.rows.retain(|record| {
+        unpaged
+            && record.0.openfda.brand_name.is_none()
+            && record.0.openfda.generic_name.is_none()
+            && record
+                .0
+                .parts("spl_product_data_elements")
+                .is_some_and(|parts| {
+                    parts.iter().any(|part| {
+                        let mut words = part.split_whitespace();
+                        names.clone().all(|name| {
+                            words
+                                .next()
+                                .is_some_and(|word| word.eq_ignore_ascii_case(name))
+                        })
+                    })
+                })
+    });
+    Ok(choice_fields(found))
+}
 /// A name lookup holds every page until it chooses a label, and a live page of whole labels may
 /// reach the 32 MiB page bound. Choosing reads names and identity, plus the indications it
 /// counts, so the other sections go as each page arrives: eight metformin lookups at once over

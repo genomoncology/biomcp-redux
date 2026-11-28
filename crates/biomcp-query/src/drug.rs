@@ -2,6 +2,7 @@
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod aliases;
+mod cber;
 mod civic;
 mod ddinter;
 mod drugsfda;

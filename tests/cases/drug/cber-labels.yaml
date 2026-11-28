@@ -1,0 +1,55 @@
+{
+  "feature": "drug-label",
+  "story": "An exact CBER product name can find its own openFDA label without harmonized names, and a vaccine missing from openFDA points to FDA and DailyMed.",
+  "replay": "drug/cber-coverage",
+  "config": {
+    "disable_sources": [
+      "mychem",
+      "chembl"
+    ]
+  },
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Kymriah",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "aad3ba54-dfd3-4cb3-9e2b-c5ef89559189",
+        "/result/label/source": "openfda-label",
+        "/sources/1/source": "purple-book"
+      },
+      "max_bytes": 4600
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Shingrix",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/sources/1/source": "purple-book",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "BLA125614",
+          "--limit",
+          "1",
+          "--source",
+          "purple-book"
+        ],
+        "/sources/1/notices/0/message": "Drugs@FDA excludes products regulated by FDA\u2019s Center for Biologics Evaluation and Research (CBER). Purple Book record: https://purplebooksearch.fda.gov/index.cfm?blaNo=125614&event=productdetails. For the label, search DailyMed: https://dailymed.nlm.nih.gov/dailymed/search.cfm?labeltype=all&query=BLA125614"
+      },
+      "max_bytes": 2000
+    }
+  ]
+}

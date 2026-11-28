@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=spl_product_data_elements%3A%22Shingrix%22%20AND%20spl_product_data_elements%3A%22Zoster%20Vaccine%20Recombinant%2C%20Adjuvanted%22&limit=50&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1795829556,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 144,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No matches found!"
+  }
+}
+      }
+    }
+  ]
+}

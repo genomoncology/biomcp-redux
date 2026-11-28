@@ -152,6 +152,7 @@
       "enum": [
         "found",
         "no-record",
+        "not-covered",
         "failed"
       ],
       "type": "string"

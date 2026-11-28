@@ -1,7 +1,7 @@
 //! Resolve complete source names before the unchanged native-ID path.
 use super::name_pages;
 use crate::drug::aliases::name_evidence::recovery;
-use crate::drug::{fork, label_choice, rejected_input, selected_as};
+use crate::drug::{cber, fork, label_choice, rejected_input, selected_as};
 use crate::{Ctx, Outcome, status};
 use biodata::{DrugId, Text};
 use biomcp_types::ReplyBody;
@@ -39,6 +39,7 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
     let Some(query) = queries.first() else {
         return Vec::new();
     };
+    let product = cber::for_query(cx, query);
     let deadline = lookup_deadline(cx);
     let search = match DrugSearch::named(query.input().clone(), query.source(), 50) {
         Ok(search) => search,
@@ -51,7 +52,7 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
         name_pages::fda(cx, query.input(), &search)
     } else if query.source() == DrugSource::OpenfdaLabel {
-        name_pages::label(cx, query, &search)
+        name_pages::label(cx, query, &search, product)
     } else if query.source() == DrugSource::Mychem {
         let (out, candidates, stopped) = name_pages::mychem(cx, query, &search);
         *unsettled = stopped;
@@ -78,6 +79,9 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
     let mut seen = std::collections::BTreeSet::new();
     candidates.retain(|(_, header)| seen.insert(header.id.to_string()));
     let Some((rank, selected)) = candidates.first() else {
+        if let Some(product) = product {
+            return vec![cber::unresolved(cx, query, product, discovery)];
+        }
         return vec![unresolved(query, discovery)];
     };
     let read = recovered.map_or_else(
@@ -96,6 +100,11 @@ fn resolve_parts(cx: &Ctx<'_>, queries: &[DrugGet], unsettled: &mut bool) -> Vec
                 chosen_name(query, rank.0, &candidates, &discovery, out),
                 *unsettled,
             );
+            if query.source() == DrugSource::OpenfdaLabel
+                && let Some(product) = product
+            {
+                cber::disclose(cx, product, out.status() != Status::Complete, &mut out);
+            }
             if query.source() == DrugSource::Chembl
                 && out.sources.iter().any(|s| s.state == SourceState::Stale)
             {

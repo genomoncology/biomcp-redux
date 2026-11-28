@@ -1,0 +1,393 @@
+# FDA Purple Book advanced search recorded through BioMCP --record in pm job j48553 on 2026-11-28 (UTC).
+# https://purplebooksearch.fda.gov/index.cfm?event=advancedsearch
+# Recorded HTML SHA-256: d832738380c50de83cf65df9a57ca96e4d782209cb76e36bb6756085f747313d
+# Public domain: https://www.fda.gov/about-fda/about-website/website-policies
+# Distinct BLA, proprietary name and proper name from rows where Center is CBER.
+# Blank names are unavailable or also listed for a CDER product in the same table.
+101062		Antivenin (Latrodectus mactans)
+101066	Recombivax, Recombivax Hb	Hepatitis B Vaccine (Recombinant)
+101068	ATTENUVAX	Measles Virus Vaccine Live
+101069	M-M-R Ii	Measles, Mumps and Rubella Virus Vaccine Live
+101072	MumpsVax	Mumps Virus Vaccine Live
+101075	MERUVAX II	Rubella Virus Vaccine Live
+101084		Normal Horse Serum
+101094	Pneumovax 23	Pneumococcal Vaccine, Polyvalent
+101098		Antivenin (Crotalidae) Polyvalent
+101099		Antivenin (Micrurus fulvius)
+101130	Koate, Koate-Dvi	Antihemophilic Factor (Human)
+101134	Baygam, Gamastan S/D	Immune Globulin (Human)
+101138	Albuked, Plasbumin-20, Plasbumin-25, Plasbumin-5	Albumin (Human)
+101140	Plasmanate	Plasma Protein Fraction (Human)
+101141	Bayrho-D, Hyprho-D, Hyperrho S/D Full Dose, Hyperrho S/D Mini-Dose	Rho(D) Immune Globulin (Human)
+101142	Baytet, Hypertet	Tetanus Immune Globulin (Human)
+101144	Bayrab, Hyperrab	Rabies Immune Globulin (Human)
+101144	Bayrab,Hyperrab	Rabies Immune Globulin (Human)
+101146	Bayhep B, Hyperhep B S/D	Hepatitis B Immune Globulin (Human)
+101147	Gamimune	Immune Globulin Intravenous (Human)
+101246	Panhematin	Hemin for Injection
+101322	Tdvax	Tetanus and Diphtheria Toxoids Adsorbed
+101377		Insects (Whole Body), Mite Dermatophagoides farinae
+101378		Insects (Whole Body), Mite Dermatophagoides pteronyssinus
+101379		Pollens - Grasses, Bermuda Grass Cynodon dactylon
+101380		Pollens - Grasses, Bluegrass, Kentucky (June) Poa pratensis
+101381		Pollens - Grasses, Fescue, Meadow Festuca elatior
+101382		Pollens - Grasses, Orchard Grass Dactylis glomerata
+101383		Pollens - Grasses, Redtop Agrostis alba
+101384		Pollens - Grasses, Ryegrass, Perennial Lolium perenne
+101385		Pollens - Grasses, Sweet Vernal Grass Anthoxanthum odoratum
+101386		Pollens - Grasses, Timothy Phleum pratense
+101387		Pollens - Weeds and Garden Plants, Ragweed, Short Ambrosia artemisiifolia
+101447	Autoplex, Feiba Nf, Feiba Vh	Anti-Inhibitor Coagulant Complex
+101448	Hemofil M	Antihemophilic Factor (Human)
+101452	Buminate, Flexbumin	Albumin (Human)
+101834		Insects (Whole Body), Mite Dermatophagoides farinae
+101835		Insects (Whole Body), Mite Dermatophagoides pteronyssinus
+101836		Pollens - Grasses, Bermuda Grass Cynodon dactylon
+101837		Pollens - Grasses, Bluegrass, Kentucky (June) Poa pratensis
+101838		Pollens - Grasses, Fescue, Meadow Festuca elatior
+101839		Pollens - Grasses, Orchard Grass Dactylis glomerata
+101840		Pollens - Grasses, Redtop Agrostis alba
+101841		Pollens - Grasses, Ryegrass, Perennial Lolium perenne
+101842		Pollens - Grasses, Sweet Vernal Grass Anthoxanthum odoratum
+101843		Pollens - Grasses, Timothy Phleum pratense
+101844		Pollens - Weeds and Garden Plants, Ragweed, Short Ambrosia artemisiifolia
+101845		Pollens - Weeds and Garden Plants, Ragweed, Short Ambrosia elatior
+101993		Albumin (Human)
+102212		Insects (Whole Body), Mite Dermatophagoides farinae
+102213		Insects (Whole Body), Mite Dermatophagoides pteronyssinus
+102214		Pollens - Grasses, Bermuda Grass Cynodon dactylon
+102215		Pollens - Grasses, Bluegrass, Kentucky (June) Poa pratensis
+102216		Pollens - Grasses, Fescue, Meadow Festuca elatior
+102217		Pollens - Grasses, Orchard Grass Dactylis glomerata
+102218		Pollens - Grasses, Redtop Agrostis alba
+102219		Pollens - Grasses, Ryegrass, Perennial Lolium perenne
+102220		Pollens - Grasses, Sweet Vernal Grass Anthoxanthum odoratum
+102221		Pollens - Grasses, Timothy Phleum pratense
+102366	Alburx	Albumin (Human)
+102367	Carimune, Carimune Nf, Panglobulin, Sandoglobulin	Immune Globulin Intravenous (Human)
+102475	Alphanate	Antihemophilic Factor/von Willebrand Factor Complex (Human)
+102476	Profilnine, Profilnine Hp, Profilnine Ht, Profilnine Sd	Factor IX Complex
+102478	Albutein	Albumin (Human)
+102821	Tice Bcg	BCG Live
+102865	Thrombin-Jmi, Thrombocoll	Thrombin, Topical (Bovine)
+103050		BCG Vaccine
+103051		Pollens - Grasses, Bermuda Grass Cynodon dactylon
+103052		Pollens - Grasses, Bluegrass, Kentucky (June) Poa pratensis
+103053		Pollens - Grasses, Fescue, Meadow Festuca elatior
+103054		Pollens - Grasses, Orchard Grass Dactylis glomerata
+103055		Pollens - Grasses, Redtop Agrostis alba
+103056		Pollens - Grasses, Ryegrass, Perennial Lolium perenne
+103057		Pollens - Grasses, Sweet Vernal Grass Anthoxanthum odoratum
+103058		Pollens - Grasses, Timothy Phleum pratense
+103059		Pollens - Weeds and Garden Plants, Ragweed, Short Ambrosia artemisiifolia
+103060		Insects (Whole Body), Mite Dermatophagoides farinae
+103061		Animal Allergens, Standardized Cat Pelt
+103112	Proplex-T; Bebulin	Factor IX Complex
+103113		Pollens - Weeds and Garden Plants, Ragweed, Short Ambrosia artemisiifolia
+103123	Vivotif	Typhoid Vaccine Live Oral Ty21a
+103133	Gammagard, Gammagard S/D, Iveegam	Immune Globulin Intravenous (Human)
+103141	Digibind	Digoxin Immune Fab (Ovine)
+103171	Tenivac	Tetanus and Diphtheria Toxoids Adsorbed
+103174	prolastin,prolastin-c,prolastin-c liquid	Alpha-1-Proteinase Inhibitor (Human)
+103189	Cytogam	Cytomegalovirus Immune Globulin Intravenous (Human)
+103196	Thrombate Iii	Antithrombin III (Human)
+103237	Pedvaxhib	Haemophilus b Conjugate Vaccine (Meningococcal Protein Conjugate)
+103239	Engerix-B	Hepatitis B Vaccine (Recombinant)
+103249	Alphanine, Alphanine Hp, Alphanine Sd	Coagulation Factor IX (Human)
+103257	Candin	Candida albicans Skin Test Antigen for Cellular Hypersensitivity
+103317		Positive Skin Test Control-Histamine
+103324		Animal Allergens, Standardized Cat Hair
+103332	Helixate Fs, Kogenate, Kogenate Fs	Antihemophilic Factor (Recombinant)
+103334	Rabavert	Rabies Vaccine
+103352	Human Albumin Grifols	Albumin (Human)
+103375	Bioclate (Armour), Recombinate	Antihemophilic Factor (Recombinant)
+103397		Animal Allergens, Standardized Cat Hair
+103473		Animal Allergens, Standardized Cat Hair
+103475	Havrix	Hepatitis A Vaccine
+103552	Varivax	Varicella Virus Vaccine Live
+103569		Plague Vaccine
+103606	Vaqta	Hepatitis A Vaccine Inactivated
+103623	COMVAX	Haemophilus b Conjugate (Meningococcal Protein Conjugate) and Hepatitis B (Recombinant) Vaccine
+103647	Infanrix	Diphtheria & Tetanus Toxoids & Acellular Pertussis Vaccine Adsorbed
+103649	Winrho Sd, Winrho Sdf Liquid, Winrho Sdf Lyophilized	Rho(D) Immune Globulin Intravenous (Human)
+103661	Carticel Sm Service	Autologous Cultured Chondrocytes
+103665	Novoseven, Novoseven Rt	Coagulation Factor VIIa (Recombinant)
+103666	Daptacel	Diphtheria & Tetanus Toxoids & Acellular Pertussis Vaccine Adsorbed
+103676	Atgam	Lymphocyte Immune Globulin, Anti-thymocyte Globulin (Equine)
+103677	Benefix	Coagulation Factor IX (Recombinant)
+103738	T.R.U.E. Test	Thin-Layer Rapid Use Epicutaneous Patch Test
+103752		Insects (Whole Body), Mite Dermatophagoides pteronyssinus
+103754	Histatrol	Positive Skin Test Control-Histamine
+103777	Micrhogam, Rhogam	Rho(D) Immune Globulin (Human)
+103779	Refacto	Antihemophilic Factor (Recombinant)
+103782	Aplisol	Tuberculin, Purified Protein Derivative
+103788	Crofab	Crotalidae Polyvalent Immune Fab (Ovine)
+103810		Animal Allergens, Standardized Cat Hair
+103820	Biorab	Rabies Vaccine Adsorbed
+103821	Biothrax	Anthrax Vaccine Adsorbed
+103837	Fluvirin	Influenza Virus Vaccine
+103850	Twinrix	Hepatitis A & Hepatitis B (Recombinant) Vaccine
+103869	Thymoglobulin	Anti-thymocyte Globulin (Rabbit)
+103870		Insects (Whole Body), Mite Dermatophagoides farinae
+103871		Insects (Whole Body), Mite Dermatophagoides pteronyssinus
+103872		Pollens - Grasses, Bermuda Grass Cynodon dactylon
+103873		Pollens - Grasses, Bluegrass, Kentucky (June) Poa pratensis
+103874		Pollens - Grasses, Fescue, Meadow Festuca elatior
+103875		Pollens - Grasses, Orchard Grass Dactylis glomerata
+103876		Pollens - Grasses, Redtop Agrostis alba
+103877		Pollens - Grasses, Ryegrass, Perennial Lolium perenne
+103878		Pollens - Grasses, Sweet Vernal Grass Anthoxanthum odoratum
+103879		Pollens - Grasses, Timothy Phleum pratense
+103880		Pollens - Weeds and Garden Plants, Ragweed, Short Ambrosia artemisiifolia
+103882		Venoms, Honey Bee Venom
+103883		Venoms, Mixed Vespid Venom Protein
+103884		Venoms, Wasp Venom Protein
+103885		Venoms, White Faced Hornet Venom Protein
+103886		Venoms, Yellow Hornet Venom Protein
+103887		Venoms, Yellow Jacket Venom Protein
+103889		Animal Allergens, Standardized Cat Hair
+103890		Animal Allergens, Standardized Cat Pelt
+103891		Positive Skin Test Control-Histamine
+103905	prevnar	Pneumococcal 7-valent Conjugate Vaccine (Diphtheria CRM197 Protein)
+103907	Pediarix	Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed, Hepatitis B (Recombinant) and Inactivated Poliovirus Vaccine
+103910	Digifab	Digoxin Immune Fab (Ovine)
+103913		Tetanus Toxoid Adsorbed
+103914	Fluzone, Fluzone Hd Quadrivalent, Fluzone High Dose, Fluzone Intradermal, Fluzone Quadrivalent	Influenza Virus Vaccine
+103915	Yf-Vax	Yellow Fever Vaccine
+103919		Diphtheria & Tetanus Toxoids Adsorbed
+103921		Tetanus and Diphtheria Toxoids Adsorbed
+103922	Tripedia	Diphtheria & Tetanus Toxoids & Acellular Pertussis Vaccine Adsorbed
+103923	Menomune-C	Meningococcal Polysaccharide Vaccine, Group C
+103924	Menomune-A	Meningococcal Polysaccharide Vaccine, Group A
+103925	Menomune-A/C	Meningococcal Polysaccharide Vaccine, Groups A and C Combined
+103926	Menomune	Meningococcal Polysaccharide Vaccine, Groups A, C, Y, and W-135 Combined
+103930	Ipol	Poliovirus Vaccine Inactivated
+103931	Imovax Rabies	Rabies Vaccine
+103932	Imogam	Rabies Immune Globulin (Human)
+103935	Acthib,Omnihib	Haemophilus b Conjugate Vaccine (Tetanus Toxoid Conjugate)
+103936	Typhim Vi	Typhoid Vi Polysaccharide Vaccine
+103937		Botulism Antitoxin Bivalent (Equine) Types A and B.
+103940	Poliovax	Poliovirus Vaccine Inactivated (Human Diploid Cell)
+103941	Tubersol	Tuberculin, Purified Protein Derivative
+103942	Mycobax	BCG Vaccine
+103943	TheraCys	BCG Live
+103944		Diphtheria & Tetanus Toxoids Adsorbed
+103945	Nabi-HB	Hepatitis B Immune Globulin (Human)
+103953	Monoclate, Monoclate-P	Antihemophilic Factor (Human)
+103955	Albuminar, Albuminar-20, Albuminar-25, Albuminar-5	Albumin (Human)
+103956	gammar i.v.,gammar-p i.v.	Immune Globulin Intravenous (Human)
+103957	Mononine	Coagulation Factor IX (Human)
+103960	Humate-P	Antihemophilic Factor/von Willebrand Factor Complex (Human)
+103969	Pharmalgen	Venoms, Honey Bee Venom
+103970	Pharmalgen	Venoms, Mixed Vespid Venom Protein
+103971	Pharmalgen	Venoms, Wasp Venom Protein
+103972	Pharmalgen	Venoms, White Faced Hornet Venom Protein
+103973	Pharmalgen	Venoms, Yellow Hornet Venom Protein
+103974	Pharmalgen	Venoms, Yellow Jacket Venom Protein
+103980	Tisseel	Fibrin Sealant (Tisseel)
+125010	Crosseal, Evicel	Fibrin Sealant (Human)
+125020	Flumist, Flumist Quad	Influenza Vaccine Live, Intranasal
+125034	BabyBig	Botulism Immune Globulin Intravenous (Human)
+125035	Hepagam B	Hepatitis B Immune Globulin (Human)
+125039	Aralast, Aralast Np	Alpha-1-Proteinase Inhibitor (Human)
+125046	Gammaked, Gamunex-C	Immune Globulin Injection (Human) 10% Caprylate/Chromatography Purified
+125062	Octagam	Immune Globulin Intravenous (Human)
+125063	Advate	Antihemophilic Factor (Recombinant), Plasma/Albumin Free Method
+125070	Rhophylac	Rho(D) Immune Globulin Intravenous (Human)
+125077	Flebogamma 5%, Flebogamma 5% Dif	Immune Globulin Intravenous (Human)
+125078	Zemaira	Alpha-1-Proteinase Inhibitor (Human)
+125089	Menactra	Meningococcal (Groups A, C, Y and W-135) Polysaccharide Diphtheria Toxoid Conjugate Vaccine
+125105	Gammagard Liquid	Immune Globulin Infusion (Human)
+125106	Boostrix	Tetanus Toxoid, Reduced Diphtheria Toxoid and Acellular Pertussis Vaccine, Adsorbed
+125108	Proquad	Measles, Mumps, Rubella and Varicella Virus Vaccine Live
+125109	Cnj-016	Vaccinia Immune Globulin Intravenous (Human)
+125111	Adacel	Tetanus Toxoid, Reduced Diphtheria Toxoid and Acellular Pertussis Vaccine, Adsorbed
+125115	Vivaglobin	Immune Globulin Subcutaneous (Human)
+125122	Rotateq	Rotavirus Vaccine, Live, Oral, Pentavalent
+125123	Zostavax	Zoster Vaccine Live
+125126	Gardasil	Human Papillomavirus Quadrivalent (Types 6, 11, 16 and 18) Vaccine, Recombinant
+125127	Fluarix, Fluarix Quadrivalent	Influenza Vaccine
+125145	Pentacel	Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed, Inactivated Poliovirus and Haemophilus b Conjugate (Tetanus Toxoid Conjugate) Vaccine
+125154		Albumin (Human)
+125158	Acam2000	Smallpox (Vaccinia) Vaccine, Live
+125163	Flulaval, Flulaval Quadrivalent	Influenza Vaccine
+125197	Provenge	sipuleucel-T
+125201	Privigen	Immune Globulin Intravenous (Human), 10% Liquid
+125234	Ceprotin	Protein C Concentrate (Human)
+125244		Influenza Virus Vaccine, H5N1
+125247	Evithrom	Thrombin, Topical (Human)
+125248	Recothrom	Thrombin topical (Recombinant)
+125251	Wilate	von Willebrand Factor/Coagulation Factor VIII Complex (Human)
+125254	Afluria, Afluria Quadrivalent	Influenza Vaccine
+125259	Cervarix	Human Papillomavirus Bivalent (Types 16 and 18) Vaccine, Recombinant
+125260	Kinrix	Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed and Inactivated Poliovirus Vaccine
+125264	Xyntha, Xyntha Solofuse	Antihemophilic Factor (Recombinant), Plasma/Albumin Free
+125265	Rotarix	Rotavirus Vaccine, Live, Oral
+125266	Artiss	Fibrin Sealant (Human)
+125267	Cinryze	C1 Esterase Inhibitor (Human)
+125280	Ixiaro	Japanese Encephalitis Vaccine, Inactivated, Adsorbed
+125284	Atryn	Antithrombin (Recombinant)
+125285	Flublok	Influenza Vaccine
+125287	Berinert	C1 Esterase Inhibitor (Human)
+125296		Adenovirus Type 4 and Type 7 Vaccine, Live, Oral
+125297	Agriflu	Influenza Virus Vaccine
+125300	Menveo	Meningococcal (Groups A, C, Y, and W-135) Oligosaccharide Diphtheria CRM197 Conjugate Vaccine
+125317	Riastap	Fibrinogen Concentrate (Human)
+125324	Prevnar 13	Pneumococcal 13-valent Conjugate Vaccine (Diphtheria CRM197 Protein)
+125325	Glassia	Alpha-1-Proteinase Inhibitor (Human)
+125329	Gammaplex	Immune Globulin Intravenous (Human)
+125335	Anascorp	Centruroides (Scorpion) Immune F(ab')2 (Equine) Injection
+125347	Hiberix	Haemophilus b Conjugate Vaccine (Tetanus Toxoid Conjugate)
+125348	Laviv	Azficel-T
+125350	Hizentra	Immune Globulin Subcutaneous (Human), 20% Liquid
+125351	Tachosil	Fibrin Sealant Patch
+125354	Spherusol	Coccidioides immitis Spherule-Derived Skin Test Antigen
+125363	MENHIBRIX	Meningococcal Groups C and Y and Haemophilus b Tetanus Toxoid Conjugate Vaccine
+125384	Kedbumin	Albumin (Human)
+125385	Corifact	Factor XIII Concentrate (Human)
+125389	Bivigam	Immune Globulin Intravenous (Human)
+125391		HPC, Cord Blood
+125392	Evarrest	Fibrin Sealant Patch
+125397	Hemacord	Hematopoietic Progenitor Cells, Cord (HPC-C)
+125398	Tretten	Coagulation Factor XIII A-Subunit (Recombinant)
+125400	Gintuit	Allogeneic Cultured Keratinocytes and Fibroblasts in Bovine Collagen
+125402	Hyqvia	Immune Globulin Infusion (Human), 10% with Recombinant Human Hyaluronidase
+125407	Ducord	HPC, Cord Blood
+125408	Flucelvax, Flucelvax Quadrivalent	Influenza Vaccine
+125413	Allocord	HPC, Cord Blood
+125416	Octaplas	Pooled Plasma (Human), Solvent/Detergent Treated
+125419	Arepanrix	Influenza A [H5] Monovalent Vaccine, Adjuvanted
+125421	Kcentra	Prothrombin Complex Concentrate (Human)
+125426	Ixinity	Coagulation Factor IX (Recombinant)
+125428	Heplisav-B	Hepatitis B Vaccine (Recombinant), Adjuvanted
+125430	Varizig	Varicella Zoster Immune Globulin (Human)
+125432	Cordcyte	HPC, Cord Blood
+125444	Alprolix	Coagulation Factor IX (Recombinant), Fc Fusion Protein
+125446	Rixubis	Coagulation Factor IX (Recombinant)
+125462	Bat	Botulism Antitoxin Heptavalent (A, B, C, D, E, F, G) - (Equine)
+125466	Novoeight	Antihemophilic Factor (Recombinant)
+125471	Oralair	Sweet Vernal, Orchard, Perennial Rye, Timothy, and Kentucky Blue Grass Mixed Pollens Allergen Extract
+125473	Grastek	Timothy Grass Pollen Allergen Extract
+125478	Ragwitek	Short Ragweed Pollen Allergen Extract
+125487	Eloctate	Antihemophilic Factor (Recombinant), Fc Fusion protein
+125488	Anavip	Crotalidae Immune F(ab')2 (Equine)
+125495	Ruconest	C1 Esterase Inhibitor (Recombinant)
+125506	Coagadex	Coagulation Factor X (Human)
+125508	Gardasil 9	Human Papillomavirus 9-valent Vaccine, Recombinant
+125510	Fluad	Influenza Vaccine, Adjuvanted
+125510	Fluad,Fluad Quadrivalent	Influenza Vaccine, Adjuvanted
+125512	Obizur	Antihemophilic Factor (Recombinant), Porcine Sequence
+125518	Imlygic	Talimogene laherparepvec
+125523	Raplixa	Fibrin Sealant (Human)
+125525	Quadracel	Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed and Inactivated Poliovirus Vaccine
+125546	Bexsero	Meningococcal Group B Vaccine
+125549	Trumenba	Meningococcal Group B Vaccine
+125555	Nuwiq	Antihemophilic Factor (Recombinant)
+125562	Anthrasil	Anthrax Immune Globulin Intravenous (Human)
+125563	Vaxelis	Diphtheria and Tetanus Toxoids and Acellular Pertussis, Inactivated Poliovirus, Haemophilus b Conjugate and Hepatitis B Vaccine
+125566	Adynovate	Antihemophilic Factor (Recombinant), PEGylated
+125574	Kovaltry	Antihemophilic Factor (Recombinant), Full Length
+125577	Vonvendi	von Willebrand factor (Recombinant)
+125579	hudquzco rubber panel,rubber panel t.r.u.e. test	Rubber Panel Thin-Layer Rapid Use Epicutaneous Patch Test
+125582	Idelvion	Coagulation Factor IX (Recombinant), Albumin Fusion Protein
+125585		HPC, Cord Blood
+125586	Andexxa	Coagulation Factor Xa (Recombinant), Inactivated-zhzo
+125587	Panzyga	Immune Globulin Intravenous (Human)-ifas
+125590	Asceniv	Immune Globulin Intravenous, Human-slra
+125591	Afstyla	Antihemophilic Factor (Recombinant), Single Chain
+125592	Odactra	House Dust Mites (Dermatophagoides farinae and Dermatophagoides pteronyssinus) Allergen Extract
+125594	Clevecord	HPC, Cord Blood
+125596	Cuvitru	Immune Globulin Subcutaneous (Human), 20% Solution
+125597	Vaxchora	Cholera Vaccine, Live, Oral
+125603	Maci	autologous cultured chondrocytes on porcine collagen membrane
+125606	Haegarda	C1 Esterase Inhibitor Subcutaneous (Human)
+125610	Luxturna	Voretigene Neparvovec
+125611	Rebinyn	Coagulation Factor IX (Recombinant), GlycoPEGylated
+125612	Fibryga	Fibrinogen (Human)
+125613	Kedrab	Rabies Immune Globulin (Human)
+125614	Shingrix	Zoster Vaccine Recombinant, Adjuvanted
+125640	Vistaseal	Fibrin Sealant (Human)
+125641	Sevenfact	coagulation factor VIIa (recombinant)-jncw
+125643	Yescarta	axicabtagene ciloleucel
+125644	Albuminex	Albumin (Human)-kjda
+125646	Kymriah	tisagenlecleucel
+125657		Hematopoietic Progenitor Cells, Cord (HPC-C)
+125659	Ryplazim	plasminogen, human-tvmh
+125661	Jivi	Antihemophilic factor (recombinant), PEGylated-aucl
+125668	Cutaquig	Immune Globulin Subcutaneous (Human)-hipp
+125671	Esperoct	Antihemophilic Factor (Recombinant), GlycoPEGylated-exei
+125678	Jynneos	Smallpox and Mpox Vaccine, Live, Non-replicating
+125682	Dengvaxia	Dengue Tetravalent Vaccine, Live
+125683	Xembify	immune globulin subcutaneous, human-klhw
+125685	Rethymic	allogeneic processed thymus tissue-agdc
+125690	Ervebo	Ebola Zaire Vaccine, Live
+125692	Audenz	Influenza A (H5N1) Monovalent Vaccine, Adjuvanted
+125694	Zolgensma	onasemnogene abeparvovec-xioi
+125696	Palforzia	Peanut (Arachis hypogaea) Allergen Powder-dnfp
+125700	Adstiladrin	nadofaragene firadenovec-vncg
+125701	Menquadfi	Meningococcal (Groups A, C, Y, W) Conjugate Vaccine
+125703	Tecartus	Brexucabtagene Autoleucel
+125706	ryoncil	remestemcel-L-rknd
+125714	Breyanzi	lisocabtagene maraleucel
+125717	Zynteglo	betibeglogene autotemcel
+125720	Roctavian	valoctocogene roxaparvovec-rvox
+125722	KEBILIDI	eladocagene exuparvovec-tneq
+125730	StrataGraft	Allogeneic cultured keratinocytes and dermal fibroblasts in murine collagen-dsat
+125731	Prevnar 20	Pneumococcal 20-valent Conjugate Vaccine
+125734	Lantidra	donislecel-jujn
+125736	Abecma	idecabtagene vicleucel
+125737	Prehevbrio	Hepatitis B Vaccine (Recombinant)
+125738	OMISIRGE	omidubicel-onlv
+125739	Rebyota	fecal microbiota, live-jslm
+125740	Ticovac	Tick-Borne Encephalitis Vaccine
+125741	Vaxneuvance	Pneumococcal 15-valent Conjugate Vaccine
+125742	Comirnaty	COVID-19 Vaccine, mRNA
+125743	Alyglo	immune globulin intravenous, human-stwk
+125746	Carvykti	ciltacabtagene autoleucel
+125748	PRIORIX	Measles, Mumps and Rubella Vaccine Live
+125752	Spikevax	COVID-19 Vaccine, mRNA
+125755	Skysona	elivaldogene autotemcel
+125757	Vowst	fecal microbiota spores, live-brpk
+125758	Lenmeldy	atidarsagene autotemcel
+125761	CYFENDUS	Anthrax Vaccine Adsorbed, Adjuvanted
+125764	regenecyte	HPC, Cord Blood
+125769	Abrysvo	Respiratory Syncytial Virus Vaccine
+125770	PENBRAYA	Meningococcal Groups A, B, C, W, and Y Vaccine
+125771	ALTUVIIIO	antihemophilic factor (recombinant), Fc-VWF-XTEN fusion protein-ehtl
+125772	Hemgenix	etranacogene dezaparvovec-drlb
+125773	AMTAGVI	Lifileucel
+125774	VYJUVEK	beremagene geperpavec-svdt
+125775	Arexvy	Respiratory Syncytial Virus Vaccine, Adjuvanted
+125776	Balfaxar	Prothrombin complex concentrate, human-lans
+125777	IXCHIQ	Chikungunya Vaccine, Live
+125781	ELEVIDYS	delandistrogene moxeparvovec-rokl
+125786	BEQVEZ	fidanacogene elaparvovec-dzkt
+125787	Casgevy	Exagamglogene autotemcel
+125788	LYFGENIA	lovotibeglogene autotemcel
+125789	tecelra	afamitresgene autoleucel
+125795	ADZYNMA	ADAMTS13, recombinant-krhn
+125796	mresvia	Respiratory Syncytial Virus Vaccine
+125798	encelto	revakinagene taroretcel-lwey
+125806	kresladi	marnetegragene autotemcel
+125807	zevaskyn	Prademagene zamikeracel
+125810	YIMMUGO	immune globulin intravenous, human-dira
+125812	symvess	acellular tissue engineered vessel-tyod
+125813	Aucatzyl	Obecabtagene autoleucel
+125814	CAPVAXIVE	Pneumococcal 21-valent Conjugate Vaccine
+125816	avance nerve graft	acellular nerve allograft-arwx
+125817	NUVAXOVID	COVID-19 Vaccine, Adjuvanted
+125819	PENMENVY	Meningococcal Groups A, B, C, W and Y Vaccine
+125820	VIMKUNYA	Chikungunya Vaccine, Recombinant
+125822	QIVIGY	Immune Globulin Intravenous, Human-kthm, 10% Solution
+125825	voceryq	doruxapapogene ralaplasmid and lalikinogene sifuplasmid-gxfd
+125827	TUDRIQEV	vusolimogene oderparepvec-wtpg
+125832	PAPZIMEOS	zopapogene imadenovec-drba
+125833	FESILTY	fibrinogen, humanchmt
+125835	mnexspike	COVID-19 Vaccine, mRNA
+125845	Fayuvi	rebisufligene etisparvovec-hopf
+125846	waskyra	etuvetidigene autotemcel
+125856	ITVISMA	onasemnogene abeparvovec-brve
+125858	GENGLYCOS	pariglasgene brecaparvovec-opnr
+125868	tregzi	allogeneic regulatory T cell immunotherapy with HSPC and T cells-vldq
+125869	flusiva,mflusiva	Influenza Vaccine, mRNA
+125874	OTARMENI	lunsotogene parvec-cwha

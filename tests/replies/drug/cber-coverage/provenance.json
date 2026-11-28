@@ -1,0 +1,21 @@
+{
+  "capture_job": "j48553",
+  "recorded_on_utc": "2026-11-28",
+  "source": "Keyless BioMCP CLI --record calls to public openFDA Drugs@FDA and label endpoints. The recorder files are kept unchanged.",
+  "commands": [
+    "get drug Kymriah approvals",
+    "get drug Yescarta markets --source drugsfda",
+    "get drug Kymriah label --label-section indications_and_usage",
+    "get drug Shingrix label --label-section indications_and_usage"
+  ],
+  "recording_sha256": {
+    "drugsfda/1713c8b1565cf0262786fad7555500a8fb9d0a36f4c5ce6fb6295234d19a2ca8.json": "e08ae1779799f4fd1a58b45864e7cc9a37813d64f80e197afc8dedfdfe903aad",
+    "drugsfda/92e408abba71322f4f59b77abf792da591ed227808e0dfd8437b95d608511a6f.json": "fdc3d634c194d041d0418687e11aa2709183a61ecd7219944ac02d3ffc522a09",
+    "openfda-label/3349cbff61af9b7c4ddba27d38a30eb6a6da4675280e90fcc92f480ca9674206.json": "7bceea2798e62d9c7d1c7f4c2ecb1d947598e7f83d14c3eade507217f48b372a",
+    "openfda-label/41ac74d1f75e21822c96e2e1e827edce16e81745c79c36bc30e6a54d97ced42d.json": "cce4e803d0a0dba20705a016de24964e431eecbf8b68bc12330e977cfdcc772c",
+    "openfda-label/746a81674561210f9897c75e6e75343027b72815b25b44f539bab09ae1ec06d6.json": "37ca7d3a0501be600e8f4402d96301055fe21b486b9fed6414197cb1281c9daf",
+    "openfda-label/f7b154d67d50bdd8c464f2f123201d0dae74991ece7ae99e531e18256c2fae00.json": "cdc43ce44c01487d11421ae425f1ae77831c282ad3df5e0c8fa2a3a2c761b028",
+    "openfda-label/22f1841afd5681b831da3252e834a3aacf9ea5bd63aab7eb16ebc7f44336f7bc.json": "381d43fb02b6655f8225b256d81b9fcc9dd3227a90dfdfdcf5c84513337364e8",
+    "openfda-label/da106b6baceac29e09aa46833769fcb982017455ccd2293af5b91e07d1e51b95.json": "4b8af1831a334366a27988196d85e8cdf6065a587cb20d75fd1eb984a9cf7c6d"
+  }
+}
