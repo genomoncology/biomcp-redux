@@ -1,9 +1,7 @@
 //! Complete native CPIC rows with provider counts checked before cache admission.
 use super::SPEC;
 use crate::{mapped::Problems, pgx_sources::Native, raw::Field};
-use biodata::{
-    PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxRecommendation,
-};
+use biodata::{PgxDrugRecommendation, PgxGeneIdentity, PgxGuidelineReference, PgxRecommendation};
 use biomcp_fetch::Input;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::PgxGet;
