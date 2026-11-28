@@ -10,7 +10,7 @@ fn every_shipped_product_resolves_by_its_own_names_and_bla() {
     let by_product: HashMap<_, _> = release
         .rows
         .iter()
-        .map(|row| ((row.row.bla.as_str(), row.row.product_number.as_ref()), row))
+        .map(|row| ((&row.row.bla, row.row.product_number.as_ref()), row))
         .collect();
     let mut reader = csv::ReaderBuilder::new()
         .has_headers(false)
@@ -24,9 +24,10 @@ fn every_shipped_product_resolves_by_its_own_names_and_bla() {
             headings += 1;
         } else if headings == 2 && record.iter().any(|cell| !cell.is_empty()) {
             let bla = format!("BLA{}", &record[1]);
+            let id = bla.parse().expect("valid FDA BLA number");
             let product = &record[12];
             let row = by_product
-                .get(&(bla.as_str(), product))
+                .get(&(&id, product))
                 .unwrap_or_else(|| panic!("missing {bla} product {product}"));
             let keys = row.keys();
             for name in [bla.as_str(), &record[2], &record[3]] {
