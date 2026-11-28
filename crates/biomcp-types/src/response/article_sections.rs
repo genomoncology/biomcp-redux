@@ -11,6 +11,10 @@ biodata::canonical_enum! {
         Disease => "disease",
         /// Chemical mention.
         Chemical => "chemical",
+        /// Species mention.
+        Species => "species",
+        /// Cell line mention.
+        CellLine => "cell-line",
     }
 }
 /// One normalized entity with its mention count.
@@ -30,6 +34,9 @@ pub struct AnnotatedEntity {
     /// Source MeSH identity for a disease or chemical.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mesh: Option<Text>,
+    /// PubTator identifier for a species or cell line.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub identifier: Option<Text>,
     /// Source HGVS expression for a variant.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hgvs: Option<Text>,

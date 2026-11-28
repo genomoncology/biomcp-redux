@@ -1,6 +1,7 @@
 # 1239 — pubtator-species-and-cell-line
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 85683decedb334f513e1651fa8648ac1f5073d45
 
 Milestone: 10
 

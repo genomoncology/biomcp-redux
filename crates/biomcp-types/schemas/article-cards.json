@@ -55,6 +55,17 @@
           ],
           "description": "Source HGVS expression for a variant."
         },
+        "identifier": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "PubTator identifier for a species or cell line."
+        },
         "kind": {
           "$ref": "#/$defs/Reply_AnnotationKind",
           "description": "Source concept type."
@@ -106,13 +117,17 @@
         " Gene mention.",
         " Genetic variant mention.",
         " Disease mention.",
-        " Chemical mention."
+        " Chemical mention.",
+        " Species mention.",
+        " Cell line mention."
       ],
       "x-extensible-enum": [
         "gene",
         "variant",
         "disease",
-        "chemical"
+        "chemical",
+        "species",
+        "cell-line"
       ]
     },
     "Reply_Article": {

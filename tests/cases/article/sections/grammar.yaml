@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "article-sections",
-  "story": "Article cards expose executable section actions and share trailing, explicit and all section grammar. The indexing section adds required data; the expanded response measured10689 bytes and keeps15 percent headroom.",
+  "story": "An article card requested with repeated annotation sections includes PubTator species and their native identifiers.",
   "replay": "article/fulltext/live-all",
   "steps": [
     {
@@ -15,7 +15,10 @@
         "annotations"
       ],
       "expect": {
-        "/result/items/0/sections/annotations/state": "data"
+        "/result/items/0/sections/annotations/state": "data",
+        "/result/items/0/sections/annotations/data/items": {
+          "includes": {"kind": "species", "name": "9606", "count": 1, "identifier": "9606"}
+        }
       },
       "max_bytes": 4000
     }
