@@ -2,10 +2,12 @@
 use biomcp_fetch::Input;
 mod raw;
 pub(super) mod study;
+mod unpublished;
 use super::{SPEC, raw::Association};
 use biodata::{GwasAssociationId, GwasStudyId};
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, RequestError};
 use biomcp_types::{GwasAncestry, GwasLocus, GwasStudy};
+pub use unpublished::unpublished_study;
 /// Checked rows and source rows rejected for an owning-identity mismatch.
 #[derive(Debug)]
 pub struct Rows<T> {
@@ -47,12 +49,21 @@ impl Reply for Association {
         Ok(())
     }
 }
-/// Read one exact study with unchanged source sample descriptions.
+/// Read one exact study, trying unpublished records when a published study is absent.
 pub fn study(leg: &Leg<'_>, id: &GwasStudyId) -> Result<crate::Mapped<GwasStudy>, RequestError> {
-    let endpoint = SPEC
-        .get("")
-        .with_path(format!("/studies/{id}"))?
-        .fresh(Freshness::Days(1));
+    match study_card(leg, id, format!("/studies/{id}")) {
+        Err(RequestError::Source(error)) if error.reason == biomcp_types::Reason::NotFound => {
+            unpublished_study(leg, id)
+        }
+        result => result,
+    }
+}
+fn study_card(
+    leg: &Leg<'_>,
+    id: &GwasStudyId,
+    path: String,
+) -> Result<crate::Mapped<GwasStudy>, RequestError> {
+    let endpoint = SPEC.get("").with_path(path)?.fresh(Freshness::Days(1));
     let (row, _) = leg
         .call(
             &endpoint,

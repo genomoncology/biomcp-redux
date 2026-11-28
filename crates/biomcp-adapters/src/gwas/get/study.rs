@@ -31,6 +31,7 @@ pub(in crate::gwas) struct Study {
 }
 #[derive(Debug, Deserialize)]
 pub(in crate::gwas) struct ReceivedStudy {
+    #[serde(alias = "study_accession")]
     pub accession_id: GwasStudyId,
     pubmed_id: Option<crate::raw::Field<u64>>,
     disease_trait: Option<crate::raw::Field<NativeText>>,
@@ -45,6 +46,7 @@ pub(in crate::gwas) struct ReceivedStudy {
     array_manufacturer: Option<crate::raw::Field<Vec<crate::raw::Field<NativeText>>>>,
     gxe: Option<crate::raw::Field<bool>>,
     gxg: Option<crate::raw::Field<bool>>,
+    #[serde(alias = "imputation")]
     imputed: Option<crate::raw::Field<bool>>,
     pooled: Option<crate::raw::Field<bool>>,
     user_requested: Option<crate::raw::Field<bool>>,
@@ -135,6 +137,7 @@ impl Study {
         );
         let value = GwasStudy {
             id: self.accession_id,
+            unpublished: false,
             publication,
             reported_traits: self.disease_trait.into_iter().collect(),
             ontology_traits: self
@@ -144,6 +147,7 @@ impl Study {
                 .collect(),
             initial_sample_description: self.initial_sample_size.map(Into::into),
             replication_sample_description: self.replication_sample_size.map(Into::into),
+            samples: Box::new([]),
             discovery_ancestries: self
                 .discovery_ancestry
                 .into_iter()

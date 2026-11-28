@@ -30,6 +30,16 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let mut out = empty(q);
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     let result = gwas::search(&leg, q);
+    let fallback = match &result {
+        Ok(page) if page.total == 0 => studies::find_unpublished(&leg, q),
+        _ => Ok(None),
+    };
+    if let Ok(Some(study)) = fallback {
+        let out = studies::unpublished(cx, q, study, leg.finish());
+        command.finish(deadline.remaining());
+        return out;
+    }
+    let fallback_error = fallback.err();
     let error = result.as_ref().err().copied();
     let counts = result
         .as_ref()
@@ -69,7 +79,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         .with_query(biomcp_types::GwasPageQuery::Search(q.clone()));
         crate::status::item(&mut out, true, false, false);
     }
-    let mut source = status::source(Source::Gwas, leg.finish(), error);
+    let mut source = status::source(Source::Gwas, leg.finish(), error.or(fallback_error));
     if let Some((accepted, total)) = counts {
         source.retrieved_count = Some(accepted);
         source.count = Some(total);
@@ -78,7 +88,11 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         out.problems.push(Problem {
             source: Source::Gwas,
             record: None,
-            field: "association_page".into(),
+            field: if fallback_error.is_some() {
+                "unpublished_study".into()
+            } else {
+                "association_page".into()
+            },
             code: ProblemCode::ValueUnknown,
         });
     }
@@ -91,7 +105,10 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     out.next = next::search(q, body.as_ref(), source.state, cx.fresh, &mut out.problems);
     out.sources.push(source);
     status::search(&mut out);
-    out.local = error.and_then(status::local);
+    if fallback_error.is_some() {
+        status::item(&mut out, true, false, true);
+    }
+    out.local = error.or(fallback_error).and_then(status::local);
     traits::resolve(cx, q, deadline, &mut out);
     command.finish(deadline.remaining());
     out
