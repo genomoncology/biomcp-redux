@@ -24,8 +24,7 @@ impl Entry {
         self.primary_accession == *id && self.human_reviewed()
     }
     pub(in crate::uniprot) fn human_reviewed(&self) -> bool {
-        self.organism.taxon_id == 9606
-            && self.entry_type.as_str() == "UniProtKB reviewed (Swiss-Prot)"
+        super::super::human_reviewed(self.organism.taxon_id, self.entry_type.as_str())
     }
 }
 impl Reply for Entry {

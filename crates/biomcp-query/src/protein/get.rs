@@ -5,8 +5,8 @@ use biomcp_adapters::{hgnc, uniprot};
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, Request, Section, Source, SourceState,
-    Status, StepKind,
+    ErrorMessage, ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, ReplyData, Request,
+    Section, Source, SourceNotice, SourceState, Status, StepKind, UsageError,
 };
 /// ChEMBL target counts declare a longer budget than the default; other legs keep their caps.
 fn budget(cx: &Ctx<'_>, q: &ProteinGet) -> std::time::Duration {
@@ -31,27 +31,24 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
         .with_query(q.clone()),
     );
     let mut hgnc_error = None;
-    let mut protein_error = None;
+    let mut protein = ProteinReads::default();
     let mut items = Vec::new();
-    let mut asked = false;
     let mut unread = Vec::new();
     for input in q.input() {
-        let result = ids(&hgnc_leg, input, &mut out);
-        if let Err(e) = result {
-            hgnc_error = Some(e);
-            out.local = out.local.or(status::local(e));
-        }
         let mut item = empty_item(input.clone());
-        if let Ok(ids) = result {
-            asked |= !ids.is_empty();
-            unread.extend(hydrate(
-                &leg,
-                ids,
-                q,
-                &mut item,
-                &mut out,
-                &mut protein_error,
-            ));
+        match ids(&hgnc_leg, &leg, input, &mut out, &mut protein) {
+            Ok(ids) => {
+                protein.asked |= !ids.is_empty();
+                unread.extend(hydrate(&leg, ids, q, &mut item, &mut out, &mut protein));
+            }
+            Err((source, e)) => {
+                if source == Source::UniProt {
+                    protein.error = Some(e);
+                } else {
+                    hgnc_error = Some(e);
+                }
+                out.local = out.local.or(status::local(e));
+            }
         }
         items.push(item);
     }
@@ -59,9 +56,17 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
         out.sources
             .push(status::source(Source::Hgnc, hgnc_leg.finish(), hgnc_error));
     }
-    if asked {
-        out.sources
-            .push(status::source(Source::UniProt, leg.finish(), protein_error));
+    if protein.asked {
+        let mut source = status::source(Source::UniProt, leg.finish(), protein.error);
+        source.notices.extend(protein.notices);
+        out.sources.push(source);
+    }
+    if let Some(scope) = protein.scope
+        && matches!(q.input(), [ProteinInput::Accession(_)])
+    {
+        out.body = ReplyData::Usage(UsageError::message(scope));
+        command.finish(deadline.remaining());
+        return out;
     }
     if out
         .sources
@@ -108,18 +113,42 @@ fn empty_item(input: ProteinInput) -> ProteinCardItem {
         more: Box::default(),
     }
 }
+#[derive(Default)]
+struct ProteinReads {
+    asked: bool,
+    error: Option<RequestError>,
+    notices: Vec<SourceNotice>,
+    scope: Option<ErrorMessage>,
+}
+
+impl ProteinReads {
+    fn notice(&mut self, message: String) {
+        let notice = SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        };
+        if !self.notices.contains(&notice) {
+            self.notices.push(notice);
+        }
+    }
+}
+
 fn ids(
+    hgnc_leg: &Leg<'_>,
     leg: &Leg<'_>,
     input: &ProteinInput,
     out: &mut Outcome,
-) -> Result<Vec<UniProtIsoform>, RequestError> {
+    protein: &mut ProteinReads,
+) -> Result<Vec<UniProtIsoform>, (Source, RequestError)> {
     let ProteinInput::Gene(symbol) = input else {
         return Ok(match input {
             ProteinInput::Accession(id) => vec![id.clone()],
             _ => Vec::new(),
         });
     };
-    let rows = hgnc::lookup(leg, Find::Exact(KeyKind::Symbol, symbol.as_str()))?;
+    let rows = hgnc::lookup(hgnc_leg, Find::Exact(KeyKind::Symbol, symbol.as_str()))
+        .map_err(|error| (Source::Hgnc, error))?;
     status::append(&mut out.problems, rows.problems);
     let mut ids = Vec::new();
     for gene in rows
@@ -127,7 +156,16 @@ fn ids(
         .into_iter()
         .filter(|g| g.symbol.as_str() == symbol.as_str())
     {
-        for id in gene.uniprot {
+        let links = if crate::gene::needs_uniprot_lookup(&gene) {
+            protein.asked = true;
+            let mapped = uniprot::gene_candidates(leg, &gene.symbol)
+                .map_err(|error| (Source::UniProt, error))?;
+            status::append(&mut out.problems, mapped.problems);
+            mapped.value.into_boxed_slice()
+        } else {
+            gene.uniprot
+        };
+        for id in links {
             if let Some(id) = UniProtIsoform::new(id.as_str())
                 && !ids.contains(&id)
             {
@@ -144,18 +182,31 @@ fn hydrate(
     q: &ProteinGet,
     item: &mut ProteinCardItem,
     out: &mut Outcome,
-    error: &mut Option<RequestError>,
+    protein: &mut ProteinReads,
 ) -> Vec<UniProtIsoform> {
     let ambiguous = ids.len() > 1;
     let mut missed = Vec::new();
     item.status = crate::status::item_status(false, false, false);
     let mut failed = false;
     for id in ids {
-        match uniprot::entry(leg, &id) {
-            Ok(mapped) => {
+        match uniprot::lookup(leg, &id) {
+            Ok(uniprot::Lookup::Outside(reason)) => {
+                let (message, reason) = match reason {
+                    uniprot::Scope::NonHuman => (ErrorMessage::ProteinNonHuman, "is non-human"),
+                    uniprot::Scope::Unreviewed => {
+                        (ErrorMessage::ProteinUnreviewed, "is unreviewed")
+                    }
+                    uniprot::Scope::Deleted => (ErrorMessage::ProteinDeleted, "was deleted"),
+                };
+                protein.scope = Some(message);
+                protein.notice(format!(
+                    "{id} {reason}. BioMCP covers active reviewed human proteins only."
+                ));
+            }
+            Ok(uniprot::Lookup::Card(mapped)) => {
                 failed |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                 if mapped.value.is_none() && mapped.refusals == biomcp_adapters::Refusal::Refused {
-                    *error = Some(
+                    protein.error = Some(
                         biomcp_fetch::SourceError {
                             source: Source::UniProt,
                             reason: biomcp_types::Reason::BadReply,
@@ -168,6 +219,12 @@ fn hydrate(
                 }
                 status::append(&mut out.problems, mapped.problems);
                 if let Some(entry) = mapped.value {
+                    let primary = &entry.header.protein.accession;
+                    if primary != &id {
+                        protein.notice(format!(
+                            "UniProt redirected secondary accession {id} to {primary}."
+                        ));
+                    }
                     item.status = crate::status::item_status(true, false, false);
                     if ambiguous {
                         let mut rows = item.candidates.to_vec();
@@ -189,7 +246,7 @@ fn hydrate(
                                 out,
                             ) {
                                 failed = true;
-                                *error = Some(e);
+                                protein.error = Some(e);
                                 out.local = out.local.or(status::local(e));
                             }
                             item.sections = Some(sections);
@@ -209,7 +266,7 @@ fn hydrate(
                     ));
                 }
                 missed.push(id);
-                *error = Some(e);
+                protein.error = Some(e);
                 out.local = out.local.or(status::local(e));
             }
         }

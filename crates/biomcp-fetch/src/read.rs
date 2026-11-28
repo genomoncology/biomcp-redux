@@ -25,6 +25,7 @@ pub struct Read<'a, T> {
     pub(crate) overflow_reason: biomcp_types::Reason,
     pub(crate) json_rejections: bool,
     pub(crate) json_absence: bool,
+    pub(crate) json_see_other: bool,
     octet_stream: Option<&'static str>,
     /// A bundle-set part records its bytes under the set's limits, not the ordinary binary cap.
     pub(crate) set_part: bool,
@@ -107,6 +108,15 @@ impl<'a, T: Reply> Read<'a, T> {
         self
     }
 
+    pub(crate) fn decodes_error_status(&self, status: u16) -> bool {
+        match status {
+            303 => self.json_see_other,
+            400 | 422 => self.json_rejections,
+            404 => self.json_absence,
+            _ => false,
+        }
+    }
+
     pub(crate) fn decode_response(
         &self,
         body: &[u8],
@@ -142,6 +152,7 @@ impl<'a, T: Reply> Read<'a, T> {
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
             json_absence: false,
+            json_see_other: false,
             parse: |body| serde_json::from_slice(body).ok(),
         }
     }
@@ -176,6 +187,7 @@ impl<'a, T: Reply> Read<'a, T> {
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
             json_absence: false,
+            json_see_other: false,
             parse: |body| {
                 let text = std::str::from_utf8(body).ok()?;
                 let text = text.strip_prefix('\u{feff}').unwrap_or(text);
@@ -246,6 +258,7 @@ impl Read<'_, Probe> {
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
             json_absence: false,
+            json_see_other: false,
             octet_stream: None,
             set_part: false,
             cache_only: false,
@@ -288,6 +301,7 @@ impl<'a> Read<'a, Bytes> {
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
             json_absence: false,
+            json_see_other: false,
             parse: |body| Some(Bytes(body.to_vec())),
         }
     }

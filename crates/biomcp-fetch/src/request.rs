@@ -180,6 +180,7 @@ impl Leg<'_> {
         }
         codec.json_rejections = ep.json_rejections && codec.name() == "application/json";
         codec.json_absence = ep.json_absence && codec.name() == "application/json";
+        codec.json_see_other = ep.json_see_other && codec.name() == "application/json";
         let (reply, fetched, content_range, pagination) =
             self.cached(ep, &prepared, &codec, || self.attempts(&prepared, &codec))?;
         let metadata = crate::ReplyMetadata {
@@ -225,10 +226,7 @@ impl Leg<'_> {
             let (mut error, retryable, delay) = match exchange {
                 Ok(response) => {
                     let status = response.status;
-                    if (200..300).contains(&status)
-                        || codec.json_rejections && matches!(status, 400 | 422)
-                        || codec.json_absence && status == 404
-                    {
+                    if (200..300).contains(&status) || codec.decodes_error_status(status) {
                         return self.decode(response, codec).map_err(Into::into);
                     }
                     let delay = response
@@ -460,8 +458,7 @@ impl Leg<'_> {
             recording
                 || self.keyed()
                 || !prepared.outgoing.is_empty()
-                || codec.json_rejections && matches!(status, 400 | 422)
-                || codec.json_absence && status == 404,
+                || codec.decodes_error_status(status),
             limit,
             codec.overflow_reason,
         )?;
