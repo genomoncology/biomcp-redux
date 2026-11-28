@@ -114,7 +114,7 @@ text_value!(
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(with = "Fields", extend("anyOf" = [
-    {"required":["gene","source"],"properties":{"source":{"const":"clinvar"}}},
+    {"required":["gene","source"]},
     {"required":["gene","protein"]},
     {"required":["gene","coding"]},
     {"required":["region","build"]},
@@ -190,7 +190,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", length(max = MAX_FILTER_CHARS)))]
     review_status: Option<Text>,
-    /// ClinVar classification property, such as pathogenic, likely pathogenic or uncertain significance. Requires --source clinvar.
+    /// ClinVar germline classification property, such as pathogenic or uncertain significance. Requires --source clinvar.
     #[serde(
         default,
         deserialize_with = "present",
