@@ -3,7 +3,10 @@ use serde_json::{Value, json};
 
 pub(super) fn tool(output_schema: bool) -> std::io::Result<Value> {
     let mut tool = json!({"name":"help",
-        "description":"Read command help: argument schemas, sources, sections and examples. Copy continuation tokens from next calls. Use skill render for the agent guide.",
+        "description":concat!(
+            "Read command help: argument schemas, sources, sections and examples. ",
+            "Copy continuation tokens from next calls. Use skill render for the agent guide."
+        ),
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",
             "properties":{"command":{"type":"string","description":"Command path, such as search trial, get gene or sources; empty for the map."}},
             "required":["command"],"additionalProperties":false},
