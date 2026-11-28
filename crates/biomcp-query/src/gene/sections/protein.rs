@@ -16,14 +16,19 @@ pub(super) fn run(cx: &Ctx<'_>, deadline: Deadline<'_>, genes: &[(HgncId, Gene)]
         .collect();
     let leg = cx.fetch.leg(&uniprot::SPEC, deadline).fresh(cx.fresh);
     let linked = uniprot::proteins(&leg, &ids);
-    let mut error = linked.as_ref().err().copied();
+    let (mut error, mut dropped, mut problems) = match &linked {
+        Ok(mapped) => {
+            let mut problems = Vec::new();
+            status::append(&mut problems, mapped.problems.clone());
+            (
+                None,
+                mapped.refusals == biomcp_adapters::Refusal::Refused,
+                problems,
+            )
+        }
+        Err(error) => (Some(*error), false, Vec::new()),
+    };
     let mut local = error.and_then(status::local);
-    let mut dropped = false;
-    let mut problems = Vec::new();
-    if let Ok(mapped) = &linked {
-        dropped = mapped.refusals == biomcp_adapters::Refusal::Refused;
-        status::append(&mut problems, mapped.problems.clone());
-    }
     let values = genes
         .iter()
         .filter(|(_, gene)| applicable(gene))
