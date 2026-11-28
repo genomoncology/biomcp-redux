@@ -1,6 +1,6 @@
 use super::{SectionResult, SectionValue};
 use crate::{Ctx, status};
-use biodata::{Gene, HgncId};
+use biodata::{Gene, HgncId, Text};
 use biomcp_adapters::clingen::{self, actionability};
 use biomcp_fetch::{Deadline, Leg, LegReport, RequestError};
 use biomcp_types::{
@@ -97,7 +97,7 @@ fn read_actionability(cx: &Ctx<'_>, deadline: Deadline<'_>, gene: &Gene) -> Clin
         }
     };
     ClinGenActionability {
-        report_index: biomcp_types::Text::new(actionability::REPORT_INDEX)
+        report_index: Text::new(actionability::REPORT_INDEX)
             .expect("constant ClinGen report index URL"),
         adult: read(actionability::Context::Adult),
         pediatric: read(actionability::Context::Pediatric),
