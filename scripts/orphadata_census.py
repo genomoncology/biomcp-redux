@@ -83,8 +83,10 @@ def check_disorders(command, replay, disorders, mapped):
         valid = (rc == 0 and reply.get('status') == 'complete'
                  and card.get('returned_id') == (mondo or orphanet))
         if not mondo:
-            valid &= (card.get('concept', {}).get('label') == row.findtext('Name')
-                      and card.get('disorder_type') == row.findtext('DisorderType/Name')
+            name = row.findtext('Name', '').strip() or None
+            kind = row.findtext('DisorderType/Name', '').strip() or None
+            valid &= (card.get('concept', {}).get('label') == name
+                      and card.get('disorder_type') == kind
                       and card.get('attribution', {}).get('source') == 'orphadata')
         if not valid:
             failures[group] += 1
