@@ -1,6 +1,7 @@
 # 1248 — gene-get-source-refusal-suggests-a-refused-call
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8dec3753b3b55154f5b12ecc30a6079c9209570c
 
 Milestone: 7
 

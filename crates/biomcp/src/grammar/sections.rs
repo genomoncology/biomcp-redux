@@ -58,7 +58,9 @@ pub(super) fn gene_source_refusal(
     let mut value = super::request_arguments("get", "gene", matches).ok()?;
     let fields = value.as_object_mut()?;
     if matches!(source, Source::ClinGen | Source::Gencc) {
-        // The trailing validity shorthand is a section request after at least one gene ID.
+        // The trailing validity shorthand, or the disease section word gene-validity, is a
+        // section request after at least one gene ID.
+        let validity = biomcp_types::DiseaseSection::GeneValidity.as_str();
         let key = if fields.contains_key("section") {
             "section"
         } else {
@@ -66,7 +68,10 @@ pub(super) fn gene_source_refusal(
         };
         if let Some(words) = fields.get_mut(key).and_then(Value::as_array_mut)
             && (key == "section" || !explicit && words.len() > 1)
-            && words.last().and_then(Value::as_str) == Some("validity")
+            && words
+                .last()
+                .and_then(Value::as_str)
+                .is_some_and(|word| word == "validity" || word == validity)
         {
             words.pop();
         }

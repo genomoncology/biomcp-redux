@@ -1,5 +1,5 @@
 feature: gene-clingen
-story: Gene get refuses --source clingen and directs validity requests to the clingen section.
+story: Gene get refuses --source clingen and directs validity and gene-validity requests to the clingen section, also when the call carries options gene get does not take.
 replay: gene/clingen
 cache_acquired: 42
 steps:
@@ -13,6 +13,32 @@ steps:
 - run: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, validity, --source, clingen]
   exit: 2
   expect:
+    /next/0/args: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, clingen]
+- run: [get, gene, FANCA, gene-validity, --source, clingen]
+  exit: 2
+  expect:
+    /error/option: --source
+    /error/message: "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD."
+    /next/0/args: [get, gene, FANCA, clingen]
+- run: [get, gene, FANCA, gene-validity, --source, clingen, --limit, "50"]
+  exit: 2
+  expect:
+    /error/option: --source
+    /error/message: "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD."
+    /next/0/args: [get, gene, FANCA, clingen]
+- run: [get, gene, FANCA, gene-validity, --limit, "50", --source, clingen]
+  exit: 2
+  expect:
+    /error/option: --source
+    /next/0/args: [get, gene, FANCA, clingen]
+- run: [get, gene, FANCA, clingen, --limit, "50"]
+  exit: 2
+  expect:
+    /next/0/args: [get, gene, FANCA, clingen]
+- run: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, gene-validity, --source, clingen, --limit, "50"]
+  exit: 2
+  expect:
+    /error/option: --source
     /next/0/args: [get, gene, MLH1, MSH2, MSH6, PMS2, EPCAM, clingen]
 - follow: configure
   expect:

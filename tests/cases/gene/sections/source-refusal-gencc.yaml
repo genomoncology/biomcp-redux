@@ -1,5 +1,5 @@
 feature: gene-sections
-story: Gene get refuses --source gencc and directs validity requests to the gencc section.
+story: Gene get refuses --source gencc and directs validity and gene-validity requests to the gencc section.
 replay: gene/gencc
 config:
   disable_sources: [oncokb]
@@ -11,6 +11,11 @@ steps:
     /error/option: --source
     /error/message: "get gene rejects --source. Use clingen for ClinGen, gencc for GenCC, or constraint for gnomAD."
     /next/0/args: [get, gene, FANCA, gencc]
+- run: [get, gene, RAD51, gene-validity, --source, gencc, --limit, "50"]
+  exit: 2
+  expect:
+    /error/option: --source
+    /next/0/args: [get, gene, RAD51, gencc]
 - run: [sync, gencc]
   expect:
     /status: complete
@@ -18,6 +23,14 @@ steps:
   exit: 2
   expect:
     /next/0/args: [get, gene, ODC1, MIR21, gencc]
+- follow: configure
+  expect:
+    /status: complete
+    /result/items/0/sections/gencc/state: data
+- run: [get, gene, ODC1, gene-validity, --source, gencc]
+  exit: 2
+  expect:
+    /next/0/args: [get, gene, ODC1, gencc]
 - follow: configure
   expect:
     /status: complete
