@@ -4,7 +4,7 @@
   "url": "https://civicdb.org/api/graphql",
   "post": {
     "request_content_type": "application/json",
-    "request_body_sha256": "3da41fb31a11f686bf1951740bc7ca8ea742339553b7d8be870b8a03af034326"
+    "request_body_sha256": "e2af31f94257ccdbf5c5e885630017d366a4d416b9a9868e948a279c31b3bde2"
   },
   "exchanges": [
     {
@@ -63,7 +63,9 @@
                         "link": "/variants/276",
                         "feature": {
                           "id": 11335,
-                          "name": "CD274"
+                          "name": "CD274",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": null,
                         "hgvsDescriptions": [
@@ -79,7 +81,9 @@
                         "link": "/variants/442",
                         "feature": {
                           "id": 19,
-                          "name": "EGFR"
+                          "name": "EGFR",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": null,
                         "hgvsDescriptions": [],
@@ -93,7 +97,9 @@
                         "link": "/variants/499",
                         "feature": {
                           "id": 62024,
-                          "name": "v::ALK"
+                          "name": "v::ALK",
+                          "featureType": "FUSION",
+                          "featureInstance": {}
                         }
                       }
                     ]
@@ -142,7 +148,9 @@
                         "link": "/variants/306",
                         "feature": {
                           "id": 20,
-                          "name": "ERBB2"
+                          "name": "ERBB2",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": null,
                         "hgvsDescriptions": [
@@ -198,7 +206,9 @@
                         "link": "/variants/306",
                         "feature": {
                           "id": 20,
-                          "name": "ERBB2"
+                          "name": "ERBB2",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": null,
                         "hgvsDescriptions": [
@@ -252,7 +262,11 @@
                         "link": "/variants/4943",
                         "feature": {
                           "id": 61745,
-                          "name": "TMB"
+                          "name": "TMB",
+                          "featureType": "FACTOR",
+                          "featureInstance": {
+                            "ncitId": "C150128"
+                          }
                         }
                       }
                     ]

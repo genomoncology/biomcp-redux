@@ -78,8 +78,6 @@ def route_support(binary):
         profile = source_route(binary, env, ["variant", "MSI High", "civic"], optional=True)
         if profile:
             source_route(binary, env, ["variant", "5118", "civic"])
-            replay_evidence(binary, env, "variant/civic-profiles",
-                            "candidates/0/sections/civic/data/profiles/0/statements/0/record/id")
     return True, True, profile
 
 

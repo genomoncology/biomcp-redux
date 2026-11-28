@@ -4,7 +4,7 @@
   "url": "https://civicdb.org/api/graphql",
   "post": {
     "request_content_type": "application/json",
-    "request_body_sha256": "6db5b616c1836e25d7e30128fa53c6c7b32b82e418c2e42d23dbcbac4840af58"
+    "request_body_sha256": "5316452e1366881f4c5cf6cac938edeaefe1b9feccad7cc4edca9d8eab71749a"
   },
   "exchanges": [
     {
@@ -63,7 +63,9 @@
                         "link": "/variants/2999",
                         "feature": {
                           "id": 19,
-                          "name": "EGFR"
+                          "name": "EGFR",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": null,
                         "hgvsDescriptions": [],
@@ -77,7 +79,9 @@
                         "link": "/variants/3000",
                         "feature": {
                           "id": 19,
-                          "name": "EGFR"
+                          "name": "EGFR",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": null,
                         "hgvsDescriptions": [],
@@ -123,7 +127,9 @@
                         "link": "/variants/2745",
                         "feature": {
                           "id": 19,
-                          "name": "EGFR"
+                          "name": "EGFR",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": null,
                         "hgvsDescriptions": [],
@@ -169,7 +175,9 @@
                         "link": "/variants/12",
                         "feature": {
                           "id": 5,
-                          "name": "BRAF"
+                          "name": "BRAF",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": "CA123643",
                         "hgvsDescriptions": [
@@ -191,7 +199,9 @@
                         "link": "/variants/33",
                         "feature": {
                           "id": 19,
-                          "name": "EGFR"
+                          "name": "EGFR",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": "CA126713",
                         "hgvsDescriptions": [
@@ -212,7 +222,9 @@
                         "link": "/variants/34",
                         "feature": {
                           "id": 19,
-                          "name": "EGFR"
+                          "name": "EGFR",
+                          "featureType": "GENE",
+                          "featureInstance": {}
                         },
                         "alleleRegistryId": "CA090928",
                         "hgvsDescriptions": [

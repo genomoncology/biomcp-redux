@@ -44,7 +44,7 @@ To add a command, add a row to `CHECKS` in `scripts/nightly_live_check.py`. Keep
 
 ## Measure CIViC evidence reach
 
-Run `make civic-reach-census` to compare the current CIViC nightly release with the recorded floor. The census checks representative CLI reads against recordings, then counts accepted evidence by the identifiers the three routes can use. The variant route uses a ClinGen allele ID on a profile member, the drug route uses a stated therapy, and the profile route uses the CIViC profile ID. The census measures addressability from the release tables. It does not send a request for each evidence item.
+Run `make civic-reach-census` to compare the current CIViC nightly release with the recorded floor. The census checks the CLI route entry points, then counts accepted evidence by the identifiers those routes can use. The offline reach check owns the recorded profiles without an allele ID and the submitted drug evidence case. The variant route uses a ClinGen allele ID on a profile member, the drug route uses a stated therapy, and the profile route uses the CIViC profile ID. The census measures addressability from the release tables. It does not send a request for each evidence item.
 
 A compound profile can contribute to more than one feature type. Therapy and overall counts count each evidence item once within each row. The census fails if any route falls below the recorded count or share for a bucket. The live download runs separately from the landing gate.
 

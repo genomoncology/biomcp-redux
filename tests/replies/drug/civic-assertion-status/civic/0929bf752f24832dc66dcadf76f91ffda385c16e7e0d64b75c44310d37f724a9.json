@@ -4,7 +4,7 @@
   "url": "https://civicdb.org/api/graphql",
   "post": {
     "request_content_type": "application/json",
-    "request_body_sha256": "3a4bf889f38a5fe7b54c615337f3149eee55e8968c7be1dc8a831c4615852400"
+    "request_body_sha256": "f59de5175f2f3d46cb834125dd03a97e090284406c12e359624565e8f851ea99"
   },
   "exchanges": [
     {
@@ -60,7 +60,11 @@
                         "link": "/variants/4943",
                         "feature": {
                           "id": 61745,
-                          "name": "TMB"
+                          "name": "TMB",
+                          "featureType": "FACTOR",
+                          "featureInstance": {
+                            "ncitId": "C150128"
+                          }
                         }
                       }
                     ]

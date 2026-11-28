@@ -4,14 +4,13 @@
   "url": "https://civicdb.org/api/graphql",
   "post": {
     "request_content_type": "application/json",
-    "request_body_sha256": "f266a1ecf672cce3d9bce3ca560133a085f85a7247056b3345cc7f67fb22e952"
+    "request_body_sha256": "b62e4be5baa1cd1d2b3ab91f01fc7857a22d403799e8b9966540151aad585548"
   },
   "exchanges": [
     {
-      "fetched": 1794872249,
       "status": 200,
-      "content_type": "application/json; charset=utf-8",
-      "delay_ms": 325,
+      "content_type": "application/json",
+      "delay_ms": 0,
       "retry_after_ms": null,
       "body": {
         "kind": "json",
@@ -23,15 +22,15 @@
               "link": "/therapies/5"
             },
             "evidenceItems": {
-              "totalCount": 94,
+              "totalCount": 122,
               "pageInfo": {
                 "hasNextPage": true,
                 "endCursor": "Mg"
               },
               "nodes": [
                 {
-                  "id": 15,
-                  "status": "ACCEPTED",
+                  "id": 2488,
+                  "status": "SUBMITTED",
                   "significance": "RESISTANCE",
                   "disease": {
                     "name": "Gastrointestinal Stromal Tumor",
@@ -48,33 +47,28 @@
                   "evidenceLevel": "B",
                   "evidenceDirection": "SUPPORTS",
                   "source": {
-                    "citationId": "15928335",
+                    "citationId": "16551858",
                     "sourceType": "PUBMED"
                   },
                   "molecularProfile": {
-                    "id": 99,
-                    "name": "PDGFRA D842V",
-                    "rawName": "#VID99",
-                    "link": "/molecular-profiles/99",
+                    "id": 425,
+                    "name": "KIT EXPRESSION",
+                    "rawName": "#VID429",
+                    "link": "/molecular-profiles/425",
                     "isComplex": false,
                     "variants": [
                       {
-                        "id": 99,
-                        "name": "D842V",
-                        "link": "/variants/99",
+                        "id": 429,
+                        "name": "EXPRESSION",
+                        "link": "/variants/429",
                         "feature": {
-                          "id": 38,
-                          "name": "PDGFRA",
+                          "id": 29,
+                          "name": "KIT",
                           "featureType": "GENE",
                           "featureInstance": {}
                         },
-                        "alleleRegistryId": "CA123194",
-                        "hgvsDescriptions": [
-                          "NM_006206.4:c.2525A>T",
-                          "NP_006197.1:p.Asp842Val",
-                          "ENST00000257290.5:c.2525A>T",
-                          "NC_000004.11:g.55152093A>T"
-                        ],
+                        "alleleRegistryId": null,
+                        "hgvsDescriptions": [],
                         "coordinates": {
                           "referenceBuild": "GRCH37"
                         }
@@ -83,8 +77,8 @@
                   }
                 },
                 {
-                  "id": 16,
-                  "status": "ACCEPTED",
+                  "id": 2491,
+                  "status": "SUBMITTED",
                   "significance": "RESISTANCE",
                   "disease": {
                     "name": "Gastrointestinal Stromal Tumor",
@@ -101,32 +95,32 @@
                   "evidenceLevel": "B",
                   "evidenceDirection": "SUPPORTS",
                   "source": {
-                    "citationId": "16954519",
+                    "citationId": "22089421",
                     "sourceType": "PUBMED"
                   },
                   "molecularProfile": {
-                    "id": 99,
-                    "name": "PDGFRA D842V",
-                    "rawName": "#VID99",
-                    "link": "/molecular-profiles/99",
+                    "id": 953,
+                    "name": "KIT T661I",
+                    "rawName": "#VID979",
+                    "link": "/molecular-profiles/953",
                     "isComplex": false,
                     "variants": [
                       {
-                        "id": 99,
-                        "name": "D842V",
-                        "link": "/variants/99",
+                        "id": 979,
+                        "name": "T661I",
+                        "link": "/variants/979",
                         "feature": {
-                          "id": 38,
-                          "name": "PDGFRA",
+                          "id": 29,
+                          "name": "KIT",
                           "featureType": "GENE",
                           "featureInstance": {}
                         },
-                        "alleleRegistryId": "CA123194",
+                        "alleleRegistryId": "CA356908790",
                         "hgvsDescriptions": [
-                          "NM_006206.4:c.2525A>T",
-                          "NP_006197.1:p.Asp842Val",
-                          "ENST00000257290.5:c.2525A>T",
-                          "NC_000004.11:g.55152093A>T"
+                          "ENST00000288135.5:c.1982C>T",
+                          "NC_000004.11:g.55594279C>T",
+                          "NM_000222.2:c.1982C>T",
+                          "NP_000213.1:p.Thr661Ile"
                         ],
                         "coordinates": {
                           "referenceBuild": "GRCH37"
