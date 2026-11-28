@@ -67,7 +67,7 @@ fn execute(
     if cx.fetch.disabled(source) {
         return Err(SourceError::disabled(source).into());
     }
-    let key = source_snapshot::key("pathway-search", &q.restart())?;
+    let key = source_snapshot::key(snapshot_kind(q, source), &q.restart())?;
     let saved: Option<Saved> = if let Some(id) = q.pool().filter(|_| !(cx.fresh || q.fresh())) {
         let saved: Option<Saved> = source_snapshot::read(cx, &key, id.as_str(), deadline)?;
         match saved {
@@ -118,9 +118,30 @@ fn execute(
             run(Request::SearchPathway(q.at_offset(offset).with_pool(pool))),
         ));
     }
-    crate::status::search(out);
+    classify(out, q, source);
     out.body = body.with_query(q.clone());
     Ok(())
+}
+fn snapshot_kind(q: &PathwaySearch, source: Source) -> &'static str {
+    if source == Source::Reactome && q.gene().is_some() {
+        "pathway-gene-search/2"
+    } else {
+        "pathway-search"
+    }
+}
+
+fn classify(out: &mut Outcome, q: &PathwaySearch, source: Source) {
+    if source == Source::Reactome
+        && q.gene().is_some()
+        && out
+            .sources
+            .iter()
+            .any(|s| s.source == Source::Reactome && s.state == biomcp_types::SourceState::Skipped)
+    {
+        status::search_for(out, &[Source::Reactome]);
+    } else {
+        status::search(out);
+    }
 }
 fn fetch(
     cx: &Ctx<'_>,

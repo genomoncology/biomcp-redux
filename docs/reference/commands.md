@@ -761,7 +761,7 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --gene <gene>
-          Human gene input for exact resolution and UniProt mapping; Reactome only.
+          A human gene symbol, gene identifier or UniProt accession. Reactome only.
 
   -l, --limit <limit>
           Five rows by default, one to fifty. Reactome rows equals this limit without refill.
@@ -802,7 +802,7 @@ Options apply to every listed source unless their description restricts them.
 Paging: --limit and --offset.
 
 - `--fresh`: Request a new retained observation. Value form: boolean; example: --fresh.
-- `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only. Value form: string; example: --gene HGNC:1097.
+- `--gene`: A human gene symbol, gene identifier or UniProt accession. Reactome only. Value form: string; example: --gene MIR21.
 - `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill. Value form: integer; example: --limit 5.
 - `--offset`: Source Reactome Start row or retained WikiPathways catalog offset. Value form: integer; example: --offset 0.
 - `--pool`: Retained snapshot identity for deterministic continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).

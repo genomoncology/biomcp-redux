@@ -1,6 +1,7 @@
 # 1216 — pathways-for-genes-without-protein-id
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3547bcb0bad697f69561aada65daa158b50e1afb
 
 Milestone: 10
 

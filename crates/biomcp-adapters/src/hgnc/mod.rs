@@ -94,6 +94,17 @@ pub fn sync_all(fetch: &Fetch) -> Result<Mapped<biomcp_types::SyncResult>, Reque
 pub fn lookup(leg: &Leg<'_>, find: Find<'_>) -> Result<Mapped<Vec<Gene>>, RequestError> {
     Ok(map::genes(leg.rows(&COMPLETE, find)?))
 }
+/// Look up the published miRBase precursor accession for an approved HGNC identity.
+pub fn mirbase(leg: &Leg<'_>, id: HgncId) -> Result<Option<String>, RequestError> {
+    let rows = leg.rows(&COMPLETE, Find::Exact(KeyKind::Id, &id.to_string()))?;
+    Ok(rows.into_iter().find_map(|row| {
+        row.mirbase.filter(|value| {
+            value.strip_prefix("MI").is_some_and(|digits| {
+                digits.len() == 7 && digits.bytes().all(|byte| byte.is_ascii_digit())
+            })
+        })
+    }))
+}
 /// Withdrawn identity and every stated successor, without following chains.
 #[derive(Debug)]
 pub struct Withdrawn {

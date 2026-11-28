@@ -1,0 +1,12 @@
+live_check: public
+feature: pathway-reactome
+story: Searching Reactome by the microRNA gene MIR21 returns both human pathways.
+replay: gene/pathways
+steps:
+- run: [search, pathway, --gene, MIR21]
+  expect:
+    /status: complete
+    /result/page/total: 2
+    /result/items/*/id/id: [R-HSA-9725371, R-HSA-8943723]
+    /sources/1/source: reactome
+    /sources/1/state: ok

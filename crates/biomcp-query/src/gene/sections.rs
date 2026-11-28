@@ -6,6 +6,7 @@ mod expression;
 mod gencc;
 mod oncokb;
 mod pathways;
+pub(super) use pathways::{Mapping as PathwayMapping, mappings as pathway_mappings};
 mod protein;
 mod value;
 use super::get::SourceJob;
@@ -79,7 +80,7 @@ fn applicable(section: GeneSection, gene: &Gene) -> bool {
         GeneSection::ClinVar => gene.entrez_id.is_some(),
         GeneSection::Constraint => constraint::applicable(gene),
         GeneSection::Expression => expression::applicable(gene),
-        GeneSection::Pathways => pathways::applicable(gene),
+        GeneSection::Pathways => true,
         GeneSection::Oncokb => gene.entrez_id.is_some(),
     }
 }
@@ -173,6 +174,7 @@ pub(super) fn jobs<'a>(
     deadline: Deadline<'a>,
     query: &GeneGet,
     genes: &'a [(HgncId, Gene)],
+    mappings: &'a [PathwayMapping],
 ) -> Vec<SourceJob<'a>> {
     let mut jobs: Vec<SourceJob<'a>> = Vec::new();
     let requested = requested(query);
@@ -237,13 +239,9 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(expression::run(cx, deadline, genes))
         }));
     }
-    if requested.contains(&GeneSection::Pathways)
-        && genes
-            .iter()
-            .any(|(_, gene)| applicable(GeneSection::Pathways, gene))
-    {
+    if !mappings.is_empty() {
         jobs.push(Box::new(move || {
-            super::get::Job::Section(pathways::run(cx, deadline, genes))
+            super::get::Job::Section(pathways::run(cx, deadline, mappings))
         }));
     }
     if !query.section_only() && !genes.is_empty() {

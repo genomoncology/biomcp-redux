@@ -1,0 +1,11 @@
+feature: pathway-reactome
+story: An unresolved HGNC identifier leaves Reactome unqueried and the search incomplete.
+replay: pathway/native
+steps:
+- run: [search, pathway, --gene, "HGNC:99999999"]
+  exit: 4
+  expect:
+    /status: failed
+    /sources/1/source: reactome
+    /sources/1/state: skipped
+    /sources/1/reason: no-join-id
