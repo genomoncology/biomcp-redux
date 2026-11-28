@@ -54,16 +54,10 @@ pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<
         resolution = VariantResolution::Unavailable;
     }
     let mut sources = vec![source];
-    let mut local = error.and_then(status::local);
-    let mut incomplete = dropped;
-    if !candidates.is_empty() {
-        let (more, issues, section_error, section_incomplete) =
-            super::sections::apply(cx, query, &mut candidates, deadline, None);
-        sources.extend(more);
-        problems.extend(issues);
-        local = local.or(section_error);
-        incomplete |= section_incomplete;
-    }
+    let (section_sources, section_problems, section_error, incomplete) =
+        super::sections::apply(cx, query, &mut candidates, deadline, None);
+    sources.extend(section_sources);
+    problems.extend(section_problems);
     let next = super::next(
         cx.fetch,
         query,
@@ -73,7 +67,7 @@ pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<
         &mut problems,
     );
     status::finish(
-        [super::overall(resolution, incomplete, &sources)],
+        [super::overall(resolution, dropped || incomplete, &sources)],
         status::Parts {
             body: super::reply(
                 query,
@@ -89,7 +83,7 @@ pub(super) fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut Deadline<
             sources,
             problems,
             next,
-            local,
+            local: error.and_then(status::local).or(section_error),
             dropped,
         },
     )
