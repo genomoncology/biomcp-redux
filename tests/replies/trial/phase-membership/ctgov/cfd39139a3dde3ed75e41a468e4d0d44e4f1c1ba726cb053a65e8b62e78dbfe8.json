@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle&filter.advanced=AREA%5BPhase%5DPHASE1%20AND%20AREA%5BPhase%5DPHASE2&pageSize=1",
+  "exchanges": [
+    {
+      "fetched": 1795834039,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 144,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":17251,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT03515551","briefTitle":"Safety and Efficacy of IMCnyeso in Advanced NY-ESO-1 and/or LAGE-1A Positive Cancers","officialTitle":"A Phase I/II Study of IMCnyeso, HLA- A*0201-Restricted, NY-ESO-1- and LAGE-1A-specific Soluble T Cell Receptor and Anti-CD3 Bispecific Molecule, in HLA-A*0201 Positive Patients With Advanced NY-ESO-1 and/or LAGE - 1A Positive Cancer"},"statusModule":{"overallStatus":"TERMINATED","whyStopped":"Strategic decision to stop development and not based on any safety concerns","startDateStruct":{"date":"2018-06-15","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2021-05-10","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2022-03-11"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Immunocore Ltd"}},"conditionsModule":{"conditions":["Select Advanced Solid Tumors"]},"designModule":{"phases":["PHASE1","PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"IMCnyeso"}]}},"hasResults":true}
+]}
+      }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 # 1227 — trial-phase-filter-exact
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 555ea67ac8d0c8198712d1192290a7ed73e9698c
 
 Milestone: 10
 

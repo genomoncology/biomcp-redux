@@ -1,0 +1,25 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "A single ClinicalTrials.gov phase includes studies in its combined phases. The combined choice requires both phases, and each total comes from the registry.",
+  "replay": "trial/phase-membership",
+  "verified": "BioMCP recorded both first pages and the registry version from ClinicalTrials.gov in j48598. The fixtures omit the pagination cursors.",
+  "steps": [
+    {
+      "run": ["search", "trial", "--phase", "1", "--limit", "1"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 66453,
+        "/result/items/0/phases": ["PHASE1", "PHASE2"]
+      }
+    },
+    {
+      "run": ["search", "trial", "--phase", "1/2", "--limit", "1"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 17251,
+        "/result/items/0/phases": ["PHASE1", "PHASE2"]
+      }
+    }
+  ]
+}

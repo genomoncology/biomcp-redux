@@ -4,6 +4,9 @@
   "steps": [
     {
       "expect": {
+        "/result/commands/0/arguments/*/description": {
+          "includes": "Source phase.\nClinicalTrials.gov: 1–4, early-1, not-applicable, 1/2, 2/3 or PHASE3-style labels. 1–3 include combined phases. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3."
+        },
         "/result/commands/0/arguments/*/name": [
           "--acronym",
           "--age",
