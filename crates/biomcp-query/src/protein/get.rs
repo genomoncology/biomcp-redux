@@ -206,16 +206,7 @@ fn hydrate(
             Ok(uniprot::Lookup::Card(mapped)) => {
                 failed |= mapped.refusals == biomcp_adapters::Refusal::Refused;
                 if mapped.value.is_none() && mapped.refusals == biomcp_adapters::Refusal::Refused {
-                    protein.error = Some(
-                        biomcp_fetch::SourceError {
-                            source: Source::UniProt,
-                            reason: biomcp_types::Reason::BadReply,
-                            status: Some(200),
-                            tls_cause: None,
-                            retry_after: None,
-                        }
-                        .into(),
-                    );
+                    protein.error = Some(biomcp_fetch::bad_reply(Source::UniProt, Some(200)));
                 }
                 status::append(&mut out.problems, mapped.problems);
                 if let Some(entry) = mapped.value {
@@ -225,34 +216,10 @@ fn hydrate(
                             "UniProt redirected secondary accession {id} to {primary}."
                         ));
                     }
-                    item.status = crate::status::item_status(true, false, false);
-                    if ambiguous {
-                        let mut rows = item.candidates.to_vec();
-                        rows.push(entry.header);
-                        item.candidates = rows.into();
-                    } else {
-                        item.more = super::sections::NAMES
-                            .into_iter()
-                            .filter(|name| !super::sections::wants(q, *name))
-                            .collect();
-                        if !q.sections().is_empty() {
-                            let mut sections = super::sections::first(q, &entry);
-                            super::sections::continuations(q, &entry, out);
-                            if let Some(e) = super::sections::alternative_sequence(
-                                q,
-                                &entry,
-                                leg,
-                                &mut sections,
-                                out,
-                            ) {
-                                failed = true;
-                                protein.error = Some(e);
-                                out.local = out.local.or(status::local(e));
-                            }
-                            item.sections = Some(sections);
-                        }
-                        item.header = Some(entry.header);
-                        item.audit = Some(entry.audit);
+                    if let Some(e) = apply_entry(entry, ambiguous, leg, q, item, out) {
+                        failed = true;
+                        protein.error = Some(e);
+                        out.local = out.local.or(status::local(e));
                     }
                 }
             }
@@ -279,6 +246,44 @@ fn hydrate(
         };
     }
     missed
+}
+
+fn apply_entry(
+    entry: uniprot::Entry,
+    ambiguous: bool,
+    leg: &Leg<'_>,
+    q: &ProteinGet,
+    item: &mut ProteinCardItem,
+    out: &mut Outcome,
+) -> Option<RequestError> {
+    item.status = status::item_status(true, false, false);
+    if ambiguous {
+        let mut candidates = std::mem::take(&mut item.candidates).into_vec();
+        if !candidates
+            .iter()
+            .any(|row| row.protein.accession == entry.header.protein.accession)
+        {
+            candidates.push(entry.header);
+        }
+        item.candidates = candidates.into_boxed_slice();
+        return None;
+    }
+    item.more = super::sections::NAMES
+        .into_iter()
+        .filter(|name| !super::sections::wants(q, *name))
+        .collect();
+    let error = if q.sections().is_empty() {
+        None
+    } else {
+        let mut sections = super::sections::first(q, &entry);
+        super::sections::continuations(q, &entry, out);
+        let error = super::sections::alternative_sequence(q, &entry, leg, &mut sections, out);
+        item.sections = Some(sections);
+        error
+    };
+    item.header = Some(entry.header);
+    item.audit = Some(entry.audit);
+    error
 }
 
 fn recovery(q: &ProteinGet, out: &mut Outcome) {
