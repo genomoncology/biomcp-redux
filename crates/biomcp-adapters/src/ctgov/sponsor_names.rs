@@ -16,7 +16,9 @@ pub fn sponsor_notice(
     condition: Option<&biodata::Text>,
     page: &SearchPage,
 ) -> Option<SourceNotice> {
-    let total = page.total.filter(|total| (1..=SMALL_TOTAL).contains(total))?;
+    let total = page
+        .total
+        .filter(|total| (1..=SMALL_TOTAL).contains(total))?;
     if query.id().is_some()
         || query.offset() != 0
         || query.next_page().is_some()
