@@ -373,6 +373,11 @@ pub(crate) fn help_line(verb: &str, entity: &str, sections: &[String]) -> Option
             .to_owned()
         });
     }
+    if (verb, entity) == ("search", "pgx") {
+        return Some(
+            "--fields a,b or a.b selects source row fields and keeps IDs (MCP: fields).".into(),
+        );
+    }
     let sources = source_rows(verb, entity);
     if !sources.is_empty() {
         let rows = sources
