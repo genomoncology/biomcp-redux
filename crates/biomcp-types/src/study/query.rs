@@ -27,6 +27,11 @@ biodata::wire_enum! {
         All => "all"
     }
 }
+impl StudySection {
+    fn requires_gene(self) -> bool {
+        matches!(self, Self::Mutations | Self::StructuralVariants | Self::Cna)
+    }
+}
 #[doc = " Literal stored metadata search; text is never parsed as a query language. No frequency, \
     denominator, survival or comparison is calculated. Source counts keep their native names."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -158,24 +163,13 @@ impl TryFrom<GetFields> for StudyGet {
         if matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0 {
             return Err(QueryInvalid::new(&["section", "section_offset"]));
         }
-        if (matches!(
-            v.section,
-            Some(StudySection::Mutations | StudySection::StructuralVariants | StudySection::Cna)
-        ) || v.molecular_profile.is_some())
-            && v.gene.is_none()
-        {
+        let requires_gene = v.section.is_some_and(StudySection::requires_gene);
+        if (requires_gene || v.molecular_profile.is_some()) && v.gene.is_none() {
             return Err(QueryInvalid::new(&["gene"]));
         }
         if (v.gene.is_some() || v.molecular_profile.is_some())
-            && !matches!(
-                v.section,
-                Some(
-                    StudySection::Mutations
-                        | StudySection::StructuralVariants
-                        | StudySection::Cna
-                        | StudySection::All
-                )
-            )
+            && !requires_gene
+            && v.section != Some(StudySection::All)
         {
             return Err(QueryInvalid::new(&["section", "gene", "molecular_profile"]));
         }
@@ -229,13 +223,7 @@ impl StudyGet {
     pub fn with_section(&self, section: StudySection) -> Self {
         let mut q = self.clone();
         q.0.section = Some(section);
-        if !matches!(
-            section,
-            StudySection::Mutations
-                | StudySection::StructuralVariants
-                | StudySection::Cna
-                | StudySection::All
-        ) {
+        if !section.requires_gene() && section != StudySection::All {
             q.0.gene = None;
             q.0.molecular_profile = None;
         }
