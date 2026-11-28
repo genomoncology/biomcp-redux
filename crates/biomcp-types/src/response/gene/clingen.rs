@@ -51,11 +51,11 @@ pub struct ClinGenActionability {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenActionabilityContext {
-    /// Outcome of reading this summary.
+    /// Read outcome and matching row count when available.
     pub status: crate::SourceOutcome,
-    /// Published rows. An empty list means the summary contained no matching curation.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub curations: Option<Box<[ClinGenActionabilityRow]>>,
+    /// Matching rows in publisher order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub curations: Box<[ClinGenActionabilityRow]>,
 }
 
 /// One gene-condition row from the ClinGen actionability score summary.

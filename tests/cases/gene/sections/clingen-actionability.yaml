@@ -33,6 +33,8 @@ steps:
     /status: complete
     /result/items/0/sections/clingen/data/actionability/report_index: https://search.clinicalgenome.org/kb/actionability/report-index
     /result/items/0/sections/clingen/data/actionability/adult/status/state: ok
-    /result/items/0/sections/clingen/data/actionability/adult/curations: {equals: []}
+    /result/items/0/sections/clingen/data/actionability/adult/status/count: 0
+    /result/items/0/sections/clingen/data/actionability/adult: {omits: [curations]}
     /result/items/0/sections/clingen/data/actionability/pediatric/status/state: ok
-    /result/items/0/sections/clingen/data/actionability/pediatric/curations: {equals: []}
+    /result/items/0/sections/clingen/data/actionability/pediatric/status/count: 0
+    /result/items/0/sections/clingen/data/actionability/pediatric: {omits: [curations]}

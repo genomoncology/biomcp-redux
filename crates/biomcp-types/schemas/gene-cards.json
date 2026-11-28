@@ -156,18 +156,15 @@
       "description": "Result of looking up one gene in one actionability summary.",
       "properties": {
         "curations": {
-          "description": "Published rows. An empty list means the summary contained no matching curation.",
+          "description": "Matching rows in publisher order.",
           "items": {
             "$ref": "#/$defs/Reply_ClinGenActionabilityRow"
           },
-          "type": [
-            "array",
-            "null"
-          ]
+          "type": "array"
         },
         "status": {
           "$ref": "#/$defs/Reply_SourceOutcome",
-          "description": "Outcome of reading this summary."
+          "description": "Read outcome and matching row count when available."
         }
       },
       "required": [
