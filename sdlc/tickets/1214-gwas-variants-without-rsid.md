@@ -1,6 +1,7 @@
 # 1214 — gwas-variants-without-rsid
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b7c7b9f451fe7f0a6e5c44d109fb618713b9b849
 
 Milestone: 10
 

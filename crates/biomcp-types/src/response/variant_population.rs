@@ -96,6 +96,9 @@ pub struct GwasAssociation {
     /// Every source effect allele paired with its rsID.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub alleles: Box<[GwasEffectAllele]>,
+    /// Effect alleles identified by a Catalog position or HLA name.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub catalog_alleles: Box<[GwasCatalogAllele]>,
     /// Reported p value.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub p_value: Option<FiniteNumber>,
@@ -142,6 +145,26 @@ pub struct GwasEffectAllele {
     /// Source allele text.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub allele: Option<Text>,
+}
+/// Effect allele paired with a Catalog identifier outside dbSNP.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasCatalogAllele {
+    /// Identifier as supplied by the Catalog.
+    pub identifier: Text,
+    /// Kind of Catalog identifier.
+    pub kind: GwasCatalogAlleleKind,
+    /// Source allele text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub allele: Option<Text>,
+}
+biodata::wire_enum! {
+    described
+    /// Catalog identifier syntax.
+    GwasCatalogAlleleKind {
+        #[doc = "Catalog chromosome and position with no inferred assembly."] Position => "position",
+        #[doc = "Named HLA allele."] HlaAllele => "hla_allele"
+    }
 }
 /// Population summary and one explicitly requested ancestry-detail page.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

@@ -579,7 +579,7 @@ Paging: --limit and --offset.
 Form: search gwas QUERY; not --query.
 - `--studies`: Return study records for the selected publication instead of associations. Value form: boolean; example: --studies.
 - `--study`: Exact source study accession. Value form: string; example: --study GCST000035.
-- `--trait`: Exact source efo_trait label; never searches reported_trait prose. Value form: string; example: --trait 'breast carcinoma'.
+- `--trait`: Exact source efo_trait label; never searches reported_trait prose. Value form: string; example: --trait 'Alzheimer disease'.
 - `--trait-id`: Exact source ontology identity. Value form: string; example: --trait-id MONDO_0004989.
 - `--variant`: Exact source rsID. Value form: string; example: --variant rs2981582.
 

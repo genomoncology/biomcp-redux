@@ -24,6 +24,7 @@ pub(super) fn association(
                 allele: a.effect_allele,
             })
             .collect(),
+        catalog_alleles: row.catalog_alleles.into(),
         // A value below the float range reads 0.0; the exact value is then the only truth.
         p_value: row
             .p_value

@@ -1,0 +1,17 @@
+{
+  "source": "gwas",
+  "method": "GET",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/117751220",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"association_id\":117751220,\"risk_frequency\":\"NR\",\"pvalue_description\":\"\",\"pvalue_mantissa\":3,\"pvalue_exponent\":-8,\"multi_snp_haplotype\":false,\"snp_interaction\":false,\"range\":\"-\",\"beta\":\"-\",\"p_value\":3.0000000000000004E-8,\"efo_traits\":[{\"efo_id\":\"OBA_2045249\",\"efo_trait\":\"corpus callosum volume\"}],\"reported_trait\":[\"Corpus callosum volume (MOSTest)\"],\"accession_id\":\"GCST90281350\",\"locations\":[],\"mapped_genes\":[],\"bg_efo_traits\":[],\"pubmed_id\":\"37164063\",\"first_author\":\"Chen SJ\",\"snp_effect_allele\":[\"chr4:6965877-?\"],\"snp_allele\":[{\"rs_id\":\"chr4:6965877\",\"effect_allele\":\"?\"}],\"_links\":{\"self\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/117751220\"},\"loci\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/associations/117751220/loci\"},\"snp\":{\"href\":\"https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/chr4:6965877\"}}}"
+      }
+    }
+  ]
+}
