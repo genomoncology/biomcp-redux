@@ -252,8 +252,9 @@ fn mapped_page(page: Page, summaries: Option<Summaries>) -> SearchPage {
                     return None;
                 };
                 record_id = accession;
-                label =
-                    problems.optional("title", Some(crate::mapped::source_text(&summary.title)));
+                label = problems
+                    .optional("title", Some(crate::mapped::source_text(&summary.title)))
+                    .map(Box::new);
             }
             let record = SourceRecord {
                 namespace: biodata::IdentifierNamespace::Unknown,

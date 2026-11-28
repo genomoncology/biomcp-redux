@@ -28,7 +28,7 @@ pub struct VariantHeader {
     pub identity: Variant,
     /// Native ClinVar variation title, including range records without a small-variant HGVS.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub label: Option<Text>,
+    pub label: Option<Box<Text>>,
     /// Checked caller ID used by a source-only section, without asserting resolved identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub requested: Option<crate::VariantId>,
