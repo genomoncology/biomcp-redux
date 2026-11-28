@@ -15,6 +15,10 @@ MAX_SOURCE_BYTES = 64 * 1024 * 1024
 SAMPLE_SIZE = 8
 
 
+class CensusError(ValueError):
+    """A diagnostic containing only fixed text or an enumerated reason."""
+
+
 @dataclass(frozen=True)
 class Measurement:
     total: int
@@ -51,7 +55,7 @@ class Census:
         with urlopen(request, timeout=30) as response:
             content = response.read(MAX_SOURCE_BYTES + 1)
             if len(content) > MAX_SOURCE_BYTES:
-                raise ValueError("native reply exceeds the source capture bound")
+                raise CensusError("native reply exceeds the source capture bound")
             return (content if raw else json.loads(content) if content else None), response.headers
 
     def reply(self, args, record=False, allow_usage=False):
@@ -65,15 +69,16 @@ class Census:
                                  capture_output=True, timeout=120, check=False)
         reply = json.loads(process.stdout)
         if not isinstance(reply, dict) or "status" not in reply:
-            raise ValueError("malformed BioMCP envelope")
+            raise CensusError("malformed BioMCP envelope")
         if process.returncode == 2 and not allow_usage:
-            raise ValueError("BioMCP rejected census arguments")
+            raise CensusError("BioMCP rejected census arguments")
         for source in reply.get("sources", []):
-            if source.get("reason") in {
+            reason = source.get("reason")
+            if reason in {
                 "deadline-exceeded", "rate-limited", "unavailable", "transport",
                 "disabled", "offline", "no-key", "tls", "proxy", "local-quota",
             }:
-                raise ValueError("BioMCP could not observe the source")
+                raise CensusError(f"BioMCP could not observe the source: {reason}")
         return reply
 
 
@@ -100,7 +105,7 @@ def source_page(census, label, fetch, probe):
     for offset in sample:
         observed, row = (total, first) if offset == 0 else fetch(offset)
         if observed != total or row is None:
-            raise ValueError("native population changed during its sample")
+            raise CensusError("native population changed during its sample")
         reached += bool(probe(row))
     return Measurement(total, reached, len(sample))
 

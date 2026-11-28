@@ -1,7 +1,6 @@
 """Native sample frames for the remaining live reach providers."""
 from collections import defaultdict
 import json
-import re
 from xml.etree import ElementTree
 
 from gene_validity_reach import probes as validity_probes
@@ -193,7 +192,7 @@ def interpro(census):
                 return True
             # A member signature is reachable only when the tool returns its own identity.
             identifier = native["results"][0]["metadata"]["accession"]
-            return any(item.get("accession") == identifier
+            return any(item.get("id") == identifier
                        for item in (read(reply, "result", "items") or []))
 
         yield database, protein_sample(census, "reviewed:true AND organism_id:9606",
@@ -254,9 +253,7 @@ def clinpgx(census):
             identifier = row["accessionId"]
             reply = census.reply(("get", "pgx", "--annotation-id", identifier,
                                   "--source", "clinpgx"))
-            return reply["status"] in {"complete", "partial"} and bool(
-                read(reply, "result", "annotation")
-            )
+            return read(reply, "result", "header", "id") == identifier
 
         for group, records in sorted(groups.items()):
             label = f"clinical/{level}/{group}"
@@ -286,7 +283,7 @@ def gnomad(census):
 
     def probe(identifier):
         reply = census.reply(("variant", "population", identifier))
-        return bool(read(reply, "result", "datasets"))
+        return read(reply, "result", "population", "data", "variant") == identifier
 
     for label, identifiers in sorted(groups.items()):
         yield label, sample_rows(label, sorted(identifiers), probe)

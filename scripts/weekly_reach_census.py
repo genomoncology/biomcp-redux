@@ -11,9 +11,10 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+from urllib.error import HTTPError, URLError
 
 from nightly_live_check import build
-from reach_census_common import Census, Measurement, offsets, read, source_page
+from reach_census_common import Census, CensusError, Measurement, offsets, read, source_page
 import reach_census_providers as providers
 
 NCBI = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
@@ -76,20 +77,22 @@ def gwas(census):
             raise ValueError("association total changed during sampling")
         for row in body["_embedded"]["associations"]:
             native = [allele["rs_id"] for allele in row.get("snp_allele") or []]
-            identifiers = [value for value in native if not re.fullmatch(r"rs\d+", value)]
-            group = "non-rsid" if identifiers else ("rsid" if native else "no-allele")
-            groups[group].append((row["association_id"], identifiers))
+            identifiers = {value for value in native if re.fullmatch(r"rs\d+", value)}
+            other = set(native) - identifiers
+            group = "non-rsid" if other else ("rsid" if identifiers else "no-allele")
+            groups[group].append((row["association_id"], identifiers, other))
 
     reached_by_group, sampled_by_group = [], []
     for group, rows in sorted(groups.items()):
         reached = 0
         for index in offsets(group, len(rows), 20):
-            native_id, identifiers = rows[index]
+            native_id, identifiers, other = rows[index]
             identifier = f"association:{native_id}"
             reply = census.reply(("get", "gwas", identifier))
             association = read(reply, "result", "association") or {}
             mapped = {row["identifier"] for row in association.get("catalog_alleles", [])}
-            reached += association.get("id") == identifier and set(identifiers) <= mapped
+            rsids = {row["rs_id"] for row in association.get("alleles", [])}
+            reached += association.get("id") == identifier and identifiers <= rsids and other <= mapped
         reached_by_group.append(reached)
         sampled_by_group.append(min(20, len(rows)))
         # The population for the stratum is the sampled native frame, not an extrapolation.
@@ -127,7 +130,11 @@ def chembl_molecules(census, by_name):
             identifier = row["molecule_chembl_id"]
             if by_name:
                 reply = census.reply(("get", "drug", row["pref_name"]), allow_usage=True)
-                return bool(read(reply, "result", "header", "id"))
+                header = read(reply, "result", "header") or {}
+                names = [header.get("name") or "", *(read(reply, "result", "alternate_names") or [])]
+                return bool(header.get("id")) and row["pref_name"].casefold() in {
+                    name.casefold() for name in names
+                }
             reply = census.reply(("get", "drug", identifier, "--source", "chembl"))
             return read(reply, "result", "header", "id") == identifier
 
@@ -217,7 +224,14 @@ def run(census, sources, floors):
                         failures.append(failure)
         except (OSError, ValueError, KeyError, TypeError, IndexError, subprocess.SubprocessError) as error:
             # Provider text and exception arguments can contain URLs or credentials.
-            failures.append(f"{label}: census incomplete ({type(error).__name__})")
+            detail = type(error).__name__
+            if isinstance(error, HTTPError):
+                detail = f"HTTP {error.code}"
+            elif isinstance(error, URLError):
+                detail = f"network {type(error.reason).__name__}"
+            elif isinstance(error, CensusError):
+                detail = str(error)
+            failures.append(f"{label}: census incomplete ({detail})")
         if floors is not None:
             failures.extend(f"{source}/{group}: recorded class was not measured"
                             for group in sorted(floors.get(source, {}).keys() - seen))
