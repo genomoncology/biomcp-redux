@@ -35,15 +35,6 @@
                     "drugcharacterization": "1"
                   },
                   {
-                    "drugcharacterization": "1"
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
                     "drugcharacterization": "2",
                     "medicinalproduct": "WARFARIN",
                     "openfda": {
@@ -51,30 +42,6 @@
                         "WARFARIN"
                       ]
                     }
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
-                    "drugcharacterization": "2"
-                  },
-                  {
-                    "drugcharacterization": "2"
                   }
                 ]
               }
