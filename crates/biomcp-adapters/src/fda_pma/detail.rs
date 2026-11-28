@@ -127,6 +127,9 @@ fn check_rows(
     sorted_total: Option<u64>,
     total: u64,
 ) -> Result<(), BadReply> {
+    if sorted_total.is_some_and(|expected| expected != total) {
+        return Err(BadReply);
+    }
     let mut seen = BTreeSet::new();
     let mut previous = None;
     for (index, row) in rows.iter().enumerate() {
@@ -134,9 +137,8 @@ fn check_rows(
         if !seen.insert(cell) {
             return Err(BadReply);
         }
-        if let Some(expected) = sorted_total
-            && (expected != total
-                || cell.is_empty() != (skip == 0 && index == 0)
+        if sorted_total.is_some()
+            && (cell.is_empty() != (skip == 0 && index == 0)
                 || previous.is_some_and(|last| last > cell))
         {
             return Err(BadReply);
