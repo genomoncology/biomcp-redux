@@ -1,0 +1,68 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType%2CWhyStopped%2CAcronym%2COfficialTitle&filter.advanced=AREA%5BLeadSponsorName%5D%22MD%20Anderson%22&pageSize=1",
+  "exchanges": [
+    {
+      "fetched": 1795834343,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 146,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "totalCount": 1,
+          "studies": [
+            {
+              "protocolSection": {
+                "identificationModule": {
+                  "nctId": "NCT01185262",
+                  "briefTitle": "Activity & Safety Study of Lenalidomide & Rituximab as Non-chemotherapy Based Therapy on Chronic Lymphocytic Leukemia",
+                  "officialTitle": "Phase I Study of the Activity and Safety of Lenalidomide and Rituximab as Non-chemotherapy Therapy for Patients With Recurrent and Refractory Chronic Lymphocytic Leukemia",
+                  "acronym": "LLC-LENAR-08"
+                },
+                "statusModule": {
+                  "overallStatus": "COMPLETED",
+                  "startDateStruct": {
+                    "date": "2009-04"
+                  },
+                  "primaryCompletionDateStruct": {
+                    "date": "2012-12",
+                    "type": "ACTUAL"
+                  },
+                  "lastUpdatePostDateStruct": {
+                    "date": "2013-09-30"
+                  }
+                },
+                "sponsorCollaboratorsModule": {
+                  "leadSponsor": {
+                    "name": "MD Anderson International Spain SA"
+                  }
+                },
+                "conditionsModule": {
+                  "conditions": [
+                    "Chronic Lymphocytic Leukemia"
+                  ]
+                },
+                "designModule": {
+                  "phases": [
+                    "PHASE1"
+                  ]
+                },
+                "armsInterventionsModule": {
+                  "interventions": [
+                    {
+                      "name": "Lenalidomida and Rituximab"
+                    }
+                  ]
+                }
+              },
+              "hasResults": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

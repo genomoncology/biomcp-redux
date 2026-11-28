@@ -1,0 +1,20 @@
+{
+  "feature": "trial-search",
+  "live_check": "local replay with the confirming spelling request unavailable",
+  "story": "When the registry spelling cannot be confirmed, the typed sponsor search still returns its study and reports that the suggestion could not be checked.",
+  "replay": "trial/lead-sponsor-name-unavailable",
+  "steps": [
+    {
+      "run": ["search", "trial", "--sponsor", "MD Anderson", "--limit", "1"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/sponsor": "MD Anderson International Spain SA",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/1/kind": "request-guidance",
+        "/sources/0/notices/1/message": "ClinicalTrials.gov could not check a spelling suggestion for lead sponsor \"MD Anderson\"."
+      },
+      "max_bytes": 3000
+    }
+  ]
+}
