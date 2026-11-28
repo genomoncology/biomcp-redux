@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 3839,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_group\tgene_group_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene.org\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit-trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_id\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc\nHGNC:3680\tFGF23\tfibroblast growth factor 23\tprotein-coding gene\tgene with protein product\tApproved\t12p13.32\t\t\t\t\tReceptor ligands|Fibroblast growth factor family\t542|1895\t2000-05-16\t\t\t2023-01-20\t8074\tENSG00000118972\tOTTHUMG00000168241\tuc001qmq.1\tAF263537\tNM_020638\tCCDS8526\tQ9GZV9\t11032749|18310961\tMGI:1891427\tRGD:620178\t\t\t605380\t\t\t\t\t121800\t\t\t\t\tHGNC:3680\t\t\t\t\t\t\t\t\t\tHGNC:3680\tENST00000237837.2|NM_020638.3\tHGNC:3680\nHGNC:10588\tSCN2A\tsodium voltage-gated channel alpha subunit 2\tprotein-coding gene\tgene with protein product\tApproved\t2q24.3\t\"Nav1.2|HBSCII|HBSCI\"\t\t\"SCN2A1|SCN2A2\"\t\"sodium channel, voltage-gated, type II, alpha 2 polypeptide|sodium channel, voltage-gated, type II, alpha 1 polypeptide|sodium channel, voltage-gated, type II, alpha subunit|sodium channel, voltage gated, type II alpha subunit\"\tSodium voltage-gated channel alpha subunits\t1203\t1992-08-07\t2007-01-23\t2016-02-05\t2025-04-24\t6326\tENSG00000136531\tOTTHUMG00000044172\tuc061pdo.1\tAB208888\tNM_021007\t\"CCDS33313|CCDS33314\"\tQ99250\t\"1317301|16382098|38651838\"\tMGI:98248\tRGD:3632\t\t\t182390\t\t\t\t\t118500\t\t\t\t\tHGNC:10588\t\t\t\t\t\t\t\t\t\tHGNC:10588\t\"ENST00000375437.7|NM_001040142.2\"\tHGNC:10588\n"
+      }
+    }
+  ]
+}

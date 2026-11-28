@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clingen",
+  "url": "https://ftp.clinicalgenome.org/ClinGen_gene_curation_list_GRCh38.tsv",
+  "exchanges": [
+    {
+      "fetched": 1794946851,
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "#ClinGen Gene Curation Results\n#17 Nov,2026\n#Genomic Locations are reported on GRCh38 (hg38): GCF_000001405.36\n#https://www.ncbi.nlm.nih.gov/projects/dbvar/clingen\n#to create link: https://www.ncbi.nlm.nih.gov/projects/dbvar/clingen/clingen_gene.cgi?sym=Gene Symbol\n#Gene Symbol\tGene ID\tcytoBand\tGenomic Location\tHaploinsufficiency Score\tHaploinsufficiency Description\tHaploinsufficiency PMID1\tHaploinsufficiency PMID2\tHaploinsufficiency PMID3\tHaploinsufficiency PMID4\tHaploinsufficiency PMID5\tHaploinsufficiency PMID6\tTriplosensitivity Score\tTriplosensitivity Description\tTriplosensitivity PMID1\tTriplosensitivity PMID2\tTriplosensitivity PMID3\tTriplosensitivity PMID4\tTriplosensitivity PMID5\tTriplosensitivity PMID6\tDate Last Evaluated\tHaploinsufficiency Disease ID\tTriplosensitivity Disease ID\nSCN2A\t6326\t2q24.3\tchr2:165239414-165392304\t3\tSufficient evidence for dosage pathogenicity\t22495306\t15028761\t28379373, 29655203\t\t\t\t0\tNo evidence available\t\t\t\t\t\t\t2020-04-22\tMONDO:0100038\t\n"
+      }
+    }
+  ]
+}
