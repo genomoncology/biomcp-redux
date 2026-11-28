@@ -1,0 +1,38 @@
+feature: clinpgx-annotations
+story: Find a gene-less clinical annotation by rsID or drug and narrow gene annotations before paging.
+live_check: Authored replay rows, with the gene-less accession from the source reach census.
+replay: pgx/clinpgx-discovery
+config: {mcp_tool_mode: typed}
+steps:
+  - run: [search, pgx, --variant, rs12777823, --source, clinpgx]
+    expect:
+      /status: complete
+      /result/page/total_kind: observed
+      /result/items/0/accessionId: PA166134655
+      /result/items/0/location/rsid: rs12777823
+      /result/items/0/location: {omits: [genes]}
+      /result/items/0/levelOfEvidence/term: 1A
+      /next/0/args: {includes_all_of: [--annotation-id, PA166134655]}
+  - run: [search, pgx, --drug, warfarin, --source, clinpgx, --limit, '1']
+    expect:
+      /status: complete
+      /result/page/total: 4
+      /result/page/returned: 1
+      /result/items/0/accessionId: PA166134655
+      /next/0/args: {includes_all_of: [--drug, warfarin, --offset]}
+  - mcp_call:
+      name: gene
+      arguments:
+        action: pgx
+        pgx: {drug: warfarin, source: clinpgx, limit: 1, offset: 1}
+    expect:
+      /status: complete
+      /result/page/total: 4
+      /result/items/0/accessionId: PA100002
+  - run: [get, pgx, annotations, --gene, CYP2C9, --source, clinpgx, --section-limit, '1', --level, 1A, --drug, warfarin]
+    expect:
+      /status: complete
+      /result/page/total: 2
+      /result/page/returned: 1
+      /result/items/0/accessionId: PA100002
+      /next/1/args: {includes_all_of: [--level, 1A, --drug, warfarin]}

@@ -46,13 +46,16 @@ fn declared_sources() -> Result<(), String> {
                 let mut values = seed(verb, entity, &schema)?;
                 values.insert("source".into(), source.clone());
                 values.extend(
-                    fact_context(entity, key)
+                    fact_context(verb, entity, key)
                         .as_object()
                         .ok_or("context")?
                         .clone(),
                 );
-                if (entity, key.as_str()) == ("pgx", "annotation_id") {
-                    values.remove("gene"); // The annotation form takes its ID in place of a gene.
+                if matches!(
+                    (verb, entity, key.as_str()),
+                    ("get", "pgx", "annotation_id") | ("search", "pgx", "drug" | "variant")
+                ) {
+                    values.remove("gene");
                 }
                 let sample = sample(key, property, &schema);
                 values.insert(key.into(), sample);
@@ -79,9 +82,12 @@ fn declared_sources() -> Result<(), String> {
     }
 }
 
-fn fact_context(entity: &str, key: &str) -> Value {
+fn fact_context(verb: &str, entity: &str, key: &str) -> Value {
+    if (verb, entity) == ("search", "pgx") {
+        return json!({});
+    }
     match (entity, key) {
-        ("pgx", "kind" | "snapshot") => json!({"section":"annotations"}),
+        ("pgx", "drug" | "kind" | "level" | "snapshot") => json!({"section":"annotations"}),
         ("pgx", "diplotype") => json!({"section":"diplotype"}),
         ("pgx", "drug_id") => json!({"section":"recommendations"}),
         ("pgx", "phenotype") => json!({"section":"recommendations","drug_id":"RxNorm:1234"}),
@@ -107,6 +113,7 @@ fn sample(key: &str, property: &Value, schema: &Value) -> Value {
         "device_id" => json!("P000001"),
         "drug_application" => json!("NDA012345"),
         "gene" => json!("BRAF"),
+        "variant" => json!("rs12777823"),
         "gene_id" => json!(673),
         "diplotype" => json!("*1/*2"),
         "drug_id" => json!("RxNorm:1234"),
@@ -535,7 +542,8 @@ fn context(
         }
         ("get", "variant", "clinvar_kind") => json!({"section":["clinvar"]}),
         ("get", "gene", "constraint_release") => json!({"section":["constraint"]}),
-        ("get", "pgx", "kind") => json!({"section":"annotations"}),
+        ("get", "pgx", "kind" | "level") => json!({"section":"annotations"}),
+        ("search", "pgx", "source") => json!({"drug":"warfarin"}),
         ("get", "disease", "ontology") => json!({"source":"ols"}),
         ("search", "adverse-event", "section" | "sort") => {
             json!({"source":"vaers", "text":"COVID19"})
@@ -549,6 +557,9 @@ fn context(
         _ => json!({}),
     };
     values.extend(extra.as_object().ok_or("context")?.clone());
+    if (verb, entity, key) == ("search", "pgx", "source") {
+        values.remove("gene");
+    }
     if (verb, entity) == ("search", "variant")
         || (verb, entity, key) == ("search", "trial", "biomarker_use")
     {

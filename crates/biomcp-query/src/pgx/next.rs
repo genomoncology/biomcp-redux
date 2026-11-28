@@ -3,8 +3,8 @@ use crate::Outcome;
 use crate::next::run;
 use biomcp_types::Paged;
 use biomcp_types::{
-    PgxAnnotations, PgxGet, PgxPageInfo, PgxRecommendations, PgxSection, PgxSource, ReplyData,
-    Request, SourceState, Status, StepKind,
+    PgxAnnotations, PgxDiscovery, PgxGet, PgxPageInfo, PgxRecommendations, PgxSearch, PgxSection,
+    PgxSource, ReplyData, Request, SourceState, Status, StepKind,
 };
 fn gene_query(
     gene: &biodata::GeneSymbol,
@@ -86,16 +86,10 @@ fn success_steps(
                 body: Some(body), ..
             },
         ) => {
-            let consumed = native_consumed.unwrap_or(body.page.returned);
-            let offset = body.page.offset.saturating_add(consumed);
-            if consumed > 0 && u64::from(offset) < body.page.total {
-                next.push(crate::next::Step::new(
-                    StepKind::Page,
-                    &[biomcp_types::Source::Cpic],
-                    run(Request::SearchPgx(q.at_offset(offset))),
-                ));
-            }
-            if let Some(card) = gene_query(q.gene(), &mut out.problems) {
+            search_page(q, &body.page, native_consumed, next);
+            if let Some(gene) = q.gene()
+                && let Some(card) = gene_query(gene, &mut out.problems)
+            {
                 next.push(crate::next::Step::new(
                     StepKind::Section,
                     &[biomcp_types::Source::Cpic],
@@ -110,6 +104,18 @@ fn success_steps(
                 }
             }
         }
+        (
+            Request::SearchPgx(q),
+            ReplyData::PgxDiscovery {
+                body: Some(body), ..
+            },
+        ) => match body {
+            PgxDiscovery::Pairs { page, .. } => search_page(q, page, native_consumed, next),
+            PgxDiscovery::Clinical { page, items, .. } => {
+                search_page(q, page, native_consumed, next);
+                annotation_details(items, next, &mut out.problems);
+            }
+        },
         (Request::GetPgx(q), ReplyData::PgxCard { body: Some(_), .. }) => {
             card_steps(q, next, &mut out.problems)
         }
@@ -152,6 +158,23 @@ fn success_steps(
         _ => {}
     }
 }
+fn search_page(
+    q: &PgxSearch,
+    page: &PgxPageInfo,
+    consumed: Option<u32>,
+    next: &mut Vec<crate::next::Step>,
+) {
+    let consumed = consumed.unwrap_or(page.returned);
+    let offset = page.offset.saturating_add(consumed);
+    if consumed > 0 && u64::from(offset) < page.total {
+        next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[q.source().source()],
+            run(Request::SearchPgx(q.at_offset(offset))),
+        ));
+    }
+}
+
 fn guideline_steps(
     q: &PgxGet,
     body: &biomcp_types::PgxGuidelines,
@@ -217,23 +240,31 @@ fn annotation_steps(
 ) {
     match body {
         PgxAnnotations::Clinical { items, page, .. } => {
-            for row in items {
-                if let Some(query) = crate::next::checked(
-                    biomcp_types::PgxAnnotationGet::new(row.accession_id.clone()),
-                    biomcp_types::Source::ClinPgx,
-                    problems,
-                ) {
-                    next.push(crate::next::Step::new(
-                        StepKind::Disambiguate,
-                        &[biomcp_types::Source::ClinPgx],
-                        run(Request::GetPgxAnnotation(query)),
-                    ));
-                }
-            }
+            annotation_details(items, next, problems);
             page_step(q, page, next, None, problems);
         }
         PgxAnnotations::Guideline { page, .. } | PgxAnnotations::Label { page, .. } => {
             page_step(q, page, next, None, problems)
+        }
+    }
+}
+
+fn annotation_details(
+    items: &[biodata::PgxAnnotationHeader],
+    next: &mut Vec<crate::next::Step>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
+    for row in items {
+        if let Some(query) = crate::next::checked(
+            biomcp_types::PgxAnnotationGet::new(row.accession_id.clone()),
+            biomcp_types::Source::ClinPgx,
+            problems,
+        ) {
+            next.push(crate::next::Step::new(
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::ClinPgx],
+                run(Request::GetPgxAnnotation(query)),
+            ));
         }
     }
 }

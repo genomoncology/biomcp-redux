@@ -45,7 +45,8 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             .collect::<Vec<_>>();
         let own = command.command.join(" ");
         let rule = command.section_rule.clone();
-        let concise = command.command == ["get", "disease"];
+        let concise = command.command == ["get", "disease"]
+            || command.command.get(1).is_some_and(|entity| entity == "pgx");
         let trial_document = command.command == ["trial", "document"];
         let mut example_values =
             (concise || trial_document || command.command == ["search", "drug"])

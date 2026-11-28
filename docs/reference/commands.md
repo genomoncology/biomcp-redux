@@ -119,7 +119,8 @@ Commands:
   phenotype      Search exact human HP term candidates through Monarch with bounded source pages, or give only HP IDs, comma-separated, to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a ranking orders source candidates; neither establishes a diagnosis.
   pathway        Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
   study          Exact stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their source names.
-  pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
+  pgx            CPIC pairs by gene or drug, or ClinPGx clinical annotations by variant or drug.
+                 Give one selector and its source. By default, returns five rows per page.
   diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified source influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Search by text, SEER site name, or HPO annotations.
@@ -877,13 +878,14 @@ Form: search study TEXT; not --text.
 ## biomcp search pgx
 
 ```text
-Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
+CPIC pairs by gene or drug, or ClinPGx clinical annotations by variant or drug.
+Give one selector and its source. By default, returns five rows per page.
 
-Usage: biomcp search pgx [OPTIONS] --gene <gene> --source <source>
+Usage: biomcp search pgx [OPTIONS] --source <source>
 
 Options:
       --cpic-level <cpic_level>
-          Exact source level, including compound levels such as B/C.
+          Exact CPIC level, including B/C.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -894,14 +896,14 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --drug <drug>
+          Drug name for CPIC or ClinPGx.
+
       --gene <gene>
-          Explicit source gene symbol.
+          Gene symbol for CPIC pairs.
 
       --limit <limit>
           Rows per source page.
-
-      --offset <offset>
-          Source offset.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -909,9 +911,15 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --offset <offset>
+          Source offset.
+
       --source <source>
-          Required CPIC source; ClinPGx is not supported for search; help search pgx
-          Required CPIC source; ClinPGx is not supported for search.
+          Source of pairs or clinical annotations; help search pgx
+          Source of pairs or clinical annotations.
+
+      --variant <variant>
+          dbSNP rsID for ClinPGx.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -927,16 +935,17 @@ Options:
 
 ```
 
-Search pharmacogenomic gene and drug pairs. Sources: cpic.
-Listed choices accept any letter case; replies use their listed spelling.
-Options apply to every listed source unless their description restricts them.
+Search CPIC pairs or ClinPGx clinical annotations. Sources: clinpgx, cpic.
+Choices ignore case. Replies use listed spelling.
 Paging: --limit and --offset.
 
-- `--cpic-level`: Exact source level, including compound levels such as B/C. Value form: string; example: --cpic-level B/C.
-- `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
-- `--limit`: Rows per source page. Value form: integer; example: --limit 1.
-- `--offset`: Source offset. Value form: integer; example: --offset 0.
-- `--source`: Required CPIC source; ClinPGx is not supported for search. Value form: string; example: --source cpic.
+- `--cpic-level`: Exact CPIC level, including B/C. Value form: string; example: B/C; only with --source cpic.
+- `--drug`: Drug name for CPIC or ClinPGx. Value form: string; example: warfarin.
+- `--gene`: Gene symbol for CPIC pairs. Value form: string; example: DPYD; only with --source cpic.
+- `--limit`: Rows per source page. Value form: integer; example: 1.
+- `--offset`: Source offset. Value form: integer; example: 0.
+- `--source`: Source of pairs or clinical annotations. Value form: string; example: cpic.
+- `--variant`: dbSNP rsID for ClinPGx. Value form: string; example: rs12777823; only with --source clinpgx.
 
 ## biomcp search diagnostic
 
@@ -3008,11 +3017,11 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --drug <drug>
+          Drug name for ClinPGx clinical annotations.
+
       --drug-id <drug_id>
           Exact published CPIC drug key; recommendations only.
-
-      --gene <gene>
-          Explicit source gene symbol.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3020,9 +3029,16 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --gene <gene>
+          Explicit source gene symbol.
+
       --kind <kind>
           One ClinPGx collection; clinical is the default only on; help get pgx
           One ClinPGx collection; clinical is the default only on annotations.
+
+      --level <level>
+          Evidence level for ClinPGx clinical annotations; help get pgx
+          Evidence level for ClinPGx clinical annotations.
 
       --phenotype <phenotype>
           Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only.
@@ -3030,21 +3046,14 @@ Options:
       --section-limit <section_limit>
           Rows per page: three clinical, five elsewhere.
 
-      --section-offset <section_offset>
-          Offset within the selected section.
-
-      --snapshot <snapshot>
-          Retained collection for local continuation.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --source <source>
-          Required source, checked against the section; help get pgx
-          Required source, checked against the section.
+      --section-offset <section_offset>
+          Offset within the selected section.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3052,25 +3061,33 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --snapshot <snapshot>
+          Retained collection for local continuation.
+
+      --source <source>
+          Required source, checked against the section; help get pgx
+          Required source, checked against the section.
+
 ```
 
 Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
-Listed choices accept any letter case; replies use their listed spelling.
-Options apply to every listed source unless their description restricts them.
+Choices ignore case. Replies use listed spelling.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
-- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string; example: --annotation-id <annotation-id> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
-- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string; example: --diplotype 'c.1905+1G>A (*2A)/Reference'; only with --source cpic.
-- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string; example: --drug-id RxNorm:343047; only with --source cpic.
-- `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
-- `--kind`: One ClinPGx collection; clinical is the default only on annotations. Value form: string; example: --kind clinical; only with --source clinpgx.
-- `--phenotype`: Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only. Value form: string; example: --phenotype 'Poor Metabolizer'; only with --source cpic.
+- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string; example: <annotation-id> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
+- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string; example: 'c.1905+1G>A (*2A)/Reference'; only with --source cpic.
+- `--drug`: Drug name for ClinPGx clinical annotations. Value form: string; example: warfarin; only with --source clinpgx.
+- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string; example: RxNorm:343047; only with --source cpic.
+- `--gene`: Explicit source gene symbol. Value form: string; example: DPYD.
+- `--kind`: One ClinPGx collection; clinical is the default only on annotations. Value form: string; example: clinical; only with --source clinpgx.
+- `--level`: Evidence level for ClinPGx clinical annotations. Value form: string; example: 1A; only with --source clinpgx.
+- `--phenotype`: Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only. Value form: string; example: 'Poor Metabolizer'; only with --source cpic.
 - `section`: One named section; omitted means the CPIC gene card… (full rule with the sections).
 Form: get pgx SECTION; not --section.
-- `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer; example: --section-limit 1.
-- `--section-offset`: Offset within the selected section. Value form: integer; example: --section-offset 0.
-- `--snapshot`: Retained collection for local continuation. Value form: string; example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
-- `--source`: Required source, checked against the section. Value form: string; example: --source cpic.
+- `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer; example: 1.
+- `--section-offset`: Offset within the selected section. Value form: integer; example: 0.
+- `--snapshot`: Retained collection for local continuation. Value form: string; example: <snapshot> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
+- `--source`: Required source, checked against the section. Value form: string; example: cpic.
 
 One named section; omitted means the CPIC gene card.
 

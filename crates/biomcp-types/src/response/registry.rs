@@ -46,6 +46,7 @@ macro_rules! reply_types {
             study_samples: $crate::StudySamples => "study-samples",
             study_files: $crate::StudyFiles => "study-files",
             pgx_page: $crate::PgxPage => "pgx-page",
+            pgx_discovery: $crate::PgxDiscovery => "pgx-discovery",
             pgx_card: $crate::PgxCard => "pgx-card",
             pgx_guidelines: $crate::PgxGuidelines => "pgx-guidelines",
             pgx_recommendations: $crate::PgxRecommendations => "pgx-recommendations",

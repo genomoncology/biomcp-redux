@@ -89,13 +89,13 @@ drug-identity: Drug sources reject mismatched, conflicting and absent identity j
 drug-help: Discover source-scoped drug sections, selectors and explicit bundle synchronization through generated help and executable case examples.
 diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, literal test-name matches with whole words first, cards and relation pages without clinical inference; a live first read fetches a missing pair under the size limit, and reads never refresh a stored one.
 adverse-event-search: Search a FAERS drug name together with its bounded source-stated other names by default, or only as typed with --exact-term, with frozen continuations and one disclosure of the names searched; MAUDE and VAERS search as typed; native report totals and reaction buckets never become sums per name, derived rates or causal interpretation.
-cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings in either allele order, with source spelling examples on a miss.
+cpic-pgx: Read CPIC pairs by gene or drug, gene identity, native recommendations, guideline references and declared diplotype mappings in either allele order, with source spelling examples on a miss.
 maude-reports: Search native device phrases, manufacturer phrases, exact product codes, product problem phrases and event types and read exact native cards, device rows and complete narratives with source terms and independent count units.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference.
 diagnostic-cdx: Search whole physical association rows of both FDA companion tables, each cell stated once, by their own checked identifiers, a test or drug name, or an explicitly named regimen partner; a first live search fetches a missing list itself, and a list over `auto_sync_max_bytes` asks for `sync fda-cdx`.
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests.
 adverse-event-failures: FAERS and MAUDE failures preserve source identity and terms instead of inventing empty reports.
-clinpgx-annotations: Read independent bounded ClinPGx annotation collections and exact base records without clinical inference.
+clinpgx-annotations: Find ClinPGx clinical annotations by variant or drug, filter gene annotations by evidence level and drug, and read exact annotation records.
 diagnostic-who: Explicitly synchronize the unfiltered WHO export and read every native row for an exact known product without inferred authorization; a live first read fetches a missing export, and reads never refresh a stored one.
 diagnostic-pma: Read an exact native FDA base or supplement and page its own regulatory statement and supplement headers.
 pgx-retirements: Refuse retired PGx spellings and unsupported source pairings before requests without rewriting queries or inferring phase.

@@ -14,7 +14,11 @@ type Saved = (
     bool,
 );
 fn key(q: &PgxGet) -> Result<Vec<u8>, RequestError> {
-    source_snapshot::key("pgx", &(q.gene(), q.kind()))
+    if q.drug().is_some() || q.level().is_some() {
+        source_snapshot::key("pgx", &(q.gene(), q.kind(), q.drug(), q.level()))
+    } else {
+        source_snapshot::key("pgx", &(q.gene(), q.kind()))
+    }
 }
 pub(super) fn load(
     cx: &Ctx<'_>,

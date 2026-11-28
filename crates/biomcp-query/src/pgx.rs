@@ -3,48 +3,17 @@ use biomcp_types::ReplyBody;
 mod annotations;
 mod annotations_record;
 mod next;
+mod search;
 use crate::{Ctx, Outcome, status};
 pub(crate) use annotations::annotation;
 use biomcp_adapters::cpic;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    PgxCard, PgxDiplotype, PgxGet, PgxGuidelines, PgxHeader, PgxPage, PgxPageInfo,
-    PgxRecommendations, PgxSearch, PgxSection, PgxSource, PgxTotalKind, Problem, ProblemCode,
-    Reason, ReplyData, Request, Source, SourceOutcome, SourceState,
+    PgxCard, PgxDiplotype, PgxGet, PgxGuidelines, PgxHeader, PgxPageInfo, PgxRecommendations,
+    PgxSection, PgxSource, PgxTotalKind, Problem, ProblemCode, Reason, ReplyData, Request, Source,
+    SourceOutcome, SourceState,
 };
-/// Discover one independent native CPIC pair page.
-pub(crate) fn search(cx: &Ctx<'_>, query: &PgxSearch) -> Outcome {
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
-    let leg = cx.fetch.leg(&cpic::SPEC, deadline).fresh(cx.fresh);
-    let mut problems = Vec::new();
-    let mut consumed = 0;
-    let mut refusals = biomcp_adapters::Refusal::None;
-    let reply = cpic::search(&leg, query).map(|page| {
-        refusals.include(page.refusals);
-        problems.extend(page.problems);
-        consumed = page.consumed;
-        let info = page_info(query.offset(), page.items.len(), page.total);
-        (PgxPage {
-            header: header(query.gene()),
-            items: page.items.into(),
-            page: info,
-        })
-        .with_query(query.clone())
-    });
-    let empty = (PgxPage {
-        header: header(query.gene()),
-        items: Box::default(),
-        page: page_info(query.offset(), 0, 0),
-    })
-    .with_query(query.clone());
-    let mut out = finish(leg, reply, empty, Source::Cpic);
-    out.include_refusals(refusals);
-    status::append(&mut out.problems, problems);
-    out.next = next::steps_with(&Request::SearchPgx(query.clone()), &mut out, Some(consumed));
-    command.finish(deadline.remaining());
-    out
-}
+pub(crate) use search::search;
 /// Read one explicit card or section with the same source policy on every path.
 pub(crate) fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
     if query.source() == PgxSource::Clinpgx {

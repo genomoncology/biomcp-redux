@@ -1,0 +1,41 @@
+{
+  "method": "GET",
+  "source": "clinpgx",
+  "url": "https://api.clinpgx.org/v1/data/clinicalAnnotation?location.fingerprint=rs12777823&view=min",
+  "exchanges": [
+    {
+      "fetched": 1795737600,
+      "status": 200,
+      "content_type": "application/json",
+      "content_range": null,
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "status": "success",
+          "data": [
+            {
+              "id": 1,
+              "accessionId": "PA166134655",
+              "location": {
+                "id": 1,
+                "rsid": "rs12777823"
+              },
+              "levelOfEvidence": {
+                "id": 1,
+                "term": "1A"
+              },
+              "relatedChemicals": [
+                {
+                  "id": "PA100600",
+                  "name": "warfarin"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

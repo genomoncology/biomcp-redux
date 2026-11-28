@@ -1,0 +1,25 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&drugname=imatch.%5Ewarfarin%24&order=pairid.asc&limit=7&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1795845983,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "0-6/7",
+      "delay_ms": 385,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"pairid":110148,"drugid":"RxNorm:11289","drugname":"warfarin","genesymbol":"CYP2C9","guidelinename":"CYP2C9, VKORC1, CYP4F2 and Warfarin","guidelineurl":"https://www.clinpgx.org/guideline/PA166251465","cpiclevel":"A","clinpgxlevel":"1A","pgxtesting":"Actionable PGx","pmids":["21900891","28198005"],"usedforrecommendation":"Yes","provisional":false},
+ {"pairid":110149,"drugid":"RxNorm:11289","drugname":"warfarin","genesymbol":"CYP4F2","guidelinename":"CYP2C9, VKORC1, CYP4F2 and Warfarin","guidelineurl":"https://www.clinpgx.org/guideline/PA166251465","cpiclevel":"A","clinpgxlevel":"1A","pgxtesting":null,"pmids":["21900891","28198005"],"usedforrecommendation":"Yes","provisional":false},
+ {"pairid":110150,"drugid":"RxNorm:11289","drugname":"warfarin","genesymbol":"VKORC1","guidelinename":"CYP2C9, VKORC1, CYP4F2 and Warfarin","guidelineurl":"https://www.clinpgx.org/guideline/PA166251465","cpiclevel":"A","clinpgxlevel":"1A","pgxtesting":"Actionable PGx","pmids":["21900891","28198005"],"usedforrecommendation":"Yes","provisional":false},
+ {"pairid":110551,"drugid":"RxNorm:11289","drugname":"warfarin","genesymbol":"CALU","guidelinename":null,"guidelineurl":null,"cpiclevel":"D","clinpgxlevel":"3","pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true},
+ {"pairid":110552,"drugid":"RxNorm:11289","drugname":"warfarin","genesymbol":"GGCX","guidelinename":null,"guidelineurl":null,"cpiclevel":"D","clinpgxlevel":"3","pgxtesting":null,"pmids":null,"usedforrecommendation":"n/a","provisional":true},
+ {"pairid":110553,"drugid":"RxNorm:11289","drugname":"warfarin","genesymbol":"PROC","guidelinename":null,"guidelineurl":null,"cpiclevel":"D","clinpgxlevel":null,"pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true},
+ {"pairid":110554,"drugid":"RxNorm:11289","drugname":"warfarin","genesymbol":"PROS1","guidelinename":null,"guidelineurl":null,"cpiclevel":"D","clinpgxlevel":null,"pgxtesting":"Actionable PGx","pmids":null,"usedforrecommendation":"n/a","provisional":true}]
+      }
+    }
+  ]
+}

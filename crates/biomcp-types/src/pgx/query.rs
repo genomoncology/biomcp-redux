@@ -1,6 +1,6 @@
 use super::{PgxAnnotationKind, PgxSection, PgxSource};
 use crate::QueryInvalid;
-use biodata::{ClinPgxAccession, Curie, GeneSymbol, PgxDiplotypeExpression, Text};
+use biodata::{ClinPgxAccession, Curie, GeneSymbol, PgxDiplotypeExpression, RsId, Text};
 use serde::{Deserialize, Serialize};
 fn default_limit() -> u32 {
     5
@@ -23,7 +23,8 @@ fn explicit_section_limit<'de, D: serde::Deserializer<'de>>(
 fn conditional_limit(schema: &mut schemars::Schema) {
     schema.remove("default");
 }
-/// Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
+/// CPIC pairs by gene or drug, or ClinPGx clinical annotations by variant or drug.
+/// Give one selector and its source. By default, returns five rows per page.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -32,14 +33,24 @@ pub struct PgxSearch(SearchFields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(extend("x-reply-query-titles" = ["PgxGeneSearch"])))]
 struct SearchFields {
-    /// Explicit source gene symbol.
-    gene: GeneSymbol,
-    /// Required CPIC source; ClinPGx is not supported for search.
-    #[cfg_attr(feature = "schema", schemars(with="str", extend("enum"=["cpic"])))]
-    source: PgxSource,
-    /// Literal native level, including compound levels such as B/C.
+    /// Gene symbol for CPIC pairs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(with = "GeneSymbol", extend("x-required-component" = crate::Source::Cpic)))]
+    gene: Option<GeneSymbol>,
+    /// dbSNP rsID for ClinPGx.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::ClinPgx)))]
+    variant: Option<RsId>,
+    /// Drug name for CPIC or ClinPGx.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    drug: Option<Text>,
+    /// Source of pairs or clinical annotations.
+    source: PgxSource,
+    /// Literal CPIC level, including B/C.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Cpic)))]
     cpic_level: Option<Text>,
     /// Rows per native page.
     #[serde(default = "default_limit")]
@@ -53,8 +64,28 @@ crate::query::validation::checked_query!(PgxSearch, SearchFields);
 impl TryFrom<SearchFields> for PgxSearch {
     type Error = QueryInvalid;
     fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
-        if v.source != PgxSource::Cpic {
-            return Err(QueryInvalid::new(&["source"]));
+        let count = [v.gene.is_some(), v.variant.is_some(), v.drug.is_some()]
+            .into_iter()
+            .filter(|given| *given)
+            .count();
+        if count != 1 {
+            return Err(QueryInvalid::new(&["gene", "variant", "drug"]));
+        }
+        match v.source {
+            PgxSource::Cpic if v.variant.is_some() => {
+                return Err(QueryInvalid::new(&["variant", "source"]));
+            }
+            PgxSource::Clinpgx if v.gene.is_some() || v.cpic_level.is_some() => {
+                return Err(QueryInvalid::new(&[
+                    if v.gene.is_some() {
+                        "gene"
+                    } else {
+                        "cpic_level"
+                    },
+                    "source",
+                ]));
+            }
+            _ => {}
         }
         if !(1..=crate::SEARCH_PAGE_MAX).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
@@ -64,8 +95,16 @@ impl TryFrom<SearchFields> for PgxSearch {
 }
 impl PgxSearch {
     /// Checked gene selector.
-    pub fn gene(&self) -> &GeneSymbol {
-        &self.0.gene
+    pub fn gene(&self) -> Option<&GeneSymbol> {
+        self.0.gene.as_ref()
+    }
+    /// Checked dbSNP selector.
+    pub fn variant(&self) -> Option<&RsId> {
+        self.0.variant.as_ref()
+    }
+    /// Exact drug name.
+    pub fn drug(&self) -> Option<&Text> {
+        self.0.drug.as_ref()
     }
     /// Checked source selector.
     pub fn source(&self) -> PgxSource {
@@ -88,6 +127,36 @@ impl crate::Paged for PgxSearch {
     type Offset = u32;
     fn set_page_offset(&mut self, offset: Self::Offset) {
         self.0.offset = offset;
+    }
+}
+
+/// Query echoed by the gene-keyed CPIC pair reply.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PgxGeneSearch {
+    gene: GeneSymbol,
+    #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["cpic"])))]
+    source: PgxSource,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    cpic_level: Option<Text>,
+    #[serde(default = "default_limit")]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::SEARCH_PAGE_MAX)))]
+    limit: u32,
+    #[serde(default)]
+    offset: u32,
+}
+
+impl PgxSearch {
+    /// The existing gene-keyed reply keeps its required gene context.
+    pub fn gene_context(&self) -> Option<PgxGeneSearch> {
+        Some(PgxGeneSearch {
+            gene: self.gene()?.clone(),
+            source: self.source(),
+            cpic_level: self.cpic_level().cloned(),
+            limit: self.limit(),
+            offset: self.offset(),
+        })
     }
 }
 
@@ -125,6 +194,14 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::ClinPgx)))]
     kind: Option<PgxAnnotationKind>,
+    /// Evidence level for ClinPGx clinical annotations.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::ClinPgx)))]
+    level: Option<super::PgxEvidenceLevel>,
+    /// Drug name for ClinPGx clinical annotations.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::ClinPgx)))]
+    drug: Option<Text>,
     /// Rows per page: three clinical, five elsewhere.
     #[serde(
         default,
@@ -188,6 +265,17 @@ impl TryFrom<GetFields> for PgxGet {
         if v.kind.is_some() && !annotations {
             return Err(QueryInvalid::new(&["kind", "section"]));
         }
+        if (!annotations
+            || v.kind
+                .is_some_and(|kind| kind != PgxAnnotationKind::Clinical))
+            && (v.level.is_some() || v.drug.is_some())
+        {
+            return Err(QueryInvalid::new(&[
+                if v.level.is_some() { "level" } else { "drug" },
+                "section",
+                "kind",
+            ]));
+        }
         if v.snapshot.is_some() && !annotations {
             return Err(QueryInvalid::new(&["snapshot", "section"]));
         }
@@ -212,6 +300,8 @@ impl PgxGet {
             drug_id: None,
             phenotype: None,
             kind: None,
+            level: None,
+            drug: None,
             section_limit: None,
             section_offset: 0,
             snapshot: None,
@@ -245,6 +335,14 @@ impl PgxGet {
     /// Checked kind selector.
     pub fn kind(&self) -> Option<PgxAnnotationKind> {
         self.0.kind
+    }
+    /// Exact clinical evidence level.
+    pub fn level(&self) -> Option<super::PgxEvidenceLevel> {
+        self.0.level
+    }
+    /// Exact annotation drug name.
+    pub fn drug(&self) -> Option<&Text> {
+        self.0.drug.as_ref()
     }
     /// Checked section_limit selector.
     pub fn section_limit(&self) -> u32 {

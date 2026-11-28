@@ -1,6 +1,7 @@
 # 1218 — pgx-annotations-without-a-gene
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0c98747cbd2ada43b33cb048300d0f856e2e59bb
 
 Ruling: Ian, 2026-11-27, on the recommendation that variant-first and drug-first pharmacogenomic routes come back because some gene-less annotations are level 1A: "Yes on your rec." This supersedes the route drops in tickets 0166 and 0168. Build option (a): `search pgx --variant <rsID>` and `--drug <name>`.
 

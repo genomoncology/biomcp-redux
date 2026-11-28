@@ -1,7 +1,7 @@
 {
   "live_check": "local-only command help, validation or stored-state behavior; no recorded source replies",
   "feature": "cpic-pgx",
-  "story": "PGx help lists source-scoped selectors, sections and two parsed executable examples without calculating phenotype, phase or dose.",
+  "story": "PGx help lists source-specific search selectors and clinical annotation filters.",
   "steps": [
     {
       "run": [
@@ -18,19 +18,22 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Search pharmacogenomic gene and drug pairs. Sources: cpic.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset.\nFields: clinpgxlevel, cpiclevel, drugid, drugname, genesymbol, guidelinename, guidelineurl, pairid, pgxtesting, pmids, provisional, usedforrecommendation. Choose some with --fields a,b or a dotted path a.b (typed: fields list); always kept: genesymbol, pairid.",
+        "/result/commands/0/description": "Search CPIC pairs or ClinPGx clinical annotations. Sources: clinpgx, cpic.\nChoices ignore case. Replies use listed spelling.\nPaging: --limit and --offset.\n--fields a,b or a.b selects source row fields and keeps IDs (MCP: fields).",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",
             "--source",
             "--cpic-level",
             "--limit",
-            "--offset"
+            "--offset",
+            "--drug",
+            "--variant"
           ]
         },
-        "/result/commands/0/arguments/4/name": "--source",
-        "/result/commands/0/arguments/4/choices": [
-          "cpic"
+        "/result/commands/0/arguments/5/name": "--source",
+        "/result/commands/0/arguments/5/choices": [
+          "cpic",
+          "clinpgx"
         ]
       },
       "max_bytes": 1777,
@@ -51,7 +54,7 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.\n--fields a,b keeps only those columns of a named section's rows; a.b names a value inside one.",
+        "/result/commands/0/description": "Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.\nChoices ignore case. Replies use listed spelling.\nPaging: --limit and --offset; --section-limit and --section-offset are the same options.\n--fields a,b keeps only those columns of a named section's rows; a.b names a value inside one.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",
@@ -64,7 +67,9 @@
             "--annotation-id",
             "--section-limit",
             "--section-offset",
-            "--snapshot"
+            "--snapshot",
+            "--drug",
+            "--level"
           ]
         },
         "/result/commands/0/sections/*/word": [
@@ -73,8 +78,8 @@
           "diplotype",
           "annotations"
         ],
-        "/result/commands/0/arguments/10/name": "--source",
-        "/result/commands/0/arguments/10/choices": [
+        "/result/commands/0/arguments/12/name": "--source",
+        "/result/commands/0/arguments/12/choices": [
           "cpic",
           "clinpgx"
         ]

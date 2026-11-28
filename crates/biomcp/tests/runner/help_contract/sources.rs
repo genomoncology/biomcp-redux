@@ -177,6 +177,7 @@ fn selected_form(verb: &str, entity: &str, source: &str) -> &'static [&'static s
         ("search", "organization", _) => &["--name", "Mayo"],
         ("search", "author", _) => &["Jane Smith"],
         ("search", "pathway", _) => &["MAPK"],
+        ("search", "pgx", "clinpgx") => &["--variant", "rs12777823"],
         ("search", "pgx", _) => &["--gene", "CYP2C19"],
         ("search", "phenotype", _) => &["seizure"],
         ("search", "diagnostic", _) => &[],

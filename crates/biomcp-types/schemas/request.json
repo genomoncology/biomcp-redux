@@ -784,6 +784,18 @@
       "pattern": "[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]",
       "type": "string"
     },
+    "PgxEvidenceLevel": {
+      "description": "ClinPGx clinical annotation evidence level.",
+      "enum": [
+        "1A",
+        "1B",
+        "2A",
+        "2B",
+        "3",
+        "4"
+      ],
+      "type": "string"
+    },
     "PgxSection": {
       "description": "One independent named section.",
       "enum": [
@@ -2796,7 +2808,7 @@
     },
     {
       "additionalProperties": false,
-      "description": "Search pharmacogenomic gene and drug pairs.",
+      "description": "Search CPIC pairs or ClinPGx clinical annotations.",
       "properties": {
         "command": {
           "const": "search-pgx",
@@ -2811,11 +2823,24 @@
               "type": "null"
             }
           ],
-          "description": "Literal native level, including compound levels such as B/C."
+          "description": "Literal CPIC level, including B/C.",
+          "x-required-component": "cpic"
+        },
+        "drug": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Drug name for CPIC or ClinPGx."
         },
         "gene": {
           "$ref": "#/$defs/GeneSymbol",
-          "description": "Explicit source gene symbol."
+          "description": "Gene symbol for CPIC pairs.",
+          "x-required-component": "cpic"
         },
         "limit": {
           "default": 5,
@@ -2833,19 +2858,30 @@
           "type": "integer"
         },
         "source": {
-          "description": "Required CPIC source; ClinPGx is not supported for search.",
-          "enum": [
-            "cpic"
+          "$ref": "#/$defs/PgxSource",
+          "description": "Source of pairs or clinical annotations."
+        },
+        "variant": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RsId"
+            },
+            {
+              "type": "null"
+            }
           ],
-          "type": "string"
+          "description": "dbSNP rsID for ClinPGx.",
+          "x-required-component": "clinpgx"
         }
       },
       "required": [
         "command",
-        "gene",
         "source"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "PgxGeneSearch"
+      ]
     },
     {
       "additionalProperties": false,
@@ -2866,6 +2902,18 @@
           ],
           "description": "Unchanged declared expression required for the diplotype section only.",
           "x-required-component": "cpic"
+        },
+        "drug": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Drug name for ClinPGx clinical annotations.",
+          "x-required-component": "clinpgx"
         },
         "drug_id": {
           "anyOf": [
@@ -2893,6 +2941,18 @@
             }
           ],
           "description": "One ClinPGx collection; clinical is the default only on annotations.",
+          "x-required-component": "clinpgx"
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PgxEvidenceLevel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evidence level for ClinPGx clinical annotations.",
           "x-required-component": "clinpgx"
         },
         "phenotype": {
