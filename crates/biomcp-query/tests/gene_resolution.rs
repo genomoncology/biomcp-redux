@@ -94,7 +94,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     reason = "Mutate isolated public recordings"
 )]
 fn clingen_local_failure_survives_later_source_deadline() {
-    use biomcp_fetch::RequestError;
+    use biomcp_fetch::{PacingOverride, PacingRate, RequestError, SourcePacing};
     use biomcp_query::{Ctx, run};
     use biomcp_types::{GeneGet, GeneSectionWord, Request};
     let directory = tempfile::tempdir().unwrap();
@@ -135,7 +135,31 @@ fn clingen_local_failure_survives_later_source_deadline() {
             .unwrap();
         }
     }
-    let fetch = replay(directory.path().to_owned());
+    // ClinGen paced at one request per 3 s: validity at 0 s, TP53 dosage (unrecorded) at 3 s,
+    // and MLH1 dosage at 6 s, past the 5.5 s budget and under ClinGen's 8 s request limit.
+    // Local SQLite work is bounded in wall time by what remains of the budget, so 5.5 s remain
+    // for storing the HGNC and validity bundles and 2.5 s after the TP53 dosage read (1250).
+    let mut source_pacing = SourcePacing::default();
+    source_pacing
+        .insert(
+            biomcp_adapters::clingen::SPEC.quota,
+            PacingOverride {
+                rate: Some(PacingRate {
+                    requests: 1,
+                    seconds: 3,
+                }),
+                ..PacingOverride::default()
+            },
+        )
+        .unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: directory.path().to_owned(),
+        },
+        source_pacing,
+        ..Default::default()
+    })
+    .unwrap();
     let query = Request::GetGene(
         GeneGet::with_sections(
             vec!["TP53".parse().unwrap(), "MLH1".parse().unwrap()].into(),
@@ -147,7 +171,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
         &Ctx {
             ncbi_email: None,
             fetch: &fetch,
-            budget: Duration::from_millis(1500),
+            budget: Duration::from_millis(5500),
             fresh: false,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             label_bytes: biomcp_query::LABEL_BYTES,
