@@ -1,9 +1,9 @@
 //! Native identity discovery follows NCBI's ClinVar E-utilities search contract.
 //! <https://www.ncbi.nlm.nih.gov/clinvar/docs/programmatic_access/>
 use super::SPEC;
-use super::gene_reply::Summary;
+use super::gene_reply::{Summary, VariationSummary};
 use crate::{Mapped, mapped::Problems, raw::Field};
-use biodata::{ClinVarVariationId, Variant, VariantId, VcvId};
+use biodata::{ClinVarVariationId, Variant, VariantId};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, Reply, RequestError};
 use biomcp_fetch::{Input, Read};
 use biomcp_types::{Source, SourceRecord, VariantHeader, VariantSearch};
@@ -176,13 +176,6 @@ pub fn search(leg: &Leg<'_>, query: &VariantSearch) -> Result<SearchPage, Reques
         None
     };
     Ok(mapped_page(page, summaries))
-}
-
-#[derive(Deserialize)]
-struct VariationSummary {
-    uid: String,
-    accession: VcvId,
-    title: String,
 }
 
 type Summaries = std::collections::BTreeMap<String, VariationSummary>;

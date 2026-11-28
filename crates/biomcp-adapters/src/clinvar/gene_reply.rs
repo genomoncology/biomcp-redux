@@ -1,4 +1,4 @@
-//! E-utilities einfo, esearch and esummary replies read by the gene counts.
+//! E-utilities reply shapes for ClinVar gene counts and variation summaries.
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -89,6 +89,12 @@ pub(super) struct SummaryResult<T> {
 #[derive(Deserialize)]
 pub(super) struct SummaryRecord {
     pub(super) germline_classification: Germline,
+}
+#[derive(Deserialize)]
+pub(super) struct VariationSummary {
+    pub(super) uid: String,
+    pub(super) accession: biodata::VcvId,
+    pub(super) title: String,
 }
 #[derive(Deserialize)]
 pub(super) struct Germline {
