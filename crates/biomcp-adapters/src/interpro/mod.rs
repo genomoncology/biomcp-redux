@@ -141,6 +141,7 @@ pub fn unintegrated_count(leg: &Leg<'_>, id: &UniProtIsoform) -> Result<u64, Req
     let endpoint = SPEC
         .get("")
         .with_path(format!("/entry/unintegrated/protein/uniprot/{id}/"))?
+        .once()
         .identity_encoding()
         .fresh(Freshness::Days(1));
     let count_only = |body: &[u8]| {

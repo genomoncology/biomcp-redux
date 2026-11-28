@@ -185,7 +185,7 @@ fn load(
         let result = Saved::fetch(q, &leg);
         let error = result.as_ref().err().copied();
         let omitted = if matches!(q, Selection::Domains(_)) && result.is_ok() {
-            unintegrated_notice(cx, deadline, q.accession())
+            unintegrated_notice(&leg, q.accession())
         } else {
             None
         };
@@ -210,16 +210,19 @@ fn load(
 }
 
 fn unintegrated_notice(
-    cx: &Ctx<'_>,
-    deadline: Deadline<'_>,
+    leg: &biomcp_fetch::Leg<'_>,
     id: &UniProtIsoform,
 ) -> Option<biomcp_types::SourceNotice> {
-    let leg = cx
-        .fetch
-        .leg(&interpro::SPEC, deadline.child(std::time::Duration::from_secs(3)))
-        .fresh(cx.fresh);
-    let count = interpro::unintegrated_count(&leg, id).ok();
-    let count = count.filter(|_| !leg.finish().stale);
+    let count_leg = leg.sibling(&interpro::SPEC);
+    let count = interpro::unintegrated_count(&count_leg, id);
+    // Existing recordings predate this optional lookup.
+    if matches!(
+        count,
+        Err(RequestError::Recording(biomcp_fetch::RecordError::Missing))
+    ) {
+        return None;
+    }
+    let count = count.ok().filter(|_| !count_leg.finish().stale);
     let message = match count {
         Some(0) => return None,
         Some(count) => format!("Omitted {count} unintegrated member-database signatures."),
