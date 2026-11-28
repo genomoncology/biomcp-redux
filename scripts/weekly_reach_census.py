@@ -19,7 +19,7 @@ from xml.etree.ElementTree import ParseError
 from nightly_live_check import build
 from reach_census_common import Census, CensusError, Measurement, offsets, read, sample_rows, source_page
 import reach_census_providers as providers
-from chembl_reach_census import child_only_parents
+from chembl_reach_census import MECHANISMS, child_only_parents
 
 NCBI = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 GWAS = "https://www.ebi.ac.uk/gwas/rest/api/v2"
@@ -173,7 +173,7 @@ def chembl(census):
 
         yield endpoint, source_page(census, endpoint, fetch, probe)
 
-    families = child_only_parents()
+    families = child_only_parents(lambda params: census.native(MECHANISMS, params)[0])
     reached = 0
     sample = offsets("child-only mechanisms", len(families))
     parents = sorted(families)
