@@ -106,11 +106,20 @@ pub(super) struct Stored {
     pub(super) row: PurpleBookPresentation,
 }
 impl Stored {
-    fn search_keys(&self) -> impl Iterator<Item = Cow<'_, str>> {
+    fn product_keys(&self) -> impl Iterator<Item = Cow<'_, str>> {
+        let row = &self.row;
+        [row.name.as_ref(), row.proper_name.as_ref()]
+            .into_iter()
+            .filter(|key| !key.is_empty())
+            .map(Cow::Borrowed)
+            .chain(std::iter::once_with(move || {
+                Cow::Owned(row.bla.to_string())
+            }))
+    }
+
+    fn reference_keys(&self) -> impl Iterator<Item = Cow<'_, str>> {
         let row = &self.row;
         [
-            row.name.as_ref(),
-            row.proper_name.as_ref(),
             row.reference_name.as_ref(),
             row.reference_proper_name.as_ref(),
         ]
@@ -118,14 +127,20 @@ impl Stored {
         .filter(|key| !key.is_empty())
         .map(Cow::Borrowed)
         .chain(
-            std::iter::once(&row.bla)
-                .chain(row.reference_bla.iter())
+            row.reference_bla
+                .iter()
                 .chain(row.reference_bla_candidates.iter())
                 .map(|bla| Cow::Owned(bla.to_string())),
         )
     }
-    pub(super) fn matches(&self, query: &str) -> bool {
-        self.search_keys()
+
+    pub(super) fn matches_product(&self, query: &str) -> bool {
+        self.product_keys()
+            .any(|key| key.eq_ignore_ascii_case(query))
+    }
+
+    pub(super) fn matches_reference(&self, query: &str) -> bool {
+        self.reference_keys()
             .any(|key| key.eq_ignore_ascii_case(query))
     }
 }
@@ -133,7 +148,8 @@ impl Row for Stored {
     fn keys(&self) -> Keys {
         Keys {
             exact: self
-                .search_keys()
+                .product_keys()
+                .chain(self.reference_keys())
                 .map(|key| key.to_ascii_lowercase())
                 .collect::<BTreeSet<_>>()
                 .into_iter()

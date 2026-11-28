@@ -86,7 +86,7 @@ pub struct SnapshotSearch {
     pub notice: SourceNotice,
 }
 
-/// Search by proprietary name, proper name or BLA, including reference links.
+/// Search the reference roster when one exists, otherwise match the product directly.
 pub fn search(leg: &Leg<'_>, query: &DrugSearch) -> Result<SnapshotSearch, RequestError> {
     let input = query.query().map_or("", biodata::Text::as_str);
     let upper = input.to_ascii_uppercase();
@@ -97,10 +97,16 @@ pub fn search(leg: &Leg<'_>, query: &DrugSearch) -> Result<SnapshotSearch, Reque
         upper
     };
     let snapshot = snapshot(leg, &key)?;
+    let has_roster = snapshot.rows.iter().any(|row| row.matches_reference(&key));
+    let matches_key = if has_roster {
+        Stored::matches_reference
+    } else {
+        Stored::matches_product
+    };
     let strength = query.strength().map(|value| strength_key(value.as_str()));
     let device = query.device();
     let matches = snapshot.rows.into_iter().filter(|stored| {
-        stored.matches(&key)
+        matches_key(stored, &key)
             && strength.as_ref().is_none_or(|strength| {
                 stored
                     .row

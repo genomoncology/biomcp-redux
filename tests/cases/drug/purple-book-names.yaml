@@ -1,6 +1,6 @@
 {
   "feature": "drug-purple-book",
-  "story": "A biosimilar name finds its own license and reference product, and a biologic with no biosimilars still has a license.",
+  "story": "Direct matches find biosimilar and standalone licenses. Presentation filters stay within an existing reference roster.",
   "steps": [
     {
       "run": ["search", "drug", "Inflectra", "--source", "purple-book", "--offline"],
@@ -21,6 +21,14 @@
         "/result/items/0/bla": "BLA125514",
         "/result/items/0/designations": [{"license_type": "351(a)", "count": 2}],
         "/result": {"omits": ["references"]}
+      }
+    },
+    {
+      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--strength", "25MG", "--device", "Single-Dose Vial", "--offline"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/items": []
       }
     }
   ]

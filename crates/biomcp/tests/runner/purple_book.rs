@@ -56,9 +56,9 @@ fn import() -> Result<(), Box<dyn std::error::Error>> {
         .pointer("/result/release_month")
         .and_then(Value::as_str)
         != Some("November 2026")
-        || retained.pointer("/page/total").and_then(Value::as_u64) != Some(2)
+        || retained.pointer("/page/total").and_then(Value::as_u64) != Some(1)
         || retained
-            .pointer("/result/items/1/applicant")
+            .pointer("/result/items/0/applicant")
             .and_then(Value::as_str)
             != Some("Samsung Bioepis Co., Ltd.")
     {
