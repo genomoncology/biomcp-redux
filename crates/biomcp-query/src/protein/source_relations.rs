@@ -184,8 +184,14 @@ fn load(
         }
         let result = Saved::fetch(q, &leg);
         let error = result.as_ref().err().copied();
-        out.sources
-            .push(status::source(q.source(), leg.finish(), error));
+        let omitted = if matches!(q, Selection::Domains(_)) && result.is_ok() {
+            unintegrated_notice(&leg, q.accession())
+        } else {
+            None
+        };
+        let mut source = status::source(q.source(), leg.finish(), error);
+        source.notices.extend(omitted);
+        out.sources.push(source);
         let saved = match result {
             Ok(saved) => saved,
             Err(error) => {
@@ -201,4 +207,25 @@ fn load(
         (saved, pool.map(|p| p.info))
     };
     Ok(Some(loaded))
+}
+
+fn unintegrated_notice(
+    leg: &biomcp_fetch::Leg<'_>,
+    id: &UniProtIsoform,
+) -> Option<biomcp_types::SourceNotice> {
+    let count_leg = leg.sibling(&interpro::SPEC);
+    let count = interpro::unintegrated_count(&count_leg, id);
+    let message = match (count, count_leg.finish().stale) {
+        // Existing recordings predate this optional lookup.
+        (Err(RequestError::Recording(biomcp_fetch::RecordError::Missing)), _) | (Ok(0), false) => {
+            return None;
+        }
+        (Ok(count), false) => format!("Omitted {count} unintegrated member-database signatures."),
+        _ => "The count of unintegrated member-database signatures is unavailable.".into(),
+    };
+    Some(biomcp_types::SourceNotice::RequestGuidance {
+        data_date: None,
+        message: message.into(),
+        retry_after_seconds: None,
+    })
 }

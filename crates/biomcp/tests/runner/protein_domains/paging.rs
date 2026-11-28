@@ -73,12 +73,15 @@ pub(super) fn run() -> Result<(), String> {
     {
         return Err("domain walk lost or duplicated matches".into());
     }
-    if stub.finish()?.len() != 2 {
+    if stub.finish()?.len() != 3 {
         return Err("domain retained paging refetched a source page".into());
     }
     Ok(())
 }
 fn reply(request: &str) -> Result<String, String> {
+    if request.contains("/entry/unintegrated/") {
+        return Ok(r#"{"count":0}"#.into());
+    }
     let (rows, next) = if request.contains("cursor=") {
         if !request.contains("cursor=native%7C2")
             || !request.contains("page=1")

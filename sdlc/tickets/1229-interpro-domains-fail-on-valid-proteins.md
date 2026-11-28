@@ -1,6 +1,7 @@
 # 1229 — interpro-domains-fail-on-valid-proteins
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 79fa296cc21d6a2e3569c6f91406c06c55dcdb26
 
 Milestone: 10
 

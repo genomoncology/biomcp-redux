@@ -14,7 +14,10 @@ pub(super) fn healthy(env: &Environment, first: &Value) -> Result<(), String> {
 }
 
 pub(super) fn refused() -> Result<(), String> {
-    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |_| {
+    let stub = Stub::for_source("www.ebi.ac.uk", "application/json", |request| {
+        if request.contains("/entry/unintegrated/") {
+            return Ok(r#"{"count":0}"#.into());
+        }
         Ok(json!({"count":2,"next":null,"previous":null,"results":[
             entry("IPR002117", true), entry("IPR010991", false)
         ]})

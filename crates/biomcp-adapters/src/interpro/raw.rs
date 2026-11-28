@@ -2,11 +2,20 @@ use biodata::InterProId;
 use biomcp_fetch::{BadReply, Reply};
 use serde::Deserialize;
 use std::collections::BTreeMap;
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub(super) struct Page {
     pub count: u64,
     pub next: Option<String>,
     pub results: Vec<Entry>,
+}
+#[derive(Deserialize, serde::Serialize)]
+pub(super) struct Count {
+    pub count: u64,
+}
+impl Reply for Count {
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
 }
 impl Reply for Page {
     fn check(&self) -> Result<(), BadReply> {
