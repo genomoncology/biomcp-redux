@@ -140,7 +140,7 @@ struct Fields {
     status: Option<TrialStatusFilter>,
     #[doc = "Native phase.\n\
         ClinicalTrials.gov: 1–4, early-1, not-applicable, 1/2, 2/3 or PHASE3-style labels. \
-        1–3 match their combined phases. NCI: NA, 0, I, I_II, II, II_III, III, IV."]
+        1–3 include combined phases. NCI: NA, 0, I, I_II, II, II_III, III, IV."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
