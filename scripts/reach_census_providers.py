@@ -2,10 +2,10 @@
 from collections import defaultdict
 import json
 import re
-from urllib.error import HTTPError
+from xml.etree import ElementTree
 
 from gene_validity_reach import probes as validity_probes
-from reach_census_common import Measurement, read, sample_rows, source_page
+from reach_census_common import read, sample_rows, source_page
 
 CTGOV = "https://clinicaltrials.gov/api/v2"
 CPIC = "https://api.cpicpgx.org/v1"
@@ -152,7 +152,7 @@ def wikipathways(census):
 
     def probe(identifier):
         reply = census.reply(("get", "pathway", identifier))
-        return read(reply, "result", "header", "id") == identifier
+        return read(reply, "result", "pathway", "id", "id") == identifier
 
     for label, identifiers in sorted(rows.items()):
         yield label, sample_rows(label, identifiers, probe)
@@ -186,7 +186,15 @@ def interpro(census):
                                       {"page_size": 1})
             total = native["count"] if native is not None else 0
             reply = census.reply(("protein", "domains", accession, "--limit", "1"))
-            return total == (read(reply, "result", "native_total") or 0)
+            mapped = read(reply, "result", "native_total")
+            if database == "interpro":
+                return mapped == total or (total == 0 and reply["status"] == "complete")
+            if total == 0:
+                return True
+            # A member signature is reachable only when the tool returns its own identity.
+            identifier = native["results"][0]["metadata"]["accession"]
+            return any(item.get("accession") == identifier
+                       for item in (read(reply, "result", "items") or []))
 
         yield database, protein_sample(census, "reviewed:true AND organism_id:9606",
                                        database, probe)
@@ -212,3 +220,100 @@ def opentargets(census):
             return read(reply, "result", "identity", "id") == identifier
 
         yield label, sample_rows(label, frame["hits"], probe, frame["total"])
+
+
+def reactome(census):
+    data, _ = census.native("https://reactome.org/download/current/ReactomePathways.txt",
+                            {}, raw=True)
+    groups = defaultdict(list)
+    for line in data.decode().splitlines():
+        identifier, _, species = line.split("\t")
+        groups[species].append(identifier)
+
+    def probe(identifier):
+        reply = census.reply(("get", "pathway", identifier), allow_usage=True)
+        return read(reply, "result", "pathway", "id", "id") == identifier
+
+    for species, identifiers in sorted(groups.items()):
+        yield species, sample_rows(species, identifiers, probe)
+
+
+def clinpgx(census):
+    base = "https://api.clinpgx.org/v1/data/clinicalAnnotation"
+    for level in ("1A", "1B", "2A", "2B", "3", "4"):
+        body, _ = census.native(base, {"levelOfEvidence.term": level, "view": "min"})
+        if body["status"] != "success":
+            raise ValueError("ClinPGx did not return the level collection")
+        rows = body["data"]
+        groups = defaultdict(list)
+        for row in rows:
+            genes = read(row, "location", "genes") or []
+            groups["with-gene" if genes else "without-gene"].append(row)
+
+        def probe(row):
+            identifier = row["accessionId"]
+            reply = census.reply(("get", "pgx", "--annotation-id", identifier,
+                                  "--source", "clinpgx"))
+            return reply["status"] in {"complete", "partial"} and bool(
+                read(reply, "result", "annotation")
+            )
+
+        for group, records in sorted(groups.items()):
+            label = f"clinical/{level}/{group}"
+            yield label, sample_rows(label, records, probe)
+
+
+def gnomad(census):
+    groups = defaultdict(set)
+    # Source totals here are for the selected native gene frame.
+    for gene in ("ENSG00000141510", "ENSG00000157764", "ENSG00000146648",
+                 "ENSG00000133703", "ENSG00000139618", "ENSG00000155657"):
+        payload = json.dumps({"query": """query Variants($id: String!) {
+          gene(gene_id: $id, reference_genome: GRCh38) {
+            variants(dataset: gnomad_r4) { variant_id exome { ac } genome { ac } }
+          }
+        }""", "variables": {"id": gene}}).encode()
+        body, _ = census.native("https://gnomad.broadinstitute.org/api", {},
+                                {"Content-Type": "application/json"}, payload)
+        for row in body["data"]["gene"]["variants"]:
+            identifier = row["variant_id"]
+            chromosome, _, reference, alternate = identifier.split("-")
+            kind = "snv" if len(reference) == len(alternate) == 1 else "other-small-variant"
+            dataset = ("joint" if row["exome"] and row["genome"] else
+                       "exome-only" if row["exome"] else "genome-only")
+            region = "sex-chromosome" if chromosome in {"X", "Y"} else "autosome"
+            groups[f"{region}/{kind}/{dataset}"].add(identifier)
+
+    def probe(identifier):
+        reply = census.reply(("variant", "population", identifier))
+        return bool(read(reply, "result", "datasets"))
+
+    for label, identifiers in sorted(groups.items()):
+        yield label, sample_rows(label, sorted(identifiers), probe)
+
+
+def orphadata(census):
+    census.reply(("sync", "orphadata"), record="orphadata")
+    groups = defaultdict(set)
+    for path in (census.home / "orphadata" / "orphadata").glob("*.json"):
+        capture = json.loads(path.read_text())
+        for exchange in capture["exchanges"]:
+            root = ElementTree.fromstring(exchange["body"]["value"])
+            for disorder in root.findall("./DisorderList/Disorder"):
+                code = disorder.findtext("OrphaCode")
+                kind = disorder.findtext("DisorderType/Name") or "unspecified"
+                if disorder.find("./PrevalenceList/Prevalence") is not None:
+                    groups["prevalence/" + kind].add(code)
+                if disorder.find("./AverageAgeOfOnsetList/AverageAgeOfOnset") is not None:
+                    groups["onset/" + kind].add(code)
+    if not groups:
+        raise ValueError("Orphadata recording contains no disorder classes")
+    for label, codes in sorted(groups.items()):
+        field = label.partition("/")[0]
+
+        def probe(code):
+            reply = census.reply(("get", "disease", f"ORPHA:{code}", "prevalence",
+                                  "--source", "orphadata"), allow_usage=True)
+            return any(item.get(field) for item in (read(reply, "result", "items") or []))
+
+        yield label, sample_rows(label, sorted(codes), probe)

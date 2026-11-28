@@ -164,13 +164,13 @@ def fda(census):
         ("cell-therapy-label", ("get", "drug", "Kymriah", "label",
                                 "--label-section", "boxed_warning"), ("result", "label", "data")),
         ("discontinued-application", ("get", "drug", "NDA021335", "markets", "--source", "drugsfda"),
-         ("result", "markets")),
+         ("result", "markets", 0, "record")),
         ("biosimilar-name", ("search", "drug", "Zarxio", "--source", "purple-book",
                              "--limit", "1"), ("result", "items")),
         ("biosimilar-reference", ("search", "drug", "Neupogen", "--source", "purple-book",
                                   "--limit", "1"), ("result", "items")),
         ("large-pma", ("get", "diagnostic", "P890003", "--source", "fda-pma"),
-         ("result", "header", "id")),
+         ("result", "header", "pma_number")),
     ):
         reply = census.reply(command, record=True)
         reached = int(bool(read(reply, *path)))
@@ -182,6 +182,8 @@ SOURCES = {
     "ctgov": providers.ctgov, "cpic": providers.cpic, "gene-validity": providers.gene_validity,
     "erepo": providers.erepo, "wikipathways": providers.wikipathways, "uniprot": providers.uniprot,
     "interpro": providers.interpro, "opentargets": providers.opentargets,
+    "reactome": providers.reactome, "clinpgx": providers.clinpgx, "gnomad": providers.gnomad,
+    "orphadata": providers.orphadata,
 }
 
 
@@ -189,6 +191,8 @@ def compare(label, measured, floor):
     if floor is None:
         return f"{label}: new source or record class has no recorded floor"
     reached, sampled = floor
+    if not 0 <= reached <= sampled:
+        raise ValueError("invalid recorded floor")
     if measured.reached * sampled < reached * measured.sampled or (
         sampled > 0 and measured.sampled == 0
     ):
@@ -211,7 +215,7 @@ def run(census, sources, floors):
                     failure = compare(label, measured, floors.get(source, {}).get(group))
                     if failure:
                         failures.append(failure)
-        except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+        except (OSError, ValueError, KeyError, TypeError, IndexError, subprocess.SubprocessError) as error:
             # Provider text and exception arguments can contain URLs or credentials.
             failures.append(f"{label}: census incomplete ({type(error).__name__})")
         if floors is not None:

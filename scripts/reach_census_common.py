@@ -44,7 +44,7 @@ class Census:
                 time.sleep(remaining)
         self.last_call = time.monotonic()
 
-    def native(self, url, params, headers=None, payload=None):
+    def native(self, url, params, headers=None, payload=None, *, raw=False):
         self.pace()
         request = Request(url + ("?" + urlencode(params) if params else ""),
                           data=payload, headers=headers or {})
@@ -52,17 +52,20 @@ class Census:
             content = response.read(MAX_SOURCE_BYTES + 1)
             if len(content) > MAX_SOURCE_BYTES:
                 raise ValueError("native reply exceeds the source capture bound")
-            return json.loads(content), response.headers
+            return (content if raw else json.loads(content) if content else None), response.headers
 
     def reply(self, args, record=False, allow_usage=False):
         self.pace()
         command = [self.executable, "--format", "json"]
         if record:
             self.recording += 1
-            command += ["--record", str(self.home / f"recording-{self.recording}" if record is True else self.home / record)]
+            folder = f"recording-{self.recording}" if record is True else record
+            command += ["--record", str(self.home / folder)]
         process = subprocess.run(command + list(args), env=self.environment,
                                  capture_output=True, timeout=120, check=False)
         reply = json.loads(process.stdout)
+        if not isinstance(reply, dict) or "status" not in reply:
+            raise ValueError("malformed BioMCP envelope")
         if process.returncode == 2 and not allow_usage:
             raise ValueError("BioMCP rejected census arguments")
         for source in reply.get("sources", []):
@@ -80,19 +83,22 @@ def offsets(label, total, count=SAMPLE_SIZE):
 
 def read(document, *path):
     for key in path:
-        if not isinstance(document, dict):
+        if isinstance(document, list) and isinstance(key, int) and 0 <= key < len(document):
+            document = document[key]
+        elif isinstance(document, dict):
+            document = document.get(key)
+        else:
             return None
-        document = document.get(key)
     return document
 
 
 def source_page(census, label, fetch, probe):
     """Sample exact native offsets while checking that the reported total is stable."""
-    total, _ = fetch(0)
+    total, first = fetch(0)
     reached = 0
     sample = offsets(label, total)
     for offset in sample:
-        observed, row = fetch(offset)
+        observed, row = (total, first) if offset == 0 else fetch(offset)
         if observed != total or row is None:
             raise ValueError("native population changed during its sample")
         reached += bool(probe(row))
